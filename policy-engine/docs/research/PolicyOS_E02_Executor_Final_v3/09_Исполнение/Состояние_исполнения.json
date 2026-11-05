@@ -11848,7 +11848,7 @@
           "peak_RSS_GB": 1.881,
           "named_inputs": 32,
           "inputs_unchanged": true,
-          "remaining": "Later2legacy fixture fixes, Core canonical width/roundtrip, real N4 conditioning/unit and NL compiler companions UNRUN; N4 extension material review pending. New method-record positive and ordinary POST not qualified. API validator230PASS separately, not Runtime integration."
+          "remaining": "Preflight21PASS and V6 5PASS qualified separately. Corrected full ordinary source-row method positive, ATE2usd/outer[-7,9]/freshAPI/removal remainUNRUN."
         },
         "gdp_candidate_fixture_current": {
           "output": "policy-engine/_cache/e02/annual-gdp/source-2",
@@ -11856,7 +11856,8 @@
             "PASS": 2,
             "FAIL": 0
           },
-          "scope": "Two source/connector prerequisites only; independent5-path source review GO after synthetic64/32/96 counters replace historical usage. Full native GDP UNRUN pending shared candidate action-kind fix and resources; legacy epochR13 remainsFAIL."
+          "scope": "Two source/connector prerequisites only; independent5-path source review GO after synthetic64/32/96 counters replace historical usage. Full native GDP UNRUN pending shared candidate action-kind fix and resources; legacy epochR13 remainsFAIL.",
+          "remaining": "Five-stage provider-preflight-6 PASS, N5=0; review found usage-origin descriptor mismatch for explicit64/32/96 synthetic counters. Default-preserving helper companion pending; legacyL5b35 not closed."
         },
         "hypothetical_retained_fresh_suffix": {
           "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-hypothetical-fresh-suffix-r2",
@@ -11897,6 +11898,118 @@
           "named_inputs": 16,
           "inputs_unchanged": true,
           "scope": "Actual persisted source/action reader + wrongkind/foreignscope. Upstream phase admission/action head are test boundaries; not SQL lease/N5 qualification. Recorded source af3f8d7; later test docstring clarification only."
+        },
+        "candidate_experiment_native_execute_r14": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-candidate-execution-native-r14",
+          "status": "command_failed",
+          "return_code": 1,
+          "wall_seconds": 560.1424149579834,
+          "peak_RSS_bytes": 1933197312,
+          "named_inputs": 83,
+          "inputs_unchanged": true,
+          "scope": "FAIL after source verification; worker failed without useful error_code; exact cause under retained-output diagnosis. Not terminal/N5 PASS.",
+          "diagnostic": "No original dispatch exception retained. Last phase candidate_input_reentry_pending; candidate_input_prepared receipt/source/route exist, no terminal. Source N5 witness not_established/canonical_loaded_runtime_mismatch at decorated ArtifactWriteOptions direct binding is a clue, not proven worker cause; next bounded cause-chain observer must re-raise unchanged."
+        },
+        "candidate_method_served_current": {
+          "output": "policy-engine/_cache/e02/lane01-candidate-value-served-r3",
+          "status": "command_failed",
+          "return_code": 1,
+          "wall_seconds": 79.85688074992504,
+          "peak_RSS_bytes": 2139897856,
+          "named_inputs": 42,
+          "inputs_unchanged": true,
+          "scope": "1PASS source writer/1FAIL served method. Actual POST/N5/persisted refusal reached, observation_manifest_invalid; not a completed native method result."
+        },
+        "ordinary_half_gain_current": {
+          "output": "policy-engine/_cache/e02/lane01-compact-half-gain-native-r4",
+          "status": "command_failed",
+          "return_code": 1,
+          "wall_seconds": 47.8523893749807,
+          "peak_RSS_bytes": 1781972992,
+          "named_inputs": 42,
+          "inputs_unchanged": true,
+          "scope": "1FAIL after actual worker/N5 and exact cost events: blocked-vs-escalate stale expectation under source-bound acquisition/ROI refusal. Later suffix under review.",
+          "latest_change": "Independent Luna full cost/terminal/suffix review GO; final test hashfbbb32e00e98e5374720ad11c432feed5b2624fa57b55cad8d9a898cb2b66d54 remainsruntimeUNRUN. R4 wholecaseFAIL preserved."
+        },
+        "acq01_current": {
+          "output": "policy-engine/_cache/e02/lane01-acq01-route-current-r5",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 2,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 1,
+          "wall_seconds": 67.84250641602557,
+          "peak_RSS_bytes": 1583611904,
+          "named_inputs": 43,
+          "inputs_unchanged": true,
+          "scope": "2FAIL: initial blocked simulation persists artifact despite stale None assertion; compiler scope.geography is scenario_geography, jurisdiction separate. New post-write registry refusal not reached. Outside-checkout scratch prerequisite fixed."
+        },
+        "hypothetical_sibling_full_current": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-hypothetical-sibling-served-r3",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 139.2284105,
+          "peak_RSS_bytes": 1991950336,
+          "named_inputs": 35,
+          "inputs_unchanged": true,
+          "scope": "Full three-atom actual parent N5, pair/third-order samples, positive SE and distinct fresh HTTP reader. Candidate only; G separate."
+        },
+        "cubic_explicit_native_current": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cubic-explicit-native-r2",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 1,
+          "wall_seconds": 229.48534925002605,
+          "peak_RSS_bytes": 1762050048,
+          "named_inputs": 35,
+          "inputs_unchanged": true,
+          "scope": "Wholecase FAIL at late engine_plan[0] assertion; preceding actual16kernel work/pair0/residual1/SE0/fresh GET assertions pass. Persisted engine_plan is mapping; exact profile comparison still required before test repair."
+        },
+        "candidate_method_preflight_current": {
+          "output": "policy-engine/_cache/e02/lane01-candidate-value-preflight-r4",
+          "observed": {
+            "PASS": 21,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 55.202774666948244,
+          "peak_RSS_bytes": 1575501824,
+          "named_inputs": 42,
+          "inputs_unchanged": true,
+          "scope": "21PASS: schema/legacy omission, completed roundtrip,18 ref role/media/profile corruptions, source epoch lineage and actual S3/L1/selector preflight. No full ordinary method/N5 call in this preflight."
+        },
+        "candidate_query_coordinates_current": {
+          "output": "policy-engine/_cache/e02/lane01-candidate-value-coordinates-r3",
+          "observed": {
+            "PASS": 5,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 23.079604416969232,
+          "peak_RSS_bytes": 1631780864,
+          "named_inputs": 32,
+          "inputs_unchanged": true,
+          "scope": "5PASS true V6 current/fresh/historical CAS, plain WMRv1/v2, legacy identity and both actual N4 producers. Not full served method qualification."
+        },
+        "candidate_api_companions_current": {
+          "outputs": "policy-engine/_cache/e02/lane01-candidate-value-generated",
+          "observed": "OpenAPI hardening/legacy omission, both canonical generations, SDK/dashboard typecheck PASS; SDK56PASS; final validator230PASS after mandatory hook style repairs.",
+          "scope": "Zod4 number rejects nonfinite by default; removed deprecated finite() no-op and destructured interval tuple. No lint disables or assertion weakening. Full served method remainsUNRUN."
         }
       },
       "independent_component_reviews": {
@@ -11916,11 +12029,13 @@
         "candidate_generations_api": "Terra coherent/material GO including PostgreSQL source lock, canonical telemetry and omitted/null raw pin preservation. Luna API/SDK/docs GO; full served multigeneration execution remains unqualified.",
         "stable_execution_identity": "Root independent source GO; exact creation-time inputs/scope/manifest and fresh SQL fencing remain load-bearing.",
         "candidate_provenance": "Independent Terra material-delta GO; recorded55 applicable as scoped above; served observed transport verification remains open.",
-        "explicit_n5_profile_axes": "Terra full four-source and material alias-fix GO; native cubic UNRUN."
+        "explicit_n5_profile_axes": "Terra full four-source and material alias-fix GO; native cubic UNRUN.",
+        "candidate_source_row_method": "Terra V6/Core source-lineage GO; independent Luna public projection and final six-role Core ref parity GO; runtime preflight21PASS separate from full method UNRUN.",
+        "ordinary_half_gain_test": "Independent Luna cost/terminal/complete suffix review GO; actual latest test runtime UNRUN, prior R4 FAIL retained."
       },
       "resource_admission_current": {
         "disk_stop_floor_GiB": 3,
-        "free_disk_GiB_at_check": 5.237,
+        "free_disk_GiB_at_check": 9.588,
         "policy": "Local only; existing environments/data; <=8GiB measured aggregate process-tree RSS and <=6 numerical CPU threads. New expensive profiles start alone.",
         "trash_move": {
           "directory": "/Users/deniskopylov/.Trash/PolicyOS-obsolete-test-scratch-20261105T132841Z",
@@ -11956,7 +12071,17 @@
           "trash_emptied_by_executor": false,
           "resume": "User frees disk, then Root measures actual disk/RAM/swap/processes before any E02 work. No automatic replays or next lane."
         },
-        "resumed_admission": "Mac16GiB8CPU;5.2GiBfree;memory_pressure85%free;swap425MiB;no retained numerical processes. Existing profiles/environments preserved;3GiB disk floor remains."
+        "resumed_admission": "Mac16GiB8CPU;about9.2GiBfree;memory_pressure68%free;swap409MiB;two independent frozen AUTHOR numerical jobs plus bounded MAIN jobs,<=4jobs/8GiB measured aggregate and6CPUthreads.",
+        "current_cleanup": {
+          "scratch_leaves": 189,
+          "size_KiB": 5737928,
+          "latest_directory": "/Users/deniskopylov/.Trash/PolicyOS-reproducible-test-scratch-20261105T204203Z",
+          "basis": "Completed obsolete synthetic test scratch only; parent deciding output retained. JUnit-only/changed-input scratch reproducible from source; do not infer qualified runtime proof from that scratch. One absent-output candidate preserved.",
+          "trash_emptied_by_executor": false,
+          "code_docs_environments_unique_production_preserved": true
+        },
+        "execution_state": "PAUSED_BY_USER_END_OF_DAY; current agents/jobs drained naturally; no new agents or test launches. Resume only on user continuation.",
+        "next_session": "Bound acquisition exception/witness diagnosis; parallel preflighted source-row full route and reviewed0.5; full-suffix ACQ01/cubic repairs and GDP usage-origin correction; protected terminal unlocks generations/crash; final composed consumers/66-requirement reconciliation."
       }
     },
     {
@@ -27646,7 +27771,8 @@
       ],
       "evidence": [
         "LANE-01.evidence_catalog.compiler_slot_calendar_planner",
-        "LANE-01.evidence_catalog.installed_req01_r3"
+        "LANE-01.evidence_catalog.installed_req01_r3",
+        "LANE-01.evidence_catalog.candidate_query_coordinates_current"
       ],
       "blockers": [],
       "deferred_ids": []
@@ -27686,7 +27812,8 @@
       "evidence": [
         "LANE-01.evidence_catalog.generic_fiscal_strict_oracle",
         "LANE-01.evidence_catalog.mixed_owner_r1",
-        "LANE-01.evidence_catalog.generic_fiscal_selected_family"
+        "LANE-01.evidence_catalog.generic_fiscal_selected_family",
+        "LANE-01.evidence_catalog.ordinary_half_gain_current"
       ],
       "blockers": [],
       "deferred_ids": [
@@ -27727,7 +27854,9 @@
       "evidence": [
         "LANE-01.evidence_catalog.mixed_owner_r1",
         "LANE-01.evidence_catalog.mixed_affected_r2",
-        "LANE-01.evidence_catalog.mixed_focused_r4"
+        "LANE-01.evidence_catalog.mixed_focused_r4",
+        "LANE-01.evidence_catalog.acq01_current",
+        "LANE-01.evidence_catalog.candidate_experiment_native_execute_r14"
       ],
       "blockers": [],
       "deferred_ids": []
@@ -27764,7 +27893,8 @@
         "TEST-CYC-03-06"
       ],
       "evidence": [
-        "LANE-01.evidence_catalog.mixed_owner_r1"
+        "LANE-01.evidence_catalog.mixed_owner_r1",
+        "LANE-01.evidence_catalog.candidate_experiment_native_execute_r14"
       ],
       "blockers": [],
       "deferred_ids": []
@@ -27801,7 +27931,8 @@
         "TEST-CYC-04-06"
       ],
       "evidence": [
-        "LANE-01.evidence_catalog.mixed_affected_r2"
+        "LANE-01.evidence_catalog.mixed_affected_r2",
+        "LANE-01.evidence_catalog.cyc04_full_served_r7"
       ],
       "blockers": [],
       "deferred_ids": []
@@ -27882,7 +28013,8 @@
       "evidence": [
         "LANE-01.evidence_catalog.generic_fiscal_strict_oracle",
         "LANE-01.evidence_catalog.mixed_owner_r1",
-        "LANE-01.evidence_catalog.generic_fiscal_selected_family"
+        "LANE-01.evidence_catalog.generic_fiscal_selected_family",
+        "LANE-01.evidence_catalog.candidate_method_served_current"
       ],
       "blockers": [],
       "deferred_ids": [
@@ -27918,7 +28050,8 @@
         "TEST-SIM-01-04"
       ],
       "evidence": [
-        "LANE-01.evidence_catalog.numeric_native"
+        "LANE-01.evidence_catalog.numeric_native",
+        "LANE-01.evidence_catalog.hypothetical_sibling_full_current"
       ],
       "blockers": [],
       "deferred_ids": []
@@ -27953,7 +28086,8 @@
         "TEST-SIM-02-05"
       ],
       "evidence": [
-        "LANE-01.evidence_catalog.numeric_native"
+        "LANE-01.evidence_catalog.numeric_native",
+        "LANE-01.evidence_catalog.hypothetical_sibling_full_current"
       ],
       "blockers": [],
       "deferred_ids": []
@@ -27991,7 +28125,9 @@
       ],
       "evidence": [
         "LANE-01.evidence_catalog.numeric_native",
-        "LANE-01.evidence_catalog.numeric_quantile_removal"
+        "LANE-01.evidence_catalog.numeric_quantile_removal",
+        "LANE-01.evidence_catalog.hypothetical_sibling_full_current",
+        "LANE-01.evidence_catalog.cubic_explicit_native_current"
       ],
       "blockers": [],
       "deferred_ids": []
@@ -28027,7 +28163,9 @@
       ],
       "evidence": [
         "LANE-01.evidence_catalog.selection_final",
-        "LANE-01.evidence_catalog.selection_final_catalog_drift"
+        "LANE-01.evidence_catalog.selection_final_catalog_drift",
+        "LANE-01.evidence_catalog.candidate_method_preflight_current",
+        "LANE-01.evidence_catalog.candidate_method_served_current"
       ],
       "blockers": [],
       "deferred_ids": []

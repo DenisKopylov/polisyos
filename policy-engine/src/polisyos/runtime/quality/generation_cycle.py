@@ -2335,6 +2335,16 @@ class ValuePortObservation(_StrictModel):
     """N8 value-port observation; pending is explicit and non-authoritative."""
 
     _candidate_local_failure_issuer: object | None = PrivateAttr(default=None)
+    _candidate_method_run_basis_ref: object | None = PrivateAttr(default=None)
+    _candidate_method_value_ref: object | None = PrivateAttr(default=None)
+    _candidate_method_scope_limitations: tuple[str, ...] = PrivateAttr(default=())
+    _candidate_method_failure_kind: str | None = PrivateAttr(default=None)
+    candidate_value_method_ref: CASArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    candidate_value_method_limitation_code: str | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     status: ValuePortStatus = "value_pending_n8"
     candidate_id: str | None = Field(default=None, min_length=1)
     value_ref: str | None = None
@@ -2375,6 +2385,19 @@ class ValuePortObservation(_StrictModel):
 
     @model_validator(mode="after")
     def _verify_value_authority_shape(self) -> ValuePortObservation:
+        method_ref = self.candidate_value_method_ref
+        if method_ref is not None and (
+            self.status != "value_conditional"
+            or method_ref.kind != "runtime.candidate_value_method"
+            or method_ref.manifest_profile_sha256 is None
+            or method_ref.media_type != "application/json"
+            or self.candidate_value_method_limitation_code is not None
+        ):
+            raise ValueError("candidate_value_method_projection_binding_invalid")
+        if self.candidate_value_method_limitation_code is not None and (
+            self.status != "value_conditional"
+        ):
+            raise ValueError("candidate_value_method_limitation_requires_conditional_n5")
         l1_routing = self.candidate_n5_l1_routing
         if l1_routing is not None:
             binding = l1_routing.requirement_gap.metadata.get("candidate_binding")
@@ -7996,7 +8019,7 @@ class FoundryValuePort:
     def __init__(
         self,
         *,
-        evaluation_context: EvaluationExecutionContext,
+        evaluation_context: EvaluationExecutionContext | None = None,
         eval_safety_verifier: EvalSafetyVerifierPort | None = None,
         owner_gateway: ValueOwnerGateway | None = None,
         data_trust: DataTrust | None = None,
@@ -8044,6 +8067,14 @@ class FoundryValuePort:
         del cycle_index
         candidate_id = _candidate_id(candidate)
         context = self._evaluation_context
+        if context is None:
+            return _blocked_value_observation(
+                code="eval_safety_execution_context_missing",
+                reason="The authority consumer requires an explicit execution context.",
+                mode="simulate_only",
+                started=started,
+                candidate_id=candidate_id,
+            )
         mode = context.evaluation_mode
         if context.evaluator_owner_id != FOUNDRY_VALUE_PORT_EVALUATOR_ID:
             return _blocked_value_observation(
@@ -8215,6 +8246,26 @@ class FoundryValuePort:
                     started=started,
                     candidate_id=candidate_id,
                 )
+        return self._evaluate_source_rows(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            mode=mode,
+            started=started,
+            candidate_id=candidate_id,
+        )
+
+    def _evaluate_source_rows(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: WorldModelRecord,
+        mode: ValueEvaluationMode,
+        started: float,
+        candidate_id: str,
+    ) -> ValuePortObservation:
+        """Use one source-row selection and method producer for admitted consumers."""
         try:
             inputs = self._selection_inputs()
         except ValueError as exc:
@@ -8331,10 +8382,16 @@ class FoundryValuePort:
             # Its own lock excludes mutations until the actual consumer returns.
             stack.enter_context(registry.snapshot_scope())
         except Exception as exc:
+            from polisyos.core.artifacts import raise_artifact_read_access_error
+
             stack.close()
-            return _blocked_value_observation(
-                code="value_method_bound_discovery_unavailable",
-                reason=f"Foundry method discovery could not be bound: {exc}",
+            raise_artifact_read_access_error(exc)
+            return _blocked_value_owner_failure(
+                failure=exc,
+                fallback_code="value_method_bound_discovery_unavailable",
+                fallback_reason_prefix="Foundry method discovery could not be bound: ",
+                candidate=candidate,
+                problem=problem,
                 mode=mode,
                 started=started,
                 candidate_id=candidate_id,
@@ -8372,7 +8429,13 @@ class FoundryValuePort:
                     value_data_profile_content_hash=method_state.content_hash,
                     world_model_record_content_hash=str(world_record.content_hash),
                 )
-            return observation.model_copy(update={"reason": f"{observation.reason} {scope_reason}"})
+            observation = observation.model_copy(
+                update={"reason": f"{observation.reason} {scope_reason}"}
+            )
+            observation._candidate_method_scope_limitations = (
+                "value_method_entrypoint_scope_not_established",
+            )
+            return observation
 
     def _evaluate_bound_value_method(
         self,
@@ -8446,6 +8509,7 @@ class FoundryValuePort:
                 ),
             )
         except (RuntimeError, TypeError, ValueError) as exc:
+            _value_owner_failure_kind(exc)
             failure = str(getattr(exc, "code", None) or exc)
             return _blocked_value_observation(
                 code=(
@@ -8559,6 +8623,7 @@ class FoundryValuePort:
                         schema_version="1.0",
                         inputs=[_value_input_ref(run_basis_ref, role="owner_method_run_basis")],
                         canon_spec=IRCanonSpec(forbid_floats=False),
+                        return_selected_profile=True,
                     )
                 except Exception as exc:
                     return _blocked_value_owner_failure(
@@ -8577,7 +8642,7 @@ class FoundryValuePort:
                             _object_get(world_record, "content_hash")
                         ),
                     )
-                return _blocked_value_observation(
+                observation = _blocked_value_observation(
                     code="candidate_fixture_value_run_not_authority",
                     reason=(
                         "The selected real method and fresh CAS consumer produced a "
@@ -8594,6 +8659,10 @@ class FoundryValuePort:
                     value_data_profile_content_hash=method_state.content_hash,
                     world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
                 )
+
+                observation._candidate_method_run_basis_ref = run_basis_ref
+                observation._candidate_method_value_ref = _value_artifact_ref(outer_ref)
+                return observation
 
         return _blocked_value_observation(
             code="treatment_assignment_not_owner_derived",
@@ -9812,6 +9881,56 @@ class _DefaultSimulationBoundFoundryValuePort:
             generic_source_run_id=self.generic_source_run_id,
         )
         if conditional is not None:
+            if conditional.status == "value_conditional":
+                from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+                from polisyos.core.artifacts import ArtifactUnavailableError
+                from polisyos.runtime.quality.candidate_value_method import (
+                    produce_candidate_value_method,
+                )
+
+                try:
+                    method_ref = produce_candidate_value_method(
+                        port=self,
+                        candidate=candidate,
+                        simulation=simulation,
+                        problem=problem,
+                        conditional=conditional,
+                        cycle_index=cycle_index,
+                    )
+                except (
+                    FileNotFoundError,
+                    ValueError,
+                    CanonicalProfileRefusalError,
+                    ArtifactUnavailableError,
+                ) as exc:
+                    from polisyos.core.artifacts import raise_artifact_read_access_error
+
+                    raise_artifact_read_access_error(exc)
+                    _value_owner_failure_kind(exc)
+                    code = getattr(exc, "code", None)
+                    if isinstance(exc, ValueError) and code is None:
+                        if not str(exc).startswith(
+                            ("candidate_value_method_", "value_owner_", "value_method_")
+                        ):
+                            from pydantic import ValidationError
+
+                            if not isinstance(exc, ValidationError):
+                                raise
+                        else:
+                            code = str(exc)
+                    # Optional source-row refusal cannot erase a verified simulation.
+                    conditional = conditional.model_copy(
+                        update={
+                            "candidate_value_method_limitation_code": str(
+                                code or "candidate_value_method_source_refused"
+                            )
+                        }
+                    )
+                else:
+                    if method_ref is not None:
+                        conditional = conditional.model_copy(
+                            update={"candidate_value_method_ref": method_ref}
+                        )
             return conditional
         if any(
             ref is not None
@@ -14060,6 +14179,7 @@ class GenerationCycleController:
             CycleSubstrateContextJobArtifactV3,
             CycleSubstrateContextJobArtifactV4,
             CycleSubstrateContextJobArtifactV5,
+            CycleSubstrateContextJobArtifactV6,
             VerifiedNLJobScope,
             revalidate_cycle_substrate_context,
         )
@@ -14099,6 +14219,7 @@ class GenerationCycleController:
             CycleSubstrateContextJobArtifactV3,
             CycleSubstrateContextJobArtifactV4,
             CycleSubstrateContextJobArtifactV5,
+            CycleSubstrateContextJobArtifactV6,
         )
         if (
             type(resolved_prior_job) not in supported_prior_jobs
@@ -14420,6 +14541,7 @@ class GenerationCycleController:
             CycleSubstrateContextJobArtifactV3,
             CycleSubstrateContextJobArtifactV4,
             CycleSubstrateContextJobArtifactV5,
+            CycleSubstrateContextJobArtifactV6,
             CycleSubstrateContextOwnerError,
             VerifiedNLJobScope,
         )
@@ -14481,6 +14603,7 @@ class GenerationCycleController:
             CycleSubstrateContextJobArtifactV3,
             CycleSubstrateContextJobArtifactV4,
             CycleSubstrateContextJobArtifactV5,
+            CycleSubstrateContextJobArtifactV6,
         )
         if type(resolved_job) not in supported_job_artifacts:
             raise GenerationCycleError("generation_cycle_context_rebind_owner_readback_untyped")
@@ -15806,12 +15929,12 @@ class GenerationCycleController:
         from polisyos.runtime.quality.cycle_substrate import (
             CycleSubstrateContext,
             CycleSubstrateContextArtifactOwner,
-            CycleSubstrateContextJobArtifactV5,
             CycleSubstrateContextOwnerError,
             VerifiedNLJobScope,
             candidate_cycle_substrate_source_profile_selection,
             cycle_job_design_problem_ref,
             cycle_job_profile_selection_ref,
+            is_candidate_source_profile_context_job_artifact,
             is_supported_cycle_substrate_context_job_artifact,
             revalidate_cycle_substrate_context,
         )
@@ -15899,9 +16022,8 @@ class GenerationCycleController:
             ) from exc
         # Only the exact V5 owner read above replays the selected source recipe.
         # A legacy artifact carrying a source_profile field is not that replay.
-        if (
-            selected_recipe is not None
-            and type(resolved_job) is not CycleSubstrateContextJobArtifactV5
+        if selected_recipe is not None and not is_candidate_source_profile_context_job_artifact(
+            resolved_job
         ):
             raise GenerationCycleError("n4_candidate_source_profile_handoff_recipe_not_established")
         try:
@@ -15939,13 +16061,12 @@ class GenerationCycleController:
         """Persist and re-resolve explicit candidate source-profile intent before N4."""
 
         from polisyos.runtime.quality.cycle_substrate import (
-            CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA,
             CycleSubstrateContextArtifactOwner,
-            CycleSubstrateContextJobArtifactV5,
             CycleSubstrateContextOwnerError,
             VerifiedNLJobScope,
             build_candidate_cycle_substrate_context,
             candidate_cycle_substrate_source_profile_selection,
+            is_candidate_source_profile_context_job_artifact,
             revalidate_cycle_substrate_context,
         )
 
@@ -16014,8 +16135,7 @@ class GenerationCycleController:
                     str(getattr(exc, "code", None) or exc),
                 ) from exc
             if (
-                type(resolved_job) is not CycleSubstrateContextJobArtifactV5
-                or resolved_job.schema_version != CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA
+                not is_candidate_source_profile_context_job_artifact(resolved_job)
                 or resolved_job.problem.model_dump(mode="json") != problem.model_dump(mode="json")
                 or resolved_job.context.model_dump(mode="json")
                 != current_context.model_dump(mode="json")
@@ -16094,8 +16214,7 @@ class GenerationCycleController:
                 verified_nl_job_scope=verified_scope,
             )
             if (
-                type(resolved_job) is not CycleSubstrateContextJobArtifactV5
-                or resolved_job.schema_version != CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA
+                not is_candidate_source_profile_context_job_artifact(resolved_job)
                 or resolved_job.context.source_profile != candidate_context.source_profile
                 or resolved_job.context.content_hash != candidate_context.content_hash
                 or resolved_job.design_problem_ref != candidate_context.design_problem_ref
@@ -22275,6 +22394,42 @@ def _blocked_value_observation(
     )
 
 
+def _value_owner_failure_kind(failure: Exception) -> str:
+    """Classify the complete cause chain; unexpected defects remain errors.
+
+    A validation wrapper cannot relabel an assertion or implementation defect as
+    missing owner data. Only typed validation, availability and dependency
+    failures are admissible candidate refusals.
+    """
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core.artifacts import ArtifactUnavailableError, raise_artifact_read_access_error
+    from polisyos.foundry.methods import UnboundFoundryDiscoveryInputError
+
+    raise_artifact_read_access_error(failure)
+    pending: list[BaseException] = [failure]
+    seen: set[int] = set()
+    kind = "input_refused"
+    while pending:
+        current = pending.pop()
+        if id(current) in seen:
+            continue
+        seen.add(id(current))
+        if isinstance(
+            current, (RuntimeDependencyError, ImportError, UnboundFoundryDiscoveryInputError)
+        ):
+            kind = "environment_unavailable"
+        elif isinstance(current, (ArtifactUnavailableError, FileNotFoundError)):
+            if kind != "environment_unavailable":
+                kind = "not_established"
+        elif not isinstance(current, (ValueError, KeyError, CanonicalProfileRefusalError)):
+            raise current
+        if current.__cause__ is not None:
+            pending.append(current.__cause__)
+        elif not current.__suppress_context__ and current.__context__ is not None:
+            pending.append(current.__context__)
+    return kind
+
+
 def _blocked_value_owner_failure(
     *,
     failure: Exception,
@@ -22291,6 +22446,10 @@ def _blocked_value_owner_failure(
     world_model_record_content_hash: str | None = None,
 ) -> ValuePortObservation:
     """Project typed owner failures without flattening their acquisition meaning."""
+    from polisyos.core.artifacts import raise_artifact_read_access_error
+
+    raise_artifact_read_access_error(failure)
+    failure_kind = _value_owner_failure_kind(failure)
     acquisition_requirement = None
     if isinstance(failure, ValueOwnerAccessError):
         code = failure.code
@@ -22314,7 +22473,7 @@ def _blocked_value_owner_failure(
     else:
         code = fallback_code
         reason = f"{fallback_reason_prefix}{failure}"
-    return _blocked_value_observation(
+    observation = _blocked_value_observation(
         code=code,
         reason=reason,
         mode=mode,
@@ -22326,6 +22485,8 @@ def _blocked_value_owner_failure(
         acquisition_requirement=acquisition_requirement,
         world_model_record_content_hash=world_model_record_content_hash,
     )
+    observation._candidate_method_failure_kind = failure_kind
+    return observation
 
 
 def _value_calibration_receipt(
@@ -25622,7 +25783,10 @@ def _value_manifest_has_exact_inputs(
         return False
     try:
         manifest = get_by_profile(ref.artifact_id, ref.manifest_profile_sha256)
-    except AttributeError, OSError, TypeError, ValueError, KeyError:
+    except (AttributeError, OSError, TypeError, ValueError, KeyError) as exc:
+        from polisyos.core.artifacts import raise_artifact_read_access_error
+
+        raise_artifact_read_access_error(exc)
         return False
     inputs = getattr(manifest, "inputs", None)
     if not isinstance(inputs, Sequence) or isinstance(inputs, str | bytes | bytearray):

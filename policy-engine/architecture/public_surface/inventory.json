@@ -2063,8 +2063,8 @@
         {
           "module": "polisyos.core.contracts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 801,
-          "known_export_count": 801,
+          "export_count": 802,
+          "known_export_count": 802,
           "exports": [
             "FetchPlan",
             "IngestionExecutionContext",
@@ -2706,6 +2706,7 @@
             "RunCandidateSimulationRetainedEvaluation",
             "RunCandidateSimulationN5Observation",
             "RunCandidateSimulationProjection",
+            "RunCandidateValueMethodProjection",
             "RunDetails",
             "RunConditionalTransportCandidateProjection",
             "RunDetailsResponse",
@@ -2892,8 +2893,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 82666,
-                "sha256": "4cbff36b63ebed25b754d7e82d04c45f141cea299d51b6e21783f154b7d0f413"
+                "bytes": 82795,
+                "sha256": "a04376d39356016d75d6bc09f855ee73bc3ab7211c97c5b5c035d702d224f2e3"
               },
               {
                 "path": "src/polisyos/core/contracts",
@@ -18989,6 +18990,12 @@
               },
               {
                 "path": "src/polisyos/runtime/quality/candidate_source_reentry_history.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/candidate_value_method.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true

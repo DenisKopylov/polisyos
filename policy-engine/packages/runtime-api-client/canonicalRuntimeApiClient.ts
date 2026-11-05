@@ -589,6 +589,8 @@ export type DataSnapshotRefOutput =
 export type DataSourceBinding =
   RuntimeApiComponents["schemas"]["DataSourceBinding"];
 
+export type DataTrust = RuntimeApiComponents["schemas"]["DataTrust"];
+
 export type DataViewRequestRef =
   RuntimeApiComponents["schemas"]["DataViewRequestRef"];
 
@@ -1599,6 +1601,9 @@ export type RunCandidateSimulationRetainedEvaluation =
 export type RunCandidateSourceCurrentProjection =
   RuntimeApiComponents["schemas"]["RunCandidateSourceCurrentProjection"];
 
+export type RunCandidateValueMethodProjection =
+  RuntimeApiComponents["schemas"]["RunCandidateValueMethodProjection"];
+
 export type RunCompareResponse =
   RuntimeApiComponents["schemas"]["RunCompareResponse"];
 
@@ -1966,6 +1971,8 @@ export type ValidationError =
 
 export type ValueGatePayload =
   RuntimeApiComponents["schemas"]["ValueGatePayload"];
+
+export type ValueOuterSet = RuntimeApiComponents["schemas"]["ValueOuterSet"];
 
 export type ValueRefusalCode =
   RuntimeApiComponents["schemas"]["ValueRefusalCode"];

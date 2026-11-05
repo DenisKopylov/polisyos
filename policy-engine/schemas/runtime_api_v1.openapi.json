@@ -13462,6 +13462,81 @@
         "title": "DataSourceBinding",
         "type": "object"
       },
+      "DataTrust": {
+        "additionalProperties": false,
+        "description": "L5 trust-tier content used by value promotion and substrate registration.",
+        "properties": {
+          "authority_ref": {
+            "minLength": 1,
+            "title": "Authority Ref",
+            "type": "string"
+          },
+          "max_coverage": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Coverage"
+          },
+          "min_coverage": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Coverage"
+          },
+          "promotion_floor": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promotion Floor"
+          },
+          "tier": {
+            "minLength": 1,
+            "title": "Tier",
+            "type": "string"
+          },
+          "trust_cap": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Trust Cap",
+            "type": "number"
+          },
+          "trust_multiplier": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Trust Multiplier",
+            "type": "number"
+          }
+        },
+        "required": [
+          "tier",
+          "trust_cap",
+          "trust_multiplier",
+          "authority_ref"
+        ],
+        "title": "DataTrust",
+        "type": "object"
+      },
       "DataViewRequestRef": {
         "additionalProperties": false,
         "description": "Artifact reference for the original Fabric data-view request payload.",
@@ -31734,6 +31809,15 @@
         "additionalProperties": false,
         "description": "Represent the target variable the value gate will estimate.",
         "properties": {
+          "conditioning_variables": {
+            "description": "Explicit candidate query conditioning, not an identified adjustment set.",
+            "items": {
+              "pattern": "^[a-z][a-z0-9_.]*$",
+              "type": "string"
+            },
+            "title": "Conditioning Variables",
+            "type": "array"
+          },
           "direction": {
             "default": "maximize",
             "enum": [
@@ -31749,10 +31833,36 @@
             "title": "Estimand",
             "type": "string"
           },
+          "measurement_unit": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Declared outcome unit; an atom binds it only to the exact world-slot owner.",
+            "title": "Measurement Unit"
+          },
           "metric_id": {
             "pattern": "^[a-z][a-z0-9_]*$",
             "title": "Metric Id",
             "type": "string"
+          },
+          "query_coordinate_status": {
+            "anyOf": [
+              {
+                "const": "candidate_proposed_unverified",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Proposed query coordinates do not establish agreement with user intent.",
+            "title": "Query Coordinate Status"
           },
           "target_variable": {
             "pattern": "^[a-z][a-z0-9_]*$",
@@ -41123,6 +41233,225 @@
         "title": "RunCandidateSourceCurrentProjection",
         "type": "object"
       },
+      "RunCandidateValueMethodProjection": {
+        "additionalProperties": false,
+        "description": "Source-row method evidence alongside a separately qualified simulation.",
+        "properties": {
+          "assignment_provenance": {
+            "const": "consumer_asserted",
+            "default": "consumer_asserted",
+            "title": "Assignment Provenance",
+            "type": "string"
+          },
+          "authority_purpose": {
+            "const": "candidate_source_rows_only",
+            "default": "candidate_source_rows_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "discovery_limitations": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Discovery Limitations",
+            "type": "array"
+          },
+          "failure_kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "input_refused",
+                  "environment_unavailable",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Kind"
+          },
+          "limitation_codes": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Limitation Codes",
+            "type": "array"
+          },
+          "measurement_unit": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measurement Unit"
+          },
+          "method_selection_receipt_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "native_report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "point_estimate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Point Estimate"
+          },
+          "production_value_eligible": {
+            "const": false,
+            "default": false,
+            "title": "Production Value Eligible",
+            "type": "boolean"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "record_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "run_basis_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "selected_method_fqn": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Method Fqn"
+          },
+          "source_request_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_time_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Source Time Status",
+            "type": "string"
+          },
+          "statistical_interval": {
+            "anyOf": [
+              {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statistical Interval"
+          },
+          "status": {
+            "enum": [
+              "completed",
+              "refused",
+              "not_established"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "value_outer_set": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ValueOuterSet"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "limitation_codes"
+        ],
+        "title": "RunCandidateValueMethodProjection",
+        "type": "object"
+      },
       "RunCompareResponse": {
         "additionalProperties": false,
         "description": "Response envelope returned by the run comparison endpoint.",
@@ -42617,6 +42946,16 @@
             "minLength": 1,
             "title": "Candidate Id",
             "type": "string"
+          },
+          "candidate_value_method": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateValueMethodProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "child_profile_family_ref": {
             "anyOf": [
@@ -50307,6 +50646,163 @@
         "title": "ValueGatePayload",
         "type": "object"
       },
+      "ValueOuterSet": {
+        "additionalProperties": false,
+        "description": "Canonical typed carrier for set-valued value over policy-design worlds.\n\nOptional statistical endpoints preserve an estimator's reported uncertainty\nseparately from the identification set. They are descriptive evidence only:\nidentification, comparison, and promotion continue to use ``lower`` and\n``upper``.",
+        "properties": {
+          "assumption_status": {
+            "enum": [
+              "declared",
+              "externally_supported",
+              "stress_tested",
+              "violated",
+              "out_of_scope"
+            ],
+            "title": "Assumption Status",
+            "type": "string"
+          },
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Assumptions",
+            "type": "array"
+          },
+          "calibration_scope": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Calibration Scope",
+            "type": "object"
+          },
+          "coordinates": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Coordinates",
+            "type": "array"
+          },
+          "data_trust": {
+            "$ref": "#/components/schemas/DataTrust"
+          },
+          "epoch": {
+            "minLength": 1,
+            "title": "Epoch",
+            "type": "string"
+          },
+          "identification_status": {
+            "enum": [
+              "point",
+              "partial",
+              "proxy",
+              "blocked"
+            ],
+            "title": "Identification Status",
+            "type": "string"
+          },
+          "lower": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Lower",
+            "type": "array"
+          },
+          "representation": {
+            "enum": [
+              "interval_box",
+              "polytope_support_functions",
+              "scenario_set",
+              "unknown"
+            ],
+            "title": "Representation",
+            "type": "string"
+          },
+          "representation_status": {
+            "enum": [
+              "certified",
+              "search_only",
+              "unknown"
+            ],
+            "title": "Representation Status",
+            "type": "string"
+          },
+          "solver_time_budget_ms": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Solver Time Budget Ms"
+          },
+          "statistical_lower": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Source-reported statistical interval lower endpoints, separate from identification bounds and not used to authorize promotion.",
+            "title": "Statistical Lower"
+          },
+          "statistical_upper": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Source-reported statistical interval upper endpoints, separate from identification bounds and not used to authorize promotion.",
+            "title": "Statistical Upper"
+          },
+          "upper": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Upper",
+            "type": "array"
+          },
+          "width": {
+            "description": "Return derived interval widths per coordinate.",
+            "items": {
+              "type": "number"
+            },
+            "readOnly": true,
+            "title": "Width",
+            "type": "array"
+          },
+          "world_model_record_ref": {
+            "minLength": 1,
+            "title": "World Model Record Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "representation",
+          "identification_status",
+          "assumption_status",
+          "data_trust",
+          "world_model_record_ref",
+          "epoch",
+          "representation_status",
+          "width"
+        ],
+        "title": "ValueOuterSet",
+        "type": "object"
+      },
       "ValueRefusalCode": {
         "description": "Why a value is refused. Every code is a property of the VALUE, never of effort.",
         "enum": [
@@ -50820,6 +51316,15 @@
         "additionalProperties": false,
         "description": "Nested v3 outcome contract for exact qualified canonical identifiers.",
         "properties": {
+          "conditioning_variables": {
+            "description": "Explicit candidate query conditioning, not an identified adjustment set.",
+            "items": {
+              "pattern": "^[a-z][a-z0-9_.]*$",
+              "type": "string"
+            },
+            "title": "Conditioning Variables",
+            "type": "array"
+          },
           "direction": {
             "default": "maximize",
             "enum": [
@@ -50835,10 +51340,36 @@
             "title": "Estimand",
             "type": "string"
           },
+          "measurement_unit": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Declared outcome unit; an atom binds it only to the exact world-slot owner.",
+            "title": "Measurement Unit"
+          },
           "metric_id": {
             "pattern": "^[a-z][a-z0-9_]*$",
             "title": "Metric Id",
             "type": "string"
+          },
+          "query_coordinate_status": {
+            "anyOf": [
+              {
+                "const": "candidate_proposed_unverified",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Proposed query coordinates do not establish agreement with user intent.",
+            "title": "Query Coordinate Status"
           },
           "target_variable": {
             "pattern": "^[a-z][a-z0-9_.]*$",

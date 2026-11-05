@@ -3723,12 +3723,292 @@ const runGenericCycleSimulationChildProfileBindingSchema = z
     }
   });
 
+const candidateValueMethodFiniteNumberSchema = z.number();
+
+const candidateValueMethodDataTrustSchema = z
+  .object({
+    authority_ref: z.string().min(1),
+    max_coverage: z.number().min(0).max(1).nullable().optional(),
+    min_coverage: z.number().min(0).max(1).nullable().optional(),
+    promotion_floor: z.number().min(0).max(1).nullable().optional(),
+    tier: z.string().min(1),
+    trust_cap: z.number().min(0).max(1),
+    trust_multiplier: z.number().min(0).max(1),
+  })
+  .strict()
+  .superRefine((trust, context) => {
+    if (
+      trust.min_coverage != null &&
+      trust.max_coverage != null &&
+      trust.min_coverage > trust.max_coverage
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["min_coverage"],
+        message: "candidate_value_method_data_trust_coverage_range_invalid",
+      });
+    }
+  });
+
+const candidateValueMethodOuterSetSchema = z
+  .object({
+    assumption_status: z.enum([
+      "declared",
+      "externally_supported",
+      "stress_tested",
+      "violated",
+      "out_of_scope",
+    ]),
+    assumptions: z.array(z.string()).default([]),
+    calibration_scope: z.record(z.string(), z.string()).default({}),
+    coordinates: z.array(z.string()).default([]),
+    data_trust: candidateValueMethodDataTrustSchema,
+    epoch: z.string().min(1),
+    identification_status: z.enum(["point", "partial", "proxy", "blocked"]),
+    lower: z.array(candidateValueMethodFiniteNumberSchema).default([]),
+    representation: z.enum([
+      "interval_box",
+      "polytope_support_functions",
+      "scenario_set",
+      "unknown",
+    ]),
+    representation_status: z.enum(["certified", "search_only", "unknown"]),
+    solver_time_budget_ms: z.number().int().nonnegative().nullable().optional(),
+    statistical_lower: z
+      .array(candidateValueMethodFiniteNumberSchema)
+      .nullable()
+      .optional(),
+    statistical_upper: z
+      .array(candidateValueMethodFiniteNumberSchema)
+      .nullable()
+      .optional(),
+    upper: z.array(candidateValueMethodFiniteNumberSchema).default([]),
+    width: z.array(candidateValueMethodFiniteNumberSchema),
+    world_model_record_ref: z.string().min(1),
+  })
+  .strict()
+  .superRefine((valueSet, context) => {
+    const hasStatisticalLower = valueSet.statistical_lower != null;
+    const hasStatisticalUpper = valueSet.statistical_upper != null;
+    if (valueSet.representation !== "interval_box") {
+      if (
+        valueSet.lower.length > 0 ||
+        valueSet.upper.length > 0 ||
+        hasStatisticalLower ||
+        hasStatisticalUpper ||
+        valueSet.coordinates.length > 0 ||
+        valueSet.width.length > 0
+      ) {
+        context.addIssue({
+          code: "custom",
+          message: "candidate_value_method_non_interval_set_payload_invalid",
+        });
+      }
+      return;
+    }
+
+    if (
+      valueSet.lower.length === 0 ||
+      valueSet.upper.length === 0 ||
+      valueSet.coordinates.length === 0 ||
+      valueSet.lower.length !== valueSet.upper.length ||
+      valueSet.lower.length !== valueSet.coordinates.length ||
+      valueSet.lower.some((lower, index) => lower > valueSet.upper[index]!)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["lower"],
+        message: "candidate_value_method_interval_box_bounds_invalid",
+      });
+      return;
+    }
+
+    const expectedWidths = valueSet.lower.map((lower, index) =>
+      Math.max(0, valueSet.upper[index]! - lower),
+    );
+    if (
+      valueSet.width.length !== expectedWidths.length ||
+      valueSet.width.some(
+        (width, index) => Math.abs(width - expectedWidths[index]!) > 1e-12,
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["width"],
+        message: "candidate_value_method_interval_box_width_invalid",
+      });
+    }
+    if (
+      hasStatisticalLower !== hasStatisticalUpper ||
+      (hasStatisticalLower &&
+        (valueSet.statistical_lower!.length !== valueSet.coordinates.length ||
+          valueSet.statistical_upper!.length !== valueSet.coordinates.length ||
+          valueSet.statistical_lower!.some(
+            (lower, index) => lower > valueSet.statistical_upper![index]!,
+          )))
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["statistical_lower"],
+        message: "candidate_value_method_statistical_bounds_invalid",
+      });
+    }
+    if (
+      valueSet.identification_status === "point" &&
+      expectedWidths.some((width) => width > 1e-9)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["identification_status"],
+        message: "candidate_value_method_point_set_not_tight",
+      });
+    }
+    if (
+      valueSet.identification_status === "proxy" &&
+      expectedWidths.every((width) => width <= 1e-9)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["identification_status"],
+        message: "candidate_value_method_proxy_set_not_bounded",
+      });
+    }
+  });
+
+const runCandidateValueMethodProjectionSchema = z
+  .object({
+    assignment_provenance: z.literal("consumer_asserted"),
+    authority_purpose: z.literal("candidate_source_rows_only"),
+    discovery_limitations: z.array(z.string()).default([]),
+    failure_kind: z
+      .enum(["input_refused", "environment_unavailable", "not_established"])
+      .nullable()
+      .optional(),
+    limitation_codes: z.array(z.string()).min(1),
+    measurement_unit: z.string().min(1).nullable().optional(),
+    method_selection_receipt_ref: coreArtifactRefSchema.nullable().optional(),
+    native_report_ref: coreArtifactRefSchema.nullable().optional(),
+    point_estimate: candidateValueMethodFiniteNumberSchema
+      .nullable()
+      .optional(),
+    production_value_eligible: z.literal(false),
+    publication_authority: z.literal(false),
+    reason: z.string().nullable().optional(),
+    record_ref: coreArtifactRefSchema.nullable().optional(),
+    run_basis_ref: coreArtifactRefSchema.nullable().optional(),
+    selected_method_fqn: z.string().nullable().optional(),
+    source_request_ref: coreArtifactRefSchema.nullable().optional(),
+    source_time_status: z.literal("not_established"),
+    statistical_interval: z
+      .tuple([
+        candidateValueMethodFiniteNumberSchema,
+        candidateValueMethodFiniteNumberSchema,
+      ])
+      .nullable()
+      .optional(),
+    status: z.enum(["completed", "refused", "not_established"]),
+    value_outer_set: candidateValueMethodOuterSetSchema.nullable().optional(),
+    value_ref: coreArtifactRefSchema.nullable().optional(),
+  })
+  .strict()
+  .superRefine((method, context) => {
+    const selectedRefs = [
+      ["record_ref", method.record_ref, "runtime.candidate_value_method"],
+      [
+        "source_request_ref",
+        method.source_request_ref,
+        "runtime.value_owner_source_projection_request",
+      ],
+      [
+        "run_basis_ref",
+        method.run_basis_ref,
+        "runtime.value_owner_method_run_basis",
+      ],
+      [
+        "value_ref",
+        method.value_ref,
+        "runtime.value_outer_set_candidate_fixture",
+      ],
+      [
+        "native_report_ref",
+        method.native_report_ref,
+        "ir.causal_effect_report",
+      ],
+      [
+        "method_selection_receipt_ref",
+        method.method_selection_receipt_ref,
+        "runtime.value_owner_method_selection_receipt",
+      ],
+    ] as const;
+    for (const [field, ref, expectedKind] of selectedRefs) {
+      if (ref == null) continue;
+      if (
+        ref.kind !== expectedKind ||
+        ref.media_type !== "application/json" ||
+        ref.manifest_profile_sha256 == null
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: [field],
+          message: "candidate_value_method_selected_ref_invalid",
+        });
+      }
+    }
+
+    if (method.status === "completed") {
+      for (const [field, ref] of selectedRefs) {
+        if (ref == null) {
+          context.addIssue({
+            code: "custom",
+            path: [field],
+            message: "candidate_value_method_completed_binding_missing",
+          });
+        }
+      }
+      if (
+        method.value_outer_set == null ||
+        !method.selected_method_fqn ||
+        !method.measurement_unit ||
+        method.point_estimate == null ||
+        method.statistical_interval == null
+      ) {
+        context.addIssue({
+          code: "custom",
+          message: "candidate_value_method_completed_binding_missing",
+        });
+      }
+    } else if (
+      method.value_outer_set != null ||
+      method.point_estimate != null ||
+      method.statistical_interval != null
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "candidate_value_method_unverified_output_present",
+      });
+    }
+
+    if (method.statistical_interval != null) {
+      const [lower, upper] = method.statistical_interval;
+      if (lower > upper) {
+        context.addIssue({
+          code: "custom",
+          path: ["statistical_interval"],
+          message: "candidate_value_method_statistical_interval_invalid",
+        });
+      }
+    }
+  });
+
 const runGenericCycleSimulationN5ObservationSchema = z
   .object({
     atom_ids: z.array(z.string()).default([]),
     authority_blockers: z.array(z.string()).default([]),
     authority_purpose: z.literal("cycle_input_candidate_only"),
     candidate_id: z.string().min(1),
+    candidate_value_method: runCandidateValueMethodProjectionSchema
+      .nullable()
+      .optional(),
     child_profile_family_ref: runGenericCycleSimulationArtifactRefSchema
       .nullable()
       .optional(),
@@ -3826,6 +4106,16 @@ const runGenericCycleSimulationN5ObservationSchema = z
       observation,
       context,
     );
+    if (
+      observation.candidate_value_method != null &&
+      observation.n8_status !== "value_conditional"
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["candidate_value_method"],
+        message: "run_candidate_value_method_requires_conditional_n5",
+      });
+    }
     const expectedNodeRef =
       "design-problem://" +
       observation.design_problem_ref.slice("sha256:".length);

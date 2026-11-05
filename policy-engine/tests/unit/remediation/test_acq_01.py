@@ -10,7 +10,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 import pytest
 
@@ -47,6 +47,7 @@ from polisyos.runtime.quality.acquisition_planner import (
 from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
 from polisyos.runtime.quality.data_forge_binding import MeasurementRootExecutionBinding
 from polisyos.runtime.quality.design_problem import (
+    DESIGN_PROBLEM_V3_SCHEMA_VERSION,
     CandidateLever,
     CandidateLeverSpace,
     DesignObjective,
@@ -78,6 +79,18 @@ from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetSt
 REPO_ROOT = Path(os.environ.get("POLISYOS_TEST_REPO_ROOT", Path(__file__).resolve().parents[3]))
 _ACQ01_ROUTE_STORE_UNSPECIFIED = object()
 _ACQ01_ROUTE_VALUE_PORT_UNSPECIFIED = object()
+
+
+class _RecordingN5Controller(n5_horizon.JointSimulationHorizonController):
+    """Record requests while retaining the canonical N5 controller lifecycle."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.requests: list[Any] = []
+
+    def run(self, request: Any) -> Any:
+        self.requests.append(request)
+        return super().run(request)
 
 
 class _BaseOnlyArtifactStore:
@@ -164,6 +177,12 @@ def _assert_n7_has_no_grounding_result(
     receipt: Mapping[str, Any],
     *,
     cycle: Any,
+    expected_grounding_status: Literal["grounding_unavailable", "grounding_gap"] = (
+        "grounding_unavailable"
+    ),
+    expected_cycle_grounding_issue_codes: tuple[str, ...] = (
+        "generation_result_problem_scope_unestablished",
+    ),
 ) -> None:
     """Keep owner writes distinct from both receipt and re-entry grounding."""
 
@@ -171,8 +190,8 @@ def _assert_n7_has_no_grounding_result(
     rows = receipt["grounding_rederivations"]
     assert len(rows) == 1
     assert tuple(rows[0]["issue_codes"]) == ("generation_result_problem_scope_unestablished",)
-    assert cycle.grounding.status == "grounding_unavailable"
-    assert tuple(cycle.grounding.issue_codes) == ("generation_result_problem_scope_unestablished",)
+    assert cycle.grounding.status == expected_grounding_status
+    assert tuple(cycle.grounding.issue_codes) == expected_cycle_grounding_issue_codes
 
 
 def _problem(
@@ -626,14 +645,18 @@ def test_n7_reentry_candidate_is_accepted_by_real_n5_request_builder(
             "joint_simulation_horizon": {"start": 0, "end": 1, "step": 1},
         },
     )
-    registry = _fixture_world_registry()
+    registry = _fixture_world_registry(include_candidate_l2=True)
+    selected_l2_hashes = tuple(
+        entry.entry_content_hash for entry in registry.entries if entry.layer is SubstrateLayer.L2
+    )
+    assert len(selected_l2_hashes) == 1
     world = generation_cycle_module._build_boundary_world_model_record(
         repo_root=REPO_ROOT,
         problem=problem,
         outcome="firm_survival",
         policy_slot_ids=("fixture_panel",),
         substrate_registry=registry,
-        selected_registry_entry_hashes=(registry.entries[0].entry_content_hash,),
+        selected_registry_entry_hashes=selected_l2_hashes,
     )
     candidate = _fixture_candidate(problem, world_ref=world.world_model_record_id)
     port = JointSimulationPort(repo_root=REPO_ROOT)
@@ -730,13 +753,48 @@ def _fixture_registration(*, source_id: str, snapshot_id: str) -> SubstrateRegis
     )
 
 
-def _fixture_world_registry() -> Any:
+def _fixture_world_registry(*, include_candidate_l2: bool = False) -> Any:
     baseline = _fixture_registration(
         source_id="baseline.fixture_panel",
         snapshot_id="baseline:fixture_panel",
     )
+    entries = [build_substrate_registry_entry(baseline)]
+    if include_candidate_l2:
+        candidate_prior = SubstrateRegistration(
+            source_id="candidate.acq01.fixture_panel_l2",
+            family_id="fixture_panel_causal_prior_candidate",
+            layer=SubstrateLayer.L2,
+            coverage=SubstrateCoverage(
+                coverage_score=0.0,
+                coverage_kind="acq01.explicit_candidate_l2_prior",
+                coverage_rule_ref="test://coverage/acq-01/candidate-l2-not-authority",
+                dataset_count=0,
+                metric_binding_count=0,
+                observation_count=0,
+            ),
+            trust_tier=SubstrateTrustTier(
+                tier="candidate_only",
+                trust_cap=0.0,
+                trust_multiplier=0.0,
+                min_coverage=0.0,
+                max_coverage=1.0,
+                authority_ref="test://authority/acq-01/candidate-l2-not-authority",
+            ),
+            identification_mode="causal_prior_candidate",
+            schema_regime=SubstrateSchemaRegime(
+                schema_regime_id="acq01_candidate_l2_fixture_v1",
+                authority_ref="test://schema/acq-01/candidate-l2-not-authority",
+                source_version="fixture-v1",
+            ),
+            data_version="acq01-candidate-l2-fixture-v1",
+            snapshot_id="acq01-candidate-l2-fixture-v1",
+            source_snapshot_id="acq01-candidate-l2-fixture-v1",
+            provenance_refs=("test://acq-01/candidate-l2-prior",),
+            authority_refs=("test://acq-01/candidate-l2-not-authority",),
+        )
+        entries.append(build_substrate_registry_entry(candidate_prior))
     return build_substrate_registry(
-        (build_substrate_registry_entry(baseline),),
+        tuple(entries),
         producer_ref="tests.unit.remediation.test_acq_01",
         source_catalog_refs=("test://acq-01/fixture-catalog",),
     )
@@ -798,6 +856,7 @@ def _published_worldbank_owner(
     monkeypatch: pytest.MonkeyPatch,
     *,
     artifact_store: ArtifactStore,
+    geography: str = "DE",
 ) -> Iterator[Any]:
     """Resolve and fetch the publisher fixture's own synthetic WDI observations."""
     from polisyos.core.contracts.control import DataNeed, DataResolveRequest
@@ -933,7 +992,7 @@ def _published_worldbank_owner(
                     )
                     need = DataNeed(
                         metric="gdp_per_capita",
-                        geography="DE",
+                        geography=geography,
                         time_start="2020",
                         time_end="2020",
                         granularity="annual",
@@ -997,6 +1056,8 @@ def _real_acq01_route(
     prior_context: Any | None = None,
     selected_metric: str | None = None,
     selected_owner: Any | None = None,
+    data_spec_override: DataRequirementSpec | None = None,
+    world_model_scope: Mapping[str, str] | None = None,
 ) -> Any:
     """Build one recorded WorldBank route through the existing owners.
 
@@ -1044,13 +1105,21 @@ def _real_acq01_route(
     )
 
     family = selected_metric if selected_metric is not None else "metric.test"
-    data_spec = _fixture_data_requirement_spec().model_copy(
-        update={
-            "requirement_id": requirement_ref,
-            "claim_id": f"claim:{requirement_ref.removeprefix('data-requirement:')}",
-            "required_data_families": (family,),
-        }
-    )
+    if data_spec_override is None:
+        data_spec = _fixture_data_requirement_spec().model_copy(
+            update={
+                "requirement_id": requirement_ref,
+                "claim_id": f"claim:{requirement_ref.removeprefix('data-requirement:')}",
+                "required_data_families": (family,),
+            }
+        )
+    else:
+        if (
+            data_spec_override.requirement_id != requirement_ref
+            or data_spec_override.required_data_families != (family,)
+        ):
+            raise ValueError("acq01_fixture_compiled_data_spec_binding_mismatch")
+        data_spec = data_spec_override.model_copy(deep=True)
     if prior_context is not None:
         from polisyos.runtime.quality.cycle_substrate import revalidate_cycle_substrate_context
 
@@ -1237,16 +1306,27 @@ def _real_acq01_route(
         )
         if not set(target_world_slots).issubset(policy_slots):
             raise ValueError("acq01_fixture_target_not_in_prior_world")
-        region = prior_world.region_or_jurisdiction if prior_world is not None else "UA-30"
+        scope_overrides = world_model_scope or {}
+        region = (
+            prior_world.region_or_jurisdiction
+            if prior_world is not None
+            else scope_overrides.get("region_or_jurisdiction", "UA-30")
+        )
         population = (
             prior_world.population_scope
             if prior_world is not None
-            else "recorded_file_tabular_fixture"
+            else scope_overrides.get("population_scope", "recorded_file_tabular_fixture")
         )
-        domain = prior_world.policy_domain if prior_world is not None else "fiscal_credit"
+        domain = (
+            prior_world.policy_domain
+            if prior_world is not None
+            else scope_overrides.get("policy_domain", "fiscal_credit")
+        )
         valid_time = (
             prior_world.valid_time_scope if prior_world is not None else "2026-09-22/2026-09-22"
         )
+        if prior_world is None:
+            valid_time = scope_overrides.get("valid_time_scope", valid_time)
         tx_time = (
             prior_world.tx_time_scope if prior_world is not None else "2026-09-22T00:00:00+00:00"
         )
@@ -1373,6 +1453,9 @@ def _real_acq01_route(
         )
         yield SimpleNamespace(
             data_spec=data_spec,
+            source_requirement=source_requirement,
+            plan=owner.plan,
+            data_need=getattr(owner, "data_need", None),
             owner_artifact=owner_artifact,
             store=store,
             measurement_root=measurement_root,
@@ -1480,7 +1563,7 @@ def test_acq01_published_wdi_fetch_produces_same_job_measurement_root(
         update={
             "jurisdiction_time": problem.jurisdiction_time.model_copy(
                 update={"region": "DE", "data_time": "2020"}
-            )
+            ),
         }
     )
     tenant_id, cell_id = "tenant-fixture", "cell-fixture"
@@ -1717,16 +1800,62 @@ def _real_acq01_before_context(
     problem: DesignProblem,
     *,
     artifact_store: Any | None = None,
+    additional_policy_slot_ids: tuple[str, ...] = (),
+    world_model_scope: Mapping[str, str] | None = None,
 ) -> Any:
     """Build the content-bound pre-acquisition context from existing owners."""
 
+    from polisyos.runtime.quality.world_model_record import build_world_model_record
     from tests._helpers.world_model_record import (
         _build_record,
+        _fabric_ref,
+        _skg_ref,
         _substrate_registry,
+        _write_data_forge_binding,
     )
 
-    _, world_build, _, _ = _build_record(tmp_path / "before", artifact_store=artifact_store)
+    owner_root = tmp_path / "before"
+    store, world_build, model_spec, registry_bundle_ref = _build_record(
+        owner_root,
+        artifact_store=artifact_store,
+    )
     registry = _substrate_registry()
+    if additional_policy_slot_ids or world_model_scope:
+        prior = world_build.record
+        scope = world_model_scope or {}
+        world_build = build_world_model_record(
+            store,
+            fabric_world_ref=_fabric_ref(owner_root),
+            data_forge_snapshot_binding_path=_write_data_forge_binding(owner_root),
+            data_snapshot_ref=world_build.data_snapshot_ref,
+            model_spec=model_spec,
+            skg_causal_prior_ref=_skg_ref(owner_root),
+            substrate_registry=registry,
+            region_or_jurisdiction=scope.get(
+                "region_or_jurisdiction", prior.region_or_jurisdiction
+            ),
+            population_scope=scope.get("population_scope", prior.population_scope),
+            policy_domain=scope.get("policy_domain", prior.policy_domain),
+            valid_time_scope=scope.get("valid_time_scope", prior.valid_time_scope),
+            tx_time_scope=prior.tx_time_scope,
+            resolution=prior.resolution,
+            branch_mode=prior.branch_mode,
+            policy_slot_ids=tuple(
+                dict.fromkeys(
+                    (
+                        *(binding.slot_id for binding in prior.policy_slot_map),
+                        *additional_policy_slot_ids,
+                    )
+                )
+            ),
+            producer_ref="tests.unit.remediation.test_acq_01.real_before_context",
+            required_substrate_families=tuple(
+                dict.fromkeys(entry.family_id for entry in registry.entries)
+            ),
+            substrate_registry_artifact_ref=prior.substrate_registry_ref.registry_artifact_ref,
+            registry_bundle_artifact_ref=registry_bundle_ref,
+            _loaded_substrate_registry=registry,
+        )
     selected_entry_hashes = tuple(entry.entry_content_hash for entry in registry.entries)
     return build_cycle_substrate_context(
         design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
@@ -1838,9 +1967,12 @@ def _build_acq01_real_route_controller(
     selected_value_port = (
         _PendingFixtureValue() if value_port is _ACQ01_ROUTE_VALUE_PORT_UNSPECIFIED else value_port
     )
+    if len(case.data_spec.required_data_families) != 1:
+        raise ValueError("acq01_fixture_data_family_must_be_unique")
+    family = case.data_spec.required_data_families[0]
     controller = GenerationCycleController(
         generation_port=_RouteGenerationPort(),
-        grounding_port=_FixtureAcquisitionGrounding(issue_code="acquire_data:metric.test"),
+        grounding_port=_FixtureAcquisitionGrounding(issue_code=f"acquire_data:{family}"),
         simulation_port=simulation,
         value_port=selected_value_port,
         acquisition_owner_gateway=gateway,
@@ -2376,25 +2508,41 @@ async def test_n7_acq01_reentry_rebuilds_fresh_context_before_n5_and_n7(
         assert run.cycles[0].simulation.k_world_ref_before == after[1]
 
 
-@pytest.mark.asyncio
-async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
+def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The accepted route reaches the real JointSimulationPort and default N8."""
+    """A current scoped source reaches N5 and default N8 with candidate-only value."""
+    import asyncio
 
     from polisyos.runtime.quality.intervention_atom_binding import (
         intervention_atom_content_hash,
     )
 
-    case = _real_acq01_inputs(
-        tmp_path,
+    source_family = "gdp_per_capita"
+    problem_statement = (
+        "Assess a synthetic Ukrainian tax-relief candidate for employment retention. "
+        "Acquire Ukraine's 2020 GDP per capita as separate macro context; it is not the "
+        "employment outcome or a substitute for employment evidence."
+    )
+    problem = _problem(
         problem_id="acq_01_real_ports",
-        extra_runtime_hints={
+        statement=problem_statement,
+        domain="fiscal_credit",
+        runtime_hints={
             "joint_simulation_resource": "method_registry_estimator",
             "joint_simulation_budget_ref": "budget://acq-01/real-ports",
             "joint_simulation_horizon": {"start": 0, "end": 1, "step": 1},
-            "joint_simulation_baseline_state": {"firm_survival": 1.0},
-            "joint_simulation_variable_map": {"firm_survival": "stock:0"},
+            "joint_simulation_baseline_state": {"employment_retention": 1.0},
+            "joint_simulation_variable_map": {"employment_retention": "stock:0"},
+            "n7_scope_profile": {
+                "profile_id": "acq-01-real-ports-macro-context",
+                "jurisdiction": "UA",
+                "population": "UA residents",
+                "time_window": {"start": "2020", "end": "2020"},
+                "time_role": "observation_time",
+                "granularity": "annual",
+            },
             "joint_simulation_engine_plan": {
                 "method_fqn": "simulation.system_dynamics.stock_flow@1.0.0",
                 "system_dynamics_state": {
@@ -2405,6 +2553,75 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
                 "system_dynamics_params": {"dt": 1.0},
             },
         },
+    )
+    problem = problem.model_copy(
+        update={
+            "schema_version": DESIGN_PROBLEM_V3_SCHEMA_VERSION,
+            "jurisdiction_time": problem.jurisdiction_time.model_copy(
+                update={
+                    "region": "UA",
+                    "valid_time": "2020",
+                    "as_of": "2020-12-31",
+                    "policy_time": "2020",
+                    "data_time": "2020",
+                }
+            ),
+            "objectives": (
+                DesignObjective(
+                    objective_id="employment_retention",
+                    description="Retain employment in the synthetic scenario.",
+                    metric_id="employment_retention",
+                ),
+            ),
+            "stakeholders": (
+                DesignStakeholder(
+                    stakeholder_id="ua_residents",
+                    name="UA residents",
+                    role="target_population",
+                ),
+            ),
+            "outcome_of_interest": OutcomeOfInterest(
+                target_variable="employment_retention",
+                metric_id="employment_retention",
+                estimand="average_treatment_effect",
+            ),
+            "candidate_lever_space": CandidateLeverSpace(
+                allowed_operator_kinds=["tax_relief_rate"],
+                candidate_levers=[
+                    CandidateLever(
+                        lever_id="tax_relief_rate",
+                        operator_kind="tax_relief_rate",
+                        instrument="Temporary tax relief",
+                        target_slot="global.tax_rate",
+                    )
+                ],
+            ),
+        }
+    )
+    problem = DesignProblem.model_validate(problem.model_dump(mode="python"))
+    data_spec = _compiled_data_requirement_spec(problem, family=source_family)
+    before_context = _real_acq01_before_context(
+        tmp_path / "gdp-per-capita-before",
+        problem,
+        additional_policy_slot_ids=("global.tax_rate",),
+        world_model_scope={
+            "region_or_jurisdiction": "UA",
+            "population_scope": "UA residents",
+            "policy_domain": "fiscal_credit",
+            "valid_time_scope": "2020",
+        },
+    )
+    candidate = _fixture_candidate(
+        problem,
+        world_ref=before_context.world_model_record.world_model_record_id,
+        target_world_slots=("global.tax_rate",),
+        candidate_id="candidate_ua_tax_relief",
+    )
+    case = SimpleNamespace(
+        problem=problem,
+        data_spec=data_spec,
+        before_context=before_context,
+        candidate=candidate,
     )
     atom = case.candidate.atom
     assignment = atom.causal_do_expr.assignments[0].model_copy(
@@ -2443,45 +2660,120 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
     )
     case.candidate.atom = atom
     case.candidate.intervention_atoms = (atom,)
-    with _real_acq01_route(
-        tmp_path,
-        case.problem,
-        candidate_content_hash=case.candidate.atom.content_hash,
-    ) as route:
-
-        class _RecordingN5Controller:
-            def __init__(self) -> None:
-                self.requests: list[Any] = []
-                self._delegate = generation_cycle_module.JointSimulationHorizonController()
-
-            def run(self, request: Any) -> Any:
-                self.requests.append(request)
-                return self._delegate.run(request)
-
-        n5 = _RecordingN5Controller()
-        runtime_store = route.store
-        controller = _build_acq01_real_route_controller(
-            case=case,
-            route=route,
-            simulation=JointSimulationPort(
-                controller=n5,
-                repo_root=tmp_path,
-                cycle_substrate_context=case.before_context,
-                artifact_store=runtime_store,
-            ),
-            repo_root=tmp_path,
-            authority_scope="contract_testing",
-            artifact_store=runtime_store,
-            value_port=None,
-        )
-
-        run = await controller.run(
+    # The WDI observation is persisted as a separate context input. N5 uses a
+    # normalized toy outcome mapping and does not claim a GDP-to-jobs effect.
+    runtime_store = FileSystemCAS(tmp_path / "published-owner-cas")
+    with _published_worldbank_owner(
+        tmp_path / "published-worldbank-owner",
+        monkeypatch,
+        artifact_store=runtime_store,
+        geography="UA",
+    ) as selected_owner:
+        with _real_acq01_route(
+            tmp_path,
             case.problem,
-            budget_state=BudgetState(
-                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
-            ),
-            max_cycles=1,
-        )
+            candidate_content_hash=case.candidate.atom.content_hash,
+            candidate_id=case.candidate.candidate_id,
+            target_world_slots=("global.tax_rate",),
+            requirement_ref=case.data_spec.requirement_id,
+            artifact_store=runtime_store,
+            selected_metric=source_family,
+            selected_owner=selected_owner,
+            data_spec_override=case.data_spec,
+            world_model_scope={
+                "region_or_jurisdiction": "UA",
+                "population_scope": "UA residents",
+                "policy_domain": "fiscal_credit",
+                "valid_time_scope": "2020",
+            },
+        ) as route:
+            assert route.plan.metric_id == source_family
+            assert route.plan.dataset_id == "NY.GDP.PCAP.PP.CD"
+            assert route.plan.filters == {"country": ["UA"]}
+            assert route.data_need is not None
+            assert route.data_need.metric == source_family
+            assert route.data_need.geography == "UA"
+            assert route.data_need.time_start == route.data_need.time_end == "2020"
+            assert route.data_spec.required_data_families == (source_family,)
+            assert route.data_spec.requirement_id == case.data_spec.requirement_id
+            assert route.data_spec.scope.population == "UA residents"
+            assert route.data_spec.scope.geography == "UA"
+            assert route.data_spec.scope.time == "2020"
+            assert route.data_spec.scope.time_role == "observation_time"
+            assert route.source_requirement.required_data_families == (source_family,)
+            assert route.source_requirement.scope.population == "UA residents"
+            assert route.source_requirement.scope.geography == "UA"
+            assert route.source_requirement.scope.time == "2020"
+            assert route.source_requirement.scope.time_role == "observation_time"
+            assert route.data_spec.source_requirement_refs == (
+                route.source_requirement.requirement_id,
+            )
+            assert route.measurement_root.source_requirement == route.source_requirement
+            assert route.measurement_root.authority_scope == "returned_observations_custody_only"
+            assert route.measurement_root.limitation == (
+                "retrieval_custody_does_not_establish_source_truth"
+            )
+            assert case.problem.objectives[0].metric_id == "employment_retention"
+            assert case.problem.outcome_of_interest.metric_id == "employment_retention"
+            assert case.problem.outcome_of_interest.target_variable == "employment_retention"
+            assert case.candidate.atom.intended_downstream_estimand.metric_id == (
+                case.problem.outcome_of_interest.metric_id
+            )
+            assert case.candidate.atom.intended_downstream_estimand.outcome_variables == (
+                "employment_retention",
+            )
+            assert case.candidate.atom.target_world_slots == ("global.tax_rate",)
+            assert case.candidate.atom.causal_do_expr.write_variables == ("global.tax_rate",)
+            assert case.candidate.atom.direct_effect_bundle.params["target_world_slot"] == (
+                "global.tax_rate"
+            )
+            assert case.candidate.atom.intended_downstream_estimand.target_population == "UA"
+            assert case.problem.jurisdiction_time.region == "UA"
+            route_tax_binding = route.world_build.record.slot_binding("global.tax_rate")
+            assert route_tax_binding is not None
+            assert route_tax_binding.state_path == "tax_rate"
+            assert route_tax_binding.unit == "ratio"
+            assert route.world_build.record.region_or_jurisdiction == "UA"
+            assert route.world_build.record.population_scope == "UA residents"
+            assert route.world_build.record.valid_time_scope == "2020"
+            assert route.world_build.record.simulation_model_ref.data_snapshot_ref == str(
+                route.data_snapshot_ref.artifact_id
+            )
+            assert route.world_build.record.slot_binding("gdp_per_capita") is None
+            assert route.world_build.record.slot_binding("employment_retention") is None
+            before_tax_binding = case.before_context.world_model_record.slot_binding(
+                "global.tax_rate"
+            )
+            assert before_tax_binding is not None
+            assert before_tax_binding.state_path == "tax_rate"
+            assert before_tax_binding.unit == "ratio"
+
+            n5 = _RecordingN5Controller()
+            runtime_store = route.store
+            controller = _build_acq01_real_route_controller(
+                case=case,
+                route=route,
+                simulation=JointSimulationPort(
+                    controller=n5,
+                    repo_root=tmp_path,
+                    cycle_substrate_context=case.before_context,
+                    artifact_store=runtime_store,
+                ),
+                repo_root=tmp_path,
+                authority_scope="contract_testing",
+                artifact_store=runtime_store,
+                value_port=None,
+            )
+
+            run = asyncio.run(
+                controller.run(
+                    case.problem,
+                    budget_state=BudgetState(
+                        limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+                    ),
+                    max_cycles=1,
+                )
+            )
 
         assert run.synthetic is True
         assert len(n5.requests) == 2
@@ -2494,6 +2786,15 @@ async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
         assert (
             after_request.world_model_record_ref == route.world_build.record.world_model_record_id
         )
+        assert after_request.world_model_record.simulation_model_ref.data_snapshot_ref == str(
+            route.data_snapshot_ref.artifact_id
+        )
+        assert after_request.world_model_record.slot_binding("employment_retention") is None
+        assert after_request.selected_outcomes == ("employment_retention",)
+        assert after_request.engine_plan[0].variable_map["global.tax_rate"] == (
+            "exogenous_inflows.0"
+        )
+        assert after_request.engine_plan[0].variable_map["employment_retention"] == "stock:0"
         assert isinstance(
             controller._value_port,
             generation_cycle_module._DefaultSimulationBoundFoundryValuePort,
@@ -3052,31 +3353,39 @@ async def test_n7_reentry_does_not_run_n5_from_registry_only_world_ref(
 ) -> None:
     """A registry URI cannot substitute for a content-bound WMR/context."""
 
-    data_spec = _fixture_data_requirement_spec()
-    registry = _fixture_world_registry()
+    from polisyos.runtime.quality.acquisition_planner import (
+        grounding_coverage_requirement_gap,
+    )
+
     problem = _problem(
         problem_id="acq_01_registry_only_reentry",
         runtime_hints={
-            "n7_data_requirement_specs": (data_spec,),
             "joint_simulation_resource": "method_registry_estimator",
             "joint_simulation_budget_ref": "budget://acq-01/registry-only-reentry",
             "joint_simulation_horizon": {"start": 0, "end": 1, "step": 1},
         },
     )
+    data_spec = _compiled_data_requirement_spec(problem, family="fixture_panel")
+    assert data_spec.required_data_families == ("fixture_panel",)
+    registry = _fixture_world_registry(include_candidate_l2=True)
+    selected_l2_hashes = tuple(
+        entry.entry_content_hash for entry in registry.entries if entry.layer is SubstrateLayer.L2
+    )
+    assert len(selected_l2_hashes) == 1
     world = generation_cycle_module._build_boundary_world_model_record(
         repo_root=REPO_ROOT,
         problem=problem,
         outcome="firm_survival",
         policy_slot_ids=("fixture_panel",),
         substrate_registry=registry,
-        selected_registry_entry_hashes=(registry.entries[0].entry_content_hash,),
+        selected_registry_entry_hashes=selected_l2_hashes,
     )
     problem_ref = gy_content_hash(problem.model_dump(mode="json"))
     context = build_cycle_substrate_context(
         design_problem_ref=problem_ref,
         domain=problem.domain,
         substrate_registry=registry,
-        selected_registry_entry_hashes=(registry.entries[0].entry_content_hash,),
+        selected_registry_entry_hashes=selected_l2_hashes,
         world_model_record=world,
         intervention_substrate=None,
         candidate_levers=(),
@@ -3110,25 +3419,46 @@ async def test_n7_reentry_does_not_run_n5_from_registry_only_world_ref(
                 grounding_dispositions=(),
             )
 
-    class _RecordingN5Controller:
-        def __init__(self) -> None:
-            self.requests: list[object] = []
-            self._delegate = generation_cycle_module.JointSimulationHorizonController()
-
-        def run(self, request: object) -> Any:
-            self.requests.append(request)
-            return self._delegate.run(request)
+    class _CandidateBoundFixtureGrounding:
+        def __call__(
+            self,
+            *,
+            candidate: Any,
+            problem: DesignProblem,
+            cycle_index: int,
+            generation_result: Any | None = None,
+        ) -> CandidateGroundingObservation:
+            del generation_result
+            observation = _FixtureAcquisitionGrounding(issue_code="acquire_data:fixture_panel")(
+                candidate=candidate,
+                problem=problem,
+                cycle_index=cycle_index,
+            )
+            report_ref = f"test://acq-01/{problem.design_problem_id}/grounding-report"
+            requirement = grounding_coverage_requirement_gap(
+                candidate_id=str(candidate.candidate_id),
+                candidate_content_hash=generation_cycle_module._candidate_content_hash(candidate),
+                design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+                issue_codes=observation.issue_codes,
+                evidence_refs=observation.evidence_refs,
+                authority_level=problem.authority_profile.requested_authority_level,
+                grounding_report_ref=report_ref,
+            )
+            return observation.model_copy(
+                update={"report_ref": report_ref, "acquisition_requirement": requirement}
+            )
 
     n5 = _RecordingN5Controller()
+    simulation_port = JointSimulationPort(
+        controller=n5,
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+        artifact_store=FileSystemCAS(tmp_path / "n5-result-store"),
+    )
     controller = GenerationCycleController(
         generation_port=_BoundFixtureGenerationPort(),
-        grounding_port=_FixtureAcquisitionGrounding(),
-        simulation_port=JointSimulationPort(
-            controller=n5,
-            repo_root=tmp_path,
-            cycle_substrate_context=context,
-            artifact_store=FileSystemCAS(tmp_path / "n5-result-store"),
-        ),
+        grounding_port=_CandidateBoundFixtureGrounding(),
+        simulation_port=simulation_port,
         value_port=_PendingFixtureValue(),
         acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
             artifacts_by_requirement={
@@ -3157,19 +3487,58 @@ async def test_n7_reentry_does_not_run_n5_from_registry_only_world_ref(
     cycle = run.cycles[0]
     receipt = cycle.acquisition_receipt
     assert receipt is not None
-    _assert_n7_has_no_grounding_result(receipt, cycle=cycle)
+    _assert_n7_has_no_grounding_result(
+        receipt,
+        cycle=cycle,
+        expected_grounding_status="grounding_gap",
+        expected_cycle_grounding_issue_codes=("acquire_data:fixture_panel",),
+    )
+    selected_gap = cycle.grounding.acquisition_requirement
+    assert selected_gap is not None
+    receipt_specs = tuple(
+        DataRequirementSpec.model_validate(spec) for spec in receipt["compiled_requirement_specs"]
+    )
+    assert receipt_specs == (data_spec,)
+    routed_records = receipt["planner_report"]["acquisition_records"]
+    assert len(routed_records) == 1
+    routed_record = routed_records[0]
+    assert routed_record["requirement_family"] == "data_requirement"
+    assert routed_record["compiled_requirement_ref"] == data_spec.requirement_id
+    assert selected_gap.requirement_gap_id in routed_record["scenario_requirement_refs"]
+    assert data_spec.requirement_id in routed_record["scenario_requirement_refs"]
+    assert "fixture_panel" in routed_record["scenario_requirement_refs"]
+    candidate_binding = selected_gap.metadata["candidate_binding"]
+    assert candidate_binding["candidate_id"] == cycle.selected_candidate_ref
+    assert candidate_binding["candidate_content_hash"] == cycle.selected_candidate_content_hash
+    assert candidate_binding["design_problem_ref"] == cycle.design_problem_ref
     grown_world_ref = receipt["grown_world_after_ref"]
     assert grown_world_ref.startswith("s0://substrate-registry/")
     assert grown_world_ref != context.world_model_record_content_hash
     assert grown_world_ref != context.world_model_record.world_model_record_id
-    # The initial N5 request has the selected content-bound context. The
-    # post-write registry URI is refused before the numerical controller.
+    # The initial N5 request uses the selected before-context WMR. Its current
+    # engine-plan limitation is independent of the post-acquisition refusal.
     assert len(n5.requests) == 1
     assert n5.requests[0].world_model_record_ref == context.world_model_record.world_model_record_id
     assert n5.requests[0].world_model_record.content_hash == context.world_model_record.content_hash
     assert cycle.simulation.status == "simulation_blocked"
-    assert "world_identity_unresolved" in cycle.simulation.authority_blockers
+    assert "method_registry_fqn_missing" in cycle.simulation.authority_blockers
     assert cycle.simulation.simulation_ref is None
+
+    registry_only_candidate = _fixture_candidate(
+        problem,
+        world_ref=grown_world_ref,
+        candidate_id=str(cycle.selected_candidate_ref),
+    )
+    reentry_observation = simulation_port(
+        candidate=registry_only_candidate,
+        problem=problem,
+        cycle_index=cycle.cycle_index,
+    )
+    assert reentry_observation.status == "simulation_blocked"
+    assert reentry_observation.authority_blockers == ("world_identity_unresolved",)
+    assert reentry_observation.diagnostics["reason"] == "world_identity_unresolved"
+    assert reentry_observation.simulation_ref is None
+    assert len(n5.requests) == 1
 
 
 @pytest.mark.asyncio

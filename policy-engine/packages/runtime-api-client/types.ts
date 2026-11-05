@@ -7427,6 +7427,26 @@ export interface components {
             input_bindings_ref?: components["schemas"]["FoundryInputBindingsRef"] | string | null;
         };
         /**
+         * DataTrust
+         * @description L5 trust-tier content used by value promotion and substrate registration.
+         */
+        DataTrust: {
+            /** Authority Ref */
+            authority_ref: string;
+            /** Max Coverage */
+            max_coverage?: number | null;
+            /** Min Coverage */
+            min_coverage?: number | null;
+            /** Promotion Floor */
+            promotion_floor?: number | null;
+            /** Tier */
+            tier: string;
+            /** Trust Cap */
+            trust_cap: number;
+            /** Trust Multiplier */
+            trust_multiplier: number;
+        };
+        /**
          * DataViewRequestRef
          * @description Artifact reference for the original Fabric data-view request payload.
          */
@@ -14727,6 +14747,11 @@ export interface components {
          */
         OutcomeOfInterest: {
             /**
+             * Conditioning Variables
+             * @description Explicit candidate query conditioning, not an identified adjustment set.
+             */
+            conditioning_variables?: string[];
+            /**
              * Direction
              * @default maximize
              * @enum {string}
@@ -14734,8 +14759,18 @@ export interface components {
             direction: "maximize" | "minimize" | "maintain_range";
             /** Estimand */
             estimand: string;
+            /**
+             * Measurement Unit
+             * @description Declared outcome unit; an atom binds it only to the exact world-slot owner.
+             */
+            measurement_unit?: string | null;
             /** Metric Id */
             metric_id: string;
+            /**
+             * Query Coordinate Status
+             * @description Proposed query coordinates do not establish agreement with user intent.
+             */
+            query_coordinate_status?: "candidate_proposed_unverified" | null;
             /** Target Variable */
             target_variable: string;
         };
@@ -18358,6 +18393,76 @@ export interface components {
             status: "resolved" | "not_established";
         };
         /**
+         * RunCandidateValueMethodProjection
+         * @description Source-row method evidence alongside a separately qualified simulation.
+         */
+        RunCandidateValueMethodProjection: {
+            /**
+             * Assignment Provenance
+             * @default consumer_asserted
+             * @constant
+             */
+            assignment_provenance: "consumer_asserted";
+            /**
+             * Authority Purpose
+             * @default candidate_source_rows_only
+             * @constant
+             */
+            authority_purpose: "candidate_source_rows_only";
+            /**
+             * Discovery Limitations
+             * @default []
+             */
+            discovery_limitations: string[];
+            /** Failure Kind */
+            failure_kind?: ("input_refused" | "environment_unavailable" | "not_established") | null;
+            /** Limitation Codes */
+            limitation_codes: string[];
+            /** Measurement Unit */
+            measurement_unit?: string | null;
+            method_selection_receipt_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            native_report_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Point Estimate */
+            point_estimate?: number | null;
+            /**
+             * Production Value Eligible
+             * @default false
+             * @constant
+             */
+            production_value_eligible: false;
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            /** Reason */
+            reason?: string | null;
+            record_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            run_basis_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /** Selected Method Fqn */
+            selected_method_fqn?: string | null;
+            source_request_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Source Time Status
+             * @default not_established
+             * @constant
+             */
+            source_time_status: "not_established";
+            /** Statistical Interval */
+            statistical_interval?: [
+                number,
+                number
+            ] | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "completed" | "refused" | "not_established";
+            value_outer_set?: components["schemas"]["ValueOuterSet"] | null;
+            value_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+        };
+        /**
          * RunCompareResponse
          * @description Response envelope returned by the run comparison endpoint.
          */
@@ -18902,6 +19007,7 @@ export interface components {
             authority_purpose: "cycle_input_candidate_only";
             /** Candidate Id */
             candidate_id: string;
+            candidate_value_method?: components["schemas"]["RunCandidateValueMethodProjection"] | null;
             child_profile_family_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             child_profile_set_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             context_job_ref: components["schemas"]["ArtifactRef-Output"];
@@ -21969,6 +22075,71 @@ export interface components {
             }[];
         };
         /**
+         * ValueOuterSet
+         * @description Canonical typed carrier for set-valued value over policy-design worlds.
+         *
+         *     Optional statistical endpoints preserve an estimator's reported uncertainty
+         *     separately from the identification set. They are descriptive evidence only:
+         *     identification, comparison, and promotion continue to use ``lower`` and
+         *     ``upper``.
+         */
+        ValueOuterSet: {
+            /**
+             * Assumption Status
+             * @enum {string}
+             */
+            assumption_status: "declared" | "externally_supported" | "stress_tested" | "violated" | "out_of_scope";
+            /** Assumptions */
+            assumptions?: string[];
+            /** Calibration Scope */
+            calibration_scope?: {
+                [key: string]: string;
+            };
+            /** Coordinates */
+            coordinates?: string[];
+            data_trust: components["schemas"]["DataTrust"];
+            /** Epoch */
+            epoch: string;
+            /**
+             * Identification Status
+             * @enum {string}
+             */
+            identification_status: "point" | "partial" | "proxy" | "blocked";
+            /** Lower */
+            lower?: number[];
+            /**
+             * Representation
+             * @enum {string}
+             */
+            representation: "interval_box" | "polytope_support_functions" | "scenario_set" | "unknown";
+            /**
+             * Representation Status
+             * @enum {string}
+             */
+            representation_status: "certified" | "search_only" | "unknown";
+            /** Solver Time Budget Ms */
+            solver_time_budget_ms?: number | null;
+            /**
+             * Statistical Lower
+             * @description Source-reported statistical interval lower endpoints, separate from identification bounds and not used to authorize promotion.
+             */
+            statistical_lower?: number[] | null;
+            /**
+             * Statistical Upper
+             * @description Source-reported statistical interval upper endpoints, separate from identification bounds and not used to authorize promotion.
+             */
+            statistical_upper?: number[] | null;
+            /** Upper */
+            upper?: number[];
+            /**
+             * Width
+             * @description Return derived interval widths per coordinate.
+             */
+            readonly width: number[];
+            /** World Model Record Ref */
+            world_model_record_ref: string;
+        };
+        /**
          * ValueRefusalCode
          * @description Why a value is refused. Every code is a property of the VALUE, never of effort.
          * @enum {string}
@@ -22154,6 +22325,11 @@ export interface components {
          */
         _QualifiedOutcomeOfInterestV3: {
             /**
+             * Conditioning Variables
+             * @description Explicit candidate query conditioning, not an identified adjustment set.
+             */
+            conditioning_variables?: string[];
+            /**
              * Direction
              * @default maximize
              * @enum {string}
@@ -22161,8 +22337,18 @@ export interface components {
             direction: "maximize" | "minimize" | "maintain_range";
             /** Estimand */
             estimand: string;
+            /**
+             * Measurement Unit
+             * @description Declared outcome unit; an atom binds it only to the exact world-slot owner.
+             */
+            measurement_unit?: string | null;
             /** Metric Id */
             metric_id: string;
+            /**
+             * Query Coordinate Status
+             * @description Proposed query coordinates do not establish agreement with user intent.
+             */
+            query_coordinate_status?: "candidate_proposed_unverified" | null;
             /** Target Variable */
             target_variable: string;
         };

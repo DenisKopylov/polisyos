@@ -519,3 +519,33 @@ def test_design_problem_rejects_invented_admissibility() -> None:
 def test_design_problem_rejects_empty_required_span_dimensions() -> None:
     with pytest.raises(ValueError, match="design_problem_stakeholders_empty"):
         _design_problem(stakeholders=[])
+
+
+def test_optional_outcome_query_fields_preserve_legacy_bytes_and_exact_declared_roles() -> None:
+    """New source-row queries are explicit and absent from historical default bytes."""
+    legacy = {
+        "target_variable": "income",
+        "metric_id": "income",
+        "estimand": "ATE",
+        "direction": "maximize",
+    }
+    assert OutcomeOfInterest.model_validate(legacy).model_dump(mode="json") == legacy
+    for schema_mode in ("validation", "serialization"):
+        schema = OutcomeOfInterest.model_json_schema(mode=schema_mode)
+        assert "conditioning_variables" not in schema.get("required", [])
+        assert "default" not in schema["properties"]["conditioning_variables"]
+    declared = {
+        **legacy,
+        "conditioning_variables": ["baseline_covariate"],
+        "measurement_unit": "USD",
+    }
+    query = OutcomeOfInterest.model_validate(declared)
+    assert query.conditioning_variables == ("baseline_covariate",)
+    assert query.measurement_unit == "USD"
+    assert OutcomeOfInterest.model_validate_json(query.model_dump_json()) == query
+    with pytest.raises(ValueError, match="outcome_conditioning_variables_not_unique"):
+        OutcomeOfInterest.model_validate(
+            {**declared, "conditioning_variables": ["baseline_covariate", "baseline_covariate"]}
+        )
+    with pytest.raises(ValueError, match="outcome_measurement_unit_not_canonical"):
+        OutcomeOfInterest.model_validate({**declared, "measurement_unit": " USD "})

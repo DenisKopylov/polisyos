@@ -35,6 +35,15 @@ repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
   changes through the existing evaluation and N5 owners.
   `acquisition_evidence_transition.py` distinguishes that supported route from
   method, constraint and independent-replica work whose verification is absent.
+- `candidate_value_method.py` connects an explicitly selected source-row request
+  to the existing Foundry selector, numerical producer and fresh report verifier.
+  Its candidate result is separate from the conditional N5 projection: simulation
+  samples never become observational rows, and neither result grants publication.
+  Optional outcome conditioning and measurement-unit coordinates remain
+  `candidate_proposed_unverified`; their agreement with user intent is not
+  established by an LLM response. The canonical context owner selects V6 when
+  they are present and preserves them in problem/profile identities and CAS
+  replay. Existing requests keep their frozen V1–V5 projections and bytes.
 - `ncm_numeric_profile.py` builds checked-model numerical error contracts. Such
   bounds do not establish empirical calibration, source units or causal validity.
 

@@ -240,6 +240,9 @@ class GenericCycleSimulationProfileV1(_StrictModel):
     world_model_record_ref: ArtifactRef
     substrate_registry_ref: ArtifactRef
     selected_ncm_ref: ArtifactRef
+    candidate_value_source_request_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     context_inputs: CandidateSimulationContextInputs
     n5: (
         GenericCycleN5RequestProfileV1
@@ -291,6 +294,14 @@ class GenericCycleSimulationProfileV1(_StrictModel):
                 for rule in self.n5.component_rules
             ):
                 raise ValueError("generic_cycle_simulation_component_rule_world_mismatch")
+        request_ref = self.candidate_value_source_request_ref
+        if request_ref is not None and (
+            type(request_ref) is not ArtifactRef
+            or request_ref.kind != "runtime.value_owner_source_projection_request"
+            or request_ref.media_type != "application/json"
+            or request_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("generic_cycle_candidate_value_source_request_ref_invalid")
         # An exact manifest selector is an address, not a source-codec claim.
         # The admission owner verifies the actual default NCM codec on read;
         # declaration-sidecar codecs still require their separate owner context.
@@ -3494,6 +3505,13 @@ class GenericCycleSimulationAdmissionOwner:
             input_ref_from_artifact_ref(profile.substrate_registry_ref, role="substrate_registry"),
             input_ref_from_artifact_ref(profile.selected_ncm_ref, role="selected_ncm"),
         ]
+        if profile.candidate_value_source_request_ref is not None:
+            input_refs.append(
+                input_ref_from_artifact_ref(
+                    profile.candidate_value_source_request_ref,
+                    role="candidate_value_source_request",
+                )
+            )
         if isinstance(profile.n5, GenericCycleN5RequestProfileV2):
             input_refs.extend(
                 input_ref_from_artifact_ref(ref, role=f"ncm_plan:{index}")

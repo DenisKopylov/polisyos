@@ -60,6 +60,7 @@ from .owned_attempt_anchor import (
     OwnedHTERequestContextV1,
 )
 from .policy_design_case_projection import PolicyDesignCaseProjection
+from .value_outer_set import ValueOuterSet
 
 SourceKind = Literal["core_run"]
 NodeStatus = Literal["ok", "skip", "fail", "unknown"]
@@ -4697,6 +4698,95 @@ RunCandidateSimulationProjection.model_rebuild()
 RunFailedCandidateSimulationProjection.model_rebuild()
 
 
+class RunCandidateValueMethodProjection(BaseModel):
+    """Source-row method evidence alongside a separately qualified simulation."""
+
+    model_config = ConfigDict(extra="forbid")
+    status: Literal["completed", "refused", "not_established"]
+    authority_purpose: Literal["candidate_source_rows_only"] = "candidate_source_rows_only"
+    production_value_eligible: Literal[False] = False
+    publication_authority: Literal[False] = False
+    source_time_status: Literal["not_established"] = "not_established"
+    assignment_provenance: Literal["consumer_asserted"] = "consumer_asserted"
+    record_ref: ArtifactRef | None = None
+    source_request_ref: ArtifactRef | None = None
+    run_basis_ref: ArtifactRef | None = None
+    value_ref: ArtifactRef | None = None
+    selected_method_fqn: str | None = None
+    native_report_ref: ArtifactRef | None = None
+    method_selection_receipt_ref: ArtifactRef | None = None
+    measurement_unit: str | None = Field(default=None, min_length=1)
+    point_estimate: float | None = Field(default=None, allow_inf_nan=False)
+    statistical_interval: tuple[float, float] | None = None
+    value_outer_set: ValueOuterSet | None = None
+    limitation_codes: tuple[str, ...] = Field(min_length=1)
+    reason: str | None = None
+    discovery_limitations: tuple[str, ...] = ()
+    failure_kind: Literal["input_refused", "environment_unavailable", "not_established"] | None = (
+        None
+    )
+
+    @field_validator("value_outer_set", mode="before")
+    @classmethod
+    def _read_persisted_value_set(cls, value: object) -> object:
+        """Verify the canonical derived-width checksum on a public JSON round trip."""
+        if isinstance(value, Mapping):
+            return ValueOuterSet.from_persisted_payload(value)
+        return value
+
+    @model_validator(mode="after")
+    def _verify_candidate_result(self) -> RunCandidateValueMethodProjection:
+        for ref, expected_kind in (
+            (self.record_ref, "runtime.candidate_value_method"),
+            (self.source_request_ref, "runtime.value_owner_source_projection_request"),
+            (self.run_basis_ref, "runtime.value_owner_method_run_basis"),
+            (self.value_ref, "runtime.value_outer_set_candidate_fixture"),
+            (self.native_report_ref, "ir.causal_effect_report"),
+            (self.method_selection_receipt_ref, "runtime.value_owner_method_selection_receipt"),
+        ):
+            if ref is not None and (
+                ref.kind != expected_kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("run_candidate_value_method_selected_ref_invalid")
+        if self.status == "completed":
+            if (
+                any(
+                    ref is None or ref.manifest_profile_sha256 is None
+                    for ref in (
+                        self.record_ref,
+                        self.source_request_ref,
+                        self.run_basis_ref,
+                        self.value_ref,
+                        self.native_report_ref,
+                        self.method_selection_receipt_ref,
+                    )
+                )
+                or self.value_outer_set is None
+                or not self.selected_method_fqn
+                or not self.measurement_unit
+                or self.point_estimate is None
+                or self.statistical_interval is None
+            ):
+                raise ValueError("run_candidate_value_method_completed_binding_missing")
+        elif any(
+            value is not None
+            for value in (
+                self.value_outer_set,
+                self.point_estimate,
+                self.statistical_interval,
+            )
+        ):
+            raise ValueError("run_candidate_value_method_unverified_output_present")
+        if self.statistical_interval is not None and (
+            not all(math.isfinite(value) for value in self.statistical_interval)
+            or self.statistical_interval[0] > self.statistical_interval[1]
+        ):
+            raise ValueError("run_candidate_value_method_statistical_interval_invalid")
+        return self
+
+
 class RunGenericCycleSimulationN5Observation(BaseModel):
     """One historical, candidate-only N5 observation and its persisted lineage."""
 
@@ -4749,6 +4839,9 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
     n8_status: Literal["value_ready", "value_conditional", "value_blocked", "value_pending_n8"]
     n8_lineage_status: Literal["resolved", "not_established"]
     n8_value_ref: str | None = None
+    candidate_value_method: RunCandidateValueMethodProjection | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     n8_authority_blockers: tuple[str, ...] = ()
     n8_limitation_code: str | None = Field(default=None, min_length=1)
     n5_interaction_evidence: RunN5InteractionEvidence | None = None
@@ -4774,6 +4867,8 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
 
     @model_validator(mode="after")
     def _verify_generic_n5_lineage(self) -> RunGenericCycleSimulationN5Observation:
+        if self.candidate_value_method is not None and self.n8_status != "value_conditional":
+            raise ValueError("run_candidate_value_method_requires_conditional_n5")
         _validate_run_n5_interaction_scope(
             self.n5_interaction_evidence,
             atom_ids=self.atom_ids,

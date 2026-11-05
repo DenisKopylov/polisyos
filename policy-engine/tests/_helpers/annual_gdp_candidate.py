@@ -20,6 +20,7 @@ from tests._helpers.lane01_wdi_profiles import GDP_PROFILE
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
+    from polisyos.ir.model_layer.model_spec import ModelSpec
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationScenarioProfile,
         CandidateSimulationSyntheticModelDeclarationV1,
@@ -51,6 +52,7 @@ _ANNUAL_GDP_PROBLEM_STATEMENT = (
     "with a registered tax-rate set-to from 0.5 to 0.0."
 )
 _ANNUAL_GDP_INTERVENTION_ID = "annual_gdp_tax_relief_rate"
+_ANNUAL_GDP_DRAFT_INTERVENTION_NAME = "Annual GDP tax-rate candidate set-to"
 _ANNUAL_GDP_COEFFICIENT_USD_PER_RATIO = -500_000_000_000.0
 _ANNUAL_GDP_TARGET_BASELINE = 0.5
 _ANNUAL_GDP_OUTCOME_BASELINE_USD = 0.0
@@ -482,7 +484,9 @@ def build_annual_gdp_candidate_provider(
         ValueError: If source rows, WMR refs, or fixture bindings do not match.
     """
     from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.ir.governance.problem_frame import ProblemDomain
     from polisyos.ir.model_layer.model_spec import ModelSpec
+    from polisyos.ir.trinity import TrinityBundle
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality.candidate_simulation import CandidateSimulationScenarioProfile
     from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
@@ -497,6 +501,8 @@ def build_annual_gdp_candidate_provider(
     if (
         type(problem) is not DesignProblem
         or type(profile) is not CandidateSimulationScenarioProfile
+        or problem.domain != "economic"
+        or profile.context_inputs.world_model_record.policy_domain != problem.domain
         or problem.outcome_of_interest.target_variable != "global.gdp"
         or problem.jurisdiction_time.region != "USA"
         or problem.jurisdiction_time.data_time != "2024"
@@ -524,6 +530,8 @@ def build_annual_gdp_candidate_provider(
     base_model = ModelSpec.model_validate(load_core_json_artifact(store, views.model_spec_ref))
     if base_model.time_semantics is None:
         raise ValueError("annual_gdp_candidate_provider_model_time_missing")
+    if base_model.calibrated or base_model.calibration_ref is not None:
+        raise ValueError("annual_gdp_candidate_provider_model_empirical_authority_unestablished")
     data_snapshot_id = str(views.data_snapshot_ref.artifact_id)
     registry_bundle_id = str(views.registry_bundle_ref.artifact_id)
     time_semantics = base_model.time_semantics.model_dump(mode="json")
@@ -614,9 +622,15 @@ def build_annual_gdp_candidate_provider(
         frame.update(
             {
                 "problem_id": problem.design_problem_id,
-                "domain": "economic",
+                # DesignProblem uses a broader domain vocabulary; this IR is
+                # the registered tax-rate intervention in Trinity's fiscal domain.
+                "domain": ProblemDomain.FISCAL.value,
                 "narrative": problem.problem_statement,
                 "labels": ["synthetic", "candidate_only", "usa", "annual_gdp", "2024"],
+                "notes": [
+                    "test_owned_domain_mapping:economic_question_to_fiscal_tax_rate_ir",
+                    "candidate_only_synthetic_scm_not_empirically_grounded",
+                ],
                 "objectives": [
                     {
                         "objective_id": "annual_gdp",
@@ -627,7 +641,10 @@ def build_annual_gdp_candidate_provider(
                 ],
             }
         )
-        model_spec = body["model_spec"]
+        # Bind the new synthetic model to its actual current WMR inputs instead
+        # of inheriting unrelated historical agent/environment configuration.
+        model_spec = base_model.model_dump(mode="json")
+        body["model_spec"] = model_spec
         model_spec.update(
             {
                 "model_id": "annual_gdp_tax_rate_candidate_model",
@@ -650,6 +667,7 @@ def build_annual_gdp_candidate_provider(
                 ],
             }
         )
+        TrinityBundle.model_validate(body)
         response["raw_response"] = json.dumps(body, sort_keys=True, separators=(",", ":"))
         response["raw_response_hash"] = gy_content_hash(response["raw_response"])
         if source_row.get("raw_response_hash") == selected_formalizer_hash:
@@ -683,7 +701,7 @@ def build_annual_gdp_candidate_provider(
                     ],
                     "interventions": [
                         {
-                            "name": "Annual GDP tax-rate candidate set-to",
+                            "name": _ANNUAL_GDP_DRAFT_INTERVENTION_NAME,
                             "description": (
                                 "Set the registered global.tax_rate ratio from 0.5 to 0.0."
                             ),
@@ -709,64 +727,60 @@ def build_annual_gdp_candidate_provider(
             role == "drafter_multipass"
             and source_hash == selected_stage_parents["drafter_multipass"]
         ):
-            body = json.loads(response["raw_response"])
-            findings = body.get("findings")
-            if not isinstance(findings, list) or len(findings) != 1:
-                raise ValueError("annual_gdp_candidate_multipass_finding_denominator_mismatch")
-            finding = dict(findings[0])
-            finding.update(
-                {
-                    "anchor": "annual_gdp_tax_rate_synthetic_coefficient",
-                    "description": (
-                        "The 250 billion USD change is computed from an explicit synthetic "
-                        "coefficient and a 0.5 ratio delta, not independent evidence."
-                    ),
-                    "affected_intervention": _ANNUAL_GDP_INTERVENTION_ID,
-                    "suggested_fix": (
-                        "Keep the result candidate-only until a measurement contract and "
-                        "causal coupling are independently established."
-                    ),
-                }
-            )
-            body["findings"] = [finding]
+            # This is a new synthetic critique of the one-action GDP draft.
+            # The captured parent's six findings concern its three Ukrainian
+            # interventions and are retained only in the immutable source recording.
+            body = {
+                "confidence_adjustment": 0.0,
+                "findings": [
+                    {
+                        "category": "side_effect",
+                        "severity": "medium",
+                        "anchor": "intervention:0",
+                        "description": (
+                            "The 250 billion USD change is computed from an explicit synthetic "
+                            "coefficient and a 0.5 ratio delta, not independent evidence."
+                        ),
+                        "affected_intervention": _ANNUAL_GDP_DRAFT_INTERVENTION_NAME,
+                        "suggested_fix": (
+                            "Keep the result candidate-only until a measurement contract and "
+                            "causal coupling are independently established."
+                        ),
+                    }
+                ],
+            }
             _replace_recording_response(response, body)
         elif role == "critic" and source_hash == selected_stage_parents["critic"]:
-            body = json.loads(response["raw_response"])
-            issues = body.get("issues")
-            if not isinstance(issues, list) or len(issues) != 1:
-                raise ValueError("annual_gdp_candidate_critic_issue_denominator_mismatch")
-            issue = dict(issues[0])
-            issue.update(
-                {
-                    "issue_id": "ANNUAL-GDP-SYNTHETIC-SCM-001",
-                    "category": "ALIGNMENT",
-                    "severity": "WARNING",
-                    "message": (
-                        "The tax-rate to GDP coefficient is a declared software-fixture "
-                        "assumption, not measured or causally grounded evidence."
-                    ),
-                    "location": "model_spec.assumptions",
-                    "suggestion": (
-                        "Preserve limited candidate-only status and do not publish this "
-                        "synthetic effect as a policy estimate."
-                    ),
-                }
-            )
-            body.update(
-                {
-                    "verdict": "NEEDS_REVISION",
-                    "alignment_score": 0.0,
-                    "completeness_score": 0.0,
-                    "overall_quality": 0.0,
-                    "problem_frame_ref": problem.design_problem_id,
-                    "report_id": "annual_gdp_tax_rate_candidate_critic",
-                    "reflexion_hint": (
-                        "The recorded ratio action is unit-consistent, but its USD effect is "
-                        "synthetic and remains inadmissible as a causal estimate."
-                    ),
-                }
-            )
-            body["issues"] = [issue]
+            # None of the parent's six issues assesses this new GDP candidate.
+            # Emit its actual ungrounded-SCM limitation instead of relabeling one.
+            body = {
+                "verdict": "NEEDS_REVISION",
+                "alignment_score": 0.0,
+                "completeness_score": 0.0,
+                "overall_quality": 0.0,
+                "problem_frame_ref": problem.design_problem_id,
+                "report_id": "annual_gdp_tax_rate_candidate_critic",
+                "reflexion_hint": (
+                    "The recorded ratio action is unit-consistent, but its USD effect is "
+                    "synthetic and remains inadmissible as a causal estimate."
+                ),
+                "issues": [
+                    {
+                        "issue_id": "ANNUAL-GDP-SYNTHETIC-SCM-001",
+                        "category": "alignment",
+                        "severity": "warning",
+                        "message": (
+                            "The tax-rate to GDP coefficient is a declared software-fixture "
+                            "assumption, not measured or causally grounded evidence."
+                        ),
+                        "location": "model_spec.assumptions",
+                        "suggestion": (
+                            "Preserve limited candidate-only status and do not publish this "
+                            "synthetic effect as a policy estimate."
+                        ),
+                    }
+                ],
+            }
             _replace_recording_response(response, body)
 
     final_ir_ref = gy_content_hash(json.loads(final_formalizer["raw_response"]))
@@ -866,7 +880,71 @@ def build_annual_gdp_candidate_provider(
         or provider.controlled_recording_content_hash != controlled["recording_content_hash"]
     ):
         raise ValueError("annual_gdp_candidate_provider_profile_binding_mismatch")
+    _validate_annual_gdp_provider_stages(provider, problem=problem, base_model=base_model)
     return controlled, provider
+
+
+def _validate_annual_gdp_provider_stages(
+    provider: SyntheticCandidateProviderProfile,
+    *,
+    problem: DesignProblem,
+    base_model: ModelSpec,
+) -> None:
+    """Validate the complete new stage set against its current consumer grammar."""
+    from pydantic import TypeAdapter
+
+    from polisyos.ir.governance.problem_frame import ProblemDomain
+    from polisyos.ir.trinity import TrinityBundle
+    from polisyos.pdc import gy_content_hash
+    from polisyos.scientist.agent.drafter_models import (
+        FindingCategory,
+        FindingSeverity,
+        _ConsolidationPayload,
+        _CritiquePayload,
+    )
+    from polisyos.scientist.agent.protocols import CritiqueReport, DraftResult
+
+    bodies = {
+        stage: json.loads(json.loads(encoded)["raw_response"])
+        for stage, encoded in provider.response_rows
+    }
+    draft = TypeAdapter(DraftResult).validate_python(bodies["draft"])
+    consolidation = _ConsolidationPayload.model_validate(bodies["drafter_consolidation"])
+    multipass = _CritiquePayload.model_validate(bodies["drafter_multipass"])
+    trinity = TrinityBundle.model_validate(bodies["formalizer"])
+    critic = TypeAdapter(CritiqueReport).validate_python(bodies["critic"])
+    for finding in multipass.findings:
+        FindingCategory(finding.category)
+        FindingSeverity(finding.severity)
+    if (
+        draft.problem_frame_ref != problem.design_problem_id
+        or len(draft.interventions) != 1
+        or draft.interventions[0]["name"] != _ANNUAL_GDP_DRAFT_INTERVENTION_NAME
+        or consolidation.interventions != draft.interventions
+        or draft.confidence != 0.0
+        or consolidation.confidence != 0.0
+        or len(multipass.findings) != 1
+        or multipass.findings[0].affected_intervention != draft.interventions[0]["name"]
+        or multipass.findings[0].anchor != "intervention:0"
+        or trinity.problem_frame.problem_id != problem.design_problem_id
+        or trinity.problem_frame.domain != ProblemDomain.FISCAL
+        or len(trinity.policy_spec.interventions) != 1
+        or trinity.policy_spec.interventions[0].intervention_id != _ANNUAL_GDP_INTERVENTION_ID
+        or trinity.model_spec.agent_config != base_model.agent_config
+        or trinity.model_spec.environment_config != base_model.environment_config
+        or trinity.model_spec.time_semantics != base_model.time_semantics
+        or trinity.model_spec.calibrated
+        or trinity.model_spec.calibration_ref is not None
+        or critic.problem_frame_ref != problem.design_problem_id
+        or critic.ir_ref != gy_content_hash(bodies["formalizer"])
+        or critic.verdict != "NEEDS_REVISION"
+        or len(critic.issues) != 1
+        or critic.warning_count != 1
+        or critic.alignment_score != 0.0
+        or critic.completeness_score != 0.0
+        or critic.overall_quality != 0.0
+    ):
+        raise ValueError("annual_gdp_candidate_provider_stage_composition_mismatch")
 
 
 def _replace_recording_response(

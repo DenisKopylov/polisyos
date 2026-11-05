@@ -348,7 +348,7 @@ timestamps
 | `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `lazy_facade` | 140 |
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 64 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 801 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 802 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
 | `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `eager_exports` | 26 |
 | `polisyos.core.llm.cache_settlement` | `src/polisyos/core/llm/cache_settlement.py` | `eager_exports` | 8 |
@@ -766,7 +766,7 @@ validate_metadata
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (801)</summary>
+<details><summary>Entrypoint exports (802)</summary>
 
 ```text
 FetchPlan
@@ -1409,6 +1409,7 @@ RunCandidateSimulationAcquiredOutcomeRevision
 RunCandidateSimulationRetainedEvaluation
 RunCandidateSimulationN5Observation
 RunCandidateSimulationProjection
+RunCandidateValueMethodProjection
 RunDetails
 RunConditionalTransportCandidateProjection
 RunDetailsResponse

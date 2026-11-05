@@ -1580,7 +1580,7 @@ def build_candidate_scenario_proposal_candidate(
     )
     query_target = QueryTarget(
         outcome_variables=(problem.outcome_of_interest.target_variable,),
-        conditioning=(),
+        conditioning=problem.outcome_of_interest.conditioning_variables,
         functional=problem.outcome_of_interest.estimand,
     )
     selector_ref = intervention_atom_target_selector_ref(intervention)
@@ -1618,6 +1618,7 @@ def build_candidate_scenario_proposal_candidate(
         operator_proof_type_map={intervention.kind: "node"},
         mechanism_variable_map={intervention.kind: target_slots},
         estimand_metric_id=problem.outcome_of_interest.metric_id,
+        estimand_unit_id=_declared_outcome_unit_from_world(problem, world),
         target_population=problem.jurisdiction_time.region,
         status="candidate_unverified",
     )
@@ -4318,6 +4319,26 @@ def _candidate_grounding_signature(
     return signature
 
 
+def _declared_outcome_unit_from_world(problem: DesignProblem, world: object | None) -> str | None:
+    """Bind an opt-in declared outcome unit to its exact selected world-slot owner.
+
+    Legacy requests leave the atom's unit absent. An unknown owner remains
+    unestablished; a known conflicting unit is refused before numerical work.
+    The declaration alone never establishes measurement or causal authority.
+    """
+    from polisyos.runtime.quality.world_model_record import WorldModelRecord
+
+    declared = problem.outcome_of_interest.measurement_unit
+    if declared is None or not isinstance(world, WorldModelRecord):
+        return None
+    binding = world.slot_binding(problem.outcome_of_interest.target_variable)
+    if binding is None or binding.unit is None:
+        return None
+    if binding.unit != declared:
+        raise DesignGenerationError("n4_outcome_measurement_unit_mismatch")
+    return binding.unit
+
+
 def _candidate_direct_params(intervention: InterventionSpec) -> dict[str, Any]:
     params = dict(_mapping(intervention.params))
     for key in (
@@ -4482,7 +4503,7 @@ def _shadow_candidate_from_grounding(
     )
     query_target = QueryTarget(
         outcome_variables=(design_problem.outcome_of_interest.target_variable,),
-        conditioning=(),
+        conditioning=design_problem.outcome_of_interest.conditioning_variables,
         functional=design_problem.outcome_of_interest.estimand,
     )
     selector_ref = intervention_atom_target_selector_ref(selected_intervention)
@@ -4523,6 +4544,7 @@ def _shadow_candidate_from_grounding(
         operator_proof_type_map={operator_kind: "node"},
         mechanism_variable_map={operator_kind: target_slots},
         estimand_metric_id=design_problem.outcome_of_interest.metric_id,
+        estimand_unit_id=_declared_outcome_unit_from_world(design_problem, world_record),
         target_population=design_problem.jurisdiction_time.region,
         normalized_from=_normalization_record_for_grounded_candidate(
             intervention,

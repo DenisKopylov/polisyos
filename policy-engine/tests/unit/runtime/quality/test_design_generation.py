@@ -4715,3 +4715,57 @@ def test_generated_n4_result_preserves_explicit_zero_ranking() -> None:
 
     assert candidate_ids == set(rankings_by_candidate)
     assert set(rankings_by_candidate.values()) == {(0.0, 0.0)}
+
+
+def test_declared_outcome_unit_requires_exact_world_owner_and_keeps_unknown_unbound() -> None:
+    """A declaration does not mint a unit; only the selected exact slot can bind it."""
+    from polisyos.runtime.quality.world_model_record import (
+        PolicySlotBinding,
+        WorldModelRecord,
+        world_model_record_content_hash,
+    )
+    from tests.unit.runtime.quality.test_value_gate import _avg_income_problem, _world_record
+
+    problem = _avg_income_problem()
+    payload = problem.model_dump(mode="python")
+    payload["schema_version"] = "policyos.runtime.design_problem.v3"
+    payload["outcome_of_interest"].update(
+        measurement_unit="m", conditioning_variables=["income_covariate"]
+    )
+    problem = DesignProblem.model_validate(payload)
+    old_world = _world_record()
+    fields = old_world.model_dump(mode="python", exclude={"world_model_record_id", "content_hash"})
+    fields["policy_slot_map"] = (
+        *old_world.policy_slot_map,
+        PolicySlotBinding(
+            slot_id="avg_income",
+            state_path="market.total_supply",
+            unit="m",
+            entity_scope="synthetic_household",
+            temporal_granularity="annual",
+        ),
+    )
+    draft = WorldModelRecord.model_construct(
+        world_model_record_id="world_model_record_0000000000000000",
+        content_hash="sha256:" + "0" * 64,
+        **fields,
+    )
+    digest = world_model_record_content_hash(draft)
+    world = WorldModelRecord(
+        **fields,
+        content_hash=digest,
+        world_model_record_id="world_model_record_" + digest.removeprefix("sha256:")[:16],
+    )
+    assert dg._declared_outcome_unit_from_world(problem, world) == "m"
+    assert dg._declared_outcome_unit_from_world(problem, old_world) is None
+    assert dg._declared_outcome_unit_from_world(problem, None) is None
+    assert dg._declared_outcome_unit_from_world(_avg_income_problem(), world) is None
+    wrong = problem.model_copy(
+        update={
+            "outcome_of_interest": problem.outcome_of_interest.model_copy(
+                update={"measurement_unit": "km"}
+            )
+        }
+    )
+    with pytest.raises(DesignGenerationError, match="n4_outcome_measurement_unit_mismatch"):
+        dg._declared_outcome_unit_from_world(wrong, world)

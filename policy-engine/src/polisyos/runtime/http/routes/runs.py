@@ -58,6 +58,7 @@ from polisyos.core.contracts.runtime import (
     RunCandidateSimulationProjection,
     RunCandidateSimulationRetainedEvaluation,
     RunCandidateSourceCurrentProjection,
+    RunCandidateValueMethodProjection,
     RunConditionalTransportCandidateProjection,
     RunDetailsResponse,
     RunEvidenceContextResponse,
@@ -5101,34 +5102,35 @@ def _generic_cycle_simulation_projection(
                     "simulation_blocked",
                 }:
                     raise ValueError("generic_n5_cycle_candidate_outcome_not_established")
+                n5_expectation = GenericN5ExecutionJoinExpectation(
+                    input_ref=input_ref,
+                    result_ref=simulation.simulation_result_ref,
+                    status=simulation.status,
+                    n4_source_ref=cycle_source_ref,
+                    context_job_ref=history_binding.context_job_ref,
+                    profile_ref=binding_handoff.profile_ref,
+                    child_family_ref=parent_handoff.n4_child_profile_family_ref,
+                    child_set_ref=set_ref,
+                    profile_selection_ref=selection_ref,
+                    profile=binding_handoff.profile,
+                    child_selection=expected_child_selection,
+                    design_problem_ref=cycle.design_problem_basis_ref,
+                    outcome_variable=outcome_variable,
+                    cycle_index=cycle.cycle_index,
+                    candidate_id=simulation.candidate_id,
+                    candidate_atom_hash=source_candidates[0].atom.content_hash,
+                    world_model_record_content_hash=(
+                        history_binding.context.world_model_record.content_hash
+                    ),
+                    job_id=parent_handoff.job_id,
+                    run_id=parent_handoff.run_id,
+                    source_run_id=child_source_run_id,
+                    tenant_id=parent_handoff.tenant_id,
+                    cell_id=parent_handoff.cell_id,
+                )
                 join = generic_owner.resolve_n5_execution_join(
                     execution_ref,
-                    expected=GenericN5ExecutionJoinExpectation(
-                        input_ref=input_ref,
-                        result_ref=simulation.simulation_result_ref,
-                        status=simulation.status,
-                        n4_source_ref=cycle_source_ref,
-                        context_job_ref=history_binding.context_job_ref,
-                        profile_ref=binding_handoff.profile_ref,
-                        child_family_ref=parent_handoff.n4_child_profile_family_ref,
-                        child_set_ref=set_ref,
-                        profile_selection_ref=selection_ref,
-                        profile=binding_handoff.profile,
-                        child_selection=expected_child_selection,
-                        design_problem_ref=cycle.design_problem_basis_ref,
-                        outcome_variable=outcome_variable,
-                        cycle_index=cycle.cycle_index,
-                        candidate_id=simulation.candidate_id,
-                        candidate_atom_hash=source_candidates[0].atom.content_hash,
-                        world_model_record_content_hash=(
-                            history_binding.context.world_model_record.content_hash
-                        ),
-                        job_id=parent_handoff.job_id,
-                        run_id=parent_handoff.run_id,
-                        source_run_id=child_source_run_id,
-                        tenant_id=parent_handoff.tenant_id,
-                        cell_id=parent_handoff.cell_id,
-                    ),
+                    expected=n5_expectation,
                 )
                 if join.code in {
                     "generic_n5_input_scope_refused",
@@ -5244,6 +5246,20 @@ def _generic_cycle_simulation_projection(
                                 ),
                             ),
                             n8_status=n8_status,
+                            candidate_value_method=(
+                                RunCandidateValueMethodProjection(
+                                    status="not_established",
+                                    limitation_codes=(
+                                        "candidate_value_method_n5_execution_not_established",
+                                    ),
+                                )
+                                if n8_status == "value_conditional"
+                                and (
+                                    value_port.candidate_value_method_ref is not None
+                                    or value_port.candidate_value_method_limitation_code is not None
+                                )
+                                else None
+                            ),
                             n8_lineage_status="not_established",
                             n8_authority_blockers=_n5_interaction_projection_blockers(
                                 candidate_result,
@@ -5391,6 +5407,25 @@ def _generic_cycle_simulation_projection(
                         n8_limitation = "generic_n5_request_binding_not_established"
                 elif value_port.authority_blockers:
                     n8_limitation = value_port.authority_blockers[0]
+                from polisyos.runtime.quality.candidate_value_method import (
+                    project_candidate_value_method,
+                )
+                from polisyos.runtime.quality.substrate_registry import run_catalog_source_call
+
+                selected_catalog_source = getattr(control_service, "catalog_serving_source", None)
+                candidate_value_method = run_catalog_source_call(
+                    selected_catalog_source,
+                    project_candidate_value_method,
+                    store=store,
+                    record_ref=value_port.candidate_value_method_ref,
+                    candidate=source_candidates[0],
+                    problem=history_binding.problem,
+                    simulation=simulation,
+                    cycle_substrate_context=history_binding.context,
+                    catalog_serving_source=selected_catalog_source,
+                    limitation_code=value_port.candidate_value_method_limitation_code,
+                    n5_expectation=n5_expectation,
+                )
                 observations.append(
                     RunGenericCycleSimulationN5Observation(
                         node_ref=node_ref,
@@ -5398,6 +5433,7 @@ def _generic_cycle_simulation_projection(
                         cycle_index=cycle.cycle_index,
                         candidate_id=simulation.candidate_id,
                         status=simulation.status,
+                        candidate_value_method=candidate_value_method,
                         simulation_result_ref=execution.result_ref,
                         simulation_result_body=result_body,
                         simulation_result_body_status=result_body_status,

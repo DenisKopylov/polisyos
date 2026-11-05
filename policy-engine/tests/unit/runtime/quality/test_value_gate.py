@@ -3457,6 +3457,10 @@ def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition(
 
 def test_value_port_preserves_typed_method_run_owner_refusal() -> None:
     """A typed owner refusal keeps its blocker and provenance at the port boundary."""
+    from polisyos.foundry.extensions.registry import (
+        controlled_builtin_foundry_method_registry_scope,
+    )
+
     profile = _controlled_avg_income_owner_profile()
     world = _world_record()
     problem = _avg_income_problem()
@@ -3476,19 +3480,30 @@ def test_value_port_preserves_typed_method_run_owner_refusal() -> None:
                 raise selected_failure
 
         simulation = _simulation(world, candidate_id=candidate.candidate_id)
-        return FoundryValuePort(
-            evaluation_context=_simulation_execution_context(
+        with controlled_builtin_foundry_method_registry_scope() as (registry, report):
+            assert report.discovery_manifest is not None
+            assert report.discovery_manifest.is_bound
+            port = FoundryValuePort(
+                evaluation_context=_simulation_execution_context(
+                    candidate=candidate,
+                    simulation=simulation,
+                    problem=problem,
+                ),
+                owner_gateway=Gateway(),
+                method_registry=registry,
+                method_registry_report=report,
+            )
+            observation = port(
                 candidate=candidate,
                 simulation=simulation,
                 problem=problem,
-            ),
-            owner_gateway=Gateway(),
-        )(
-            candidate=candidate,
-            simulation=simulation,
-            problem=problem,
-            cycle_index=0,
-        )
+                cycle_index=0,
+            )
+            receipt = observation.method_selection_receipt
+            assert receipt is not None
+            assert receipt.discovery_scope == "bound_discovery"
+            assert set(receipt.denominator) <= set(report.registry_fqns)
+            return observation
 
     observation = observe_failure(failure)
 
@@ -3499,8 +3514,10 @@ def test_value_port_preserves_typed_method_run_owner_refusal() -> None:
     assert observation.selected_method_fqn is not None
     assert observation.method_selection_receipt is not None
     assert observation.value_data_profile_content_hash == profile.content_hash
-    assert "owner condition_json is malformed" in str(observation.reason)
-    assert "owner://source#measurement-unit-binding" in str(observation.reason)
+    assert observation.reason == (
+        "owner condition_json is malformed; supply a valid declared unit "
+        "owner_access_ref=owner://source#measurement-unit-binding"
+    )
 
     plain_error = ValueError(failure.code)
     plain_observation = observe_failure(plain_error)
@@ -3663,48 +3680,90 @@ def test_n8_value_port_accepts_recomputed_foundry_receipt_context(
 def test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.foundry.extensions.registry import (
+        controlled_builtin_foundry_method_registry_scope,
+    )
     from polisyos.runtime.quality import generation_cycle
 
     problem = _avg_income_problem()
-    wrong_problem = {
-        "design_problem_id": problem.design_problem_id,
-        "problem_statement": problem.problem_statement,
-        "domain": problem.domain,
-        "outcome_of_interest": problem.outcome_of_interest.model_dump(mode="json"),
-        "runtime_hints": {
-            "value_required_data_modalities": ("tabular",),
-            "value_data_characteristics": {
-                "n_obs": 64,
-                "n_units": 16,
-                "n_periods": 4,
-                "is_panel": True,
-                "treatment_is_binary": None,
-                "outcome_is_continuous": None,
-            },
-            "value_data_profile_content_hash": _hash("f"),
-        },
-    }
-    replayed = select_value_method_for_problem(
-        candidate=_avg_income_candidate(),
-        problem=wrong_problem,
-    )
-    monkeypatch.setattr(generation_cycle, "_select_value_method", lambda **_kwargs: replayed)
-
     candidate = _avg_income_candidate()
-    simulation = _simulation(_world_record(), candidate_id="candidate_avg_income_real")
-    observation = FoundryValuePort(
-        evaluation_context=_simulation_execution_context(
+    profile = _controlled_avg_income_owner_profile()
+    selector_problem = generation_cycle._selector_problem_for_value_profile(problem, profile)
+    wrong_problem = selector_problem.model_copy(
+        update={
+            "runtime_hints": {
+                **selector_problem.runtime_hints,
+                "value_data_profile_content_hash": _hash("f"),
+            }
+        }
+    )
+    assert wrong_problem.runtime_hints["value_data_profile_content_hash"] != profile.content_hash
+
+    class Gateway:
+        def load_value_data_profile(
+            self,
+            *,
+            candidate: object,
+            problem: DesignProblem,
+            world_record: object,
+        ) -> ValueDataProfile:
+            assert candidate is candidate_arg
+            assert problem is problem_arg
+            assert world_record is world_arg
+            return profile
+
+        def load_value_method_run_intent(self, **_kwargs: Any) -> None:
+            raise AssertionError("foreign-profile receipt must fail before owner method execution")
+
+    candidate_arg = candidate
+    problem_arg = problem
+    world_arg = _world_record()
+    simulation = _simulation(world_arg, candidate_id=candidate.candidate_id)
+    with controlled_builtin_foundry_method_registry_scope() as (registry, registry_report):
+        replayed = select_value_method_for_problem(
+            candidate=candidate,
+            problem=wrong_problem,
+            registry=registry,
+            registry_report=registry_report,
+            require_bound_discovery=True,
+        )
+        assert replayed["status"] == "selected"
+        replayed_receipt = MethodSelectionReceipt.model_validate(replayed["selection_receipt"])
+        current_selection = select_value_method_for_problem(
+            candidate=candidate,
+            problem=selector_problem,
+            registry=registry,
+            registry_report=registry_report,
+            require_bound_discovery=True,
+        )
+        assert current_selection["status"] == "selected"
+        current_receipt = MethodSelectionReceipt.model_validate(
+            current_selection["selection_receipt"]
+        )
+        assert (
+            replayed_receipt.discovery_scope == current_receipt.discovery_scope == "bound_discovery"
+        )
+        assert replayed_receipt.selection_context_hash != current_receipt.selection_context_hash
+        monkeypatch.setattr(
+            generation_cycle,
+            "_select_value_method",
+            lambda **_kwargs: replayed,
+        )
+        observation = FoundryValuePort(
+            evaluation_context=_simulation_execution_context(
+                candidate=candidate,
+                simulation=simulation,
+                problem=problem,
+            ),
+            owner_gateway=Gateway(),
+            method_registry=registry,
+            method_registry_report=registry_report,
+        )(
             candidate=candidate,
             simulation=simulation,
             problem=problem,
-        ),
-        repo_root=Path.cwd(),
-    )(
-        candidate=candidate,
-        simulation=simulation,
-        problem=problem,
-        cycle_index=0,
-    )
+            cycle_index=0,
+        )
 
     assert observation.status == "value_blocked"
     assert observation.authority_blockers == ("value_method_selection_context_hash_mismatch",)

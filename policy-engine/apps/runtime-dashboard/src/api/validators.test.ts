@@ -622,6 +622,84 @@ function genericRootOnlySimulationProjection(runId: string) {
   return projection;
 }
 
+function genericCandidateValueMethodProjection() {
+  const ref = (kind: string, artifactDigit: string) => ({
+    artifact_id: `sha256:${artifactDigit.repeat(64)}`,
+    kind,
+    media_type: "application/json",
+    manifest_profile_sha256: `sha256:${"9".repeat(64)}`,
+  });
+  return {
+    assignment_provenance: "consumer_asserted",
+    authority_purpose: "candidate_source_rows_only",
+    discovery_limitations: [],
+    failure_kind: null,
+    limitation_codes: ["publication_not_admitted"],
+    measurement_unit: "declared_currency_unit",
+    method_selection_receipt_ref: ref(
+      "runtime.value_owner_method_selection_receipt",
+      "f",
+    ),
+    native_report_ref: ref("ir.causal_effect_report", "e"),
+    point_estimate: 1.25,
+    production_value_eligible: false,
+    publication_authority: false,
+    reason: "Source-row estimate retained as candidate evidence.",
+    record_ref: ref("runtime.candidate_value_method", "a"),
+    run_basis_ref: ref("runtime.value_owner_method_run_basis", "c"),
+    selected_method_fqn: "policyos.example.value_method",
+    source_request_ref: ref(
+      "runtime.value_owner_source_projection_request",
+      "b",
+    ),
+    source_time_status: "not_established",
+    statistical_interval: [1, 1.5],
+    status: "completed",
+    value_outer_set: {
+      assumption_status: "declared",
+      assumptions: [],
+      calibration_scope: {},
+      coordinates: ["outcome-a"],
+      data_trust: {
+        authority_ref: "candidate_fixture://value_method_run",
+        max_coverage: 1,
+        min_coverage: 0,
+        promotion_floor: 1,
+        tier: "candidate_fixture",
+        trust_cap: 0,
+        trust_multiplier: 0,
+      },
+      epoch: "candidate-value-method-test",
+      identification_status: "partial",
+      lower: [1],
+      representation: "interval_box",
+      representation_status: "search_only",
+      solver_time_budget_ms: null,
+      statistical_lower: [1],
+      statistical_upper: [1.5],
+      upper: [1.5],
+      width: [0.5],
+      world_model_record_ref: `sha256:${"8".repeat(64)}`,
+    },
+    value_ref: ref("runtime.value_outer_set_candidate_fixture", "d"),
+  };
+}
+
+function genericCycleWithCandidateValueMethodPayload() {
+  const payload = runDetailsPayload("candidate value method projection");
+  const projection = mutableRecord(
+    genericCycleSimulationProjection("run-projection-mask"),
+  );
+  const rootObservation = firstMutableRecord(
+    projection.n5_observations,
+    "n5_observations",
+  );
+  rootObservation.candidate_value_method =
+    genericCandidateValueMethodProjection();
+  mutableRecord(payload.run).generic_cycle_simulation = projection;
+  return payload;
+}
+
 function genericCycleCredalProjection(runId: string) {
   const projection = mutableRecord(genericCycleSimulationProjection(runId));
   projection.schema_version =
@@ -1111,6 +1189,226 @@ describe("runtime API validators", () => {
       media_type: "application/json",
     };
     mutableRecord(payload.run).generic_cycle_simulation = projection;
+
+    expect(runDetailsSchema.safeParse(payload).success).toBe(false);
+  });
+
+  it("preserves a completed candidate source-row method through the generic N5 run response", () => {
+    const payload = genericCycleWithCandidateValueMethodPayload();
+    const parsed = runDetailsSchema.parse(payload).run.generic_cycle_simulation;
+    const observation = parsed?.n5_observations[0];
+
+    expect(observation?.n8_status).toBe("value_conditional");
+    expect(observation?.candidate_value_method).toMatchObject({
+      assignment_provenance: "consumer_asserted",
+      authority_purpose: "candidate_source_rows_only",
+      production_value_eligible: false,
+      publication_authority: false,
+      status: "completed",
+      measurement_unit: "declared_currency_unit",
+      point_estimate: 1.25,
+      statistical_interval: [1, 1.5],
+    });
+    expect(
+      observation?.candidate_value_method?.method_selection_receipt_ref
+        ?.manifest_profile_sha256,
+    ).toBe(`sha256:${"9".repeat(64)}`);
+    expect(observation?.candidate_value_method?.value_outer_set?.width).toEqual(
+      [0.5],
+    );
+    expect(parsed?.publication_authority).toBe(false);
+  });
+
+  it("preserves generic N5 payloads that omit the optional value-method projection", () => {
+    const payload = runDetailsPayload("legacy generic N5 without value method");
+    mutableRecord(payload.run).generic_cycle_simulation =
+      genericCycleSimulationProjection("run-projection-mask");
+
+    const observation =
+      runDetailsSchema.parse(payload).run.generic_cycle_simulation
+        ?.n5_observations[0];
+    expect(observation).not.toHaveProperty("candidate_value_method");
+  });
+
+  it("accepts an unestablished candidate method only with its limitation", () => {
+    const payload = genericCycleWithCandidateValueMethodPayload();
+    const projection = mutableRecord(
+      mutableRecord(payload.run).generic_cycle_simulation,
+    );
+    const observation = firstMutableRecord(
+      projection.n5_observations,
+      "n5_observations",
+    );
+    observation.candidate_value_method = {
+      assignment_provenance: "consumer_asserted",
+      authority_purpose: "candidate_source_rows_only",
+      production_value_eligible: false,
+      publication_authority: false,
+      source_time_status: "not_established",
+      status: "not_established",
+      limitation_codes: ["candidate_value_method_n5_execution_not_established"],
+      discovery_limitations: [],
+      point_estimate: null,
+      statistical_interval: null,
+      value_outer_set: null,
+    };
+
+    const method =
+      runDetailsSchema.parse(payload).run.generic_cycle_simulation
+        ?.n5_observations[0]?.candidate_value_method;
+    expect(method).toMatchObject({
+      status: "not_established",
+      limitation_codes: ["candidate_value_method_n5_execution_not_established"],
+      point_estimate: null,
+      statistical_interval: null,
+      value_outer_set: null,
+    });
+  });
+
+  it.each([
+    ["authority_purpose", "production_authority"],
+    ["production_value_eligible", true],
+    ["publication_authority", true],
+    ["assignment_provenance", "recomputed"],
+    ["source_time_status", "resolved"],
+  ])("rejects candidate-method authority mismatch in %s", (field, value) => {
+    const payload = genericCycleWithCandidateValueMethodPayload();
+    const projection = mutableRecord(
+      mutableRecord(payload.run).generic_cycle_simulation,
+    );
+    const observation = firstMutableRecord(
+      projection.n5_observations,
+      "n5_observations",
+    );
+    const method = mutableRecord(observation.candidate_value_method);
+    method[field!] = value;
+
+    expect(runDetailsSchema.safeParse(payload).success).toBe(false);
+  });
+
+  it.each(["wrong_kind", "missing_selected_manifest"] as const)(
+    "rejects a completed candidate method ref with %s",
+    (variant) => {
+      const payload = genericCycleWithCandidateValueMethodPayload();
+      const projection = mutableRecord(
+        mutableRecord(payload.run).generic_cycle_simulation,
+      );
+      const observation = firstMutableRecord(
+        projection.n5_observations,
+        "n5_observations",
+      );
+      const method = mutableRecord(observation.candidate_value_method);
+      const recordRef = mutableRecord(method.record_ref);
+      if (variant === "wrong_kind") {
+        recordRef.kind = "runtime.value_owner_method_run_basis";
+      } else {
+        recordRef.manifest_profile_sha256 = null;
+      }
+
+      expect(runDetailsSchema.safeParse(payload).success).toBe(false);
+    },
+  );
+
+  it("requires the chosen method-selection receipt for a completed projection", () => {
+    const payload = genericCycleWithCandidateValueMethodPayload();
+    const projection = mutableRecord(
+      mutableRecord(payload.run).generic_cycle_simulation,
+    );
+    const observation = firstMutableRecord(
+      projection.n5_observations,
+      "n5_observations",
+    );
+    const method = mutableRecord(observation.candidate_value_method);
+    method.method_selection_receipt_ref = null;
+
+    expect(runDetailsSchema.safeParse(payload).success).toBe(false);
+  });
+
+  it.each([
+    "point_estimate",
+    "statistical_interval",
+    "inverted_interval",
+  ] as const)(
+    "rejects non-finite or inverted candidate-method statistics: %s",
+    (variant) => {
+      const payload = genericCycleWithCandidateValueMethodPayload();
+      const projection = mutableRecord(
+        mutableRecord(payload.run).generic_cycle_simulation,
+      );
+      const observation = firstMutableRecord(
+        projection.n5_observations,
+        "n5_observations",
+      );
+      const method = mutableRecord(observation.candidate_value_method);
+      if (variant === "point_estimate")
+        method.point_estimate = Number.POSITIVE_INFINITY;
+      if (variant === "statistical_interval") {
+        method.statistical_interval = [1, Number.POSITIVE_INFINITY];
+      }
+      if (variant === "inverted_interval")
+        method.statistical_interval = [1.5, 1];
+
+      expect(runDetailsSchema.safeParse(payload).success).toBe(false);
+    },
+  );
+
+  it.each([
+    "point_estimate",
+    "statistical_interval",
+    "value_outer_set",
+  ] as const)(
+    "refuses candidate-method numeric output while status is unverified: %s",
+    (field) => {
+      const payload = genericCycleWithCandidateValueMethodPayload();
+      const projection = mutableRecord(
+        mutableRecord(payload.run).generic_cycle_simulation,
+      );
+      const observation = firstMutableRecord(
+        projection.n5_observations,
+        "n5_observations",
+      );
+      const method = mutableRecord(observation.candidate_value_method);
+      Object.assign(method, {
+        status: "refused",
+        run_basis_ref: null,
+        value_ref: null,
+        native_report_ref: null,
+        method_selection_receipt_ref: null,
+        value_outer_set: null,
+        point_estimate: null,
+        statistical_interval: null,
+      });
+      if (field === "point_estimate") method.point_estimate = 1.25;
+      if (field === "statistical_interval")
+        method.statistical_interval = [1, 1.5];
+      if (field === "value_outer_set") {
+        method.value_outer_set =
+          genericCandidateValueMethodProjection().value_outer_set;
+      }
+
+      expect(runDetailsSchema.safeParse(payload).success).toBe(false);
+    },
+  );
+
+  it("rejects a candidate value method attached to nonconditional N8", () => {
+    const payload = genericCycleWithCandidateValueMethodPayload();
+    const projection = mutableRecord(
+      mutableRecord(payload.run).generic_cycle_simulation,
+    );
+    const observation = firstMutableRecord(
+      projection.n5_observations,
+      "n5_observations",
+    );
+    Object.assign(observation, {
+      n8_status: "value_pending_n8",
+      n8_lineage_status: "not_established",
+      n8_value_ref: null,
+      n8_limitation_code: "value_gate_pending_n8",
+      n8_authority_blockers: ["value_gate_pending_n8"],
+      n8_numeric_interaction: null,
+      n8_numeric_interaction_basis: null,
+      n8_interaction_sampling_status: null,
+    });
 
     expect(runDetailsSchema.safeParse(payload).success).toBe(false);
   });

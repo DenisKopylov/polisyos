@@ -1256,19 +1256,53 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         served_agents_response = client.get(f"/api/v1/runs/{progress['core_run_id']}/agents")
         assert served_agents_response.status_code == 200, served_agents_response.text
         served_pipeline = served_agents_response.json()["pipeline"]
-        served_cost_events = {
-            event["event_id"]: event
+        assert admitted_scope.status == "established"
+        assert admitted_event["job_id"] == completed.job_id
+        assert admitted_event["run_id"] == str(completed.run_id)
+        assert (
+            admitted_event["effective_execution_profile"] == completed.effective_execution_profile
+        )
+        assert admitted_scope.actor_subject == completed.submitted_by
+        assert progress["core_run_attempt"] == completed.attempt
+        assert served_pipeline["run_id"] == progress["core_run_id"]
+        assert served_pipeline["owner_control_job_attempt"] == completed.attempt
+        assert served_pipeline["unattributed_cost_events"] == []
+        served_event_rows = tuple(
+            event
             for attempt in served_pipeline["attempts"]
             for step in attempt["steps"]
             for event in step.get("cost_events", [])
-        }
-        expected_cost_events = {
-            event.event_id: event.model_dump(mode="json")
-            for event in (
-                *compiled_record.nl_preflight_cost_events,
-                *compiled_record.n4_generation_cost_events,
+        )
+        compiled_event_rows = (
+            *compiled_record.nl_preflight_cost_events,
+            *compiled_record.n4_generation_cost_events,
+        )
+        served_cost_events = {event["event_id"]: event for event in served_event_rows}
+        assert len(served_cost_events) == len(served_event_rows) == len(compiled_event_rows)
+
+        def expected_owned_cost_event(event: Any) -> dict[str, Any]:
+            # The immutable compiled event is reconciled to the persisted job's
+            # lease attempt by the fresh ledger reader. Only that independently
+            # established attribution is added; all cost/provider bytes stay exact.
+            assert event.durability == "ledger"
+            assert event.control_job_attempt in (None, completed.attempt)
+            assert event.pre_admission_attempt_id is None
+            return (
+                type(event)
+                .model_validate(
+                    {
+                        **event.model_dump(mode="python"),
+                        "control_job_attempt": completed.attempt,
+                        "pre_admission_attempt_id": None,
+                    }
+                )
+                .model_dump(mode="json")
             )
+
+        expected_cost_events = {
+            event.event_id: expected_owned_cost_event(event) for event in compiled_event_rows
         }
+        assert len(expected_cost_events) == len(compiled_event_rows)
         assert served_cost_events == expected_cost_events
         leaf_nodes = compiled_record.recursive_run.leaf_nodes
         assert len(leaf_nodes) == 1
@@ -1281,8 +1315,11 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert voi_decision.scheduler_action in scheduler_actions
         assert voi_decision.scheduler_action == "reject"
         assert voi_decision.scheduler_reason == "roi_below_threshold"
-        assert voi_decision.next_action == "blocked"
-        assert voi_decision.reason == "candidate_scenario_n5_only"
+        assert voi_decision.next_action == "escalate"
+        assert voi_decision.reason == "terminal_requires_escalation:acquisition_required"
+        selected_cycle = leaf_run.cycles[-1]
+        assert selected_cycle.terminal_kind == "acquisition_required"
+        assert selected_cycle.revision_request.source_terminal_kind == "acquisition_required"
 
         assert n5_calls, "configured candidate profile did not reach the N5 port"
         input_record, observation, port_input_ref = next(
@@ -1291,6 +1328,55 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             if result.candidate_id == item.original_candidate_id
         )
         assert type(input_record).__name__ == "CandidateSimulationN5InputV5"
+
+        # The real selected Catalog has no observations for this fixture's
+        # outcome. That producer-bound requirement must survive candidate-only
+        # N5 and the separate ROI rejection; it grants neither acquisition nor
+        # value/publication authority.
+        routing = selected_cycle.value_port.candidate_n5_l1_routing
+        assert routing is not None
+        assert routing.authority_purpose == "candidate_routing_only"
+        assert routing.catalog_currentness == "not_established"
+        assert routing.historical_catalog_absence == "not_established"
+        gap = routing.requirement_gap
+        assert gap.metadata["source"] == "l1_dcat_variable_availability"
+        assert gap.metadata["authority_purpose"] == "routing_only"
+        assert gap.metadata["satisfaction_status"] == "unsatisfied"
+        assert gap.missing_requirement_fields == (
+            f"canonical_variable_observations:{outcome_variable}",
+        )
+        availability = gap.metadata["availability"]
+        assert availability["variable_id"] == outcome_variable
+        assert availability["status"] == "unavailable"
+        assert (
+            availability["dataset_count"],
+            availability["metric_binding_count"],
+            availability["observation_count"],
+        ) == (0, 0, 0)
+        assert availability["coverage_ref"] == (
+            f"catalog_source://{compact_source.catalog_source.database_path.as_posix()}"
+            f"#variable/{outcome_variable}"
+        )
+        assert gap.metadata["candidate_binding"] == {
+            "candidate_id": input_record.original_candidate_id,
+            "candidate_content_hash": input_record.original_candidate_hash,
+            "design_problem_ref": compiled_record.design_problem_ref,
+        }
+        acquisition_request = selected_cycle.revision_request.strategy_payload[
+            "acquisition_request"
+        ]
+        assert acquisition_request["driver"] == "acquire_data:value_panel_data_missing"
+        assert acquisition_request["n7_source_join_rule"] == (
+            "policyos.runtime.n7_candidate_n5_l1_obligations.v1"
+        )
+        assert acquisition_request["requirement_gap"] == gap.model_dump(mode="json")
+        grounding_gap = selected_cycle.grounding.acquisition_requirement
+        assert grounding_gap is not None
+        assert selected_cycle.grounding.issue_codes == ("cgf_disposition_missing",)
+        assert acquisition_request["accompanying_requirement_gaps"] == [
+            grounding_gap.model_dump(mode="json")
+        ]
+        assert leaf_run.acquisition_receipts == ()
 
         # Exercise the public details consumer after the POST has persisted the
         # compiled run and N5 artifacts. This checks the typed projection from
@@ -1854,11 +1940,16 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             abs=0.02,
         )
 
-        assert leaf_run.terminal_status == "blocked"
+        assert leaf_run.terminal_status == "completed"
+        assert leaf_run.blocked_reason is None
         assert leaf_run.value_port.status == "value_pending_n8"
         assert leaf_run.value_port.authority_blockers == ("candidate_scenario_n5_only",)
         assert leaf_run.promotion_port.status == "not_promoted"
-        assert leaf_run.promotion_port.reason.startswith("generation_cycle_blocked_before_n9:")
+        assert leaf_run.deployment_identity_status == "not_established"
+        assert leaf_run.deployment_identity is None
+        assert leaf_run.promotion_port.reason == (
+            "generation_cycle_n6_census_not_established:loaded_deployment_identity_not_established"
+        )
         assert leaf_run.promotion_port.certified_candidate_ids == ()
         assert leaf_run.fronts.decision.candidate_ids == ()
         assert all(not summary.certified_by_n9 for summary in leaf_run.candidate_summaries)
@@ -2634,6 +2725,10 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             "reason": "budget_exhausted_for_next_level",
             "scheduler_action": "defer",
             "scheduler_priority": 0.0,
+            "candidate_simulation_n4_source_ref": str(zero_budget_source_refs[0].artifact_id),
+            "candidate_simulation_n4_source_selected_ref": zero_budget_source_refs[0].model_dump(
+                mode="json"
+            ),
         }
         assert zero_budget_cycle.value_port.status == "value_blocked"
         assert zero_budget_cycle.value_port.authority_blockers == (
@@ -2651,10 +2746,10 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         # confidence withhold. It is deliberately not the separate full-V2
         # two-child/history closeout criterion recorded in N4-V2-decision.json.
         assert candidate_projection.n4_recursive_source_status == "resolved"
-        assert candidate_projection.n4_recursive_source_result_status == ("generation_unavailable")
+        assert candidate_projection.n4_recursive_source_result_status == "generated"
         assert candidate_projection.n4_child_profile_status == "not_established"
         assert candidate_projection.n4_child_profile_limitation_code == (
-            "n4_recursive_source_generation_not_complete"
+            "n4_recursive_child_configured_profile_not_established"
         )
         assert candidate_projection.n4_child_profile_bindings == ()
         assert n4_source.k_ref_limitation_code == "historical_l2_confidence_withheld"

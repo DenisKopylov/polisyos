@@ -604,6 +604,135 @@ async def test_design_problem_front_door_accepts_current_qualified_outcome() -> 
     }
 
 
+def _outcome_coordinate_request() -> str:
+    """Return a request that explicitly grounds the covariate, unit and budget cap."""
+    return (
+        "Design a wartime MSME credit guarantee for Ukraine within the stated UAH 10b budget "
+        "cap. Evaluate its effect on firm survival, controlling for baseline firm survival, "
+        "and express firm survival as a percentage."
+    )
+
+
+@pytest.mark.asyncio
+async def test_design_problem_front_door_materializes_explicit_outcome_coordinates() -> None:
+    """Preserve NL-emitted covariate and unit through provider schema and parser."""
+    request = _outcome_coordinate_request()
+    legacy_gateway = _FakeDesignProblemGateway(
+        models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
+        arguments=_design_problem_tool_args(),
+    )
+    legacy_problem = await build_design_problem_from_nl_request(
+        nl_request=request,
+        context=_intent_context(as_of="2026-05-12"),
+        model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+        gateway_client=legacy_gateway,
+        span_support_client=_DeterministicSpanSupportClient(),
+    )
+    legacy_outcome = legacy_problem.model_dump(mode="json")["outcome_of_interest"]
+    assert "conditioning_variables" not in legacy_outcome
+    assert "measurement_unit" not in legacy_outcome
+
+    arguments = _design_problem_tool_args()
+    arguments["outcome_of_interest"].update(
+        {
+            "conditioning_variables": ["baseline_firm_survival"],
+            "measurement_unit": "percent",
+        }
+    )
+    gateway = _FakeDesignProblemGateway(
+        models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
+        arguments=arguments,
+    )
+    problem = await build_design_problem_from_nl_request(
+        nl_request=request,
+        context=_intent_context(as_of="2026-05-12"),
+        model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+        gateway_client=gateway,
+        span_support_client=_DeterministicSpanSupportClient(),
+    )
+
+    assert problem.outcome_of_interest.conditioning_variables == ("baseline_firm_survival",)
+    assert problem.outcome_of_interest.measurement_unit == "percent"
+    assert "baseline firm survival" in problem.nl_provenance.raw_request.casefold()
+    assert "as a percentage" in problem.nl_provenance.raw_request.casefold()
+
+    provider_schema = gateway.generate_calls[0]["tools"][0]["function"]["parameters"]
+    outcome_schema = provider_schema["properties"]["outcome_of_interest"]
+    outcome_variants = outcome_schema.get("anyOf", [outcome_schema])
+    outcome_objects = [variant for variant in outcome_variants if variant.get("type") == "object"]
+    assert outcome_objects
+    outcome_properties = outcome_objects[0]["properties"]
+    assert "conditioning_variables" in outcome_properties
+    assert "measurement_unit" in outcome_properties
+
+
+@pytest.mark.asyncio
+async def test_design_problem_front_door_rejects_duplicate_outcome_conditioning_variables() -> None:
+    """Malformed repeated covariates fail in the real tool-call materializer."""
+    arguments = _design_problem_tool_args()
+    arguments["outcome_of_interest"].update(
+        {
+            "conditioning_variables": [
+                "baseline_firm_survival",
+                "baseline_firm_survival",
+            ],
+            "measurement_unit": "percent",
+        }
+    )
+    gateway = _FakeDesignProblemGateway(
+        models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
+        arguments=arguments,
+    )
+
+    with pytest.raises(DesignProblemAuthorityError) as exc_info:
+        await build_design_problem_from_nl_request(
+            nl_request=_outcome_coordinate_request(),
+            context=_intent_context(as_of="2026-05-12"),
+            model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+            gateway_client=gateway,
+            span_support_client=_DeterministicSpanSupportClient(),
+        )
+
+    assert exc_info.value.code == "design_problem_validation_failed"
+    assert "conditioning" in str(exc_info.value).casefold()
+    assert "outcome_conditioning_variables_not_unique" in str(exc_info.value)
+
+
+@pytest.mark.asyncio
+async def test_provider_invented_outcome_coordinates_remain_proposed_not_user_authority() -> None:
+    """A model's extra coordinate survives only as an explicitly unverified candidate."""
+    arguments = _design_problem_tool_args()
+    arguments["outcome_of_interest"].update(
+        conditioning_variables=["provider_invented_covariate"],
+        measurement_unit="percent",
+    )
+    # The bounded provider emits fields not present in this request. Its output
+    # is exercised through the actual materializer, never stamped source-verified.
+    raw_request = (
+        "Design a credit guarantee for Ukraine while limiting fiscal exposure; "
+        "keep the UAH 10b budget cap."
+    )
+    gateway = _FakeDesignProblemGateway(
+        models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
+        arguments=arguments,
+    )
+    problem = await build_design_problem_from_nl_request(
+        nl_request=raw_request,
+        context=_intent_context(as_of="2026-05-12"),
+        model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+        gateway_client=gateway,
+        span_support_client=_DeterministicSpanSupportClient(),
+    )
+    assert "provider_invented_covariate" not in problem.nl_provenance.raw_request
+    assert "percent" not in problem.nl_provenance.raw_request
+    assert problem.outcome_of_interest.query_coordinate_status == "candidate_proposed_unverified"
+    assert problem.outcome_of_interest.conditioning_variables == ("provider_invented_covariate",)
+    payload = problem.model_dump(mode="python")
+    payload["outcome_of_interest"]["query_coordinate_status"] = "user_requirement_verified"
+    with pytest.raises(ValueError, match="query_coordinate_status"):
+        type(problem).model_validate(payload)
+
+
 @pytest.mark.asyncio
 async def test_design_problem_front_door_rejects_explicit_legacy_schema_version() -> None:
     """The current compiler cannot relabel an explicit legacy provider payload."""

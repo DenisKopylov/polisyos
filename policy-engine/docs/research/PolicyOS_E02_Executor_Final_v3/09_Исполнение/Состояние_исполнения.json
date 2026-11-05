@@ -10477,6 +10477,22 @@
           "inputs_unchanged_during_run": true,
           "scope": "Verified prior-prefix/current-owner entry, equivalent cheap continuation preserving N5, changed-basis source reentry and frontier CAS source composed by ordinary merge. Pure ordering/deduplication unit only; actual A→B→B→B→C and retry execution remain semantic_test_missing.",
           "independent_review": "Sol bounded two-owner source review; nondeterministic inherited-limitation serialization fixed and material re-review GO. Root commit-byte readback matches all three paths."
+        },
+        "ds9_candidate_experiment_packet_join_current": {
+          "output": "policy-engine/_cache/e02/lane01-ds9-candidate-packet-current-r1/",
+          "observed": {
+            "PASS": 13,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 24.76140508404933,
+          "peak_rss_bytes": 1543815168,
+          "named_inputs": 4,
+          "inputs_unchanged_during_run": true,
+          "scope": "Canonical source/request/contract classifier recognizes exactly legacy acquisition and candidate-experiment action; action/operation equality, exact envelope/v1/permission and all signature-resolution joins remain required. Real producer sources and mixed/foreign action pairs qualify; full served invocation r2 is running separately.",
+          "independent_review": "Root source/test review; actual retained R1 packet diagnosis by Luna. Root directly read complete supervised result/stdout.",
+          "earlier_direct_run": "13PASS measured with time, without supervised process-tree cap or retained complete output; not used as deciding output."
         }
       },
       "independent_component_reviews": {

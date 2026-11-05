@@ -459,14 +459,17 @@ def _pa2_packet_join_issues(
     )
     snapshot = source.permission_snapshot
     from polisyos.runtime.http.permissions import RuntimePermission
-    from polisyos.runtime.quality.agent_action_authority import ACQUISITION_ACTION_KIND
+    from polisyos.runtime.quality.agent_action_authority import (
+        ACQUISITION_ACTION_KIND,
+        CANDIDATE_EXPERIMENT_ACTION_KIND,
+    )
 
     # Acquisition is an in-envelope action with mandatory pre-action human
     # accountability. Its exact tuple/permission distinguishes it from S7's
     # out-of-envelope review; a request reason alone cannot select this arm.
     acquisition_source = (
-        source.action_kind == ACQUISITION_ACTION_KIND
-        and source.operation_id == ACQUISITION_ACTION_KIND
+        source.action_kind in {ACQUISITION_ACTION_KIND, CANDIDATE_EXPERIMENT_ACTION_KIND}
+        and source.operation_id == source.action_kind
         and source.operation_version == "v1"
         and envelope is not None
         and envelope.action_kind == source.action_kind

@@ -48,6 +48,10 @@ def test_generic_root_reissue_uses_current_ref_and_checks_recipe_before_n4(
         CycleSubstrateContextOwnerError,
         cycle_job_profile_selection_ref,
     )
+    from polisyos.runtime.quality.design_problem import (
+        DESIGN_PROBLEM_V3_SCHEMA_VERSION,
+        DesignProblem,
+    )
     from polisyos.runtime.quality.generation_cycle import (
         GenerationCycleController,
         GenerationCycleError,
@@ -73,7 +77,6 @@ def test_generic_root_reissue_uses_current_ref_and_checks_recipe_before_n4(
         _problem,
     )
     from tests.unit.runtime.http.test_control_job_execution_intent import _valid_intake_for_mode
-    from tests.unit.runtime.quality.test_generation_cycle import _budget
 
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
@@ -86,7 +89,12 @@ def test_generic_root_reissue_uses_current_ref_and_checks_recipe_before_n4(
     request.addfinalizer(lambda: provider_context.__exit__(None, None, None))
     tenant_id = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
     cell_id = "cell-a"
-    problem = _problem("generic_root_reissue")
+    problem = DesignProblem.model_validate(
+        {
+            **_problem("generic_root_reissue").model_dump(mode="python"),
+            "schema_version": DESIGN_PROBLEM_V3_SCHEMA_VERSION,
+        }
+    )
     if case != "current_ref":
         hints = dict(problem.runtime_hints)
         hints["cycle_substrate_source_profile"] = source_problem(runtime_hints=None).runtime_hints[
@@ -187,7 +195,8 @@ def test_generic_root_reissue_uses_current_ref_and_checks_recipe_before_n4(
             service._retrieval_catalog, service._catalog_serving_source
         )
         assert service._retrieval._dataset_catalog is service._retrieval_catalog
-        original_compile = service.compile_and_run_recursive_generation_cycle
+        original_compile = service_generation.compile_and_run_recursive_generation_cycle
+        controls_complete = GenerationCycleError("controlled_current_ref_controls_complete")
 
         async def run_owner_controls(**kwargs: Any) -> Any:
             if case != "current_ref":
@@ -213,6 +222,11 @@ def test_generic_root_reissue_uses_current_ref_and_checks_recipe_before_n4(
             handoff = kwargs["generic_cycle_simulation_handoff_resolver"](problem)
             leaf = kwargs["recursive_leaf_context_owner"]
             context_owner = leaf._context_owner
+            assert context_owner._store is api.store
+            assert (
+                leaf._generic_admission_owner is kwargs["generic_cycle_simulation_admission_owner"]
+            )
+            assert kwargs["promotion_runtime"].store is api.store
             lease = kwargs["generic_cycle_simulation_currentness_resolver"]
             assert lease() is True
             revoked: set[tuple[Any, ...]] = set()
@@ -230,20 +244,26 @@ def test_generic_root_reissue_uses_current_ref_and_checks_recipe_before_n4(
                     model_id="controlled-current-ref",
                     cycle_substrate_context=handoff.context,
                 ),
-                repo_root=tmp_path,
+                repo_root=kwargs["repo_root"],
                 model_id="controlled-current-ref",
+                catalog_run_profile=kwargs["catalog_run_profile"],
+                catalog_serving_source=kwargs["catalog_serving_source"],
+                capability_resolver=kwargs["capability_resolver"],
+                measurement_root_execution_binding=kwargs["measurement_root_execution_binding"],
                 cycle_substrate_context=handoff.context,
                 candidate_cycle_context_artifact_owner=context_owner,
                 candidate_cycle_verified_nl_job_scope=scope,
                 generic_cycle_simulation_admission_owner=leaf._generic_admission_owner,
                 generic_cycle_simulation_handoff=handoff,
                 generic_cycle_simulation_currentness_resolver=(lambda: gate["current"] and lease()),
-                promotion_runtime=service._promotion_runtime,
+                physical_n5_budget_scope=kwargs["physical_n5_budget_scope"],
+                _producer_budget_reconciler=kwargs["_producer_budget_reconciler"],
+                promotion_runtime=kwargs["promotion_runtime"],
                 artifact_store=api.store,
                 eval_safety_verifier=kwargs["eval_safety_verifier"],
             )
             with pytest.raises(GenerationCycleError, match="controlled_current_ref_n4_boundary"):
-                await controller.run(problem, budget_state=_budget(), max_cycles=1)
+                await controller.run(problem, budget_state=kwargs["budget_state"], max_cycles=1)
             assert len(n4_calls) == 1
             revised = problem.model_copy(
                 update={
@@ -270,7 +290,7 @@ def test_generic_root_reissue_uses_current_ref_and_checks_recipe_before_n4(
                 CycleSubstrateContextOwnerError,
                 match="cycle_substrate_context_temporal_read_not_established",
             ):
-                await controller.run(revised, budget_state=_budget(), max_cycles=1)
+                await controller.run(revised, budget_state=kwargs["budget_state"], max_cycles=1)
             assert reads == [new]
             assert len(n4_calls) == 1
             observed.append("current_ref_revoked_before_effect")
@@ -278,7 +298,7 @@ def test_generic_root_reissue_uses_current_ref_and_checks_recipe_before_n4(
             revoked.add(old)
             reads.clear()
             with pytest.raises(GenerationCycleError, match="controlled_current_ref_n4_boundary"):
-                await controller.run(revised, budget_state=_budget(), max_cycles=1)
+                await controller.run(revised, budget_state=kwargs["budget_state"], max_cycles=1)
             assert new in reads and old not in reads
             assert len(n4_calls) == 2
             observed.append("old_ref_does_not_veto_current")
@@ -287,13 +307,13 @@ def test_generic_root_reissue_uses_current_ref_and_checks_recipe_before_n4(
             with pytest.raises(
                 GenerationCycleError, match="generation_cycle_generic_upstream_not_current"
             ):
-                await controller.run(revised, budget_state=_budget(), max_cycles=1)
+                await controller.run(revised, budget_state=kwargs["budget_state"], max_cycles=1)
             assert not reads and len(n4_calls) == 2
             observed.append("upstream_false_before_effect")
-            raise GenerationCycleError("controlled_current_ref_controls_complete")
+            raise controls_complete
 
         monkeypatch.setattr(
-            service, "compile_and_run_recursive_generation_cycle", run_owner_controls
+            service_generation, "compile_and_run_recursive_generation_cycle", run_owner_controls
         )
         response = client.post(
             "/api/v1/control/runs/nl",
@@ -327,7 +347,7 @@ def test_generic_root_reissue_uses_current_ref_and_checks_recipe_before_n4(
                 "old_ref_does_not_veto_current",
                 "upstream_false_before_effect",
             ], job.error_message
-            assert job.error_message == "controlled_current_ref_controls_complete"
+            assert job.error_message == str(controls_complete)
         else:
             assert not n4_calls
             assert "n4_candidate_source_profile_owner_refused" in str(job.error_message)

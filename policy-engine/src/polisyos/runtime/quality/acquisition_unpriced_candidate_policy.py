@@ -1088,6 +1088,7 @@ def reconcile_candidate_unpriced_work(
             run_id=scope.run_id,
             source_job_id=scope.source_job_id,
             route_id=phase.route_id,
+            verified_origin=experiment_origin,
         )
         action = _select_current_candidate_experiment_outcome(
             experiment_outcomes,
@@ -1166,6 +1167,7 @@ def reconcile_candidate_unpriced_work(
             run_id=scope.run_id,
             source_job_id=scope.source_job_id,
             route_id=phase.route_id,
+            verified_origin=experiment_origin,
         )
         current_action = _select_current_candidate_experiment_outcome(
             current_outcomes,

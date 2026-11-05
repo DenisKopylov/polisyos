@@ -7,7 +7,8 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from time import sleep
+from time import perf_counter, process_time, sleep
+from traceback import TracebackException
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
@@ -51,6 +52,30 @@ class CandidateExperimentServedExecutionOwner:
     port: WorldBankWDIAcquisitionExecutionPort
     selection: AcquisitionCandidateSourceRoute
     transport_calls: list[tuple[str, str, dict[str, str]]]
+    execution_calls: list[CandidateExperimentExecutionCall]
+
+
+@dataclass(frozen=True)
+class CandidateExperimentExecutionCall:
+    """Test-only timing and exception evidence for one real port call."""
+
+    action_phase_ref: str
+    origin_head_ref: str | None
+    origin_head_phase: str | None
+    elapsed_wall_seconds: float
+    elapsed_cpu_seconds: float
+    stage_calls: tuple[CandidateExperimentExecutionStageCall, ...]
+    exception_chain: str | None
+
+
+@dataclass(frozen=True)
+class CandidateExperimentExecutionStageCall:
+    """Elapsed time for one named call inside the real execution method."""
+
+    stage: str
+    elapsed_wall_seconds: float
+    elapsed_cpu_seconds: float
+    raised_type: str | None
 
 
 @dataclass(frozen=True)
@@ -819,13 +844,160 @@ def run_candidate_experiment_served_execution(
         if before_first_delivery is not None:
             before_first_delivery(execution_owner, job_id)
 
+        def dispatch_with_execution_observer(dispatch: Callable[[], str]) -> str:
+            original_execute = execution_owner.port.execute_candidate_experiment
+
+            def observe_execute_candidate_experiment(
+                *,
+                origin: VerifiedCandidateExperimentOrigin,
+                action_phase_ref: str,
+            ):
+                from polisyos.runtime.http.services import acquisition_surface_execution
+                from polisyos.runtime.quality import (
+                    acquisition_unpriced_candidate_policy,
+                    candidate_acquisition_action,
+                )
+
+                stage_calls: list[CandidateExperimentExecutionStageCall] = []
+                origin_head = origin.current_action_head
+                origin_head_ref = origin_head.receipt_ref if origin_head is not None else None
+                origin_head_phase = origin_head.receipt_phase if origin_head is not None else None
+
+                def time_stage(
+                    stage_scope: pytest.MonkeyPatch,
+                    *,
+                    target: object,
+                    attribute: str,
+                    label: str,
+                ) -> None:
+                    original_stage = getattr(target, attribute)
+
+                    def observed_stage(*args: object, **kwargs: object):
+                        stage_started_wall = perf_counter()
+                        stage_started_cpu = process_time()
+                        try:
+                            result = original_stage(*args, **kwargs)
+                        except BaseException as exc:
+                            stage_calls.append(
+                                CandidateExperimentExecutionStageCall(
+                                    stage=label,
+                                    elapsed_wall_seconds=(perf_counter() - stage_started_wall),
+                                    elapsed_cpu_seconds=process_time() - stage_started_cpu,
+                                    raised_type=type(exc).__name__,
+                                )
+                            )
+                            raise
+                        stage_calls.append(
+                            CandidateExperimentExecutionStageCall(
+                                stage=label,
+                                elapsed_wall_seconds=perf_counter() - stage_started_wall,
+                                elapsed_cpu_seconds=process_time() - stage_started_cpu,
+                                raised_type=None,
+                            )
+                        )
+                        return result
+
+                    stage_scope.setattr(target, attribute, observed_stage)
+
+                started_wall = perf_counter()
+                started_cpu = process_time()
+                with monkeypatch.context() as stages:
+                    stage_targets = (
+                        (execution_owner.port, "preflight_candidate_experiment"),
+                        (
+                            candidate_acquisition_action,
+                            "_candidate_experiment_source_selection",
+                        ),
+                        (
+                            execution_owner.bridge,
+                            "preflight_candidate_experiment_evaluation",
+                        ),
+                        (
+                            candidate_acquisition_action,
+                            "_current_candidate_experiment_action",
+                        ),
+                        (
+                            execution_owner.bridge,
+                            "prepare_candidate_experiment_source_budget_window",
+                        ),
+                        (control, "build_candidate_experiment_source_budget_observer"),
+                        (execution_owner.port, "_candidate_experiment_binding"),
+                        (
+                            execution_owner.port,
+                            "_current_candidate_experiment_authorization",
+                        ),
+                        (
+                            acquisition_unpriced_candidate_policy,
+                            "reconcile_candidate_unpriced_work",
+                        ),
+                        (execution_owner.port, "_runtime_artifact_store_root"),
+                        (execution_owner.port, "_reserve_first_fresh"),
+                        (execution_owner.port, "_claim_reserved_binding"),
+                        (acquisition_surface_execution, "execute_live_catalog_acquisition"),
+                        (execution_owner.bridge, "admit_candidate_experiment"),
+                    )
+                    for stage_target, attribute in stage_targets:
+                        time_stage(
+                            stages,
+                            target=stage_target,
+                            attribute=attribute,
+                            label=attribute.removeprefix("_")
+                            if attribute.startswith("_")
+                            else attribute,
+                        )
+                    try:
+                        result = original_execute(
+                            origin=origin,
+                            action_phase_ref=action_phase_ref,
+                        )
+                    except BaseException as exc:
+                        execution_owner.execution_calls.append(
+                            CandidateExperimentExecutionCall(
+                                action_phase_ref=action_phase_ref,
+                                origin_head_ref=origin_head_ref,
+                                origin_head_phase=origin_head_phase,
+                                elapsed_wall_seconds=perf_counter() - started_wall,
+                                elapsed_cpu_seconds=process_time() - started_cpu,
+                                stage_calls=tuple(stage_calls),
+                                exception_chain="".join(
+                                    TracebackException.from_exception(
+                                        exc,
+                                        capture_locals=False,
+                                    ).format(chain=True)
+                                ),
+                            )
+                        )
+                        raise
+                execution_owner.execution_calls.append(
+                    CandidateExperimentExecutionCall(
+                        action_phase_ref=action_phase_ref,
+                        origin_head_ref=origin_head_ref,
+                        origin_head_phase=origin_head_phase,
+                        elapsed_wall_seconds=perf_counter() - started_wall,
+                        elapsed_cpu_seconds=process_time() - started_cpu,
+                        stage_calls=tuple(stage_calls),
+                        exception_chain=None,
+                    )
+                )
+                return result
+
+            with monkeypatch.context() as observed:
+                observed.setattr(
+                    execution_owner.port,
+                    "execute_candidate_experiment",
+                    observe_execute_candidate_experiment,
+                )
+                return dispatch()
+
         if recover_worker_crash:
             crashed = False
             try:
-                _dispatch_crash_probe_once(
-                    control=control,
-                    expected_job_id=job_id,
-                    lease_seconds=1,
+                dispatch_with_execution_observer(
+                    lambda: _dispatch_crash_probe_once(
+                        control=control,
+                        expected_job_id=job_id,
+                        lease_seconds=1,
+                    )
                 )
             except KeyboardInterrupt:
                 crashed = True
@@ -855,19 +1027,23 @@ def run_candidate_experiment_served_execution(
             remaining = (expiry - datetime.now(UTC)).total_seconds()
             if remaining > 0:
                 sleep(remaining)
-            dispatched = dispatch_one_control_job(
-                store=control._control_store,
-                handler=control._process_control_job,
-                expected_job_id=job_id,
+            dispatched = dispatch_with_execution_observer(
+                lambda: dispatch_one_control_job(
+                    store=control._control_store,
+                    handler=control._process_control_job,
+                    expected_job_id=job_id,
+                )
             )
             if dispatched != job_id:
                 raise AssertionError("candidate experiment retry did not reclaim requested job")
             attempts = (interrupted_job.attempt, 2)
         else:
-            dispatched = dispatch_one_control_job(
-                store=control._control_store,
-                handler=control._process_control_job,
-                expected_job_id=job_id,
+            dispatched = dispatch_with_execution_observer(
+                lambda: dispatch_one_control_job(
+                    store=control._control_store,
+                    handler=control._process_control_job,
+                    expected_job_id=job_id,
+                )
             )
             if dispatched != job_id:
                 raise AssertionError("candidate experiment worker did not dispatch requested job")
@@ -875,7 +1051,46 @@ def run_candidate_experiment_served_execution(
 
         final_job = control._control_store.get_job(job_id)
         if type(final_job) is not ControlJobRecord or final_job.state != "completed":
-            raise AssertionError(f"candidate experiment worker did not complete: {final_job!r}")
+            observations = execution_owner.execution_calls
+            if observations:
+                call_details = "\n".join(
+                    (
+                        f"execute_candidate_experiment call {index}: "
+                        f"action_phase_ref={observation.action_phase_ref} "
+                        f"origin_head_ref={observation.origin_head_ref} "
+                        f"origin_head_phase={observation.origin_head_phase} "
+                        f"wall={observation.elapsed_wall_seconds:.6f}s "
+                        f"cpu={observation.elapsed_cpu_seconds:.6f}s\n"
+                        f"stages: {
+                            '; '.join(
+                                f'{stage.stage}='
+                                f'{stage.elapsed_wall_seconds:.6f}s/'
+                                f'{stage.elapsed_cpu_seconds:.6f}cpu'
+                                + (f' raised={stage.raised_type}' if stage.raised_type else '')
+                                for stage in observation.stage_calls
+                            )
+                            or 'none'
+                        }"
+                        + (
+                            f"\n{observation.exception_chain.rstrip()}"
+                            if observation.exception_chain is not None
+                            else " (returned successfully)"
+                        )
+                    )
+                    for index, observation in enumerate(observations, start=1)
+                )
+            else:
+                call_details = "execute_candidate_experiment was not entered"
+            job_state = (
+                f"job_id={getattr(final_job, 'job_id', job_id)} "
+                f"state={getattr(final_job, 'state', 'missing')} "
+                f"attempt={getattr(final_job, 'attempt', 'missing')} "
+                f"error_code={getattr(final_job, 'error_code', None)} "
+                f"error_type={getattr(final_job, 'error_type', None)}"
+            )
+            raise AssertionError(
+                f"candidate experiment worker did not complete: {job_state}\n{call_details}"
+            )
         if recover_worker_crash and final_job.attempt != 2:
             raise AssertionError("candidate experiment retry did not advance the worker attempt")
         final_outcomes = _experiment_outcomes(control=control, origin=origin)
@@ -1109,6 +1324,7 @@ def candidate_experiment_served_execution_owner(
                 port=port,
                 selection=selection,
                 transport_calls=transport_calls,
+                execution_calls=[],
             )
         finally:
             action_service._execution_port = previous_execution_port

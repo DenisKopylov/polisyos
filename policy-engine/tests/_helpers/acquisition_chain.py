@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
@@ -562,6 +562,8 @@ def make_wdi_port_case(
     candidate_scenario_generation=False,
     candidate_generation_recording: dict[str, Any] | None = None,
     candidate_provider_gateway=None,
+    epoch_scope_payload: Mapping[str, object] | None = None,
+    authority_purpose: str = "publication",
     reentry_budget_usd: Decimal = Decimal("0.10"),
     fixture_epoch_id: int | None = None,
     fixture_attempt_ids: tuple[str, ...] = (_ATTEMPT_ID,),
@@ -607,6 +609,8 @@ def make_wdi_port_case(
             authority=authority,
             overlay_path=owner_root / "overlay.duckdb",
             epoch_history_root=owner_root / "epochs",
+            scope_payload=epoch_scope_payload,
+            authority_purpose=authority_purpose,
         )
         if fixture_epoch_id is not None:
             args["epoch_id"] = fixture_epoch_id

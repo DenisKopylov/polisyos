@@ -1151,10 +1151,11 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
 
     result_ref = ArtifactRef.model_validate(parent["simulation_result_ref"])
     assert result_ref.manifest_profile_sha256 is not None
-    result_manifest = service._artifact_store.get_manifest(result_ref)
+    with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+        result_manifest = service._artifact_store.get_manifest(result_ref)
     assert result_manifest.tenant_context is not None
-    assert result_manifest.tenant_context.tenant_id == "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
-    assert result_manifest.tenant_context.cell_id == "cell-b26-joint-candidate"
+    assert result_manifest.tenant_context.tenant_id == prepared.tenant_id
+    assert result_manifest.tenant_context.cell_id == prepared.cell_id
     assert parent["world_model_record_content_hash"] is not None
     with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
         persisted_result = load_joint_simulation_result(

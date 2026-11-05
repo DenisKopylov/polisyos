@@ -43,6 +43,7 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
     from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.security import build_fixture_identity_claims
     from polisyos.runtime.http.services.control import generation_cycle as compiler_owner
     from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
     from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
@@ -58,14 +59,18 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
     sys.modules[helper_name] = generic_n4_served_replay
     helper_spec.loader.exec_module(generic_n4_served_replay)
     generic_n4_served_replay.REPO_ROOT = PHYSICAL_POLICY_ENGINE_ROOT
+    fixture_identity = build_fixture_identity_claims()
     prepared = await generic_n4_served_replay.prepare_generic_n4_served_replay(
         tmp_path=tmp_path,
         controlled_candidate_gateway=controlled_candidate_gateway,
         monkeypatch=monkeypatch,
-        tenant_id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-        cell_id="cell-b26-joint-candidate",
+        tenant_id=fixture_identity.tenant_id,
+        cell_id=fixture_identity.cell_id,
         child_count=3,
     )
+    assert prepared.app_kwargs["allow_fixture_identity"] is True
+    assert prepared.tenant_id == fixture_identity.tenant_id
+    assert prepared.cell_id == fixture_identity.cell_id
     assert len(prepared.children) == 3
 
     def controlled_ncm_step(state: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:

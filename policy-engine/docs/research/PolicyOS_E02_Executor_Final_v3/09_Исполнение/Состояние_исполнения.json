@@ -10642,17 +10642,17 @@
             "policy-engine/_cache/e02/lane01-gdp-current-native-r2/"
           ],
           "observed": "Two initial FAIL/FAIL invocations stop on import/fixture-schema and oracle-shape mistakes before positive N5. Wrong-year production refusal was correct in r2; test now asserts its exact code.",
-          "latest_state": "Canonical Catalog connector lifetime repair qualified separately. GDP custom fixture now uses strict integer tax rate0 in ratio units with physical baseline0.5 and declared -$500B/ratio synthetic coefficient, preserving actual acquired annual GDP baseline and independently expected+$250B. All selected N4 overlay stages and hashes consistent; default helper behavior unchanged. Independent numeric/default-path review GO, corrected whole route UNRUN.",
+          "latest_state": "Real connector reaches measured_pending_passport and returns quarantined_no_growth, but actual epoch deferral is absent. Recorded attempt scope is publication/public-finance/UA while GDP input is USA/2024/national_economy. Exact swallowed resolution code is unavailable. Test fixture now explicitly passes profile-derived fiscal/USA/2024/national_economy and candidate_simulation, with default/restart behavior preserved and exact policy_admission_missing required before appointment. Typed exception-code observer preserves the next actual cause; no forced deferral or authority bypass. Independent scope/numeric/default-path GO; next native UNRUN.",
           "independent_review": "Luna numerical/state/precision reviews and Sol import/constructor audit; corrected latest fixture has not run.",
-          "latest_output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-gdp-resource-native-r9/",
+          "latest_output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-gdp-resource-native-r10/",
           "latest_observed": {
             "PASS": 1,
             "FAIL": 1,
             "ERROR": 0,
             "SKIP": 0
           },
-          "latest_seconds": 50.481352,
-          "latest_peak_rss_bytes": 1604386816,
+          "latest_seconds": 53.894046,
+          "latest_peak_rss_bytes": 1641693184,
           "latest_named_inputs": 39,
           "latest_inputs_unchanged": true
         },
@@ -10974,6 +10974,70 @@
           "scope": "Decision POST and source read/removal controls complete; action publishes requested/executing then job_failed. Durable error candidate_experiment_execution_not_established:ValueError loses the inner cause. job_admission is diagnostic default, not proven failing stage.",
           "work": "Exactly2 completed standard reservation rows,1unit each, both before action creation. No new selected action DataSnapshot/WMR/N5/result/terminal/frontier proof; no replayable outcome anchor. Earlier4-unit agent interpretation was corrected against actual ledger chronology. Transport call count not durably established.",
           "next": "Bounded static/private-input diagnosis and faithful pre-effect replay if canonical scope permits; capture full deciding exception cause in the test observer before another expensive invocation. No missing external authority diagnosis inferred."
+        },
+        "generic_root_worker_unit_r10": {
+          "base_commit": "8a2d8213b80071139108c1b6761f5bf4c4c4d225",
+          "output": "policy-engine/_cache/e02/lane01-cyc04-root-fallback-unit-r10/",
+          "observed": {
+            "PASS": 3,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 20.592981,
+          "peak_rss_bytes": 1737932800,
+          "named_inputs": 15,
+          "inputs_unchanged": true,
+          "scope": "Actual worker-issued scope: current-ref withdrawal, superseded-old-ref allowance, arbitrary upstream refusal, canonical rebind and real dependency assembly; missing/withdrawn SKG refuses before N4/N5. V3 fixture validated before hashes; actual inner service dependencies retained.",
+          "qualification": "Together with unchanged f6 R6 34 other cases and R7 V5fresh+scope2, all40 distinct unit cases have qualified named inputs; no claim of one40-green invocation. Genuine served numerical fallback still UNRUN.",
+          "independent_review": "Terra final fixture and precision GO. Symbolic NCM is NumPy/Python binary64, not governed by JAX x64False. Earlier R7/R8/R9 fixture failures remain their actual failed results."
+        },
+        "worker_origin_reuse_extended": {
+          "output": "policy-engine/_cache/e02/lane01-worker-origin-reuse-unit-r1/",
+          "observed": {
+            "PASS": 15,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 22.302122,
+          "peak_rss_bytes": 1650278400,
+          "named_inputs": 8,
+          "inputs_unchanged": true,
+          "scope": "Four actual worker call sites forward an already typed origin to the same fenced fold; current-action helper uses its freshly re-resolved current_origin. No source/lease/budget/policy/head/PA2 fence removed; legacy paths unchanged.",
+          "independent_review": "Luna GO on source and passive test observer; full worker performance remains unmeasured.",
+          "observer": "Test-only real port delegate records phase refs, stage timings and complete exception chain without locals; original result/exception and call count preserved."
+        },
+        "joint_consumers_native_r10_abort": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-joint-consumers-native-r10/",
+          "classification": "RESOURCE_LIMIT_ABORT",
+          "return_code": -15,
+          "seconds": 198.810041,
+          "peak_rss_bytes": 2905407488,
+          "named_inputs": 58,
+          "inputs_unchanged": true,
+          "scope": "Two heavy fixtures were combined in one process; first emitted F, second started, then2.5GiB process-tree cap stopped it. No final traceback or JUnit exists; no OOM or completed overall verdict inferred.",
+          "next": "Keep these native consumers in separate processes; use maxfail=1 for the next deciding first-case run, retain immediate failure output before any further case."
+        },
+        "joint_consumers_retained_tail_r12": {
+          "output": "policy-engine/_cache/e02/lane01-joint-consumers-tail-replay-r12/",
+          "classification": "COMPLETED_READ_ONLY_DIAGNOSTIC",
+          "seconds": 12.53,
+          "peak_rss_bytes": 1391722496,
+          "named_inputs": 70,
+          "inputs_unchanged": true,
+          "scope": "Actual retained R10 parent manifest refuses unscoped read; under independently prepared fixture owner A/cell-a, typed load and actual projection retain3atoms,seeds11/12,samples1/1,mean1,SE0,status estimated. This diagnoses the unscoped read and stale hardcoded B owner, not a full native PASS.",
+          "change": "Scope every affected CAS read; assert prepared input owner, and derive sibling preflight owner from the enabled fixture middleware before hashing rather than relabeling a result."
+        },
+        "workspace_write_correction": {
+          "scope": "GDP helper+test postimages were mistakenly authored in the frozen-checkout directory after earlier deciding runs had finished.",
+          "owned_files": [
+            "tests/_helpers/acquisition_chain.py",
+            "tests/integration/runtime_quality/test_annual_gdp_resource_served.py"
+          ],
+          "resolution": "Root verified Main paths equal HEAD, copied only the two independently reviewed exact postimages atomically into Main, preserved Author bytes, and will compose with an ordinary checkpoint/fast-forward. No reset, restore, source/env/data copy, or lost author changes.",
+          "timing": "Author writes15:36:52/15:39:28UTC; GDP/Cubic R10 finished15:20–15:23 and auth probe finished15:32:38 before those writes. Those actual8a runtime results are unaffected. Later read-only tail diagnosis uses unchanged selected artifact/projection owners; it does not claim native acceptance.",
+          "policy": "All further source writes use explicit Main absolute paths; Root alone synchronizes the verification checkout."
         }
       },
       "independent_component_reviews": {

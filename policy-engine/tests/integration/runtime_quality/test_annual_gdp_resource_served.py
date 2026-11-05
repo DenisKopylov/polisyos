@@ -209,6 +209,9 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     from polisyos.ir.model_layer.types import TimeFrequency
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality import acquisition_planner, generation_cycle
+    from polisyos.runtime.quality.acquisition_executor import (
+        SemanticEpochAdmissionResolutionError,
+    )
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionCandidateWorldRefresh,
     )
@@ -1050,6 +1053,12 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         canonical_variable_id="global.gdp",
         target_slot_id="global.gdp",
     )
+    gdp_epoch_scope = {
+        "domain": "fiscal",
+        "jurisdiction": source_profile.country_code,
+        "year": source_profile.year,
+        "population": source_profile.population,
+    }
     case = under_catalog_source(
         acquisition_chain.make_wdi_port_case,
         tmp_path / "wdi",
@@ -1059,7 +1068,11 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
         candidate_world_refreshes=(refresh,),
         candidate_scenario_generation=True,
         candidate_generation_recording=recording,
+        epoch_scope_payload=gdp_epoch_scope,
+        authority_purpose="candidate_simulation",
     )
+    assert json.loads(case.selected.epoch_scope_identity.identity_bytes) == gdp_epoch_scope
+    assert case.selected.authority_purpose == "candidate_simulation"
     fixture_baseline = case.authority.baseline_path.resolve(strict=True)
     assert case.authority.repo_root.resolve(strict=True) == fixture_repo_root
     assert case.bridge.repo_root.resolve(strict=True) == fixture_repo_root
@@ -1068,8 +1081,30 @@ async def test_annual_gdp_observation_reaches_fresh_configured_n5_consumer(
     assert (catalog_owner_root / DEFAULT_L1_DCAT_PATH).is_file()
     assert (catalog_owner_root / DEFAULT_L1_DCAT_PATH).resolve(strict=True) != fixture_baseline
     assert case.transport_calls == []
+
+    observed_semantic_admission_codes: list[str] = []
+    bridge_admit = case.bridge.admit
+
+    def observe_semantic_admission_code(*args: Any, **kwargs: Any) -> Any:
+        try:
+            return bridge_admit(*args, **kwargs)
+        except SemanticEpochAdmissionResolutionError as exc:
+            observed_semantic_admission_codes.append(exc.code)
+            raise
+
+    monkeypatch.setattr(case.bridge, "admit", observe_semantic_admission_code)
     negative = under_catalog_source(case.port.execute, closure)
     assert negative.disposition == "quarantined_no_growth"
+    if case.bridge.has_deferred_admission(closure):
+        _deferred_ref, deferral, _attempt = case.bridge._load_deferral(closure)
+        assert deferral.negative_receipt.failure_codes == ("policy_admission_missing",)
+        assert observed_semantic_admission_codes == []
+    else:
+        pytest.fail(
+            "annual GDP expected a persisted policy_admission_missing deferral; "
+            f"observed SemanticEpochAdmissionResolutionError.code="
+            f"{observed_semantic_admission_codes!r}"
+        )
     case.appoint_native_policy()
     under_catalog_source(case.port.prepare_route_execution, closure)
     action_job_id = "annual-gdp-action-" + uuid4().hex

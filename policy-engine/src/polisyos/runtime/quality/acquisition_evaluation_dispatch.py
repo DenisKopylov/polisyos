@@ -4681,6 +4681,7 @@ def dispatch_candidate_experiment_evaluation(
         run_id=origin.run_id,
         source_job_id=origin.source_job_id,
         route_id=origin.route_id,
+        verified_origin=origin,
     )
     snapshot = _select_current_candidate_experiment_outcome(
         outcomes,

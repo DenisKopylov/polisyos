@@ -1370,6 +1370,7 @@ class _PreparedAcquisitionActionHeadPublication:
     payload_ref: str | None
     receipt_ref: str
     receipt_sha256: str
+    receipt_manifest_profile_sha256: str
     durable_event_id: str
     coarse_phase: str
     receipt_phase: Literal["requested"]
@@ -4258,6 +4259,7 @@ class ControlPlaneStore:
                 or not _is_sha256_ref(publication.decision_ref)
                 or not _is_sha256_ref(publication.receipt_ref)
                 or publication.receipt_ref != publication.receipt_sha256
+                or not _is_sha256_ref(publication.receipt_manifest_profile_sha256)
                 or not _is_sha256_ref(publication.route_id)
                 or publication.payload_ref is None
                 or not _is_sha256_ref(publication.payload_ref)
@@ -4390,11 +4392,16 @@ class ControlPlaneStore:
                     recovery_state=publication.recovery_state,
                     job_id=publication.job_id,
                     predecessor_receipt_ref=publication.predecessor_receipt_ref,
+                    receipt_manifest_profile_sha256=(
+                        publication.receipt_manifest_profile_sha256
+                    ),
                 )
                 if (
                     head.head_generation != 1
                     or head.receipt_ref != publication.receipt_ref
                     or head.job_id != publication.job_id
+                    or head.receipt_manifest_profile_sha256
+                    != publication.receipt_manifest_profile_sha256
                 ):
                     raise RuntimeError("prepared_acquisition_action_head_readback_failed")
             if creation_basis is not None:

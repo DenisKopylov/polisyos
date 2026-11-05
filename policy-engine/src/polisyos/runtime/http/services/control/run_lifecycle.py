@@ -2946,12 +2946,16 @@ class AcquisitionRouteLoopAuthoritySink:
         artifact_id = artifacts.ArtifactID.model_validate(receipt_ref)
         if selected_ref is not None and (
             selected_ref.artifact_id != artifact_id
-            or selected_ref.kind != "runtime_quality.acquisition_route_loop_receipt"
+            or selected_ref.kind
+            not in {
+                "runtime_quality.acquisition_route_loop_receipt",
+                "runtime_quality.acquisition_candidate_experiment_phase_receipt",
+            }
             or selected_ref.media_type != "application/json"
             or selected_ref.manifest_profile_sha256 is None
             or set(type(selected_ref).model_fields) - set(ArtifactRef.model_fields)
         ):
-            raise ValueError("acquisition_candidate_terminal_profile_invalid")
+            raise ValueError("acquisition_action_receipt_profile_invalid")
         selector = selected_ref if selected_ref is not None else artifact_id
         payload = self._artifact_store.get_bytes(selector)
         if "sha256:" + hashlib.sha256(payload).hexdigest() != receipt_ref:
@@ -3649,6 +3653,7 @@ class AcquisitionRouteLoopAuthoritySink:
         request: object,
         *,
         receipt_ref: str,
+        receipt_manifest_profile_sha256: str,
         durable_event_id: str,
     ) -> _PreparedAcquisitionActionHeadPublication:
         """Create the typed SQL-only continuation of a fully read-back phase."""
@@ -3674,6 +3679,7 @@ class AcquisitionRouteLoopAuthoritySink:
             payload_ref=None,
             receipt_ref=receipt_ref,
             receipt_sha256=receipt_ref,
+            receipt_manifest_profile_sha256=receipt_manifest_profile_sha256,
             durable_event_id=durable_event_id,
             coarse_phase=phase.coarse_phase,
             receipt_phase="requested",
@@ -3814,17 +3820,58 @@ class AcquisitionRouteLoopAuthoritySink:
         newest_first: list[VerifiedAcquisitionActionPhase] = []
         seen_refs: set[str] = set()
         current_ref: str | None = head.receipt_ref
+        expected_head_generation = head.head_generation
         while current_ref is not None:
             if current_ref in seen_refs:
                 raise ValueError("candidate_experiment_phase_chain_cycle")
             seen_refs.add(current_ref)
-            current = self._read_verified_action_phase(current_ref)
+            row = self._control_store.get_acquisition_action_head_by_receipt(
+                tenant_id=head.tenant_id,
+                cell_id=head.cell_id,
+                run_id=head.run_id,
+                source_job_id=head.source_job_id,
+                route_id=head.route_id,
+                action_generation=head.action_generation,
+                receipt_ref=current_ref,
+            )
+            if row is None or row.head_generation != expected_head_generation:
+                raise ValueError("candidate_experiment_phase_chain_sql_head_missing")
+            selected_ref = (
+                None
+                if row.receipt_manifest_profile_sha256 is None
+                else artifacts.ArtifactRef(
+                    artifact_id=artifacts.ArtifactID.model_validate(current_ref),
+                    kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
+                    media_type="application/json",
+                    manifest_profile_sha256=row.receipt_manifest_profile_sha256,
+                )
+            )
+            current = self._read_verified_action_phase(current_ref, selected_ref=selected_ref)
             if type(current.receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
                 raise ValueError("candidate_experiment_phase_chain_untyped")
+            receipt = current.receipt
+            if (
+                row.receipt_ref != current.receipt_ref
+                or row.receipt_sha256 != current.receipt_ref
+                or row.durable_event_id != current.durable_event_id
+                or row.tenant_id != receipt.tenant_id
+                or row.cell_id != receipt.cell_id
+                or row.run_id != receipt.run_id
+                or row.source_job_id != receipt.source_job_id
+                or row.route_id != receipt.route_id
+                or row.action_generation != receipt.action_generation
+                or row.job_id != receipt.job_id
+                or row.coarse_phase != receipt.coarse_phase
+                or row.receipt_phase != receipt.receipt_phase
+                or row.recovery_state != receipt.recovery_state
+                or row.predecessor_receipt_ref != receipt.predecessor_receipt_ref
+            ):
+                raise ValueError("candidate_experiment_phase_chain_sql_head_conflict")
             newest_first.append(current)
             current_ref = current.receipt.predecessor_receipt_ref
+            expected_head_generation -= 1
         chain = tuple(reversed(newest_first))
-        if not chain or len(chain) != head.head_generation:
+        if not chain or expected_head_generation != 0 or len(chain) != head.head_generation:
             raise ValueError("candidate_experiment_phase_chain_generation_mismatch")
         first = chain[0]
         if (
@@ -3901,54 +3948,24 @@ class AcquisitionRouteLoopAuthoritySink:
         )
         if current != head:
             raise ValueError("acquisition_action_generation_head_changed")
-        if head.receipt_manifest_profile_sha256 is None:
-            latest = self._read_verified_action_phase(head.receipt_ref)
-            if type(latest.receipt) is AcquisitionCandidateExperimentPhaseReceipt:
-                phase_chain = self._verified_candidate_experiment_phase_chain(head)
-                latest = phase_chain[-1]
-                current = self._control_store.get_acquisition_action_head(
-                    tenant_id=head.tenant_id,
-                    cell_id=head.cell_id,
-                    run_id=head.run_id,
-                    source_job_id=head.source_job_id,
-                    route_id=head.route_id,
-                    action_generation=head.action_generation,
-                )
-                if current != head:
-                    raise ValueError("acquisition_action_generation_head_changed")
-                executing = next(
-                    (item for item in phase_chain if item.receipt.receipt_phase == "executing"),
-                    None,
-                )
-                selection = next(
-                    (
-                        item
-                        for item in phase_chain
-                        if item.receipt.receipt_phase == "outcome_selected"
-                    ),
-                    None,
-                )
-                return VerifiedAcquisitionActionOutcome(
-                    head=head,
-                    latest_receipt=latest.receipt,
-                    executing_phase_ref=None if executing is None else executing.receipt_ref,
-                    executing_phase=None if executing is None else executing.receipt,
-                    selection_phase_ref=None if selection is None else selection.receipt_ref,
-                    selection_phase=None if selection is None else selection.receipt,
-                    phase_chain=phase_chain,
-                )
         candidate_history = None
         candidate_experiment_history = None
         if head.receipt_manifest_profile_sha256 is not None:
             selected_ref = artifacts.ArtifactRef(
                 artifact_id=artifacts.ArtifactID.model_validate(head.receipt_ref),
-                kind="runtime_quality.acquisition_route_loop_receipt",
+                kind=(
+                    "runtime_quality.acquisition_candidate_experiment_phase_receipt"
+                    if head.receipt_phase != "terminal"
+                    else "runtime_quality.acquisition_route_loop_receipt"
+                ),
                 media_type="application/json",
                 manifest_profile_sha256=head.receipt_manifest_profile_sha256,
             )
             owner = getattr(self._core_source_resolver, "__self__", None)
             selected = self._read_verified_action_phase(head.receipt_ref, selected_ref=selected_ref)
-            if type(selected.receipt) is AcquisitionCandidateExperimentTerminalReceipt:
+            if type(selected.receipt) is AcquisitionCandidateExperimentPhaseReceipt:
+                phase_chain = self._verified_candidate_experiment_phase_chain(head)
+            elif type(selected.receipt) is AcquisitionCandidateExperimentTerminalReceipt:
                 from polisyos.runtime.quality.acquisition_evaluation_history import (
                     verify_candidate_experiment_terminal_history,
                 )
@@ -3967,7 +3984,11 @@ class AcquisitionRouteLoopAuthoritySink:
                 )
                 phase_chain = self._candidate_selected_terminal_chain(head, selected_ref)
         else:
-            phase_chain = self._verified_action_phase_chain(head)
+            latest = self._read_verified_action_phase(head.receipt_ref)
+            if type(latest.receipt) is AcquisitionCandidateExperimentPhaseReceipt:
+                phase_chain = self._verified_candidate_experiment_phase_chain(head)
+            else:
+                phase_chain = self._verified_action_phase_chain(head)
         latest = phase_chain[-1]
         executing = next(
             (
@@ -4132,8 +4153,21 @@ class AcquisitionRouteLoopAuthoritySink:
             raise ValueError("candidate_experiment_requested_phase_history_missing")
         first = verified.phase_chain[0]
         requested = first.receipt
+        requested_head = self._control_store.get_acquisition_action_head_by_receipt(
+            tenant_id=publication.tenant_id,
+            cell_id=publication.cell_id,
+            run_id=publication.run_id,
+            source_job_id=publication.source_job_id,
+            route_id=publication.route_id,
+            action_generation=publication.action_generation,
+            receipt_ref=publication.receipt_ref,
+        )
         if (
             type(requested) is not AcquisitionCandidateExperimentPhaseReceipt
+            or requested_head is None
+            or requested_head.head_generation != 1
+            or requested_head.receipt_manifest_profile_sha256
+            != publication.receipt_manifest_profile_sha256
             or first.receipt_ref != publication.receipt_ref
             or requested.receipt_phase != "requested"
             or requested.job_id != publication.job_id
@@ -4265,72 +4299,64 @@ class AcquisitionRouteLoopAuthoritySink:
         )
         if len(events) > 1:
             raise ValueError("candidate_experiment_phase_recovery_event_not_unique")
-        selected_ref: ArtifactRef | None = None
-        recovered: AcquisitionCandidateExperimentPhaseReceipt | None = None
-        if events:
-            event = events[0].event
-            if not event.payload_ref:
-                raise ValueError("candidate_experiment_phase_recovery_payload_missing")
-            verified = self._read_verified_action_phase(event.payload_ref)
-            if type(verified.receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
-                raise ValueError("candidate_experiment_phase_recovery_receipt_untyped")
-            selected_manifest = read_core_manifest_profile(
-                self._artifact_store, verified.receipt_ref
-            )[0]
-            selected_ref = artifact_ref_for_manifest(selected_manifest)
-            recovered = verified.receipt
-        else:
-            inventory = getattr(self._artifact_store, "manifest_inventory_snapshot", None)
-            if not callable(inventory):
-                raise ValueError("candidate_experiment_phase_recovery_inventory_unavailable")
-            snapshot = inventory(
-                kind="runtime_quality.acquisition_candidate_experiment_phase_receipt"
-            )
-            if snapshot.verdict != "pass":
-                raise ValueError("candidate_experiment_phase_recovery_inventory_unverified")
-            candidates: list[tuple[ArtifactRef, AcquisitionCandidateExperimentPhaseReceipt]] = []
-            for entry in snapshot.entries:
-                manifest = entry.manifest
-                closure = manifest.same_input_closure
-                if (
-                    closure is None
-                    or closure.closure_id != f"acquisition-route:{expected.receipt_id}"
-                    or closure.job_id != expected.job_id
-                    or manifest.artifact_schema is None
-                    or manifest.artifact_schema.name
-                    != "polisyos.runtime.AcquisitionCandidateExperimentPhaseReceipt"
-                    or manifest.artifact_schema.version != "1.0"
-                    or manifest.tenant_context is None
-                    or (manifest.tenant_context.tenant_id, manifest.tenant_context.cell_id)
-                    != (expected.tenant_id, expected.cell_id)
-                    or manifest.producer is None
-                    or manifest.producer.component
-                    != "polisyos.runtime.quality.acquisition_route_loop"
-                    or manifest.producer.version != "2026.08.28+ds15-c02"
-                ):
-                    continue
-                candidate_ref = artifact_ref_for_manifest(manifest)
-                try:
-                    candidate = AcquisitionCandidateExperimentPhaseReceipt.model_validate(
-                        read_core_json_artifact(self._artifact_store, candidate_ref).value
-                    )
-                except (OSError, RuntimeError, TypeError, ValueError):
-                    continue
-                if candidate.receipt_id == expected.receipt_id:
-                    candidates.append((candidate_ref, candidate))
-            if not candidates:
-                return None
-            if len(candidates) != 1:
-                raise ValueError("candidate_experiment_phase_recovery_cas_not_unique")
-            selected_ref, recovered = candidates[0]
+        expected_payload_ref = events[0].event.payload_ref if events else None
+        if events and not expected_payload_ref:
+            raise ValueError("candidate_experiment_phase_recovery_payload_missing")
+        inventory = getattr(self._artifact_store, "manifest_inventory_snapshot", None)
+        if not callable(inventory):
+            raise ValueError("candidate_experiment_phase_recovery_inventory_unavailable")
+        snapshot = inventory(kind="runtime_quality.acquisition_candidate_experiment_phase_receipt")
+        if snapshot.verdict != "pass":
+            raise ValueError("candidate_experiment_phase_recovery_inventory_unverified")
+        candidates: list[tuple[ArtifactRef, AcquisitionCandidateExperimentPhaseReceipt]] = []
+        for entry in snapshot.entries:
+            manifest = entry.manifest
+            closure = manifest.same_input_closure
+            if (
+                closure is None
+                or closure.closure_id != f"acquisition-route:{expected.receipt_id}"
+                or closure.job_id != expected.job_id
+                or manifest.artifact_schema is None
+                or manifest.artifact_schema.name
+                != "polisyos.runtime.AcquisitionCandidateExperimentPhaseReceipt"
+                or manifest.artifact_schema.version != "1.0"
+                or manifest.tenant_context is None
+                or (manifest.tenant_context.tenant_id, manifest.tenant_context.cell_id)
+                != (expected.tenant_id, expected.cell_id)
+                or manifest.producer is None
+                or manifest.producer.component != "polisyos.runtime.acquisition_route_loop"
+                or manifest.producer.version != "2026.08.28+ds15-c02"
+            ):
+                continue
+            candidate_ref = artifact_ref_for_manifest(manifest)
+            if expected_payload_ref is not None and str(candidate_ref.artifact_id) != (
+                expected_payload_ref
+            ):
+                continue
+            try:
+                candidate = AcquisitionCandidateExperimentPhaseReceipt.model_validate(
+                    read_core_json_artifact(self._artifact_store, candidate_ref).value
+                )
+            except (OSError, RuntimeError, TypeError, ValueError):
+                continue
+            if candidate.receipt_id == expected.receipt_id:
+                candidates.append((candidate_ref, candidate))
+        if not candidates:
+            if events:
+                raise ValueError("candidate_experiment_phase_recovery_cas_missing")
+            return None
+        if len(candidates) != 1:
+            raise ValueError("candidate_experiment_phase_recovery_cas_not_unique")
+        selected_ref, recovered = candidates[0]
         if selected_ref is None or recovered is None:
             raise ValueError("candidate_experiment_phase_recovery_selection_missing")
+        selected_profile = selected_ref.manifest_profile_sha256
         expected_with_time = expected.model_copy(update={"generated_at": recovered.generated_at})
         if (
             recovered != expected_with_time
             or str(selected_ref.artifact_id)
             != "sha256:" + hashlib.sha256(self._artifact_store.get_bytes(selected_ref)).hexdigest()
-            or selected_ref.manifest_profile_sha256 is None
+            or selected_profile is None
         ):
             raise ValueError("candidate_experiment_phase_recovery_content_conflict")
         manifest = read_core_manifest_profile(self._artifact_store, selected_ref)[0]
@@ -4379,7 +4405,9 @@ class AcquisitionRouteLoopAuthoritySink:
         )
         if report.durable_event_id != expected_event_id:
             raise ValueError("candidate_experiment_phase_recovery_reconciliation_failed")
-        verified = self._read_verified_action_phase(str(selected_ref.artifact_id))
+        verified = self._read_verified_action_phase(
+            str(selected_ref.artifact_id), selected_ref=selected_ref
+        )
         if verified.receipt != recovered:
             raise ValueError("candidate_experiment_phase_recovery_readback_failed")
         self._verify_candidate_experiment_live_authority(recovered)
@@ -4404,6 +4432,7 @@ class AcquisitionRouteLoopAuthoritySink:
             recovery_state=recovered.recovery_state,
             job_id=recovered.job_id,
             predecessor_receipt_ref=recovered.predecessor_receipt_ref,
+            receipt_manifest_profile_sha256=selected_profile,
         )
         if self.get_head(recovered) != head:
             raise ValueError("candidate_experiment_phase_recovery_head_readback_failed")
@@ -4444,43 +4473,26 @@ class AcquisitionRouteLoopAuthoritySink:
             job_id=typed.job_id,
             limit=10,
         )
-        if events:
-            if len(events) != 1:
-                raise ValueError("candidate_experiment_requested_event_not_unique")
-            event = events[0].event
-            if not event.payload_ref:
-                raise ValueError("candidate_experiment_requested_event_payload_missing")
-            verified = self._read_verified_action_phase(event.payload_ref)
-            recovered = verified.receipt
-            expected = typed.model_copy(update={"generated_at": recovered.generated_at})
-            if (
-                type(recovered) is not AcquisitionCandidateExperimentPhaseReceipt
-                or recovered != expected
-                or verified.event.event_id != expected_event_id
-            ):
-                raise ValueError("candidate_experiment_requested_phase_recovery_conflict")
-            prepared = self._prepared_experiment_phase_publication(
-                recovered,
-                request,
-                receipt_ref=verified.receipt_ref,
-                durable_event_id=verified.durable_event_id,
-            )
-            head = self.get_head(recovered)
-            if head is not None and (
-                head.job_id != recovered.job_id
-                or head.receipt_ref != verified.receipt_ref
-                or head.durable_event_id != verified.durable_event_id
-                or head.receipt_phase != "requested"
-                or head.head_generation != 1
-            ):
-                raise ValueError("candidate_experiment_requested_phase_already_published")
-            self._verify_candidate_experiment_prejob_live_authority(recovered, request)
-            return prepared
+        if len(events) > 1:
+            raise ValueError("candidate_experiment_requested_event_not_unique")
         recovered = self._recover_orphan_experiment_requested_phase(
             typed, request, expected_event_id=expected_event_id
         )
         if recovered is not None:
+            head = self.get_head(typed)
+            if head is not None and (
+                head.job_id != typed.job_id
+                or head.receipt_ref != recovered.receipt_ref
+                or head.durable_event_id != recovered.durable_event_id
+                or head.receipt_manifest_profile_sha256
+                != recovered.receipt_manifest_profile_sha256
+                or head.receipt_phase != "requested"
+                or head.head_generation != 1
+            ):
+                raise ValueError("candidate_experiment_requested_phase_already_published")
             return recovered
+        if events:
+            raise ValueError("candidate_experiment_requested_phase_recovery_cas_missing")
         result = self._persist_receipt(
             typed,
             artifact_kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
@@ -4506,6 +4518,17 @@ class AcquisitionRouteLoopAuthoritySink:
         inventory = getattr(self._artifact_store, "manifest_inventory_snapshot", None)
         if not callable(inventory):
             raise ValueError("candidate_experiment_phase_recovery_inventory_unavailable")
+        existing_events = self._event_log.list_events(
+            event_id=expected_event_id,
+            run_id=expected.run_id,
+            job_id=expected.job_id,
+            limit=10,
+        )
+        if len(existing_events) > 1:
+            raise ValueError("candidate_experiment_requested_event_not_unique")
+        expected_payload_ref = existing_events[0].event.payload_ref if existing_events else None
+        if existing_events and not expected_payload_ref:
+            raise ValueError("candidate_experiment_requested_event_payload_missing")
         snapshot = inventory(kind="runtime_quality.acquisition_candidate_experiment_phase_receipt")
         if snapshot.verdict != "pass":
             raise ValueError("candidate_experiment_phase_recovery_inventory_unverified")
@@ -4531,6 +4554,10 @@ class AcquisitionRouteLoopAuthoritySink:
             ):
                 continue
             selected_ref = artifact_ref_for_manifest(manifest)
+            if expected_payload_ref is not None and str(selected_ref.artifact_id) != (
+                expected_payload_ref
+            ):
+                continue
             try:
                 receipt = AcquisitionCandidateExperimentPhaseReceipt.model_validate(
                     read_core_json_artifact(self._artifact_store, selected_ref).value
@@ -4540,6 +4567,8 @@ class AcquisitionRouteLoopAuthoritySink:
             if receipt.receipt_id == expected.receipt_id:
                 candidates.append((selected_ref, receipt))
         if not candidates:
+            if existing_events:
+                raise ValueError("candidate_experiment_requested_phase_recovery_cas_missing")
             return None
         if len(candidates) != 1:
             raise ValueError("candidate_experiment_phase_recovery_cas_not_unique")
@@ -4603,14 +4632,20 @@ class AcquisitionRouteLoopAuthoritySink:
         )
         if report.durable_event_id != expected_event_id:
             raise ValueError("candidate_experiment_phase_recovery_reconciliation_failed")
-        verified = self._read_verified_action_phase(str(selected_ref.artifact_id))
+        verified = self._read_verified_action_phase(
+            str(selected_ref.artifact_id), selected_ref=selected_ref
+        )
         if verified.receipt != receipt:
             raise ValueError("candidate_experiment_phase_recovery_readback_failed")
         self._verify_candidate_experiment_prejob_live_authority(receipt, request)
+        selected_profile = selected_ref.manifest_profile_sha256
+        if selected_profile is None:
+            raise ValueError("candidate_experiment_phase_recovery_profile_missing")
         return self._prepared_experiment_phase_publication(
             receipt,
             request,
             receipt_ref=str(selected_ref.artifact_id),
+            receipt_manifest_profile_sha256=selected_profile,
             durable_event_id=report.durable_event_id,
         )
 
@@ -5336,11 +5371,22 @@ class AcquisitionRouteLoopAuthoritySink:
             or type(typed) is AcquisitionCandidateExperimentTerminalReceipt
             else None
         )
+        selected_experiment_phase = (
+            result.cas_ref
+            if type(typed) is AcquisitionCandidateExperimentPhaseReceipt
+            else None
+        )
+        selected_action_ref = selected_receipt or selected_experiment_phase
         if selected_receipt is not None and (
             selected_receipt.manifest_profile_sha256 is None
             or set(type(selected_receipt).model_fields) - set(ArtifactRef.model_fields)
         ):
             raise ValueError("acquisition_candidate_terminal_profile_not_selected")
+        if selected_experiment_phase is not None and (
+            selected_experiment_phase.manifest_profile_sha256 is None
+            or set(type(selected_experiment_phase).model_fields) - set(ArtifactRef.model_fields)
+        ):
+            raise ValueError("candidate_experiment_phase_profile_not_selected")
         if candidate_experiment_orphan_ref is not None and (
             type(typed) is not AcquisitionCandidateExperimentTerminalReceipt
             or selected_receipt is None
@@ -5353,7 +5399,7 @@ class AcquisitionRouteLoopAuthoritySink:
         report = reconcile_authority_ref(
             artifact_store=self._artifact_store,
             event_log=self._event_log,
-            cas_ref=selected_receipt if selected_receipt is not None else receipt_ref,
+            cas_ref=selected_action_ref if selected_action_ref is not None else receipt_ref,
             expected_tenant_id=typed.tenant_id,
             expected_cell_id=typed.cell_id,
             expected_run_id=typed.run_id,
@@ -5362,11 +5408,12 @@ class AcquisitionRouteLoopAuthoritySink:
         loaded = receipt_type.model_validate(
             read_core_json_artifact(
                 self._artifact_store,
-                selected_receipt if selected_receipt is not None else receipt_ref,
+                selected_action_ref if selected_action_ref is not None else receipt_ref,
             ).value
         )
         manifest = read_core_manifest_profile(
-            self._artifact_store, selected_receipt if selected_receipt is not None else receipt_ref
+            self._artifact_store,
+            selected_action_ref if selected_action_ref is not None else receipt_ref,
         )[0]
         schema = manifest.artifact_schema
         if isinstance(typed, AcquisitionCandidateRouteLoopReceipt):
@@ -5383,9 +5430,9 @@ class AcquisitionRouteLoopAuthoritySink:
             or schema.name != schema_name
             or schema.version != typed.schema_version.rsplit("@", 1)[-1]
             or (
-                selected_receipt is not None
+                selected_action_ref is not None
                 and artifacts.artifact_ref_identity_key(artifact_ref_for_manifest(manifest))
-                != artifacts.artifact_ref_identity_key(selected_receipt)
+                != artifacts.artifact_ref_identity_key(selected_action_ref)
             )
         ):
             raise RuntimeError(f"acquisition_{receipt_label}_readback_failed")
@@ -5436,10 +5483,18 @@ class AcquisitionRouteLoopAuthoritySink:
                 self._verify_candidate_experiment_prejob_live_authority(
                     typed, candidate_experiment_request
                 )
+                if (
+                    selected_experiment_phase is None
+                    or selected_experiment_phase.manifest_profile_sha256 is None
+                ):
+                    raise ValueError("candidate_experiment_phase_profile_not_selected")
                 return self._prepared_experiment_phase_publication(
                     typed,
                     candidate_experiment_request,
                     receipt_ref=receipt_ref,
+                    receipt_manifest_profile_sha256=(
+                        selected_experiment_phase.manifest_profile_sha256
+                    ),
                     durable_event_id=report.durable_event_id,
                 )
             self._verify_candidate_experiment_live_authority(typed)
@@ -5460,19 +5515,19 @@ class AcquisitionRouteLoopAuthoritySink:
             job_id=typed.job_id,
             predecessor_receipt_ref=typed.predecessor_receipt_ref,
             frontier_cas=frontier_cas,
-            **(
-                {"receipt_manifest_profile_sha256": selected_receipt.manifest_profile_sha256}
-                if selected_receipt is not None
-                else {}
+            receipt_manifest_profile_sha256=(
+                selected_action_ref.manifest_profile_sha256
+                if selected_action_ref is not None
+                else None
             ),
         )
         if self.get_head(typed) != head:
             raise RuntimeError("acquisition_action_head_readback_failed")
-        if selected_receipt is not None and (
+        if selected_action_ref is not None and (
             getattr(head, "receipt_manifest_profile_sha256", None)
-            != selected_receipt.manifest_profile_sha256
+            != selected_action_ref.manifest_profile_sha256
         ):
-            raise RuntimeError("acquisition_candidate_terminal_profile_readback_failed")
+            raise RuntimeError("acquisition_action_receipt_profile_readback_failed")
         verified = self.verify_action_head(head)
         if isinstance(typed, AcquisitionCandidateRouteLoopReceipt):
             readback_matches = _candidate_model_values_same(verified.latest_receipt, typed)

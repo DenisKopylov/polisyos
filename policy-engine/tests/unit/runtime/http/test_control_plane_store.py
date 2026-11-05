@@ -929,6 +929,7 @@ def _prepared_candidate_action_head(
         payload_ref="sha256:" + "d" * 64,
         receipt_ref="sha256:" + receipt_digit * 64,
         receipt_sha256="sha256:" + receipt_digit * 64,
+        receipt_manifest_profile_sha256="sha256:" + "e" * 64,
         durable_event_id="evt-candidate-requested",
         coarse_phase="requested",
         receipt_phase="requested",
@@ -1006,6 +1007,7 @@ def test_candidate_action_job_and_requested_head_commit_before_worker_can_claim(
     assert leased is not None and leased.job_id == publication.job_id
     assert head is not None
     assert head.receipt_ref == publication.receipt_ref
+    assert head.receipt_manifest_profile_sha256 == publication.receipt_manifest_profile_sha256
     assert head.head_generation == 1
     assert head.receipt_phase == "requested"
     lifecycle_events = store._fetchall(

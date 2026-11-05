@@ -699,7 +699,6 @@ def verify_candidate_experiment_terminal_history(
     from polisyos.runtime.http.services.control.run_lifecycle import (
         AcquisitionRouteLoopAuthoritySink,
         ControlPlaneService,
-        VerifiedAcquisitionActionPhase,
     )
     from polisyos.runtime.http.services.control_plane_store import (
         AcquisitionActionHeadRecord,
@@ -774,30 +773,35 @@ def verify_candidate_experiment_terminal_history(
     if control.get_acquisition_action_head(**scope) != head:
         raise ValueError("candidate_experiment_terminal_predecessor_changed")
 
-    # Read the selected terminal and its parents directly. Do not call the
+    # Reuse the phase-head owner for all persisted ancestors. Do not call the
     # full action fold here: verify_action_head delegates to this function for
     # terminal generations, so a full fold would recurse.
-    newest_first: list[VerifiedAcquisitionActionPhase] = []
-    seen: set[str] = set()
-    current_ref: str | None = str(terminal_ref.artifact_id)
-    first_read = True
-    while current_ref is not None:
-        if current_ref in seen:
-            raise ValueError("candidate_experiment_terminal_chain_cycle")
-        seen.add(current_ref)
-        current = sink._read_verified_action_phase(
-            current_ref, selected_ref=terminal_ref if first_read else None
+    terminal_verified = sink._read_verified_action_phase(
+        str(terminal_ref.artifact_id), selected_ref=terminal_ref
+    )
+    terminal = terminal_verified.receipt
+    if type(terminal) is not AcquisitionCandidateExperimentTerminalReceipt:
+        raise ValueError("candidate_experiment_terminal_chain_untyped")
+    if committed:
+        phase_head = control.get_acquisition_action_head_by_receipt(
+            **scope,
+            receipt_ref=terminal.predecessor_receipt_ref,
         )
-        newest_first.append(current)
-        receipt = current.receipt
-        if type(receipt) not in {
-            AcquisitionCandidateExperimentPhaseReceipt,
-            AcquisitionCandidateExperimentTerminalReceipt,
-        }:
-            raise ValueError("candidate_experiment_terminal_chain_untyped")
-        current_ref = receipt.predecessor_receipt_ref
-        first_read = False
-    chain = tuple(reversed(newest_first))
+        expected_phase_generation = head.head_generation - 1
+    else:
+        phase_head = head
+        expected_phase_generation = head.head_generation
+    if (
+        type(phase_head) is not AcquisitionActionHeadRecord
+        or phase_head.head_generation != expected_phase_generation
+        or phase_head.receipt_ref != terminal.predecessor_receipt_ref
+        or phase_head.receipt_phase != "candidate_input_reentry_pending"
+        or phase_head.job_id != terminal.job_id
+        or phase_head.action_generation != terminal.action_generation
+    ):
+        raise ValueError("candidate_experiment_terminal_predecessor_binding_mismatch")
+    phase_chain = sink._verified_candidate_experiment_phase_chain(phase_head)
+    chain = (*phase_chain, terminal_verified)
     if (
         len(chain) != 5
         or type(chain[-1].receipt) is not AcquisitionCandidateExperimentTerminalReceipt

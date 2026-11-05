@@ -10427,6 +10427,56 @@
           "scope": "Current ownership generation token validates current pointer/generation bytes and legacy signatures without rebuilding diagnostic pre-v3 ancestry. Full evidence history and custom-owner fallback preserved. Same retained artifact:574 members/two profiles. Not a whole R15 latency or full protected-route qualification.",
           "prior_output_limit": "r1 isolated lookup measured pass then driver KeyError; original failure retained, r3 clean supervisor PASS.",
           "independent_review": "Sol bounded source GO; Root directly verified final91case JUnit/source pins and retained r3 profile receipts."
+        },
+        "candidate_experiment_phase_selected_profile_current": {
+          "output": "policy-engine/_cache/e02/lane01-terminal-profile-current-r1/",
+          "observed": {
+            "PASS": 5,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 16.136720124981366,
+          "peak_rss_bytes": 1555218432,
+          "named_inputs": 6,
+          "inputs_unchanged_during_run": true,
+          "scope": "Real phase writer/event/SQLite head retains selected profile against a genuine alternate CAS default; separate legacy profileless fallback and requested atomic publication controls. Terminal-history delegates phase ancestry to this canonical reader. Crash recovery and full served execution remain unrun.",
+          "independent_review": "Luna surface reviewer final material GO; Root read complete result/stdout and selected-profile test footprint.",
+          "earlier_attempts": "Collection import and two invalid fixture assumptions retained under attempt-1 through attempt-3; no replacement of the original outcomes."
+        },
+        "candidate_experiment_native_execute_r1": {
+          "output": "policy-engine/_cache/e02/lane01-candidate-execution-native-r1/",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 94.91484,
+          "peak_rss_bytes": 1914929152,
+          "named_inputs": 48,
+          "inputs_unchanged_during_run": true,
+          "scope": "Genuine native source N5 completed; human-decision POST returned409 DS9-DECISION-SOURCE-INVALID before acquisition execute/new N5. Original output preserved.",
+          "diagnosis": "DS9 exact acquisition classifier recognized only legacy action, rejecting the canonical candidate-experiment action. Fix and exact-tuple controls are prepared; this failed whole invocation does not become PASS.",
+          "reusable_source_run": "R_9b350cbbaaa889a5"
+        },
+        "candidate_experiment_frontier_continuation_source": {
+          "author_commit": "376d0360a16228d614d1266e4c397f0922111fca",
+          "author_tree": "7d3a800be24d87a01fa44a86500c150d12671b95",
+          "main_merge_commit": "5e4085f744d19b6fc5701dd4fe76106e4969ff36",
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-frontier-limitation-order-r1/",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 13.968256709,
+          "peak_rss_bytes": 1379401728,
+          "named_inputs": 3,
+          "inputs_unchanged_during_run": true,
+          "scope": "Verified prior-prefix/current-owner entry, equivalent cheap continuation preserving N5, changed-basis source reentry and frontier CAS source composed by ordinary merge. Pure ordering/deduplication unit only; actual A→B→B→B→C and retry execution remain semantic_test_missing.",
+          "independent_review": "Sol bounded two-owner source review; nondeterministic inherited-limitation serialization fixed and material re-review GO. Root commit-byte readback matches all three paths."
         }
       },
       "independent_component_reviews": {

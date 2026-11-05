@@ -22,8 +22,9 @@ def test_experiment_action_reader_replays_emitted_source_kind_and_scope(
     """The real reader accepts the emitted source and rejects kind or scope drift.
 
     The candidate WDI source, phase and action receipt are persisted through real
-    writers and reopened from CAS. Only the upstream action-head projection is a
-    test-owned owner boundary; this does not establish current SQL lease or N5 work.
+    writers and reopened from CAS. Upstream phase admission and the action-head
+    projection are test-owned boundaries; this does not establish live authority,
+    current SQL lease or N5 work.
     """
     from polisyos.core import artifacts
     from polisyos.core.artifacts.store import FileSystemCAS

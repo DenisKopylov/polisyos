@@ -855,7 +855,9 @@ def test_configured_procurement_profile_uses_owned_compact_source(
     monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
     monkeypatch.setenv("POLISYOS_CONTROL_SQLITE_PATH", str(tmp_path / "control.sqlite3"))
     monkeypatch.setenv("POLISYOS_CACHE_HOME", str(tmp_path / "runtime-cache"))
-    runtime_context = build_runtime_api_context(cas_root=tmp_path / "cas")
+    runtime_context = build_runtime_api_context(
+        cas_root=tmp_path / "cas", core_runs_root=tmp_path / "cas" / "runs"
+    )
     fixture = _compact_configured_procurement_fixture(
         tmp_path=tmp_path,
         monkeypatch=monkeypatch,

@@ -11887,6 +11887,16 @@
           "named_inputs": 83,
           "inputs_unchanged": true,
           "cause": "Actual fetch+raw/normalized verification succeeds; source/action receipt persists, then wrong runtime_quality.candidate_acquisition_source literal rejects canonical runtime.quality.candidate_acquisition_source. Canonical-constant source fix saved, unit/native replay UNRUN; no acquisition N5/terminal PASS."
+        },
+        "candidate_source_kind_reader_unit": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-source-kind-owner-unit-r2",
+          "status": "passed",
+          "PASS": 1,
+          "wall_seconds": 20.250250334036537,
+          "peak_RSS_bytes": 1639612416,
+          "named_inputs": 16,
+          "inputs_unchanged": true,
+          "scope": "Actual persisted source/action reader + wrongkind/foreignscope. Upstream phase admission/action head are test boundaries; not SQL lease/N5 qualification. Recorded source af3f8d7; later test docstring clarification only."
         }
       },
       "independent_component_reviews": {

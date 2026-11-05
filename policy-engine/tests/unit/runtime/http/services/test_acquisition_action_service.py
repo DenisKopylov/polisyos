@@ -870,3 +870,45 @@ async def test_execute_retries_bound_requested_and_terminal_action_identity(
             assert wrong_identity.value.code == "acquisition_job_identity_mismatch"
             assert payload["request"] == request.model_dump(mode="json")
             assert payload["invocation"] == invocation.model_dump(mode="json")
+
+
+def test_completed_candidate_reentry_projects_blocked_evaluation() -> None:
+    """Physical reentry completion cannot imply a usable evaluation or break its reader."""
+    head = _candidate_current_action_head(
+        receipt_phase="terminal", coarse_phase="terminal", recovery_state="complete"
+    )
+    selected_ref = artifacts.ArtifactRef(
+        artifact_id=head.receipt_ref,
+        kind="runtime_quality.acquisition_route_loop_receipt",
+        media_type="application/json",
+        manifest_profile_sha256=head.receipt_manifest_profile_sha256,
+    )
+    inputs = {
+        "head": head,
+        "job_state": "completed",
+        "selected_receipt_ref": selected_ref,
+        "current_terminal_head": head,
+        "terminal_outcome": "candidate_reentry_completed",
+    }
+    projected = AcquisitionActionService._format_candidate_experiment_current_action(
+        **inputs,
+        selected_evaluation=None,
+        blocker_reason="candidate_evaluation_basis_not_established",
+    )
+    assert projected.status == "completed"
+    assert projected.terminal_outcome == "candidate_reentry_completed"
+    assert projected.evaluation_disposition == "blocked"
+    assert projected.selected_evaluation is None
+    assert projected.blocker_reason == "candidate_evaluation_basis_not_established"
+    with pytest.raises(
+        ValueError, match="candidate_experiment_completed_projection_missing_evaluation"
+    ):
+        AcquisitionActionService._format_candidate_experiment_current_action(
+            **inputs, selected_evaluation=None
+        )
+    with pytest.raises(ValueError, match="candidate_experiment_completed_projection_has_blocker"):
+        AcquisitionActionService._format_candidate_experiment_current_action(
+            **inputs,
+            selected_evaluation=_candidate_selected_evaluation(),
+            blocker_reason="candidate_evaluation_basis_not_established",
+        )

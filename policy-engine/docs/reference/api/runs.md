@@ -86,6 +86,12 @@ action cannot borrow a prior terminal or evaluation; a blocked terminal exposes
 its blocker and no selected evaluation. Receipt completion and job state remain
 separate facts. Regenerate strict clients together with this additive response.
 
+A physically completed reentry can have an unestablished evaluation basis. Its
+action status stays `completed` and its terminal outcome stays
+`candidate_reentry_completed`, while `evaluation_disposition` is `blocked`,
+`selected_evaluation` is null, and `blocker_reason` carries the verified basis
+reason codes. Completion does not establish evaluation or publication authority.
+
 Transport permission/refusal tests, the typed OpenAPI success example, generated
 client drift and the SDK transport control are qualified in LANE-01's existing
 working state. Transport fixtures alone do not prove the completed-source reader

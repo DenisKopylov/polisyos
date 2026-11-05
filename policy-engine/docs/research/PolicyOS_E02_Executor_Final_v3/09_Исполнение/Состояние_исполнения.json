@@ -10493,6 +10493,62 @@
           "scope": "Canonical source/request/contract classifier recognizes exactly legacy acquisition and candidate-experiment action; action/operation equality, exact envelope/v1/permission and all signature-resolution joins remain required. Real producer sources and mixed/foreign action pairs qualify; full served invocation r2 is running separately.",
           "independent_review": "Root source/test review; actual retained R1 packet diagnosis by Luna. Root directly read complete supervised result/stdout.",
           "earlier_direct_run": "13PASS measured with time, without supervised process-tree cap or retained complete output; not used as deciding output."
+        },
+        "candidate_blocked_evaluation_current_reader": {
+          "outputs": {
+            "formatter": "policy-engine/_cache/e02/lane01-current-projection-composed-r2/",
+            "adapter": "policy-engine/_cache/e02/lane01-blocked-projection-adapter-r5/",
+            "adapter_removal": "policy-engine/_cache/e02/lane01-blocked-projection-adapter-removal-control-r3/"
+          },
+          "observed": {
+            "formatter_PASS": 6,
+            "adapter_PASS": 1,
+            "removal": "Expected candidate_experiment_completed_projection_missing_evaluation; control process exits0 after asserting exact refusal."
+          },
+          "scope": "Physical completed reentry can expose owner-verified blocked evaluation basis with exact current reasons, no selected evaluation/authority. Typed-history boundary unit covers real current reader/CAS profiles/SQLite, stale/missing/wrong-role refusals. It does not replay genuine terminal authority/history.",
+          "resources": {
+            "adapter_seconds": 16.08888262498658,
+            "adapter_peak_rss_bytes": 1692106752,
+            "removal_seconds": 13.365473209065385,
+            "removal_peak_rss_bytes": 1624162304,
+            "named_inputs": 4,
+            "inputs_unchanged": true
+          },
+          "independent_review": "Luna production source GO; Root new unit/material review and direct complete output readback. Earlier setup errors retained under r1-r4; no fabricated historical PASS."
+        },
+        "requirement_selection_consumer_current": {
+          "output": "policy-engine/_cache/e02/lane01-requirement-selection-consumer-r2/",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 13.43,
+          "peak_rss_bytes": 1388199936,
+          "named_inputs": 28,
+          "inputs_unchanged_during_run": true,
+          "scope": "Real N7 unresolved custom/GDP scoped query and separate N8 consumers: finite singleton/two-method catalog, truthfulness outranks higher advisor score, explicit GP modality refusal and positive EventStudy selection. All remain value_blocked/blocked on treatment_assignment_not_owner_derived; no numerical method run/fresh result or full catalog claim.",
+          "criterion_scope": [
+            "partial REQ-REQ-01-02/03/04",
+            "partial REQ-SEL-01-01/02/03/04"
+          ],
+          "independent_review": "Luna census reviewer final material GO; Root source/readset/output check. R1 weaker oracle remains separate."
+        },
+        "candidate_experiment_native_execute_r2": {
+          "output": "policy-engine/_cache/e02/lane01-candidate-execution-native-r2/",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "seconds": 113.17404549999628,
+          "peak_rss_bytes": 1959165952,
+          "named_inputs": 49,
+          "inputs_unchanged_during_run": true,
+          "scope": "Passed real DS9/PA2 positive; removal of actual policy leaked FileNotFoundError instead of typed public refusal. Acquisition execute/new N5 still unrun. Retained source is reused for short follow-up, not numerically rerun for each guard.",
+          "next": "Canonical source resolver translates missing/unverified policy lookup failure into scoped AcquisitionRouteClosureError while preserving cause; no skip/partial inventory."
         }
       },
       "independent_component_reviews": {

@@ -251,6 +251,14 @@ class CandidateExperimentCurrentActionProjection(BaseModel):
             or self.receipt_phase != "terminal"
         ):
             raise ValueError("candidate_experiment_completed_projection_missing_terminal")
+        if self.evaluation_disposition == "blocked":
+            if (
+                self.terminal_outcome != "candidate_reentry_completed"
+                or self.selected_evaluation is not None
+                or self.blocker_reason is None
+            ):
+                raise ValueError("candidate_experiment_completed_blocked_projection_mismatch")
+            return self
         if self.evaluation_disposition not in {"new", "retained"}:
             raise ValueError("candidate_experiment_completed_projection_missing_evaluation")
         if self.evaluation_disposition == "new" and (
@@ -263,7 +271,7 @@ class CandidateExperimentCurrentActionProjection(BaseModel):
             or self.selected_evaluation is None
         ):
             raise ValueError("candidate_experiment_retained_evaluation_projection_mismatch")
-        if self.evaluation_disposition == "blocked" or self.blocker_reason is not None:
+        if self.blocker_reason is not None:
             raise ValueError("candidate_experiment_completed_projection_has_blocker")
         return self
 
@@ -1306,6 +1314,26 @@ class AcquisitionActionService:
                 "candidate_experiment_terminal_receipt_profile_mismatch"
             )
         terminal = current_terminal.terminal if current_terminal is not None else None
+        blocker_reason = None if terminal is None else terminal.blocker_reason
+        if (
+            current_terminal is not None
+            and terminal is not None
+            and terminal.terminal_outcome == "candidate_reentry_completed"
+            and terminal.selected_evaluation is None
+        ):
+            # Physical reentry may finish without establishing an evaluation.
+            # Preserve that outcome and expose the exact verified basis reasons.
+            basis = current_terminal.selected_basis
+            if (
+                basis is None
+                or basis.basis_role != "blocked"
+                or basis.predicate_provenance != "not_established"
+                or not basis.reason_codes
+            ):
+                raise AcquisitionActionServiceError(
+                    "candidate_experiment_blocked_evaluation_basis_not_established"
+                )
+            blocker_reason = "; ".join(basis.reason_codes)
         return self._format_candidate_experiment_current_action(
             head=head,
             job_state=job_state,
@@ -1313,7 +1341,7 @@ class AcquisitionActionService:
             current_terminal_head=None if current_terminal is None else current_terminal.head,
             terminal_outcome=None if terminal is None else terminal.terminal_outcome,
             selected_evaluation=None if terminal is None else terminal.selected_evaluation,
-            blocker_reason=None if terminal is None else terminal.blocker_reason,
+            blocker_reason=blocker_reason,
         )
 
     @staticmethod
@@ -1351,6 +1379,8 @@ class AcquisitionActionService:
                     evaluation_disposition = "retained"
                 elif selected_evaluation is not None:
                     evaluation_disposition = "new"
+                elif blocker_reason is not None:
+                    evaluation_disposition = "blocked"
             else:
                 raise AcquisitionActionServiceError(
                     "candidate_experiment_current_terminal_outcome_not_established"

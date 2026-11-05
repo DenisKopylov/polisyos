@@ -116,6 +116,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
         CandidateAcquisitionEvaluationCurrentOwner,
+        CandidateExperimentEvaluationCurrentOwner,
         _CandidateRetainedBudgetFence,
     )
     from polisyos.runtime.quality.acquisition_retained_continuation import (
@@ -13106,9 +13107,13 @@ class GenerationCycleController:
             if current_owner is not None:
                 from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
                     CandidateAcquisitionEvaluationCurrentOwner,
+                    CandidateExperimentEvaluationCurrentOwner,
                 )
 
-                if type(current_owner) is CandidateAcquisitionEvaluationCurrentOwner:
+                if type(current_owner) in {
+                    CandidateAcquisitionEvaluationCurrentOwner,
+                    CandidateExperimentEvaluationCurrentOwner,
+                }:
                     return current_owner.planner_snapshot(snapshot)
             return snapshot
         families = _n7_required_families_from_specs(specs) or _n7_required_data_families(
@@ -13153,11 +13158,13 @@ class GenerationCycleController:
             from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
                 AcquisitionEvaluationCurrentOwner,
                 CandidateAcquisitionEvaluationCurrentOwner,
+                CandidateExperimentEvaluationCurrentOwner,
             )
 
             if type(current_owner) not in {
                 AcquisitionEvaluationCurrentOwner,
                 CandidateAcquisitionEvaluationCurrentOwner,
+                CandidateExperimentEvaluationCurrentOwner,
             }:
                 raise GenerationCycleError("retained_planner_current_owner_not_established")
             snapshot = current_owner.planner_snapshot(snapshot)
@@ -16164,11 +16171,15 @@ class GenerationCycleController:
         }
 
     def _candidate_retained_configured_cheap_continuation(
-        self, *, owner: CandidateAcquisitionEvaluationCurrentOwner
+        self,
+        *,
+        owner: CandidateAcquisitionEvaluationCurrentOwner
+        | CandidateExperimentEvaluationCurrentOwner,
     ) -> _RetainedCheapProjection | _RetainedCheapNonReceipt:
         """Re-run local ports for one owner-revalidated retained candidate."""
         from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
             CandidateAcquisitionEvaluationCurrentOwner,
+            CandidateExperimentEvaluationCurrentOwner,
             _candidate_evaluation_artifact_for_recovery,
         )
         from polisyos.runtime.quality.acquisition_retained_continuation import (
@@ -16176,12 +16187,32 @@ class GenerationCycleController:
         )
         from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
 
-        if type(owner) is not CandidateAcquisitionEvaluationCurrentOwner:
+        if type(owner) not in {
+            CandidateAcquisitionEvaluationCurrentOwner,
+            CandidateExperimentEvaluationCurrentOwner,
+        }:
             raise GenerationCycleError("candidate_retained_current_owner_not_established")
         resolver = self._candidate_simulation_currentness_resolver
         selected = owner.prior.selected
-        source_cycle = owner.closure.source_cycle
-        original_run = owner.closure.generation_run
+        source_cycle = (
+            owner.closure.source_cycle
+            if type(owner) is CandidateAcquisitionEvaluationCurrentOwner
+            else owner.source_cycle
+        )
+        original_run = (
+            owner.closure.generation_run
+            if type(owner) is CandidateAcquisitionEvaluationCurrentOwner
+            else owner.generation_run
+        )
+        problem = (
+            owner.closure.design_problem_basis
+            if type(owner) is CandidateAcquisitionEvaluationCurrentOwner
+            else owner.design_problem_basis
+        )
+        if not isinstance(original_run, GenerationCycleRun) or not isinstance(
+            source_cycle, GenerationCycleRecord
+        ):
+            raise GenerationCycleError("candidate_retained_current_source_not_established")
         service = owner.bridge._source_control_service
         if (
             self._source_run_id is not None
@@ -16192,7 +16223,7 @@ class GenerationCycleController:
             or self._catalog_serving_source is not service.catalog_serving_source
             or getattr(resolver, "__self__", None) is not owner
             or getattr(resolver, "__func__", None)
-            is not CandidateAcquisitionEvaluationCurrentOwner.currentness_resolver
+            is not type(owner).currentness_resolver
             or original_run.run_id != selected.generation_run_id
             or source_cycle.cycle_index != selected.cycle_index
             or exact_n5_content_bytes(self._candidate_simulation_handoff)
@@ -16202,7 +16233,17 @@ class GenerationCycleController:
         owner.revalidate()
         saved = _candidate_evaluation_artifact_for_recovery(
             bridge=owner.bridge,
-            closure=owner.closure,
+            closure=(
+                owner.closure if type(owner) is CandidateAcquisitionEvaluationCurrentOwner else None
+            ),
+            origin=(
+                owner.origin if type(owner) is CandidateExperimentEvaluationCurrentOwner else None
+            ),
+            pending_phase_ref=(
+                owner.pending_phase_ref
+                if type(owner) is CandidateExperimentEvaluationCurrentOwner
+                else None
+            ),
             candidate_action_ref=owner.candidate_action_ref,
             role="retained_continuation",
         )
@@ -16232,7 +16273,7 @@ class GenerationCycleController:
             return self._retained_configured_cheap_continuation(
                 original_run=original_run,
                 source_cycle=source_cycle,
-                problem=owner.closure.design_problem_basis,
+                problem=problem,
                 budget_state=fence.budget_state,
                 current_basis_ref=owner.current_basis_ref,
                 admitted_source_ref=None,
@@ -16257,7 +16298,9 @@ class GenerationCycleController:
         current_basis_ref: CASArtifactRef,
         admitted_source_ref: CASArtifactRef | None,
         growth_ref: CASArtifactRef | None,
-        _candidate_owner: CandidateAcquisitionEvaluationCurrentOwner | None = None,
+        _candidate_owner: CandidateAcquisitionEvaluationCurrentOwner
+        | CandidateExperimentEvaluationCurrentOwner
+        | None = None,
         _candidate_fence: _CandidateRetainedBudgetFence | None = None,
     ) -> _RetainedCheapProjection | _RetainedCheapNonReceipt:
         from dataclasses import fields
@@ -16280,11 +16323,16 @@ class GenerationCycleController:
         else:
             from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
                 CandidateAcquisitionEvaluationCurrentOwner,
+                CandidateExperimentEvaluationCurrentOwner,
                 _CandidateRetainedBudgetFence,
             )
 
             if (
-                type(_candidate_owner) is not CandidateAcquisitionEvaluationCurrentOwner
+                type(_candidate_owner)
+                not in {
+                    CandidateAcquisitionEvaluationCurrentOwner,
+                    CandidateExperimentEvaluationCurrentOwner,
+                }
                 or type(_candidate_fence) is not _CandidateRetainedBudgetFence
                 or _candidate_fence.owner is not _candidate_owner
                 or _candidate_fence.budget_state is not budget_state
@@ -16872,7 +16920,9 @@ class GenerationCycleController:
         result: Mapping[str, Any],
         *,
         cycle: GenerationCycleRecord,
-        retained_owner: CandidateAcquisitionEvaluationCurrentOwner | None = None,
+        retained_owner: CandidateAcquisitionEvaluationCurrentOwner
+        | CandidateExperimentEvaluationCurrentOwner
+        | None = None,
     ) -> _N7ConfiguredCandidatePortSource:
         """Build replayed N4/N5 port facts for a candidate-only mixed route."""
         from polisyos.runtime.quality.candidate_simulation import (
@@ -16916,11 +16966,16 @@ class GenerationCycleController:
         else:
             from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
                 CandidateAcquisitionEvaluationCurrentOwner,
+                CandidateExperimentEvaluationCurrentOwner,
             )
             from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
 
             if (
-                type(retained_owner) is not CandidateAcquisitionEvaluationCurrentOwner
+                type(retained_owner)
+                not in {
+                    CandidateAcquisitionEvaluationCurrentOwner,
+                    CandidateExperimentEvaluationCurrentOwner,
+                }
                 or getattr(self, "_acquisition_retention_current_owner", None) is not retained_owner
                 or exact_n5_content_bytes(handoff)
                 != exact_n5_content_bytes(retained_owner.prior.handoff)

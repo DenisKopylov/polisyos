@@ -59,15 +59,20 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
     )
     from polisyos.runtime.quality.candidate_simulation import CandidateScenarioDecimalSetToRuleV2
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextOwnerError
-    from polisyos.runtime.quality.design_generation import DesignGenerationOrganRun
+    from polisyos.runtime.quality.design_generation import (
+        DesignGenerationOrganRun,
+        ShadowGeneratedCandidate,
+    )
     from polisyos.runtime.quality.generation_cycle import (
         GenerationCycleController,
         JointSimulationPort,
         N4GenerationPort,
         _candidate_id,
+        _DispositionCandidate,
         _ranking_by_candidate,
         load_joint_simulation_result,
     )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleN5RequestProfileV3,
         GenericCycleSimulationAdmissionOwner,
@@ -113,6 +118,23 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
     assert len(prepared.organ_run.result.candidates) == 2
     assert len(prepared.root_profile.n5.component_rules) == 2
     assert type(prepared.root_profile.n5) is GenericCycleN5RequestProfileV3
+    assert all(
+        type(candidate) is ShadowGeneratedCandidate
+        for candidate in prepared.organ_run.result.candidates
+    )
+    prepared_nonbinding_dispositions = tuple(
+        disposition
+        for disposition in prepared.organ_run.result.grounding_dispositions
+        if disposition.disposition != "shadow_bound"
+    )
+    assert len(prepared_nonbinding_dispositions) == 1
+    assert prepared_nonbinding_dispositions[0].disposition == "unknown_blocked"
+    assert prepared_nonbinding_dispositions[0].candidate_id is None
+    assert prepared_nonbinding_dispositions[0].shadow_atom_content_hash is None
+    prepared_nonbinding_keys = tuple(
+        (disposition.proposal_id, disposition.raw_candidate_hash, disposition.disposition)
+        for disposition in prepared_nonbinding_dispositions
+    )
     assert all(child.source_atom_refs for child in prepared.children)
     assert len({child.semantic_ref for child in prepared.children}) == 2
 
@@ -122,7 +144,8 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
         key=lambda candidate: prepared_rankings.get(_candidate_id(candidate), (0.0, 0.0))[0],
     )
 
-    def semantic_key(candidate: object) -> tuple[str, tuple[str, ...]]:
+    def semantic_key(candidate: ShadowGeneratedCandidate) -> tuple[str, tuple[str, ...]]:
+        assert type(candidate) is ShadowGeneratedCandidate
         atom = candidate.atom
         operator_kind = atom.operator_kind.trinity_kind
         if hasattr(operator_kind, "value"):
@@ -275,8 +298,46 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
         generated = await original_generate(controller, state)
         if is_configured_root(controller) and int(state["cycle_index"]) == 0:
             candidates = tuple(generated["candidates"])
+            assert all(
+                type(candidate) in {ShadowGeneratedCandidate, _DispositionCandidate}
+                for candidate in candidates
+            )
+            atom_candidates = tuple(
+                candidate for candidate in candidates if type(candidate) is ShadowGeneratedCandidate
+            )
+            disposition_candidates = tuple(
+                candidate for candidate in candidates if type(candidate) is _DispositionCandidate
+            )
+            assert len(atom_candidates) == 2
+            assert len(disposition_candidates) == 1
+            assert len(candidates) == 3
+            source_dispositions = tuple(
+                disposition
+                for disposition in generated["generation_result"].grounding_dispositions
+                if disposition.disposition != "shadow_bound"
+            )
+            assert (
+                tuple(
+                    (
+                        disposition.proposal_id,
+                        disposition.raw_candidate_hash,
+                        disposition.disposition,
+                    )
+                    for disposition in source_dispositions
+                )
+                == prepared_nonbinding_keys
+            )
+            disposition_candidate = disposition_candidates[0]
+            source_disposition = source_dispositions[0]
+            assert disposition_candidate.proposal_id == source_disposition.proposal_id
+            assert disposition_candidate.candidate_id == source_disposition.proposal_id
+            assert disposition_candidate.content_hash == source_disposition.raw_candidate_hash
+            assert disposition_candidate.grounding_disposition == "unknown_blocked"
+            assert disposition_candidate.status == "candidate_unbound"
+            assert disposition_candidate.generator_path == "n4_grounding_disposition"
             rankings = generated["rankings"]
             top = generated["selected_candidate"]
+            assert type(top) is ShadowGeneratedCandidate
             maximum_score = max(
                 rankings.get(_candidate_id(candidate), (0.0, 0.0))[0] for candidate in candidates
             )
@@ -286,8 +347,9 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
                     "candidate_ids": tuple(_candidate_id(candidate) for candidate in candidates),
                     "candidate_semantics": {
                         _candidate_id(candidate): semantic_key(candidate)
-                        for candidate in candidates
+                        for candidate in atom_candidates
                     },
+                    "disposition_candidates": disposition_candidates,
                     "rankings": dict(rankings),
                     "top_candidate_id": _candidate_id(top),
                     "top_semantic": semantic_key(top),
@@ -684,6 +746,17 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
     assert selected_candidate_id != failed_attempt.candidate_id
     assert root_n5_input.candidate_id == selected_candidate_id
     summaries_by_id = {summary.candidate_id: summary for summary in root_run.candidate_summaries}
+    assert len(root_run.candidate_summaries) == len(summaries_by_id) == 3
+    assert set(summaries_by_id) == set(initial_generations[0]["candidate_ids"])
+    disposition_candidate = initial_generations[0]["disposition_candidates"][0]
+    disposition_summary = summaries_by_id[disposition_candidate.candidate_id]
+    assert disposition_summary.content_hash == disposition_candidate.content_hash
+    assert disposition_summary.grounding_source == "cgf_firewall"
+    assert disposition_summary.grounding_disposition == "unknown_blocked"
+    assert disposition_summary.grounding_status == "grounding_failed"
+    assert disposition_summary.grounding_score == 0
+    assert disposition_summary.evaluation_attempt is None
+    assert disposition_candidate.candidate_id != selected_candidate_id
     selected_summary = summaries_by_id[selected_candidate_id]
     assert selected_summary.evaluation_attempt is None
     assert selected_summary.grounding_status == "grounded_shadow"
@@ -744,6 +817,35 @@ async def test_served_candidate_local_n5_domain_refusal_retries_grounded_sibling
     )
 
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        # The public projection exposes the full N4 source by reference; it
+        # does not invent atom fields for non-binding CGF dispositions.
+        assert fresh_generic_projection["n4_source_status"] == "resolved"
+        projected_source_ref = ArtifactRef.model_validate(fresh_generic_projection["n4_source_ref"])
+        assert projected_source_ref == compiled.n4_recursive_source_ref
+        handoff = compiled.generic_cycle_simulation_handoff
+        assert handoff is not None
+        assert compiled.n4_recursive_source_run_id is not None
+        persisted_source = GenerationSourceRepository(service._artifact_store).load(
+            projected_source_ref,
+            run_id=compiled.n4_recursive_source_run_id,
+            expected_run_id=handoff.run_id,
+            expected_job_id=handoff.job_id,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
+            context_job_ref=handoff.context_job_ref,
+            profile_ref=handoff.profile_ref,
+            n4_child_profile_family_ref=None,
+        )
+        assert len(persisted_source.generation_result.candidates) == 2
+        assert len(persisted_source.generation_result.grounding_dispositions) == 3
+        assert (
+            tuple(
+                (disposition.proposal_id, disposition.raw_candidate_hash, disposition.disposition)
+                for disposition in persisted_source.generation_result.grounding_dispositions
+                if disposition.disposition != "shadow_bound"
+            )
+            == prepared_nonbinding_keys
+        )
         simulation_result = load_joint_simulation_result(
             cycle.simulation.simulation_result_ref,
             store=service._artifact_store,

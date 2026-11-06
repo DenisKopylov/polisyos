@@ -1530,9 +1530,7 @@ def run_genuine_candidate_experiment_scenario(
                 input_ref = simulation.candidate_simulation_n5_input_ref
                 result_ref = simulation.simulation_result_ref
                 execution_ref = ArtifactRef.model_validate(
-                    simulation.diagnostics[
-                        "candidate_simulation_execution_selected_ref"
-                    ]
+                    simulation.diagnostics["candidate_simulation_execution_selected_ref"]
                 )
                 assert source_ref is not None and input_ref is not None and result_ref is not None
                 source_replay_counts = _assert_selected_n4_source_replay_is_consolidated(

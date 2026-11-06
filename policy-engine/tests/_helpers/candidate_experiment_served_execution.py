@@ -1029,11 +1029,9 @@ def run_candidate_experiment_served_execution(
                 original_dispatch,
                 dispatch_failures,
             )
-            observed_prepare_source_basis = (
-                _observe_candidate_experiment_source_basis_preparation(
-                    original_prepare_source_basis,
-                    source_basis_preparations,
-                )
+            observed_prepare_source_basis = _observe_candidate_experiment_source_basis_preparation(
+                original_prepare_source_basis,
+                source_basis_preparations,
             )
 
             def observe_execute_candidate_experiment(

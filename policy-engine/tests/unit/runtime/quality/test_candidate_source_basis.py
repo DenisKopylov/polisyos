@@ -244,9 +244,7 @@ def test_live_source_basis_observer_preserves_return_and_exception_identity() ->
     intent_ref = object()
     intent = object()
     result = (prepared, intent_ref, intent)
-    observed = _observe_candidate_experiment_source_basis_preparation(
-        lambda: result, observations
-    )
+    observed = _observe_candidate_experiment_source_basis_preparation(lambda: result, observations)
 
     assert observed() is result
     assert len(observations) == 1

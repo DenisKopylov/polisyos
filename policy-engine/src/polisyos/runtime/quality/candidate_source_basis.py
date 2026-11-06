@@ -1342,12 +1342,8 @@ def prepare_live_candidate_experiment_source_basis_values(
             or prior_evaluation.selected.candidate_content_hash
             != prior_owner.source_cycle.selected_candidate_content_hash
             or not _selected_n5_world_model_matches_exact_n4_context(
-                selected_world_model_hash=(
-                    prior_evaluation.selected.world_model_record_hash
-                ),
-                n4_source_world_model_hash=(
-                    prior_evaluation.source.world_model_record_hash
-                ),
+                selected_world_model_hash=(prior_evaluation.selected.world_model_record_hash),
+                n4_source_world_model_hash=(prior_evaluation.source.world_model_record_hash),
                 context_world_model_hash=(
                     prior_evaluation.handoff.context.world_model_record_content_hash
                 ),
@@ -1357,9 +1353,7 @@ def prepare_live_candidate_experiment_source_basis_values(
                 n5_input_world_model_hash=(
                     prior_evaluation.input_record.materialization.world_model_record_hash
                 ),
-                n5_execution_world_model_hash=(
-                    prior_evaluation.execution.world_model_record_hash
-                ),
+                n5_execution_world_model_hash=(prior_evaluation.execution.world_model_record_hash),
             )
         ):
             raise ValueError("candidate_experiment_source_basis_prior_n5_changed")

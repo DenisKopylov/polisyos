@@ -3743,9 +3743,7 @@ class GenerationSourceRepository:
                 raise ValueError("candidate_simulation_v5_execution_input_mismatch")
             input_record = record
         elif _input_snapshot is None:
-            if _input_ref is not None or (
-                _source_snapshot is not None and _source_ref is None
-            ):
+            if _input_ref is not None or (_source_snapshot is not None and _source_ref is None):
                 raise ValueError("candidate_simulation_v5_execution_input_mismatch")
             input_record = self._load_candidate_simulation_input_v5(record.n5_input_ref)
         else:

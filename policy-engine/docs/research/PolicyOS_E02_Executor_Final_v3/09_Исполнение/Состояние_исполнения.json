@@ -12137,6 +12137,88 @@
           },
           "scope": "Real retained R15 synthetic CAS opened readonly by MAIN current resolver:4→1 exact selectedN4 owner replays; all3models equal; wrong selected profile/foreign tenant/execution-input mismatch refused; noN5. This counts owner validation calls, not raw bytes or latency. Driver+compact deciding result retained once; full served terminal separately pending.",
           "independent_review": "Luna GO on production caller/public resolver compatibility; wrong-profile ref shape corrected before final diagnostic."
+        },
+        "candidate_experiment_native_execute_r16": {
+          "output": "policy-engine/_cache/e02/lane01-candidate-execution-native-r16",
+          "source_commit": "d13b3e3746c467c8ba4d32b17eb4037733421eba",
+          "source_tree": "7ba10a47c15281ce5c23dc9d410d8cd83df80d02",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 1,
+          "wall_seconds": 717.440300624934,
+          "peak_RSS_bytes": 1673134080,
+          "named_inputs": 101,
+          "inputs_unchanged": true,
+          "scope": "True protected worker: live source-basis preparation recomputed/no reasons, real intent and inputs present. Fails later in revalidator: AttributeError ControlJobRecord.action_generation. Fix binds selected typed phase generation; job attempt remains distinct. Port145.38s/admission65.28s; whole test notPASS, no resourceabort. Historical failed job is not reopened through SQL."
+        },
+        "sim02_retained_interruption_current": {
+          "output": "policy-engine/_cache/e02/lane01-sim02-retained-interruption-current-r1",
+          "source_commit": "d13b3e3746c467c8ba4d32b17eb4037733421eba",
+          "observed": {
+            "PASS": 4,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 18.44241608295124,
+          "peak_RSS_bytes": 1376698368,
+          "named_inputs": 30,
+          "inputs_unchanged": true,
+          "scope": "Actual native NCM partial-failure retention, exact typed cause or bounded unknown cause, no secret leakage and explicit zero, persisted result and distinct CAS reader. TEST-SIM-02-03 scope; not physical-interruption→publicHTTP proof and not the older89Foundry-only cohort."
+        },
+        "cyc02_legacy_n8_current": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cyc02-legacy-n8-author-r3",
+          "source_commit": "d2a0dace1d0560428293869607d15f48f5083b63",
+          "test_delta_sha256": "8c80806cb002601a2ad2a7410360c86927ebf8c3714923565225c5204ed88f8c",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 27.168424332980067,
+          "peak_RSS_bytes": 1622589440,
+          "named_inputs": 294,
+          "inputs_unchanged": true,
+          "scope": "Full exact selector on AUTHOR actual inputs, strict legacy/corruption controls preserved;6linefixturedelta committed64ca775e3 after independent LunaGO. This is not a new whole-composed-wave PASS."
+        },
+        "cyc02_reopenable_cas_current": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cyc02-reopenable-cas-author-r1",
+          "source_commit": "d2a0dace1d0560428293869607d15f48f5083b63",
+          "test_delta_sha256": "8c80806cb002601a2ad2a7410360c86927ebf8c3714923565225c5204ed88f8c",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 19.58757941692602,
+          "peak_RSS_bytes": 1501347840,
+          "named_inputs": 294,
+          "inputs_unchanged": true,
+          "scope": "Full exact selector on AUTHOR actual inputs, strict legacy/corruption controls preserved;6linefixturedelta committed64ca775e3 after independent LunaGO. This is not a new whole-composed-wave PASS."
+        },
+        "candidate_reentry_phase_job_guard": {
+          "output": "policy-engine/_cache/e02/lane01-reentry-generation-guard-r1",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 14.190951291006058,
+          "peak_RSS_bytes": 1563541504,
+          "named_inputs": 6,
+          "inputs_unchanged": true,
+          "scope": "Real SQLite ControlJobExecutionAdmission/ControlJobRecord plus typed phase/action relation helper, valid and mismatch cases. Job has no action_generation; use phase generation, keep attempt distinct. Not full live authority or terminal qualification. Independent Luna GO."
         }
       },
       "independent_component_reviews": {

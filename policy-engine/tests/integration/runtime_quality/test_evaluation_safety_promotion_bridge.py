@@ -129,6 +129,156 @@ def _forbid_n8_n9_effect_kernels() -> Iterator[list[str]]:
                     monitoring.free_tool_id(tool_id)
 
 
+def test_bounded_selected_source_builds_real_kref_and_rejects_changed_catalog_bytes(
+    tmp_path, monkeypatch
+):
+    """Preflight the real K_ref owner against a bounded, fixture-owned source root."""
+    import duckdb
+
+    from polisyos.runtime.quality import credal_reference
+    from polisyos.runtime.quality.intervention_substrate import load_l6_intervention_substrate
+    from polisyos.runtime.quality.substrate_registry import (
+        DEFAULT_L3_LEX_KG_PATH,
+        catalog_serving_source_scope,
+    )
+    from tests._helpers.candidate_cycle_source_profile import (
+        bind_candidate_cycle_kref_builder_root,
+        build_candidate_cycle_catalog_serving_source,
+        build_candidate_cycle_substrate_route_inputs,
+        candidate_cycle_catalog_source_readback,
+        candidate_cycle_kref_source_witness,
+        install_candidate_cycle_l6_source_root_reader,
+    )
+
+    bounded_source = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "bounded-kref-source",
+        outcome_variable="government.balance",
+        include_owner_slot_manifest=True,
+        owner_knob_dictionary={
+            "tax_relief_rate": {
+                "default": 0.1,
+                "type": "float",
+                "min": 0.0,
+                "max": 0.5,
+                "mechanism_id": "tax_relief_rate",
+                "param_path": "params.rate",
+            }
+        },
+    )
+    assert bounded_source.root.is_relative_to(tmp_path.resolve())
+    registry_entry = bounded_source.substrate_registry.entries[0]
+    assert registry_entry.coverage.coverage_kind == "controlled_synthetic_fixture"
+    assert registry_entry.trust_tier.trust_cap == 0.0
+    assert registry_entry.identification_mode == "not_established"
+
+    _, catalog_source = build_candidate_cycle_catalog_serving_source(bounded_source.root)
+    expected_catalog_readback = candidate_cycle_catalog_source_readback(
+        catalog_source.database_path
+    )
+    actual_l6_reads, bind_expected_l6, assert_l6_reader_installed = (
+        install_candidate_cycle_l6_source_root_reader(
+            monkeypatch,
+            code_root=REPO_ROOT,
+            source_owner_root=bounded_source.root,
+        )
+    )
+    expected_l6_bundle = load_l6_intervention_substrate(
+        REPO_ROOT,
+        source_owner_root=bounded_source.root,
+    )
+    expected_l6_witness = bind_expected_l6(expected_l6_bundle)
+    assert_l6_reader_installed()
+
+    actual_kref_repo_roots: list[str] = []
+    selected_kref_builder = bind_candidate_cycle_kref_builder_root(
+        credal_reference.build_credal_reference,
+        expected_repo_root=bounded_source.root,
+        observed_repo_roots=actual_kref_repo_roots,
+    )
+    with catalog_serving_source_scope(catalog_source):
+        reference = selected_kref_builder(
+            bounded_source.root,
+            world_model_record=bounded_source.world_model_record,
+        )
+    assert actual_kref_repo_roots == [str(bounded_source.root)]
+    assert_l6_reader_installed()
+
+    l3_path = (bounded_source.root / DEFAULT_L3_LEX_KG_PATH).resolve(strict=True)
+    assert l3_path.is_relative_to(bounded_source.root)
+    with duckdb.connect(str(l3_path), read_only=True) as connection:
+        l3_row_counts = {
+            table_name: int(
+                connection.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0]
+            )
+            for table_name in (
+                "lex_amendments",
+                "lex_normative_ready_facts",
+                "lex_reference_edges",
+                "lex_rule_thresholds",
+            )
+        }
+    assert set(l3_row_counts) == {
+        "lex_amendments",
+        "lex_normative_ready_facts",
+        "lex_reference_edges",
+        "lex_rule_thresholds",
+    }
+    assert all(0 <= row_count < 1000 for row_count in l3_row_counts.values())
+
+    source_witness = candidate_cycle_kref_source_witness(
+        reference,
+        source_root=bounded_source.root,
+        expected_skg_ref=bounded_source.world_model_record.skg_causal_prior_ref,
+        catalog_source=catalog_source,
+        expected_catalog_readback=expected_catalog_readback,
+        expected_l6_bundle=expected_l6_bundle,
+        expected_l6_witness=expected_l6_witness,
+        actual_l6_reads=actual_l6_reads,
+    )
+    assert source_witness["repo_root"] == str(bounded_source.root)
+    assert source_witness["l1_catalog"]["alignment_row_count"] == expected_catalog_readback[
+        "alignment_row_count"
+    ]
+    assert source_witness["l2_skg"]["source_snapshot_sha256"]
+    assert source_witness["l3_lex"]["source_path"] == str(l3_path)
+
+    # The real K_ref was built from the selected bytes. Changing those bytes
+    # afterward must make the old profile/witness unusable, not silently current.
+    with duckdb.connect(str(catalog_source.database_path)) as connection:
+        connection.execute(
+            """
+            INSERT INTO ds_variable_alignments (
+                dataset_id, raw_variable, canonical_var, method, confidence,
+                evidence, is_proxy, proxy_penalty
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                "synthetic-source-change-control",
+                "fixture.raw_variable",
+                "fixture.changed_variable",
+                "controlled_test_input",
+                1.0,
+                "synthetic fixture byte-change control",
+                False,
+                0.0,
+            ],
+        )
+    with pytest.raises(
+        AssertionError,
+        match="candidate_kref_catalog_source_readback_mismatch",
+    ):
+        candidate_cycle_kref_source_witness(
+            reference,
+            source_root=bounded_source.root,
+            expected_skg_ref=bounded_source.world_model_record.skg_causal_prior_ref,
+            catalog_source=catalog_source,
+            expected_catalog_readback=expected_catalog_readback,
+            expected_l6_bundle=expected_l6_bundle,
+            expected_l6_witness=expected_l6_witness,
+            actual_l6_reads=actual_l6_reads,
+        )
+
+
 def _completed_core_source(produced_station, source_job):
     """Resolve the actual completed Core child owned by the control-job lease."""
     from polisyos.core.artifacts.manifest import ArtifactRef
@@ -243,6 +393,9 @@ def produced_station(tmp_path_factory):
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContextArtifactOwner,
     )
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
 
     principal = RuntimePrincipal.from_user_claims(_fixture_claims())
     context_refs = []
@@ -272,12 +425,32 @@ def produced_station(tmp_path_factory):
             "persist_for_current_job",
             capture_context_ref,
         )
+        source_tmp_path = tmp_path_factory.mktemp("controlled-profile-source")
+        bounded_source = build_candidate_cycle_substrate_route_inputs(
+            source_tmp_path / "bounded-selected-source",
+            outcome_variable="government.balance",
+            include_owner_slot_manifest=True,
+            owner_knob_dictionary={
+                "tax_relief_rate": {
+                    "default": 0.1,
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 0.5,
+                    "mechanism_id": "tax_relief_rate",
+                    "param_path": "params.rate",
+                }
+            },
+        )
         fixture = _within_owner(
             principal,
             asyncio.run,
             _run_controlled_simulate_only_job_fixture(
                 patches,
-                tmp_path_factory.mktemp("controlled-profile-source"),
+                source_tmp_path,
+                source_repo_root=bounded_source.root,
+                source_root=bounded_source.root,
+                basis_repo_root=bounded_source.root,
+                l6_source_owner_root=bounded_source.root,
             ),
         )
     assert effect_calls == []
@@ -291,6 +464,7 @@ def produced_station(tmp_path_factory):
             "job_id": fixture.job.job_id,
             "principal": principal,
             "cycle_substrate_context_ref": context_ref,
+            "source_root": bounded_source.root,
         }
     finally:
         _within_owner(principal, fixture.service.close)

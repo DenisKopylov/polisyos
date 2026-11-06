@@ -3863,3 +3863,149 @@ def test_native_type_metadata_does_not_claim_frozen_loader_implementation_or_his
             in state.projection["verified_facets"]
         )
     assert observed == []
+
+
+def _protocol_type_source(expression="Callable[[], Contract]"):
+    return (
+        "from __future__ import annotations\n"
+        "from collections.abc import Callable\n"
+        "from typing import Protocol, runtime_checkable\n\n"
+        "@runtime_checkable\nclass Contract(Protocol):\n"
+        "    @property\n    def name(self) -> str:\n        ...\n"
+        "    def make(self) -> object:\n        ...\n"
+        f"OUTPUT = {expression}\n"
+    )
+
+
+def test_native_type_metadata_binds_actual_component_factory_protocol():
+    from polisyos.core.components import protocols
+
+    root = ledger._loaded_policy_engine_root()
+    expected = _native_type_expected(root, protocols, "ComponentFactory")
+    assert type(expected) is ledger._SourceResolvedAnnotation
+    assert ledger._source_resolved_annotation_matches(protocols.ComponentFactory, expected)
+    assert protocols.ComponentFactory.__args__ == (protocols.Component,)
+    assert _route(root, protocols, "ComponentFactory") == (
+        "symbol",
+        protocols.__name__,
+        "ComponentFactory",
+    )
+
+
+@pytest.mark.parametrize("route_kind", ["local", "imported", "reexported"])
+def test_native_type_metadata_protocol_reference_reaches_selected_reader(
+    tmp_path, monkeypatch, route_kind
+):
+    root, provider = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    module = provider
+    if route_kind != "local":
+        source_name = provider.__name__
+        if route_kind == "reexported":
+            facade = _load_fixture_module(
+                root,
+                monkeypatch,
+                "polisyos.protocol_facade",
+                f"from {provider.__name__} import Contract\n",
+            )
+            source_name = facade.__name__
+        module = _load_fixture_module(
+            root,
+            monkeypatch,
+            "polisyos.protocol_alias_consumer",
+            "from __future__ import annotations\nfrom collections.abc import Callable\n"
+            f"from {source_name} import Contract as Selected\n"
+            "OUTPUT = Callable[[], Selected] | tuple[str, Callable[[int], Selected]]\n",
+        )
+    expected = _native_type_expected(root, module)
+    assert type(expected) is ledger._SourceResolvedAnnotation
+    assert ledger._source_resolved_annotation_matches(module.OUTPUT, expected)
+    assert _route(root, module, "OUTPUT") == ("symbol", module.__name__, "OUTPUT")
+    consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    assert consumer.observed() is module.OUTPUT
+
+
+@pytest.mark.parametrize(
+    "mutation", ["foreign", "member_code", "withdrawn", "runtime_flag", "annotations"]
+)
+def test_native_type_metadata_protocol_reference_requires_current_source_owner(
+    tmp_path, monkeypatch, mutation
+):
+    from collections.abc import Callable
+
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    expected = _native_type_expected(root, module)
+    assert type(expected) is ledger._SourceResolvedAnnotation
+    consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    if mutation == "foreign":
+        foreign = _load_fixture_module(
+            root,
+            monkeypatch,
+            "polisyos.foreign_protocol",
+            _protocol_type_source().replace("        ...\nOUTPUT", "        return 99\nOUTPUT"),
+        ).Contract
+        assert foreign.make(None) == 99
+        foreign.__module__ = module.__name__
+        foreign.__qualname__ = "Contract"
+        foreign.make.__module__ = module.__name__
+        foreign.make.__qualname__ = "Contract.make"
+        monkeypatch.setattr(module, "Contract", foreign)
+        wrong = Callable[[], foreign]
+        monkeypatch.setattr(module, "OUTPUT", wrong)
+        monkeypatch.setattr(consumer, "OUTPUT", wrong)
+    elif mutation == "member_code":
+        monkeypatch.setattr(module.Contract.make, "__code__", (lambda self: 99).__code__)
+        assert module.Contract.make(None) == 99
+    elif mutation == "withdrawn":
+        monkeypatch.delattr(module, "Contract")
+    elif mutation == "runtime_flag":
+        monkeypatch.setattr(module.Contract, "_is_runtime_protocol", False)
+    else:
+        monkeypatch.setattr(module.Contract.make, "__annotations__", {"return": "str"})
+    assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    with pytest.raises(ledger.ConfidenceLedgerError, match="side-effecting direct source"):
+        ledger._source_facade_runtime_projection(root, closure)
+
+
+def test_native_type_metadata_protocol_reference_does_not_call_protocol_members(
+    tmp_path, monkeypatch
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    observed = []
+    member_codes = (module.Contract.make.__code__, module.Contract.name.fget.__code__)
+
+    def observed_member_call(frame, event, _argument):
+        if event == "call" and any(frame.f_code is code for code in member_codes):
+            observed.append(frame.f_code.co_name)
+
+    prior = sys.getprofile()
+    try:
+        sys.setprofile(observed_member_call)
+        expected = _native_type_expected(root, module)
+    finally:
+        sys.setprofile(prior)
+    assert type(expected) is ledger._SourceResolvedAnnotation
+    assert observed == []
+    assert ledger._source_resolved_annotation_matches(module.OUTPUT, expected)
+    profile = ledger._native_type_metadata_provider_projection()
+    assert profile["initialization_construction_and_behavior"] == "not_established"
+
+
+def test_native_type_metadata_protocol_reference_rejects_corrupt_provider_before_replay(
+    tmp_path, monkeypatch
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    with monkeypatch.context() as changed:
+        changed.setattr(typing.runtime_checkable, "__code__", (lambda cls: cls).__code__)
+        assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+
+
+def test_native_type_metadata_protocol_reference_rechecks_source_snapshot(tmp_path, monkeypatch):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    assert type(_native_type_expected(root, module)) is ledger._SourceResolvedAnnotation
+    source = Path(module.__file__)
+    source.write_text(
+        source.read_text().replace("def make(self) -> object", "def make(self) -> str")
+    )
+    assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED

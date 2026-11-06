@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -16,7 +17,9 @@ from polisyos.runtime.http.services.control_plane_store import (
     ControlJobRecord,
     ControlPlaneStore,
 )
+from polisyos.runtime.quality import acquisition_evaluation as evaluation_module
 from polisyos.runtime.quality import acquisition_evaluation_dispatch as dispatch
+from polisyos.runtime.quality import acquisition_route_loop as route_loop_module
 from polisyos.runtime.quality.acquisition_evaluation import (
     AcquisitionSelectedEvaluation,
     ResolvedAcquisitionEvaluation,
@@ -26,6 +29,7 @@ from polisyos.runtime.quality.acquisition_route_loop import (
 )
 from polisyos.runtime.quality.acquisition_world_growth import (
     AcquisitionCandidateSourceRoute,
+    AcquisitionWorldGrowthBridge,
     CandidateExperimentPriorOwner,
 )
 from polisyos.runtime.quality.candidate_acquisition_action import (
@@ -40,9 +44,17 @@ from polisyos.runtime.quality.candidate_simulation import (
 from polisyos.runtime.quality.cycle_substrate import (
     ConfiguredCandidateSimulationContextAdmissionOwner,
 )
+from polisyos.runtime.quality.generation_cycle import (
+    CandidateSourceBasisTransition,
+    CandidateSourceReentryReceipt,
+    GenerationCycleRecord,
+    GenerationCycleRun,
+)
+from polisyos.runtime.quality.world_model_record import world_model_artifact_views
 from tests.unit.runtime.quality.test_candidate_acquisition_world import (
     _candidate_world_case,
 )
+from tests.unit.runtime.quality.test_candidate_experiment_current_outcome import _selection_case
 from tests.unit.runtime.quality.test_candidate_experiment_terminal_history import (
     _requested_phase,
 )
@@ -271,6 +283,120 @@ def _prior_owner(
         source_cycle=None,
         selected_evaluation=evaluation,
         first_n4_source=None,
+    )
+
+
+def test_prior_receiver_distinguishes_base_and_selected_scenario_worlds(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Exercise the receiver join; upstream history and recipe are unit adapters.
+
+    The controlled base is a real CAS world. Constructed transition wrappers and
+    selected source adapters do not assert source custody or N5 execution.
+    """
+    world = _candidate_world_case(tmp_path / "world", monkeypatch)
+    inputs = _inputs(world)
+    profile, declaration = inputs.configured_profile, inputs.original_model_declaration
+    owner = ConfiguredCandidateSimulationContextAdmissionOwner(
+        profiles=(profile,), model_declarations=(declaration,), store=world.store
+    )
+    scenario_hash = _hash("3")
+    assert scenario_hash != world.base.record.content_hash
+    selected = _selected_evaluation(changed={"world_model_record_hash": scenario_hash}).selected
+    origin, _ = _selection_case(2)
+    scope = origin.policy_scope.model_copy(
+        update={
+            "candidate_id": selected.candidate_id,
+            "candidate_content_hash": selected.candidate_content_hash,
+        }
+    )
+    cycle = GenerationCycleRecord.model_construct(
+        cycle_index=1,
+        design_problem_ref=scope.design_problem_ref,
+        design_problem_basis_ref=scope.design_problem_basis_ref,
+        selected_candidate_ref=selected.candidate_id,
+        selected_candidate_content_hash=selected.candidate_content_hash,
+        terminal_kind="acquisition_required",
+        simulation=SimpleNamespace(candidate_simulation_n5_input_ref=selected.n5_input_ref),
+    )
+    edge = CandidateSourceBasisTransition.model_construct()
+    run = GenerationCycleRun.model_construct(cycles=(cycle,), basis_transitions=(edge,))
+    transition = CandidateSourceReentryReceipt.model_construct(
+        continued_generation_run=run,
+        new_cycle=cycle,
+        basis_transition=edge,
+        action_job_id="component-action-b",
+        n5_input_ref=selected.n5_input_ref,
+        n5_execution_ref=selected.n5_execution_ref,
+        n5_result_ref=selected.n5_result_ref,
+        scenario_world_model_content_hash=scenario_hash,
+        world_model_content_hash=world.base.record.content_hash,
+        world_model_ref=world.base.record_ref,
+        data_snapshot_ref=world_model_artifact_views(world.base.record).data_snapshot_ref,
+    )
+    history = replace(origin.candidate_terminal_history_chain[0], reentry=transition)
+    origin = replace(
+        origin,
+        policy_scope=scope,
+        design_problem_basis=world.problem,
+        candidate_terminal_history_chain=(history,),
+    )
+    monkeypatch.setattr(
+        route_loop_module, "_candidate_experiment_effective_source", lambda _origin: (run, cycle)
+    )
+    prior = ResolvedAcquisitionEvaluation(
+        selected=selected,
+        source=SimpleNamespace(
+            job_id=transition.action_job_id,
+            problem=world.problem,
+            profile=profile,
+            model_declaration=declaration,
+        ),
+        input_record=SimpleNamespace(profile=profile),
+        execution=None,
+        result=None,
+        handoff=SimpleNamespace(model_declaration=declaration),
+    )
+    monkeypatch.setattr(
+        evaluation_module, "resolve_selected_acquisition_evaluation_parts", lambda **_: prior
+    )
+    monkeypatch.setattr(
+        ConfiguredCandidateSimulationContextAdmissionOwner,
+        "prepare_context_for_acquired_world",
+        lambda *_args, **_kwargs: SimpleNamespace(profile=profile, model_declaration=declaration),
+    )
+    bridge = AcquisitionWorldGrowthBridge.__new__(AcquisitionWorldGrowthBridge)
+    bridge.artifact_store = world.store
+    bridge.control_store = object()
+    bridge.cycle_substrate_context_admission_owner = owner
+    bridge._source_control_service = None
+    selection = AcquisitionCandidateSourceRoute.model_construct(
+        profile_selection_ref=profile.profile_selection_ref
+    )
+
+    def attempt(receipt: CandidateSourceReentryReceipt, expected: str) -> None:
+        current_history = replace(history, reentry=receipt)
+        current_origin = replace(origin, candidate_terminal_history_chain=(current_history,))
+        with pytest.raises(ValueError, match=expected):
+            bridge._candidate_experiment_prior_owner(origin=current_origin, selection=selection)
+
+    # Reaching the absent budget owner proves the preceding receiver join passed;
+    # this deliberately does not assert downstream permission or authority.
+    attempt(transition, "candidate_experiment_prior_budget_owner_missing")
+    attempt(
+        transition.model_copy(
+            update={"scenario_world_model_content_hash": world.base.record.content_hash}
+        ),
+        "candidate_experiment_prior_transition_not_latest",
+    )
+    attempt(
+        transition.model_copy(update={"world_model_content_hash": scenario_hash}),
+        "candidate_experiment_prior_world_selection_mismatch",
+    )
+    foreign_input = selected.n5_input_ref.model_copy(update={"manifest_profile_sha256": _hash("e")})
+    attempt(
+        transition.model_copy(update={"n5_input_ref": foreign_input}),
+        "candidate_experiment_prior_transition_not_latest",
     )
 
 

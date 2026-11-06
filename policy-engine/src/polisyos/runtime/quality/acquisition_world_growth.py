@@ -1249,7 +1249,8 @@ class AcquisitionWorldGrowthBridge:
                     or transition.n5_input_ref != selected.n5_input_ref
                     or transition.n5_execution_ref != selected.n5_execution_ref
                     or transition.n5_result_ref != selected.n5_result_ref
-                    or transition.world_model_content_hash != selected.world_model_record_hash
+                    or transition.scenario_world_model_content_hash
+                    != selected.world_model_record_hash
                 ):
                     raise ValueError("candidate_experiment_prior_transition_not_latest")
                 base = load_world_model_record(self.artifact_store, transition.world_model_ref)
@@ -5734,6 +5735,14 @@ class AcquisitionWorldGrowthBridge:
                 )
             return result
 
+        def validate_continuation(receipt: CandidateSourceReentryReceipt) -> None:
+            # An experiment may have advanced through prior candidate reentries;
+            # its immutable root is not necessarily the producer's current run.
+            source_run = (
+                origin.effective_generation_run if origin is not None else identity.generation_run
+            )
+            validate_candidate_source_continuation(source_run, receipt)
+
         with data_forge_read_api.catalog.acquisition_overlay_admission_fence(operation):
             events = self.event_log.list_events(event_id=event_id, limit=2)
             if len(events) > 1:
@@ -5760,7 +5769,7 @@ class AcquisitionWorldGrowthBridge:
                         record_type=CandidateSourceReentryReceipt,
                         verify=read_selected,
                     )
-                validate_candidate_source_continuation(identity.generation_run, recovered)
+                validate_continuation(recovered)
                 current_action = (
                     read_candidate_experiment_acquisition_action(
                         bridge=self,
@@ -5866,7 +5875,7 @@ class AcquisitionWorldGrowthBridge:
             )
             if type(receipt) is not CandidateSourceReentryReceipt:
                 raise ValueError("candidate_source_reentry_result_untyped")
-            validate_candidate_source_continuation(identity.generation_run, receipt)
+            validate_continuation(receipt)
             if origin is not None:
                 current_action = read_candidate_experiment_acquisition_action(
                     bridge=self,
@@ -5922,7 +5931,10 @@ class AcquisitionWorldGrowthBridge:
                 pointer, candidate_action_ref=candidate_action_ref, selected_ref=selected_ref
             )
             verified = read_selected(selected_ref)
-            if verified != receipt:
+            # Compare every persisted field after independent owner replay. The
+            # live simulation also holds a deliberately excluded world-model
+            # object, which cannot survive the receipt JSON round trip.
+            if verified.model_dump(mode="json") != receipt.model_dump(mode="json"):
                 raise ValueError("candidate_source_reentry_readback_changed")
             if origin is not None:
                 self._reconcile_candidate_experiment_source_reentry_budget(

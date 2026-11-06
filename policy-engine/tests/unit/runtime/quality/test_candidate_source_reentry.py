@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 import json
+from contextlib import nullcontext
+from dataclasses import replace
+from decimal import Decimal
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -428,6 +432,256 @@ async def test_v9_intrinsic_history_binds_adjacent_pair_and_refuses_authority() 
         match="candidate_source_basis_transition_owner_not_established",
     ):
         generation_cycle_module.eligible_n9_source_for_run(typed_run)
+
+
+def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Exercise both receiver branches through explicitly adapted upstream owners.
+
+    Actual typed N6 continuation hash checks and the receipt serialization are
+    retained. Structural edge/summary checks and historical authority replay are
+    adapted here; they remain the responsibility of their own owners and the
+    served integration scenario. No physical N5 or source authority is claimed.
+    """
+    from polisyos.core import artifacts
+    from polisyos.data_forge import read_api as data_forge_read_api
+    from polisyos.runtime.quality import acquisition_route_loop as route_loop
+    from polisyos.runtime.quality import acquisition_world_growth as growth
+    from polisyos.runtime.quality import candidate_acquisition_action as actions
+    from polisyos.runtime.quality import candidate_source_reentry_history as history
+    from polisyos.runtime.quality.generation_cycle import (
+        CandidateSourceReentryReceipt,
+        GenerationCycleRecord,
+        SimulationPortObservation,
+        generation_cycle_run_content_hash,
+    )
+    from polisyos.scientist.orchestration.engine import ProducerBudgetObserver
+    from tests.unit.runtime.quality.test_candidate_acquisition_world import _candidate_world_case
+    from tests.unit.runtime.quality.test_candidate_experiment_current_outcome import _selection_case
+    from tests.unit.runtime.quality.test_candidate_experiment_dispatch_currentness import (
+        _reentry_receipts,
+        _selected_ref,
+    )
+
+    world = _candidate_world_case(tmp_path / "world", monkeypatch)
+    context_ref = _intrinsic_ref("runtime.quality.cycle_substrate_context_job", "2")
+    simulation = SimulationPortObservation(
+        candidate_id="candidate-a",
+        status="joint_simulated",
+        simulation_result_ref=_intrinsic_ref("polisyos.runtime.joint_simulation_result", "4"),
+        cycle_substrate_context_job_ref=context_ref,
+        candidate_simulation_n4_source_ref=_intrinsic_ref(
+            "runtime.quality.n4_candidate_scenario_source", "1"
+        ),
+        candidate_simulation_context_job_ref=context_ref,
+        candidate_simulation_n5_input_ref=_intrinsic_ref(
+            "runtime.quality.candidate_simulation_n5_input", "3"
+        ),
+        candidate_simulation_profile_config_ref="runtime-config:component-control",
+        candidate_simulation_profile_selection_ref="sha256:" + "5" * 64,
+        k_world_ref_before=world.base.record.content_hash,
+        k_world_ref_after=world.base.record.content_hash,
+        world_model_record=world.base.record,
+    )
+    parsed_simulation = SimulationPortObservation.model_validate_json(simulation.model_dump_json())
+    assert simulation.world_model_record == world.base.record
+    assert parsed_simulation.world_model_record is None
+    assert simulation != parsed_simulation
+    assert simulation.model_dump(mode="json") == parsed_simulation.model_dump(mode="json")
+
+    problem_ref = "sha256:" + "1" * 64
+    basis_ref = "sha256:" + "2" * 64
+
+    def cycle(index: int, observation: SimulationPortObservation) -> GenerationCycleRecord:
+        return GenerationCycleRecord.model_construct(
+            cycle_index=index,
+            design_problem_ref=problem_ref,
+            design_problem_basis_ref=basis_ref,
+            selected_candidate_ref="candidate-a",
+            simulation=observation,
+        )
+
+    a = cycle(0, parsed_simulation)
+    b = cycle(1, parsed_simulation)
+    c = cycle(2, simulation)
+    parsed_c = cycle(2, parsed_simulation)
+    first_edge = CandidateSourceBasisTransition.model_construct(to_cycle_index=1)
+    second_edge = CandidateSourceBasisTransition.model_construct(to_cycle_index=2)
+    root = GenerationCycleRun.model_construct(
+        run_id="component-run",
+        design_problem_ref=problem_ref,
+        cycles=(a,),
+        basis_transitions=(),
+        candidate_summaries=(),
+        fronts=None,
+    )
+    effective = root.model_copy(update={"cycles": (a, b), "basis_transitions": (first_edge,)})
+    continued = effective.model_copy(
+        update={"cycles": (a, b, c), "basis_transitions": (first_edge, second_edge)}
+    )
+    parsed_continued = continued.model_copy(update={"cycles": (a, b, parsed_c)})
+    receipt = CandidateSourceReentryReceipt.model_construct(
+        source_generation_run_id=effective.run_id,
+        design_problem_ref=problem_ref,
+        design_problem_basis_ref=basis_ref,
+        source_cycle_index=1,
+        source_candidate_ref="candidate-a",
+        source_generation_run_content_hash=generation_cycle_run_content_hash(effective),
+        continued_generation_run=continued,
+        new_cycle=c,
+        basis_transition=second_edge,
+        candidate_summaries=(),
+        limitations=("component_only",),
+    )
+    parsed_receipt = receipt.model_copy(
+        update={"new_cycle": parsed_c, "continued_generation_run": parsed_continued}
+    )
+    assert receipt != parsed_receipt
+    assert receipt.model_dump(mode="json") == parsed_receipt.model_dump(mode="json")
+    monkeypatch.setattr(
+        generation_cycle_module, "_candidate_source_basis_edge_matches", lambda *_: True
+    )
+    monkeypatch.setattr(
+        generation_cycle_module, "_candidate_source_basis_cycle_summary_matches", lambda **_: True
+    )
+    monkeypatch.setattr(generation_cycle_module, "_derive_candidate_source_fronts", lambda *_: None)
+    # The unmodified canonical validator accepts the effective run and rejects
+    # the immutable root even when their run ID and problem are the same.
+    generation_cycle_module.validate_candidate_source_continuation(effective, receipt)
+    with pytest.raises(GenerationCycleError, match="candidate_source_reentry_history_mismatch"):
+        generation_cycle_module.validate_candidate_source_continuation(root, receipt)
+
+    origin, _ = _selection_case(1)
+    origin = replace(origin, generation_run=root, source_cycle=a)
+    monkeypatch.setattr(
+        route_loop, "_candidate_experiment_effective_source", lambda _: (effective, b)
+    )
+    _, action, _ = _reentry_receipts()
+    action_ref = _selected_ref("runtime_quality.acquisition_candidate_action_receipt", "5")
+    selected_ref = _selected_ref("runtime_quality.candidate_source_reentry_receipt", "6")
+    selection = object()
+    monkeypatch.setattr(actions, "read_candidate_experiment_acquisition_action", lambda **_: action)
+    monkeypatch.setattr(actions, "_candidate_experiment_source_selection", lambda *_: selection)
+    monkeypatch.setattr(
+        data_forge_read_api.catalog, "acquisition_overlay_admission_fence", lambda _: nullcontext()
+    )
+    monkeypatch.setattr(artifacts, "load_core_json_artifact", lambda *_: {"llm_models": ["test"]})
+    monkeypatch.setattr(growth, "candidate_source_reentry_inputs", lambda _: ())
+
+    def exercise(
+        name: str,
+        *,
+        recovered: bool,
+        produced: CandidateSourceReentryReceipt = receipt,
+        readback: CandidateSourceReentryReceipt = parsed_receipt,
+        expected_error: str | None = None,
+        costed: bool = False,
+    ) -> None:
+        folder = tmp_path / name
+        folder.mkdir()
+        calls: list[str] = []
+        event = SimpleNamespace(
+            event=SimpleNamespace(artifact_refs=(str(selected_ref.artifact_id),))
+        )
+        bridge = AcquisitionWorldGrowthBridge.__new__(AcquisitionWorldGrowthBridge)
+        bridge.event_log = SimpleNamespace(list_events=lambda **_: [event] if recovered else [])
+        bridge.artifact_store = world.store
+        bridge.control_store = object()
+        bridge.repo_root = tmp_path
+        bridge.promotion_runtime = None
+        bridge._paths = lambda _: (folder / "overlay.sqlite", None)
+        bridge._sync_directory = lambda _: None
+        bridge._write_candidate_world_pointer = lambda *_args, **_kwargs: calls.append("pointer")
+        bridge._recover_unique_candidate_owner_view = lambda **kwargs: (
+            selected_ref,
+            kwargs["verify"](selected_ref),
+        )
+        bridge._persist_candidate_experiment_receipt = lambda **_: selected_ref
+        bridge._reconcile_candidate_experiment_source_reentry_budget = lambda **_: calls.append(
+            "reconciled"
+        )
+        bridge.resolve_candidate_experiment_reentry_budget_window = lambda **_: SimpleNamespace(
+            window_id=action.candidate_budget_window_id,
+            record_digest=action.candidate_budget_window_digest,
+            effective_limit_usd=Decimal("1"),
+            scope=object(),
+        )
+
+        def preflight(**_: object) -> ProducerBudgetObserver:
+            calls.append("preflight")
+            return ProducerBudgetObserver.__new__(ProducerBudgetObserver)
+
+        bridge.candidate_experiment_source_reentry_preflight = preflight
+        bridge.candidate_source_reentry_preflight = preflight
+        handoff = SimpleNamespace(context=None, handoff=None, currentness_resolver=lambda: True)
+        bridge.candidate_source_context_handoff = lambda **_: handoff
+        bridge.verify_candidate_source_context_handoff = lambda **_: handoff
+        bridge.candidate_source_selection = lambda _: selection
+        bridge._require_selected_candidate_action = lambda **_: action
+
+        class Controller:
+            def __init__(self, **_: object) -> None:
+                pass
+
+            async def reenter_after_candidate_acquisition_source(self, **_: object) -> object:
+                calls.append("producer")
+                return produced
+
+        monkeypatch.setattr(growth, "GenerationCycleController", Controller)
+
+        def verify(**_: object) -> CandidateSourceReentryReceipt:
+            calls.append("historical_reader")
+            return readback
+
+        monkeypatch.setattr(history, "verify_candidate_experiment_source_reentry_history", verify)
+        monkeypatch.setattr(history, "verify_candidate_source_reentry_history", verify)
+        closure = SimpleNamespace(
+            generation_run=effective,
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            source_job_id=origin.source_job_id,
+            route_id=origin.route_id,
+        )
+        identity = {"closure": closure} if costed else {"origin": origin}
+        if expected_error:
+            with pytest.raises((ValueError, GenerationCycleError), match=expected_error):
+                bridge._prepare_candidate_source_reentry(
+                    **identity, candidate_action_ref=action_ref
+                )
+            assert "reconciled" not in calls
+        else:
+            assert bridge._prepare_candidate_source_reentry(
+                **identity, candidate_action_ref=action_ref
+            ) == (selected_ref, readback)
+            assert "historical_reader" in calls
+            assert "pointer" in calls
+            if recovered:
+                assert not {"preflight", "producer", "reconciled"}.intersection(calls)
+            else:
+                assert calls.count("producer") == 1
+                assert "reconciled" in calls
+
+    exercise("recovered", recovered=True)
+    exercise("costed-recovered", recovered=True, costed=True)
+    exercise("new", recovered=False)
+    wrong_root = receipt.model_copy(
+        update={"source_generation_run_content_hash": generation_cycle_run_content_hash(root)}
+    )
+    exercise(
+        "wrong-root",
+        recovered=False,
+        produced=wrong_root,
+        expected_error="candidate_source_reentry_history_mismatch",
+    )
+    changed_readback = parsed_receipt.model_copy(update={"limitations": ("changed",)})
+    exercise(
+        "changed-readback",
+        recovered=False,
+        readback=changed_readback,
+        expected_error="candidate_source_reentry_readback_changed",
+    )
 
 
 @pytest.mark.asyncio

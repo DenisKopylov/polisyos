@@ -9749,7 +9749,7 @@ def _source_facade_runtime_projection(
                     "canonical_loaded_runtime_mismatch",
                     f"unreconciled package initializer effect: {facade_name}.{export_name}",
                 )
-            if candidate.binding_basis == "direct":
+            if candidate.binding_basis in {"direct", "loader_child"}:
                 route_kind, provider_name, _provider_symbol = candidate.route
                 if route_kind in {"module", "symbol"} and provider_name != facade_name:
                     # A direct import from a separately source-owned provider is still
@@ -10604,12 +10604,17 @@ def _source_facade_runtime_projection(
                     "canonical_loaded_runtime_mismatch",
                     f"selected source facade provider is outside closure: {provider_name}",
                 )
-            if selected and not _repository_module_exports_symbol(
-                repo_root,
-                provider_name,
-                attribute,
-                directory_entries=directory_entries,
-                source_index=source_index,
+            module_binding = attribute == "<module>"
+            if (
+                selected
+                and not module_binding
+                and not _repository_module_exports_symbol(
+                    repo_root,
+                    provider_name,
+                    attribute,
+                    directory_entries=directory_entries,
+                    source_index=source_index,
+                )
             ):
                 raise ConfidenceLedgerError(
                     "canonical_loaded_runtime_mismatch",
@@ -10640,7 +10645,6 @@ def _source_facade_runtime_projection(
                 )
             provider_namespace = vars(provider_module)
             facade_namespace = vars(facade_module)
-            module_binding = attribute == "<module>"
             provider_value = (
                 provider_module
                 if module_binding
@@ -10651,6 +10655,30 @@ def _source_facade_runtime_projection(
                     "canonical_loaded_runtime_mismatch",
                     f"source facade provider binding is missing: {provider_name}.{attribute}",
                 )
+            if selected and not module_binding:
+                provider_tree = analysis.source_tree(repo_root / provider_path)
+                declarations = _module_scope_direct_binding_sites(provider_tree, attribute)
+                if (
+                    len(declarations) == 1
+                    and declarations[0][0] == "assignment"
+                    and isinstance(declarations[0][1], (ast.Assign, ast.AnnAssign))
+                    and declarations[0][1].value is not None
+                ):
+                    expression = declarations[0][1].value
+                    try:
+                        expected_literal = ast.literal_eval(expression)
+                    except (ValueError, TypeError, SyntaxError, MemoryError):
+                        expected_literal = _source_immutable_constant_expression(expression)
+                    # Preserve the existing direct-route literal grammar: the
+                    # folding-only AST budget must not turn a large immutable
+                    # literal into an unchecked selected runtime value.
+                    if _exact_literal_equal(
+                        expected_literal, expected_literal
+                    ) and not _exact_literal_equal(provider_value, expected_literal):
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch",
+                            f"selected source literal binding differs: {provider_name}.{attribute}",
+                        )
             cached = facade_namespace.get(export, _STATIC_FACADE_UNKNOWN)
             if cached is not _STATIC_FACADE_UNKNOWN and cached is not provider_value:
                 raise ConfidenceLedgerError(
@@ -11713,11 +11741,85 @@ class _SourceModuleImportRouteCandidate:
     binding_basis: Literal[
         "direct",
         "literal_getattr",
+        "loader_child",
         "child",
         "unresolved",
         "absent",
     ]
     package_initializer_effect_unknown: bool
+
+
+def _source_loader_child_candidate(
+    repo_root: Path,
+    module_name: str,
+    export_name: str,
+    relative: Path,
+    tree: ast.Module,
+    *,
+    directory_entries: dict[Path, frozenset[str]],
+    source_index: _AuthorityImportClosureSourceIndex,
+) -> str | None:
+    """Discover a current source-declared child binding, without proving import history."""
+
+    if relative.name != "__init__.py":
+        return None
+    child_name = f"{module_name}.{export_name}"
+    child_relative = _repository_module_source(
+        repo_root, child_name, directory_entries=directory_entries
+    )
+    parent, child = sys.modules.get(module_name), sys.modules.get(child_name)
+    if not (
+        child_relative is not None
+        and type(parent) is types.ModuleType
+        and type(child) is types.ModuleType
+        and vars(parent).get(export_name) is child
+        and vars(child).get("__name__") == child_name
+    ):
+        return None
+    declared_import = False
+    for node in tree.body:
+        if isinstance(node, ast.Import):
+            declared_import |= any(alias.name == child_name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            base = _resolve_import_from_base(node, module_name)
+            declared_import |= base == child_name or (
+                base == module_name and any(alias.name == export_name for alias in node.names)
+            )
+    if not declared_import:
+        return None
+    index = _source_module_provider_index(
+        repo_root,
+        module_name,
+        tree,
+        directory_entries=directory_entries,
+        source_index=source_index,
+    )
+    if (
+        export_name in index.invalid_exports
+        or "*" in index.invalid_exports
+        or index.providers_by_export.get(export_name)
+        or (index.module_providers_by_export or {}).get(export_name)
+    ):
+        return None
+    analysis = _active_integrity_analysis()
+    for module, module_relative in ((parent, relative), (child, child_relative)):
+        logical_path = repo_root / module_relative
+        path = (
+            analysis.bind_source_path(logical_path)
+            if analysis is not None
+            else logical_path.resolve()
+        )
+        spec = getattr(module, "__spec__", None)
+        if not (
+            isinstance(getattr(spec, "loader", None), SourceFileLoader)
+            and getattr(spec, "name", None) == module.__name__
+            and Path(str(getattr(spec, "origin", ""))).resolve() == path
+            and Path(str(getattr(module, "__file__", ""))).resolve() == path
+        ):
+            return None
+        if analysis is not None:
+            analysis.source_bytes(logical_path)
+    return child_name
 
 
 def _source_module_import_route(
@@ -11750,6 +11852,41 @@ def _source_module_import_route(
 
 
 def _source_module_import_route_candidate(
+    repo_root: Path,
+    module_name: str,
+    export_name: str,
+    *,
+    directory_entries: dict[Path, frozenset[str]],
+    source_index: _AuthorityImportClosureSourceIndex,
+    visited: frozenset[tuple[str, str]] = frozenset(),
+    skip_direct_binding: bool = False,
+) -> _SourceModuleImportRouteCandidate:
+    """Keep initializer classification and selected route in one source snapshot."""
+
+    analysis = _active_integrity_analysis()
+    token = None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+        token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    try:
+        candidate = _source_module_import_route_candidate_body(
+            repo_root,
+            module_name,
+            export_name,
+            directory_entries=directory_entries,
+            source_index=source_index,
+            visited=visited,
+            skip_direct_binding=skip_direct_binding,
+        )
+        if token is not None:
+            analysis.assert_sources_unchanged()
+        return candidate
+    finally:
+        if token is not None:
+            _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
+
+
+def _source_module_import_route_candidate_body(
     repo_root: Path,
     module_name: str,
     export_name: str,
@@ -11826,6 +11963,23 @@ def _source_module_import_route_candidate(
             binding_basis="unresolved",
             package_initializer_effect_unknown=True,
         )
+
+    if initializer_tree is not None and module_source is not None:
+        loader_child = _source_loader_child_candidate(
+            repo_root,
+            module_name,
+            export_name,
+            module_source,
+            initializer_tree,
+            directory_entries=directory_entries,
+            source_index=source_index,
+        )
+        if loader_child is not None:
+            return _SourceModuleImportRouteCandidate(
+                route=("module", loader_child, None),
+                binding_basis="loader_child",
+                package_initializer_effect_unknown=initializer_effect_unknown,
+            )
 
     provider = _literal_module_getattr_provider(
         repo_root,
@@ -13434,7 +13588,12 @@ def _source_dataclass_function_globals_match(
 
     actual_globals = actual.__globals__
     expected_globals = expected.__globals__
-    if type(actual_globals) is not dict or type(expected_globals) is not dict:
+    if (
+        type(actual_globals) is not dict
+        or type(expected_globals) is not dict
+        or actual.__builtins__ is not vars(_builtins)
+        or expected.__builtins__ is not vars(_builtins)
+    ):
         return False
     actual_builtins = actual_globals.get("__builtins__", _SOURCE_DERIVATION_FAILED)
     expected_builtins = expected_globals.get("__builtins__", _SOURCE_DERIVATION_FAILED)
@@ -13898,10 +14057,64 @@ def _source_python_dataclass_binding_supported(
     relative: Path,
     tree: ast.Module,
     statement: ast.ClassDef,
+    *,
+    expected_source_bytes: bytes | None = None,
+) -> bool:
+    """Keep one exact source snapshot around the complete dataclass proof."""
+
+    analysis = _active_integrity_analysis()
+    token = None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+        token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    try:
+        source_path = repo_root / relative
+        current_bytes = analysis.source_bytes(source_path)
+        if expected_source_bytes is not None and current_bytes != expected_source_bytes:
+            return False
+        current_tree = analysis.source_tree(source_path)
+        if ast.dump(current_tree, include_attributes=True) != ast.dump(
+            tree, include_attributes=True
+        ):
+            return False
+        declarations = _module_scope_direct_binding_sites(current_tree, export_name)
+        if not (
+            len(declarations) == 1
+            and declarations[0][0] == "local"
+            and isinstance(declarations[0][1], ast.ClassDef)
+            and ast.dump(declarations[0][1], include_attributes=True)
+            == ast.dump(statement, include_attributes=True)
+        ):
+            return False
+        matches = _source_python_dataclass_binding_supported_body(
+            repo_root,
+            module_name,
+            export_name,
+            relative,
+            current_tree,
+            declarations[0][1],
+        )
+        if matches and token is not None:
+            analysis.assert_sources_unchanged()
+        return matches
+    except (ConfidenceLedgerError, OSError, ValueError, TypeError, SyntaxError):
+        return False
+    finally:
+        if token is not None:
+            _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
+
+
+def _source_python_dataclass_binding_supported_body(
+    repo_root: Path,
+    module_name: str,
+    export_name: str,
+    relative: Path,
+    tree: ast.Module,
+    statement: ast.ClassDef,
 ) -> bool:
     """Admit a dataclass only when its complete safe source projection matches runtime output."""
 
-    if statement.bases or statement.keywords or getattr(statement, "type_params", ()):
+    if statement.keywords or getattr(statement, "type_params", ()):
         return False
     resolved = _source_dataclass_transform_options(tree, statement)
     if resolved is None:
@@ -13947,6 +14160,13 @@ def _source_python_dataclass_binding_supported(
         and _dataclasses.is_dataclass(transformed)
     ):
         return False
+    inherited_base: type | None = None
+    if statement.bases:
+        inherited_base = _source_dataclass_fieldless_base(
+            repo_root, source_module, transformed, tree, statement
+        )
+        if inherited_base is None:
+            return False
     if not _source_future_annotations_enabled(tree):
         return False
     declared: list[tuple[str, ast.expr]] = []
@@ -13961,6 +14181,8 @@ def _source_python_dataclass_binding_supported(
             and isinstance(member.value, ast.Constant)
             and type(member.value.value) is str
         ):
+            continue
+        if inherited_base is not None and isinstance(member, ast.Pass):
             continue
         if (
             isinstance(member, ast.Expr)
@@ -14022,8 +14244,10 @@ def _source_python_dataclass_binding_supported(
         return False
     field_names = tuple(name for name, _annotation in declared)
     annotations = transformed_namespace.get("__annotations__")
+    if inherited_base is not None and annotations is None:
+        annotations = {}
     if (
-        not field_names
+        (not field_names and inherited_base is None)
         or len(field_names) != len(set(field_names))
         or type(annotations) is not dict
         or tuple(annotations) != field_names
@@ -14037,9 +14261,19 @@ def _source_python_dataclass_binding_supported(
         actual_fields = _dataclasses.fields(transformed)
     except (TypeError, AttributeError):
         return False
-    if tuple(field.name for field in actual_fields) != field_names:
+    inherited_fields = _dataclasses.fields(inherited_base) if inherited_base is not None else ()
+    all_field_names = (
+        tuple(field.name for field in inherited_fields)
+        if inherited_base is not None
+        else field_names
+    )
+    if tuple(field.name for field in actual_fields) != all_field_names:
         return False
-    for field_value in actual_fields:
+    if inherited_base is not None and not _source_dataclass_fields_match(
+        tuple(actual_fields), tuple(inherited_fields)
+    ):
+        return False
+    for field_value in actual_fields if inherited_base is None else ():
         if field_value.type != annotations.get(field_value.name):
             return False
         expected_default = source_defaults.get(field_value.name, _dataclasses.MISSING)
@@ -14127,6 +14361,7 @@ def _source_python_dataclass_binding_supported(
             actual_method = actual_member
         if not (
             actual_method.__globals__ is namespace
+            and actual_method.__builtins__ is vars(_builtins)
             and actual_method.__module__ == module_name
             and actual_method.__qualname__ == f"{export_name}.{member.name}"
             and Path(actual_method.__code__.co_filename).resolve() == source_path
@@ -14181,7 +14416,7 @@ def _source_python_dataclass_binding_supported(
         return False
     if tuple(expected_namespace.get("__annotations__", {})) != field_names:
         return False
-    if tuple(expected_namespace.get("__dataclass_fields__", {})) != field_names:
+    if tuple(expected_namespace.get("__dataclass_fields__", {})) != all_field_names:
         return False
     for output_name, expected_value in expected_namespace.items():
         actual_value = transformed_namespace[output_name]
@@ -14230,6 +14465,120 @@ def _source_python_dataclass_binding_supported(
         ):
             return False
     return True
+
+
+def _source_dataclass_fieldless_base(
+    repo_root: Path,
+    module: types.ModuleType,
+    actual: type,
+    tree: ast.Module,
+    statement: ast.ClassDef,
+) -> type | None:
+    """Resolve only a fieldless subclass of a source-proven imported dataclass."""
+
+    if not (
+        len(statement.bases) == 1
+        and isinstance(statement.bases[0], ast.Name)
+        and all(
+            isinstance(member, ast.Pass)
+            or (
+                isinstance(member, ast.Expr)
+                and isinstance(member.value, ast.Constant)
+                and type(member.value.value) is str
+            )
+            for member in statement.body
+        )
+    ):
+        return None
+    base_name = statement.bases[0].id
+    base = _source_import_binding(base_name, tree=tree, module=module, module_name=module.__name__)
+    if not (
+        type(base) is type
+        and _dataclasses.is_dataclass(base)
+        and len(base.__mro__) <= 40
+        and actual.__bases__ == (base,)
+        and actual.__mro__ == (actual, *base.__mro__)
+        and all(
+            "__init_subclass__" not in vars(owner) for owner in base.__mro__ if owner is not object
+        )
+    ):
+        return None
+    # Chase explicit import declarations only. The general name route can either
+    # leave a class unqualified or recursively verify a decorated base; borrowing
+    # it here would skip the transform proof or duplicate it exponentially.
+    owner, symbol = module, base_name
+    seen: set[tuple[str, str]] = set()
+    try:
+        analysis = _active_integrity_analysis()
+        for _hop in range(40):
+            key = (owner.__name__, symbol)
+            if key in seen:
+                return None
+            seen.add(key)
+            relative = _repository_module_source(repo_root, owner.__name__, directory_entries={})
+            if relative is None:
+                return None
+            logical_source_path = repo_root / relative
+            source_path = logical_source_path.resolve()
+            spec = getattr(owner, "__spec__", None)
+            if not (
+                isinstance(getattr(spec, "loader", None), SourceFileLoader)
+                and Path(str(getattr(spec, "origin", ""))).resolve() == source_path
+                and Path(str(getattr(owner, "__file__", ""))).resolve() == source_path
+            ):
+                return None
+            owner_tree = (
+                analysis.source_tree(logical_source_path)
+                if analysis is not None
+                else ast.parse(source_path.read_bytes(), filename=str(source_path))
+            )
+            declarations = _module_scope_direct_binding_sites(owner_tree, symbol)
+            if len(declarations) != 1:
+                return None
+            kind, declaration, alias = declarations[0]
+            if (
+                kind == "import_from"
+                and isinstance(declaration, ast.ImportFrom)
+                and alias is not None
+            ):
+                if (
+                    _source_import_binding(
+                        symbol, tree=owner_tree, module=owner, module_name=owner.__name__
+                    )
+                    is not base
+                ):
+                    return None
+                package = (
+                    owner.__name__
+                    if relative.name == "__init__.py"
+                    else owner.__name__.rpartition(".")[0]
+                )
+                target = _resolve_import_from_base(declaration, package)
+                candidate = sys.modules.get(target) if target is not None else None
+                if type(candidate) is not types.ModuleType:
+                    return None
+                owner, symbol = candidate, alias.name
+                continue
+            if not (
+                kind == "local"
+                and isinstance(declaration, ast.ClassDef)
+                and base.__module__ == owner.__name__
+                and base.__qualname__ == symbol
+                and vars(owner).get(symbol) is base
+                and _source_python_dataclass_binding_supported(
+                    repo_root,
+                    owner.__name__,
+                    symbol,
+                    relative,
+                    owner_tree,
+                    declaration,
+                )
+            ):
+                return None
+            return base
+    except (ConfidenceLedgerError, OSError, ValueError, TypeError, SyntaxError):
+        return None
+    return None
 
 
 @functools.lru_cache(maxsize=4)
@@ -14313,6 +14662,7 @@ def _typing_protocol_provider_projection() -> dict[str, object]:
                 and value.__module__ == "typing"
                 and value.__qualname__ == qualname
                 and value.__globals__ is namespace
+                and value.__builtins__ is vars(_builtins)
                 and Path(value.__code__.co_filename).resolve() == source_path
             ):
                 raise ConfidenceLedgerError(
@@ -14402,12 +14752,16 @@ def _source_python_provider_class_binding_supported(
     metaclass: type,
     proven_bases: tuple[type, ...],
     abstractmethod: types.FunctionType,
+    proven_local_bases: Mapping[str, type] | None = None,
+    allow_init: bool = False,
 ) -> bool:
     """Reconcile a finite provider class before using any inherited construction path.
 
     ABCMeta itself is part of the declared supported Python backend. Provider
     class bodies must still be literal data, non-construction methods, or the
-    exact builtin GenericAlias classmethod. No uncertain source is executed.
+    exact builtin GenericAlias classmethod. The default-off concrete-provider
+    extension permits only ``__init__`` and previously proven local bases;
+    construction/metaclass hooks remain unsupported.
     """
 
     tree = ast.parse(source, filename=str(source_path))
@@ -14434,6 +14788,11 @@ def _source_python_provider_class_binding_supported(
             # boundary, rather than another recursively verified interpreter.
             if namespace.get(expression.id) is metaclass:
                 return metaclass
+            if proven_local_bases is not None and expression.id in proven_local_bases:
+                expected_base = proven_local_bases[expression.id]
+                if namespace.get(expression.id) is expected_base:
+                    return expected_base
+                return _SOURCE_DERIVATION_FAILED
             return _source_import_binding(
                 expression.id, tree=tree, module=module, module_name=module.__name__
             )
@@ -14447,10 +14806,10 @@ def _source_python_provider_class_binding_supported(
 
     bases = tuple(source_reference(item) for item in statement.bases) or (object,)
     if (
-        len(bases) != 1
-        or all(bases[0] is not item for item in proven_bases)
+        (len(bases) != 1 and proven_local_bases is None)
+        or any(all(base is not item for item in proven_bases) for base in bases)
         or actual.__bases__ != bases
-        or actual.__mro__ != (actual, *bases[0].__mro__)
+        or (len(bases) == 1 and actual.__mro__ != (actual, *bases[0].__mro__))
         or len(statement.keywords) > 1
         or any(
             item.arg != "metaclass" or source_reference(item.value) is not metaclass
@@ -14484,15 +14843,17 @@ def _source_python_provider_class_binding_supported(
             return False
         if isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef)):
             if (
-                member.name
-                in {
-                    "__new__",
-                    "__init__",
-                    "__init_subclass__",
-                    "__class_getitem__",
-                    "__getattribute__",
-                    "__mro_entries__",
-                }
+                (
+                    member.name
+                    in {
+                        "__new__",
+                        "__init_subclass__",
+                        "__class_getitem__",
+                        "__getattribute__",
+                        "__mro_entries__",
+                    }
+                    or (member.name == "__init__" and not allow_init)
+                )
                 or getattr(member, "type_params", ())
                 or member.returns is not None
                 or any(
@@ -14598,7 +14959,8 @@ def _context_manager_provider_details() -> dict[str, object]:
     ):
         raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "contextlib origin")
     namespace = vars(module)
-    source = path.read_bytes()
+    analysis = _active_integrity_analysis()
+    source = analysis.source_bytes(path) if analysis is not None else path.read_bytes()
     abc = namespace.get("abc")
     abc_path = path.with_name("abc.py")
     abc_namespace = vars(abc) if type(abc) is types.ModuleType else {}
@@ -14625,7 +14987,7 @@ def _context_manager_provider_details() -> dict[str, object]:
         or type(typing.Protocol).__bases__ != (metaclass,)
     ):
         raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "abc provider origin")
-    abc_source = abc_path.read_bytes()
+    abc_source = analysis.source_bytes(abc_path) if analysis is not None else abc_path.read_bytes()
     abstractmethod = abc_namespace.get("abstractmethod")
     abstract_hashes = dict(
         _typing_protocol_source_codes(abc_source, str(abc_path), ("abstractmethod",))
@@ -14635,6 +14997,7 @@ def _context_manager_provider_details() -> dict[str, object]:
         and abstractmethod.__module__ == "abc"
         and abstractmethod.__qualname__ == "abstractmethod"
         and abstractmethod.__globals__ is abc_namespace
+        and abstractmethod.__builtins__ is vars(_builtins)
         and abstractmethod.__closure__ is None
         and abstractmethod.__defaults__ is None
         and abstractmethod.__kwdefaults__ is None
@@ -14697,6 +15060,9 @@ def _context_manager_provider_details() -> dict[str, object]:
             "metadata": _normalize_runtime_binding_value(function.__dict__, seen=set()),
             "abstract_members": sorted(owner.__abstractmethods__),
         }
+    decorator_provider = _contextmanager_decorator_provider_details(
+        module, path, source, abstractmethod=abstractmethod
+    )
     return {
         "profile": "python314_context_manager_generic_alias_v1",
         "provider_relative_path": "contextlib.py",
@@ -14704,8 +15070,213 @@ def _context_manager_provider_details() -> dict[str, object]:
         "abc_provider_source_sha256": _bytes_hash(abc_source),
         "abc_provider_mode": "frozen" if abc_origin == "frozen" else "source",
         "runtime_bindings_sha256": _content_hash(bindings),
+        "decorator_provider": decorator_provider,
         "independent_transform_verification": False,
         "assumption": "supported_python_runtime_provider",
+    }
+
+
+def _contextmanager_decorator_provider_details(
+    module: types.ModuleType,
+    source_path: Path,
+    source: bytes,
+    *,
+    abstractmethod: types.FunctionType,
+) -> dict[str, object]:
+    """Bind the finite stock generator-contextmanager dispatch, without calling it."""
+
+    namespace = vars(module)
+    factory = namespace.get("contextmanager")
+    codes = dict(
+        _typing_protocol_source_codes(
+            source,
+            str(source_path),
+            ("contextmanager", "contextmanager.<locals>.helper"),
+        )
+    )
+    if not (
+        factory is contextmanager
+        and type(factory) is types.FunctionType
+        and factory.__globals__ is namespace
+        and factory.__builtins__ is vars(_builtins)
+        and factory.__module__ == "contextlib"
+        and factory.__qualname__ == "contextmanager"
+        and Path(factory.__code__.co_filename).resolve() == source_path
+        and _content_hash(_normalize_code_object(factory.__code__)) in codes["contextmanager"]
+        and factory.__closure__ is None
+        and factory.__defaults__ is None
+        and factory.__kwdefaults__ is None
+        and not factory.__dict__
+    ):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "contextmanager factory")
+    proven = {"AbstractContextManager": namespace["AbstractContextManager"]}
+    for name in ("ContextDecorator", "_GeneratorContextManagerBase", "_GeneratorContextManager"):
+        bases = (
+            (
+                proven["_GeneratorContextManagerBase"],
+                proven["AbstractContextManager"],
+                proven["ContextDecorator"],
+            )
+            if name == "_GeneratorContextManager"
+            else (object,)
+        )
+        metaclass = type(proven["AbstractContextManager"]) if len(bases) > 1 else type
+        if not _source_python_provider_class_binding_supported(
+            module,
+            source_path,
+            source,
+            name,
+            metaclass=metaclass,
+            proven_bases=bases,
+            abstractmethod=abstractmethod,
+            proven_local_bases=proven,
+            allow_init=True,
+        ):
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "contextmanager dispatch source/base ABI"
+            )
+        proven[name] = namespace[name]
+    # These source-owned dispatch methods use builtin globals. A module-level
+    # shadow must not select a different builtin while retaining identical code.
+    builtin_namespace = namespace.get("__builtins__")
+    if builtin_namespace is _builtins:
+        builtin_namespace = vars(_builtins)
+    if builtin_namespace is not vars(_builtins):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "contextmanager builtins")
+    for code in _python_provider_source_code_objects(source, str(source_path)):
+        if not any(code.co_qualname.startswith(name + ".") for name in proven if name[0] == "_"):
+            continue
+        for instruction in dis.get_instructions(code):
+            if instruction.opname != "LOAD_GLOBAL":
+                continue
+            name = str(instruction.argval)
+            expected = vars(_builtins).get(name, _SOURCE_DERIVATION_FAILED)
+            if expected is _SOURCE_DERIVATION_FAILED:
+                continue
+            if namespace.get(name, expected) is not expected:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch", "contextmanager dispatch builtin"
+                )
+    metadata_provider = _contextmanager_metadata_provider_details(module, source_path, source)
+    return {
+        "rule_version": "python314_contextmanager_source_dispatch_v1",
+        "factory_code_sha256": _content_hash(_normalize_code_object(factory.__code__)),
+        "wrapper_code_sha256": list(codes["contextmanager.<locals>.helper"]),
+        "source_class_names": list(proven),
+        "metadata_provider": metadata_provider,
+        "independent_transform_verification": False,
+        "assumption": "supported_python_runtime_provider",
+    }
+
+
+def _contextmanager_metadata_provider_details(
+    context_module: types.ModuleType,
+    context_path: Path,
+    context_source: bytes,
+) -> dict[str, object]:
+    """Bind the finite wraps/update_wrapper dependency of context decorator use."""
+
+    source_path = (Path(sysconfig.get_path("stdlib")) / "functools.py").resolve()
+    spec = getattr(functools, "__spec__", None)
+    if not (
+        sys.modules.get("functools") is functools
+        and isinstance(getattr(spec, "loader", None), SourceFileLoader)
+        and Path(str(getattr(spec, "origin", ""))).resolve() == source_path
+        and Path(str(getattr(functools, "__file__", ""))).resolve() == source_path
+    ):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "wraps provider origin")
+    analysis = _active_integrity_analysis()
+    source = (
+        analysis.source_bytes(source_path) if analysis is not None else source_path.read_bytes()
+    )
+    tree = ast.parse(source, filename=str(source_path))
+    context_tree = ast.parse(context_source, filename=str(context_path))
+    namespace = vars(functools)
+    if _source_import_binding(
+        "wraps", tree=context_tree, module=context_module, module_name="contextlib"
+    ) is not namespace.get("wraps"):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "contextmanager wraps")
+    native = sys.modules.get("_functools")
+    native_spec = getattr(native, "__spec__", None)
+    partial = namespace.get("partial")
+    if not (
+        type(native) is types.ModuleType
+        and getattr(native_spec, "origin", None) == "built-in"
+        and getattr(native_spec, "loader", None)
+        is getattr(sys.modules.get("_frozen_importlib"), "BuiltinImporter", None)
+        and vars(native).get("partial") is partial
+        and type(partial) is type
+        and partial.__module__ == "functools"
+        and partial.__qualname__ == "partial"
+        and partial.__bases__ == (object,)
+        and type(vars(partial).get("__call__")) is types.WrapperDescriptorType
+        and vars(partial)["__call__"].__objclass__ is partial
+        and type(vars(partial).get("__new__")) is types.BuiltinFunctionType
+        and vars(partial)["__new__"].__self__ is partial
+        and all(
+            type(vars(partial).get(name)) is types.MemberDescriptorType
+            and vars(partial)[name].__objclass__ is partial
+            for name in ("func", "args", "keywords")
+        )
+    ):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "wraps native provider")
+    bindings: dict[str, object] = {}
+    expected_codes = dict(
+        _typing_protocol_source_codes(source, str(source_path), ("wraps", "update_wrapper"))
+    )
+    for name, hashes in expected_codes.items():
+        function = namespace.get(name)
+        nodes = _module_scope_direct_binding_sites(tree, name)
+        if not (
+            len(nodes) == 1
+            and nodes[0][0] == "local"
+            and isinstance(nodes[0][1], ast.FunctionDef)
+            and type(function) is types.FunctionType
+            and function.__module__ == "functools"
+            and function.__qualname__ == name
+            and function.__globals__ is namespace
+            and function.__builtins__ is vars(_builtins)
+            and Path(function.__code__.co_filename).resolve() == source_path
+            and _content_hash(_normalize_code_object(function.__code__)) in hashes
+            and function.__closure__ is None
+            and function.__kwdefaults__ is None
+            and not function.__dict__
+        ):
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "wraps source")
+        defaults = tuple(
+            _source_dataclass_named_constant(
+                node.id,
+                repo_root=source_path.parent,
+                tree=tree,
+                module=functools,
+                module_name="functools",
+            )
+            if isinstance(node, ast.Name)
+            else _source_literal(node)
+            for node in nodes[0][1].args.defaults
+        )
+        if not _exact_literal_equal(function.__defaults__, defaults):
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "wraps defaults")
+        for instruction in dis.get_instructions(function):
+            if instruction.opname != "LOAD_GLOBAL":
+                continue
+            global_name = str(instruction.argval)
+            if global_name in {"partial", "update_wrapper"}:
+                continue
+            expected = vars(_builtins).get(global_name, _SOURCE_DERIVATION_FAILED)
+            if (
+                expected is _SOURCE_DERIVATION_FAILED
+                or namespace.get(global_name, expected) is not expected
+            ):
+                raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "wraps global")
+        bindings[name] = _normalize_function_binding(function)
+    builtin_namespace = namespace.get("__builtins__")
+    if builtin_namespace is not _builtins and builtin_namespace is not vars(_builtins):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "wraps builtins")
+    return {
+        "provider_source_sha256": _bytes_hash(source),
+        "runtime_bindings_sha256": _content_hash(bindings),
+        "native_partial_assumption": "supported_python_builtin_functools_provider",
     }
 
 
@@ -14793,6 +15364,8 @@ def _source_protocol_value_matches(
         return bool(
             expected.__globals__ is replay_namespace
             and actual.__globals__ is namespace
+            and actual.__builtins__ is vars(_builtins)
+            and expected.__builtins__ is vars(_builtins)
             and actual.__module__ == expected.__module__
             and actual.__qualname__ == expected.__qualname__
             and actual.__name__ == expected.__name__
@@ -15075,6 +15648,242 @@ def _source_python_protocol_binding_supported(
         return False
 
 
+def _source_decorated_callable_binding_supported(
+    repo_root: Path,
+    module_name: str,
+    export_name: str,
+    relative: Path,
+    tree: ast.Module,
+    statement: ast.FunctionDef | ast.AsyncFunctionDef,
+    source_bytes: bytes,
+) -> bool:
+    """Reuse the loaded-slot proof for an actually source-owned decorated callable."""
+    analysis = _active_integrity_analysis()
+    owns_analysis = analysis is None
+    token = None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+        token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    try:
+        if statement.type_params:
+            return False
+        module = sys.modules.get(module_name)
+        if type(module) is not types.ModuleType:
+            return False
+        source_path = analysis.bind_source_path(repo_root / relative)
+        if analysis.source_bytes(source_path) != source_bytes:
+            return False
+        spec = getattr(module, "__spec__", None)
+        if (
+            not isinstance(getattr(spec, "loader", None), SourceFileLoader)
+            or Path(str(getattr(spec, "origin", ""))).resolve() != source_path
+            or Path(str(getattr(module, "__file__", ""))).resolve() != source_path
+        ):
+            return False
+        slots = tuple(
+            slot
+            for slot in _loader_owned_callable_slots(source_path)
+            if not slot.owner_path and slot.binding_name == export_name
+        )
+        if len(slots) != 1:
+            return False
+        slot = slots[0]
+        local_decorators = _source_local_decorator_names(slot, module, module_name)
+        for decorator in statement.decorator_list:
+            target = decorator.func if isinstance(decorator, ast.Call) else decorator
+            if isinstance(target, ast.Name) and target.id in local_decorators:
+                continue
+            provider: object = _SOURCE_DERIVATION_FAILED
+            if isinstance(target, ast.Name):
+                provider = _source_import_binding(
+                    target.id, tree=tree, module=module, module_name=module_name
+                )
+            elif isinstance(target, ast.Attribute) and isinstance(target.value, ast.Name):
+                imported = _source_import_binding(
+                    target.value.id, tree=tree, module=module, module_name=module_name
+                )
+                if type(imported) is types.ModuleType:
+                    provider = vars(imported).get(target.attr, _SOURCE_DERIVATION_FAILED)
+            if provider is contextmanager:
+                continue
+            # A symbolic discovery edge is not authority. The legacy manifest's
+            # writable cache_parameters accessor cannot establish a C wrapper's
+            # actual typed policy, so this authority-sensitive route refuses it.
+            return False
+        raw = vars(module).get(export_name)
+        function = raw.__wrapped__ if isinstance(raw, _LRU_CACHE_WRAPPER_TYPE) else raw
+        if not isinstance(function, types.FunctionType):
+            return False
+        terminal, _chain = _unwrapped_function_chain(function)
+        if terminal.__closure__ is not None or not _source_function_defaults_match(
+            terminal, statement
+        ):
+            return False
+        _compiled, hashes = analysis.compiled_source_index(source_path, optimize=sys.flags.optimize)
+        _row, matches = _loader_owned_slot_binding(
+            module,
+            module_name,
+            source_path,
+            slot,
+            hashes.get(slot.qualname, ()),
+            hashes,
+        )
+        if owns_analysis:
+            analysis.assert_sources_unchanged()
+        return matches
+    except (AttributeError, OSError, RuntimeError, SyntaxError, TypeError, ValueError):
+        return False
+    finally:
+        if token is not None:
+            _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
+
+
+def _source_optional_import_binding_route(
+    repo_root: Path,
+    module_name: str,
+    export_name: str,
+    relative: Path,
+    tree: ast.Module,
+    statement: ast.Try,
+    source_bytes: bytes,
+    *,
+    directory_entries: dict[Path, frozenset[str]],
+    source_index: _AuthorityImportClosureSourceIndex,
+    visited: frozenset[tuple[str, str]],
+) -> tuple[str, str, str | None] | None:
+    """Qualify only a currently selected, separately owned optional import.
+
+    This is source-route discovery, not proof that a handler ran, that the
+    package initializer is pure, or that telemetry works. Local fallback state
+    and non-function providers require their own proof and remain unresolved.
+    """
+
+    if (
+        statement.orelse
+        or statement.finalbody
+        or not statement.handlers
+        or any(not isinstance(item, (ast.Import, ast.ImportFrom)) for item in statement.body)
+    ):
+        return None
+    module = sys.modules.get(module_name)
+    if type(module) is not types.ModuleType:
+        return None
+    for handler in statement.handlers:
+        if handler.name is not None or not isinstance(handler.type, ast.Name):
+            return None
+        handler_type = _source_import_binding(
+            handler.type.id, tree=tree, module=module, module_name=module_name
+        )
+        if (
+            handler_type is not _builtins.ImportError
+            and handler_type is not _builtins.ModuleNotFoundError
+        ):
+            return None
+    import_tree = ast.Module(body=statement.body, type_ignores=[])
+    sites = _module_scope_direct_binding_sites(import_tree, export_name)
+    if not (
+        len(sites) == 1
+        and sites[0][0] == "import_from"
+        and isinstance(sites[0][1], ast.ImportFrom)
+        and sites[0][2] is not None
+    ):
+        return None
+    import_statement, alias = sites[0][1], sites[0][2]
+    package = module_name if relative.name == "__init__.py" else module_name.rpartition(".")[0]
+    base = _resolve_import_from_base(import_statement, package)
+    if base is None:
+        return None
+    analysis = _active_integrity_analysis()
+    token = None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+        token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    try:
+        source_path = analysis.bind_source_path(repo_root / relative)
+        spec = getattr(module, "__spec__", None)
+        if not (
+            analysis.source_bytes(source_path) == source_bytes
+            and isinstance(getattr(spec, "loader", None), SourceFileLoader)
+            and Path(str(getattr(spec, "origin", ""))).resolve() == source_path
+            and Path(str(getattr(module, "__file__", ""))).resolve() == source_path
+        ):
+            return None
+        selected = _source_import_binding(
+            export_name, tree=import_tree, module=module, module_name=module_name
+        )
+        if type(selected) is not types.FunctionType:
+            return None
+        route = _source_module_import_route(
+            repo_root,
+            base,
+            alias.name,
+            directory_entries=directory_entries,
+            source_index=source_index,
+            visited=visited,
+        )
+        if route is None or route[0] != "symbol" or route[1] == module_name or route[2] is None:
+            return None
+        provider_name, symbol = route[1], route[2]
+        provider = sys.modules.get(provider_name)
+        provider_relative = _repository_module_source(
+            repo_root, provider_name, directory_entries=directory_entries
+        )
+        if (
+            type(provider) is not types.ModuleType
+            or provider_relative is None
+            or vars(provider).get(symbol) is not selected
+        ):
+            return None
+        logical_provider_path = repo_root / provider_relative
+        provider_path = analysis.bind_source_path(logical_provider_path)
+        provider_spec = getattr(provider, "__spec__", None)
+        if not (
+            isinstance(getattr(provider_spec, "loader", None), SourceFileLoader)
+            and Path(str(getattr(provider_spec, "origin", ""))).resolve() == provider_path
+            and Path(str(getattr(provider, "__file__", ""))).resolve() == provider_path
+        ):
+            return None
+        slots = tuple(
+            slot
+            for slot in _loader_owned_callable_slots(provider_path)
+            if not slot.owner_path and slot.binding_name == symbol
+        )
+        if len(slots) != 1:
+            return None
+        slot = slots[0]
+        node = _source_slot_function_node(analysis.source_tree(logical_provider_path), slot)
+        terminal, _chain = _unwrapped_function_chain(selected)
+        if (
+            node is None
+            or node.type_params
+            or terminal.__closure__ is not None
+            or not _source_function_defaults_match(terminal, node)
+        ):
+            return None
+        _code, hashes = analysis.compiled_source_index(provider_path, optimize=sys.flags.optimize)
+        _row, matches = _loader_owned_slot_binding(
+            provider, provider_name, provider_path, slot, hashes.get(slot.qualname, ()), hashes
+        )
+        if not matches:
+            return None
+        if token is not None:
+            analysis.assert_sources_unchanged()
+        return route
+    except (
+        ConfidenceLedgerError,
+        AttributeError,
+        OSError,
+        RuntimeError,
+        SyntaxError,
+        TypeError,
+        ValueError,
+    ):
+        return None
+    finally:
+        if token is not None:
+            _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
+
+
 def _source_module_direct_binding_route(
     repo_root: Path,
     module_name: str,
@@ -15128,6 +15937,21 @@ def _source_module_direct_binding_route(
             f"rebound direct source export: {module_name}.{export_name}",
         )
     binding_kind, statement, alias = sites[0]
+    if binding_kind == "unsupported" and isinstance(statement, ast.Try):
+        selected_import_route = _source_optional_import_binding_route(
+            repo_root,
+            module_name,
+            export_name,
+            relative,
+            tree,
+            statement,
+            source_bytes,
+            directory_entries=directory_entries,
+            source_index=source_index,
+            visited=visited,
+        )
+        if selected_import_route is not None:
+            return selected_import_route
     if (
         binding_kind == "import_from"
         and isinstance(statement, ast.ImportFrom)
@@ -15221,6 +16045,18 @@ def _source_module_direct_binding_route(
                 tree,
             )
             or (
+                isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and _source_decorated_callable_binding_supported(
+                    repo_root,
+                    module_name,
+                    export_name,
+                    relative,
+                    tree,
+                    statement,
+                    source_bytes,
+                )
+            )
+            or (
                 isinstance(statement, ast.ClassDef)
                 and _source_python_protocol_binding_supported(
                     repo_root,
@@ -15241,6 +16077,7 @@ def _source_module_direct_binding_route(
                     relative,
                     tree,
                     statement,
+                    expected_source_bytes=source_bytes,
                 )
             )
         ):
@@ -16000,7 +16837,11 @@ def _source_import_binding(
                 local_name = alias.asname or alias.name
                 if local_name == name:
                     if statement.level:
-                        package = module_name.rpartition(".")[0]
+                        package = (
+                            module_name
+                            if Path(str(namespace.get("__file__", ""))).name == "__init__.py"
+                            else module_name.rpartition(".")[0]
+                        )
                         try:
                             imported_module = importlib.util.resolve_name(
                                 "." * statement.level + (statement.module or ""),
@@ -16865,6 +17706,23 @@ def _source_derived_decorator_environment(
         ]
         if len(nested) != 1:
             return None
+        body = parent.body
+        if (
+            body
+            and isinstance(body[0], ast.Expr)
+            and isinstance(body[0].value, ast.Constant)
+            and type(body[0].value.value) is str
+        ):
+            body = body[1:]
+        if (
+            len(body) != 2
+            or body[0] is not nested[0]
+            or nested[0].decorator_list
+            or not isinstance(body[1], ast.Return)
+            or not isinstance(body[1].value, ast.Name)
+            or body[1].value.id != nested_name
+        ):
+            return None
         parent = nested[0]
     wrapper = [
         child
@@ -16886,9 +17744,17 @@ def _source_derived_decorator_environment(
     environment = dict(captures)
     environment[positional_parameters[0].arg] = terminal
     reached_wrapper = False
-    for statement in parent.body:
+    for index, statement in enumerate(parent.body):
         if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef)):
             if statement is wrapper[0]:
+                tail = parent.body[index + 1 :]
+                if (
+                    len(tail) != 1
+                    or not isinstance(tail[0], ast.Return)
+                    or not isinstance(tail[0].value, ast.Name)
+                    or tail[0].value.id != wrapper_path[-1]
+                ):
+                    return None
                 reached_wrapper = True
                 break
             return None
@@ -17015,6 +17881,7 @@ def _local_decorator_wrapper_matches(
     if not (
         factory.__module__ == module_name
         and factory.__globals__ is namespace
+        and factory.__builtins__ is vars(_builtins)
         and factory.__qualname__ == factory_name
         and Path(factory.__code__.co_filename).resolve() == source_path
         and _content_hash(_normalize_code_object(factory.__code__))
@@ -17055,6 +17922,7 @@ def _local_decorator_wrapper_matches(
     if not (
         function.__module__ == module_name
         and function.__globals__ is namespace
+        and function.__builtins__ is vars(_builtins)
         and function.__qualname__ == slot.qualname
         and function.__code__.co_qualname == expected_wrapper_qualname
         and Path(function.__code__.co_filename).resolve() == source_path
@@ -17138,6 +18006,7 @@ def _loader_owned_slot_function_matches(
         and terminal.__code__.co_firstlineno in expected_firstlinenos
         and terminal.__module__ == module_name
         and terminal.__globals__ is getattr(module, "__dict__", None)
+        and terminal.__builtins__ is vars(_builtins)
         and terminal.__qualname__ == slot.qualname
         and Path(terminal.__code__.co_filename).resolve() == source_path
         and terminal_hash in expected_hashes
@@ -17149,9 +18018,26 @@ def _loader_owned_slot_function_matches(
     local_decorator_names = _source_local_decorator_names(slot, module, module_name)
     wrapper_matches = len(chain) == 1 and not expects_contextmanager and not local_decorator_names
     if len(chain) > 1 and expects_contextmanager:
-        expected_wrapper = contextmanager(terminal)
-        wrapper_matches = _content_hash(_normalize_function_binding(function)) == _content_hash(
-            _normalize_function_binding(expected_wrapper)
+        provider = _context_manager_provider_projection()
+        namespace = vars(sys.modules["contextlib"])
+        decorator_provider = cast("dict[str, object]", provider["decorator_provider"])
+        wrapper_hashes = cast("list[str]", decorator_provider["wrapper_code_sha256"])
+        closure = function.__closure__ or ()
+        try:
+            closure_matches = len(closure) == 1 and closure[0].cell_contents is terminal
+        except ValueError:
+            closure_matches = False
+        wrapper_matches = bool(
+            function.__globals__ is namespace
+            and function.__builtins__ is vars(_builtins)
+            and function.__module__ == terminal.__module__
+            and function.__qualname__ == terminal.__qualname__
+            and len(chain) == 2
+            and closure_matches
+            and _content_hash(_normalize_code_object(function.__code__)) in wrapper_hashes
+            and function.__defaults__ is None
+            and function.__kwdefaults__ is None
+            and getattr(function, "__wrapped__", None) is terminal
         )
     elif len(chain) > 1 and local_decorator_names:
         wrapper_matches = _local_decorator_wrapper_matches(

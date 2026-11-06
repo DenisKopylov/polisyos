@@ -480,7 +480,7 @@ def test_dataclass_constant_reader_does_not_execute_nonconstant_expression(monke
 
     monkeypatch.setattr(ledger, "dangerous", dangerous, raising=False)
     node = ast.parse("dangerous()", mode="eval").body
-    assert ledger._source_dataclass_constant_expression(node) is ledger._SOURCE_DERIVATION_FAILED
+    assert ledger._source_immutable_constant_expression(node) is ledger._SOURCE_DERIVATION_FAILED
     assert calls == []
 
 

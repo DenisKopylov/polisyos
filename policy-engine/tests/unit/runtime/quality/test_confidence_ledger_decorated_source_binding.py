@@ -2478,3 +2478,363 @@ def test_registry_keys_relative_owner_uses_canonical_package_path_after_file_ali
     Path(provider.__file__).write_text("KEY_A = 'wrong'\n", encoding="utf-8")
     assert owner.KEY_A is provider.KEY_A
     assert _registry_keys_expected(root, owner) is ledger._SOURCE_DERIVATION_FAILED
+
+
+def _immutable_tuple_source(expression="(VALUE, NUMBER, SIGNED, VALUE)", *, constants=None):
+    if constants is None:
+        constants = "VALUE = 'alpha'\nNUMBER = 1\nSIGNED = -0.0\nPAIR = (VALUE, NUMBER)\n"
+    return (
+        "from __future__ import annotations\n"
+        f"{constants}OUTPUT = {expression}\n"
+        "def read_output():\n    return OUTPUT\n"
+    )
+
+
+def _immutable_tuple_expected(root, module, name="OUTPUT", **kwargs):
+    tree = ast.parse(Path(module.__file__).read_bytes(), filename=module.__file__)
+    expression = ledger._module_scope_direct_binding_sites(tree, name)[0][1].value
+    return ledger._source_immutable_tuple_expression(
+        expression,
+        repo_root=root,
+        tree=tree,
+        module=module,
+        module_name=module.__name__,
+        visited=frozenset({(module.__name__, name)}),
+        **kwargs,
+    )
+
+
+def _immutable_tuple_consumer(root, module, monkeypatch):
+    consumer = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.immutable_tuple_consumer",
+        f"from {module.__name__} import OUTPUT\ndef observed():\n    return OUTPUT\n",
+    )
+    closure = tuple(
+        (owner.__name__, Path(owner.__file__).relative_to(root).as_posix())
+        for owner in (module, consumer)
+    )
+    return consumer, closure
+
+
+def test_immutable_tuple_source_binds_actual_component_extension_groups():
+    from polisyos.core.components import discovery
+
+    root = ledger._loaded_policy_engine_root()
+    expected = (
+        "polisyos.fabric_connectors",
+        "polisyos.scientist_governance_passes",
+        "polisyos.foundry_methods",
+        "polisyos.scientist_nodes",
+        "polisyos.data_forge_domains",
+        "polisyos.lex_normpacks",
+        "polisyos.runtime_middlewares",
+    )
+    assert _immutable_tuple_expected(root, discovery, "EXTENSION_ENTRY_POINT_GROUPS") == expected
+    assert expected == discovery.EXTENSION_ENTRY_POINT_GROUPS
+    assert _source_constant_value(root, discovery, "EXTENSION_ENTRY_POINT_GROUPS") == expected
+    assert _route(root, discovery, "EXTENSION_ENTRY_POINT_GROUPS") == (
+        "symbol",
+        discovery.__name__,
+        "EXTENSION_ENTRY_POINT_GROUPS",
+    )
+
+
+@pytest.mark.parametrize(
+    ("expression", "expected"),
+    [
+        ("(VALUE, NUMBER, SIGNED, VALUE)", ("alpha", 1, -0.0, "alpha")),
+        ("((VALUE, NUMBER), (SIGNED, (VALUE,)))", (("alpha", 1), (-0.0, ("alpha",)))),
+        ("(PAIR, VALUE)", (("alpha", 1), "alpha")),
+        ("(2**3, VALUE)", (8, "alpha")),
+        ("()", ()),
+    ],
+)
+def test_immutable_tuple_source_owner_preserves_order_and_reaches_consumer(
+    tmp_path, monkeypatch, expression, expected
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _immutable_tuple_source(expression))
+    assert _immutable_tuple_expected(root, module) == expected
+    assert _source_constant_value(root, module, "OUTPUT") == expected
+    assert _route(root, module, "OUTPUT") == ("symbol", module.__name__, "OUTPUT")
+    consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    assert consumer.observed() == expected
+    if expression == "(VALUE, NUMBER, SIGNED, VALUE)":
+        assert consumer.observed()[0] == consumer.observed()[-1] == "alpha"
+        assert consumer.observed()[1] == 1
+        assert consumer.observed()[2].hex() == "-0x0.0p+0"
+
+
+@pytest.mark.parametrize(
+    "mutation", ["order", "duplicate", "primitive_type", "float_sign", "value"]
+)
+def test_immutable_tuple_selected_consumer_rejects_coherent_typed_changes(
+    tmp_path, monkeypatch, mutation
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _immutable_tuple_source())
+    consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    wrong = {
+        "order": ("alpha", -0.0, 1, "alpha"),
+        "duplicate": ("alpha", 1, -0.0),
+        "primitive_type": ("alpha", True, -0.0, "alpha"),
+        "float_sign": ("alpha", 1, 0.0, "alpha"),
+        "value": ("forged", 1, -0.0, "alpha"),
+    }[mutation]
+    monkeypatch.setattr(module, "OUTPUT", wrong)
+    monkeypatch.setattr(consumer, "OUTPUT", wrong)
+    assert consumer.observed() is wrong
+    with pytest.raises(
+        ledger.ConfidenceLedgerError, match="selected source literal binding differs"
+    ):
+        ledger._source_facade_runtime_projection(root, closure)
+
+
+def test_immutable_tuple_live_source_name_and_imported_tuple_are_reconciled(tmp_path, monkeypatch):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    provider = _load_fixture_module(
+        root, monkeypatch, "polisyos.immutable_pair_provider", "PAIR = ('alpha', 1, -0.0)\n"
+    )
+    module = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.imported_immutable_tuple",
+        _immutable_tuple_source(
+            "(PAIR, PAIR)", constants="from polisyos.immutable_pair_provider import PAIR\n"
+        ),
+    )
+    expected = (("alpha", 1, -0.0), ("alpha", 1, -0.0))
+    assert _immutable_tuple_expected(root, module) == expected
+    consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    assert consumer.observed()[0][0] == "alpha"
+    forged = ("forged", 1, -0.0)
+    monkeypatch.setattr(provider, "PAIR", forged)
+    monkeypatch.setattr(module, "PAIR", forged)
+    monkeypatch.setattr(module, "OUTPUT", (forged, forged))
+    monkeypatch.setattr(consumer, "OUTPUT", module.OUTPUT)
+    assert _immutable_tuple_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    with pytest.raises(ledger.ConfidenceLedgerError, match="side-effecting direct source"):
+        ledger._source_facade_runtime_projection(root, closure)
+
+
+@pytest.mark.parametrize(
+    "expression", ["([VALUE],)", "(unexecuted(),)", "(VALUE.upper(),)", "(obj.value,)", "(OUTPUT,)"]
+)
+def test_immutable_tuple_source_profile_refuses_mutability_calls_attributes_and_cycles(
+    tmp_path, monkeypatch, expression
+):
+    source = _immutable_tuple_source()
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    observed = []
+    monkeypatch.setattr(module, "unexecuted", lambda: observed.append("called"), raising=False)
+    Path(module.__file__).write_text(
+        source.replace("OUTPUT = (VALUE, NUMBER, SIGNED, VALUE)", f"OUTPUT = {expression}"),
+        encoding="utf-8",
+    )
+    assert _immutable_tuple_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    with pytest.raises(ledger.ConfidenceLedgerError, match="side-effecting direct source"):
+        _route(root, module, "OUTPUT")
+    assert observed == []
+
+
+def test_immutable_tuple_forward_and_rebound_source_names_are_refused(tmp_path, monkeypatch):
+    source = _immutable_tuple_source()
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    path = Path(module.__file__)
+    path.write_text(source + "VALUE = 'alpha'\n", encoding="utf-8")
+    assert _immutable_tuple_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    path.write_text(source.replace("VALUE = 'alpha'\n", "") + "VALUE = 'alpha'\n", encoding="utf-8")
+    assert _immutable_tuple_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+
+
+@pytest.mark.parametrize("count", [64, 65])
+def test_immutable_tuple_named_resolution_budget_is_shared_and_never_truncates(
+    tmp_path, monkeypatch, count
+):
+    constants = "".join(f"KEY_{index} = {index}\n" for index in range(count))
+    expression = "(" + ", ".join(f"KEY_{index}" for index in range(count)) + ",)"
+    root, module = _load_decorated_case(
+        tmp_path, monkeypatch, _immutable_tuple_source(expression, constants=constants)
+    )
+    work = [64]
+    result = _immutable_tuple_expected(root, module, work_remaining=work)
+    if count == 64:
+        assert result == tuple(range(count))
+        assert work == [0]
+    else:
+        assert result is ledger._SOURCE_DERIVATION_FAILED
+        assert work == [0]
+
+
+@pytest.mark.parametrize("members", [4998, 4999])
+def test_immutable_tuple_expanded_node_budget_is_shared_across_named_values(
+    tmp_path, monkeypatch, members
+):
+    value = "(" + "0," * members + ")"
+    root, module = _load_decorated_case(
+        tmp_path,
+        monkeypatch,
+        _immutable_tuple_source("(PAIR, PAIR)", constants=f"PAIR = {value}\n"),
+    )
+    budget = [10000, 1024**2]
+    result = _immutable_tuple_expected(root, module, value_budget=budget)
+    if members == 4998:
+        assert result == module.OUTPUT
+        assert budget[0] == 1
+    else:
+        assert result is ledger._SOURCE_DERIVATION_FAILED
+    assert budget[0] >= 0
+
+
+def test_immutable_tuple_scalar_budget_and_source_depth_refuse_whole_value(tmp_path, monkeypatch):
+    value = "a" * 200000
+    root, module = _load_decorated_case(
+        tmp_path,
+        monkeypatch,
+        _immutable_tuple_source("(VALUE, VALUE)", constants=f"VALUE = {value!r}\n"),
+    )
+    assert _immutable_tuple_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    nested = "VALUE"
+    for _ in range(41):
+        nested = f"({nested},)"
+    Path(module.__file__).write_text(_immutable_tuple_source(nested), encoding="utf-8")
+    assert _immutable_tuple_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+
+
+def test_immutable_tuple_live_shared_dag_and_unknown_protocols_are_bounded(tmp_path, monkeypatch):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _immutable_tuple_source("(VALUE,)"))
+    consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    nested = "alpha"
+    for _ in range(13):
+        nested = (nested, nested)
+    monkeypatch.setattr(module, "OUTPUT", (nested,))
+    monkeypatch.setattr(consumer, "OUTPUT", module.OUTPUT)
+    with pytest.raises(
+        ledger.ConfidenceLedgerError, match="selected source literal binding differs"
+    ):
+        ledger._source_facade_runtime_projection(root, closure)
+    observed = []
+
+    class UnknownMeta(type):
+        def __hash__(cls):
+            observed.append("metaclass_hash")
+            return 1
+
+    class UnknownValue(metaclass=UnknownMeta):
+        def __getattribute__(self, name):
+            observed.append(name)
+            raise AssertionError("unknown tuple member must not be inspected")
+
+        def __eq__(self, _other):
+            observed.append("equality")
+            return True
+
+    monkeypatch.setattr(module, "OUTPUT", (UnknownValue(),))
+    monkeypatch.setattr(consumer, "OUTPUT", module.OUTPUT)
+    with pytest.raises(
+        ledger.ConfidenceLedgerError, match="selected source literal binding differs"
+    ):
+        ledger._source_facade_runtime_projection(root, closure)
+    assert observed == []
+
+
+def test_immutable_tuple_name_rebinding_does_not_rewrite_the_source_premise(tmp_path, monkeypatch):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _immutable_tuple_source())
+    consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    wrong = ("forged", 1, -0.0, "forged")
+    monkeypatch.setattr(module, "VALUE", "forged")
+    monkeypatch.setattr(module, "OUTPUT", wrong)
+    monkeypatch.setattr(consumer, "OUTPUT", wrong)
+    assert _immutable_tuple_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    with pytest.raises(ledger.ConfidenceLedgerError, match="side-effecting direct source"):
+        ledger._source_facade_runtime_projection(root, closure)
+
+
+def test_immutable_tuple_standalone_reader_uses_current_source_in_one_snapshot(
+    tmp_path, monkeypatch
+):
+    source = _immutable_tuple_source()
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    path = Path(module.__file__)
+    old_tree = ast.parse(source, filename=str(path))
+    old_expression = ledger._module_scope_direct_binding_sites(old_tree, "OUTPUT")[0][1].value
+    path.write_text(source.replace("VALUE = 'alpha'", "VALUE = 'wrong'"), encoding="utf-8")
+    assert (
+        ledger._source_immutable_tuple_expression(
+            old_expression,
+            repo_root=root,
+            tree=old_tree,
+            module=module,
+            module_name=module.__name__,
+        )
+        is ledger._SOURCE_DERIVATION_FAILED
+    )
+    path.write_text(source, encoding="utf-8")
+    original = ledger._source_dataclass_named_constant
+
+    def change_source_after_name(name, **kwargs):
+        value = original(name, **kwargs)
+        path.write_text(source + "\n# changed during tuple derivation\n", encoding="utf-8")
+        return value
+
+    monkeypatch.setattr(ledger, "_source_dataclass_named_constant", change_source_after_name)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="source changed during"):
+        _immutable_tuple_expected(root, module)
+
+
+@pytest.mark.parametrize("binding", ["local", "imported"])
+def test_immutable_tuple_name_profile_does_not_reach_older_frozenset_constructor(
+    tmp_path, monkeypatch, binding
+):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    if binding == "imported":
+        _load_fixture_module(
+            root,
+            monkeypatch,
+            "polisyos.immutable_frozen_provider",
+            "VALUE = frozenset({'alpha'})\n",
+        )
+        constants = "from polisyos.immutable_frozen_provider import VALUE\nALIAS = VALUE\n"
+    else:
+        constants = "VALUE = frozenset({'alpha'})\nALIAS = VALUE\n"
+    module = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.named_frozen_tuple",
+        _immutable_tuple_source("(ALIAS,)", constants=constants),
+    )
+    original = ledger._source_frozenset_literal_expression
+    calls = []
+
+    def observe_constructor(node, **kwargs):
+        if isinstance(node, ast.Call):
+            calls.append("constructor")
+        return original(node, **kwargs)
+
+    monkeypatch.setattr(ledger, "_source_frozenset_literal_expression", observe_constructor)
+    assert _immutable_tuple_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    _consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="side-effecting direct source"):
+        ledger._source_facade_runtime_projection(root, closure)
+    assert calls == []
+    # The earlier standalone frozenset profile remains available independently.
+    assert _source_constant_value(root, module, "VALUE") == frozenset({"alpha"})
+    assert calls == ["constructor"]
+
+
+def test_immutable_tuple_mutable_literal_candidate_does_not_establish_selected_value(
+    tmp_path, monkeypatch
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _immutable_tuple_source("([1],)"))
+    # Legacy literal discovery names a declaration. It does not establish the
+    # immutable tuple profile or qualify the selected runtime binding.
+    assert _candidate(root, module, "OUTPUT").route == ("symbol", module.__name__, "OUTPUT")
+    assert _immutable_tuple_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    assert consumer.observed() == ([1],)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="immutable tuple is unresolved"):
+        ledger._source_facade_runtime_projection(root, closure)

@@ -2347,15 +2347,10 @@ class AcquisitionActionService:
                 dispatch_candidate_experiment_evaluation,
             )
             from polisyos.runtime.quality.substrate_registry import (
-                current_catalog_serving_source,
-                require_active_catalog_source,
                 run_catalog_source_call,
             )
 
             catalog_source = self.control_service.catalog_serving_source
-            active_source = current_catalog_serving_source()
-            if active_source is not None and active_source is not catalog_source:
-                require_active_catalog_source(catalog_source)
 
             def _dispatch_and_verify() -> object:
                 terminal_head = dispatch_candidate_experiment_evaluation(

@@ -758,11 +758,36 @@ def test_pending_candidate_experiment_retry_restores_catalog_scope_after_error(
     assert current_catalog_serving_source() is None
 
 
-def test_pending_candidate_experiment_retry_refuses_foreign_active_catalog(
+def test_pending_candidate_experiment_retry_uses_app_catalog_and_restores_equivalent_outer_source(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """The worker cannot mask an already-active foreign source with its app binding."""
-    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteRecoveryRequired
+    """The app source wins for its call while an equivalent outer source is restored."""
+    from polisyos.runtime.quality.substrate_registry import (
+        catalog_serving_source_scope,
+        current_catalog_serving_source,
+    )
+
+    case = _candidate_experiment_pending_resume_case(tmp_path, monkeypatch)
+    app_source = case["catalog_source"]
+    outer_source = replace(app_source)
+    assert outer_source is not app_source
+    assert outer_source == app_source
+
+    with catalog_serving_source_scope(outer_source):
+        assert current_catalog_serving_source() is outer_source
+        result = case["service"].handle_job(case["job"], case["payload"], case["execution_scope"])
+        assert result == {"state": "completed"}
+        assert current_catalog_serving_source() is outer_source
+
+    assert case["calls"] == ["dispatch", "verify"]
+    assert case["no_n5_calls"] == []
+    assert current_catalog_serving_source() is None
+
+
+def test_pending_candidate_experiment_retry_restores_foreign_outer_catalog_after_app_call(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The service owns its source during the call and restores any caller context."""
     from polisyos.runtime.quality.substrate_registry import (
         catalog_serving_source_scope,
         current_catalog_serving_source,
@@ -770,13 +795,14 @@ def test_pending_candidate_experiment_retry_refuses_foreign_active_catalog(
 
     case = _candidate_experiment_pending_resume_case(tmp_path, monkeypatch)
     with catalog_serving_source_scope(case["foreign_source"]):
-        with pytest.raises(AcquisitionRouteRecoveryRequired) as refused:
-            case["service"].handle_job(case["job"], case["payload"], case["execution_scope"])
-        assert getattr(refused.value.__cause__, "code", None) == "catalog_source_context_mismatch"
+        assert current_catalog_serving_source() is case["foreign_source"]
+        result = case["service"].handle_job(case["job"], case["payload"], case["execution_scope"])
+        assert result == {"state": "completed"}
         assert current_catalog_serving_source() is case["foreign_source"]
 
-    assert case["calls"] == []
+    assert case["calls"] == ["dispatch", "verify"]
     assert case["no_n5_calls"] == []
+    assert current_catalog_serving_source() is None
 
 
 def test_pending_candidate_experiment_retry_preserves_real_catalog_readmission_refusal(

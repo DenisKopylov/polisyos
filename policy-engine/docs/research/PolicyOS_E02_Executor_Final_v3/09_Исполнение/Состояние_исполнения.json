@@ -12640,7 +12640,8 @@
           "peak_RSS_bytes": 1720778752,
           "named_inputs": 3,
           "inputs_unchanged": true,
-          "scope": "Real service pending-phase control flow, structural upstream adapters and actual Catalog ContextVar/readmission gates; dispatch and final head reader share the app source. Missing pending-phase execution port is repaired without rerunning the acquisition effect. Foreign source/content drift refuse; cleanup restores the outer context. No N5/CAS/runtime-authority qualification. Independent Luna GO."
+          "scope": "Real service pending-phase control flow, structural upstream adapters and actual Catalog ContextVar/readmission gates; dispatch and final head reader share the app source. Missing pending-phase execution port is repaired without rerunning the acquisition effect. Foreign source/content drift refuse; cleanup restores the outer context. No N5/CAS/runtime-authority qualification. Independent Luna GO.",
+          "historical_boundary": "The original23-pass slice rejected foreign ambient identity; this root overconstraint is replaced by candidate_app_source_boundary_forward_fix. Original result remains preserved."
         },
         "source_registry_keys_author_current": {
           "commit": "6209f61c5f45e62219aa1b70337e883e2abba582",
@@ -12667,6 +12668,64 @@
           "remote_ref": "refs/heads/codex/e02-lane01-job-publication",
           "remote_readback": "Exact7d790f67d after normal push/typecheck; four released file bytes read back from commit.",
           "scope": "One shared first-B fixture for generations/GDP with real state/source-path/baseline/declaration/selectedNCM falsifiers, unchanged heads/units/original selected CAS guards; scale-aware float32-distinct target control. Static and non-author reviews PASS; runtime/N5 controls UNRUN."
+        },
+        "candidate_experiment_native_execute_r20": {
+          "source": "bb1a40be448d51b1a2f42ad8e93464861ed2c22f / 9c65fa8b29737675842a33459534afcf861d72f4",
+          "output": "policy-engine/_cache/e02/lane01-candidate-execution-native-r20",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 364.73654104198795,
+          "peak_RSS_bytes": 1846329344,
+          "named_inputs": 113,
+          "inputs_unchanged": true,
+          "classification": "command_failed",
+          "abort_reason": null,
+          "scope": "Worker failed before observed dispatcher; outer recovery error persisted. Root introduced an ambient-object identity overconstraint at app composition. Fixture holds its own Catalog object; Control resolves a distinct app object. Short causal red below reproduces exact catalog_source_context_mismatch before dispatch. No new B N5 or fresh-reader success. No timeout/OOM or inherited-red assertion."
+        },
+        "candidate_app_source_boundary_forward_fix": {
+          "source_base": "bb1a40be448d51b1a2f42ad8e93464861ed2c22f",
+          "content_sha256": {
+            "src/polisyos/runtime/http/services/acquisition_action_service.py": "e63ce5fac3965485a30b50ddea9850d25cecafc3e0852de718b7dc83940d79a2",
+            "tests/unit/runtime/http/services/test_acquisition_action_service.py": "54fa1fee8d907e3fc898e3ca401056e4d7440c62e29399cbab145dd71b3c8bda"
+          },
+          "causal_red_output": "policy-engine/_cache/e02/lane01-candidate-app-source-boundary-r-red",
+          "output": "policy-engine/_cache/e02/lane01-candidate-app-source-boundary-r-green",
+          "observed": {
+            "PASS": 24,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 83.68935674999375,
+          "peak_RSS_bytes": 1710620672,
+          "named_inputs": 3,
+          "inputs_unchanged": true,
+          "scope": "App composition selects its own source even under a distinct equivalent or foreign ambient context, then restores that context. Actual dispatcher/head consumer fences remain. Real content-change refusal, pending-port selection and exception cleanup retained. Structural service-unit qualification only; no N5/runtime-authority claim. Independent Luna GO."
+        },
+        "source_immutable_tuple_author_current": {
+          "commit": "eb55b27ff70ecfd5795b1b73dceddbe647149fe3",
+          "tree": "3950342f58c8a724e3cc0cd3fec588cddb6c844a",
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-immutable-tuple-composed-r1",
+          "observed": {
+            "PASS": 320,
+            "FAIL": 17,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 43.52,
+          "peak_RSS_GB": 1.537,
+          "named_inputs": 27,
+          "inputs_unchanged": true,
+          "scope": "Source-owned scalar/tuple identity with canonical import and bounded expanded work; actual EXTENSION tuple passes.17 refusals advance to BuiltinLoaderSpec type alias metadata. No full readiness/G claim. Independent TerraGO."
+        },
+        "candidate_genuine_fresh_app_harness_preflight": {
+          "implementation_checkpoint": "481934c0fbb03589fc6443ba7c5ec2104affda0d",
+          "status": "HARNESS_REPAIR_IN_PROGRESS",
+          "scope": "Setup-only actual TestClient preflight, no new N5, exposes single-control/old-signature builder mocks and reused store-bound GlobalCaseIndex provider. Repair shared helper plus action/terminal/GDP companions, preserve old objects, use canonical fresh per-app provider resolver. Full crash/generations/GDP remain UNRUN."
         }
       },
       "independent_component_reviews": {

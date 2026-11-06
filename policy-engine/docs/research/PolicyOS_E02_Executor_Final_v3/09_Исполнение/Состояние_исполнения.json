@@ -13233,9 +13233,64 @@
           "source_commit": "9a934fbd09e69c8bcd9d1651b4b4b9b544fc0fad",
           "source_tree": "45a4aba4e5e94613287267156e6057e55e97ba4d",
           "output": "MAIN:policy-engine/_cache/e02/lane01-candidate-execution-native-r27",
-          "classification": "RUNNING_NOT_PASS",
+          "classification": "SEMANTIC_FAIL_N7_CONTEXT_OWNER_BINDING_BEFORE_NEW_B_N5",
           "profile": "CPU1;3GiB RSS;2100s;3GiB disk floor;independent stores;quota5/1;payload-free owner timing observer",
-          "scope": "2100s admitted before run from1228s R26 prefix plus unreached physical B/terminal/fresh-reader suffix. Product gates unchanged. MAIN source and named inputs frozen. No newB or terminal success claim yet."
+          "scope": "SourceA, actual acquisition, candidate world checkpoint and reentry budget preflights now proceed beyond R26 selected-registry mismatch. _resolve_candidate_simulation_context_handoff refuses at N7 before newB N5/terminal success. Exact failing subpredicate remains unknown: context owner type/store identity, artifact store, verified scope type/issuance and repo root form the guarded set. No source mismatch/resource abort/OOM/first-protected-PASS claim.",
+          "deciding_failure_code": "n7_candidate_simulation_context_owner_binding_missing",
+          "next": "Inspect exact guarded predicates at generation_cycle.py::_resolve_candidate_simulation_context_handoff (9a934 lines16015-16048), caller _ensure_selected_candidate_source_profile -> _generate_node -> reenter_after_candidate_acquisition_source. Reconcile actual owner/store/verified-scope/root construction and persisted handoff in a cheap real-boundary preflight; no fake issuance/bypass/manual SQL reset.",
+          "inputs_unchanged": true,
+          "named_inputs": 131,
+          "wall_seconds": 1526.3447135000024,
+          "peak_RSS_bytes": 2109538304,
+          "abort_reason": null,
+          "return_code": 1,
+          "process_group_gone": true,
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "deciding_failure_excerpt": "eriment_action=8.080378s/8.088214cpu; candidate_experiment_source_selection=0.679558s/0.686766cpu; candidate_experiment_source_selection=0.685327s/0.692644cpu; current_candidate_experiment_action=8.423168s/8.345567cpu; admit_candidate_experiment=61.621447s/61.492235cpu (returned successfully)\nE   dispatch failures: [CandidateExperimentDispatchFailure(chain=(CandidateExperimentDispatchFailureNode(exception_type='polisyos.runtime.quality.generation_cycle.GenerationCycleError', code='n7_candidate_simulation_context_owner_binding_missing', message='n7_candidate_simulation_context_owner_binding_missing: n7_candidate_simulation_context_owner_binding_missing', traceback_tail=(CandidateExperimentDispatchFrame(filename='tasks.py', line_number=488, function='wait_for'), CandidateExperimentDispatchFrame(filename='__init__.py', line_number=782, function='_await_awaitable'), CandidateExperimentDispatchFrame(filename='generation_cycle.py', line_number=11927, function='reenter_after_candidate_acquisition_source'), CandidateExperimentDispatchFrame(filename='generation_cycle.py', line_number=12408, function='_run_cycle'), CandidateExperimentDispatchFrame(filename='engine_simple.py', line_number=53, function='run_async'), CandidateExperimentDispatchFrame(filename='generation_cycle.py', line_number=16329, function='_generate_node'), CandidateExperimentDispatchFrame(filename='generation_cycle.py', line_number=16173, function='_ensure_selected_candidate_source_profile'), CandidateExperimentDispatchFrame(filename='generation_cycle.py', line_number=16048, function='_resolve_candidate_simulation_context_handoff'))),))]\nE   source-basis preparations: [CandidateExperimentSourceBasisPreparationObservation(predicate_provenance='recomputed', reason_codes=(), inputs_present=True, intent_ref_present=True, intent_present=True), CandidateExperimentSourceBasisPreparationObservation(predicate_provenance='recomputed', reason_codes=(), inputs_present=True, intent_ref_present=True, intent_present=True)]"
+        },
+        "annotated_broad_R3": {
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-annotated-broad-r3",
+          "observed": {
+            "PASS": 381,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 31.071288209059276,
+          "peak_RSS_bytes": 1528528896,
+          "named_inputs": 4,
+          "inputs_unchanged": true,
+          "scope": "381PASS on exact reviewed/committed e61e4cea9 source f490b399c7aa679971fc5946d5fbaf35749c70e6d55aa2d566661d8d153a5852 and mirrored tests f59121c0b083e2cd436d846b2d04cabf0e567b691ddc59b1b1fa150b523514d7. Passive Annotated/FieldInfo/Pydantic type-reference identity and explicit source-only discovery; strict/live resolver never promotes that candidate. Not compiled-validator behavior, full N6, installed or G acceptance.",
+          "saved_commit": "e61e4cea99d681f97b09273bf76ac19f5aa08339"
+        },
+        "annotated_import_N6_current": {
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-annotated-n6-import-r8",
+          "classification": "DIAGNOSTIC_COMPLETED_N6_NOT_ESTABLISHED",
+          "command_return_code": 0,
+          "reason_code": "canonical_loaded_runtime_mismatch",
+          "detail": "non-literal repository re-export: polisyos.core.registry.loader",
+          "scope": "The diagnostic prints the actual fail-closed status; rc0 is not N6 PASS. Source ownership discovery passes prior RegistryFragment/SourceBatch/typing.overload sites. Next inspect core.registry lazy child import route; do not recapture baseline, warm imports or weaken strict projection."
+        },
+        "method_selection_receipt_reader_preparation": {
+          "saved_commit": "1db28a1a9",
+          "path": "tests/integration/runtime_quality/test_candidate_value_method_served.py",
+          "classification": "TEST_ONLY_PREPARATION_RUNTIME_UNRUN_AT_USER_STOP",
+          "checks": "Root independent source review, AST, Ruff check/format and diff-check pass. No new N5 or retained-store mutation.",
+          "scope": "Actual runner manifest selection receipt binding and fresh GET removal/restoration with unchanged N5 count. Coherent catalog drift remains covered separately by canonical verifier controls; no fabricated report/new public seam.",
+          "next": "Run current _assert_source_method_reader_suffix against qualified MAIN R11 store via /tmp/sel-retained-receipt-r13.py under AUTHOR source and explicit N5 trap; check current named input stability. Recreate the small harness from the committed helper and R11 artifact bindings if /tmp is unavailable."
+        },
+        "cyc02_historical_producer_feasibility": {
+          "classification": "SOURCE_REVIEW_ONLY_RUNTIME_UNRUN",
+          "v2_source_commit": "73d6d71d1bde2b85b7910ba8e1356b888389cfc0",
+          "v2_source_tree": "82a79ddf26e4b18c6943dd7ef5b1e50a304d9aa5",
+          "v2_path": "Old JointSimulationPort -> actual ProgramGraph controller -> bind_world_state_consumption(v2) -> old canonical persister; compact plan/request fixture in same historical test_joint_simulation_horizon.py. Reproduce with exact old producer/serializer bytes and transparent oldproducer_replay provenance; current downcast is not a substitute.",
+          "v2_remaining": "First qualify finite historical source/API closure against existing dependencies without copying checkout/environment or patching semantics; then actual CAS/current loader/default N8 with unchanged bytes and tamper/foreign/no-promotion controls.",
+          "v3_remaining": "Inspected reachable schema-introduction history9dd15d1c1bc89d189a5c53c47e816ce48ab5b352 introduces v3/v4 together with writer already v4; parent supports v1/v2. No genuine v3-producing revision/output located in bounded canonical/fixture/history review. Need byte-bearing v3 artifact with receipt/profile provenance or a specific criterion disposition; never label a v4 downcast as old producer output."
         }
       },
       "independent_component_reviews": {
@@ -13270,6 +13325,12 @@
         "protocol_type_reference": {
           "result": "GO_ON_REVIEWED_BYTES; next discovery delta pending",
           "scope": "Passive source/code/currentmetadata only; opaque native validator behavior remains not_established. No runtime or G acceptance inference."
+        },
+        "annotated_source_identity": {
+          "result": "GO",
+          "source_sha256": "f490b399c7aa679971fc5946d5fbaf35749c70e6d55aa2d566661d8d153a5852",
+          "test_sha256": "f59121c0b083e2cd436d846b2d04cabf0e567b691ddc59b1b1fa150b523514d7",
+          "scope": "Independent Sol review of passive provider/type identity plus source-only closure discovery; actual N6 stays not_established at named lazy child route. Compiled-validator/schema coherence explicitly unknown."
         }
       },
       "resource_admission_current": {
@@ -13301,15 +13362,7 @@
           "trash_emptied_by_executor": false,
           "deleted_by_executor": false
         },
-        "hold": {
-          "status": "RESOLVED_BY_USER_RESUME_AND_FRESH_MEASUREMENT",
-          "free_disk_GiB_observed": 2.2,
-          "minimum_floor_GiB": 3,
-          "swap_used_MiB_observed": 2835.81,
-          "authors": "All active writers acknowledged stop; only atomic stop bookkeeping completed. No active authorized numerical jobs remain.",
-          "trash_emptied_by_executor": false,
-          "resume": "User frees disk, then Root measures actual disk/RAM/swap/processes before any E02 work. No automatic replays or next lane."
-        },
+        "hold": "User requested end-of-day stop; do not launch agents or numerical routes until explicit resume.",
         "resumed_admission": "16GiB8CPU,9.76GiBfree,swap377MiB,memory-pressure69%free,no processes at admission; two measured CPU1 numerical jobs admitted on separate existing checkouts; four-job/8GiB aggregate ceiling,3GiB disk floor unchanged.",
         "current_cleanup": {
           "scratch_leaves": 189,
@@ -13319,7 +13372,7 @@
           "trash_emptied_by_executor": false,
           "code_docs_environments_unique_production_preserved": true
         },
-        "execution_state": "R27_RUNNING; AUTHOR type-reference closure repair in parallel",
+        "execution_state": "PAUSED_BY_USER_AFTER_INFLIGHT_FINISH",
         "next_session": "Fix R19 Catalog dispatch/pending-resume boundary and run genuine protected replay; independently finish finite source cohort, shared generation/GDP constituent controls and fresh-runtime crash preparation. Then generations, GDP, affected consumers/installed and all66 reconciliation. No next lane.",
         "latest_additional_trash_move": {
           "size_KiB": 398572,
@@ -13363,14 +13416,30 @@
           "trash_emptied": false,
           "deleted": false
         },
-        "free_disk_bytes_at_refresh": 15105409024,
+        "free_disk_bytes_at_refresh": 15066558464,
         "used_swap_GiB_at_refresh": 0.4951171875,
-        "next_action": "Inspect genuine R27 result; finish strict discovery/live-identity separation and actual N6/CYC; fullgen/crash/GDP only after genuine first positive.",
+        "next_action": "Check identities/resources; isolate R27 N7 owner binding with cheap real boundary preflight; independently finish N6 lazy child route, saved zero-N5 receipt reader and historicalv2 source admission. Genuine rerun only after prerequisites pass, then generations/crash/GDP.",
         "latest_G_cleanup": {
           "workspace_G": "Ancestor cf9cbee of MAIN b2e;0 G-only/5197 MAIN-only commits; clean tracked/nonignored state; inactive standalone environment. ~8.64GiB moved to Trash; later manually emptied by user. No active checkout/env/data dependency on G.",
           "G_agent_history": "User-authorized exact435 descendants,181069 history rows copied/row-hash verified before transfer. Shared DB reduced1717792768B by native incremental vacuum; final WAL checkpoint0/0/0. ParentG/other chat histories preserved. Archive/restore tool and temporary safety hardlink all in Trash, not outside. Archive quick_check/hash and synthetic exact restore pass; shared full quick_check interrupted at45s without PASS. Executor never emptied Trash.",
           "scope": "Local coordinator cleanup only, no product/G acceptance change."
         }
+      },
+      "end_of_day_20261106": {
+        "state": "PAUSED_BY_USER",
+        "new_agents_or_long_runs": "NONE_AFTER_STOP_REQUEST",
+        "active_lane_unchanged": "LANE-01; no next lane/G acceptance",
+        "qualified_source_component": "e61e4cea99d681f97b09273bf76ac19f5aa08339",
+        "unrun_test_preparation": "1db28a1a9",
+        "critical_next": [
+          "R27 actual FAIL n7_candidate_simulation_context_owner_binding_missing before B N5. Isolate owner/store/scope-issued/root predicate using a cheap real-boundary preflight; repair canonical handoff and independently review before one R28.",
+          "Resolve non-literal repository re-export core.registry.loader via generic source-discovery/live-identity boundary; qualify import-only diagnostic before bounded CYC.",
+          "Qualify saved receipt fresh-reader/removal using R11 artifacts, zero new N5.",
+          "Use actual first protected positive for A->B->B->B->C, crash/zero-repeat-N5 and annual GDP/X03; do not automatically repeat an unchanged expensive prefix.",
+          "Historicalv2: old real producer replay after source/API admission. Historicalv3: locate original bytes/source or present exact criterion question.",
+          "One final affected-consumer/installed wave and all66 criterion crosswalk; retain DA06/DA07/DA08, no G closure."
+        ],
+        "performance_note": "R27 observer identifies repeated nested current/reentry owner replay. Operation-local snapshot handoff is a measured candidate, not an implemented optimization or a cross-operation cache authorization; do not invalidate a qualified prefix for speculative gains."
       }
     },
     {
@@ -29311,7 +29380,7 @@
         "DA-01",
         "DA-07"
       ],
-      "current_assessment": "TEST-CYC-02-01 remains artifact_missing for genuine historical v2/v3 input with original receipt/profile and untouched-byte SHA. Current v4/v5 downcast tests establish legacy-shaped compatibility, not historical producer bytes. Bounded canonical fixture/source review found no retained v2/v3 blob; this is not an exhaustive private RAW census. Genuine V1/V4 R9 and configured NCM fresh-process consumer remain qualified separately. Inspect designated retained historical sources before declaring external blockage; do not fabricate a historical artifact."
+      "current_assessment": "TEST-CYC-02-01: actual old v2 producer/serializer source73d6d71d1bde2b85b7910ba8e1356b888389cfc0 is available for a new transparent oldproducer_replay; API/source closure and native run UNRUN. No genuine v3-producing revision/artifact located in bounded history/fixture review; exact byte-bearing provenance/criterion disposition remains. Modern downcast tests are compatibility-shape tests only. Genuine V1/V4 R9 and configured NCM fresh-process consumer stay qualified separately."
     },
     {
       "packet_id": "SIM-01",
@@ -29468,7 +29537,7 @@
       ],
       "blockers": [],
       "deferred_ids": [],
-      "current_assessment": "REQ/TEST-SEL-01-05: served R11 ordinary compiler/N4/N5/native AIPW/persisted CAS/fresh reader plus independent source estimate are qualified; separate selection receipt checks cover relevant versus unrelated catalog drift. Remaining composition check is live registry/catalog drift at the fresh served consumer on the same persisted artifacts, without new N5. Existing first-four selection evidence reused; no new mechanism required."
+      "current_assessment": "Served R11 already qualifies ordinary compiler/N4/N5/native AIPW/persisted CAS/fresh reader; canonical verifier controls cover relevant/unrelated catalog drift separately. New exact persisted runner selection receipt binding/removal/restoration assertion saved1db28a1a9, runtime UNRUN at user stop; run retained suffix only, no new N5."
     },
     {
       "packet_id": "EMP-01",

@@ -54,6 +54,7 @@ from pydantic import (
     SerializationInfo,
     SerializerFunctionWrapHandler,
     TypeAdapter,
+    field_validator,
     model_serializer,
     model_validator,
 )
@@ -2246,6 +2247,17 @@ class ValueGateReceipt(_StrictModel):
     wmr_cache_status: Literal["built", "reused"]
     k_world_ref_before: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     k_world_ref_after: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @field_validator("value_outer_set", mode="before")
+    @classmethod
+    def _read_persisted_value_set(cls, value: object) -> object:
+        """Verify the derived-width checksum when reading a persisted value set."""
+
+        if isinstance(value, ValueOuterSet):
+            return value
+        if isinstance(value, Mapping) and "width" in value:
+            return ValueOuterSet.from_persisted_payload(value)
+        return value
 
     def decisive_consistency_predicates(
         self,

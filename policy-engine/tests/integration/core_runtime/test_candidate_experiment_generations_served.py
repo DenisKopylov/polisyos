@@ -178,6 +178,119 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
             result: dict[str, object] = {}
 
             def execute_after_replay(**action_values: object) -> None:
+                if generation == 2:
+                    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+                        resolve_current_candidate_unpriced_policy,
+                    )
+
+                    action_context = action_values["values"]
+                    action_control = action_context["control"]
+                    action_service = action_context["action_service"]
+                    action_client = action_context["client"]
+                    action_trust = action_context["trust"]
+                    action_origin = action_values["origin"]
+                    action_request = action_values["request"]
+                    action_decision_ref = action_values["decision_ref"]
+                    providers_before = action_control._registry_providers
+                    assert providers_before.candidate_unpriced_policy_bindings == ()
+                    assert len(providers_before.candidate_unpriced_policy_templates) == 1
+                    selected_ref_before, selected_policy_before = (
+                        resolve_current_candidate_unpriced_policy(
+                            control_service=action_control,
+                            scope=action_origin.policy_scope,
+                        )
+                    )
+                    assert selected_ref_before == policy_ref == action_origin.policy_ref
+                    assert selected_policy_before == policy
+
+                    execute_path = (
+                        f"/api/v1/runs/{action_origin.run_id}/candidate-acquisition-experiment/"
+                        f"{action_origin.route_id}/execute"
+                    )
+                    execute_route = (
+                        "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute"
+                    )
+                    execute_body = {
+                        "request": action_request.model_dump(mode="json"),
+                        "decision_ref": str(action_decision_ref),
+                    }
+                    job_id = action_service._candidate_experiment_job_id(
+                        action_origin, action_request
+                    )
+                    heads_before = (
+                        action_control._control_store.list_acquisition_action_heads_for_source(
+                            tenant_id=action_origin.tenant_id,
+                            cell_id=action_origin.cell_id,
+                            run_id=action_origin.run_id,
+                            source_job_id=action_origin.source_job_id,
+                        )
+                    )
+                    assert len(heads_before) == 1
+                    assert heads_before[0].action_generation == 1
+                    assert heads_before[0].receipt_phase == "terminal"
+                    assert heads_before[0].job_id == first.job_id
+                    units_before = _standard_invocation_units(
+                        control=action_control,
+                        run_id=action_origin.run_id,
+                    )
+                    assert units_before == first.standard_invocation_units_after == 4
+                    assert action_control._control_store.get_job(job_id) is None
+
+                    n5_calls: list[object] = []
+
+                    def forbid_n5(*args: object, **kwargs: object) -> object:
+                        n5_calls.append((args, kwargs))
+                        raise AssertionError("withdrawn candidate policy reached the N5 producer")
+
+                    try:
+                        action_control._registry_providers = replace(
+                            providers_before,
+                            candidate_unpriced_policy_templates=(),
+                        )
+                        with monkeypatch.context() as no_n5:
+                            no_n5.setattr(
+                                JointSimulationHorizonController,
+                                "run",
+                                forbid_n5,
+                            )
+                            denied, _ = action_trust.post(
+                                action_client,
+                                execute_path,
+                                execute_body,
+                                route=execute_route,
+                            )
+                        assert denied.status_code == 409, denied.text
+                        assert denied.json()["code"] == "candidate_experiment_policy_not_unique"
+                        assert action_control._control_store.get_job(job_id) is None
+                        assert (
+                            action_control._control_store.list_acquisition_action_heads_for_source(
+                                tenant_id=action_origin.tenant_id,
+                                cell_id=action_origin.cell_id,
+                                run_id=action_origin.run_id,
+                                source_job_id=action_origin.source_job_id,
+                            )
+                            == heads_before
+                        )
+                        assert (
+                            _standard_invocation_units(
+                                control=action_control,
+                                run_id=action_origin.run_id,
+                            )
+                            == units_before
+                        )
+                        assert n5_calls == []
+                    finally:
+                        action_control._registry_providers = providers_before
+
+                    selected_ref_after, selected_policy_after = (
+                        resolve_current_candidate_unpriced_policy(
+                            control_service=action_control,
+                            scope=action_origin.policy_scope,
+                        )
+                    )
+                    assert selected_ref_after == selected_ref_before
+                    assert selected_policy_after == selected_policy_before
+
                 execution_kwargs = {
                     "values": action_values["values"],
                     "origin": action_values["origin"],

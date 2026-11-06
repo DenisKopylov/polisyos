@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import asyncio
+import sys
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import replace
 from uuid import uuid4
 
@@ -59,6 +62,71 @@ def _artifact_id(ref) -> str:
     """Return an artifact identity without discarding the supplied typed view."""
     artifact_id = getattr(ref, "artifact_id", ref)
     return str(artifact_id)
+
+
+@contextmanager
+def _forbid_n8_n9_effect_kernels() -> Iterator[list[str]]:
+    """Observe and refuse actual N8 method or N9 proof-kernel execution.
+
+    The configured N5 reader and promotion eligibility/read paths remain live:
+    they must be able to retain a pending value and explain a refusal. Only the
+    two effect-bearing code objects are locally monitored.
+    """
+    from polisyos.runtime.quality import generation_cycle
+    from polisyos.runtime.quality.confidence_ledger import ConfidenceLedgerSession
+
+    monitoring = sys.monitoring
+    tool_id = monitoring.PROFILER_ID
+    if monitoring.get_tool(tool_id) is not None:
+        raise RuntimeError("e02_cyc01_effect_monitor_slot_unavailable")
+    code_labels = {
+        generation_cycle._produce_value_owner_method_run_basis.__code__: "n8_value_method",
+        ConfidenceLedgerSession.execute_check.__code__: "n9_proof_kernel",
+    }
+    calls: list[str] = []
+    tool_acquired = False
+    callback_registered = False
+    enabled_codes: list[object] = []
+
+    def observe_effect_start(code: object, _instruction_offset: int) -> None:
+        label = code_labels.get(code)
+        if label is None:
+            return
+        calls.append(label)
+        raise AssertionError(f"unexpected_cyc01_effect_kernel:{label}")
+
+    try:
+        monitoring.use_tool_id(tool_id, "e02-cyc01-effect-kernel-guard")
+        tool_acquired = True
+        monitoring.register_callback(
+            tool_id,
+            monitoring.events.PY_START,
+            observe_effect_start,
+        )
+        callback_registered = True
+        for code in code_labels:
+            monitoring.set_local_events(
+                tool_id,
+                code,
+                monitoring.events.PY_START,
+            )
+            enabled_codes.append(code)
+        yield calls
+    finally:
+        try:
+            for code in enabled_codes:
+                monitoring.set_local_events(tool_id, code, 0)
+        finally:
+            try:
+                if callback_registered:
+                    monitoring.register_callback(
+                        tool_id,
+                        monitoring.events.PY_START,
+                        None,
+                    )
+            finally:
+                if tool_acquired:
+                    monitoring.free_tool_id(tool_id)
 
 
 def _completed_core_source(produced_station, source_job):
@@ -196,7 +264,10 @@ def produced_station(tmp_path_factory):
         base_store = base_cas_type(*args, **kwargs)
         return base_store.with_ambient_ownership_enforcement()
 
-    with pytest.MonkeyPatch.context() as patches:
+    with (
+        _forbid_n8_n9_effect_kernels() as effect_calls,
+        pytest.MonkeyPatch.context() as patches,
+    ):
         # Runtime composition uses this owner-aware view of the original CAS.
         # The DI helper's plain FileSystemCAS leaves default writes ownerless,
         # then its fixture tenant claim makes the later registry replay fail.
@@ -214,6 +285,7 @@ def produced_station(tmp_path_factory):
                 tmp_path_factory.mktemp("controlled-profile-source"),
             ),
         )
+    assert effect_calls == []
     assert len(context_refs) == 1
     context_ref = context_refs[0]
     assert str(context_ref.artifact_id) == (fixture.job.progress["cycle_substrate_context_job_ref"])
@@ -282,13 +354,15 @@ def test_existing_blocked_generation_producer_is_read_before_n9_refusal(
 ):
     owner = produced_station["principal"]
     service, source_job, compiled_ref, launch = _attempt_from_produced_source(produced_station)
-    _within_owner(
-        owner,
-        dispatch_one_control_job,
-        store=service._control_store,  # noqa: SLF001
-        handler=service._process_control_job,  # noqa: SLF001
-        expected_job_id=launch.job_id,
-    )
+    with _forbid_n8_n9_effect_kernels() as effect_calls:
+        _within_owner(
+            owner,
+            dispatch_one_control_job,
+            store=service._control_store,  # noqa: SLF001
+            handler=service._process_control_job,  # noqa: SLF001
+            expected_job_id=launch.job_id,
+        )
+    assert effect_calls == []
     terminal = _within_owner(owner, service._control_store.get_job, launch.job_id)
     assert terminal is not None
     core_source = _completed_core_source(produced_station, source_job)

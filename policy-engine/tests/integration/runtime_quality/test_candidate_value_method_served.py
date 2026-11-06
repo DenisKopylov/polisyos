@@ -391,6 +391,49 @@ def _assert_source_method_reader_suffix(
                 CausalEffectReportRef.model_validate(basis["report_ref"]),
             )
             requested = load_core_json_artifact(fresh_context.store, record.source_request_ref)
+        from polisyos.foundry.methods import MethodSelectionReceipt
+        from polisyos.runtime.quality.generation_cycle import (
+            _value_artifact_ref,
+            _value_load_ref_payload,
+        )
+
+        ir_store = ensure_ir_artifact_store(fresh_context.store)
+        with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+            runner_ref = _value_artifact_ref(basis["runner_request_ref"])
+            runner_manifest = ir_store.get_manifest_by_profile(
+                runner_ref.artifact_id,
+                runner_ref.manifest_profile_sha256,
+            )
+            receipt_edges = tuple(
+                edge for edge in runner_manifest.inputs if edge.role == "method_selection_receipt"
+            )
+            assert len(receipt_edges) == 1
+            receipt_edge = receipt_edges[0]
+            assert receipt_edge.manifest_profile_sha256 is not None
+            selection_ref = _value_artifact_ref(
+                {
+                    "artifact_id": str(receipt_edge.artifact_id),
+                    "kind": "runtime.value_owner_method_selection_receipt",
+                    "manifest_profile_sha256": receipt_edge.manifest_profile_sha256,
+                }
+            )
+            selection_payload = _value_load_ref_payload(ir_store, selection_ref)
+        assert isinstance(selection_payload, dict)
+        assert set(selection_payload) == {
+            "schema_version",
+            "selection_receipt",
+            "selection_inputs",
+        }
+        assert (
+            selection_payload["schema_version"]
+            == "policyos.runtime.value_owner_method_selection_input.v1"
+        )
+        assert selection_payload["selection_inputs"] == record.selection_inputs
+        selection_receipt = MethodSelectionReceipt.model_validate(
+            selection_payload["selection_receipt"]
+        )
+        assert selection_receipt.selected_method_fqn == record.selected_method_fqn
+        assert selection_receipt.selected_method_fqn == method["selected_method_fqn"]
         assert native.point_estimate == method["point_estimate"]
         assert native.confidence_interval == tuple(method["statistical_interval"])
         assert basis["report_ref"] == method["native_report_ref"]
@@ -521,6 +564,29 @@ def _assert_source_method_reader_suffix(
         assert restored.status_code == 200, restored.text
         assert (
             restored.json()["run"]["generic_cycle_simulation"]["n5_observations"][0][
+                "candidate_value_method"
+            ]
+            == method
+        )
+
+        def remove_selection_receipt(ref: Any, *args: Any, **kwargs: Any) -> bytes:
+            if str(getattr(ref, "artifact_id", ref)) == str(selection_ref.artifact_id):
+                raise FileNotFoundError("removed method selection receipt")
+            return real_get_bytes(ref, *args, **kwargs)
+
+        with monkeypatch.context() as removal:
+            removal.setattr(fresh_context.store, "get_bytes", remove_selection_receipt)
+            receipt_removed = fresh_client.get(f"/api/v1/runs/{run_id}")
+            assert receipt_removed.status_code == 200, receipt_removed.text
+            receipt_degraded = receipt_removed.json()["run"]["generic_cycle_simulation"][
+                "n5_observations"
+            ][0]["candidate_value_method"]
+            assert receipt_degraded["status"] == "not_established"
+            assert receipt_degraded["point_estimate"] is None
+        receipt_restored = fresh_client.get(f"/api/v1/runs/{run_id}")
+        assert receipt_restored.status_code == 200, receipt_restored.text
+        assert (
+            receipt_restored.json()["run"]["generic_cycle_simulation"]["n5_observations"][0][
                 "candidate_value_method"
             ]
             == method

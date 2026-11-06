@@ -12617,11 +12617,11 @@
           "scope": "Real persisted raw StockFlow N5, exact missing typed-handoff refusal before N7, no N8. Independent baseline(.9,.1)/intervention(1.9,.1). Negative route qualification only; no ACQ positive acceptance."
         },
         "lane01_composed_publication_current": {
-          "commit": "1954c87940f2977677fc626735602a22408dda91",
-          "tree": "49ddecf6b81e4caf15916af7d32740607e5066bc",
+          "commit": "9a934fbd09e69c8bcd9d1651b4b4b9b544fc0fad",
+          "tree": "45a4aba4e5e94613287267156e6057e55e97ba4d",
           "remote_ref": "refs/heads/codex/e02-main-composition-20261031",
-          "remote_readback": "exact commit/tree verified after normal push/typecheck; origin/main unchanged; PR70 unmerged",
-          "scope": "Saved source/test composition, not whole-lane/G acceptance."
+          "remote_readback": "Exact commit/tree verified after normal push/typecheck; origin/main unchanged; PR70 unmerged",
+          "scope": "Useful code/tests including selected-world producer, bounded fixture, Protocol projection and timing observer. Not whole-lane/G acceptance."
         },
         "candidate_catalog_dispatch_scope_service_current": {
           "source_base": "1954c87940f2977677fc626735602a22408dda91",
@@ -12852,6 +12852,390 @@
           "named_inputs": 12,
           "inputs_unchanged": true,
           "scope": "Exact selected context/world plus N4/input/execution/result/profile join restores only ephemeral simulation. Real L1 reader and foreign/hash/profile/currentness controls; existing mutable use fences remain, no added owner fold. Adapted upstream boundary does not establish full retained-owner caller/native B→B. R1 test-oracle FAIL, later R2/R3 PASS and independent delta review GO remain distinct."
+        },
+        "candidate_served_execution_R23": {
+          "output": "MAIN:policy-engine/_cache/e02/lane01-candidate-execution-native-r23",
+          "source_commit": "28a1d5fec9f08e076516f6a13384b0237db7aa91",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": -11,
+          "wall_seconds": 111.73867345904,
+          "peak_RSS_bytes": 2017165312,
+          "minimum_free_disk_bytes": 6430842880,
+          "named_inputs": 123,
+          "inputs_unchanged": true,
+          "classification": "RUNTIME_ERROR_SIGSEGV; no semantic verdict",
+          "scope": "Periodic faulthandler C traceback path crashed; no JUnit/terminal PASS. Timer disabled in later diagnostic; pytest fatal handler retained. Exit -11 does not diagnose OOM or product hang."
+        },
+        "candidate_served_execution_R24": {
+          "output": "MAIN:policy-engine/_cache/e02/lane01-candidate-execution-native-r24",
+          "source_commit": "28a1d5fec9f08e076516f6a13384b0237db7aa91",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 1,
+          "wall_seconds": 1045.405566459056,
+          "peak_RSS_bytes": 2044641280,
+          "minimum_free_disk_bytes": 5646528512,
+          "named_inputs": 123,
+          "inputs_unchanged": true,
+          "classification": "SEMANTIC_FAIL_BEFORE_NEW_B_N5",
+          "scope": "Real sourceA, acquisition, candidate input and pending reentry reached; ProducerBudgetObserver.invocation_profile AttributeError before B N5. Forward b2e fix uses canonical invocation_quota_profile."
+        },
+        "candidate_served_execution_R25": {
+          "output": "MAIN:policy-engine/_cache/e02/lane01-candidate-execution-native-r25",
+          "source_commit": "b2e4f2c3f25d4c8594f7bbb8fab4bc58915f746b",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": -15,
+          "wall_seconds": 333.81182270799764,
+          "peak_RSS_bytes": 2031828992,
+          "minimum_free_disk_bytes": 3175874560,
+          "named_inputs": 124,
+          "inputs_unchanged": true,
+          "classification": "RESOURCE_ABORT_DISK_FLOOR; no semantic verdict",
+          "scope": "Supervisor stopped at 3175874560B free disk; sourceA completed but newB/terminal not proven. Preserve live scratch; do not replay unknown acquisition or reset SQL state."
+        },
+        "source_total_ordering_composed": {
+          "saved_commit": "2a1a9ad66d787e1f86f1f93150e77a2959461481",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-total-ordering-composed-r2",
+          "observed": {
+            "PASS": 439,
+            "FAIL": 17,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 60.00062883400824,
+          "peak_RSS_bytes": 1481981952,
+          "named_inputs": 29,
+          "inputs_unchanged": true,
+          "scope": "Canonical dataclass/total_ordering source projection plus passive native metadata guards; all remaining17 failures reach Protocol type-reference projection. Frozen-loader assumption remains explicit; source proof is not runtime/installed/G authority."
+        },
+        "candidate_reentry_budget_preflight_current": {
+          "saved_commit": "b2e4f2c3f25d4c8594f7bbb8fab4bc58915f746b",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-candidate-reentry-budget-preflight-green-r3",
+          "observed": {
+            "PASS": 6,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 23.48460637498647,
+          "peak_RSS_bytes": 1544011776,
+          "named_inputs": 9,
+          "inputs_unchanged": true,
+          "scope": "Real ProducerBudgetObserver/BudgetMiddleware/FileLedger/window; available two-standard/one-protected quota and exhaustion/missing/digest/USD/currentness negatives. Earlier causal red preserved; no whole genuine-route PASS."
+        },
+        "candidate_bounded_kref_preflight_R1": {
+          "saved_commit": "143caf20c9a62a7cb7a94fed7c332f0d92fe8f15",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-bounded-kref-preflight-r1",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 25.651144208037294,
+          "peak_RSS_bytes": 1672445952,
+          "named_inputs": 9,
+          "inputs_unchanged": true,
+          "scope": "Early real K_ref preflight fails skg_prior_ref_unresolved: fixture WMR does not select duckdb:// L2 snapshot. Fix fixture source binding, retain actual full K_ref/N4 builder; no bypass or full CYC pair PASS."
+        },
+        "candidate_generations_numeric_controls_current": {
+          "saved_commit": "970b417ee50c08ac0fe1d0ee2845369761050146",
+          "scope": "B2/B3 physical PY_START no-N5 guard and independent C baseline/model/result CAS oracle are authored; nonvacuous sentinel removal self-test1PASS. Full A→B→B→B→C remains UNRUN. Each new B admission still needs one fresh source GET; exact retry needs zero GET/N5."
+        },
+        "candidate_served_execution_R26": {
+          "source_commit": "b2e4f2c3f25d4c8594f7bbb8fab4bc58915f746b",
+          "source_tree": "74451ca4e925cfb7da34467536cf60c3c98f433e",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-candidate-execution-native-r26",
+          "classification": "SEMANTIC_FAIL_BEFORE_NEW_B_N5",
+          "profile": "CPU1;3GiB RSS;1500s;3GiB disk floor;new independent stores;quota5/1;faulthandler periodic timer0, fatal handler retained",
+          "scope": "SourceA/live acquisition/input preparation pass real admission and prior budget observer fix; source reentry refuses candidate_world_checkpoint_owner_replay_mismatch. Readonly actual CAS reconstruction finds exactly one failed guard: base substrate_registry_ref resolved_entries1 versus new world32 despite identical artifact/version/hash. All other29 guarded comparisons pass. Do not weaken checkpoint guard, patch old immutable artifacts, reset failed job or claim B N5/terminal success. Exact selection preservation fix is being qualified.",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 1228.4605072919512,
+          "peak_RSS_bytes": 2058829824,
+          "named_inputs": 124,
+          "inputs_unchanged": true,
+          "abort_reason": null
+        },
+        "sim02_remainder_current": {
+          "output": "MAIN:policy-engine/_cache/e02/lane01-sim02-remainder-r1",
+          "observed": {
+            "PASS": 84,
+            "FAIL": 4,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 112.1584265420679,
+          "peak_RSS_bytes": 1452392448,
+          "named_inputs": 11,
+          "inputs_unchanged": true,
+          "scope": "Alias/index/key distinction, real pre-producer guards, temporal partial/full coordinates/endpoints, population/scalar aggregate/finite overflow. Four expected-refusal-code assertions fail for registry_system_state; no inherited-red claim and no combined green invocation."
+        },
+        "sim02_refusal_contour_forward_fix": {
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-sim02-refusal-contour-r2",
+          "observed": {
+            "PASS": 12,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 24.67398708302062,
+          "peak_RSS_bytes": 1348911104,
+          "named_inputs": 7,
+          "inputs_unchanged": true,
+          "scope": "Actual method_registry system_dynamics_state uses canonical system-dynamics resolver; expected code now follows that contour, coupled-state keeps method_registry prefix. All twelve invalid-target cases retain actual zero-producer counter; test-only forward fix independently reviewed by Root and saved ae97c6f9f. Not one synthetic96-pass combined run."
+        },
+        "sim03_comparator_current": {
+          "output": "MAIN:policy-engine/_cache/e02/lane01-sim03-comparator-remainder-r1",
+          "observed": {
+            "PASS": 5,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 53.93342520808801,
+          "peak_RSS_bytes": 1366523904,
+          "named_inputs": 10,
+          "inputs_unchanged": true,
+          "scope": "Selected comparator request/input/result lineage and deletion/mismatch, caller scalar-baseline invariance, equal aliases vs contradictory evidence before physical work. Complements actual integer/stochastic numerical oracle, does not alone complete packet."
+        },
+        "sim03_numeric_oracle_current": {
+          "output": "MAIN:policy-engine/_cache/e02/lane01-sim03-numeric-oracle-composed-r1",
+          "observed": {
+            "PASS": 16,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 64.57186812500004,
+          "peak_RSS_bytes": 1368276992,
+          "named_inputs": 12,
+          "inputs_unchanged": true,
+          "scope": "Full actual-abduction observedu0/+1/-1 × interaction4/0 × paired comparatoroff/on twelve-case matrix: independent no-op0/effects2,3,5+k; fresh selected CAS and authority limitations. Three/four-atom boundary, two genuine three-seed stochastic cases and positive-SE unsupported control. Old12-pass qualification had five changed current source pins; this is current composed proof."
+        },
+        "candidate_bounded_kref_preflight_R2": {
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-bounded-kref-preflight-r2",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 21.19829220790416,
+          "peak_RSS_bytes": 1665318912,
+          "named_inputs": 9,
+          "inputs_unchanged": true,
+          "scope": "Real K_ref on same bounded L1/L2/L3 selected bytes; canonical SKGQuery DuckDB snapshot bound into hash-recomputed limited WMR, Catalog-change control red. All four L3 tables bounded; exact source/L6/Catalog witnesses. Saved e2a070e99; actual partial AUTHOR Protocol source hash is in pins, no final Protocol/full paired CYC claim."
+        },
+        "candidate_bounded_cyc_pair_R1": {
+          "source_commit": "8595c5c313a811482814c6cb4e4651e4f0ceba79",
+          "source_tree": "cd66957e96dcff5004360bf73bbda4c9d44f0abe",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-bounded-cyc01-pair-native-r1",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 0,
+            "ERROR": 1,
+            "SKIP": 0
+          },
+          "wall_seconds": 57.50109170807991,
+          "peak_RSS_bytes": 1909620736,
+          "named_inputs": 75,
+          "inputs_unchanged": true,
+          "scope": "Initial actual controlled N4/N5 finishes with bounded source; fixture stops at stale k_ref_limitation_code allowed set in test_control_service_di3590. Actual valid value full_credal_reference_not_consumed; no resource abort. Require actual build witness and absent consumption before permitting that typed limitation, then qualify full followup route.",
+          "classification": "FIXTURE_SETUP_ASSERTION_ERROR; target body UNRUN; no resource abort"
+        },
+        "selected_registry_affected_R1": {
+          "output": "MAIN:policy-engine/_cache/e02/lane01-world-selected-registry-affected-r1",
+          "observed": {
+            "PASS": 65,
+            "FAIL": 3,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 95.83398037496954,
+          "peak_RSS_bytes": 1809481728,
+          "named_inputs": 11,
+          "inputs_unchanged": true,
+          "abort_reason": null,
+          "scope": "65PASS/3FAIL: stale schema/profile fixture assertions; retain exact failures. No inherited attribution."
+        },
+        "selected_registry_affected_R2": {
+          "output": "MAIN:policy-engine/_cache/e02/lane01-world-selected-registry-affected-r2",
+          "observed": {
+            "PASS": 68,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 90.66768525005318,
+          "peak_RSS_bytes": 1809973248,
+          "named_inputs": 11,
+          "inputs_unchanged": true,
+          "abort_reason": null,
+          "scope": "68PASS pre-final-format six-module affected cohort. Corrected genuine V1 factory and exact current V2/profile/lineage witnesses; no product gate relaxed."
+        },
+        "selected_registry_final_R3": {
+          "output": "MAIN:policy-engine/_cache/e02/lane01-world-selected-registry-final-r3",
+          "observed": {
+            "PASS": 46,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 55.97126741602551,
+          "peak_RSS_bytes": 1769160704,
+          "named_inputs": 7,
+          "inputs_unchanged": true,
+          "abort_reason": null,
+          "scope": "46PASS WMR/candidate modules on final committed Python bytes after formatting; other unchanged modules reuse their prior source-qualified result.",
+          "saved_commit": "aac5939193cfa47c676030ab2bc1a1b9f027b300"
+        },
+        "selected_registry_removal_R1": {
+          "output": "MAIN:policy-engine/_cache/e02/lane01-world-selected-registry-removal-r1",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 24.033698249957524,
+          "peak_RSS_bytes": 1601257472,
+          "named_inputs": 6,
+          "inputs_unchanged": true,
+          "abort_reason": null,
+          "scope": "INTENDED_SEMANTIC_RED: remove only selected-registry constructor argument and delegate real constructor; actual candidate no longer equals base selected registry. Complete plugin code is in saved command argv."
+        },
+        "candidate_bounded_cyc_pair_R2": {
+          "output": "MAIN:policy-engine/_cache/e02/lane01-bounded-cyc01-pair-native-r2",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 0,
+            "ERROR": 1,
+            "SKIP": 0
+          },
+          "wall_seconds": 59.98262024996802,
+          "peak_RSS_bytes": 1897463808,
+          "named_inputs": 77,
+          "inputs_unchanged": true,
+          "abort_reason": null,
+          "scope": "Fixture setup ERROR/bodyUNRUN: genuine legacy K_ref context has no modern source_profile; no resource abort or target-body PASS."
+        },
+        "candidate_bounded_cyc_pair_R3": {
+          "output": "MAIN:policy-engine/_cache/e02/lane01-bounded-cyc01-pair-native-r3",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 56.568531541968696,
+          "peak_RSS_bytes": 1912389632,
+          "named_inputs": 77,
+          "inputs_unchanged": true,
+          "abort_reason": null,
+          "scope": "Actual initial N4/N5 completes; target FAIL at not_established deployment identity/canonical_loaded_runtime_mismatch. No resource abort; data-root/code-root causation was not established."
+        },
+        "protocol_full_cohort_R3": {
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-protocol-full-cohort-r3",
+          "observed": {
+            "PASS": 483,
+            "FAIL": 17,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 67.51361024996731,
+          "peak_RSS_bytes": 1639514112,
+          "named_inputs": 32,
+          "inputs_unchanged": true,
+          "abort_reason": null,
+          "scope": "483PASS/17FAIL before final ABC provider-binding delta. Residual consumers are Annotated type-reference routes; not a full final-source cohort PASS."
+        },
+        "protocol_final_abc_R1": {
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-protocol-final-abc-r1",
+          "observed": {
+            "PASS": 87,
+            "FAIL": 2,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 39.17333541694097,
+          "peak_RSS_bytes": 1546059776,
+          "named_inputs": 5,
+          "inputs_unchanged": true,
+          "abort_reason": null,
+          "scope": "87PASS/2FAIL: one Annotated consumer residual and one indentation error in newly edited test."
+        },
+        "protocol_final_abc_R2": {
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-protocol-final-abc-r2",
+          "observed": {
+            "PASS": 3,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 23.09738054103218,
+          "peak_RSS_bytes": 1305804800,
+          "named_inputs": 3,
+          "inputs_unchanged": true,
+          "abort_reason": null,
+          "scope": "3PASS targeted rerun after test indentation repair, on final Protocol bytes. Independent source GO; not whole500-case PASS.",
+          "saved_commit": "e34be58ca125a7f4d3ed532b0550774bc85e30b9"
+        },
+        "annotated_broad_R2": {
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-annotated-broad-r2",
+          "observed": {
+            "PASS": 378,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 42.58219295798335,
+          "peak_RSS_bytes": 1561313280,
+          "named_inputs": 4,
+          "inputs_unchanged": true,
+          "abort_reason": null,
+          "scope": "378PASS complete decorated-source test module on WIP bytes. Source review GO for type-reference identity; real import-time N6 still unresolved. Compiled-validator coherence remains not_established."
+        },
+        "annotated_registry_R6": {
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-annotated-registry-r6",
+          "observed": {
+            "PASS": 24,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 28.628503292100504,
+          "peak_RSS_bytes": 1470627840,
+          "named_inputs": 4,
+          "inputs_unchanged": true,
+          "abort_reason": null,
+          "scope": "24PASS real RegistryFragment identity and adversarial controls on WIP source; does not replace actual import-time N6 check."
+        },
+        "candidate_served_execution_R27": {
+          "source_commit": "9a934fbd09e69c8bcd9d1651b4b4b9b544fc0fad",
+          "source_tree": "45a4aba4e5e94613287267156e6057e55e97ba4d",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-candidate-execution-native-r27",
+          "classification": "RUNNING_NOT_PASS",
+          "profile": "CPU1;3GiB RSS;2100s;3GiB disk floor;independent stores;quota5/1;payload-free owner timing observer",
+          "scope": "2100s admitted before run from1228s R26 prefix plus unreached physical B/terminal/fresh-reader suffix. Product gates unchanged. MAIN source and named inputs frozen. No newB or terminal success claim yet."
         }
       },
       "independent_component_reviews": {
@@ -12878,11 +13262,19 @@
         "candidate_prior_owner_semantic": "Independent Luna GO on dispatch370405a6 and test96b81dca; preserves exact owner/store types and complete typed field/ref semantics. Focused composed2PASS; full protected reentry pending.",
         "country_custody": "Independent Luna GO on country9baafcba/testd41c0330; US mapping only, regional defaults unchanged, synthetic WDI positive/foreign-country negative.",
         "current_action_profiler": "LunaGO helperc12d5c0b/G1test52082523/unit550fb626;6PASS1.08s/90MB. Optional/no profiler or wrapper escape; no fullroute performance claim.",
-        "candidate_source_metric": "Independent LunaGO sourcef5a491dc/fixture0eac7b3f/testfa1b20c2;19PASS,32stable inputs; independent construct/query and fetchmetric/owner bindings."
+        "candidate_source_metric": "Independent LunaGO sourcef5a491dc/fixture0eac7b3f/testfa1b20c2;19PASS,32stable inputs; independent construct/query and fetchmetric/owner bindings.",
+        "selected_registry": {
+          "result": "GO",
+          "scope": "Canonical exact selection preservation and mandatory genuine V1/V2/profile/lineage companions; producer/removal checks separately recorded."
+        },
+        "protocol_type_reference": {
+          "result": "GO_ON_REVIEWED_BYTES; next discovery delta pending",
+          "scope": "Passive source/code/currentmetadata only; opaque native validator behavior remains not_established. No runtime or G acceptance inference."
+        }
       },
       "resource_admission_current": {
         "disk_stop_floor_GiB": 3,
-        "free_disk_GiB_at_check": 5.01,
+        "free_disk_GiB_at_check": 16.87,
         "policy": "Local only; existing environments/data; <=8GiB measured aggregate process-tree RSS, <=4 measured jobs and <=6 numerical CPU threads. The old4GiB/two-job baseline is not a hard cap. New expensive profiles start alone. Stop below3GiB disk.",
         "trash_move": {
           "directory": "/Users/deniskopylov/.Trash/PolicyOS-obsolete-test-scratch-20261105T132841Z",
@@ -12927,7 +13319,7 @@
           "trash_emptied_by_executor": false,
           "code_docs_environments_unique_production_preserved": true
         },
-        "execution_state": "ACTIVE_LOCAL_2026-11-06",
+        "execution_state": "R27_RUNNING; AUTHOR type-reference closure repair in parallel",
         "next_session": "Fix R19 Catalog dispatch/pending-resume boundary and run genuine protected replay; independently finish finite source cohort, shared generation/GDP constituent controls and fresh-runtime crash preparation. Then generations, GDP, affected consumers/installed and all66 reconciliation. No next lane.",
         "latest_additional_trash_move": {
           "size_KiB": 398572,
@@ -12936,7 +13328,7 @@
           "series_total_KiB": 6136500
         },
         "unknown_controlled_di_profile": {
-          "status": "ALLOCATION_DIAGNOSIS_PENDING",
+          "status": "BOUNDED_REAL_SOURCE_FIXTURE_PREPARATION",
           "output": "policy-engine/_cache/e02/lane01-cyc01-authority-boundary-r3",
           "measured_peak_RSS_bytes": 3641196544,
           "cap_GiB": 3.25,
@@ -12956,7 +13348,8 @@
             "inputs_unchanged": false,
             "changed_input": "tests/_helpers/candidate_experiment_served_execution.py was mistakenly edited in MAIN by assigned AUTHOR writer; exact own patch preserved in AUTHOR and MAIN delta reversed after diagnostic. No reset/stash/index overwrite.",
             "scope": "Diagnostic only. Native sample captured5.7GB physical footprint and GC traversal; Python allocator/location and OOM not established. R1 stopped at missing pytest tests import path before helper."
-          }
+          },
+          "allocation_diagnosis": "Stage/tracemalloc R3 reached genuine ordinary N4 fullK_ref/_iter_l3_edges against production L3, ~3.96GB cap abort. Bounded fixture-owned L1/L2/L3 inputs preserve actual K_ref/N4 producer, trustcap0/declared candidate limitation. Do not add candidate handoff/proposal-only to bypass grounding. First bounded K_ref preflight found missing real duckdb L2 ref before heavy replay."
         },
         "new_parallel_trash_moves": {
           "date": "2026-11-06",
@@ -12970,9 +13363,14 @@
           "trash_emptied": false,
           "deleted": false
         },
-        "free_disk_bytes_at_refresh": 4973719552,
-        "used_swap_GiB_at_refresh": 3.14,
-        "next_action": "Run saved composed R23; qualify retained-world and source-transform components in AUTHOR. Stage-prefix diagnostic locates growth during N4 and is not a semantic PASS; do not raise its cap blindly. Then generations, fresh-runtime recovery, distinct GDP, affected final consumers and all66 reconciliation."
+        "free_disk_bytes_at_refresh": 15105409024,
+        "used_swap_GiB_at_refresh": 0.4951171875,
+        "next_action": "Inspect genuine R27 result; finish strict discovery/live-identity separation and actual N6/CYC; fullgen/crash/GDP only after genuine first positive.",
+        "latest_G_cleanup": {
+          "workspace_G": "Ancestor cf9cbee of MAIN b2e;0 G-only/5197 MAIN-only commits; clean tracked/nonignored state; inactive standalone environment. ~8.64GiB moved to Trash; later manually emptied by user. No active checkout/env/data dependency on G.",
+          "G_agent_history": "User-authorized exact435 descendants,181069 history rows copied/row-hash verified before transfer. Shared DB reduced1717792768B by native incremental vacuum; final WAL checkpoint0/0/0. ParentG/other chat histories preserved. Archive/restore tool and temporary safety hardlink all in Trash, not outside. Archive quick_check/hash and synthetic exact restore pass; shared full quick_check interrupted at45s without PASS. Executor never emptied Trash.",
+          "scope": "Local coordinator cleanup only, no product/G acceptance change."
+        }
       }
     },
     {
@@ -28912,7 +29310,8 @@
       "deferred_ids": [
         "DA-01",
         "DA-07"
-      ]
+      ],
+      "current_assessment": "TEST-CYC-02-01 remains artifact_missing for genuine historical v2/v3 input with original receipt/profile and untouched-byte SHA. Current v4/v5 downcast tests establish legacy-shaped compatibility, not historical producer bytes. Bounded canonical fixture/source review found no retained v2/v3 blob; this is not an exhaustive private RAW census. Genuine V1/V4 R9 and configured NCM fresh-process consumer remain qualified separately. Inspect designated retained historical sources before declaring external blockage; do not fabricate a historical artifact."
     },
     {
       "packet_id": "SIM-01",
@@ -28981,7 +29380,9 @@
       "evidence": [
         "LANE-01.evidence_catalog.numeric_native",
         "LANE-01.evidence_catalog.hypothetical_sibling_full_current",
-        "LANE-01.evidence_catalog.ordinary_half_gain_current"
+        "LANE-01.evidence_catalog.ordinary_half_gain_current",
+        "LANE-01.evidence_catalog.sim02_remainder_current",
+        "LANE-01.evidence_catalog.sim02_refusal_contour_forward_fix"
       ],
       "blockers": [],
       "deferred_ids": []
@@ -29022,7 +29423,9 @@
         "LANE-01.evidence_catalog.numeric_quantile_removal",
         "LANE-01.evidence_catalog.hypothetical_sibling_full_current",
         "LANE-01.evidence_catalog.cubic_explicit_native_current",
-        "LANE-01.evidence_catalog.ordinary_half_gain_current"
+        "LANE-01.evidence_catalog.ordinary_half_gain_current",
+        "LANE-01.evidence_catalog.sim03_comparator_current",
+        "LANE-01.evidence_catalog.sim03_numeric_oracle_current"
       ],
       "blockers": [],
       "deferred_ids": []
@@ -29064,7 +29467,8 @@
         "LANE-01.evidence_catalog.selection_current_four"
       ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "current_assessment": "REQ/TEST-SEL-01-05: served R11 ordinary compiler/N4/N5/native AIPW/persisted CAS/fresh reader plus independent source estimate are qualified; separate selection receipt checks cover relevant versus unrelated catalog drift. Remaining composition check is live registry/catalog drift at the fresh served consumer on the same persisted artifacts, without new N5. Existing first-four selection evidence reused; no new mechanism required."
     },
     {
       "packet_id": "EMP-01",

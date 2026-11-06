@@ -1585,6 +1585,9 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
     from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
     from tests._helpers import acquisition_served_history as served
     from tests._helpers import world_model_record as wmr_fixture
+    from tests._helpers.acquisition_constituent_controls import (
+        install_first_candidate_experiment_constituent_controls,
+    )
     from tests._helpers.annual_gdp_candidate import (
         ANNUAL_GDP_VALUE_USD,
         ANNUAL_GDP_WDI_PROFILE,
@@ -1603,6 +1606,8 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
     from tests.integration.core_runtime.test_candidate_experiment_action_served import (
         run_candidate_experiment_action_oracle,
     )
+
+    constituent_controls = install_first_candidate_experiment_constituent_controls(monkeypatch)
 
     # Declared scenario baselines are test inputs, never inferred measurements.
     base_payload = dict(wmr_fixture.FABRIC_PAYLOAD)
@@ -1787,6 +1792,7 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
                     )
                     history = execution.terminal_history
                     assert history.terminal.terminal_outcome == "candidate_reentry_completed"
+                    constituent_controls.assert_selected(control=control, history=history)
                     assert execution.current_action.status == "completed"
                     assert execution.current_action.evaluation_disposition == "new"
                     assert history.action.admitted_observation_delta == 0

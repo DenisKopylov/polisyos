@@ -2242,9 +2242,60 @@ def test_declared_world_slot_joins_exact_canonical_construct_need(
     assert "policyos.data_requirement.world_slot_projection.v1" in report.rule_version_refs
 
 
+def test_world_slot_join_accepts_bare_binding_construct_identity() -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    report = DataRequirementCompiler(
+        capability_resolver=RequirementToCapabilityResolver.governed_fixture()
+    ).compile_for_scenario(_declared_source_scenario("economic.gdp", "national_economy"))
+    (spec,) = report.specs
+    (resolution,) = report.capability_requirement_resolutions
+    assert resolution.binding is not None
+    bare_binding = resolution.binding.model_copy(update={"construct_ref": "economic.gdp"})
+    bare_resolution = resolution.model_copy(update={"binding": bare_binding})
+    spec_payload = spec.model_dump(mode="json")
+    metadata = dict(spec_payload["metadata"])
+    metadata["capability_binding"] = bare_binding.model_dump(mode="json")
+    metadata["construct_ref"] = "economic.gdp"
+    bare_spec = DataRequirementSpec.model_validate({**spec_payload, "metadata": metadata})
+
+    assert compiler_module.compiled_requirements_for_world_slot(
+        world_slot="global.gdp",
+        specs=(bare_spec,),
+        capability_resolutions=(bare_resolution,),
+    ) == (bare_spec,)
+
+
+def test_world_slot_join_revalidates_foreign_candidate_construct_ref() -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    report = DataRequirementCompiler(
+        capability_resolver=RequirementToCapabilityResolver.governed_fixture()
+    ).compile_for_scenario(_declared_source_scenario("economic.gdp", "national_economy"))
+    (spec,) = report.specs
+    (resolution,) = report.capability_requirement_resolutions
+    assert resolution.binding is not None
+    discovery = resolution.candidate_discovery
+    assert discovery is not None
+    (candidate,) = discovery.candidates
+    foreign_candidate = candidate.model_copy(
+        update={"construct_ref": "construct:foreign.construct"}
+    )
+    foreign_discovery = discovery.model_copy(update={"candidates": (foreign_candidate,)})
+    foreign_resolution = resolution.model_copy(update={"candidate_discovery": foreign_discovery})
+    assert resolution.binding.construct_ref == spec.metadata["construct_ref"]
+
+    with pytest.raises(ValueError, match="candidate_source_descriptor_construct_mismatch"):
+        compiler_module.compiled_requirements_for_world_slot(
+            world_slot="global.gdp",
+            specs=(spec,),
+            capability_resolutions=(foreign_resolution,),
+        )
+
+
 @pytest.mark.parametrize(
     "mutation",
-    ["missing_slot", "foreign_metric", "foreign_dataset", "foreign_population", "missing_fetch"],
+    ["missing_slot", "foreign_dataset", "foreign_population", "missing_fetch"],
 )
 def test_world_slot_join_requires_actual_declared_source_binding(mutation: str) -> None:
     from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
@@ -2260,8 +2311,6 @@ def test_world_slot_join_requires_actual_declared_source_binding(mutation: str) 
     }
     if mutation == "missing_slot":
         metadata.pop("target_world_slot")
-    elif mutation == "foreign_metric":
-        metadata["catalog_fetch_binding"]["metric_id"] = "economic.gdp"
     elif mutation == "foreign_dataset":
         metadata["catalog_fetch_binding"]["dataset_id"] = "wrong-dataset"
     elif mutation == "foreign_population":

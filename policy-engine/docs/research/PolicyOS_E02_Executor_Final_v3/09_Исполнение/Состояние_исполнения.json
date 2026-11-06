@@ -12219,6 +12219,21 @@
           "named_inputs": 6,
           "inputs_unchanged": true,
           "scope": "Real SQLite ControlJobExecutionAdmission/ControlJobRecord plus typed phase/action relation helper, valid and mismatch cases. Job has no action_generation; use phase generation, keep attempt distinct. Not full live authority or terminal qualification. Independent Luna GO."
+        },
+        "construct_catalog_fetch_binding_current": {
+          "output": "policy-engine/_cache/e02/lane01-construct-fetch-binding-composed-r1",
+          "observed": {
+            "PASS": 247,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 16.399366458994336,
+          "peak_RSS_bytes": 1315864576,
+          "named_inputs": 8,
+          "inputs_unchanged": true,
+          "scope": "Complete compiler/Fabric-adapter/WDI-source modules. Canonicalconstructeconomic.gdp maps through existing declared source asset to actualCatalogmetricgdp; no equal-string alias gate. Exact construct refs normalize existing optional construct: prefix and retype rejects forged source construct. Wrong actual fetch plans still fail exact metric/dataset/connector/profile comparison. Claim authority remains blocked. After check,2files Ruffformatted with exactASTequality; no physicalN5 or fullACQ reentry claimed. IndependentLunaGO."
         }
       },
       "independent_component_reviews": {

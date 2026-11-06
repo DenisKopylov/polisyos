@@ -339,7 +339,7 @@
             "catalog_fetch_binding": {
               "connector_id": "worldbank.wdi",
               "dataset_id": "NY.GDP.MKTP.CD",
-              "metric_id": "economic.gdp",
+              "metric_id": "gdp",
               "profile_id": "worldbank_wdi"
             },
             "indicator_id": "NY.GDP.MKTP.CD",

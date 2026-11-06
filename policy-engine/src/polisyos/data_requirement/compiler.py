@@ -810,10 +810,21 @@ def compiled_requirements_for_world_slot(
             continue
         resolution = linked[0]
         discovery = resolution.candidate_discovery
-        if discovery is not None and any(
-            _world_slot_source_asset_matches(world_slot, spec, resolution, candidate.scope, asset)
-            for candidate in discovery.candidates
-            for asset in candidate.source_assets
+        binding = resolution.binding
+        if (
+            discovery is not None
+            and binding is not None
+            and any(
+                candidate.construct_ref.removeprefix("construct:")
+                == binding.construct_ref.removeprefix("construct:")
+                and any(
+                    _world_slot_source_asset_matches(
+                        world_slot, spec, resolution, candidate.scope, asset
+                    )
+                    for asset in candidate.source_assets
+                )
+                for candidate in discovery.candidates
+            )
         ):
             matches.append(original)
     return tuple(matches)
@@ -903,7 +914,6 @@ def _world_slot_source_asset_matches(
             fetch["profile_id"] is not None
             and (not isinstance(fetch["profile_id"], str) or not fetch["profile_id"].strip())
         )
-        or fetch["metric_id"] != query.construct
         or (
             metadata.get("indicator_id") is not None
             and metadata["indicator_id"] != fetch["dataset_id"]

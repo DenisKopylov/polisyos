@@ -169,12 +169,30 @@ class _IntegrityAnalysisContext:
 
     def __init__(self) -> None:
         self.code_cache = _CodeNormalizationCache()
+        self._source_targets_by_path: dict[Path, Path] = {}
         self._source_bytes_by_path: dict[Path, bytes] = {}
         self._source_trees_by_bytes: dict[tuple[bytes, bool], ast.Module] = {}
+        self._source_code_indexes: dict[
+            tuple[Path, bytes, int],
+            tuple[types.CodeType, dict[str, tuple[str, ...]]],
+        ] = {}
+
+    def bind_source_path(self, source_path: Path) -> Path:
+        """Keep each observed logical source path bound to its selected target."""
+        logical = source_path.absolute()
+        resolved = source_path.resolve()
+        previous = self._source_targets_by_path.get(logical)
+        if previous is not None and previous != resolved:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"repository source target changed during integrity analysis: {logical.name}",
+            )
+        self._source_targets_by_path[logical] = resolved
+        return resolved
 
     def remember_source(self, source_path: Path, source_bytes: bytes) -> bytes:
         """Bind exact source bytes to a resolved path for this pass."""
-        resolved = source_path.resolve()
+        resolved = self.bind_source_path(source_path)
         previous = self._source_bytes_by_path.get(resolved)
         if previous is not None and previous != source_bytes:
             raise ConfidenceLedgerError(
@@ -186,7 +204,7 @@ class _IntegrityAnalysisContext:
 
     def source_bytes(self, source_path: Path) -> bytes:
         """Read a source file once and retain its exact bytes for final comparison."""
-        resolved = source_path.resolve()
+        resolved = self.bind_source_path(source_path)
         previous = self._source_bytes_by_path.get(resolved)
         if previous is not None:
             return previous
@@ -207,6 +225,22 @@ class _IntegrityAnalysisContext:
             decode_utf8=True,
         )
 
+    def compiled_source_index(
+        self, source_path: Path, *, optimize: int
+    ) -> tuple[types.CodeType, dict[str, tuple[str, ...]]]:
+        """Compile/index exact file bytes once in this pass, preserving its filename."""
+        resolved = self.bind_source_path(source_path)
+        source_bytes = self.source_bytes(resolved)
+        key = (resolved, source_bytes, optimize)
+        cached = self._source_code_indexes.get(key)
+        if cached is None:
+            compiled = compile(
+                source_bytes, str(resolved), "exec", dont_inherit=True, optimize=optimize
+            )
+            cached = (compiled, _loader_code_hashes_by_qualname(compiled))
+            self._source_code_indexes[key] = cached
+        return cached
+
     def tree_for_bytes(
         self,
         source_bytes: bytes,
@@ -225,6 +259,12 @@ class _IntegrityAnalysisContext:
 
     def assert_sources_unchanged(self) -> None:
         """Reject source drift between derivation and the end of this pass."""
+        for logical, resolved in self._source_targets_by_path.items():
+            if logical.resolve() != resolved:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"repository source target changed during integrity analysis: {logical.name}",
+                )
         for source_path, expected_bytes in sorted(
             self._source_bytes_by_path.items(), key=lambda item: item[0].as_posix()
         ):
@@ -13056,10 +13096,13 @@ def _source_dataclass_enum_member(
     return actual_members.get(node.attr, _SOURCE_DERIVATION_FAILED)
 
 
-def _source_dataclass_constant_expression(node: ast.expr) -> object:
+def _source_immutable_constant_expression(node: ast.expr) -> object:
     """Read only inert compiler-folded constants, without executing an expression."""
 
-    if sum(1 for _ in ast.walk(node)) > 80:
+    nodes = tuple(ast.walk(node))
+    if len(nodes) > 80 or any(
+        isinstance(item, (ast.Name, ast.Call, ast.Attribute)) for item in nodes
+    ):
         return _SOURCE_DERIVATION_FAILED
     try:
         literal = ast.literal_eval(node)
@@ -13084,9 +13127,13 @@ def _source_dataclass_constant_expression(node: ast.expr) -> object:
     # Imported defaults must be immutable. Mutable factories retain their
     # separate existing stdlib-only path; no object or call is evaluated here.
     if type(literal) in {str, int, bool, float, bytes, type(None)}:
-        return literal
+        return (
+            _SOURCE_DERIVATION_FAILED if type(literal) is float and literal != literal else literal
+        )
     if type(literal) is tuple and all(
-        type(item) in {str, int, bool, float, bytes, type(None)} for item in literal
+        type(item) in {str, int, bool, float, bytes, type(None)}
+        and not (type(item) is float and item != item)
+        for item in literal
     ):
         return literal
     return _SOURCE_DERIVATION_FAILED
@@ -13124,7 +13171,7 @@ def _source_dataclass_named_constant(
                 visited=visited | {key},
             )
         else:
-            expected = _source_dataclass_constant_expression(expression)
+            expected = _source_immutable_constant_expression(expression)
     elif kind == "import_from" and isinstance(statement, ast.ImportFrom) and alias is not None:
         if (
             _source_import_binding(name, tree=tree, module=module, module_name=module_name)
@@ -15249,6 +15296,11 @@ def _source_module_direct_binding_route(
                 raise ValueError("annotation-only binding")
             ast.literal_eval(value)
         except (ValueError, TypeError, SyntaxError, MemoryError) as exc:
+            if (
+                value is not None
+                and _source_immutable_constant_expression(value) is not _SOURCE_DERIVATION_FAILED
+            ):
+                return "symbol", module_name, export_name
             if _read_api_surface_source_binding_supported(
                 module_name,
                 export_name,
@@ -15672,7 +15724,9 @@ def _exact_literal_equal(actual: object, expected: object) -> bool:
         return len(actual) == len(expected) and all(
             _exact_literal_equal(left, right) for left, right in zip(actual, expected, strict=True)
         )
-    if type(actual) in {str, int, bool, float, bytes, type(None)}:
+    if type(actual) is float:
+        return actual == actual and expected == expected and actual.hex() == expected.hex()
+    if type(actual) in {str, int, bool, bytes, type(None)}:
         return actual == expected
     return False
 
@@ -15694,7 +15748,13 @@ def _source_literal(
     try:
         value = ast.literal_eval(node)
     except (ValueError, TypeError, SyntaxError, MemoryError):
-        return _UNSUPPORTED_SOURCE_LITERAL
+        value = (
+            _source_immutable_constant_expression(node)
+            if isinstance(node, ast.expr)
+            else _SOURCE_DERIVATION_FAILED
+        )
+        if value is _SOURCE_DERIVATION_FAILED:
+            return _UNSUPPORTED_SOURCE_LITERAL
     if type(value) in {str, int, bool, float, bytes, type(None)}:
         return value
     if type(value) is tuple and all(
@@ -17446,7 +17506,12 @@ def _execution_loaded_slot_bindings(
     result: dict[str, object] = {}
     for module_name, qualnames in sorted(modules.items()):
         relative = paths[module_name]
-        source_path = (root / relative).resolve(strict=True)
+        analysis = _active_integrity_analysis()
+        source_path = (
+            analysis.bind_source_path(root / relative)
+            if analysis is not None
+            else (root / relative).resolve(strict=True)
+        )
         module = sys.modules.get(module_name)
         spec = getattr(module, "__spec__", None)
         if (
@@ -17456,11 +17521,16 @@ def _execution_loaded_slot_bindings(
             or Path(str(getattr(module, "__file__", ""))).resolve() != source_path
         ):
             raise ConfidenceLedgerError("n5_executed_code_origin_mismatch")
-        source = source_path.read_bytes()
-        compiled = compile(
-            source, str(source_path), "exec", dont_inherit=True, optimize=sys.flags.optimize
-        )
-        hashes = _loader_code_hashes_by_qualname(compiled)
+        source = analysis.source_bytes(source_path) if analysis else source_path.read_bytes()
+        if analysis is None:
+            compiled = compile(
+                source, str(source_path), "exec", dont_inherit=True, optimize=sys.flags.optimize
+            )
+            hashes = _loader_code_hashes_by_qualname(compiled)
+        else:
+            compiled, hashes = analysis.compiled_source_index(
+                source_path, optimize=sys.flags.optimize
+            )
         declarations = _loader_owned_callable_slots(source_path)
         selected: dict[str, _LoaderOwnedCallableSlot] = {}
         for qualname in qualnames:
@@ -17518,7 +17588,11 @@ def _execution_loaded_slot_bindings(
         # numerical observer exists. Reuse the source import relation on every
         # direct imported dependency read by those actual constructor code
         # objects, not a hand-written name/alias list.
-        tree = ast.parse(source, filename=str(source_path))
+        tree = (
+            analysis.tree_for_bytes(source, filename=str(source_path))
+            if analysis
+            else ast.parse(source, filename=str(source_path))
+        )
         imported_names = _source_imported_names(tree)
         constructor_imports: dict[str, tuple[str, ...]] = {}
         for owner_path in class_paths.get(module_name, ()):
@@ -17599,10 +17673,36 @@ def capture_execution_source_bindings(
     unrelated loaded function is not asserted to have supplied this N5 result.
     The original C95 full-module admission policy is not changed by this seam.
     """
+    analysis = _IntegrityAnalysisContext()
+    token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    try:
+        result = _capture_execution_source_bindings_body(
+            entry_modules,
+            executed_code,
+            bound_entry_code=bound_entry_code,
+            receiver_classes=receiver_classes,
+        )
+        analysis.assert_sources_unchanged()
+        return result
+    finally:
+        _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
+
+
+def _capture_execution_source_bindings_body(
+    entry_modules: tuple[str, ...],
+    executed_code: tuple[tuple[str, types.CodeType], ...],
+    *,
+    bound_entry_code: tuple[tuple[str, types.CodeType], ...] = (),
+    receiver_classes: tuple[type, ...] = (),
+) -> dict[str, object]:
+    """Use only this capture's source derivations; read every live slot anew."""
+    analysis = _active_integrity_analysis()
+    if analysis is None:
+        raise RuntimeError("execution source capture requires its integrity analysis")
     root = _loaded_policy_engine_root()
     closure = _resolve_authority_import_closure(root, entry_modules)
     source_rows = tuple(
-        (module, relative, _bytes_hash((root / relative).read_bytes()))
+        (module, relative, _bytes_hash(analysis.source_bytes(root / relative)))
         for module, relative in closure
     )
     paths = dict(closure)
@@ -17618,32 +17718,31 @@ def capture_execution_source_bindings(
         loader = getattr(spec, "loader", None)
         origin = getattr(spec, "origin", None)
         if relative is not None:
-            source_path = (root / relative).resolve()
-            source = source_path.read_bytes()
+            source_path = analysis.bind_source_path(root / relative)
             if Path(code.co_filename).resolve() != source_path:
                 raise ConfidenceLedgerError("n5_executed_code_origin_mismatch")
-            compiled = compile(
-                source, str(source_path), "exec", dont_inherit=True, optimize=sys.flags.optimize
+            compiled, code_hashes = analysis.compiled_source_index(
+                source_path, optimize=sys.flags.optimize
             )
         elif isinstance(loader, SourceFileLoader) and isinstance(origin, str):
-            source_path = Path(origin).resolve(strict=True)
+            source_path = analysis.bind_source_path(Path(origin))
             if (
                 loaded_module is None
                 or Path(str(getattr(loaded_module, "__file__", ""))).resolve() != source_path
                 or Path(code.co_filename).resolve() != source_path
             ):
                 raise ConfidenceLedgerError("n5_executed_dependency_origin_mismatch")
-            source = source_path.read_bytes()
-            compiled = compile(
-                source, str(source_path), "exec", dont_inherit=True, optimize=sys.flags.optimize
+            compiled, code_hashes = analysis.compiled_source_index(
+                source_path, optimize=sys.flags.optimize
             )
         elif origin == "frozen" and hasattr(loader, "get_code"):
             compiled = loader.get_code(module)
             if not isinstance(compiled, types.CodeType):
                 raise ConfidenceLedgerError("n5_executed_frozen_dependency_unverified")
+            code_hashes = _loader_code_hashes_by_qualname(compiled)
         else:
             raise ConfidenceLedgerError("n5_executed_dependency_source_not_established")
-        expected = _loader_code_hashes_by_qualname(compiled).get(code.co_qualname, ())
+        expected = code_hashes.get(code.co_qualname, ())
         digest = _content_hash(_normalize_code_object(code))
         if digest not in expected:
             raise ConfidenceLedgerError("n5_executed_code_source_mismatch")

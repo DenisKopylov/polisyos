@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import copy
-from collections.abc import Callable
+import json
+from collections.abc import Callable, Mapping
 from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
@@ -922,6 +923,7 @@ def _assert_legacy_configured_consumer_chain(
     completed: Any,
     input_record: Any,
     observation: Any,
+    persisted_simulation: Any,
     input_ref: Any,
     cas_root: Path,
     original_context: Any,
@@ -983,7 +985,10 @@ def _assert_legacy_configured_consumer_chain(
     assert type(replayed_input) is CandidateSimulationN5InputV4
     assert replayed_input == input_record
     execution_ref = ArtifactRef.model_validate(
-        observation.diagnostics["candidate_simulation_execution_selected_ref"]
+        persisted_simulation.diagnostics["candidate_simulation_execution_selected_ref"]
+    )
+    assert artifact_ref_identity_key(persisted_simulation.simulation_result_ref) == (
+        artifact_ref_identity_key(observation.simulation_result_ref)
     )
     execution = read(
         lambda: repository.resolve_candidate_simulation_v4(
@@ -995,6 +1000,9 @@ def _assert_legacy_configured_consumer_chain(
         )
     )
     assert type(execution) is CandidateSimulationExecutionV4
+    assert artifact_ref_identity_key(execution.n5_result_ref) == artifact_ref_identity_key(
+        persisted_simulation.simulation_result_ref
+    )
     assert artifact_ref_identity_key(execution.n5_input_ref) == artifact_ref_identity_key(input_ref)
     assert (
         execution.k_world_ref_before
@@ -1181,6 +1189,30 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
     )
     recorded_problem = _current_compiler_problem(controlled_recording)
 
+    root_compiler_arguments = recorded_problem.model_dump(mode="json")
+    root_source_context = root_compiler_arguments["nl_provenance"]["source_context"]
+    for owner_field in ("job_id", "run_id", "tenant_id", "cell_id"):
+        root_source_context.pop(owner_field, None)
+
+    def stable_root_compiler_reply(request_body: Mapping[str, object]) -> Mapping[str, object]:
+        # N4 response variants are not new user intent. Keep this external
+        # compiler candidate independent of their synthetic recording identity;
+        # the real compiler still binds each worker's current owner scope.
+        messages = request_body.get("messages")
+        assert isinstance(messages, list)
+        contents = [
+            message.get("content")
+            for message in messages
+            if isinstance(message, Mapping) and message.get("role") == "user"
+        ]
+        assert len(contents) == 1 and isinstance(contents[0], str)
+        payload = json.loads(contents[0])
+        assert isinstance(payload, dict)
+        # Do not project this root fixture onto a derived child or another
+        # request. Those subjects need their own external compiler response.
+        assert payload.get("raw_request") == recorded_problem.nl_provenance.raw_request
+        return copy.deepcopy(root_compiler_arguments)
+
     def bind_synthetic_stage_provider(problem):
         # Declare new software-fixture usage for the actual compiler subject;
         # retained capture counters remain unattested historical quantities.
@@ -1193,6 +1225,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         controlled_candidate_gateway.set_fixture(
             controlled_recording, problem=problem, provider_profile=provider
         )
+        controlled_candidate_gateway.configure_compiler_reply(stable_root_compiler_reply)
         controlled_candidate_gateway.admit_compiled_problem(problem)
 
     bind_synthetic_stage_provider(recorded_problem)
@@ -1628,6 +1661,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
                 completed=completed,
                 input_record=input_record,
                 observation=observation,
+                persisted_simulation=selected_cycle.simulation,
                 input_ref=port_input_ref,
                 cas_root=cas_root,
                 original_context=runtime_api_context,
@@ -2585,6 +2619,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             controlled_recording,
             problem=_current_compiler_problem(controlled_recording),
         )
+        controlled_candidate_gateway.configure_compiler_reply(stable_root_compiler_reply)
         calls_before_nonmatch = len(n5_calls)
         third_response = client.post(
             "/api/v1/control/runs/nl",
@@ -2645,20 +2680,27 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             == (selected_scenario_ref["artifact_id"])
         )
         terminal_events = service._control_store.list_diagnostic_events(job_id=third_job.job_id)
-        completed_event = next(
-            (
-                item
-                for item in terminal_events
-                if item.event.phase == "job_execution"
-                and item.event.state_after == "completed"
-                and item.payload_inline is not None
-                and item.payload_inline.get("candidate_proposal_ref")
-                == third_job.progress["candidate_proposal_ref"]
-            ),
-            None,
-        )
+        completed_event = None
+        completed_payload = None
+        for item in terminal_events:
+            if item.event.phase != "job_execution" or item.event.state_after != "completed":
+                continue
+            payload = read_private_artifact_in_job_scope(
+                lambda item=item: service._diagnostic_event_log.load_payload(item),
+                job_id=third_job.job_id,
+                run_id=str(third_job.run_id),
+            )
+            if (
+                payload is not None
+                and payload.get("candidate_proposal_ref")
+                == (third_job.progress["candidate_proposal_ref"])
+            ):
+                completed_event = item
+                completed_payload = payload
+                break
         assert completed_event is not None
-        assert completed_event.payload_inline["generation_source_read_provenance"] == scenario_read
+        assert completed_payload is not None
+        assert completed_payload["generation_source_read_provenance"] == scenario_read
         assert len(n5_calls) == calls_before_nonmatch
         assert n8_owner_calls == []
         assert n9_owner_calls == []
@@ -2735,6 +2777,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             controlled_recording,
             problem=_current_compiler_problem(controlled_recording),
         )
+        controlled_candidate_gateway.configure_compiler_reply(stable_root_compiler_reply)
         calls_before_persistence_refusal = len(n5_calls)
         fourth_response = client.post(
             "/api/v1/control/runs/nl",
@@ -2953,10 +2996,43 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         )
         assert zero_budget_cycle.voi_decision.scheduler_action == "defer"
         assert zero_budget_cycle.voi_decision.scheduler_reason == "budget_exhausted_for_next_level"
-        assert zero_budget_cycle.voi_decision.next_action == "blocked"
-        assert zero_budget_cycle.voi_decision.reason == "budget_exhausted_for_next_level"
-        assert zero_budget_leaf.terminal_status == "blocked"
+        assert zero_budget_cycle.simulation.simulation_result_ref is None
+        assert zero_budget_cycle.value_port.candidate_n5_l1_routing is None
+        # Deferring physical N5 does not erase a current grounding-owner gap.
+        # Escalation retains that unmet requirement, without budget permission,
+        # an acquisition receipt, a numerical observation, or N8/N9 authority.
+        assert zero_budget_cycle.terminal_kind == "acquisition_required"
+        assert zero_budget_cycle.voi_decision.next_action == "escalate"
+        assert zero_budget_cycle.voi_decision.reason == (
+            "terminal_requires_escalation:acquisition_required"
+        )
+        zero_budget_gap = zero_budget_cycle.grounding.acquisition_requirement
+        assert zero_budget_gap is not None
+        assert zero_budget_v1.candidate is not None
+        assert zero_budget_cycle.grounding.issue_codes == ("cgf_disposition_missing",)
+        assert zero_budget_gap.metadata["source"] == "cgf_grounding_coverage"
+        assert zero_budget_gap.metadata["authority_purpose"] == "routing_only"
+        assert zero_budget_gap.metadata["satisfaction_status"] == "unsatisfied"
+        assert zero_budget_gap.metadata["candidate_binding"] == {
+            "candidate_id": zero_budget_v1.candidate.candidate_id,
+            "candidate_content_hash": zero_budget_v1.candidate.atom.content_hash,
+            "design_problem_ref": zero_budget_compiled_record.design_problem_ref,
+        }
+        assert zero_budget_gap.producer_output_ref == zero_budget_cycle.grounding.report_ref
+        assert zero_budget_gap.metadata["grounding_report_ref"] == (
+            zero_budget_cycle.grounding.report_ref
+        )
+        zero_budget_request = zero_budget_cycle.revision_request.strategy_payload[
+            "acquisition_request"
+        ]
+        assert zero_budget_request["driver"] == "budget_exhausted_for_next_level"
+        assert zero_budget_request["requirement_gap"] == zero_budget_gap.model_dump(mode="json")
+        assert zero_budget_cycle.acquisition_receipt is None
+        assert zero_budget_leaf.acquisition_receipts == ()
+        assert zero_budget_leaf.terminal_status == "completed"
         assert zero_budget_leaf.value_port.status == "value_blocked"
+        assert zero_budget_leaf.promotion_port.status == "not_promoted"
+        assert zero_budget_leaf.promotion_port.certified_candidate_ids == ()
         assert n8_owner_calls == []
         assert n9_owner_calls == []
         # This native consumer witness preserves the selected-context

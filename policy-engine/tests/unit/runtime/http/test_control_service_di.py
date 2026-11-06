@@ -2475,7 +2475,9 @@ async def _run_controlled_simulate_only_job_fixture(
         record_stage_diagnostic(
             "n4_port_return",
             problem=problem_ref_for_cycle,
-            proposal_problem=getattr(getattr(proposal_run, "proposal", None), "design_problem_ref", None),
+            proposal_problem=getattr(
+                getattr(proposal_run, "proposal", None), "design_problem_ref", None
+            ),
         )
         return proposal_run
 
@@ -3590,7 +3592,27 @@ async def _run_controlled_simulate_only_job_fixture(
         assert selected_v1_source.k_ref_limitation_code in {
             "historical_l2_confidence_withheld",
             "full_credal_reference_not_established",
+            "full_credal_reference_not_consumed",
         }
+        if selected_v1_source.k_ref_limitation_code == "full_credal_reference_not_consumed":
+            # Candidate-only N4 may run on a legacy context without the newer
+            # source_profile facet. Bind the claim to the fixture's explicit
+            # bounded root and a successful observed full K_ref build instead.
+            assert source_root is not None
+            selected_source_root = source_root.resolve(strict=True)
+            assert runtime_data_root == selected_source_root
+            assert actual_kref_repo_roots
+            assert set(actual_kref_repo_roots) == {str(selected_source_root)}
+            assert any(
+                root.resolve(strict=True) == selected_source_root
+                and reference is not None
+                and error is None
+                for root, reference, error in kref_observations
+            )
+            if context_artifact.context.source_profile is not None:
+                assert context_artifact.context.source_profile.source_repo_root == str(
+                    selected_source_root
+                )
         assert (selected_v1_source.l2_confidence_vintage is not None) is (
             selected_v1_source.k_ref_limitation_code == "historical_l2_confidence_withheld"
         )
@@ -3752,6 +3774,9 @@ async def _run_controlled_simulate_only_job_fixture(
             n5_result=n5_result,
             kref_observations=tuple(kref_observations),
             actual_kref_repo_roots=tuple(actual_kref_repo_roots),
+            selected_source_root=(
+                str(source_root.resolve(strict=True)) if source_root is not None else None
+            ),
             actual_l6_reads=tuple(actual_l6_reads),
         )
         service_transferred = True
@@ -4639,7 +4664,26 @@ async def test_fresh_run_details_get_projects_the_persisted_candidate_simulation
             assert source_v1.k_ref_limitation_code in {
                 "historical_l2_confidence_withheld",
                 "full_credal_reference_not_established",
+                "full_credal_reference_not_consumed",
             }
+            if source_v1.k_ref_limitation_code == "full_credal_reference_not_consumed":
+                # This candidate-only N4 record does not claim K_ref use. The
+                # fixture separately observed its full builder on the explicit
+                # bounded source root; legacy contexts may omit source_profile.
+                assert fixture.selected_source_root is not None
+                assert fixture.actual_kref_repo_roots
+                assert set(fixture.actual_kref_repo_roots) == {fixture.selected_source_root}
+                assert any(
+                    root.resolve(strict=True) == Path(fixture.selected_source_root)
+                    and reference is not None
+                    and error is None
+                    for root, reference, error in fixture.kref_observations
+                )
+                if fixture.context_artifact.context.source_profile is not None:
+                    assert (
+                        fixture.context_artifact.context.source_profile.source_repo_root
+                        == fixture.selected_source_root
+                    )
             assert (source_v1.l2_confidence_vintage is not None) is (
                 source_v1.k_ref_limitation_code == "historical_l2_confidence_withheld"
             )

@@ -107,12 +107,17 @@ def _build_record(
     return store, result, model_spec, registry_bundle.bundle_ref
 
 
-def _data_snapshot_ref(store: FileSystemCAS, *, snapshot_id: str = SNAPSHOT_ID):
+def _data_snapshot_ref(
+    store: FileSystemCAS,
+    *,
+    snapshot_id: str = SNAPSHOT_ID,
+    return_selected_profile: bool = True,
+):
     payload_ref = store.put_json(
         FABRIC_PAYLOAD,
         PutOptions(kind="fabric.world_payload", media_type="application/json"),
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=True,
+        return_selected_profile=return_selected_profile,
     )
     return store.put_json(
         DataSnapshot(
@@ -130,7 +135,7 @@ def _data_snapshot_ref(store: FileSystemCAS, *, snapshot_id: str = SNAPSHOT_ID):
             inputs=[input_ref_from_artifact_ref(payload_ref, role="data_ref")],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=True,
+        return_selected_profile=return_selected_profile,
     )
 
 

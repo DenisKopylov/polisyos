@@ -151,7 +151,12 @@ def test_candidate_scenario_wmr_projection_keeps_limited_uncalibrated_model(
         world_model_record_content_hash,
     )
 
-    store, result, _model_spec, _registry_ref = _build_record(tmp_path)
+    def legacy_snapshot(store: FileSystemCAS):
+        return _data_snapshot_ref(store, return_selected_profile=False)
+
+    store, result, _model_spec, _registry_ref = _build_record(
+        tmp_path, data_snapshot_factory=legacy_snapshot
+    )
     original_v1_payload = store.get_bytes(result.record_ref)
 
     def rehash_record(record: WorldModelRecord, **updates: object) -> WorldModelRecord:
@@ -305,7 +310,7 @@ def test_candidate_scenario_wmr_projection_keeps_limited_uncalibrated_model(
 
     assert selected_ncm.model_dump(mode="json") == sibling_ncm.model_dump(mode="json")
     assert selected_ncm_ref.artifact_id == sibling_ncm_ref.artifact_id
-    assert selected_ncm_ref.manifest_profile_sha256 is None
+    assert selected_ncm_ref.manifest_profile_sha256 is not None
     assert sibling_ncm_ref.manifest_profile_sha256 is not None
     assert selected_ncm_ref.manifest_profile_sha256 != sibling_ncm_ref.manifest_profile_sha256
     assert store.get_manifest(selected_ncm_ref).inputs[0].artifact_id == (
@@ -586,7 +591,12 @@ def test_world_model_record_builds_bound_global_state_and_executes_smoke(tmp_pat
         simulation_input.to_execute_request(exec_plan_ref=exec_plan_ref),
     )
 
-    assert built.record.schema_version == "policyos.runtime.world_model_record.v1"
+    # Current Core writers supply selected profiles, which the WMR v2 retains.
+    assert built.record.schema_version == "policyos.runtime.world_model_record.v2"
+    assert built.record.artifact_views is not None
+    selected_data = built.record.artifact_views.data_snapshot_ref
+    assert selected_data.manifest_profile_sha256 is not None
+    assert store.verify(selected_data).ok
     assert built.record.world_model_record_id.startswith("world_model_record_")
     assert built.record.content_hash.startswith("sha256:")
     assert built.record.branch_mode is BranchMode.OBSERVED
@@ -1044,15 +1054,13 @@ def test_wmr_fresh_intake_rechecks_fabric_bridge_snapshot_owner_edges(tmp_path: 
             update={"stats": {**produced.stats, "snapshot_id": SNAPSHOT_ID}}
         )
         produced_manifest = store.get_manifest(produced_ref)
+        assert produced_manifest.artifact_schema is not None
         return store.put_json(
             snapshot,
             ArtifactWriteOptions(
                 kind=DataSnapshot.ARTIFACT_KIND,
                 media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
-                schema=SchemaInfo(
-                    name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
-                    version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
-                ),
+                schema=produced_manifest.artifact_schema,
                 inputs=list(produced_manifest.inputs),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
@@ -1068,16 +1076,14 @@ def test_wmr_fresh_intake_rechecks_fabric_bridge_snapshot_owner_edges(tmp_path: 
     assert built.record.artifact_views is not None
     valid_snapshot_ref = built.record.artifact_views.data_snapshot_ref
     valid_manifest = store.get_manifest(valid_snapshot_ref)
+    assert valid_manifest.artifact_schema is not None
     valid_snapshot = DataSnapshot.model_validate(load_core_json_artifact(store, valid_snapshot_ref))
     bad_snapshot_ref = store.put_json(
         valid_snapshot,
         ArtifactWriteOptions(
             kind=DataSnapshot.ARTIFACT_KIND,
             media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
-                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
-            ),
+            schema=valid_manifest.artifact_schema,
             inputs=[edge for edge in valid_manifest.inputs if edge.role != "data_view_request_ref"],
         ),
         canon_spec=CanonSpec(forbid_floats=False),

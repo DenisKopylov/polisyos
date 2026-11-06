@@ -48,7 +48,10 @@ from polisyos.runtime.quality.data_state_substrate import (
 )
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.substrate_registry import (
+    SubstrateRegistration,
     SubstrateRegistry,
+    build_substrate_registry,
+    build_substrate_registry_entry,
     persist_substrate_registry,
 )
 from polisyos.runtime.quality.world_model_record import (
@@ -56,6 +59,7 @@ from polisyos.runtime.quality.world_model_record import (
     WorldModelBuildResult,
     WorldModelLimitations,
     WorldModelRecord,
+    _resolve_substrate_registry_ref,
     build_world_model_record,
     consume_world_model_record_for_simulation,
     load_world_model_record,
@@ -212,6 +216,22 @@ def _candidate_world_case(
         trust_cap=0.25,
         identification_mode="bounds_only",
     )
+    if control == "multi_family":
+        first_entry = substrate.entries[0]
+        registration_fields = first_entry.model_dump(mode="python")
+        registration_fields.pop("entry_content_hash")
+        registration_fields["family_id"] = "macro_state_auxiliary"
+        registration_fields["coverage"]["coverage_rule_ref"] = (
+            "repo://l5/measurement_registry.json#/coverage_rules/macro_state_auxiliary"
+        )
+        second_entry = build_substrate_registry_entry(
+            SubstrateRegistration.model_validate(registration_fields)
+        )
+        substrate = build_substrate_registry(
+            (first_entry, second_entry),
+            producer_ref="test.substrate_registry.same_source_multiple_families",
+            source_catalog_refs=substrate.source_catalog_refs,
+        )
     substrate_ref = persist_substrate_registry(store, substrate)
     base_dir = tmp_path / "base-world"
     base_dir.mkdir(parents=True)
@@ -265,6 +285,7 @@ def _candidate_world_case(
         branch_mode=BranchMode.SCENARIO,
         policy_slot_ids=base_slots,
         producer_ref="test_candidate_acquisition_world.controlled_base",
+        required_substrate_families=("macro_state",) if control == "multi_family" else (),
         foundry_binding_rules=[
             FoundryInputBindingRule(
                 binding_id="base.tax_rate",
@@ -547,6 +568,212 @@ def test_candidate_state_refuses_cross_version_selected_view_with_unchanged_byte
         assert (
             validate_data_snapshot_owner_lineage(fresh, ref, snapshot, candidate_only=True)
             == original
+        )
+
+
+def test_candidate_world_preserves_exact_base_registry_selection_with_same_source_families(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A candidate world preserves the base WMR's exact registry projection."""
+    with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
+        case = _candidate_world_case(tmp_path, monkeypatch, control="multi_family")
+        base = load_world_model_record(case.store, case.base.record_ref)
+        assert len(case.substrate_registry.entries) == 2
+        assert len(base.substrate_registry_ref.resolved_entries) == 1
+        assert base.substrate_registry_ref.resolved_entries[0].family_id == "macro_state"
+
+        built = build_candidate_acquisition_world(
+            case.store,
+            problem=case.problem,
+            base_world_model=base,
+            substrate_registry=case.substrate_registry,
+            substrate_registry_artifact_ref=case.substrate_registry_ref,
+            materialization=case.materialization,
+            workspace_dir=tmp_path / "candidate-world",
+            transaction_time=TRANSACTION_TIME,
+            authority=case.source_case.authority,
+        )
+        fresh = FileSystemCAS(case.store.root)
+        candidate = load_world_model_record(fresh, built.world_model.record_ref)
+        persisted_registry = SubstrateRegistry.model_validate(
+            load_core_json_artifact(fresh, case.substrate_registry_ref)
+        )
+        assert len(persisted_registry.entries) == 2
+        assert candidate.substrate_registry_ref == base.substrate_registry_ref
+        assert candidate.substrate_registry_ref.resolved_entries == (
+            base.substrate_registry_ref.resolved_entries[0],
+        )
+
+
+def test_exact_registry_selection_rejects_missing_duplicate_and_tampered_entries(
+    tmp_path: Path,
+) -> None:
+    """The canonical resolver binds every selected field to one registry row."""
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = _substrate_registry(source_id="exact-selection-source", family_id="macro_state")
+    persisted_ref = persist_substrate_registry(store, registry)
+    entry_ref = _resolve_substrate_registry_ref(
+        store,
+        registry,
+        required_sources=(),
+        required_families=(),
+        registry_artifact_ref=persisted_ref,
+    )
+    assert (
+        _resolve_substrate_registry_ref(
+            store,
+            registry,
+            required_sources=("exact-selection-source",),
+            required_families=(),
+            registry_artifact_ref=persisted_ref,
+        )
+        == entry_ref
+    )
+    assert (
+        _resolve_substrate_registry_ref(
+            store,
+            registry,
+            required_sources=(),
+            required_families=("macro_state",),
+            registry_artifact_ref=persisted_ref,
+        )
+        == entry_ref
+    )
+
+    legacy_locator = (
+        f"substrate-registry://{registry.substrate_version_id}/"
+        f"{registry.content_hash.removeprefix('sha256:')}"
+    )
+    legacy_selection = entry_ref.model_copy(update={"registry_artifact_ref": legacy_locator})
+    legacy_resolved = _resolve_substrate_registry_ref(
+        store,
+        registry,
+        required_sources=(),
+        required_families=(),
+        registry_artifact_ref=persisted_ref,
+        selected_ref=legacy_selection,
+    )
+    assert legacy_resolved.resolved_entries == entry_ref.resolved_entries
+    assert legacy_resolved.registry_artifact_ref == str(persisted_ref.artifact_id)
+
+    empty = entry_ref.model_copy(update={"resolved_entries": ()})
+    with pytest.raises(ValueError, match="substrate_registry_exact_selection_invalid"):
+        _resolve_substrate_registry_ref(
+            store,
+            registry,
+            required_sources=(),
+            required_families=(),
+            registry_artifact_ref=persisted_ref,
+            selected_ref=empty,
+        )
+
+    duplicate = entry_ref.model_copy(
+        update={"resolved_entries": (*entry_ref.resolved_entries, entry_ref.resolved_entries[0])}
+    )
+    with pytest.raises(ValueError, match="substrate_registry_exact_selection_duplicate_entry"):
+        _resolve_substrate_registry_ref(
+            store,
+            registry,
+            required_sources=(),
+            required_families=(),
+            registry_artifact_ref=persisted_ref,
+            selected_ref=duplicate,
+        )
+
+    missing = entry_ref.model_copy(
+        update={
+            "resolved_entries": (
+                entry_ref.resolved_entries[0].model_copy(
+                    update={"entry_content_hash": "sha256:" + "0" * 64}
+                ),
+            )
+        }
+    )
+    with pytest.raises(ValueError, match="substrate_registry_exact_selection_entry_missing"):
+        _resolve_substrate_registry_ref(
+            store,
+            registry,
+            required_sources=(),
+            required_families=(),
+            registry_artifact_ref=persisted_ref,
+            selected_ref=missing,
+        )
+
+    tampered = entry_ref.model_copy(
+        update={
+            "resolved_entries": (
+                entry_ref.resolved_entries[0].model_copy(update={"trust_cap": 0.0}),
+            )
+        }
+    )
+    with pytest.raises(ValueError, match="substrate_registry_exact_selection_projection_mismatch"):
+        _resolve_substrate_registry_ref(
+            store,
+            registry,
+            required_sources=(),
+            required_families=(),
+            registry_artifact_ref=persisted_ref,
+            selected_ref=tampered,
+        )
+
+    wrong_version = entry_ref.model_copy(
+        update={"substrate_version_id": "substrate_version_" + "0" * 16}
+    )
+    with pytest.raises(ValueError, match="substrate_registry_exact_selection_version_mismatch"):
+        _resolve_substrate_registry_ref(
+            store,
+            registry,
+            required_sources=(),
+            required_families=(),
+            registry_artifact_ref=persisted_ref,
+            selected_ref=wrong_version,
+        )
+
+    wrong_content = entry_ref.model_copy(update={"content_hash": "sha256:" + "0" * 64})
+    with pytest.raises(ValueError, match="substrate_registry_exact_selection_version_mismatch"):
+        _resolve_substrate_registry_ref(
+            store,
+            registry,
+            required_sources=(),
+            required_families=(),
+            registry_artifact_ref=persisted_ref,
+            selected_ref=wrong_content,
+        )
+
+    wrong_locator = entry_ref.model_copy(update={"registry_artifact_ref": "cas://wrong"})
+    with pytest.raises(ValueError, match="substrate_registry_exact_selection_artifact_mismatch"):
+        _resolve_substrate_registry_ref(
+            store,
+            registry,
+            required_sources=(),
+            required_families=(),
+            registry_artifact_ref=persisted_ref,
+            selected_ref=wrong_locator,
+        )
+
+    wrong_legacy_locator = entry_ref.model_copy(
+        update={"registry_artifact_ref": "substrate-registry://unverified/0000"}
+    )
+    with pytest.raises(ValueError, match="substrate_registry_exact_selection_artifact_mismatch"):
+        _resolve_substrate_registry_ref(
+            store,
+            registry,
+            required_sources=(),
+            required_families=(),
+            registry_artifact_ref=persisted_ref,
+            selected_ref=wrong_legacy_locator,
+        )
+
+    with pytest.raises(
+        ValueError, match="substrate_registry_exact_selection_conflicts_with_filters"
+    ):
+        _resolve_substrate_registry_ref(
+            store,
+            registry,
+            required_sources=("exact-selection-source",),
+            required_families=(),
+            registry_artifact_ref=persisted_ref,
+            selected_ref=entry_ref,
         )
 
 

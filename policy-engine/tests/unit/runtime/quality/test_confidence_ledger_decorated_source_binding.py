@@ -2838,3 +2838,379 @@ def test_immutable_tuple_mutable_literal_candidate_does_not_establish_selected_v
     assert consumer.observed() == ([1],)
     with pytest.raises(ledger.ConfidenceLedgerError, match="immutable tuple is unresolved"):
         ledger._source_facade_runtime_projection(root, closure)
+
+
+def _native_type_source(expression="CALL | tuple[str, CALL | Choice] | Choice", *, extra=""):
+    return (
+        "from __future__ import annotations\n"
+        "from collections.abc import Callable\nfrom dataclasses import dataclass\n"
+        "@dataclass(frozen=True)\nclass Choice:\n    value: str\n"
+        "CALL = Callable[[], object]\n"
+        f"{extra}OUTPUT = {expression}\n"
+    )
+
+
+def _native_type_expected(root, module, name="OUTPUT"):
+    tree = ast.parse(Path(module.__file__).read_bytes(), filename=module.__file__)
+    expression = ledger._module_scope_direct_binding_sites(tree, name)[0][1].value
+    return ledger._source_type_expression_projection(
+        expression,
+        repo_root=root,
+        tree=tree,
+        module=module,
+        module_name=module.__name__,
+        visited=frozenset({(module.__name__, name)}),
+    )
+
+
+@pytest.mark.parametrize(
+    "expression",
+    [
+        "CALL | tuple[str, CALL | Choice] | Choice",
+        "tuple[str, int]",
+        "Callable[[int, str], object]",
+        "str | int | str",
+    ],
+)
+def test_native_type_metadata_source_reaches_real_selected_reader(
+    tmp_path, monkeypatch, expression
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _native_type_source(expression))
+    expected = _native_type_expected(root, module)
+    assert type(expected) is ledger._SourceResolvedAnnotation
+    assert ledger._source_resolved_annotation_matches(module.OUTPUT, expected)
+    assert _route(root, module, "OUTPUT") == ("symbol", module.__name__, "OUTPUT")
+    consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    assert consumer.observed() is module.OUTPUT
+    profile = ledger._native_type_metadata_provider_projection()
+    assert profile["initialization_construction_and_behavior"] == "not_established"
+    assert profile["independent_transform_verification"] is False
+
+
+def test_native_type_metadata_binds_actual_builtin_loader_spec():
+    from polisyos.core.components import discovery
+
+    root = ledger._loaded_policy_engine_root()
+    for name in ("BuiltinComponentLoader", "BuiltinLoaderSpec"):
+        expected = _native_type_expected(root, discovery, name)
+        assert type(expected) is ledger._SourceResolvedAnnotation
+        assert ledger._source_resolved_annotation_matches(vars(discovery)[name], expected)
+        assert _route(root, discovery, name) == ("symbol", discovery.__name__, name)
+
+
+@pytest.mark.parametrize(
+    "mutation", ["callable_args", "tuple_origin", "tuple_args", "class_identity", "union_order"]
+)
+def test_native_type_metadata_selected_consumer_refuses_same_shape_forgery(
+    tmp_path, monkeypatch, mutation
+):
+    from collections.abc import Callable
+
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _native_type_source())
+    consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    if mutation == "callable_args":
+        wrong = Callable[[int], object] | tuple[str, module.CALL | module.Choice] | module.Choice
+    elif mutation == "tuple_origin":
+        wrong = module.CALL | list[str, module.CALL | module.Choice] | module.Choice
+    elif mutation == "tuple_args":
+        wrong = module.CALL | tuple[int, module.CALL | module.Choice] | module.Choice
+    elif mutation == "union_order":
+        wrong = module.Choice | module.CALL | tuple[str, module.CALL | module.Choice]
+    else:
+        twin = type("Choice", (), {"__module__": module.__name__})
+        wrong = module.CALL | tuple[str, module.CALL | twin] | twin
+    monkeypatch.setattr(module, "OUTPUT", wrong)
+    monkeypatch.setattr(consumer, "OUTPUT", wrong)
+    assert consumer.observed() is wrong
+    with pytest.raises(ledger.ConfidenceLedgerError, match="selected source type metadata differs"):
+        ledger._source_facade_runtime_projection(root, closure)
+
+
+def test_native_type_metadata_imported_alias_is_reconciled_to_source(tmp_path, monkeypatch):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    provider = _load_fixture_module(
+        root, monkeypatch, "polisyos.native_type_provider", _native_type_source("tuple[str, int]")
+    )
+    module = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.imported_native_type",
+        "from __future__ import annotations\n"
+        "from polisyos.native_type_provider import OUTPUT as BASE\n"
+        "OUTPUT = BASE | str\n",
+    )
+    expected = _native_type_expected(root, module)
+    assert ledger._source_resolved_annotation_matches(module.OUTPUT, expected)
+    consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    wrong = tuple[int, int]
+    monkeypatch.setattr(provider, "OUTPUT", wrong)
+    monkeypatch.setattr(module, "BASE", wrong)
+    monkeypatch.setattr(module, "OUTPUT", wrong | str)
+    monkeypatch.setattr(consumer, "OUTPUT", module.OUTPUT)
+    assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    with pytest.raises(ledger.ConfidenceLedgerError):
+        ledger._source_facade_runtime_projection(root, closure)
+
+
+def test_native_type_metadata_never_calls_fake_alias_or_type_operators(tmp_path, monkeypatch):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _native_type_source())
+    expected = _native_type_expected(root, module)
+    observed = []
+
+    class UnknownAlias:
+        def __getattribute__(self, name):
+            observed.append(name)
+            raise AssertionError("unknown alias getter must not run")
+
+        def __eq__(self, _other):
+            observed.append("equality")
+            return True
+
+        def __hash__(self):
+            observed.append("hash")
+            return 1
+
+    assert not ledger._source_resolved_annotation_matches(UnknownAlias(), expected)
+
+    class UnknownMeta(type):
+        def __or__(cls, _other):
+            observed.append("or")
+            return object
+
+        def __getitem__(cls, _other):
+            observed.append("getitem")
+            return object
+
+    class UnknownType(metaclass=UnknownMeta):
+        pass
+
+    monkeypatch.setattr(module, "Choice", UnknownType)
+    assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    monkeypatch.setattr(module, "tuple", UnknownType, raising=False)
+    assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    assert observed == []
+
+
+@pytest.mark.parametrize(
+    "expression",
+    [
+        "list[str]",
+        "Callable[..., object]",
+        "Callable['args', object]",
+        "tuple[unexecuted()]",
+        "OUTPUT | str",
+    ],
+)
+def test_native_type_metadata_profile_refuses_unsupported_factories_strings_and_cycles(
+    tmp_path, monkeypatch, expression
+):
+    source = _native_type_source()
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    observed = []
+    monkeypatch.setattr(module, "unexecuted", lambda: observed.append("call"), raising=False)
+    Path(module.__file__).write_text(
+        source.replace(
+            "OUTPUT = CALL | tuple[str, CALL | Choice] | Choice", f"OUTPUT = {expression}"
+        ),
+        encoding="utf-8",
+    )
+    assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    with pytest.raises(ledger.ConfidenceLedgerError, match="side-effecting direct source"):
+        _route(root, module, "OUTPUT")
+    assert observed == []
+
+
+@pytest.mark.parametrize("count", [63, 64])
+def test_native_type_metadata_name_budget_refuses_whole_expression(tmp_path, monkeypatch, count):
+    expression = "tuple[" + ", ".join("int" for _ in range(count)) + "]"
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _native_type_source(expression))
+    # The constructor reference consumes one resolution as well as every arg.
+    expected = _native_type_expected(root, module)
+    if count == 63:
+        assert type(expected) is ledger._SourceResolvedAnnotation
+        assert ledger._source_resolved_annotation_matches(module.OUTPUT, expected)
+    else:
+        assert expected is ledger._SOURCE_DERIVATION_FAILED
+
+
+@pytest.mark.parametrize("target", ["spec", "source_code", "source_bytes"])
+def test_native_type_metadata_provider_refuses_unbound_backend_without_callbacks(
+    monkeypatch, target
+):
+    provider = sys.modules["_collections_abc"]
+    observed = []
+
+    class UnknownSpec:
+        def __getattribute__(self, name):
+            observed.append(name)
+            raise AssertionError("unknown spec getter must not run")
+
+    with monkeypatch.context() as changed:
+        if target == "spec":
+            changed.setitem(vars(provider), "__spec__", UnknownSpec())
+        elif target == "source_code":
+            method = vars(vars(provider)["_CallableGenericAlias"])["__new__"].__func__
+
+            def replacement():
+                __class__ = object
+
+                def wrong(cls, origin, args):
+                    return __class__
+
+                return wrong
+
+            changed.setattr(method, "__code__", replacement().__code__)
+        else:
+            path = Path(provider.__file__).resolve()
+            original = Path.read_bytes
+            source = original(path)
+            corrupt = source.replace(
+                b"return super().__new__(cls, origin, args)", b"return None", 1
+            )
+            assert corrupt != source
+            changed.setattr(
+                Path, "read_bytes", lambda self: corrupt if self == path else original(self)
+            )
+        assert ledger._native_type_metadata_provider() is None
+    assert observed == []
+
+
+def test_native_type_metadata_union_dedup_is_semantic_but_selected_state_is_ordered(
+    tmp_path, monkeypatch
+):
+    root, module = _load_decorated_case(
+        tmp_path, monkeypatch, _native_type_source("tuple[str | int] | tuple[int | str]")
+    )
+    expected = _native_type_expected(root, module)
+    assert type(expected) is ledger._SourceResolvedAnnotation
+    assert ledger._source_resolved_annotation_matches(module.OUTPUT, expected)
+    assert type(module.OUTPUT) is types.GenericAlias
+    consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    wrong = tuple[int | str]
+    monkeypatch.setattr(module, "OUTPUT", wrong)
+    monkeypatch.setattr(consumer, "OUTPUT", wrong)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="selected source type metadata differs"):
+        ledger._source_facade_runtime_projection(root, closure)
+
+
+def test_native_type_metadata_rejects_python_union_slot_lookalike_in_both_profiles(
+    tmp_path, monkeypatch
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _native_type_source("str | int"))
+    consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    legacy = ledger._SourceResolvedAnnotation((str, int))
+
+    class FakeUnion:
+        __slots__ = ("__args__",)
+
+    forged = FakeUnion()
+    forged.__args__ = (str, int)
+    with monkeypatch.context() as changed:
+        changed.setattr(types, "UnionType", FakeUnion)
+        changed.setattr(typing, "Union", FakeUnion)
+        changed.setattr(module, "OUTPUT", forged)
+        changed.setattr(consumer, "OUTPUT", forged)
+        assert ledger._native_union_witness() is None
+        assert ledger._native_type_metadata_provider() is None
+        assert not ledger._source_resolved_annotation_matches(forged, legacy)
+        with pytest.raises(ledger.ConfidenceLedgerError):
+            ledger._source_facade_runtime_projection(root, closure)
+
+
+def test_native_type_metadata_legacy_matcher_never_calls_counterfeit_descriptor(monkeypatch):
+    observed = []
+
+    class FakeDescriptor:
+        def __get__(self, _instance, _owner):
+            observed.append("descriptor")
+            return (str, int)
+
+    class FakeUnion:
+        pass
+
+    descriptor = FakeDescriptor()
+    descriptor.__objclass__ = FakeUnion
+    FakeUnion.__args__ = descriptor
+    with monkeypatch.context() as changed:
+        changed.setattr(types, "UnionType", FakeUnion)
+        changed.setattr(types, "MemberDescriptorType", FakeDescriptor)
+        assert not ledger._source_resolved_annotation_matches(
+            FakeUnion(), ledger._SourceResolvedAnnotation((str, int))
+        )
+    assert observed == []
+
+
+@pytest.mark.parametrize("imported", [False, True])
+def test_native_type_metadata_injected_builtin_class_has_no_native_provenance(
+    tmp_path, monkeypatch, imported
+):
+    fake = type("Fake", (), {"__module__": "builtins"})
+    monkeypatch.setitem(vars(builtins), "Fake", fake)
+    extra = "from builtins import Fake\n" if imported else ""
+    root, module = _load_decorated_case(
+        tmp_path, monkeypatch, _native_type_source("Fake | str", extra=extra)
+    )
+    assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    _consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="side-effecting direct source"):
+        ledger._source_facade_runtime_projection(root, closure)
+
+
+def test_native_type_metadata_builtin_rebinding_does_not_change_the_source_witness(
+    tmp_path, monkeypatch
+):
+    root, module = _load_decorated_case(
+        tmp_path,
+        monkeypatch,
+        _native_type_source("Blob | str", extra="from builtins import bytes as Blob\n"),
+    )
+    assert type(_native_type_expected(root, module)) is ledger._SourceResolvedAnnotation
+    fake = type("bytes", (), {"__module__": "builtins"})
+    with monkeypatch.context() as changed:
+        changed.setitem(vars(builtins), "bytes", fake)
+        changed.setattr(module, "Blob", fake)
+        assert not ledger._native_builtin_type("bytes", fake)
+        assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+
+
+@pytest.mark.parametrize("missing", ["absent", "nonmodule"])
+def test_native_type_metadata_missing_frozen_importer_never_matches_none_loader(
+    monkeypatch, missing
+):
+    provider = sys.modules["_collections_abc"]
+    with monkeypatch.context() as changed:
+        changed.setattr(provider.__spec__, "loader", None)
+        if missing == "absent":
+            changed.delitem(sys.modules, "_frozen_importlib")
+        else:
+            changed.setitem(sys.modules, "_frozen_importlib", object())
+        assert ledger._native_type_metadata_provider() is None
+
+
+def test_native_type_metadata_does_not_claim_frozen_loader_implementation_or_history(monkeypatch):
+    provider = sys.modules["_collections_abc"]
+    importer_module = sys.modules["_frozen_importlib"]
+    observed = []
+
+    class UnverifiedImporter:
+        @classmethod
+        def exec_module(cls, _module):
+            observed.append("execute")
+            raise AssertionError("loader execution is outside this metadata proof")
+
+    with monkeypatch.context() as changed:
+        changed.setattr(importer_module, "FrozenImporter", UnverifiedImporter)
+        changed.setattr(provider.__spec__, "loader", UnverifiedImporter)
+        state = ledger._native_type_metadata_provider()
+        assert state is not None
+        assert state.projection["frozen_loader_implementation"] == "supported_backend_assumption"
+        assert state.projection["loader_execution_and_history"] == "not_established"
+        assert (
+            "callable_codeobjects_and_closures_against_stdlib_bytes"
+            in state.projection["verified_facets"]
+        )
+    assert observed == []

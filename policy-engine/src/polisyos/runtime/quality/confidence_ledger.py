@@ -10677,6 +10677,26 @@ def _source_facade_runtime_projection(
                     and declarations[0][1].value is not None
                 ):
                     expression = declarations[0][1].value
+                    if _source_type_expression_shape(expression, provider_tree):
+                        expected_type = _source_type_expression_projection(
+                            expression,
+                            repo_root=repo_root,
+                            tree=provider_tree,
+                            module=provider_module,
+                            module_name=provider_name,
+                            visited=frozenset({(provider_name, attribute)}),
+                        )
+                        if (
+                            type(expected_type) is not _SourceResolvedAnnotation
+                            or not _source_resolved_annotation_matches(
+                                provider_value, expected_type
+                            )
+                        ):
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                "selected source type metadata differs: "
+                                f"{provider_name}.{attribute}",
+                            )
                     if _source_registry_keys_shape(expression) is not None:
                         registry_key_projection = _source_registry_keys_projection(
                             expression,
@@ -15441,6 +15461,22 @@ def _typing_protocol_provider_projection() -> dict[str, object]:
         ) from exc
 
 
+def _source_native_module_spec_namespace(module: object) -> dict[str, object] | None:
+    """Read the exact supported ModuleSpec storage, without an arbitrary getter."""
+
+    if type(module) is not types.ModuleType:
+        return None
+    spec = _passive_capture_lookup(vars(module), "__spec__")
+    descriptor = vars(ModuleSpec).get("__dict__")
+    if not (
+        type(spec) is ModuleSpec
+        and type(descriptor) is types.GetSetDescriptorType
+        and descriptor.__objclass__ is ModuleSpec
+    ):
+        return None
+    return descriptor.__get__(spec, ModuleSpec)
+
+
 def _source_loaded_module_origin_fields(
     module: object, *, expected_name: str
 ) -> tuple[str, str, str] | None:
@@ -15449,15 +15485,9 @@ def _source_loaded_module_origin_fields(
     if type(module) is not types.ModuleType:
         return None
     namespace = vars(module)
-    spec = _passive_capture_lookup(namespace, "__spec__")
-    spec_dictionary = vars(ModuleSpec).get("__dict__")
-    if not (
-        type(spec) is ModuleSpec
-        and type(spec_dictionary) is types.GetSetDescriptorType
-        and spec_dictionary.__objclass__ is ModuleSpec
-    ):
+    spec_namespace = _source_native_module_spec_namespace(module)
+    if spec_namespace is None:
         return None
-    spec_namespace = spec_dictionary.__get__(spec, ModuleSpec)
     loader = _passive_capture_lookup(spec_namespace, "loader")
     origin = _passive_capture_lookup(spec_namespace, "origin")
     file = _passive_capture_lookup(namespace, "__file__")
@@ -15613,6 +15643,257 @@ def _typing_literal_provider_projection() -> dict[str, object]:
     if state is None:
         raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "typing Literal ABI")
     return state[3]
+
+
+@dataclass(frozen=True)
+class _NativeTypeMetadataProvider:
+    """The admitted native/frozen ABI used only for passive type metadata."""
+
+    callable_type: object
+    callable_alias_type: type
+    generic_type: type
+    union_type: type
+    generic_origin: object
+    generic_arguments: object
+    union_arguments: object
+    projection: dict[str, object]
+
+
+def _native_immutable_type_identity(value: object, module_name: str, name: str) -> bool:
+    """Recognize immutable non-heap CPython classes, not Python slot lookalikes.
+
+    The flags and type-owned metadata are read-only interpreter fields. This
+    trust facet does not attest arbitrary extension code or the interpreter.
+    """
+
+    if type(value) is not type:
+        return False
+    flags = type.__getattribute__(value, "__flags__")
+    declared_module = type.__getattribute__(value, "__module__")
+    declared_name = type.__getattribute__(value, "__name__")
+    return bool(
+        flags & (1 << 8)  # Py_TPFLAGS_IMMUTABLETYPE
+        and not flags & (1 << 9)  # Py_TPFLAGS_HEAPTYPE
+        and type(declared_module) is str
+        and declared_module == module_name
+        and type(declared_name) is str
+        and declared_name == name
+    )
+
+
+def _native_builtin_type(name: str, value: object) -> bool:
+    """Bind a native builtin class/name instead of trusting mutable namespace membership."""
+
+    return bool(
+        _passive_capture_lookup(vars(_builtins), name) is value
+        and _native_immutable_type_identity(value, "builtins", name)
+    )
+
+
+def _native_owned_member(owner: type, name: str) -> object:
+    descriptor = _passive_capture_lookup(type.__getattribute__(owner, "__dict__"), name)
+    if not (
+        _native_immutable_type_identity(type(descriptor), "builtins", "member_descriptor")
+        and descriptor.__objclass__ is owner
+    ):
+        return _SOURCE_DERIVATION_FAILED
+    return descriptor
+
+
+def _native_union_witness() -> tuple[type, object] | None:
+    """Use one native union/descriptor witness in both annotation profiles."""
+
+    candidate = _passive_capture_lookup(vars(types), "UnionType")
+    if not (
+        sys.implementation.name == "cpython"
+        and sys.version_info[:2] == (3, 14)
+        and _native_immutable_type_identity(candidate, "typing", "Union")
+        and _passive_capture_lookup(vars(typing), "Union") is candidate
+    ):
+        return None
+    descriptor = _native_owned_member(candidate, "__args__")
+    return (candidate, descriptor) if descriptor is not _SOURCE_DERIVATION_FAILED else None
+
+
+def _native_type_metadata_provider() -> _NativeTypeMetadataProvider | None:
+    """Bind native storage and stdlib code under the explicit backend trust facet.
+
+    The loader slot is an observed supported-backend assumption, not evidence
+    of its implementation, past execution, or who constructed these objects.
+    """
+
+    if sys.implementation.name != "cpython" or sys.version_info[:2] != (3, 14):
+        return None
+    union_witness = _native_union_witness()
+    generic_type = _passive_capture_lookup(vars(types), "GenericAlias")
+    if union_witness is None or not _native_immutable_type_identity(
+        generic_type, "types", "GenericAlias"
+    ):
+        return None
+    union_type, union_arguments = union_witness
+    provider = sys.modules.get("_collections_abc")
+    if type(provider) is not types.ModuleType or sys.modules.get("collections.abc") is not provider:
+        return None
+    namespace = vars(provider)
+    spec = _source_native_module_spec_namespace(provider)
+    spec_name = _passive_capture_lookup(spec, "name") if spec is not None else None
+    if type(spec_name) is not str or spec_name != "_collections_abc":
+        return None
+    loader = _passive_capture_lookup(spec, "loader")
+    origin = _passive_capture_lookup(spec, "origin")
+    frozen_importlib = sys.modules.get("_frozen_importlib")
+    frozen_loader = (
+        _passive_capture_lookup(vars(frozen_importlib), "FrozenImporter")
+        if type(frozen_importlib) is types.ModuleType
+        else None
+    )
+    frozen = (
+        frozen_loader is not None
+        and type(frozen_loader) is type
+        and loader is frozen_loader
+        and type(origin) is str
+        and origin == "frozen"
+    )
+    if not frozen and type(loader) is not SourceFileLoader:
+        return None
+    file = _passive_capture_lookup(namespace, "__file__")
+    if type(file) is not str:
+        return None
+    analysis = _active_integrity_analysis()
+    own_analysis = analysis is None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+    try:
+        logical = Path(sysconfig.get_path("stdlib")) / "_collections_abc.py"
+        path = analysis.bind_source_path(logical)
+        if analysis.bind_source_path(Path(file)) != path:
+            return None
+        if not frozen and (
+            type(origin) is not str or analysis.bind_source_path(Path(origin)) != path
+        ):
+            return None
+        source = analysis.source_bytes(logical)
+        callable_type = _passive_capture_lookup(namespace, "Callable")
+        alias_type = _passive_capture_lookup(namespace, "_CallableGenericAlias")
+        abc_module = sys.modules.get("abc")
+        abc_meta = (
+            _passive_capture_lookup(vars(abc_module), "ABCMeta")
+            if type(abc_module) is types.ModuleType
+            else None
+        )
+        if not (
+            type(alias_type) is type
+            and type(callable_type) is abc_meta
+            and type(abc_meta) is type
+            and len(type.__getattribute__(alias_type, "__bases__")) == 1
+            and type.__getattribute__(alias_type, "__bases__")[0] is generic_type
+            and len(type.__getattribute__(callable_type, "__bases__")) == 1
+            and type.__getattribute__(callable_type, "__bases__")[0] is object
+            and _passive_capture_lookup(namespace, "GenericAlias") is generic_type
+        ):
+            return None
+        for cls, name in ((alias_type, "_CallableGenericAlias"), (callable_type, "Callable")):
+            class_namespace = type.__getattribute__(cls, "__dict__")
+            slots = _passive_capture_lookup(class_namespace, "__slots__")
+            declared_module = _passive_capture_lookup(class_namespace, "__module__")
+            if not (
+                type(declared_module) is str
+                and declared_module == "collections.abc"
+                and type.__getattribute__(cls, "__qualname__") == name
+                and type(slots) is tuple
+                and not slots
+            ):
+                return None
+        subscription = _passive_capture_lookup(
+            type.__getattribute__(callable_type, "__dict__"), "__class_getitem__"
+        )
+        if type(subscription) is not classmethod or subscription.__func__ is not alias_type:
+            return None
+        wanted = (
+            "_CallableGenericAlias.__new__",
+            "_CallableGenericAlias.__repr__",
+            "_CallableGenericAlias.__reduce__",
+            "_CallableGenericAlias.__getitem__",
+            "Callable.__call__",
+            "Callable.__subclasshook__",
+        )
+        hashes = dict(_typing_protocol_source_codes(source, str(path), wanted))
+        for qualname in wanted:
+            owner_name, member = qualname.split(".")
+            owner = alias_type if owner_name == "_CallableGenericAlias" else callable_type
+            raw = _passive_capture_lookup(type.__getattribute__(owner, "__dict__"), member)
+            expected_descriptor = (
+                staticmethod
+                if member == "__new__"
+                else classmethod
+                if member == "__subclasshook__"
+                else types.FunctionType
+            )
+            if type(raw) is not expected_descriptor:
+                return None
+            function = raw.__func__ if type(raw) in {classmethod, staticmethod} else raw
+            expected_filename = "<frozen _collections_abc>" if frozen else str(path)
+            if not (
+                type(function) is types.FunctionType
+                and function.__globals__ is namespace
+                and function.__builtins__ is vars(_builtins)
+                and type(function.__module__) is str
+                and function.__module__ == "collections.abc"
+                and function.__qualname__ == qualname
+                and function.__code__.co_filename == expected_filename
+                and _content_hash(_normalize_code_object(function.__code__)) in hashes[qualname]
+                and function.__defaults__ is None
+                and function.__kwdefaults__ is None
+            ):
+                return None
+            closure = function.__closure__ or ()
+            if len(closure) != len(function.__code__.co_freevars) or any(
+                name != "__class__" or cell.cell_contents is not owner
+                for name, cell in zip(function.__code__.co_freevars, closure, strict=True)
+            ):
+                return None
+        descriptors = []
+        for owner, name in ((generic_type, "__origin__"), (generic_type, "__args__")):
+            descriptor = _native_owned_member(owner, name)
+            if descriptor is _SOURCE_DERIVATION_FAILED:
+                return None
+            descriptors.append(descriptor)
+        if own_analysis:
+            analysis.assert_sources_unchanged()
+        return _NativeTypeMetadataProvider(
+            callable_type,
+            alias_type,
+            generic_type,
+            union_type,
+            *descriptors,
+            union_arguments,
+            {
+                "profile": "cpython314_native_type_metadata_v1",
+                "provider_source_sha256": _bytes_hash(source),
+                "assumption": "supported_python_runtime_provider",
+                "frozen_loader_implementation": "supported_backend_assumption",
+                "loader_execution_and_history": "not_established",
+                "verified_facets": (
+                    "immutable_non_heap_native_storage_types",
+                    "native_owned_metadata_descriptors",
+                    "callable_codeobjects_and_closures_against_stdlib_bytes",
+                ),
+                "scope": "passive_native_origin_arguments_and_source_type_bindings",
+                "initialization_construction_and_behavior": "not_established",
+                "independent_transform_verification": False,
+            },
+        )
+    except (ConfidenceLedgerError, OSError, AttributeError, TypeError, ValueError, SyntaxError):
+        return None
+
+
+def _native_type_metadata_provider_projection() -> dict[str, object]:
+    """Expose the exact metadata facet without upgrading class or constructor behavior."""
+
+    provider = _native_type_metadata_provider()
+    if provider is None:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "native type metadata ABI")
+    return provider.projection
 
 
 def _source_python_provider_class_binding_supported(
@@ -17063,6 +17344,21 @@ def _source_module_direct_binding_route(
                 is not _SOURCE_DERIVATION_FAILED
             ):
                 return "symbol", module_name, export_name
+            if (
+                simple_target
+                and value is not None
+                and type(module) is types.ModuleType
+                and _source_type_expression_projection(
+                    value,
+                    repo_root=repo_root,
+                    tree=tree,
+                    module=module,
+                    module_name=module_name,
+                    visited=visited,
+                )
+                is not _SOURCE_DERIVATION_FAILED
+            ):
+                return "symbol", module_name, export_name
             if _read_api_surface_source_binding_supported(
                 module_name,
                 export_name,
@@ -17773,10 +18069,20 @@ class _SourceDecoratorSignature:
 
 
 @dataclass(frozen=True)
+class _SourceTypeState:
+    """A finite source type expression; class references carry identity only."""
+
+    kind: str
+    reference: object = None
+    arguments: tuple[_SourceTypeState, ...] = ()
+
+
+@dataclass(frozen=True)
 class _SourceResolvedAnnotation:
     """Supported union members resolved through source-declared imports."""
 
     members: tuple[object, ...]
+    type_state: _SourceTypeState | None = None
 
 
 @dataclass(frozen=True)
@@ -18039,6 +18345,299 @@ def _source_function_signature(
         parameters=tuple(parameters),
         has_return_annotation=node.returns is not None,
         return_annotation=return_annotation,
+    )
+
+
+def _source_type_expression_shape(node: ast.expr, tree: ast.Module) -> bool:
+    """Separate type-state syntax from literal folding and the existing Literal profile."""
+
+    return bool(
+        (
+            isinstance(node, ast.Subscript)
+            or (isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr))
+        )
+        and any(isinstance(item, ast.Name) for item in ast.walk(node))
+        and not (
+            isinstance(node, ast.Subscript) and _source_typing_literal_reference(node.value, tree)
+        )
+    )
+
+
+def _source_type_states_equal(left: _SourceTypeState, right: _SourceTypeState) -> bool:
+    """Compare only internally derived type nodes, never class equality or hashing."""
+
+    if (
+        left.kind != right.kind
+        or left.reference is not right.reference
+        or len(left.arguments) != len(right.arguments)
+    ):
+        return False
+    if left.kind == "union":
+        matched: set[int] = set()
+        for member in left.arguments:
+            index = next(
+                (
+                    index
+                    for index, other in enumerate(right.arguments)
+                    if index not in matched and _source_type_states_equal(member, other)
+                ),
+                None,
+            )
+            if index is None:
+                return False
+            matched.add(index)
+        return True
+    return all(
+        _source_type_states_equal(a, b)
+        for a, b in zip(left.arguments, right.arguments, strict=True)
+    )
+
+
+def _source_type_expression_projection(
+    node: ast.expr,
+    *,
+    repo_root: Path,
+    tree: ast.Module,
+    module: types.ModuleType,
+    module_name: str,
+    visited: frozenset[tuple[str, str]] = frozenset(),
+) -> object:
+    """Derive a bounded native type graph without evaluating Python type expressions."""
+
+    if not _source_type_expression_shape(node, tree) or type(module) is not types.ModuleType:
+        return _SOURCE_DERIVATION_FAILED
+    analysis = _active_integrity_analysis()
+    token = None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+        token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    remaining = [64, 10000, 1024**2]
+
+    def context(name: str) -> tuple[types.ModuleType, Path, ast.Module] | None:
+        owner = sys.modules.get(name)
+        relative = _repository_module_source(repo_root, name)
+        origins = _source_loaded_module_origin_fields(owner, expected_name=name)
+        if type(owner) is not types.ModuleType or relative is None or origins is None:
+            return None
+        path = analysis.bind_source_path(repo_root / relative)
+        if any(analysis.bind_source_path(Path(value)) != path for value in origins):
+            return None
+        return owner, relative, analysis.source_tree(repo_root / relative)
+
+    def named(
+        name: str,
+        owner_name: str,
+        before: tuple[int, int] | None,
+        seen: frozenset[tuple[str, str]],
+        depth: int,
+    ) -> object:
+        if remaining[0] <= 0 or depth > 40 or len(seen) >= 40:
+            return _SOURCE_DERIVATION_FAILED
+        remaining[0] -= 1
+        remaining[2] -= 4 * len(name)
+        key = (owner_name, name)
+        if key in seen or remaining[2] < 0:
+            return _SOURCE_DERIVATION_FAILED
+        owner_context = context(owner_name)
+        if owner_context is None:
+            return _SOURCE_DERIVATION_FAILED
+        owner, relative, owner_tree = owner_context
+        sites = _module_scope_direct_binding_sites(owner_tree, name)
+        value = _passive_capture_lookup(vars(owner), name)
+        if not sites:
+            builtin = _source_import_binding(
+                name, tree=owner_tree, module=owner, module_name=owner_name, repo_root=repo_root
+            )
+            return (
+                _SourceTypeState("class", builtin)
+                if _native_builtin_type(name, builtin)
+                else _SOURCE_DERIVATION_FAILED
+            )
+        if len(sites) != 1:
+            return _SOURCE_DERIVATION_FAILED
+        kind, declaration, alias = sites[0]
+        if before is not None and (declaration.lineno, declaration.col_offset) >= before:
+            return _SOURCE_DERIVATION_FAILED
+        if kind == "import_from" and isinstance(declaration, ast.ImportFrom) and alias is not None:
+            imported = _source_import_binding(
+                name, tree=owner_tree, module=owner, module_name=owner_name, repo_root=repo_root
+            )
+            if imported is _SOURCE_DERIVATION_FAILED:
+                return _SOURCE_DERIVATION_FAILED
+            package = _source_module_import_package(owner, owner_name, repo_root=repo_root)
+            base = _resolve_import_from_base(declaration, package) if package is not None else None
+            if base == "builtins" and _native_builtin_type(alias.name, imported):
+                return _SourceTypeState("class", imported)
+            if (
+                base in {"collections.abc", "_collections_abc"}
+                and imported is provider.callable_type
+            ):
+                return _SourceTypeState("class", imported)
+            return (
+                named(alias.name, base, None, seen | {key}, depth + 1)
+                if type(base) is str and _repository_module_root(base) in {"polisyos", "tools"}
+                else _SOURCE_DERIVATION_FAILED
+            )
+        if kind == "local" and isinstance(declaration, ast.ClassDef):
+            # Class behavior is not interpreted here. Reuse the existing strong
+            # source-owned transform before using a decorated class identity.
+            if type(value) is type and _source_python_dataclass_binding_supported(
+                repo_root, owner_name, name, relative, owner_tree, declaration
+            ):
+                return _SourceTypeState("class", value)
+            return _SOURCE_DERIVATION_FAILED
+        if kind == "assignment" and isinstance(declaration, (ast.Assign, ast.AnnAssign)):
+            if declaration.value is None:
+                return _SOURCE_DERIVATION_FAILED
+            expected = read(declaration.value, owner_name, seen | {key}, depth + 1)
+            if type(expected) is _SourceTypeState and _source_type_state_matches(
+                value, expected, provider
+            ):
+                return expected
+        return _SOURCE_DERIVATION_FAILED
+
+    def read(
+        expression: ast.expr,
+        owner_name: str,
+        seen: frozenset[tuple[str, str]],
+        depth: int,
+    ) -> object:
+        if remaining[1] <= 0 or depth > 40:
+            return _SOURCE_DERIVATION_FAILED
+        remaining[1] -= 1
+        if isinstance(expression, ast.Name):
+            return named(
+                expression.id,
+                owner_name,
+                (expression.lineno, expression.col_offset),
+                seen,
+                depth,
+            )
+        if isinstance(expression, ast.BinOp) and isinstance(expression.op, ast.BitOr):
+            left = read(expression.left, owner_name, seen, depth + 1)
+            right = read(expression.right, owner_name, seen, depth + 1)
+            if type(left) is not _SourceTypeState or type(right) is not _SourceTypeState:
+                return _SOURCE_DERIVATION_FAILED
+            members = []
+            for side in (left, right):
+                for member in side.arguments if side.kind == "union" else (side,):
+                    if not any(_source_type_states_equal(member, prior) for prior in members):
+                        members.append(member)
+            return (
+                members[0]
+                if len(members) == 1
+                else _SourceTypeState("union", arguments=tuple(members))
+            )
+        if isinstance(expression, ast.Subscript) and isinstance(expression.value, ast.Name):
+            origin = read(expression.value, owner_name, seen, depth + 1)
+            if type(origin) is not _SourceTypeState or origin.kind != "class":
+                return _SOURCE_DERIVATION_FAILED
+            arguments = (
+                expression.slice.elts
+                if isinstance(expression.slice, ast.Tuple)
+                else (expression.slice,)
+            )
+            if origin.reference is tuple:
+                states = tuple(read(item, owner_name, seen, depth + 1) for item in arguments)
+                if not states or any(type(item) is not _SourceTypeState for item in states):
+                    return _SOURCE_DERIVATION_FAILED
+                return _SourceTypeState("tuple_generic", arguments=states)
+            if (
+                origin.reference is provider.callable_type
+                and len(arguments) == 2
+                and isinstance(arguments[0], ast.List)
+            ):
+                states = tuple(
+                    read(item, owner_name, seen, depth + 1)
+                    for item in (*arguments[0].elts, arguments[1])
+                )
+                if any(type(item) is not _SourceTypeState for item in states):
+                    return _SOURCE_DERIVATION_FAILED
+                return _SourceTypeState("callable", arguments=states)
+        return _SOURCE_DERIVATION_FAILED
+
+    try:
+        provider = _native_type_metadata_provider()
+        owner_context = context(module_name)
+        if provider is None or owner_context is None:
+            return _SOURCE_DERIVATION_FAILED
+        current_tree = owner_context[2]
+        current = tuple(
+            item
+            for item in ast.walk(current_tree)
+            if type(item) is type(node)
+            and (
+                getattr(item, "lineno", -1),
+                getattr(item, "col_offset", -1),
+                getattr(item, "end_lineno", -1),
+                getattr(item, "end_col_offset", -1),
+            )
+            == (node.lineno, node.col_offset, node.end_lineno, node.end_col_offset)
+        )
+        if len(current) != 1:
+            return _SOURCE_DERIVATION_FAILED
+        state = read(current[0], module_name, visited, 0)
+        if token is not None:
+            analysis.assert_sources_unchanged()
+        return (
+            _SourceResolvedAnnotation((), state)
+            if type(state) is _SourceTypeState
+            else _SOURCE_DERIVATION_FAILED
+        )
+    finally:
+        if token is not None:
+            _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
+
+
+def _source_type_state_matches(
+    actual: object,
+    expected: _SourceTypeState,
+    provider: _NativeTypeMetadataProvider,
+    *,
+    remaining: list[int] | None = None,
+    depth: int = 0,
+) -> bool:
+    """Match admitted native fields only; never invoke an alias, class, or equality hook."""
+
+    if remaining is None:
+        remaining = [10000]
+    if remaining[0] <= 0 or depth > 40:
+        return False
+    if (
+        _passive_capture_lookup(vars(types), "UnionType") is not provider.union_type
+        or _passive_capture_lookup(vars(types), "GenericAlias") is not provider.generic_type
+    ):
+        return False
+    remaining[0] -= 1
+    if expected.kind == "class":
+        return actual is expected.reference
+    if expected.kind == "union":
+        if type(actual) is not provider.union_type:
+            return False
+        arguments = provider.union_arguments.__get__(actual, provider.union_type)
+    elif expected.kind in {"tuple_generic", "callable"}:
+        alias_type = (
+            provider.generic_type
+            if expected.kind == "tuple_generic"
+            else provider.callable_alias_type
+        )
+        origin = tuple if expected.kind == "tuple_generic" else provider.callable_type
+        if (
+            type(actual) is not alias_type
+            or provider.generic_origin.__get__(actual, alias_type) is not origin
+        ):
+            return False
+        arguments = provider.generic_arguments.__get__(actual, alias_type)
+    else:
+        return False
+    return bool(
+        type(arguments) is tuple
+        and len(arguments) == len(expected.arguments)
+        and len(arguments) <= remaining[0]
+        and all(
+            _source_type_state_matches(value, state, provider, remaining=remaining, depth=depth + 1)
+            for value, state in zip(arguments, expected.arguments, strict=True)
+        )
     )
 
 
@@ -18799,6 +19398,11 @@ def _source_resolved_annotation_matches(
 ) -> bool:
     """Match only source-resolved class identities and their supported union forms."""
 
+    if type(expected.type_state) is _SourceTypeState:
+        provider = _native_type_metadata_provider()
+        return provider is not None and _source_type_state_matches(
+            actual, expected.type_state, provider
+        )
     members = expected.members
     if type(members) is not tuple or not members:
         return False
@@ -18809,23 +19413,12 @@ def _source_resolved_annotation_matches(
     if len(members) == 1:
         return actual is members[0]
 
-    try:
-        origin = typing.get_origin(actual)
-        actual_members = typing.get_args(actual)
-    except (AttributeError, TypeError, ValueError):
+    witness = _native_union_witness()
+    if witness is None or type(actual) is not witness[0]:
         return False
+    actual_members = witness[1].__get__(actual, witness[0])
     if type(actual_members) is not tuple or len(actual_members) != len(members):
         return False
-    if origin is typing.Union:
-        union_alias = typing.Union
-        if type(actual) is not type(union_alias[int, str]):
-            return False
-    elif origin is types.UnionType:
-        if type(actual) is not types.UnionType:
-            return False
-    else:
-        return False
-
     if any(
         actual_member is prior
         for index, actual_member in enumerate(actual_members)
@@ -20007,6 +20600,7 @@ def _python_runtime_manifest() -> dict[str, object]:
         "gil_disabled": sysconfig.get_config_var("Py_GIL_DISABLED"),
         "typing_protocol_provider": _typing_protocol_provider_projection(),
         "typing_literal_value_provider": _typing_literal_provider_projection(),
+        "native_type_metadata_provider": _native_type_metadata_provider_projection(),
         "context_manager_provider": _context_manager_provider_projection(),
     }
 

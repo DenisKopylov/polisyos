@@ -12428,7 +12428,8 @@
           "historical_chain": "Real R2 N5 persisted, late pytestFAIL parent_rows=[]; separate freshv3 PASS/noN5 .2/.375/.875/interaction.3/seeds11,12. Different source slices; no original all-green claim.",
           "material_current_delta": "Later public routes/contracts/recursive relation and rehashed-reversed-order control; simulator unchanged sincev3. Original R2 fixtureCAS absent; surviving hashes/outputs do not provide bytes.",
           "next_check": "One current producer→saved artifact→fresh process reader including order control. Reuse measured~1.83GB/50s profile; independent store may overlap measured protected job after source freeze. Retain deciding bytes through consumer check.",
-          "resolution": "See authored_joint_current_retained_qualification; original failure retained, full pytest PASS not claimed."
+          "resolution": "See authored_joint_current_retained_qualification; original failure retained, full pytest PASS not claimed.",
+          "current_disposition": "Producer R1 plus retained current suffix qualification are recorded in authored_joint_current_retained_qualification; no new full-selector PASS is inferred."
         },
         "source_provider_composed_f42": {
           "output": "policy-engine/_cache/e02/lane01-decorated-source-composed-final-r22",
@@ -12479,7 +12480,8 @@
           "peak_RSS_bytes": 1595998208,
           "named_inputs": 23,
           "inputs_unchanged": true,
-          "scope": "Finite typing.Literal declaration/raw-value profile under explicitCPython3.14stdlib backend. Actual hashing aliases pass.250PASS/17FAIL; all17 at derived registry DEFAULT_ENTRY_POINT_GROUPS=tuple(sorted(...keys())). No general evaluator or alias construction-history claim. IndependentTerraGO; not yet MAIN composition."
+          "scope": "Finite typing.Literal declaration/raw-value profile under explicitCPython3.14stdlib backend. Actual hashing aliases pass.250PASS/17FAIL; all17 at derived registry DEFAULT_ENTRY_POINT_GROUPS=tuple(sorted(...keys())). No general evaluator or alias construction-history claim. IndependentTerraGO; now composed in MAIN1954; the source-witness residual is separate.",
+          "composed_at": "1954c87940f2977677fc626735602a22408dda91"
         },
         "acq01_pending_macro_preflight_current": {
           "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-acq01-postcustody-preflight-r21",
@@ -12574,6 +12576,97 @@
             ]
           },
           "scope": "TEST-CYC05-07 named current producer→savedartifact→freshreader/control profile qualified; authored_candidate/couplingnotestablished/unsupportedinteraction/effectbasisnotestablished. NoGacceptance/formalclosure."
+        },
+        "candidate_experiment_native_execute_r19": {
+          "output": "policy-engine/_cache/e02/lane01-candidate-execution-native-r19",
+          "source": "1954c87940f2977677fc626735602a22408dda91 / 49ddecf6b81e4caf15916af7d32740607e5066bc",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "classification": "command_failed",
+          "abort_reason": null,
+          "wall_seconds": 883.7023741670419,
+          "peak_RSS_bytes": 1861500928,
+          "named_inputs": 111,
+          "inputs_unchanged": true,
+          "scope": "Actual worker failure: candidate_experiment_evaluation_catalog_not_current at dispatcher5018/owner1935, after candidate source/DataSnapshot and pending reentry, before new B physical N5. Service caller lacks app-selected Catalog scope before initial owner revalidation. Not a timeout/OOM; no new-B/terminal/reader PASS. Canonical pending resume also needs the same typed execution port selected outside phase-specific effect branches; no SQL edits or fabricated authority.",
+          "first_action_profile": {
+            "relative_output": "pytest-temp/test_genuine_labor_policy_gets0/first-current-action-profile",
+            "instrumented_seconds": 19.962,
+            "calls": 79299911,
+            "outcome_folds": 2,
+            "scope": "Instrumented first current action only; no unprofiled/whole-route speed assertion."
+          }
+        },
+        "acq01_raw_n5_handoff_negative_current": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-acq01-raw-n5-negative-r1",
+          "source": "AUTHOR six-path released source composed at MAIN1954c8794; test ba3d2e571523f3a0fb7f5ed4cc019a1a67dcb8fdaeb2a11ac806248662101cc3",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 25.21,
+          "peak_RSS_bytes": 1601437696,
+          "named_inputs": 96,
+          "inputs_unchanged": true,
+          "scope": "Real persisted raw StockFlow N5, exact missing typed-handoff refusal before N7, no N8. Independent baseline(.9,.1)/intervention(1.9,.1). Negative route qualification only; no ACQ positive acceptance."
+        },
+        "lane01_composed_publication_current": {
+          "commit": "1954c87940f2977677fc626735602a22408dda91",
+          "tree": "49ddecf6b81e4caf15916af7d32740607e5066bc",
+          "remote_ref": "refs/heads/codex/e02-main-composition-20261031",
+          "remote_readback": "exact commit/tree verified after normal push/typecheck; origin/main unchanged; PR70 unmerged",
+          "scope": "Saved source/test composition, not whole-lane/G acceptance."
+        },
+        "candidate_catalog_dispatch_scope_service_current": {
+          "source_base": "1954c87940f2977677fc626735602a22408dda91",
+          "content_sha256": {
+            "src/polisyos/runtime/http/services/acquisition_action_service.py": "3fdf54a9dfde6338219e82c04dc18feaec34d53829ed11961f257af32d549360",
+            "tests/unit/runtime/http/services/test_acquisition_action_service.py": "6a14d26201918e4fe648284cfb5104e33187ec18ac7959ce49ce5322121611f5"
+          },
+          "output": "policy-engine/_cache/e02/lane01-candidate-catalog-scope-service-r1",
+          "observed": {
+            "PASS": 23,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 82.50456554093398,
+          "peak_RSS_bytes": 1720778752,
+          "named_inputs": 3,
+          "inputs_unchanged": true,
+          "scope": "Real service pending-phase control flow, structural upstream adapters and actual Catalog ContextVar/readmission gates; dispatch and final head reader share the app source. Missing pending-phase execution port is repaired without rerunning the acquisition effect. Foreign source/content drift refuse; cleanup restores the outer context. No N5/CAS/runtime-authority qualification. Independent Luna GO."
+        },
+        "source_registry_keys_author_current": {
+          "commit": "6209f61c5f45e62219aa1b70337e883e2abba582",
+          "tree": "77ad80233c68491df5e8a6bfbb9360149b291aea",
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-registry-keys-composed-r2",
+          "observed": {
+            "PASS": 290,
+            "FAIL": 18,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "corrected_test_output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-registry-keys-package-boundary-r3",
+          "corrected_test_observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "scope": "Exact source-owned registry key projection and canonical passive import provenance; values/initializer history remain unestablished. Original18FAIL preserved: one corrected test now passes;17 remaining reach tuple-of-names constants. No combined291-pass invocation claimed. Independent Terra GO."
+        },
+        "acquisition_constituent_controls_current": {
+          "commit": "7d790f67d626f92371d2b5d2475416c22a4ea049",
+          "tree": "28e6cc9d5fa723feaac1819357e1a1e815773d97",
+          "remote_ref": "refs/heads/codex/e02-lane01-job-publication",
+          "remote_readback": "Exact7d790f67d after normal push/typecheck; four released file bytes read back from commit.",
+          "scope": "One shared first-B fixture for generations/GDP with real state/source-path/baseline/declaration/selectedNCM falsifiers, unchanged heads/units/original selected CAS guards; scale-aware float32-distinct target control. Static and non-author reviews PASS; runtime/N5 controls UNRUN."
         }
       },
       "independent_component_reviews": {
@@ -12604,7 +12697,7 @@
       },
       "resource_admission_current": {
         "disk_stop_floor_GiB": 3,
-        "free_disk_GiB_at_check": 6.6,
+        "free_disk_GiB_at_check": 6.38,
         "policy": "Local only; existing environments/data; <=8GiB measured aggregate process-tree RSS, <=4 measured jobs and <=6 numerical CPU threads. The old4GiB/two-job baseline is not a hard cap. New expensive profiles start alone. Stop below3GiB disk.",
         "trash_move": {
           "directory": "/Users/deniskopylov/.Trash/PolicyOS-obsolete-test-scratch-20261105T132841Z",
@@ -12650,7 +12743,7 @@
           "code_docs_environments_unique_production_preserved": true
         },
         "execution_state": "ACTIVE_LOCAL_2026-11-06",
-        "next_session": "Finish decorated source/dataclass proof and bounded actual-context preflight; run genuine protected R18 only after source freeze, then generations/crash and distinct GDP; final affected consumers/installed wave and66-requirement reconciliation. No next lane.",
+        "next_session": "Fix R19 Catalog dispatch/pending-resume boundary and run genuine protected replay; independently finish finite source cohort, shared generation/GDP constituent controls and fresh-runtime crash preparation. Then generations, GDP, affected consumers/installed and all66 reconciliation. No next lane.",
         "latest_additional_trash_move": {
           "size_KiB": 398572,
           "manifest": "/Users/deniskopylov/.Trash/PolicyOS-reproducible-unit-scratch-20261106T125204Z/manifest.json",

@@ -530,6 +530,298 @@ def test_candidate_worker_consumes_canonical_execution_scope_payload(variant: st
         assert store.calls == 0
 
 
+def _candidate_experiment_pending_resume_case(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    catalog_source: object | None = None,
+) -> dict[str, Any]:
+    """Build a structural-only worker boundary; no CAS, authority, or N5 is exercised."""
+    from polisyos.runtime.http.services.acquisition_surface_execution import (
+        WorldBankWDIAcquisitionExecutionPort,
+    )
+    from polisyos.runtime.quality import acquisition_evaluation_dispatch
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
+    )
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+    from polisyos.runtime.quality.generation_cycle import LoopVOIDecision
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourceSelection,
+        current_catalog_serving_source,
+        resolve_catalog_serving_source,
+    )
+
+    if catalog_source is None:
+        selected_root = tmp_path / "selected-catalog"
+        selected_root.mkdir()
+        (selected_root / "dataset_catalog.duckdb").write_bytes(b"selected synthetic catalog")
+        catalog_source = resolve_catalog_serving_source(
+            tmp_path,
+            selection=CatalogServingSourceSelection(
+                snapshot_root=selected_root,
+                catalog_run_profile="prod_full",
+                database_relative_path=Path("dataset_catalog.duckdb"),
+            ),
+            requested_profile="prod_full",
+        )
+
+    origin, request = _candidate_experiment_action_fixture()
+    job_id = AcquisitionActionService._candidate_experiment_job_id(origin, request)
+    authority_ref = artifacts.ArtifactRef(
+        artifact_id="sha256:" + "e" * 64,
+        kind="runtime_quality.agent_action_authority_decision",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "f" * 64,
+    )
+    action_ref = artifacts.ArtifactRef(
+        artifact_id="sha256:" + "a" * 64,
+        kind="runtime_quality.acquisition_candidate_action_receipt",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "b" * 64,
+    )
+    phase = AcquisitionCandidateExperimentPhaseReceipt(
+        receipt_id=f"{job_id}.candidate-experiment.reentry-pending",
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        run_id=origin.run_id,
+        source_job_id=origin.source_job_id,
+        route_id=origin.route_id,
+        action_generation=1,
+        job_id=job_id,
+        source_payload_ref=origin.source_payload_ref,
+        capability_manifest_ref="sha256:" + "c" * 64,
+        request_content_hash=origin.request_content_hash,
+        policy_scope=origin.policy_scope,
+        policy_ref=origin.policy_ref,
+        authority_decision_ref=authority_ref,
+        voi_decision=LoopVOIDecision(
+            candidate_id=origin.policy_scope.candidate_id,
+            terminal_kind="candidate_experiment",
+            scheduler_action="reject",
+            scheduler_reason="roi_below_threshold",
+            priority=0.0,
+            next_action="stop",
+            reason="synthetic worker-phase fixture",
+        ),
+        predecessor_receipt_ref="sha256:" + "d" * 64,
+        owner_receipt_refs=(str(action_ref.artifact_id),),
+        coarse_phase="candidate_input_prepared",
+        receipt_phase="candidate_input_reentry_pending",
+        recovery_state="reentry_recovery_required",
+        candidate_receipt_ref=action_ref,
+        generated_at=datetime.now(UTC),
+    )
+    head = SimpleNamespace(
+        job_id=job_id,
+        receipt_ref="sha256:" + "9" * 64,
+        receipt_phase="candidate_input_reentry_pending",
+    )
+    outcome = SimpleNamespace(
+        head=head,
+        latest_receipt=phase,
+        phase_chain=(SimpleNamespace(receipt=phase, receipt_ref=head.receipt_ref),),
+    )
+    job = SimpleNamespace(job_id=job_id, kind="acquisition", run_id=origin.run_id, state="running")
+    execution_scope = ControlJobExecutionScope(
+        status="established",
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        actor_subject="candidate-worker-test",
+        actor_authenticated=True,
+        actor_roles=("analyst",),
+    )
+    admission = SimpleNamespace(
+        job=job,
+        scope=execution_scope,
+        matches_job_record=lambda candidate: candidate is job,
+    )
+
+    class ControlStore:
+        def current_execution_job_admission(self) -> object:
+            return admission
+
+    calls: list[str] = []
+    no_n5_calls: list[object] = []
+    terminal_head = object()
+    verified_outcome = object()
+
+    class Sink:
+        def experiment_action_outcomes(self, **_kwargs: object) -> tuple[object, ...]:
+            return (outcome,)
+
+        def verify_action_head(self, actual_head: object) -> object:
+            assert actual_head is terminal_head
+            assert current_catalog_serving_source() is catalog_source
+            calls.append("verify")
+            return verified_outcome
+
+    sink = Sink()
+    bridge = object.__new__(AcquisitionWorldGrowthBridge)
+    port = object.__new__(WorldBankWDIAcquisitionExecutionPort)
+    port._world_growth_bridge = bridge
+    port.execute_candidate_experiment = lambda *_args, **_kwargs: no_n5_calls.append("N5")
+    control = SimpleNamespace(
+        _control_store=ControlStore(),
+        acquisition_route_sink=sink,
+        catalog_serving_source=catalog_source,
+    )
+    service = object.__new__(AcquisitionActionService)
+    service.control_service = control
+    service._execution_port = port
+    service._production_execution_port = port
+    service._candidate_experiment_loop = lambda **_kwargs: SimpleNamespace(
+        resolve_current_candidate_experiment=lambda **_resolve_kwargs: origin
+    )
+    service._candidate_experiment_terminal_progress = lambda actual: {
+        "state": "completed" if actual is verified_outcome else "unexpected"
+    }
+    payload = {
+        "action_kind": CANDIDATE_EXPERIMENT_ACTION_KIND,
+        "job_id": job_id,
+        "tenant_id": origin.tenant_id,
+        "cell_id": origin.cell_id,
+        "run_id": origin.run_id,
+        "route_id": origin.route_id,
+        "decision_ref": str(authority_ref.artifact_id),
+        "request": request.model_dump(mode="json"),
+    }
+    case: dict[str, Any] = {
+        "service": service,
+        "job": job,
+        "payload": payload,
+        "execution_scope": execution_scope,
+        "catalog_source": catalog_source,
+        "foreign_source": replace(catalog_source, snapshot_root=tmp_path / "foreign-source"),
+        "bridge": bridge,
+        "origin": origin,
+        "terminal_head": terminal_head,
+        "verified_outcome": verified_outcome,
+        "calls": calls,
+        "no_n5_calls": no_n5_calls,
+        "dispatch_error": None,
+        "dispatch_check": None,
+    }
+
+    def dispatch(*, bridge: object, origin: object) -> object:
+        assert bridge is case["bridge"]
+        assert origin is case["origin"]
+        assert current_catalog_serving_source() is catalog_source
+        calls.append("dispatch")
+        if case["dispatch_check"] is not None:
+            case["dispatch_check"]()
+        if case["dispatch_error"] is not None:
+            raise case["dispatch_error"]
+        return terminal_head
+
+    monkeypatch.setattr(
+        acquisition_evaluation_dispatch,
+        "dispatch_candidate_experiment_evaluation",
+        dispatch,
+    )
+    return case
+
+
+def test_pending_candidate_experiment_retry_scopes_dispatch_and_sink_to_app_catalog(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A genuine pending phase binds the app catalog through dispatch and final readback."""
+    from polisyos.runtime.quality.substrate_registry import current_catalog_serving_source
+
+    case = _candidate_experiment_pending_resume_case(tmp_path, monkeypatch)
+    result = case["service"].handle_job(case["job"], case["payload"], case["execution_scope"])
+
+    assert result == {"state": "completed"}
+    assert case["calls"] == ["dispatch", "verify"]
+    assert case["no_n5_calls"] == []
+    assert current_catalog_serving_source() is None
+
+
+def test_pending_candidate_experiment_retry_restores_catalog_scope_after_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The synchronous app-source wrapper restores an absent outer context on failure."""
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteRecoveryRequired
+    from polisyos.runtime.quality.substrate_registry import current_catalog_serving_source
+
+    case = _candidate_experiment_pending_resume_case(tmp_path, monkeypatch)
+    case["dispatch_error"] = ValueError("synthetic dispatch refusal")
+
+    with pytest.raises(
+        AcquisitionRouteRecoveryRequired,
+        match="candidate_experiment_evaluation_recovery_required",
+    ):
+        case["service"].handle_job(case["job"], case["payload"], case["execution_scope"])
+
+    assert case["calls"] == ["dispatch"]
+    assert case["no_n5_calls"] == []
+    assert current_catalog_serving_source() is None
+
+
+def test_pending_candidate_experiment_retry_refuses_foreign_active_catalog(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The worker cannot mask an already-active foreign source with its app binding."""
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteRecoveryRequired
+    from polisyos.runtime.quality.substrate_registry import (
+        catalog_serving_source_scope,
+        current_catalog_serving_source,
+    )
+
+    case = _candidate_experiment_pending_resume_case(tmp_path, monkeypatch)
+    with catalog_serving_source_scope(case["foreign_source"]):
+        with pytest.raises(AcquisitionRouteRecoveryRequired) as refused:
+            case["service"].handle_job(case["job"], case["payload"], case["execution_scope"])
+        assert getattr(refused.value.__cause__, "code", None) == "catalog_source_context_mismatch"
+        assert current_catalog_serving_source() is case["foreign_source"]
+
+    assert case["calls"] == []
+    assert case["no_n5_calls"] == []
+
+
+def test_pending_candidate_experiment_retry_preserves_real_catalog_readmission_refusal(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Binding the app scope does not override a catalog that changed after selection."""
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteRecoveryRequired
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourceSelection,
+        current_catalog_serving_source,
+        require_catalog_serving_source_unchanged,
+        resolve_catalog_serving_source,
+    )
+
+    selected_root = tmp_path / "selected-catalog"
+    selected_root.mkdir()
+    database = selected_root / "dataset_catalog.duckdb"
+    database.write_bytes(b"selected source bytes")
+    source = resolve_catalog_serving_source(
+        tmp_path,
+        selection=CatalogServingSourceSelection(
+            snapshot_root=selected_root,
+            catalog_run_profile="prod_full",
+            database_relative_path=Path("dataset_catalog.duckdb"),
+        ),
+        requested_profile="prod_full",
+    )
+    case = _candidate_experiment_pending_resume_case(
+        tmp_path / "worker", monkeypatch, catalog_source=source
+    )
+    case["dispatch_check"] = lambda: require_catalog_serving_source_unchanged(source)
+    database.write_bytes(b"changed after source admission")
+
+    with pytest.raises(AcquisitionRouteRecoveryRequired) as refused:
+        case["service"].handle_job(case["job"], case["payload"], case["execution_scope"])
+
+    assert (
+        getattr(refused.value.__cause__, "code", None)
+        == "catalog_source_content_changed_readmission_required"
+    )
+    assert case["calls"] == ["dispatch"]
+    assert case["no_n5_calls"] == []
+    assert current_catalog_serving_source() is None
+
+
 def _candidate_selected_evaluation() -> AcquisitionSelectedEvaluation:
     def ref(kind: str, digit: str) -> artifacts.ArtifactRef:
         digest = "sha256:" + digit * 64

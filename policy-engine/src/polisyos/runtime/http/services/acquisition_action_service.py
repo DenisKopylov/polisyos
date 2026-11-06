@@ -2163,6 +2163,12 @@ class AcquisitionActionService:
         phase = latest.receipt
         if type(phase) is not AcquisitionCandidateExperimentPhaseReceipt:
             raise AcquisitionRouteRecoveryRequired("candidate_experiment_phase_history_untyped")
+        port = self._require_candidate_experiment_execution_port()
+        if (
+            type(port) is not WorldBankWDIAcquisitionExecutionPort
+            or type(port._world_growth_bridge) is not AcquisitionWorldGrowthBridge
+        ):
+            raise AcquisitionActionServiceError("candidate_experiment_execution_owner_missing")
         if phase.receipt_phase == "requested":
             try:
                 decision_history = self.load_candidate_experiment_decision_history(
@@ -2194,12 +2200,6 @@ class AcquisitionActionService:
                 raise AcquisitionActionServiceError(
                     "candidate_experiment_worker_decision_scope_mismatch"
                 )
-            port = self._require_candidate_experiment_execution_port()
-            if (
-                type(port) is not WorldBankWDIAcquisitionExecutionPort
-                or type(port._world_growth_bridge) is not AcquisitionWorldGrowthBridge
-            ):
-                raise AcquisitionActionServiceError("candidate_experiment_execution_owner_missing")
             operation, invocation, intent = self._candidate_experiment_action_tuple(origin, request)
 
             def _no_effect(_invocation: OperationInvocationRecord) -> object:
@@ -2273,10 +2273,7 @@ class AcquisitionActionService:
             phase = executing
             phase_ref = action_phase_ref
         elif phase.receipt_phase == "executing":
-            port = self._require_candidate_experiment_execution_port()
-            bridge = getattr(port, "_world_growth_bridge", None)
-            if type(port) is not WorldBankWDIAcquisitionExecutionPort or bridge is None:
-                raise AcquisitionActionServiceError("candidate_experiment_execution_owner_missing")
+            bridge = port._world_growth_bridge
             recovered = bridge.recover_candidate_experiment_action(
                 origin=origin,
                 action_phase_ref=latest.receipt_ref,
@@ -2349,16 +2346,31 @@ class AcquisitionActionService:
             from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
                 dispatch_candidate_experiment_evaluation,
             )
-
-            terminal_head = dispatch_candidate_experiment_evaluation(
-                bridge=port._world_growth_bridge,
-                origin=origin,
+            from polisyos.runtime.quality.substrate_registry import (
+                current_catalog_serving_source,
+                require_active_catalog_source,
+                run_catalog_source_call,
             )
+
+            catalog_source = self.control_service.catalog_serving_source
+            active_source = current_catalog_serving_source()
+            if active_source is not None and active_source is not catalog_source:
+                require_active_catalog_source(catalog_source)
+
+            def _dispatch_and_verify() -> object:
+                terminal_head = dispatch_candidate_experiment_evaluation(
+                    bridge=port._world_growth_bridge,
+                    origin=origin,
+                )
+                return sink.verify_action_head(terminal_head)
+
+            final = run_catalog_source_call(catalog_source, _dispatch_and_verify)
+        except AcquisitionRouteRecoveryRequired:
+            raise
         except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
             raise AcquisitionRouteRecoveryRequired(
                 "candidate_experiment_evaluation_recovery_required"
             ) from exc
-        final = sink.verify_action_head(terminal_head)
         return self._candidate_experiment_terminal_progress(final)
 
     @staticmethod

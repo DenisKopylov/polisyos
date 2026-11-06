@@ -248,13 +248,8 @@ def produced_station(tmp_path_factory):
     context_refs = []
     original_context_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
 
-    def capture_context_ref(context_owner, context, *, problem, verified_nl_job_scope=None):
-        ref = original_context_persist(
-            context_owner,
-            context,
-            problem=problem,
-            verified_nl_job_scope=verified_nl_job_scope,
-        )
+    def capture_context_ref(context_owner, context, *args, **kwargs):
+        ref = original_context_persist(context_owner, context, *args, **kwargs)
         context_refs.append(ref)
         return ref
 

@@ -8,6 +8,7 @@ import functools
 import importlib.util
 import sys
 import types
+import typing
 from contextlib import nullcontext
 from functools import wraps
 from pathlib import Path
@@ -1523,3 +1524,344 @@ def test_frozenset_constructor_source_is_pinned_and_removal_refuses(tmp_path, mo
     monkeypatch.setattr(ledger, "_source_frozenset_literal_expression", change_source_during_proof)
     with pytest.raises(ledger.ConfidenceLedgerError, match="source changed during"):
         _candidate(root, module, "VALUES")
+
+
+def _typing_literal_source(expression="Literal['alpha']", imports="from typing import Literal"):
+    return (
+        f"from __future__ import annotations\n{imports}\n"
+        f"CHOICE = {expression}\n"
+        "def read_choice():\n    return CHOICE\n"
+    )
+
+
+def _typing_literal_expected(module, name="CHOICE"):
+    tree = ast.parse(Path(module.__file__).read_bytes(), filename=module.__file__)
+    declaration = ledger._module_scope_direct_binding_sites(tree, name)[0][1]
+    return ledger._source_typing_literal_expression(
+        declaration.value, tree=tree, module=module, module_name=module.__name__
+    )
+
+
+def _typing_literal_consumer(root, module, monkeypatch):
+    consumer = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.literal_consumer",
+        f"from {module.__name__} import CHOICE\nRESULT = CHOICE\n",
+    )
+    closure = tuple(
+        (owner.__name__, Path(owner.__file__).relative_to(root).as_posix())
+        for owner in (module, consumer)
+    )
+    return consumer, closure
+
+
+@pytest.mark.parametrize(
+    ("expression", "imports"),
+    [
+        ("Literal['alpha', 'beta']", "from typing import Literal"),
+        ("Choice['alpha', 1, True, None, b'bytes', -1]", "from typing import Literal as Choice"),
+        ("t.Literal['alpha', 'alpha']", "import typing as t"),
+        ("Literal[True, 1]", "from typing import Literal"),
+    ],
+)
+def test_typing_literal_source_route_and_selected_consumer_are_value_bound(
+    tmp_path, monkeypatch, expression, imports
+):
+    root, module = _load_decorated_case(
+        tmp_path, monkeypatch, _typing_literal_source(expression, imports)
+    )
+    expected = _typing_literal_expected(module)
+    assert expected is not ledger._SOURCE_DERIVATION_FAILED
+    assert ledger._source_typing_literal_value_matches(module.read_choice(), expected)
+    assert _route(root, module, "CHOICE") == ("symbol", module.__name__, "CHOICE")
+    _consumer, closure = _typing_literal_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    profile = ledger._typing_literal_provider_projection()
+    assert profile["scope"] == "source_declaration_and_inert_origin_args_only"
+    assert profile["construction_history_and_alias_execution"] == "not_established"
+    assert profile["independent_transform_verification"] is False
+
+
+def test_actual_hashing_literal_aliases_have_finite_source_and_value_owners():
+    from polisyos.common import hashing
+
+    root = ledger._loaded_policy_engine_root()
+    for name in ("HashAlgorithm", "DeprecatedHashAlgorithm"):
+        expected = _typing_literal_expected(hashing, name)
+        assert expected is not ledger._SOURCE_DERIVATION_FAILED
+        assert ledger._source_typing_literal_value_matches(vars(hashing)[name], expected)
+        assert _route(root, hashing, name) == ("symbol", hashing.__name__, name)
+
+
+@pytest.mark.parametrize(
+    "mutation", ["values", "primitive_type", "origin", "unknown_args", "reversed", "duplicated"]
+)
+def test_typing_literal_selected_consumer_refuses_coherent_forgery(tmp_path, monkeypatch, mutation):
+    expression = (
+        "Literal[1]"
+        if mutation == "primitive_type"
+        else "Literal['alpha', 'beta']"
+        if mutation in {"reversed", "duplicated"}
+        else "Literal['alpha']"
+    )
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _typing_literal_source(expression))
+    consumer, closure = _typing_literal_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    observed = []
+
+    class UnknownArgument:
+        def __hash__(self):
+            observed.append("hash")
+            return 1
+
+        def __eq__(self, _other):
+            observed.append("equality")
+            return True
+
+    # A deliberately constructed canonical-type instance is not evidence of
+    # creation history. Its inert state must still match the declaration.
+    forged = object.__new__(type(module.CHOICE))
+    vars(forged).update(vars(module.CHOICE))
+    if mutation == "origin":
+        vars(forged)["__origin__"] = typing.Union
+    elif mutation == "unknown_args":
+        vars(forged)["__args__"] = (UnknownArgument(),)
+    elif mutation == "reversed":
+        vars(forged)["__args__"] = ("beta", "alpha")
+    elif mutation == "duplicated":
+        vars(forged)["__args__"] = ("alpha", "beta", "alpha")
+    else:
+        vars(forged)["__args__"] = (True,) if mutation == "primitive_type" else ("forged",)
+    monkeypatch.setattr(module, "CHOICE", forged)
+    monkeypatch.setattr(consumer, "CHOICE", forged)
+    monkeypatch.setattr(consumer, "RESULT", forged)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="typing Literal binding differs"):
+        ledger._source_facade_runtime_projection(root, closure)
+    assert observed == []
+
+
+def test_typing_literal_fake_alias_is_refused_without_getters_or_protocols(tmp_path, monkeypatch):
+    _root, module = _load_decorated_case(tmp_path, monkeypatch, _typing_literal_source())
+    expected = _typing_literal_expected(module)
+    observed = []
+
+    class UnverifiedAlias:
+        def __getattribute__(self, name):
+            observed.append(name)
+            raise AssertionError("unknown getter must not run")
+
+        def __eq__(self, _other):
+            observed.append("equality")
+            return True
+
+        def __hash__(self):
+            observed.append("hash")
+            return 1
+
+    assert not ledger._source_typing_literal_value_matches(UnverifiedAlias(), expected)
+    assert observed == []
+
+
+@pytest.mark.parametrize(
+    "expression",
+    ["Literal[TOKEN]", "Literal[read_choice()]", "Literal[Literal['alpha']]", "Literal[1.0]"],
+)
+def test_typing_literal_profile_refuses_dynamic_nested_and_nonprimitive_source(
+    tmp_path, monkeypatch, expression
+):
+    source = _typing_literal_source()
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    observed = []
+    monkeypatch.setattr(module, "read_choice", lambda: observed.append("called"))
+    monkeypatch.setattr(module, "TOKEN", "alpha", raising=False)
+    Path(module.__file__).write_text(
+        source.replace("CHOICE = Literal['alpha']", f"CHOICE = {expression}"), encoding="utf-8"
+    )
+    assert _typing_literal_expected(module) is ledger._SOURCE_DERIVATION_FAILED
+    with pytest.raises(ledger.ConfidenceLedgerError, match="side-effecting direct source"):
+        _route(root, module, "CHOICE")
+    assert observed == []
+
+
+def test_typing_literal_source_shadow_and_constructor_removal_refuse(tmp_path, monkeypatch):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _typing_literal_source())
+    consumer, closure = _typing_literal_consumer(root, module, monkeypatch)
+    observed = []
+
+    class UnverifiedForm:
+        def __getitem__(self, _arguments):
+            observed.append("getitem")
+            return module.CHOICE
+
+    monkeypatch.setattr(module, "Literal", UnverifiedForm())
+    assert _typing_literal_expected(module) is ledger._SOURCE_DERIVATION_FAILED
+    with pytest.raises(ledger.ConfidenceLedgerError, match="side-effecting direct source"):
+        ledger._source_facade_runtime_projection(root, closure)
+    assert consumer.RESULT is module.CHOICE
+    assert observed == []
+
+
+def test_typing_literal_primitive_budget_boundary_remains_consumer_checked(tmp_path, monkeypatch):
+    value = "a" * 200000
+    root, module = _load_decorated_case(
+        tmp_path, monkeypatch, _typing_literal_source(f"Literal[{value!r}]")
+    )
+    consumer, closure = _typing_literal_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    forged = object.__new__(type(module.CHOICE))
+    vars(forged).update(vars(module.CHOICE))
+    vars(forged)["__args__"] = ("b" * 200000,)
+    monkeypatch.setattr(module, "CHOICE", forged)
+    monkeypatch.setattr(consumer, "CHOICE", forged)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="typing Literal binding differs"):
+        ledger._source_facade_runtime_projection(root, closure)
+    assert (
+        ledger._source_typing_literal_args_projection(tuple(range(81)))
+        is ledger._SOURCE_DERIVATION_FAILED
+    )
+    assert (
+        ledger._source_typing_literal_args_projection(("x" * (1024**2),))
+        is ledger._SOURCE_DERIVATION_FAILED
+    )
+
+
+def test_typing_literal_native_name_slot_refuses_unknown_equality(tmp_path, monkeypatch):
+    _root, module = _load_decorated_case(tmp_path, monkeypatch, _typing_literal_source())
+    observed = []
+
+    class UnverifiedName:
+        def __eq__(self, _other):
+            observed.append("equality")
+            return True
+
+    with monkeypatch.context() as changed:
+        changed.setattr(typing.Literal, "_name", UnverifiedName())
+        assert _typing_literal_expected(module) is ledger._SOURCE_DERIVATION_FAILED
+    assert observed == []
+
+
+def test_typing_literal_provider_byte_corruption_is_refused_without_execution(monkeypatch):
+    path = Path(typing.__file__).resolve()
+    original = Path.read_bytes
+    source = original(path)
+    changed = source.replace(
+        b"parameters = _flatten_literal_params(parameters)", b"parameters = ()", 1
+    )
+    assert changed != source
+    monkeypatch.setattr(
+        Path, "read_bytes", lambda self: changed if self == path else original(self)
+    )
+    assert ledger._typing_literal_provider_state() is None
+
+
+def test_typing_literal_source_snapshot_guard_catches_change_during_projection(
+    tmp_path, monkeypatch
+):
+    source = _typing_literal_source()
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    original = ledger._typing_literal_provider_state
+    path = Path(module.__file__)
+
+    def changed_source():
+        path.write_text(source + "\n# changed during Literal projection\n", encoding="utf-8")
+        return original()
+
+    monkeypatch.setattr(ledger, "_typing_literal_provider_state", changed_source)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="source changed during"):
+        _candidate(root, module, "CHOICE")
+
+
+@pytest.mark.parametrize("binding", ["spec", "sys_modules"])
+def test_typing_literal_provider_refuses_counterfeit_intake_without_getters(
+    tmp_path, monkeypatch, binding
+):
+    _root, module = _load_decorated_case(tmp_path, monkeypatch, _typing_literal_source())
+    observed = []
+
+    class UnverifiedProvider:
+        def __getattribute__(self, name):
+            observed.append(name)
+            raise AssertionError("counterfeit provider getter must not run")
+
+    with monkeypatch.context() as changed:
+        if binding == "spec":
+            changed.setitem(vars(typing), "__spec__", UnverifiedProvider())
+        else:
+            changed.setitem(sys.modules, "typing", UnverifiedProvider())
+        assert _typing_literal_expected(module) is ledger._SOURCE_DERIVATION_FAILED
+        assert ledger._typing_literal_provider_state() is None
+    assert observed == []
+
+
+@pytest.mark.parametrize("capture_scope", ["owned", "outer"])
+def test_typing_literal_provider_binds_logical_symlink_before_source_read(
+    tmp_path, monkeypatch, capture_scope
+):
+    original_path = Path(typing.__file__).resolve()
+    stdlib = tmp_path / "stdlib"
+    stdlib.mkdir()
+    logical = stdlib / "typing.py"
+    alternate = stdlib / "alternate.py"
+    original_bytes = original_path.read_bytes()
+    alternate.write_bytes(original_bytes)
+    logical.symlink_to(original_path)
+    original_get_path = ledger.sysconfig.get_path
+    original_codes = ledger._typing_protocol_source_codes
+    monkeypatch.setattr(
+        ledger.sysconfig,
+        "get_path",
+        lambda name: str(stdlib) if name == "stdlib" else original_get_path(name),
+    )
+
+    def retarget_after_source_read(*args, **kwargs):
+        result = original_codes(*args, **kwargs)
+        logical.unlink()
+        logical.symlink_to(alternate)
+        return result
+
+    monkeypatch.setattr(ledger, "_typing_protocol_source_codes", retarget_after_source_read)
+    if capture_scope == "owned":
+        assert ledger._typing_literal_provider_state() is None
+    else:
+        analysis = ledger._IntegrityAnalysisContext()
+        token = ledger._ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+        try:
+            assert ledger._typing_literal_provider_state() is not None
+            with pytest.raises(ledger.ConfidenceLedgerError, match="source target changed during"):
+                analysis.assert_sources_unchanged()
+        finally:
+            ledger._ACTIVE_INTEGRITY_ANALYSIS.reset(token)
+    assert original_path.read_bytes() == alternate.read_bytes() == original_bytes
+
+
+@pytest.mark.parametrize(
+    "extra_use", ["OTHER = t.Any\n", "def expose():\n    return t\n", "t = object()\n"]
+)
+def test_typing_literal_module_alias_profile_refuses_other_or_rebound_uses(
+    tmp_path, monkeypatch, extra_use
+):
+    source = _typing_literal_source("t.Literal['alpha']", "import typing as t") + extra_use
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    _consumer, closure = _typing_literal_consumer(root, module, monkeypatch)
+    with pytest.raises(ledger.ConfidenceLedgerError, match=r"module alias binding|side-effecting"):
+        ledger._source_facade_runtime_projection(root, closure)
+
+
+def test_typing_literal_module_alias_profile_checks_live_module_identity(tmp_path, monkeypatch):
+    root, module = _load_decorated_case(
+        tmp_path, monkeypatch, _typing_literal_source("t.Literal['alpha']", "import typing as t")
+    )
+    _consumer, closure = _typing_literal_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    observed = []
+
+    class UnverifiedModule:
+        def __getattribute__(self, name):
+            observed.append(name)
+            raise AssertionError("counterfeit module must not be read")
+
+    monkeypatch.setitem(vars(module), "t", UnverifiedModule())
+    with pytest.raises(ledger.ConfidenceLedgerError, match=r"module alias binding|side-effecting"):
+        ledger._source_facade_runtime_projection(root, closure)
+    assert observed == []

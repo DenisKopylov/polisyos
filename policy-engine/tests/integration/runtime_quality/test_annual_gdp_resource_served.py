@@ -1728,8 +1728,8 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
                         headers=reader_values["headers"],
                     )
                     assert response.status_code == 200, response.text
-                    projection = RunDetailsResponse.model_validate(
-                        response.json()
+                    projection = RunDetailsResponse.model_validate_json(
+                        response.content
                     ).run.candidate_simulation
                     assert projection is not None and projection.artifact_status == "resolved"
                     assert projection.publication_authority is False

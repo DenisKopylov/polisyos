@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 from uuid import uuid4
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
@@ -54,6 +54,17 @@ from tools.quality.validation import (
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
+ProviderUsageBasis = Literal[
+    "explicit_new_synthetic_values_from_source_counters_not_measured_usage",
+    "explicit_new_fixed_fixture_values_not_provider_measured",
+]
+SOURCE_COUNTER_USAGE_BASIS: ProviderUsageBasis = (
+    "explicit_new_synthetic_values_from_source_counters_not_measured_usage"
+)
+FIXED_FIXTURE_USAGE_BASIS: ProviderUsageBasis = (
+    "explicit_new_fixed_fixture_values_not_provider_measured"
+)
+
 
 @dataclass(frozen=True)
 class SyntheticCandidateProviderProfile:
@@ -71,8 +82,11 @@ class SyntheticCandidateProviderProfile:
     controlled_recording_content_hash: str
     response_rows: tuple[tuple[str, str], ...]
     evidence_root: Path
+    usage_basis: ProviderUsageBasis = SOURCE_COUNTER_USAGE_BASIS
 
     def __post_init__(self) -> None:
+        if self.usage_basis not in (SOURCE_COUNTER_USAGE_BASIS, FIXED_FIXTURE_USAGE_BASIS):
+            raise ValueError("synthetic_provider_usage_basis_unknown")
         from polisyos.scientist.orchestration.llm._n4_request import _STAGES
 
         if {stage for stage, _ in self.response_rows} != _STAGES or len(self.response_rows) != len(
@@ -111,7 +125,7 @@ class SyntheticCandidateProviderProfile:
             "controlled_recording_content_hash": self.controlled_recording_content_hash,
             "configured_model": self.model_id,
             "profile_selection_ref": self.profile_selection_ref,
-            "usage_basis": "explicit_new_synthetic_values_from_source_counters_not_measured_usage",
+            "usage_basis": self.usage_basis,
             "cost_scope": "current_configured_model_estimate_not_historical_billing",
             "authority": "candidate_only_not_external_evidence",
             "stages": rows,

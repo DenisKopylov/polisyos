@@ -550,6 +550,61 @@ def test_controlled_candidate_factory_settles_only_declared_new_provider_quantit
     assert "n5_usd_price_not_established" in observed.limitations
 
 
+def test_provider_descriptor_tracks_declared_usage_basis_without_rewriting_stage_rows(
+    tmp_path,
+):
+    from dataclasses import replace
+
+    from polisyos.scientist.orchestration.llm._n4_request import _STAGES
+    from tests._helpers.controlled_candidate_profile import (
+        FIXED_FIXTURE_USAGE_BASIS,
+        SOURCE_COUNTER_USAGE_BASIS,
+        SyntheticCandidateProviderProfile,
+    )
+
+    model_id = "synthetic-test-model"
+    response_rows = tuple(
+        (
+            stage,
+            json.dumps(
+                {
+                    "legacy_counter_availability": "not_established",
+                    "parent_response_hash": "sha256:" + "a" * 64,
+                    "parent_role": stage,
+                    "raw_response": json.dumps({"stage": stage}),
+                    "raw_response_hash": gy_content_hash(json.dumps({"stage": stage})),
+                    "source_model_id": model_id,
+                    "status": "success",
+                    "usage": {
+                        "completion_tokens": 32,
+                        "prompt_tokens": 64,
+                        "total_tokens": 96,
+                        "usage_status": "known",
+                    },
+                    "usage_declaration": "new_synthetic_test_input_not_provider_measurement",
+                },
+                sort_keys=True,
+            ),
+        )
+        for stage in sorted(_STAGES)
+    )
+    profile = SyntheticCandidateProviderProfile(
+        model_id=model_id,
+        profile_selection_ref="sha256:" + "b" * 64,
+        source_recording_id="synthetic-test-source",
+        source_recording_content_hash="sha256:" + "c" * 64,
+        controlled_recording_content_hash="sha256:" + "d" * 64,
+        response_rows=response_rows,
+        evidence_root=tmp_path,
+    )
+    assert profile.descriptor()["usage_basis"] == SOURCE_COUNTER_USAGE_BASIS
+
+    fixed_profile = replace(profile, usage_basis=FIXED_FIXTURE_USAGE_BASIS)
+    assert fixed_profile.descriptor()["usage_basis"] == FIXED_FIXTURE_USAGE_BASIS
+    assert fixed_profile.response_rows == profile.response_rows == response_rows
+    assert fixed_profile.descriptor()["stages"] == profile.descriptor()["stages"]
+
+
 def test_controlled_candidate_provider_rejects_another_overlay_parent(tmp_path):
     from tests._helpers.controlled_candidate_profile import (
         _controlled_registered_tax_recording,

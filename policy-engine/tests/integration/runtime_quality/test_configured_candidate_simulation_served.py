@@ -1383,7 +1383,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         # a fresh reader, including explicit candidate-only/currentness limits.
         run_details_response = client.get(f"/api/v1/runs/{progress['core_run_id']}")
         assert run_details_response.status_code == 200, run_details_response.text
-        run_details = RunDetailsResponse.model_validate(run_details_response.json())
+        run_details = RunDetailsResponse.model_validate_json(run_details_response.content)
         candidate_projection = run_details.run.candidate_simulation
         assert candidate_projection is not None
         assert candidate_projection.artifact_status == "resolved"
@@ -1475,8 +1475,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         )
 
         # This source kind is distinct from full CGF generation custody: it
-        # retains the selected profile/context joins and the typed L2 vintage
-        # restriction without forwarding historic confidence into the proposal.
+        # retains the selected profile/context joins and explicitly withholds
+        # full K_ref authority from this candidate-only proposal.
         selected_source = read_private_artifact_in_job_scope(
             lambda: GenerationSourceRepository(
                 service._artifact_store
@@ -1839,11 +1839,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert n4_source.world_model_record_hash == (
             context_job.context.world_model_record.content_hash
         )
-        assert n4_source.k_ref_limitation_code == ("historical_l2_confidence_withheld")
-        assert n4_source.l2_confidence_vintage is not None
-        assert n4_source.l2_confidence_vintage.snapshot_sha256 == (
-            "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967"
-        )
+        assert n4_source.k_ref_limitation_code == "full_credal_reference_not_consumed"
+        assert n4_source.l2_confidence_vintage is None
         assert n4_source.l2_confidence_forwarded is False
         assert n4_source.credal_reference_payload is None
         assert n4_source.candidate is not None
@@ -2742,8 +2739,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert zero_budget_leaf.value_port.status == "value_blocked"
         assert n8_owner_calls == []
         assert n9_owner_calls == []
-        # This native consumer witness proves honest handling of the known
-        # confidence withhold. It is deliberately not the separate full-V2
+        # This native consumer witness preserves the selected-context
+        # candidate boundary. It is deliberately not the separate full-V2
         # two-child/history closeout criterion recorded in N4-V2-decision.json.
         assert candidate_projection.n4_recursive_source_status == "resolved"
         assert candidate_projection.n4_recursive_source_result_status == "generated"
@@ -2752,11 +2749,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             "n4_recursive_child_configured_profile_not_established"
         )
         assert candidate_projection.n4_child_profile_bindings == ()
-        assert n4_source.k_ref_limitation_code == "historical_l2_confidence_withheld"
-        assert n4_source.l2_confidence_vintage is not None
-        assert n4_source.l2_confidence_vintage.snapshot_sha256 == (
-            "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967"
-        )
+        assert n4_source.k_ref_limitation_code == "full_credal_reference_not_consumed"
+        assert n4_source.l2_confidence_vintage is None
         assert n4_source.l2_confidence_forwarded is False
         assert n4_source.credal_reference_payload is None
 

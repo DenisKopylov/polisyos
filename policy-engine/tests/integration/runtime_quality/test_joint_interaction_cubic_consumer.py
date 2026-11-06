@@ -1373,10 +1373,12 @@ async def test_cubic_joint_residual_survives_persisted_fresh_get_to_n8(
         "declared_candidate_not_independently_grounded"
     )
     assert comparator_request["evidence_state"] == dict(served_root_profile.n5.evidence_state)
-    assert comparator_request["engine_plan"][0]["variable_map"] == (
-        served_root_profile.n5.engine_variable_map
-    )
-    selected_ncm = comparator_request["engine_plan"][0]["ncm_spec"]
+    # The comparator request records the selected EnginePlan itself. The outer
+    # JointSimulationRequest has a tuple of plans, but this persisted binding is
+    # produced by _ncm_comparator_request_projection(plan.model_dump(...)).
+    selected_plan = comparator_request["engine_plan"]
+    assert selected_plan["variable_map"] == served_root_profile.n5.engine_variable_map
+    selected_ncm = selected_plan["ncm_spec"]
     assert set(selected_ncm["endogenous_vars"]) == {
         "input_0",
         "input_1",

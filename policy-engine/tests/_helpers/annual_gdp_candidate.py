@@ -493,7 +493,10 @@ def build_annual_gdp_candidate_provider(
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.world_model_record import world_model_artifact_views
     from tests._helpers import acquisition_chain
-    from tests._helpers.controlled_candidate_profile import SyntheticCandidateProviderProfile
+    from tests._helpers.controlled_candidate_profile import (
+        FIXED_FIXTURE_USAGE_BASIS,
+        SyntheticCandidateProviderProfile,
+    )
     from tools.quality.validation import (
         check_layer3_gy_design_generation_contract as n4_contract,
     )
@@ -874,6 +877,7 @@ def build_annual_gdp_candidate_provider(
         controlled_recording_content_hash=str(controlled["recording_content_hash"]),
         response_rows=tuple(provider_rows),
         evidence_root=evidence_root,
+        usage_basis=FIXED_FIXTURE_USAGE_BASIS,
     )
     if (
         provider.profile_selection_ref != profile.profile_selection_ref
@@ -894,6 +898,10 @@ def _validate_annual_gdp_provider_stages(
     from pydantic import TypeAdapter
 
     from polisyos.ir.governance.problem_frame import ProblemDomain
+    from tests._helpers.controlled_candidate_profile import FIXED_FIXTURE_USAGE_BASIS
+
+    if provider.descriptor()["usage_basis"] != FIXED_FIXTURE_USAGE_BASIS:
+        raise ValueError("annual_gdp_candidate_provider_usage_basis_mismatch")
     from polisyos.ir.trinity import TrinityBundle
     from polisyos.pdc import gy_content_hash
     from polisyos.scientist.agent.drafter_models import (

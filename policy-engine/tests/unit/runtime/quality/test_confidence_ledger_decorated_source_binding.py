@@ -4493,3 +4493,385 @@ def test_protocol_provider_detects_abc_source_drift_during_one_integrity_pass(mo
     with pytest.raises(ledger.ConfidenceLedgerError, match="source changed"):
         ledger._typing_protocol_provider_projection()
     assert len(reads) >= 2
+
+
+def test_native_type_metadata_binds_actual_registry_annotated_alias():
+    from polisyos.ir.registry import registry_fragments
+
+    root = ledger._loaded_policy_engine_root()
+    expected = _native_type_expected(root, registry_fragments, "RegistryFragment")
+    assert type(expected) is ledger._SourceResolvedAnnotation
+    assert ledger._source_resolved_annotation_matches(registry_fragments.RegistryFragment, expected)
+    assert _route(root, registry_fragments, "RegistryFragment") == (
+        "symbol",
+        registry_fragments.__name__,
+        "RegistryFragment",
+    )
+    profile = ledger._native_type_metadata_provider_projection()
+    assert profile["pydantic_compiled_validator_schema_coherence"] == "not_established"
+
+
+def test_native_annotated_fieldinfo_binds_full_actual_registry_metadata():
+    from polisyos.ir.registry import registry_fragments
+
+    field = vars(registry_fragments.RegistryFragment)["__metadata__"][0]
+    analysis = ledger._IntegrityAnalysisContext()
+    assert ledger._source_pydantic_discriminator_field_matches(field, "kind", analysis)
+    analysis.assert_sources_unchanged()
+
+
+@pytest.mark.parametrize(
+    ("name", "value"),
+    [
+        ("alias", "forged"),
+        ("validation_alias", "forged"),
+        ("default", 7),
+        ("metadata", ["forged"]),
+        ("_attributes_set", {"discriminator": "kind", "alias": "forged"}),
+        ("_qualifiers", {"forged"}),
+        ("_complete", False),
+        ("_final", True),
+    ],
+)
+def test_native_annotated_fieldinfo_rejects_other_metadata_tampering(monkeypatch, name, value):
+    from polisyos.ir.registry import registry_fragments
+
+    field = vars(registry_fragments.RegistryFragment)["__metadata__"][0]
+    monkeypatch.setattr(field, name, value)
+    analysis = ledger._IntegrityAnalysisContext()
+    assert not ledger._source_pydantic_discriminator_field_matches(field, "kind", analysis)
+    analysis.assert_sources_unchanged()
+
+
+def test_native_annotated_source_reaches_real_selected_reader(tmp_path, monkeypatch):
+    source = (
+        "from typing import Annotated\n"
+        "from pydantic import Field\n"
+        "OUTPUT = Annotated[tuple[str, int], Field(discriminator='kind')]\n"
+    )
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    expected = _native_type_expected(root, module)
+    assert type(expected) is ledger._SourceResolvedAnnotation
+    assert ledger._source_resolved_annotation_matches(module.OUTPUT, expected)
+    assert _route(root, module, "OUTPUT") == ("symbol", module.__name__, "OUTPUT")
+    consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    assert consumer.observed() is module.OUTPUT
+
+
+@pytest.mark.parametrize("mutation", ["origin", "discriminator", "alias", "metadata"])
+def test_native_annotated_rejects_wrong_semantics_without_callbacks(
+    tmp_path, monkeypatch, mutation
+):
+    from typing import Annotated
+
+    from pydantic import Field
+
+    source = (
+        "from typing import Annotated\n"
+        "from pydantic import Field\n"
+        "OUTPUT = Annotated[tuple[str, int], Field(discriminator='kind')]\n"
+    )
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    expected = _native_type_expected(root, module)
+    assert type(expected) is ledger._SourceResolvedAnnotation
+    calls = []
+
+    class Poison:
+        def __eq__(self, other):
+            calls.append("eq")
+            raise AssertionError("metadata equality executed")
+
+    if mutation == "origin":
+        actual = Annotated[tuple[str, str], Field(discriminator="kind")]
+    elif mutation == "discriminator":
+        actual = Annotated[tuple[str, int], Field(discriminator="other")]
+    else:
+        actual = module.OUTPUT
+        field = vars(actual)["__metadata__"][0]
+        monkeypatch.setattr(field, mutation, Poison() if mutation == "alias" else [Poison()])
+    assert not ledger._source_resolved_annotation_matches(actual, expected)
+    assert calls == []
+
+
+def test_native_annotated_projection_does_not_execute_providers(tmp_path, monkeypatch):
+    import sys
+    import typing
+
+    from pydantic.fields import FieldInfo
+
+    source = (
+        "from typing import Annotated\n"
+        "from pydantic import Field\n"
+        "OUTPUT = Annotated[tuple[str, int], Field(discriminator='kind')]\n"
+    )
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    wrapped = typing.Annotated._getitem
+    functions = (
+        module.Field,
+        FieldInfo.__init__,
+        typing._AnnotatedAlias.__init__,
+        typing._GenericAlias.__init__,
+        wrapped,
+        wrapped.__wrapped__,
+    )
+    code_ids = {id(function.__code__) for function in functions}
+    observed = []
+
+    def trace(frame, event, arg):
+        if event == "call" and id(frame.f_code) in code_ids:
+            observed.append(frame.f_code.co_qualname)
+
+    previous = sys.getprofile()
+    try:
+        sys.setprofile(trace)
+        expected = _native_type_expected(root, module)
+        assert type(expected) is ledger._SourceResolvedAnnotation
+        assert ledger._source_resolved_annotation_matches(module.OUTPUT, expected)
+    finally:
+        sys.setprofile(previous)
+    assert observed == []
+
+
+@pytest.mark.parametrize("provider", ["field", "alias_init"])
+def test_native_annotated_rejects_poisoned_provider_without_calling_it(
+    tmp_path, monkeypatch, provider
+):
+    import typing
+
+    source = (
+        "from typing import Annotated\n"
+        "from pydantic import Field\n"
+        "OUTPUT = Annotated[tuple[str, int], Field(discriminator='kind')]\n"
+    )
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    expected = _native_type_expected(root, module)
+    assert type(expected) is ledger._SourceResolvedAnnotation
+
+    def poison(*args, **kwargs):
+        raise AssertionError("provider executed")
+
+    def make_closed_poison():
+        marker = "provider executed"
+
+        def poisoned(*args, **kwargs):
+            raise AssertionError(marker)
+
+        return poisoned
+
+    function = module.Field if provider == "field" else typing._AnnotatedAlias.__init__
+    replacement = poison if provider == "field" else make_closed_poison()
+    assert len(function.__closure__ or ()) == len(replacement.__closure__ or ())
+    monkeypatch.setattr(function, "__code__", replacement.__code__)
+    assert not ledger._source_resolved_annotation_matches(module.OUTPUT, expected)
+
+
+def test_native_annotated_registry_rebound_export_refused(monkeypatch):
+    from polisyos.ir.registry import registry_fragments as fragments
+
+    root = ledger._loaded_policy_engine_root()
+    original_alias = fragments.RegistryFragment
+    assert (
+        type(_native_type_expected(root, fragments, "RegistryFragment"))
+        is ledger._SourceResolvedAnnotation
+    )
+    monkeypatch.setattr(fragments, "UnitsFragment", fragments.TrustFragment)
+    assert fragments.RegistryFragment is original_alias
+    assert (
+        _native_type_expected(root, fragments, "RegistryFragment")
+        is ledger._SOURCE_DERIVATION_FAILED
+    )
+
+
+def test_native_annotated_registry_validator_behavior_is_not_type_identity(monkeypatch):
+    from polisyos.ir.registry import registry_fragments as fragments
+
+    root = ledger._loaded_policy_engine_root()
+    monkeypatch.setattr(fragments.UnitsFragment, "__pydantic_validator__", object())
+    expected = _native_type_expected(root, fragments, "RegistryFragment")
+    assert type(expected) is ledger._SourceResolvedAnnotation
+    assert ledger._source_resolved_annotation_matches(fragments.RegistryFragment, expected)
+    assert (
+        ledger._native_type_metadata_provider_projection()[
+            "pydantic_compiled_validator_schema_coherence"
+        ]
+        == "not_established"
+    )
+
+
+def test_native_annotated_rejects_slot_replacement_between_provider_and_read(monkeypatch):
+    from pydantic.fields import FieldInfo
+
+    from polisyos.ir.registry import registry_fragments
+
+    field = vars(registry_fragments.RegistryFragment)["__metadata__"][0]
+    original = ledger._source_pydantic_fieldinfo_provider
+    callbacks = []
+
+    def hostile(instance):
+        callbacks.append("property")
+        raise AssertionError("property executed")
+
+    def change_after_provider(analysis):
+        provider = original(analysis)
+        assert provider is not None
+        monkeypatch.setattr(FieldInfo, "alias", property(hostile))
+        return provider
+
+    monkeypatch.setattr(ledger, "_source_pydantic_fieldinfo_provider", change_after_provider)
+    assert not ledger._source_pydantic_discriminator_field_matches(
+        field, "kind", ledger._IntegrityAnalysisContext()
+    )
+    assert callbacks == []
+
+
+@pytest.mark.parametrize(
+    ("field", "attribute", "replacement"),
+    [
+        ("kind", "default", "forged"),
+        ("payload", "annotation", str),
+    ],
+)
+def test_native_annotated_registry_field_state_drift_refused(
+    monkeypatch, field, attribute, replacement
+):
+    from polisyos.ir.registry import registry_fragments as fragments
+
+    root = ledger._loaded_policy_engine_root()
+    current = vars(fragments.UnitsFragment)["__pydantic_fields__"][field]
+    monkeypatch.setattr(current, attribute, replacement)
+    assert (
+        _native_type_expected(root, fragments, "RegistryFragment")
+        is ledger._SOURCE_DERIVATION_FAILED
+    )
+
+
+def test_pydantic_model_provider_refuses_rebound_name_only_class(monkeypatch):
+    import pydantic
+    import pydantic.main
+
+    class Forged(pydantic.BaseModel):
+        def __init__(self, **kwargs):
+            raise AssertionError("must not execute")
+
+    Forged.__module__ = "pydantic.main"
+    Forged.__qualname__ = "BaseModel"
+    monkeypatch.setattr(pydantic, "BaseModel", Forged)
+    monkeypatch.setattr(pydantic.main, "BaseModel", Forged)
+    assert not ledger._source_pydantic_model_provider_matches(
+        Forged, ledger._IntegrityAnalysisContext()
+    )
+
+
+def test_unloaded_annotated_route_is_only_a_closure_candidate(tmp_path, monkeypatch):
+    source = (
+        "from __future__ import annotations\n"
+        "from dataclasses import dataclass\n"
+        "from typing import Annotated\n"
+        "from pydantic import Field\n"
+        "@dataclass(frozen=True)\nclass A:\n    value: str\n"
+        "@dataclass(frozen=True)\nclass B:\n    value: int\n"
+        "OUTPUT = Annotated[A | B, Field(discriminator='kind')]\n"
+    )
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    module_name = module.__name__
+    monkeypatch.delitem(sys.modules, module_name)
+    candidate = ledger._source_module_import_route_candidate(
+        root,
+        module_name,
+        "OUTPUT",
+        directory_entries={},
+        source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        discovery_only=True,
+    )
+    assert candidate.binding_basis == "source_expression"
+    assert candidate.route == ("symbol", module_name, "OUTPUT")
+    assert module_name not in sys.modules
+    with pytest.raises(
+        ledger.ConfidenceLedgerError, match="side-effecting direct source assignment"
+    ):
+        ledger._source_module_import_route(
+            root,
+            module_name,
+            "OUTPUT",
+            directory_entries={},
+            source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        )
+    monkeypatch.setitem(sys.modules, module_name, module)
+    expected = _native_type_expected(root, module)
+    assert type(expected) is ledger._SourceResolvedAnnotation
+    assert ledger._source_resolved_annotation_matches(module.OUTPUT, expected)
+    monkeypatch.setattr(module, "A", module.B)
+    assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+
+
+def test_source_discovery_candidates_preserve_nested_edges_without_runtime_admission(
+    tmp_path, monkeypatch
+):
+    source = (
+        "from dataclasses import dataclass\n"
+        "@dataclass(slots=True)\nclass A:\n    value: int\n"
+        "def build():\n    return object()\n"
+        "OUTPUT = build()\n"
+        "ALIAS = OUTPUT\n"
+    )
+    root, provider = _load_decorated_case(tmp_path, monkeypatch, source)
+    provider_name = provider.__name__
+    bridge = "polisyos.discovery_bridge_fixture"
+    (root / "src/polisyos/discovery_bridge_fixture.py").write_text(
+        f"from {provider_name} import ALIAS\n", encoding="utf-8"
+    )
+    monkeypatch.delitem(sys.modules, provider_name)
+    index = ledger._AuthorityImportClosureSourceIndex({}, {})
+    for name in ("A", "OUTPUT"):
+        candidate = ledger._source_module_import_route_candidate(
+            root, provider_name, name, directory_entries={}, source_index=index, discovery_only=True
+        )
+        assert candidate.binding_basis == "source_expression"
+        assert candidate.route == ("symbol", provider_name, name)
+        with pytest.raises(ledger.ConfidenceLedgerError):
+            ledger._source_module_import_route(
+                root, provider_name, name, directory_entries={}, source_index=index
+            )
+    nested = ledger._source_module_import_route_candidate(
+        root, bridge, "ALIAS", directory_entries={}, source_index=index, discovery_only=True
+    )
+    assert nested.route == ("symbol", provider_name, "OUTPUT")
+    with pytest.raises(ledger.ConfidenceLedgerError):
+        ledger._source_module_import_route(
+            root, bridge, "ALIAS", directory_entries={}, source_index=index
+        )
+    assert provider_name not in sys.modules
+    assert bridge not in sys.modules
+
+
+def test_source_discovery_distinguishes_overload_stubs_from_rebinding(tmp_path, monkeypatch):
+    source = (
+        "from typing import overload\n"
+        "@overload\ndef choose(value: int) -> int: ...\n"
+        "@overload\ndef choose(value: str) -> str: ...\n"
+        "def choose(value): return value\n"
+        "def rebound(): return 1\n"
+        "def rebound(): return 2\n"
+    )
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    module_name = module.__name__
+    monkeypatch.delitem(sys.modules, module_name)
+    census = set()
+    index = ledger._AuthorityImportClosureSourceIndex({}, {}, census)
+    candidate = ledger._source_module_import_route_candidate(
+        root, module_name, "choose", directory_entries={}, source_index=index, discovery_only=True
+    )
+    assert candidate.binding_basis == "source_expression"
+    assert candidate.route == ("symbol", module_name, "choose")
+    assert (module_name, "choose") in census
+    # A fresh non-diagnostic index keeps genuine source rebinding fail-closed.
+    with pytest.raises(ledger.ConfidenceLedgerError, match="rebound direct source export"):
+        ledger._source_module_import_route_candidate(
+            root,
+            module_name,
+            "rebound",
+            directory_entries={},
+            source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+            discovery_only=True,
+        )

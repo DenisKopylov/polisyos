@@ -195,3 +195,16 @@ release_note = "Preserve the base world's exact resolved substrate entries when 
 migration = "Existing artifacts and failed checkpoints retain their original bytes and verification dispositions. The internal constructor handoff accepts the verified existing registry locator, including its exact legacy form. No HTTP DTO or generated client changes are required."
 generated_client_compatibility = "not_applicable"
 limitations = "The acquired world remains candidate-only with its source, time and causal limitations. This repair does not establish the unfinished protected numerical route or G acceptance."
+
+[[compatibility_change]]
+id = "lane01-passive-annotated-source-identity"
+change_class = "runtime-state-format"
+impact = "additive"
+surface = "internal: source ownership discovery and loaded type-reference identity; existing DeploymentIdentity projection"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Resolve supported Annotated aliases and Pydantic class references through passive source, provider and current-object identity checks. Source-only import-closure discovery is an explicitly unqualified candidate; runtime admission still requires the loaded binding. Preserve strict refusal for altered providers, metadata, aliases and ambiguous bindings without executing annotation or model callbacks."
+migration = "Historical artifacts and their dispositions remain unchanged. No request, HTTP DTO or SDK change is required. Type-reference identity does not attest effective compiled-model validation behavior."
+generated_client_compatibility = "not_applicable"
+limitations = "Compiled-validator/schema coherence is explicitly not_established. The full import-time N6 currently still refuses a non-literal repository re-export in core.registry.loader; source-unit PASS does not establish the complete CYC route, installed qualification or G acceptance."

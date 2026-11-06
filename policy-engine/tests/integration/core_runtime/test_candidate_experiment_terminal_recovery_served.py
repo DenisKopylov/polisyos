@@ -31,6 +31,7 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
     from polisyos.runtime.quality.candidate_experiment_policy_issuer import (
         prepare_candidate_experiment_policies_for_completed_job,
     )
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
     from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
     from tests._helpers import acquisition_served_history as served
     from tests._helpers.candidate_cycle_source_profile import (
@@ -38,6 +39,10 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
         complete_candidate_cycle_catalog_source,
     )
     from tests._helpers.candidate_experiment_served_execution import (
+        _candidate_experiment_reopened_runtime,
+        _experiment_outcomes,
+        _standard_invocation_units,
+        candidate_experiment_served_execution_owner,
         run_candidate_experiment_served_execution,
     )
     from tests.integration.core_runtime.test_candidate_experiment_action_served import (
@@ -184,6 +189,292 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
                 )
 
             def execute_after_replay(**execution_values) -> None:
+                def retry_from_fresh_runtime(**retry_values) -> str:
+                    from time import sleep
+
+                    from polisyos.core import artifacts
+                    from polisyos.runtime.http.services.acquisition_action_service import (
+                        CandidateExperimentRouteProjection,
+                    )
+                    from tests._helpers.control_worker import dispatch_one_control_job
+
+                    retry_control = retry_values["control"]
+                    retry_origin = retry_values["origin"]
+                    job_id = str(retry_values["job_id"])
+                    retry_units = int(retry_values["interrupted_units"])
+                    retry_expiry = retry_values["retry_expiry"]
+                    values_for_retry = execution_values["values"]
+                    trust = values_for_retry["trust"]
+                    with _candidate_experiment_reopened_runtime(
+                        control=retry_control,
+                        trust=trust,
+                        monkeypatch=monkeypatch,
+                    ) as (reader, fresh_control, _sqlite_path, _cas_root):
+                        fresh_action_service = reader.app.state._acquisition_action_service
+                        if (
+                            fresh_action_service is None
+                            or fresh_action_service.control_service is not fresh_control
+                        ):
+                            raise AssertionError(
+                                "candidate experiment fresh runtime lost its actual action owner"
+                            )
+                        fresh_policy_owner = _candidate_experiment_policy_owner(
+                            control=fresh_control,
+                            fixture_root=tmp_path / "candidate-issuer",
+                            run_id=retry_origin.run_id,
+                        )
+                        if fresh_policy_owner.template != template:
+                            raise AssertionError(
+                                "candidate experiment fresh runtime changed selected policy config"
+                            )
+                        if (
+                            fresh_policy_owner.template.authority_registry_sha256
+                            != policy_owner.template.authority_registry_sha256
+                            or fresh_policy_owner.template.authority_provision_sha256
+                            != policy_owner.template.authority_provision_sha256
+                            or fresh_policy_owner.template.attempt_id
+                            != policy_owner.template.attempt_id
+                        ):
+                            raise AssertionError(
+                                "candidate experiment fresh issuer identity changed"
+                            )
+                        fresh_control._registry_providers = replace(
+                            fresh_control._registry_providers,
+                            source_profiles=fresh_policy_owner.source_profiles,
+                            candidate_unpriced_policy_bindings=(),
+                            candidate_unpriced_policy_templates=(fresh_policy_owner.template,),
+                        )
+                        fresh_origin = fresh_action_service._resolve_candidate_experiment_origin(
+                            tenant_id=retry_origin.tenant_id,
+                            cell_id=retry_origin.cell_id,
+                            run_id=retry_origin.run_id,
+                        )
+                        if (
+                            fresh_origin.tenant_id != retry_origin.tenant_id
+                            or fresh_origin.cell_id != retry_origin.cell_id
+                            or fresh_origin.run_id != retry_origin.run_id
+                            or fresh_origin.source_job_id != retry_origin.source_job_id
+                            or fresh_origin.source_payload_ref != retry_origin.source_payload_ref
+                            or fresh_origin.request_content_hash
+                            != retry_origin.request_content_hash
+                            or fresh_origin.route_id != retry_origin.route_id
+                            or fresh_origin.policy_ref != retry_origin.policy_ref
+                            or fresh_origin.policy_scope != retry_origin.policy_scope
+                        ):
+                            raise AssertionError(
+                                "candidate experiment fresh runtime changed selected source"
+                            )
+
+                        with candidate_experiment_served_execution_owner(
+                            action_service=fresh_action_service,
+                            origin=fresh_origin,
+                            policy_owner=fresh_policy_owner,
+                            monkeypatch=monkeypatch,
+                        ) as fresh_execution_owner:
+                            event_id = str(crash["event_id"])
+                            event_rows_before = tuple(
+                                fresh_control._diagnostic_event_log.list_events(
+                                    event_id=event_id,
+                                    run_id=retry_origin.run_id,
+                                    job_id=job_id,
+                                    limit=10,
+                                )
+                            )
+                            if event_rows_before != crash["event_rows_at_crash"]:
+                                raise AssertionError(
+                                    "candidate experiment event changed before fresh retry"
+                                )
+                            saved_ref = crash["saved_ref"]
+                            saved_payload = crash["saved_payload"]
+                            saved_artifact = artifacts.read_core_json_artifact(
+                                fresh_control._artifact_store,
+                                saved_ref,
+                            )
+                            if saved_artifact.value != saved_payload:
+                                raise AssertionError(
+                                    "candidate experiment fresh runtime could not read crash CAS"
+                                )
+                            pending_before = _experiment_outcomes(
+                                control=fresh_control,
+                                origin=fresh_origin,
+                            )
+                            if (
+                                not pending_before
+                                or pending_before[-1].head
+                                != retry_values["interrupted_outcome"].head
+                                or pending_before[-1].head.receipt_phase
+                                != "candidate_input_reentry_pending"
+                            ):
+                                raise AssertionError(
+                                    "candidate experiment pending head changed before fresh retry"
+                                )
+                            job_before = fresh_control._control_store.get_job(job_id)
+                            if (
+                                job_before is None
+                                or job_before.state != "running"
+                                or job_before.attempt != 1
+                            ):
+                                raise AssertionError(
+                                    "candidate experiment job state changed before fresh retry"
+                                )
+                            units_before_retry = _standard_invocation_units(
+                                control=fresh_control,
+                                run_id=retry_origin.run_id,
+                            )
+                            if units_before_retry != retry_units:
+                                raise AssertionError(
+                                    "candidate experiment fresh runtime changed physical N5 units"
+                                )
+
+                            with pytest.raises(
+                                ValueError,
+                                match="candidate_experiment_action_source_scope_mismatch",
+                            ):
+                                _experiment_outcomes(
+                                    control=fresh_control,
+                                    origin=replace(
+                                        fresh_origin,
+                                        cell_id=fresh_origin.cell_id + "-foreign",
+                                    ),
+                                )
+                            if (
+                                _experiment_outcomes(
+                                    control=fresh_control,
+                                    origin=fresh_origin,
+                                )[-1].head
+                                != pending_before[-1].head
+                                or tuple(
+                                    fresh_control._diagnostic_event_log.list_events(
+                                        event_id=event_id,
+                                        run_id=retry_origin.run_id,
+                                        job_id=job_id,
+                                        limit=10,
+                                    )
+                                )
+                                != event_rows_before
+                                or _standard_invocation_units(
+                                    control=fresh_control,
+                                    run_id=retry_origin.run_id,
+                                )
+                                != retry_units
+                                or fresh_execution_owner.transport_calls
+                            ):
+                                raise AssertionError(
+                                    "candidate experiment scope refusal had durable or N5 side effects"
+                                )
+                            job_after_scope_refusal = fresh_control._control_store.get_job(job_id)
+                            if (
+                                job_after_scope_refusal is None
+                                or job_after_scope_refusal.state != job_before.state
+                                or job_after_scope_refusal.attempt != job_before.attempt
+                                or job_after_scope_refusal.lease_expires_at
+                                != job_before.lease_expires_at
+                            ):
+                                raise AssertionError(
+                                    "candidate experiment scope refusal changed the persisted job"
+                                )
+
+                            remaining = (
+                                retry_expiry - datetime.now(retry_expiry.tzinfo)
+                            ).total_seconds()
+                            if remaining > 0:
+                                sleep(remaining)
+                            with monkeypatch.context() as no_n5_retry:
+                                no_n5_retry.setattr(
+                                    JointSimulationHorizonController,
+                                    "run",
+                                    lambda *_args, **_kwargs: pytest.fail(
+                                        "candidate experiment fresh-runtime retry repeated N5"
+                                    ),
+                                )
+                                dispatched = dispatch_one_control_job(
+                                    store=fresh_control._control_store,
+                                    handler=fresh_control._process_control_job,
+                                    expected_job_id=job_id,
+                                )
+                            if dispatched != job_id:
+                                raise AssertionError(
+                                    "candidate experiment fresh runtime did not reclaim the job"
+                                )
+                            final_job = fresh_control._control_store.get_job(job_id)
+                            if (
+                                final_job is None
+                                or final_job.state != "completed"
+                                or final_job.attempt != 2
+                            ):
+                                raise AssertionError(
+                                    "candidate experiment fresh-runtime retry did not complete"
+                                )
+                            final_outcomes = _experiment_outcomes(
+                                control=fresh_control,
+                                origin=fresh_origin,
+                            )
+                            if not final_outcomes:
+                                raise AssertionError(
+                                    "candidate experiment fresh runtime lost terminal history"
+                                )
+                            final_history = final_outcomes[-1].candidate_experiment_terminal_history
+                            if (
+                                final_outcomes[-1].head.receipt_phase != "terminal"
+                                or final_outcomes[-1].head.job_id != job_id
+                                or final_history is None
+                                or final_history.terminal_ref != saved_ref
+                                or final_history.terminal.model_dump(mode="json") != saved_payload
+                            ):
+                                raise AssertionError(
+                                    "candidate experiment fresh retry changed persisted terminal CAS"
+                                )
+                            if (
+                                tuple(
+                                    fresh_control._diagnostic_event_log.list_events(
+                                        event_id=event_id,
+                                        run_id=retry_origin.run_id,
+                                        job_id=job_id,
+                                        limit=10,
+                                    )
+                                )
+                                != event_rows_before
+                                or _standard_invocation_units(
+                                    control=fresh_control,
+                                    run_id=retry_origin.run_id,
+                                )
+                                != retry_units
+                                or fresh_execution_owner.transport_calls
+                            ):
+                                raise AssertionError(
+                                    "candidate experiment fresh retry repeated N5 or source fetch"
+                                )
+                            response = reader.get(
+                                f"/api/v1/runs/{retry_origin.run_id}/candidate-acquisition-experiment",
+                                headers={
+                                    "Authorization": (
+                                        f"Bearer {trust.tokens['acquisition-operator']}"
+                                    ),
+                                    "X-Tenant-ID": served.TENANT,
+                                },
+                            )
+                            if response.status_code != 200:
+                                raise AssertionError(response.text)
+                            visible = CandidateExperimentRouteProjection.model_validate(
+                                response.json()
+                            ).current_action
+                            if (
+                                visible.status != "completed"
+                                or visible.job_id != job_id
+                                or visible.receipt_phase != "terminal"
+                                or visible.selected_receipt_ref != saved_ref
+                            ):
+                                raise AssertionError(
+                                    "candidate experiment fresh retry was not visible to its reader"
+                                )
+                            if len(retry_values["execution_owner"].transport_calls) != int(
+                                retry_values["interrupted_transport_call_count"]
+                            ):
+                                raise AssertionError(
+                                    "candidate experiment fresh retry repeated the initial source fetch"
+                                )
+                    return job_id
+
                 execution = run_candidate_experiment_served_execution(
                     values=execution_values["values"],
                     origin=execution_values["origin"],
@@ -193,6 +484,7 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
                     monkeypatch=monkeypatch,
                     before_first_delivery=arm_terminal_writer_crash,
                     recover_worker_crash=True,
+                    fresh_runtime_recovery=retry_from_fresh_runtime,
                 )
                 assert crash["interrupted"] is True
                 assert crash["job_id"] == execution.job_id

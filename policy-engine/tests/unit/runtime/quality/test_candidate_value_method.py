@@ -383,3 +383,21 @@ def test_candidate_method_projection_refuses_wrong_role_media_or_missing_view(
     payload[field_name].update(changes[defect])
     with pytest.raises(ValueError, match="run_candidate_value_method_selected_ref_invalid"):
         RunCandidateValueMethodProjection.model_validate(payload)
+
+
+def test_persisted_simulation_omits_runtime_world_for_fresh_owner_recovery() -> None:
+    """The actual simulation codec keeps WMR recovery with its persisted owner."""
+    from tests.unit.runtime.quality.test_value_gate import _world_record
+
+    world = _world_record()
+    original = SimulationPortObservation(
+        candidate_id="candidate-world-codec",
+        status="simulation_pending_n5",
+        world_model_record=world,
+    )
+    assert original.world_model_record == world
+    wire = original.model_dump_json()
+    assert '"world_model_record"' not in wire
+    restored = SimulationPortObservation.model_validate_json(wire)
+    assert restored.world_model_record is None
+    assert restored.candidate_id == original.candidate_id

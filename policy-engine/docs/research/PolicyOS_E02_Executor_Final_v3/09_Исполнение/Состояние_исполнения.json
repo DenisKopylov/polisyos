@@ -11857,7 +11857,7 @@
             "FAIL": 0
           },
           "scope": "Two source/connector prerequisites only; independent5-path source review GO after synthetic64/32/96 counters replace historical usage. Full native GDP UNRUN pending shared candidate action-kind fix and resources; legacy epochR13 remainsFAIL.",
-          "remaining": "Five-stage provider-preflight-6 PASS, N5=0; review found usage-origin descriptor mismatch for explicit64/32/96 synthetic counters. Default-preserving helper companion pending; legacyL5b35 not closed."
+          "remaining": "Usage-origin descriptor fixed/defaultpreserved; focuseddescriptor andactual5stagepreflight PASS in policy-engine/_cache/e02/lane01-gdp-usage-basis-r1. N5=0; fullcandidateGDP aftersharedexecutionqualification. LegacyL5b35stillunresolved."
         },
         "hypothetical_retained_fresh_suffix": {
           "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-hypothetical-fresh-suffix-r2",
@@ -11911,25 +11911,34 @@
           "diagnostic": "No original dispatch exception retained. Last phase candidate_input_reentry_pending; candidate_input_prepared receipt/source/route exist, no terminal. Source N5 witness not_established/canonical_loaded_runtime_mismatch at decorated ArtifactWriteOptions direct binding is a clue, not proven worker cause; next bounded cause-chain observer must re-raise unchanged."
         },
         "candidate_method_served_current": {
-          "output": "policy-engine/_cache/e02/lane01-candidate-value-served-r3",
-          "status": "command_failed",
+          "output": "policy-engine/_cache/e02/lane01-candidate-value-served-r5",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
           "return_code": 1,
-          "wall_seconds": 79.85688074992504,
-          "peak_RSS_bytes": 2139897856,
+          "wall_seconds": 79.57679475005716,
+          "peak_RSS_bytes": 1970552832,
           "named_inputs": 42,
           "inputs_unchanged": true,
-          "scope": "1PASS source writer/1FAIL served method. Actual POST/N5/persisted refusal reached, observation_manifest_invalid; not a completed native method result."
+          "scope": "WholeFAILafteractualPOST/N5/selector: fixtureprosefunctionalnotcanonicalATE. SeparatefreshreadermismatchfixedusingselectedprofileWMR; completedmethodroutepending."
         },
         "ordinary_half_gain_current": {
-          "output": "policy-engine/_cache/e02/lane01-compact-half-gain-native-r4",
-          "status": "command_failed",
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-compact-half-gain-native-r6",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
           "return_code": 1,
-          "wall_seconds": 47.8523893749807,
-          "peak_RSS_bytes": 1781972992,
+          "wall_seconds": 47.49909720791038,
+          "peak_RSS_bytes": 1787838464,
           "named_inputs": 42,
           "inputs_unchanged": true,
-          "scope": "1FAIL after actual worker/N5 and exact cost events: blocked-vs-escalate stale expectation under source-bound acquisition/ROI refusal. Later suffix under review.",
-          "latest_change": "Independent Luna full cost/terminal/suffix review GO; final test hashfbbb32e00e98e5374720ad11c432feed5b2624fa57b55cad8d9a898cb2b66d54 remainsruntimeUNRUN. R4 wholecaseFAIL preserved."
+          "scope": "WholeFAILinvalidstandaloneV1downcast: selectedoriginalprofileWMR differsfromcurrentenrichedsource. Strictloadercorrect; authenticno-declarationlegacy fixture and currentinvaliddowncastnegative inpreparation."
         },
         "acq01_current": {
           "output": "policy-engine/_cache/e02/lane01-acq01-route-current-r5",
@@ -11962,19 +11971,19 @@
           "scope": "Full three-atom actual parent N5, pair/third-order samples, positive SE and distinct fresh HTTP reader. Candidate only; G separate."
         },
         "cubic_explicit_native_current": {
-          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cubic-explicit-native-r2",
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cubic-explicit-native-r3",
           "observed": {
-            "PASS": 0,
-            "FAIL": 1,
+            "PASS": 1,
+            "FAIL": 0,
             "ERROR": 0,
             "SKIP": 0
           },
-          "return_code": 1,
-          "wall_seconds": 229.48534925002605,
-          "peak_RSS_bytes": 1762050048,
+          "return_code": 0,
+          "wall_seconds": 204.59897391602863,
+          "peak_RSS_bytes": 2008989696,
           "named_inputs": 35,
           "inputs_unchanged": true,
-          "scope": "Wholecase FAIL at late engine_plan[0] assertion; preceding actual16kernel work/pair0/residual1/SE0/fresh GET assertions pass. Persisted engine_plan is mapping; exact profile comparison still required before test repair."
+          "scope": "FullnativePASS16units/pair0/third1/SE0/exactcomparator+freshAPI+controls. c7d7cc403/treebb9bd6af. Gseparate."
         },
         "candidate_method_preflight_current": {
           "output": "policy-engine/_cache/e02/lane01-candidate-value-preflight-r4",
@@ -12010,6 +12019,21 @@
           "outputs": "policy-engine/_cache/e02/lane01-candidate-value-generated",
           "observed": "OpenAPI hardening/legacy omission, both canonical generations, SDK/dashboard typecheck PASS; SDK56PASS; final validator230PASS after mandatory hook style repairs.",
           "scope": "Zod4 number rejects nonfinite by default; removed deprecated finite() no-op and destructured interval tuple. No lint disables or assertion weakening. Full served method remainsUNRUN."
+        },
+        "acq01_registry_refusal_current": {
+          "output": "policy-engine/_cache/e02/lane01-acq01-route-current-r6",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 1,
+          "wall_seconds": 60.34640695806593,
+          "peak_RSS_bytes": 1582792704,
+          "named_inputs": 43,
+          "inputs_unchanged": true,
+          "scope": "1PASSregistryrefusal/noN5sideeffect; longselectorFAILstalescenario_time expectation. Preserveindividualcasepositivewithoutclaimingcombinedgreen."
         }
       },
       "independent_component_reviews": {
@@ -12031,11 +12055,12 @@
         "candidate_provenance": "Independent Terra material-delta GO; recorded55 applicable as scoped above; served observed transport verification remains open.",
         "explicit_n5_profile_axes": "Terra full four-source and material alias-fix GO; native cubic UNRUN.",
         "candidate_source_row_method": "Terra V6/Core source-lineage GO; independent Luna public projection and final six-role Core ref parity GO; runtime preflight21PASS separate from full method UNRUN.",
-        "ordinary_half_gain_test": "Independent Luna cost/terminal/complete suffix review GO; actual latest test runtime UNRUN, prior R4 FAIL retained."
+        "ordinary_half_gain_test": "Independent Luna cost/terminal/complete suffix review GO; actual latest test runtime UNRUN, prior R4 FAIL retained.",
+        "selected_profile_world_reader": "RootsourceGO: deriveworldfromexactselectedpersistedprofile, rejectconflictingruntimeworld, retainrecordworldhash/profile/request/N5expectedjoin+manifest. ActualretainedfreshGETrefusedrecordqualified; codecunitseparate; completedmethodnotyetqualified."
       },
       "resource_admission_current": {
         "disk_stop_floor_GiB": 3,
-        "free_disk_GiB_at_check": 9.588,
+        "free_disk_GiB_at_check": 9.576,
         "policy": "Local only; existing environments/data; <=8GiB measured aggregate process-tree RSS and <=6 numerical CPU threads. New expensive profiles start alone.",
         "trash_move": {
           "directory": "/Users/deniskopylov/.Trash/PolicyOS-obsolete-test-scratch-20261105T132841Z",
@@ -12071,7 +12096,7 @@
           "trash_emptied_by_executor": false,
           "resume": "User frees disk, then Root measures actual disk/RAM/swap/processes before any E02 work. No automatic replays or next lane."
         },
-        "resumed_admission": "Mac16GiB8CPU;about9.2GiBfree;memory_pressure68%free;swap409MiB;two independent frozen AUTHOR numerical jobs plus bounded MAIN jobs,<=4jobs/8GiB measured aggregate and6CPUthreads.",
+        "resumed_admission": "16GiB8CPU,9.76GiBfree,swap377MiB,memory-pressure69%free,no processes at admission; two measured CPU1 numerical jobs admitted on separate existing checkouts; four-job/8GiB aggregate ceiling,3GiB disk floor unchanged.",
         "current_cleanup": {
           "scratch_leaves": 189,
           "size_KiB": 5737928,
@@ -12080,7 +12105,7 @@
           "trash_emptied_by_executor": false,
           "code_docs_environments_unique_production_preserved": true
         },
-        "execution_state": "PAUSED_BY_USER_END_OF_DAY; current agents/jobs drained naturally; no new agents or test launches. Resume only on user continuation.",
+        "execution_state": "ACTIVE_USER_RESUMED_2026-11-06",
         "next_session": "Bound acquisition exception/witness diagnosis; parallel preflighted source-row full route and reviewed0.5; full-suffix ACQ01/cubic repairs and GDP usage-origin correction; protected terminal unlocks generations/crash; final composed consumers/66-requirement reconciliation."
       }
     },

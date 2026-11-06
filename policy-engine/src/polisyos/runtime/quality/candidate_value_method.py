@@ -412,21 +412,24 @@ def project_candidate_value_method(
             load_core_json_artifact(store, record_ref)
         )
         profile, request = _profile_and_request(store, simulation)
-        world = simulation.world_model_record
+        if profile is None or request is None:
+            raise ValueError("candidate_value_method_selected_source_request_missing")
+        # Simulation keeps its WMR only in memory. Fresh readers recover the
+        # exact persisted owner from the selected profile, then reconcile it
+        # against the recorded hash and the canonical N5 execution join below.
+        world = profile.context_inputs.world_model_record
+        if simulation.world_model_record is not None and simulation.world_model_record != world:
+            raise ValueError("candidate_value_method_runtime_world_binding_mismatch")
         if (
-            request is None
-            or world is None
-            or (
-                record.candidate_id != _candidate_id(candidate)
-                or record.candidate_content_hash != _candidate_content_hash(candidate)
-                or record.design_problem_ref != _problem_ref(problem)
-                or record.world_model_record_content_hash != world.content_hash
-                or record.profile_ref != simulation.generic_profile_ref
-                or record.source_request_ref != profile.candidate_value_source_request_ref
-                or record.n5_input_ref != simulation.generic_n5_input_ref
-                or record.n5_result_ref != simulation.simulation_result_ref
-                or record.n5_execution_ref != simulation.generic_n5_execution_ref
-            )
+            record.candidate_id != _candidate_id(candidate)
+            or record.candidate_content_hash != _candidate_content_hash(candidate)
+            or record.design_problem_ref != _problem_ref(problem)
+            or record.world_model_record_content_hash != world.content_hash
+            or record.profile_ref != simulation.generic_profile_ref
+            or record.source_request_ref != profile.candidate_value_source_request_ref
+            or record.n5_input_ref != simulation.generic_n5_input_ref
+            or record.n5_result_ref != simulation.simulation_result_ref
+            or record.n5_execution_ref != simulation.generic_n5_execution_ref
         ):
             raise ValueError("candidate_value_method_source_binding_mismatch")
         from polisyos.runtime.quality.generic_simulation_admission import (

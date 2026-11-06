@@ -11911,34 +11911,34 @@
           "diagnostic": "No original dispatch exception retained. Last phase candidate_input_reentry_pending; candidate_input_prepared receipt/source/route exist, no terminal. Source N5 witness not_established/canonical_loaded_runtime_mismatch at decorated ArtifactWriteOptions direct binding is a clue, not proven worker cause; next bounded cause-chain observer must re-raise unchanged."
         },
         "candidate_method_served_current": {
-          "output": "policy-engine/_cache/e02/lane01-candidate-value-served-r5",
+          "output": "policy-engine/_cache/e02/lane01-candidate-value-served-r11",
           "observed": {
-            "PASS": 0,
-            "FAIL": 1,
+            "PASS": 1,
+            "FAIL": 0,
             "ERROR": 0,
             "SKIP": 0
           },
-          "return_code": 1,
-          "wall_seconds": 79.57679475005716,
-          "peak_RSS_bytes": 1970552832,
-          "named_inputs": 42,
+          "return_code": 0,
+          "wall_seconds": 105.66813020792324,
+          "peak_RSS_bytes": 2113044480,
+          "named_inputs": 49,
           "inputs_unchanged": true,
-          "scope": "WholeFAILafteractualPOST/N5/selector: fixtureprosefunctionalnotcanonicalATE. SeparatefreshreadermismatchfixedusingselectedprofileWMR; completedmethodroutepending."
+          "scope": "Fullroute1PASSactualcompiler/N4/N5/nativeAIPW/selectedCAS/freshAPI+consumeradversarial/removal. NotwholeSEL/G. Actualeffectivecompetitiveprofile, legacyhintsnotcontrols; final2assertiondisclosuresretainedverificationseparate."
         },
         "ordinary_half_gain_current": {
-          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-compact-half-gain-native-r6",
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-compact-half-gain-native-r9",
           "observed": {
-            "PASS": 0,
-            "FAIL": 1,
+            "PASS": 2,
+            "FAIL": 0,
             "ERROR": 0,
             "SKIP": 0
           },
-          "return_code": 1,
-          "wall_seconds": 47.49909720791038,
-          "peak_RSS_bytes": 1787838464,
-          "named_inputs": 42,
+          "return_code": 0,
+          "wall_seconds": 70.7757124589989,
+          "peak_RSS_bytes": 1864695808,
+          "named_inputs": 43,
           "inputs_unchanged": true,
-          "scope": "WholeFAILinvalidstandaloneV1downcast: selectedoriginalprofileWMR differsfromcurrentenrichedsource. Strictloadercorrect; authenticno-declarationlegacy fixture and currentinvaliddowncastnegative inpreparation."
+          "scope": "Whole2PASS declared+legacy, alloriginalnegative/liveowner/exactbudget andproperV1V4producer/freshAPI. Gseparate."
         },
         "acq01_current": {
           "output": "policy-engine/_cache/e02/lane01-acq01-route-current-r5",
@@ -12034,6 +12034,86 @@
           "named_inputs": 43,
           "inputs_unchanged": true,
           "scope": "1PASSregistryrefusal/noN5sideeffect; longselectorFAILstalescenario_time expectation. Preserveindividualcasepositivewithoutclaimingcombinedgreen."
+        },
+        "selection_current_four": {
+          "output": "policy-engine/_cache/e02/lane01-selection-current-four-r1",
+          "observed": {
+            "PASS": 4,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 20.54487787501421,
+          "peak_RSS_bytes": 797048832,
+          "named_inputs": 13,
+          "inputs_unchanged": true,
+          "scope": "4PASS exactopaque-ID/singleton/sourcecatalogdenominator/lexicographicreceiptcurrentadvisor tests; no numericmethodrerun."
+        },
+        "candidate_experiment_native_execute_r15": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-candidate-execution-native-r15",
+          "observed": {
+            "FAIL": 1
+          },
+          "wall_seconds": 528.513,
+          "peak_RSS_bytes": 1930723328,
+          "named_inputs": 88,
+          "inputs_unchanged": true,
+          "scope": "Port216s returns successfully; worker source-basis preparation fails beforeintent/N5. RealdiagnosticretainedtypedCAS proves templateWMR !=actualN4/context/N5world; exactsource/profile/ID/hash joinsmatch. Guardrepairinprogress; livecurrentness remainsnotestablished."
+        },
+        "acq01_full_reentry_r10": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-acq01-route-current-r10",
+          "return_code": 4,
+          "wall_seconds": 12.47401083400473,
+          "peak_RSS_bytes": 1299955712,
+          "named_inputs": 45,
+          "inputs_unchanged": true,
+          "observed": {
+            "PASS": 1,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "scope": "Registry-only refusal passes; compiler/COV/planner preflight independently passes. Full reentry has only original N5, not expected second N5. Downstream receipt/rederivation stop under bounded diagnostic; no root cause assumed. Test-owned contract grounding is not production CGF."
+        },
+        "candidate_source_pure_preintent_r15": {
+          "output": "policy-engine/_cache/e02/lane01-candidate-source-pure-preintent-r15-r2",
+          "return_code": 0,
+          "wall_seconds": 12.447454749955796,
+          "peak_RSS_bytes": 1477312512,
+          "named_inputs": 21,
+          "inputs_unchanged": true,
+          "observed": {
+            "PASS": 1
+          },
+          "scope": "Pure prospective preparation on exact retained R15 selectors returns recomputed/no reason codes/inputs present on17MiB isolated synthetic CAS. Diagnostic transaction_time is pending phase generated_at, not a live intent or source time. No N5, lease, currentness or authority established; original retained stores unchanged."
+        },
+        "candidate_source_basis_composed_unit_current": {
+          "output": "policy-engine/_cache/e02/lane01-source-basis-composed-unit-r2",
+          "observed": {
+            "PASS": 9,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 26.637511792010628,
+          "peak_RSS_bytes": 1720434688,
+          "named_inputs": 25,
+          "inputs_unchanged": true,
+          "scope": "Whole source-basis unit module: equivalent/changed/scope/time/selected-profile/predecessor model preparation plus exact selected-world predicate and bounded observer. Six hash mismatch controls are not a live-owner sibling-substitution matrix. Genuine protected terminal remains required."
+        },
+        "candidate_method_retained_strengthening_current": {
+          "output": "policy-engine/_cache/e02/lane01-candidate-value-retained-strengthening-r12",
+          "observed": {
+            "PASS": 1
+          },
+          "return_code": 0,
+          "wall_seconds": 39.6354401250137,
+          "peak_RSS_bytes": 1660731392,
+          "named_inputs": 7,
+          "inputs_unchanged": true,
+          "scope": "Actual R11 saved native record: N5=.5 independent assertion, trueATE2/nativeCI/exactManski, requested-versus-effective profile/legacy compatibility hints limitation, fresh HTTP/removal plus3direct-projector adversaries. No new N5; explicit trap/count0; original selected bytes unchanged. This strengthens R11 without retroactively altering its JUnit or claiming3HTTP negatives."
         }
       },
       "independent_component_reviews": {
@@ -12060,8 +12140,8 @@
       },
       "resource_admission_current": {
         "disk_stop_floor_GiB": 3,
-        "free_disk_GiB_at_check": 9.576,
-        "policy": "Local only; existing environments/data; <=8GiB measured aggregate process-tree RSS and <=6 numerical CPU threads. New expensive profiles start alone.",
+        "free_disk_GiB_at_check": 8.0,
+        "policy": "Local only; existing environments/data; <=8GiB measured aggregate process-tree RSS, <=4 measured jobs and <=6 numerical CPU threads. The old4GiB/two-job baseline is not a hard cap. New expensive profiles start alone. Stop below3GiB disk.",
         "trash_move": {
           "directory": "/Users/deniskopylov/.Trash/PolicyOS-obsolete-test-scratch-20261105T132841Z",
           "scratch_roots_observed_after_move": 25,
@@ -27796,8 +27876,7 @@
       ],
       "evidence": [
         "LANE-01.evidence_catalog.compiler_slot_calendar_planner",
-        "LANE-01.evidence_catalog.installed_req01_r3",
-        "LANE-01.evidence_catalog.candidate_query_coordinates_current"
+        "LANE-01.evidence_catalog.installed_req01_r3"
       ],
       "blockers": [],
       "deferred_ids": []
@@ -27838,7 +27917,8 @@
         "LANE-01.evidence_catalog.generic_fiscal_strict_oracle",
         "LANE-01.evidence_catalog.mixed_owner_r1",
         "LANE-01.evidence_catalog.generic_fiscal_selected_family",
-        "LANE-01.evidence_catalog.ordinary_half_gain_current"
+        "LANE-01.evidence_catalog.ordinary_half_gain_current",
+        "LANE-01.evidence_catalog.candidate_method_served_current"
       ],
       "blockers": [],
       "deferred_ids": [
@@ -28039,7 +28119,8 @@
         "LANE-01.evidence_catalog.generic_fiscal_strict_oracle",
         "LANE-01.evidence_catalog.mixed_owner_r1",
         "LANE-01.evidence_catalog.generic_fiscal_selected_family",
-        "LANE-01.evidence_catalog.candidate_method_served_current"
+        "LANE-01.evidence_catalog.candidate_method_served_current",
+        "LANE-01.evidence_catalog.ordinary_half_gain_current"
       ],
       "blockers": [],
       "deferred_ids": [
@@ -28076,7 +28157,8 @@
       ],
       "evidence": [
         "LANE-01.evidence_catalog.numeric_native",
-        "LANE-01.evidence_catalog.hypothetical_sibling_full_current"
+        "LANE-01.evidence_catalog.hypothetical_sibling_full_current",
+        "LANE-01.evidence_catalog.ordinary_half_gain_current"
       ],
       "blockers": [],
       "deferred_ids": []
@@ -28112,7 +28194,8 @@
       ],
       "evidence": [
         "LANE-01.evidence_catalog.numeric_native",
-        "LANE-01.evidence_catalog.hypothetical_sibling_full_current"
+        "LANE-01.evidence_catalog.hypothetical_sibling_full_current",
+        "LANE-01.evidence_catalog.ordinary_half_gain_current"
       ],
       "blockers": [],
       "deferred_ids": []
@@ -28152,7 +28235,8 @@
         "LANE-01.evidence_catalog.numeric_native",
         "LANE-01.evidence_catalog.numeric_quantile_removal",
         "LANE-01.evidence_catalog.hypothetical_sibling_full_current",
-        "LANE-01.evidence_catalog.cubic_explicit_native_current"
+        "LANE-01.evidence_catalog.cubic_explicit_native_current",
+        "LANE-01.evidence_catalog.ordinary_half_gain_current"
       ],
       "blockers": [],
       "deferred_ids": []
@@ -28190,7 +28274,8 @@
         "LANE-01.evidence_catalog.selection_final",
         "LANE-01.evidence_catalog.selection_final_catalog_drift",
         "LANE-01.evidence_catalog.candidate_method_preflight_current",
-        "LANE-01.evidence_catalog.candidate_method_served_current"
+        "LANE-01.evidence_catalog.candidate_method_served_current",
+        "LANE-01.evidence_catalog.selection_current_four"
       ],
       "blockers": [],
       "deferred_ids": []

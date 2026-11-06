@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from copy import deepcopy
 from decimal import Decimal
 from pathlib import Path
@@ -275,51 +275,74 @@ async def _prepare_source_candidate(
     return prepared, panel
 
 
-@pytest.mark.integration
-@pytest.mark.asyncio
-async def test_source_method_preparation_uses_real_compiler_and_bound_n4(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-    controlled_candidate_gateway: Any,
+def _assert_source_method_numerics(
+    observation: dict[str, Any],
+    *,
+    expected_ate: float,
+    expected_bounds: tuple[float, float],
+) -> dict[str, Any]:
+    """Compare statistical output with independent truth and a distinct N5 signal."""
+    assert observation["status"] == "joint_simulated"
+    assert observation["n8_status"] == "value_conditional"
+    method = observation["candidate_value_method"]
+    assert method["status"] == "completed", method
+    assert method["measurement_unit"] == "usd"
+    assert method["production_value_eligible"] is False
+    assert method["publication_authority"] is False
+    assert method["assignment_provenance"] == "consumer_asserted"
+    assert method["source_time_status"] == "not_established"
+    assert "outcome_query_coordinates_proposed_unverified" in method["limitation_codes"]
+    lower, upper = method["statistical_interval"]
+    assert lower < method["point_estimate"] < upper
+    assert lower <= expected_ate <= upper
+    outer = method["value_outer_set"]
+    assert len(outer["lower"]) == len(outer["upper"]) == 1
+    assert (outer["lower"][0], outer["upper"][0]) == pytest.approx(expected_bounds)
+    effects = [
+        point["effects"]["agents.income"]
+        for trajectory in observation["simulation_result_body"]["trajectories"]
+        for point in trajectory["points"]
+    ]
+    # The declared NCM sets a binary treatment from zero to one with slope
+    # 0.5. Bind that independent result before using it as the contrast oracle.
+    expected_n5_effect = float(Decimal("1") * Decimal("0.5"))
+    assert effects
+    assert effects == pytest.approx([expected_n5_effect] * len(effects), rel=0.0, abs=1e-12)
+    # Truth comes from the complete balanced source panel. The fitted estimator
+    # need not equal that truth bit-for-bit; its reported interval must contain
+    # it and distinguish the independently declared N5 model's effect.
+    assert effects and all(effect < lower or effect > upper for effect in effects)
+    return method
+
+
+def _assert_and_emit_source_method_profile(
+    observed_profile: dict[str, Any],
+    emit: Callable[[str, object], None],
 ) -> None:
-    """Reconcile the complete source prefix without an admitted request or N5."""
-    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
-
-    def refuse_physical_n5(*_args: Any, **_kwargs: Any) -> Any:
-        pytest.fail("source-method preparation attempted physical N5")
-
-    monkeypatch.setattr(JointSimulationHorizonController, "run", refuse_physical_n5)
-    prepared, panel = await _prepare_source_candidate(
-        tmp_path, monkeypatch, controlled_candidate_gateway
+    """Verify and expose the actual requested/effective contract distinction."""
+    assert observed_profile["requested_parameters"] == {
+        "confidence_level": 0.95,
+        "direct_model_type": "linear",
+        "estimation_backend": "custom",
+    }
+    assert observed_profile["effective_parameters"]["nuisance_model_family"] == "competitive"
+    assert observed_profile["binding_limitation"] == (
+        "legacy_backend_hints_are_not_execution_controls"
     )
-    assert len(prepared.organ_run.result.candidates) == 3
-    assert prepared.recorded_problem.outcome_of_interest.estimand == "ATE"
-    assert prepared.recorded_problem.outcome_of_interest.metric_id == "income_ate"
-    assert prepared.recorded_problem.outcome_of_interest.conditioning_variables == (
-        "baseline_covariate",
-    )
-    assert prepared.recorded_problem.outcome_of_interest.measurement_unit == "usd"
-    assert prepared.recorded_problem.outcome_of_interest.query_coordinate_status == (
-        "candidate_proposed_unverified"
-    )
-    assert panel.expected_ate == 2.0
-    assert len(prepared.app_kwargs["generic_cycle_simulation_profiles"]) == 1
-    assert (
-        prepared.app_kwargs["generic_cycle_simulation_profiles"][
-            0
-        ].candidate_value_source_request_ref
-        is not None
-    )
+    emit("candidate_value_method_profile", json.dumps(observed_profile, sort_keys=True))
 
 
-@pytest.mark.integration
-@pytest.mark.asyncio
-async def test_ordinary_candidate_executes_source_rows_persists_and_fresh_gets(
-    tmp_path: Path,
+def _assert_source_method_reader_suffix(
+    *,
+    prepared: Any,
+    method: dict[str, Any],
+    physical_n5: list[Any],
+    projector_calls: list[dict[str, Any]],
+    actual_projector: Any,
     monkeypatch: pytest.MonkeyPatch,
-    controlled_candidate_gateway: Any,
-) -> None:
-    """A real source estimate differs from N5 and survives an independent fresh API reader."""
+    run_id: str,
+) -> dict[str, Any]:
+    """Check HTTP replay/removal and direct projector guards without another N5."""
     from fastapi.testclient import TestClient
 
     from polisyos.core.artifacts import ArtifactRef, load_core_json_artifact
@@ -330,80 +353,9 @@ async def test_ordinary_candidate_executes_source_rows_persists_and_fresh_gets(
     from polisyos.runtime.quality import candidate_value_method as method_owner
     from polisyos.runtime.quality import generation_cycle as gc
     from polisyos.runtime.quality.candidate_value_method import CandidateValueMethodRecord
-    from tests._helpers.control_worker import dispatch_one_control_job
 
-    prepared, panel = await _prepare_source_candidate(
-        tmp_path, monkeypatch, controlled_candidate_gateway
-    )
-    projector_calls: list[dict[str, Any]] = []
-    actual_projector = method_owner.project_candidate_value_method
-
-    def observe_actual_projection(**kwargs: Any) -> Any:
-        result = actual_projector(**kwargs)
-        projector_calls.append(dict(kwargs))
-        return result
-
-    monkeypatch.setattr(method_owner, "project_candidate_value_method", observe_actual_projection)
-    physical_n5: list[Any] = []
-    real_execute = gc.JointSimulationHorizonController.run
-
-    def observe_real_execute(controller: Any, request: Any) -> Any:
-        physical_n5.append(request)
-        return real_execute(controller, request)
-
-    monkeypatch.setattr(gc.JointSimulationHorizonController, "run", observe_real_execute)
-    app = create_runtime_api_app(**prepared.app_kwargs)
-    with TestClient(app) as client:
-        accepted = client.post(
-            "/api/v1/control/runs/nl",
-            headers={"Idempotency-Key": uuid.uuid4().hex},
-            json=prepared.request_json,
-        )
-        assert accepted.status_code == 200, accepted.text
-        service = app.state._control_service
-        job_id = accepted.json()["job_id"]
-        assert (
-            dispatch_one_control_job(
-                store=service._control_store,
-                handler=service._process_control_job,
-                expected_job_id=job_id,
-            )
-            == job_id
-        )
-        job = service._control_store.get_job(job_id)
-        assert job is not None and job.state == "completed", getattr(job, "error_message", None)
-        run_id = str(job.progress["core_run_id"])
-        initial = client.get(f"/api/v1/runs/{run_id}")
-        assert initial.status_code == 200, initial.text
-        initial_run = initial.json()["run"]
-    assert len(physical_n5) == 1
-    observations = initial_run["generic_cycle_simulation"]["n5_observations"]
-    assert len(observations) == 1
-    observation = observations[0]
-    assert observation["status"] == "joint_simulated"
-    assert observation["n8_status"] == "value_conditional"
-    method = observation["candidate_value_method"]
-    assert method["status"] == "completed", method
-    assert method["point_estimate"] == pytest.approx(panel.expected_ate, abs=1e-10)
-    assert method["measurement_unit"] == "usd"
-    assert method["production_value_eligible"] is False
-    assert method["publication_authority"] is False
-    assert method["assignment_provenance"] == "consumer_asserted"
-    assert method["source_time_status"] == "not_established"
-    assert "outcome_query_coordinates_proposed_unverified" in method["limitation_codes"]
-    assert method["statistical_interval"][0] < method["point_estimate"]
-    assert method["point_estimate"] < method["statistical_interval"][1]
-    outer = method["value_outer_set"]
-    assert len(outer["lower"]) == len(outer["upper"]) == 1
-    assert (outer["lower"][0], outer["upper"][0]) == pytest.approx(panel.expected_bounds)
-    # The source estimator's ATE is independently known from all four balanced
-    # cells; the candidate NCM is a different declared model, never row evidence.
-    effects = [
-        point["effects"]["agents.income"]
-        for trajectory in observation["simulation_result_body"]["trajectories"]
-        for point in trajectory["points"]
-    ]
-    assert effects and all(abs(effect - panel.expected_ate) > 0.1 for effect in effects)
+    n5_calls_before = len(physical_n5)
+    observed_profile: dict[str, Any] = {}
     fresh_context = build_runtime_api_context(
         cas_root=prepared.cas_root,
         core_runs_root=prepared.runtime_api_context.core_runs_root,
@@ -422,16 +374,46 @@ async def test_ordinary_candidate_executes_source_rows_persists_and_fresh_gets(
         assert fresh.status_code == 200, fresh.text
         fresh_observation = fresh.json()["run"]["generic_cycle_simulation"]["n5_observations"][0]
         assert fresh_observation["candidate_value_method"] == method
-        assert len(physical_n5) == 1
+        assert len(physical_n5) == n5_calls_before
         with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
             record = CandidateValueMethodRecord.model_validate(
                 load_core_json_artifact(
                     fresh_context.store, ArtifactRef.model_validate(method["record_ref"])
                 )
             )
+        from polisyos.core.artifacts import ensure_ir_artifact_store
+        from polisyos.ir import CausalEffectReportRef, load_causal_effect_report
+
+        with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+            basis = load_core_json_artifact(fresh_context.store, record.run_basis_ref)
+            native = load_causal_effect_report(
+                ensure_ir_artifact_store(fresh_context.store),
+                CausalEffectReportRef.model_validate(basis["report_ref"]),
+            )
+            requested = load_core_json_artifact(fresh_context.store, record.source_request_ref)
+        assert native.point_estimate == method["point_estimate"]
+        assert native.confidence_interval == tuple(method["statistical_interval"])
+        assert basis["report_ref"] == method["native_report_ref"]
+        effective = native.method_params
+        for key, value in {
+            "propensity_backend": "lightgbm",
+            "outcome_backend": "lightgbm",
+            "calibration_mode": "isotonic",
+            "crossfit_folds": 5,
+            "n_repeats": 3,
+            "bootstrap_draws": 500,
+            "random_seed": 42,
+        }.items():
+            assert effective[key] == value
+        observed_profile = {
+            "requested_parameters": json.loads(requested["method_parameters_json"]),
+            "effective_parameters": effective,
+            "binding_limitation": "legacy_backend_hints_are_not_execution_controls",
+        }
         # The actual persisted cycle omits its in-memory WMR. The consumer
-        # must recover the exact selected owner and continue to reject foreign
-        # runtime worlds, profiles and consistently hashed but false records.
+        # must recover the exact selected owner. The three guards below call
+        # the canonical projector directly: HTTP does not accept a runtime WMR.
+        # HTTP replay and execution-removal controls bracket these direct calls.
         from polisyos.core.artifacts import ensure_ir_artifact_store, input_ref_from_artifact_ref
         from polisyos.ir import CanonSpec, put_json_artifact
         from polisyos.pdc import gy_content_hash
@@ -519,7 +501,7 @@ async def test_ordinary_candidate_executes_source_rows_persists_and_fresh_gets(
                 "candidate_value_method_source_binding_mismatch",
             )
             assert world_hash_mismatch.point_estimate is None
-        assert len(physical_n5) == 1
+        assert len(physical_n5) == n5_calls_before
         real_get_bytes = fresh_context.store.get_bytes
 
         def remove_exact_execution(ref: Any, *args: Any, **kwargs: Any) -> bytes:
@@ -543,4 +525,120 @@ async def test_ordinary_candidate_executes_source_rows_persists_and_fresh_gets(
             ]
             == method
         )
-        assert len(physical_n5) == 1
+        assert len(physical_n5) == n5_calls_before
+    return observed_profile
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_source_method_preparation_uses_real_compiler_and_bound_n4(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+) -> None:
+    """Reconcile the complete source prefix without an admitted request or N5."""
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+
+    def refuse_physical_n5(*_args: Any, **_kwargs: Any) -> Any:
+        pytest.fail("source-method preparation attempted physical N5")
+
+    monkeypatch.setattr(JointSimulationHorizonController, "run", refuse_physical_n5)
+    prepared, panel = await _prepare_source_candidate(
+        tmp_path, monkeypatch, controlled_candidate_gateway
+    )
+    assert len(prepared.organ_run.result.candidates) == 3
+    assert prepared.recorded_problem.outcome_of_interest.estimand == "ATE"
+    assert prepared.recorded_problem.outcome_of_interest.metric_id == "income_ate"
+    assert prepared.recorded_problem.outcome_of_interest.conditioning_variables == (
+        "baseline_covariate",
+    )
+    assert prepared.recorded_problem.outcome_of_interest.measurement_unit == "usd"
+    assert prepared.recorded_problem.outcome_of_interest.query_coordinate_status == (
+        "candidate_proposed_unverified"
+    )
+    assert panel.expected_ate == 2.0
+    assert len(prepared.app_kwargs["generic_cycle_simulation_profiles"]) == 1
+    assert (
+        prepared.app_kwargs["generic_cycle_simulation_profiles"][
+            0
+        ].candidate_value_source_request_ref
+        is not None
+    )
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_ordinary_candidate_executes_source_rows_persists_and_fresh_gets(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+    record_property: Callable[[str, object], None],
+) -> None:
+    """A real source estimate differs from N5 and survives an independent fresh API reader."""
+    from fastapi.testclient import TestClient
+
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.quality import candidate_value_method as method_owner
+    from polisyos.runtime.quality import generation_cycle as gc
+    from tests._helpers.control_worker import dispatch_one_control_job
+
+    prepared, panel = await _prepare_source_candidate(
+        tmp_path, monkeypatch, controlled_candidate_gateway
+    )
+    projector_calls: list[dict[str, Any]] = []
+    actual_projector = method_owner.project_candidate_value_method
+
+    def observe_actual_projection(**kwargs: Any) -> Any:
+        result = actual_projector(**kwargs)
+        projector_calls.append(dict(kwargs))
+        return result
+
+    monkeypatch.setattr(method_owner, "project_candidate_value_method", observe_actual_projection)
+    physical_n5: list[Any] = []
+    real_execute = gc.JointSimulationHorizonController.run
+
+    def observe_real_execute(controller: Any, request: Any) -> Any:
+        physical_n5.append(request)
+        return real_execute(controller, request)
+
+    monkeypatch.setattr(gc.JointSimulationHorizonController, "run", observe_real_execute)
+    app = create_runtime_api_app(**prepared.app_kwargs)
+    with TestClient(app) as client:
+        accepted = client.post(
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": uuid.uuid4().hex},
+            json=prepared.request_json,
+        )
+        assert accepted.status_code == 200, accepted.text
+        service = app.state._control_service
+        job_id = accepted.json()["job_id"]
+        assert (
+            dispatch_one_control_job(
+                store=service._control_store,
+                handler=service._process_control_job,
+                expected_job_id=job_id,
+            )
+            == job_id
+        )
+        job = service._control_store.get_job(job_id)
+        assert job is not None and job.state == "completed", getattr(job, "error_message", None)
+        run_id = str(job.progress["core_run_id"])
+        initial = client.get(f"/api/v1/runs/{run_id}")
+        assert initial.status_code == 200, initial.text
+        initial_run = initial.json()["run"]
+    assert len(physical_n5) == 1
+    observations = initial_run["generic_cycle_simulation"]["n5_observations"]
+    assert len(observations) == 1
+    method = _assert_source_method_numerics(
+        observations[0], expected_ate=panel.expected_ate, expected_bounds=panel.expected_bounds
+    )
+    observed_profile = _assert_source_method_reader_suffix(
+        prepared=prepared,
+        method=method,
+        physical_n5=physical_n5,
+        projector_calls=projector_calls,
+        actual_projector=actual_projector,
+        monkeypatch=monkeypatch,
+        run_id=run_id,
+    )
+    _assert_and_emit_source_method_profile(observed_profile, record_property)

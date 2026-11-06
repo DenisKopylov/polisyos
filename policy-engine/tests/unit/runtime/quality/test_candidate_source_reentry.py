@@ -684,6 +684,156 @@ def test_reentry_receiver_uses_effective_run_and_reconciles_persisted_projection
     )
 
 
+@pytest.mark.parametrize(
+    ("case", "expected_error"),
+    [
+        ("positive", None),
+        ("standard_exact_cap", "candidate_experiment_reentry_n5_capacity_not_established"),
+        ("missing_profile", "candidate_experiment_reentry_n5_capacity_not_established"),
+        ("wrong_profile_digest", "candidate_experiment_reentry_n5_capacity_not_established"),
+        ("usd_exact_cap", "candidate_experiment_reentry_budget_exhausted"),
+        ("changed_budget_state", "control_nl_budget_run_limit_changed"),
+    ],
+)
+def test_candidate_experiment_reentry_preflight_uses_real_budget_and_quota_owner(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    case: str,
+    expected_error: str | None,
+) -> None:
+    """Adapt source/action reconciliation only; keep ledger, USD, and quota reads real."""
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthBridge,
+    )
+    from polisyos.scientist.orchestration.engine import (
+        BudgetInvocationQuotaPolicy,
+        BudgetLedgerInvocationProfile,
+    )
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+    from polisyos.scientist.orchestration.engine.producer_budget import (
+        ProducerBudgetObserver,
+        ProducerBudgetSourceError,
+    )
+    from tests.unit.runtime.quality.test_acquisition_candidate_budget_window import (
+        _prepare,
+        _settle,
+        _unit_window,
+    )
+
+    total_units, protected_units = (2, 1) if case == "standard_exact_cap" else (3, 1)
+    budget_case = _unit_window(tmp_path / case, monkeypatch)
+    _settle(
+        budget_case,
+        "candidate-reentry-preflight-baseline",
+        Decimal("0.02"),
+    )
+    window = _prepare(budget_case)
+    if case == "usd_exact_cap":
+        _settle(
+            budget_case,
+            "candidate-reentry-preflight-window-cap",
+            window.fresh_limit_usd,
+        )
+    budget_state = BudgetState(
+        limits={"run": BudgetLimit(key="run", max_usd=window.effective_limit_usd)}
+    )
+    profile = BudgetLedgerInvocationProfile.from_policy(
+        budget_case.binding,
+        BudgetInvocationQuotaPolicy(
+            allocation_id=f"candidate-reentry-preflight-{case}",
+            total_units=total_units,
+            protected_units=protected_units,
+        ),
+    )
+    selected_profile = None if case == "missing_profile" else profile
+    observer = ProducerBudgetObserver(
+        settlement_store=budget_case.service._llm_producer_settlement_store,
+        producer_run_binding=budget_case.binding,
+        budget_state=budget_state,
+        invocation_quota_profile=selected_profile,
+        reentry_budget_scope=window.scope,
+    )
+    if case == "standard_exact_cap":
+        operation_id = "b" * 64
+        request_digest = "a" * 64
+        reservation = observer.reserve_invocation(operation_id, request_digest)
+        assert reservation is not None and reservation.units == 1
+        observer.finish_invocation(operation_id, request_digest, "completed")
+        exhausted = observer.observe_standard_invocation_capacity()
+        assert exhausted.status == "exhausted"
+        assert exhausted.standard_remaining_units == 0
+        assert exhausted.protected_remaining_units == 1
+    if case == "changed_budget_state":
+        budget_state.limits["run"] = BudgetLimit(key="run", max_usd=Decimal("0.09"))
+
+    bridge = AcquisitionWorldGrowthBridge.__new__(AcquisitionWorldGrowthBridge)
+    origin = object()
+    candidate_action_ref = object()
+    reentry_budget_scope = object()
+    boundary_calls: list[tuple[object, object, object, object]] = []
+
+    def adapt_upstream_reconciliation(**values: object) -> object:
+        boundary_calls.append(
+            (
+                values["origin"],
+                values["candidate_action_ref"],
+                values["budget_state"],
+                values["reentry_budget_scope"],
+            )
+        )
+        return SimpleNamespace(observer=observer)
+
+    monkeypatch.setattr(
+        bridge,
+        "_reconcile_candidate_experiment_source_reentry_budget",
+        adapt_upstream_reconciliation,
+        raising=False,
+    )
+    if case == "wrong_profile_digest":
+        observe_capacity = ProducerBudgetObserver.observe_standard_invocation_capacity
+        actual_capacity = observe_capacity(observer)
+        assert actual_capacity.status == "available"
+        assert actual_capacity.profile_digest == profile.profile_digest
+
+        def wrong_digest(current: ProducerBudgetObserver):
+            observation = observe_capacity(current)
+            return type(observation).model_validate(
+                {**observation.model_dump(), "profile_digest": "0" * 64}
+            )
+
+        monkeypatch.setattr(
+            ProducerBudgetObserver,
+            "observe_standard_invocation_capacity",
+            wrong_digest,
+        )
+
+    def run_preflight() -> object:
+        return bridge.candidate_experiment_source_reentry_preflight(
+            origin=origin,
+            candidate_action_ref=candidate_action_ref,
+            budget_state=budget_state,
+            reentry_budget_scope=reentry_budget_scope,
+        )
+
+    if case == "changed_budget_state":
+        with pytest.raises(ProducerBudgetSourceError, match=expected_error or ""):
+            run_preflight()
+    elif expected_error is not None:
+        with pytest.raises(ValueError, match=expected_error):
+            run_preflight()
+    else:
+        assert run_preflight() is observer
+        assert observer.invocation_quota_profile == profile
+        capacity = observer.observe_standard_invocation_capacity()
+        assert capacity.status == "available"
+        assert capacity.standard_limit_units == 2
+        assert capacity.standard_remaining_units == 2
+        assert capacity.protected_limit_units == 1
+        assert capacity.protected_remaining_units == 1
+
+    assert boundary_calls == [(origin, candidate_action_ref, budget_state, reentry_budget_scope)]
+
+
 @pytest.mark.asyncio
 async def test_v9_intrinsic_history_rejects_pair_and_entry_hint_mutations() -> None:
     """Rehashed mutations cannot detach the edge from its adjacent source history."""

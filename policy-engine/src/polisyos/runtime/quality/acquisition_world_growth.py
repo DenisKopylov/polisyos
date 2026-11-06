@@ -1420,7 +1420,7 @@ class AcquisitionWorldGrowthBridge:
         except BudgetExhaustedError as exc:
             raise ValueError("candidate_experiment_reentry_budget_exhausted") from exc
         capacity = ProducerBudgetObserver.observe_standard_invocation_capacity(observer)
-        selected_quota = observer.invocation_profile
+        selected_quota = observer.invocation_quota_profile
         if (
             budget.remaining_usd <= Decimal(0)
             or selected_quota is None

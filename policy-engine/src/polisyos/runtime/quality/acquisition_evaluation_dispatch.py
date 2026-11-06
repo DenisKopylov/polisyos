@@ -1936,7 +1936,7 @@ def _revalidate_candidate_experiment_evaluation_owner(
     require_catalog_serving_source_unchanged(catalog)
     require_catalog_source_registry_binding(
         bridge.repo_root,
-        prior_owner.context_owner.substrate_registry,
+        prior_owner.profile.context_inputs.substrate_registry,
         catalog,
     )
     checked_state, checked_observation = _candidate_experiment_budget_snapshot(

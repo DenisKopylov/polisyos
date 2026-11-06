@@ -12776,6 +12776,34 @@
           "named_inputs": 59,
           "inputs_unchanged": true,
           "scope": "R1 setupERROR: capture wrapper rejected repo_root; forward-all repairda302 preserves scope/profile arguments. R2/R3 hit measuredRSS caps2.5/3.25GiB, not assertions or OOM. No completed selector/observer verdict; counters unavailable. R3 trace stops after producer basis open and exact worker allocation is unestablished; fixture only16MiB, no justification for larger blind retry."
+        },
+        "candidate_experiment_native_execute_r21": {
+          "source": "10def5e6e277cc517c6192a9f07a46353918a422 / dd8057ab2b03cbd336c852473a91183c3f715dcb",
+          "output": "policy-engine/_cache/e02/lane01-candidate-execution-native-r21",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "classification": "command_failed",
+          "abort_reason": null,
+          "wall_seconds": 902.4268225829583,
+          "peak_RSS_bytes": 2039578624,
+          "named_inputs": 117,
+          "inputs_unchanged": true,
+          "scope": "Actual product AttributeError at acquisition_evaluation_dispatch1939: configured context admission owner has no substrate_registry. SourceA completed2 physical units; candidate source/intent recomputed, reentry pending, no newB reservation/N5. Both schema owner and sibling currentness fence identify selected profile.context_inputs.substrate_registry as canonical field. No resource/OOM/inherited-red attribution or positive claim."
+        },
+        "candidate_selected_profile_registry_forward_fix": {
+          "source_base": "10def5e6e277cc517c6192a9f07a46353918a422",
+          "source_sha256": "6dba434af7dc28a0fe176911eb52c2822e06a19835751775d8290e30ef6b63ad",
+          "test_sha256": "fdd5164b58736eaeacf7fffa07bdbf73cfd067dc4cd649f002924a557f177f59",
+          "outputs": [
+            "policy-engine/_cache/e02/lane01-candidate-registry-owner-r1",
+            "policy-engine/_cache/e02/lane01-candidate-registry-owner-positive-r1"
+          ],
+          "outcomes": "7PASS/1FAIL stale full-availability oracle, then corrected positive1PASS; not a single8-pass invocation. Actual positive Catalog join plus wrong-registry/freshness consumers are qualified; one-line integrated revalidation still requires R22.",
+          "scope": "Real prior-owner/profile types, canonical selected registry, unchanged mutable fences; full JSON availability payload and independent SHA256 companion. Independent LunaGO, no constructor-only/runtime-authority claim."
         }
       },
       "independent_component_reviews": {
@@ -12868,6 +12896,17 @@
           "generated_fixture_MiB": 16,
           "swap_used_GiB_after": 2.55,
           "scope": "No allocation owner or OOM attribution established; producer basis remains open. Profile runs solo until actual Mac footprint/allocator qualification. Continue known light profiles, authoring and genuine G1 independently; disk3GiB stop floor stays binding."
+        },
+        "new_parallel_trash_moves": {
+          "date": "2026-11-06",
+          "size_KiB": 488372,
+          "folders": [
+            "/Users/deniskopylov/.Trash/PolicyOS-obsolete-bytecode-20261106T161337Z",
+            "/Users/deniskopylov/.Trash/PolicyOS-reproducible-unit-scratch-20261106T162322Z"
+          ],
+          "scope": "Old bytecode and5 completed reproducible unit basetemps only; original outputs/inputs/code/environments/production and active diagnosis stores preserved. Sixth failed candidate withheld pending truthful classification.",
+          "trash_emptied": false,
+          "deleted": false
         }
       }
     },

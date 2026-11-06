@@ -125,6 +125,26 @@ class CandidateSourceBasisValues:
     canonical_base_data_snapshot_ref: artifacts.ArtifactRef | None = None
 
 
+def _selected_n5_world_model_matches_exact_n4_context(
+    *,
+    selected_world_model_hash: str,
+    n4_source_world_model_hash: str,
+    context_world_model_hash: str,
+    context_world_model_record_hash: str,
+    n5_input_world_model_hash: str,
+    n5_execution_world_model_hash: str,
+) -> bool:
+    """Bind selected N5 to the exact selected N4 source and context world."""
+    return (
+        selected_world_model_hash
+        == n4_source_world_model_hash
+        == context_world_model_hash
+        == context_world_model_record_hash
+        == n5_input_world_model_hash
+        == n5_execution_world_model_hash
+    )
+
+
 def _selected_json(store: artifacts.ArtifactStore, ref: artifacts.ArtifactRef, kind: str) -> object:
     if (
         ref.kind != kind
@@ -1315,13 +1335,32 @@ def prepare_live_candidate_experiment_source_basis_values(
         )
         profile = prior_owner.profile
         declaration = prior_owner.model_declaration
-        if prior_owner.selected_evaluation is not None and (
-            prior_owner.selected_evaluation.selected.candidate_id
+        prior_evaluation = prior_owner.selected_evaluation
+        if prior_evaluation is not None and (
+            prior_evaluation.selected.candidate_id
             != prior_owner.source_cycle.selected_candidate_ref
-            or prior_owner.selected_evaluation.selected.candidate_content_hash
+            or prior_evaluation.selected.candidate_content_hash
             != prior_owner.source_cycle.selected_candidate_content_hash
-            or profile.context_inputs.world_model_record.content_hash
-            != prior_owner.selected_evaluation.selected.world_model_record_hash
+            or not _selected_n5_world_model_matches_exact_n4_context(
+                selected_world_model_hash=(
+                    prior_evaluation.selected.world_model_record_hash
+                ),
+                n4_source_world_model_hash=(
+                    prior_evaluation.source.world_model_record_hash
+                ),
+                context_world_model_hash=(
+                    prior_evaluation.handoff.context.world_model_record_content_hash
+                ),
+                context_world_model_record_hash=(
+                    prior_evaluation.handoff.context.world_model_record.content_hash
+                ),
+                n5_input_world_model_hash=(
+                    prior_evaluation.input_record.materialization.world_model_record_hash
+                ),
+                n5_execution_world_model_hash=(
+                    prior_evaluation.execution.world_model_record_hash
+                ),
+            )
         ):
             raise ValueError("candidate_experiment_source_basis_prior_n5_changed")
         intent_ref, intent = bridge._candidate_world_materialization_intent(

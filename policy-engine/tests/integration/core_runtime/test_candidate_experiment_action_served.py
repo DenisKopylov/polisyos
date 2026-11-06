@@ -21,6 +21,138 @@ from polisyos.runtime.quality.agent_action_authority import (
 pytest_plugins = ("tests._helpers.acquisition_served_history",)
 
 
+def _count_selected_n4_source_loads(monkeypatch, source_ref, operation):
+    """Count actual owner replays of one selected source during an operation."""
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    source_ref_key = artifacts.artifact_ref_identity_key(source_ref)
+    original_source_loader = GenerationSourceRepository.load_candidate_scenario_source_for_n5
+    selected_source_loads = 0
+
+    def measured_source_loader(self, ref, **kwargs):
+        nonlocal selected_source_loads
+        if artifacts.artifact_ref_identity_key(ref) == source_ref_key:
+            selected_source_loads += 1
+        return original_source_loader(self, ref, **kwargs)
+
+    with monkeypatch.context() as scoped_patch:
+        scoped_patch.setattr(
+            GenerationSourceRepository,
+            "load_candidate_scenario_source_for_n5",
+            measured_source_loader,
+        )
+        result = operation()
+    return result, selected_source_loads
+
+
+def _assert_selected_n4_source_replay_is_consolidated(
+    monkeypatch,
+    *,
+    artifact_store,
+    source_ref,
+    execution_ref,
+    input_ref,
+    expected_run_id,
+    expected_tenant_id,
+    expected_cell_id,
+):
+    """Check one persisted V5 pair with no N5 invocation or authority reuse."""
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    repository = GenerationSourceRepository(artifact_store)
+
+    def resolve_preconsolidation_sequence():
+        source = repository.load_candidate_scenario_source_in_owner_scope(
+            source_ref,
+            expected_run_id=expected_run_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+        )
+        execution = repository.resolve_candidate_simulation_v5(
+            ref=execution_ref,
+            expected_run_id=expected_run_id,
+            expected_job_id=source.job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+        )
+        input_record = repository.resolve_candidate_simulation_v5(
+            ref=input_ref,
+            expected_run_id=expected_run_id,
+            expected_job_id=source.job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+        )
+        return source, execution, input_record
+
+    with tenant_scope(
+        None,
+        tenant_id=expected_tenant_id,
+        cell_id=expected_cell_id,
+    ):
+        baseline, baseline_source_loads = _count_selected_n4_source_loads(
+            monkeypatch,
+            source_ref,
+            resolve_preconsolidation_sequence,
+        )
+        resolved, batched_source_loads = _count_selected_n4_source_loads(
+            monkeypatch,
+            source_ref,
+            lambda: repository._resolve_selected_candidate_simulation_v5_pair(
+                source_ref=source_ref,
+                execution_ref=execution_ref,
+                input_ref=input_ref,
+                expected_run_id=expected_run_id,
+                expected_tenant_id=expected_tenant_id,
+                expected_cell_id=expected_cell_id,
+            ),
+        )
+        assert baseline_source_loads == 4
+        assert batched_source_loads == 1
+        assert tuple(item.model_dump(mode="json") for item in baseline) == tuple(
+            item.model_dump(mode="json") for item in resolved
+        )
+        baseline_source, _, baseline_input = baseline
+
+        bad_source_ref = source_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+        )
+        with pytest.raises((FileNotFoundError, ValueError)):
+            repository._resolve_selected_candidate_simulation_v5_pair(
+                source_ref=bad_source_ref,
+                execution_ref=execution_ref,
+                input_ref=input_ref,
+                expected_run_id=expected_run_id,
+                expected_tenant_id=expected_tenant_id,
+                expected_cell_id=expected_cell_id,
+            )
+        with pytest.raises(ValueError):
+            repository._resolve_selected_candidate_simulation_v5_pair(
+                source_ref=source_ref,
+                execution_ref=execution_ref,
+                input_ref=input_ref,
+                expected_run_id=expected_run_id,
+                expected_tenant_id="foreign-tenant",
+                expected_cell_id=expected_cell_id,
+            )
+        with pytest.raises(ValueError, match="execution_input_mismatch"):
+            repository._resolve_candidate_simulation_v5_record(
+                ref=execution_ref,
+                expected_run_id=expected_run_id,
+                expected_job_id=baseline_source.job_id,
+                expected_tenant_id=expected_tenant_id,
+                expected_cell_id=expected_cell_id,
+                _source_snapshot=baseline_source,
+                _source_ref=source_ref,
+                _input_snapshot=baseline_input,
+                _input_ref=source_ref,
+            )
+    return {
+        "preconsolidation": baseline_source_loads,
+        "batched": batched_source_loads,
+    }
+
+
 def _install_candidate_mandate(
     *,
     control,
@@ -1358,6 +1490,15 @@ def run_genuine_candidate_experiment_scenario(
                 assert execution.standard_invocation_units_after == 4
                 assert execution.current_action.evaluation_disposition == "new"
                 assert execution.terminal_history.frontier_after is not None
+                assert execution.source_basis_preparations
+                assert all(
+                    observation.predicate_provenance == "recomputed"
+                    and observation.reason_codes == ()
+                    and observation.inputs_present
+                    and observation.intent_ref_present
+                    and observation.intent_present
+                    for observation in execution.source_basis_preparations
+                )
                 assert policy_owner.template.max_standard_n5_invocations == total_units - 1
                 assert execution.execution_owner.transport_calls == [
                     (
@@ -1375,6 +1516,40 @@ def run_genuine_candidate_experiment_scenario(
                     control=control,
                     origin=execution_values["origin"],
                     execution=execution,
+                )
+                # The persisted evaluation used to replay the same selected N4
+                # source once directly, once for the input, and twice while
+                # resolving the execution. Measure the old and batched paths
+                # against the real CAS records produced by this served route.
+                from polisyos.core.artifacts.manifest import ArtifactRef
+
+                origin = execution_values["origin"]
+                source_cycle = origin.effective_source_cycle
+                simulation = source_cycle.simulation
+                source_ref = simulation.candidate_simulation_n4_source_ref
+                input_ref = simulation.candidate_simulation_n5_input_ref
+                result_ref = simulation.simulation_result_ref
+                execution_ref = ArtifactRef.model_validate(
+                    simulation.diagnostics[
+                        "candidate_simulation_execution_selected_ref"
+                    ]
+                )
+                assert source_ref is not None and input_ref is not None and result_ref is not None
+                source_replay_counts = _assert_selected_n4_source_replay_is_consolidated(
+                    monkeypatch,
+                    artifact_store=control._artifact_store,
+                    source_ref=source_ref,
+                    execution_ref=execution_ref,
+                    input_ref=input_ref,
+                    expected_run_id=origin.run_id,
+                    expected_tenant_id=origin.tenant_id,
+                    expected_cell_id=origin.cell_id,
+                )
+                print(
+                    "selected_n4_source_replay_counts "
+                    f"baseline={source_replay_counts['preconsolidation']} "
+                    f"batched={source_replay_counts['batched']} "
+                    "retained_cas=served_candidate"
                 )
                 observed["execution"] = execution
                 scenario_context.update(

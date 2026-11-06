@@ -106,6 +106,17 @@ class CandidateExperimentDispatchFailure:
     chain: tuple[CandidateExperimentDispatchFailureNode, ...]
 
 
+@dataclass(frozen=True)
+class CandidateExperimentSourceBasisPreparationObservation:
+    """Bounded result flags from the real live source-basis preparer."""
+
+    predicate_provenance: str
+    reason_codes: tuple[str, ...]
+    inputs_present: bool
+    intent_ref_present: bool
+    intent_present: bool
+
+
 def _candidate_experiment_dispatch_failure(
     exc: BaseException,
 ) -> CandidateExperimentDispatchFailure:
@@ -181,6 +192,42 @@ def _observe_candidate_experiment_dispatch(
     return observed_dispatch
 
 
+def _observe_candidate_experiment_source_basis_preparation(
+    prepare: Callable[..., object],
+    observations: list[CandidateExperimentSourceBasisPreparationObservation],
+) -> Callable[..., object]:
+    """Record only the bounded status returned by the live basis preparer."""
+
+    def observed_prepare(*args: object, **kwargs: object) -> object:
+        result = prepare(*args, **kwargs)
+        with suppress(BaseException):
+            if type(result) is tuple and len(result) == 3:
+                prepared, intent_ref, intent = result
+                provenance = getattr(prepared, "predicate_provenance", None)
+                raw_reasons = getattr(prepared, "reason_codes", ())
+                if type(provenance) is not str:
+                    provenance = "<unavailable>"
+                if type(raw_reasons) is tuple:
+                    reasons = tuple(
+                        code[:256] if type(code) is str else "<non-string>"
+                        for code in raw_reasons[:8]
+                    )
+                else:
+                    reasons = ("<unavailable>",)
+                observations.append(
+                    CandidateExperimentSourceBasisPreparationObservation(
+                        predicate_provenance=provenance[:128],
+                        reason_codes=reasons,
+                        inputs_present=getattr(prepared, "inputs", None) is not None,
+                        intent_ref_present=intent_ref is not None,
+                        intent_present=intent is not None,
+                    )
+                )
+        return result
+
+    return observed_prepare
+
+
 @dataclass(frozen=True)
 class CandidateExperimentServedExecutionResult:
     """HTTP, worker, terminal, and selected evaluation from one served experiment."""
@@ -201,6 +248,7 @@ class CandidateExperimentServedExecutionResult:
     standard_invocation_units_before: int
     standard_invocation_units_after_interrupted: int | None
     standard_invocation_units_after: int
+    source_basis_preparations: tuple[CandidateExperimentSourceBasisPreparationObservation, ...]
     execution_owner: CandidateExperimentServedExecutionOwner
 
 
@@ -853,6 +901,7 @@ def run_candidate_experiment_served_execution(
     interrupted_units: int | None = None
     interrupted_transport_call_count: int | None = None
     dispatch_failures: list[CandidateExperimentDispatchFailure] = []
+    source_basis_preparations: list[CandidateExperimentSourceBasisPreparationObservation] = []
     attempts: tuple[int, ...]
 
     with candidate_experiment_served_execution_owner(
@@ -964,15 +1013,27 @@ def run_candidate_experiment_served_execution(
             before_first_delivery(execution_owner, job_id)
 
         def dispatch_with_execution_observer(dispatch: Callable[[], str]) -> str:
-            from polisyos.runtime.quality import acquisition_evaluation_dispatch
+            from polisyos.runtime.quality import (
+                acquisition_evaluation_dispatch,
+                candidate_source_basis,
+            )
 
             original_execute = execution_owner.port.execute_candidate_experiment
             original_dispatch = (
                 acquisition_evaluation_dispatch.dispatch_candidate_experiment_evaluation
             )
+            original_prepare_source_basis = (
+                candidate_source_basis.prepare_live_candidate_experiment_source_basis_values
+            )
             observed_dispatch = _observe_candidate_experiment_dispatch(
                 original_dispatch,
                 dispatch_failures,
+            )
+            observed_prepare_source_basis = (
+                _observe_candidate_experiment_source_basis_preparation(
+                    original_prepare_source_basis,
+                    source_basis_preparations,
+                )
             )
 
             def observe_execute_candidate_experiment(
@@ -1120,6 +1181,11 @@ def run_candidate_experiment_served_execution(
                     "dispatch_candidate_experiment_evaluation",
                     observed_dispatch,
                 )
+                observed.setattr(
+                    candidate_source_basis,
+                    "prepare_live_candidate_experiment_source_basis_values",
+                    observed_prepare_source_basis,
+                )
                 return dispatch()
 
         if recover_worker_crash:
@@ -1224,6 +1290,11 @@ def run_candidate_experiment_served_execution(
             raise AssertionError(
                 f"candidate experiment worker did not complete: {job_state}\n{call_details}"
                 + (f"\ndispatch failures: {dispatch_failures!r}" if dispatch_failures else "")
+                + (
+                    f"\nsource-basis preparations: {source_basis_preparations!r}"
+                    if source_basis_preparations
+                    else ""
+                )
             )
         if recover_worker_crash and final_job.attempt != 2:
             raise AssertionError("candidate experiment retry did not advance the worker attempt")
@@ -1312,6 +1383,7 @@ def run_candidate_experiment_served_execution(
         standard_invocation_units_before=units_before,
         standard_invocation_units_after_interrupted=interrupted_units,
         standard_invocation_units_after=units_after,
+        source_basis_preparations=tuple(source_basis_preparations),
         execution_owner=execution_owner,
     )
 

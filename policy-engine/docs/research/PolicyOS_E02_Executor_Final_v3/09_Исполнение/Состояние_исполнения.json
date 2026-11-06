@@ -12114,6 +12114,29 @@
           "named_inputs": 7,
           "inputs_unchanged": true,
           "scope": "Actual R11 saved native record: N5=.5 independent assertion, trueATE2/nativeCI/exactManski, requested-versus-effective profile/legacy compatibility hints limitation, fresh HTTP/removal plus3direct-projector adversaries. No new N5; explicit trap/count0; original selected bytes unchanged. This strengthens R11 without retroactively altering its JUnit or claiming3HTTP negatives."
+        },
+        "selected_v3_v5_readers_composed": {
+          "output": "policy-engine/_cache/e02/lane01-v5-selected-reader-consumers-r2",
+          "observed": {
+            "PASS": 6,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 13.017769666970707,
+          "peak_RSS_bytes": 1391296512,
+          "named_inputs": 73,
+          "inputs_unchanged": true,
+          "scope": "Affected public V3/V4/V5 selected-input/execution consumer roundtrips, two selected-profile variants each. Not a new physicalN5 or full protected terminal."
+        },
+        "selected_source_owner_batch": {
+          "output": "policy-engine/_cache/e02/lane01-source-replay-r15-main-r1",
+          "observed": {
+            "PASS": 1
+          },
+          "scope": "Real retained R15 synthetic CAS opened readonly by MAIN current resolver:4→1 exact selectedN4 owner replays; all3models equal; wrong selected profile/foreign tenant/execution-input mismatch refused; noN5. This counts owner validation calls, not raw bytes or latency. Driver+compact deciding result retained once; full served terminal separately pending.",
+          "independent_review": "Luna GO on production caller/public resolver compatibility; wrong-profile ref shape corrected before final diagnostic."
         }
       },
       "independent_component_reviews": {

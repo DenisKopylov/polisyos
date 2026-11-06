@@ -115,6 +115,7 @@ if TYPE_CHECKING:
         MethodRegistry,
         MethodSelectionReceipt,
     )
+    from polisyos.runtime.quality.acquisition_evaluation import AcquisitionSelectedEvaluation
     from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
         CandidateAcquisitionEvaluationCurrentOwner,
         CandidateExperimentEvaluationCurrentOwner,
@@ -10258,6 +10259,78 @@ def _configured_candidate_value_observation(
     )
 
 
+def _retained_candidate_simulation_with_world(
+    *,
+    source_cycle: GenerationCycleRecord,
+    selected: AcquisitionSelectedEvaluation,
+    handoff: CandidateSimulationContextHandoff,
+) -> SimulationPortObservation:
+    """Bind a transient world to the owner-reopened historical N5 occurrence.
+
+    The caller must first revalidate the live owner, which reopens the actual
+    N4, context, input, execution and result. This join does not establish
+    currentness or turn the historical occurrence into a new N5 execution.
+    """
+    from polisyos.runtime.quality.acquisition_evaluation import AcquisitionSelectedEvaluation
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextHandoff
+    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+
+    if (
+        type(source_cycle) is not GenerationCycleRecord
+        or type(selected) is not AcquisitionSelectedEvaluation
+        or type(handoff) is not CandidateSimulationContextHandoff
+    ):
+        raise ValueError("candidate_retained_simulation_selection_untyped")
+    simulation = source_cycle.simulation
+    world = handoff.context.world_model_record
+    if type(world) is not WorldModelRecord:
+        raise ValueError("candidate_retained_simulation_world_mismatch")
+    try:
+        world = WorldModelRecord.model_validate(world.model_dump(mode="python"))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("candidate_retained_simulation_world_mismatch") from exc
+    execution_ref = CASArtifactRef.model_validate(
+        simulation.diagnostics.get("candidate_simulation_execution_selected_ref")
+    )
+    if (
+        simulation.status != "joint_simulated"
+        or simulation.candidate_id != selected.candidate_id
+        or source_cycle.selected_candidate_ref != selected.candidate_id
+        or source_cycle.selected_candidate_content_hash != selected.candidate_content_hash
+        or source_cycle.cycle_index != selected.cycle_index
+        or _cycle_basis_ref(source_cycle) != selected.design_problem_ref
+        or handoff.context.design_problem_ref != selected.design_problem_ref
+        or handoff.job_id != selected.evaluation_job_id
+        or handoff.run_id != selected.evaluation_run_id
+        or simulation.candidate_simulation_profile_config_ref != handoff.profile_config_ref
+        or simulation.candidate_simulation_profile_selection_ref
+        != handoff.profile.profile_selection_ref
+        or handoff.context.world_model_record_content_hash != world.content_hash
+        or world.content_hash != selected.world_model_record_hash
+        or simulation.k_world_ref_before != world.content_hash
+        or simulation.k_world_ref_after != world.content_hash
+        or (
+            simulation.world_model_record is not None
+            and exact_n5_content_bytes(simulation.world_model_record)
+            != exact_n5_content_bytes(world)
+        )
+    ):
+        raise ValueError("candidate_retained_simulation_world_mismatch")
+    for actual, expected in (
+        (_candidate_simulation_selected_n4_source_ref(simulation), selected.n4_source_ref),
+        (simulation.candidate_simulation_context_job_ref, selected.context_job_ref),
+        (handoff.context_job_ref, selected.context_job_ref),
+        (simulation.candidate_simulation_n5_input_ref, selected.n5_input_ref),
+        (execution_ref, selected.n5_execution_ref),
+        (simulation.simulation_result_ref, selected.n5_result_ref),
+    ):
+        if actual is None or artifact_ref_identity_key(actual) != artifact_ref_identity_key(
+            expected
+        ):
+            raise ValueError("candidate_retained_simulation_selection_mismatch")
+    return simulation.model_copy(update={"world_model_record": world})
+
+
 class GenerationCycleController:
     """Thin N6 controller over SimpleLoopEngine and real generation organs."""
 
@@ -16700,6 +16773,19 @@ class GenerationCycleController:
 
             raise_artifact_read_access_error(exc)
             return unknown("retained_cheap_prior_source_unresolved")
+
+        if _candidate_owner is not None:
+            prior = _candidate_owner.prior
+            if prior is None:
+                return unknown("candidate_retained_prior_evaluation_not_established")
+            try:
+                simulation = _retained_candidate_simulation_with_world(
+                    source_cycle=source_cycle,
+                    selected=prior.selected,
+                    handoff=prior.handoff,
+                )
+            except (TypeError, ValueError):
+                return unknown("candidate_retained_simulation_selection_not_established")
 
         source_v1 = source.source_record.source_record
         proposal_run = N4CandidateScenarioProposalRun(

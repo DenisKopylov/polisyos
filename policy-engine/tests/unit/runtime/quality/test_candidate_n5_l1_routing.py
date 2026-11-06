@@ -70,6 +70,215 @@ def _controller(code: Path, source: Any, current: Any) -> owner.GenerationCycleC
     return controller
 
 
+def test_retained_roundtrip_reopens_bound_world_for_real_l1_routing(tmp_path: Path) -> None:
+    """The adapter and L1 reader use controlled selectors, not served-worker custody."""
+    from polisyos.runtime.quality.acquisition_evaluation import AcquisitionSelectedEvaluation
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioN5Config,
+        CandidateScenarioSetToRule,
+        CandidateSimulationContextHandoff,
+        CandidateSimulationContextInputs,
+        CandidateSimulationScenarioProfile,
+        candidate_simulation_profile_ref,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+    from tests.unit.runtime.quality.test_cycle_substrate import _cycle_context
+
+    code, _owner, catalog = _selected_fixture(tmp_path)
+    _gateway_type, problem, candidate = _actual_profile_gateway_inputs()
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    context = _cycle_context(design_problem_ref=problem_ref)
+    inputs = CandidateSimulationContextInputs(
+        substrate_registry=context.substrate_registry,
+        selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+        world_model_record=context.world_model_record,
+    )
+    profile_fields = {
+        "profile_id": "retained-world-fixture",
+        "profile_selection_ref": "sha256:" + "6" * 64,
+        "context_inputs": inputs,
+        "rule": CandidateScenarioSetToRule(
+            operator_kind="set_to",
+            parameter_id="intensity",
+            target_world_slot="education.teaching_method",
+            unit_id="synthetic_score",
+            minimum=0,
+            maximum=1,
+        ),
+        "n5": CandidateScenarioN5Config(
+            budget_ref="budget://retained-world-fixture",
+            horizon=HorizonSpec(start=0, end=0),
+        ),
+        "limitations": (
+            "scenario_only",
+            "real_profile_not_established",
+            "real_time_not_established",
+            "grounding_not_established",
+            "s8_blocked",
+            "n9_not_admitted",
+        ),
+    }
+    draft = CandidateSimulationScenarioProfile.model_construct(
+        **profile_fields, content_hash="sha256:" + "0" * 64
+    )
+    profile = CandidateSimulationScenarioProfile.model_validate(
+        {
+            **profile_fields,
+            "content_hash": gy_content_hash(
+                draft.model_dump(mode="json", exclude={"content_hash"})
+            ),
+        }
+    )
+    profile_ref = candidate_simulation_profile_ref(profile)
+    live = _simulation(candidate.candidate_id).model_copy(
+        update={
+            "world_model_record": context.world_model_record,
+            "k_world_ref_before": context.world_model_record.content_hash,
+            "k_world_ref_after": context.world_model_record.content_hash,
+            "candidate_simulation_profile_config_ref": profile_ref,
+            "candidate_simulation_profile_selection_ref": profile.profile_selection_ref,
+        }
+    )
+    handoff = CandidateSimulationContextHandoff(
+        context=context,
+        context_job_ref=live.candidate_simulation_context_job_ref,
+        profile=profile,
+        profile_config_ref=profile_ref,
+        job_id="fixture-job",
+        run_id="fixture-run",
+        tenant_id="fixture-tenant",
+        cell_id="fixture-cell",
+    )
+    execution_ref = ArtifactRef.model_validate(
+        live.diagnostics["candidate_simulation_execution_selected_ref"]
+    )
+    selected = AcquisitionSelectedEvaluation(
+        candidate_id=candidate.candidate_id,
+        candidate_content_hash=candidate.atom.content_hash,
+        design_problem_ref=problem_ref,
+        world_model_record_hash=context.world_model_record.content_hash,
+        evaluation_job_id=handoff.job_id,
+        evaluation_run_id=handoff.run_id,
+        generation_run_id=handoff.run_id,
+        cycle_index=1,
+        n4_source_ref=live.candidate_simulation_n4_source_ref,
+        context_job_ref=live.candidate_simulation_context_job_ref,
+        n5_input_ref=live.candidate_simulation_n5_input_ref,
+        n5_execution_ref=execution_ref,
+        n5_result_ref=live.simulation_result_ref,
+    )
+    fresh = owner.SimulationPortObservation.model_validate(live.model_dump(mode="json"))
+    assert fresh.world_model_record is None
+    cycle = owner.GenerationCycleRecord.model_construct(
+        cycle_index=1,
+        design_problem_ref=problem_ref,
+        selected_candidate_ref=candidate.candidate_id,
+        selected_candidate_content_hash=candidate.atom.content_hash,
+        simulation=fresh,
+    )
+    current = {"value": True}
+    controller = _controller(code, catalog, lambda: current["value"])
+    with catalog_serving_source_scope(catalog):
+        assert (
+            controller._observe_candidate_n5_l1_routing(
+                candidate=candidate, problem=problem, simulation=fresh
+            )
+            is None
+        )
+        restored = owner._retained_candidate_simulation_with_world(
+            source_cycle=cycle, selected=selected, handoff=handoff
+        )
+        assert restored.world_model_record == context.world_model_record
+        assert cycle.simulation.world_model_record is None
+        assert restored.model_dump(mode="json") == fresh.model_dump(mode="json")
+        routing = controller._observe_candidate_n5_l1_routing(
+            candidate=candidate, problem=problem, simulation=restored
+        )
+        assert routing is not None
+        assert routing.requirement_gap.metadata["availability"]["variable_id"] == (
+            "government.balance"
+        )
+        current["value"] = False
+        assert (
+            controller._observe_candidate_n5_l1_routing(
+                candidate=candidate, problem=problem, simulation=restored
+            )
+            is None
+        )
+
+    foreign_world = _world_record("2")
+    foreign_context = context.model_copy(update={"world_model_record": foreign_world})
+    with pytest.raises(ValueError, match="candidate_retained_simulation_world_mismatch"):
+        owner._retained_candidate_simulation_with_world(
+            source_cycle=cycle,
+            selected=selected,
+            handoff=handoff.model_copy(update={"context": foreign_context}),
+        )
+    forged_world = context.world_model_record.model_copy(update={"population_scope": "tampered"})
+    forged_context = context.model_copy(update={"world_model_record": forged_world})
+    with pytest.raises(ValueError, match="candidate_retained_simulation_world_mismatch"):
+        owner._retained_candidate_simulation_with_world(
+            source_cycle=cycle,
+            selected=selected,
+            handoff=handoff.model_copy(update={"context": forged_context}),
+        )
+    foreign_live = fresh.model_copy(update={"world_model_record": foreign_world})
+    with pytest.raises(ValueError, match="candidate_retained_simulation_world_mismatch"):
+        owner._retained_candidate_simulation_with_world(
+            source_cycle=cycle.model_copy(update={"simulation": foreign_live}),
+            selected=selected,
+            handoff=handoff,
+        )
+    for field, value in (
+        ("candidate_simulation_profile_config_ref", "runtime-config:foreign-profile"),
+        ("candidate_simulation_profile_selection_ref", "sha256:" + "f" * 64),
+        ("k_world_ref_after", foreign_world.content_hash),
+    ):
+        changed = fresh.model_copy(update={field: value})
+        with pytest.raises(ValueError, match="candidate_retained_simulation_world_mismatch"):
+            owner._retained_candidate_simulation_with_world(
+                source_cycle=cycle.model_copy(update={"simulation": changed}),
+                selected=selected,
+                handoff=handoff,
+            )
+    for field in (
+        "candidate_simulation_n4_source_ref",
+        "candidate_simulation_context_job_ref",
+        "candidate_simulation_n5_input_ref",
+        "simulation_result_ref",
+    ):
+        removed = fresh.model_copy(update={field: None})
+        with pytest.raises(ValueError, match="candidate_retained_simulation_selection_mismatch"):
+            owner._retained_candidate_simulation_with_world(
+                source_cycle=cycle.model_copy(update={"simulation": removed}),
+                selected=selected,
+                handoff=handoff,
+            )
+    wrong_execution = selected.model_copy(
+        update={"n5_execution_ref": _ref("7", "runtime.quality.candidate_simulation_execution")}
+    )
+    with pytest.raises(ValueError, match="candidate_retained_simulation_selection_mismatch"):
+        owner._retained_candidate_simulation_with_world(
+            source_cycle=cycle, selected=wrong_execution, handoff=handoff
+        )
+    wrong_context_view = selected.context_job_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+    )
+    with pytest.raises(ValueError, match="candidate_retained_simulation_selection_mismatch"):
+        owner._retained_candidate_simulation_with_world(
+            source_cycle=cycle,
+            selected=selected.model_copy(update={"context_job_ref": wrong_context_view}),
+            handoff=handoff,
+        )
+    no_execution = fresh.model_copy(update={"diagnostics": {}})
+    with pytest.raises(ValueError):
+        owner._retained_candidate_simulation_with_world(
+            source_cycle=cycle.model_copy(update={"simulation": no_execution}),
+            selected=selected,
+            handoff=handoff,
+        )
+
+
 def test_real_l1_gap_keeps_candidate_n5_limitation_and_legacy_wire(tmp_path: Path) -> None:
     code, _owner, source = _selected_fixture(tmp_path)
     _gateway_type, problem, candidate = _actual_profile_gateway_inputs()

@@ -12804,6 +12804,54 @@
           ],
           "outcomes": "7PASS/1FAIL stale full-availability oracle, then corrected positive1PASS; not a single8-pass invocation. Actual positive Catalog join plus wrong-registry/freshness consumers are qualified; one-line integrated revalidation still requires R22.",
           "scope": "Real prior-owner/profile types, canonical selected registry, unchanged mutable fences; full JSON availability payload and independent SHA256 companion. Independent LunaGO, no constructor-only/runtime-authority claim."
+        },
+        "candidate_served_execution_R22": {
+          "source_commit": "72bcb5561a5d82e23e7cf3d265c0e63d66b7be13",
+          "source_tree": "7c41d1d75fa6b33656ed67fef9151f14e5e444ab",
+          "output": "policy-engine/_cache/e02/lane01-candidate-execution-native-r22",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 883.9099584169453,
+          "peak_RSS_bytes": 2039185408,
+          "named_inputs": 119,
+          "inputs_unchanged": true,
+          "abort_reason": null,
+          "scope": "Real served sourceA completes two physical units; first newB is UNRUN. Revalidation refuses catalog_source_repo_root_mismatch. Fixture bridge used issuer/repo rather than selected labor-source/policy-engine. The strict product fence is retained; no inherited-red/OOM/terminal claim."
+        },
+        "candidate_bridge_distinct_catalog_root": {
+          "saved_commit": "9fe8ad3e8c76c2d554dbcecdbdae941e5452c9b1",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-candidate-catalog-bridge-root-r1",
+          "PASS": 1,
+          "wall_seconds": 51.04376654198859,
+          "peak_RSS_bytes": 1680359424,
+          "named_inputs": 4,
+          "inputs_unchanged": true,
+          "scope": "Actual shared fixture bridge constructor and real selected Catalog registry, distinct issuer retained, wrong issuer root refuses. No dispatch/N5/terminal claim; independent Luna GO."
+        },
+        "candidate_reentry_effective_history_receipt": {
+          "saved_commit": "ea7ea84338bbcd6d0979062a390dd59c1fe5ee93",
+          "outputs": [
+            "AUTHOR:policy-engine/_cache/e02/lane01-prior-receiver-fix-r1",
+            "AUTHOR:policy-engine/_cache/e02/lane01-reentry-owner-repairs-r1"
+          ],
+          "scope": "Two separate focused component invocations PASS1/1 each (23.4s and26.68s). Adapted upstream boundaries remain explicit. Scenario hash selected separately from acquired base; experiment uses effective source for fresh/recovery while closure uses original; independently read receipt compares all serialized fields and tolerates excluded transient WMR. Native B→B/C and full owner authority remain pending. Independent review GO."
+        },
+        "candidate_retained_world_reader_rehydration": {
+          "saved_commit": "0b128923484be1ba678c647bdf9b689867cc22df",
+          "source_sha256": "5b391a12334209a07e23f3c28d2ad1a2b1621c0d04f2fa040809ffe608a0357f",
+          "test_sha256": "5ba435b9b74f26237315147f4bed725d8ca1a7264f09b36ac276c8cb9bdcef5b",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-retained-world-rehydration-r3",
+          "PASS": 5,
+          "wall_seconds": 23.32,
+          "peak_RSS_bytes": 1465286656,
+          "minimum_free_disk_bytes": 4964253696,
+          "named_inputs": 12,
+          "inputs_unchanged": true,
+          "scope": "Exact selected context/world plus N4/input/execution/result/profile join restores only ephemeral simulation. Real L1 reader and foreign/hash/profile/currentness controls; existing mutable use fences remain, no added owner fold. Adapted upstream boundary does not establish full retained-owner caller/native B→B. R1 test-oracle FAIL, later R2/R3 PASS and independent delta review GO remain distinct."
         }
       },
       "independent_component_reviews": {
@@ -12895,19 +12943,36 @@
           "wall_seconds": 111.09,
           "generated_fixture_MiB": 16,
           "swap_used_GiB_after": 2.55,
-          "scope": "No allocation owner or OOM attribution established; producer basis remains open. Profile runs solo until actual Mac footprint/allocator qualification. Continue known light profiles, authoring and genuine G1 independently; disk3GiB stop floor stays binding."
+          "scope": "No allocation owner or OOM attribution established; producer basis remains open. Profile runs solo until actual Mac footprint/allocator qualification. Continue known light profiles, authoring and genuine G1 independently; disk3GiB stop floor stays binding.",
+          "stage_prefix_diagnostic": {
+            "output": "policy-engine/_cache/e02/lane01-cyc01-stage-prefix-r2",
+            "source_commit": "213bb42a913108580d0dbc193ea39f301f3bfa7a",
+            "classification": "RESOURCE_LIMIT_ABORT; criterion UNRUN; input stability false",
+            "last_stage": "n4_port_enter",
+            "no_later_stage": "No N4 return or N5-boundary marker before supervisor abort",
+            "peak_RSS_bytes": 3596222464,
+            "wall_seconds": 124.86141187499743,
+            "named_inputs": 69,
+            "inputs_unchanged": false,
+            "changed_input": "tests/_helpers/candidate_experiment_served_execution.py was mistakenly edited in MAIN by assigned AUTHOR writer; exact own patch preserved in AUTHOR and MAIN delta reversed after diagnostic. No reset/stash/index overwrite.",
+            "scope": "Diagnostic only. Native sample captured5.7GB physical footprint and GC traversal; Python allocator/location and OOM not established. R1 stopped at missing pytest tests import path before helper."
+          }
         },
         "new_parallel_trash_moves": {
           "date": "2026-11-06",
-          "size_KiB": 488372,
+          "size_KiB": 1160728,
           "folders": [
             "/Users/deniskopylov/.Trash/PolicyOS-obsolete-bytecode-20261106T161337Z",
-            "/Users/deniskopylov/.Trash/PolicyOS-reproducible-unit-scratch-20261106T162322Z"
+            "/Users/deniskopylov/.Trash/PolicyOS-reproducible-unit-scratch-20261106T162322Z",
+            "/Users/deniskopylov/.Trash/PolicyOS-superseded-test-scratch-20261106T164705Z"
           ],
-          "scope": "Old bytecode and5 completed reproducible unit basetemps only; original outputs/inputs/code/environments/production and active diagnosis stores preserved. Sixth failed candidate withheld pending truthful classification.",
+          "scope": "Old bytecode and11 completed superseded/reproducible synthetic basetemps. Full deciding outputs remain; current R11/R21/R22 and diagnosis stores protected. Previously trashed GDP paths were not moved again. No environments/source/private or unique production data. Physical release requires user emptying Trash.",
           "trash_emptied": false,
           "deleted": false
-        }
+        },
+        "free_disk_bytes_at_refresh": 4973719552,
+        "used_swap_GiB_at_refresh": 3.14,
+        "next_action": "Run saved composed R23; qualify retained-world and source-transform components in AUTHOR. Stage-prefix diagnostic locates growth during N4 and is not a semantic PASS; do not raise its cap blindly. Then generations, fresh-runtime recovery, distinct GDP, affected final consumers and all66 reconciliation."
       }
     },
     {

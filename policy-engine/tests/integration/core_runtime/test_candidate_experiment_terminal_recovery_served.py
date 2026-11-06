@@ -13,13 +13,146 @@ import pytest
 pytest_plugins = ("tests._helpers.acquisition_served_history",)
 
 
+@pytest.mark.integration
+def test_candidate_execution_port_factory_reopens_service_without_n5(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A fresh actual action service delegates to its native no-port dev profile."""
+    from decimal import Decimal
+
+    from fastapi.testclient import TestClient
+
+    from polisyos.fabric.connectors.profiles import SourceProfileRegistry
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.http.services import acquisition_surface_execution
+    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+        CandidateUnpricedExperimentPolicyTemplate,
+    )
+    from tests._helpers import acquisition_served_history as served
+    from tests._helpers.candidate_experiment_served_execution import (
+        _candidate_experiment_fresh_registry_providers,
+        bind_candidate_test_execution_port_factory,
+    )
+    from tests._helpers.lane01_candidate_action_served import build_candidate_experiment_issuer_port
+
+    cas_root = tmp_path / "cas"
+    sqlite_path = tmp_path / "control.sqlite3"
+    for name, value in (
+        ("POLISYOS_EXECUTION_PROFILE", "dev"),
+        ("POLISYOS_CONTROL_WORKER_BACKEND", "external"),
+        ("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite"),
+        ("POLISYOS_CONTROL_SQLITE_PATH", str(sqlite_path)),
+        ("POLISYOS_RUNTIME_CAS_TIMEOUT_SECONDS", "3"),
+    ):
+        monkeypatch.setenv(name, value)
+
+    def app(*, providers=None):
+        return create_runtime_api_app(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+            enable_security_middlewares=False,
+            enable_csrf_protection=False,
+            repo_root=Path.cwd(),
+            container_overrides=(
+                RuntimeContainerOverrides(control_registry_providers=providers)
+                if providers is not None
+                else None
+            ),
+        )
+
+    with TestClient(app()) as original_client:
+        original_control = original_client.app.state._control_service
+        issuer = build_candidate_experiment_issuer_port(
+            tmp_path=tmp_path / "original-issuer",
+            artifact_store=original_control._artifact_store,
+        )
+        original_port = issuer.port
+        source_profiles = SourceProfileRegistry.get_instance()
+        source_profile_payload = tuple(
+            profile.model_dump(mode="json") for profile in source_profiles.snapshot_all()
+        )
+        assert any(profile["profile_id"] == "worldbank_wdi" for profile in source_profile_payload)
+        attempt_id = original_port._provision.live_harness_receipts[0].attempt_id
+        template = CandidateUnpricedExperimentPolicyTemplate(
+            tenant_id=served.TENANT,
+            cell_id=served.CELL,
+            authority_entry_id=issuer.entry.entry_id,
+            authority_registry_sha256=issuer.registry.content_sha256,
+            authority_provision_sha256=issuer.authority.provision_content_sha256,
+            attempt_id=attempt_id,
+            max_http_response_bytes=65_536,
+            max_http_decompressed_bytes=65_536,
+            max_http_timeout_seconds=15.0,
+            max_standard_n5_invocations=1,
+            max_metered_reentry_usd=Decimal("1.00"),
+        )
+        original_control._registry_providers = replace(
+            original_control._registry_providers,
+            source_profiles=source_profiles,
+            candidate_unpriced_policy_bindings=(),
+            candidate_unpriced_policy_templates=(template,),
+        )
+        bind_candidate_test_execution_port_factory(
+            monkeypatch=monkeypatch,
+            control_service=original_control,
+            fixture_port=original_port,
+        )
+        assert (
+            acquisition_surface_execution.build_production_world_bank_wdi_execution_port(
+                control_service=original_control,
+                world_growth_config=None,
+                epoch_deployment=None,
+            )
+            is original_port
+        )
+
+        fresh_providers = _candidate_experiment_fresh_registry_providers(original_control)
+        assert fresh_providers.source_profiles is source_profiles
+        assert (
+            tuple(
+                profile.model_dump(mode="json")
+                for profile in fresh_providers.source_profiles.snapshot_all()
+            )
+            == source_profile_payload
+        )
+        assert fresh_providers.candidate_unpriced_policy_templates == (template,)
+        assert fresh_providers.candidate_unpriced_policy_templates is (
+            original_control._registry_providers.candidate_unpriced_policy_templates
+        )
+        with TestClient(app(providers=fresh_providers)) as fresh_client:
+            fresh_control = fresh_client.app.state._control_service
+            fresh_action_service = fresh_client.app.state._acquisition_action_service
+            assert fresh_control is not original_control
+            assert fresh_control._artifact_store is not original_control._artifact_store
+            assert fresh_control._control_store is not original_control._control_store
+            assert fresh_control._diagnostic_event_log is not original_control._diagnostic_event_log
+            assert fresh_control._resolve_control_sqlite_path() == sqlite_path
+            assert fresh_control._registry_providers is fresh_providers
+            assert fresh_control._registry_providers.source_profiles is source_profiles
+            assert fresh_control._registry_providers.candidate_unpriced_policy_templates == (
+                template,
+            )
+            assert fresh_action_service.control_service is fresh_control
+            assert fresh_action_service._execution_port is None
+            assert fresh_action_service._production_execution_port is None
+            assert (
+                acquisition_surface_execution.build_production_world_bank_wdi_execution_port(
+                    control_service=fresh_control,
+                    world_growth_config=None,
+                    epoch_deployment=None,
+                )
+                is None
+            )
+
+
 def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     served_recorded_candidate_gateway,
 ) -> None:
     """A writer crash reuses its exact terminal CAS on attempt two without N5."""
-    from polisyos.runtime.http.services import acquisition_surface_execution
     from polisyos.runtime.http.services.control import run_lifecycle
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionCandidateExperimentTerminalReceipt,
@@ -42,6 +175,7 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
         _candidate_experiment_reopened_runtime,
         _experiment_outcomes,
         _standard_invocation_units,
+        bind_candidate_test_execution_port_factory,
         candidate_experiment_served_execution_owner,
         run_candidate_experiment_served_execution,
     )
@@ -82,12 +216,10 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
             candidate_unpriced_policy_templates=(template,),
         )
         try:
-            monkeypatch.setattr(
-                acquisition_surface_execution,
-                "build_production_world_bank_wdi_execution_port",
-                lambda *, control_service: issuer.port
-                if control_service is control
-                else pytest.fail("candidate issuer reopened an unrelated control service"),
+            bind_candidate_test_execution_port_factory(
+                monkeypatch=monkeypatch,
+                control_service=control,
+                fixture_port=issuer.port,
             )
             refs = prepare_candidate_experiment_policies_for_completed_job(
                 control_service=control,
@@ -106,6 +238,64 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
             assert policy.publication_authority is False
             assert policy.information_value == policy.monetary_cost == "not_established"
             assert policy.purpose == "bounded_candidate_experiment_voi_unknown"
+
+            with _candidate_experiment_reopened_runtime(
+                control=control,
+                trust=values["trust"],
+                monkeypatch=monkeypatch,
+            ) as (preflight_client, preflight_control, _sqlite_path, _cas_root):
+                preflight_action_service = preflight_client.app.state._acquisition_action_service
+                if (
+                    preflight_action_service is None
+                    or preflight_action_service.control_service is not preflight_control
+                ):
+                    raise AssertionError(
+                        "candidate experiment no-N5 preflight missed fresh actual action service"
+                    )
+                if (
+                    preflight_action_service._execution_port is not None
+                    or preflight_action_service._production_execution_port is not None
+                ):
+                    raise AssertionError(
+                        "candidate experiment fresh dev service reused a prior execution port"
+                    )
+                preflight_policy_owner = _candidate_experiment_policy_owner(
+                    control=preflight_control,
+                    fixture_root=tmp_path / "candidate-issuer",
+                    run_id=run_id,
+                )
+                if preflight_policy_owner.template != template:
+                    raise AssertionError(
+                        "candidate experiment no-N5 preflight changed selected policy config"
+                    )
+                preflight_control._registry_providers = replace(
+                    preflight_control._registry_providers,
+                    source_profiles=preflight_policy_owner.source_profiles,
+                    candidate_unpriced_policy_bindings=(),
+                    candidate_unpriced_policy_templates=(preflight_policy_owner.template,),
+                )
+                preflight_origin = preflight_action_service._resolve_candidate_experiment_origin(
+                    tenant_id=served.TENANT,
+                    cell_id=served.CELL,
+                    run_id=run_id,
+                )
+                with candidate_experiment_served_execution_owner(
+                    action_service=preflight_action_service,
+                    origin=preflight_origin,
+                    policy_owner=preflight_policy_owner,
+                    monkeypatch=monkeypatch,
+                ) as preflight_owner:
+                    if (
+                        preflight_action_service._execution_port is not preflight_owner.port
+                        or preflight_owner.port is issuer.port
+                        or preflight_owner.port._artifact_store
+                        is not preflight_control._artifact_store
+                        or preflight_owner.port._artifact_store is control._artifact_store
+                        or preflight_owner.transport_calls
+                    ):
+                        raise AssertionError(
+                            "candidate experiment no-N5 preflight did not bind its fresh owner"
+                        )
 
             def arm_terminal_writer_crash(_execution_owner, job_id: str) -> None:
                 original_writer = run_lifecycle.write_runtime_authority_artifact
@@ -271,6 +461,14 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
                             policy_owner=fresh_policy_owner,
                             monkeypatch=monkeypatch,
                         ) as fresh_execution_owner:
+                            if (
+                                fresh_execution_owner.port is policy_owner.issuer.port
+                                or fresh_execution_owner.port._artifact_store
+                                is not fresh_control._artifact_store
+                            ):
+                                raise AssertionError(
+                                    "candidate experiment retry reused a port from the old control"
+                                )
                             event_id = str(crash["event_id"])
                             event_rows_before = tuple(
                                 fresh_control._diagnostic_event_log.list_events(

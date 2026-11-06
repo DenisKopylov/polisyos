@@ -960,7 +960,6 @@ def run_retained_r8_candidate_experiment_oracle(
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.http import deployment_security as security
     from polisyos.runtime.http.app import create_runtime_api_app
-    from polisyos.runtime.http.services import acquisition_surface_execution
     from polisyos.runtime.quality.acquisition_evaluation import (
         resolve_selected_acquisition_evaluation_parts,
     )
@@ -978,6 +977,9 @@ def run_retained_r8_candidate_experiment_oracle(
     )
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationHorizonController,
+    )
+    from tests._helpers.candidate_experiment_served_execution import (
+        bind_candidate_test_execution_port_factory,
     )
 
     tests_path = str(Path.cwd() / "tests")
@@ -1186,12 +1188,10 @@ def run_retained_r8_candidate_experiment_oracle(
                     )
                     assert len(canonical_before) <= 1
                     assert provider_count == 0 and template_count == 1
-                    monkeypatch.setattr(
-                        acquisition_surface_execution,
-                        "build_production_world_bank_wdi_execution_port",
-                        lambda *, control_service: issuer.port
-                        if control_service is control
-                        else pytest.fail("retained issuer reopened an unrelated control service"),
+                    bind_candidate_test_execution_port_factory(
+                        monkeypatch=monkeypatch,
+                        control_service=control,
+                        fixture_port=issuer.port,
                     )
                     policy_refs = prepare_candidate_experiment_policies_for_completed_job(
                         control_service=control,
@@ -1381,7 +1381,6 @@ def run_genuine_candidate_experiment_scenario(
     """Serve the genuine source and first candidate action; optionally continue inline."""
     from dataclasses import replace
 
-    from polisyos.runtime.http.services import acquisition_surface_execution
     from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
         read_candidate_unpriced_policy,
         resolve_current_candidate_unpriced_policy,
@@ -1394,6 +1393,9 @@ def run_genuine_candidate_experiment_scenario(
     from tests._helpers.candidate_cycle_source_profile import (
         build_candidate_cycle_substrate_route_inputs,
         complete_candidate_cycle_catalog_source,
+    )
+    from tests._helpers.candidate_experiment_served_execution import (
+        bind_candidate_test_execution_port_factory,
     )
 
     monkeypatch.setenv("POLISYOS_RUNTIME_CAS_TIMEOUT_SECONDS", "3")
@@ -1435,12 +1437,10 @@ def run_genuine_candidate_experiment_scenario(
             candidate_unpriced_policy_templates=(template,),
         )
         try:
-            monkeypatch.setattr(
-                acquisition_surface_execution,
-                "build_production_world_bank_wdi_execution_port",
-                lambda *, control_service: issuer.port
-                if control_service is control
-                else pytest.fail("candidate issuer reopened an unrelated control service"),
+            bind_candidate_test_execution_port_factory(
+                monkeypatch=monkeypatch,
+                control_service=control,
+                fixture_port=issuer.port,
             )
             refs = prepare_candidate_experiment_policies_for_completed_job(
                 control_service=control,

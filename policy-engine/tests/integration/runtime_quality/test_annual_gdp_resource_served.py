@@ -1564,7 +1564,6 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
     )
     from polisyos.fabric.connectors.profiles import SourceProfileRegistry
     from polisyos.foundry.execute.executor import load_state_snapshot
-    from polisyos.runtime.http.services import acquisition_surface_execution
     from polisyos.runtime.quality import acquisition_planner, generation_cycle
     from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
         CandidateUnpricedExperimentPolicyTemplate,
@@ -1600,6 +1599,7 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
         build_candidate_cycle_substrate_route_inputs,
     )
     from tests._helpers.candidate_experiment_served_execution import (
+        bind_candidate_test_execution_port_factory,
         run_candidate_experiment_served_execution,
     )
     from tests._helpers.lane01_candidate_action_served import build_candidate_experiment_issuer_port
@@ -1678,15 +1678,10 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
         )
         try:
             with monkeypatch.context() as scoped:
-
-                def current_issuer(*, control_service: Any) -> Any:
-                    assert control_service is control
-                    return issuer.port
-
-                scoped.setattr(
-                    acquisition_surface_execution,
-                    "build_production_world_bank_wdi_execution_port",
-                    current_issuer,
+                bind_candidate_test_execution_port_factory(
+                    monkeypatch=scoped,
+                    control_service=control,
+                    fixture_port=issuer.port,
                 )
                 refs = prepare_candidate_experiment_policies_for_completed_job(
                     control_service=control,

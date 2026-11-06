@@ -35,6 +35,9 @@ if TYPE_CHECKING:
         AcquisitionActionHeadRecord,
         ControlJobRecord,
     )
+    from polisyos.runtime.http.services.control_registry_providers import (
+        ControlRegistryProviders,
+    )
     from polisyos.runtime.quality.acquisition_evaluation import CandidateExperimentTerminalHistory
     from polisyos.runtime.quality.acquisition_route_loop import (
         VerifiedCandidateExperimentOrigin,
@@ -42,7 +45,9 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionCandidateSourceRoute,
         AcquisitionWorldGrowthBridge,
+        AcquisitionWorldGrowthConfig,
     )
+    from polisyos.runtime.quality.epoch_deployment import EpochDeployment
     from tests._helpers.lane01_wdi_profiles import CandidateWDIProfile
 
 
@@ -632,6 +637,94 @@ def _dispatch_crash_probe_once(
     return expected_job_id
 
 
+def bind_candidate_test_execution_port_factory(
+    *,
+    monkeypatch: pytest.MonkeyPatch,
+    control_service: ControlPlaneService,
+    fixture_port: WorldBankWDIAcquisitionExecutionPort,
+) -> None:
+    """Bind one fixture port while preserving the native factory for other controls."""
+    from polisyos.runtime.http.services import acquisition_surface_execution
+
+    previous_builder = acquisition_surface_execution.build_production_world_bank_wdi_execution_port
+    owner = control_service
+
+    def build_current_test_port(
+        *,
+        control_service: ControlPlaneService,
+        world_growth_config: AcquisitionWorldGrowthConfig | None = None,
+        epoch_deployment: EpochDeployment | None = None,
+    ) -> WorldBankWDIAcquisitionExecutionPort | None:
+        if control_service is owner:
+            return fixture_port
+        return previous_builder(
+            control_service=control_service,
+            world_growth_config=world_growth_config,
+            epoch_deployment=epoch_deployment,
+        )
+
+    monkeypatch.setattr(
+        acquisition_surface_execution,
+        "build_production_world_bank_wdi_execution_port",
+        build_current_test_port,
+    )
+
+
+def _candidate_experiment_fresh_registry_providers(
+    control: ControlPlaneService,
+) -> ControlRegistryProviders:
+    """Rebuild store-bound discovery providers while retaining declared registry inputs."""
+    from polisyos.runtime.http.services.control_registry_providers import (
+        resolve_control_registry_providers,
+    )
+
+    previous = control._registry_providers
+    previous_store_providers = tuple(
+        provider
+        for provider in previous.capability_discovery_providers
+        if callable(getattr(provider, "bind_artifact_store", None))
+    )
+    retained_discovery_providers = tuple(
+        provider
+        for provider in previous.capability_discovery_providers
+        if not callable(getattr(provider, "bind_artifact_store", None))
+    )
+    for owner_name in (
+        "capability_live_operation_registry",
+        "capability_conformance_verifier",
+    ):
+        owner = getattr(previous, owner_name)
+        if owner is not None and callable(getattr(owner, "bind_artifact_store", None)):
+            raise AssertionError(
+                f"candidate experiment fresh runtime has no builder for store-bound {owner_name}"
+            )
+    fresh = resolve_control_registry_providers(
+        connectors=previous.connectors,
+        source_profiles=previous.source_profiles,
+        binding_profiles=previous.binding_profiles,
+        model_profiles=previous.model_profiles,
+        gy_catalog_graph=previous.gy_catalog_graph,
+        capability_discovery_providers=retained_discovery_providers,
+        capability_live_operation_registry=previous.capability_live_operation_registry,
+        capability_conformance_verifier=previous.capability_conformance_verifier,
+        capability_resolver=previous.capability_resolver,
+        catalog_run_profile=previous.catalog_run_profile,
+        catalog_source_selection=previous.catalog_source_selection,
+        source_progress_readers=previous.source_progress_readers,
+        candidate_unpriced_policy_bindings=previous.candidate_unpriced_policy_bindings,
+        candidate_unpriced_policy_templates=previous.candidate_unpriced_policy_templates,
+    )
+    previous_store_provider_ids = {id(provider) for provider in previous_store_providers}
+    fresh_store_providers = {
+        id(provider)
+        for provider in fresh.capability_discovery_providers
+        if callable(getattr(provider, "bind_artifact_store", None))
+    }
+    if previous is fresh or previous_store_provider_ids & fresh_store_providers:
+        raise AssertionError("candidate experiment fresh runtime reused bound discovery providers")
+    return fresh
+
+
 @contextmanager
 def _candidate_experiment_reopened_runtime(
     *, control: ControlPlaneService, trust: object, monkeypatch: pytest.MonkeyPatch
@@ -654,6 +747,7 @@ def _candidate_experiment_reopened_runtime(
     cas_root = Path(control._cas_root)
     core_runs_root = Path(control._core_runs_root)
     providers = control._registry_providers
+    fresh_providers = _candidate_experiment_fresh_registry_providers(control)
     context_owner = control._cycle_substrate_context_admission_owner
     if context_owner is None:
         raise AssertionError("candidate experiment fresh runtime lost configured source profiles")
@@ -677,7 +771,7 @@ def _candidate_experiment_reopened_runtime(
             enable_csrf_protection=False,
             container_overrides=RuntimeContainerOverrides(
                 runtime_api_context=runtime_context,
-                control_registry_providers=providers,
+                control_registry_providers=fresh_providers,
             ),
             candidate_simulation_profiles=tuple(context_owner.profiles),
             candidate_simulation_model_declarations=tuple(context_owner.model_declarations),
@@ -692,7 +786,7 @@ def _candidate_experiment_reopened_runtime(
                 or reopened_control._artifact_store is control._artifact_store
                 or reopened_control._control_store is control._control_store
                 or reopened_control._diagnostic_event_log is control._diagnostic_event_log
-                or reopened_control._registry_providers is not providers
+                or reopened_control._registry_providers is not fresh_providers
                 or Path(reopened_control._cas_root) != cas_root
                 or Path(reopened_control._core_runs_root) != core_runs_root
                 or reopened_control._resolve_control_sqlite_path() != sqlite_path
@@ -1554,7 +1648,6 @@ def candidate_experiment_served_execution_owner(
     transport supplies a declared synthetic WDI response and rejects external
     network access; this helper does not run N5.
     """
-    from polisyos.runtime.http.services import acquisition_surface_execution
     from polisyos.runtime.http.services.acquisition_action_service import (
         AcquisitionActionService as AcquisitionActionServiceType,
     )
@@ -1649,15 +1742,10 @@ def candidate_experiment_served_execution_owner(
                 lambda profile: original_fixture_response(profile, value=wdi_response_value),
             )
 
-        def build_current_test_port(*, control_service: ControlPlaneService):
-            if control_service is not control:
-                raise AssertionError("candidate experiment reopened a different Control owner")
-            return port
-
-        scoped.setattr(
-            acquisition_surface_execution,
-            "build_production_world_bank_wdi_execution_port",
-            build_current_test_port,
+        bind_candidate_test_execution_port_factory(
+            monkeypatch=scoped,
+            control_service=control,
+            fixture_port=port,
         )
         transport_calls = _transport(
             scoped,

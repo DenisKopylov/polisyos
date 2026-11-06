@@ -3365,6 +3365,7 @@ def _build_acquisition_candidate_world(
         substrate_registry_artifact_ref=substrate_registry_artifact_ref,
         registry_bundle_artifact_ref=registry_bundle_ref,
         _loaded_substrate_registry=substrate_registry,
+        _selected_substrate_registry_ref=base.substrate_registry_ref,
         foundry_binding_rules=retained_rules,
         mechanism_refs=base.simulation_model_ref.mechanism_refs,
         gcm_refs=base.simulation_model_ref.gcm_refs,

@@ -6874,6 +6874,7 @@ def _resolve_authority_import_closure(
             directory_entries=directory_entries,
             source_index=source_index,
             visited=visited,
+            discovery_only=True,
         )
         if candidate.package_initializer_effect_unknown and candidate.route is None:
             raise ConfidenceLedgerError(
@@ -11845,6 +11846,7 @@ class _SourceModuleImportRouteCandidate:
     route: tuple[str, str, str | None] | None
     binding_basis: Literal[
         "direct",
+        "source_expression",
         "literal_getattr",
         "loader_child",
         "child",
@@ -11927,6 +11929,99 @@ def _source_loader_child_candidate(
     return child_name
 
 
+def _source_direct_expression_candidate(
+    repo_root: Path,
+    module_name: str,
+    export_name: str,
+    *,
+    directory_entries: dict[Path, frozenset[str]],
+    source_index: _AuthorityImportClosureSourceIndex,
+) -> bool:
+    """Identify a unique source owner for closure discovery, not a live value."""
+    relative = _repository_module_source(
+        repo_root, module_name, directory_entries=directory_entries
+    )
+    if relative is None:
+        return False
+    analysis = _active_integrity_analysis()
+    path = repo_root / relative
+    try:
+        content = analysis.source_bytes(path) if analysis is not None else path.read_bytes()
+        tree = source_index.parse(content, filename=relative.as_posix())
+    except (OSError, SyntaxError):
+        return False
+    sites = _module_scope_direct_binding_sites(tree, export_name)
+    if len(sites) > 1:
+        # PEP 484 overload stubs followed by one concrete implementation are
+        # one source owner, while actual repeated bindings remain ambiguous.
+        final_kind, final, _ = sites[-1]
+        if (
+            final_kind != "local"
+            or not isinstance(final, (ast.FunctionDef, ast.AsyncFunctionDef))
+            or final.decorator_list
+        ):
+            return False
+        for kind, stub, _ in sites[:-1]:
+            if not (
+                kind == "local"
+                and isinstance(stub, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and len(stub.decorator_list) == 1
+                and isinstance(stub.decorator_list[0], ast.Name)
+            ):
+                return False
+            decorator = stub.decorator_list[0]
+            declarations = _module_scope_direct_binding_sites(tree, decorator.id)
+            if len(declarations) != 1:
+                return False
+            imported_kind, imported, alias = declarations[0]
+            if not (
+                imported_kind == "import_from"
+                and isinstance(imported, ast.ImportFrom)
+                and imported.module == "typing"
+                and imported.level == 0
+                and alias is not None
+                and alias.name == "overload"
+                and imported.lineno < stub.lineno
+            ):
+                return False
+            body = [
+                item
+                for item in stub.body
+                if not (
+                    isinstance(item, ast.Expr)
+                    and isinstance(item.value, ast.Constant)
+                    and type(item.value.value) is str
+                )
+            ]
+            if (
+                len(body) != 1
+                or not isinstance(body[0], ast.Expr)
+                or not isinstance(body[0].value, ast.Constant)
+                or body[0].value.value is not Ellipsis
+            ):
+                return False
+        return True
+    if len(sites) != 1:
+        return False
+    kind, statement, _ = sites[0]
+    if kind == "local":
+        return isinstance(statement, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))
+    if kind != "assignment":
+        return False
+    if isinstance(statement, ast.Assign):
+        if len(statement.targets) != 1 or not isinstance(statement.targets[0], ast.Name):
+            return False
+        value = statement.value
+    elif isinstance(statement, ast.AnnAssign):
+        if not isinstance(statement.target, ast.Name) or not statement.simple:
+            return False
+        value = statement.value
+    else:
+        return False
+    # Plain name aliases must follow their source-provider edges, not stop here.
+    return value is not None and not isinstance(value, ast.Name)
+
+
 def _source_module_import_route(
     repo_root: Path,
     module_name: str,
@@ -11948,6 +12043,10 @@ def _source_module_import_route(
         visited=visited,
         skip_direct_binding=skip_direct_binding,
     )
+    if candidate.binding_basis == "source_expression":
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch", "unqualified source expression route"
+        )
     if candidate.package_initializer_effect_unknown:
         raise ConfidenceLedgerError(
             "canonical_loaded_runtime_mismatch",
@@ -11965,6 +12064,7 @@ def _source_module_import_route_candidate(
     source_index: _AuthorityImportClosureSourceIndex,
     visited: frozenset[tuple[str, str]] = frozenset(),
     skip_direct_binding: bool = False,
+    discovery_only: bool = False,
 ) -> _SourceModuleImportRouteCandidate:
     """Keep initializer classification and selected route in one source snapshot."""
 
@@ -11982,6 +12082,7 @@ def _source_module_import_route_candidate(
             source_index=source_index,
             visited=visited,
             skip_direct_binding=skip_direct_binding,
+            discovery_only=discovery_only,
         )
         if token is not None:
             analysis.assert_sources_unchanged()
@@ -12000,6 +12101,7 @@ def _source_module_import_route_candidate_body(
     source_index: _AuthorityImportClosureSourceIndex,
     visited: frozenset[tuple[str, str]] = frozenset(),
     skip_direct_binding: bool = False,
+    discovery_only: bool = False,
 ) -> _SourceModuleImportRouteCandidate:
     """Discover a source route candidate without asserting its loaded binding is authoritative.
 
@@ -12041,6 +12143,24 @@ def _source_module_import_route_candidate_body(
         initializer_tree is not None
         and _source_package_initializer_effect_is_unknown(initializer_tree)
     )
+    if (
+        discovery_only
+        and not skip_direct_binding
+        and _source_direct_expression_candidate(
+            repo_root,
+            module_name,
+            export_name,
+            directory_entries=directory_entries,
+            source_index=source_index,
+        )
+    ):
+        if source_index.diagnostic_unqualified_direct_bindings is not None:
+            source_index.diagnostic_unqualified_direct_bindings.add((module_name, export_name))
+        return _SourceModuleImportRouteCandidate(
+            route=("symbol", module_name, export_name),
+            binding_basis="source_expression",
+            package_initializer_effect_unknown=initializer_effect_unknown,
+        )
     direct = (
         None
         if skip_direct_binding
@@ -12051,6 +12171,7 @@ def _source_module_import_route_candidate_body(
             directory_entries=directory_entries,
             source_index=source_index,
             visited=next_visited,
+            discovery_only=discovery_only,
         )
     )
     if direct is not None:
@@ -16825,6 +16946,7 @@ def _native_type_metadata_provider() -> _NativeTypeMetadataProvider | None:
                 ),
                 "scope": "passive_native_origin_arguments_and_source_type_bindings",
                 "initialization_construction_and_behavior": "not_established",
+                "pydantic_compiled_validator_schema_coherence": "not_established",
                 "independent_transform_verification": False,
             },
         )
@@ -18540,6 +18662,7 @@ def _source_module_direct_binding_route(
     directory_entries: dict[Path, frozenset[str]],
     source_index: _AuthorityImportClosureSourceIndex,
     visited: frozenset[tuple[str, str]],
+    discovery_only: bool = False,
 ) -> tuple[str, str, str | None] | None:
     """Resolve one statically supported package binding, without child fallback."""
 
@@ -18562,6 +18685,37 @@ def _source_module_direct_binding_route(
             "canonical_loaded_runtime_mismatch",
             relative.as_posix(),
         ) from exc
+
+    def resolve_nested(
+        base: str, symbol: str, *, skip: bool = False
+    ) -> tuple[str, str, str | None] | None:
+        if discovery_only:
+            candidate = _source_module_import_route_candidate(
+                repo_root,
+                base,
+                symbol,
+                directory_entries=directory_entries,
+                source_index=source_index,
+                visited=visited,
+                skip_direct_binding=skip,
+                discovery_only=True,
+            )
+            if candidate.package_initializer_effect_unknown:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"package initializer namespace effect is unresolved: {base}.{symbol}",
+                )
+            return candidate.route
+        return _source_module_import_route(
+            repo_root,
+            base,
+            symbol,
+            directory_entries=directory_entries,
+            source_index=source_index,
+            visited=visited,
+            skip_direct_binding=skip,
+        )
+
     sites = _module_scope_direct_binding_sites(tree, export_name)
     diagnostic_bindings = source_index.diagnostic_unqualified_direct_bindings
     if diagnostic_bindings is not None and (
@@ -18649,14 +18803,8 @@ def _source_module_direct_binding_route(
                         f"self-import precedes __getattr__ without child: "
                         f"{module_name}.{export_name}",
                     )
-        target = _source_module_import_route(
-            repo_root,
-            base,
-            alias.name,
-            directory_entries=directory_entries,
-            source_index=source_index,
-            visited=visited,
-            skip_direct_binding=(base == module_name and alias.name == export_name),
+        target = resolve_nested(
+            base, alias.name, skip=(base == module_name and alias.name == export_name)
         )
         if target is None:
             raise ConfidenceLedgerError(
@@ -18762,14 +18910,7 @@ def _source_module_direct_binding_route(
                     "canonical_loaded_runtime_mismatch",
                     f"source alias binding is not established: {module_name}.{export_name}",
                 )
-            target = _source_module_import_route(
-                repo_root,
-                module_name,
-                value.id,
-                directory_entries=directory_entries,
-                source_index=source_index,
-                visited=visited,
-            )
+            target = resolve_nested(module_name, value.id)
             if target is None or target[0] == "external":
                 raise ConfidenceLedgerError(
                     "canonical_loaded_runtime_mismatch",
@@ -19573,6 +19714,14 @@ class _SourceDecoratorSignature:
 
 
 @dataclass(frozen=True)
+class _SourceAnnotatedField:
+    """A source-declared discriminator Field, with identity-only provider binding."""
+
+    field_type: type
+    discriminator: str
+
+
+@dataclass(frozen=True)
 class _SourceTypeState:
     """A finite source type expression; class references carry identity only."""
 
@@ -19958,11 +20107,21 @@ def _source_type_expression_shape(node: ast.expr, tree: ast.Module) -> bool:
 def _source_type_states_equal(left: _SourceTypeState, right: _SourceTypeState) -> bool:
     """Compare only internally derived type nodes, never class equality or hashing."""
 
-    if (
-        left.kind != right.kind
-        or left.reference is not right.reference
-        or len(left.arguments) != len(right.arguments)
-    ):
+    if left.kind == "annotated" and right.kind == "annotated":
+        left_field = left.reference
+        right_field = right.reference
+        if not (
+            type(left_field) is _SourceAnnotatedField
+            and type(right_field) is _SourceAnnotatedField
+            and left_field.field_type is right_field.field_type
+            and type(left_field.discriminator) is str
+            and type(right_field.discriminator) is str
+            and left_field.discriminator == right_field.discriminator
+        ):
+            return False
+    elif left.reference is not right.reference:
+        return False
+    if left.kind != right.kind or len(left.arguments) != len(right.arguments):
         return False
     if left.kind == "union":
         matched: set[int] = set()
@@ -19983,6 +20142,1039 @@ def _source_type_states_equal(left: _SourceTypeState, right: _SourceTypeState) -
         _source_type_states_equal(a, b)
         for a, b in zip(left.arguments, right.arguments, strict=True)
     )
+
+
+@dataclass(frozen=True)
+class _SourceFieldInfoProvider:
+    """Source-bound raw FieldInfo storage for one supported Field call shape."""
+
+    field: object
+    field_type: type
+    undefined: object
+    slots: tuple[str, ...]
+    attributes: dict[str, object]
+
+
+def _source_pydantic_fieldinfo_provider(
+    analysis: _IntegrityAnalysisContext,
+) -> _SourceFieldInfoProvider | None:
+    """Reconcile Pydantic's finite discriminator-field ABI without invoking it."""
+    package = _passive_capture_lookup(sys.modules, "pydantic")
+    fields_module = _passive_capture_lookup(sys.modules, "pydantic.fields")
+    core_package = _passive_capture_lookup(sys.modules, "pydantic_core")
+    core_native = _passive_capture_lookup(sys.modules, "pydantic_core._pydantic_core")
+    if any(
+        type(module) is not types.ModuleType
+        for module in (package, fields_module, core_package, core_native)
+    ):
+        return None
+    namespace = vars(fields_module)
+    if len(namespace) > 10000 or any(type(key) is not str for key in namespace):
+        return None
+    package_origins = _source_loaded_module_origin_fields(package, expected_name="pydantic")
+    field_origins = _source_loaded_module_origin_fields(
+        fields_module, expected_name="pydantic.fields"
+    )
+    core_origins = _source_loaded_module_origin_fields(core_package, expected_name="pydantic_core")
+    if package_origins is None or field_origins is None or core_origins is None:
+        return None
+    package_file = analysis.bind_source_path(Path(package_origins[0]))
+    core_file = analysis.bind_source_path(Path(core_origins[0]))
+    field_file = analysis.bind_source_path(package_file.parent / "fields.py")
+    if any(analysis.bind_source_path(Path(value)) != package_file for value in package_origins):
+        return None
+    if any(analysis.bind_source_path(Path(value)) != field_file for value in field_origins):
+        return None
+    if any(analysis.bind_source_path(Path(value)) != core_file for value in core_origins):
+        return None
+    analysis.source_bytes(Path(package_origins[0]))
+    analysis.source_bytes(Path(core_origins[0]))
+    source = analysis.source_bytes(package_file.parent / "fields.py")
+    tree = analysis.tree_for_bytes(source, filename=str(field_file))
+    if not _source_future_annotations_enabled(tree):
+        return None
+    # The native undefined singleton is an explicitly bounded CPython backend
+    # assumption; bind its package, extension origin, exact class and identity.
+    native_namespace = vars(core_native)
+    native_spec = _source_native_module_spec_namespace(core_native)
+    native_file = _passive_capture_lookup(native_namespace, "__file__")
+    suffix = sysconfig.get_config_var("EXT_SUFFIX")
+    if native_spec is None or type(native_file) is not str or type(suffix) is not str:
+        return None
+    machinery = _passive_capture_lookup(sys.modules, "importlib.machinery")
+    if type(machinery) is not types.ModuleType:
+        return None
+    loader_type = _passive_capture_lookup(vars(machinery), "ExtensionFileLoader")
+    loader = _passive_capture_lookup(native_spec, "loader")
+    origin = _passive_capture_lookup(native_spec, "origin")
+    spec_name = _passive_capture_lookup(native_spec, "name")
+    if (
+        type(loader_type) is not type
+        or type(loader) is not loader_type
+        or type(origin) is not str
+        or type(spec_name) is not str
+        or spec_name != "pydantic_core._pydantic_core"
+    ):
+        return None
+    loader_fields = _source_native_instance_namespace(loader, loader_type)
+    if loader_fields is None:
+        return None
+    loader_name = _passive_capture_lookup(loader_fields, "name")
+    loader_path = _passive_capture_lookup(loader_fields, "path")
+    logical_native = core_file.parent / ("_pydantic_core" + suffix)
+    native_path = analysis.bind_source_path(logical_native)
+    if type(loader_name) is not str or loader_name != spec_name or type(loader_path) is not str:
+        return None
+    if any(
+        analysis.bind_source_path(Path(item)) != native_path
+        for item in (native_file, origin, loader_path)
+    ):
+        return None
+    analysis.source_bytes(logical_native)
+    undefined = _passive_capture_lookup(native_namespace, "PydanticUndefined")
+    undefined_type = _passive_capture_lookup(native_namespace, "PydanticUndefinedType")
+    if not (
+        type(undefined_type) is type
+        and type(undefined) is undefined_type
+        and _passive_capture_lookup(vars(core_package), "PydanticUndefined") is undefined
+        and _passive_capture_lookup(vars(core_package), "PydanticUndefinedType") is undefined_type
+        and _passive_capture_lookup(namespace, "PydanticUndefined") is undefined
+        and _passive_capture_lookup(namespace, "_Unset") is undefined
+        and _source_native_class_field(undefined_type, "__module__")
+        == "pydantic_core._pydantic_core"
+        and _source_native_class_field(undefined_type, "__qualname__") == "PydanticUndefinedType"
+    ):
+        return None
+    native_new = _passive_capture_lookup(
+        _source_native_class_field(undefined_type, "__dict__"), "__new__"
+    )
+    if not (
+        type(native_new) is types.BuiltinFunctionType and native_new.__self__ is undefined_type
+    ):
+        return None
+    field_type = _passive_capture_lookup(namespace, "FieldInfo")
+    field = _passive_capture_lookup(namespace, "Field")
+    if not (
+        type(field_type) is type
+        and _source_native_class_field(field_type, "__module__") == "pydantic.fields"
+        and _source_native_class_field(field_type, "__qualname__") == "FieldInfo"
+        and _passive_capture_lookup(vars(package), "Field") is field
+        and type(field) is type(lambda: None)
+    ):
+        return None
+    class_nodes = [
+        node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == "FieldInfo"
+    ]
+    if len(class_nodes) != 1:
+        return None
+    class_node = class_nodes[0]
+    if not (
+        len(class_node.bases) == 1
+        and isinstance(class_node.bases[0], ast.Attribute)
+        and isinstance(class_node.bases[0].value, ast.Name)
+        and class_node.bases[0].attr == "Representation"
+    ):
+        return None
+    repr_module = _passive_capture_lookup(namespace, class_node.bases[0].value.id)
+    if (
+        repr_module is not _passive_capture_lookup(sys.modules, "pydantic._internal._repr")
+        or type(repr_module) is not types.ModuleType
+    ):
+        return None
+    repr_origins = _source_loaded_module_origin_fields(
+        repr_module, expected_name="pydantic._internal._repr"
+    )
+    repr_path = analysis.bind_source_path(package_file.parent / "_internal" / "_repr.py")
+    if repr_origins is None or any(
+        analysis.bind_source_path(Path(value)) != repr_path for value in repr_origins
+    ):
+        return None
+    repr_tree = analysis.source_tree(repr_path)
+    repr_nodes = [
+        node
+        for node in repr_tree.body
+        if isinstance(node, ast.ClassDef) and node.name == "Representation"
+    ]
+    representation = _passive_capture_lookup(vars(repr_module), "Representation")
+    if (
+        len(repr_nodes) != 1
+        or type(representation) is not type
+        or not _source_native_class_bases_match(representation, object)
+        or not _source_native_class_bases_match(field_type, representation)
+    ):
+        return None
+    repr_mro = _source_native_class_field(field_type, "__mro__")
+    if not (
+        type(repr_mro) is tuple
+        and len(repr_mro) == 3
+        and repr_mro[0] is field_type
+        and repr_mro[1] is representation
+        and repr_mro[2] is object
+    ):
+        return None
+    repr_slots = [
+        node.value
+        for node in repr_nodes[0].body
+        if isinstance(node, ast.Assign)
+        and len(node.targets) == 1
+        and isinstance(node.targets[0], ast.Name)
+        and node.targets[0].id == "__slots__"
+    ]
+    live_repr_slots = _passive_capture_lookup(
+        _source_native_class_field(representation, "__dict__"), "__slots__"
+    )
+    if (
+        len(repr_slots) != 1
+        or not isinstance(repr_slots[0], ast.Tuple)
+        or repr_slots[0].elts
+        or type(live_repr_slots) is not tuple
+        or live_repr_slots
+    ):
+        return None
+    class_ns = _source_native_class_field(field_type, "__dict__")
+    if type(class_ns) is not type(type.__dict__) or any(type(key) is not str for key in class_ns):
+        return None
+    slot_nodes = [
+        node.value
+        for node in class_node.body
+        if isinstance(node, ast.Assign)
+        and len(node.targets) == 1
+        and isinstance(node.targets[0], ast.Name)
+        and node.targets[0].id == "__slots__"
+    ]
+    if len(slot_nodes) != 1:
+        return None
+    slots = ast.literal_eval(slot_nodes[0])
+    actual_slots = _passive_capture_lookup(class_ns, "__slots__")
+    if not (
+        type(slots) is tuple
+        and all(type(name) is str for name in slots)
+        and len(slots) == len(set(slots))
+        and type(actual_slots) is tuple
+        and all(type(name) is str for name in actual_slots)
+        and actual_slots == slots
+    ):
+        return None
+    for slot in slots:
+        descriptor = _passive_capture_lookup(class_ns, slot)
+        if not (
+            _native_immutable_type_identity(type(descriptor), "builtins", "member_descriptor")
+            and descriptor.__objclass__ is field_type
+            and descriptor.__name__ == slot
+        ):
+            return None
+    # Explicitly reject any nonempty or non-native inherited instance dictionary.
+    for base in _source_native_class_field(field_type, "__mro__"):
+        descriptor = _passive_capture_lookup(
+            _source_native_class_field(base, "__dict__"), "__dict__"
+        )
+        if descriptor is not _NO_EXECUTION_BINDING:
+            return None
+    attr_nodes = [
+        node.value
+        for node in tree.body
+        if isinstance(node, ast.Assign)
+        and len(node.targets) == 1
+        and isinstance(node.targets[0], ast.Name)
+        and node.targets[0].id == "_Attrs"
+    ]
+    if len(attr_nodes) != 1:
+        return None
+    attributes = ast.literal_eval(attr_nodes[0])
+    actual_attributes = _passive_capture_lookup(namespace, "_Attrs")
+    if (
+        type(attributes) is not dict
+        or type(actual_attributes) is not dict
+        or any(type(key) is not str for key in (*attributes, *actual_attributes))
+        or set(attributes) != set(actual_attributes)
+    ):
+        return None
+    for key, expected in attributes.items():
+        actual = actual_attributes[key]
+        if expected is Ellipsis:
+            if actual is not Ellipsis:
+                return None
+        elif not _exact_literal_equal(actual, expected):
+            return None
+    default_nodes = [
+        node.value
+        for node in tree.body
+        if isinstance(node, ast.Assign)
+        and len(node.targets) == 1
+        and isinstance(node.targets[0], ast.Name)
+        and node.targets[0].id == "_DefaultValues"
+    ]
+    if len(default_nodes) != 1 or not isinstance(default_nodes[0], ast.Dict):
+        return None
+    defaults: dict[str, object] = {}
+    for key_node, value_node in zip(default_nodes[0].keys, default_nodes[0].values, strict=True):
+        if key_node is None:
+            if not isinstance(value_node, ast.Name) or value_node.id != "_Attrs":
+                return None
+            defaults.update(attributes)
+            continue
+        key, value = ast.literal_eval(key_node), ast.literal_eval(value_node)
+        if type(key) is not str:
+            return None
+        defaults[key] = value
+    actual_defaults = _passive_capture_lookup(namespace, "_DefaultValues")
+    if (
+        type(actual_defaults) is not dict
+        or any(type(key) is not str for key in actual_defaults)
+        or set(actual_defaults) != set(defaults)
+    ):
+        return None
+    for key, expected in defaults.items():
+        actual = actual_defaults[key]
+        if expected is Ellipsis:
+            if actual is not Ellipsis:
+                return None
+        elif not _exact_literal_equal(actual, expected):
+            return None
+    # Restrict the metadata route to no constraint keys and a discriminator.
+    # Compare the complete lookup table to source-bound imported identities.
+    lookup_node = next(
+        (
+            node.value
+            for node in class_node.body
+            if isinstance(node, ast.AnnAssign)
+            and isinstance(node.target, ast.Name)
+            and node.target.id == "metadata_lookup"
+        ),
+        None,
+    )
+    lookup = _passive_capture_lookup(class_ns, "metadata_lookup")
+    if (
+        not isinstance(lookup_node, ast.Dict)
+        or type(lookup) is not dict
+        or any(type(key) is not str for key in lookup)
+    ):
+        return None
+    expected_lookup: dict[str, object] = {}
+    for key_node, value_node in zip(lookup_node.keys, lookup_node.values, strict=True):
+        if key_node is None:
+            return None
+        key = ast.literal_eval(key_node)
+        if type(key) is not str:
+            return None
+        if isinstance(value_node, ast.Constant) and value_node.value is None:
+            target = None
+        elif isinstance(value_node, ast.Attribute) and isinstance(value_node.value, ast.Name):
+            module = _passive_capture_lookup(namespace, value_node.value.id)
+            if type(module) is not types.ModuleType:
+                return None
+            target = _passive_capture_lookup(vars(module), value_node.attr)
+            if target is _NO_EXECUTION_BINDING:
+                return None
+        else:
+            return None
+        expected_lookup[key] = target
+    if set(lookup) != set(expected_lookup) or any(
+        lookup[key] is not value for key, value in expected_lookup.items()
+    ):
+        return None
+    method_nodes = [
+        node
+        for node in class_node.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name in {"__init__", "from_field", "_collect_metadata"}
+    ]
+    methods = {node.name: node for node in method_nodes}
+    if len(method_nodes) != len(methods):
+        return None
+    field_nodes = [
+        node
+        for node in tree.body
+        if isinstance(node, ast.FunctionDef)
+        and node.name == "Field"
+        and not any(
+            isinstance(decorator, ast.Name) and decorator.id == "overload"
+            for decorator in node.decorator_list
+        )
+    ]
+    if set(methods) != {"__init__", "from_field", "_collect_metadata"} or len(field_nodes) != 1:
+        return None
+    _compiled, hashes = analysis.compiled_source_index(field_file, optimize=sys.flags.optimize)
+    fields = [(field, field_nodes[0], "Field")]
+    for name in ("__init__", "from_field", "_collect_metadata"):
+        raw = _passive_capture_lookup(class_ns, name)
+        if name != "__init__":
+            if type(raw) is not staticmethod:
+                return None
+            raw = raw.__func__
+        fields.append((raw, methods[name], f"FieldInfo.{name}"))
+    for function, node, qualname in fields:
+        if not (
+            type(function) is type(lambda: None)
+            and function.__globals__ is namespace
+            and function.__builtins__ is vars(_builtins)
+            and type(function.__module__) is str
+            and function.__module__ == "pydantic.fields"
+            and type(function.__qualname__) is str
+            and function.__qualname__ == qualname
+            and function.__closure__ is None
+            and type(function.__dict__) is dict
+            and not function.__dict__
+            and type(function.__code__.co_filename) is str
+            and Path(function.__code__.co_filename).resolve() == field_file
+            and function.__code__.co_firstlineno
+            == min([node.lineno, *(item.lineno for item in node.decorator_list)])
+            and _content_hash(
+                _normalize_code_object(function.__code__, work_budget=[10000, 1024**2])
+            )
+            in hashes.get(qualname, ())
+            and _source_protocol_annotation_cache_matches(function, node, hashes)
+        ):
+            return None
+        expected_positional = (
+            (undefined,) if qualname in {"Field", "FieldInfo.from_field"} else None
+        )
+        actual_positional = function.__defaults__
+        if expected_positional is None:
+            if actual_positional is not None:
+                return None
+        elif (
+            type(actual_positional) is not tuple
+            or len(actual_positional) != 1
+            or actual_positional[0] is not undefined
+        ):
+            return None
+        if qualname == "Field":
+            keywords = function.__kwdefaults__
+            source_keywords = tuple(argument.arg for argument in node.args.kwonlyargs)
+            if (
+                type(keywords) is not dict
+                or any(type(key) is not str for key in keywords)
+                or set(keywords) != set(source_keywords)
+                or any(keywords[key] is not undefined for key in keywords)
+                or any(
+                    not isinstance(default, ast.Name) or default.id != "_Unset"
+                    for default in node.args.kw_defaults
+                )
+            ):
+                return None
+        elif function.__kwdefaults__ is not None:
+            return None
+    return _SourceFieldInfoProvider(field, field_type, undefined, slots, attributes)
+
+
+def _source_pydantic_discriminator_field_matches(
+    actual: object, discriminator: str, analysis: _IntegrityAnalysisContext
+) -> bool:
+    """Match every slot of the one-literal discriminator FieldInfo profile."""
+    provider = _source_pydantic_fieldinfo_provider(analysis)
+    if (
+        provider is None
+        or type(actual) is not provider.field_type
+        or type(discriminator) is not str
+    ):
+        return False
+    special = {
+        "annotation",
+        "metadata",
+        "_attributes_set",
+        "_qualifiers",
+        "_complete",
+        "_original_annotation",
+        "_original_assignment",
+        "_final",
+    }
+    if set(provider.slots) != set(provider.attributes) | special:
+        return False
+    class_ns = _source_native_class_field(provider.field_type, "__dict__")
+    for name in provider.slots:
+        descriptor = _passive_capture_lookup(class_ns, name)
+        if not (
+            _native_immutable_type_identity(type(descriptor), "builtins", "member_descriptor")
+            and descriptor.__objclass__ is provider.field_type
+            and descriptor.__name__ == name
+        ):
+            return False
+        value = descriptor.__get__(actual, provider.field_type)
+        if name in {"default", "_original_annotation", "_original_assignment"}:
+            if value is not provider.undefined:
+                return False
+        elif name == "discriminator":
+            if type(value) is not str or value != discriminator:
+                return False
+        elif name == "_attributes_set":
+            if (
+                type(value) is not dict
+                or len(value) != 1
+                or any(type(key) is not str for key in value)
+            ):
+                return False
+            if (
+                set(value) != {"discriminator"}
+                or type(value["discriminator"]) is not str
+                or value["discriminator"] != discriminator
+            ):
+                return False
+        elif name == "metadata":
+            if type(value) is not list or value:
+                return False
+        elif name == "_qualifiers":
+            if type(value) is not set or value:
+                return False
+        elif name == "_complete":
+            if value is not True:
+                return False
+        elif name == "_final":
+            if value is not False:
+                return False
+        elif name == "annotation":
+            if value is not None:
+                return False
+        elif not _exact_literal_equal(value, provider.attributes[name]):
+            return False
+    return True
+
+
+@dataclass(frozen=True)
+class _SourceAnnotatedProvider:
+    """Bound metadata-only access to the installed typing Annotated alias."""
+
+    constructor: object
+    alias_type: type
+    dictionary: object
+
+
+def _source_typing_annotated_provider(
+    analysis: _IntegrityAnalysisContext,
+) -> _SourceAnnotatedProvider | None:
+    """Bind native alias storage and its selected source functions; do not call them."""
+    literal = _typing_literal_provider_state()
+    if literal is None:
+        return None
+    namespace = vars(typing)
+    origins = _source_loaded_module_origin_fields(typing, expected_name="typing")
+    logical = Path(sysconfig.get_path("stdlib")) / "typing.py"
+    path = analysis.bind_source_path(logical)
+    if origins is None or any(analysis.bind_source_path(Path(value)) != path for value in origins):
+        return None
+    source = analysis.source_bytes(logical)
+    alias_type = _passive_capture_lookup(namespace, "_AnnotatedAlias")
+    generic = _passive_capture_lookup(namespace, "_GenericAlias")
+    not_iterable = _passive_capture_lookup(namespace, "_NotIterable")
+    special = _passive_capture_lookup(namespace, "_SpecialForm")
+    typed_special = _passive_capture_lookup(namespace, "_TypedCacheSpecialForm")
+    constructor = _passive_capture_lookup(namespace, "Annotated")
+    if not (
+        type(alias_type) is type
+        and type(generic) is type
+        and type(not_iterable) is type
+        and type(special) is type
+        and type(typed_special) is type
+        and type(constructor) is typed_special
+        and _source_native_class_bases_match(alias_type, not_iterable, generic)
+        and _source_native_class_field(alias_type, "__module__") == "typing"
+        and _source_native_class_field(alias_type, "__qualname__") == "_AnnotatedAlias"
+    ):
+        return None
+    special_ns = _source_native_class_field(special, "__dict__")
+    name_slot = _passive_capture_lookup(special_ns, "_name")
+    getitem_slot = _passive_capture_lookup(special_ns, "_getitem")
+    for slot in (name_slot, getitem_slot):
+        if not (
+            _native_immutable_type_identity(type(slot), "builtins", "member_descriptor")
+            and slot.__objclass__ is special
+        ):
+            return None
+    special_name = name_slot.__get__(constructor, typed_special)
+    if type(special_name) is not str or special_name != "Annotated":
+        return None
+    wrapped = getitem_slot.__get__(constructor, typed_special)
+    if (
+        type(wrapped) is not type(lambda: None)
+        or type(wrapped.__dict__) is not dict
+        or any(type(key) is not str for key in wrapped.__dict__)
+    ):
+        return None
+    if set(wrapped.__dict__) != {"__wrapped__"}:
+        return None
+    terminal = wrapped.__dict__["__wrapped__"]
+    names = (
+        "Annotated",
+        "_tp_cache.<locals>.decorator.<locals>.inner",
+        "_AnnotatedAlias.__init__",
+        "_GenericAlias.__init__",
+    )
+    hashes = dict(_typing_protocol_source_codes(source, str(path), names))
+    pairs = [
+        (terminal, "Annotated", None),
+        (wrapped, "_tp_cache.<locals>.decorator.<locals>.inner", None),
+        (
+            _passive_capture_lookup(_source_native_class_field(alias_type, "__dict__"), "__init__"),
+            "_AnnotatedAlias.__init__",
+            alias_type,
+        ),
+        (
+            _passive_capture_lookup(_source_native_class_field(generic, "__dict__"), "__init__"),
+            "_GenericAlias.__init__",
+            generic,
+        ),
+    ]
+    for function, qualname, owner in pairs:
+        if not (
+            type(function) is type(lambda: None)
+            and function.__globals__ is namespace
+            and function.__builtins__ is vars(_builtins)
+            and type(function.__module__) is str
+            and function.__module__ == "typing"
+            and type(function.__code__.co_filename) is str
+            and Path(function.__code__.co_filename).resolve() == path
+            and _content_hash(
+                _normalize_code_object(function.__code__, work_budget=[10000, 1024**2])
+            )
+            in hashes[qualname]
+            and function.__defaults__ is None
+        ):
+            return None
+        if qualname == "_GenericAlias.__init__":
+            kwdefaults = function.__kwdefaults__
+            if (
+                type(kwdefaults) is not dict
+                or any(type(key) is not str for key in kwdefaults)
+                or set(kwdefaults) != {"inst", "name"}
+                or kwdefaults["inst"] is not True
+                or kwdefaults["name"] is not None
+            ):
+                return None
+        elif function.__kwdefaults__ is not None:
+            return None
+        closure = function.__closure__ or ()
+        freevars = function.__code__.co_freevars
+        if len(closure) != len(freevars):
+            return None
+        for name, cell in zip(freevars, closure, strict=True):
+            expected = (
+                terminal
+                if function is wrapped and name == "func"
+                else owner
+                if name == "__class__"
+                else _NO_EXECUTION_BINDING
+            )
+            if expected is _NO_EXECUTION_BINDING or cell.cell_contents is not expected:
+                return None
+    return _SourceAnnotatedProvider(constructor, alias_type, literal[2])
+
+
+def _source_annotated_state_matches(
+    actual: object,
+    expected: _SourceTypeState,
+    provider: _NativeTypeMetadataProvider,
+    *,
+    remaining: list[int],
+    depth: int,
+) -> bool:
+    """Read exact alias storage and every FieldInfo slot with no provider calls."""
+    field = expected.reference
+    if type(field) is not _SourceAnnotatedField or len(expected.arguments) != 1:
+        return False
+    analysis = _active_integrity_analysis()
+    token = None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+        token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    try:
+        annotation_provider = _source_typing_annotated_provider(analysis)
+        if annotation_provider is None or type(actual) is not annotation_provider.alias_type:
+            return False
+        state = annotation_provider.dictionary.__get__(actual, annotation_provider.alias_type)
+        if type(state) is not dict or any(type(key) is not str for key in state):
+            return False
+        if set(state) != {
+            "_inst",
+            "_name",
+            "__origin__",
+            "__slots__",
+            "__args__",
+            "__parameters__",
+            "__metadata__",
+        }:
+            return False
+        origin = state["__origin__"]
+        arguments = state["__args__"]
+        metadata = state["__metadata__"]
+        parameters = state["__parameters__"]
+        if not (
+            state["_inst"] is True
+            and type(state["_name"]) is str
+            and state["_name"] == "Annotated"
+            and state["__slots__"] is None
+            and type(parameters) is tuple
+            and not parameters
+            and type(arguments) is tuple
+            and len(arguments) == 1
+            and arguments[0] is origin
+            and type(metadata) is tuple
+            and len(metadata) == 1
+            and type(metadata[0]) is field.field_type
+        ):
+            return False
+        if not _source_pydantic_discriminator_field_matches(
+            metadata[0], field.discriminator, analysis
+        ):
+            return False
+        if not _source_type_state_matches(
+            origin, expected.arguments[0], provider, remaining=remaining, depth=depth + 1
+        ):
+            return False
+        if token is not None:
+            analysis.assert_sources_unchanged()
+        return True
+    except (ConfidenceLedgerError, OSError, AttributeError, TypeError, ValueError, SyntaxError):
+        return False
+    finally:
+        if token is not None:
+            _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
+
+
+def _source_pydantic_model_provider_matches(
+    base_model: object, analysis: _IntegrityAnalysisContext
+) -> bool:
+    """Bind current class and metaclass identities to installed Pydantic source."""
+    package = _passive_capture_lookup(sys.modules, "pydantic")
+    main = _passive_capture_lookup(sys.modules, "pydantic.main")
+    construction = _passive_capture_lookup(sys.modules, "pydantic._internal._model_construction")
+    if any(type(mod) is not types.ModuleType for mod in (package, main, construction)):
+        return False
+    package_origins = _source_loaded_module_origin_fields(package, expected_name="pydantic")
+    main_origins = _source_loaded_module_origin_fields(main, expected_name="pydantic.main")
+    construction_origins = _source_loaded_module_origin_fields(
+        construction, expected_name="pydantic._internal._model_construction"
+    )
+    if package_origins is None or main_origins is None or construction_origins is None:
+        return False
+    package_file = analysis.bind_source_path(Path(package_origins[0]))
+    if any(analysis.bind_source_path(Path(value)) != package_file for value in package_origins):
+        return False
+    analysis.source_bytes(package_file)
+    paths = (
+        package_file.parent / "main.py",
+        package_file.parent / "_internal" / "_model_construction.py",
+    )
+    trees = []
+    for origins, logical in zip((main_origins, construction_origins), paths, strict=True):
+        path = analysis.bind_source_path(logical)
+        if any(analysis.bind_source_path(Path(value)) != path for value in origins):
+            return False
+        trees.append(analysis.source_tree(path))
+    meta = _passive_capture_lookup(vars(construction), "ModelMetaclass")
+    if not (
+        type(meta) is type
+        and type(base_model) is meta
+        and _passive_capture_lookup(vars(main), "BaseModel") is base_model
+        and _passive_capture_lookup(vars(package), "BaseModel") is base_model
+        and _source_native_class_field(base_model, "__module__") == "pydantic.main"
+        and _source_native_class_field(base_model, "__qualname__") == "BaseModel"
+        and _source_native_class_field(meta, "__module__")
+        == "pydantic._internal._model_construction"
+        and _source_native_class_field(meta, "__qualname__") == "ModelMetaclass"
+    ):
+        return False
+    for tree, name in zip(trees, ("BaseModel", "ModelMetaclass"), strict=True):
+        if len([n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == name]) != 1:
+            return False
+    abc_module = _passive_capture_lookup(sys.modules, "abc")
+    if type(abc_module) is not types.ModuleType:
+        return False
+    abc_meta = _passive_capture_lookup(vars(abc_module), "ABCMeta")
+    if not _source_native_class_bases_match(meta, abc_meta):
+        return False
+    meta_mro = _source_native_class_field(meta, "__mro__")
+    if not (
+        type(meta_mro) is tuple
+        and len(meta_mro) == 4
+        and meta_mro[0] is meta
+        and meta_mro[1] is abc_meta
+        and meta_mro[2] is type
+        and meta_mro[3] is object
+    ):
+        return False
+    model_init = _passive_capture_lookup(
+        _source_native_class_field(base_model, "__dict__"), "__init__"
+    )
+    _, main_hashes = analysis.compiled_source_index(paths[0], optimize=sys.flags.optimize)
+    if not (
+        type(model_init) is type(lambda: None)
+        and model_init.__globals__ is vars(main)
+        and model_init.__builtins__ is vars(_builtins)
+        and type(model_init.__qualname__) is str
+        and model_init.__qualname__ == "BaseModel.__init__"
+        and type(model_init.__code__.co_filename) is str
+        and analysis.bind_source_path(Path(model_init.__code__.co_filename))
+        == analysis.bind_source_path(paths[0])
+        and _content_hash(_normalize_code_object(model_init.__code__, work_budget=[10000, 1024**2]))
+        in main_hashes.get("BaseModel.__init__", ())
+    ):
+        return False
+    meta_ns = _source_native_class_field(meta, "__dict__")
+    new = _passive_capture_lookup(meta_ns, "__new__")
+    if type(new) is not staticmethod:
+        return False
+    new = new.__func__
+    getattr_fn = _passive_capture_lookup(meta_ns, "__getattr__")
+    _, hashes = analysis.compiled_source_index(paths[1], optimize=sys.flags.optimize)
+    for function, qualname in (
+        (new, "ModelMetaclass.__new__"),
+        (getattr_fn, "ModelMetaclass.__getattr__"),
+    ):
+        if not (
+            type(function) is type(lambda: None)
+            and function.__globals__ is vars(construction)
+            and function.__builtins__ is vars(_builtins)
+            and type(function.__qualname__) is str
+            and function.__qualname__ == qualname
+            and type(function.__code__.co_filename) is str
+            and analysis.bind_source_path(Path(function.__code__.co_filename))
+            == analysis.bind_source_path(paths[1])
+            and _content_hash(
+                _normalize_code_object(function.__code__, work_budget=[10000, 1024**2])
+            )
+            in hashes.get(qualname, ())
+        ):
+            return False
+    return True
+
+
+def _source_pydantic_model_reference_supported(
+    *,
+    repo_root: Path,
+    module: types.ModuleType,
+    module_name: str,
+    tree: ast.Module,
+    declaration: ast.ClassDef,
+    actual: object,
+    analysis: _IntegrityAnalysisContext,
+) -> bool:
+    """Establish a narrow model type reference, never compiled validation semantics."""
+    if (
+        declaration.decorator_list
+        or declaration.keywords
+        or len(declaration.bases) != 1
+        or not isinstance(declaration.bases[0], ast.Name)
+        or getattr(declaration, "type_params", ())
+    ):
+        return False
+    parent = _source_import_binding(
+        declaration.bases[0].id,
+        tree=tree,
+        module=module,
+        module_name=module_name,
+        repo_root=repo_root,
+    )
+    parent_module = _source_native_class_field(parent, "__module__")
+    parent_name = _source_native_class_field(parent, "__qualname__")
+    if type(parent_module) is not str or type(parent_name) is not str:
+        return False
+    parent_rel = _repository_module_source(repo_root, parent_module)
+    parent_owner = _passive_capture_lookup(sys.modules, parent_module)
+    parent_origins = _source_loaded_module_origin_fields(parent_owner, expected_name=parent_module)
+    if parent_rel is None or type(parent_owner) is not types.ModuleType or parent_origins is None:
+        return False
+    parent_path = analysis.bind_source_path(repo_root / parent_rel)
+    if any(analysis.bind_source_path(Path(p)) != parent_path for p in parent_origins):
+        return False
+    parent_tree = analysis.source_tree(parent_path)
+    parents = [n for n in parent_tree.body if isinstance(n, ast.ClassDef) and n.name == parent_name]
+    if len(parents) != 1 or _passive_capture_lookup(vars(parent_owner), parent_name) is not parent:
+        return False
+    parent_node = parents[0]
+    if (
+        parent_node.decorator_list
+        or parent_node.keywords
+        or len(parent_node.bases) != 1
+        or not isinstance(parent_node.bases[0], ast.Name)
+    ):
+        return False
+    base_model = _source_import_binding(
+        parent_node.bases[0].id,
+        tree=parent_tree,
+        module=parent_owner,
+        module_name=parent_module,
+        repo_root=repo_root,
+    )
+    package = _passive_capture_lookup(sys.modules, "pydantic")
+    if type(package) is not types.ModuleType or not _source_pydantic_model_provider_matches(
+        base_model, analysis
+    ):
+        return False
+    parent_body = [
+        item
+        for item in parent_node.body
+        if not (
+            isinstance(item, ast.Expr)
+            and isinstance(item.value, ast.Constant)
+            and type(item.value.value) is str
+        )
+    ]
+    if len(parent_body) != 1 or not isinstance(parent_body[0], ast.Assign):
+        return False
+    assignment = parent_body[0]
+    if not (
+        len(assignment.targets) == 1
+        and isinstance(assignment.targets[0], ast.Name)
+        and assignment.targets[0].id == "model_config"
+        and isinstance(assignment.value, ast.Call)
+        and isinstance(assignment.value.func, ast.Name)
+        and not assignment.value.args
+        and _source_import_binding(
+            assignment.value.func.id,
+            tree=parent_tree,
+            module=parent_owner,
+            module_name=parent_module,
+            repo_root=repo_root,
+        )
+        is _passive_capture_lookup(vars(package), "ConfigDict")
+    ):
+        return False
+    declared_config = {}
+    for keyword in assignment.value.keywords:
+        if (
+            type(keyword.arg) is not str
+            or keyword.arg in declared_config
+            or not isinstance(keyword.value, ast.Constant)
+        ):
+            return False
+        declared_config[keyword.arg] = keyword.value.value
+    current_config = _passive_capture_lookup(
+        _source_native_class_field(parent, "__dict__"), "model_config"
+    )
+    if not (
+        type(current_config) is dict
+        and all(type(key) is str for key in current_config)
+        and set(current_config) == set(declared_config)
+        and all(
+            _exact_literal_equal(current_config[key], value)
+            for key, value in declared_config.items()
+        )
+    ):
+        return False
+    meta = type(base_model)
+    parent_mro = _source_native_class_field(parent, "__mro__")
+    actual_mro = _source_native_class_field(actual, "__mro__")
+    if not (
+        type(parent) is meta
+        and type(actual) is meta
+        and _source_native_class_bases_match(parent, base_model)
+        and _source_native_class_bases_match(actual, parent)
+        and type(parent_mro) is tuple
+        and len(parent_mro) == 3
+        and parent_mro[0] is parent
+        and parent_mro[1] is base_model
+        and parent_mro[2] is object
+        and type(actual_mro) is tuple
+        and len(actual_mro) == 4
+        and actual_mro[0] is actual
+        and actual_mro[1] is parent
+        and actual_mro[2] is base_model
+        and actual_mro[3] is object
+        and _source_native_class_field(actual, "__module__") == module_name
+        and _source_native_class_field(actual, "__name__") == declaration.name
+        and _source_native_class_field(actual, "__qualname__") == declaration.name
+    ):
+        return False
+    body = list(declaration.body)
+    doc = None
+    if (
+        body
+        and isinstance(body[0], ast.Expr)
+        and isinstance(body[0].value, ast.Constant)
+        and type(body[0].value.value) is str
+    ):
+        doc = body.pop(0).value.value
+    if not body or len(body) > 32:
+        return False
+    expected_annotations = {}
+    for node in body:
+        if (
+            not isinstance(node, ast.AnnAssign)
+            or not isinstance(node.target, ast.Name)
+            or not node.simple
+        ):
+            return False
+        if node.target.id in expected_annotations or not isinstance(
+            node.annotation, (ast.Name, ast.Subscript)
+        ):
+            return False
+        if node.value is not None and not isinstance(node.value, ast.Constant):
+            return False
+        expected_annotations[node.target.id] = ast.unparse(node.annotation)
+    namespace = _source_native_class_field(actual, "__dict__")
+    annotations = _passive_capture_lookup(namespace, "__annotations__")
+    actual_doc = _passive_capture_lookup(namespace, "__doc__")
+    fields = _passive_capture_lookup(namespace, "__pydantic_fields__")
+    field_provider = _source_pydantic_fieldinfo_provider(analysis)
+    if not (
+        type(annotations) is dict
+        and all(type(k) is str and type(v) is str for k, v in annotations.items())
+        and annotations == expected_annotations
+        and (actual_doc is None if doc is None else type(actual_doc) is str and actual_doc == doc)
+        and type(fields) is dict
+        and all(type(k) is str for k in fields)
+        and set(fields) == set(expected_annotations)
+        and field_provider is not None
+        and all(type(v) is field_provider.field_type for v in fields.values())
+    ):
+        return False
+    field_ns = _source_native_class_field(field_provider.field_type, "__dict__")
+    annotation_slot = _passive_capture_lookup(field_ns, "annotation")
+    default_slot = _passive_capture_lookup(field_ns, "default")
+    for name, descriptor in (("annotation", annotation_slot), ("default", default_slot)):
+        if not (
+            _native_immutable_type_identity(type(descriptor), "builtins", "member_descriptor")
+            and descriptor.__objclass__ is field_provider.field_type
+            and descriptor.__name__ == name
+        ):
+            return False
+    literal_provider = _typing_literal_provider_state()
+    if literal_provider is None:
+        return False
+    literal, literal_type, literal_dict, _ = literal_provider
+    for node in body:
+        field = fields[node.target.id]
+        field_annotation = annotation_slot.__get__(field, field_provider.field_type)
+        field_default = default_slot.__get__(field, field_provider.field_type)
+        if node.value is None:
+            if field_default is not field_provider.undefined:
+                return False
+        elif not _exact_literal_equal(field_default, node.value.value):
+            return False
+        if isinstance(node.annotation, ast.Name):
+            binding = _passive_capture_lookup(vars(module), node.annotation.id)
+            if binding is _NO_EXECUTION_BINDING or field_annotation is not binding:
+                return False
+        elif (
+            isinstance(node.annotation, ast.Subscript)
+            and isinstance(node.annotation.value, ast.Name)
+            and isinstance(node.annotation.slice, ast.Constant)
+            and type(node.annotation.slice.value) is str
+            and _source_import_binding(
+                node.annotation.value.id,
+                tree=tree,
+                module=module,
+                module_name=module_name,
+                repo_root=repo_root,
+            )
+            is literal
+            and type(field_annotation) is literal_type
+        ):
+            state = literal_dict.__get__(field_annotation, literal_type)
+            if not (type(state) is dict and all(type(key) is str for key in state)):
+                return False
+            args = _passive_capture_lookup(state, "__args__")
+            if not (
+                type(args) is tuple
+                and len(args) == 1
+                and type(args[0]) is str
+                and args[0] == node.annotation.slice.value
+                and _passive_capture_lookup(state, "__origin__") is literal
+            ):
+                return False
+        else:
+            return False
+    return True
 
 
 def _source_type_expression_projection(
@@ -20081,6 +21273,16 @@ def _source_type_expression_projection(
                 repo_root, owner_name, name, relative, owner_tree, declaration
             ):
                 return _SourceTypeState("class", value)
+            if _source_pydantic_model_reference_supported(
+                repo_root=repo_root,
+                module=owner,
+                module_name=owner_name,
+                tree=owner_tree,
+                declaration=declaration,
+                actual=value,
+                analysis=analysis,
+            ):
+                return _SourceTypeState("class", value)
             return _SOURCE_DERIVATION_FAILED
         if kind == "assignment" and isinstance(declaration, (ast.Assign, ast.AnnAssign)):
             if declaration.value is None:
@@ -20125,6 +21327,64 @@ def _source_type_expression_projection(
                 else _SourceTypeState("union", arguments=tuple(members))
             )
         if isinstance(expression, ast.Subscript) and isinstance(expression.value, ast.Name):
+            parts = expression.slice.elts if isinstance(expression.slice, ast.Tuple) else ()
+            if len(parts) == 2 and isinstance(parts[1], ast.Call):
+                call = parts[1]
+                if not (
+                    isinstance(call.func, ast.Name)
+                    and not call.args
+                    and len(call.keywords) == 1
+                    and call.keywords[0].arg == "discriminator"
+                    and isinstance(call.keywords[0].value, ast.Constant)
+                    and type(call.keywords[0].value.value) is str
+                    and 0 < len(call.keywords[0].value.value) <= 256
+                ):
+                    return _SOURCE_DERIVATION_FAILED
+                owner_context = context(owner_name)
+                if owner_context is None:
+                    return _SOURCE_DERIVATION_FAILED
+                owner, _, owner_tree = owner_context
+                try:
+                    annotation_provider = _source_typing_annotated_provider(analysis)
+                    field_provider = _source_pydantic_fieldinfo_provider(analysis)
+                    if annotation_provider is None or field_provider is None:
+                        return _SOURCE_DERIVATION_FAILED
+                    annotated = _source_import_binding(
+                        expression.value.id,
+                        tree=owner_tree,
+                        module=owner,
+                        module_name=owner_name,
+                        repo_root=repo_root,
+                    )
+                    field = _source_import_binding(
+                        call.func.id,
+                        tree=owner_tree,
+                        module=owner,
+                        module_name=owner_name,
+                        repo_root=repo_root,
+                    )
+                    if (
+                        annotated is not annotation_provider.constructor
+                        or field is not field_provider.field
+                    ):
+                        return _SOURCE_DERIVATION_FAILED
+                except (
+                    ConfidenceLedgerError,
+                    OSError,
+                    AttributeError,
+                    TypeError,
+                    ValueError,
+                    SyntaxError,
+                ):
+                    return _SOURCE_DERIVATION_FAILED
+                inner = read(parts[0], owner_name, seen, depth + 1)
+                if type(inner) is not _SourceTypeState:
+                    return _SOURCE_DERIVATION_FAILED
+                return _SourceTypeState(
+                    "annotated",
+                    _SourceAnnotatedField(field_provider.field_type, call.keywords[0].value.value),
+                    (inner,),
+                )
             origin = read(expression.value, owner_name, seen, depth + 1)
             if type(origin) is not _SourceTypeState or origin.kind != "class":
                 return _SOURCE_DERIVATION_FAILED
@@ -20207,6 +21467,10 @@ def _source_type_state_matches(
     remaining[0] -= 1
     if expected.kind == "class":
         return actual is expected.reference
+    if expected.kind == "annotated":
+        return _source_annotated_state_matches(
+            actual, expected, provider, remaining=remaining, depth=depth
+        )
     if expected.kind == "union":
         if type(actual) is not provider.union_type:
             return False

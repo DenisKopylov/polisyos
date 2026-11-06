@@ -2,12 +2,264 @@
 
 from __future__ import annotations
 
+import sys
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
+from types import CodeType, SimpleNamespace
 
 import pytest
 
 pytest_plugins = ("tests._helpers.acquisition_served_history",)
+
+
+@contextmanager
+def _forbid_retained_generation_n5() -> Iterator[list[str]]:
+    """Refuse entry to the actual N5 controller without replacing its callable."""
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+    )
+
+    owner = JointSimulationHorizonController.run
+    code = getattr(owner, "__code__", None)
+    if not isinstance(code, CodeType):
+        raise RuntimeError("candidate_retention_n5_owner_code_unavailable")
+    monitoring = sys.monitoring
+    tool_id = None
+    for candidate in (3, 4):
+        if monitoring.get_tool(candidate) is not None:
+            continue
+        try:
+            monitoring.use_tool_id(candidate, "candidate-retention-n5-entry-guard")
+        except ValueError:
+            continue
+        tool_id = candidate
+        break
+    if tool_id is None:
+        raise RuntimeError("candidate_retention_n5_monitor_unavailable")
+
+    entries: list[str] = []
+    registered = False
+    enabled = False
+
+    def record_entry(observed: CodeType, _offset: int) -> None:
+        if observed is code:
+            entries.append("n5_controller")
+            raise AssertionError("candidate_retention_unexpected_n5_entry")
+
+    try:
+        monitoring.clear_tool_id(tool_id)
+        if monitoring.get_events(tool_id) != 0:
+            raise RuntimeError("candidate_retention_n5_monitor_not_isolated")
+        previous = monitoring.register_callback(tool_id, monitoring.events.PY_START, record_entry)
+        registered = True
+        if previous is not None:
+            raise RuntimeError("candidate_retention_n5_monitor_callback_occupied")
+        monitoring.set_local_events(tool_id, code, monitoring.events.PY_START)
+        enabled = True
+        yield entries
+        assert JointSimulationHorizonController.run is owner
+        assert owner.__code__ is code
+    finally:
+        try:
+            if enabled:
+                monitoring.set_local_events(tool_id, code, 0)
+        finally:
+            try:
+                if registered:
+                    monitoring.register_callback(tool_id, monitoring.events.PY_START, None)
+            finally:
+                monitoring.free_tool_id(tool_id)
+
+
+def test_retained_generation_n5_guard_rejects_real_controller_entry() -> None:
+    """The guard trips on the actual method before its body or any numerical work."""
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+        JointSimulationRequest,
+    )
+
+    controller = JointSimulationHorizonController.__new__(JointSimulationHorizonController)
+    # This is only a typed call-shape sentinel, not a valid simulation request.
+    request = JointSimulationRequest.model_construct(intervention_atoms=())
+
+    def assert_guard_refuses() -> None:
+        with pytest.raises(AssertionError, match="candidate_retention_unexpected_n5_entry"):
+            controller.run(request)
+
+    with _forbid_retained_generation_n5() as entries:
+        assert_guard_refuses()
+    assert entries == ["n5_controller"]
+    assert "_last_n5_implementation_capture" not in controller.__dict__
+
+    # Remove the tested guard. A separate monitor stops the real producer at
+    # entry so the intentionally incomplete request cannot reach its body.
+    # The same assertion must now fail with the distinct removal signal.
+    monitoring = sys.monitoring
+    code = JointSimulationHorizonController.run.__code__
+    tool_id = next((item for item in (3, 4) if monitoring.get_tool(item) is None), None)
+    if tool_id is None:
+        raise RuntimeError("candidate_retention_n5_control_monitor_unavailable")
+    monitoring.use_tool_id(tool_id, "candidate-retention-n5-removal-control")
+    registered = False
+    enabled = False
+    observed: list[str] = []
+
+    def stop_removed_guard(observed_code: CodeType, _offset: int) -> None:
+        if observed_code is code:
+            observed.append("n5_controller")
+            raise AssertionError("candidate_retention_guard_removed")
+
+    try:
+        monitoring.clear_tool_id(tool_id)
+        monitoring.register_callback(tool_id, monitoring.events.PY_START, stop_removed_guard)
+        registered = True
+        monitoring.set_local_events(tool_id, code, monitoring.events.PY_START)
+        enabled = True
+        with pytest.raises(AssertionError, match="candidate_retention_guard_removed"):
+            assert_guard_refuses()
+    finally:
+        try:
+            if enabled:
+                monitoring.set_local_events(tool_id, code, 0)
+        finally:
+            try:
+                if registered:
+                    monitoring.register_callback(tool_id, monitoring.events.PY_START, None)
+            finally:
+                monitoring.free_tool_id(tool_id)
+    assert observed == ["n5_controller"]
+    assert "_last_n5_implementation_capture" not in controller.__dict__
+
+
+def _assert_changed_candidate_n5_numeric_outcomes(
+    *, control: object, first: object, changed: object
+) -> None:
+    """Reopen both real N5 outputs and compare their declared numerical outcomes."""
+    import numpy as np
+
+    from polisyos.core import canon
+    from polisyos.foundry.execute.executor import get_state_path, load_state_snapshot
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationN5InputV5,
+        CandidateSimulationSyntheticModelDeclarationV1,
+    )
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+
+    store = control._artifact_store
+    values: list[tuple[float, float]] = []
+    # The selected fixture uses float32 state input. This fixed tolerance is
+    # chosen before seeing any result and is tight relative to the .035 shift.
+    tolerance = 1e-7
+    for execution, source_value, expected_outcome in (
+        (first, 0.175, 0.177),
+        (changed, 0.21, 0.212),
+    ):
+        history = execution.terminal_history
+        evaluation = history.evaluation
+        assert evaluation is not None
+        selected = evaluation.selected
+        n5_input = CandidateSimulationN5InputV5.model_validate(
+            canon.from_canonical_bytes(store.get_bytes(selected.n5_input_ref))
+        )
+        assert n5_input == evaluation.input_record
+        assert evaluation.execution.n5_input_ref == selected.n5_input_ref
+        assert evaluation.execution.n5_result_ref == selected.n5_result_ref
+        declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+            canon.from_canonical_bytes(store.get_bytes(n5_input.model_declaration_ref))
+        )
+        assert declaration.target_world_slot == "government.balance"
+        assert declaration.outcome_variable == "global.unemployment_rate"
+        assert declaration.target_unit_id == "USD"
+        assert declaration.outcome_unit_id == "ratio"
+        assert declaration.outcome_per_target_unit == pytest.approx(0.001, rel=0, abs=1e-12)
+        assert declaration.outcome_noise_stddev == 0.0
+        assert float(n5_input.materialization.value) == pytest.approx(2.0, rel=0, abs=1e-12)
+        assert history.source.observation == pytest.approx(source_value, rel=0, abs=tolerance)
+        reopened_declaration, ncm = GenerationSourceRepository(store).load_candidate_declared_ncm(
+            declaration_ref=n5_input.model_declaration_ref,
+            ncm_ref=n5_input.ncm_ref,
+            expected_profile=n5_input.profile,
+            expected_run_id=n5_input.run_id,
+            expected_job_id=n5_input.job_id,
+            expected_tenant_id=n5_input.tenant_id,
+            expected_cell_id=n5_input.cell_id,
+        )
+        assert reopened_declaration == declaration
+        assert ncm.scm_spec is not None
+        outcome_mechanisms = [
+            row for row in ncm.scm_spec.mechanisms if row.variable == declaration.outcome_variable
+        ]
+        assert len(outcome_mechanisms) == 1
+        model = outcome_mechanisms[0]
+        assert model.parents == [declaration.target_world_slot]
+        assert model.family_params["coefficients"] == {declaration.target_world_slot: 0.001}
+        assert model.family_params["intercept"] == pytest.approx(source_value, rel=0, abs=tolerance)
+        assert model.family_params["noise_std"] == 0.0
+
+        world = n5_input.profile.context_inputs.world_model_record
+        state_ref = world_model_artifact_views(world).bound_state_snapshot_ref
+        assert state_ref is not None and state_ref.manifest_profile_sha256 is not None
+        state = load_state_snapshot(store, snapshot_ref=state_ref)
+        state_values: dict[str, float] = {}
+        for slot in (declaration.target_world_slot, declaration.outcome_variable):
+            binding = world.slot_binding(slot)
+            assert binding is not None and binding.state_path
+            actual = np.asarray(get_state_path(state, binding.state_path))
+            assert actual.size == 1
+            state_values[slot] = float(actual.item())
+        assert state_values[declaration.target_world_slot] == pytest.approx(
+            0.0, rel=0, abs=tolerance
+        )
+        assert state_values[declaration.outcome_variable] == pytest.approx(
+            source_value, rel=0, abs=tolerance
+        )
+        assert declaration.target_baseline == state_values[declaration.target_world_slot]
+        assert declaration.outcome_baseline == state_values[declaration.outcome_variable]
+        assert n5_input.n5.baseline_state == state_values
+
+        atom_id = n5_input.materialization.derived_n5_atom.intervention_id
+        result = load_joint_simulation_result(
+            selected.n5_result_ref,
+            store=store,
+            expected_world_model_record_content_hash=selected.world_model_record_hash,
+            expected_atom_ids=(atom_id,),
+            expected_selected_outcomes=(declaration.outcome_variable,),
+            expected_receipt_payload_hash=evaluation.execution.n5_result_content_hash,
+        )
+        assert result == evaluation.result
+        trajectories = [
+            item
+            for item in result.trajectories
+            if item.run_level == "joint" and item.atom_ids == (atom_id,)
+        ]
+        assert len(trajectories) == 1 and trajectories[0].points
+        for point in trajectories[0].points:
+            effect = point.effect[declaration.outcome_variable]
+            outcome = point.outcomes[declaration.outcome_variable]
+            assert effect == pytest.approx(0.002, rel=0, abs=tolerance)
+            assert outcome == pytest.approx(expected_outcome, rel=0, abs=tolerance)
+            assert point.replication_sampling is not None
+            assert point.replication_sampling.replicate_count == 2
+            assert len(point.replication_sampling.samples) == 2
+            for sample in point.replication_sampling.samples:
+                assert sample.effects[declaration.outcome_variable] == pytest.approx(
+                    0.002, rel=0, abs=tolerance
+                )
+                assert sample.outcomes[declaration.outcome_variable] == pytest.approx(
+                    expected_outcome, rel=0, abs=tolerance
+                )
+            values.append((source_value, outcome))
+
+    old = [outcome for source, outcome in values if source == 0.175]
+    new = [outcome for source, outcome in values if source == 0.21]
+    assert old and new
+    for before in old:
+        for after in new:
+            assert after - before == pytest.approx(0.035, rel=0, abs=tolerance)
 
 
 def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
@@ -28,6 +280,7 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
         run_candidate_experiment_served_execution,
     )
     from tests.integration.core_runtime.test_candidate_experiment_action_served import (
+        _assert_candidate_experiment_n5_uses_current_wmr,
         run_candidate_experiment_action_oracle,
         run_genuine_candidate_experiment_scenario,
     )
@@ -308,7 +561,14 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
                 }
                 if wdi_response_value is not None:
                     execution_kwargs["wdi_response_value"] = wdi_response_value
-                execution = run_candidate_experiment_served_execution(**execution_kwargs)
+                if generation in (2, 3):
+                    # Each explicit new admission legitimately fetches its own
+                    # source bytes; an equivalent basis must not rerun N5.
+                    with _forbid_retained_generation_n5() as n5_entries:
+                        execution = run_candidate_experiment_served_execution(**execution_kwargs)
+                    assert n5_entries == []
+                else:
+                    execution = run_candidate_experiment_served_execution(**execution_kwargs)
                 assert_exact_retry_and_fresh_get(
                     action_values=action_values,
                     execution=execution,
@@ -526,6 +786,21 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
         assert changed_basis.effective_values_sha256 != initial_basis.effective_values_sha256
         assert changed_history.source.observation == pytest.approx(0.21)
         assert changed_history.source.observation != initial_history.source.observation
+        # The existing B oracle expects the immediate source run/cycle. Supply
+        # the owner-derived effective B view for C without manufacturing a new
+        # authority-bearing origin.
+        current_origin = changed_history.origin
+        predecessor_run = current_origin.effective_generation_run
+        preceding_view = SimpleNamespace(
+            run_id=current_origin.run_id,
+            source_job_id=current_origin.source_job_id,
+            generation_run=predecessor_run,
+            source_cycle=predecessor_run.cycles[-1],
+        )
+        _assert_candidate_experiment_n5_uses_current_wmr(
+            control=control, origin=preceding_view, execution=fourth
+        )
+        _assert_changed_candidate_n5_numeric_outcomes(control=control, first=first, changed=fourth)
         assert changed_basis.selected_data_snapshot_ref != initial_basis.selected_data_snapshot_ref
         assert changed_basis.selected_world_model_ref != initial_basis.selected_world_model_ref
         assert changed_basis.selected_data_snapshot_ref is not None

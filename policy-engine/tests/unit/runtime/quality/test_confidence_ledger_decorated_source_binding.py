@@ -3863,3 +3863,633 @@ def test_native_type_metadata_does_not_claim_frozen_loader_implementation_or_his
             in state.projection["verified_facets"]
         )
     assert observed == []
+
+
+def _protocol_type_source(expression="Callable[[], Contract]"):
+    return (
+        "from __future__ import annotations\n"
+        "from collections.abc import Callable\n"
+        "from typing import Protocol, runtime_checkable\n\n"
+        "@runtime_checkable\nclass Contract(Protocol):\n"
+        "    @property\n    def name(self) -> str:\n        ...\n"
+        "    def make(self) -> object:\n        ...\n"
+        f"OUTPUT = {expression}\n"
+    )
+
+
+def test_native_type_metadata_binds_actual_component_factory_protocol():
+    from polisyos.core.components import protocols
+
+    root = ledger._loaded_policy_engine_root()
+    expected = _native_type_expected(root, protocols, "ComponentFactory")
+    assert type(expected) is ledger._SourceResolvedAnnotation
+    assert ledger._source_resolved_annotation_matches(protocols.ComponentFactory, expected)
+    assert protocols.ComponentFactory.__args__ == (protocols.Component,)
+    assert _route(root, protocols, "ComponentFactory") == (
+        "symbol",
+        protocols.__name__,
+        "ComponentFactory",
+    )
+
+
+@pytest.mark.parametrize("route_kind", ["local", "imported", "reexported"])
+def test_native_type_metadata_protocol_reference_reaches_selected_reader(
+    tmp_path, monkeypatch, route_kind
+):
+    root, provider = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    module = provider
+    if route_kind != "local":
+        source_name = provider.__name__
+        if route_kind == "reexported":
+            facade = _load_fixture_module(
+                root,
+                monkeypatch,
+                "polisyos.protocol_facade",
+                f"from {provider.__name__} import Contract\n",
+            )
+            source_name = facade.__name__
+        module = _load_fixture_module(
+            root,
+            monkeypatch,
+            "polisyos.protocol_alias_consumer",
+            "from __future__ import annotations\nfrom collections.abc import Callable\n"
+            f"from {source_name} import Contract as Selected\n"
+            "OUTPUT = Callable[[], Selected] | tuple[str, Callable[[int], Selected]]\n",
+        )
+    expected = _native_type_expected(root, module)
+    assert type(expected) is ledger._SourceResolvedAnnotation
+    assert ledger._source_resolved_annotation_matches(module.OUTPUT, expected)
+    assert _route(root, module, "OUTPUT") == ("symbol", module.__name__, "OUTPUT")
+    consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    assert consumer.observed() is module.OUTPUT
+
+
+@pytest.mark.parametrize(
+    "mutation", ["foreign", "member_code", "withdrawn", "runtime_flag", "annotations"]
+)
+def test_native_type_metadata_protocol_reference_requires_current_source_owner(
+    tmp_path, monkeypatch, mutation
+):
+    from collections.abc import Callable
+
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    expected = _native_type_expected(root, module)
+    assert type(expected) is ledger._SourceResolvedAnnotation
+    consumer, closure = _immutable_tuple_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    if mutation == "foreign":
+        foreign = _load_fixture_module(
+            root,
+            monkeypatch,
+            "polisyos.foreign_protocol",
+            _protocol_type_source().replace("        ...\nOUTPUT", "        return 99\nOUTPUT"),
+        ).Contract
+        assert foreign.make(None) == 99
+        foreign.__module__ = module.__name__
+        foreign.__qualname__ = "Contract"
+        foreign.make.__module__ = module.__name__
+        foreign.make.__qualname__ = "Contract.make"
+        monkeypatch.setattr(module, "Contract", foreign)
+        wrong = Callable[[], foreign]
+        monkeypatch.setattr(module, "OUTPUT", wrong)
+        monkeypatch.setattr(consumer, "OUTPUT", wrong)
+    elif mutation == "member_code":
+        monkeypatch.setattr(module.Contract.make, "__code__", (lambda self: 99).__code__)
+        assert module.Contract.make(None) == 99
+    elif mutation == "withdrawn":
+        monkeypatch.delattr(module, "Contract")
+    elif mutation == "runtime_flag":
+        monkeypatch.setattr(module.Contract, "_is_runtime_protocol", False)
+    else:
+        monkeypatch.setattr(module.Contract.make, "__annotations__", {"return": "str"})
+    assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    with pytest.raises(ledger.ConfidenceLedgerError, match="side-effecting direct source"):
+        ledger._source_facade_runtime_projection(root, closure)
+
+
+def test_native_type_metadata_protocol_reference_does_not_call_protocol_members(
+    tmp_path, monkeypatch
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    observed = []
+    member_codes = (module.Contract.make.__code__, module.Contract.name.fget.__code__)
+
+    def observed_member_call(frame, event, _argument):
+        if event == "call" and any(frame.f_code is code for code in member_codes):
+            observed.append(frame.f_code.co_name)
+
+    prior = sys.getprofile()
+    try:
+        sys.setprofile(observed_member_call)
+        expected = _native_type_expected(root, module)
+    finally:
+        sys.setprofile(prior)
+    assert type(expected) is ledger._SourceResolvedAnnotation
+    assert observed == []
+    assert ledger._source_resolved_annotation_matches(module.OUTPUT, expected)
+    profile = ledger._native_type_metadata_provider_projection()
+    assert profile["initialization_construction_and_behavior"] == "not_established"
+
+
+def test_native_type_metadata_protocol_reference_rejects_corrupt_provider_before_replay(
+    tmp_path, monkeypatch
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    with monkeypatch.context() as changed:
+        changed.setattr(typing.runtime_checkable, "__code__", (lambda cls: cls).__code__)
+        assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+
+
+def test_native_type_metadata_protocol_reference_rechecks_source_snapshot(tmp_path, monkeypatch):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    assert type(_native_type_expected(root, module)) is ledger._SourceResolvedAnnotation
+    source = Path(module.__file__)
+    source.write_text(
+        source.read_text().replace("def make(self) -> object", "def make(self) -> str")
+    )
+    assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+
+
+def test_protocol_type_projection_never_dispatches_typing_or_member_callbacks():
+    """The real context-backed Protocol can be inspected with zero replay calls."""
+    import contextlib
+
+    from polisyos.core.artifacts import protocol
+
+    root = ledger._loaded_policy_engine_root()
+    path = Path(protocol.__file__).resolve()
+    tree = ast.parse(path.read_bytes(), filename=str(path))
+    name = "CoreJSONArtifactBoundedMemberAttempt"
+    node = next(item for item in tree.body if isinstance(item, ast.ClassDef) and item.name == name)
+    meta = type(typing.Protocol)
+    watched = [
+        typing.runtime_checkable.__code__,
+        vars(meta)["__new__"].__func__.__code__,
+        vars(meta)["__init__"].__code__,
+        vars(contextlib.AbstractContextManager)["__enter__"].__code__,
+        vars(contextlib.AbstractContextManager)["__exit__"].__code__,
+    ]
+    for cls in (
+        protocol.CoreJSONArtifactBoundedMemberAttempt,
+        protocol.CoreJSONArtifactBoundedMemberStream,
+    ):
+        for value in vars(cls).values():
+            if type(value) is property:
+                value = value.fget
+            if type(value) is types.FunctionType and value.__module__ == protocol.__name__:
+                watched.append(value.__code__)
+                if type(value.__annotate__) is types.FunctionType:
+                    watched.append(value.__annotate__.__code__)
+    observed = []
+
+    def profile(frame, event, _argument):
+        if event == "call" and any(frame.f_code is code for code in watched):
+            observed.append(frame.f_code.co_qualname)
+
+    prior = sys.getprofile()
+    try:
+        sys.setprofile(profile)
+        supported = ledger._source_python_protocol_binding_supported(
+            root, protocol.__name__, name, path.relative_to(root), tree, node
+        )
+    finally:
+        sys.setprofile(prior)
+    assert supported
+    assert observed == []
+
+
+@pytest.mark.parametrize("field", ["__bases__", "__dict__", "__mro__", "__module__"])
+def test_protocol_provider_refuses_hostile_metaclass_fields_without_callbacks(monkeypatch, field):
+    import abc
+
+    observed = []
+    armed = [False]
+
+    def poisonous(cls):
+        if not armed[0]:
+            name = "__dict__" if field == "__module__" else field
+            value = type.__dict__[name].__get__(cls, type(cls))
+            return value.get("__module__") if field == "__module__" else value
+        observed.append(field)
+        raise AssertionError("untrusted metaclass data descriptor was invoked")
+
+    namespace = {"__module__": "typing", field: property(poisonous)}
+    meta = type("_ProtocolMeta", (abc.ABCMeta,), namespace)
+    fake = meta("Protocol", (typing.Generic,), {"__module__": "typing"})
+    with monkeypatch.context() as changed:
+        changed.setitem(vars(typing), "_ProtocolMeta", meta)
+        changed.setitem(vars(typing), "Protocol", fake)
+        observed.clear()
+        armed[0] = True
+        with pytest.raises(ledger.ConfidenceLedgerError):
+            ledger._typing_protocol_provider_projection()
+        assert observed == []
+
+
+@pytest.mark.parametrize("field", ["__name__", "__qualname__"])
+def test_protocol_type_metadata_refuses_hostile_string_subclasses(tmp_path, monkeypatch, field):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    observed = []
+
+    class HostileName(str):
+        def __eq__(self, _other):
+            observed.append("comparison")
+            raise AssertionError("untrusted string comparison was invoked")
+
+    original = type.__dict__[field].__get__(module.Contract, type(module.Contract))
+    type.__setattr__(module.Contract, field, HostileName(original))
+    try:
+        assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+        assert observed == []
+    finally:
+        type.__setattr__(module.Contract, field, original)
+
+
+@pytest.mark.parametrize("kind", ["changed_cache", "aliased_cache", "poisoned_thunk"])
+def test_protocol_type_metadata_refuses_poisoned_annotation_storage_without_callbacks(
+    tmp_path, monkeypatch, kind
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    function = module.Contract.make
+    observed = []
+    if kind == "changed_cache":
+        function.__annotations__["return"] = "str"
+    elif kind == "aliased_cache":
+        function.__annotations__ = function.__dict__
+    else:
+
+        def poison(_format):
+            observed.append("annotation thunk")
+            raise AssertionError("untrusted annotation thunk was called")
+
+        monkeypatch.setattr(function, "__annotate__", poison)
+    assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    assert observed == []
+
+
+def test_protocol_type_metadata_refuses_colliding_owner_key_without_callbacks(
+    tmp_path, monkeypatch
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    observed = []
+
+    class CollidingKey:
+        def __hash__(self):
+            return hash("Contract")
+
+        def __eq__(self, _other):
+            observed.append("equality")
+            raise AssertionError("untrusted key equality was invoked")
+
+    key = CollidingKey()
+    # Permit constructing the adversarial dict, then arm its comparator.
+    original_eq = CollidingKey.__eq__
+    CollidingKey.__eq__ = lambda self, other: False
+    module.__dict__[key] = object()
+    CollidingKey.__eq__ = original_eq
+    try:
+        assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+        assert observed == []
+    finally:
+        CollidingKey.__eq__ = lambda self, other: False
+        del module.__dict__[key]
+
+
+def test_protocol_context_base_refuses_poisoned_generic_getitem_without_calling_it(monkeypatch):
+    import contextlib
+
+    from polisyos.core.artifacts import protocol
+
+    root = ledger._loaded_policy_engine_root()
+    path = Path(protocol.__file__).resolve()
+    tree = ast.parse(path.read_bytes(), filename=str(path))
+    name = "CoreJSONArtifactBoundedMemberAttempt"
+    node = next(item for item in tree.body if isinstance(item, ast.ClassDef) and item.name == name)
+    observed = []
+
+    def poison(_cls, _item):
+        observed.append("generic alias")
+        raise AssertionError("untrusted generic construction was called")
+
+    with monkeypatch.context() as changed:
+        changed.setattr(contextlib.AbstractContextManager, "__class_getitem__", classmethod(poison))
+        assert not ledger._source_python_protocol_binding_supported(
+            root, protocol.__name__, name, path.relative_to(root), tree, node
+        )
+        assert observed == []
+
+
+def test_protocol_context_base_refuses_changed_generic_argument(monkeypatch):
+    import contextlib
+
+    from polisyos.core.artifacts import protocol
+
+    root = ledger._loaded_policy_engine_root()
+    path = Path(protocol.__file__).resolve()
+    tree = ast.parse(path.read_bytes(), filename=str(path))
+    name = "CoreJSONArtifactBoundedMemberAttempt"
+    node = next(item for item in tree.body if isinstance(item, ast.ClassDef) and item.name == name)
+    wrong = contextlib.AbstractContextManager[protocol.ArtifactReader]
+    monkeypatch.setattr(
+        protocol.CoreJSONArtifactBoundedMemberAttempt, "__orig_bases__", (wrong, typing.Protocol)
+    )
+    assert not ledger._source_python_protocol_binding_supported(
+        root, protocol.__name__, name, path.relative_to(root), tree, node
+    )
+
+
+def test_protocol_provider_rejects_coherently_poisoned_source_without_executing_it(
+    tmp_path, monkeypatch
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    provider = Path(typing.__file__).resolve()
+    read_bytes = Path.read_bytes
+    source = read_bytes(provider)
+    effect = tmp_path / "provider-effect"
+    changed = source.replace(
+        b"def runtime_checkable(cls):\n",
+        f"def runtime_checkable(cls):\n    open({str(effect)!r}, 'w').close()\n".encode(),
+        1,
+    )
+    assert changed != source
+    code = next(
+        value
+        for value in ledger._python_provider_source_code_objects(changed, str(provider))
+        if value.co_qualname == "runtime_checkable"
+    )
+    with monkeypatch.context() as patcher:
+        patcher.setattr(
+            Path, "read_bytes", lambda path: changed if path == provider else read_bytes(path)
+        )
+        patcher.setattr(typing.runtime_checkable, "__code__", code)
+        with pytest.raises(ledger.ConfidenceLedgerError, match="typing provider source"):
+            ledger._typing_protocol_provider_projection()
+        assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+        assert not effect.exists()
+
+
+def test_protocol_class_base_matching_never_compares_hostile_classes():
+    observed = []
+
+    class HostileMeta(type):
+        def __eq__(cls, _other):
+            observed.append("class equality")
+            raise AssertionError("untrusted class equality was invoked")
+
+        __hash__ = type.__hash__
+
+    class Foreign(metaclass=HostileMeta):
+        pass
+
+    class Candidate(Foreign):
+        pass
+
+    assert not ledger._source_native_class_bases_match(Candidate, object)
+    assert observed == []
+
+
+def test_protocol_context_base_refuses_hostile_slots_without_comparison(monkeypatch):
+    import contextlib
+
+    from polisyos.core.artifacts import protocol
+
+    root = ledger._loaded_policy_engine_root()
+    path = Path(protocol.__file__).resolve()
+    tree = ast.parse(path.read_bytes(), filename=str(path))
+    name = "CoreJSONArtifactBoundedMemberAttempt"
+    node = next(item for item in tree.body if isinstance(item, ast.ClassDef) and item.name == name)
+    observed = []
+
+    class HostileSlots:
+        def __eq__(self, _other):
+            observed.append("comparison")
+            raise AssertionError("untrusted slots comparison was invoked")
+
+    monkeypatch.setattr(contextlib.AbstractContextManager, "__slots__", HostileSlots())
+    assert not ledger._source_python_protocol_binding_supported(
+        root, protocol.__name__, name, path.relative_to(root), tree, node
+    )
+    assert observed == []
+
+
+def test_protocol_type_metadata_refuses_hostile_gc_module_name_without_comparison(
+    tmp_path, monkeypatch
+):
+    import gc
+
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    observed = []
+
+    class HostileName(str):
+        def __eq__(self, _other):
+            observed.append("comparison")
+            raise AssertionError("untrusted builtin metadata comparison was invoked")
+
+    getter = gc.get_referents
+    original = getter.__module__
+    getter.__module__ = HostileName("gc")
+    try:
+        assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+        assert observed == []
+    finally:
+        getter.__module__ = original
+
+
+@pytest.mark.parametrize("field", ["provider_member", "function_doc", "class_doc"])
+def test_protocol_type_metadata_never_compares_untrusted_metadata_types(
+    tmp_path, monkeypatch, field
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    observed = []
+
+    class HostileMeta(type):
+        def __eq__(cls, _other):
+            observed.append("metaclass equality")
+            raise AssertionError("untrusted metadata type was compared")
+
+        __hash__ = type.__hash__
+
+    class Hostile(metaclass=HostileMeta):
+        pass
+
+    value = Hostile()
+    with monkeypatch.context() as patcher:
+        if field == "provider_member":
+            patcher.setitem(vars(typing), "_proto_hook", value)
+            with pytest.raises(ledger.ConfidenceLedgerError):
+                ledger._typing_protocol_provider_projection()
+        else:
+            target = module.Contract.make if field == "function_doc" else module.Contract
+            patcher.setattr(target, "__doc__", value)
+            assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+        assert observed == []
+
+
+def test_protocol_type_metadata_refuses_hostile_doc_constant_without_comparison(
+    tmp_path, monkeypatch
+):
+    source = _protocol_type_source().replace(
+        "def make(self) -> object:\n        ...",
+        'def make(self) -> object:\n        """A source-owned result."""\n        ...',
+    )
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    assert type(_native_type_expected(root, module)) is ledger._SourceResolvedAnnotation
+    observed = []
+
+    class Hostile:
+        def __eq__(self, _other):
+            observed.append("constant comparison")
+            raise AssertionError("untrusted code constant was compared")
+
+    function = module.Contract.make
+    old = function.__code__
+    monkeypatch.setattr(
+        function, "__code__", old.replace(co_consts=(Hostile(), *old.co_consts[1:]))
+    )
+    assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    assert observed == []
+
+
+@pytest.mark.parametrize("field", ["__orig_bases__", "__init__", "__annotate_func__"])
+def test_protocol_type_metadata_does_not_treat_stored_sentinel_as_absence(
+    tmp_path, monkeypatch, field
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _protocol_type_source())
+    assert type(_native_type_expected(root, module)) is ledger._SourceResolvedAnnotation
+    monkeypatch.setattr(module.Contract, field, ledger._NO_EXECUTION_BINDING, raising=False)
+    assert _native_type_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+
+
+def test_protocol_provider_rejects_stored_sentinel_shadowing_builtin(monkeypatch):
+    monkeypatch.setitem(vars(typing), "getattr", ledger._NO_EXECUTION_BINDING)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="typing global"):
+        ledger._typing_protocol_provider_projection()
+
+
+@pytest.mark.parametrize(
+    "field", ["allowlist", "helper_code", "helper_defaults", "abc_alias", "wrapper_metadata"]
+)
+def test_protocol_provider_binds_current_direct_globals_without_calling_them(monkeypatch, field):
+    initial = ledger._typing_protocol_provider_projection()
+    observed = []
+
+    def forbidden(*_args, **_kwargs):
+        observed.append(field)
+        raise AssertionError("provider value must not be called by its projection")
+
+    with monkeypatch.context() as changed:
+        if field == "allowlist":
+            changed.setitem(typing._PROTO_ALLOWLIST, "contextlib", ["NotTheContextManager"])
+        elif field == "helper_code":
+            changed.setattr(
+                typing._allow_reckless_class_checks, "__code__", (lambda depth=2: False).__code__
+            )
+        elif field == "helper_defaults":
+            changed.setattr(typing._allow_reckless_class_checks, "__defaults__", (3,))
+        elif field == "abc_alias":
+            changed.setitem(vars(typing), "_abc_instancecheck", forbidden)
+        else:
+            changed.setitem(vars(typing._lazy_load_getattr_static), "__name__", "changed_wrapper")
+        try:
+            after = ledger._typing_protocol_provider_projection()
+        except ledger.ConfidenceLedgerError:
+            pass
+        else:
+            assert (
+                after["runtime_direct_globals_sha256"] != initial["runtime_direct_globals_sha256"]
+            )
+        assert observed == []
+    assert ledger._typing_protocol_provider_projection() == initial
+
+
+def test_protocol_provider_tracks_builtin_metadata_without_comparison():
+    initial = ledger._typing_protocol_provider_projection()
+    getter = builtins.getattr
+    original = getter.__module__
+    observed = []
+
+    class HostileName(str):
+        def __eq__(self, _other):
+            observed.append("comparison")
+            raise AssertionError("untrusted builtin metadata was compared")
+
+    getter.__module__ = HostileName("builtins")
+    try:
+        with pytest.raises(ledger.ConfidenceLedgerError, match="typing global builtin"):
+            ledger._typing_protocol_provider_projection()
+        assert observed == []
+    finally:
+        getter.__module__ = original
+    assert ledger._typing_protocol_provider_projection() == initial
+
+
+def test_protocol_provider_projection_shares_work_budget_across_code_and_metadata():
+    def selected():
+        return None
+
+    with pytest.raises(ledger.ConfidenceLedgerError, match="budget"):
+        ledger._source_passive_provider_value([selected], budget=[6, 1024**2])
+    with pytest.raises(ledger.ConfidenceLedgerError, match="budget"):
+        ledger._source_passive_provider_value({"key": None}, budget=[10, 4])
+    with pytest.raises(ledger.ConfidenceLedgerError, match="budget"):
+        ledger._source_passive_provider_value(selected, budget=[10000, 1])
+    with pytest.raises(ledger.ConfidenceLedgerError, match="budget"):
+        ledger._source_passive_builtin_value(builtins.getattr, budget=[10000, 1])
+
+
+def test_protocol_provider_binds_abc_source_and_loader_origin_without_callbacks(monkeypatch):
+    import abc
+
+    initial = ledger._typing_protocol_provider_projection()
+    source_path = Path(abc.__file__).resolve()
+    original_read = Path.read_bytes
+    source = original_read(source_path)
+    changed_source = source.replace(
+        b"        def __instancecheck__(cls, instance):",
+        b"        def __instancecheck__(cls, instance):\n            return False",
+        1,
+    )
+    assert changed_source != source
+    with monkeypatch.context() as changed:
+        changed.setattr(
+            Path,
+            "read_bytes",
+            lambda path: changed_source if path == source_path else original_read(path),
+        )
+        with pytest.raises(ledger.ConfidenceLedgerError, match="abc provider source"):
+            ledger._typing_protocol_provider_projection()
+    observed = []
+
+    class HostileOrigin(str):
+        def __eq__(self, _other):
+            observed.append("comparison")
+            raise AssertionError("untrusted origin was compared")
+
+    with monkeypatch.context() as changed:
+        changed.setattr(abc.__spec__, "origin", HostileOrigin("frozen"))
+        with pytest.raises(ledger.ConfidenceLedgerError, match="abc provider origin"):
+            ledger._typing_protocol_provider_projection()
+        assert observed == []
+    assert ledger._typing_protocol_provider_projection() == initial
+
+
+def test_protocol_provider_detects_abc_source_drift_during_one_integrity_pass(monkeypatch):
+    import abc
+
+    source_path = Path(abc.__file__).resolve()
+    original_read = Path.read_bytes
+    reads = []
+
+    def changing(path):
+        value = original_read(path)
+        if path == source_path:
+            reads.append(1)
+            if len(reads) > 1:
+                return value + b"\n# source changed during integrity check\n"
+        return value
+
+    monkeypatch.setattr(Path, "read_bytes", changing)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="source changed"):
+        ledger._typing_protocol_provider_projection()
+    assert len(reads) >= 2

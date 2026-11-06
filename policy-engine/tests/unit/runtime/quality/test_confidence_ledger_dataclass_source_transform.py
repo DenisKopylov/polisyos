@@ -305,16 +305,18 @@ def test_slot_cache_does_not_shadow_an_explicit_dataclass_field(
     assert not _supports_source_dataclass(candidate_ledger, owner, owner_module=module)
 
 
+@pytest.mark.parametrize("init", [True, False])
 def test_source_dataclass_rejects_replaced_mro_even_with_expected_slot_cache(
     candidate_ledger: types.ModuleType,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    init: bool,
 ) -> None:
     source = tmp_path / "mro_owner.py"
     source.write_text(
         "from __future__ import annotations\n"
         "from dataclasses import dataclass\n"
-        "@dataclass\n"
+        f"@dataclass(init={init!r})\n"
         "class Owner:\n"
         "    value: int\n",
         encoding="utf-8",
@@ -340,7 +342,11 @@ def test_source_dataclass_rejects_replaced_mro_even_with_expected_slot_cache(
             "_source_dataclass_class_layout_matches",
             lambda _actual, _expected: True,
         )
-        assert _supports_source_dataclass(candidate_ledger, decoy, owner_module=module)
+        # With init enabled, its independently checked annotation thunk still
+        # closes over the original Owner and rejects this copied foreign class.
+        # The real init=False producer has no such thunk, so removing only the
+        # layout proof exposes the MRO defect without disabling annotation checks.
+        assert _supports_source_dataclass(candidate_ledger, decoy, owner_module=module) is not init
 
 
 def test_dataclass_provider_accepts_only_recomputed_field_slot_cache(

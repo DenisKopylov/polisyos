@@ -12,6 +12,7 @@ import types
 import typing
 from contextlib import nullcontext
 from functools import wraps
+from itertools import pairwise
 from pathlib import Path
 
 import pytest
@@ -128,6 +129,654 @@ def _with_captured_builtins(function: types.FunctionType, changed: dict[str, obj
     clone.__kwdefaults__ = function.__kwdefaults__
     clone.__dict__.update(function.__dict__)
     return clone
+
+
+def _ordering_source(root="__lt__", *, preserved_method=False):
+    operator = {"__lt__": "<", "__le__": "<=", "__gt__": ">", "__ge__": ">="}[root]
+    preserved = (
+        "    def __le__(self, other):\n        return self.value <= other.value\n"
+        if preserved_method
+        else ""
+    )
+    return (
+        "from __future__ import annotations\n"
+        "from dataclasses import dataclass\n"
+        "from functools import total_ordering as ordered\n\n"
+        "@ordered\n@dataclass(frozen=True, slots=True)\nclass Ranked:\n"
+        "    value: int\n"
+        f"    def {root}(self, other: object) -> bool:\n"
+        "        if not isinstance(other, Ranked):\n            return NotImplemented\n"
+        f"        return self.value {operator} other.value\n"
+        f"{preserved}"
+    )
+
+
+@pytest.mark.parametrize("root_name", ["__lt__", "__le__", "__gt__", "__ge__"])
+def test_total_ordering_dataclass_source_reaches_real_comparison_consumer(
+    tmp_path, monkeypatch, root_name
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _ordering_source(root_name))
+    before = dict(vars(module.Ranked))
+    provider_names = {
+        name: value.__name__
+        for name, value in vars(functools).items()
+        if (
+            type(value) is types.FunctionType
+            and name.endswith(("_from_lt", "_from_le", "_from_gt", "_from_ge"))
+        )
+    }
+    assert _route(root, module, "Ranked") == ("symbol", module.__name__, "Ranked")
+    consumer = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.ordering_consumer",
+        f"from {module.__name__} import Ranked\n"
+        "def compare(left, right):\n"
+        "    a, b = Ranked(left), Ranked(right)\n"
+        "    return a < b, a <= b, a > b, a >= b\n",
+    )
+    closure = tuple(
+        (owner.__name__, Path(owner.__file__).relative_to(root).as_posix())
+        for owner in (module, consumer)
+    )
+    ledger._source_facade_runtime_projection(root, closure)
+    assert consumer.compare(1, 2) == (True, True, False, False)
+    assert consumer.compare(2, 2) == (False, True, False, True)
+    assert consumer.compare(3, 2) == (False, False, True, True)
+    assert vars(module.Ranked) == before
+    assert provider_names == {name: vars(functools)[name].__name__ for name in provider_names}
+
+
+def test_total_ordering_preserves_source_declared_comparison(tmp_path, monkeypatch):
+    root, module = _load_decorated_case(
+        tmp_path, monkeypatch, _ordering_source("__gt__", preserved_method=True)
+    )
+    preserved = vars(module.Ranked)["__le__"]
+    assert preserved.__module__ == module.__name__
+    assert _route(root, module, "Ranked") == ("symbol", module.__name__, "Ranked")
+    assert vars(module.Ranked)["__le__"] is preserved
+    assert module.Ranked(1) <= module.Ranked(2)
+
+
+def test_actual_semver_total_ordering_has_source_bound_release_prerelease_and_build():
+    from polisyos.core.components import ids
+
+    assert _route(ledger._loaded_policy_engine_root(), ids, "SemVer") == (
+        "symbol",
+        ids.__name__,
+        "SemVer",
+    )
+    versions = ["1.0.0-alpha", "1.0.0-alpha.2", "1.0.0-alpha.10", "1.0.0", "1.0.1"]
+    parsed = [ids.SemVer.parse(value) for value in versions]
+    scrambled = list(reversed(parsed))
+    assert [str(value) for value in sorted(scrambled)] == versions
+    for left, right in pairwise(parsed):
+        assert left < right and left <= right and right > left and right >= left
+    first, second = ids.SemVer.parse("1.0.0+one"), ids.SemVer.parse("1.0.0+two")
+    assert first != second and not first < second and not second < first
+    assert first.without_build() == second.without_build() == ids.SemVer.parse("1.0.0")
+    profile = ledger._total_ordering_provider_projection()
+    assert profile["scope"] == "source_checked_expected_dataclass_transform_only"
+    assert profile["actual_class_execution_and_constructor_loader_history"] == "not_established"
+
+
+@pytest.mark.parametrize("mutation", ["delete", "remove", "replace"])
+def test_total_ordering_rechecks_generated_method_after_prior_pass(tmp_path, monkeypatch, mutation):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _ordering_source())
+    assert _route(root, module, "Ranked") == ("symbol", module.__name__, "Ranked")
+    if mutation == "delete":
+        monkeypatch.delattr(module.Ranked, "__ge__")
+        # Reflected __le__ preserves this one comparison, but the source-owned
+        # complete transform must still reject the missing generated member.
+        assert module.Ranked(2) >= module.Ranked(1)
+    elif mutation == "remove":
+        # Deletion permits the reflected __le__ fallback; an absent callable
+        # behind the retained slot distinguishes removal of this operation.
+        monkeypatch.setattr(module.Ranked, "__ge__", None)
+        with pytest.raises(TypeError):
+            _ = module.Ranked(2) >= module.Ranked(1)
+    else:
+        original = vars(module.Ranked)["__gt__"]
+        replacement = types.FunctionType(
+            (lambda self, other: True).__code__, original.__globals__, original.__name__
+        )
+        replacement.__module__ = original.__module__
+        replacement.__qualname__ = original.__qualname__
+        replacement.__doc__ = original.__doc__
+        monkeypatch.setattr(module.Ranked, "__gt__", replacement)
+        assert module.Ranked(1) > module.Ranked(2)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="decorated direct source binding"):
+        _route(root, module, "Ranked")
+
+
+@pytest.mark.parametrize(
+    "target",
+    [
+        "factory_code",
+        "factory_default",
+        "helper_code",
+        "helper_globals",
+        "helper_closure",
+        "annotations",
+    ],
+)
+def test_total_ordering_provider_refuses_corrupt_function_without_executing_it(monkeypatch, target):
+    observed = []
+
+    def forbidden(*args, **kwargs):
+        observed.append("called")
+        raise AssertionError("unverified provider must not execute")
+
+    if target == "factory_code":
+        monkeypatch.setattr(functools.total_ordering, "__code__", (lambda cls: cls).__code__)
+    elif target == "factory_default":
+        monkeypatch.setattr(functools.total_ordering, "__defaults__", (1,))
+    elif target == "helper_code":
+        monkeypatch.setattr(functools._gt_from_lt, "__code__", (lambda self, other: True).__code__)
+    elif target == "annotations":
+        monkeypatch.setattr(functools._gt_from_lt, "__annotate__", forbidden)
+    else:
+        original = functools._gt_from_lt
+        if target == "helper_closure":
+            captured = observed
+
+            def wrong(self, other):
+                captured.append("called")
+                return True
+
+            replacement = wrong
+        else:
+            replacement = types.FunctionType(original.__code__, dict(original.__globals__))
+        replacement.__name__ = original.__name__
+        replacement.__qualname__ = original.__qualname__
+        replacement.__module__ = original.__module__
+        monkeypatch.setattr(functools, "_gt_from_lt", replacement)
+    assert ledger._total_ordering_source_provider() is None
+    assert observed == []
+
+
+@pytest.mark.parametrize("mutation", ["root", "row", "function", "list_subclass", "hostile_key"])
+def test_total_ordering_provider_reconciles_complete_conversion_table(monkeypatch, mutation):
+    observed = []
+    table = {key: list(rows) for key, rows in functools._convert.items()}
+    if mutation == "root":
+        del table["__lt__"]
+    elif mutation == "row":
+        table["__lt__"][0] = ("__ge__", functools._gt_from_lt)
+    elif mutation == "function":
+        table["__lt__"][0] = ("__gt__", functools._gt_from_ge)
+    elif mutation == "list_subclass":
+
+        class UnknownList(list):
+            def __iter__(self):
+                observed.append("iter")
+                raise AssertionError("unknown sequence protocol must not run")
+
+        table["__lt__"] = UnknownList(table["__lt__"])
+    else:
+
+        class UnknownKey:
+            def __hash__(self):
+                observed.append("hash")
+                return 123
+
+        table[UnknownKey()] = []
+        observed.clear()
+    monkeypatch.setattr(functools, "_convert", table)
+    assert ledger._total_ordering_source_provider() is None
+    assert observed == []
+
+
+@pytest.mark.parametrize("name", ["getattr", "max", "setattr", "type", "NotImplemented"])
+def test_total_ordering_provider_refuses_shadowed_consumed_global(monkeypatch, name):
+    observed = []
+
+    def forbidden(*args, **kwargs):
+        observed.append("called")
+        raise AssertionError("unverified global must not execute")
+
+    monkeypatch.setitem(vars(functools), name, forbidden)
+    assert ledger._total_ordering_source_provider() is None
+    assert observed == []
+
+
+def test_total_ordering_refuses_coherent_effectful_provider_source_before_replay(
+    tmp_path, monkeypatch
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _ordering_source())
+    provider_path = Path(functools.__file__).resolve()
+    original_read = Path.read_bytes
+    source = original_read(provider_path)
+    effect = tmp_path / "must-not-be-created"
+    poisoned = source.replace(
+        b"def total_ordering(cls):\n",
+        f"def total_ordering(cls):\n    open({str(effect)!r}, 'w').close()\n".encode(),
+        1,
+    )
+    assert poisoned != source
+    code = next(
+        item
+        for item in ledger._python_provider_source_code_objects(poisoned, str(provider_path))
+        if item.co_qualname == "total_ordering"
+    )
+    # The source and live function agree, and open is a real builtin. Neither
+    # is sufficient authorization for the verifier to execute the new effect.
+    monkeypatch.setattr(functools.total_ordering, "__code__", code)
+    monkeypatch.setattr(
+        Path, "read_bytes", lambda self: poisoned if self == provider_path else original_read(self)
+    )
+    assert ledger._total_ordering_source_provider() is None
+    with pytest.raises(ledger.ConfidenceLedgerError, match="decorated direct source binding"):
+        _route(root, module, "Ranked")
+    assert not effect.exists()
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "__doc__",
+        "__annotations__",
+        "__dict__",
+        "__type_params__",
+        "__name__",
+        "__qualname__",
+        "__module__",
+    ],
+)
+def test_total_ordering_refuses_hostile_function_metadata_without_callbacks(
+    tmp_path, monkeypatch, field
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _ordering_source())
+    observed = []
+
+    class UnknownDoc:
+        def __ne__(self, other):
+            observed.append("compare")
+            raise AssertionError("untrusted metadata comparison must not run")
+
+    class UnknownDict(dict):
+        def __bool__(self):
+            observed.append("bool")
+            raise AssertionError("untrusted metadata truthiness must not run")
+
+    class UnknownTuple(tuple):
+        def __bool__(self):
+            observed.append("bool")
+            raise AssertionError("untrusted metadata truthiness must not run")
+
+    class UnknownString(str):
+        def __hash__(self):
+            observed.append("hash")
+            raise AssertionError("untrusted metadata hash must not run")
+
+        def __eq__(self, other):
+            observed.append("compare")
+            raise AssertionError("untrusted metadata comparison must not run")
+
+    if field in {"__name__", "__qualname__", "__module__"}:
+        replacement = UnknownString(getattr(functools._gt_from_lt, field))
+    elif field == "__doc__":
+        replacement = UnknownDoc()
+    elif field == "__type_params__":
+        replacement = UnknownTuple()
+    else:
+        replacement = UnknownDict()
+    monkeypatch.setattr(functools._gt_from_lt, field, replacement)
+    assert ledger._total_ordering_source_provider() is None
+    with pytest.raises(ledger.ConfidenceLedgerError, match="decorated direct source binding"):
+        _route(root, module, "Ranked")
+    assert observed == []
+
+
+def test_total_ordering_source_factory_alias_is_not_authority(tmp_path, monkeypatch):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _ordering_source())
+    observed = []
+
+    def unknown_factory(cls):
+        observed.append("called")
+        return cls
+
+    monkeypatch.setattr(module, "ordered", unknown_factory)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="decorated direct source binding"):
+        _route(root, module, "Ranked")
+    assert observed == []
+
+
+@pytest.mark.parametrize("alias", ["FunctionType", "ModuleType", "CodeType"])
+def test_total_ordering_refuses_counterfeit_native_type_alias_before_metadata(monkeypatch, alias):
+    observed = []
+
+    class UnknownFunction:
+        def __getattribute__(self, name):
+            observed.append(name)
+            raise AssertionError("counterfeit function metadata must not be read")
+
+    with monkeypatch.context() as changed:
+        changed.setattr(types, alias, UnknownFunction)
+        # pytest's setattr helper itself introspects replacement values. Use
+        # native dictionary storage so only the verifier observes this object.
+        changed.setitem(vars(functools), "_gt_from_lt", UnknownFunction())
+        assert ledger._total_ordering_source_provider() is None
+    assert observed == []
+
+
+@pytest.mark.parametrize("alias", ["FunctionType", "ModuleType", "CodeType"])
+def test_total_ordering_missing_native_type_alias_does_not_call_module_getattr(monkeypatch, alias):
+    observed = []
+
+    def forbidden(name):
+        observed.append(name)
+        raise AssertionError("unknown module getter must not run")
+
+    with monkeypatch.context() as changed:
+        changed.delitem(vars(types), alias)
+        changed.setitem(vars(types), "__getattr__", forbidden)
+        assert ledger._total_ordering_source_provider() is None
+    assert observed == []
+
+
+@pytest.mark.parametrize("alias", ["MappingProxyType", "GetSetDescriptorType"])
+def test_total_ordering_uses_intrinsic_passive_storage_when_unneeded_alias_is_missing(
+    monkeypatch, alias
+):
+    observed = []
+
+    def forbidden(name):
+        observed.append(name)
+        raise AssertionError("unused module getter must not run")
+
+    with monkeypatch.context() as changed:
+        changed.delitem(vars(types), alias)
+        changed.setitem(vars(types), "__getattr__", forbidden)
+        assert ledger._total_ordering_source_provider() is not None
+    assert observed == []
+
+
+@pytest.mark.parametrize("target", ["spec_dictionary", "spec_getter", "loader_getter"])
+def test_total_ordering_storage_intake_rejects_unknown_protocols(monkeypatch, target):
+    observed = []
+
+    class UnknownDict(dict):
+        def __len__(self):
+            observed.append("len")
+            raise AssertionError("untrusted metadata mapping must not run")
+
+    class UnknownStorage:
+        @property
+        def __dict__(self):
+            observed.append("dict")
+            raise AssertionError("untrusted storage getter must not run")
+
+    with monkeypatch.context() as changed:
+        if target == "spec_dictionary":
+            changed.setattr(functools.__spec__, "__dict__", UnknownDict(vars(functools.__spec__)))
+        elif target == "spec_getter":
+            changed.setattr(ledger, "ModuleSpec", UnknownStorage)
+            changed.setattr(functools, "__spec__", UnknownStorage())
+        else:
+            changed.setattr(ledger, "SourceFileLoader", UnknownStorage)
+            changed.setattr(functools.__spec__, "loader", UnknownStorage())
+        assert ledger._total_ordering_source_provider() is None
+    assert observed == []
+
+
+@pytest.mark.parametrize(
+    "target", ["types", "provider", "spec", "loader", "class", "origin", "source"]
+)
+def test_total_ordering_intake_rejects_oversized_metadata_before_unbounded_work(
+    monkeypatch, target
+):
+    with monkeypatch.context() as changed:
+        if target in {"types", "provider", "spec", "loader"}:
+            namespace = {
+                "types": vars(types),
+                "provider": vars(functools),
+                "spec": vars(functools.__spec__),
+                "loader": vars(functools.__spec__.loader),
+            }[target]
+            for index in range(10001):
+                changed.setitem(namespace, f"_extra_{index}", None)
+        elif target == "class":
+            unknown = type("Oversized", (), {f"_extra_{index}": None for index in range(10001)})
+            changed.setattr(ledger, "ModuleSpec", unknown)
+            changed.setattr(functools, "__spec__", unknown())
+        elif target == "origin":
+            changed.setattr(functools, "__file__", "x" * (1024**2 + 1))
+        else:
+            original = Path.read_bytes
+            path = Path(functools.__file__).resolve()
+            changed.setattr(
+                Path,
+                "read_bytes",
+                lambda self: b"#" * (1024**2 + 1) if self == path else original(self),
+            )
+        assert ledger._total_ordering_source_provider() is None
+
+
+def _hostile_code_constant(kind, observed):
+    class UnknownTuple(tuple):
+        def __iter__(self):
+            observed.append("iter")
+            raise AssertionError("untrusted constant iteration must not run")
+
+    class UnknownFloat(float):
+        def hex(self):
+            observed.append("hex")
+            raise AssertionError("untrusted constant conversion must not run")
+
+    class UnknownComplex(complex):
+        @property
+        def real(self):
+            observed.append("real")
+            raise AssertionError("untrusted constant descriptor must not run")
+
+    class UnknownString(str):
+        def __eq__(self, other):
+            observed.append("compare")
+            raise AssertionError("untrusted constant comparison must not run")
+
+    class UnknownBytes(bytes):
+        def __len__(self):
+            observed.append("len")
+            raise AssertionError("untrusted constant size must not run")
+
+    class UnknownMeta(type):
+        def __getattribute__(cls, name):
+            observed.append(name)
+            raise AssertionError("untrusted constant class lookup must not run")
+
+    class Unknown(metaclass=UnknownMeta):
+        pass
+
+    values = {
+        "tuple": UnknownTuple((1, 2)),
+        "float": UnknownFloat(1.0),
+        "complex": UnknownComplex(1.0),
+        "string": UnknownString("value"),
+        "bytes": UnknownBytes(b"value"),
+        "unknown": Unknown(),
+        "slice_member": slice(Unknown()),
+    }
+    return values[kind]
+
+
+@pytest.mark.parametrize(
+    "kind", ["tuple", "float", "complex", "string", "bytes", "unknown", "slice_member"]
+)
+def test_code_normalizer_rejects_non_native_constants_without_callbacks(kind):
+    observed = []
+    value = _hostile_code_constant(kind, observed)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="canonical_loaded_runtime_mismatch"):
+        ledger._normalize_code_constant(value)
+    assert observed == []
+
+
+@pytest.mark.parametrize(
+    "kind", ["tuple", "float", "complex", "unknown", "outer_tuple", "code_name", "code_qualname"]
+)
+def test_total_ordering_route_refuses_corrupt_native_code_fields_without_callbacks(
+    tmp_path, monkeypatch, kind
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _ordering_source())
+    observed = []
+    code = functools._gt_from_lt.__code__
+    if kind == "outer_tuple":
+        replacement = code.replace(
+            co_consts=type(_hostile_code_constant("tuple", observed))(code.co_consts)
+        )
+    elif kind in {"code_name", "code_qualname"}:
+        field = "co_name" if kind == "code_name" else "co_qualname"
+        replacement = code.replace(**{field: _hostile_code_constant("string", observed)})
+    else:
+        replacement = code.replace(
+            co_consts=(*code.co_consts, _hostile_code_constant(kind, observed))
+        )
+    monkeypatch.setattr(functools._gt_from_lt, "__code__", replacement)
+    assert ledger._total_ordering_source_provider() is None
+    with pytest.raises(ledger.ConfidenceLedgerError, match="decorated direct source binding"):
+        _route(root, module, "Ranked")
+    assert observed == []
+
+
+@pytest.mark.parametrize(
+    "shape", ["tuple_dag", "code_dag", "string_bytes", "integer_bytes", "depth"]
+)
+def test_total_ordering_code_work_is_bounded_before_comparison(tmp_path, monkeypatch, shape):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _ordering_source())
+    code = functools._gt_from_lt.__code__
+    if shape == "tuple_dag":
+        value = (None,)
+        for _level in range(17):
+            value = (value, value)
+    elif shape == "code_dag":
+        value = code
+        for _level in range(17):
+            value = code.replace(co_consts=(value, value))
+    elif shape == "string_bytes":
+        value = "x" * (1024**2 // 4 + 1)
+    elif shape == "integer_bytes":
+        value = 1 << (8 * 1024**2)
+    else:
+        value = None
+        for _level in range(41):
+            value = (value,)
+    replacement = code.replace(co_consts=(*code.co_consts, value))
+    monkeypatch.setattr(functools._gt_from_lt, "__code__", replacement)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="work budget exhausted"):
+        ledger._normalize_code_object(replacement, work_budget=[10000, 1024**2])
+    assert ledger._total_ordering_source_provider() is None
+    with pytest.raises(ledger.ConfidenceLedgerError, match="decorated direct source binding"):
+        _route(root, module, "Ranked")
+
+
+def test_code_work_budget_counts_every_occurrence_and_keeps_unbounded_callers():
+    assert ledger._normalize_code_constant((1, 2), work_budget=[3, 1024]) == {"tuple": [1, 2]}
+    with pytest.raises(ledger.ConfidenceLedgerError, match="work budget exhausted"):
+        ledger._normalize_code_constant((1, 2), work_budget=[2, 1024])
+    values = tuple(range(10001))
+    assert len(ledger._normalize_code_constant(values)["tuple"]) == len(values)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="work budget exhausted"):
+        ledger._normalize_code_constant(values, work_budget=[10000, 1024**2])
+
+
+def test_code_work_budget_counts_empty_metadata_names_before_traversal():
+    source = (lambda: None).__code__
+    code = source.replace(co_names=("",) * 3)
+    # One code node + three name occurrences + its one None constant.
+    assert ledger._normalize_code_object(code, work_budget=[5, 1024**2])["names"] == ["", "", ""]
+    with pytest.raises(ledger.ConfidenceLedgerError, match="work budget exhausted"):
+        ledger._normalize_code_object(code, work_budget=[4, 1024**2])
+    huge = source.replace(co_names=("",) * 100001)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="work budget exhausted"):
+        ledger._normalize_code_object(huge, work_budget=[10000, 1024**2])
+
+
+@pytest.mark.parametrize("method", ["__lt__", "__init__", "__eq__"])
+def test_total_ordering_rejects_unknown_source_and_generated_annotation_thunks(
+    tmp_path, monkeypatch, method
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _ordering_source())
+    observed = []
+
+    def forbidden(*args, **kwargs):
+        observed.append("annotate")
+        raise AssertionError("unverified annotation thunk must not execute")
+
+    monkeypatch.setattr(vars(module.Ranked)[method], "__annotate__", forbidden)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="decorated direct source binding"):
+        _route(root, module, "Ranked")
+    assert observed == []
+
+
+@pytest.mark.parametrize(
+    "target",
+    ["defaults", "kwdefaults", "annotation_keys", "dict", "module", "name", "qualname", "doc"],
+)
+def test_total_ordering_source_method_metadata_rejects_unknown_protocols(
+    tmp_path, monkeypatch, target
+):
+    source = _ordering_source().replace(
+        "other: object) -> bool", "other: object, *, permitted: bool = True) -> bool"
+    )
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    function = vars(module.Ranked)["__lt__"]
+    observed = []
+
+    class UnknownTuple(tuple):
+        def __bool__(self):
+            observed.append("bool")
+            raise AssertionError("unknown defaults truthiness must not run")
+
+    class UnknownDict(dict):
+        def __bool__(self):
+            observed.append("bool")
+            raise AssertionError("unknown function dictionary truthiness must not run")
+
+    class UnknownKey:
+        def __hash__(self):
+            observed.append("hash")
+            return hash("permitted")
+
+    class UnknownString(str):
+        def __eq__(self, other):
+            observed.append("compare")
+            raise AssertionError("unknown function metadata comparison must not run")
+
+    if target == "defaults":
+        monkeypatch.setattr(function, "__defaults__", UnknownTuple())
+    elif target == "kwdefaults":
+        replacement = {UnknownKey(): True}
+        observed.clear()
+        monkeypatch.setattr(function, "__kwdefaults__", replacement)
+    elif target == "annotation_keys":
+        replacement = {UnknownKey(): "object", "permitted": "bool", "return": "bool"}
+        observed.clear()
+        monkeypatch.setattr(function, "__annotations__", replacement)
+    elif target == "dict":
+        monkeypatch.setattr(function, "__dict__", UnknownDict())
+    else:
+        field = f"__{target}__"
+        monkeypatch.setattr(function, field, UnknownString(getattr(function, field) or ""))
+    with pytest.raises(ledger.ConfidenceLedgerError, match="decorated direct source binding"):
+        _route(root, module, "Ranked")
+    assert observed == []
+
+
+@pytest.mark.parametrize("mutation", ["reversed", "extra", "metaclass"])
+def test_total_ordering_profile_refuses_unknown_transform_chains(tmp_path, monkeypatch, mutation):
+    source = _ordering_source()
+    if mutation == "reversed":
+        source = source.replace(
+            "@ordered\n@dataclass(frozen=True, slots=True)",
+            "@dataclass(frozen=True, slots=True)\n@ordered",
+        )
+    elif mutation == "extra":
+        source = source.replace("@ordered\n", "@ordered\n@ordered\n")
+    else:
+        source = source.replace("class Ranked:", "class Ranked(metaclass=type):")
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="decorated direct source binding"):
+        _route(root, module, "Ranked")
 
 
 def test_actual_core_export_contextmanager_has_verified_source_route() -> None:

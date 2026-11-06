@@ -6267,7 +6267,9 @@ _NO_EXECUTION_BINDING = object()
 
 
 def _passive_capture_lookup(mapping: object, name: str) -> object:
-    if type(mapping) not in (dict, types.MappingProxyType):
+    if type(name) is not str or (
+        type(mapping) is not dict and type(mapping) is not type(type.__dict__)
+    ):
         return _NO_EXECUTION_BINDING
     try:
         for key, value in cast("Mapping[object, object]", mapping).items():
@@ -13186,15 +13188,316 @@ def _python_dataclass_transform_source_projection() -> dict[str, object]:
     }
 
 
+def _total_ordering_replay_source_supported(tree: ast.Module) -> bool:
+    """Limit expected-class execution to the finite stock ordering transform.
+
+    A matching source/code pair alone does not make arbitrary provider code safe
+    to execute. This supported-backend grammar allows only the ordinary-type
+    comparison selection and method assignments; other provider forms fail shut.
+    """
+
+    sites = _module_scope_direct_binding_sites(tree, "total_ordering")
+    if not (
+        len(sites) == 1 and sites[0][0] == "local" and isinstance(sites[0][1], ast.FunctionDef)
+    ):
+        return False
+    declaration = sites[0][1]
+    body = declaration.body
+    if (
+        body
+        and isinstance(body[0], ast.Expr)
+        and isinstance(body[0].value, ast.Constant)
+        and type(body[0].value.value) is str
+    ):
+        body = body[1:]
+    actual = ast.FunctionDef(
+        name=declaration.name,
+        args=declaration.args,
+        body=body,
+        decorator_list=declaration.decorator_list,
+        returns=declaration.returns,
+        type_comment=declaration.type_comment,
+        type_params=declaration.type_params,
+    )
+    expected = ast.parse(
+        "def total_ordering(cls):\n"
+        "    roots = {op for op in _convert "
+        "if getattr(cls, op, None) is not getattr(object, op, None)}\n"
+        "    if not roots:\n"
+        "        raise ValueError('must define at least one ordering operation: < > <= >=')\n"
+        "    root = max(roots)\n"
+        "    for opname, opfunc in _convert[root]:\n"
+        "        if opname not in roots:\n"
+        "            opfunc.__name__ = opname\n"
+        "            setattr(cls, opname, opfunc)\n"
+        "    return cls\n"
+    ).body[0]
+    return ast.dump(actual, include_attributes=False) == ast.dump(
+        expected, include_attributes=False
+    )
+
+
+def _total_ordering_source_provider() -> (
+    tuple[types.FunctionType, types.FunctionType, dict[str, object]] | None
+):
+    """Reconcile the finite stdlib transform and build an isolated expected-class replay.
+
+    No live factory or actual class is executed. Native builtins and CPython
+    transformation behavior remain the supported-backend assumption; loader
+    execution and construction history are not established by this projection.
+    """
+
+    native_function_type = type(lambda: None)
+    native_module_type = type(sys)
+    native_code_type = type((lambda: None).__code__)
+    if not (
+        type(types) is native_module_type
+        and len(vars(types)) <= 10000
+        and _native_immutable_type_identity(native_function_type, "builtins", "function")
+        and _passive_capture_lookup(vars(types), "FunctionType") is native_function_type
+        and _passive_capture_lookup(vars(types), "ModuleType") is native_module_type
+        and _passive_capture_lookup(vars(types), "CodeType") is native_code_type
+    ):
+        return None
+    provider = sys.modules.get("functools")
+    if provider is not functools or type(provider) is not native_module_type:
+        return None
+    namespace = vars(provider)
+    if (
+        len(namespace) > 10000
+        or len(vars(_builtins)) > 10000
+        or _passive_capture_lookup(namespace, "__builtins__") is not vars(_builtins)
+    ):
+        return None
+    origins = _source_loaded_module_origin_fields(provider, expected_name="functools")
+    if origins is None:
+        return None
+    analysis = _active_integrity_analysis()
+    own_analysis = analysis is None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+    try:
+        logical = Path(sysconfig.get_path("stdlib")) / "functools.py"
+        path = analysis.bind_source_path(logical)
+        if any(analysis.bind_source_path(Path(value)) != path for value in origins):
+            return None
+        source = analysis.source_bytes(logical)
+        if len(source) > 1024**2:
+            return None
+        tree = analysis.source_tree(logical)
+        if not _total_ordering_replay_source_supported(tree):
+            return None
+        sites = _module_scope_direct_binding_sites(tree, "_convert")
+        if not (
+            len(sites) == 1
+            and sites[0][0] == "assignment"
+            and isinstance(sites[0][1], ast.Assign)
+            and isinstance(sites[0][1].value, ast.Dict)
+        ):
+            return None
+        declaration = sites[0][1].value
+        if not 1 <= len(declaration.keys) <= 16:
+            return None
+        declared: dict[str, list[tuple[str, str]]] = {}
+        function_names: set[str] = {"total_ordering"}
+        allowed_function_names: dict[str, set[str]] = {}
+        for root, conversions in zip(declaration.keys, declaration.values, strict=True):
+            if not (
+                isinstance(root, ast.Constant)
+                and type(root.value) is str
+                and root.value not in declared
+                and isinstance(conversions, ast.List)
+                and 1 <= len(conversions.elts) <= 16
+            ):
+                return None
+            rows = []
+            for row in conversions.elts:
+                if not (
+                    isinstance(row, ast.Tuple)
+                    and len(row.elts) == 2
+                    and isinstance(row.elts[0], ast.Constant)
+                    and type(row.elts[0].value) is str
+                    and isinstance(row.elts[1], ast.Name)
+                ):
+                    return None
+                name, function_name = row.elts[0].value, row.elts[1].id
+                if any(name == prior[0] for prior in rows):
+                    return None
+                rows.append((name, function_name))
+                function_names.add(function_name)
+                allowed_function_names.setdefault(function_name, {function_name}).add(name)
+            declared[root.value] = rows
+        if len(function_names) > 64:
+            return None
+        codes: dict[str, types.CodeType] = {}
+        for code in _python_provider_source_code_objects(source, str(path)):
+            if code.co_qualname in function_names:
+                if code.co_qualname in codes:
+                    return None
+                codes[code.co_qualname] = code
+        if set(codes) != function_names:
+            return None
+        functions: dict[str, types.FunctionType] = {}
+        consumed_globals: set[str] = set()
+        for name, code in codes.items():
+            function = _passive_capture_lookup(namespace, name)
+            accepted_names = allowed_function_names.get(name, {name})
+            source_doc = (
+                code.co_consts[0] if code.co_consts and type(code.co_consts[0]) is str else None
+            )
+            if not (
+                type(function) is native_function_type
+                and function.__globals__ is namespace
+                and function.__builtins__ is vars(_builtins)
+                and type(function.__module__) is str
+                and function.__module__ == "functools"
+                and type(function.__qualname__) is str
+                and function.__qualname__ == name
+                and type(function.__name__) is str
+                and len(function.__name__) <= max(map(len, accepted_names))
+                and function.__name__ in accepted_names
+                and type(function.__code__.co_filename) is str
+                and _normalize_code_object(function.__code__, work_budget=[10000, 1024**2])
+                == _normalize_code_object(code, work_budget=[10000, 1024**2])
+                and Path(function.__code__.co_filename).resolve() == path
+                and function.__defaults__ is None
+                and function.__kwdefaults__ is None
+                and function.__closure__ is None
+                and type(function.__dict__) is dict
+                and not function.__dict__
+                and getattr(function, "__annotate__", None) is None
+                and type(function.__annotations__) is dict
+                and not function.__annotations__
+                and type(function.__type_params__) is tuple
+                and not function.__type_params__
+                and type(function.__doc__) is type(source_doc)
+                and function.__doc__ == source_doc
+            ):
+                return None
+            functions[name] = function
+            pending = [code]
+            while pending:
+                current = pending.pop()
+                pending.extend(item for item in current.co_consts if type(item) is native_code_type)
+                consumed_globals.update(
+                    str(instruction.argval)
+                    for instruction in dis.get_instructions(current)
+                    if instruction.opname == "LOAD_GLOBAL"
+                )
+        actual_table = _passive_capture_lookup(namespace, "_convert")
+        if not (
+            type(actual_table) is dict
+            and len(actual_table) == len(declared)
+            and all(type(key) is str for key in actual_table)
+            and set(actual_table) == set(declared)
+        ):
+            return None
+        for root, expected in declared.items():
+            rows = actual_table[root]
+            if type(rows) is not list or len(rows) != len(expected):
+                return None
+            for row, (name, function_name) in zip(rows, expected, strict=True):
+                if not (
+                    type(row) is tuple
+                    and len(row) == 2
+                    and type(row[0]) is str
+                    and row[0] == name
+                    and row[1] is functions[function_name]
+                ):
+                    return None
+        native_bindings: dict[str, object] = {}
+        for name in consumed_globals - {"_convert"}:
+            value = _passive_capture_lookup(vars(_builtins), name)
+            if type(value) is type:
+                admitted = _native_builtin_type(name, value)
+            elif name == "NotImplemented":
+                admitted = _native_immutable_type_identity(
+                    type(value), "builtins", "NotImplementedType"
+                )
+            else:
+                admitted = (
+                    _native_immutable_type_identity(
+                        type(value), "builtins", "builtin_function_or_method"
+                    )
+                    and type(value.__module__) is str
+                    and value.__module__ == "builtins"
+                    and value.__name__ == name
+                    and value.__self__ is _builtins
+                )
+            shadow = _passive_capture_lookup(namespace, name)
+            if not admitted or (shadow is not _NO_EXECUTION_BINDING and shadow is not value):
+                return None
+            native_bindings[name] = value
+        replay_globals: dict[str, object] = {
+            "__name__": "functools",
+            "__builtins__": vars(_builtins),
+            **{
+                name: value
+                for name, value in native_bindings.items()
+                if _passive_capture_lookup(namespace, name) is not _NO_EXECUTION_BINDING
+            },
+        }
+        clones = {
+            name: native_function_type(code, replay_globals, name) for name, code in codes.items()
+        }
+        replay_globals["_convert"] = {
+            root: [(name, clones[function_name]) for name, function_name in rows]
+            for root, rows in declared.items()
+        }
+        if own_analysis:
+            analysis.assert_sources_unchanged()
+        return (
+            functions["total_ordering"],
+            clones["total_ordering"],
+            {
+                "profile": "cpython314_total_ordering_dataclass_composition_v1",
+                "provider_source_sha256": _bytes_hash(source),
+                "conversion_roots": tuple(declared),
+                "conversion_count": sum(len(rows) for rows in declared.values()),
+                "scope": "source_checked_expected_dataclass_transform_only",
+                "backend_assumption": "supported_python_runtime_provider",
+                "actual_class_execution_and_constructor_loader_history": "not_established",
+            },
+        )
+    except (ConfidenceLedgerError, OSError, AttributeError, TypeError, ValueError, SyntaxError):
+        return None
+
+
+def _total_ordering_provider_projection() -> dict[str, object]:
+    """Expose the bounded transform proof and its unresolved backend history."""
+
+    provider = _total_ordering_source_provider()
+    if provider is None:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    return provider[2]
+
+
 def _source_dataclass_transform_options(
     tree: ast.Module,
     statement: ast.ClassDef,
-) -> tuple[str, dict[str, bool]] | None:
-    """Resolve one direct stdlib dataclass import and a literal option set."""
+) -> tuple[str, dict[str, bool], str | None] | None:
+    """Resolve the dataclass form and its optional single stdlib ordering transform."""
 
-    if len(statement.decorator_list) != 1:
+    if len(statement.decorator_list) not in {1, 2}:
         return None
-    decorator = statement.decorator_list[0]
+    ordering_name = None
+    if len(statement.decorator_list) == 2:
+        outer = statement.decorator_list[0]
+        if not isinstance(outer, ast.Name):
+            return None
+        ordering_sites = _module_scope_direct_binding_sites(tree, outer.id)
+        if not (
+            len(ordering_sites) == 1
+            and ordering_sites[0][0] == "import_from"
+            and isinstance(ordering_sites[0][1], ast.ImportFrom)
+            and ordering_sites[0][1].module == "functools"
+            and ordering_sites[0][1].level == 0
+            and ordering_sites[0][2] is not None
+            and ordering_sites[0][2].name == "total_ordering"
+        ):
+            return None
+        ordering_name = outer.id
+    decorator = statement.decorator_list[-1]
     if isinstance(decorator, ast.Name):
         decorator_name = decorator.id
         options: dict[str, bool] = {}
@@ -13239,7 +13542,7 @@ def _source_dataclass_transform_options(
         and sites[0][2].asname in {None, decorator_name}
     ):
         return None
-    return decorator_name, options
+    return decorator_name, options, ordering_name
 
 
 def _source_dataclass_safe_literal(value: object, *, depth: int = 0) -> bool:
@@ -14372,6 +14675,7 @@ def _source_dataclass_runtime_output_matches(
     class_pairs: dict[int, type[object]] | None = None,
     source_method_names: frozenset[str] = frozenset(),
     source_method_function_ids: frozenset[int] = frozenset(),
+    bounded_code: bool = False,
 ) -> bool:
     pairs = {} if class_pairs is None else class_pairs
     if expected is expected_class:
@@ -14409,6 +14713,7 @@ def _source_dataclass_runtime_output_matches(
                     class_pairs=pairs,
                     source_method_names=source_method_names,
                     source_method_function_ids=source_method_function_ids,
+                    bounded_code=bounded_code,
                 )
                 for actual_item, expected_item in zip(
                     actual_sequence,
@@ -14435,6 +14740,7 @@ def _source_dataclass_runtime_output_matches(
                 class_pairs=pairs,
                 source_method_names=source_method_names,
                 source_method_function_ids=source_method_function_ids,
+                bounded_code=bounded_code,
             ):
                 return False
         for name, actual_value in actual_namespace.items():
@@ -14478,6 +14784,7 @@ def _source_dataclass_runtime_output_matches(
                 class_pairs=pairs,
                 source_method_names=source_method_names,
                 source_method_function_ids=source_method_function_ids,
+                bounded_code=bounded_code,
             ):
                 return False
         return True
@@ -14494,23 +14801,33 @@ def _source_dataclass_runtime_output_matches(
                 class_pairs=pairs,
                 source_method_names=source_method_names,
                 source_method_function_ids=source_method_function_ids,
+                bounded_code=bounded_code,
             )
             for left, right in zip(actual, expected, strict=True)
         )
     if type(actual) is dict:
-        return len(actual) == len(expected) and all(
-            key in expected
-            and _source_dataclass_runtime_output_matches(
+        if len(actual) != len(expected):
+            return False
+        actual_keys = tuple(_source_immutable_member_projection(key) for key in actual)
+        expected_keys = tuple(_source_immutable_member_projection(key) for key in expected)
+        if any(key is _SOURCE_DERIVATION_FAILED for key in (*actual_keys, *expected_keys)) or set(
+            actual_keys
+        ) != set(expected_keys):
+            return False
+        expected_key_map = dict(zip(expected_keys, expected, strict=True))
+        return all(
+            _source_dataclass_runtime_output_matches(
                 value,
-                expected[key],
+                expected[expected_key_map[key_projection]],
                 actual_class=actual_class,
                 expected_class=expected_class,
                 depth=depth + 1,
                 class_pairs=pairs,
                 source_method_names=source_method_names,
                 source_method_function_ids=source_method_function_ids,
+                bounded_code=bounded_code,
             )
-            for key, value in actual.items()
+            for key_projection, value in zip(actual_keys, actual.values(), strict=True)
         )
     if type(actual) in {set, frozenset}:
         return _source_dataclass_values_equal(actual, expected)
@@ -14524,6 +14841,7 @@ def _source_dataclass_runtime_output_matches(
             class_pairs=pairs,
             source_method_names=source_method_names,
             source_method_function_ids=source_method_function_ids,
+            bounded_code=bounded_code,
         )
     if type(actual) in {staticmethod, classmethod}:
         return all(
@@ -14536,6 +14854,7 @@ def _source_dataclass_runtime_output_matches(
                 class_pairs=pairs,
                 source_method_names=source_method_names,
                 source_method_function_ids=source_method_function_ids,
+                bounded_code=bounded_code,
             )
             for actual_value, expected_value in (
                 (actual.__func__, expected.__func__),
@@ -14575,6 +14894,7 @@ def _source_dataclass_runtime_output_matches(
                 class_pairs=pairs,
                 source_method_names=source_method_names,
                 source_method_function_ids=source_method_function_ids,
+                bounded_code=bounded_code,
             )
             for actual_value, expected_value in (
                 (actual_getter, expected_getter),
@@ -14588,18 +14908,38 @@ def _source_dataclass_runtime_output_matches(
             )
         )
     if type(actual) is types.FunctionType:
+        for name in ("__module__", "__name__", "__qualname__", "__doc__"):
+            actual_value = getattr(actual, name)
+            expected_value = getattr(expected, name)
+            if (
+                type(actual_value) is not type(expected_value)
+                or (type(actual_value) is not str and actual_value is not None)
+                or actual_value != expected_value
+            ):
+                return False
         if id(actual) not in source_method_function_ids and _normalize_code_object(
-            actual.__code__
-        ) != _normalize_code_object(expected.__code__):
+            actual.__code__, work_budget=[10000, 1024**2] if bounded_code else None
+        ) != _normalize_code_object(
+            expected.__code__, work_budget=[10000, 1024**2] if bounded_code else None
+        ):
             return False
         if not _source_dataclass_function_globals_match(
             actual, expected, actual_class=actual_class, expected_class=expected_class
         ):
             return False
-        if any(
-            getattr(actual, name, _SOURCE_DERIVATION_FAILED)
-            != getattr(expected, name, _SOURCE_DERIVATION_FAILED)
-            for name in ("__module__", "__name__", "__qualname__", "__doc__")
+        # Python 3.14 may invoke this thunk when annotations are first read.
+        # Reconcile it recursively against the fresh source-derived function
+        # before any such read; unknown lazy callbacks never execute here.
+        if not _source_dataclass_runtime_output_matches(
+            actual.__annotate__,
+            expected.__annotate__,
+            actual_class=actual_class,
+            expected_class=expected_class,
+            depth=depth + 1,
+            class_pairs=pairs,
+            source_method_names=source_method_names,
+            source_method_function_ids=source_method_function_ids,
+            bounded_code=bounded_code,
         ):
             return False
         for name in ("__defaults__", "__kwdefaults__", "__annotations__", "__type_params__"):
@@ -14614,10 +14954,17 @@ def _source_dataclass_runtime_output_matches(
                 class_pairs=pairs,
                 source_method_names=source_method_names,
                 source_method_function_ids=source_method_function_ids,
+                bounded_code=bounded_code,
             ):
                 return False
-        actual_closure = actual.__closure__ or ()
-        expected_closure = expected.__closure__ or ()
+        actual_closure = actual.__closure__
+        expected_closure = expected.__closure__
+        if actual_closure is None:
+            actual_closure = ()
+        if expected_closure is None:
+            expected_closure = ()
+        if type(actual_closure) is not tuple or type(expected_closure) is not tuple:
+            return False
         if len(actual_closure) != len(expected_closure):
             return False
         actual_freevars = actual.__code__.co_freevars
@@ -14654,6 +15001,7 @@ def _source_dataclass_runtime_output_matches(
                 class_pairs=pairs,
                 source_method_names=source_method_names,
                 source_method_function_ids=source_method_function_ids,
+                bounded_code=bounded_code,
             ):
                 return False
         return _source_dataclass_runtime_output_matches(
@@ -14665,6 +15013,7 @@ def _source_dataclass_runtime_output_matches(
             class_pairs=pairs,
             source_method_names=source_method_names,
             source_method_function_ids=source_method_function_ids,
+            bounded_code=bounded_code,
         )
     return _source_dataclass_values_equal(actual, expected)
 
@@ -14837,7 +15186,7 @@ def _source_python_dataclass_binding_supported_body(
     resolved = _source_dataclass_transform_options(tree, statement)
     if resolved is None:
         return False
-    decorator_name, options = resolved
+    decorator_name, options, ordering_name = resolved
     source_module = sys.modules.get(module_name)
     if type(source_module) is not types.ModuleType:
         return False
@@ -14868,6 +15217,21 @@ def _source_python_dataclass_binding_supported_body(
         _python_dataclass_transform_source_projection()
     except ConfidenceLedgerError:
         return False
+    ordering_provider = None
+    if ordering_name is not None:
+        ordering_provider = _total_ordering_source_provider()
+        if (
+            ordering_provider is None
+            or _source_import_binding(
+                ordering_name,
+                tree=tree,
+                module=source_module,
+                module_name=module_name,
+                repo_root=repo_root,
+            )
+            is not ordering_provider[0]
+        ):
+            return False
     transformed = namespace.get(export_name)
     if type(transformed) is not type:
         return False
@@ -15080,14 +15444,28 @@ def _source_python_dataclass_binding_supported_body(
         if not (
             actual_method.__globals__ is namespace
             and actual_method.__builtins__ is vars(_builtins)
+            and type(actual_method.__module__) is str
             and actual_method.__module__ == module_name
+            and type(actual_method.__name__) is str
+            and actual_method.__name__ == member.name
+            and type(actual_method.__qualname__) is str
             and actual_method.__qualname__ == f"{export_name}.{member.name}"
-            and Path(actual_method.__code__.co_filename).resolve() == source_path
-            and _content_hash(_normalize_code_object(actual_method.__code__))
+            and (type(actual_method.__doc__) is str or actual_method.__doc__ is None)
+            and type(actual_method.__code__.co_filename) is str
+            and _content_hash(
+                _normalize_code_object(
+                    actual_method.__code__,
+                    work_budget=[10000, 1024**2] if ordering_provider is not None else None,
+                )
+            )
             in source_code_hashes.get(f"{export_name}.{member.name}", ())
+            and Path(actual_method.__code__.co_filename).resolve() == source_path
+            and type(actual_method.__dict__) is dict
             and not actual_method.__dict__
             and _source_function_defaults_match(actual_method, member)
-            and _source_function_annotations_match(actual_method, member)
+            and _source_function_annotations_match(
+                actual_method, member, source_code_hashes=source_code_hashes
+            )
         ):
             return False
         source_method_function_ids.add(id(actual_method))
@@ -15112,11 +15490,22 @@ def _source_python_dataclass_binding_supported_body(
         if not isinstance(replay_code, types.CodeType):
             return False
         replay_namespace = dict(namespace)
-        # Execute only the source-validated single stdlib dataclass statement above.
+        if ordering_name is not None:
+            # Retain the original decorator location for CPython's
+            # __firstlineno__, but do not call the live ordering factory here.
+            # Only the admitted clone below transforms the fresh expected class.
+            replay_namespace[ordering_name] = lambda cls: cls
+        # Execute only the source-validated dataclass statement, never the
+        # unverified actual class or its live outer decorator.
         exec(replay_code, replay_namespace)  # noqa: S102
+        if ordering_name is not None:
+            replay_namespace[ordering_name] = namespace[ordering_name]
         expected_class = replay_namespace.get(export_name)
         if type(expected_class) is not type:
             return False
+        if ordering_provider is not None:
+            expected_class = ordering_provider[1](expected_class)
+            replay_namespace[export_name] = expected_class
         expected_namespace = type.__getattribute__(expected_class, "__dict__")
         expected_fields = tuple(_dataclasses.fields(expected_class))
         actual_field_tuple = tuple(actual_fields)
@@ -15180,6 +15569,7 @@ def _source_python_dataclass_binding_supported_body(
             expected_class=expected_class,
             source_method_names=frozenset(source_method_names),
             source_method_function_ids=frozenset(source_method_function_ids),
+            bounded_code=ordering_provider is not None,
         ):
             return False
     return True
@@ -15461,20 +15851,38 @@ def _typing_protocol_provider_projection() -> dict[str, object]:
         ) from exc
 
 
+def _source_native_instance_namespace(value: object, owner: object) -> dict[str, object] | None:
+    """Read only a native class-owned instance dictionary descriptor."""
+
+    if type(owner) is not type or type(value) is not owner:
+        return None
+    owners = type.__getattribute__(owner, "__mro__")
+    if type(owners) is not tuple or len(owners) > 40:
+        return None
+    descriptor_type = type(type.__dict__["__dict__"])
+    for base in owners:
+        if type(base) is not type:
+            return None
+        class_namespace = type.__getattribute__(base, "__dict__")
+        if len(class_namespace) > 10000:
+            return None
+        descriptor = _passive_capture_lookup(class_namespace, "__dict__")
+        if descriptor is _NO_EXECUTION_BINDING:
+            continue
+        if not (type(descriptor) is descriptor_type and descriptor.__objclass__ is base):
+            return None
+        namespace = descriptor.__get__(value, owner)
+        return namespace if type(namespace) is dict and len(namespace) <= 10000 else None
+    return None
+
+
 def _source_native_module_spec_namespace(module: object) -> dict[str, object] | None:
     """Read the exact supported ModuleSpec storage, without an arbitrary getter."""
 
-    if type(module) is not types.ModuleType:
+    if type(module) is not type(sys) or len(vars(module)) > 10000:
         return None
     spec = _passive_capture_lookup(vars(module), "__spec__")
-    descriptor = vars(ModuleSpec).get("__dict__")
-    if not (
-        type(spec) is ModuleSpec
-        and type(descriptor) is types.GetSetDescriptorType
-        and descriptor.__objclass__ is ModuleSpec
-    ):
-        return None
-    return descriptor.__get__(spec, ModuleSpec)
+    return _source_native_instance_namespace(spec, ModuleSpec)
 
 
 def _source_loaded_module_origin_fields(
@@ -15482,7 +15890,7 @@ def _source_loaded_module_origin_fields(
 ) -> tuple[str, str, str] | None:
     """Read native source-loader origin fields without invoking provider getters."""
 
-    if type(module) is not types.ModuleType:
+    if type(module) is not type(sys) or len(vars(module)) > 10000:
         return None
     namespace = vars(module)
     spec_namespace = _source_native_module_spec_namespace(module)
@@ -15501,14 +15909,21 @@ def _source_loaded_module_origin_fields(
         and declared_name == expected_name
         and type(spec_name) is str
         and spec_name == expected_name
+        and len(file) <= 1024**2
+        and len(origin) <= 1024**2
     ):
         return None
-    loader_namespace = object.__getattribute__(loader, "__dict__")
+    loader_namespace = _source_native_instance_namespace(loader, SourceFileLoader)
+    if loader_namespace is None:
+        return None
     loader_name = _passive_capture_lookup(loader_namespace, "name")
     loader_path = _passive_capture_lookup(loader_namespace, "path")
     return (
         (file, origin, loader_path)
-        if type(loader_name) is str and loader_name == expected_name and type(loader_path) is str
+        if type(loader_name) is str
+        and loader_name == expected_name
+        and type(loader_path) is str
+        and len(loader_path) <= 1024**2
         else None
     )
 
@@ -17897,10 +18312,16 @@ def _source_function_defaults_match(
 ) -> bool:
     """Require live positional and keyword-only defaults to match source literals."""
 
+    if type(function) is not type(lambda: None):
+        return False
     positional_defaults = tuple(_source_literal(item) for item in node.args.defaults)
     if any(value is _UNSUPPORTED_SOURCE_LITERAL for value in positional_defaults):
         return False
-    actual_positional_defaults = function.__defaults__ or ()
+    actual_positional_defaults = function.__defaults__
+    if actual_positional_defaults is None:
+        actual_positional_defaults = ()
+    if type(actual_positional_defaults) is not tuple:
+        return False
     if len(actual_positional_defaults) != len(positional_defaults) or any(
         not _exact_literal_equal(actual, expected)
         for actual, expected in zip(actual_positional_defaults, positional_defaults, strict=True)
@@ -17920,8 +18341,11 @@ def _source_function_defaults_match(
     actual_keyword_defaults = function.__kwdefaults__
     if actual_keyword_defaults is None:
         actual_keyword_defaults = {}
-    if type(actual_keyword_defaults) is not dict or set(actual_keyword_defaults) != set(
-        expected_keyword_defaults
+    if (
+        type(actual_keyword_defaults) is not dict
+        or len(actual_keyword_defaults) != len(expected_keyword_defaults)
+        or any(type(key) is not str for key in actual_keyword_defaults)
+        or set(actual_keyword_defaults) != set(expected_keyword_defaults)
     ):
         return False
     return all(
@@ -18281,19 +18705,98 @@ def _source_function_annotation_strings(
 def _source_function_annotations_match(
     function: types.FunctionType,
     node: ast.FunctionDef | ast.AsyncFunctionDef,
+    *,
+    source_code_hashes: Mapping[str, tuple[str, ...]] | None = None,
 ) -> bool:
-    """Require runtime annotation strings to match the exact source declaration."""
+    """Bind closed future-string producers before reading lazy annotation storage."""
 
+    if not (
+        type(function) is type(lambda: None)
+        and type(function.__module__) is str
+        and type(function.__qualname__) is str
+    ):
+        return False
     expected = _source_function_annotation_strings(node)
+    if expected is None:
+        return False
+    annotate = function.__annotate__
+    if annotate is not None and not _source_future_annotation_thunk_supported(
+        function, annotate, node, source_code_hashes=source_code_hashes
+    ):
+        return False
     actual = function.__annotations__
     return bool(
-        expected is not None
-        and type(actual) is dict
+        type(actual) is dict
+        and len(actual) == len(expected)
+        and all(type(key) is str for key in actual)
         and set(actual) == set(expected)
         and all(
             type(actual[name]) is str and actual[name] == value for name, value in expected.items()
         )
     )
+
+
+def _source_future_annotation_thunk_supported(
+    function: types.FunctionType,
+    annotate: object,
+    node: ast.FunctionDef | ast.AsyncFunctionDef,
+    *,
+    source_code_hashes: Mapping[str, tuple[str, ...]] | None,
+) -> bool:
+    """Admit only a source-owned closed compiler thunk producing annotation strings."""
+
+    if type(annotate) is not type(lambda: None) or type(function.__qualname__) is not str:
+        return False
+    expected_qualname = function.__qualname__.rpartition(".")[0]
+    expected_qualname = f"{expected_qualname}.__annotate__" if expected_qualname else "__annotate__"
+    if not (
+        annotate.__globals__ is function.__globals__
+        and annotate.__builtins__ is vars(_builtins)
+        and type(annotate.__name__) is str
+        and annotate.__name__ == "__annotate__"
+        and type(annotate.__qualname__) is str
+        and annotate.__qualname__ == expected_qualname
+        and type(annotate.__module__) is str
+        and annotate.__module__ == function.__module__
+        and annotate.__doc__ is None
+        and annotate.__closure__ is None
+        and annotate.__defaults__ is None
+        and annotate.__kwdefaults__ is None
+        and type(annotate.__dict__) is dict
+        and not annotate.__dict__
+        and annotate.__annotate__ is None
+        and type(annotate.__annotations__) is dict
+        and not annotate.__annotations__
+        and type(annotate.__type_params__) is tuple
+        and not annotate.__type_params__
+    ):
+        return False
+    analysis = _active_integrity_analysis()
+    own_analysis = analysis is None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+    try:
+        normalized = _normalize_code_object(annotate.__code__, work_budget=[10000, 1024**2])
+        if (
+            annotate.__code__.co_firstlineno != node.lineno
+            or annotate.__code__.co_names
+            or annotate.__code__.co_freevars
+            or type(function.__code__.co_filename) is not str
+            or len(function.__code__.co_filename) > 1024**2
+            or Path(annotate.__code__.co_filename).resolve()
+            != Path(function.__code__.co_filename).resolve()
+        ):
+            return False
+        if source_code_hashes is None:
+            _compiled, source_code_hashes = analysis.compiled_source_index(
+                Path(function.__code__.co_filename), optimize=sys.flags.optimize
+            )
+        matches = _content_hash(normalized) in source_code_hashes.get(expected_qualname, ())
+        if matches and own_analysis:
+            analysis.assert_sources_unchanged()
+        return matches
+    except (ConfidenceLedgerError, OSError, TypeError, ValueError, SyntaxError):
+        return False
 
 
 def _source_function_signature(
@@ -20497,18 +21000,91 @@ def _normalize_code_object(
     code: types.CodeType,
     *,
     code_cache: _CodeNormalizationCache | None = None,
+    work_budget: list[int] | None = None,
+    work_depth: int = 0,
 ) -> dict[str, object]:
-    """Normalize executable code while excluding machine-local filenames."""
+    """Normalize native executable fields without invoking constant protocols.
+
+    Callers admitting bounded providers may limit expanded nodes, scalar bytes
+    and depth. That mode deliberately bypasses memoization so repeated tuple or
+    code DAG edges consume their full expansion budget. Other callers retain
+    their existing size domain.
+    """
+    native_code_type = type((lambda: None).__code__)
+    if type(code) is not native_code_type:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "non-native code")
     analysis = _active_integrity_analysis()
     active_cache = (
-        code_cache
-        if code_cache is not None
-        else (analysis.code_cache if analysis is not None else None)
+        None
+        if work_budget is not None
+        else (
+            code_cache
+            if code_cache is not None
+            else (analysis.code_cache if analysis is not None else None)
+        )
     )
     if active_cache is not None:
         cached = active_cache.get(code)
         if cached is not None:
             return cached
+    for field in ("co_consts", "co_names", "co_varnames", "co_freevars", "co_cellvars"):
+        value = getattr(code, field)
+        if type(value) is not tuple:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "non-native code field"
+            )
+    if work_budget is not None:
+        _consume_code_normalization_budget(
+            work_budget,
+            work_depth,
+            node_count=1
+            + sum(
+                len(field)
+                for field in (code.co_names, code.co_varnames, code.co_freevars, code.co_cellvars)
+            ),
+        )
+        if len(code.co_consts) > work_budget[0]:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "code normalization work budget exhausted"
+            )
+    for field in (code.co_names, code.co_varnames, code.co_freevars, code.co_cellvars):
+        if any(type(item) is not str for item in field):
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "non-native code field"
+            )
+    for field in ("co_name", "co_qualname", "co_filename"):
+        if type(getattr(code, field)) is not str:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "non-native code field"
+            )
+    for field in ("co_code", "co_linetable", "co_exceptiontable"):
+        if type(getattr(code, field)) is not bytes:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "non-native code field"
+            )
+    if work_budget is not None:
+        _consume_code_normalization_budget(
+            work_budget,
+            work_depth,
+            node_count=0,
+            byte_count=(
+                len(code.co_code)
+                + len(code.co_linetable)
+                + len(code.co_exceptiontable)
+                + 4 * (len(code.co_name) + len(code.co_qualname) + len(code.co_filename))
+                + 4
+                * sum(
+                    len(item)
+                    for field in (
+                        code.co_names,
+                        code.co_varnames,
+                        code.co_freevars,
+                        code.co_cellvars,
+                    )
+                    for item in field
+                )
+            ),
+        )
     normalized = {
         "argcount": code.co_argcount,
         "posonlyargcount": code.co_posonlyargcount,
@@ -20518,7 +21094,13 @@ def _normalize_code_object(
         "flags": code.co_flags,
         "code_hash": _bytes_hash(code.co_code),
         "consts": [
-            _normalize_code_constant(value, code_cache=active_cache) for value in code.co_consts
+            _normalize_code_constant(
+                value,
+                code_cache=active_cache,
+                work_budget=work_budget,
+                work_depth=work_depth + 1,
+            )
+            for value in code.co_consts
         ],
         "names": list(code.co_names),
         "varnames": list(code.co_varnames),
@@ -20535,41 +21117,97 @@ def _normalize_code_object(
     return normalized
 
 
+def _consume_code_normalization_budget(
+    budget: list[int] | None,
+    depth: int,
+    *,
+    byte_count: int = 0,
+    node_count: int = 1,
+) -> None:
+    """Consume an optional expanded-occurrence budget before reading children."""
+
+    if budget is None:
+        return
+    if depth > 40 or node_count > budget[0] or byte_count > budget[1]:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch", "code normalization work budget exhausted"
+        )
+    budget[0] -= node_count
+    budget[1] -= byte_count
+
+
 def _normalize_code_constant(
     value: object,
     *,
     code_cache: _CodeNormalizationCache | None = None,
+    work_budget: list[int] | None = None,
+    work_depth: int = 0,
 ) -> object:
-    """Return a canonical representation of a code-object constant."""
+    """Normalize only exact inert native constants, with an optional work bound."""
 
-    if isinstance(value, types.CodeType):
-        return {"code": _normalize_code_object(value, code_cache=code_cache)}
-    if isinstance(value, bytes):
+    kind = type(value)
+    native_code_type = type((lambda: None).__code__)
+    if kind is native_code_type:
+        return {
+            "code": _normalize_code_object(
+                value,
+                code_cache=code_cache,
+                work_budget=work_budget,
+                work_depth=work_depth,
+            )
+        }
+    scalar_bytes = (
+        len(value)
+        if kind is bytes
+        else len(value) * 4
+        if kind is str
+        else (value.bit_length() + 7) // 8
+        if kind is int
+        else 0
+    )
+    _consume_code_normalization_budget(work_budget, work_depth, byte_count=scalar_bytes)
+    if kind is bytes:
         return {"bytes_hash": _bytes_hash(value)}
-    if isinstance(value, tuple):
-        return {"tuple": [_normalize_code_constant(item, code_cache=code_cache) for item in value]}
-    if isinstance(value, slice):
+    if kind is tuple or kind is frozenset:
+        if work_budget is not None and len(value) > work_budget[0]:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "code normalization work budget exhausted"
+            )
+        items = [
+            _normalize_code_constant(
+                item,
+                code_cache=code_cache,
+                work_budget=work_budget,
+                work_depth=work_depth + 1,
+            )
+            for item in value
+        ]
+        return (
+            {"tuple": items} if kind is tuple else {"frozenset": sorted(items, key=_canonical_json)}
+        )
+    if kind is slice:
         return {
             "slice": [
-                _normalize_code_constant(value.start, code_cache=code_cache),
-                _normalize_code_constant(value.stop, code_cache=code_cache),
-                _normalize_code_constant(value.step, code_cache=code_cache),
+                _normalize_code_constant(
+                    item,
+                    code_cache=code_cache,
+                    work_budget=work_budget,
+                    work_depth=work_depth + 1,
+                )
+                for item in (value.start, value.stop, value.step)
             ]
         }
-    if isinstance(value, frozenset):
-        items = [_normalize_code_constant(item, code_cache=code_cache) for item in value]
-        return {"frozenset": sorted(items, key=_canonical_json)}
-    if isinstance(value, float):
+    if kind is float:
         return {"float_hex": value.hex()}
-    if isinstance(value, complex):
+    if kind is complex:
         return {"complex": [value.real.hex(), value.imag.hex()]}
     if value is Ellipsis:
         return {"singleton": "ellipsis"}
-    if isinstance(value, (str, int, bool)) or value is None:
+    if kind is str or kind is int or kind is bool or value is None:
         return value
     raise ConfidenceLedgerError(
         "canonical_loaded_runtime_mismatch",
-        f"unsupported code constant: {type(value).__name__}",
+        "unsupported code constant",
     )
 
 
@@ -20602,6 +21240,7 @@ def _python_runtime_manifest() -> dict[str, object]:
         "typing_literal_value_provider": _typing_literal_provider_projection(),
         "native_type_metadata_provider": _native_type_metadata_provider_projection(),
         "context_manager_provider": _context_manager_provider_projection(),
+        "total_ordering_provider": _total_ordering_provider_projection(),
     }
 
 

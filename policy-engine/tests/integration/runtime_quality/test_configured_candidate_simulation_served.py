@@ -28,6 +28,7 @@ from tests._helpers.controlled_candidate_profile import (
     _current_compiler_problem,
     _seed_controlled_selected_skg_source,
     _validate_controlled_skg_source,
+    synthetic_controlled_candidate_provider_profile,
 )
 from tools.quality.validation import (
     check_layer3_gy_design_generation_contract as n4_contract,
@@ -260,6 +261,18 @@ def test_served_unknown_candidate_profile_keeps_persisted_n4_candidate(
     async def run_real_compiler(**kwargs):
         kwargs["span_support_client"] = _DeterministicSpanSupportClient()
         problem = await original_compiler(**kwargs)
+        provider_profile = synthetic_controlled_candidate_provider_profile(
+            recording,
+            controlled_recording,
+            problem=problem,
+            evidence_root=tmp_path / "synthetic-provider-exchanges",
+        )
+        controlled_candidate_gateway.set_fixture(
+            controlled_recording,
+            problem=problem,
+            provider_profile=provider_profile,
+        )
+        controlled_candidate_gateway.admit_compiled_problem(problem)
         compiled_problems.append(problem)
         return problem
 
@@ -322,6 +335,8 @@ def test_served_unknown_candidate_profile_keeps_persisted_n4_candidate(
             assert progress["execution_intent_band"] == "simulate_only_attempt"
             assert progress["candidate_computation_status"] == "completed"
             assert progress["stage"] == "n4_proposal_only"
+            assert progress["target_world_scope_profile_status"] == "profile_not_requested"
+            assert progress.get("target_world_scope_profile_limitation_code") is None
             assert progress["candidate_proposal_ref"]
             assert progress["n5_status"] == "not_run"
             assert progress["n8_status"] == "not_run"
@@ -376,11 +391,17 @@ def test_served_unknown_candidate_profile_keeps_persisted_n4_candidate(
                 for step in attempt["steps"]
                 for event in step.get("cost_events", [])
             }
-            expected_events = {
-                event.event_id: event.model_dump(mode="json")
-                for event in proposal.producer_cost_events
-            }
-            assert pipeline["source"] == "n4_candidate_proposal"
+            expected_events = {}
+            for event in proposal.producer_cost_events:
+                event_payload = event.model_dump(mode="json")
+                # The persisted N4 event is captured before owner reconciliation;
+                # the fresh reader binds that same ledger event to the proposal's
+                # control-job attempt.
+                event_payload["control_job_attempt"] = proposal.control_job_attempt
+                expected_events[event.event_id] = event_payload
+            assert pipeline["source"] == (
+                "n4_candidate_proposal+llm_producer_settlement_ledger"
+            )
             assert served_events == expected_events, pipeline.get("notes")
             assert not pipeline["notes"]
             runtime_context = app.state.runtime_api_ctx
@@ -457,7 +478,7 @@ def test_served_unrefreshable_profile_evidence_keeps_n4_and_blocks_n5(
 ) -> None:
     """A selected profile with stale context evidence remains N4-only with a typed reason."""
 
-    from polisyos.pdc import gy_content_hash
+    from polisyos.pdc import gy_content_hash, world_model_record_content_hash_from_fields
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationScenarioProfile,
         CandidateSimulationSyntheticModelDeclarationV1,
@@ -582,8 +603,18 @@ def test_served_unrefreshable_profile_evidence_keeps_n4_and_blocks_n5(
         assert binding.entity_scope == slot.scope.value
 
     projected_payload = persisted_wmr.model_dump(mode="json", exclude={"content_hash"})
+    simulation_model_payload = projected_payload["simulation_model_ref"]
+    assert isinstance(simulation_model_payload, dict)
+    assumptions = simulation_model_payload.get("assumptions")
+    assert isinstance(assumptions, list)
+    simulation_model_payload["assumptions"] = [
+        *assumptions,
+        {"fixture_only": "unpersisted semantic WMR projection"},
+    ]
     projected_payload["producer_ref"] = "unpersisted_controlled_fixture_projection"
-    projected_payload["content_hash"] = gy_content_hash(projected_payload)
+    projected_payload["content_hash"] = world_model_record_content_hash_from_fields(
+        projected_payload
+    )
     projected_wmr = type(persisted_wmr).model_validate(projected_payload)
     assert projected_wmr.policy_slot_map == persisted_wmr.policy_slot_map
     assert projected_wmr.content_hash != persisted_wmr.content_hash

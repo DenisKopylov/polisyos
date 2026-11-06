@@ -3358,7 +3358,69 @@ def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
 
         assert run.synthetic is True
         assert len(run.cycles) == 1
-        assert len(n5.requests) == 2
+        if len(n5.requests) != 2:
+            failed_cycle = run.cycles[0]
+            receipt = failed_cycle.acquisition_receipt
+            receipt_summary = None
+            if receipt is not None:
+                rederivations = tuple(receipt.get("grounding_rederivations", ()))
+                receipt_summary = {
+                    "receipt_id": receipt.get("receipt_id"),
+                    "status": receipt.get("status"),
+                    "fail_closed_reasons": tuple(receipt.get("fail_closed_reasons", ()))[:6],
+                    "owner_artifact_count": len(receipt.get("owner_artifacts", ())),
+                    "real_grounding_result_count": receipt.get("real_grounding_result_count"),
+                    "grounding_rederivation_count": len(rederivations),
+                    "grounding_rederivations": tuple(
+                        {
+                            "design_id": row.get("design_id"),
+                            "status": row.get("status"),
+                            "issue_codes": tuple(row.get("issue_codes", ()))[:4],
+                        }
+                        for row in rederivations[:6]
+                        if isinstance(row, dict)
+                    ),
+                    "grown_world_before_ref": receipt.get("grown_world_before_ref"),
+                    "grown_world_after_ref": receipt.get("grown_world_after_ref"),
+                }
+            routing = failed_cycle.acquisition_routing_report
+            route_summary = None
+            if routing is not None:
+                route_summary = {
+                    "status": routing.status,
+                    "basis_limitation_code": routing.basis_limitation_code,
+                    "records": tuple(
+                        {
+                            "requirement_gap_ref": row.requirement_gap_ref,
+                            "compiled_requirement_ref": row.compiled_requirement_ref,
+                            "recommended_strategy": row.recommended_strategy,
+                            "terminal_disposition": str(row.terminal_disposition),
+                            "status": row.status,
+                            "producer_output_present": row.producer_output_ref is not None,
+                        }
+                        for row in routing.acquisition_records[:6]
+                    ),
+                }
+            failure_context = {
+                "n5_request_count": len(n5.requests),
+                "run_terminal_status": run.terminal_status,
+                "run_blocked_reason": run.blocked_reason,
+                "cycle_terminal_kind": failed_cycle.terminal_kind,
+                "simulation_status": failed_cycle.simulation.status,
+                "grounding_status": failed_cycle.grounding.status,
+                "grounding_issue_codes": failed_cycle.grounding.issue_codes,
+                "routing_report_ref": (
+                    None
+                    if failed_cycle.acquisition_routing_report_ref is None
+                    else str(failed_cycle.acquisition_routing_report_ref.artifact_id)
+                ),
+                "routing_report": route_summary,
+                "acquisition_receipt": receipt_summary,
+            }
+            pytest.fail(
+                "expected initial and post-acquisition N5 requests; "
+                f"bounded cycle state: {failure_context!r}"
+            )
         before_request, after_request = n5.requests
         assert all(request.seed == 0 and request.replications == 1 for request in n5.requests)
         assert all(request.budget_ref == "budget://acq-01/real-ports" for request in n5.requests)

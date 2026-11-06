@@ -9596,6 +9596,223 @@ async def test_terminal_projection_preserves_stop_budget_and_abstention(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("grounding_port", "value_port", "expected_terminal"),
+    [
+        (_StableShadowGrounding, _BudgetExhaustedValuePort, "budget_exhausted"),
+        (_StableShadowGrounding, PendingN8ValuePort, "grounded_abstention"),
+    ],
+    ids=("budget-exhausted", "grounded-abstention"),
+)
+async def test_terminal_history_is_persisted_and_visible_without_currentness(
+    tmp_path: Path,
+    grounding_port: type[Any],
+    value_port: type[Any],
+    expected_terminal: str,
+) -> None:
+    """Actual N6 stop rows survive CAS, compiled-run replay, and the route DTO."""
+
+    from polisyos.core.artifacts import read_core_json_artifact
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.contracts.runtime import RunGenericCycleSimulationProjection
+    from polisyos.runtime.http.routes.runs import _generic_n6_cycle_history_fields
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+        CompiledRecursiveGenerationCycleRun,
+    )
+    from polisyos.runtime.quality.design_axes.coupling_composition import (
+        derive_recursive_design_graph,
+    )
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RecursiveCycleBudget,
+        RecursiveGenerationCycleController,
+    )
+
+    problem = _problem(f"b29_terminal_history_{expected_terminal}")
+    root_ref = f"design://b29/terminal-history/{expected_terminal}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="repo://policyos/test/cyc05-terminal-history",
+    )
+
+    def cycle_controller_factory(
+        _node_ref: str,
+        _problem_input: DesignProblem,
+    ) -> GenerationCycleController:
+        return GenerationCycleController(
+            generation_port=_CounterexampleAwareGenerator(),
+            grounding_port=grounding_port(),
+            value_port=value_port(),
+        )
+
+    cas_path = tmp_path / f"cyc05-{expected_terminal}-cas"
+    writer = FileSystemCAS(cas_path)
+    recursive_controller = RecursiveGenerationCycleController.for_contract_testing(
+        cycle_controller_factory=cycle_controller_factory,
+        repo_root=REPO_ROOT,
+        artifact_store=writer,
+    )
+    recursive_run = await recursive_controller.run(
+        graph,
+        problems_by_node={root_ref: problem},
+        budget_state=_budget(),
+        recursive_budget=RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        ),
+    )
+    assert recursive_run.terminal.kind.value == expected_terminal
+    assert len(recursive_run.leaf_nodes) == 1
+    assert recursive_run.leaf_nodes[0].cycle_run is not None
+
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    compiled_payload = {
+        "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+        "design_problem_ref": problem_ref,
+        "design_problem": problem.model_dump(mode="json"),
+        "cycle_substrate_context_ref": None,
+        "recursive_run": recursive_run.model_dump(mode="json", exclude={"leaf_nodes"}),
+    }
+    compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+        {
+            **compiled_payload,
+            "recursive_run": recursive_run,
+            "content_hash": gy_content_hash(compiled_payload),
+        }
+    )
+    compiled_ref = writer.put_json(
+        compiled.model_dump(mode="json"),
+        ArtifactWriteOptions(
+            kind="runtime.compiled_recursive_generation_cycle",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+                version="1.0",
+            ),
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+    reader = FileSystemCAS(cas_path)
+    assert reader is not writer
+    assert reader.verify(compiled_ref).ok
+    persisted = read_core_json_artifact(reader, compiled_ref).value
+    reopened = CompiledRecursiveGenerationCycleRun.model_validate(persisted)
+    history_fields = _generic_n6_cycle_history_fields(reopened.recursive_run)
+    projection = RunGenericCycleSimulationProjection.model_validate(
+        {
+            "schema_version": "policyos.runtime.run_generic_cycle_simulation_projection.v3",
+            "run_id": reopened.recursive_run.run_id,
+            "artifact_status": "resolved",
+            "source_ref": compiled_ref,
+            "source_content_hash": reopened.content_hash,
+            "child_profile_status": "not_attempted",
+            **history_fields,
+        }
+    )
+
+    assert projection.n6_cycle_history_status == "resolved"
+    assert projection.currentness_status == "not_established"
+    assert projection.authority_purpose == "cycle_input_candidate_only"
+    assert projection.publication_authority is False
+    assert len(projection.n6_cycle_history) == 1
+    history = projection.n6_cycle_history[0]
+    assert history.terminal_kind == expected_terminal
+    assert history.refinement_decision == (
+        "abstain" if expected_terminal == "grounded_abstention" else "stop"
+    )
+    assert history.search_iteration_status == (
+        "abstained" if expected_terminal == "grounded_abstention" else "stopped"
+    )
+    if expected_terminal == "budget_exhausted":
+        assert history.value_authority_blockers == ("budget_exhausted_for_next_level",)
+
+    history_model = core_contracts.RunGenericCycleSimulationN6CycleHistoryEntry
+    decision_mutation = history.model_dump(mode="json")
+    decision_mutation["refinement_decision"] = (
+        "abstain" if history.refinement_decision == "stop" else "stop"
+    )
+    with pytest.raises(ValueError, match="run_generic_n6_stop_projection_mismatch"):
+        history_model.model_validate(decision_mutation)
+
+    status_mutation = history.model_dump(mode="json")
+    status_mutation["search_iteration_status"] = (
+        "abstained" if history.search_iteration_status == "stopped" else "stopped"
+    )
+    with pytest.raises(ValueError, match="run_generic_n6_stop_projection_mismatch"):
+        history_model.model_validate(status_mutation)
+
+
+def test_historical_partial_terminal_row_remains_candidate_only(tmp_path: Path) -> None:
+    """The typed history consumer keeps a partial stop distinct without minting authority."""
+
+    from polisyos.core.artifacts import read_core_json_artifact
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.pdc import SearchTerminalKind, SearchTerminalState
+
+    partial_terminal = SearchTerminalState(
+        kind=SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE,
+        reason="Historical partial result; current deployment authority is not established.",
+    )
+    history = core_contracts.RunGenericCycleSimulationN6CycleHistoryEntry.model_validate(
+        {
+            "node_ref": "design://b29/historical-partial",
+            "cycle_index": 0,
+            "design_problem_ref": "sha256:" + "1" * 64,
+            "selected_candidate_ref": "candidate://historical-partial",
+            "selected_candidate_content_hash": "sha256:" + "2" * 64,
+            "generation_cycle_run_terminal_status": "completed",
+            "terminal_kind": partial_terminal.kind.value,
+            "refinement_decision": core_contracts.n6_stop_projection_decision(
+                partial_terminal.kind.value
+            ),
+            "search_iteration_status": "stopped",
+            "grounding_status": "grounded_shadow",
+            "grounding_current_valid": False,
+            "value_status": "value_conditional",
+            "value_decision_grade": "low",
+            "value_authority_blockers": ("interaction_sampling_not_established",),
+            "voi_next_action": "stop",
+        }
+    )
+
+    cas_path = tmp_path / "cyc05-historical-partial-cas"
+    writer = FileSystemCAS(cas_path)
+    history_ref = writer.put_json(
+        history.model_dump(mode="json"),
+        ArtifactWriteOptions(
+            kind="test.e02.cyc05.historical_n6_history_row",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.runtime.RunGenericCycleSimulationN6CycleHistoryEntry",
+                version="1.0",
+            ),
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    reader = FileSystemCAS(cas_path)
+    assert reader is not writer
+    assert reader.verify(history_ref).ok
+    reopened = core_contracts.RunGenericCycleSimulationN6CycleHistoryEntry.model_validate(
+        read_core_json_artifact(reader, history_ref).value
+    )
+
+    assert reopened.terminal_kind == "grounded_partial_admissible"
+    assert reopened.refinement_decision == "stop"
+    assert reopened.search_iteration_status == "stopped"
+    assert reopened.grounding_current_valid is False
+    assert reopened.value_status == "value_conditional"
+    # This is a typed historical DTO control, not evidence that the present N6
+    # controller produced a partial terminal or that it is deployment-current.
+
+
+@pytest.mark.asyncio
 async def test_voi_scheduler_changes_next_action_under_varying_budget_and_terminal() -> None:
     controller = GenerationCycleController(
         generation_port=_CounterexampleAwareGenerator(),

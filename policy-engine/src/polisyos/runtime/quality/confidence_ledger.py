@@ -10669,11 +10669,20 @@ def _source_facade_runtime_projection(
                         expected_literal = ast.literal_eval(expression)
                     except (ValueError, TypeError, SyntaxError, MemoryError):
                         expected_literal = _source_immutable_constant_expression(expression)
+                        if expected_literal is _SOURCE_DERIVATION_FAILED:
+                            expected_literal = _source_frozenset_literal_expression(
+                                expression,
+                                tree=provider_tree,
+                                module=provider_module,
+                                module_name=provider_name,
+                                repo_root=repo_root,
+                            )
                     # Preserve the existing direct-route literal grammar: the
                     # folding-only AST budget must not turn a large immutable
                     # literal into an unchecked selected runtime value.
-                    if _exact_literal_equal(
-                        expected_literal, expected_literal
+                    if (
+                        type(expected_literal) is frozenset
+                        or _exact_literal_equal(expected_literal, expected_literal)
                     ) and not _exact_literal_equal(provider_value, expected_literal):
                         raise ConfidenceLedgerError(
                             "canonical_loaded_runtime_mismatch",
@@ -13293,6 +13302,29 @@ def _source_immutable_constant_expression(node: ast.expr) -> object:
     return _SOURCE_DERIVATION_FAILED
 
 
+def _source_frozenset_literal_expression(
+    node: ast.expr,
+    *,
+    tree: ast.Module,
+    module: types.ModuleType,
+    module_name: str,
+    repo_root: Path | None = None,
+) -> object:
+    """Reuse the bounded value owner for only the canonical frozenset constructor."""
+
+    if not (
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and _source_import_binding(node.func.id, tree=tree, module=module, module_name=module_name)
+        is _builtins.frozenset
+    ):
+        return _SOURCE_DERIVATION_FAILED
+    value = _source_dataclass_value(
+        node, tree=tree, module=module, module_name=module_name, repo_root=repo_root
+    )
+    return value if type(value) is frozenset else _SOURCE_DERIVATION_FAILED
+
+
 def _source_dataclass_named_constant(
     name: str,
     *,
@@ -13326,6 +13358,14 @@ def _source_dataclass_named_constant(
             )
         else:
             expected = _source_immutable_constant_expression(expression)
+            if expected is _SOURCE_DERIVATION_FAILED:
+                expected = _source_frozenset_literal_expression(
+                    expression,
+                    tree=tree,
+                    module=module,
+                    module_name=module_name,
+                    repo_root=repo_root,
+                )
     elif kind == "import_from" and isinstance(statement, ast.ImportFrom) and alias is not None:
         if (
             _source_import_binding(name, tree=tree, module=module, module_name=module_name)
@@ -13377,7 +13417,7 @@ def _source_dataclass_named_constant(
         )
     else:
         return _SOURCE_DERIVATION_FAILED
-    if expected is _SOURCE_DERIVATION_FAILED or not _source_dataclass_values_equal(
+    if expected is _SOURCE_DERIVATION_FAILED or not _exact_literal_equal(
         vars(module).get(name, _SOURCE_DERIVATION_FAILED), expected
     ):
         return _SOURCE_DERIVATION_FAILED
@@ -13477,13 +13517,16 @@ def _source_dataclass_value(
                 return _SOURCE_DERIVATION_FAILED
             if keyword.arg == "hash" and value is not None and type(value) is not bool:
                 return _SOURCE_DERIVATION_FAILED
-            if keyword.arg == "default_factory" and value not in {
-                _builtins.dict,
-                _builtins.list,
-                _builtins.set,
-                _builtins.tuple,
-                _builtins.frozenset,
-            }:
+            if keyword.arg == "default_factory" and not any(
+                value is candidate
+                for candidate in (
+                    _builtins.dict,
+                    _builtins.list,
+                    _builtins.set,
+                    _builtins.tuple,
+                    _builtins.frozenset,
+                )
+            ):
                 return _SOURCE_DERIVATION_FAILED
             if keyword.arg == "metadata" and type(value) is not dict:
                 return _SOURCE_DERIVATION_FAILED
@@ -13492,15 +13535,37 @@ def _source_dataclass_value(
             return _dataclasses.field(**options)
         except (TypeError, ValueError):
             return _SOURCE_DERIVATION_FAILED
+    if function is _builtins.frozenset and len(node.args) == 1 and not node.keywords:
+        argument = node.args[0]
+        if (
+            not isinstance(argument, (ast.Set, ast.Tuple))
+            or sum(1 for _ in ast.walk(argument)) > 10000
+        ):
+            return _SOURCE_DERIVATION_FAILED
+        try:
+            members = ast.literal_eval(argument)
+        except (ValueError, TypeError, SyntaxError, MemoryError):
+            return _SOURCE_DERIVATION_FAILED
+        if (
+            type(members) not in {set, tuple}
+            or len(members) > 10000
+            or _source_immutable_member_projection(tuple(members)) is _SOURCE_DERIVATION_FAILED
+        ):
+            return _SOURCE_DERIVATION_FAILED
+        # Only source-created builtin containers and inert immutable members
+        # reach the canonical builtin. No user iterator/hash callback can run.
+        return function(members)
     if (
-        function
-        in {
-            _builtins.dict,
-            _builtins.list,
-            _builtins.set,
-            _builtins.tuple,
-            _builtins.frozenset,
-        }
+        any(
+            function is candidate
+            for candidate in (
+                _builtins.dict,
+                _builtins.list,
+                _builtins.set,
+                _builtins.tuple,
+                _builtins.frozenset,
+            )
+        )
         and not node.args
         and not node.keywords
     ):
@@ -13524,7 +13589,9 @@ def _source_dataclass_values_equal(actual: object, expected: object, *, depth: i
             _source_dataclass_values_equal(left, right, depth=depth + 1)
             for left, right in zip(actual, expected, strict=True)
         )
-    if type(actual) in {set, frozenset}:
+    if type(actual) is frozenset:
+        return _source_frozenset_literals_equal(actual, expected)
+    if type(actual) is set:
         return _normalize_runtime_binding_value(actual, seen=set()) == (
             _normalize_runtime_binding_value(expected, seen=set())
         )
@@ -16138,6 +16205,20 @@ def _source_module_direct_binding_route(
                 and _source_immutable_constant_expression(value) is not _SOURCE_DERIVATION_FAILED
             ):
                 return "symbol", module_name, export_name
+            module = sys.modules.get(module_name)
+            if (
+                value is not None
+                and type(module) is types.ModuleType
+                and _source_frozenset_literal_expression(
+                    value,
+                    tree=tree,
+                    module=module,
+                    module_name=module_name,
+                    repo_root=repo_root,
+                )
+                is not _SOURCE_DERIVATION_FAILED
+            ):
+                return "symbol", module_name, export_name
             if _read_api_surface_source_binding_supported(
                 module_name,
                 export_name,
@@ -16561,11 +16642,84 @@ def _exact_literal_equal(actual: object, expected: object) -> bool:
         return len(actual) == len(expected) and all(
             _exact_literal_equal(left, right) for left, right in zip(actual, expected, strict=True)
         )
+    if type(actual) is frozenset:
+        return _source_frozenset_literals_equal(actual, expected)
     if type(actual) is float:
         return actual == actual and expected == expected and actual.hex() == expected.hex()
     if type(actual) in {str, int, bool, bytes, type(None)}:
         return actual == expected
     return False
+
+
+def _source_frozenset_literals_equal(actual: object, expected: object) -> bool:
+    """Compare finite immutable members without coercion or unknown-object protocols."""
+
+    if (
+        type(actual) is not frozenset
+        or type(expected) is not frozenset
+        or len(actual) != len(expected)
+    ):
+        return False
+    # Each input receives the same finite admission budget. Sharing one input's
+    # budget between the two would reject honest values near the boundary and
+    # must never turn a recognized source literal into an unchecked binding.
+    expected_projection = _source_immutable_member_projection(expected)
+    if expected_projection is _SOURCE_DERIVATION_FAILED:
+        return False
+    actual_projection = _source_immutable_member_projection(actual)
+    return (
+        actual_projection is not _SOURCE_DERIVATION_FAILED
+        and actual_projection == expected_projection
+    )
+
+
+def _source_immutable_member_projection(
+    value: object, *, budget: list[int] | None = None, depth: int = 0
+) -> object:
+    """Read bounded inert members; count expanded occurrences, including shared tuples."""
+
+    if budget is None:
+        budget = [10000, 1024**2]
+    if depth > 40 or budget[0] <= 0:
+        return _SOURCE_DERIVATION_FAILED
+    budget[0] -= 1
+    value_type = type(value)
+    # Classify only by identity. Hashing an unknown type can run its metaclass.
+    if value_type is type(None):
+        return ("none",)
+    if value_type is bool:
+        return ("bool", value)
+    if value_type is int:
+        scalar_bytes = (value.bit_length() + 7) // 8
+        tag = "int"
+    elif value_type is str:
+        scalar_bytes = len(value) * 4
+        tag = "str"
+    elif value_type is bytes:
+        scalar_bytes = len(value)
+        tag = "bytes"
+    elif value_type is float:
+        return ("float", value.hex()) if value == value else _SOURCE_DERIVATION_FAILED
+    elif value_type is tuple or value_type is frozenset:
+        if len(value) > budget[0]:
+            return _SOURCE_DERIVATION_FAILED
+        members = []
+        for member in value:
+            projection = _source_immutable_member_projection(member, budget=budget, depth=depth + 1)
+            if projection is _SOURCE_DERIVATION_FAILED:
+                return _SOURCE_DERIVATION_FAILED
+            members.append(projection)
+        # Every projection contains only these exact inert builtins. No live
+        # member is normalized, hashed, compared, or retained as an unknown object.
+        return (
+            ("tuple", tuple(members)) if value_type is tuple else ("frozenset", frozenset(members))
+        )
+    else:
+        return _SOURCE_DERIVATION_FAILED
+    if scalar_bytes > budget[1]:
+        return _SOURCE_DERIVATION_FAILED
+    budget[1] -= scalar_bytes
+    return (tag, value)
 
 
 _UNSUPPORTED_SOURCE_LITERAL = object()

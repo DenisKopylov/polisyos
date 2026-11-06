@@ -1194,3 +1194,332 @@ def test_unknown_identity_decorator_is_not_admitted_by_plain_function_shape(deco
 
     with pytest.raises(ledger.ConfidenceLedgerError, match="decorated direct source binding"):
         _route(root, module, "unsupported_identity")
+
+
+def _frozen_source(expression: str) -> str:
+    return (
+        "from __future__ import annotations\n"
+        f"VALUES = {expression}\n"
+        "def read_values():\n    return VALUES\n"
+        f"def construct_values():\n    return {expression}\n"
+    )
+
+
+def _source_constant_value(root, module, name="VALUES"):
+    tree = ast.parse(Path(module.__file__).read_bytes(), filename=module.__file__)
+    return ledger._source_dataclass_named_constant(
+        name, repo_root=root, tree=tree, module=module, module_name=module.__name__
+    )
+
+
+def test_actual_core_frozenset_source_route_and_value_are_reconciled():
+    from polisyos.core.canon import canon_json
+
+    root = ledger._loaded_policy_engine_root()
+    expected = frozenset(
+        {"array_digest", "bytes", "bytes_hex", "date", "datetime", "decimal", "float", "float_hex"}
+    )
+    assert _source_constant_value(root, canon_json, "_CANONICAL_TYPES") == expected
+    assert _route(root, canon_json, "_CANONICAL_TYPES") == (
+        "symbol",
+        canon_json.__name__,
+        "_CANONICAL_TYPES",
+    )
+    assert canon_json.to_canonical_bytes({"field": 4}) == b'{"field":4}'
+
+
+@pytest.mark.parametrize(
+    "expression", ["frozenset({'alpha', 'beta'})", "frozenset(('alpha', 'beta'))", "frozenset()"]
+)
+def test_frozenset_literal_constructor_uses_existing_value_owner(tmp_path, monkeypatch, expression):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _frozen_source(expression))
+    expected = frozenset() if expression == "frozenset()" else frozenset({"alpha", "beta"})
+    assert expected == module.read_values() == module.construct_values()
+    assert _source_constant_value(root, module) == expected
+    assert _route(root, module, "VALUES") == ("symbol", module.__name__, "VALUES")
+
+
+def test_frozenset_constructor_alias_requires_actual_builtin(tmp_path, monkeypatch):
+    source = _frozen_source("freeze({'alpha', 'beta'})").replace(
+        "from __future__ import annotations\n",
+        "from __future__ import annotations\nfrom builtins import frozenset as freeze\n",
+    )
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    assert _source_constant_value(root, module) == frozenset({"alpha", "beta"})
+    assert _route(root, module, "VALUES") == ("symbol", module.__name__, "VALUES")
+
+
+@pytest.mark.parametrize("binding", ["module", "builtins"])
+def test_frozenset_constructor_refuses_shadow_without_calling_it(tmp_path, monkeypatch, binding):
+    root, module = _load_decorated_case(
+        tmp_path, monkeypatch, _frozen_source("frozenset({'alpha'})")
+    )
+    observed = []
+
+    def forbidden(_members):
+        observed.append("called")
+        return frozenset({"forged"})
+
+    if binding == "module":
+        monkeypatch.setattr(module, "frozenset", forbidden, raising=False)
+    else:
+        monkeypatch.setattr(module, "__builtins__", {**vars(builtins), "frozenset": forbidden})
+    assert _source_constant_value(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    with pytest.raises(
+        ledger.ConfidenceLedgerError, match="side-effecting direct source assignment"
+    ):
+        _route(root, module, "VALUES")
+    assert observed == []
+
+
+@pytest.mark.parametrize("expression", ["frozenset({'alpha', 'beta'})", "frozenset({1})"])
+def test_frozenset_live_members_are_typed_and_source_bound(tmp_path, monkeypatch, expression):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _frozen_source(expression))
+    assert _source_constant_value(root, module) is not ledger._SOURCE_DERIVATION_FAILED
+    wrong = frozenset({"alpha", "forged"}) if "alpha" in expression else frozenset({True})
+    if "alpha" not in expression:
+        assert wrong == module.VALUES
+        assert type(next(iter(wrong))) is bool
+        assert type(next(iter(module.VALUES))) is int
+    monkeypatch.setattr(module, "VALUES", wrong)
+    assert module.read_values() is wrong
+    assert _source_constant_value(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    consumer = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.frozen_consumer",
+        f"from {module.__name__} import VALUES\nRESULT = VALUES\n",
+    )
+    assert consumer.RESULT is wrong
+    closure = tuple(
+        (owner.__name__, Path(owner.__file__).relative_to(root).as_posix())
+        for owner in (module, consumer)
+    )
+    with pytest.raises(
+        ledger.ConfidenceLedgerError, match="selected source literal binding differs"
+    ):
+        ledger._source_facade_runtime_projection(root, closure)
+
+
+@pytest.mark.parametrize(
+    "expression",
+    ["frozenset(['alpha'])", "frozenset(TOKEN)", "frozenset((read_values(),))", "set({'alpha'})"],
+)
+def test_frozenset_literal_profile_refuses_mutable_dynamic_and_call_arguments(
+    tmp_path, monkeypatch, expression
+):
+    source = _frozen_source("frozenset({'alpha'})")
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    observed = []
+    monkeypatch.setattr(module, "TOKEN", ("alpha",), raising=False)
+    monkeypatch.setattr(module, "read_values", lambda: observed.append("called"))
+    changed = source.replace("VALUES = frozenset({'alpha'})", f"VALUES = {expression}")
+    Path(module.__file__).write_text(changed, encoding="utf-8")
+    assert _source_constant_value(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    with pytest.raises(
+        ledger.ConfidenceLedgerError, match="side-effecting direct source assignment"
+    ):
+        _route(root, module, "VALUES")
+    assert observed == []
+
+
+def test_frozenset_constructor_refusal_does_not_hash_unknown_callable(tmp_path, monkeypatch):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    provider = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.frozen_constructor_provider",
+        "from builtins import frozenset as Ctor\n",
+    )
+    source = _frozen_source("Ctor({'alpha'})").replace(
+        "from __future__ import annotations\n",
+        "from __future__ import annotations\nfrom polisyos.frozen_constructor_provider import Ctor\n",
+    )
+    module = _load_fixture_module(root, monkeypatch, "polisyos.frozen_hash_control", source)
+    observed = []
+
+    class UnverifiedConstructor:
+        def __hash__(self):
+            observed.append("hash")
+            return 1
+
+        def __call__(self, _members):
+            observed.append("call")
+            return frozenset({"forged"})
+
+    unverified = UnverifiedConstructor()
+    monkeypatch.setattr(provider, "Ctor", unverified)
+    monkeypatch.setattr(module, "Ctor", unverified)
+    tree = ast.parse(source, filename=module.__file__)
+    expression = next(item.value for item in tree.body if isinstance(item, ast.Assign))
+    assert (
+        ledger._source_dataclass_value(
+            expression, tree=tree, module=module, module_name=module.__name__, repo_root=root
+        )
+        is ledger._SOURCE_DERIVATION_FAILED
+    )
+    assert _source_constant_value(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    assert observed == []
+
+
+def test_frozenset_constructor_cannot_hide_captured_builtin_namespace(tmp_path, monkeypatch):
+    _root, module = _load_decorated_case(
+        tmp_path, monkeypatch, _frozen_source("frozenset({'alpha'})")
+    )
+    assert module.construct_values() == frozenset({"alpha"})
+    clone = _with_captured_builtins(
+        module.construct_values, {"frozenset": lambda _values: frozenset({"forged"})}
+    )
+    monkeypatch.setattr(module, "construct_values", clone)
+    assert module.construct_values() == frozenset({"forged"})
+    path = Path(module.__file__).resolve()
+    compiled = compile(path.read_bytes(), str(path), "exec", dont_inherit=True)
+    hashes = ledger._loader_code_hashes_by_qualname(compiled)
+    slot = next(
+        item
+        for item in ledger._loader_owned_callable_slots(path)
+        if item.binding_name == "construct_values"
+    )
+    _row, matches = ledger._loader_owned_slot_binding(
+        module, module.__name__, path, slot, hashes[slot.qualname], hashes
+    )
+    assert matches is False
+
+
+def test_frozenset_member_proof_does_not_invoke_unknown_object_protocols(tmp_path, monkeypatch):
+    root, module = _load_decorated_case(
+        tmp_path, monkeypatch, _frozen_source("frozenset({'alpha'})")
+    )
+    observed = []
+
+    class UnverifiedMember:
+        def __hash__(self):
+            observed.append("hash")
+            return 1
+
+        def __getattribute__(self, name):
+            if name == "__dict__":
+                observed.append("dictionary")
+            return object.__getattribute__(self, name)
+
+    wrong = frozenset({UnverifiedMember()})
+    observed.clear()
+    monkeypatch.setattr(module, "VALUES", wrong)
+    assert _source_constant_value(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    assert observed == []
+
+
+def test_frozenset_member_proof_does_not_hash_unknown_metaclass(tmp_path, monkeypatch):
+    root, module = _load_decorated_case(
+        tmp_path, monkeypatch, _frozen_source("frozenset({'alpha'})")
+    )
+    observed = []
+
+    class UnverifiedMeta(type):
+        def __hash__(cls):
+            observed.append("metaclass_hash")
+            return 1
+
+    class UnverifiedMember(metaclass=UnverifiedMeta):
+        pass
+
+    monkeypatch.setattr(module, "VALUES", frozenset({UnverifiedMember()}))
+    observed.clear()
+    assert _source_constant_value(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    assert observed == []
+
+
+@pytest.mark.parametrize("shape", ["nested_frozen", "shared_tuple", "large_string", "large_int"])
+def test_frozenset_live_member_proof_has_one_expansion_and_scalar_budget(
+    tmp_path, monkeypatch, shape
+):
+    root, module = _load_decorated_case(
+        tmp_path, monkeypatch, _frozen_source("frozenset({'alpha'})")
+    )
+    if shape == "nested_frozen":
+        wrong = "alpha"
+        for _ in range(50):
+            wrong = frozenset({wrong})
+    elif shape == "shared_tuple":
+        member = "alpha"
+        for _ in range(13):
+            member = (member, member)
+        wrong = frozenset({member})
+    elif shape == "large_string":
+        wrong = frozenset({"x" * (1024**2)})
+    else:
+        wrong = frozenset({1 << (8 * 1024**2)})
+    # Count expanded references rather than unique objects: normalizing this
+    # compact tuple DAG before validation would expand it exponentially.
+    budget = [10000, 1024**2]
+    assert (
+        ledger._source_immutable_member_projection(wrong, budget=budget)
+        is ledger._SOURCE_DERIVATION_FAILED
+    )
+    assert 0 <= budget[0] <= 10000
+    assert 0 <= budget[1] <= 1024**2
+    monkeypatch.setattr(module, "VALUES", wrong)
+    assert _source_constant_value(root, module) is ledger._SOURCE_DERIVATION_FAILED
+
+
+def test_frozenset_literal_relation_preserves_nested_types_and_float_sign(tmp_path, monkeypatch):
+    expression = "frozenset({('alpha', 1, True, b'bytes', -0.0, None)})"
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _frozen_source(expression))
+    assert _source_constant_value(root, module) is not ledger._SOURCE_DERIVATION_FAILED
+    monkeypatch.setattr(module, "VALUES", frozenset({("alpha", True, 1, b"bytes", 0.0, None)}))
+    # Python's container equality conflates these values; the source relation
+    # preserves member types and the exact finite float representation.
+    assert module.construct_values() == module.VALUES
+    assert _source_constant_value(root, module) is ledger._SOURCE_DERIVATION_FAILED
+
+
+@pytest.mark.parametrize("shape", ["scalar_bytes", "member_occurrences"])
+def test_frozenset_admitted_budget_boundary_is_verified_by_selected_consumer(
+    tmp_path, monkeypatch, shape
+):
+    expected = frozenset({"a" * 200000}) if shape == "scalar_bytes" else frozenset(range(6000))
+    expression = f"frozenset({tuple(expected)!r})"
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _frozen_source(expression))
+    assert _source_constant_value(root, module) == expected
+    consumer = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.frozen_boundary_consumer",
+        f"from {module.__name__} import VALUES\nRESULT = VALUES\n",
+    )
+    closure = tuple(
+        (owner.__name__, Path(owner.__file__).relative_to(root).as_posix())
+        for owner in (module, consumer)
+    )
+    ledger._source_facade_runtime_projection(root, closure)
+    wrong = frozenset({"b" * 200000}) if shape == "scalar_bytes" else frozenset(range(1, 6001))
+    monkeypatch.setattr(module, "VALUES", wrong)
+    monkeypatch.setattr(consumer, "VALUES", wrong)
+    monkeypatch.setattr(consumer, "RESULT", wrong)
+    assert consumer.RESULT is wrong
+    with pytest.raises(
+        ledger.ConfidenceLedgerError, match="selected source literal binding differs"
+    ):
+        ledger._source_facade_runtime_projection(root, closure)
+
+
+def test_frozenset_constructor_source_is_pinned_and_removal_refuses(tmp_path, monkeypatch):
+    source = _frozen_source("frozenset({'alpha'})")
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    assert _candidate(root, module, "VALUES").route == ("symbol", module.__name__, "VALUES")
+    path = Path(module.__file__)
+    path.write_text(
+        source.replace("VALUES = frozenset({'alpha'})", "VALUES = {'alpha'}"), encoding="utf-8"
+    )
+    assert _source_constant_value(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    path.write_text(source, encoding="utf-8")
+    assert _source_constant_value(root, module) == frozenset({"alpha"})
+    original = ledger._source_frozenset_literal_expression
+
+    def change_source_during_proof(*args, **kwargs):
+        path.write_text(source + "\n# source changed during proof\n", encoding="utf-8")
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(ledger, "_source_frozenset_literal_expression", change_source_during_proof)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="source changed during"):
+        _candidate(root, module, "VALUES")

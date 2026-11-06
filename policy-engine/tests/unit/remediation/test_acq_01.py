@@ -565,15 +565,19 @@ class _Acq01MacroContextGrounding:
         cycle_index: int,
         generation_result: Any | None = None,
     ) -> CandidateGroundingObservation:
-        del cycle_index, generation_result
+        del cycle_index
         candidate_id = str(candidate.candidate_id)
         candidate_hash = generation_cycle_module._candidate_content_hash(candidate)
         problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        generation_problem_ref = getattr(generation_result, "design_problem_ref", None)
+        candidate_problem_ref = getattr(candidate.atom, "problem_frame_ref", None)
         if (
             candidate_id != self._case.candidate.candidate_id
             or candidate_hash
             != generation_cycle_module._candidate_content_hash(self._case.candidate)
             or problem_ref != gy_content_hash(self._case.problem.model_dump(mode="json"))
+            or generation_problem_ref != problem_ref
+            or candidate_problem_ref != problem_ref
         ):
             raise AssertionError("acq01_macro_context_grounding_subject_mismatch")
 
@@ -657,7 +661,9 @@ class _Acq01MacroContextGrounding:
 
 
 class _WorldBoundSimulation:
-    def __init__(self) -> None:
+    def __init__(self, *, pending_n5: bool = False) -> None:
+        self.pending_n5 = pending_n5
+        # These are WMR refs presented to the callback, not proof that N5 ran.
         self.world_refs: list[str] = []
 
     def __call__(
@@ -676,6 +682,13 @@ class _WorldBoundSimulation:
         assert isinstance(atom, InterventionAtomBinding)
         world_ref = str(atom.world_model_record_ref)
         self.world_refs.append(world_ref)
+        if self.pending_n5:
+            return SimulationPortObservation(
+                candidate_id=str(candidate.candidate_id),
+                status="simulation_pending_n5",
+                authority_blockers=("fixture_n5_not_executed",),
+                diagnostics={"reason": "preflight_does_not_execute_n5"},
+            )
         return SimulationPortObservation(
             candidate_id=str(candidate.candidate_id),
             status="joint_simulated",
@@ -2096,6 +2109,7 @@ def _real_acq01_macro_context_case(
     tmp_path: Path,
     *,
     problem_id: str = "acq_01_real_ports",
+    artifact_store: Any | None = None,
 ) -> Any:
     """Build the employment case with a compiler-grounded nominal-GDP context need."""
 
@@ -2225,6 +2239,7 @@ def _real_acq01_macro_context_case(
     before_context = _real_acq01_before_context(
         tmp_path / "nominal-gdp-before",
         problem,
+        artifact_store=artifact_store,
         additional_policy_slot_ids=("global.tax_rate",),
         world_model_scope={
             "region_or_jurisdiction": "US",
@@ -2290,6 +2305,211 @@ def _real_acq01_macro_context_case(
     )
 
 
+@contextmanager
+def _acq01_verified_job_execution(tmp_path: Path, problem: DesignProblem) -> Iterator[Any]:
+    """Hold one real simulate-only worker lease while exercising N7 context ownership."""
+
+    import asyncio
+
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.core.contracts.control import NaturalLanguageRunRequest
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
+    from polisyos.runtime.quality.data_forge_binding import bind_measurement_root_execution_scope
+    from tests._helpers.runtime_http import _build_control_service, _valid_intake_for_mode
+    from tests.unit.runtime.http.control_service_test_support import bound_nl_authorization_proof
+    from tests.unit.runtime.http.test_control_service_di import _fixture_claims
+
+    claims = _fixture_claims()
+    tenant_id, cell_id = claims.tenant_id, claims.cell_id
+    assert tenant_id is not None and cell_id is not None
+    store = FileSystemCAS(tmp_path / "verified-job-cas").for_tenant(tenant_id, cell_id)
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        service = _build_control_service(
+            tmp_path / "verified-job-service",
+            artifact_store=store,
+            repo_root=REPO_ROOT,
+        )
+    try:
+        assert service._artifact_store is store
+        request = NaturalLanguageRunRequest(
+            request=problem.nl_provenance.raw_request,
+            llm_model="simulated-qwen",
+            context={
+                "evaluation_safety_attempt": _valid_intake_for_mode("simulate_only").model_dump(
+                    mode="json"
+                )
+            },
+            max_iterations=1,
+        )
+        launch = asyncio.run(
+            service.launch_nl_run(
+                request,
+                principal=RuntimePrincipal.from_user_claims(claims),
+                authorization_proof=bound_nl_authorization_proof(claims, request),
+            )
+        )
+        lease = service._control_store.lease_next_job(
+            worker_id="acq01-context-owner", lease_seconds=600
+        )
+        assert lease is not None and lease.job_id == launch.job_id
+        with service._control_store.job_execution_fence(
+            job_id=lease.job_id,
+            worker_id=lease.lease_owner,
+            attempt=lease.attempt,
+        ):
+            admission = service._control_store.current_execution_job_admission()
+            assert admission.job.job_id == lease.job_id == launch.job_id
+            assert admission.job.run_id == launch.run_id
+            assert admission.job.state == "running"
+            assert admission.job.lease_owner == lease.lease_owner
+            assert admission.job.attempt == lease.attempt
+            assert (admission.scope.tenant_id, admission.scope.cell_id) == (tenant_id, cell_id)
+            with service._install_execution_scope(admission.scope):
+                payload = service._load_control_nl_job_payload(admission.job)
+                payload = service._payload_for_execution_scope(
+                    payload,
+                    job=admission.job,
+                    execution_scope=admission.scope,
+                )
+                manifest_ref, manifest = service._resolve_capability_manifest_for_execution(
+                    job=admission.job,
+                    admission=admission,
+                    execution_scope=admission.scope,
+                )
+                intent_binding = service._bind_control_job_execution_intent(
+                    job=admission.job,
+                    admission=admission,
+                    execution_scope=admission.scope,
+                    payload=payload,
+                    capability_manifest_ref=manifest_ref,
+                    capability_manifest=manifest,
+                )
+                assert intent_binding is not None
+                verified_scope = intent_binding["_verified_nl_job_scope"]
+                assert verified_scope._was_issued_by_verified_nl_execution_owner
+                assert (
+                    verified_scope.job_id,
+                    verified_scope.run_id,
+                    verified_scope.tenant_id,
+                    verified_scope.cell_id,
+                    verified_scope.worker_id,
+                    verified_scope.attempt,
+                ) == (
+                    lease.job_id,
+                    launch.run_id,
+                    tenant_id,
+                    cell_id,
+                    lease.lease_owner,
+                    lease.attempt,
+                )
+                request_snapshot = payload.get("nl_request_snapshot")
+                assert isinstance(request_snapshot, Mapping)
+                persisted_request = request_snapshot.get("request")
+                assert isinstance(persisted_request, Mapping)
+                assert NaturalLanguageRunRequest.model_validate(persisted_request) == request
+                persisted_intent = payload.get("execution_intent_binding")
+                assert isinstance(persisted_intent, Mapping)
+                assert persisted_intent.get("intent_digest") == intent_binding.get("intent_digest")
+                assert intent_binding.get("intent_band") == "simulate_only_attempt"
+                assert intent_binding.get("canonical_mode") == "simulate_only"
+                execution_scope_binding = bind_measurement_root_execution_scope(
+                    admission=admission,
+                    job=admission.job,
+                    execution_scope=admission.scope,
+                )
+                assert execution_scope_binding.authority_eligible
+                assert execution_scope_binding.admission is admission
+                context_owner = CycleSubstrateContextArtifactOwner(
+                    store=store,
+                    control_store=service._control_store,
+                )
+                assert context_owner._store is service._artifact_store is store
+                try:
+                    yield SimpleNamespace(
+                        store=store,
+                        service=service,
+                        context_owner=context_owner,
+                        verified_scope=verified_scope,
+                        execution_scope_binding=execution_scope_binding,
+                        lease=lease,
+                        job_id=lease.job_id,
+                    )
+                finally:
+                    service._control_store.complete_job(
+                        job_id=admission.job.job_id,
+                        run_id=admission.job.run_id,
+                    )
+    finally:
+        service.close()
+
+
+def test_acq01_verified_job_context_owner_reuses_selected_nl_job(
+    tmp_path: Path,
+) -> None:
+    """Persisted initial context carries the exact served job owner and request."""
+
+    problem = _problem(problem_id="acq01_verified_job_context", domain="fiscal_credit")
+    lever = problem.candidate_lever_space.candidate_levers[0].model_copy(
+        update={"target_slot": "agents.income"}
+    )
+    problem = problem.model_copy(
+        update={
+            "schema_version": DESIGN_PROBLEM_V3_SCHEMA_VERSION,
+            "jurisdiction_time": problem.jurisdiction_time.model_copy(update={"region": "UA-30"}),
+            "candidate_lever_space": problem.candidate_lever_space.model_copy(
+                update={"candidate_levers": [lever]}
+            ),
+        }
+    )
+    problem = DesignProblem.model_validate(problem.model_dump(mode="python"))
+    with _acq01_verified_job_execution(tmp_path, problem) as job:
+        context = _real_acq01_before_context(
+            tmp_path / "owner-bound-context",
+            problem,
+            artifact_store=job.store,
+        )
+        controller = GenerationCycleController(
+            authority_scope="contract_testing",
+            repo_root=REPO_ROOT,
+            artifact_store=job.store,
+            cycle_substrate_context=context,
+            candidate_cycle_context_artifact_owner=job.context_owner,
+            candidate_cycle_verified_nl_job_scope=job.verified_scope,
+            measurement_root_execution_binding=job.execution_scope_binding,
+        )
+        context_job_ref = controller._persist_resolve_and_bind_cycle_substrate_context(
+            context,
+            previous_problem=problem,
+            problem=problem,
+        )
+        assert controller._candidate_cycle_context_job_ref == context_job_ref
+        manifest = job.store.get_manifest(context_job_ref)
+        assert manifest.tenant_context is not None
+        assert (manifest.tenant_context.tenant_id, manifest.tenant_context.cell_id) == (
+            job.verified_scope.tenant_id,
+            job.verified_scope.cell_id,
+        )
+        selected = job.context_owner.resolve_for_current_job(
+            context_job_ref,
+            problem=problem,
+            repo_root=REPO_ROOT,
+            verified_nl_job_scope=job.verified_scope,
+        )
+        assert selected.job_id == job.lease.job_id == job.job_id
+        assert selected.run_id == job.verified_scope.run_id
+        assert selected.tenant_id == job.verified_scope.tenant_id
+        assert selected.cell_id == job.verified_scope.cell_id
+        assert selected.problem.model_dump(mode="json") == problem.model_dump(mode="json")
+        assert selected.context.model_dump(mode="json") == context.model_dump(mode="json")
+        current = job.service._control_store.current_execution_job_admission()
+        assert current.job.state == "running"
+        assert current.job.attempt == job.lease.attempt
+        assert current.scope.tenant_id == job.verified_scope.tenant_id
+        assert current.scope.cell_id == job.verified_scope.cell_id
+
+
 class _ContextRecordingSimulation:
     def __init__(self) -> None:
         self.controller: GenerationCycleController | None = None
@@ -2326,12 +2546,15 @@ def _build_acq01_real_route_controller(
     value_port: Any = _ACQ01_ROUTE_VALUE_PORT_UNSPECIFIED,
     grounding_port: Any | None = None,
     capability_resolver: Any | None = None,
+    context_owner: Any | None = None,
+    verified_scope: Any | None = None,
 ) -> GenerationCycleController:
     class _RouteGenerationPort:
         async def __call__(self, current: DesignProblem, *, cycle_index: int) -> Any:
-            del current, cycle_index
+            del cycle_index
             return SimpleNamespace(
                 status="generated",
+                design_problem_ref=gy_content_hash(current.model_dump(mode="json")),
                 candidates=(case.candidate,),
                 surrogate_rankings=(
                     SimpleNamespace(
@@ -2377,6 +2600,8 @@ def _build_acq01_real_route_controller(
         measurement_root_execution_binding=(
             route.execution_scope_binding if authority_scope == "contract_testing" else None
         ),
+        candidate_cycle_context_artifact_owner=context_owner,
+        candidate_cycle_verified_nl_job_scope=verified_scope,
         authority_scope=authority_scope,
     )
     if isinstance(simulation, _ContextRecordingSimulation):
@@ -2389,8 +2614,11 @@ def _assert_acq01_compiler_planner_preflight(
     case: Any,
     route: Any,
     repo_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    context_owner: Any,
+    verified_scope: Any,
 ) -> tuple[Any, Any, _Acq01MacroContextGrounding]:
-    """Prove the real compiler-to-planner route without invoking physical N5."""
+    """Prove compiler, owner custody, and re-entry without invoking physical N5."""
 
     import asyncio
 
@@ -2400,7 +2628,7 @@ def _assert_acq01_compiler_planner_preflight(
     )
 
     grounding = _Acq01MacroContextGrounding(case=case, route=route)
-    simulation = _WorldBoundSimulation()
+    simulation = _WorldBoundSimulation(pending_n5=True)
     controller = _build_acq01_real_route_controller(
         case=case,
         route=route,
@@ -2408,19 +2636,41 @@ def _assert_acq01_compiler_planner_preflight(
         repo_root=repo_root,
         grounding_port=grounding,
         capability_resolver=case.capability_resolver,
+        context_owner=context_owner,
+        verified_scope=verified_scope,
     )
-    cycle, _summaries = asyncio.run(
+    context_job_ref = controller._persist_resolve_and_bind_cycle_substrate_context(
+        case.before_context,
+        previous_problem=case.problem,
+        problem=case.problem,
+    )
+    assert controller._candidate_cycle_context_job_ref == context_job_ref
+    prior_context_readback = context_owner.resolve_for_current_job(
+        context_job_ref,
+        problem=case.problem,
+        repo_root=repo_root,
+        verified_nl_job_scope=verified_scope,
+    )
+    assert prior_context_readback.context.model_dump(mode="json") == (
+        case.before_context.model_dump(mode="json")
+    )
+    budget_state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))})
+    cycle, cycle_summaries = asyncio.run(
         controller._run_cycle(
             case.problem,
             cycle_index=0,
-            budget_state=BudgetState(
-                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
-            ),
+            budget_state=budget_state,
             previous_cycle=None,
             stable_design_problem_ref=gy_content_hash(case.problem.model_dump(mode="json")),
         )
     )
     assert cycle.terminal_kind == "acquisition_required"
+    assert cycle.simulation.status == "simulation_pending_n5"
+    assert cycle.simulation.cycle_substrate_context_job_ref == context_job_ref
+    assert cycle.simulation.simulation_result_ref is None
+    assert cycle.simulation.world_model_record is None
+    assert cycle.simulation.k_world_ref_before is None
+    assert cycle.simulation.k_world_ref_after is None
     assert len(simulation.world_refs) == 1
     assert simulation.world_refs == [str(case.candidate.atom.world_model_record_ref)]
     assert cycle.grounding.acquisition_requirement is not None
@@ -2534,6 +2784,280 @@ def _assert_acq01_compiler_planner_preflight(
         for spec in issue_only.specs
         if isinstance(spec, DataRequirementSpec)
     )
+
+    assert type(controller._simulation_port) is _WorldBoundSimulation
+    receipt = controller._run_n7_acquisition_if_requested(
+        case.problem,
+        cycle=cycle,
+        planned_route=planned,
+    )
+    assert receipt is not None
+
+    from polisyos import fabric as fabric_module
+    from polisyos.runtime.quality import data_forge_binding as binding_module
+
+    actual_projection = fabric_module.project_data_requirement_to_catalog_needs
+    projection_observations: list[dict[str, Any]] = []
+
+    def selected_fields(value: object, fields: tuple[str, ...]) -> dict[str, object] | None:
+        if not isinstance(value, Mapping):
+            return None
+        return {field: value.get(field) for field in fields}
+
+    def observe_projection(*, compiled_requirement_spec: object) -> Any:
+        needs, report = actual_projection(compiled_requirement_spec=compiled_requirement_spec)
+        payload = (
+            compiled_requirement_spec if isinstance(compiled_requirement_spec, Mapping) else {}
+        )
+        spec_scope = payload.get("scope")
+        metadata = payload.get("metadata")
+        metadata = metadata if isinstance(metadata, Mapping) else {}
+        profile = metadata.get("scope_profile")
+        raw_resolutions = payload.get("capability_requirement_resolutions", ())
+        if not isinstance(raw_resolutions, (list, tuple)):
+            raw_resolutions = ()
+        projection_observations.append(
+            {
+                "requirement_id": payload.get("requirement_id"),
+                "scope": selected_fields(
+                    spec_scope,
+                    ("population", "geography", "time", "time_role", "jurisdiction"),
+                ),
+                "scope_profile": selected_fields(
+                    profile,
+                    (
+                        "profile_id",
+                        "jurisdiction",
+                        "time_window",
+                        "time_role",
+                        "granularity",
+                        "population",
+                        "entity_scope",
+                        "required_constructs",
+                    ),
+                ),
+                "resolution_queries": tuple(
+                    {
+                        "profile_id": row.get("scope_profile_id"),
+                        "query": selected_fields(
+                            row.get("query"),
+                            (
+                                "construct",
+                                "source_family_alias",
+                                "geography",
+                                "time_window",
+                            ),
+                        ),
+                        "candidates": tuple(
+                            {
+                                "capability_ref": candidate.get("capability_ref"),
+                                "construct_ref": candidate.get("construct_ref"),
+                                "content_digest": candidate.get("content_digest"),
+                                "source_asset_count": (
+                                    len(candidate["source_assets"])
+                                    if isinstance(candidate.get("source_assets"), (list, tuple))
+                                    else None
+                                ),
+                                "fetch_bindings": tuple(
+                                    selected_fields(
+                                        binding,
+                                        ("connector_id", "dataset_id", "metric_id", "profile_id"),
+                                    )
+                                    for binding in (
+                                        candidate.get("fetch_bindings")
+                                        if isinstance(
+                                            candidate.get("fetch_bindings"), (list, tuple)
+                                        )
+                                        else ()
+                                    )
+                                ),
+                            }
+                            for candidate in (
+                                row.get("candidates")
+                                if isinstance(row.get("candidates"), (list, tuple))
+                                else ()
+                            )
+                            if isinstance(candidate, Mapping)
+                        ),
+                    }
+                    for row in raw_resolutions
+                    if isinstance(row, Mapping)
+                ),
+                "needs": tuple(
+                    {
+                        "metric": need.metric,
+                        "geography": need.geography,
+                        "time_start": need.time_start,
+                        "time_end": need.time_end,
+                        "granularity": need.granularity,
+                    }
+                    for need in needs
+                ),
+                "disposition": report.get("disposition"),
+                "reason_codes": report.get("reason_codes"),
+            }
+        )
+        return needs, report
+
+    original_rows_validator = binding_module._validate_wdi_requirement_rows
+    row_validation_observations: list[dict[str, Any]] = []
+
+    def observe_wdi_rows(
+        data: object,
+        *,
+        requirement: DataRequirementSpec,
+        geography: str,
+        start: str,
+        end: str,
+        dataset_id: str,
+    ) -> None:
+        if hasattr(data, "to_dict"):
+            rows = data.to_dict(orient="records")
+        elif hasattr(data, "to_pylist"):
+            rows = data.to_pylist()
+        elif isinstance(data, (list, tuple)):
+            rows = list(data)
+        else:
+            rows = None
+        country = binding_module.read_api.catalog.normalize_country_code(geography)
+        scope = requirement.scope.model_dump(mode="json")
+        scope_profile = requirement.metadata.get("scope_profile")
+        row_validation_observations.append(
+            {
+                "requirement_id": requirement.requirement_id,
+                "requirement_scope": selected_fields(
+                    scope,
+                    ("population", "geography", "time", "time_role", "jurisdiction"),
+                ),
+                "scope_profile": selected_fields(
+                    scope_profile,
+                    (
+                        "profile_id",
+                        "jurisdiction",
+                        "time_window",
+                        "time_role",
+                        "granularity",
+                        "population",
+                        "entity_scope",
+                        "required_constructs",
+                    ),
+                ),
+                "geography_argument": geography,
+                "normalized_country": country,
+                "time_window": {"start": start, "end": end},
+                "dataset_id": dataset_id,
+                "data_type": f"{type(data).__module__}.{type(data).__qualname__}",
+                "row_count": None if rows is None else len(rows),
+                "row_types": (
+                    tuple(type(row).__name__ for row in rows[:3]) if rows is not None else None
+                ),
+                "row_summaries": tuple(
+                    {
+                        key: row.get(key)
+                        for key in (
+                            "country_code",
+                            "countryiso3code",
+                            "indicator_id",
+                            "year",
+                            "date",
+                            "value",
+                        )
+                        if isinstance(row, Mapping) and key in row
+                    }
+                    for row in (rows[:3] if rows is not None else ())
+                ),
+            }
+        )
+        return original_rows_validator(
+            data,
+            requirement=requirement,
+            geography=geography,
+            start=start,
+            end=end,
+            dataset_id=dataset_id,
+        )
+
+    monkeypatch.setattr(
+        fabric_module,
+        "project_data_requirement_to_catalog_needs",
+        observe_projection,
+    )
+    monkeypatch.setattr(
+        binding_module,
+        "_validate_wdi_requirement_rows",
+        observe_wdi_rows,
+    )
+    try:
+        reentered, _reentered_summaries = controller._reenter_cycle_after_n7_acquisition(
+            case.problem,
+            cycle=cycle,
+            cycle_summaries=cycle_summaries,
+            acquisition_receipt=receipt,
+            budget_state=budget_state,
+            stable_design_problem_ref=gy_content_hash(case.problem.model_dump(mode="json")),
+        )
+    except generation_cycle_module.GenerationCycleError as exc:
+        cause_chain: list[dict[str, str | None]] = []
+        cause: BaseException | None = exc
+        for _ in range(3):
+            if cause is None:
+                break
+            cause_chain.append(
+                {
+                    "type": type(cause).__name__,
+                    "code": getattr(cause, "code", None),
+                    "message": str(cause)[:240],
+                }
+            )
+            cause = cause.__cause__
+        pytest.fail(
+            "ACQ-01 post-custody re-entry preflight failed: "
+            f"causes={cause_chain!r}, projections={projection_observations!r}, "
+            f"row_validation={row_validation_observations!r}",
+            pytrace=False,
+        )
+
+    expected_need = {
+        "metric": "gdp",
+        "geography": "US",
+        "time_start": "2022-01-01",
+        "time_end": "2022-12-31",
+        "granularity": "annual",
+    }
+    assert any(
+        observation["disposition"] == "candidate_only"
+        and isinstance(observation["scope_profile"], Mapping)
+        and observation["scope_profile"].get("profile_id") == "acq_01_real_ports-macro-context-v1"
+        and observation["needs"] == (expected_need,)
+        for observation in projection_observations
+    )
+    assert row_validation_observations
+    validated_rows = row_validation_observations[-1]
+    assert validated_rows["requirement_scope"]["jurisdiction"] == "US"
+    assert validated_rows["scope_profile"]["profile_id"] == ("acq_01_real_ports-macro-context-v1")
+    assert validated_rows["geography_argument"] == "US"
+    assert validated_rows["normalized_country"] == "US"
+    assert validated_rows["time_window"] == {"start": "2022-01-01", "end": "2022-12-31"}
+    assert validated_rows["dataset_id"] == "NY.GDP.MKTP.CD"
+    assert validated_rows["row_count"] == 1
+    assert len(validated_rows["row_summaries"]) == 1
+    assert validated_rows["row_summaries"][0]["country_code"] == "USA"
+    assert validated_rows["row_summaries"][0]["indicator_id"] == "NY.GDP.MKTP.CD"
+    assert validated_rows["row_summaries"][0]["year"] == 2022
+
+    receipt_wire = receipt.model_dump(mode="json")
+    _assert_n7_has_no_grounding_result(receipt_wire, cycle=reentered)
+    assert len(simulation.world_refs) == 2
+    assert simulation.world_refs[0] == str(case.candidate.atom.world_model_record_ref)
+    assert simulation.world_refs[1] == str(route.world_build.record.world_model_record_id)
+    assert simulation.world_refs[1] != simulation.world_refs[0]
+    assert reentered.simulation.status == "simulation_pending_n5"
+    assert reentered.simulation.simulation_result_ref is None
+    assert reentered.simulation.world_model_record is None
+    assert reentered.simulation.k_world_ref_before is None
+    assert reentered.simulation.k_world_ref_after is None
+    assert reentered.grounding.status == "grounding_unavailable"
+    assert reentered.grounding.issue_codes == ("generation_result_problem_scope_unestablished",)
     return cycle, planned, grounding
 
 
@@ -3058,48 +3582,79 @@ def test_acq01_macro_context_compiler_to_planner_preflight(
 ) -> None:
     """The actual N7 planner binds the compiler denominator before any physical N5."""
 
-    case = _real_acq01_macro_context_case(tmp_path)
-    store = FileSystemCAS(tmp_path / "preflight-owner-cas")
-    with (
-        _published_worldbank_owner(
-            tmp_path / "preflight-worldbank-owner",
-            monkeypatch,
-            artifact_store=store,
-            geography="US",
-            metric="gdp",
-            time_start="2022",
-            time_end="2022",
-        ) as selected_owner,
-        _real_acq01_route(
-            tmp_path,
-            case.problem,
-            candidate_content_hash=case.candidate.atom.content_hash,
-            candidate_id=case.candidate.candidate_id,
-            target_world_slots=("global.tax_rate",),
-            requirement_ref=case.data_spec.requirement_id,
-            artifact_store=store,
-            selected_metric="gdp",
-            selected_owner=selected_owner,
-            data_spec_override=case.data_spec,
-            compiled_requirement_family="wdi_nominal_gdp_annual",
-            world_model_scope={
-                "region_or_jurisdiction": "US",
-                "population_scope": "national_economy",
-                "policy_domain": "fiscal_credit",
-                "valid_time_scope": "2022",
-            },
-        ) as route,
-    ):
-        _assert_acq01_compiler_planner_preflight(
-            case=case,
-            route=route,
-            repo_root=REPO_ROOT,
+    initial_case = _real_acq01_macro_context_case(tmp_path / "initial-problem")
+    with _acq01_verified_job_execution(tmp_path, initial_case.problem) as job:
+        case = _real_acq01_macro_context_case(
+            tmp_path / "job-scoped-case",
+            artifact_store=job.store,
         )
+        assert case.problem.model_dump(mode="json") == initial_case.problem.model_dump(mode="json")
+        with (
+            _published_worldbank_owner(
+                tmp_path / "preflight-worldbank-owner",
+                monkeypatch,
+                artifact_store=job.store,
+                geography="US",
+                metric="gdp",
+                time_start="2022",
+                time_end="2022",
+            ) as selected_owner,
+            _real_acq01_route(
+                tmp_path,
+                case.problem,
+                candidate_content_hash=case.candidate.atom.content_hash,
+                candidate_id=case.candidate.candidate_id,
+                target_world_slots=("global.tax_rate",),
+                requirement_ref=case.data_spec.requirement_id,
+                artifact_store=job.store,
+                execution_scope_binding=job.execution_scope_binding,
+                selected_metric="gdp",
+                selected_owner=selected_owner,
+                data_spec_override=case.data_spec,
+                compiled_requirement_family="wdi_nominal_gdp_annual",
+                world_model_scope={
+                    "region_or_jurisdiction": "US",
+                    "population_scope": "national_economy",
+                    "policy_domain": "fiscal_credit",
+                    "valid_time_scope": "2022",
+                },
+            ) as route,
+        ):
+            _assert_acq01_compiler_planner_preflight(
+                case=case,
+                route=route,
+                repo_root=REPO_ROOT,
+                monkeypatch=monkeypatch,
+                context_owner=job.context_owner,
+                verified_scope=job.verified_scope,
+            )
 
 
 def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    initial_case = _real_acq01_macro_context_case(tmp_path / "initial-problem")
+    with _acq01_verified_job_execution(tmp_path, initial_case.problem) as job:
+        case = _real_acq01_macro_context_case(
+            tmp_path / "job-scoped-case",
+            artifact_store=job.store,
+        )
+        assert case.problem.model_dump(mode="json") == initial_case.problem.model_dump(mode="json")
+        _run_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
+            tmp_path=tmp_path,
+            monkeypatch=monkeypatch,
+            case=case,
+            job=job,
+        )
+
+
+def _run_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
+    *,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    case: Any,
+    job: Any,
 ) -> None:
     """A current scoped source reaches N5 and default N8 with candidate-only value."""
     import asyncio
@@ -3108,11 +3663,10 @@ def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
         build_fabric_measurement_requirement,
     )
 
-    case = _real_acq01_macro_context_case(tmp_path)
     source_family = "gdp"
     # The WDI observation is persisted as a separate context input. N5 uses a
     # normalized toy outcome mapping and does not claim a GDP-to-jobs effect.
-    runtime_store = FileSystemCAS(tmp_path / "published-owner-cas")
+    runtime_store = job.store
     with _published_worldbank_owner(
         tmp_path / "published-worldbank-owner",
         monkeypatch,
@@ -3130,6 +3684,7 @@ def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
             target_world_slots=("global.tax_rate",),
             requirement_ref=case.data_spec.requirement_id,
             artifact_store=runtime_store,
+            execution_scope_binding=job.execution_scope_binding,
             selected_metric=source_family,
             selected_owner=selected_owner,
             data_spec_override=case.data_spec,
@@ -3344,6 +3899,24 @@ def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
                 value_port=None,
                 grounding_port=grounding,
                 capability_resolver=case.capability_resolver,
+                context_owner=job.context_owner,
+                verified_scope=job.verified_scope,
+            )
+
+            context_job_ref = controller._persist_resolve_and_bind_cycle_substrate_context(
+                case.before_context,
+                previous_problem=case.problem,
+                problem=case.problem,
+            )
+            assert controller._candidate_cycle_context_job_ref == context_job_ref
+            prior_context_readback = job.context_owner.resolve_for_current_job(
+                context_job_ref,
+                problem=case.problem,
+                repo_root=tmp_path,
+                verified_nl_job_scope=job.verified_scope,
+            )
+            assert prior_context_readback.context.model_dump(mode="json") == (
+                case.before_context.model_dump(mode="json")
             )
 
             run = asyncio.run(

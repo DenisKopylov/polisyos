@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
-from contextlib import contextmanager
+from collections import deque
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager, suppress
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -77,6 +78,107 @@ class CandidateExperimentExecutionStageCall:
     elapsed_wall_seconds: float
     elapsed_cpu_seconds: float
     raised_type: str | None
+
+
+@dataclass(frozen=True)
+class CandidateExperimentDispatchFailureNode:
+    """Bounded identity and message for one dispatch exception or cause."""
+
+    exception_type: str
+    code: str | None
+    message: str
+    traceback_tail: tuple[CandidateExperimentDispatchFrame, ...]
+
+
+@dataclass(frozen=True)
+class CandidateExperimentDispatchFrame:
+    """One traceback frame without locals or source payloads."""
+
+    filename: str
+    line_number: int
+    function: str
+
+
+@dataclass(frozen=True)
+class CandidateExperimentDispatchFailure:
+    """Bounded exception chain and traceback tail from the real evaluation dispatcher."""
+
+    chain: tuple[CandidateExperimentDispatchFailureNode, ...]
+
+
+def _candidate_experiment_dispatch_failure(
+    exc: BaseException,
+) -> CandidateExperimentDispatchFailure:
+    """Capture bounded error identity without retaining frames, locals, or artifact contents."""
+    chain: list[CandidateExperimentDispatchFailureNode] = []
+    seen: set[int] = set()
+    current: BaseException | None = exc
+    while current is not None and id(current) not in seen and len(chain) < 8:
+        seen.add(id(current))
+        current_type = type(current)
+        try:
+            message = str(current)[:512]
+        except BaseException:
+            message = "<exception message unavailable>"
+        code: str | None = None
+        instance_namespace = BaseException.__getattribute__(current, "__dict__")
+        class_namespace = type.__getattribute__(current_type, "__dict__")
+        for attribute in ("error_code", "code", "reason_code"):
+            candidate_code = instance_namespace.get(attribute)
+            if candidate_code is None:
+                candidate_code = class_namespace.get(attribute)
+            if type(candidate_code) is str:
+                code = candidate_code[:128]
+                break
+        chain.append(
+            CandidateExperimentDispatchFailureNode(
+                exception_type=f"{current_type.__module__}.{current_type.__qualname__}"[:256],
+                code=code,
+                message=message,
+                traceback_tail=_candidate_experiment_dispatch_frames(current),
+            )
+        )
+        explicit_cause = current.__cause__
+        current = explicit_cause if explicit_cause is not None else current.__context__
+
+    return CandidateExperimentDispatchFailure(chain=tuple(chain))
+
+
+def _candidate_experiment_dispatch_frames(
+    exc: BaseException,
+) -> tuple[CandidateExperimentDispatchFrame, ...]:
+    """Keep only the last eight location frames for one exception-chain member."""
+    frames: deque[CandidateExperimentDispatchFrame] = deque(maxlen=8)
+    tb = BaseException.__getattribute__(exc, "__traceback__")
+    while tb is not None:
+        code = tb.tb_frame.f_code
+        frames.append(
+            CandidateExperimentDispatchFrame(
+                filename=Path(code.co_filename).name[:128],
+                line_number=tb.tb_lineno,
+                function=code.co_name[:128],
+            )
+        )
+        tb = tb.tb_next
+    return tuple(frames)
+
+
+def _observe_candidate_experiment_dispatch(
+    dispatch: Callable[..., object],
+    failures: list[CandidateExperimentDispatchFailure],
+) -> Callable[..., object]:
+    """Wrap a dynamic dispatcher, recording bounded failures and re-raising unchanged."""
+
+    def observed_dispatch(*args: object, **kwargs: object) -> object:
+        try:
+            return dispatch(*args, **kwargs)
+        except BaseException as exc:
+            with suppress(BaseException):
+                failures.append(_candidate_experiment_dispatch_failure(exc))
+            # Diagnostic capture is best-effort and cannot replace the dispatch exception.
+            raise
+
+    return observed_dispatch
 
 
 @dataclass(frozen=True)
@@ -750,6 +852,7 @@ def run_candidate_experiment_served_execution(
     interrupted_outcome: VerifiedAcquisitionActionOutcome | None = None
     interrupted_units: int | None = None
     interrupted_transport_call_count: int | None = None
+    dispatch_failures: list[CandidateExperimentDispatchFailure] = []
     attempts: tuple[int, ...]
 
     with candidate_experiment_served_execution_owner(
@@ -861,7 +964,16 @@ def run_candidate_experiment_served_execution(
             before_first_delivery(execution_owner, job_id)
 
         def dispatch_with_execution_observer(dispatch: Callable[[], str]) -> str:
+            from polisyos.runtime.quality import acquisition_evaluation_dispatch
+
             original_execute = execution_owner.port.execute_candidate_experiment
+            original_dispatch = (
+                acquisition_evaluation_dispatch.dispatch_candidate_experiment_evaluation
+            )
+            observed_dispatch = _observe_candidate_experiment_dispatch(
+                original_dispatch,
+                dispatch_failures,
+            )
 
             def observe_execute_candidate_experiment(
                 *,
@@ -1003,6 +1115,11 @@ def run_candidate_experiment_served_execution(
                     "execute_candidate_experiment",
                     observe_execute_candidate_experiment,
                 )
+                observed.setattr(
+                    acquisition_evaluation_dispatch,
+                    "dispatch_candidate_experiment_evaluation",
+                    observed_dispatch,
+                )
                 return dispatch()
 
         if recover_worker_crash:
@@ -1106,6 +1223,7 @@ def run_candidate_experiment_served_execution(
             )
             raise AssertionError(
                 f"candidate experiment worker did not complete: {job_state}\n{call_details}"
+                + (f"\ndispatch failures: {dispatch_failures!r}" if dispatch_failures else "")
             )
         if recover_worker_crash and final_job.attempt != 2:
             raise AssertionError("candidate experiment retry did not advance the worker attempt")

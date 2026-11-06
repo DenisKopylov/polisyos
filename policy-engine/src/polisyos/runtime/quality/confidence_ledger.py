@@ -12756,6 +12756,8 @@ def _python_dataclass_transform_source_projection() -> dict[str, object]:
             return False
         if not bind_expected(expected, actual):
             return False
+        if not _source_dataclass_class_layout_matches(actual, expected):
+            return False
         consumed_class_names.add(label)
         actual_bases = type.__getattribute__(actual, "__bases__")
         expected_bases = type.__getattribute__(expected, "__bases__")
@@ -12766,7 +12768,11 @@ def _python_dataclass_transform_source_projection() -> dict[str, object]:
             return False
         actual_namespace = type.__getattribute__(actual, "__dict__")
         expected_namespace = type.__getattribute__(expected, "__dict__")
-        if set(actual_namespace) != set(expected_namespace):
+        if not _source_dataclass_class_namespace_matches(
+            actual_namespace,
+            expected_namespace,
+            expected,
+        ):
             return False
         for name, expected_value in expected_namespace.items():
             actual_value = actual_namespace[name]
@@ -13739,6 +13745,105 @@ def _source_dataclass_runtime_output_matches(
     return _source_dataclass_values_equal(actual, expected)
 
 
+def _source_dataclass_class_layout_matches(actual: object, expected: object) -> bool:
+    """Require the source-replayed class bases and inherited MRO to match exactly."""
+    if type(actual) is not type or type(expected) is not type:
+        return False
+    actual_class = cast("type[object]", actual)
+    expected_class = cast("type[object]", expected)
+    try:
+        actual_bases = type.__getattribute__(actual_class, "__bases__")
+        expected_bases = type.__getattribute__(expected_class, "__bases__")
+        actual_mro = type.__getattribute__(actual_class, "__mro__")
+        expected_mro = type.__getattribute__(expected_class, "__mro__")
+    except (AttributeError, TypeError):
+        return False
+    return (
+        type(actual_bases) is tuple
+        and type(expected_bases) is tuple
+        and len(actual_bases) == len(expected_bases)
+        and all(left is right for left, right in zip(actual_bases, expected_bases, strict=True))
+        and type(actual_mro) is tuple
+        and type(expected_mro) is tuple
+        and len(actual_mro) == len(expected_mro)
+        and bool(actual_mro)
+        and bool(expected_mro)
+        and actual_mro[0] is actual_class
+        and expected_mro[0] is expected_class
+        and all(left is right for left, right in zip(actual_mro[1:], expected_mro[1:], strict=True))
+    )
+
+
+def _source_dataclass_expected_slotnames(
+    expected_class: object,
+) -> tuple[str, ...] | None:
+    """Recompute copyreg's slot-name cache from a validated source-replayed class."""
+    if type(expected_class) is not type:
+        return None
+    source_class = cast("type[object]", expected_class)
+    try:
+        mro = type.__getattribute__(source_class, "__mro__")
+        if type(mro) is not tuple:
+            return None
+        names: list[str] = []
+        for owner in mro:
+            owner_namespace = type.__getattribute__(owner, "__dict__")
+            if "__slots__" not in owner_namespace:
+                continue
+            slots = owner_namespace["__slots__"]
+            if type(slots) is str:
+                slot_names = (slots,)
+            elif type(slots) is tuple:
+                slot_names = slots
+            elif type(slots) in (list, dict):
+                slot_names = tuple(slots)
+            else:
+                return None
+            for name in slot_names:
+                if type(name) is not str:
+                    return None
+                if name in ("__dict__", "__weakref__"):
+                    continue
+                if name.startswith("__") and not name.endswith("__"):
+                    stripped = type.__getattribute__(owner, "__name__").lstrip("_")
+                    name = f"_{stripped}{name}" if stripped else name
+                names.append(name)
+        return tuple(names)
+    except (AttributeError, TypeError, ValueError):
+        return None
+
+
+def _source_dataclass_class_namespace_matches(
+    actual_namespace: Mapping[str, object],
+    expected_namespace: Mapping[str, object],
+    expected_class: object,
+) -> bool:
+    """Match a source-replayed class namespace, allowing only its recomputed slot cache."""
+    namespace_type = type(type.__dict__)
+    if (
+        type(actual_namespace) is not namespace_type
+        or type(expected_namespace) is not namespace_type
+    ):
+        return False
+    actual_names = set(actual_namespace)
+    expected_names = set(expected_namespace)
+    if "__slotnames__" in actual_names and "__slotnames__" not in expected_names:
+        expected_annotations = expected_namespace.get("__annotations__")
+        if type(expected_annotations) is dict and "__slotnames__" in expected_annotations:
+            return False
+        expected_slotnames = _source_dataclass_expected_slotnames(expected_class)
+        actual_slotnames = actual_namespace["__slotnames__"]
+        if (
+            expected_slotnames is None
+            or type(actual_slotnames) is not list
+            or any(type(name) is not str for name in actual_slotnames)
+            or tuple(actual_slotnames) != expected_slotnames
+        ):
+            return False
+        actual_names.remove("__slotnames__")
+    return actual_names == expected_names
+
+
 def _source_python_dataclass_binding_supported(
     repo_root: Path,
     module_name: str,
@@ -14017,9 +14122,15 @@ def _source_python_dataclass_binding_supported(
         actual_field_tuple = tuple(actual_fields)
     except (AttributeError, NameError, RuntimeError, SyntaxError, TypeError, ValueError):
         return False
+    if not _source_dataclass_class_layout_matches(transformed, expected_class):
+        return False
     if not _source_dataclass_fields_match(actual_field_tuple, expected_fields):
         return False
-    if set(transformed_namespace) != set(expected_namespace):
+    if not _source_dataclass_class_namespace_matches(
+        transformed_namespace,
+        expected_namespace,
+        expected_class,
+    ):
         return False
     if tuple(expected_namespace.get("__annotations__", {})) != field_names:
         return False

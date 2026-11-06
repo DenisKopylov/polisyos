@@ -10666,6 +10666,7 @@ def _source_facade_runtime_projection(
                     "canonical_loaded_runtime_mismatch",
                     f"source facade provider binding is missing: {provider_name}.{attribute}",
                 )
+            registry_key_projection = None
             if selected and not module_binding:
                 provider_tree = analysis.source_tree(repo_root / provider_path)
                 declarations = _module_scope_direct_binding_sites(provider_tree, attribute)
@@ -10676,6 +10677,22 @@ def _source_facade_runtime_projection(
                     and declarations[0][1].value is not None
                 ):
                     expression = declarations[0][1].value
+                    if _source_registry_keys_shape(expression) is not None:
+                        registry_key_projection = _source_registry_keys_projection(
+                            expression,
+                            repo_root=repo_root,
+                            tree=provider_tree,
+                            module=provider_module,
+                            module_name=provider_name,
+                        )
+                        if not _source_registry_keys_value_matches(
+                            provider_value, registry_key_projection, provider_module
+                        ):
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                "selected source registry key tuple differs: "
+                                f"{provider_name}.{attribute}",
+                            )
                     expected_typing_literal = _source_typing_literal_expression(
                         expression,
                         tree=provider_tree,
@@ -10850,6 +10867,13 @@ def _source_facade_runtime_projection(
                 "selected": "true" if selected else "false",
                 "importers": selected_import_rows,
             }
+            if registry_key_projection is not None:
+                binding_row["source_value_projection"] = {
+                    "scope": "source_dict_keys_and_sorted_tuple",
+                    "named_constant_resolution_limit": 64,
+                    "whole_map_values_and_state": "not_established",
+                    "initializer_and_construction_history": "not_established",
+                }
             source_routes = module_source_route_owners.get((facade_name, export), set())
             if source_routes:
                 binding_row["source_routes"] = [
@@ -13538,6 +13562,184 @@ def _source_typing_literal_value_matches(actual: object, expected: object) -> bo
     )
 
 
+@dataclass(frozen=True)
+class _SourceRegistryKeysProjection:
+    """A key-domain projection; the held registry's values and history are unproved."""
+
+    mapping_name: str
+    mapping: dict[object, object]
+    keys: tuple[str, ...]
+
+
+def _source_registry_keys_shape(node: ast.expr) -> tuple[str, str, str] | None:
+    """Recognize only ``tuple(sorted(NAME.keys()))`` with name-bound builtins."""
+
+    if not (
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and len(node.args) == 1
+        and not node.keywords
+    ):
+        return None
+    ordered = node.args[0]
+    if not (
+        isinstance(ordered, ast.Call)
+        and isinstance(ordered.func, ast.Name)
+        and len(ordered.args) == 1
+        and not ordered.keywords
+    ):
+        return None
+    keys = ordered.args[0]
+    if not (
+        isinstance(keys, ast.Call)
+        and isinstance(keys.func, ast.Attribute)
+        and keys.func.attr == "keys"
+        and isinstance(keys.func.value, ast.Name)
+        and not keys.args
+        and not keys.keywords
+    ):
+        return None
+    return node.func.id, ordered.func.id, keys.func.value.id
+
+
+def _source_registry_key_domain(mapping: object) -> object:
+    """Read only exact-dict string keys, before any key hash/equality protocol."""
+
+    if type(mapping) is not dict or len(mapping) >= 10000:
+        return _SOURCE_DERIVATION_FAILED
+    try:
+        keys = tuple(mapping)
+    except RuntimeError:
+        return _SOURCE_DERIVATION_FAILED
+    if any(type(key) is not str for key in keys) or (
+        _source_immutable_member_projection(keys) is _SOURCE_DERIVATION_FAILED
+    ):
+        return _SOURCE_DERIVATION_FAILED
+    return tuple(sorted(keys))
+
+
+def _source_registry_keys_projection(
+    node: ast.expr,
+    *,
+    repo_root: Path,
+    tree: ast.Module,
+    module: types.ModuleType,
+    module_name: str,
+) -> object:
+    """Reconcile source-owned keys and their sorted tuple, without evaluating map values."""
+
+    shape = _source_registry_keys_shape(node)
+    if shape is None or type(module) is not types.ModuleType:
+        return _SOURCE_DERIVATION_FAILED
+    tuple_name, sorted_name, mapping_name = shape
+    tuple_constructor = _source_import_binding(
+        tuple_name, tree=tree, module=module, module_name=module_name
+    )
+    sorted_constructor = _source_import_binding(
+        sorted_name, tree=tree, module=module, module_name=module_name
+    )
+    if not (
+        tuple_constructor is tuple
+        and sorted_constructor is _builtins.sorted
+        and type(sorted_constructor) is types.BuiltinFunctionType
+        and sorted_constructor.__name__ == "sorted"
+        and sorted_constructor.__module__ == "builtins"
+    ):
+        return _SOURCE_DERIVATION_FAILED
+    sites = _module_scope_direct_binding_sites(tree, mapping_name)
+    if not (
+        len(sites) == 1
+        and sites[0][0] == "assignment"
+        and isinstance(sites[0][1], (ast.Assign, ast.AnnAssign))
+        and isinstance(sites[0][1].value, ast.Dict)
+        and (sites[0][1].lineno, sites[0][1].col_offset) < (node.lineno, node.col_offset)
+    ):
+        return _SOURCE_DERIVATION_FAILED
+    declaration = sites[0][1]
+    dictionary = declaration.value
+    if len(dictionary.keys) >= 10000:
+        return _SOURCE_DERIVATION_FAILED
+    named_keys = [key.id for key in dictionary.keys if isinstance(key, ast.Name)]
+    # Named constants reuse the canonical owner, which scans a source module.
+    # Bound all nested import/alias resolutions together, rather than advertise
+    # unbounded whole-module scans for a large otherwise-literal registry.
+    if len(named_keys) > 64 or len(set(named_keys)) != len(named_keys):
+        return _SOURCE_DERIVATION_FAILED
+    work_remaining = [64]
+    analysis = _active_integrity_analysis()
+    token = None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+        token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    try:
+        origin_fields = _source_loaded_module_origin_fields(module, expected_name=module_name)
+        relative = _repository_module_source(repo_root, module_name)
+        if origin_fields is None or relative is None:
+            return _SOURCE_DERIVATION_FAILED
+        source_path = analysis.bind_source_path(repo_root / relative)
+        if any(
+            analysis.bind_source_path(Path(candidate)) != source_path for candidate in origin_fields
+        ):
+            return _SOURCE_DERIVATION_FAILED
+        analysis.source_bytes(repo_root / relative)
+        expected_keys = []
+        for key_node in dictionary.keys:
+            if isinstance(key_node, ast.Constant) and type(key_node.value) is str:
+                key = key_node.value
+            elif isinstance(key_node, ast.Name):
+                key_sites = _module_scope_direct_binding_sites(tree, key_node.id)
+                if len(key_sites) != 1 or (
+                    key_sites[0][1].lineno,
+                    key_sites[0][1].col_offset,
+                ) >= (declaration.lineno, declaration.col_offset):
+                    return _SOURCE_DERIVATION_FAILED
+                key = _source_dataclass_named_constant(
+                    key_node.id,
+                    repo_root=repo_root,
+                    tree=tree,
+                    module=module,
+                    module_name=module_name,
+                    work_remaining=work_remaining,
+                    canonical_imports_only=True,
+                )
+            else:
+                return _SOURCE_DERIVATION_FAILED
+            if type(key) is not str:
+                return _SOURCE_DERIVATION_FAILED
+            expected_keys.append(key)
+        if _source_immutable_member_projection(tuple(expected_keys)) is _SOURCE_DERIVATION_FAILED:
+            return _SOURCE_DERIVATION_FAILED
+        if len(set(expected_keys)) != len(expected_keys):
+            return _SOURCE_DERIVATION_FAILED
+        expected = tuple_constructor(sorted_constructor(expected_keys))
+        mapping = _passive_capture_lookup(vars(module), mapping_name)
+        observed = _source_registry_key_domain(mapping)
+        if observed is _SOURCE_DERIVATION_FAILED or not _exact_literal_equal(observed, expected):
+            return _SOURCE_DERIVATION_FAILED
+        result = _SourceRegistryKeysProjection(mapping_name, mapping, expected)
+        if token is not None:
+            analysis.assert_sources_unchanged()
+        return result
+    finally:
+        if token is not None:
+            _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
+
+
+def _source_registry_keys_value_matches(
+    actual: object, expected: object, module: types.ModuleType
+) -> bool:
+    """Bind the tuple and fresh held key domain; never claim the registry's values."""
+
+    return bool(
+        type(expected) is _SourceRegistryKeysProjection
+        and type(module) is types.ModuleType
+        and _passive_capture_lookup(vars(module), expected.mapping_name) is expected.mapping
+        and _exact_literal_equal(actual, expected.keys)
+        and _exact_literal_equal(_source_registry_key_domain(expected.mapping), expected.keys)
+        and _passive_capture_lookup(vars(module), expected.mapping_name) is expected.mapping
+    )
+
+
 def _source_dataclass_named_constant(
     name: str,
     *,
@@ -13546,8 +13748,53 @@ def _source_dataclass_named_constant(
     module: types.ModuleType,
     module_name: str,
     visited: frozenset[tuple[str, str]] = frozenset(),
+    work_remaining: list[int] | None = None,
+    canonical_imports_only: bool = False,
 ) -> object:
     """Reconcile a finite source-owned immutable default through explicit imports."""
+
+    if type(module) is not types.ModuleType:
+        return _SOURCE_DERIVATION_FAILED
+    if work_remaining is not None:
+        if work_remaining[0] <= 0:
+            return _SOURCE_DERIVATION_FAILED
+        work_remaining[0] -= 1
+    analysis = _active_integrity_analysis()
+    token = None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+        token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    try:
+        value = _source_dataclass_named_constant_body(
+            name,
+            repo_root=repo_root,
+            tree=tree,
+            module=module,
+            module_name=module_name,
+            visited=visited,
+            work_remaining=work_remaining,
+            canonical_imports_only=canonical_imports_only,
+        )
+        if token is not None:
+            analysis.assert_sources_unchanged()
+        return value
+    finally:
+        if token is not None:
+            _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
+
+
+def _source_dataclass_named_constant_body(
+    name: str,
+    *,
+    repo_root: Path,
+    tree: ast.Module,
+    module: types.ModuleType,
+    module_name: str,
+    visited: frozenset[tuple[str, str]],
+    work_remaining: list[int] | None,
+    canonical_imports_only: bool,
+) -> object:
+    """Read constant declarations inside one shared source snapshot."""
 
     key = (module_name, name)
     if key in visited or len(visited) >= 40:
@@ -13561,6 +13808,12 @@ def _source_dataclass_named_constant(
         if expression is None:
             return _SOURCE_DERIVATION_FAILED
         if isinstance(expression, ast.Name):
+            prior = _module_scope_direct_binding_sites(tree, expression.id)
+            if len(prior) != 1 or (
+                prior[0][1].lineno,
+                prior[0][1].col_offset,
+            ) >= (statement.lineno, statement.col_offset):
+                return _SOURCE_DERIVATION_FAILED
             expected = _source_dataclass_named_constant(
                 expression.id,
                 repo_root=repo_root,
@@ -13568,6 +13821,8 @@ def _source_dataclass_named_constant(
                 module=module,
                 module_name=module_name,
                 visited=visited | {key},
+                work_remaining=work_remaining,
+                canonical_imports_only=canonical_imports_only,
             )
         else:
             expected = _source_immutable_constant_expression(expression)
@@ -13581,43 +13836,49 @@ def _source_dataclass_named_constant(
                 )
     elif kind == "import_from" and isinstance(statement, ast.ImportFrom) and alias is not None:
         if (
-            _source_import_binding(name, tree=tree, module=module, module_name=module_name)
+            _source_import_binding(
+                name, tree=tree, module=module, module_name=module_name, repo_root=repo_root
+            )
             is _SOURCE_DERIVATION_FAILED
         ):
             return _SOURCE_DERIVATION_FAILED
         try:
+            package = _source_module_import_package(module, module_name, repo_root=repo_root)
             provider_name = (
-                importlib.util.resolve_name(
-                    "." * statement.level + (statement.module or ""),
-                    module_name.rpartition(".")[0],
-                )
-                if statement.level
-                else statement.module
+                _resolve_import_from_base(statement, package) if package is not None else None
             )
             if not isinstance(provider_name, str):
                 return _SOURCE_DERIVATION_FAILED
             provider = sys.modules.get(provider_name)
             if type(provider) is not types.ModuleType:
                 return _SOURCE_DERIVATION_FAILED
-            provider_spec = getattr(provider, "__spec__", None)
-            provider_file = getattr(provider, "__file__", None)
-            origin = getattr(provider_spec, "origin", None)
-            if not (
-                isinstance(getattr(provider_spec, "loader", None), SourceFileLoader)
-                and type(provider_file) is str
-                and type(origin) is str
+            origin_fields = _source_loaded_module_origin_fields(
+                provider, expected_name=provider_name
+            )
+            if origin_fields is None:
+                return _SOURCE_DERIVATION_FAILED
+            provider_file, origin, loader_path = origin_fields
+            analysis = _active_integrity_analysis()
+            if analysis is None:
+                return _SOURCE_DERIVATION_FAILED
+            source_path = analysis.bind_source_path(Path(provider_file))
+            source_path.relative_to(repo_root.resolve())
+            if any(
+                analysis.bind_source_path(Path(candidate)) != source_path
+                for candidate in (origin, loader_path)
             ):
                 return _SOURCE_DERIVATION_FAILED
-            source_path = Path(provider_file).resolve()
-            source_path.relative_to(repo_root.resolve())
-            if Path(origin).resolve() != source_path:
-                return _SOURCE_DERIVATION_FAILED
-            analysis = _active_integrity_analysis()
-            provider_tree = (
-                analysis.source_tree(source_path)
-                if analysis is not None
-                else ast.parse(source_path.read_bytes(), filename=str(source_path))
-            )
+            if canonical_imports_only or _repository_module_root(provider_name) in {
+                "polisyos",
+                "tools",
+            }:
+                canonical = _repository_module_source(repo_root, provider_name)
+                if (
+                    canonical is None
+                    or analysis.bind_source_path(repo_root / canonical) != source_path
+                ):
+                    return _SOURCE_DERIVATION_FAILED
+            provider_tree = analysis.source_tree(Path(provider_file))
         except (OSError, TypeError, ValueError, SyntaxError):
             return _SOURCE_DERIVATION_FAILED
         expected = _source_dataclass_named_constant(
@@ -13627,11 +13888,13 @@ def _source_dataclass_named_constant(
             module=provider,
             module_name=provider_name,
             visited=visited | {key},
+            work_remaining=work_remaining,
+            canonical_imports_only=canonical_imports_only,
         )
     else:
         return _SOURCE_DERIVATION_FAILED
     if expected is _SOURCE_DERIVATION_FAILED or not _exact_literal_equal(
-        vars(module).get(name, _SOURCE_DERIVATION_FAILED), expected
+        _passive_capture_lookup(vars(module), name), expected
     ):
         return _SOURCE_DERIVATION_FAILED
     return expected
@@ -15023,6 +15286,48 @@ def _typing_protocol_provider_projection() -> dict[str, object]:
         ) from exc
 
 
+def _source_loaded_module_origin_fields(
+    module: object, *, expected_name: str
+) -> tuple[str, str, str] | None:
+    """Read native source-loader origin fields without invoking provider getters."""
+
+    if type(module) is not types.ModuleType:
+        return None
+    namespace = vars(module)
+    spec = _passive_capture_lookup(namespace, "__spec__")
+    spec_dictionary = vars(ModuleSpec).get("__dict__")
+    if not (
+        type(spec) is ModuleSpec
+        and type(spec_dictionary) is types.GetSetDescriptorType
+        and spec_dictionary.__objclass__ is ModuleSpec
+    ):
+        return None
+    spec_namespace = spec_dictionary.__get__(spec, ModuleSpec)
+    loader = _passive_capture_lookup(spec_namespace, "loader")
+    origin = _passive_capture_lookup(spec_namespace, "origin")
+    file = _passive_capture_lookup(namespace, "__file__")
+    declared_name = _passive_capture_lookup(namespace, "__name__")
+    spec_name = _passive_capture_lookup(spec_namespace, "name")
+    if not (
+        type(loader) is SourceFileLoader
+        and type(file) is str
+        and type(origin) is str
+        and type(declared_name) is str
+        and declared_name == expected_name
+        and type(spec_name) is str
+        and spec_name == expected_name
+    ):
+        return None
+    loader_namespace = object.__getattribute__(loader, "__dict__")
+    loader_name = _passive_capture_lookup(loader_namespace, "name")
+    loader_path = _passive_capture_lookup(loader_namespace, "path")
+    return (
+        (file, origin, loader_path)
+        if type(loader_name) is str and loader_name == expected_name and type(loader_path) is str
+        else None
+    )
+
+
 def _typing_literal_provider_state() -> tuple[object, type, object, dict[str, object]] | None:
     """Bind the supported CPython ABI used only to read Literal's inert stored values.
 
@@ -15037,20 +15342,10 @@ def _typing_literal_provider_state() -> tuple[object, type, object, dict[str, ob
     if provider is not typing or type(provider) is not types.ModuleType:
         return None
     namespace = vars(provider)
-    spec = namespace.get("__spec__")
-    spec_dictionary = vars(ModuleSpec).get("__dict__")
-    if not (
-        type(spec) is ModuleSpec
-        and type(spec_dictionary) is types.GetSetDescriptorType
-        and spec_dictionary.__objclass__ is ModuleSpec
-    ):
+    origin_fields = _source_loaded_module_origin_fields(provider, expected_name="typing")
+    if origin_fields is None:
         return None
-    spec_namespace = spec_dictionary.__get__(spec, ModuleSpec)
-    loader = _passive_capture_lookup(spec_namespace, "loader")
-    origin = _passive_capture_lookup(spec_namespace, "origin")
-    file = _passive_capture_lookup(namespace, "__file__")
-    if type(loader) is not SourceFileLoader or type(file) is not str or type(origin) is not str:
-        return None
+    file, origin, loader_path = origin_fields
     try:
         analysis = _active_integrity_analysis()
         own_analysis = analysis is None
@@ -15059,7 +15354,8 @@ def _typing_literal_provider_state() -> tuple[object, type, object, dict[str, ob
         logical_path = Path(sysconfig.get_path("stdlib")) / "typing.py"
         path = analysis.bind_source_path(logical_path)
         if any(
-            analysis.bind_source_path(candidate) != path for candidate in (Path(file), Path(origin))
+            analysis.bind_source_path(candidate) != path
+            for candidate in (Path(file), Path(origin), Path(loader_path))
         ):
             return None
         source = analysis.source_bytes(logical_path)
@@ -16583,6 +16879,20 @@ def _source_module_direct_binding_route(
                 is not _SOURCE_DERIVATION_FAILED
             ):
                 return "symbol", module_name, export_name
+            if (
+                simple_target
+                and value is not None
+                and type(module) is types.ModuleType
+                and _source_registry_keys_projection(
+                    value,
+                    repo_root=repo_root,
+                    tree=tree,
+                    module=module,
+                    module_name=module_name,
+                )
+                is not _SOURCE_DERIVATION_FAILED
+            ):
+                return "symbol", module_name, export_name
             if _read_api_surface_source_binding_supported(
                 module_name,
                 export_name,
@@ -17334,18 +17644,44 @@ def _source_decorator_truth(value: object) -> object:
     return _SOURCE_DERIVATION_FAILED
 
 
+def _source_module_import_package(
+    module: types.ModuleType, module_name: str, *, repo_root: Path | None = None
+) -> str | None:
+    """Use one package rule for both live import bindings and their source owner."""
+
+    if repo_root is not None:
+        canonical = _repository_module_source(repo_root, module_name)
+        if canonical is not None:
+            return (
+                module_name if canonical.name == "__init__.py" else module_name.rpartition(".")[0]
+            )
+        if _repository_module_root(module_name) in {"polisyos", "tools"}:
+            return None
+    if _source_loaded_module_origin_fields(module, expected_name=module_name) is None:
+        return None
+    spec = _passive_capture_lookup(vars(module), "__spec__")
+    spec_dictionary = vars(ModuleSpec)["__dict__"].__get__(spec, ModuleSpec)
+    locations = _passive_capture_lookup(spec_dictionary, "submodule_search_locations")
+    if locations is None:
+        return module_name.rpartition(".")[0]
+    if type(locations) is list and all(type(path) is str for path in locations):
+        return module_name
+    return None
+
+
 def _source_import_binding(
     name: str,
     *,
     tree: ast.Module,
     module: object,
     module_name: str,
+    repo_root: Path | None = None,
 ) -> object:
     """Resolve one source import and require the live module binding to retain it."""
 
-    namespace = getattr(module, "__dict__", None)
-    if type(namespace) is not dict:
+    if type(module) is not types.ModuleType:
         return _SOURCE_DERIVATION_FAILED
+    namespace = vars(module)
     imported: list[tuple[str, str]] = []
     for statement in tree.body:
         if isinstance(statement, ast.ImportFrom):
@@ -17355,11 +17691,11 @@ def _source_import_binding(
                 local_name = alias.asname or alias.name
                 if local_name == name:
                     if statement.level:
-                        package = (
-                            module_name
-                            if Path(str(namespace.get("__file__", ""))).name == "__init__.py"
-                            else module_name.rpartition(".")[0]
+                        package = _source_module_import_package(
+                            module, module_name, repo_root=repo_root
                         )
+                        if package is None:
+                            return _SOURCE_DERIVATION_FAILED
                         try:
                             imported_module = importlib.util.resolve_name(
                                 "." * statement.level + (statement.module or ""),
@@ -17397,9 +17733,9 @@ def _source_import_binding(
 
     target_module_name, imported_name = imported[0]
     target_module = sys.modules.get(target_module_name)
-    target_namespace = getattr(target_module, "__dict__", None)
-    if type(target_namespace) is not dict:
+    if type(target_module) is not types.ModuleType:
         return _SOURCE_DERIVATION_FAILED
+    target_namespace = vars(target_module)
     expected = (
         target_module
         if not imported_name

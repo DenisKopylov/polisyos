@@ -19,6 +19,9 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationHorizonController,
     )
+    from tests._helpers.acquisition_constituent_controls import (
+        install_first_candidate_experiment_constituent_controls,
+    )
     from tests._helpers.candidate_experiment_served_execution import (
         _standard_invocation_units,
         candidate_experiment_served_execution_owner,
@@ -30,6 +33,7 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
     )
 
     observed: dict[str, object] = {}
+    constituent_controls = install_first_candidate_experiment_constituent_controls(monkeypatch)
 
     def after_first_execution(**first_values: object) -> None:
         from polisyos.runtime.quality.acquisition_evaluation_history import (
@@ -81,6 +85,9 @@ def test_genuine_candidate_experiment_generations_retain_then_advance_frontier(
         assert initial_history.reentry is not None
         assert initial_current_basis.preparation_inputs.base_world_model_ref is None
         assert initial_basis.preparation_inputs.base_world_model_ref is None
+        constituent_controls.assert_selected(
+            control=first_values["control"], history=initial_history
+        )
         root_policy_scope = origin.policy_scope
         initial_frontier = initial_history.frontier_after
         initial_selected_evaluation = initial_evaluation

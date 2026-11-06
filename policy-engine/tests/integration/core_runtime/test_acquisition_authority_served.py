@@ -105,141 +105,15 @@ def test_served_acquisition_binds_n7_compiler_and_planner_cas_before_reentry(
     monkeypatch.setattr(
         foundry_data_plane, "prepare_json_input_binding_values", observe_prospective_values
     )
-    from dataclasses import replace
-
-    import numpy as np
-
-    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
-
-    original_reconciliation = AcquisitionWorldGrowthBridge._reconcile_acquired_candidate_values
-    reconciled_worlds = []
-    refused_value_controls = set()
-
-    def exercise_actual_consumer(bridge, *, prospective_values, world_model_record):
-        actual = prospective_values.materialized_state
-        cash = np.asarray(actual.firms.cash)
-        changed = actual.replace(firms=actual.firms.replace(cash=cash + 17))
-        with pytest.raises(
-            ValueError, match="acquisition_prospective_state_owner_reconciliation_failed"
-        ):
-            original_reconciliation(
-                bridge,
-                prospective_values=replace(prospective_values, materialized_state=changed),
-                world_model_record=world_model_record,
-            )
-        refused_value_controls.add("same_target_changed_other_native_component")
-        first, *rest = prospective_values.effective_rules
-        changed_rule = first.model_copy(
-            update={"source_path": first.source_path + ".not_the_source"}
-        )
-        with pytest.raises(
-            ValueError, match="acquisition_prospective_rule_owner_reconciliation_failed"
-        ):
-            original_reconciliation(
-                bridge,
-                prospective_values=replace(
-                    prospective_values, effective_rules=(changed_rule, *rest)
-                ),
-                world_model_record=world_model_record,
-            )
-        refused_value_controls.add("same_state_wrong_actual_rule")
-        original_reconciliation(
-            bridge, prospective_values=prospective_values, world_model_record=world_model_record
-        )
-        reconciled_worlds.append(world_model_record)
-
-    monkeypatch.setattr(
-        AcquisitionWorldGrowthBridge,
-        "_reconcile_acquired_candidate_values",
-        exercise_actual_consumer,
+    from tests._helpers.acquisition_constituent_controls import (
+        install_acquisition_constituent_controls,
     )
-    original_model_reconciliation = (
-        AcquisitionWorldGrowthBridge._reconcile_acquired_candidate_model_values
-    )
-    model_reconciliations = []
-    model_refusals = set()
 
-    def exercise_model_consumer(bridge, *, prospective_model, offer):
-        target = prospective_model.declared_model_values.target_world_slot
-        wrong_baseline = dict(prospective_model.n5_config.baseline_state)
-        wrong_baseline[target] += 17.0
-        with pytest.raises(ValueError, match="acquisition_prospective_n5_configuration_mismatch"):
-            original_model_reconciliation(
-                bridge,
-                prospective_model=replace(
-                    prospective_model,
-                    n5_config=prospective_model.n5_config.model_copy(
-                        deep=True, update={"baseline_state": wrong_baseline}
-                    ),
-                ),
-                offer=offer,
-            )
-        model_refusals.add("same_source_wrong_n5_baseline")
-        declared = prospective_model.declared_model_values
-        with pytest.raises(ValueError, match="acquisition_prospective_declared_model_mismatch"):
-            original_model_reconciliation(
-                bridge,
-                prospective_model=replace(
-                    prospective_model,
-                    declared_model_values=replace(
-                        declared, outcome_per_target_unit=declared.outcome_per_target_unit * 2.0
-                    ),
-                ),
-                offer=offer,
-            )
-        model_refusals.add("same_state_wrong_declared_scm")
-        from polisyos.ir import candidate_ncm_spec_from_declaration
-
-        admission = bridge.control_store.current_execution_job_admission()
-        current = admission.job
-        repository = GenerationSourceRepository(bridge.artifact_store)
-        wrong_spec = candidate_ncm_spec_from_declaration(
-            replace(
-                prospective_model.declared_model_values,
-                outcome_per_target_unit=prospective_model.declared_model_values.outcome_per_target_unit
-                * 2.0,
-            )
-        )
-        wrong_selected_ncm = repository.persist_candidate_ncm_selected_view(
-            ncm_spec=wrong_spec,
-            declaration_ref=offer.model_declaration_ref,
-            job_id=current.job_id,
-            run_id=current.run_id,
-            tenant_id=admission.scope.tenant_id,
-            cell_id=admission.scope.cell_id,
-            profile_content_hash=offer.profile.content_hash,
-        )
-        with pytest.raises(
-            ValueError, match="n4_candidate_scenario_source_v2_ncm_declaration_mismatch"
-        ):
-            repository.load_candidate_declared_ncm(
-                declaration_ref=offer.model_declaration_ref,
-                ncm_ref=wrong_selected_ncm,
-                expected_profile=offer.profile,
-                expected_run_id=current.run_id,
-                expected_job_id=current.job_id,
-                expected_tenant_id=admission.scope.tenant_id,
-                expected_cell_id=admission.scope.cell_id,
-            )
-        # A real selected IR artifact with the same declaration edge still must
-        # prove that declaration relation. Embedded declaration/markers stay.
-        with pytest.raises(
-            ValueError, match="acquisition_prospective_selected_model_not_established"
-        ):
-            original_model_reconciliation(
-                bridge,
-                prospective_model=prospective_model,
-                offer=offer.model_copy(update={"ncm_ref": wrong_selected_ncm}),
-            )
-        model_refusals.add("unchanged_declaration_wrong_selected_ncm_bytes")
-        original_model_reconciliation(bridge, prospective_model=prospective_model, offer=offer)
-        model_reconciliations.append(offer)
-
-    monkeypatch.setattr(
-        AcquisitionWorldGrowthBridge,
-        "_reconcile_acquired_candidate_model_values",
-        exercise_model_consumer,
-    )
+    controls = install_acquisition_constituent_controls(monkeypatch)
+    reconciled_worlds = controls.reconciled_worlds
+    refused_value_controls = controls.value_refusals
+    model_reconciliations = controls.model_reconciliations
+    model_refusals = controls.model_refusals
     reissue_reads = []
     rebound_sources = []
     original_reissue_read = GenerationSourceRepository.load_candidate_scenario_source_for_reissue

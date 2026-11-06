@@ -6,6 +6,7 @@ import ast
 import builtins
 import functools
 import importlib.util
+import json
 import sys
 import types
 import typing
@@ -1865,3 +1866,615 @@ def test_typing_literal_module_alias_profile_checks_live_module_identity(tmp_pat
     with pytest.raises(ledger.ConfidenceLedgerError, match=r"module alias binding|side-effecting"):
         ledger._source_facade_runtime_projection(root, closure)
     assert observed == []
+
+
+def _registry_keys_source(
+    *,
+    constants="KEY_A = 'alpha'\nKEY_B = 'beta'\n",
+    mapping="{KEY_B: Kind.B, KEY_A: Kind.A}",
+    expression="tuple(sorted(REGISTRY.keys()))",
+    imports="",
+):
+    return (
+        "from __future__ import annotations\nfrom enum import Enum\n"
+        f"{imports}"
+        "class Kind(Enum):\n    A = 'a'\n    B = 'b'\n"
+        f"{constants}REGISTRY = {mapping}\nDEFAULTS = {expression}\n"
+        "def read_defaults():\n    return DEFAULTS\n"
+    )
+
+
+def _registry_keys_expected(root, module, name="DEFAULTS"):
+    tree = ast.parse(Path(module.__file__).read_bytes(), filename=module.__file__)
+    declaration = ledger._module_scope_direct_binding_sites(tree, name)[0][1]
+    return ledger._source_registry_keys_projection(
+        declaration.value,
+        repo_root=root,
+        tree=tree,
+        module=module,
+        module_name=module.__name__,
+    )
+
+
+def _registry_keys_consumer(root, module, monkeypatch):
+    consumer = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.registry_keys_consumer",
+        f"from {module.__name__} import DEFAULTS\nRESULT = DEFAULTS\n",
+    )
+    closure = tuple(
+        (owner.__name__, Path(owner.__file__).relative_to(root).as_posix())
+        for owner in (module, consumer)
+    )
+    return consumer, closure
+
+
+def test_registry_keys_projection_binds_actual_component_default_domain():
+    from polisyos.core.components import discovery
+
+    expected = (
+        "polisyos.data_forge_domains",
+        "polisyos.fabric_connectors",
+        "polisyos.foundry_methods",
+        "polisyos.ir_fragments",
+        "polisyos.lex_evaluators",
+        "polisyos.lex_extractors",
+        "polisyos.lex_normpacks",
+        "polisyos.norm_pack_providers",
+        "polisyos.runtime_middlewares",
+        "polisyos.scholar_extractors",
+        "polisyos.scientist_nodes",
+    )
+    root = ledger._loaded_policy_engine_root()
+    projected = _registry_keys_expected(root, discovery, "DEFAULT_ENTRY_POINT_GROUPS")
+    assert projected.keys == expected
+    assert expected == discovery.DEFAULT_ENTRY_POINT_GROUPS
+    assert ledger._source_registry_keys_value_matches(
+        discovery.DEFAULT_ENTRY_POINT_GROUPS, projected, discovery
+    )
+    assert _route(root, discovery, "DEFAULT_ENTRY_POINT_GROUPS") == (
+        "symbol",
+        discovery.__name__,
+        "DEFAULT_ENTRY_POINT_GROUPS",
+    )
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        _registry_keys_source(),
+        _registry_keys_source(mapping="{'beta': Kind.B, 'alpha': Kind.A}"),
+        _registry_keys_source(
+            imports="from builtins import tuple as pack, sorted as order\n",
+            expression="pack(order(REGISTRY.keys()))",
+        ),
+    ],
+)
+def test_registry_keys_source_tuple_reaches_selected_consumer(tmp_path, monkeypatch, source):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    expected = _registry_keys_expected(root, module)
+    assert expected.keys == ("alpha", "beta")
+    assert module.read_defaults() == expected.keys
+    assert _route(root, module, "DEFAULTS") == ("symbol", module.__name__, "DEFAULTS")
+    _consumer, closure = _registry_keys_consumer(root, module, monkeypatch)
+    projection, _supplemental = ledger._source_facade_runtime_projection(root, closure)
+    bindings = json.loads(projection)["bindings"]
+    selected = [row for row in bindings if row["attribute"] == "DEFAULTS"]
+    assert selected
+    assert all(
+        row["source_value_projection"]["whole_map_values_and_state"] == "not_established"
+        for row in selected
+    )
+
+
+@pytest.mark.parametrize("mutation", ["extra", "missing", "foreign", "tuple", "order"])
+def test_registry_keys_selected_consumer_rejects_changed_domain_or_tuple(
+    tmp_path, monkeypatch, mutation
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _registry_keys_source())
+    consumer, closure = _registry_keys_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    if mutation == "extra":
+        module.REGISTRY["forged"] = module.Kind.A
+    elif mutation == "missing":
+        module.REGISTRY.pop("beta")
+    elif mutation == "foreign":
+        module.REGISTRY["forged"] = module.REGISTRY.pop("beta")
+    else:
+        wrong = ("alpha", "forged") if mutation == "tuple" else ("beta", "alpha")
+        monkeypatch.setattr(module, "DEFAULTS", wrong)
+        monkeypatch.setattr(consumer, "DEFAULTS", wrong)
+        monkeypatch.setattr(consumer, "RESULT", wrong)
+    with pytest.raises(
+        ledger.ConfidenceLedgerError,
+        match=r"registry key tuple differs|side-effecting direct source",
+    ):
+        ledger._source_facade_runtime_projection(root, closure)
+
+
+def test_registry_keys_value_projection_rechecks_map_identity_and_keys(tmp_path, monkeypatch):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _registry_keys_source())
+    expected = _registry_keys_expected(root, module)
+    original = module.REGISTRY
+    monkeypatch.setattr(module, "REGISTRY", dict(original))
+    assert not ledger._source_registry_keys_value_matches(module.DEFAULTS, expected, module)
+    monkeypatch.setattr(module, "REGISTRY", original)
+    original["forged"] = module.Kind.A
+    assert not ledger._source_registry_keys_value_matches(module.DEFAULTS, expected, module)
+
+
+def test_registry_keys_values_remain_unknown_and_are_never_inspected(tmp_path, monkeypatch):
+    source = _registry_keys_source()
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    observed = []
+
+    class UnknownValue:
+        def __getattribute__(self, name):
+            observed.append(name)
+            raise AssertionError("registry values are outside this projection")
+
+        def __eq__(self, _other):
+            observed.append("equality")
+            raise AssertionError("registry values are outside this projection")
+
+    for key in module.REGISTRY:
+        module.REGISTRY[key] = UnknownValue()
+    # Even an unexecuted value call in source has no key-domain meaning. The
+    # projection must keep its initializer/value limitations explicit.
+    Path(module.__file__).write_text(
+        source.replace("Kind.B, KEY_A: Kind.A", "unexecuted(), KEY_A: unexecuted()"),
+        encoding="utf-8",
+    )
+    expected = _registry_keys_expected(root, module)
+    assert expected.keys == module.DEFAULTS
+    _consumer, closure = _registry_keys_consumer(root, module, monkeypatch)
+    projection, _supplemental = ledger._source_facade_runtime_projection(root, closure)
+    assert "whole_map_values_and_state" in projection
+    assert "not_established" in projection
+    with pytest.raises(ledger.ConfidenceLedgerError, match="side-effecting direct source"):
+        _route(root, module, "REGISTRY")
+    assert observed == []
+
+
+@pytest.mark.parametrize("binding", ["tuple", "sorted", "builtins"])
+def test_registry_keys_shadowed_builtins_refuse_without_calls(tmp_path, monkeypatch, binding):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _registry_keys_source())
+    observed = []
+
+    def unverified(_value):
+        observed.append("called")
+        return module.DEFAULTS
+
+    if binding == "builtins":
+        monkeypatch.setattr(module, "__builtins__", {**vars(builtins), "sorted": unverified})
+    else:
+        monkeypatch.setattr(module, binding, unverified, raising=False)
+    assert _registry_keys_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    with pytest.raises(ledger.ConfidenceLedgerError, match="side-effecting direct source"):
+        _route(root, module, "DEFAULTS")
+    assert observed == []
+
+
+@pytest.mark.parametrize(
+    ("mapping", "expression"),
+    [
+        ("{KEY_A: Kind.A, KEY_A: Kind.B}", "tuple(sorted(REGISTRY.keys()))"),
+        ("{1: Kind.A}", "tuple(sorted(REGISTRY.keys()))"),
+        ("{KEY_A: Kind.A}", "tuple(REGISTRY.keys())"),
+        ("{KEY_A: Kind.A}", "tuple(sorted(REGISTRY.items()))"),
+        ("{KEY_A: Kind.A}", "tuple(sorted(REGISTRY.keys(), reverse=True))"),
+    ],
+)
+def test_registry_keys_profile_refuses_duplicate_keys_and_unsupported_expressions(
+    tmp_path, monkeypatch, mapping, expression
+):
+    root, module = _load_decorated_case(
+        tmp_path, monkeypatch, _registry_keys_source(mapping=mapping, expression=expression)
+    )
+    assert _registry_keys_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    with pytest.raises(ledger.ConfidenceLedgerError, match="side-effecting direct source"):
+        _route(root, module, "DEFAULTS")
+
+
+@pytest.mark.parametrize("binding", ["key", "mapping"])
+def test_registry_keys_ambiguous_source_declarations_are_refused(tmp_path, monkeypatch, binding):
+    source = _registry_keys_source()
+    extra = "KEY_A = 'alpha'\n" if binding == "key" else "REGISTRY = {'alpha': Kind.A}\n"
+    source = source.replace("DEFAULTS =", extra + "DEFAULTS =")
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    assert _registry_keys_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+
+
+@pytest.mark.parametrize("binding", ["dict_subclass", "unknown_key"])
+def test_registry_keys_unknown_live_protocols_are_refused_before_calling_them(
+    tmp_path, monkeypatch, binding
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _registry_keys_source())
+    observed = []
+
+    class UnknownDict(dict):
+        def __iter__(self):
+            observed.append("iter")
+            raise AssertionError("unknown iterator must not run")
+
+        def __len__(self):
+            observed.append("len")
+            return 2
+
+        def keys(self):
+            observed.append("keys")
+            raise AssertionError("unknown keys must not run")
+
+    class UnknownMeta(type):
+        def __hash__(cls):
+            observed.append("metaclass_hash")
+            return 1
+
+    class UnknownKey(metaclass=UnknownMeta):
+        def __hash__(self):
+            observed.append("hash")
+            return 1
+
+        def __eq__(self, _other):
+            observed.append("equality")
+            return False
+
+    wrong = (
+        UnknownDict(module.REGISTRY)
+        if binding == "dict_subclass"
+        else {"alpha": module.Kind.A, UnknownKey(): module.Kind.B}
+    )
+    monkeypatch.setattr(module, "REGISTRY", wrong)
+    observed.clear()
+    assert _registry_keys_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    assert observed == []
+
+
+def test_registry_keys_imported_constant_source_is_reconciled(tmp_path, monkeypatch):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    provider = _load_fixture_module(
+        root, monkeypatch, "polisyos.registry_key_provider", "KEY_A = 'alpha'\n"
+    )
+    source = _registry_keys_source(
+        imports="from polisyos.registry_key_provider import KEY_A\n",
+        constants="KEY_B = 'beta'\n",
+    )
+    module = _load_fixture_module(root, monkeypatch, "polisyos.imported_registry_keys", source)
+    assert _registry_keys_expected(root, module).keys == ("alpha", "beta")
+    monkeypatch.setattr(provider, "KEY_A", "forged")
+    monkeypatch.setattr(module, "KEY_A", "forged")
+    module.REGISTRY["forged"] = module.REGISTRY.pop("alpha")
+    assert _registry_keys_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+
+
+@pytest.mark.parametrize("binding", ["spec", "sys_modules"])
+def test_registry_keys_imported_source_refuses_unknown_provider_getters(
+    tmp_path, monkeypatch, binding
+):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    provider = _load_fixture_module(
+        root, monkeypatch, "polisyos.registry_key_provider", "KEY_A = 'alpha'\n"
+    )
+    source = _registry_keys_source(
+        imports="from polisyos.registry_key_provider import KEY_A\n",
+        constants="KEY_B = 'beta'\n",
+    )
+    module = _load_fixture_module(root, monkeypatch, "polisyos.imported_registry_keys", source)
+    observed = []
+
+    class UnknownProvider:
+        def __getattribute__(self, name):
+            observed.append(name)
+            raise AssertionError("unverified provider must not be inspected")
+
+    if binding == "spec":
+        monkeypatch.setitem(vars(provider), "__spec__", UnknownProvider())
+    else:
+        monkeypatch.setitem(sys.modules, provider.__name__, UnknownProvider())
+    assert _registry_keys_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    assert observed == []
+
+
+def test_registry_keys_imported_constant_symlink_is_bound_for_the_whole_projection(
+    tmp_path, monkeypatch
+):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    package = root / "src" / "polisyos"
+    first = package / "key_first.py"
+    second = package / "key_second.py"
+    logical = package / "registry_key_provider.py"
+    first.write_text("KEY_A = 'alpha'\n", encoding="utf-8")
+    second.write_text("KEY_A = 'alpha'\n", encoding="utf-8")
+    logical.symlink_to(first)
+    spec = importlib.util.spec_from_file_location("polisyos.registry_key_provider", logical)
+    provider = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, provider.__name__, provider)
+    spec.loader.exec_module(provider)
+    module = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.imported_registry_keys",
+        _registry_keys_source(
+            imports="from polisyos.registry_key_provider import KEY_A\n",
+            constants="KEY_B = 'beta'\n",
+        ),
+    )
+    original = ledger._source_dataclass_named_constant_body
+
+    def retarget_after_read(name, **kwargs):
+        result = original(name, **kwargs)
+        if kwargs["module"] is provider:
+            logical.unlink()
+            logical.symlink_to(second)
+        return result
+
+    monkeypatch.setattr(ledger, "_source_dataclass_named_constant_body", retarget_after_read)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="source target changed during"):
+        _registry_keys_expected(root, module)
+    assert first.read_bytes() == second.read_bytes()
+
+
+def test_registry_keys_source_and_current_map_cannot_change_after_projection(tmp_path, monkeypatch):
+    source = _registry_keys_source()
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    path = Path(module.__file__)
+    original = ledger._source_dataclass_named_constant
+
+    def change_source(name, **kwargs):
+        result = original(name, **kwargs)
+        path.write_text(source + "\n# changed during source key projection\n", encoding="utf-8")
+        return result
+
+    monkeypatch.setattr(ledger, "_source_dataclass_named_constant", change_source)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="source changed during"):
+        _candidate(root, module, "DEFAULTS")
+
+
+def test_registry_keys_byte_budget_boundary_remains_a_checked_domain(tmp_path, monkeypatch):
+    value = "a" * 200000
+    root, module = _load_decorated_case(
+        tmp_path,
+        monkeypatch,
+        _registry_keys_source(constants=f"KEY_A = {value!r}\n", mapping="{KEY_A: Kind.A}"),
+    )
+    expected = _registry_keys_expected(root, module)
+    assert expected.keys == module.DEFAULTS
+    consumer, closure = _registry_keys_consumer(root, module, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    wrong_key = "b" * 200000
+    module.REGISTRY[wrong_key] = module.REGISTRY.pop(value)
+    wrong_tuple = (wrong_key,)
+    monkeypatch.setattr(module, "DEFAULTS", wrong_tuple)
+    monkeypatch.setattr(consumer, "DEFAULTS", wrong_tuple)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="side-effecting direct source"):
+        ledger._source_facade_runtime_projection(root, closure)
+    assert (
+        ledger._source_registry_key_domain({"x" * (1024**2): None})
+        is ledger._SOURCE_DERIVATION_FAILED
+    )
+
+
+def test_registry_keys_package_relative_import_uses_the_same_source_provider(tmp_path, monkeypatch):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    package = root / "src" / "polisyos" / "registry_package"
+    package.mkdir()
+    _load_fixture_module(root, monkeypatch, "polisyos.keys", "KEY_A = 'alpha'\n")
+    provider = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.registry_package.keys",
+        "KEY_A = 'alpha'\n",
+        path=package / "keys.py",
+    )
+    owner = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.registry_package",
+        _registry_keys_source(imports="from .keys import KEY_A\n", constants="KEY_B = 'beta'\n"),
+        path=package / "__init__.py",
+    )
+    assert _registry_keys_expected(root, owner).keys == ("alpha", "beta")
+    _consumer, closure = _registry_keys_consumer(root, owner, monkeypatch)
+    candidate = _candidate(root, owner, "DEFAULTS")
+    assert candidate.route == ("symbol", owner.__name__, "DEFAULTS")
+    assert candidate.package_initializer_effect_unknown is True
+    assert ledger._source_registry_keys_value_matches(
+        owner.DEFAULTS, _registry_keys_expected(root, owner), owner
+    )
+    with pytest.raises(ledger.ConfidenceLedgerError, match="unreconciled package initializer"):
+        ledger._source_facade_runtime_projection(root, closure)
+    # The competing parent provider still says 'alpha'. Only this actual
+    # relative-import provider changes source; all live/import ends stay alpha.
+    Path(provider.__file__).write_text("KEY_A = 'wrong'\n", encoding="utf-8")
+    assert owner.KEY_A is provider.KEY_A
+    assert _registry_keys_expected(root, owner) is ledger._SOURCE_DERIVATION_FAILED
+    with pytest.raises(ledger.ConfidenceLedgerError):
+        ledger._source_facade_runtime_projection(root, closure)
+
+
+def test_registry_keys_imported_provider_cannot_substitute_another_repository_file(
+    tmp_path, monkeypatch
+):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    provider = _load_fixture_module(root, monkeypatch, "polisyos.keys", "KEY_A = 'alpha'\n")
+    owner = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.imported_registry_keys",
+        _registry_keys_source(
+            imports="from polisyos.keys import KEY_A\n", constants="KEY_B = 'beta'\n"
+        ),
+    )
+    assert _registry_keys_expected(root, owner).keys == ("alpha", "beta")
+    consumer, closure = _registry_keys_consumer(root, owner, monkeypatch)
+    ledger._source_facade_runtime_projection(root, closure)
+    Path(provider.__file__).write_text("KEY_A = 'other'\n", encoding="utf-8")
+    # Names, native spec and loader agree with one another, but point to a
+    # different repository file than the requested canonical provider name.
+    foreign = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.keys",
+        "KEY_A = 'alpha'\n",
+        path=root / "src" / "polisyos" / "foreign.py",
+    )
+    monkeypatch.setattr(owner, "KEY_A", foreign.KEY_A)
+    assert consumer.RESULT is owner.DEFAULTS
+    assert _registry_keys_expected(root, owner) is ledger._SOURCE_DERIVATION_FAILED
+    with pytest.raises(ledger.ConfidenceLedgerError):
+        ledger._source_facade_runtime_projection(root, closure)
+
+
+@pytest.mark.parametrize("field", ["module_name", "spec_name", "loader_name", "loader_path"])
+def test_registry_keys_imported_owner_reconciles_native_module_spec_and_loader_fields(
+    tmp_path, monkeypatch, field
+):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    provider = _load_fixture_module(root, monkeypatch, "polisyos.keys", "KEY_A = 'alpha'\n")
+    owner = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.imported_registry_keys",
+        _registry_keys_source(
+            imports="from polisyos.keys import KEY_A\n", constants="KEY_B = 'beta'\n"
+        ),
+    )
+    assert _registry_keys_expected(root, owner).keys == ("alpha", "beta")
+    if field == "module_name":
+        monkeypatch.setitem(vars(provider), "__name__", "polisyos.foreign")
+    elif field == "spec_name":
+        monkeypatch.setattr(provider.__spec__, "name", "polisyos.foreign")
+    elif field == "loader_name":
+        monkeypatch.setattr(provider.__spec__.loader, "name", "polisyos.foreign")
+    else:
+        foreign_path = root / "src" / "polisyos" / "foreign.py"
+        foreign_path.write_text("KEY_A = 'alpha'\n", encoding="utf-8")
+        monkeypatch.setattr(provider.__spec__.loader, "path", str(foreign_path))
+    assert _registry_keys_expected(root, owner) is ledger._SOURCE_DERIVATION_FAILED
+
+
+@pytest.mark.parametrize("count", [32, 64, 65])
+def test_registry_keys_named_resolution_work_is_explicitly_bounded(tmp_path, monkeypatch, count):
+    constants = "".join(f"KEY_{index} = 'k_{index}'\n" for index in range(count))
+    mapping = "{" + ", ".join(f"KEY_{index}: Kind.A" for index in range(count)) + "}"
+    root, module = _load_decorated_case(
+        tmp_path, monkeypatch, _registry_keys_source(constants=constants, mapping=mapping)
+    )
+    original_body = ledger._source_dataclass_named_constant_body
+    original_sites = ledger._module_scope_direct_binding_sites
+    proofs = []
+    queries = []
+
+    def counted_body(name, **kwargs):
+        proofs.append(name)
+        return original_body(name, **kwargs)
+
+    def counted_sites(tree, name):
+        queries.append(name)
+        return original_sites(tree, name)
+
+    monkeypatch.setattr(ledger, "_source_dataclass_named_constant_body", counted_body)
+    monkeypatch.setattr(ledger, "_module_scope_direct_binding_sites", counted_sites)
+    projected = _registry_keys_expected(root, module)
+    if count <= 64:
+        assert projected.keys == module.DEFAULTS
+        assert len(proofs) == count
+        assert len(queries) <= 2 * count + 2
+    else:
+        assert projected is ledger._SOURCE_DERIVATION_FAILED
+        assert proofs == []
+        assert len(queries) <= 2
+
+
+def test_registry_keys_nested_name_work_exhaustion_refuses_the_whole_projection(
+    tmp_path, monkeypatch
+):
+    constants = []
+    for name, value in (("A", "alpha"), ("B", "beta")):
+        constants.append(f"{name}_BASE = {value!r}\n")
+        prior = f"{name}_BASE"
+        for index in range(32):
+            constants.append(f"{name}_{index} = {prior}\n")
+            prior = f"{name}_{index}"
+    root, module = _load_decorated_case(
+        tmp_path,
+        monkeypatch,
+        _registry_keys_source(constants="".join(constants), mapping="{A_31: Kind.A, B_31: Kind.B}"),
+    )
+    original = ledger._source_dataclass_named_constant_body
+    proofs = []
+
+    def counted_body(name, **kwargs):
+        proofs.append(name)
+        return original(name, **kwargs)
+
+    monkeypatch.setattr(ledger, "_source_dataclass_named_constant_body", counted_body)
+    assert _registry_keys_expected(root, module) is ledger._SOURCE_DERIVATION_FAILED
+    assert len(proofs) == 64
+
+
+def test_registry_keys_unknown_source_root_is_refused_instead_of_guessing_a_provider(
+    tmp_path, monkeypatch
+):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    package = root / "foreign"
+    package.mkdir()
+    _load_fixture_module(root, monkeypatch, "foreign", "", path=package / "__init__.py")
+    canonical_unknown = package / "keys.py"
+    canonical_unknown.write_text("KEY_A = 'wrong'\n", encoding="utf-8")
+    foreign = _load_fixture_module(
+        root,
+        monkeypatch,
+        "foreign.keys",
+        "KEY_A = 'alpha'\n",
+        path=root / "foreign.py",
+    )
+    owner = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.imported_registry_keys",
+        _registry_keys_source(
+            imports="from foreign.keys import KEY_A\n", constants="KEY_B = 'beta'\n"
+        ),
+    )
+    assert owner.KEY_A is foreign.KEY_A
+    assert owner.DEFAULTS == ("alpha", "beta")
+    assert _registry_keys_expected(root, owner) is ledger._SOURCE_DERIVATION_FAILED
+    _consumer, closure = _registry_keys_consumer(root, owner, monkeypatch)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="side-effecting direct source"):
+        ledger._source_facade_runtime_projection(root, closure)
+
+
+def test_registry_keys_relative_owner_uses_canonical_package_path_after_file_alias(
+    tmp_path, monkeypatch
+):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    package = root / "src" / "polisyos" / "registry_package"
+    package.mkdir()
+    _load_fixture_module(root, monkeypatch, "polisyos.keys", "KEY_A = 'alpha'\n")
+    provider = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.registry_package.keys",
+        "KEY_A = 'alpha'\n",
+        path=package / "keys.py",
+    )
+    body = root / "src" / "polisyos" / "registry_body.py"
+    body.write_text(
+        _registry_keys_source(imports="from .keys import KEY_A\n", constants="KEY_B = 'beta'\n"),
+        encoding="utf-8",
+    )
+    initializer = package / "__init__.py"
+    initializer.symlink_to(body)
+    spec = importlib.util.spec_from_file_location("polisyos.registry_package", initializer)
+    owner = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, owner.__name__, owner)
+    spec.loader.exec_module(owner)
+    # Both names identify exactly the same bytes. Package status comes from
+    # the canonical repository path, rather than this mutable display field.
+    monkeypatch.setattr(owner, "__file__", str(body))
+    assert _registry_keys_expected(root, owner).keys == ("alpha", "beta")
+    Path(provider.__file__).write_text("KEY_A = 'wrong'\n", encoding="utf-8")
+    assert owner.KEY_A is provider.KEY_A
+    assert _registry_keys_expected(root, owner) is ledger._SOURCE_DERIVATION_FAILED

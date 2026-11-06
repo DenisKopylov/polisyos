@@ -1485,6 +1485,7 @@ def run_genuine_candidate_experiment_scenario(
                     decision_ref=execution_values["decision_ref"],
                     policy_owner=policy_owner,
                     monkeypatch=monkeypatch,
+                    current_action_profile_path=tmp_path / "first-current-action-profile",
                 )
                 assert execution.standard_invocation_units_before == 2
                 assert execution.standard_invocation_units_after == 4

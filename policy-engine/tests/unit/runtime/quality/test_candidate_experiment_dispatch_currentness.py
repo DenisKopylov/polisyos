@@ -2,41 +2,63 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
 
+import pytest
+
 from polisyos.core.artifacts import ArtifactRef
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.pdc import gy_content_hash
 from polisyos.runtime.http.services.control_plane_store import (
     ControlJobExecutionAdmission,
     ControlJobRecord,
     ControlPlaneStore,
 )
 from polisyos.runtime.quality import acquisition_evaluation_dispatch as dispatch
+from polisyos.runtime.quality.acquisition_evaluation import (
+    AcquisitionSelectedEvaluation,
+    ResolvedAcquisitionEvaluation,
+)
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionCandidateExperimentPhaseReceipt,
 )
 from polisyos.runtime.quality.acquisition_world_growth import (
     AcquisitionCandidateSourceRoute,
+    CandidateExperimentPriorOwner,
 )
 from polisyos.runtime.quality.candidate_acquisition_action import (
     CANDIDATE_ACTION_KIND,
     CandidateAcquisitionActionReceipt,
 )
+from polisyos.runtime.quality.candidate_simulation import (
+    CandidateSimulationScenarioProfile,
+    CandidateSimulationSyntheticModelDeclarationV1,
+    candidate_simulation_profile_ref,
+)
+from polisyos.runtime.quality.cycle_substrate import (
+    ConfiguredCandidateSimulationContextAdmissionOwner,
+)
+from tests.unit.runtime.quality.test_candidate_acquisition_world import (
+    _candidate_world_case,
+)
 from tests.unit.runtime.quality.test_candidate_experiment_terminal_history import (
     _requested_phase,
 )
+from tests.unit.runtime.quality.test_candidate_source_basis import _inputs
 
 
 def _hash(digit: str) -> str:
     return "sha256:" + digit * 64
 
 
-def _selected_ref(kind: str, digit: str) -> ArtifactRef:
+def _selected_ref(kind: str, digit: str, *, profile_digit: str = "f") -> ArtifactRef:
     return ArtifactRef(
         artifact_id=_hash(digit),
         kind=kind,
         media_type="application/json",
-        manifest_profile_sha256=_hash("f"),
+        manifest_profile_sha256=_hash(profile_digit),
     )
 
 
@@ -167,6 +189,91 @@ def _create_job(
     return admission
 
 
+def _selected_evaluation(
+    *, changed: dict[str, object] | None = None
+) -> ResolvedAcquisitionEvaluation:
+    values: dict[str, object] = {
+        "candidate_id": "candidate-a",
+        "candidate_content_hash": _hash("1"),
+        "design_problem_ref": _hash("2"),
+        "world_model_record_hash": _hash("3"),
+        "evaluation_job_id": "evaluation-a",
+        "evaluation_run_id": "run-a",
+        "generation_run_id": "generation-a",
+        "cycle_index": 0,
+        "n4_source_ref": _selected_ref("runtime.quality.n4_candidate_scenario_source", "4"),
+        "context_job_ref": _selected_ref("runtime.quality.cycle_substrate_context_job", "5"),
+        "n5_input_ref": _selected_ref("runtime.quality.candidate_simulation_n5_input", "6"),
+        "n5_execution_ref": _selected_ref("runtime.quality.candidate_simulation_execution", "7"),
+        "n5_result_ref": _selected_ref("polisyos.runtime.joint_simulation_result", "8"),
+    }
+    if changed is not None:
+        values.update(changed)
+    selected = AcquisitionSelectedEvaluation.model_validate(values)
+    return ResolvedAcquisitionEvaluation(
+        selected=selected,
+        source=None,
+        input_record=None,
+        execution=None,
+        result=None,
+        handoff=None,
+    )
+
+
+def _profile_with_n5_seed(
+    profile: CandidateSimulationScenarioProfile,
+    *,
+    seed: int,
+) -> CandidateSimulationScenarioProfile:
+    values = profile.model_dump(mode="json", exclude={"content_hash"})
+    values["n5"]["seed"] = seed
+    return CandidateSimulationScenarioProfile.model_validate(
+        {**values, "content_hash": gy_content_hash(values)}
+    )
+
+
+def _declaration_for_profile(
+    declaration: CandidateSimulationSyntheticModelDeclarationV1,
+    profile: CandidateSimulationScenarioProfile,
+    *,
+    outcome_per_target_unit: float | None = None,
+) -> CandidateSimulationSyntheticModelDeclarationV1:
+    values = declaration.model_dump(mode="json", exclude={"content_hash"})
+    values.update(
+        profile_config_ref=candidate_simulation_profile_ref(profile),
+        profile_content_hash=profile.content_hash,
+        profile_selection_ref=profile.profile_selection_ref,
+    )
+    if outcome_per_target_unit is not None:
+        values["outcome_per_target_unit"] = outcome_per_target_unit
+    return CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+        {**values, "content_hash": gy_content_hash(values)}
+    )
+
+
+def _prior_owner(
+    *,
+    profile: CandidateSimulationScenarioProfile,
+    declaration: CandidateSimulationSyntheticModelDeclarationV1,
+    store: FileSystemCAS,
+    evaluation: ResolvedAcquisitionEvaluation,
+) -> CandidateExperimentPriorOwner:
+    context_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
+        profiles=(profile,),
+        model_declarations=(declaration,),
+        store=store,
+    )
+    return CandidateExperimentPriorOwner(
+        profile=profile,
+        model_declaration=declaration,
+        context_owner=context_owner,
+        generation_run=None,
+        source_cycle=None,
+        selected_evaluation=evaluation,
+        first_n4_source=None,
+    )
+
+
 def test_reentry_action_matches_selected_phase_generation_and_real_live_job(
     tmp_path: Path,
 ) -> None:
@@ -240,3 +347,114 @@ def test_reentry_action_matches_selected_phase_generation_and_real_live_job(
         )
     finally:
         store.close()
+
+
+def test_prior_owner_comparison_uses_selected_values_and_store_not_wrapper_identity(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Check fieldwise replay equality only; fixtures do not establish authority."""
+    world = _candidate_world_case(tmp_path / "world", monkeypatch)
+    inputs = _inputs(world)
+    profile = inputs.configured_profile
+    declaration = inputs.original_model_declaration
+    evaluation = _selected_evaluation()
+    expected = _prior_owner(
+        profile=profile,
+        declaration=declaration,
+        store=world.store,
+        evaluation=evaluation,
+    )
+    fresh = _prior_owner(
+        profile=profile,
+        declaration=declaration,
+        store=world.store,
+        evaluation=_selected_evaluation(),
+    )
+
+    assert fresh.context_owner is not expected.context_owner
+    assert dispatch._candidate_experiment_prior_owners_match(
+        current=fresh,
+        expected=expected,
+        artifact_store=world.store,
+    )
+
+    wrong_store = FileSystemCAS(tmp_path / "foreign-cas")
+    assert not dispatch._candidate_experiment_prior_owners_match(
+        current=_prior_owner(
+            profile=profile,
+            declaration=declaration,
+            store=wrong_store,
+            evaluation=evaluation,
+        ),
+        expected=expected,
+        artifact_store=world.store,
+    )
+    wrong_profile = _profile_with_n5_seed(profile, seed=profile.n5.seed + 1)
+    wrong_profile_declaration = _declaration_for_profile(declaration, wrong_profile)
+    assert not dispatch._candidate_experiment_prior_owners_match(
+        current=_prior_owner(
+            profile=wrong_profile,
+            declaration=wrong_profile_declaration,
+            store=world.store,
+            evaluation=evaluation,
+        ),
+        expected=expected,
+        artifact_store=world.store,
+    )
+    wrong_declaration = _declaration_for_profile(
+        declaration,
+        profile,
+        outcome_per_target_unit=declaration.outcome_per_target_unit + 0.5,
+    )
+    assert not dispatch._candidate_experiment_prior_owners_match(
+        current=_prior_owner(
+            profile=profile,
+            declaration=wrong_declaration,
+            store=world.store,
+            evaluation=evaluation,
+        ),
+        expected=expected,
+        artifact_store=world.store,
+    )
+
+    selected = evaluation.selected
+    wrong_n5_input_ref = ArtifactRef(
+        artifact_id=selected.n5_input_ref.artifact_id,
+        kind=selected.n5_input_ref.kind,
+        media_type=selected.n5_input_ref.media_type,
+        manifest_profile_sha256=_hash("e"),
+    )
+    wrong_selected_profile = AcquisitionSelectedEvaluation.model_validate(
+        {
+            **selected.model_dump(mode="python"),
+            "n5_input_ref": wrong_n5_input_ref,
+        }
+    )
+    wrong_selected_evaluation = replace(evaluation, selected=wrong_selected_profile)
+    assert wrong_selected_profile.n5_input_ref.artifact_id == selected.n5_input_ref.artifact_id
+    assert wrong_selected_profile.n5_input_ref.manifest_profile_sha256 != (
+        selected.n5_input_ref.manifest_profile_sha256
+    )
+    assert not dispatch._candidate_experiment_prior_owners_match(
+        current=_prior_owner(
+            profile=profile,
+            declaration=declaration,
+            store=world.store,
+            evaluation=wrong_selected_evaluation,
+        ),
+        expected=expected,
+        artifact_store=world.store,
+    )
+
+    wrong_nested_evaluation = _selected_evaluation(changed={"world_model_record_hash": _hash("9")})
+    assert not dispatch._candidate_experiment_prior_owners_match(
+        current=_prior_owner(
+            profile=profile,
+            declaration=declaration,
+            store=world.store,
+            evaluation=wrong_nested_evaluation,
+        ),
+        expected=expected,
+        artifact_store=world.store,
+    )

@@ -55,6 +55,14 @@ _COUNTRIES: tuple[CountryMapping, ...] = (
     CountryMapping(
         "GB", "GBR", "826", "United Kingdom", ("UK", "Britain", "Great Britain"), "Europe"
     ),
+    CountryMapping(
+        "US",
+        "USA",
+        "840",
+        "United States",
+        ("United States of America",),
+        "North America",
+    ),
 )
 
 _BY_ISO2 = {country.iso2: country for country in _COUNTRIES}

@@ -46,6 +46,92 @@ if TYPE_CHECKING:
     from tests._helpers.lane01_wdi_profiles import CandidateWDIProfile
 
 
+def _run_current_action_with_profile_best_effort(
+    operation: Callable[[], object],
+    *,
+    profile_path: Path | None,
+) -> object:
+    """Profile one test-owned call without changing its return or exception."""
+    if profile_path is None:
+        return operation()
+
+    import cProfile
+    import io
+    import json
+    import pstats
+    import sys
+
+    def write_status(payload: dict[str, object]) -> None:
+        try:
+            profile_path.mkdir(parents=True, exist_ok=True)
+            (profile_path / "status.json").write_text(
+                json.dumps(payload, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+        except Exception:
+            # Diagnostics must not replace the exercised operation's outcome.
+            return
+
+    if sys.getprofile() is not None:
+        write_status(
+            {
+                "status": "SKIP",
+                "reason": "existing_profiler_active",
+                "profile_output": None,
+                "top25_output": None,
+            }
+        )
+        return operation()
+
+    profiler = cProfile.Profile()
+
+    def write_profile(*, outcome: str, exception_type: str | None = None) -> None:
+        try:
+            profile_path.mkdir(parents=True, exist_ok=True)
+            profile_file = profile_path / "current-action.pstats"
+            top25_file = profile_path / "current-action-top25.txt"
+            profiler.dump_stats(str(profile_file))
+            output = io.StringIO()
+            stats = pstats.Stats(profiler, stream=output)
+            stats.strip_dirs().sort_stats(pstats.SortKey.CUMULATIVE).print_stats(25)
+            top25_file.write_text(output.getvalue(), encoding="utf-8")
+            write_status(
+                {
+                    "status": "PROFILED",
+                    "outcome": outcome,
+                    "exception_type": exception_type,
+                    "total_calls": stats.total_calls,
+                    "primitive_calls": stats.prim_calls,
+                    "profile_output": profile_file.name,
+                    "top25_output": top25_file.name,
+                }
+            )
+        except Exception as exc:
+            write_status(
+                {
+                    "status": "ERROR",
+                    "reason": "diagnostic_write_failed",
+                    "exception_type": type(exc).__name__,
+                }
+            )
+
+    profiler.enable()
+    profiler_disabled = False
+    try:
+        try:
+            result = operation()
+        finally:
+            profiler.disable()
+            profiler_disabled = True
+    except BaseException as exc:
+        if profiler_disabled:
+            write_profile(outcome="raised", exception_type=type(exc).__name__)
+        raise
+    else:
+        write_profile(outcome="returned")
+        return result
+
+
 @dataclass(frozen=True)
 class CandidateExperimentServedExecutionOwner:
     """Actual fixture-owned execution owners and controlled WDI calls."""
@@ -847,6 +933,7 @@ def run_candidate_experiment_served_execution(
     source_profile: CandidateWDIProfile | None = None,
     wdi_response_bytes: bytes | None = None,
     fresh_reader_observer: Callable[..., None] | None = None,
+    current_action_profile_path: Path | None = None,
 ) -> CandidateExperimentServedExecutionResult:
     """Execute a replayed candidate action through HTTP, the real worker and fresh GET.
 
@@ -1012,6 +1099,8 @@ def run_candidate_experiment_served_execution(
         if before_first_delivery is not None:
             before_first_delivery(execution_owner, job_id)
 
+        profiled_current_action = False
+
         def dispatch_with_execution_observer(dispatch: Callable[[], str]) -> str:
             from polisyos.runtime.quality import (
                 acquisition_evaluation_dispatch,
@@ -1039,6 +1128,8 @@ def run_candidate_experiment_served_execution(
                 origin: VerifiedCandidateExperimentOrigin,
                 action_phase_ref: str,
             ):
+                nonlocal profiled_current_action
+
                 from polisyos.runtime.http.services import acquisition_surface_execution
                 from polisyos.runtime.quality import (
                     acquisition_unpriced_candidate_policy,
@@ -1049,6 +1140,12 @@ def run_candidate_experiment_served_execution(
                 origin_head = origin.current_action_head
                 origin_head_ref = origin_head.receipt_ref if origin_head is not None else None
                 origin_head_phase = origin_head.receipt_phase if origin_head is not None else None
+                profile_before_port = None
+                if current_action_profile_path is not None:
+                    import sys
+
+                    profile_before_port = sys.getprofile()
+                original_current_action_stage: object | None = None
 
                 def time_stage(
                     stage_scope: pytest.MonkeyPatch,
@@ -1057,13 +1154,39 @@ def run_candidate_experiment_served_execution(
                     attribute: str,
                     label: str,
                 ) -> None:
+                    nonlocal original_current_action_stage
+
                     original_stage = getattr(target, attribute)
+                    if attribute == "_current_candidate_experiment_action":
+                        original_current_action_stage = original_stage
 
                     def observed_stage(*args: object, **kwargs: object):
+                        nonlocal profiled_current_action
+
                         stage_started_wall = perf_counter()
                         stage_started_cpu = process_time()
+                        if (
+                            current_action_profile_path is not None
+                            and attribute == "execute_live_catalog_acquisition"
+                            and profiled_current_action
+                            and sys.getprofile() is not profile_before_port
+                        ):
+                            raise AssertionError(
+                                "candidate action profiler escaped into catalog execution"
+                            )
                         try:
-                            result = original_stage(*args, **kwargs)
+                            if (
+                                attribute == "_current_candidate_experiment_action"
+                                and current_action_profile_path is not None
+                                and not profiled_current_action
+                            ):
+                                profiled_current_action = True
+                                result = _run_current_action_with_profile_best_effort(
+                                    lambda: original_stage(*args, **kwargs),
+                                    profile_path=current_action_profile_path,
+                                )
+                            else:
+                                result = original_stage(*args, **kwargs)
                         except BaseException as exc:
                             stage_calls.append(
                                 CandidateExperimentExecutionStageCall(
@@ -1155,6 +1278,15 @@ def run_candidate_experiment_served_execution(
                             )
                         )
                         raise
+                if current_action_profile_path is not None and profiled_current_action:
+                    if sys.getprofile() is not profile_before_port:
+                        raise AssertionError("candidate action profiler escaped its stage")
+                    if (
+                        original_current_action_stage is not None
+                        and candidate_acquisition_action._current_candidate_experiment_action
+                        is not original_current_action_stage
+                    ):
+                        raise AssertionError("candidate action stage wrapper escaped the port")
                 execution_owner.execution_calls.append(
                     CandidateExperimentExecutionCall(
                         action_phase_ref=action_phase_ref,

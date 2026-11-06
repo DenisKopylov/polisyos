@@ -138,8 +138,13 @@ def test_bounded_selected_source_builds_real_kref_and_rejects_changed_catalog_by
     from polisyos.runtime.quality import credal_reference
     from polisyos.runtime.quality.intervention_substrate import load_l6_intervention_substrate
     from polisyos.runtime.quality.substrate_registry import (
+        DEFAULT_L2_SCHOLAR_KG_PATH,
         DEFAULT_L3_LEX_KG_PATH,
         catalog_serving_source_scope,
+    )
+    from polisyos.runtime.quality.world_model_record import (
+        SkgCausalPriorRef,
+        world_model_record_content_hash,
     )
     from tests._helpers.candidate_cycle_source_profile import (
         bind_candidate_cycle_kref_builder_root,
@@ -149,6 +154,7 @@ def test_bounded_selected_source_builds_real_kref_and_rejects_changed_catalog_by
         candidate_cycle_kref_source_witness,
         install_candidate_cycle_l6_source_root_reader,
     )
+    from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT
 
     bounded_source = build_candidate_cycle_substrate_route_inputs(
         tmp_path / "bounded-kref-source",
@@ -170,6 +176,36 @@ def test_bounded_selected_source_builds_real_kref_and_rejects_changed_catalog_by
     assert registry_entry.coverage.coverage_kind == "controlled_synthetic_fixture"
     assert registry_entry.trust_tier.trust_cap == 0.0
     assert registry_entry.identification_mode == "not_established"
+
+    # The boundary builder's registry locator is repo-relative. K_ref's actual
+    # owner requires the selected SKG's canonical DuckDB snapshot reference, so
+    # bind the same fixture bytes through the SKG reader before invoking it.
+    from polisyos.data_forge.read_api.academic import SKGQuery
+
+    skg_path = (bounded_source.root / DEFAULT_L2_SCHOLAR_KG_PATH).resolve(strict=True)
+    skg_query = SKGQuery(db_path=skg_path, index_dir=skg_path.parent / "index")
+    try:
+        skg_version = skg_query.latest_skg_version_id()
+        assert skg_version is not None
+        skg_snapshot_ref = skg_query.skg_snapshot_ref(version_id=skg_version)
+    finally:
+        skg_query.close()
+    assert skg_snapshot_ref == f"duckdb://{skg_path}#v{skg_version}"
+    wmr_fields = bounded_source.world_model_record.model_dump(mode="python")
+    wmr_fields["skg_causal_prior_ref"] = SkgCausalPriorRef(
+        skg_snapshot_ref=skg_snapshot_ref,
+        skg_version_id=str(skg_version),
+        source_data_snapshot_id=(
+            bounded_source.world_model_record.skg_causal_prior_ref.source_data_snapshot_id
+        ),
+    )
+    wmr_draft = type(bounded_source.world_model_record).model_construct(**wmr_fields)
+    wmr_hash = world_model_record_content_hash(wmr_draft)
+    wmr_fields["content_hash"] = wmr_hash
+    wmr_fields["world_model_record_id"] = (
+        "world_model_record_" + wmr_hash.removeprefix("sha256:")[:16]
+    )
+    selected_world_model_record = type(bounded_source.world_model_record).model_validate(wmr_fields)
 
     _, catalog_source = build_candidate_cycle_catalog_serving_source(bounded_source.root)
     expected_catalog_readback = candidate_cycle_catalog_source_readback(
@@ -198,7 +234,7 @@ def test_bounded_selected_source_builds_real_kref_and_rejects_changed_catalog_by
     with catalog_serving_source_scope(catalog_source):
         reference = selected_kref_builder(
             bounded_source.root,
-            world_model_record=bounded_source.world_model_record,
+            world_model_record=selected_world_model_record,
         )
     assert actual_kref_repo_roots == [str(bounded_source.root)]
     assert_l6_reader_installed()
@@ -207,15 +243,18 @@ def test_bounded_selected_source_builds_real_kref_and_rejects_changed_catalog_by
     assert l3_path.is_relative_to(bounded_source.root)
     with duckdb.connect(str(l3_path), read_only=True) as connection:
         l3_row_counts = {
-            table_name: int(
-                connection.execute(f"SELECT COUNT(*) FROM {table_name}").fetchone()[0]
-            )
-            for table_name in (
-                "lex_amendments",
-                "lex_normative_ready_facts",
-                "lex_reference_edges",
-                "lex_rule_thresholds",
-            )
+            "lex_amendments": int(
+                connection.execute("SELECT COUNT(*) FROM lex_amendments").fetchone()[0]
+            ),
+            "lex_normative_ready_facts": int(
+                connection.execute("SELECT COUNT(*) FROM lex_normative_ready_facts").fetchone()[0]
+            ),
+            "lex_reference_edges": int(
+                connection.execute("SELECT COUNT(*) FROM lex_reference_edges").fetchone()[0]
+            ),
+            "lex_rule_thresholds": int(
+                connection.execute("SELECT COUNT(*) FROM lex_rule_thresholds").fetchone()[0]
+            ),
         }
     assert set(l3_row_counts) == {
         "lex_amendments",
@@ -228,7 +267,7 @@ def test_bounded_selected_source_builds_real_kref_and_rejects_changed_catalog_by
     source_witness = candidate_cycle_kref_source_witness(
         reference,
         source_root=bounded_source.root,
-        expected_skg_ref=bounded_source.world_model_record.skg_causal_prior_ref,
+        expected_skg_ref=selected_world_model_record.skg_causal_prior_ref,
         catalog_source=catalog_source,
         expected_catalog_readback=expected_catalog_readback,
         expected_l6_bundle=expected_l6_bundle,
@@ -236,9 +275,10 @@ def test_bounded_selected_source_builds_real_kref_and_rejects_changed_catalog_by
         actual_l6_reads=actual_l6_reads,
     )
     assert source_witness["repo_root"] == str(bounded_source.root)
-    assert source_witness["l1_catalog"]["alignment_row_count"] == expected_catalog_readback[
-        "alignment_row_count"
-    ]
+    assert (
+        source_witness["l1_catalog"]["alignment_row_count"]
+        == expected_catalog_readback["alignment_row_count"]
+    )
     assert source_witness["l2_skg"]["source_snapshot_sha256"]
     assert source_witness["l3_lex"]["source_path"] == str(l3_path)
 
@@ -270,7 +310,7 @@ def test_bounded_selected_source_builds_real_kref_and_rejects_changed_catalog_by
         candidate_cycle_kref_source_witness(
             reference,
             source_root=bounded_source.root,
-            expected_skg_ref=bounded_source.world_model_record.skg_causal_prior_ref,
+            expected_skg_ref=selected_world_model_record.skg_causal_prior_ref,
             catalog_source=catalog_source,
             expected_catalog_readback=expected_catalog_readback,
             expected_l6_bundle=expected_l6_bundle,

@@ -14,6 +14,102 @@ pytest_plugins = ("tests._helpers.acquisition_served_history",)
 
 
 @pytest.mark.integration
+def test_candidate_bridge_uses_selected_catalog_root_not_issuer_root(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Bind the real served bridge to its runtime Catalog while retaining issuer ownership."""
+    from fastapi.testclient import TestClient
+
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.quality.substrate_registry import (
+        SubstrateRegistryError,
+        catalog_serving_source_scope,
+        require_catalog_source_registry_binding,
+    )
+    from tests._helpers.candidate_experiment_served_execution import (
+        _build_candidate_experiment_world_growth_bridge,
+    )
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+        candidate_cycle_catalog_registry_providers,
+        complete_candidate_cycle_catalog_source,
+    )
+    from tests._helpers.lane01_candidate_action_served import (
+        build_candidate_experiment_issuer_port,
+    )
+
+    source_inputs = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "labor-source", include_owner_slot_manifest=True
+    )
+    cas_root = tmp_path / "cas"
+    sqlite_path = tmp_path / "control.sqlite3"
+    for name, value in (
+        ("POLISYOS_EXECUTION_PROFILE", "dev"),
+        ("POLISYOS_CONTROL_WORKER_BACKEND", "external"),
+        ("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite"),
+        ("POLISYOS_CONTROL_SQLITE_PATH", str(sqlite_path)),
+        ("POLISYOS_RUNTIME_CAS_TIMEOUT_SECONDS", "3"),
+    ):
+        monkeypatch.setenv(name, value)
+
+    with complete_candidate_cycle_catalog_source(
+        source_inputs.root,
+        monkeypatch,
+        synthetic_usa_labor_scope=True,
+    ) as (selection, selected_source, substrate_registry):
+        with candidate_cycle_catalog_registry_providers(
+            selection, selected_source
+        ) as providers:
+            app = create_runtime_api_app(
+                cas_root=cas_root,
+                core_runs_root=cas_root / "runs",
+                enable_security_middlewares=False,
+                enable_csrf_protection=False,
+                container_overrides=RuntimeContainerOverrides(
+                    control_registry_providers=providers
+                ),
+                repo_root=source_inputs.root,
+                catalog_source_selection=selection,
+                catalog_run_profile=selection.catalog_run_profile,
+            )
+            with TestClient(app) as client:
+                control = client.app.state._control_service
+                issuer = build_candidate_experiment_issuer_port(
+                    tmp_path=tmp_path / "candidate-issuer",
+                    artifact_store=control._artifact_store,
+                )
+                bridge = _build_candidate_experiment_world_growth_bridge(
+                    control_service=control,
+                    authority=issuer.authority,
+                )
+                catalog = control.catalog_serving_source
+
+                assert catalog is not None
+                assert catalog.repo_root == source_inputs.root
+                assert bridge.repo_root == catalog.repo_root
+                assert bridge.authority is issuer.authority
+                assert issuer.authority.repo_root != catalog.repo_root
+
+                with catalog_serving_source_scope(catalog):
+                    require_catalog_source_registry_binding(
+                        bridge.repo_root,
+                        substrate_registry,
+                        catalog,
+                    )
+                    with pytest.raises(
+                        SubstrateRegistryError,
+                        match="catalog_source_repo_root_mismatch",
+                    ):
+                        require_catalog_source_registry_binding(
+                            issuer.authority.repo_root,
+                            substrate_registry,
+                            catalog,
+                        )
+
+
+@pytest.mark.integration
 def test_candidate_execution_port_factory_reopens_service_without_n5(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

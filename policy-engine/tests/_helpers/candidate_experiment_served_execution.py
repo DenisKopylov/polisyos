@@ -19,6 +19,9 @@ if TYPE_CHECKING:
     import pytest
 
     from polisyos.core.artifacts import ArtifactRef
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        CanonicalAcquisitionAuthority,
+    )
     from polisyos.runtime.http.services.acquisition_action_service import (
         AcquisitionActionService,
         CandidateExperimentCurrentActionProjection,
@@ -1660,10 +1663,7 @@ def candidate_experiment_served_execution_owner(
     from polisyos.runtime.quality.acquisition_route_loop import (
         VerifiedCandidateExperimentOrigin as VerifiedCandidateExperimentOriginType,
     )
-    from polisyos.runtime.quality.acquisition_world_growth import (
-        AcquisitionWorldGrowthBridge,
-        AcquisitionWorldGrowthConfig,
-    )
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthConfig
     from tests._helpers import lane01_candidate_action_served
     from tests._helpers.lane01_candidate_action_served import _transport
 
@@ -1705,19 +1705,9 @@ def candidate_experiment_served_execution_owner(
     ):
         raise ValueError("candidate_experiment_test_policy_owner_not_current")
 
-    bridge = AcquisitionWorldGrowthBridge(
-        config=AcquisitionWorldGrowthConfig(candidate_source_routes=()),
-        repo_root=Path(authority.repo_root),
-        runtime_root=Path(control._cas_root),
+    bridge = _build_candidate_experiment_world_growth_bridge(
+        control_service=control,
         authority=authority,
-        artifact_store=control._artifact_store,
-        event_log=control._diagnostic_event_log,
-        epoch_deployment=None,
-        promotion_runtime=control._promotion_runtime,
-        cycle_substrate_context_admission_owner=(control._cycle_substrate_context_admission_owner),
-        control_store=control._control_store,
-        action_head_sink=control.acquisition_route_sink,
-        source_control_service=control,
     )
     port = WorldBankWDIAcquisitionExecutionPort(
         world_growth_bridge=bridge,
@@ -1779,3 +1769,32 @@ def candidate_experiment_served_execution_owner(
         finally:
             action_service._execution_port = previous_execution_port
             action_service._production_execution_port = previous_production_port
+
+
+def _build_candidate_experiment_world_growth_bridge(
+    *,
+    control_service: ControlPlaneService,
+    authority: CanonicalAcquisitionAuthority,
+) -> AcquisitionWorldGrowthBridge:
+    """Build the served bridge against its runtime's selected repository root."""
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthBridge as Bridge,
+        AcquisitionWorldGrowthConfig,
+    )
+
+    return Bridge(
+        config=AcquisitionWorldGrowthConfig(candidate_source_routes=()),
+        repo_root=Path(control_service._repo_root).resolve(),
+        runtime_root=Path(control_service._cas_root),
+        authority=authority,
+        artifact_store=control_service._artifact_store,
+        event_log=control_service._diagnostic_event_log,
+        epoch_deployment=None,
+        promotion_runtime=control_service._promotion_runtime,
+        cycle_substrate_context_admission_owner=(
+            control_service._cycle_substrate_context_admission_owner
+        ),
+        control_store=control_service._control_store,
+        action_head_sink=control_service.acquisition_route_sink,
+        source_control_service=control_service,
+    )

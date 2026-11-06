@@ -399,9 +399,7 @@ def test_served_unknown_candidate_profile_keeps_persisted_n4_candidate(
                 # control-job attempt.
                 event_payload["control_job_attempt"] = proposal.control_job_attempt
                 expected_events[event.event_id] = event_payload
-            assert pipeline["source"] == (
-                "n4_candidate_proposal+llm_producer_settlement_ledger"
-            )
+            assert pipeline["source"] == ("n4_candidate_proposal+llm_producer_settlement_ledger")
             assert served_events == expected_events, pipeline.get("notes")
             assert not pipeline["notes"]
             runtime_context = app.state.runtime_api_ctx

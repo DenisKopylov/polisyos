@@ -11,20 +11,33 @@ from polisyos.runtime.quality.capability_resolver import (
 
 
 @pytest.mark.parametrize(
-    ("construct", "population", "indicator", "slot", "unit"),
+    ("construct", "population", "indicator", "slot", "unit", "catalog_metric"),
     [
-        ("economic.gdp", "national_economy", "NY.GDP.MKTP.CD", "global.gdp", "usd"),
+        (
+            "economic.gdp",
+            "national_economy",
+            "NY.GDP.MKTP.CD",
+            "global.gdp",
+            "usd",
+            "gdp",
+        ),
         (
             "labor.unemployment_rate",
             "total_labor_force",
             "SL.UEM.TOTL.ZS",
             "global.unemployment_rate",
             "ratio",
+            "labor.unemployment_rate",
         ),
     ],
 )
 def test_governed_catalog_candidate_cannot_become_claim_evidence(
-    construct: str, population: str, indicator: str, slot: str, unit: str
+    construct: str,
+    population: str,
+    indicator: str,
+    slot: str,
+    unit: str,
+    catalog_metric: str,
 ) -> None:
     resolver = RequirementToCapabilityResolver.governed_fixture()
     candidates = [item for item in resolver.capabilities if item.construct_id == construct]
@@ -40,7 +53,7 @@ def test_governed_catalog_candidate_cannot_become_claim_evidence(
     assert metadata["target_world_slot"] == slot
     assert metadata["canonical_unit"] == unit
     assert metadata["catalog_fetch_binding"] == {
-        "metric_id": construct,
+        "metric_id": catalog_metric,
         "connector_id": "worldbank.wdi",
         "profile_id": "worldbank_wdi",
         "dataset_id": indicator,

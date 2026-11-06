@@ -16,7 +16,10 @@ from typing import TYPE_CHECKING, Literal
 
 from polisyos.core import contracts
 from polisyos.data_forge import read_api as data_forge_read_api
-from polisyos.runtime.http.services.control_plane_store import AcquisitionActionHeadRecord
+from polisyos.runtime.http.services.control_plane_store import (
+    AcquisitionActionHeadRecord,
+    ControlJobRecord,
+)
 from polisyos.runtime.quality.acquisition_evaluation import (
     AcquisitionEvaluationBasis,
     AcquisitionEvaluationDecision,
@@ -78,8 +81,12 @@ if TYPE_CHECKING:
         CandidateRetainedPortCapture,
     )
     from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
         AcquisitionCandidateRouteLoopReceipt,
         VerifiedAcquisitionRouteClosure,
+    )
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        CandidateAcquisitionActionReceipt,
     )
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationScenarioProfile,
@@ -1554,6 +1561,36 @@ def _candidate_experiment_budget_snapshot(
     return state, observation
 
 
+def _candidate_experiment_reentry_execution_matches(
+    *,
+    action: CandidateAcquisitionActionReceipt,
+    phase: AcquisitionCandidateExperimentPhaseReceipt,
+    job: ControlJobRecord,
+    selected_action_phase_ref: str,
+) -> bool:
+    """Bind a reentry action to the selected phase and its live job record."""
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
+    )
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        CandidateAcquisitionActionReceipt,
+    )
+
+    if (
+        type(action) is not CandidateAcquisitionActionReceipt
+        or type(phase) is not AcquisitionCandidateExperimentPhaseReceipt
+        or type(job) is not ControlJobRecord
+    ):
+        return False
+    return (
+        action.action_phase_ref == selected_action_phase_ref
+        and action.action_job_id == phase.job_id == job.job_id
+        and action.action_generation == phase.action_generation
+        and job.kind == "acquisition"
+        and job.state == "running"
+    )
+
+
 def _revalidate_candidate_experiment_evaluation_owner(
     owner: CandidateExperimentEvaluationCurrentOwner,
 ) -> CandidateAcquisitionEvaluationBasis:
@@ -1600,10 +1637,12 @@ def _revalidate_candidate_experiment_evaluation_owner(
     if (
         selection != owner.selection
         or phase.receipt_phase != "candidate_input_reentry_pending"
-        or action.action_phase_ref != owner.action_phase_ref
-        or action.action_job_id != admission.job.job_id
-        or action.action_generation != admission.job.action_generation
-        or admission.job.state != "running"
+        or not _candidate_experiment_reentry_execution_matches(
+            action=action,
+            phase=phase,
+            job=admission.job,
+            selected_action_phase_ref=owner.action_phase_ref,
+        )
     ):
         raise ValueError("candidate_experiment_evaluation_action_changed")
     prior_owner = bridge._candidate_experiment_prior_owner(

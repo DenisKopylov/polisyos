@@ -3553,6 +3553,96 @@ class GenerationSourceRepository:
         current_lease_resolver: Callable[[object], bool] | None = None,
     ) -> object:
         """Resolve the versioned selected-model input or its N5 execution."""
+        return self._resolve_candidate_simulation_v5_record(
+            ref=ref,
+            expected_run_id=expected_run_id,
+            expected_job_id=expected_job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+            require_current_lease=require_current_lease,
+            current_lease_resolver=current_lease_resolver,
+        )
+
+    def _resolve_selected_candidate_simulation_v5_pair(
+        self,
+        *,
+        source_ref: ArtifactRef,
+        execution_ref: ArtifactRef,
+        input_ref: ArtifactRef,
+        expected_run_id: str,
+        expected_tenant_id: str,
+        expected_cell_id: str,
+    ) -> tuple[
+        N4CandidateScenarioSourceRecordV3,
+        object,
+        object,
+    ]:
+        """Resolve one selected N4 source and its paired V5 input/execution.
+
+        The source snapshot is created by this repository under the unchanged
+        run/tenant/cell and exact selected CAS view. It is shared only between
+        the two V5 membership checks in this call; it is not an admission or a
+        reusable permission result.
+        """
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationExecutionV5,
+            CandidateSimulationN5InputV5,
+        )
+
+        source = self.load_candidate_scenario_source_in_owner_scope(
+            source_ref,
+            expected_run_id=expected_run_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+        )
+        if type(source) is not N4CandidateScenarioSourceRecordV3:
+            raise ValueError("acquisition_prior_source_semantics_unobserved")
+
+        input_record = self._resolve_candidate_simulation_v5_record(
+            ref=input_ref,
+            expected_run_id=expected_run_id,
+            expected_job_id=source.job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+            _source_snapshot=source,
+            _source_ref=source_ref,
+        )
+        if type(input_record) is not CandidateSimulationN5InputV5:
+            raise ValueError("candidate_simulation_v5_input_record_required")
+
+        execution = self._resolve_candidate_simulation_v5_record(
+            ref=execution_ref,
+            expected_run_id=expected_run_id,
+            expected_job_id=source.job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+            _source_snapshot=source,
+            _source_ref=source_ref,
+            _input_snapshot=input_record,
+            _input_ref=input_ref,
+        )
+        if type(execution) is not CandidateSimulationExecutionV5:
+            raise ValueError("candidate_simulation_v5_execution_record_required")
+        return source, execution, input_record
+
+    def _resolve_candidate_simulation_v5_record(
+        self,
+        *,
+        ref: ArtifactRef,
+        expected_run_id: str,
+        expected_job_id: str | None = None,
+        expected_tenant_id: str | None = None,
+        expected_cell_id: str | None = None,
+        require_current_lease: bool = False,
+        current_lease_resolver: Callable[[object], bool] | None = None,
+        _source_snapshot: N4CandidateScenarioSourceRecordV2
+        | N4CandidateScenarioSourceRecordV3
+        | None = None,
+        _source_ref: ArtifactRef | None = None,
+        _input_snapshot: object | None = None,
+        _input_ref: ArtifactRef | None = None,
+    ) -> object:
+        """Validate one V5 record; only the paired owner path supplies snapshots."""
         import hashlib
 
         from polisyos.runtime.quality.candidate_simulation import (
@@ -3648,9 +3738,28 @@ class GenerationSourceRepository:
         # The N5 input owns the profile. Execution V5 persists only its
         # profile reference, so replay must resolve that exact input before
         # checking source membership.
-        input_record = (
-            record if is_input else self._load_candidate_simulation_input_v5(record.n5_input_ref)
-        )
+        if is_input:
+            if _input_snapshot is not None or _input_ref is not None:
+                raise ValueError("candidate_simulation_v5_execution_input_mismatch")
+            input_record = record
+        elif _input_snapshot is None:
+            if _input_ref is not None or (_source_snapshot is not None and _source_ref is None):
+                raise ValueError("candidate_simulation_v5_execution_input_mismatch")
+            input_record = self._load_candidate_simulation_input_v5(record.n5_input_ref)
+        else:
+            input_read = _generation_source_read_result(_input_snapshot)
+            if (
+                type(_input_snapshot) is not CandidateSimulationN5InputV5
+                or not isinstance(_input_ref, ArtifactRef)
+                or artifact_ref_identity_key(record.n5_input_ref)
+                != artifact_ref_identity_key(_input_ref)
+                or input_read is None
+                or input_read.provenance.selected_artifact_id != str(_input_ref.artifact_id)
+                or input_read.provenance.selected_manifest_profile_sha256
+                != _input_ref.manifest_profile_sha256
+            ):
+                raise ValueError("candidate_simulation_v5_execution_input_mismatch")
+            input_record = _input_snapshot
         if not is_input and (
             type(input_record) is not CandidateSimulationN5InputV5
             or artifact_ref_identity_key(input_record.n4_source_ref)
@@ -3671,13 +3780,29 @@ class GenerationSourceRepository:
         ):
             raise ValueError("candidate_simulation_v5_execution_input_mismatch")
 
-        source = self.load_candidate_scenario_source_for_n5(
-            record.n4_source_ref,
-            expected_run_id=record.run_id,
-            expected_job_id=record.job_id,
-            expected_tenant_id=record.tenant_id,
-            expected_cell_id=record.cell_id,
-        )
+        if _source_snapshot is None:
+            if _source_ref is not None:
+                raise ValueError("candidate_simulation_v5_n4_source_membership_mismatch")
+            source = self.load_candidate_scenario_source_for_n5(
+                record.n4_source_ref,
+                expected_run_id=record.run_id,
+                expected_job_id=record.job_id,
+                expected_tenant_id=record.tenant_id,
+                expected_cell_id=record.cell_id,
+            )
+        else:
+            source_read = _generation_source_read_result(_source_snapshot)
+            if (
+                not isinstance(_source_ref, ArtifactRef)
+                or artifact_ref_identity_key(record.n4_source_ref)
+                != artifact_ref_identity_key(_source_ref)
+                or source_read is None
+                or source_read.provenance.selected_artifact_id != str(_source_ref.artifact_id)
+                or source_read.provenance.selected_manifest_profile_sha256
+                != _source_ref.manifest_profile_sha256
+            ):
+                raise ValueError("candidate_simulation_v5_n4_source_membership_mismatch")
+            source = _source_snapshot
         source_v2 = (
             source.source_record
             if type(source) is N4CandidateScenarioSourceRecordV3

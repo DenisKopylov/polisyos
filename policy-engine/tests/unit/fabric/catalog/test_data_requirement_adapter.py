@@ -521,7 +521,12 @@ def test_catalog_projection_refuses_missing_granularity_and_profile_mismatch() -
 @pytest.mark.parametrize(
     ("construct", "family", "indicator", "population"),
     [
-        ("economic.gdp", "wdi_nominal_gdp_annual", "NY.GDP.MKTP.CD", "national_economy"),
+        (
+            "economic.gdp",
+            "wdi_nominal_gdp_annual",
+            "NY.GDP.MKTP.CD",
+            "national_economy",
+        ),
         (
             "labor.unemployment_rate",
             "wdi_unemployment_laborforce_annual",
@@ -541,7 +546,8 @@ def test_governed_candidate_descriptor_selects_actual_catalog_metric_without_cla
 
     needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=payload)
 
-    assert [need.metric for need in needs] == [construct]
+    expected_catalog_metric = "gdp" if construct == "economic.gdp" else construct
+    assert [need.metric for need in needs] == [expected_catalog_metric]
     assert needs[0].geography == "USA"
     assert needs[0].time_start == "2024-01-01"
     assert needs[0].time_end == "2024-12-31"
@@ -551,6 +557,7 @@ def test_governed_candidate_descriptor_selects_actual_catalog_metric_without_cla
     assert report["candidate_discovery_requires_native_source_admission"] is True
     constraint = report["candidate_source_constraints"][0]
     assert constraint["catalog_fetch_binding"]["dataset_id"] == indicator
+    assert constraint["required_construct"] == construct
     assert constraint["declared_scope"]["population"] == population
     assert constraint["content_digest"].startswith("sha256:")
     assert constraint["query"] == resolution["query"]
@@ -566,7 +573,7 @@ def test_governed_candidate_descriptor_selects_actual_catalog_metric_without_cla
         ("dataset_id", "OTHER.INDICATOR", "fetch_binding_mismatch"),
         ("connector_id", "files.tabular", "fetch_binding_mismatch"),
         ("profile_id", "other-profile", "fetch_binding_mismatch"),
-        ("metric_id", "other.construct", "plan_metric_mismatch"),
+        ("metric_id", "economic.gdp", "plan_metric_mismatch"),
     ],
 )
 def test_candidate_source_plan_identity_mismatch_is_not_a_selected_source(

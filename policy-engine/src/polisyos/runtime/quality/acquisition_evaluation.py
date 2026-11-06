@@ -869,10 +869,7 @@ def resolve_selected_acquisition_evaluation_parts(
     )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
     from polisyos.runtime.quality.generation_cycle import _cycle_basis_ref
-    from polisyos.runtime.quality.generation_source import (
-        GenerationSourceRepository,
-        N4CandidateScenarioSourceRecordV3,
-    )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
 
     cycle = source_cycle
     simulation = cycle.simulation
@@ -888,25 +885,11 @@ def resolve_selected_acquisition_evaluation_parts(
     if any(ref is None for ref in (source_ref, context_ref, input_ref, result_ref)):
         raise ValueError("acquisition_prior_selected_evaluation_refs_missing")
     repository = GenerationSourceRepository(artifact_store)
-    source = repository.load_candidate_scenario_source_in_owner_scope(
-        source_ref,
+    source, execution, input_record = repository._resolve_selected_candidate_simulation_v5_pair(
+        source_ref=source_ref,
+        execution_ref=execution_ref,
+        input_ref=input_ref,
         expected_run_id=run_id,
-        expected_tenant_id=tenant_id,
-        expected_cell_id=cell_id,
-    )
-    if type(source) is not N4CandidateScenarioSourceRecordV3:
-        raise ValueError("acquisition_prior_source_semantics_unobserved")
-    execution = repository.resolve_candidate_simulation_v5(
-        ref=execution_ref,
-        expected_run_id=run_id,
-        expected_job_id=source.job_id,
-        expected_tenant_id=tenant_id,
-        expected_cell_id=cell_id,
-    )
-    input_record = repository.resolve_candidate_simulation_v5(
-        ref=input_ref,
-        expected_run_id=run_id,
-        expected_job_id=source.job_id,
         expected_tenant_id=tenant_id,
         expected_cell_id=cell_id,
     )

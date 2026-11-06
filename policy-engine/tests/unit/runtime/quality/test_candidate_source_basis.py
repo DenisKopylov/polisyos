@@ -41,6 +41,7 @@ from polisyos.runtime.quality.candidate_simulation import (
 from polisyos.runtime.quality.candidate_source_basis import (
     CandidateSourceBasisInputs,
     _same_view,
+    _selected_n5_world_model_matches_exact_n4_context,
     prepare_candidate_source_basis_values,
 )
 from polisyos.runtime.quality.data_state_substrate import build_candidate_acquisition_world
@@ -195,6 +196,73 @@ def _files(root: Path) -> dict[str, str]:
         for path in root.rglob("*")
         if path.is_file()
     }
+
+
+def test_selected_n5_world_model_is_bound_to_exact_n4_context_not_template() -> None:
+    """Accept the selected acquired world and reject any broken N4/context/N5 join."""
+    selected_world = "sha256:" + "a" * 64
+    declared_template_world = "sha256:" + "b" * 64
+    exact_binding = {
+        "selected_world_model_hash": selected_world,
+        "n4_source_world_model_hash": selected_world,
+        "context_world_model_hash": selected_world,
+        "context_world_model_record_hash": selected_world,
+        "n5_input_world_model_hash": selected_world,
+        "n5_execution_world_model_hash": selected_world,
+    }
+
+    assert declared_template_world != selected_world
+    assert _selected_n5_world_model_matches_exact_n4_context(**exact_binding)
+
+    for mismatched_field in (
+        "selected_world_model_hash",
+        "n4_source_world_model_hash",
+        "context_world_model_hash",
+        "context_world_model_record_hash",
+        "n5_input_world_model_hash",
+        "n5_execution_world_model_hash",
+    ):
+        mismatch = dict(exact_binding)
+        mismatch[mismatched_field] = declared_template_world
+        assert not _selected_n5_world_model_matches_exact_n4_context(**mismatch)
+
+
+def test_live_source_basis_observer_preserves_return_and_exception_identity() -> None:
+    """Diagnostic observation is bounded and cannot replace the preparer's result."""
+    from types import SimpleNamespace
+
+    from tests._helpers.candidate_experiment_served_execution import (
+        _observe_candidate_experiment_source_basis_preparation,
+    )
+
+    observations = []
+    prepared = SimpleNamespace(
+        predicate_provenance="recomputed",
+        reason_codes=tuple(f"reason-{index}-" + "x" * 300 for index in range(10)),
+        inputs=object(),
+    )
+    intent_ref = object()
+    intent = object()
+    result = (prepared, intent_ref, intent)
+    observed = _observe_candidate_experiment_source_basis_preparation(lambda: result, observations)
+
+    assert observed() is result
+    assert len(observations) == 1
+    assert observations[0].predicate_provenance == "recomputed"
+    assert len(observations[0].reason_codes) == 8
+    assert all(len(reason) == 256 for reason in observations[0].reason_codes)
+    assert observations[0].inputs_present
+    assert observations[0].intent_ref_present
+    assert observations[0].intent_present
+
+    original_error = RuntimeError("source basis preparer failed")
+    failing = _observe_candidate_experiment_source_basis_preparation(
+        lambda: (_ for _ in ()).throw(original_error), observations
+    )
+    with pytest.raises(RuntimeError) as raised:
+        failing()
+    assert raised.value is original_error
+    assert len(observations) == 1
 
 
 def _another_real_source(

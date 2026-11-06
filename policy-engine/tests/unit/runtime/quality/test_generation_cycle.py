@@ -9595,14 +9595,42 @@ async def test_terminal_projection_preserves_stop_budget_and_abstention(
     )
 
 
+def test_value_gate_receipt_replays_persisted_outer_set_width_checksum() -> None:
+    """Persisted checksums, typed values, and live mappings retain distinct input paths."""
+
+    receipt = _ready_value_observation("candidate_value_outer_set_replay").value_receipt
+    assert receipt is not None
+    persisted = receipt.model_dump(mode="json")
+    assert persisted["value_outer_set"]["width"] == [0.0]
+
+    reopened = ValueGateReceipt.model_validate(persisted)
+    assert reopened == receipt
+
+    typed_outer_set = {
+        **persisted,
+        "value_outer_set": receipt.value_outer_set,
+    }
+    assert ValueGateReceipt.model_validate(typed_outer_set) == receipt
+
+    live_mapping = copy.deepcopy(persisted)
+    live_mapping["value_outer_set"].pop("width")
+    assert ValueGateReceipt.model_validate(live_mapping) == receipt
+
+    wrong_width = copy.deepcopy(persisted)
+    wrong_width["value_outer_set"]["width"] = [0.1]
+    with pytest.raises(ValueError, match="value_outer_set_width_tampered"):
+        ValueGateReceipt.model_validate(wrong_width)
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("grounding_port", "value_port", "expected_terminal"),
     [
+        (_StableShadowGrounding, _ReadyValuePort, "frontier_stable"),
         (_StableShadowGrounding, _BudgetExhaustedValuePort, "budget_exhausted"),
         (_StableShadowGrounding, PendingN8ValuePort, "grounded_abstention"),
     ],
-    ids=("budget-exhausted", "grounded-abstention"),
+    ids=("frontier-stable", "budget-exhausted", "grounded-abstention"),
 )
 async def test_terminal_history_is_persisted_and_visible_without_currentness(
     tmp_path: Path,
@@ -9753,6 +9781,7 @@ def test_historical_partial_terminal_row_remains_candidate_only(tmp_path: Path) 
 
     from polisyos.core.artifacts import read_core_json_artifact
     from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.contracts.runtime import RunGenericCycleSimulationProjection
     from polisyos.pdc import SearchTerminalKind, SearchTerminalState
 
     partial_terminal = SearchTerminalState(
@@ -9802,12 +9831,32 @@ def test_historical_partial_terminal_row_remains_candidate_only(tmp_path: Path) 
     reopened = core_contracts.RunGenericCycleSimulationN6CycleHistoryEntry.model_validate(
         read_core_json_artifact(reader, history_ref).value
     )
+    projection = RunGenericCycleSimulationProjection.model_validate(
+        {
+            "schema_version": "policyos.runtime.run_generic_cycle_simulation_projection.v3",
+            "run_id": "historical-partial-candidate-only",
+            "artifact_status": "resolved",
+            "source_ref": history_ref,
+            "source_content_hash": gy_content_hash(history.model_dump(mode="json")),
+            "child_profile_status": "not_attempted",
+            "n6_cycle_history_status": "resolved",
+            "n6_cycle_history": (reopened,),
+        }
+    )
+    reopened_projection = RunGenericCycleSimulationProjection.model_validate(
+        projection.model_dump(mode="json")
+    )
 
-    assert reopened.terminal_kind == "grounded_partial_admissible"
-    assert reopened.refinement_decision == "stop"
-    assert reopened.search_iteration_status == "stopped"
-    assert reopened.grounding_current_valid is False
-    assert reopened.value_status == "value_conditional"
+    assert reopened_projection.currentness_status == "not_established"
+    assert reopened_projection.authority_purpose == "cycle_input_candidate_only"
+    assert reopened_projection.publication_authority is False
+    assert len(reopened_projection.n6_cycle_history) == 1
+    projected_partial = reopened_projection.n6_cycle_history[0]
+    assert projected_partial.terminal_kind == "grounded_partial_admissible"
+    assert projected_partial.refinement_decision == "stop"
+    assert projected_partial.search_iteration_status == "stopped"
+    assert projected_partial.grounding_current_valid is False
+    assert projected_partial.value_status == "value_conditional"
     # This is a typed historical DTO control, not evidence that the present N6
     # controller produced a partial terminal or that it is deployment-current.
 

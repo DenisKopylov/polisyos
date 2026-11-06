@@ -2310,10 +2310,14 @@ def test_native_adapters_refuse_unresolved_or_out_of_bounds_target_before_produc
 
     result = JointSimulationHorizonController().run(request)
 
+    # Registry plans with ``system_dynamics_state`` are intentionally routed
+    # through the canonical system-dynamics state resolver by
+    # ``_method_state_for_subset``. The coupled-state registry route owns its
+    # separate method-registry refusal.
     expected_code = (
-        "system_dynamics_intervention_binding_missing"
-        if contour == "system_dynamics"
-        else "method_registry_intervention_binding_missing"
+        "method_registry_intervention_binding_missing"
+        if contour == "registry_coupled_state"
+        else "system_dynamics_intervention_binding_missing"
     )
     assert result.engine_decisions[0].decision == "unsupported"
     assert result.engine_decisions[0].reason == expected_code

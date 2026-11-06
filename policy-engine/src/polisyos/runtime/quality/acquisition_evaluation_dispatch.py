@@ -63,7 +63,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
     from pathlib import Path
 
-    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core.artifacts import ArtifactRef, ArtifactStore
     from polisyos.runtime.http.services.control.run_lifecycle import (
         AcquisitionRouteLoopAuthoritySink,
         VerifiedAcquisitionActionOutcome,
@@ -1591,6 +1591,56 @@ def _candidate_experiment_reentry_execution_matches(
     )
 
 
+def _candidate_experiment_prior_owners_match(
+    *,
+    current: CandidateExperimentPriorOwner,
+    expected: CandidateExperimentPriorOwner,
+    artifact_store: ArtifactStore,
+) -> bool:
+    """Compare prior-owner values without using wrapper object identity."""
+    from polisyos.runtime.quality.cycle_substrate import (
+        ConfiguredCandidateSimulationContextAdmissionOwner,
+    )
+
+    if (
+        type(current) is not CandidateExperimentPriorOwner
+        or type(expected) is not CandidateExperimentPriorOwner
+    ):
+        return False
+    current_context = current.context_owner
+    expected_context = expected.context_owner
+    if (
+        type(current_context) is not ConfiguredCandidateSimulationContextAdmissionOwner
+        or type(expected_context) is not ConfiguredCandidateSimulationContextAdmissionOwner
+        or current_context.store is not artifact_store
+        or expected_context.store is not artifact_store
+    ):
+        return False
+
+    def configured_values_match(current_values: object, expected_values: object) -> bool:
+        if type(current_values) is not tuple or type(expected_values) is not tuple:
+            return False
+        if len(current_values) != len(expected_values):
+            return False
+        return all(
+            _candidate_model_values_same(current_value, expected_value)
+            for current_value, expected_value in zip(current_values, expected_values, strict=True)
+        )
+
+    return (
+        configured_values_match(current_context.profiles, expected_context.profiles)
+        and configured_values_match(
+            current_context.model_declarations, expected_context.model_declarations
+        )
+        and _candidate_model_values_same(current.profile, expected.profile)
+        and _candidate_model_values_same(current.model_declaration, expected.model_declaration)
+        and _candidate_model_values_same(current.generation_run, expected.generation_run)
+        and _candidate_model_values_same(current.source_cycle, expected.source_cycle)
+        and _candidate_model_values_same(current.selected_evaluation, expected.selected_evaluation)
+        and _candidate_model_values_same(current.first_n4_source, expected.first_n4_source)
+    )
+
+
 def _revalidate_candidate_experiment_evaluation_owner(
     owner: CandidateExperimentEvaluationCurrentOwner,
 ) -> CandidateAcquisitionEvaluationBasis:
@@ -1650,13 +1700,23 @@ def _revalidate_candidate_experiment_evaluation_owner(
         selection=selection,
     )
     if (
-        prior_owner != owner.prior_owner
+        not _candidate_experiment_prior_owners_match(
+            current=prior_owner,
+            expected=owner.prior_owner,
+            artifact_store=bridge.artifact_store,
+        )
         or not _candidate_model_values_same(
             prior_owner.selected_evaluation,
             owner.prior,
         )
-        or prior_owner.source_cycle != owner.origin.effective_source_cycle
-        or prior_owner.generation_run != owner.origin.effective_generation_run
+        or not _candidate_model_values_same(
+            prior_owner.source_cycle,
+            owner.origin.effective_source_cycle,
+        )
+        or not _candidate_model_values_same(
+            prior_owner.generation_run,
+            owner.origin.effective_generation_run,
+        )
     ):
         raise ValueError("candidate_experiment_evaluation_prior_changed")
 

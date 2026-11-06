@@ -223,6 +223,10 @@ def _real_n5_observation(
     produced_results: list[object] = []
 
     class _RecordingN5Controller:
+        def __init__(self) -> None:
+            self._physical_n5_budget_scope = producer._physical_n5_budget_scope
+            self._producer_budget_observer = producer._producer_budget_observer
+
         def run(self, concrete_request):
             result = producer.run(concrete_request)
             produced_results.append(result)
@@ -1303,6 +1307,7 @@ def _consume_v4_n5_through_n8_and_run_projection(
     from polisyos.core.contracts.runtime import RunCandidateSimulationN5Observation
     from polisyos.runtime.http.routes.runs import (
         _n5_interaction_evidence_projection,
+        _n5_interaction_scope_fields,
         _n8_interaction_qualification_fields,
     )
 
@@ -1374,6 +1379,7 @@ def _consume_v4_n5_through_n8_and_run_projection(
         world_model_record_content_hash=v4_result.world_model_record_content_hash,
         authority_blockers=simulation.authority_blockers,
         n5_interaction_evidence=_n5_interaction_evidence_projection(freshly_loaded),
+        **_n5_interaction_scope_fields(freshly_loaded),
         **_n8_interaction_qualification_fields(value),
     )
     assert api_observation.n8_status == "value_conditional"

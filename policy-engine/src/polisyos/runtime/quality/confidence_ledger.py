@@ -17,6 +17,7 @@ import contextvars
 import dataclasses as _dataclasses
 import dis
 import functools
+import gc
 import hashlib
 import importlib
 import importlib.util
@@ -15733,119 +15734,648 @@ def _typing_protocol_source_codes(
     return tuple((name, tuple(found[name])) for name in wanted)
 
 
-def _typing_protocol_provider_projection() -> dict[str, object]:
-    """Bind the supported Python backend, without claiming independent typing verification."""
+def _source_exact_type_in(value: object, *allowed: type) -> bool:
+    """Compare runtime type identities without invoking metaclass equality."""
+    actual = type(value)
+    return any(actual is candidate for candidate in allowed)
 
+
+def _source_native_class_field(value: object, name: str) -> object:
+    """Read CPython's own type slots without metaclass descriptor dispatch."""
+    if type(name) is not str or name not in {
+        "__dict__",
+        "__bases__",
+        "__mro__",
+        "__name__",
+        "__qualname__",
+        "__module__",
+    }:
+        return _NO_EXECUTION_BINDING
+    descriptor_name = "__dict__" if name == "__module__" else name
+    descriptor = _passive_capture_lookup(type.__dict__, descriptor_name)
+    if not (
+        type(descriptor) is type(type.__dict__["__dict__"])
+        and descriptor.__objclass__ is type
+        and descriptor.__name__ == descriptor_name
+    ):
+        return _NO_EXECUTION_BINDING
     try:
-        if (sys.version_info.major, sys.version_info.minor) != (3, 14):
+        result = descriptor.__get__(value, type(value))
+    except (AttributeError, TypeError):
+        return _NO_EXECUTION_BINDING
+    if name == "__module__":
+        result = _passive_capture_lookup(result, "__module__")
+    if name in {"__module__", "__name__", "__qualname__"}:
+        return result if type(result) is str else _NO_EXECUTION_BINDING
+    if name in {"__bases__", "__mro__"}:
+        return result if type(result) is tuple else _NO_EXECUTION_BINDING
+    return result if type(result) is type(type.__dict__) else _NO_EXECUTION_BINDING
+
+
+def _source_native_class_bases_match(value: object, *expected: object) -> bool:
+    bases = _source_native_class_field(value, "__bases__")
+    return bool(
+        type(bases) is tuple
+        and len(bases) == len(expected)
+        and all(actual is wanted for actual, wanted in zip(bases, expected, strict=True))
+    )
+
+
+def _source_passive_provider_value(
+    value: object, *, seen: frozenset[int] = frozenset(), budget: list[int] | None = None
+) -> object:
+    """Snapshot the finite provider-global domain without executing its values."""
+    if budget is None:
+        budget = [10000, 1024**2]
+    if budget[0] <= 0 or len(seen) > 40:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "typing global budget")
+    budget[0] -= 1
+    kind = type(value)
+    if value is None or kind is bool:
+        return value
+    if kind is int:
+        if value.bit_length() > 8 * budget[1]:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "typing global budget")
+        budget[1] -= (value.bit_length() + 7) // 8
+        return value
+    if kind is str:
+        budget[1] -= len(value) * 4
+        if budget[1] < 0:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "typing global budget")
+        return value
+    if kind is bytes:
+        budget[1] -= len(value)
+        if budget[1] < 0:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "typing global budget")
+        return {"bytes_sha256": _bytes_hash(value)}
+    if kind is float:
+        return {"float_hex": value.hex()}
+    if value is Ellipsis:
+        return {"singleton": "ellipsis"}
+    if value is NotImplemented:
+        return {"singleton": "NotImplemented"}
+    if id(value) in seen:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "typing global cycle")
+    nested = seen | {id(value)}
+    if kind is tuple or kind is list or kind is set or kind is frozenset:
+        if len(value) > budget[0]:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "typing global budget")
+        members = [
+            _source_passive_provider_value(item, seen=nested, budget=budget) for item in value
+        ]
+        if kind is set or kind is frozenset:
+            members.sort(key=_canonical_json)
+        label = (
+            "tuple"
+            if kind is tuple
+            else "list"
+            if kind is list
+            else "set"
+            if kind is set
+            else "frozenset"
+        )
+        return {label: members}
+    if kind is dict:
+        if len(value) > budget[0] or any(type(key) is not str for key in value):
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "typing global dictionary"
+            )
+        budget[1] -= sum(len(key) * 4 for key in value)
+        if budget[1] < 0:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "typing global budget")
+        return {
+            key: _source_passive_provider_value(value[key], seen=nested, budget=budget)
+            for key in sorted(value)
+        }
+    if kind is type(lambda: None):
+        module_name = value.__module__
+        qualified_name = value.__qualname__
+        if type(module_name) is not str or type(qualified_name) is not str:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "typing global function"
+            )
+        _source_passive_provider_value(module_name, seen=nested, budget=budget)
+        _source_passive_provider_value(qualified_name, seen=nested, budget=budget)
+        module = _passive_capture_lookup(sys.modules, module_name)
+        if not (
+            type(module_name) is str
+            and type(qualified_name) is str
+            and type(module) is types.ModuleType
+            and value.__globals__ is vars(module)
+            and value.__builtins__ is vars(_builtins)
+        ):
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "typing global function"
+            )
+        closure = value.__closure__ or ()
+        if type(closure) is not tuple or len(closure) > 40:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "typing global closure"
+            )
+        cells = []
+        for cell in closure:
+            if type(cell) is not types.CellType:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch", "typing global closure"
+                )
+            cells.append(
+                _source_passive_provider_value(cell.cell_contents, seen=nested, budget=budget)
+            )
+        return {
+            "function": [module_name, qualified_name],
+            "code": _normalize_code_object(value.__code__, work_budget=budget),
+            "defaults": _source_passive_provider_value(
+                value.__defaults__, seen=nested, budget=budget
+            ),
+            "kwdefaults": _source_passive_provider_value(
+                value.__kwdefaults__, seen=nested, budget=budget
+            ),
+            "closure": cells,
+        }
+    if kind is classmethod or kind is staticmethod:
+        state = _source_native_instance_namespace(value, kind)
+        if state is None:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "typing global descriptor"
+            )
+        return {
+            "descriptor": "classmethod" if kind is classmethod else "staticmethod",
+            "function": _source_passive_provider_value(value.__func__, seen=nested, budget=budget),
+            "state": _source_passive_provider_value(state, seen=nested, budget=budget),
+        }
+    if kind is types.ModuleType:
+        module_name = _passive_capture_lookup(vars(value), "__name__")
+        if type(module_name) is not str:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "typing global module")
+        _source_passive_provider_value(module_name, seen=nested, budget=budget)
+        if _passive_capture_lookup(sys.modules, module_name) is not value:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "typing global module")
+        return {"module": module_name}
+    meta = _passive_capture_lookup(vars(typing), "_ProtocolMeta")
+    if kind is type or kind is meta:
+        module_name = _source_native_class_field(value, "__module__")
+        qualified_name = _source_native_class_field(value, "__qualname__")
+        if type(module_name) is not str or type(qualified_name) is not str:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "typing global class")
+        _source_passive_provider_value(module_name, seen=nested, budget=budget)
+        _source_passive_provider_value(qualified_name, seen=nested, budget=budget)
+        return {"class": [module_name, qualified_name]}
+    native_functools = _passive_capture_lookup(sys.modules, "_functools")
+    wrapper_type = _passive_capture_lookup(vars(functools), "_lru_cache_wrapper")
+    wrapper_flags = (
+        type.__dict__["__flags__"].__get__(wrapper_type, type(wrapper_type))
+        if type(wrapper_type) is type
+        else None
+    )
+    if (
+        type(native_functools) is types.ModuleType
+        and type(wrapper_type) is type
+        and type(wrapper_flags) is int
+        and wrapper_flags & (1 << 8)  # Py_TPFLAGS_IMMUTABLETYPE
+        and _source_native_class_field(wrapper_type, "__module__") == "functools"
+        and _source_native_class_field(wrapper_type, "__name__") == "_lru_cache_wrapper"
+        and _passive_capture_lookup(vars(native_functools), "_lru_cache_wrapper") is wrapper_type
+        and kind is wrapper_type
+    ):
+        state = _source_native_instance_namespace(value, wrapper_type)
+        if state is None:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "typing global wrapper"
+            )
+        return {
+            "native_lru_wrapper_state": _source_passive_provider_value(
+                state, seen=nested, budget=budget
+            )
+        }
+    raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "typing global unsupported")
+
+
+def _source_passive_builtin_value(value: object, *, budget: list[int] | None = None) -> object:
+    """Retain the native builtin metadata included by the earlier manifest."""
+    if budget is None:
+        budget = [10000, 1024**2]
+    if _source_exact_type_in(value, types.BuiltinFunctionType, types.BuiltinMethodType):
+        if type(value.__module__) is not str or type(value.__qualname__) is not str:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "typing global builtin"
+            )
+        _source_passive_provider_value(value.__module__, budget=budget)
+        _source_passive_provider_value(value.__qualname__, budget=budget)
+        return {"builtin_module": value.__module__, "builtin_qualname": value.__qualname__}
+    if type(value) is type:
+        module = type.__dict__["__module__"].__get__(value, type(value))
+        qualified_name = _source_native_class_field(value, "__qualname__")
+        if type(module) is not str or type(qualified_name) is not str:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "typing global builtin"
+            )
+        _source_passive_provider_value(module, budget=budget)
+        _source_passive_provider_value(qualified_name, budget=budget)
+        return {"class": [module, qualified_name]}
+    return _source_passive_provider_value(value, budget=budget)
+
+
+def _source_typing_lazy_annotation_value(value: object, namespace: dict[str, object]) -> object:
+    """Treat the normal unresolved/loaded representation as one backend state."""
+    lazy_class = _passive_capture_lookup(namespace, "_LazyAnnotationLib")
+    if type(lazy_class) is type and type(value) is lazy_class:
+        state = _source_native_instance_namespace(value, lazy_class)
+        if state is not None and not state:
+            return {"module": "annotationlib", "lazy_or_loaded": True}
+    if type(value) is types.ModuleType:
+        name = _passive_capture_lookup(vars(value), "__name__")
+        if (
+            type(name) is str
+            and name == "annotationlib"
+            and _passive_capture_lookup(sys.modules, name) is value
+        ):
+            return {"module": "annotationlib", "lazy_or_loaded": True}
+    raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "typing annotation backend")
+
+
+def _typing_protocol_provider_projection() -> dict[str, object]:
+    """Bind the current typing source and metadata without executing provider code.
+
+    The profile establishes selected source/code and passive metadata only.  It
+    does not establish construction history, instance/subclass checks, or the
+    contents of the interpreter's opaque ABC caches.
+    """
+    analysis = _active_integrity_analysis()
+    owned = analysis is None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+    try:
+        if sys.implementation.name != "cpython" or sys.version_info[:2] != (3, 14):
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch", "typing backend profile"
             )
-        provider = sys.modules.get("typing")
-        namespace = vars(typing)
-        source_path = (Path(sysconfig.get_path("stdlib")) / "typing.py").resolve()
-        spec = getattr(typing, "__spec__", None)
-        if (
-            provider is not typing
-            or not isinstance(getattr(spec, "loader", None), SourceFileLoader)
-            or Path(str(getattr(spec, "origin", ""))).resolve() != source_path
-            or Path(str(getattr(typing, "__file__", ""))).resolve() != source_path
+        provider = _passive_capture_lookup(sys.modules, "typing")
+        if provider is not typing or type(provider) is not types.ModuleType:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "typing provider origin"
+            )
+        namespace = vars(provider)
+        if len(namespace) > 10000 or any(type(key) is not str for key in namespace):
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "typing provider binding"
+            )
+        builtin_namespace = vars(_builtins)
+        if len(builtin_namespace) > 10000 or any(type(key) is not str for key in builtin_namespace):
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "typing global")
+        origins = _source_loaded_module_origin_fields(provider, expected_name="typing")
+        logical = Path(sysconfig.get_path("stdlib")) / "typing.py"
+        path = analysis.bind_source_path(logical)
+        if origins is None or any(
+            analysis.bind_source_path(Path(value)) != path for value in origins
         ):
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch", "typing provider origin"
             )
-        source_bytes = source_path.read_bytes()
-        bindings: dict[str, object] = {}
-        runtime_globals: dict[str, object] = {}
-        for qualname, expected_hashes in _typing_protocol_source_codes(
-            source_bytes, str(source_path)
+        source_bytes = analysis.source_bytes(logical)
+        meta = _passive_capture_lookup(namespace, "_ProtocolMeta")
+        protocol = _passive_capture_lookup(namespace, "Protocol")
+        generic = _passive_capture_lookup(namespace, "Generic")
+        abc = _passive_capture_lookup(sys.modules, "abc")
+        abc_meta = (
+            _passive_capture_lookup(vars(abc), "ABCMeta") if type(abc) is types.ModuleType else None
+        )
+        if not (
+            type(meta) is type
+            and type(abc_meta) is type
+            and type(protocol) is meta
+            and type(generic) is type
+            and _source_native_class_field(meta, "__name__") == "_ProtocolMeta"
+            and _source_native_class_bases_match(meta, abc_meta)
+            and _source_native_class_bases_match(protocol, generic)
+            and _source_native_class_field(meta, "__module__") == "typing"
+            and _source_native_class_field(protocol, "__module__") == "typing"
         ):
-            value: object = namespace
-            for name in qualname.split("."):
-                value = value.get(name) if isinstance(value, Mapping) else vars(value).get(name)
-            if type(value) in {classmethod, staticmethod}:
-                value = value.__func__
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "typing provider binding"
+            )
+        # The two direct ABC helpers are supplied by the loaded abc backend.
+        # Bind its logical path and exact bytes in this same integrity pass;
+        # frozen loader implementation and ABC cache behavior remain assumptions.
+        abc_namespace = vars(abc)
+        abc_spec = _source_native_module_spec_namespace(abc)
+        abc_file = _passive_capture_lookup(abc_namespace, "__file__")
+        abc_name = _passive_capture_lookup(abc_namespace, "__name__")
+        abc_spec_name = _passive_capture_lookup(abc_spec, "name") if abc_spec is not None else None
+        abc_logical = Path(sysconfig.get_path("stdlib")) / "abc.py"
+        abc_path = analysis.bind_source_path(abc_logical)
+        if (
+            abc_spec is None
+            or type(abc_file) is not str
+            or type(abc_name) is not str
+            or abc_name != "abc"
+            or type(abc_spec_name) is not str
+            or abc_spec_name != "abc"
+            or analysis.bind_source_path(Path(abc_file)) != abc_path
+            or _source_native_class_field(abc_meta, "__module__") != "abc"
+            or _source_native_class_field(abc_meta, "__qualname__") != "ABCMeta"
+            or not _source_native_class_bases_match(abc_meta, type)
+        ):
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "abc provider origin")
+        abc_loader = _passive_capture_lookup(abc_spec, "loader")
+        abc_origin = _passive_capture_lookup(abc_spec, "origin")
+        frozen_importlib = _passive_capture_lookup(sys.modules, "_frozen_importlib")
+        frozen_loader = (
+            _passive_capture_lookup(vars(frozen_importlib), "FrozenImporter")
+            if type(frozen_importlib) is types.ModuleType
+            else _NO_EXECUTION_BINDING
+        )
+        frozen = (
+            type(abc_origin) is str
+            and abc_origin == "frozen"
+            and type(frozen_loader) is type
+            and abc_loader is frozen_loader
+        )
+        if not frozen:
+            abc_origins = _source_loaded_module_origin_fields(abc, expected_name="abc")
+            if abc_origins is None or any(
+                analysis.bind_source_path(Path(value)) != abc_path for value in abc_origins
+            ):
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch", "abc provider origin"
+                )
+        abc_source = analysis.source_bytes(abc_logical)
+        abc_codes = dict(
+            _typing_protocol_source_codes(
+                abc_source,
+                str(abc_path),
+                ("ABCMeta.__instancecheck__", "ABCMeta.__subclasscheck__"),
+            )
+        )
+        abc_meta_ns = _source_native_class_field(abc_meta, "__dict__")
+        for global_name, method_name in (
+            ("_abc_instancecheck", "__instancecheck__"),
+            ("_abc_subclasscheck", "__subclasscheck__"),
+        ):
+            function = _passive_capture_lookup(abc_meta_ns, method_name)
             if not (
-                type(value) is types.FunctionType
-                and value.__module__ == "typing"
-                and value.__qualname__ == qualname
-                and value.__globals__ is namespace
-                and value.__builtins__ is vars(_builtins)
-                and Path(value.__code__.co_filename).resolve() == source_path
+                type(function) is type(lambda: None)
+                and _passive_capture_lookup(namespace, global_name) is function
+                and function.__globals__ is abc_namespace
+                and function.__builtins__ is vars(_builtins)
+                and type(function.__module__) is str
+                and function.__module__ == "abc"
+                and type(function.__qualname__) is str
+                and function.__qualname__ == f"ABCMeta.{method_name}"
+                and function.__defaults__ is None
+                and function.__kwdefaults__ is None
+                and function.__closure__ is None
+                and type(function.__code__.co_filename) is str
+                and (
+                    function.__code__.co_filename == "<frozen abc>"
+                    if frozen
+                    else Path(function.__code__.co_filename).resolve() == abc_path
+                )
+                and _content_hash(
+                    _normalize_code_object(function.__code__, work_budget=[10000, 1024**2])
+                )
+                in abc_codes[f"ABCMeta.{method_name}"]
+            ):
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch", "abc provider source or binding"
+                )
+        hashes = dict(_typing_protocol_source_codes(source_bytes, str(path)))
+        # Finite supported CPython 3.14 provider shape. A source+live-code
+        # replacement with an additional global effect is not this profile.
+        allowed_globals = {
+            "runtime_checkable": {
+                "Exception",
+                "Generic",
+                "TypeError",
+                "callable",
+                "getattr",
+                "issubclass",
+                "set",
+            },
+            "_get_protocol_attrs": {
+                "EXCLUDED_ATTRIBUTES",
+                "Exception",
+                "_lazy_annotationlib",
+                "set",
+            },
+            "_no_init_or_replace_init": {"TypeError", "_no_init_or_replace_init", "object", "type"},
+            "_proto_hook": {
+                "Exception",
+                "Generic",
+                "NotImplemented",
+                "_lazy_annotationlib",
+                "getattr",
+                "issubclass",
+            },
+            "_LazyAnnotationLib.__getattr__": {"getattr"},
+            "_ProtocolMeta.__new__": {
+                "Generic",
+                "Protocol",
+                "TypeError",
+                "_PROTO_ALLOWLIST",
+                "getattr",
+                "issubclass",
+                "object",
+                "super",
+            },
+            "_ProtocolMeta.__init__": {"_get_protocol_attrs", "getattr", "super"},
+            "_ProtocolMeta.__instancecheck__": {
+                "AttributeError",
+                "Protocol",
+                "TypeError",
+                "_abc_instancecheck",
+                "_allow_reckless_class_checks",
+                "_lazy_load_getattr_static",
+                "getattr",
+                "type",
+            },
+            "_ProtocolMeta.__subclasscheck__": {
+                "Protocol",
+                "TypeError",
+                "_abc_subclasscheck",
+                "_allow_reckless_class_checks",
+                "_proto_hook",
+                "_type_check_issubclass_arg_1",
+                "getattr",
+                "sorted",
+                "str",
+                "type",
+            },
+            "Protocol.__init_subclass__": {
+                "Protocol",
+                "_no_init_or_replace_init",
+                "_proto_hook",
+                "any",
+                "super",
+            },
+        }
+        source_bindings: dict[str, str] = {}
+        runtime_globals: dict[str, object] = {}
+        for qualname, expected_hashes in hashes.items():
+            owner_name, separator, member_name = qualname.partition(".")
+            owner = _passive_capture_lookup(namespace, owner_name)
+            raw = owner
+            if separator:
+                if type(owner) is not type and owner is not protocol:
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch", "typing provider binding"
+                    )
+                raw = _passive_capture_lookup(
+                    _source_native_class_field(owner, "__dict__"), member_name
+                )
+            function = (
+                raw.__func__ if _source_exact_type_in(raw, classmethod, staticmethod) else raw
+            )
+            if not (
+                type(function) is type(lambda: None)
+                and function.__globals__ is namespace
+                and function.__builtins__ is vars(_builtins)
+                and type(function.__module__) is str
+                and function.__module__ == "typing"
+                and type(function.__qualname__) is str
+                and function.__qualname__ == qualname
+                and function.__defaults__ is None
+                and function.__kwdefaults__ is None
+                and function.__annotate__ is None
+                and type(function.__annotations__) is dict
+                and not function.__annotations__
+                and type(function.__dict__) is dict
+                and not function.__dict__
+                and type(function.__code__.co_filename) is str
+                and Path(function.__code__.co_filename).resolve() == path
             ):
                 raise ConfidenceLedgerError(
                     "canonical_loaded_runtime_mismatch", "typing provider binding"
                 )
-            code_hash = _content_hash(_normalize_code_object(value.__code__))
+            code_hash = _content_hash(
+                _normalize_code_object(function.__code__, work_budget=[10000, 1024**2])
+            )
             if code_hash not in expected_hashes:
                 raise ConfidenceLedgerError(
                     "canonical_loaded_runtime_mismatch", "typing provider source"
                 )
-            closure = value.__closure__ or ()
-            owner = namespace.get(qualname.partition(".")[0]) if "." in qualname else None
-            if any(
+            closure = function.__closure__ or ()
+            if len(closure) != len(function.__code__.co_freevars) or any(
                 name != "__class__" or cell.cell_contents is not owner
-                for name, cell in zip(value.__code__.co_freevars, closure, strict=True)
+                for name, cell in zip(function.__code__.co_freevars, closure, strict=True)
             ):
                 raise ConfidenceLedgerError(
                     "canonical_loaded_runtime_mismatch", "typing provider closure"
                 )
-            bindings[qualname] = _normalize_function_binding(value)
-            pending = [value.__code__]
+            # Check module-level shadows of builtins consumed by the selected
+            # source code. Iteration is passive even for colliding hostile keys.
+            pending = [function.__code__]
             while pending:
                 code = pending.pop()
-                pending.extend(item for item in code.co_consts if isinstance(item, types.CodeType))
+                pending.extend(item for item in code.co_consts if type(item) is types.CodeType)
                 for instruction in dis.get_instructions(code):
-                    if instruction.opname != "LOAD_GLOBAL":
+                    if instruction.opname != "LOAD_GLOBAL" or type(instruction.argval) is not str:
                         continue
-                    name = str(instruction.argval)
-                    bound = namespace.get(
-                        name, vars(_builtins).get(name, _SOURCE_DERIVATION_FAILED)
-                    )
-                    if bound is _SOURCE_DERIVATION_FAILED:
+                    if instruction.argval not in allowed_globals[qualname]:
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch", "typing provider source"
+                        )
+                    if (
+                        instruction.argval in builtin_namespace
+                        and instruction.argval in namespace
+                        and namespace[instruction.argval]
+                        is not builtin_namespace[instruction.argval]
+                    ):
                         raise ConfidenceLedgerError(
                             "canonical_loaded_runtime_mismatch", "typing global"
                         )
-                    if name == "_lazy_annotationlib":
-                        # Resolving this stock lazy import changes its Python
-                        # representation, not the annotation backend it denotes.
-                        lazy_type = namespace.get("_LazyAnnotationLib")
-                        if not (
-                            (type(bound) is lazy_type and not vars(bound))
-                            or (
-                                isinstance(bound, types.ModuleType)
-                                and sys.modules.get("annotationlib") is bound
-                            )
-                        ):
-                            raise ConfidenceLedgerError(
-                                "canonical_loaded_runtime_mismatch", "typing annotation backend"
-                            )
-                        runtime_globals[name] = {"module": "annotationlib", "lazy_or_loaded": True}
-                    elif isinstance(bound, types.ModuleType):
-                        runtime_globals[name] = {
-                            "module": vars(bound).get("__name__"),
-                            "provider_assumption": "supported_python_runtime",
-                        }
-                    elif type(bound) in {types.BuiltinFunctionType, types.BuiltinMethodType}:
-                        runtime_globals[name] = {
-                            "builtin_module": bound.__module__,
-                            "builtin_qualname": bound.__qualname__,
-                        }
+                    global_name = instruction.argval
+                    if global_name in runtime_globals:
+                        continue
+                    if global_name in builtin_namespace:
+                        runtime_globals[global_name] = _source_passive_builtin_value(
+                            builtin_namespace[global_name]
+                        )
+                    elif global_name in namespace:
+                        value = namespace[global_name]
+                        runtime_globals[global_name] = (
+                            _source_typing_lazy_annotation_value(value, namespace)
+                            if global_name == "_lazy_annotationlib"
+                            else _source_passive_provider_value(value)
+                        )
                     else:
-                        runtime_globals[name] = _normalize_runtime_binding_value(bound, seen=set())
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch", "typing global"
+                        )
+            source_bindings[qualname] = code_hash
+        # Reconstruct the exclusion set directly from source literals, not the
+        # mutable live provider set. Other provider state is not an authority.
+        tree = analysis.tree_for_bytes(source_bytes, filename=str(path))
+        sets: dict[str, frozenset[str]] = {}
+        for statement in tree.body:
+            if (
+                not isinstance(statement, ast.Assign)
+                or len(statement.targets) != 1
+                or not isinstance(statement.targets[0], ast.Name)
+            ):
+                continue
+            key = statement.targets[0].id
+            if key not in {"_TYPING_INTERNALS", "_SPECIAL_NAMES"}:
+                continue
+            node = statement.value
+            if not (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id == "frozenset"
+                and len(node.args) == 1
+                and not node.keywords
+            ):
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch", "typing provider source"
+                )
+            literal = ast.literal_eval(node.args[0])
+            if (
+                type(literal) is not set
+                or any(type(value) is not str for value in literal)
+                or key in sets
+            ):
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch", "typing provider source"
+                )
+            sets[key] = frozenset(literal)
+        if set(sets) != {"_TYPING_INTERNALS", "_SPECIAL_NAMES"}:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch", "typing provider source"
+            )
+        expected_excluded = (
+            sets["_TYPING_INTERNALS"] | sets["_SPECIAL_NAMES"] | {"_MutableMapping__marker"}
+        )
+        for name, expected in (
+            ("_TYPING_INTERNALS", sets["_TYPING_INTERNALS"]),
+            ("_SPECIAL_NAMES", sets["_SPECIAL_NAMES"]),
+            ("EXCLUDED_ATTRIBUTES", expected_excluded),
+        ):
+            actual = _passive_capture_lookup(namespace, name)
+            if (
+                type(actual) is not frozenset
+                or any(type(value) is not str for value in actual)
+                or actual != expected
+            ):
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch", "typing provider binding"
+                )
+        if owned:
+            analysis.assert_sources_unchanged()
         return {
             "profile": "python314_typing_protocol_provider_v1",
             "provider_module": "typing",
             "provider_relative_path": "typing.py",
             "provider_source_sha256": _bytes_hash(source_bytes),
-            "runtime_bindings_sha256": _content_hash(bindings),
+            "abc_source_sha256": _bytes_hash(abc_source),
+            "runtime_bindings_sha256": _content_hash(source_bindings),
             "runtime_direct_globals_sha256": _content_hash(runtime_globals),
             "independent_transform_verification": False,
             "assumption": "supported_python_runtime_provider",
+            "scope": "passive_source_code_and_protocol_metadata",
+            "construction_and_abc_cache": "not_established",
         }
     except ConfidenceLedgerError:
         raise
-    except (OSError, AttributeError, TypeError, ValueError, SyntaxError) as exc:
+    except (OSError, AttributeError, TypeError, ValueError, SyntaxError, RuntimeError) as exc:
         raise ConfidenceLedgerError(
             "canonical_loaded_runtime_mismatch", f"typing provider input: {type(exc).__name__}"
         ) from exc
@@ -16860,15 +17390,16 @@ def _source_protocol_bound_name(
 ) -> object:
     """Resolve a Protocol name from its declaration/import, not its live self-description."""
 
-    value = vars(module).get(name)
-    if value is typing.Protocol:
+    value = _passive_capture_lookup(vars(module), name)
+    protocol = _passive_capture_lookup(vars(typing), "Protocol")
+    if value is protocol:
         return (
             value
             if _source_import_binding(name, tree=tree, module=module, module_name=module_name)
             is value
             else _SOURCE_DERIVATION_FAILED
         )
-    if type(value) is not type(typing.Protocol):
+    if type(value) is not type(protocol):
         return _SOURCE_DERIVATION_FAILED
     sites = _module_scope_direct_binding_sites(tree, name)
     if len(sites) != 1:
@@ -16876,9 +17407,10 @@ def _source_protocol_bound_name(
     kind, statement, _alias = sites[0]
     if kind == "local" and isinstance(statement, ast.ClassDef):
         if (
-            value.__module__ == module_name
-            and value.__qualname__ == statement.name
-            and value.__name__ == name
+            type(_source_native_class_field(value, "__module__")) is str
+            and _source_native_class_field(value, "__module__") == module_name
+            and _source_native_class_field(value, "__qualname__") == statement.name
+            and _source_native_class_field(value, "__name__") == name
             and _source_python_protocol_binding_supported(
                 repo_root,
                 module_name,
@@ -16907,7 +17439,17 @@ def _source_protocol_bound_name(
             )
         except ConfidenceLedgerError:
             return _SOURCE_DERIVATION_FAILED
-        if route == ("symbol", value.__module__, value.__qualname__):
+        if (
+            type(route) is tuple
+            and len(route) == 3
+            and all(type(part) is str for part in route)
+            and route
+            == (
+                "symbol",
+                _source_native_class_field(value, "__module__"),
+                _source_native_class_field(value, "__qualname__"),
+            )
+        ):
             return value
     return _SOURCE_DERIVATION_FAILED
 
@@ -16992,6 +17534,309 @@ def _source_protocol_value_matches(
     return _source_dataclass_values_equal(actual, expected)
 
 
+def _source_protocol_annotation_cache_matches(
+    function: types.FunctionType,
+    member: ast.FunctionDef | ast.AsyncFunctionDef,
+    hashes: Mapping[str, tuple[str, ...]],
+) -> bool:
+    """Inspect CPython 3.14 function storage without invoking annotation thunks."""
+    expected = _source_function_annotation_strings(member)
+    if expected is None or type(function) is not type(lambda: None):
+        return False
+    annotate = function.__annotate__
+    if annotate is not None and not _source_future_annotation_thunk_supported(
+        function, annotate, member, source_code_hashes=hashes
+    ):
+        return False
+    getter = _passive_capture_lookup(vars(gc), "get_referents")
+    if not (
+        type(getter) is types.BuiltinFunctionType
+        and type(getter.__module__) is str
+        and getter.__module__ == "gc"
+        and type(getter.__name__) is str
+        and getter.__name__ == "get_referents"
+        and getter.__self__ is gc
+        and _passive_capture_lookup(sys.modules, "gc") is gc
+    ):
+        return False
+    # Reading the native function __dict__ materializes only its empty C-owned
+    # dictionary. All dictionary references are then accounted for by identity;
+    # ambiguous aliases are rejected rather than traversed or guessed.
+    own = function.__dict__
+    known = [function.__globals__, function.__builtins__, own]
+    if function.__kwdefaults__ is not None:
+        known.append(function.__kwdefaults__)
+    if any(type(item) is not dict for item in known):
+        return False
+    if len({id(item) for item in known}) != len(known):
+        return False
+    references = getter(function)
+    if type(references) is not list or len(references) > 64:
+        return False
+    dictionaries = [item for item in references if type(item) is dict]
+    if any(sum(item is expected_item for item in dictionaries) != 1 for expected_item in known):
+        return False
+    remaining = [
+        item for item in dictionaries if all(item is not known_item for known_item in known)
+    ]
+    if len(remaining) > 1:
+        return False
+    if not remaining:
+        # An unmaterialized source-bound closed compiler thunk establishes the
+        # declaration shape, not that annotation values have been observed.
+        return not expected or annotate is not None
+    cache = remaining[0]
+    if len(cache) != len(expected) or any(type(key) is not str for key in cache):
+        return False
+    return all(
+        type(cache.get(name)) is str and cache[name] == value for name, value in expected.items()
+    )
+
+
+def _source_protocol_stub_function_matches(
+    function: object,
+    *,
+    member: ast.FunctionDef | ast.AsyncFunctionDef,
+    class_name: str,
+    module_name: str,
+    namespace: dict[str, object],
+    source_path: Path,
+    hashes: Mapping[str, tuple[str, ...]],
+) -> bool:
+    if type(function) is not type(lambda: None):
+        return False
+    qualname = f"{class_name}.{member.name}"
+    expected_doc = None
+    if sys.flags.optimize < 2 and ast.get_docstring(member, clean=False) is not None:
+        constants = function.__code__.co_consts
+        if not constants or type(constants[0]) is not str:
+            return False
+        expected_doc = constants[0]
+    if not (
+        function.__globals__ is namespace
+        and function.__builtins__ is vars(_builtins)
+        and type(function.__name__) is str
+        and function.__name__ == member.name
+        and type(function.__qualname__) is str
+        and function.__qualname__ == qualname
+        and type(function.__module__) is str
+        and function.__module__ == module_name
+        and _source_exact_type_in(function.__doc__, str, type(None))
+        and function.__doc__ == expected_doc
+        and function.__closure__ is None
+        and type(function.__type_params__) is tuple
+        and not function.__type_params__
+        and type(function.__dict__) is dict
+        and not function.__dict__
+        and type(function.__code__.co_filename) is str
+        and Path(function.__code__.co_filename).resolve() == source_path
+        and _source_function_defaults_match(function, member)
+        and _source_protocol_annotation_cache_matches(function, member, hashes)
+    ):
+        return False
+    return _content_hash(
+        _normalize_code_object(function.__code__, work_budget=[10000, 1024**2])
+    ) in hashes.get(qualname, ())
+
+
+def _source_protocol_c3_mro(actual: type, bases: tuple[type, ...]) -> tuple[type, ...] | None:
+    """Calculate a finite C3 ordering by identity without invoking class hooks."""
+    pending = [list(_source_native_class_field(base, "__mro__")) for base in bases] + [list(bases)]
+    if any(len(row) > 40 for row in pending):
+        return None
+    result = [actual]
+    while any(pending):
+        if len(result) > 40:
+            return None
+        candidate = next(
+            (
+                row[0]
+                for row in pending
+                if row and all(not any(item is row[0] for item in other[1:]) for other in pending)
+            ),
+            None,
+        )
+        if candidate is None:
+            return None
+        result.append(candidate)
+        for row in pending:
+            if row and row[0] is candidate:
+                row.pop(0)
+    return tuple(result)
+
+
+def _source_context_protocol_base(
+    origin: object, analysis: _IntegrityAnalysisContext
+) -> tuple[str, frozenset[str]] | None:
+    """Bind a supported contextlib base from actual source without creating a class."""
+    module = _passive_capture_lookup(sys.modules, "contextlib")
+    abc = _passive_capture_lookup(sys.modules, "abc")
+    if type(module) is not types.ModuleType or type(abc) is not types.ModuleType:
+        return None
+    namespace = vars(module)
+    abc_namespace = vars(abc)
+    meta = _passive_capture_lookup(abc_namespace, "ABCMeta")
+    abc_base = _passive_capture_lookup(abc_namespace, "ABC")
+    if not (type(meta) is type and type(abc_base) is meta and type(origin) is meta):
+        return None
+    name = _source_native_class_field(origin, "__name__")
+    if name not in ("AbstractContextManager", "AbstractAsyncContextManager"):
+        return None
+    if not (
+        _passive_capture_lookup(namespace, name) is origin
+        and _source_native_class_field(origin, "__module__") == "contextlib"
+        and _source_native_class_field(origin, "__qualname__") == name
+        and _source_native_class_bases_match(origin, abc_base)
+        and _source_native_class_bases_match(abc_base, object)
+        and _source_native_class_bases_match(meta, type)
+    ):
+        return None
+    origins = _source_loaded_module_origin_fields(module, expected_name="contextlib")
+    logical = Path(sysconfig.get_path("stdlib")) / "contextlib.py"
+    path = analysis.bind_source_path(logical)
+    if origins is None or any(analysis.bind_source_path(Path(value)) != path for value in origins):
+        return None
+    source = analysis.source_bytes(logical)
+    tree = analysis.tree_for_bytes(source, filename=str(path))
+    classes = [item for item in tree.body if isinstance(item, ast.ClassDef) and item.name == name]
+    if len(classes) != 1:
+        return None
+    cls = classes[0]
+    # The class suite itself is never executed by this verifier.  Reject an
+    # added class-body expression or assignment even if its methods still
+    # match: that source would not describe the passive supported profile.
+    for item in cls.body:
+        if (
+            isinstance(item, ast.Expr)
+            and isinstance(item.value, ast.Constant)
+            and type(item.value.value) is str
+        ):
+            continue
+        if isinstance(item, ast.Assign) and len(item.targets) == 1:
+            target = item.targets[0]
+            if (
+                isinstance(target, ast.Name)
+                and target.id == "__slots__"
+                and isinstance(item.value, ast.Tuple)
+                and not item.value.elts
+            ):
+                continue
+            if isinstance(target, ast.Name) and target.id == "__class_getitem__":
+                value = item.value
+                if (
+                    isinstance(value, ast.Call)
+                    and isinstance(value.func, ast.Name)
+                    and value.func.id == "classmethod"
+                    and len(value.args) == 1
+                    and isinstance(value.args[0], ast.Name)
+                    and value.args[0].id == "GenericAlias"
+                    and not value.keywords
+                ):
+                    continue
+        if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        return None
+    abc_class_ns = _source_native_class_field(abc_base, "__dict__")
+    if (
+        type(abc_class_ns) is not type(type.__dict__)
+        or any(type(key) is not str for key in abc_class_ns)
+        or any(value is _NO_EXECUTION_BINDING for value in abc_class_ns.values())
+    ):
+        return None
+    for field in ("__annotations__", "__annotations_cache__"):
+        if field in abc_class_ns:
+            stored = abc_class_ns[field]
+            if type(stored) is not dict or stored:
+                return None
+    if "__annotate_func__" in abc_class_ns and abc_class_ns["__annotate_func__"] is not None:
+        return None
+    origin_ns = _source_native_class_field(origin, "__dict__")
+    alias_type = _passive_capture_lookup(vars(types), "GenericAlias")
+    getter = _passive_capture_lookup(origin_ns, "__class_getitem__")
+    slots = _passive_capture_lookup(origin_ns, "__slots__")
+    if not (
+        _native_immutable_type_identity(alias_type, "types", "GenericAlias")
+        and type(getter) is classmethod
+        and getter.__func__ is alias_type
+        and type(slots) is tuple
+        and not slots
+    ):
+        return None
+    expected_methods = [
+        item for item in cls.body if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+    ]
+    names = tuple(f"{name}.{item.name}" for item in expected_methods)
+    codes = dict(_typing_protocol_source_codes(source, str(path), names))
+    abstract: set[str] = set()
+    for member in expected_methods:
+        raw = _passive_capture_lookup(origin_ns, member.name)
+        is_classmethod = any(
+            isinstance(d, ast.Name) and d.id == "classmethod" for d in member.decorator_list
+        )
+        is_abstract = any(
+            isinstance(d, ast.Attribute) and d.attr == "abstractmethod"
+            for d in member.decorator_list
+        )
+        if is_classmethod:
+            if type(raw) is not classmethod:
+                return None
+            raw = raw.__func__
+        if not (
+            type(raw) is type(lambda: None)
+            and raw.__globals__ is namespace
+            and raw.__builtins__ is vars(_builtins)
+            and type(raw.__module__) is str
+            and raw.__module__ == "contextlib"
+            and type(raw.__qualname__) is str
+            and raw.__qualname__ == f"{name}.{member.name}"
+            and raw.__defaults__ is None
+            and raw.__kwdefaults__ is None
+            and raw.__annotate__ is None
+            and type(raw.__annotations__) is dict
+            and not raw.__annotations__
+            and type(raw.__dict__) is dict
+            and all(type(key) is str for key in raw.__dict__)
+            and set(raw.__dict__) == ({"__isabstractmethod__"} if is_abstract else set())
+            and (not is_abstract or raw.__dict__["__isabstractmethod__"] is True)
+            and _content_hash(_normalize_code_object(raw.__code__, work_budget=[10000, 1024**2]))
+            in codes[f"{name}.{member.name}"]
+        ):
+            return None
+        closure = raw.__closure__ or ()
+        if len(closure) != len(raw.__code__.co_freevars) or any(
+            variable != "__class__" or cell.cell_contents is not origin
+            for variable, cell in zip(raw.__code__.co_freevars, closure, strict=True)
+        ):
+            return None
+        if is_abstract:
+            abstract.add(member.name)
+    actual_abstract = _passive_capture_lookup(origin_ns, "__abstractmethods__")
+    if (
+        type(actual_abstract) is not frozenset
+        or any(type(item) is not str for item in actual_abstract)
+        or actual_abstract != abstract
+    ):
+        return None
+    # abc is frozen on the supported profile; its source and origin remain
+    # explicit inputs, while implementation and past registration are not attested.
+    abc_spec = _source_native_module_spec_namespace(abc)
+    if abc_spec is None:
+        return None
+    abc_path = Path(sysconfig.get_path("stdlib")) / "abc.py"
+    abc_file = _passive_capture_lookup(abc_namespace, "__file__")
+    if type(abc_file) is not str or analysis.bind_source_path(
+        Path(abc_file)
+    ) != analysis.bind_source_path(abc_path):
+        return None
+    loader = _passive_capture_lookup(abc_spec, "loader")
+    origin_field = _passive_capture_lookup(abc_spec, "origin")
+    frozen = _passive_capture_lookup(vars(sys.modules["_frozen_importlib"]), "FrozenImporter")
+    if not (type(origin_field) is str and origin_field == "frozen" and loader is frozen):
+        return None
+    analysis.source_bytes(abc_path)
+    return name, frozenset(member.name for member in expected_methods)
+
+
 def _source_python_protocol_binding_supported(
     repo_root: Path,
     module_name: str,
@@ -17002,8 +17847,46 @@ def _source_python_protocol_binding_supported(
     *,
     visited: frozenset[tuple[str, str]] = frozenset(),
 ) -> bool:
-    """Replay only finite stub Protocol declarations under the supported Python backend."""
+    """Compare finite source-backed Protocol metadata without constructing classes."""
+    analysis = _active_integrity_analysis()
+    own_analysis = analysis is None
+    token = None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+        token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    try:
+        result = _source_python_protocol_binding_supported_body(
+            repo_root, module_name, export_name, relative, tree, statement, visited, analysis
+        )
+        if result and own_analysis:
+            analysis.assert_sources_unchanged()
+        return result
+    except (
+        ConfidenceLedgerError,
+        OSError,
+        AttributeError,
+        NameError,
+        RuntimeError,
+        SyntaxError,
+        TypeError,
+        ValueError,
+    ):
+        return False
+    finally:
+        if token is not None:
+            _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
 
+
+def _source_python_protocol_binding_supported_body(
+    repo_root: Path,
+    module_name: str,
+    export_name: str,
+    relative: Path,
+    tree: ast.Module,
+    statement: ast.ClassDef,
+    visited: frozenset[tuple[str, str]],
+    analysis: _IntegrityAnalysisContext,
+) -> bool:
     key = (module_name, export_name)
     if key in visited or len(visited) >= 40 or statement.name != export_name:
         return False
@@ -17014,16 +17897,34 @@ def _source_python_protocol_binding_supported(
         return False
     if not _source_future_annotations_enabled(tree) or len(statement.decorator_list) > 1:
         return False
-    module = sys.modules.get(module_name)
+    module = _passive_capture_lookup(sys.modules, module_name)
     if type(module) is not types.ModuleType:
         return False
     namespace = vars(module)
-    source_path = (repo_root / relative).resolve()
-    spec = getattr(module, "__spec__", None)
-    if (
-        not isinstance(getattr(spec, "loader", None), SourceFileLoader)
-        or Path(str(getattr(spec, "origin", ""))).resolve() != source_path
-        or Path(str(getattr(module, "__file__", ""))).resolve() != source_path
+    if len(namespace) > 10000 or any(type(name) is not str for name in namespace):
+        return False
+    source_path = analysis.bind_source_path(repo_root / relative)
+    origins = _source_loaded_module_origin_fields(module, expected_name=module_name)
+    if origins is None or any(
+        analysis.bind_source_path(Path(value)) != source_path for value in origins
+    ):
+        return False
+    source = analysis.source_bytes(repo_root / relative)
+    current_tree = analysis.tree_for_bytes(source, filename=str(source_path))
+    if ast.dump(tree, include_attributes=True) != ast.dump(current_tree, include_attributes=True):
+        return False
+    _typing_protocol_provider_projection()
+    typing_ns = vars(typing)
+    protocol = _passive_capture_lookup(typing_ns, "Protocol")
+    runtime_checkable = _passive_capture_lookup(typing_ns, "runtime_checkable")
+    meta = _passive_capture_lookup(typing_ns, "_ProtocolMeta")
+    actual = _passive_capture_lookup(namespace, export_name)
+    if not (
+        type(actual) is meta
+        and type(_source_native_class_field(actual, "__module__")) is str
+        and _source_native_class_field(actual, "__module__") == module_name
+        and _source_native_class_field(actual, "__qualname__") == export_name
+        and _source_native_class_field(actual, "__name__") == export_name
     ):
         return False
     if statement.decorator_list:
@@ -17033,20 +17934,21 @@ def _source_python_protocol_binding_supported(
             or _source_import_binding(
                 decorator.id, tree=tree, module=module, module_name=module_name
             )
-            is not typing.runtime_checkable
+            is not runtime_checkable
         ):
             return False
-    try:
-        _typing_protocol_provider_projection()
-    except (ConfidenceLedgerError, OSError, ValueError, TypeError):
+    actual_ns = _source_native_class_field(actual, "__dict__")
+    if (
+        type(actual_ns) is not type(type.__dict__)
+        or len(actual_ns) > 10000
+        or any(type(name) is not str for name in actual_ns)
+        or any(value is _NO_EXECUTION_BINDING for value in actual_ns.values())
+    ):
         return False
-    actual = namespace.get(export_name)
-    if type(actual) is not type(typing.Protocol):
-        return False
-    if actual.__module__ != module_name or actual.__qualname__ != export_name:
-        return False
-    replay_bases: list[ast.expr] = []
-    alias_bindings: dict[str, object] = {}
+    aliases = _passive_capture_lookup(actual_ns, "__orig_bases__")
+    resolved: list[type] = []
+    context_methods: set[str] = set()
+    has_alias = False
     for position, base in enumerate(statement.bases):
         if isinstance(base, ast.Name):
             value = _source_protocol_bound_name(
@@ -17060,7 +17962,7 @@ def _source_python_protocol_binding_supported(
             )
             if value is _SOURCE_DERIVATION_FAILED:
                 return False
-            replay_bases.append(base)
+            resolved.append(value)
             continue
         if not (
             isinstance(base, ast.Subscript)
@@ -17071,16 +17973,7 @@ def _source_python_protocol_binding_supported(
         origin = _source_import_binding(
             base.value.id, tree=tree, module=module, module_name=module_name
         )
-        contextlib_namespace = vars(sys.modules["contextlib"])
-        if not any(
-            origin is contextlib_namespace.get(name)
-            for name in ("AbstractContextManager", "AbstractAsyncContextManager")
-        ):
-            return False
-        try:
-            _context_manager_provider_projection()
-        except (ConfidenceLedgerError, OSError, AttributeError, TypeError, ValueError):
-            return False
+        base_projection = _source_context_protocol_base(origin, analysis)
         argument = _source_protocol_bound_name(
             base.slice.id,
             repo_root=repo_root,
@@ -17090,130 +17983,317 @@ def _source_python_protocol_binding_supported(
             tree=tree,
             visited=visited | {key},
         )
-        original_bases = vars(actual).get("__orig_bases__")
         if (
-            argument is _SOURCE_DERIVATION_FAILED
-            or type(original_bases) is not tuple
-            or len(original_bases) != len(statement.bases)
+            base_projection is None
+            or argument is _SOURCE_DERIVATION_FAILED
+            or type(aliases) is not tuple
+            or len(aliases) != len(statement.bases)
         ):
             return False
-        alias = original_bases[position]
+        alias_type = _passive_capture_lookup(vars(types), "GenericAlias")
+        alias = aliases[position]
         if (
-            type(alias) is not types.GenericAlias
-            or alias.__origin__ is not origin
-            or len(alias.__args__) != 1
-            or alias.__args__[0] is not argument
+            not _native_immutable_type_identity(alias_type, "types", "GenericAlias")
+            or type(alias) is not alias_type
         ):
             return False
-        # Reuse only the independently source-bound, exact builtin alias. This
-        # never evaluates an arbitrary source __class_getitem__ during replay.
-        selected_name = f"__policyos_protocol_base_{position}"
-        while selected_name in namespace or selected_name in alias_bindings:
-            selected_name += "_"
-        alias_bindings[selected_name] = alias
-        replay_bases.append(ast.copy_location(ast.Name(id=selected_name, ctx=ast.Load()), base))
+        origin_descriptor = _native_owned_member(alias_type, "__origin__")
+        args_descriptor = _native_owned_member(alias_type, "__args__")
+        if (
+            origin_descriptor is _SOURCE_DERIVATION_FAILED
+            or args_descriptor is _SOURCE_DERIVATION_FAILED
+        ):
+            return False
+        alias_origin = origin_descriptor.__get__(alias, alias_type)
+        alias_args = args_descriptor.__get__(alias, alias_type)
+        if (
+            alias_origin is not origin
+            or type(alias_args) is not tuple
+            or len(alias_args) != 1
+            or alias_args[0] is not argument
+        ):
+            return False
+        resolved.append(origin)
+        context_methods.update(base_projection[1])
+        has_alias = True
+    bases = tuple(resolved)
+    actual_bases = _source_native_class_field(actual, "__bases__")
+    if len(actual_bases) != len(bases) or any(
+        a is not b for a, b in zip(actual_bases, bases, strict=True)
+    ):
+        return False
+    expected_mro = _source_protocol_c3_mro(actual, bases)
+    actual_mro = _source_native_class_field(actual, "__mro__")
+    if (
+        expected_mro is None
+        or len(actual_mro) != len(expected_mro)
+        or any(a is not b for a, b in zip(actual_mro, expected_mro, strict=True))
+    ):
+        return False
+    if has_alias != (aliases is not _NO_EXECUTION_BINDING):
+        return False
+    if has_alias:
+        for index, base in enumerate(statement.bases):
+            if isinstance(base, ast.Name) and aliases[index] is not bases[index]:
+                return False
+    excluded = _passive_capture_lookup(typing_ns, "EXCLUDED_ATTRIBUTES")
+    if type(excluded) is not frozenset:
+        return False
+    own_names: set[str] = set()
+    source_annotations: dict[str, str] = {}
+    declared_values: dict[str, object] = {}
+    _compiled, hashes = analysis.compiled_source_index(source_path, optimize=sys.flags.optimize)
     for member in statement.body:
-        if (
+        if isinstance(member, ast.Pass) or (
             isinstance(member, ast.Expr)
             and isinstance(member.value, ast.Constant)
             and (type(member.value.value) is str or member.value.value is Ellipsis)
         ):
             continue
         if isinstance(member, ast.AnnAssign) and isinstance(member.target, ast.Name):
-            if member.target.id.startswith("__") or member.target.id in {
-                "_is_protocol",
-                "_is_runtime_protocol",
-            }:
-                return False
+            name = member.target.id
             if (
-                member.value is None
-                or _source_literal(member.value) is not _UNSUPPORTED_SOURCE_LITERAL
+                name.startswith("__")
+                or name in {"_is_protocol", "_is_runtime_protocol"}
+                or name in own_names
             ):
-                continue
-        if isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            if getattr(member, "type_params", ()) or member.name in {
+                return False
+            own_names.add(name)
+            source_annotations[name] = ast.unparse(member.annotation)
+            if member.value is not None:
+                value = _source_literal(member.value)
+                if value is _UNSUPPORTED_SOURCE_LITERAL:
+                    return False
+                declared_values[name] = value
+            continue
+        if not isinstance(member, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            return False
+        if (
+            getattr(member, "type_params", ())
+            or member.name
+            in {
                 "__new__",
                 "__init__",
                 "__init_subclass__",
                 "__subclasshook__",
                 "__class_getitem__",
                 "__getattribute__",
-            }:
-                return False
-            if len(member.decorator_list) > 1 or any(
-                not isinstance(decorator, ast.Name)
-                or _source_import_binding(
-                    decorator.id, tree=tree, module=module, module_name=module_name
-                )
-                not in {property, classmethod, staticmethod}
-                for decorator in member.decorator_list
-            ):
-                return False
-            if any(
-                _source_literal(default) is _UNSUPPORTED_SOURCE_LITERAL
-                for default in (
-                    *member.args.defaults,
-                    *(item for item in member.args.kw_defaults if item is not None),
-                )
-            ):
-                return False
-            if all(
-                isinstance(item, ast.Pass)
-                or (
-                    isinstance(item, ast.Expr)
-                    and isinstance(item.value, ast.Constant)
-                    and (type(item.value.value) is str or item.value.value is Ellipsis)
-                )
-                for item in member.body
-            ):
-                continue
-        return False
-    try:
-        replay_namespace = {**namespace, **alias_bindings}
-        replay_statement = ast.copy_location(
-            ast.ClassDef(
-                name=statement.name,
-                bases=replay_bases,
-                keywords=[],
-                body=statement.body,
-                decorator_list=statement.decorator_list,
-                type_params=[],
-            ),
-            statement,
-        )
-        replay = ast.Module(
-            body=[
-                *(
-                    item
-                    for item in tree.body
-                    if isinstance(item, ast.ImportFrom) and item.module == "__future__"
-                ),
-                replay_statement,
-            ],
-            type_ignores=[],
-        )
-        exec(compile(replay, str(source_path), "exec", dont_inherit=True), replay_namespace)  # noqa: S102
-        expected = replay_namespace[export_name]
-        actual_values, expected_values = vars(actual), vars(expected)
-        return bool(
-            type(actual) is type(expected)
-            and actual.__bases__ == expected.__bases__
-            and set(actual_values) == set(expected_values)
-            and all(
-                _source_protocol_value_matches(
-                    actual_values[name],
-                    expected_values[name],
-                    actual_class=actual,
-                    expected_class=expected,
-                    namespace=namespace,
-                    replay_namespace=replay_namespace,
-                    source_path=source_path,
-                )
-                for name in actual_values
+            }
+            or member.name in own_names
+        ):
+            return False
+        if not all(
+            isinstance(item, ast.Pass)
+            or (
+                isinstance(item, ast.Expr)
+                and isinstance(item.value, ast.Constant)
+                and (type(item.value.value) is str or item.value.value is Ellipsis)
             )
-        )
-    except (AttributeError, NameError, RuntimeError, SyntaxError, TypeError, ValueError):
+            for item in member.body
+        ):
+            return False
+        if len(member.decorator_list) > 1:
+            return False
+        decorator_type: object = None
+        if member.decorator_list:
+            decorator = member.decorator_list[0]
+            if not isinstance(decorator, ast.Name):
+                return False
+            decorator_type = _source_import_binding(
+                decorator.id, tree=tree, module=module, module_name=module_name
+            )
+            if all(
+                decorator_type is not candidate
+                for candidate in (property, classmethod, staticmethod)
+            ):
+                return False
+        raw = _passive_capture_lookup(actual_ns, member.name)
+        if decorator_type is property:
+            if type(raw) is not property or raw.fset is not None or raw.fdel is not None:
+                return False
+            function = raw.fget
+        elif decorator_type is classmethod or decorator_type is staticmethod:
+            if type(raw) is not decorator_type:
+                return False
+            function = raw.__func__
+        else:
+            function = raw
+        if not _source_protocol_stub_function_matches(
+            function,
+            member=member,
+            class_name=export_name,
+            module_name=module_name,
+            namespace=namespace,
+            source_path=source_path,
+            hashes=hashes,
+        ):
+            return False
+        own_names.add(member.name)
+    for name in source_annotations.keys() - declared_values.keys():
+        if _passive_capture_lookup(actual_ns, name) is not _NO_EXECUTION_BINDING:
+            return False
+    for name, expected in declared_values.items():
+        if not _exact_literal_equal(_passive_capture_lookup(actual_ns, name), expected):
+            return False
+    annotations = _passive_capture_lookup(actual_ns, "__annotations__")
+    cache = _passive_capture_lookup(actual_ns, "__annotations_cache__")
+    class_annotate = _passive_capture_lookup(actual_ns, "__annotate_func__")
+    if class_annotate is not _NO_EXECUTION_BINDING and class_annotate is not None:
         return False
+    stored = annotations if annotations is not _NO_EXECUTION_BINDING else cache
+    if stored is _NO_EXECUTION_BINDING:
+        if source_annotations:
+            return False
+    elif not (
+        type(stored) is dict
+        and len(stored) == len(source_annotations)
+        and all(
+            type(name) is str and type(value) is str and source_annotations.get(name) == value
+            for name, value in stored.items()
+        )
+    ):
+        return False
+    attrs = {name for name in own_names if not name.startswith("_abc_") and name not in excluded}
+    attrs.update(name for name in context_methods if name not in excluded)
+    for base in bases:
+        if base is protocol:
+            continue
+        if type(base) is meta:
+            base_attrs = _passive_capture_lookup(
+                _source_native_class_field(base, "__dict__"), "__protocol_attrs__"
+            )
+            if type(base_attrs) is not set or any(type(name) is not str for name in base_attrs):
+                return False
+            attrs.update(base_attrs)
+    actual_attrs = _passive_capture_lookup(actual_ns, "__protocol_attrs__")
+    if (
+        type(actual_attrs) is not set
+        or any(type(name) is not str for name in actual_attrs)
+        or actual_attrs != attrs
+    ):
+        return False
+    noncall: set[str] = set()
+    for name in attrs:
+        found = _NO_EXECUTION_BINDING
+        for owner in actual_mro[:-1]:
+            if owner is protocol:
+                continue
+            value = _passive_capture_lookup(_source_native_class_field(owner, "__dict__"), name)
+            if value is not _NO_EXECUTION_BINDING:
+                found = value
+                break
+        if not _source_exact_type_in(found, type(lambda: None), classmethod, staticmethod):
+            if found is not _NO_EXECUTION_BINDING and not _source_exact_type_in(
+                found, property, str, int, bool, float, bytes, type(None)
+            ):
+                return False
+            noncall.add(name)
+    if _passive_capture_lookup(actual_ns, "_is_protocol") is not True:
+        return False
+    runtime_flag = _passive_capture_lookup(actual_ns, "_is_runtime_protocol")
+    noncall_value = _passive_capture_lookup(actual_ns, "__non_callable_proto_members__")
+    if statement.decorator_list:
+        if (
+            runtime_flag is not True
+            or type(noncall_value) is not set
+            or any(type(name) is not str for name in noncall_value)
+            or noncall_value != noncall
+        ):
+            return False
+    elif runtime_flag is not _NO_EXECUTION_BINDING or noncall_value is not _NO_EXECUTION_BINDING:
+        return False
+    class_hook = _passive_capture_lookup(actual_ns, "__subclasshook__")
+    if type(class_hook) is not classmethod or class_hook is not _passive_capture_lookup(
+        typing_ns, "_proto_hook"
+    ):
+        return False
+    init = _passive_capture_lookup(actual_ns, "__init__")
+    if init is not _NO_EXECUTION_BINDING and init is not _passive_capture_lookup(
+        typing_ns, "_no_init_or_replace_init"
+    ):
+        return False
+    inherited_abstract: set[str] = set()
+    for base in bases:
+        abstract = _passive_capture_lookup(
+            _source_native_class_field(base, "__dict__"), "__abstractmethods__"
+        )
+        if type(abstract) is not frozenset or any(type(name) is not str for name in abstract):
+            return False
+        inherited_abstract.update(abstract)
+    inherited_abstract.difference_update(own_names)
+    abstract = _passive_capture_lookup(actual_ns, "__abstractmethods__")
+    if (
+        type(abstract) is not frozenset
+        or any(type(name) is not str for name in abstract)
+        or abstract != inherited_abstract
+    ):
+        return False
+    for metadata_name in ("__parameters__", "__static_attributes__"):
+        metadata_value = _passive_capture_lookup(actual_ns, metadata_name)
+        if type(metadata_value) is not tuple or metadata_value:
+            return False
+    expected_doc = None
+    if sys.flags.optimize < 2 and ast.get_docstring(statement, clean=False) is not None:
+        pending = [_compiled]
+        class_codes = []
+        while pending:
+            code = pending.pop()
+            if code.co_qualname == export_name:
+                class_codes.append(code)
+            pending.extend(item for item in code.co_consts if type(item) is types.CodeType)
+        if len(class_codes) != 1:
+            return False
+        instructions = tuple(dis.get_instructions(class_codes[0]))
+        doc_stores = [
+            index
+            for index, item in enumerate(instructions)
+            if item.opname == "STORE_NAME" and item.argval == "__doc__"
+        ]
+        if len(doc_stores) != 1 or doc_stores[0] < 1:
+            return False
+        doc_load = instructions[doc_stores[0] - 1]
+        if doc_load.opname != "LOAD_CONST" or type(doc_load.argval) is not str:
+            return False
+        expected_doc = doc_load.argval
+    actual_doc = _passive_capture_lookup(actual_ns, "__doc__")
+    if not _source_exact_type_in(actual_doc, str, type(None)) or actual_doc != expected_doc:
+        return False
+    first_line = min([statement.lineno, *(item.lineno for item in statement.decorator_list)])
+    actual_first_line = _passive_capture_lookup(actual_ns, "__firstlineno__")
+    if type(actual_first_line) is not int or actual_first_line != first_line:
+        return False
+    for name in ("__dict__", "__weakref__"):
+        descriptor = _passive_capture_lookup(actual_ns, name)
+        if descriptor is not _NO_EXECUTION_BINDING and not (
+            type(descriptor) is types.GetSetDescriptorType
+            and descriptor.__objclass__ is actual
+            and descriptor.__name__ == name
+        ):
+            return False
+    allowed = own_names | {
+        "__module__",
+        "__firstlineno__",
+        "__static_attributes__",
+        "__doc__",
+        "__parameters__",
+        "_is_protocol",
+        "__subclasshook__",
+        "__init__",
+        "__abstractmethods__",
+        "_abc_impl",
+        "__protocol_attrs__",
+        "_is_runtime_protocol",
+        "__non_callable_proto_members__",
+        "__orig_bases__",
+        "__annotations__",
+        "__annotate_func__",
+        "__annotations_cache__",
+        "__dict__",
+        "__weakref__",
+    }
+    # ABC cache/registration is intentionally opaque; this proves only the
+    # finite declaration and current stored metadata, not issubclass behavior.
+    return not any(name not in allowed for name in actual_ns)
 
 
 def _source_decorated_callable_binding_supported(
@@ -18578,6 +19658,8 @@ def _source_import_binding(
     if type(module) is not types.ModuleType:
         return _SOURCE_DERIVATION_FAILED
     namespace = vars(module)
+    if len(namespace) > 10000 or any(type(key) is not str for key in namespace):
+        return _SOURCE_DERIVATION_FAILED
     imported: list[tuple[str, str]] = []
     for statement in tree.body:
         if isinstance(statement, ast.ImportFrom):
@@ -18617,27 +19699,34 @@ def _source_import_binding(
         builtin_namespace = namespace.get("__builtins__", _builtins)
         if builtin_namespace is _builtins:
             builtin_namespace = vars(_builtins)
-        if type(builtin_namespace) is not dict:
-            return _SOURCE_DERIVATION_FAILED
-        expected_builtin = vars(_builtins).get(name, _SOURCE_DERIVATION_FAILED)
         if (
-            expected_builtin is _SOURCE_DERIVATION_FAILED
-            or builtin_namespace.get(name) is not expected_builtin
+            type(builtin_namespace) is not dict
+            or len(builtin_namespace) > 10000
+            or any(type(key) is not str for key in builtin_namespace)
+        ):
+            return _SOURCE_DERIVATION_FAILED
+        expected_builtin = _passive_capture_lookup(vars(_builtins), name)
+        if (
+            expected_builtin is _NO_EXECUTION_BINDING
+            or _passive_capture_lookup(builtin_namespace, name) is not expected_builtin
         ):
             return _SOURCE_DERIVATION_FAILED
         return expected_builtin
 
     target_module_name, imported_name = imported[0]
-    target_module = sys.modules.get(target_module_name)
+    target_module = _passive_capture_lookup(sys.modules, target_module_name)
     if type(target_module) is not types.ModuleType:
         return _SOURCE_DERIVATION_FAILED
     target_namespace = vars(target_module)
     expected = (
         target_module
         if not imported_name
-        else target_namespace.get(imported_name, _SOURCE_DERIVATION_FAILED)
+        else _passive_capture_lookup(target_namespace, imported_name)
     )
-    if expected is _SOURCE_DERIVATION_FAILED or namespace.get(name) is not expected:
+    if (
+        expected is _NO_EXECUTION_BINDING
+        or _passive_capture_lookup(namespace, name) is not expected
+    ):
         return _SOURCE_DERIVATION_FAILED
     return expected
 
@@ -18985,6 +20074,10 @@ def _source_type_expression_projection(
             # Class behavior is not interpreted here. Reuse the existing strong
             # source-owned transform before using a decorated class identity.
             if type(value) is type and _source_python_dataclass_binding_supported(
+                repo_root, owner_name, name, relative, owner_tree, declaration
+            ):
+                return _SourceTypeState("class", value)
+            if _source_python_protocol_binding_supported(
                 repo_root, owner_name, name, relative, owner_tree, declaration
             ):
                 return _SourceTypeState("class", value)

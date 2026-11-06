@@ -2084,6 +2084,8 @@ async def _run_controlled_simulate_only_job_fixture(
     budget_scope_value: str | None = "hard_total_usd",
     tenant_id: str = "tenant-fixture",
     cell_id: str = "cell-fixture",
+    stage_diagnostic_path: Path | None = None,
+    diagnostic_stop_before_n5: bool = False,
 ) -> SimpleNamespace:
     """Run the controlled candidate N5 path; sibling mode is local mechanism only.
 
@@ -2151,6 +2153,42 @@ async def _run_controlled_simulate_only_job_fixture(
     from tools.quality.validation import (
         check_layer3_gy_design_generation_contract as n4_contract,
     )
+
+    if diagnostic_stop_before_n5 and stage_diagnostic_path is None:
+        raise ValueError("cyc01_diagnostic_stop_requires_stage_trace")
+    if stage_diagnostic_path is not None and not stage_diagnostic_path.parent.is_dir():
+        raise ValueError("cyc01_stage_trace_parent_missing")
+
+    def record_stage_diagnostic(stage: str, **references: object) -> None:
+        if stage_diagnostic_path is None:
+            return
+        import hashlib
+        import resource
+        import sys
+
+        reference_hashes: dict[str, str] = {}
+        for name, reference in references.items():
+            if reference is None:
+                continue
+            artifact_id = getattr(reference, "artifact_id", reference)
+            if isinstance(artifact_id, (str, int)):
+                reference_hashes[name] = hashlib.sha256(
+                    str(artifact_id).encode("utf-8")
+                ).hexdigest()
+        peak_rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        rss_bytes = int(peak_rss if sys.platform == "darwin" else peak_rss * 1024)
+        event = {
+            "timestamp_utc": datetime.now(UTC).isoformat(timespec="milliseconds"),
+            "stage": stage,
+            "reference_hashes": reference_hashes,
+            "rss_high_water_bytes": rss_bytes,
+        }
+        with stage_diagnostic_path.open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps(event, sort_keys=True, separators=(",", ":")) + "\n")
+            stream.flush()
+
+    diagnostic_stop_code = "e02_cyc01_diagnostic_stop_before_original_n5"
+    diagnostic_stop_events: list[str] = []
 
     runtime_data_root = (source_repo_root or REPO_ROOT).resolve(strict=True)
     actual_l6_reads: list[dict[str, Any]] = []
@@ -2268,6 +2306,13 @@ async def _run_controlled_simulate_only_job_fixture(
         )
     else:
         profile, model_declaration = _configured_procurement_profile(**profile_args)
+    record_stage_diagnostic(
+        "profile_ready",
+        problem=cycle_job_design_problem_ref(problem),
+        profile_selection=profile.profile_selection_ref,
+        profile_content=profile.content_hash,
+        model_declaration=model_declaration.content_hash,
+    )
     if bind_l6_bundle is not None:
         expected_l6_witness = bind_l6_bundle(profile.context_inputs.intervention_substrate)
         assert actual_l6_reads
@@ -2275,6 +2320,13 @@ async def _run_controlled_simulate_only_job_fixture(
         assert require_l6_reader is not None
         require_l6_reader()
     assert profile.profile_selection_ref == cycle_job_profile_selection_ref(problem)
+    record_stage_diagnostic(
+        "profile_refs_ready",
+        problem=cycle_job_design_problem_ref(problem),
+        profile_selection=profile.profile_selection_ref,
+        profile_config=candidate_simulation_profile_ref(profile),
+        model_declaration=model_declaration.content_hash,
+    )
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         service = _build_control_service(
             tmp_path,
@@ -2409,11 +2461,23 @@ async def _run_controlled_simulate_only_job_fixture(
     async def record_n4_port(port, problem_for_cycle, *, cycle_index):
         execution_order.append(("N4_ENTER", ""))
         n4_port_attempts.append((port, problem_for_cycle, cycle_index))
-        return await original_n4_port(
+        problem_ref_for_cycle = cycle_job_design_problem_ref(problem_for_cycle)
+        record_stage_diagnostic(
+            "n4_port_enter",
+            problem=problem_ref_for_cycle,
+            cycle_index=cycle_index,
+        )
+        proposal_run = await original_n4_port(
             port,
             problem_for_cycle,
             cycle_index=cycle_index,
         )
+        record_stage_diagnostic(
+            "n4_port_return",
+            problem=problem_ref_for_cycle,
+            proposal_problem=getattr(getattr(proposal_run, "proposal", None), "design_problem_ref", None),
+        )
+        return proposal_run
 
     monkeypatch.setattr(N4GenerationPort, "__call__", record_n4_port)
 
@@ -2431,6 +2495,15 @@ async def _run_controlled_simulate_only_job_fixture(
 
     def record_n5_port(port, *, candidate, problem, cycle_index, **kwargs):
         execution_order.append(("N5_ENTER", ""))
+        if diagnostic_stop_before_n5:
+            diagnostic_stop_events.append(diagnostic_stop_code)
+            record_stage_diagnostic(
+                "n5_callsite_before_original_stop",
+                candidate=getattr(candidate, "candidate_id", None),
+                problem=cycle_job_design_problem_ref(problem),
+                profile_selection=profile.profile_selection_ref,
+            )
+            raise RuntimeError(diagnostic_stop_code)
         observation = original_n5_port(
             port,
             candidate=candidate,
@@ -2459,8 +2532,16 @@ async def _run_controlled_simulate_only_job_fixture(
     monkeypatch.setattr(JointSimulationHorizonController, "run", record_n5_engine)
 
     async def compile_fixture_problem(**kwargs):
+        record_stage_diagnostic(
+            "compiler_callback_enter",
+            request=kwargs.get("nl_request"),
+        )
         compiler_calls.append(kwargs)
         candidate_gateway.admit_compiled_problem(problem)
+        record_stage_diagnostic(
+            "compiler_callback_return",
+            problem=cycle_job_design_problem_ref(problem),
+        )
         return problem
 
     monkeypatch.setattr(
@@ -2642,6 +2723,11 @@ async def _run_controlled_simulate_only_job_fixture(
             return_selected_profile=return_selected_profile,
         )
         owner_refs.append(ref)
+        record_stage_diagnostic(
+            "owner_context_persisted",
+            context_ref=ref,
+            problem=cycle_job_design_problem_ref(problem),
+        )
         return ref
 
     def record_resolve(
@@ -3058,6 +3144,20 @@ async def _run_controlled_simulate_only_job_fixture(
             if completed is not None and isinstance(completed.progress.get("failure"), dict)
             else None,
         }
+        if diagnostic_stop_before_n5:
+            assert diagnostic_stop_events == [diagnostic_stop_code], fixture_diagnostic
+            assert "N4_ENTER" in [label for label, _ in execution_order], fixture_diagnostic
+            assert n5_port_observations == n5_engine_requests == native_n5_calls == []
+            record_stage_diagnostic(
+                "diagnostic_stop_observed",
+                job=completed.job_id if completed is not None else None,
+                problem=cycle_job_design_problem_ref(problem),
+            )
+            return SimpleNamespace(
+                diagnostic_classification="diagnostic_only_expected_stop_before_n5",
+                original_n5_called=False,
+                job_state=None if completed is None else completed.state,
+            )
         if source_root is not None:
             assert require_l6_reader is not None
             require_l6_reader()

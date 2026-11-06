@@ -12723,9 +12723,59 @@
           "scope": "Source-owned scalar/tuple identity with canonical import and bounded expanded work; actual EXTENSION tuple passes.17 refusals advance to BuiltinLoaderSpec type alias metadata. No full readiness/G claim. Independent TerraGO."
         },
         "candidate_genuine_fresh_app_harness_preflight": {
-          "implementation_checkpoint": "481934c0fbb03589fc6443ba7c5ec2104affda0d",
-          "status": "HARNESS_REPAIR_IN_PROGRESS",
-          "scope": "Setup-only actual TestClient preflight, no new N5, exposes single-control/old-signature builder mocks and reused store-bound GlobalCaseIndex provider. Repair shared helper plus action/terminal/GDP companions, preserve old objects, use canonical fresh per-app provider resolver. Full crash/generations/GDP remain UNRUN."
+          "implementation_checkpoint": "4dd03b41d81203d07cb086db1dc1f06db5e91254",
+          "tree": "e6cbb880c7f9f74668aad9374c2847f3e2de5faa",
+          "status": "PASS_BOUNDED_SAME_INPUT_SETUP_ONLY",
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-fresh-runtime-config-isolation-r2",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 23.64,
+          "peak_RSS_bytes": 1659568128,
+          "named_inputs": 12,
+          "inputs_unchanged": true,
+          "scope": "Real second TestClient/control/CAS/SQLite owners on same paths, full-signature delegated builder, fresh store-bound discovery owners, exact nonempty typed candidate-policy tuple and identical source-profile registry/payload. No route or N5. Independent LunaGO. Arbitrary custom store-bound providers are not qualified by this fixture.",
+          "preserved_prior_extents": {
+            "initial_setup_error": "/tmp/e02-l01-fresh-service-preflight",
+            "default_only_setup_pass": "AUTHOR policy-engine/_cache/e02/lane01-fresh-runtime-provider-isolation-r1"
+          },
+          "remaining": "Full genuine terminal/current reader, generations/GDP and fresh-runtime crash robustness UNRUN."
+        },
+        "candidate_protected_boundary_pair_r1": {
+          "source": "AUTHOR0d34ced7d",
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cyc01-authority-boundary-r1",
+          "classification": "HARNESS_ERROR",
+          "abort_reason": null,
+          "wall_seconds": 24.913453708053567,
+          "peak_RSS_bytes": 1653899264,
+          "named_inputs": 59,
+          "inputs_unchanged": true,
+          "scope": "R1 setupERROR: capture wrapper rejected repo_root; forward-all repairda302 preserves scope/profile arguments. R2/R3 hit measuredRSS caps2.5/3.25GiB, not assertions or OOM. No completed selector/observer verdict; counters unavailable. R3 trace stops after producer basis open and exact worker allocation is unestablished; fixture only16MiB, no justification for larger blind retry."
+        },
+        "candidate_protected_boundary_pair_r2": {
+          "source": "0d34ced7d plus exact forwarder8bfb009a for AUTHORr2; MAINb98b199fe composed exactbytes forr3",
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-cyc01-authority-boundary-r2",
+          "classification": "resource_limit_abort",
+          "abort_reason": "sampled_process_tree_rss_cap",
+          "wall_seconds": 30.524108500103466,
+          "peak_RSS_bytes": 2709733376,
+          "named_inputs": 59,
+          "inputs_unchanged": true,
+          "scope": "R1 setupERROR: capture wrapper rejected repo_root; forward-all repairda302 preserves scope/profile arguments. R2/R3 hit measuredRSS caps2.5/3.25GiB, not assertions or OOM. No completed selector/observer verdict; counters unavailable. R3 trace stops after producer basis open and exact worker allocation is unestablished; fixture only16MiB, no justification for larger blind retry."
+        },
+        "candidate_protected_boundary_pair_r3": {
+          "source": "0d34ced7d plus exact forwarder8bfb009a for AUTHORr2; MAINb98b199fe composed exactbytes forr3",
+          "output": "policy-engine/_cache/e02/lane01-cyc01-authority-boundary-r3",
+          "classification": "resource_limit_abort",
+          "abort_reason": "sampled_process_tree_rss_cap",
+          "wall_seconds": 111.0879640839994,
+          "peak_RSS_bytes": 3641196544,
+          "named_inputs": 59,
+          "inputs_unchanged": true,
+          "scope": "R1 setupERROR: capture wrapper rejected repo_root; forward-all repairda302 preserves scope/profile arguments. R2/R3 hit measuredRSS caps2.5/3.25GiB, not assertions or OOM. No completed selector/observer verdict; counters unavailable. R3 trace stops after producer basis open and exact worker allocation is unestablished; fixture only16MiB, no justification for larger blind retry."
         }
       },
       "independent_component_reviews": {
@@ -12756,7 +12806,7 @@
       },
       "resource_admission_current": {
         "disk_stop_floor_GiB": 3,
-        "free_disk_GiB_at_check": 6.38,
+        "free_disk_GiB_at_check": 5.01,
         "policy": "Local only; existing environments/data; <=8GiB measured aggregate process-tree RSS, <=4 measured jobs and <=6 numerical CPU threads. The old4GiB/two-job baseline is not a hard cap. New expensive profiles start alone. Stop below3GiB disk.",
         "trash_move": {
           "directory": "/Users/deniskopylov/.Trash/PolicyOS-obsolete-test-scratch-20261105T132841Z",
@@ -12808,6 +12858,16 @@
           "manifest": "/Users/deniskopylov/.Trash/PolicyOS-reproducible-unit-scratch-20261106T125204Z/manifest.json",
           "scope": "Completed reproducible19-case unit pytest-temp only; deciding outputs/JUnit/pins/source retained. No environments/private/uniqueproduction bytes. Trash not emptied.",
           "series_total_KiB": 6136500
+        },
+        "unknown_controlled_di_profile": {
+          "status": "ALLOCATION_DIAGNOSIS_PENDING",
+          "output": "policy-engine/_cache/e02/lane01-cyc01-authority-boundary-r3",
+          "measured_peak_RSS_bytes": 3641196544,
+          "cap_GiB": 3.25,
+          "wall_seconds": 111.09,
+          "generated_fixture_MiB": 16,
+          "swap_used_GiB_after": 2.55,
+          "scope": "No allocation owner or OOM attribution established; producer basis remains open. Profile runs solo until actual Mac footprint/allocator qualification. Continue known light profiles, authoring and genuine G1 independently; disk3GiB stop floor stays binding."
         }
       }
     },

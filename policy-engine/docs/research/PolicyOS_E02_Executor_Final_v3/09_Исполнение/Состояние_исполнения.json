@@ -12424,10 +12424,156 @@
         },
         "authored_joint_current_requalification_needed": {
           "criterion": "TEST-CYC-05-07 current relation/order consumer",
-          "state": "verification_missing_current_composition",
+          "state": "RESOLVED_NAMED_CURRENT_PRODUCER_PLUS_RETAINED_CONSUMER_PROFILE",
           "historical_chain": "Real R2 N5 persisted, late pytestFAIL parent_rows=[]; separate freshv3 PASS/noN5 .2/.375/.875/interaction.3/seeds11,12. Different source slices; no original all-green claim.",
           "material_current_delta": "Later public routes/contracts/recursive relation and rehashed-reversed-order control; simulator unchanged sincev3. Original R2 fixtureCAS absent; surviving hashes/outputs do not provide bytes.",
-          "next_check": "One current producer→saved artifact→fresh process reader including order control. Reuse measured~1.83GB/50s profile; independent store may overlap measured protected job after source freeze. Retain deciding bytes through consumer check."
+          "next_check": "One current producer→saved artifact→fresh process reader including order control. Reuse measured~1.83GB/50s profile; independent store may overlap measured protected job after source freeze. Retain deciding bytes through consumer check.",
+          "resolution": "See authored_joint_current_retained_qualification; original failure retained, full pytest PASS not claimed."
+        },
+        "source_provider_composed_f42": {
+          "output": "policy-engine/_cache/e02/lane01-decorated-source-composed-final-r22",
+          "source": "f42b996f4f68bd939e292ce3639be48d47150887",
+          "observed": {
+            "PASS": 196,
+            "FAIL": 17,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "classification": "command_failed",
+          "abort_reason": null,
+          "wall_seconds": 38.77314699999988,
+          "peak_RSS_bytes": 1539162112,
+          "named_inputs": 19,
+          "inputs_unchanged": true,
+          "scope": "Source-bound contextmanager, fieldless dataclass, optional selected imports, loader child discovery and exact immutable consumer values.66 focusedPASS; composed196PASS/17FAIL. All17 at unsupported frozenset call. Source discovery/value reconciliation is not module execution or whole initializer authority. IndependentTerraGO."
+        },
+        "frozen_source_constant_composed": {
+          "output": "policy-engine/_cache/e02/lane01-frozenset-composed-final-r5",
+          "source": "2c0e41d8e6301aa501530b2b722338d53bd7b452 / 601c74e7c8ddd2ad708bad5fdc7f990b963c3057",
+          "observed": {
+            "PASS": 221,
+            "FAIL": 17,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "classification": "command_failed",
+          "abort_reason": null,
+          "wall_seconds": 41.10487891698722,
+          "peak_RSS_bytes": 1599127552,
+          "named_inputs": 20,
+          "inputs_unchanged": true,
+          "scope": "Bounded native frozenset literal construction/source/value reconciliation, strict typed/signedzero members, no hostile callbacks, finite total traversal.221PASS/17FAIL; all17 now unsupported typing.Literal alias. IndependentTerraGO, no full readiness/G claim."
+        },
+        "typing_literal_author_composed": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-typing-literal-composed-r4",
+          "source": "AUTHORf0ba7afb plus exactledger477ed807/testcf26ec16 and frozen perf source preimages",
+          "observed": {
+            "PASS": 250,
+            "FAIL": 17,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "classification": "command_failed",
+          "abort_reason": null,
+          "wall_seconds": 43.096613249974325,
+          "peak_RSS_bytes": 1595998208,
+          "named_inputs": 23,
+          "inputs_unchanged": true,
+          "scope": "Finite typing.Literal declaration/raw-value profile under explicitCPython3.14stdlib backend. Actual hashing aliases pass.250PASS/17FAIL; all17 at derived registry DEFAULT_ENTRY_POINT_GROUPS=tuple(sorted(...keys())). No general evaluator or alias construction-history claim. IndependentTerraGO; not yet MAIN composition."
+        },
+        "acq01_pending_macro_preflight_current": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-acq01-postcustody-preflight-r21",
+          "source": "AUTHOR024e3d310 +test1e38ac44, saved8760b4f488ea98791520af65683882e903ae10b6",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "classification": "passed",
+          "abort_reason": null,
+          "wall_seconds": 63.56610383302905,
+          "peak_RSS_bytes": 1710440448,
+          "named_inputs": 89,
+          "inputs_unchanged": true,
+          "scope": "Real leased/fenced job-issued context, compiler/planner/projection/USA-row custody with truthful pendingN5; no physical N5. OnePASS,89stable inputs. This is componentpreflight only, not acquisition numerical closure."
+        },
+        "acq01_raw_n5_handoff_r22": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-acq01-full-r22",
+          "source": "AUTHOR024e3d310 +test1e38ac44",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "classification": "command_failed",
+          "abort_reason": null,
+          "wall_seconds": 67.99253758299164,
+          "peak_RSS_bytes": 1737900032,
+          "named_inputs": 89,
+          "inputs_unchanged": true,
+          "scope": "One registry-only removalPASS, one oldpositiveFAIL at missing producer N5 handoff before N7 reentry. Actual native StockFlow v5 result persisted, diagnostic only; no completed acquisition/N8. Existing invalid namespace/default-port fixture is being recast as explicit pre-N7 refusal; canonical ACQ03/05 remains assigned supported candidateNCM G1/GDP."
+        },
+        "candidate_experiment_native_execute_r18": {
+          "output": "policy-engine/_cache/e02/lane01-candidate-execution-native-r18",
+          "source": "2c0e41d8e6301aa501530b2b722338d53bd7b452 / 601c74e7c8ddd2ad708bad5fdc7f990b963c3057",
+          "observed": {
+            "UNFINISHED": 1
+          },
+          "classification": "resource_limit_abort",
+          "abort_reason": "overall_wall_cap",
+          "wall_seconds": 895.4588117089588,
+          "peak_RSS_bytes": 1820409856,
+          "named_inputs": 108,
+          "inputs_unchanged": true,
+          "scope": "OVERALL_WALL_CAP after895.46s, not product semanticFAIL/OOM.108pinsstable; peak1.82GB, no memory/disk abort. Sourcejobcompleted; acquisitionjob remains running with real expiredlease and candidate_input_reentry_pending. NoSQL reopening. Native newB/terminal/current-reader verdict UNFINISHED. Optional first current-action profile recorded22.579sWITHcProfile/89,987,482calls; no unprofiled latency claim."
+        },
+        "authored_joint_current_producer_r1": {
+          "output": "policy-engine/_cache/e02/lane01-authored-joint-current-r1",
+          "source": "2c0e41d8e6301aa501530b2b722338d53bd7b452 / 601c74e7c8ddd2ad708bad5fdc7f990b963c3057",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "classification": "command_failed",
+          "abort_reason": null,
+          "wall_seconds": 69.85284824995324,
+          "peak_RSS_bytes": 1648459776,
+          "named_inputs": 236,
+          "inputs_unchanged": true,
+          "scope": "FAIL69.85s at parent_rows filter after actualproducer. Retained diagnostic verifies current authored parent is under joint_parent_observations, not leaf n5_observations; current relation/result .2/.375/.875/interaction.3 persist. DiagnosticGET appended valid access audit; readonlybyteguard flagged expectedappend, so it is diagnostic not final qualifiedcontrolsuite. Minimal testfilter+canonical retained currentorder/removal qualification underway, no freshN5 needed."
+        },
+        "first_action_profile_current": {
+          "output": "policy-engine/_cache/e02/lane01-candidate-execution-native-r18/pytest-temp/test_genuine_labor_policy_gets0/first-current-action-profile/",
+          "scope": "Actual pstats/status/top25 retained once.3complete owner-outcome folds;52 policy reads;4755guarded dependency operations. No exactrefduplicate assertion from aggregate counts. Recommended bounded reuse ofalreadyverified resolver outcomes removes only redundant intermediatefold; finalfreshhead/lease/source/policy fold remains. AUTHOR2sourcefiles+unit under review, no measuredspeedup claimed."
+        },
+        "acq01_canonical_route_disposition": {
+          "source": "ACQ-01.md §§3–4; trace ACQ-01.json; originalB12/LA046 card; LANE-01.md E02-I01-B",
+          "disposition": "No canonical clause requires StockFlow/method_registry or post-N7defaultN8. Use supported candidateNCM acquisition and distinctGDP resource with freshindependentoracle. R22StockFlow is not equivalent and itsFAIL remains. ExistingI01-A/N8 qualification separate.",
+          "remaining": "Actualchanged-value numerical consumption plus four foreign state/source_path/baseline/NCM controls on SAMEdeclaredprofile; A→B→B→B→C and differentresource still require successfulruntime proof. Context-onlyGDP macro fixture cannot discharge changed-value criterion."
+        },
+        "authored_joint_current_retained_qualification": {
+          "source": "2c0e41d8e6301aa501530b2b722338d53bd7b452 / 601c74e7c8ddd2ad708bad5fdc7f990b963c3057 plus one-line testfilter8e7598ff82763209d996b0a505a00d5197366bccb534c2befcd422d6df2fa2a3",
+          "reconciliation": "policy-engine/_cache/e02/lane01-authored-joint-current-r1-projection-reader-r5/reconciliation.json",
+          "classification": "PASS_RETAINED_CURRENT_CONSUMER_SUFFIX_WITH_DIAGNOSTIC_POSTCONDITION_ERRORS",
+          "actual_chain": "Current R1 real producer/persisted refs plus exact current ASTassertionsuffix211–383 hashcacfc4760a8036be3c232cbe14418c0c429e6452d9a0dbb33f9e91228b24d87a, canonical selected family/profiles, fresh HTTP200 with0numericalcalls. Rehashedreverse-order, numericFraction/physicalseeds, terminalrefusal and reduced-request binding controls completed. One explicit reduced-request library numerical control per retained invocation, no producer/acquisition replay.",
+          "outcomes": "OriginalR1pytestFAIL preserved; R5/R6outerwrappers rc1 due wrong postcondition refusal-count/audit-row-shape only. R5/6exactactualsuffixcompleted; independentLuna reviewed classification. No full-selector allgreenPASS claimed. R6 CAS/SQLiteguard and existingauditbyteprefix passed; expectedaccess/auth auditappend remains.",
+          "numbers": {
+            "individual": [
+              0.2,
+              0.375
+            ],
+            "joint": 0.875,
+            "interaction": 0.30000000000000004,
+            "seeds": [
+              11,
+              12
+            ]
+          },
+          "scope": "TEST-CYC05-07 named current producer→savedartifact→freshreader/control profile qualified; authored_candidate/couplingnotestablished/unsupportedinteraction/effectbasisnotestablished. NoGacceptance/formalclosure."
         }
       },
       "independent_component_reviews": {
@@ -12458,7 +12604,7 @@
       },
       "resource_admission_current": {
         "disk_stop_floor_GiB": 3,
-        "free_disk_GiB_at_check": 7.3,
+        "free_disk_GiB_at_check": 6.6,
         "policy": "Local only; existing environments/data; <=8GiB measured aggregate process-tree RSS, <=4 measured jobs and <=6 numerical CPU threads. The old4GiB/two-job baseline is not a hard cap. New expensive profiles start alone. Stop below3GiB disk.",
         "trash_move": {
           "directory": "/Users/deniskopylov/.Trash/PolicyOS-obsolete-test-scratch-20261105T132841Z",
@@ -12504,7 +12650,13 @@
           "code_docs_environments_unique_production_preserved": true
         },
         "execution_state": "ACTIVE_LOCAL_2026-11-06",
-        "next_session": "Finish decorated source/dataclass proof and bounded actual-context preflight; run genuine protected R18 only after source freeze, then generations/crash and distinct GDP; final affected consumers/installed wave and66-requirement reconciliation. No next lane."
+        "next_session": "Finish decorated source/dataclass proof and bounded actual-context preflight; run genuine protected R18 only after source freeze, then generations/crash and distinct GDP; final affected consumers/installed wave and66-requirement reconciliation. No next lane.",
+        "latest_additional_trash_move": {
+          "size_KiB": 398572,
+          "manifest": "/Users/deniskopylov/.Trash/PolicyOS-reproducible-unit-scratch-20261106T125204Z/manifest.json",
+          "scope": "Completed reproducible19-case unit pytest-temp only; deciding outputs/JUnit/pins/source retained. No environments/private/uniqueproduction bytes. Trash not emptied.",
+          "series_total_KiB": 6136500
+        }
       }
     },
     {

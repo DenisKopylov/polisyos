@@ -222,7 +222,7 @@ async def test_authored_compound_runs_real_joint_ncm_and_fresh_selected_reader(
     projection = served[0]["run"]["generic_cycle_simulation"]
     parent_rows = [
         row
-        for row in projection["n5_observations"]
+        for row in projection["joint_parent_observations"]
         if row.get("n8_selected_member_relationship") == "joint_components"
     ]
     assert len(parent_rows) == 1

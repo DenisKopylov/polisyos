@@ -57,6 +57,7 @@ class CandidateWDIProfile:
     country_code: str = "USA"
     country_id: str = "US"
     year: int = 2024
+    catalog_metric_id: str | None = None
 
 
 GDP_PROFILE = CandidateWDIProfile(
@@ -73,6 +74,7 @@ GDP_PROFILE = CandidateWDIProfile(
     fixture_value=80.0,
     source_provenance_class="observed",
     valid_min=0.0,
+    catalog_metric_id="gdp",
 )
 
 UNEMPLOYMENT_PROFILE = CandidateWDIProfile(
@@ -109,6 +111,11 @@ def build_fixture_wdi_authority(
     """
 
     repo_root.mkdir(parents=True, exist_ok=True)
+    catalog_metric_id = (
+        profile.construct if profile.catalog_metric_id is None else profile.catalog_metric_id
+    )
+    if not isinstance(catalog_metric_id, str) or not catalog_metric_id.strip():
+        raise ValueError("candidate_wdi_catalog_metric_id_missing")
     baseline = _baseline(repo_root)
     l5_path = _write_l5(repo_root)
     source_id = "source-lane01-" + profile.target_slot.replace(".", "-")
@@ -127,7 +134,7 @@ def build_fixture_wdi_authority(
                 profile.source_description,
                 "CC-BY-4.0",
                 "transport_ready",
-                [profile.construct],
+                [catalog_metric_id],
                 distribution_id,
             ],
         )
@@ -154,7 +161,7 @@ def build_fixture_wdi_authority(
              default_filters, execution_tier, source)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             [
-                profile.construct,
+                catalog_metric_id,
                 source_id,
                 distribution_id,
                 "worldbank.wdi",
@@ -172,7 +179,7 @@ def build_fixture_wdi_authority(
             [
                 source_id,
                 profile.indicator_id,
-                profile.construct,
+                catalog_metric_id,
                 "semantic",
                 0.85,
                 "fixture-declared source quantity; no empirical attribution",
@@ -188,7 +195,7 @@ def build_fixture_wdi_authority(
         landing_distribution_id="acquisition.lane01." + profile.target_slot + ".json",
         source_catalog_dataset_id=source_id,
         source_catalog_distribution_id=distribution_id,
-        upstream_metric_id=profile.construct,
+        upstream_metric_id=catalog_metric_id,
         catalog_raw_variable=profile.indicator_id,
         raw_field="value",
         raw_unit=profile.raw_unit,

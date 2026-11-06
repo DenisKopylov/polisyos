@@ -390,8 +390,8 @@ def _validate_scope(
     ):
         raise ValueError("candidate_source_owner_scope_mismatch")
     if (
-        query.construct != entry.upstream_metric_id
-        or candidate.construct_ref.removeprefix("construct:") != query.construct
+        candidate.construct_ref.removeprefix("construct:")
+        != query.construct.removeprefix("construct:")
         or query.entity_scope != "country"
         or query.geography != country_code
         or dict(query.population_filter) != {"type": population}

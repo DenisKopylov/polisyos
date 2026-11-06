@@ -12264,6 +12264,170 @@
           "named_inputs": 8,
           "inputs_unchanged": true,
           "scope": "Pass-local exact source/code/index reuse5→1 per capture; no crosscapturecache. Existing bounded compile-only constant reader reused; actualDEFAULT+ExportReport/generic wrongint/bool/default/signedzero/NaN/file/symlink controls. IndependentTerraGO; noN5 or fullroute latencyclaim."
+        },
+        "candidate_experiment_native_execute_r17": {
+          "output": "policy-engine/_cache/e02/lane01-candidate-execution-native-r17",
+          "source": "3d8f7c844ebeb3e5ed506ae9ae850d995424da11 / b4c1e2d7ae304d7aa95c1230472b5dbfd9718a96",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 1,
+          "wall_seconds": 698.7714396249503,
+          "peak_RSS_bytes": 1737932800,
+          "named_inputs": 101,
+          "inputs_unchanged": true,
+          "scope": "FAIL before new N5 at candidate_experiment_evaluation_prior_changed: fresh typed prior boxes contain different context-owner wrapper identities. Live source preparation recomputed/no reasons/intent present. Not a resource abort; full deciding stdout/stderr/JUnit retained. Separate original N5 witness still not_established at decorated Core source binding; no retained/frontier qualification inferred."
+        },
+        "candidate_prior_owner_semantic_current": {
+          "output": "policy-engine/_cache/e02/lane01-prior-owner-semantic-composed-r1",
+          "source": "base024e3d310 with exact eight input hashes; dispatch/test now committed bf97117ac057c3a8d6115c0711b65a010323c2c3",
+          "observed": {
+            "PASS": 2,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 18.137650791089982,
+          "peak_RSS_bytes": 1575731200,
+          "named_inputs": 8,
+          "inputs_unchanged": true,
+          "scope": "Typed fieldwise prior-owner comparison: distinct equal wrappers pass; exact CAS identity, profile/declaration values, manifest-profile and nested-WMR controls refuse. Fixture comparison only, not authority or full protected action PASS. Independent Luna GO."
+        },
+        "us_country_wdi_custody_current": {
+          "output": "policy-engine/_cache/e02/lane01-us-country-custody-r1",
+          "source": "base3d8f7c844 + two reviewed paths now committed024e3d3107fe4e5fd7e35421bb6f3c1ffd20313b",
+          "observed": {
+            "PASS": 3,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 13.117069541011006,
+          "peak_RSS_bytes": 1360003072,
+          "named_inputs": 3,
+          "inputs_unchanged": true,
+          "scope": "US/USA/840 canonical normalization and unchanged regional membership; actual WDI validator accepts synthetic USA row and refuses DEU. No empirical GDP/provenance/authority claim. Independent Luna GO."
+        },
+        "profile_legacy_composed_current": {
+          "output": "policy-engine/_cache/e02/lane01-profile-legacy-composed-r1",
+          "source": "3d8f7c844ebeb3e5ed506ae9ae850d995424da11",
+          "observed": {
+            "PASS": 4,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 36.04100970795844,
+          "peak_RSS_bytes": 1645658112,
+          "named_inputs": 300,
+          "inputs_unchanged": true,
+          "scope": "Current composed absent/stale selected-profile served refusals, strict legacyN8 and reopenable-CAS multiview/corruption consumers. Four distinct cases; no full protected/GDP or whole-lane PASS."
+        },
+        "acq01_custody_preflight_r17": {
+          "output": "/Users/deniskopylov/.codex/worktrees/e02-lane01-job-publication/polisyos/policy-engine/_cache/e02/lane01-acq01-postcustody-preflight-r17",
+          "source": "024e3d3107fe4e5fd7e35421bb6f3c1ffd20313b / 621278d992e81512592be6ff119c6e07d88777fc plus pinned AUTHOR test WIP",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 1,
+          "wall_seconds": 63.155079500051215,
+          "peak_RSS_bytes": 1499774976,
+          "named_inputs": 66,
+          "inputs_unchanged": true,
+          "scope": "FAIL after actual compiler projection gdp/US/2022 annual and actual USA row validation succeeds, at n7_acq01_prior_context_owner_binding_missing. No physical N5; full selectors await exact prior context binding. Full output retained; historical R10 direct custody diagnosis was tool-only, not a separately delivered deciding replay."
+        },
+        "current_action_profile_helper": {
+          "output": "policy-engine/_cache/e02/lane01-current-action-profile-helper-r1",
+          "observed": {
+            "PASS": 6,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 1.080437917029485,
+          "peak_RSS_bytes": 89882624,
+          "named_inputs": 3,
+          "inputs_unchanged": true,
+          "scope": "Six pure helper controls: default no-op, return/exception identity, active-profiler SKIP, diagnostic I/O failures. Only first current-action stage; restoration before downstream port. Independent Luna GO; no fullroute latency claim."
+        },
+        "mapping_claim_contract_current": {
+          "output": "policy-engine/_cache/e02/lane01-mapping-claim-contract-current-r1",
+          "observed": {
+            "PASS": 6,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 15.203119624988176,
+          "peak_RSS_bytes": 1317158912,
+          "named_inputs": 8,
+          "inputs_unchanged": true,
+          "scope": "Public native compiler: Mapping-claim metadata reaches actual governed resolver; five direct aliases typed-refused. Scenario-level declarations are distinct. No new API/authority."
+        },
+        "candidate_source_metric_separation_current": {
+          "output": "policy-engine/_cache/e02/candidate-source-metric-separation-r1",
+          "observed": {
+            "PASS": 19,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "return_code": 0,
+          "wall_seconds": 34.802401207969524,
+          "peak_RSS_bytes": 1606795264,
+          "named_inputs": 32,
+          "inputs_unchanged": true,
+          "scope": "Actual compiler/Fabric/Catalog candidate-source producer, CAS persistence/fresh-reader: canonical construct and opaque Catalog metric independent; GDP gdp explicit, old Labor default preserved. Executed construct/fetch-metric adversaries, selected-profile/source-removal, typed carrier, population/denominator/share/provenance/sensitive controls. Wrong-country/connector predicates inspected, not independently executed here. No N5/scientific authority. Independent Luna GO."
+        },
+        "mapping_claim_producer_census_current": {
+          "criterion": "REQ-REQ-01-08 / TEST-REQ-01-07",
+          "decision": "DEC-REQ-01-02: compiler owner selects No; existing metadata Mapping-claim contract plus typed direct-input refusal. Author disposition, not G acceptance.",
+          "denominator": {
+            "selection": "Complete tracked existing .py under policy-engine/src/polisyos and policy-engine/tools; tests/external plugins excluded",
+            "files": 3406,
+            "ordered_paths_sha256": "f1391933bcb4cf5a546435c7de6c4c5ff43ed9b3233b86a542519c2f39999aee"
+          },
+          "named_owners": [
+            "data_requirement/__init__.py",
+            "data_requirement/_impl/models.py",
+            "data_requirement/compiler.py",
+            "runtime/quality/generation_cycle.py",
+            "runtime/quality/scenario_evidence_contract.py",
+            "runtime/quality/workspace/foundry_consumption.py",
+            "tools/quality/validation/run_universal_outcome_corpus.py"
+          ],
+          "call_shapes": "Two runtime scenario entry callers; sole external first-party claim compiler caller receives typed ClaimLedger from ClaimDecompositionCompiler; two compiler-owned typed internal calls and scenario wrapper; foundry_consumption calls separate obligation entry. Strict public claim/decomposition schemas use metadata. No maintained Mapping-claim direct producer found.",
+          "falsifier": "Maintained first-party Mapping claim with one of five direct aliases reaches compile_for_claim_ledger, or public claim DTO admits it; adapt producer/requalify before widening. External/untracked clients not claimed.",
+          "tests": "mapping_claim_contract_current: fresh6PASS; historical228/247 remain separate source-qualified cohorts."
+        },
+        "historical_v2_requirement_report_input": {
+          "criterion": "REQ-REQ-01-09 / TEST-REQ-01-08 historical-v2 leg",
+          "state": "artifact_missing",
+          "available_v1": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/compiler-readback.json",
+          "v1_sha256": "d1d31eef31ddf6c0781d601be7325144e3f36292142abac20e5dd4413fb481d2",
+          "available_native_v2_receipt": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/result.json",
+          "available_native_v2_output": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n13-immutable-report-v4-seven-whole-module-actual-r3-76304aa-20261020/actual-run/pytest.stdout.txt",
+          "source": "76304aa2dd0703b59be82c6cc7b807829ca5dcb8 / fb3e1f8b97eed109f1cdb04793d1e241eddd52ec",
+          "bounded_search": "Tracked63706888a/pre-domain7b84873a snapshots/path history; full5435-file recovery filename registry; exact76304aa native-writer receipt; five indexed Oct27 N7 compiler/planner CAS basetemps. Historical-v2 bytes not recovered; receipt-declared output directories absent. No bulk payload scan.",
+          "scope": "Old native execution receipt remains available; historical artifact does not. Retain v1/current-v2/new-domain writer/audit/fresh-reader mechanics separately; obtain genuine earlier writer/CAS bytes. Do not relabel regenerated DTOs as historical."
+        },
+        "authored_joint_current_requalification_needed": {
+          "criterion": "TEST-CYC-05-07 current relation/order consumer",
+          "state": "verification_missing_current_composition",
+          "historical_chain": "Real R2 N5 persisted, late pytestFAIL parent_rows=[]; separate freshv3 PASS/noN5 .2/.375/.875/interaction.3/seeds11,12. Different source slices; no original all-green claim.",
+          "material_current_delta": "Later public routes/contracts/recursive relation and rehashed-reversed-order control; simulator unchanged sincev3. Original R2 fixtureCAS absent; surviving hashes/outputs do not provide bytes.",
+          "next_check": "One current producer→saved artifact→fresh process reader including order control. Reuse measured~1.83GB/50s profile; independent store may overlap measured protected job after source freeze. Retain deciding bytes through consumer check."
         }
       },
       "independent_component_reviews": {
@@ -12285,12 +12449,16 @@
         "candidate_provenance": "Independent Terra material-delta GO; recorded55 applicable as scoped above; served observed transport verification remains open.",
         "explicit_n5_profile_axes": "Terra full four-source and material alias-fix GO; native cubic UNRUN.",
         "candidate_source_row_method": "Terra V6/Core source-lineage GO; independent Luna public projection and final six-role Core ref parity GO; runtime preflight21PASS separate from full method UNRUN.",
-        "ordinary_half_gain_test": "Independent Luna cost/terminal/complete suffix review GO; actual latest test runtime UNRUN, prior R4 FAIL retained.",
-        "selected_profile_world_reader": "RootsourceGO: deriveworldfromexactselectedpersistedprofile, rejectconflictingruntimeworld, retainrecordworldhash/profile/request/N5expectedjoin+manifest. ActualretainedfreshGETrefusedrecordqualified; codecunitseparate; completedmethodnotyetqualified."
+        "ordinary_half_gain_test": "Independent Luna GO; full AUTHORd2 R9 declared+legacy2PASS70.78s/43 stable inputs. Native0.5, fresh API/historical V1/V4 and required controls, no promotion.",
+        "selected_profile_world_reader": "Independent source/oracle GO; full R11 ordinary producer1PASS and exact retained R12 strengthened fresh reader1PASS/zero newN5. Wrong-world/profile/false-record controls are direct projector; HTTP covers positive and execution-ref removal/restoration.",
+        "candidate_prior_owner_semantic": "Independent Luna GO on dispatch370405a6 and test96b81dca; preserves exact owner/store types and complete typed field/ref semantics. Focused composed2PASS; full protected reentry pending.",
+        "country_custody": "Independent Luna GO on country9baafcba/testd41c0330; US mapping only, regional defaults unchanged, synthetic WDI positive/foreign-country negative.",
+        "current_action_profiler": "LunaGO helperc12d5c0b/G1test52082523/unit550fb626;6PASS1.08s/90MB. Optional/no profiler or wrapper escape; no fullroute performance claim.",
+        "candidate_source_metric": "Independent LunaGO sourcef5a491dc/fixture0eac7b3f/testfa1b20c2;19PASS,32stable inputs; independent construct/query and fetchmetric/owner bindings."
       },
       "resource_admission_current": {
         "disk_stop_floor_GiB": 3,
-        "free_disk_GiB_at_check": 8.0,
+        "free_disk_GiB_at_check": 7.3,
         "policy": "Local only; existing environments/data; <=8GiB measured aggregate process-tree RSS, <=4 measured jobs and <=6 numerical CPU threads. The old4GiB/two-job baseline is not a hard cap. New expensive profiles start alone. Stop below3GiB disk.",
         "trash_move": {
           "directory": "/Users/deniskopylov/.Trash/PolicyOS-obsolete-test-scratch-20261105T132841Z",
@@ -12335,8 +12503,8 @@
           "trash_emptied_by_executor": false,
           "code_docs_environments_unique_production_preserved": true
         },
-        "execution_state": "ACTIVE_USER_RESUMED_2026-11-06",
-        "next_session": "Bound acquisition exception/witness diagnosis; parallel preflighted source-row full route and reviewed0.5; full-suffix ACQ01/cubic repairs and GDP usage-origin correction; protected terminal unlocks generations/crash; final composed consumers/66-requirement reconciliation."
+        "execution_state": "ACTIVE_LOCAL_2026-11-06",
+        "next_session": "Finish decorated source/dataclass proof and bounded actual-context preflight; run genuine protected R18 only after source freeze, then generations/crash and distinct GDP; final affected consumers/installed wave and66-requirement reconciliation. No next lane."
       }
     },
     {

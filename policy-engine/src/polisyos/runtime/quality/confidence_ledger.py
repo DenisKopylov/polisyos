@@ -34,7 +34,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import Enum
 from fractions import Fraction
-from importlib.machinery import SourceFileLoader
+from importlib.machinery import ModuleSpec, SourceFileLoader
 from pathlib import Path
 from typing import Any, Literal, Self, cast
 
@@ -10305,6 +10305,17 @@ def _source_facade_runtime_projection(
                                     str(statement.lineno),
                                 )
                                 invalid_state.discard(alias.asname)
+                            elif (
+                                alias.name == "typing"
+                                and _source_typing_literal_module_alias_supported(
+                                    tree, module_name, alias.asname
+                                )
+                            ):
+                                # This consumes only the explicit backend's finite
+                                # Literal declarations. It does not promote an
+                                # external module to a repository binding owner.
+                                state.pop(alias.asname, None)
+                                invalid_state.discard(alias.asname)
                             else:
                                 state.pop(alias.asname, None)
                                 invalid_state.add(alias.asname)
@@ -10665,6 +10676,27 @@ def _source_facade_runtime_projection(
                     and declarations[0][1].value is not None
                 ):
                     expression = declarations[0][1].value
+                    expected_typing_literal = _source_typing_literal_expression(
+                        expression,
+                        tree=provider_tree,
+                        module=provider_module,
+                        module_name=provider_name,
+                    )
+                    if (
+                        isinstance(expression, ast.Subscript)
+                        and _source_typing_literal_reference(expression.value, provider_tree)
+                        and (
+                            expected_typing_literal is _SOURCE_DERIVATION_FAILED
+                            or not _source_typing_literal_value_matches(
+                                provider_value, expected_typing_literal
+                            )
+                        )
+                    ):
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch",
+                            "selected source typing Literal binding differs: "
+                            f"{provider_name}.{attribute}",
+                        )
                     try:
                         expected_literal = ast.literal_eval(expression)
                     except (ValueError, TypeError, SyntaxError, MemoryError):
@@ -13325,6 +13357,187 @@ def _source_frozenset_literal_expression(
     return value if type(value) is frozenset else _SOURCE_DERIVATION_FAILED
 
 
+def _source_typing_literal_args_projection(arguments: object, *, source: bool = False) -> object:
+    """Project only finite primitive Literal values, without alias equality or hashing."""
+
+    if type(arguments) is not tuple or not 1 <= len(arguments) <= 80:
+        return _SOURCE_DERIVATION_FAILED
+    if any(
+        all(type(value) is not primitive for primitive in (str, int, bool, bytes, type(None)))
+        for value in arguments
+    ):
+        return _SOURCE_DERIVATION_FAILED
+    projection = _source_immutable_member_projection(arguments)
+    if projection is _SOURCE_DERIVATION_FAILED:
+        return _SOURCE_DERIVATION_FAILED
+    # The supported backend retains the first occurrence of each typed source
+    # primitive. Live raw args are compared exactly, including order: a later
+    # reordered/duplicated tuple is not silently treated as identical state.
+    values = projection[1]
+    return tuple(dict.fromkeys(values)) if source else values
+
+
+def _source_typing_literal_reference(node: ast.expr, tree: ast.Module) -> bool:
+    """Recognize the source import independently of mutable provider applicability."""
+
+    name = (
+        node.id
+        if isinstance(node, ast.Name)
+        else (
+            node.value.id
+            if isinstance(node, ast.Attribute)
+            and node.attr == "Literal"
+            and isinstance(node.value, ast.Name)
+            else None
+        )
+    )
+    if name is None:
+        return False
+    sites = _module_scope_direct_binding_sites(tree, name)
+    if len(sites) != 1:
+        return False
+    kind, declaration, alias = sites[0]
+    return bool(
+        alias is not None
+        and (
+            (
+                isinstance(node, ast.Name)
+                and kind == "import_from"
+                and isinstance(declaration, ast.ImportFrom)
+                and declaration.level == 0
+                and declaration.module == "typing"
+                and alias.name == "Literal"
+            )
+            or (
+                isinstance(node, ast.Attribute)
+                and kind == "import"
+                and isinstance(declaration, ast.Import)
+                and alias.name == "typing"
+            )
+        )
+    )
+
+
+def _source_typing_literal_expression(
+    node: ast.expr, *, tree: ast.Module, module: types.ModuleType, module_name: str
+) -> object:
+    """Discover one finite Literal declaration under the explicit Python backend boundary."""
+
+    if (
+        type(module) is not types.ModuleType
+        or sys.modules.get("typing") is not typing
+        or type(typing) is not types.ModuleType
+        or not isinstance(node, ast.Subscript)
+        or not _source_typing_literal_reference(node.value, tree)
+    ):
+        return _SOURCE_DERIVATION_FAILED
+    if isinstance(node.value, ast.Name):
+        constructor = _source_import_binding(
+            node.value.id, tree=tree, module=module, module_name=module_name
+        )
+    elif isinstance(node.value, ast.Attribute) and isinstance(node.value.value, ast.Name):
+        owner = _source_import_binding(
+            node.value.value.id, tree=tree, module=module, module_name=module_name
+        )
+        constructor = (
+            vars(owner).get(node.value.attr, _SOURCE_DERIVATION_FAILED)
+            if owner is typing
+            else _SOURCE_DERIVATION_FAILED
+        )
+    else:
+        return _SOURCE_DERIVATION_FAILED
+    if constructor is not vars(typing).get("Literal"):
+        return _SOURCE_DERIVATION_FAILED
+    state = _typing_literal_provider_state()
+    if state is None or constructor is not state[0]:
+        return _SOURCE_DERIVATION_FAILED
+    expressions = node.slice.elts if isinstance(node.slice, ast.Tuple) else (node.slice,)
+    if not 1 <= len(expressions) <= 80:
+        return _SOURCE_DERIVATION_FAILED
+    arguments = []
+    for expression in expressions:
+        if not (
+            isinstance(expression, ast.Constant)
+            or (
+                isinstance(expression, ast.UnaryOp)
+                and isinstance(expression.op, (ast.UAdd, ast.USub))
+                and isinstance(expression.operand, ast.Constant)
+                and type(expression.operand.value) is int
+            )
+        ):
+            return _SOURCE_DERIVATION_FAILED
+        try:
+            arguments.append(ast.literal_eval(expression))
+        except (ValueError, TypeError, SyntaxError, MemoryError):
+            return _SOURCE_DERIVATION_FAILED
+    return _source_typing_literal_args_projection(tuple(arguments), source=True)
+
+
+def _source_typing_literal_module_alias_supported(
+    tree: ast.Module, module_name: str, name: str
+) -> bool:
+    """Discharge a canonical module alias only when every read is a finite declaration."""
+
+    module = sys.modules.get(module_name)
+    if (
+        type(module) is not types.ModuleType
+        or sys.modules.get("typing") is not typing
+        or type(typing) is not types.ModuleType
+        or _source_import_binding(name, tree=tree, module=module, module_name=module_name)
+        is not typing
+    ):
+        return False
+    accepted_reads: set[int] = set()
+    for statement in tree.body:
+        if not isinstance(statement, (ast.Assign, ast.AnnAssign)):
+            continue
+        expression = statement.value
+        if (
+            isinstance(expression, ast.Subscript)
+            and isinstance(expression.value, ast.Attribute)
+            and isinstance(expression.value.value, ast.Name)
+            and expression.value.value.id == name
+            and _source_typing_literal_expression(
+                expression, tree=tree, module=module, module_name=module_name
+            )
+            is not _SOURCE_DERIVATION_FAILED
+        ):
+            accepted_reads.add(id(expression.value.value))
+    reads = tuple(
+        item
+        for item in ast.walk(tree)
+        if isinstance(item, ast.Name) and isinstance(item.ctx, ast.Load) and item.id == name
+    )
+    return bool(reads) and all(id(item) in accepted_reads for item in reads)
+
+
+def _source_typing_literal_value_matches(actual: object, expected: object) -> bool:
+    """Reconcile raw Literal origin/values, not construction history or alias behavior."""
+
+    state = _typing_literal_provider_state()
+    if state is None:
+        return False
+    origin, alias_type, dictionary, _profile = state
+    if type(actual) is not alias_type:
+        return False
+    namespace = dictionary.__get__(actual, alias_type)
+    if type(namespace) is not dict:
+        return False
+    actual_origin = _passive_capture_lookup(namespace, "__origin__")
+    arguments = _passive_capture_lookup(namespace, "__args__")
+    observed = _source_typing_literal_args_projection(arguments)
+    return bool(
+        actual_origin is origin
+        and observed is not _SOURCE_DERIVATION_FAILED
+        and type(expected) is tuple
+        and observed == expected
+        and _passive_capture_lookup(namespace, "__origin__") is actual_origin
+        and _passive_capture_lookup(namespace, "__args__") is arguments
+        and _passive_capture_lookup(vars(typing), "Literal") is origin
+        and _passive_capture_lookup(vars(typing), "_LiteralGenericAlias") is alias_type
+    )
+
+
 def _source_dataclass_named_constant(
     name: str,
     *,
@@ -14810,6 +15023,147 @@ def _typing_protocol_provider_projection() -> dict[str, object]:
         ) from exc
 
 
+def _typing_literal_provider_state() -> tuple[object, type, object, dict[str, object]] | None:
+    """Bind the supported CPython ABI used only to read Literal's inert stored values.
+
+    This is the existing supported-runtime assumption, not independent typing
+    verification, construction-history evidence, or permission to execute an alias.
+    No typing constructor, lazy value, alias method, or arbitrary getter is called.
+    """
+
+    if sys.implementation.name != "cpython" or sys.version_info[:2] != (3, 14):
+        return None
+    provider = sys.modules.get("typing")
+    if provider is not typing or type(provider) is not types.ModuleType:
+        return None
+    namespace = vars(provider)
+    spec = namespace.get("__spec__")
+    spec_dictionary = vars(ModuleSpec).get("__dict__")
+    if not (
+        type(spec) is ModuleSpec
+        and type(spec_dictionary) is types.GetSetDescriptorType
+        and spec_dictionary.__objclass__ is ModuleSpec
+    ):
+        return None
+    spec_namespace = spec_dictionary.__get__(spec, ModuleSpec)
+    loader = _passive_capture_lookup(spec_namespace, "loader")
+    origin = _passive_capture_lookup(spec_namespace, "origin")
+    file = _passive_capture_lookup(namespace, "__file__")
+    if type(loader) is not SourceFileLoader or type(file) is not str or type(origin) is not str:
+        return None
+    try:
+        analysis = _active_integrity_analysis()
+        own_analysis = analysis is None
+        if analysis is None:
+            analysis = _IntegrityAnalysisContext()
+        logical_path = Path(sysconfig.get_path("stdlib")) / "typing.py"
+        path = analysis.bind_source_path(logical_path)
+        if any(
+            analysis.bind_source_path(candidate) != path for candidate in (Path(file), Path(origin))
+        ):
+            return None
+        source = analysis.source_bytes(logical_path)
+        names = ("_Final", "_BaseGenericAlias", "_GenericAlias", "_LiteralGenericAlias")
+        classes = tuple(namespace.get(name) for name in names)
+        if any(type(value) is not type for value in classes):
+            return None
+        for index, (name, cls) in enumerate(zip(names, classes, strict=True)):
+            base = object if index == 0 else classes[index - 1]
+            declared_module = _passive_capture_lookup(vars(cls), "__module__")
+            bases = cls.__bases__
+            expected_mro = (cls, *base.__mro__)
+            if not (
+                type(declared_module) is str
+                and declared_module == "typing"
+                and cls.__qualname__ == name
+                and len(bases) == 1
+                and bases[0] is base
+                and len(cls.__mro__) == len(expected_mro)
+                and all(
+                    left is right for left, right in zip(cls.__mro__, expected_mro, strict=True)
+                )
+            ):
+                return None
+        special = namespace.get("_SpecialForm")
+        typed_special = namespace.get("_TypedCacheSpecialForm")
+        if not (
+            type(special) is type
+            and type(typed_special) is type
+            and len(typed_special.__bases__) == 1
+            and typed_special.__bases__[0] is special
+        ):
+            return None
+        literal = namespace.get("Literal")
+        name_slot = vars(special).get("_name")
+        getitem_slot = vars(special).get("_getitem")
+        dictionary = vars(classes[1]).get("__dict__")
+        if not (
+            type(literal) is typed_special
+            and type(name_slot) is types.MemberDescriptorType
+            and name_slot.__objclass__ is special
+            and type(getitem_slot) is types.MemberDescriptorType
+            and getitem_slot.__objclass__ is special
+            and type(dictionary) is types.GetSetDescriptorType
+            and dictionary.__objclass__ is classes[1]
+        ):
+            return None
+        literal_name = name_slot.__get__(literal, typed_special)
+        if type(literal_name) is not str or literal_name != "Literal":
+            return None
+        wrapped = getitem_slot.__get__(literal, typed_special)
+        if type(wrapped) is not types.FunctionType:
+            return None
+        terminal = _passive_capture_lookup(wrapped.__dict__, "__wrapped__")
+        wanted = ("Literal", "_tp_cache.<locals>.decorator.<locals>.inner")
+        hashes = dict(_typing_protocol_source_codes(source, str(path), wanted))
+        for function, qualname in zip((terminal, wrapped), wanted, strict=True):
+            if not (
+                type(function) is types.FunctionType
+                and type(function.__module__) is str
+                and function.__module__ == "typing"
+                and function.__globals__ is namespace
+                and function.__builtins__ is vars(_builtins)
+                and Path(function.__code__.co_filename).resolve() == path
+                and function.__code__.co_qualname == qualname
+                and _content_hash(_normalize_code_object(function.__code__)) in hashes[qualname]
+            ):
+                return None
+        if (
+            terminal.__closure__ is not None
+            or wrapped.__code__.co_freevars != ("func",)
+            or wrapped.__closure__ is None
+            or len(wrapped.__closure__) != 1
+            or wrapped.__closure__[0].cell_contents is not terminal
+        ):
+            return None
+        if own_analysis:
+            analysis.assert_sources_unchanged()
+        return (
+            literal,
+            classes[-1],
+            dictionary,
+            {
+                "profile": "cpython314_typing_literal_raw_values_v1",
+                "provider_source_sha256": _bytes_hash(source),
+                "assumption": "supported_python_runtime_provider",
+                "independent_transform_verification": False,
+                "scope": "source_declaration_and_inert_origin_args_only",
+                "construction_history_and_alias_execution": "not_established",
+            },
+        )
+    except (ConfidenceLedgerError, OSError, AttributeError, TypeError, ValueError, SyntaxError):
+        return None
+
+
+def _typing_literal_provider_projection() -> dict[str, object]:
+    """Expose the bounded value-projection profile, with its external backend assumption."""
+
+    state = _typing_literal_provider_state()
+    if state is None:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", "typing Literal ABI")
+    return state[3]
+
+
 def _source_python_provider_class_binding_supported(
     module: types.ModuleType,
     source_path: Path,
@@ -16215,6 +16569,16 @@ def _source_module_direct_binding_route(
                     module=module,
                     module_name=module_name,
                     repo_root=repo_root,
+                )
+                is not _SOURCE_DERIVATION_FAILED
+            ):
+                return "symbol", module_name, export_name
+            if (
+                simple_target
+                and value is not None
+                and type(module) is types.ModuleType
+                and _source_typing_literal_expression(
+                    value, tree=tree, module=module, module_name=module_name
                 )
                 is not _SOURCE_DERIVATION_FAILED
             ):
@@ -19140,6 +19504,7 @@ def _python_runtime_manifest() -> dict[str, object]:
         "py_debug": sysconfig.get_config_var("Py_DEBUG"),
         "gil_disabled": sysconfig.get_config_var("Py_GIL_DISABLED"),
         "typing_protocol_provider": _typing_protocol_provider_projection(),
+        "typing_literal_value_provider": _typing_literal_provider_projection(),
         "context_manager_provider": _context_manager_provider_projection(),
     }
 

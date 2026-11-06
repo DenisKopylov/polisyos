@@ -502,6 +502,7 @@ def _current_candidate_experiment_action(
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionCandidateExperimentPhaseReceipt,
         AcquisitionRouteLoop,
+        _ResolvedCurrentCandidateExperiment,
     )
 
     service = _require_canonical_action_bridge(bridge)
@@ -523,26 +524,19 @@ def _current_candidate_experiment_action(
         action_outcome_reader=service.acquisition_route_sink,
     )
     try:
-        current_origin = loop.resolve_current_candidate_experiment(run_id=origin.run_id)
+        resolution = loop._resolve_current_candidate_experiment_resolution(run_id=origin.run_id)
     except (OSError, RuntimeError, TypeError, ValueError) as exc:
         raise ValueError("candidate_experiment_action_source_not_current") from exc
+    if type(resolution) is not _ResolvedCurrentCandidateExperiment:
+        raise ValueError("candidate_experiment_action_source_not_current")
+    current_origin = resolution.origin
     if current_origin.current_action_head is None or not _same_candidate_experiment_origin_source(
         origin, current_origin
     ):
         raise ValueError("candidate_experiment_action_source_changed")
     selected = _candidate_experiment_source_selection(bridge, current_origin)
 
-    try:
-        outcomes = service.acquisition_route_sink.experiment_action_outcomes(
-            tenant_id=origin.tenant_id,
-            cell_id=origin.cell_id,
-            run_id=origin.run_id,
-            source_job_id=origin.source_job_id,
-            route_id=origin.route_id,
-            verified_origin=current_origin,
-        )
-    except (OSError, RuntimeError, TypeError, ValueError) as exc:
-        raise ValueError("candidate_experiment_action_history_not_verified") from exc
+    outcomes = resolution.outcomes
     head = current_origin.current_action_head
     outcome = _select_current_candidate_experiment_outcome(
         outcomes,
@@ -644,19 +638,21 @@ def _current_candidate_experiment_action(
         action_generation=head.action_generation,
     )
     after = bridge.control_store.current_execution_job_admission()
-    if (
-        current_head != head
-        or not after.same_execution_identity(admission)
-        or service.acquisition_route_sink.experiment_action_outcomes(
+    if current_head != head or not after.same_execution_identity(admission):
+        raise ValueError("candidate_experiment_action_live_owner_changed")
+    try:
+        current_outcomes = service.acquisition_route_sink.experiment_action_outcomes(
             tenant_id=origin.tenant_id,
             cell_id=origin.cell_id,
             run_id=origin.run_id,
             source_job_id=origin.source_job_id,
             route_id=origin.route_id,
         )
-        != outcomes
-        or _candidate_experiment_source_selection(bridge, current_origin) != selected
-    ):
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise ValueError("candidate_experiment_action_history_not_verified") from exc
+    if current_outcomes != outcomes:
+        raise ValueError("candidate_experiment_action_live_owner_changed")
+    if _candidate_experiment_source_selection(bridge, current_origin) != selected:
         raise ValueError("candidate_experiment_action_live_owner_changed")
     return selected, phase, admission
 

@@ -70,6 +70,9 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
     )
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        VerifiedAcquisitionActionOutcome,
+    )
     from polisyos.runtime.http.services.control_plane_store import (
         AcquisitionActionHeadRecord,
         ControlJobRecord,
@@ -1100,6 +1103,14 @@ class VerifiedCandidateExperimentOrigin:
         return _candidate_experiment_effective_source(self)[1]
 
 
+@dataclass(frozen=True)
+class _ResolvedCurrentCandidateExperiment:
+    """Carry one owner-replayed current origin and its exact action outcomes."""
+
+    origin: VerifiedCandidateExperimentOrigin
+    outcomes: tuple[VerifiedAcquisitionActionOutcome, ...]
+
+
 def _candidate_experiment_effective_source(
     origin: VerifiedCandidateExperimentOrigin,
 ) -> tuple[GenerationCycleRun, GenerationCycleRecord]:
@@ -1757,12 +1768,32 @@ class AcquisitionRouteLoop:
         before_action_generation: int | None = None,
         action_job_id: str | None = None,
     ) -> VerifiedCandidateExperimentOrigin:
-        """Replay the live experiment source and owner-verified action head.
+        """Return the owner-replayed source and current history projection.
+
+        This compatibility entry point intentionally exposes only the origin;
+        callers that need its verified owner outcomes use the private composed
+        resolution below.
+        """
+        return self._resolve_current_candidate_experiment_resolution(
+            run_id=run_id,
+            before_action_generation=before_action_generation,
+            action_job_id=action_job_id,
+        ).origin
+
+    def _resolve_current_candidate_experiment_resolution(
+        self,
+        *,
+        run_id: str,
+        before_action_generation: int | None = None,
+        action_job_id: str | None = None,
+    ) -> _ResolvedCurrentCandidateExperiment:
+        """Replay the live experiment source and retain its owner-verified outcomes.
 
         Each terminal generation is accepted only after its experiment-aware
         historical owner replays the selected profile, PA2 history, action,
         source, evaluation, and atomic frontier. This result is still not a live
-        lease or effect permit.
+        lease or effect permit. The exact tuple is for one in-process read only;
+        it must not be reused as permission or across a later operation.
         """
         from dataclasses import replace
 
@@ -1965,11 +1996,14 @@ class AcquisitionRouteLoop:
             raise AcquisitionRouteClosureError("candidate_experiment_source_changed")
         if self._control_store.list_acquisition_action_heads_for_source(**scope) != heads:
             raise AcquisitionRouteClosureError("candidate_experiment_action_history_changed")
-        return replace(
-            refreshed_origin,
-            current_action_head=current_head,
-            current_terminal_history=current_terminal_history,
-            candidate_terminal_history_chain=tuple(terminal_history_chain),
+        return _ResolvedCurrentCandidateExperiment(
+            origin=replace(
+                refreshed_origin,
+                current_action_head=current_head,
+                current_terminal_history=current_terminal_history,
+                candidate_terminal_history_chain=tuple(terminal_history_chain),
+            ),
+            outcomes=outcomes,
         )
 
     def resolve_current_route(

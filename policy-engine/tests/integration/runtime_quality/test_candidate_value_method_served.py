@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import uuid
+from collections.abc import Mapping
+from copy import deepcopy
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -42,11 +45,13 @@ async def _prepare_source_candidate(
     from polisyos.runtime.quality.candidate_value_method import (
         persist_candidate_value_source_request,
     )
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
     from polisyos.runtime.quality.generic_simulation_admission import GenericCycleN5RequestProfileV3
     from polisyos.scientist.orchestration.engine.budget_ledger import BudgetInvocationQuotaPolicy
     from tests._helpers import candidate_cycle_source_profile
     from tests._helpers import generic_n4_served_replay as replay
     from tests._helpers.candidate_value_source_panel import build_candidate_value_source_panel
+    from tests._helpers.runtime_http import _valid_intake_for_mode
     from tests.unit.runtime.http.test_nl_pipeline_materialization import (
         _DeterministicSpanSupportClient,
     )
@@ -55,20 +60,14 @@ async def _prepare_source_candidate(
     assert claims.cell_id is not None
     monkeypatch.setenv("POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix())
     monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
-    context = build_runtime_api_context(
-        cas_root=tmp_path / ".polisyos",
-        core_runs_root=tmp_path / ".polisyos" / "runs",
-    )
-    with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
-        panel = build_candidate_value_source_panel(tmp_path / "source", store=context.store)
-
     original_problem = replay._current_compiler_problem
 
     def declared_external_problem(recording: dict[str, Any], **kwargs: Any) -> Any:
         raw_request = (
             "For Ukraine, assess procurement_shock_intensity setting cells.distress_score "
             "from 0 to 1 and the alternatives tax_relief_rate and budget_allocation_multiplier. The candidate outcome is "
-            "agents.income measured in usd; ask for ATE conditioning on "
+            "agents.income measured in usd; maximize the candidate income ATE, using functional "
+            "identifier ATE and conditioning on "
             "baseline_covariate. all proposals remain candidate-only."
         )
         problem = original_problem(
@@ -83,13 +82,69 @@ async def _prepare_source_candidate(
             target_variable="agents.income",
             conditioning_variables=("baseline_covariate",),
             measurement_unit="usd",
-            estimand="ATE of the declared candidate treatment on agents.income.",
+            estimand="ATE",
+            metric_id="income_ate",
         )
+        payload["objectives"] = [
+            {
+                "objective_id": "candidate_income_ate",
+                "description": "Maximize the candidate average income effect in usd.",
+                "metric_id": "income_ate",
+                "direction": "maximize",
+            }
+        ]
         return type(problem).model_validate(payload)
 
-    # These adapters declare only external test inputs and select actual compact
-    # source files. Grounding, atom production, CAS, N5 and method selection stay real.
-    monkeypatch.setattr(replay, "_current_compiler_problem", declared_external_problem)
+    recording = next(
+        row
+        for row in replay.n4_contract._load_recordings(replay.REPO_ROOT)
+        if row.get("design_problem_id") == replay._RECORDING_ID
+    )
+    external_candidate = declared_external_problem(recording)
+    external_arguments = external_candidate.model_dump(mode="json")
+    raw_request = external_candidate.nl_provenance.raw_request
+
+    def external_compiler_reply(request_body: Mapping[str, object]) -> Mapping[str, object]:
+        # This is the external provider boundary, never a replacement for the
+        # product compiler/parser. Its output remains a proposed candidate.
+        assert raw_request in json.dumps(request_body, ensure_ascii=False)
+        return deepcopy(external_arguments)
+
+    controlled_candidate_gateway.set_fixture(
+        recording, problem=external_candidate, compiler_reply_factory=external_compiler_reply
+    )
+    request_context = {
+        "evaluation_safety_attempt": _valid_intake_for_mode("simulate_only").model_dump(mode="json")
+    }
+    compiled_problem = await compiler_owner.build_design_problem_from_nl_request(
+        nl_request=raw_request,
+        context=request_context,
+        trusted_source_context={},
+        model_name=str(recording["model_id"]),
+        span_support_client=_DeterministicSpanSupportClient(),
+    )
+    compiler_bodies = controlled_candidate_gateway.compiler_request_bodies()
+    assert compiler_bodies and all(isinstance(body, bytes) for body in compiler_bodies)
+    assert all(isinstance(json.loads(body), dict) for body in compiler_bodies)
+    assert compiled_problem.outcome_of_interest == external_candidate.outcome_of_interest
+    assert compiled_problem.outcome_of_interest.query_coordinate_status == (
+        "candidate_proposed_unverified"
+    )
+
+    context = build_runtime_api_context(
+        cas_root=tmp_path / ".polisyos",
+        core_runs_root=tmp_path / ".polisyos" / "runs",
+    )
+    with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
+        panel = build_candidate_value_source_panel(tmp_path / "source", store=context.store)
+
+    def actual_compiler_problem(_recording: dict[str, Any], **kwargs: Any) -> Any:
+        assert not kwargs
+        return compiled_problem
+
+    # Profiles and N4 receive the actual compiler product. Only external
+    # replies and compact source selection are configured by these adapters.
+    monkeypatch.setattr(replay, "_current_compiler_problem", actual_compiler_problem)
     original_base_profile = replay._configured_procurement_profile
 
     def binary_candidate_model(**kwargs: Any) -> Any:
@@ -120,12 +175,42 @@ async def _prepare_source_candidate(
         materialize_source_parameters=True,
         synthetic_settled_provider=True,
     )
+    from polisyos.runtime.quality import generation_cycle as gc
+
+    # Reconcile the full real N4 subject against the method's actual owner
+    # contract before POST/N5, rather than discovering another coordinate
+    # mismatch only after physical execution. This grants no method authority.
+    source_candidates = tuple(
+        candidate
+        for candidate in prepared.organ_run.result.candidates
+        if candidate.atom.target_world_slots == ("cells.distress_score",)
+    )
+    assert len(source_candidates) == 1
+    assert (
+        gc._value_owner_source_atom_estimand_binding(
+            candidate=source_candidates[0],
+            problem=prepared.recorded_problem,
+            estimand=gc._typed_value_estimand_spec(panel.request.estimand_spec_json),
+            measurement_unit=panel.request.outcome_bounds_unit,
+        )
+        == source_candidates[0].atom.content_hash
+    )
+    controlled_candidate_gateway.configure_compiler_reply(external_compiler_reply)
     original_compiler = compiler_owner.build_design_problem_from_nl_request
 
     async def compile_with_external_span_judge(**kwargs: Any) -> Any:
-        return await original_compiler(
+        actual = await original_compiler(
             **{**kwargs, "span_support_client": _DeterministicSpanSupportClient()}
         )
+        assert actual.outcome_of_interest == compiled_problem.outcome_of_interest
+        assert actual.objectives == compiled_problem.objectives
+        assert cycle_job_profile_selection_ref(actual) == cycle_job_profile_selection_ref(
+            compiled_problem
+        )
+        post_bodies = controlled_candidate_gateway.compiler_request_bodies()
+        assert post_bodies and all(isinstance(body, bytes) for body in post_bodies)
+        assert all(isinstance(json.loads(body), dict) for body in post_bodies)
+        return actual
 
     monkeypatch.setattr(
         compiler_owner, "build_design_problem_from_nl_request", compile_with_external_span_judge
@@ -192,6 +277,43 @@ async def _prepare_source_candidate(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
+async def test_source_method_preparation_uses_real_compiler_and_bound_n4(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+) -> None:
+    """Reconcile the complete source prefix without an admitted request or N5."""
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+
+    def refuse_physical_n5(*_args: Any, **_kwargs: Any) -> Any:
+        pytest.fail("source-method preparation attempted physical N5")
+
+    monkeypatch.setattr(JointSimulationHorizonController, "run", refuse_physical_n5)
+    prepared, panel = await _prepare_source_candidate(
+        tmp_path, monkeypatch, controlled_candidate_gateway
+    )
+    assert len(prepared.organ_run.result.candidates) == 3
+    assert prepared.recorded_problem.outcome_of_interest.estimand == "ATE"
+    assert prepared.recorded_problem.outcome_of_interest.metric_id == "income_ate"
+    assert prepared.recorded_problem.outcome_of_interest.conditioning_variables == (
+        "baseline_covariate",
+    )
+    assert prepared.recorded_problem.outcome_of_interest.measurement_unit == "usd"
+    assert prepared.recorded_problem.outcome_of_interest.query_coordinate_status == (
+        "candidate_proposed_unverified"
+    )
+    assert panel.expected_ate == 2.0
+    assert len(prepared.app_kwargs["generic_cycle_simulation_profiles"]) == 1
+    assert (
+        prepared.app_kwargs["generic_cycle_simulation_profiles"][
+            0
+        ].candidate_value_source_request_ref
+        is not None
+    )
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
 async def test_ordinary_candidate_executes_source_rows_persists_and_fresh_gets(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -205,6 +327,7 @@ async def test_ordinary_candidate_executes_source_rows_persists_and_fresh_gets(
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.container import RuntimeContainerOverrides
     from polisyos.runtime.http.dependencies import build_runtime_api_context
+    from polisyos.runtime.quality import candidate_value_method as method_owner
     from polisyos.runtime.quality import generation_cycle as gc
     from polisyos.runtime.quality.candidate_value_method import CandidateValueMethodRecord
     from tests._helpers.control_worker import dispatch_one_control_job
@@ -212,6 +335,15 @@ async def test_ordinary_candidate_executes_source_rows_persists_and_fresh_gets(
     prepared, panel = await _prepare_source_candidate(
         tmp_path, monkeypatch, controlled_candidate_gateway
     )
+    projector_calls: list[dict[str, Any]] = []
+    actual_projector = method_owner.project_candidate_value_method
+
+    def observe_actual_projection(**kwargs: Any) -> Any:
+        result = actual_projector(**kwargs)
+        projector_calls.append(dict(kwargs))
+        return result
+
+    monkeypatch.setattr(method_owner, "project_candidate_value_method", observe_actual_projection)
     physical_n5: list[Any] = []
     real_execute = gc.JointSimulationHorizonController.run
 
@@ -297,6 +429,97 @@ async def test_ordinary_candidate_executes_source_rows_persists_and_fresh_gets(
                     fresh_context.store, ArtifactRef.model_validate(method["record_ref"])
                 )
             )
+        # The actual persisted cycle omits its in-memory WMR. The consumer
+        # must recover the exact selected owner and continue to reject foreign
+        # runtime worlds, profiles and consistently hashed but false records.
+        from polisyos.core.artifacts import ensure_ir_artifact_store, input_ref_from_artifact_ref
+        from polisyos.ir import CanonSpec, put_json_artifact
+        from polisyos.pdc import gy_content_hash
+
+        fresh_args = projector_calls[-1]
+        serialized_simulation = fresh_args["simulation"].model_dump_json()
+        assert '"world_model_record"' not in serialized_simulation
+        restored_simulation = gc.SimulationPortObservation.model_validate_json(
+            serialized_simulation
+        )
+        assert restored_simulation.world_model_record is None
+        assert fresh_args["simulation"].world_model_record is None
+        other_world = prepared.base_profile.context_inputs.world_model_record
+        assert other_world.content_hash != record.world_model_record_content_hash
+        with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+            runtime_mismatch = actual_projector(
+                **{
+                    **fresh_args,
+                    "simulation": restored_simulation.model_copy(
+                        update={"world_model_record": other_world}
+                    ),
+                }
+            )
+        assert runtime_mismatch.status == "not_established"
+        assert runtime_mismatch.limitation_codes == (
+            "candidate_value_method_runtime_world_binding_mismatch",
+        )
+        assert runtime_mismatch.point_estimate is None
+        with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+            profile, _request = method_owner._profile_and_request(
+                fresh_context.store, restored_simulation
+            )
+            assert profile is not None
+            alternate_fields = profile.model_dump(mode="json", exclude={"content_hash"})
+            alternate_fields["profile_id"] += "-other-selected-view"
+            alternate = type(profile).model_validate(
+                {**alternate_fields, "content_hash": gy_content_hash(alternate_fields)}
+            )
+            alternate_ref = ArtifactRef.model_validate(
+                put_json_artifact(
+                    ensure_ir_artifact_store(fresh_context.store),
+                    alternate.model_dump(mode="json"),
+                    kind=record.profile_ref.kind,
+                    schema_name="policyos.runtime.generic_cycle_simulation_profile.v1",
+                    schema_version="1.0",
+                    canon_spec=CanonSpec(forbid_floats=False),
+                    return_selected_profile=True,
+                )
+            )
+            profile_mismatch = actual_projector(
+                **{
+                    **fresh_args,
+                    "simulation": restored_simulation.model_copy(
+                        update={"generic_profile_ref": alternate_ref}
+                    ),
+                }
+            )
+            assert profile_mismatch.status == "not_established"
+            assert profile_mismatch.limitation_codes == (
+                "candidate_value_method_source_binding_mismatch",
+            )
+            false_fields = record.model_dump(mode="json", exclude={"content_hash"})
+            false_fields["world_model_record_content_hash"] = other_world.content_hash
+            false_record = CandidateValueMethodRecord.model_validate(
+                {**false_fields, "content_hash": gy_content_hash(false_fields)}
+            )
+            false_ref = ArtifactRef.model_validate(
+                put_json_artifact(
+                    ensure_ir_artifact_store(fresh_context.store),
+                    false_record.model_dump(mode="json"),
+                    kind=method["record_ref"]["kind"],
+                    schema_name="policyos.runtime.candidate_value_method.v1",
+                    schema_version="1.0",
+                    inputs=[
+                        input_ref_from_artifact_ref(ref, role=role)
+                        for role, ref in false_record.input_refs().items()
+                    ],
+                    canon_spec=CanonSpec(forbid_floats=False),
+                    return_selected_profile=True,
+                )
+            )
+            world_hash_mismatch = actual_projector(**{**fresh_args, "record_ref": false_ref})
+            assert world_hash_mismatch.status == "not_established"
+            assert world_hash_mismatch.limitation_codes == (
+                "candidate_value_method_source_binding_mismatch",
+            )
+            assert world_hash_mismatch.point_estimate is None
+        assert len(physical_n5) == 1
         real_get_bytes = fresh_context.store.get_bytes
 
         def remove_exact_execution(ref: Any, *args: Any, **kwargs: Any) -> bytes:

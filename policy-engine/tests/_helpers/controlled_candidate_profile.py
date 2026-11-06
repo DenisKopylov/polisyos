@@ -13,7 +13,7 @@ import hashlib
 import json
 import math
 import threading
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -200,6 +200,10 @@ class ControlledCandidateGateway:
         self._lock = threading.Lock()
         self._recording: dict[str, object] | None = None
         self._problem: dict[str, object] | None = None
+        self._compiler_reply_factory: (
+            Callable[[Mapping[str, object]], Mapping[str, object]] | None
+        ) = None
+        self._compiler_request_bodies: list[bytes] = []
         self._n4_cursor = 0
         self._provider_profile: SyntheticCandidateProviderProfile | None = None
         self._compiled_problem_ref: str | None = None
@@ -243,10 +247,18 @@ class ControlledCandidateGateway:
                 compiler_name = self._compiler_tool_name(request)
                 if compiler_name is not None:
                     with self.owner._lock:
+                        self.owner._compiler_request_bodies.append(bytes(raw_request))
                         problem = self.owner._problem
+                        compiler_reply_factory = self.owner._compiler_reply_factory
                         self.owner._n4_cursor = 0
                     if problem is None:
                         self._send_json(503, {"error": "fixture_not_selected"})
+                        return
+                    compiler_arguments: Mapping[str, object] = problem
+                    if compiler_reply_factory is not None:
+                        compiler_arguments = compiler_reply_factory(copy.deepcopy(request))
+                    if not isinstance(compiler_arguments, Mapping):
+                        self._send_json(502, {"error": "compiler_fixture_reply_invalid"})
                         return
                     completion = {
                         "id": "synthetic-design-problem-completion",
@@ -266,7 +278,7 @@ class ControlledCandidateGateway:
                                             "function": {
                                                 "name": compiler_name,
                                                 "arguments": json.dumps(
-                                                    problem,
+                                                    dict(compiler_arguments),
                                                     sort_keys=True,
                                                     separators=(",", ":"),
                                                 ),
@@ -427,6 +439,9 @@ class ControlledCandidateGateway:
         *,
         problem: object,
         provider_profile: SyntheticCandidateProviderProfile | None = None,
+        compiler_reply_factory: (
+            Callable[[Mapping[str, object]], Mapping[str, object]] | None
+        ) = None,
     ) -> None:
         """Select a historical replay or explicit synthetic provider profile."""
         self._validate_recording(recording)
@@ -435,6 +450,8 @@ class ControlledCandidateGateway:
             and type(provider_profile) is not SyntheticCandidateProviderProfile
         ):
             raise TypeError("synthetic_provider_profile_untyped")
+        if compiler_reply_factory is not None and not callable(compiler_reply_factory):
+            raise TypeError("controlled_compiler_reply_factory_untyped")
         model_dump = getattr(problem, "model_dump", None)
         if not callable(model_dump):
             raise TypeError("controlled_gateway_problem_untyped")
@@ -444,12 +461,29 @@ class ControlledCandidateGateway:
         with self._lock:
             self._recording = copy.deepcopy(recording)
             self._problem = copy.deepcopy(problem_payload)
+            self._compiler_reply_factory = compiler_reply_factory
+            self._compiler_request_bodies.clear()
             self._n4_cursor = 0
             self._provider_profile = provider_profile
             self._compiled_problem_ref = None
             self._configured_child_selections = frozenset()
             self._derived_subjects = {}
             self._active_root_result_ref = None
+
+    def configure_compiler_reply(
+        self,
+        factory: Callable[[Mapping[str, object]], Mapping[str, object]] | None,
+    ) -> None:
+        """Select a controlled external compiler reply without changing N4 inputs."""
+        if factory is not None and not callable(factory):
+            raise TypeError("controlled_compiler_reply_factory_untyped")
+        with self._lock:
+            self._compiler_reply_factory = factory
+
+    def compiler_request_bodies(self) -> tuple[bytes, ...]:
+        """Return captured compiler HTTP bodies, excluding headers and credentials."""
+        with self._lock:
+            return tuple(bytes(body) for body in self._compiler_request_bodies)
 
     def admit_compiled_problem(self, problem: object) -> None:
         """Bind the actual validated compiler product before profiled N4 calls."""

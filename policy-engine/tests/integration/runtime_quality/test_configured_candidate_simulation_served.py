@@ -915,10 +915,170 @@ def test_configured_procurement_profile_uses_owned_compact_source(
         assert service.catalog_serving_source == fixture.catalog_source
 
 
+def _assert_legacy_configured_consumer_chain(
+    *,
+    fixture: SimpleNamespace,
+    service: Any,
+    completed: Any,
+    input_record: Any,
+    observation: Any,
+    input_ref: Any,
+    cas_root: Path,
+    original_context: Any,
+    scoped_read: Callable[..., Any],
+) -> None:
+    """Read actual V1/V4 producer output without downgrading declared-model artifacts."""
+    from fastapi.testclient import TestClient
+
+    from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+    from polisyos.core.contracts.runtime import RunDetailsResponse
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationExecutionV4,
+        CandidateSimulationN5InputV4,
+    )
+    from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+    from polisyos.runtime.quality.generation_source import N4CandidateScenarioSourceRecordV1
+
+    repository = GenerationSourceRepository(service._artifact_store)
+
+    def read(operation: Callable[[], Any]) -> Any:
+        return scoped_read(operation, job_id=completed.job_id, run_id=str(completed.run_id))
+
+    source = read(
+        lambda: repository.load_candidate_scenario_source_v1(
+            input_record.n4_source_ref,
+            expected_job_id=completed.job_id,
+            expected_run_id=str(completed.run_id),
+            expected_tenant_id=input_record.tenant_id,
+            expected_cell_id=input_record.cell_id,
+        )
+    )
+    assert type(source) is N4CandidateScenarioSourceRecordV1
+    assert source.profile == fixture.profile
+    assert (
+        source.world_model_record_hash
+        == source.profile.context_inputs.world_model_record.content_hash
+    )
+    assert source.k_ref_limitation_code == "full_credal_reference_not_consumed"
+    assert source.credal_reference_payload is None
+    assert source.l2_confidence_vintage is None
+    assert source.l2_confidence_forwarded is False
+    assert source.authority_purpose == "candidate_scenario_n5_only"
+    assert (source.n5_status, source.n8_status, source.n9_status, source.s8_status) == (
+        "not_run",
+        "not_run",
+        "not_admitted",
+        "blocked",
+    )
+    replayed_input = read(
+        lambda: repository.resolve_candidate_simulation_v4(
+            ref=input_ref,
+            expected_job_id=completed.job_id,
+            expected_run_id=str(completed.run_id),
+            expected_tenant_id=input_record.tenant_id,
+            expected_cell_id=input_record.cell_id,
+        )
+    )
+    assert type(replayed_input) is CandidateSimulationN5InputV4
+    assert replayed_input == input_record
+    execution_ref = ArtifactRef.model_validate(
+        observation.diagnostics["candidate_simulation_execution_selected_ref"]
+    )
+    execution = read(
+        lambda: repository.resolve_candidate_simulation_v4(
+            ref=execution_ref,
+            expected_job_id=completed.job_id,
+            expected_run_id=str(completed.run_id),
+            expected_tenant_id=input_record.tenant_id,
+            expected_cell_id=input_record.cell_id,
+        )
+    )
+    assert type(execution) is CandidateSimulationExecutionV4
+    assert artifact_ref_identity_key(execution.n5_input_ref) == artifact_ref_identity_key(input_ref)
+    assert (
+        execution.k_world_ref_before
+        == execution.k_world_ref_after
+        == source.world_model_record_hash
+    )
+    result = read(
+        lambda: load_joint_simulation_result(
+            observation.simulation_result_ref,
+            store=service._artifact_store,
+            expected_world_model_record_content_hash=source.world_model_record_hash,
+            expected_selected_outcomes=(input_record.outcome_variable,),
+        )
+    )
+    expected_effect = fixture.declaration.outcome_per_target_unit * (
+        input_record.materialization.value - fixture.declaration.target_baseline
+    )
+    assert expected_effect == pytest.approx(0.5, abs=1e-12)
+    effects = [
+        point.effect[input_record.outcome_variable]
+        for trajectory in result.trajectories
+        for point in trajectory.points
+        if input_record.outcome_variable in point.effect
+    ]
+    assert len(effects) == fixture.profile.n5.replications
+    assert effects == pytest.approx([expected_effect] * len(effects), abs=0.02)
+    assert result.uncertainty_kind == "K_sim"
+    assert result.world_credal_state_before == result.world_credal_state_after
+    with pytest.raises(ValueError, match="candidate_simulation_v4_identity_mismatch"):
+        read(
+            lambda: repository.resolve_candidate_simulation_v4(
+                ref=execution_ref,
+                expected_job_id=completed.job_id,
+                expected_run_id=str(completed.run_id),
+                expected_tenant_id="foreign-legacy-reader",
+                expected_cell_id=input_record.cell_id,
+            )
+        )
+
+    fresh_context = build_runtime_api_context(cas_root=cas_root, core_runs_root=cas_root / "runs")
+    assert fresh_context is not original_context
+    fresh_app = create_runtime_api_app(
+        cas_root=cas_root,
+        container_overrides=RuntimeContainerOverrides(runtime_api_context=fresh_context),
+        allow_fixture_identity=True,
+        candidate_simulation_profiles=(fixture.profile,),
+        candidate_simulation_model_declarations=(),
+        repo_root=fixture.source_root,
+        catalog_source_selection=fixture.catalog_selection,
+        catalog_run_profile=fixture.catalog_selection.catalog_run_profile,
+    )
+    with TestClient(fresh_app) as fresh_client:
+        response = fresh_client.get(f"/api/v1/runs/{completed.progress['core_run_id']}")
+        assert response.status_code == 200, response.text
+        projection = RunDetailsResponse.model_validate_json(
+            response.content
+        ).run.candidate_simulation
+        assert projection is not None and projection.artifact_status == "resolved"
+        assert projection.publication_authority is False
+        assert projection.authority_purpose == "candidate_observation_only"
+        served = next(
+            item
+            for item in projection.n5_observations
+            if item.candidate_id == input_record.original_candidate_id
+        )
+        assert served.status == "joint_simulated"
+        assert served.lineage_status == "resolved"
+        assert served.currentness_status == "not_established"
+        assert artifact_ref_identity_key(served.n5_input_ref) == artifact_ref_identity_key(
+            input_ref
+        )
+        assert artifact_ref_identity_key(served.simulation_result_ref) == artifact_ref_identity_key(
+            observation.simulation_result_ref
+        )
+
+
+@pytest.mark.parametrize(
+    "declared_model_binding", [True, False], ids=("declared-v2-v3-v5", "legacy-v1-v4")
+)
 def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects_drift(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     controlled_candidate_gateway: Any,
+    declared_model_binding: bool,
 ) -> None:
     """The verified worker joins one configured scenario without weakening N4 custody."""
 
@@ -1138,8 +1298,34 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
     original_n5_port = JointSimulationPort.__call__
 
     def observe_n5_port(port, *args, **kwargs):
-        observation = original_n5_port(port, *args, **kwargs)
         input_record = kwargs.get("candidate_simulation_input")
+        if input_record is not None and not declared_model_binding:
+            # The legacy producer must retain the profile's original world,
+            # before any declared-model enrichment, before physical N5 work.
+            assert type(input_record) is CandidateSimulationN5InputV4
+            assert len(candidate_leaf_controllers) == 1
+            handoff = candidate_leaf_controllers[0]._candidate_simulation_handoff
+            assert handoff is not None
+            assert (handoff.model_declaration, handoff.model_declaration_ref, handoff.ncm_ref) == (
+                None,
+                None,
+                None,
+            )
+            assert handoff.context.world_model_record == profile.context_inputs.world_model_record
+            legacy_source = GenerationSourceRepository(
+                service._artifact_store
+            ).load_candidate_scenario_source_v1(
+                input_record.n4_source_ref,
+                expected_run_id=input_record.run_id,
+                expected_job_id=input_record.job_id,
+                expected_tenant_id=input_record.tenant_id,
+                expected_cell_id=input_record.cell_id,
+            )
+            assert (
+                legacy_source.world_model_record_hash
+                == handoff.context.world_model_record.content_hash
+            )
+        observation = original_n5_port(port, *args, **kwargs)
         if input_record is not None:
             n5_calls.append(
                 (input_record, observation, kwargs.get("candidate_simulation_input_ref"))
@@ -1153,7 +1339,9 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         container_overrides=RuntimeContainerOverrides(runtime_api_context=runtime_api_context),
         allow_fixture_identity=True,
         candidate_simulation_profiles=(profile,),
-        candidate_simulation_model_declarations=(model_declaration,),
+        candidate_simulation_model_declarations=(model_declaration,)
+        if declared_model_binding
+        else (),
         repo_root=compact_source.source_root,
         catalog_source_selection=compact_source.catalog_selection,
         catalog_run_profile=compact_source.catalog_selection.catalog_run_profile,
@@ -1327,7 +1515,9 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             for item, result, selected_ref in n5_calls
             if result.candidate_id == item.original_candidate_id
         )
-        assert type(input_record).__name__ == "CandidateSimulationN5InputV5"
+        assert type(input_record) is (
+            CandidateSimulationN5InputV5 if declared_model_binding else CandidateSimulationN5InputV4
+        )
 
         # The real selected Catalog has no observations for this fixture's
         # outcome. That producer-bound requirement must survive candidate-only
@@ -1423,8 +1613,6 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert input_record.authority_purpose == "candidate_scenario_n5_only"
         assert isinstance(input_record.n4_source_ref, ArtifactRef)
         assert isinstance(input_record.context_job_ref, ArtifactRef)
-        assert isinstance(input_record.model_declaration_ref, ArtifactRef)
-        assert isinstance(input_record.ncm_ref, ArtifactRef)
         assert isinstance(port_input_ref, ArtifactRef)
         assert input_record.n4_source_ref.manifest_profile_sha256 is not None
         assert len(candidate_leaf_controllers) == 1
@@ -1433,6 +1621,27 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert artifact_ref_identity_key(input_record.context_job_ref) == (
             artifact_ref_identity_key(admitted_handoff.context_job_ref)
         )
+        if not declared_model_binding:
+            _assert_legacy_configured_consumer_chain(
+                fixture=compact_source,
+                service=service,
+                completed=completed,
+                input_record=input_record,
+                observation=observation,
+                input_ref=port_input_ref,
+                cas_root=cas_root,
+                original_context=runtime_api_context,
+                scoped_read=read_private_artifact_in_job_scope,
+            )
+            assert leaf_run.value_port.status == "value_pending_n8"
+            assert leaf_run.value_port.authority_blockers == ("candidate_scenario_n5_only",)
+            assert leaf_run.promotion_port.status == "not_promoted"
+            assert leaf_run.promotion_port.certified_candidate_ids == ()
+            assert leaf_run.fronts.decision.candidate_ids == ()
+            assert n8_owner_calls == n9_owner_calls == []
+            return
+        assert isinstance(input_record.model_declaration_ref, ArtifactRef)
+        assert isinstance(input_record.ncm_ref, ArtifactRef)
         assert artifact_ref_identity_key(input_record.model_declaration_ref) == (
             artifact_ref_identity_key(admitted_handoff.model_declaration_ref)
         )
@@ -1563,24 +1772,23 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert selected_v1_ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(
             selected_v1_manifest
         )
-        selected_v1_replay = read_private_artifact_in_job_scope(
-            lambda: source_repository.load_candidate_scenario_source_v1(
-                selected_v1_ref,
-                expected_run_id=str(completed.run_id),
-                expected_job_id=completed.job_id,
-                expected_tenant_id=admitted_scope.tenant_id,
-                expected_cell_id=admitted_scope.cell_id,
-            ),
-            job_id=completed.job_id,
-            run_id=str(completed.run_id),
-        )
-        selected_v1_read = _generation_source_read_result(selected_v1_replay)
-        assert selected_v1_read is not None
-        assert selected_v1_read.provenance.selected_manifest_profile_sha256 == (
-            selected_v1_ref.manifest_profile_sha256
-        )
-        assert selected_v1_read.provenance.source_materialization == "reader_materialized"
-        assert selected_v1_read.provenance.producer_attestation_status == "not_established"
+        # The nested record belongs to a declared-model V2 source: its context
+        # world was enriched after the immutable profile was selected. Persisting
+        # valid V1-shaped bytes cannot make it a compatible historical V1 source.
+        with pytest.raises(
+            ValueError, match="n4_candidate_scenario_source_context_binding_mismatch"
+        ):
+            read_private_artifact_in_job_scope(
+                lambda: source_repository.load_candidate_scenario_source_v1(
+                    selected_v1_ref,
+                    expected_run_id=str(completed.run_id),
+                    expected_job_id=completed.job_id,
+                    expected_tenant_id=admitted_scope.tenant_id,
+                    expected_cell_id=admitted_scope.cell_id,
+                ),
+                job_id=completed.job_id,
+                run_id=str(completed.run_id),
+            )
 
         assert type(input_record) is CandidateSimulationN5InputV5
         v5_input_manifest = read_private_artifact_in_job_scope(
@@ -1680,18 +1888,30 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         assert v4_input_ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(
             v4_input_manifest
         )
-        v4_input_replay = read_private_artifact_in_job_scope(
-            lambda: source_repository._load_candidate_simulation_input_v4(v4_input_ref),
-            job_id=completed.job_id,
-            run_id=str(completed.run_id),
-        )
-        v4_input_read = _generation_source_read_result(v4_input_replay)
-        assert v4_input_read is not None
-        assert v4_input_read.provenance.selected_manifest_profile_sha256 == (
-            v4_input_ref.manifest_profile_sha256
-        )
-        assert v4_input_read.provenance.source_materialization == "reader_materialized"
-        assert v4_input_read.provenance.producer_attestation_status == "not_established"
+        # The input loader also follows the real source owner; shape-valid
+        # V4 bytes cannot erase the enriched-world/V1 profile disagreement.
+        with pytest.raises(
+            ValueError, match="n4_candidate_scenario_source_context_binding_mismatch"
+        ):
+            read_private_artifact_in_job_scope(
+                lambda: source_repository._load_candidate_simulation_input_v4(v4_input_ref),
+                job_id=completed.job_id,
+                run_id=str(completed.run_id),
+            )
+        with pytest.raises(
+            ValueError, match="n4_candidate_scenario_source_context_binding_mismatch"
+        ):
+            read_private_artifact_in_job_scope(
+                lambda: source_repository.resolve_candidate_simulation_v4(
+                    ref=v4_input_ref,
+                    expected_run_id=str(completed.run_id),
+                    expected_job_id=completed.job_id,
+                    expected_tenant_id=admitted_scope.tenant_id,
+                    expected_cell_id=admitted_scope.cell_id,
+                ),
+                job_id=completed.job_id,
+                run_id=str(completed.run_id),
+            )
 
         candidate_control_facets = {
             "authority_purpose": "candidate_scenario_n5_only",

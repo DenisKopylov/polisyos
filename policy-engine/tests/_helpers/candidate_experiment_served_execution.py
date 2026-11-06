@@ -632,6 +632,76 @@ def _dispatch_crash_probe_once(
     return expected_job_id
 
 
+@contextmanager
+def _candidate_experiment_reopened_runtime(
+    *, control: ControlPlaneService, trust: object, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[tuple[object, ControlPlaneService, Path, Path]]:
+    """Open a second real runtime over the selected CAS and SQLite owners."""
+    from fastapi.testclient import TestClient
+
+    from polisyos.runtime.http import deployment_security as security
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.http.dependencies import build_runtime_api_context
+    from tests._helpers.control_worker import stop_embedded_control_worker
+
+    resolver = control._policy_resolver
+    if resolver.state_store_backend != "sqlite":
+        raise AssertionError(
+            "candidate experiment fresh runtime requires the selected SQLite owner"
+        )
+    sqlite_path = control._resolve_control_sqlite_path()
+    cas_root = Path(control._cas_root)
+    core_runs_root = Path(control._core_runs_root)
+    providers = control._registry_providers
+    context_owner = control._cycle_substrate_context_admission_owner
+    if context_owner is None:
+        raise AssertionError("candidate experiment fresh runtime lost configured source profiles")
+
+    with monkeypatch.context() as runtime_environment:
+        runtime_environment.setenv("POLISYOS_EXECUTION_PROFILE", resolver.default_profile)
+        runtime_environment.setenv("POLISYOS_CONTROL_WORKER_BACKEND", resolver.worker_backend)
+        runtime_environment.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        runtime_environment.setenv("POLISYOS_CONTROL_SQLITE_PATH", str(sqlite_path))
+        runtime_context = build_runtime_api_context(
+            cas_root=cas_root,
+            core_runs_root=core_runs_root,
+        )
+        app = create_runtime_api_app(
+            cas_root=cas_root,
+            core_runs_root=core_runs_root,
+            deployment_security=security.build_deployment_security(
+                security.DeploymentSecurityConfig.from_mapping(trust.raw)
+            ),
+            enable_security_middlewares=True,
+            enable_csrf_protection=False,
+            container_overrides=RuntimeContainerOverrides(
+                runtime_api_context=runtime_context,
+                control_registry_providers=providers,
+            ),
+            candidate_simulation_profiles=tuple(context_owner.profiles),
+            candidate_simulation_model_declarations=tuple(context_owner.model_declarations),
+            repo_root=control._repo_root,
+            catalog_source_selection=providers.catalog_source_selection,
+            catalog_run_profile=providers.catalog_run_profile,
+        )
+        with TestClient(app) as client:
+            reopened_control = client.app.state._control_service
+            if (
+                reopened_control is control
+                or reopened_control._artifact_store is control._artifact_store
+                or reopened_control._control_store is control._control_store
+                or reopened_control._diagnostic_event_log is control._diagnostic_event_log
+                or reopened_control._registry_providers is not providers
+                or Path(reopened_control._cas_root) != cas_root
+                or Path(reopened_control._core_runs_root) != core_runs_root
+                or reopened_control._resolve_control_sqlite_path() != sqlite_path
+            ):
+                raise AssertionError("candidate experiment runtime did not reopen the same inputs")
+            stop_embedded_control_worker(reopened_control)
+            yield client, reopened_control, sqlite_path, cas_root
+
+
 def _read_candidate_experiment_with_reopened_owner(
     *,
     control: ControlPlaneService,
@@ -645,13 +715,7 @@ def _read_candidate_experiment_with_reopened_owner(
     """Replay terminal action state through an independent app and storage owner."""
     import sqlite3
 
-    from fastapi.testclient import TestClient
-
     from polisyos.core import artifacts
-    from polisyos.runtime.http import deployment_security as security
-    from polisyos.runtime.http.app import create_runtime_api_app
-    from polisyos.runtime.http.container import RuntimeContainerOverrides
-    from polisyos.runtime.http.dependencies import build_runtime_api_context
     from polisyos.runtime.http.services.acquisition_action_service import (
         CandidateExperimentRouteProjection,
     )
@@ -659,263 +723,197 @@ def _read_candidate_experiment_with_reopened_owner(
     from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
     from tests._helpers import acquisition_served_history as served
 
-    resolver = control._policy_resolver
-    if resolver.state_store_backend != "sqlite":
-        raise AssertionError("candidate experiment fresh reader requires the selected SQLite owner")
-    sqlite_path = control._resolve_control_sqlite_path()
-    cas_root = Path(control._cas_root)
-    core_runs_root = Path(control._core_runs_root)
-    providers = control._registry_providers
-    context_owner = control._cycle_substrate_context_admission_owner
-    if context_owner is None:
-        raise AssertionError("candidate experiment fresh reader lost configured source profiles")
-
-    with monkeypatch.context() as reader_environment:
-        reader_environment.setenv("POLISYOS_EXECUTION_PROFILE", resolver.default_profile)
-        reader_environment.setenv("POLISYOS_CONTROL_WORKER_BACKEND", resolver.worker_backend)
-        reader_environment.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
-        reader_environment.setenv("POLISYOS_CONTROL_SQLITE_PATH", str(sqlite_path))
-        reader_context = build_runtime_api_context(
-            cas_root=cas_root,
-            core_runs_root=core_runs_root,
-        )
-        reader_app = create_runtime_api_app(
-            cas_root=cas_root,
-            core_runs_root=core_runs_root,
-            deployment_security=security.build_deployment_security(
-                security.DeploymentSecurityConfig.from_mapping(trust.raw)
-            ),
-            enable_security_middlewares=True,
-            enable_csrf_protection=False,
-            container_overrides=RuntimeContainerOverrides(
-                runtime_api_context=reader_context,
-                control_registry_providers=providers,
-            ),
-            candidate_simulation_profiles=tuple(context_owner.profiles),
-            candidate_simulation_model_declarations=tuple(context_owner.model_declarations),
-            repo_root=control._repo_root,
-            catalog_source_selection=providers.catalog_source_selection,
-            catalog_run_profile=providers.catalog_run_profile,
-        )
+    with _candidate_experiment_reopened_runtime(
+        control=control,
+        trust=trust,
+        monkeypatch=monkeypatch,
+    ) as (reader, reader_control, sqlite_path, _cas_root):
+        reader_store = reader_control._artifact_store
 
         def forbid_n5(*_args: object, **_kwargs: object) -> object:
             raise AssertionError("candidate experiment fresh GET attempted to run N5")
 
         with monkeypatch.context() as read_only_guard:
             read_only_guard.setattr(JointSimulationHorizonController, "run", forbid_n5)
-            with TestClient(reader_app) as reader:
-                reader_control = reader.app.state._control_service
-                reader_store = reader_control._artifact_store
-                if (
-                    reader_control is control
-                    or reader_store is control._artifact_store
-                    or reader_control._control_store is control._control_store
-                    or reader_control._registry_providers is not providers
-                    or Path(reader_control._cas_root) != cas_root
-                    or reader_control._resolve_control_sqlite_path() != sqlite_path
-                ):
+            path = f"/api/v1/runs/{origin.run_id}/candidate-acquisition-experiment"
+            headers = {
+                "Authorization": f"Bearer {trust.tokens['acquisition-operator']}",
+                "X-Tenant-ID": served.TENANT,
+            }
+
+            def read_current_action() -> CandidateExperimentCurrentActionProjection:
+                response = reader.get(path, headers=headers)
+                if response.status_code != 200:
+                    raise AssertionError(response.text)
+                return CandidateExperimentRouteProjection.model_validate(
+                    response.json()
+                ).current_action
+
+            reopened_outcomes = _experiment_outcomes(
+                control=reader_control,
+                origin=origin,
+            )
+            if not reopened_outcomes:
+                raise AssertionError("candidate experiment terminal history not reopened")
+            reopened_history = reopened_outcomes[-1].candidate_experiment_terminal_history
+            if (
+                type(reopened_history) is not CandidateExperimentTerminalHistory
+                or reopened_history.head != terminal_head
+                or reopened_history.terminal_ref != terminal_history.terminal_ref
+                or reopened_history.phase_chain != terminal_history.phase_chain
+                or reopened_history.terminal.selected_evaluation
+                != terminal_history.terminal.selected_evaluation
+            ):
+                raise AssertionError("candidate experiment independent history changed")
+
+            selected_action = read_current_action()
+            terminal_ref = artifacts.profile_bound_ref(reader_store, reopened_history.terminal_ref)
+            phase_heads = []
+            for phase in reopened_history.phase_chain:
+                phase_head = reader_control._control_store.get_acquisition_action_head_by_receipt(
+                    tenant_id=terminal_head.tenant_id,
+                    cell_id=terminal_head.cell_id,
+                    run_id=terminal_head.run_id,
+                    source_job_id=terminal_head.source_job_id,
+                    route_id=terminal_head.route_id,
+                    action_generation=terminal_head.action_generation,
+                    receipt_ref=phase.receipt_ref,
+                )
+                if phase_head is None or phase_head.receipt_manifest_profile_sha256 is None:
                     raise AssertionError(
-                        "candidate experiment reader did not reopen the same inputs"
+                        "candidate experiment exact SQL-selected phase profile missing"
                     )
+                if phase.receipt_ref == str(reopened_history.terminal_ref.artifact_id):
+                    phase_ref = artifacts.profile_bound_ref(
+                        reader_store,
+                        reopened_history.terminal_ref,
+                    )
+                else:
+                    phase_ref = artifacts.profile_bound_ref(
+                        reader_store,
+                        artifacts.ArtifactRef(
+                            artifact_id=artifacts.ArtifactID.model_validate(phase.receipt_ref),
+                            kind=("runtime_quality.acquisition_candidate_experiment_phase_receipt"),
+                            media_type="application/json",
+                            manifest_profile_sha256=phase_head.receipt_manifest_profile_sha256,
+                        ),
+                    )
+                if phase_ref.manifest_profile_sha256 != phase_head.receipt_manifest_profile_sha256:
+                    raise AssertionError("candidate experiment selected phase ref profile mismatch")
+                phase_heads.append((phase, phase_head, phase_ref))
+            if len(phase_heads) != 5 or phase_heads[-1][1] != terminal_head:
+                raise AssertionError("candidate experiment full selected phase chain changed")
+            expected_status, expected_disposition, expected_evaluation, expected_reason = (
+                _terminal_projection_expectations(terminal_history=reopened_history)
+            )
+            if (
+                selected_action.status != expected_status
+                or selected_action.job_state != "completed"
+                or selected_action.job_id != terminal_head.job_id
+                or selected_action.receipt_phase != "terminal"
+                or selected_action.terminal_outcome != reopened_history.terminal.terminal_outcome
+                or selected_action.evaluation_disposition != expected_disposition
+                or selected_action.selected_evaluation != expected_evaluation
+                or selected_action.blocker_reason != expected_reason
+                or selected_action.selected_receipt_ref != terminal_ref
+                or selected_action.selected_receipt_ref.manifest_profile_sha256
+                != terminal_head.receipt_manifest_profile_sha256
+            ):
+                raise AssertionError("candidate experiment independent terminal GET mismatch")
 
-                path = f"/api/v1/runs/{origin.run_id}/candidate-acquisition-experiment"
-                headers = {
-                    "Authorization": f"Bearer {trust.tokens['acquisition-operator']}",
-                    "X-Tenant-ID": served.TENANT,
-                }
-
-                def read_current_action() -> CandidateExperimentCurrentActionProjection:
-                    response = reader.get(path, headers=headers)
-                    if response.status_code != 200:
-                        raise AssertionError(response.text)
-                    return CandidateExperimentRouteProjection.model_validate(
-                        response.json()
-                    ).current_action
-
-                reopened_outcomes = _experiment_outcomes(
+            if fresh_reader_observer is not None:
+                fresh_reader_observer(
+                    client=reader,
                     control=reader_control,
+                    history=reopened_history,
                     origin=origin,
+                    headers=headers,
                 )
-                if not reopened_outcomes:
-                    raise AssertionError("candidate experiment terminal history not reopened")
-                reopened_history = reopened_outcomes[-1].candidate_experiment_terminal_history
-                if (
-                    type(reopened_history) is not CandidateExperimentTerminalHistory
-                    or reopened_history.head != terminal_head
-                    or reopened_history.terminal_ref != terminal_history.terminal_ref
-                    or reopened_history.phase_chain != terminal_history.phase_chain
-                    or reopened_history.terminal.selected_evaluation
-                    != terminal_history.terminal.selected_evaluation
-                ):
-                    raise AssertionError("candidate experiment independent history changed")
 
-                selected_action = read_current_action()
-                terminal_ref = artifacts.profile_bound_ref(
-                    reader_store, reopened_history.terminal_ref
+            wrong_profile = "sha256:" + "0" * 64
+            wrong_profile_head = phase_heads[-2][1]
+            selected_profile = wrong_profile_head.receipt_manifest_profile_sha256
+            if not selected_profile or wrong_profile == selected_profile:
+                raise AssertionError("candidate experiment ancestor profile is not testable")
+            head_scope = (
+                wrong_profile_head.tenant_id,
+                wrong_profile_head.cell_id,
+                wrong_profile_head.run_id,
+                wrong_profile_head.source_job_id,
+                wrong_profile_head.route_id,
+                wrong_profile_head.action_generation,
+                wrong_profile_head.head_generation,
+            )
+            with sqlite3.connect(sqlite_path) as connection:
+                updated = connection.execute(
+                    "UPDATE runtime_acquisition_action_heads "
+                    "SET receipt_manifest_profile_sha256 = ? "
+                    "WHERE tenant_id = ? AND cell_id = ? AND run_id = ? "
+                    "AND source_job_id = ? AND route_id = ? "
+                    "AND action_generation = ? AND head_generation = ?",
+                    (wrong_profile, *head_scope),
+                ).rowcount
+            if updated != 1:
+                raise AssertionError(
+                    "candidate experiment wrong-profile control missed selected ancestor"
                 )
-                phase_heads = []
-                for phase in reopened_history.phase_chain:
-                    phase_head = (
-                        reader_control._control_store.get_acquisition_action_head_by_receipt(
-                            tenant_id=terminal_head.tenant_id,
-                            cell_id=terminal_head.cell_id,
-                            run_id=terminal_head.run_id,
-                            source_job_id=terminal_head.source_job_id,
-                            route_id=terminal_head.route_id,
-                            action_generation=terminal_head.action_generation,
-                            receipt_ref=phase.receipt_ref,
-                        )
-                    )
-                    if phase_head is None or phase_head.receipt_manifest_profile_sha256 is None:
-                        raise AssertionError(
-                            "candidate experiment exact SQL-selected phase profile missing"
-                        )
-                    if phase.receipt_ref == str(reopened_history.terminal_ref.artifact_id):
-                        phase_ref = artifacts.profile_bound_ref(
-                            reader_store,
-                            reopened_history.terminal_ref,
-                        )
-                    else:
-                        phase_ref = artifacts.profile_bound_ref(
-                            reader_store,
-                            artifacts.ArtifactRef(
-                                artifact_id=artifacts.ArtifactID.model_validate(phase.receipt_ref),
-                                kind=(
-                                    "runtime_quality.acquisition_candidate_experiment_phase_receipt"
-                                ),
-                                media_type="application/json",
-                                manifest_profile_sha256=phase_head.receipt_manifest_profile_sha256,
-                            ),
-                        )
-                    if (
-                        phase_ref.manifest_profile_sha256
-                        != phase_head.receipt_manifest_profile_sha256
-                    ):
-                        raise AssertionError(
-                            "candidate experiment selected phase ref profile mismatch"
-                        )
-                    phase_heads.append((phase, phase_head, phase_ref))
-                if len(phase_heads) != 5 or phase_heads[-1][1] != terminal_head:
-                    raise AssertionError("candidate experiment full selected phase chain changed")
-                expected_status, expected_disposition, expected_evaluation, expected_reason = (
-                    _terminal_projection_expectations(terminal_history=reopened_history)
-                )
-                if (
-                    selected_action.status != expected_status
-                    or selected_action.job_state != "completed"
-                    or selected_action.job_id != terminal_head.job_id
-                    or selected_action.receipt_phase != "terminal"
-                    or selected_action.terminal_outcome
-                    != reopened_history.terminal.terminal_outcome
-                    or selected_action.evaluation_disposition != expected_disposition
-                    or selected_action.selected_evaluation != expected_evaluation
-                    or selected_action.blocker_reason != expected_reason
-                    or selected_action.selected_receipt_ref != terminal_ref
-                    or selected_action.selected_receipt_ref.manifest_profile_sha256
-                    != terminal_head.receipt_manifest_profile_sha256
-                ):
-                    raise AssertionError("candidate experiment independent terminal GET mismatch")
-
-                if fresh_reader_observer is not None:
-                    fresh_reader_observer(
-                        client=reader,
-                        control=reader_control,
-                        history=reopened_history,
-                        origin=origin,
-                        headers=headers,
-                    )
-
-                wrong_profile = "sha256:" + "0" * 64
-                wrong_profile_head = phase_heads[-2][1]
-                selected_profile = wrong_profile_head.receipt_manifest_profile_sha256
-                if not selected_profile or wrong_profile == selected_profile:
-                    raise AssertionError("candidate experiment ancestor profile is not testable")
-                head_scope = (
-                    wrong_profile_head.tenant_id,
-                    wrong_profile_head.cell_id,
-                    wrong_profile_head.run_id,
-                    wrong_profile_head.source_job_id,
-                    wrong_profile_head.route_id,
-                    wrong_profile_head.action_generation,
-                    wrong_profile_head.head_generation,
-                )
+            try:
+                wrong_profile_response = reader.get(path, headers=headers)
+            finally:
                 with sqlite3.connect(sqlite_path) as connection:
-                    updated = connection.execute(
+                    restored = connection.execute(
                         "UPDATE runtime_acquisition_action_heads "
                         "SET receipt_manifest_profile_sha256 = ? "
                         "WHERE tenant_id = ? AND cell_id = ? AND run_id = ? "
                         "AND source_job_id = ? AND route_id = ? "
                         "AND action_generation = ? AND head_generation = ?",
-                        (wrong_profile, *head_scope),
+                        (selected_profile, *head_scope),
                     ).rowcount
-                if updated != 1:
+                if restored != 1:
                     raise AssertionError(
-                        "candidate experiment wrong-profile control missed selected ancestor"
+                        "candidate experiment wrong-profile control did not restore selected ancestor"
                     )
-                try:
-                    wrong_profile_response = reader.get(path, headers=headers)
-                finally:
-                    with sqlite3.connect(sqlite_path) as connection:
-                        restored = connection.execute(
-                            "UPDATE runtime_acquisition_action_heads "
-                            "SET receipt_manifest_profile_sha256 = ? "
-                            "WHERE tenant_id = ? AND cell_id = ? AND run_id = ? "
-                            "AND source_job_id = ? AND route_id = ? "
-                            "AND action_generation = ? AND head_generation = ?",
-                            (selected_profile, *head_scope),
-                        ).rowcount
-                    if restored != 1:
-                        raise AssertionError(
-                            "candidate experiment wrong-profile control did not restore selected ancestor"
-                        )
-                if wrong_profile_response.status_code != 409:
-                    raise AssertionError(
-                        "candidate experiment wrong-profile reader did not fail closed: "
-                        f"{wrong_profile_response.status_code} {wrong_profile_response.text}"
-                    )
-                wrong_profile_code = wrong_profile_response.json().get("code")
-                if not isinstance(wrong_profile_code, str) or not wrong_profile_code:
-                    raise AssertionError("candidate experiment wrong-profile refusal was untyped")
-
-                terminal_evaluation = reopened_history.evaluation
-                if (
-                    terminal_evaluation is None
-                    or terminal_evaluation.selected.n5_result_ref is None
-                ):
-                    raise AssertionError("candidate experiment selected N5 result ref missing")
-                result_ref = terminal_evaluation.selected.n5_result_ref
-                result_blob_path, _result_manifest_path = reader_store._paths(
-                    artifacts.ArtifactID.model_validate(result_ref.artifact_id)
+            if wrong_profile_response.status_code != 409:
+                raise AssertionError(
+                    "candidate experiment wrong-profile reader did not fail closed: "
+                    f"{wrong_profile_response.status_code} {wrong_profile_response.text}"
                 )
-                result_payload = result_blob_path.read_bytes()
-                result_blob_path.unlink()
-                try:
-                    missing_result_response = reader.get(path, headers=headers)
-                    if missing_result_response.status_code != 409:
-                        raise AssertionError(
-                            "candidate experiment missing selected N5 result did not fail closed: "
-                            f"{missing_result_response.status_code} {missing_result_response.text}"
-                        )
-                    missing_result_code = missing_result_response.json().get("code")
-                    if not isinstance(missing_result_code, str) or not missing_result_code:
-                        raise AssertionError(
-                            "candidate experiment missing-result refusal was untyped"
-                        )
-                finally:
-                    result_blob_path.write_bytes(result_payload)
+            wrong_profile_code = wrong_profile_response.json().get("code")
+            if not isinstance(wrong_profile_code, str) or not wrong_profile_code:
+                raise AssertionError("candidate experiment wrong-profile refusal was untyped")
 
-                restored_action = read_current_action()
-                if (
-                    restored_action.status != expected_status
-                    or restored_action.evaluation_disposition != expected_disposition
-                    or restored_action.selected_evaluation != expected_evaluation
-                    or restored_action.blocker_reason != expected_reason
-                    or restored_action.selected_receipt_ref != terminal_ref
-                ):
+            terminal_evaluation = reopened_history.evaluation
+            if terminal_evaluation is None or terminal_evaluation.selected.n5_result_ref is None:
+                raise AssertionError("candidate experiment selected N5 result ref missing")
+            result_ref = terminal_evaluation.selected.n5_result_ref
+            result_blob_path, _result_manifest_path = reader_store._paths(
+                artifacts.ArtifactID.model_validate(result_ref.artifact_id)
+            )
+            result_payload = result_blob_path.read_bytes()
+            result_blob_path.unlink()
+            try:
+                missing_result_response = reader.get(path, headers=headers)
+                if missing_result_response.status_code != 409:
                     raise AssertionError(
-                        "candidate experiment restored result lost positive selection"
+                        "candidate experiment missing selected N5 result did not fail closed: "
+                        f"{missing_result_response.status_code} {missing_result_response.text}"
                     )
-                return restored_action
+                missing_result_code = missing_result_response.json().get("code")
+                if not isinstance(missing_result_code, str) or not missing_result_code:
+                    raise AssertionError("candidate experiment missing-result refusal was untyped")
+            finally:
+                result_blob_path.write_bytes(result_payload)
+
+            restored_action = read_current_action()
+            if (
+                restored_action.status != expected_status
+                or restored_action.evaluation_disposition != expected_disposition
+                or restored_action.selected_evaluation != expected_evaluation
+                or restored_action.blocker_reason != expected_reason
+                or restored_action.selected_receipt_ref != terminal_ref
+            ):
+                raise AssertionError("candidate experiment restored result lost positive selection")
+            return restored_action
 
 
 def run_candidate_experiment_served_execution(
@@ -929,6 +927,7 @@ def run_candidate_experiment_served_execution(
     before_first_delivery: Callable[[CandidateExperimentServedExecutionOwner, str], None]
     | None = None,
     recover_worker_crash: bool = False,
+    fresh_runtime_recovery: Callable[..., str] | None = None,
     wdi_response_value: float | None = None,
     source_profile: CandidateWDIProfile | None = None,
     wdi_response_bytes: bytes | None = None,
@@ -940,8 +939,11 @@ def run_candidate_experiment_served_execution(
     ``before_first_delivery`` runs after the execute POST and its requested head
     have been read back, immediately before the worker claims the queued job.
     Recovery mode is reserved for a test-owned one-shot ``KeyboardInterrupt``
-    at a durable writer boundary. The second delivery reclaims the same job
-    after the first worker lease expires.
+    at a durable writer boundary. By default, the second delivery reclaims the
+    same job through the original service after the first worker lease expires.
+    An explicit ``fresh_runtime_recovery`` callback can instead reopen the
+    runtime, perform the lease-expired retry there, and return the reclaimed
+    job ID.
     """
     from polisyos.core import artifacts
     from polisyos.runtime.http.services.acquisition_action_service import (
@@ -967,6 +969,8 @@ def run_candidate_experiment_served_execution(
         raise TypeError("candidate_experiment_served_control_owner_mismatch")
     if recover_worker_crash and before_first_delivery is None:
         raise ValueError("candidate_experiment_crash_probe_hook_missing")
+    if fresh_runtime_recovery is not None and not recover_worker_crash:
+        raise ValueError("candidate_experiment_fresh_runtime_recovery_without_crash_probe")
 
     store = control._artifact_store
     units_before = _standard_invocation_units(control=control, run_id=origin.run_id)
@@ -1325,7 +1329,7 @@ def run_candidate_experiment_served_execution(
                     lambda: _dispatch_crash_probe_once(
                         control=control,
                         expected_job_id=job_id,
-                        lease_seconds=1,
+                        lease_seconds=10 if fresh_runtime_recovery is not None else 1,
                     )
                 )
             except KeyboardInterrupt:
@@ -1353,16 +1357,29 @@ def run_candidate_experiment_served_execution(
             interrupted_units = _standard_invocation_units(control=control, run_id=origin.run_id)
             interrupted_transport_call_count = len(execution_owner.transport_calls)
             expiry = interrupted_job.lease_expires_at + timedelta(milliseconds=25)
-            remaining = (expiry - datetime.now(UTC)).total_seconds()
-            if remaining > 0:
-                sleep(remaining)
-            dispatched = dispatch_with_execution_observer(
-                lambda: dispatch_one_control_job(
-                    store=control._control_store,
-                    handler=control._process_control_job,
-                    expected_job_id=job_id,
+            if fresh_runtime_recovery is None:
+                remaining = (expiry - datetime.now(UTC)).total_seconds()
+                if remaining > 0:
+                    sleep(remaining)
+                dispatched = dispatch_with_execution_observer(
+                    lambda: dispatch_one_control_job(
+                        store=control._control_store,
+                        handler=control._process_control_job,
+                        expected_job_id=job_id,
+                    )
                 )
-            )
+            else:
+                dispatched = fresh_runtime_recovery(
+                    control=control,
+                    origin=origin,
+                    job_id=job_id,
+                    interrupted_job=interrupted_job,
+                    interrupted_outcome=interrupted_outcome,
+                    interrupted_units=interrupted_units,
+                    interrupted_transport_call_count=interrupted_transport_call_count,
+                    retry_expiry=expiry,
+                    execution_owner=execution_owner,
+                )
             if dispatched != job_id:
                 raise AssertionError("candidate experiment retry did not reclaim requested job")
             attempts = (interrupted_job.attempt, 2)

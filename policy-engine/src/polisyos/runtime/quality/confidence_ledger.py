@@ -10714,23 +10714,40 @@ def _source_facade_runtime_projection(
                             "selected source typing Literal binding differs: "
                             f"{provider_name}.{attribute}",
                         )
-                    try:
-                        expected_literal = ast.literal_eval(expression)
-                    except (ValueError, TypeError, SyntaxError, MemoryError):
-                        expected_literal = _source_immutable_constant_expression(expression)
+                    if isinstance(expression, ast.Tuple):
+                        expected_literal = _source_immutable_tuple_expression(
+                            expression,
+                            repo_root=repo_root,
+                            tree=provider_tree,
+                            module=provider_module,
+                            module_name=provider_name,
+                            visited=frozenset({(provider_name, attribute)}),
+                        )
                         if expected_literal is _SOURCE_DERIVATION_FAILED:
-                            expected_literal = _source_frozenset_literal_expression(
-                                expression,
-                                tree=provider_tree,
-                                module=provider_module,
-                                module_name=provider_name,
-                                repo_root=repo_root,
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                "selected source immutable tuple is unresolved: "
+                                f"{provider_name}.{attribute}",
                             )
+                    else:
+                        try:
+                            expected_literal = ast.literal_eval(expression)
+                        except (ValueError, TypeError, SyntaxError, MemoryError):
+                            expected_literal = _source_immutable_constant_expression(expression)
+                            if expected_literal is _SOURCE_DERIVATION_FAILED:
+                                expected_literal = _source_frozenset_literal_expression(
+                                    expression,
+                                    tree=provider_tree,
+                                    module=provider_module,
+                                    module_name=provider_name,
+                                    repo_root=repo_root,
+                                )
                     # Preserve the existing direct-route literal grammar: the
                     # folding-only AST budget must not turn a large immutable
                     # literal into an unchecked selected runtime value.
                     if (
-                        type(expected_literal) is frozenset
+                        type(expected_literal) is tuple
+                        or type(expected_literal) is frozenset
                         or _exact_literal_equal(expected_literal, expected_literal)
                     ) and not _exact_literal_equal(provider_value, expected_literal):
                         raise ConfidenceLedgerError(
@@ -13358,6 +13375,102 @@ def _source_immutable_constant_expression(node: ast.expr) -> object:
     return _SOURCE_DERIVATION_FAILED
 
 
+def _source_immutable_tuple_expression(
+    node: ast.expr,
+    *,
+    repo_root: Path,
+    tree: ast.Module,
+    module: types.ModuleType,
+    module_name: str,
+    visited: frozenset[tuple[str, str]] = frozenset(),
+    work_remaining: list[int] | None = None,
+    value_budget: list[int] | None = None,
+    value_depth: int = 0,
+) -> object:
+    """Read an ordered immutable tuple using the existing source-owned constant resolver."""
+
+    if not isinstance(node, ast.Tuple) or type(module) is not types.ModuleType:
+        return _SOURCE_DERIVATION_FAILED
+    if work_remaining is None:
+        work_remaining = [64]
+    if value_budget is None:
+        value_budget = [10000, 1024**2]
+
+    def read(expression: ast.expr, depth: int) -> object:
+        if depth + len(visited) > 40 or value_budget[0] <= 0:
+            return _SOURCE_DERIVATION_FAILED
+        if isinstance(expression, ast.Tuple):
+            value_budget[0] -= 1
+            if len(expression.elts) > value_budget[0]:
+                return _SOURCE_DERIVATION_FAILED
+            values = []
+            for item in expression.elts:
+                value = read(item, depth + 1)
+                if value is _SOURCE_DERIVATION_FAILED:
+                    return _SOURCE_DERIVATION_FAILED
+                values.append(value)
+            return tuple(values)
+        if isinstance(expression, ast.Name):
+            sites = _module_scope_direct_binding_sites(tree, expression.id)
+            if len(sites) != 1 or (
+                sites[0][1].lineno,
+                sites[0][1].col_offset,
+            ) >= (expression.lineno, expression.col_offset):
+                return _SOURCE_DERIVATION_FAILED
+            return _source_dataclass_named_constant(
+                expression.id,
+                repo_root=repo_root,
+                tree=tree,
+                module=module,
+                module_name=module_name,
+                visited=visited,
+                work_remaining=work_remaining,
+                canonical_imports_only=True,
+                value_budget=value_budget,
+                value_depth=depth,
+                tuple_members_only=True,
+            )
+        value = _source_immutable_constant_expression(expression)
+        if value is _SOURCE_DERIVATION_FAILED or (
+            _source_immutable_member_projection(value, budget=value_budget, depth=depth)
+            is _SOURCE_DERIVATION_FAILED
+        ):
+            return _SOURCE_DERIVATION_FAILED
+        return value
+
+    analysis = _active_integrity_analysis()
+    token = None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+        token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    try:
+        relative = _repository_module_source(repo_root, module_name)
+        origins = _source_loaded_module_origin_fields(module, expected_name=module_name)
+        if relative is None or origins is None:
+            return _SOURCE_DERIVATION_FAILED
+        source_path = analysis.bind_source_path(repo_root / relative)
+        if any(analysis.bind_source_path(Path(path)) != source_path for path in origins):
+            return _SOURCE_DERIVATION_FAILED
+        tree = analysis.source_tree(repo_root / relative)
+        # Use the expression in this exact source snapshot, even for a private
+        # standalone caller that parsed its input before opening the pass.
+        current = tuple(
+            item
+            for item in ast.walk(tree)
+            if isinstance(item, ast.Tuple)
+            and (item.lineno, item.col_offset) == (node.lineno, node.col_offset)
+        )
+        if len(current) != 1:
+            return _SOURCE_DERIVATION_FAILED
+        result = read(current[0], value_depth)
+        if token is not None:
+            analysis.assert_sources_unchanged()
+        return result
+    finally:
+        if token is not None:
+            _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
+
+
 def _source_frozenset_literal_expression(
     node: ast.expr,
     *,
@@ -13750,15 +13863,21 @@ def _source_dataclass_named_constant(
     visited: frozenset[tuple[str, str]] = frozenset(),
     work_remaining: list[int] | None = None,
     canonical_imports_only: bool = False,
+    value_budget: list[int] | None = None,
+    value_depth: int = 0,
+    tuple_members_only: bool = False,
 ) -> object:
     """Reconcile a finite source-owned immutable default through explicit imports."""
 
     if type(module) is not types.ModuleType:
         return _SOURCE_DERIVATION_FAILED
-    if work_remaining is not None:
-        if work_remaining[0] <= 0:
-            return _SOURCE_DERIVATION_FAILED
-        work_remaining[0] -= 1
+    if work_remaining is None:
+        work_remaining = [64]
+    if work_remaining[0] <= 0 or value_depth + len(visited) > 40:
+        return _SOURCE_DERIVATION_FAILED
+    work_remaining[0] -= 1
+    if value_budget is None:
+        value_budget = [10000, 1024**2]
     analysis = _active_integrity_analysis()
     token = None
     if analysis is None:
@@ -13774,6 +13893,9 @@ def _source_dataclass_named_constant(
             visited=visited,
             work_remaining=work_remaining,
             canonical_imports_only=canonical_imports_only,
+            value_budget=value_budget,
+            value_depth=value_depth,
+            tuple_members_only=tuple_members_only,
         )
         if token is not None:
             analysis.assert_sources_unchanged()
@@ -13793,6 +13915,9 @@ def _source_dataclass_named_constant_body(
     visited: frozenset[tuple[str, str]],
     work_remaining: list[int] | None,
     canonical_imports_only: bool,
+    value_budget: list[int],
+    value_depth: int,
+    tuple_members_only: bool,
 ) -> object:
     """Read constant declarations inside one shared source snapshot."""
 
@@ -13823,10 +13948,26 @@ def _source_dataclass_named_constant_body(
                 visited=visited | {key},
                 work_remaining=work_remaining,
                 canonical_imports_only=canonical_imports_only,
+                value_budget=value_budget,
+                value_depth=value_depth,
+                tuple_members_only=tuple_members_only,
             )
         else:
             expected = _source_immutable_constant_expression(expression)
-            if expected is _SOURCE_DERIVATION_FAILED:
+            tuple_read = expected is _SOURCE_DERIVATION_FAILED and isinstance(expression, ast.Tuple)
+            if tuple_read:
+                expected = _source_immutable_tuple_expression(
+                    expression,
+                    repo_root=repo_root,
+                    tree=tree,
+                    module=module,
+                    module_name=module_name,
+                    visited=visited | {key},
+                    work_remaining=work_remaining,
+                    value_budget=value_budget,
+                    value_depth=value_depth,
+                )
+            if expected is _SOURCE_DERIVATION_FAILED and not tuple_members_only:
                 expected = _source_frozenset_literal_expression(
                     expression,
                     tree=tree,
@@ -13834,6 +13975,17 @@ def _source_dataclass_named_constant_body(
                     module_name=module_name,
                     repo_root=repo_root,
                 )
+            if (
+                expected is not _SOURCE_DERIVATION_FAILED
+                and not tuple_read
+                and (
+                    _source_immutable_member_projection(
+                        expected, budget=value_budget, depth=value_depth
+                    )
+                    is _SOURCE_DERIVATION_FAILED
+                )
+            ):
+                return _SOURCE_DERIVATION_FAILED
     elif kind == "import_from" and isinstance(statement, ast.ImportFrom) and alias is not None:
         if (
             _source_import_binding(
@@ -13890,6 +14042,9 @@ def _source_dataclass_named_constant_body(
             visited=visited | {key},
             work_remaining=work_remaining,
             canonical_imports_only=canonical_imports_only,
+            value_budget=value_budget,
+            value_depth=value_depth,
+            tuple_members_only=tuple_members_only,
         )
     else:
         return _SOURCE_DERIVATION_FAILED
@@ -14066,7 +14221,7 @@ def _source_dataclass_values_equal(actual: object, expected: object, *, depth: i
             for left, right in zip(actual, expected, strict=True)
         )
     if type(actual) is frozenset:
-        return _source_frozenset_literals_equal(actual, expected)
+        return _source_immutable_container_literals_equal(actual, expected)
     if type(actual) is set:
         return _normalize_runtime_binding_value(actual, seen=set()) == (
             _normalize_runtime_binding_value(expected, seen=set())
@@ -16857,6 +17012,21 @@ def _source_module_direct_binding_route(
                 return "symbol", module_name, export_name
             module = sys.modules.get(module_name)
             if (
+                simple_target
+                and isinstance(value, ast.Tuple)
+                and type(module) is types.ModuleType
+                and _source_immutable_tuple_expression(
+                    value,
+                    repo_root=repo_root,
+                    tree=tree,
+                    module=module,
+                    module_name=module_name,
+                    visited=visited,
+                )
+                is not _SOURCE_DERIVATION_FAILED
+            ):
+                return "symbol", module_name, export_name
+            if (
                 value is not None
                 and type(module) is types.ModuleType
                 and _source_frozenset_literal_expression(
@@ -17312,12 +17482,8 @@ def _exact_literal_equal(actual: object, expected: object) -> bool:
 
     if type(actual) is not type(expected):
         return False
-    if type(actual) is tuple:
-        return len(actual) == len(expected) and all(
-            _exact_literal_equal(left, right) for left, right in zip(actual, expected, strict=True)
-        )
-    if type(actual) is frozenset:
-        return _source_frozenset_literals_equal(actual, expected)
+    if type(actual) is tuple or type(actual) is frozenset:
+        return _source_immutable_container_literals_equal(actual, expected)
     if type(actual) is float:
         return actual == actual and expected == expected and actual.hex() == expected.hex()
     if type(actual) in {str, int, bool, bytes, type(None)}:
@@ -17325,12 +17491,12 @@ def _exact_literal_equal(actual: object, expected: object) -> bool:
     return False
 
 
-def _source_frozenset_literals_equal(actual: object, expected: object) -> bool:
+def _source_immutable_container_literals_equal(actual: object, expected: object) -> bool:
     """Compare finite immutable members without coercion or unknown-object protocols."""
 
     if (
-        type(actual) is not frozenset
-        or type(expected) is not frozenset
+        (type(actual) is not tuple and type(actual) is not frozenset)
+        or type(actual) is not type(expected)
         or len(actual) != len(expected)
     ):
         return False

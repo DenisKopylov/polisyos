@@ -3031,7 +3031,7 @@ def _revalidate_candidate_experiment_reentry_owner(
         current_result.diagnostics.get("physical_work_capture_status") == "observed"
         and bool(current_event_ids)
         and len(current_event_ids) == len(set(current_event_ids))
-        and len(expected_event_ids) == len(set(expected_event_ids))
+        # Multiple trajectory roles can reference the same verified physical work.
         and current_event_ids
         and set(current_event_ids) == set(expected_event_ids)
     )

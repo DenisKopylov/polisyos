@@ -108,7 +108,7 @@ def test_live_baseline_spec_compiler_and_fresh_cas_replay_match_complete_patch_s
         agents=state.agents.replace(
             active=jnp.asarray([True, True, False, True] * 2),
             income=jnp.asarray([80.0, 40.0, 20.0, 100.0] * 2),
-            reported_income=jnp.asarray([40.0, 20.0, 10.0, 60.0] * 2),
+            reported_income=jnp.asarray([-40.0, 20.0, 10.0, 60.0] * 2),
         ),
         firms=state.firms.replace(wage_offer=jnp.asarray([20.0, 30.0])),
         government_balance=jnp.asarray(17.0),
@@ -176,6 +176,20 @@ def test_live_baseline_spec_compiler_and_fresh_cas_replay_match_complete_patch_s
         merge_registry=registry.merge_registry,
         default_node_id="baseline",
     )
+    if kind in {"income_tax", "tax_subsidy"}:
+        # This persisted-consumer oracle does not call the producer or its merge
+        # function. Negative reported income intentionally reverses the tax
+        # transfer; subsidy uses income instead of reported income.
+        delta = (
+            [10.0, -5.0, 0.0, -15.0] * 2 if kind == "income_tax" else [20.0, 10.0, 0.0, 25.0] * 2
+        )
+        revenue = 20.0 if kind == "income_tax" else -110.0
+        np.testing.assert_array_equal(patch["agents.income"][0]["delta"], delta)
+        assert float(patch["government.balance"][0]["delta"]) == revenue
+        expected = state.replace(
+            agents=state.agents.replace(income=state.agents.income + jnp.asarray(delta)),
+            government_balance=jnp.asarray(17.0 + revenue),
+        )
     first = execute_foundry(store, request)
     repeated = execute_foundry(FileSystemCAS(tmp_path / "cas"), request)
     assert first.ok and repeated.ok

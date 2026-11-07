@@ -1,0 +1,296 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          118,
+          141
+        ],
+        [
+          1231,
+          1247
+        ],
+        [
+          1770,
+          1918
+        ],
+        [
+          2112,
+          2188
+        ],
+        [
+          4361,
+          4395
+        ],
+        [
+          5271,
+          5284
+        ],
+        [
+          5851,
+          5897
+        ],
+        [
+          6107,
+          6230
+        ],
+        [
+          6427,
+          6772
+        ],
+        [
+          6959,
+          7072
+        ],
+        [
+          7113,
+          7314
+        ],
+        [
+          8533,
+          8616
+        ],
+        [
+          8623,
+          8653
+        ],
+        [
+          9522,
+          9742
+        ],
+        [
+          9765,
+          9777
+        ]
+      ],
+      "evidence_level": "Прочитаны complete lifecycle, SQL fencing, affected-row и transaction owners; весь 9806-строчный store не заявлен прочитанным. Unchanged selected methods исполнены над fixture schema/DTO/projection/outbox; настоящие sqlite3 transactions.",
+      "git_blob": "887546392bce0effb000bb3b035e512fe62f1184",
+      "sha256": "54a6c5df76067dd226c4c0af2159082c809c0add369bafb71e06307a1ca88b94",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          388
+        ]
+      ],
+      "evidence_level": "Полный worker прочитан; complete unchanged class извлечён и heartbeat/handler path исполнен. Store/diagnostics/tenant context fixtures, не full native worker service.",
+      "git_blob": "540bbae5e0550ce30116afbd6d6efce1eaf105f2",
+      "sha256": "f7d2990379ddbe57ef227287729aa2faefbd2dfab3961036433a401c18c9f852",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/fallback_runner.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/runner/fallback_runner.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          357
+        ]
+      ],
+      "evidence_level": "Полный actual fallback прочитан; complete class и classifier definitions исполнены. Primary/local backends и degraded-path sink fixtures.",
+      "git_blob": "69d37603673902f1d8574011aa95c62e76e5715d",
+      "sha256": "8f5dbc027028a0b1a693e3244621de46ec4c879348ae42a1c9ea31b5f1c5cedd",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_runner.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_runner.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          77
+        ]
+      ],
+      "evidence_level": "Полный native local adapter прочитан, не исполнен: AsyncWorkflowExecutor остается за пределами fixture runner.",
+      "git_blob": "3d789d27667fb75bbcac07e03a446a5255b31b82",
+      "sha256": "daf521c6b1f2085e251002aa3f32f90e94a2c0e27288cd2bfeb2b1db5be92496",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/protocol.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/runner/protocol.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          81
+        ]
+      ],
+      "evidence_level": "Полный protocol прочитан; actual RunnerHealth definition исполнено.",
+      "git_blob": "b1fae1845e669858d6f8df52ae546313e49b9f05",
+      "sha256": "10881937f7169527c4ba75074f87701b1f5b0bceb92fbb41c3fbe23223fd4c84",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/config.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/runner/config.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          129
+        ]
+      ],
+      "evidence_level": "Полный config прочитан; настройки backend/fallback не являются доказательством реально активного deployment.",
+      "git_blob": "0a1deb66a6a4cac9dc7874791d9c0dd7703faef1",
+      "sha256": "bf4e623a2a3db4cbb9863bbfc857352e9047d61ac5ae8037e95b9c238354d66f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/tests/unit/remediation/test_dur_02.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_dur_02.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          238
+        ]
+      ],
+      "evidence_level": "Полный regression прочитан; три unchanged fallback bodies 160–238 исполнены с fixture pytest helpers и backend owners. Остальные native test bodies не исполнены.",
+      "git_blob": "508abbb93c91cdc7fe5a69b8c180e2ff5b8c33ed",
+      "sha256": "9e9e1eeb0eab109210a27b422267c7973ff0364efde915c33afb1b4a2469e162",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/remediation/test_dur_02_process.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_dur_02_process.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          635
+        ]
+      ],
+      "evidence_level": "Полный process regression прочитан; реальные store/CAS/registered consumer scenarios здесь UNRUN, а не подменены isolated probes.",
+      "git_blob": "74c4e396a1732ccc1524a7ea47498a46ab536272",
+      "sha256": "35f48eb3182363408dbb02e4c57b4cdb01b37b6f6df4391f3753bdf975426b48",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/common/job_execution_interrupt.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/job_execution_interrupt.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          55
+        ]
+      ],
+      "evidence_level": "Полный guard прочитан и whole native module импортирован без подмены algorithm.",
+      "git_blob": "5d9840d6c77207b5fd6635bdbd36fe911f99b7b0",
+      "sha256": "6f126458b617ab5f020566c5f42a7609f6e1484ed7090c50d56669e99a30c9c4",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/runtime/http/errors.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/errors.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          438,
+          495
+        ]
+      ],
+      "evidence_level": "Три complete typed dependency exception definitions прочитаны и исполнены; sanitizer fixture. Остальной HTTP error stack не аттестован.",
+      "git_blob": "60d6c515876a626b527b298b43f35470a2f96773",
+      "sha256": "e5d1a642ca003f678539d470ebcf13615d0cf93fb758cb4fd631c5c8ebe33e42",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          296,
+          350
+        ],
+        [
+          2466,
+          2515
+        ]
+      ],
+      "evidence_level": "Соседние current scope и resume entry прочитаны; C65/RES-01 содержит самостоятельную bounded оценку checkpoint. Полного автоматического handover здесь не установлено.",
+      "git_blob": "c674b33a66c254b4cfd4a1e47a628960703ebb4f",
+      "sha256": "ef30d956f8aa58254bd8bd3a67c55e79d20c16e60497143d536576ec94103fe9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/core/errors/base.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/errors/base.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          81
+        ]
+      ],
+      "evidence_level": "Полный общий error owner прочитан; whole native core.errors импортирован.",
+      "git_blob": "ab56a6e4cc36ab91891415b25819cd70ef57c743",
+      "sha256": "f013683b373b4bf947dbdaf0b5e6fc4c830da6fa6b74ef431d59a215bbbeaaed",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          30
+        ]
+      ],
+      "evidence_level": "Supported Python/Pydantic baseline прочитан; окружение не соответствует полному native suite.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      8387,
+      8488
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "Свежий C72 после внешнего сохранения C71. Actual SQL/transaction, heartbeat и fallback definitions; fixture domain materialization, не native custody suite."
+}

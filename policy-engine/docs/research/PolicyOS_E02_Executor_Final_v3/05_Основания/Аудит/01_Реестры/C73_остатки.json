@@ -1,0 +1,69 @@
+{
+  "pass_id": "C73",
+  "bundle": "WIRE-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C73-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "confidence": "high_for_stdlib_public_codec",
+      "source_ids": [
+        "B94"
+      ],
+      "title": "Глубина escaped mapping считается неодинаково writer и reader",
+      "evidence": [
+        "S01:341–349",
+        "S01:757–784",
+        "S01:997–1017",
+        "S01:1022–1043",
+        "P03",
+        "P04"
+      ],
+      "actual": "В params.tree writer принимает 64 вложенных user mappings с обычным _type, но deserialize_state отказывает depth exceeds 128. Sweep 1–130: plain mappings writer/reader принимают до126, escaped writer до126, reader до63. Та же валидно записанная payload отказывает в plain/safe/outcome consumers.",
+      "remaining": "Согласовать семантическую глубину исходного дерева и служебных tag/entries оболочек у writer/reader. Сохранить bounded/cycle guards и escape обычного пользовательского _type. Приёмка должна проверять accepted-writer → accepted-reader на границе, а не только отказ слишком глубокого дерева; не лечить deterministic decode повторным вычислением.",
+      "limits": "Actual whole codec и реальные DTO, stdlib, без замены encoding/decoding. Не silent corruption и не инцидент deployment; пример имеет глубокую вложенность. orjson не установлен, его собственные nesting limits не квалифицированы."
+    },
+    {
+      "id": "C73-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B94"
+      ],
+      "title": "Второй JSON backend и полный native worker маршрут не исполнены",
+      "evidence": [
+        "S01:41–56",
+        "S07:100–167",
+        "S12:237–280",
+        "S13:449–503",
+        "P01",
+        "P09"
+      ],
+      "remaining": "В supported среде исполнить обе реальные backend ветви, actual worker decimal regression и проверку одного physical attempt при deterministic codec refusal. Общий LANE-06 сценарий должен сохранить budgets/union types/selected refs/outcome subtype и authority отдельно от digest.",
+      "limits": "orjson и pytest отсутствуют; Python/Pydantic вне pinned baseline. Whole codec/DTO source исполнен за initializer shells, не full native package graph. Отсутствие установки не дефект продукта; Ray/Temporal запуск не требуется для базового codec теста."
+    },
+    {
+      "id": "C73-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B94"
+      ],
+      "title": "Старая raw-envelope assertion расходится с current v2 regression",
+      "evidence": [
+        "S06:243–263",
+        "S07:171–190",
+        "S01:1149–1164",
+        "P01",
+        "P02",
+        "P09"
+      ],
+      "remaining": "Согласовать existing test ожидание с намеренным v2 envelope: проверить tag по value.inputs и отдельно сохранить legacy reader tests. После этого прогнать неизменный общий current/legacy/native набор, не возвращая writer к старой форме ради одного теста.",
+      "limits": "Зафиксирован KeyError inputs в unchanged test; отдельный P02 подтверждает настоящие typed ArtifactRef/ArtifactID и selector под current value envelope. Это test qualification drift, не доказанная потеря artifact ref или повод скрыть failed case."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C73-R01"
+  ],
+  "decision": "Decimal/bytes/typed refs и v2/safe contract реализованы и ограниченно подтверждены; escaped-depth residual, backend/native gaps и stale test assertion остаются."
+}

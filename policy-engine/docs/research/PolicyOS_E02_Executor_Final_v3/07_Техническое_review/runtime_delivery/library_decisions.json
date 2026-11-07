@@ -1,0 +1,364 @@
+{
+  "schema": "e02.final.runtime_delivery.libraries.v1",
+  "checked_date": "2026-11-01",
+  "policy": "No installs, upgrades or repository execution. Current docs distinguished from exact pinned sources.",
+  "sources": [
+    {
+      "id": "PY-ASYNC",
+      "url": "https://docs.python.org/3.14/library/asyncio-eventloop.html#asyncio.loop.call_soon_threadsafe",
+      "checked_date": "2026-11-01",
+      "section": "Scheduling callbacks: thread-safe handoff; closed loop RuntimeError",
+      "applicability": "Python3.14 family docs; не утверждаем runtime patch version",
+      "source_type": "primary"
+    },
+    {
+      "id": "ANYIO412",
+      "url": "https://raw.githubusercontent.com/agronholm/anyio/4.12.0/src/anyio/to_thread.py",
+      "checked_date": "2026-11-01",
+      "section": "run_sync23–47: abandon_on_cancel и CapacityLimiter",
+      "applicability": "Exact locked4.12.0 source, не текущая4.15 API",
+      "source_type": "primary"
+    },
+    {
+      "id": "PY-MP",
+      "url": "https://docs.python.org/3.14/library/multiprocessing.html#contexts-and-start-methods",
+      "checked_date": "2026-11-01",
+      "section": "Start methods: multithread fork risk;3.14 default changed; spawn importability",
+      "applicability": "3.14 baseline changes применимы; более поздние3.14.9 additions не опора решения",
+      "source_type": "primary"
+    },
+    {
+      "id": "JAX082",
+      "url": "https://raw.githubusercontent.com/jax-ml/jax/jax-v0.8.2/jax/_src/xla_bridge.py",
+      "checked_date": "2026-11-01",
+      "section": "_at_fork130–135: warning о JAX multithread deadlock",
+      "applicability": "Exact locked0.8.2",
+      "source_type": "primary"
+    },
+    {
+      "id": "SQLITE-WAL",
+      "url": "https://www.sqlite.org/wal.html",
+      "checked_date": "2026-11-01",
+      "section": "WAL advantages/disadvantages: same-host shared memory, checkpointing",
+      "applicability": "Stdlib sqlite3 available in principle; actual SQLite build/runtime not qualified",
+      "source_type": "primary"
+    },
+    {
+      "id": "SQLITE-SYNC",
+      "url": "https://www.sqlite.org/pragma.html#pragma_synchronous",
+      "checked_date": "2026-11-01",
+      "section": "synchronous FULL vs NORMAL; durability depends on journaling mode",
+      "applicability": "Proposed alternative only; не заменяет fsync-failure evidence текущего fileledger",
+      "source_type": "primary"
+    },
+    {
+      "id": "TEMPORAL",
+      "url": "https://docs.temporal.io/workflow-definition",
+      "checked_date": "2026-11-01",
+      "section": "Determinism and constraints; replay event-history compatible workflow code",
+      "applicability": "Conceptual comparison current official docs; temporalio not locked, existing adapter present",
+      "source_type": "primary"
+    },
+    {
+      "id": "LANGGRAPH",
+      "url": "https://docs.langchain.com/oss/python/langgraph/persistence",
+      "checked_date": "2026-11-01",
+      "section": "Checkpointer vs Store; RAM saver loses checkpoints at restart; retention",
+      "applicability": "Current docs conceptual; locked LangGraph1.0.5/checkpoint3.0.1, no latest APIs prescribed",
+      "source_type": "primary"
+    },
+    {
+      "id": "ORJSON3115",
+      "url": "https://github.com/ijl/orjson/tree/3.11.5",
+      "checked_date": "2026-11-01",
+      "section": "Deserialize:1024 nesting, GIL held; strict non-finite, typed serialization boundary",
+      "applicability": "Exact locked3.11.5",
+      "source_type": "primary"
+    },
+    {
+      "id": "JCS",
+      "url": "https://www.rfc-editor.org/info/rfc8785/",
+      "checked_date": "2026-11-01",
+      "section": "JCS I-JSON/ECMAScript number serialization and deterministic sorting",
+      "applicability": "Informational RFC; not byte-compatible replacement for historical typed PolicyOS canonical profiles",
+      "source_type": "primary"
+    },
+    {
+      "id": "CRYPTO4604",
+      "url": "https://cryptography.io/en/46.0.4/hazmat/primitives/asymmetric/ed25519/",
+      "checked_date": "2026-11-01",
+      "section": "sign/verify exact bytes; InvalidSignature; OpenSSL support boundary",
+      "applicability": "Exact locked46.0.4; doc does not establish tenant/trust/currentness",
+      "source_type": "primary"
+    },
+    {
+      "id": "TS-AST",
+      "url": "https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API",
+      "checked_date": "2026-11-01",
+      "section": "createSourceFile + forEachChild; syntax-only traversal needs no typechecker",
+      "applicability": "Existing resolved TypeScript5.9.3; do not copy changing TS7 API/upgrade",
+      "source_type": "primary"
+    },
+    {
+      "id": "ECMA",
+      "url": "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-object-initializer",
+      "checked_date": "2026-11-01",
+      "section": "PropertyDefinitionEvaluation3/7/9: computed vs noncomputed __proto__",
+      "applicability": "Stable language semantics; current living spec title not a Node22 test",
+      "source_type": "primary"
+    },
+    {
+      "id": "OPENAPI-FETCH",
+      "url": "https://openapi-ts.dev/openapi-fetch/api",
+      "checked_date": "2026-11-01",
+      "section": "createClient, querySerializer/pathSerializer, parseAs",
+      "applicability": "Current7.x site; existing dashboard lock openapi-fetch0.15.2, package ownership distinct",
+      "source_type": "primary"
+    },
+    {
+      "id": "BUILD",
+      "url": "https://build.pypa.io/en/stable/",
+      "checked_date": "2026-11-01",
+      "section": "PEP517 frontend invokes project backend; uv build equivalent standardized path",
+      "applicability": "Current docs1.6.1; existing Hatch backend/Q2, no installation/version change proposed",
+      "source_type": "primary"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "LIB-RD-01",
+      "packets": [
+        "EXE-01",
+        "RUN-01"
+      ],
+      "question": "Async delivery и cancellation owner",
+      "available_baseline": "stdlib concurrent.futures/asyncio; AnyIO4.12.0 locked",
+      "decision": "retain_current_owner_with_targeted_transport_adapter",
+      "alternatives": [
+        "asyncio transport-only adapter",
+        "AnyIO to_thread.run_sync",
+        "new executor/thread-per-callback"
+      ],
+      "reasoning": "Нужен не новый scheduler, а отделение системной доставки от arbitrary bounded callbacks. AnyIO правильно документирует неубиваемость thread, но не воспроизводит PolicyOS receipt/fence и physical-slot contract автоматически.",
+      "cost_and_compatibility": "Один небольшой адаптер дешевле замены admission/shutdown/context propagation. Обработать closedloop; один owner capacity. Никакого upgrade.",
+      "revisit_trigger": "Если будет общий переход приложения на AnyIO structured concurrency с доказанным owner contract, сравнить end-to-end, не в багфиксе.",
+      "required_evidence": "RD-01 threecaller completed-before-wrap matrix + queued/running cancel + bounded callbacks + context isolation.",
+      "source_ids": [
+        "PY-ASYNC",
+        "ANYIO412"
+      ]
+    },
+    {
+      "id": "LIB-RD-02",
+      "packets": [
+        "RUN-02",
+        "WIRE-01"
+      ],
+      "question": "Start method реального numerical timeout worker",
+      "available_baseline": "Python3.14; JAX0.8.2; Linuxfork/Darwinspawn existing code",
+      "decision": "qualify_warm_launch_and_reuse_closed_spawn_boundary_if_needed",
+      "alternatives": [
+        "existing fork under explicit safe launch profile",
+        "existing spawn task wire",
+        "controlled forkserver"
+      ],
+      "reasoning": "Fork наследует многопоточный image, это противоречит JAX warning; Python3.14 default change не исправляет явный fork. Spawn/forkserver предпочтительнее для safe numerical topology, но выбор зависит от actual closure serialization и cleanup.",
+      "cost_and_compatibility": "Spawn дороже startup; forkserver требует чистого сервера/preload; descendants cleanup и parent-issued receipts обязательны. Не простая замена одной строки.",
+      "revisit_trigger": "Warm-JAX qualification failure либо supported service topology действительно прогревает backend до fork.",
+      "required_evidence": "RD-04 native warmparent calculation; exacttransport; deadline and process-tree cleanup.",
+      "source_ids": [
+        "PY-MP",
+        "JAX082"
+      ]
+    },
+    {
+      "id": "LIB-RD-03",
+      "packets": [
+        "DUR-01",
+        "DUR-02"
+      ],
+      "question": "File budget ledger или transactional DB",
+      "available_baseline": "Existing stablelock/file snapshot ledger; stdlib sqlite3 possible; existing SQL lease owner",
+      "decision": "retain_narrow_file_fix; sqlite_only_measured_scale_decision",
+      "alternatives": [
+        "file fsync+readback confirmation",
+        "SQLite transactional receipts with uniqueness/WAL FULL",
+        "new distributed ledger"
+      ],
+      "reasoning": "DUR01 существующий ack defect устраняется подтверждением durability при повторном событии, не новым storage framework. Snapshot сериализует все receipts: N новых events размераO(N) дают суммарноO(N²) bytes. При реально большом ledger SQLite uniqueevent+transaction может быть проще и быстрее.",
+      "cost_and_compatibility": "SQLite требует migration/backup/recovery/legacy reader, explicit synchronous policy и same-host WAL limitation. Не даёт exactly-once внешнего эффекта; сохранять operation-ID/reconciliation. File fsync только named filesystem, не powerloss certificate.",
+      "revisit_trigger": "Измеренный рост latency/bytes/lock time на объявленном N превышает нужный workload budget; не абстрактное желание лучших технологий.",
+      "required_evidence": "Сравнение p50/p95 + bytes written + restart fault matrix + sameevent concurrent calls; actualFS profile и stale backup restore.",
+      "source_ids": [
+        "SQLITE-WAL",
+        "SQLITE-SYNC"
+      ]
+    },
+    {
+      "id": "LIB-RD-04",
+      "packets": [
+        "EXE-02",
+        "RES-01",
+        "RES-02",
+        "RES-03",
+        "DUR-02"
+      ],
+      "question": "Нужен ли новый durable workflow framework",
+      "available_baseline": "LangGraph1.0.5/checkpoint3.0.1 locked; Temporal adapter exists but temporalio absent from lock",
+      "decision": "retain_current_scheduler_checkpoint_and_fence_owners",
+      "alternatives": [
+        "existing CASCheckpointHook/idempotency",
+        "LangGraph durable checkpointer",
+        "existing optional Temporal adapter qualification"
+      ],
+      "reasoning": "Current checkpoint already carries origin/residual identity, current selected refs, successful frontier и spend/fence semantics. LangGraph checkpoint не эквивалентен этим правилам; RAM saver не durability. Temporal полезен для долгих distributed workflows, но потребует service/activities/idempotency/versioning, не решает научную authority.",
+      "cost_and_compatibility": "temporal_runner.py:77–83 прямо отказывает parent RunContext без serialized parent receipt route; нельзя сказать integration готова. Замена привнесёт second truth and migration большой стоимости. Existing scheduler narrow path fallback обоснован.",
+      "revisit_trigger": "Проверенный operational need многомашинного долговременного orchestration и согласованный owner plan; сначала существующий adapter, не новый.",
+      "required_evidence": "Producer→durable→newprocess resume, interrupted vs uninterrupted, exactcalls and effect receipts; external effect unknown remains unknown.",
+      "source_ids": [
+        "TEMPORAL",
+        "LANGGRAPH"
+      ]
+    },
+    {
+      "id": "LIB-RD-05",
+      "packets": [
+        "WIRE-01",
+        "CAN-01"
+      ],
+      "question": "Typed codec и canonical bytes",
+      "available_baseline": "Pydantic2.12.5/core2.41.5; orjson3.11.5; stdlib json; existing neutral CanonSpec",
+      "decision": "retain_existing_typed_protocol_and_shared_primitive",
+      "alternatives": [
+        "existing typed tags with backend matrix",
+        "raw orjson/model_dump_json",
+        "RFC8785 JCS as separately versioned interoperability profile"
+      ],
+      "reasoning": "Decimal/bytes/artifact refs/journal distinctions не заменяются общей JSON библиотекой. Semantic depth не parserdepth; orjson hard ceiling1024 требует отдельно проверить physical encoding growth. JCS полезен для межъязыковой совместимости, но другие numeric/tag/null правила меняют historical hashes.",
+      "cost_and_compatibility": "Не менять default0.2 и enrolled0.3 policy IDs ради унификации. Pydantic coercion не oracle exact wire type. Нужны both stdlib/orjson boundaries и физические bytes/element limits; GIL backend важен для loop latency.",
+      "revisit_trigger": "Реальный interop consumer требует JCS либо measured serialization cost показывает bottleneck; новая versioned profile, не reinterpret old IDs.",
+      "required_evidence": "Exact historical bytes, typed roundtrip + malformed/duplicate tags, depthlimit-1/limit/+1, broadpayload bytes, current producer conformance distinct legacyread.",
+      "source_ids": [
+        "ORJSON3115",
+        "JCS"
+      ]
+    },
+    {
+      "id": "LIB-RD-06",
+      "packets": [
+        "CAS-01",
+        "CAS-02",
+        "CAS-03"
+      ],
+      "question": "CAS integrity/signature/publication",
+      "available_baseline": "Existing CAS/provenance selectedviews and cryptography46.0.4",
+      "decision": "retain_owner_and_audited_crypto_primitive",
+      "alternatives": [
+        "existing cryptography verifier",
+        "homegrown signature",
+        "replacement generic object store"
+      ],
+      "reasoning": "Повторно использовать криптографический backend, не писать алгоритм подписи. Но verify(signature,data) подтверждает только математическое соответствие bytes/key: trust, scope, selected profile, caller authority и snapshot lifecycle остаются у owner.",
+      "cost_and_compatibility": "CAS directory publish/retained generation имеет platformFS semantics. New storage SDK не устраняет чужую latewrite/rmtree race; retention занимает диск и должна быть bounded. Oneblob multiview не tenantpermission.",
+      "revisit_trigger": "Реальная multi-host/differentFS delivery потребует отдельного storage profile; не обещать его по локальным тестам.",
+      "required_evidence": "Actual crypto + tamper/wrongkey/profile; pre/postreplace fault; foreignlatefile retained; request authorization loss; completed/notrun census.",
+      "source_ids": [
+        "CRYPTO4604",
+        "SQLITE-SYNC"
+      ]
+    },
+    {
+      "id": "LIB-RD-07",
+      "packets": [
+        "MIG-01",
+        "MIG-02",
+        "MIG-04",
+        "MIG-05",
+        "DFK-01"
+      ],
+      "question": "Migration machinery",
+      "available_baseline": "Existing Common linear engine, IR profile, DataForge deterministic BFS",
+      "decision": "retain_existing_profile_separation_no_new_framework",
+      "alternatives": [
+        "shared linear mechanics with domainprofiles",
+        "DataForge graph BFS for branching",
+        "universal migration engine/Alembic-like DB schema framework"
+      ],
+      "reasoning": "Linear step, graph shortestpath, path-only Runtime normalization и Fabric format mapping — разные задачи. Унификация copy/stamp/identity даёт поведенческий regressions. SQL schema migration toolkit не является заменой payload/semantic identity.",
+      "cost_and_compatibility": "DataForge _outgoing scans graph each BFS step, potentiallyO(VE) + sorting; acceptable finite registry, adjacency index оправдан после measurements. Mutable Python closure identity ограничить явно; no universal behaviorhash.",
+      "revisit_trigger": "Значительный реальный graph size или новый common semantic profile, не число маленьких файлов.",
+      "required_evidence": "Two-step/missingedge/failurecopy/no-op/cycle/tie-order; actualDTO after conversion; immutable historical corpus and installed owner.",
+      "source_ids": [
+        "BUILD",
+        "JCS"
+      ]
+    },
+    {
+      "id": "LIB-RD-08",
+      "packets": [
+        "CLI-01"
+      ],
+      "question": "Architecture parser",
+      "available_baseline": "Package-owned TypeScript ^5.7.3 resolves5.9.3; existing regexchecker",
+      "decision": "use_existing_TypeScript_AST",
+      "alternatives": [
+        "createSourceFile/forEachChild",
+        "regexpatch",
+        "additional Babel/Acorn/dependency-cruiser stack"
+      ],
+      "reasoning": "AST различает actualimports и строковые decoys без второго парсера. Для narrow syntactic policy typechecker не нужен. Ошибки parse должны быть violations; interpolation expressions обходить, string payload не считать import.",
+      "cost_and_compatibility": "Рекурсивный AST pass O(source size); finite allowedfiles и module specifiers сохраняются. Runtime client не получает typescript dependency: tool-only owner.",
+      "revisit_trigger": "Если потребуются resolution/alias/re-export graph semantics за пределами syntax contract, тогда evaluate checker расширение отдельно.",
+      "required_evidence": "Legitimate generator/imports pass; comments/strings harmless; real dynamic/importequals/export violations; nonliteral policy explicit; parsererror negative.",
+      "source_ids": [
+        "TS-AST"
+      ]
+    },
+    {
+      "id": "LIB-RD-09",
+      "packets": [
+        "CLI-01"
+      ],
+      "question": "Custom client generator или openapi-fetch",
+      "available_baseline": "openapi-typescript7.13.0 pinned; openapi-fetch0.15.2 already dashboard dependency; Node22",
+      "decision": "targeted_generator_fix_now; evaluate_typed_fetch_adapter_for_broader_protocol",
+      "alternatives": [
+        "existing named RuntimeApiClient ABI",
+        "package-owned openapi-fetch + thin ABI adapter",
+        "another generated client framework"
+      ],
+      "reasoning": "Имеющийся client узок: GET + selected POST, primitive repeatedarray query, binary control. Исправление safekeys дешевле замены. Для расширения OpenAPI style/explode/path-item inheritance handwritten renderer дорожает; openapi-fetch — realistic уже знакомая library с typed paths/serialization.",
+      "cost_and_compatibility": "Dashboard dependency не даёт право runtimeclient импортировать dashboard; потребовалась бы own directdependency/lock approval. API data/error versus current throwing errors и named methods различаются; canonicalizer/3outputs/private raw ABI сохранить или отдельно версионировать. Types не runtime validation/authority.",
+      "revisit_trigger": "Actual accepted schemas требуют нескольких новых serialization families либо repeated generator defects; benchmark одно broadened schema на currentlibrary/pinned alternative.",
+      "required_evidence": "RD02 adversarialkeys, optionalabsence, arrays/query style declaration, header/body/binary/error roundtrip, customselectedschema consumed by allstages.",
+      "source_ids": [
+        "ECMA",
+        "OPENAPI-FETCH"
+      ]
+    },
+    {
+      "id": "LIB-RD-10",
+      "packets": [
+        "DFK-01",
+        "HYG-02",
+        "HYG-04"
+      ],
+      "question": "Packaging proof и bootstrap",
+      "available_baseline": "Hatchling backend>=1.27.0; existing Q2 wheel→sdist→rebuiltwheel origin harness; bootstrap CommandSpec recorder",
+      "decision": "reuse_Q2_and_existing_build_backend",
+      "alternatives": [
+        "existing PEP517 build frontend/Hatch",
+        "uvbuild if already declared profile",
+        "new packaging wrapper framework"
+      ],
+      "reasoning": "PyPA build frontend и uvbuild стандартизуют вызов backend, но не доказывают installed origin/resources. Existing Q2 binding делает полезную независимую проверку actualwheel bytes/RECORD/import origins; не заменять import-from-checkout.",
+      "cost_and_compatibility": "Один CP6 build window на совместимый artifact, не build каждогоalias. NativeJAX/pyarrow/duckdb wheels профили требуют фактической qualified среды; наличиеlock не installedPASS. Recorderbootstrap не installer и не full numerical demo.",
+      "revisit_trigger": "Только невозможность существующего packagingowner покрыть named profile/realwheel issue. Не устанавливать dependencies в этой review phase.",
+      "required_evidence": "Neutral CWD/noneditable prefix; noPYTHONPATH, provenance/RECORD checks, requiredresources, retiredFQN negatives; fresh subprocess earlyJAX override and laterbounded workload separately.",
+      "source_ids": [
+        "BUILD",
+        "JAX082"
+      ]
+    }
+  ]
+}

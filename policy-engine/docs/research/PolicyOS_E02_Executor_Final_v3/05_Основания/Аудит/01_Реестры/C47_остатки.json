@@ -1,0 +1,66 @@
+{
+  "pass": "C47",
+  "bundle": "CAL-05",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C47-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B185"
+      ],
+      "title": "Настоящие JAX transforms и callback-based numerical non-execution не повторены",
+      "evidence": [
+        "S01:537–743",
+        "S05:304–845",
+        "P01",
+        "P02",
+        "P11",
+        "P12",
+        "P13",
+        "P20",
+        "native_attempt.log",
+        "jax_attempt.log"
+      ],
+      "remaining": "На поддержанном dependency profile выполнить existing semantics suite: inactive identity gradient=1, active log gradient=1.5, JIT, Hessian, shared-schedule vmap, mapped-predicate refusal и scalar lax.map. Наблюдать jax.debug.callback с effects barrier, а не только Python emitter counter.",
+      "limits": "20 bounded MATCH используют actual eager bodies, NumPy и scripted keys. Ни настоящий jax.grad, ни JIT, ни vmap, ни scan/map не запускались; native pytest и JAX отсутствуют. Source-level test expectations не выданы за actual PASS."
+    },
+    {
+      "id": "C47-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B185"
+      ],
+      "title": "Нейтральная patch структура требует квалификации каждого допускаемого producer contract",
+      "evidence": [
+        "S01:553–586",
+        "S01:703–729",
+        "S01:785–800",
+        "P07",
+        "P18",
+        "S05:846–1074"
+      ],
+      "remaining": "В existing compile/runtime owner подтверждать согласованность output slots, record keys/count, shapes/dtypes для фактически разрешённых механизмов и receiving states; исполнять native eval_shape/cond controls на реальном каталоге. Не вызывать численно inactive emitter ради получения шаблона.",
+      "limits": "Canonical IncomeTax для float32 receiving state совпал по patch signatures; четыре merge kinds сохраняют inactive state в eager fixture. Универсальная совместимость любых emitters/чисел patch records и dtype transitions не доказана. Конкретный admissible native mismatch не воспроизведён, поэтому это не R-дефект."
+    },
+    {
+      "id": "C47-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B185"
+      ],
+      "title": "Корректное расписание synthetic scan не аттестует научную calibration capability",
+      "evidence": [
+        "S03:264–333",
+        "S03:1956–1975",
+        "S03:2749–2795",
+        "P10"
+      ],
+      "remaining": "Сохранять существующую связь compile bundle→scan либо ordered scalar rows→target loss. Квалифицировать actual calibration consumer и сохранённый report/input basis отдельно от исправления numerical inactivity; не выдавать synthetic traces за независимые наблюдения.",
+      "limits": "Соседние consumer functions прочитаны, optimizer/full report/CAS/native execution и эмпирическая валидность не запускались. Отсутствие универсального deterministic model inventor не относится к B185 и не объявляется багом."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "Исходный unconditional emitter repair существует; eager controls подтверждают пропуск, dependency/merge/key preservation. Нового локального дефекта не установлено; native JAX acceptance остаётся незакрытой."
+}

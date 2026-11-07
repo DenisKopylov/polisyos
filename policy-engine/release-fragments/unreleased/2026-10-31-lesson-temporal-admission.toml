@@ -1,0 +1,14 @@
+id = "2026-10-31-lesson-temporal-admission"
+title = "Bind lesson reads to evidence time and distinct partial results"
+type = "fixed"
+component = "scientist"
+owner = "team-polisyos"
+summary = "Lesson queries bind one aware as-of cutoff across local and transfer routes, refuse future selected evidence, preserve actual retention clocks and deduplicate original evidence before partial-result materialization."
+evidence = ["tests/unit/scientist/search/test_lesson_as_of.py", "tests/unit/scientist/search/test_lesson_partial_consumer.py", "tests/unit/scientist/search/test_lessons.py", "tests/unit/scientist/search/test_lesson_transfer.py"]
+compatibility = "The optional as_of field defaults to actual query time unless the target timestamp was explicitly supplied; conflicting declarations refuse. New CAS index writes retain required nullable source-scope fields. Existing card/index schemas and selected source-scope admission remain unchanged."
+change_class = "internal"
+surface_classification = "internal: lesson query and transfer"
+migration_docs = ["src/polisyos/scientist/methods/search/README.md"]
+limitations = "Time and evidence identity do not establish scientific revalidation, tenant authority, issuer provenance or completion of all T2 criteria."
+public_surface_inventory_reviewed = true
+generated_client_compatibility = "not_applicable"

@@ -11,18 +11,25 @@ from polisyos.runtime.quality import agent_action_authority as authority
 from tests.unit.runtime.quality import test_agent_action_authority as fixtures
 
 
-def _source_case(tmp_path, monkeypatch, *, acquisition=True):
+def _source_case(tmp_path, monkeypatch, *, acquisition=True, action_kind=None):
     monkeypatch.setattr(authority, "_utcnow", lambda: fixtures.NOW)
     harness = fixtures._harness(tmp_path)
-    kind = authority.ACQUISITION_ACTION_KIND if acquisition else "search"
-    operation = fixtures._operation(kind if acquisition else "agent.outside-envelope")
+    if action_kind is not None:
+        kind = action_kind
+    elif acquisition:
+        kind = authority.ACQUISITION_ACTION_KIND
+    else:
+        kind = "search"
+    operation_id = kind if acquisition else "agent.outside-envelope"
+    envelope_operation_id = kind if acquisition else "agent.search"
+    operation = fixtures._operation(operation_id)
     invocation = fixtures._invocation(operation)
     permission = (
         RuntimePermission.EVIDENCE_ACQUIRE if acquisition else RuntimePermission.KNOWLEDGE_SEARCH
     )
     envelope = fixtures._envelope(
         action_kind=kind,
-        operation_id=kind if acquisition else "agent.search",
+        operation_id=envelope_operation_id,
         permission=permission,
     )
     contract = fixtures._contract(envelope)
@@ -103,11 +110,87 @@ def _source_case(tmp_path, monkeypatch, *, acquisition=True):
     }, effects
 
 
-@pytest.mark.parametrize("acquisition", [True, False])
-def test_ds9_joins_actual_pre_human_source_classes(tmp_path, monkeypatch, acquisition):
-    case, effects = _source_case(tmp_path, monkeypatch, acquisition=acquisition)
+def _retarget_source_tuple(case, *, action_kind, operation_id):
+    """Keep the selected envelope aligned while challenging the exact action tuple."""
+    source = case["source"]
+    contract = case["contract"]
+    envelopes = tuple(
+        envelope.model_copy(update={"action_kind": action_kind, "operation_id": operation_id})
+        if envelope.envelope_id == source.envelope_id
+        else envelope
+        for envelope in contract.action_envelopes
+    )
+    assert len(envelopes) == len(contract.action_envelopes)
+    assert any(envelope.envelope_id == source.envelope_id for envelope in envelopes)
+    case["contract"] = contract.model_copy(update={"action_envelopes": envelopes})
+    case["source"] = source.model_copy(
+        update={"action_kind": action_kind, "operation_id": operation_id}
+    )
+
+
+@pytest.mark.parametrize(
+    ("acquisition", "action_kind"),
+    [
+        (True, authority.ACQUISITION_ACTION_KIND),
+        (True, authority.CANDIDATE_EXPERIMENT_ACTION_KIND),
+        (False, None),
+    ],
+)
+def test_ds9_joins_actual_pre_human_source_classes(tmp_path, monkeypatch, acquisition, action_kind):
+    case, effects = _source_case(
+        tmp_path,
+        monkeypatch,
+        acquisition=acquisition,
+        action_kind=action_kind,
+    )
     _, issues = _pa2_packet_join_issues(**case)
     assert not issues, issues
+    assert effects == []
+
+
+@pytest.mark.parametrize(
+    ("action_kind", "operation_id"),
+    [
+        (authority.CANDIDATE_EXPERIMENT_ACTION_KIND, authority.ACQUISITION_ACTION_KIND),
+        (authority.ACQUISITION_ACTION_KIND, authority.CANDIDATE_EXPERIMENT_ACTION_KIND),
+        (authority.CANDIDATE_EXPERIMENT_ACTION_KIND, "runtime.evidence.acquisition.other"),
+        ("runtime.evidence.acquisition.other", authority.CANDIDATE_EXPERIMENT_ACTION_KIND),
+        ("runtime.evidence.acquisition.other", "runtime.evidence.acquisition.other"),
+    ],
+)
+def test_ds9_acquisition_sources_require_exact_action_tuple(
+    tmp_path, monkeypatch, action_kind, operation_id
+):
+    case, effects = _source_case(
+        tmp_path,
+        monkeypatch,
+        action_kind=authority.CANDIDATE_EXPERIMENT_ACTION_KIND,
+    )
+    _retarget_source_tuple(case, action_kind=action_kind, operation_id=operation_id)
+
+    _, issues = _pa2_packet_join_issues(**case)
+
+    assert "source" in issues
+    assert effects == []
+
+
+def test_ds9_candidate_experiment_classifier_removal_refuses_candidate_source(
+    tmp_path, monkeypatch
+):
+    case, effects = _source_case(
+        tmp_path,
+        monkeypatch,
+        action_kind=authority.CANDIDATE_EXPERIMENT_ACTION_KIND,
+    )
+    monkeypatch.setattr(
+        authority,
+        "CANDIDATE_EXPERIMENT_ACTION_KIND",
+        "runtime.evidence.acquisition.candidate_experiment.removed",
+    )
+
+    _, issues = _pa2_packet_join_issues(**case)
+
+    assert "source" in issues
     assert effects == []
 
 

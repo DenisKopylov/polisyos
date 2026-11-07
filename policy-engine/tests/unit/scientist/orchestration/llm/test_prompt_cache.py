@@ -272,7 +272,11 @@ class TestCachingLLMClient:
         assert first is not second
 
     @pytest.mark.asyncio
-    async def test_pi_distinct_operations_do_not_reuse_same_content_response(self):
+    @pytest.mark.parametrize("temperature", [None, 0.0], ids=["unknown-default", "explicit-zero"])
+    @pytest.mark.parametrize("preserve_cache_disable", [True, False], ids=["disable", "removal"])
+    async def test_pi_distinct_operations_do_not_reuse_same_content_response(
+        self, temperature, preserve_cache_disable
+    ):
         class _PIResponseClient:
             def __init__(self) -> None:
                 self.calls: list[dict[str, object]] = []
@@ -299,18 +303,49 @@ class TestCachingLLMClient:
             model="m",
             ttl_s=3600,
         )
-        agent = LLMPIAgent(cached)
+        emitted: list[dict[str, object]] = []
+
+        class _ControlledCall:
+            async def generate(self, **kwargs):
+                # Observe the actual PI request before the cache strips its
+                # private control from the provider-bound call.
+                emitted.append(dict(kwargs))
+                if temperature is not None:
+                    kwargs["temperature"] = temperature
+                if not preserve_cache_disable:
+                    kwargs["metadata"] = {}
+                return await cached.generate(**kwargs)
+
+        agent = LLMPIAgent(_ControlledCall())
 
         frame = await agent.create_problem_frame("Improve access")
         tasks = await agent.decompose_task("Improve access")
 
         assert frame.problem_statement == "Improve access"
-        assert [(task.task_id, task.description) for task in tasks] == [
-            ("task-1", "Map access barriers")
-        ]
-        assert len(provider.calls) == 2
+        assert len(emitted) == 2
+        assert emitted[0]["user"] == emitted[1]["user"]
+        assert emitted[0]["system"] == emitted[1]["system"]
+        assert all(call["metadata"] == {"cacheable": False} for call in emitted)
         assert all("cacheable" not in call.get("metadata", {}) for call in provider.calls)
-        assert cached._cache.stats()["skip_reasons"] == {"cache_disabled_by_metadata": 2}
+        if temperature == 0.0 and not preserve_cache_disable:
+            # Removal control: without PI's explicit disable, the exact same
+            # zero-temperature request reuses the wrong operation's result.
+            assert not tasks
+            assert len(provider.calls) == 1
+            assert cached._cache.size == 1
+            assert cached._cache.stats()["hits"] == 1
+        else:
+            assert [(task.task_id, task.description) for task in tasks] == [
+                ("task-1", "Map access barriers")
+            ]
+            assert len(provider.calls) == 2
+            assert cached._cache.size == 0
+            reason = (
+                "sampling_policy_not_established"
+                if temperature is None
+                else "cache_disabled_by_metadata"
+            )
+            assert cached._cache.stats()["skip_reasons"] == {reason: 2}
 
     @pytest.mark.asyncio
     async def test_cache_hits_do_not_share_mutable_response_state(self):

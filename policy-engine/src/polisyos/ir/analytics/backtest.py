@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping
 from enum import Enum
 from typing import Any, Literal
 
@@ -17,7 +18,7 @@ from polisyos.ir.artifacts import ArtifactStore, InputRef  # noqa: TC001
 from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
-from polisyos.ir.registry.refs import BacktestReportRef
+from polisyos.ir.registry.refs import ArtifactRefModel, BacktestReportRef
 
 
 class BiasDirection(str, Enum):
@@ -767,6 +768,16 @@ class BacktestReport(BaseModel):
             )
         )
 
+    def _withhold_unreconciled_source_trust(self) -> None:
+        """Limit trust where forecast and holdout provenance cannot be replayed."""
+        self.metadata["source_reconciliation_status"] = "not_established"
+        self.degraded = True
+        if "backtest_source_not_established" not in self.degraded_reasons:
+            self.degraded_reasons.append("backtest_source_not_established")
+        self.trust_eligible = False
+        self.trust_score = None
+        self.trust_grade = None
+
     def _refuse_unbound_legacy_trust(self) -> None:
         """Keep legacy reports readable while removing trust that lacks source binding."""
         self.trust_eligible = False
@@ -842,17 +853,102 @@ def persist_backtest_report(
     return BacktestReportRef.model_validate(ref)
 
 
-def load_backtest_report(store: ArtifactStore, ref: BacktestReportRef) -> BacktestReport:
-    """Load a backtest report after owner and profile admission."""
+class NativeBacktestVerificationRequiredError(ValueError):
+    """A selected native report needs its higher-layer trajectory verifier."""
+
+
+def load_backtest_report_candidate(store: ArtifactStore, ref: BacktestReportRef) -> BacktestReport:
+    """Load owner-admitted report bytes for verification, without native authority.
+
+    This candidate read alone does not establish native prediction, workflow, or
+    cohort consistency. Consumers must use the native verifier before use.
+    """
     return _get_owned_json_artifact(store, ref, owner=_BACKTEST_REPORT_OWNER)
+
+
+def load_backtest_report(store: ArtifactStore, ref: BacktestReportRef) -> BacktestReport:
+    """Load a report, refusing native sources without higher-layer verification."""
+    report = load_backtest_report_candidate(store, ref)
+    native_fields = {
+        "native_forecast_ref",
+        "native_replica_projection",
+        "native_request_ref",
+        "native_forecast_purpose",
+        "native_workflow_status",
+        "native_workflow_failures",
+        "native_foundry_step_count",
+        "native_randomness_scope",
+        "native_limitations",
+        "native_requested_replicas",
+        "native_started_replicas",
+        "native_requested_count_status",
+        "native_started_count_status",
+    }
+    if (
+        any(native_fields.intersection(item.metadata) for item in report.scenarios)
+        or report.prediction_mode_effective in {"scientist_candidate", "scientist_unavailable"}
+        or any(
+            item.metadata.get("prediction_source_effective")
+            in {"scientist_candidate", "scientist_unavailable"}
+            for item in report.scenarios
+        )
+        or any(
+            reason.startswith("native_") or ": native_" in reason
+            for reason in report.degraded_reasons
+        )
+    ):
+        raise NativeBacktestVerificationRequiredError(
+            "native_backtest_requires_trajectory_verification"
+        )
+
+    def field(value: object, name: str) -> object:
+        return value.get(name) if isinstance(value, Mapping) else getattr(value, name, None)
+
+    def input_edges(value: object) -> list[object] | tuple[object, ...]:
+        edges = field(value, "inputs")
+        if edges is None:
+            return ()
+        if not isinstance(edges, (list, tuple)):
+            raise ValueError("backtest_report_manifest_inputs_invalid")
+        return edges
+
+    manifest = store.get_manifest(ref)
+    for edge in input_edges(manifest):
+        role = field(edge, "role")
+        if isinstance(role, str) and role.startswith("native_forecast:"):
+            raise NativeBacktestVerificationRequiredError(
+                "native_backtest_requires_trajectory_verification"
+            )
+        profile = field(edge, "manifest_profile_sha256")
+        if isinstance(role, str) and role.startswith("replica_cohort:") and profile is not None:
+            cohort = store.get_manifest(
+                ArtifactRefModel(
+                    artifact_id=field(edge, "artifact_id"),
+                    kind="scientist.backtest.replica_cohort",
+                    media_type="application/json",
+                    manifest_profile_sha256=profile,
+                )
+            )
+            for item in input_edges(cohort):
+                cohort_role = field(item, "role")
+                if isinstance(cohort_role, str) and (
+                    cohort_role == "native_plan" or cohort_role.startswith("native_forecast:")
+                ):
+                    raise NativeBacktestVerificationRequiredError(
+                        "native_backtest_requires_trajectory_verification"
+                    )
+    report._withhold_unreconciled_source_trust()
+    return report
 
 
 __all__ = [
     "BacktestReport",
     "BacktestScenario",
     "BiasDirection",
+    "NativeBacktestVerificationRequiredError",
     "OutcomeComparison",
     "SystematicBias",
     "load_backtest_report",
+    "load_backtest_report_candidate",
     "persist_backtest_report",
 ]

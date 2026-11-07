@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Callable, Mapping
 from statistics import NormalDist
+from typing import Any
 
 import jax
 import jax.numpy as jnp
@@ -24,6 +26,44 @@ from polisyos.ir.analytics.uncertainty import (
 from .config import PropagationConfig
 from .covariance import build_covariance_matrix, has_unknown_dependency, joint_dependency_assurance
 from .protocol import PropagationResult, _validate_effective_inputs
+
+
+class _DeltaNumericDomainError(ValueError):
+    """The selected delta coordinate cannot be represented in its declared domain."""
+
+
+def _prepare_delta_nominal(
+    effective_nominal: Mapping[str, float],
+    param_names: list[str],
+) -> tuple[jnp.ndarray, dict[str, Any], dict[str, object]]:
+    """Use the actual float32 coordinate domain for probe and differentiation."""
+    try:
+        requested = [float(effective_nominal[name]) for name in param_names]
+        float32_max = float.fromhex("0x1.fffffep+127")
+        if any(not math.isfinite(value) or abs(value) > float32_max for value in requested):
+            raise _DeltaNumericDomainError("delta nominal coordinates must be finite in float32")
+        vector = jnp.asarray(requested, dtype=jnp.float32)
+        represented = [float(vector[index]) for index in range(len(param_names))]
+    except _DeltaNumericDomainError:
+        raise
+    except (OverflowError, TypeError, ValueError) as exc:
+        raise _DeltaNumericDomainError(
+            "delta nominal coordinates must be representable as float32"
+        ) from exc
+    if not all(math.isfinite(value) for value in represented):
+        raise _DeltaNumericDomainError("delta nominal coordinates must be finite in float32")
+    nominal_inputs: dict[str, Any] = dict(effective_nominal)
+    nominal_inputs.update({name: vector[index] for index, name in enumerate(param_names)})
+    profile: dict[str, object] = {
+        "varying_coordinate_dtype": "float32",
+        "fixed_input_coercion": "none",
+        "lossy_nominal_coordinates": [
+            name
+            for name, source, actual in zip(param_names, requested, represented, strict=True)
+            if source != actual
+        ],
+    }
+    return vector, nominal_inputs, profile
 
 
 class DeltaMethodPropagator:
@@ -65,25 +105,6 @@ class DeltaMethodPropagator:
                 failure="unknown_dependency",
             )
 
-        n_params = len(param_names)
-        vector_nominal = jnp.asarray(
-            [float(effective_nominal[name]) for name in param_names],
-            dtype=jnp.float32,
-        )
-
-        nominal_result = simulation_fn(**effective_nominal)
-        if not isinstance(nominal_result, Mapping):
-            raise TypeError("simulation_fn must return a mapping of output metrics")
-
-        available_metric_ids = [
-            metric_id
-            for metric_id in output_metric_ids
-            if metric_id in nominal_result and nominal_result[metric_id] is not None
-        ]
-        missing_metric_ids = [
-            metric_id for metric_id in output_metric_ids if metric_id not in available_metric_ids
-        ]
-
         try:
             cov = build_covariance_matrix(
                 param_names,
@@ -98,6 +119,22 @@ class DeltaMethodPropagator:
                 input_param_names=param_names,
                 failure="incompatible_dependency",
             )
+
+        n_params = len(param_names)
+        vector_nominal, numeric_nominal, numeric_profile = _prepare_delta_nominal(
+            effective_nominal, param_names
+        )
+        nominal_result = simulation_fn(**numeric_nominal)
+        if not isinstance(nominal_result, Mapping):
+            raise TypeError("simulation_fn must return a mapping of output metrics")
+        available_metric_ids = [
+            metric_id
+            for metric_id in output_metric_ids
+            if metric_id in nominal_result and nominal_result[metric_id] is not None
+        ]
+        missing_metric_ids = [
+            metric_id for metric_id in output_metric_ids if metric_id not in available_metric_ids
+        ]
 
         def _vectorized_fn(theta: jnp.ndarray) -> jnp.ndarray:
             params = dict(effective_nominal)
@@ -149,6 +186,7 @@ class DeltaMethodPropagator:
                     and all(envelope.gate_eligible for envelope in input_envelopes.values())
                 ),
                 metadata={
+                    "delta_numeric_profile": numeric_profile,
                     "joint_dependency_assurance": dependency_assurance,
                     "covariance_jitter_requested": self._config.delta_covariance_jitter,
                     "covariance_jitter_applied_to_input_law": False,
@@ -184,6 +222,7 @@ class DeltaMethodPropagator:
                 input_envelopes_used=param_names,
                 method_used=PropagationMethod.DELTA_METHOD,
                 diagnostics={
+                    "delta_numeric_profile": numeric_profile,
                     "jacobian_norm": float(jnp.linalg.norm(jacobian[idx])),
                     "output_variance": float(output_var[idx]),
                 },
@@ -193,6 +232,7 @@ class DeltaMethodPropagator:
             result_by_metric[metric_id] = _missing_output_result(
                 metric_id,
                 input_param_names=param_names,
+                numeric_profile=numeric_profile,
             )
 
         return [result_by_metric[metric_id] for metric_id in output_metric_ids]
@@ -202,6 +242,7 @@ def _missing_output_result(
     metric_id: str,
     *,
     input_param_names: list[str],
+    numeric_profile: dict[str, object],
 ) -> PropagationResult:
     """Return a non-authoritative result for an output absent from the response."""
 
@@ -221,11 +262,12 @@ def _missing_output_result(
                 "failure": "missing_output",
                 "missing_output": metric_id,
                 "input_param_names": input_param_names,
+                "delta_numeric_profile": numeric_profile,
             },
         ),
         input_envelopes_used=input_param_names,
         method_used=PropagationMethod.DELTA_METHOD,
-        diagnostics={"missing_output": True},
+        diagnostics={"missing_output": True, "delta_numeric_profile": numeric_profile},
     )
 
 

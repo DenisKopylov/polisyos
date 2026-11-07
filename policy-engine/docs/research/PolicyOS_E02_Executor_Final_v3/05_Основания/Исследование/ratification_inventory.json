@@ -1,0 +1,338 @@
+{
+  "schema_version": "1.0",
+  "artifact_kind": "delegated_reading_inventory_reconstructed_from_saved_coverage_attestation",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "reader": "/root/review_freegrow_design_direction/read_ratifications",
+  "file_count": 10,
+  "line_count": 5060,
+  "bytes": 310708,
+  "coverage_note": "Reader reported all10 complete before a model-provider failure prevented original inventory save. Coordinator reconstructed exact source metadata; ranges reflect full read union, not unavailable original call chunks.",
+  "sources": [
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/honest-diagnostics-substrate-decision-log.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/honest-diagnostics-substrate-decision-log.md",
+      "name": "honest-diagnostics-substrate-decision-log.md",
+      "bytes": 17720,
+      "line_count": 283,
+      "sha256": "50718961ac73d261dd649e93494f1e0c7daaecb836cc5388723c0f212a8c4fdb",
+      "git_blob_oid": "389ee6cbadd3344d9712bc4085add27177dbf53f",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/honest-diagnostics-substrate-decision-log.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            283
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Honest Diagnostics Substrate Decision Log",
+        "status": "active append-only log",
+        "created": "2026-05-15"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/honest-diagnostics-substrate.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/honest-diagnostics-substrate.md",
+      "name": "honest-diagnostics-substrate.md",
+      "bytes": 46553,
+      "line_count": 1059,
+      "sha256": "b083ba18af2ced88f360ef74f75c64cdf5c1a840ee2fb25b1f9e4353e8ff01d7",
+      "git_blob_oid": "2f270c68bbd2a9d2b5e789e2c894f5a476703c5e",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/honest-diagnostics-substrate.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            1059
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "PolicyOS Honest Diagnostics Substrate",
+        "status": "draft design decision",
+        "created": "2026-05-14"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md",
+      "name": "int-r7-r8-public-verification-and-disclosure-ratification.md",
+      "bytes": 28402,
+      "line_count": 439,
+      "sha256": "cec0658a3df7828e19a9f2c3e20b56629f8bc8e0db32aa703d1ed215214fd7fe",
+      "git_blob_oid": "ea1ab50f4aa0dce5c1cabb53490d63a6f6176d71",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            439
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Public Verification And Disclosure — Ratification Record (PV-K01–PV-K09)",
+        "status": "ratified design decision — the nine public-verification and disclosure invariants",
+        "created": "2026-08-05",
+        "last_reviewed": "2026-08-05",
+        "decision_status": "accepted — ratified by the human principal (owner decision, 2026-08-05); this document is the acceptance record for all nine statements, for the refutation list, and for the three architect corrections applied to the consolidation",
+        "authoritative_for": "[public_verification_dispositions, disclosure_semantics_rulings, int_r7_int_r8_current_standing, rfr_06_correction]",
+        "may_not_use_for": "[capability_claim, production_schema, code_contract, wire_format, status_lattice, canonical_owner_assignment, vendor_or_authority_appointment, authority_grant, legal_compliance_conclusion, implementation_authorization, benchmark_passage, publication_permission, first_public_gate_opening, numerical_disclosure_bound]"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md",
+      "name": "int-wave-claim-semantics-ratification.md",
+      "bytes": 23774,
+      "line_count": 379,
+      "sha256": "04a7aeb685ba210d2a5d1477ef840d9b7e75b3a04d39d7b29504d5fb2e7af201",
+      "git_blob_oid": "57e34bb71ce1fc87a57b494f8d84a6e984173315",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            379
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "INT Wave Claim Semantics — Ratification Record (INT-K01–INT-K08)",
+        "status": "ratified design decision — the eight INT-wave claim-semantics invariants",
+        "created": "2026-08-04",
+        "last_reviewed": "2026-08-04",
+        "decision_status": "accepted — ratified by the human principal (owner decision, 2026-08-04); this document is the acceptance record for all eight statements, for the refutation list, and for the current standing of INT-R9",
+        "authoritative_for": "[int_wave_dispositions, claim_semantics_rulings, int_r9_current_standing]",
+        "may_not_use_for": "[capability_claim, production_schema, code_contract, canonical_owner_assignment, authority_grant, legal_compliance_conclusion, implementation_authorization, benchmark_passage, bounded_complete_issuance, numeric_family_claim]"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/policy-design-case-decision-log.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/policy-design-case-decision-log.md",
+      "name": "policy-design-case-decision-log.md",
+      "bytes": 49188,
+      "line_count": 437,
+      "sha256": "a3c43d8e99452826145d14e606a9fd3d3d4ac84860983a4135d8928ca4b20b58",
+      "git_blob_oid": "ea32bf04cf50d8cd115720154c779b8ac0dfc206",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/policy-design-case-decision-log.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            437
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Policy Design Case Decision Log",
+        "status": "active append-only log",
+        "created": "2026-05-17"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md",
+      "name": "policyos-atlas-surface-constitution-and-frontend-vision.md",
+      "bytes": 30009,
+      "line_count": 604,
+      "sha256": "ad3a19c641a97d5d3593f63ec7596c48cd338b20c78956f145537c5268bdbe4b",
+      "git_blob_oid": "a47babfb04d689c0b56822f6d66c7f24dc4ccdb2",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            604
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "PolicyOS Atlas Surface Constitution And Frontend Vision",
+        "status": "draft design decision - derived surface constitution",
+        "created": "2026-06-10",
+        "last_reviewed": "2026-06-10",
+        "decision_status": "proposed - derives frontend and design-system laws from the Universal Policy Design constitution"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md",
+      "name": "stage0-custody-kernel-ratification.md",
+      "bytes": 16120,
+      "line_count": 264,
+      "sha256": "a8410cddf3e2c8b7f4c194d06d0c38523fb64634f247e6baf96dfd6359197ea7",
+      "git_blob_oid": "6397ec2b9ba043c742f096813a0229418721fbfb",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            264
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Stage-0 Custody Kernel — Ratification Record (S0-K01–S0-K16)",
+        "status": "ratified design decision — the sixteen Stage-0 custody invariants",
+        "created": "2026-08-02",
+        "last_reviewed": "2026-08-02",
+        "decision_status": "accepted — ratified by the human principal (owner decision, 2026-08-02); this document is the acceptance record for all sixteen statements and for the three amendments applied to them",
+        "authoritative_for": "[stage0_kernel_dispositions, custody_invariant_rulings]",
+        "may_not_use_for": "[capability_claim, production_schema, code_contract, canonical_owner_assignment, authority_grant, legal_compliance_conclusion, implementation_authorization, benchmark_passage]"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/wave4-decision-evidence-ratification.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/wave4-decision-evidence-ratification.md",
+      "name": "wave4-decision-evidence-ratification.md",
+      "bytes": 30297,
+      "line_count": 454,
+      "sha256": "ee20f0569cb0bab69be4094fb4aafd07d131d245d0c5993e54420fa412820819",
+      "git_blob_oid": "ddafd69de13c3f4b85f8097947f02c6d5d381b9c",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/wave4-decision-evidence-ratification.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            454
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Decision Evidence And Repository Standing — Ratification Record (W4-K01–W4-K06)",
+        "status": "ratified design decision — the six statements governing what a deciding procedure may turn on",
+        "created": "2026-08-17",
+        "last_reviewed": "2026-08-17",
+        "decision_status": "accepted — ratified by the human principal (owner decision, 2026-08-17); this document is the acceptance record for all six statements, for the refutation list, and for the three architect corrections applied to the consolidation",
+        "authoritative_for": "[gate_predicate_evidence_rules, set_level_fact_attribution, capability_label_vocabulary, research_package_standing_axes, wave4_package_dispositions, f_14a_withdrawal]",
+        "may_not_use_for": "[capability_claim, production_schema, code_contract, wire_format, status_lattice, canonical_owner_assignment, vendor_or_authority_appointment, authority_grant, legal_compliance_conclusion, implementation_authorization, benchmark_passage, publication_permission, first_public_gate_opening, ops_r15_unblock, scoring_permission]"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "name": "wave5-evidence-substitution-ratification.md",
+      "bytes": 41016,
+      "line_count": 639,
+      "sha256": "e3e9265b9a48a9cf1b7110f657616c61770e3a73ed812da5de4853291ab7338a",
+      "git_blob_oid": "367c21f0f6c3171a72d8ced5e8bf9643ae0de552",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            639
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Evidence Substitution Boundaries — Ratification Record (W5-K01–W5-K06)",
+        "status": "ratified design decision — the six wave-5 evidence-substitution invariants",
+        "created": "2026-08-30",
+        "last_reviewed": "2026-08-30",
+        "decision_status": "accepted — ratified by the human principal (owner decision, 2026-08-30); this document is the acceptance record for all six statements and for the refutation list in §5. It does not amend the constitution and does not amend any prior kernel.",
+        "authoritative_for": "[wave5_dispositions, evidence_substitution_rulings]",
+        "may_not_use_for": "[capability_claim, production_schema, code_contract, canonical_owner_assignment, authority_grant, institutional_appointment, legal_compliance_conclusion, implementation_authorization, benchmark_passage, threshold_selection]"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/withheld-propositions-register.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/withheld-propositions-register.md",
+      "name": "withheld-propositions-register.md",
+      "bytes": 27629,
+      "line_count": 502,
+      "sha256": "f026e87b7c028cfcc853eb2232de491c03cc8d73ea6c13ae576a7afc1cea5115",
+      "git_blob_oid": "b78970fb1c739415f504999f6b2d801a26f5b358",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/withheld-propositions-register.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            502
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Withheld Propositions Register (`WP-*`)",
+        "status": "active standing register — append-only",
+        "created": "2026-08-30",
+        "last_reviewed": "2026-08-30",
+        "decision_status": "opened by the human principal's ruling of 2026-08-30 that propositions withheld from ratification carry real intellectual and functional value and must have a permanent, appendable home",
+        "authoritative_for": "[withheld_proposition_record, withholding_reason_classification]",
+        "may_not_use_for": "[capability_claim, authority_grant, ratified_statement, code_contract, canonical_owner_assignment, implementation_authorization, institutional_appointment]"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    }
+  ]
+}

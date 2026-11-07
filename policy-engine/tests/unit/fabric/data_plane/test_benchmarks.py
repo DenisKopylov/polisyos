@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
+import pytest_asyncio
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
@@ -20,6 +22,7 @@ from polisyos.fabric.data_plane.orchestrator import (
     IngestionResult,
     build_partitioned_ingestion_plan,
 )
+from polisyos.fabric.data_plane.streaming import StreamDedupeUnsupported, StreamingSourceSession
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.world.store import (
     append_world_segment_index,
@@ -29,6 +32,7 @@ from polisyos.fabric.world.store import (
     write_world_fact_segment,
 )
 from polisyos.ir.world.abi import NodeKind
+from tests._helpers.source_progress import finite_source_reader
 
 
 def _valid_rows(batch, **kwargs):
@@ -82,50 +86,167 @@ def test_benchmark_partitioned_ingestion_publishes_baseline(tmp_path: Path):
     assert payload["correctness_counters"]["partitions_succeeded"] == 2
 
 
-@pytest.mark.asyncio
-async def test_benchmark_stream_processing_reports_memory_and_throughput(tmp_path: Path):
-    stream_path = tmp_path / "events.jsonl"
-    stream_path.write_text(
-        "\n".join(
-            [
-                '{"_message_id":"m1","value":1}',
-                '{"_message_id":"m2","value":2}',
-                '{"_message_id":"m3","value":3}',
-            ]
-        )
-        + "\n",
-        encoding="utf-8",
-    )
-
+@pytest_asyncio.fixture
+async def stream_registry():
+    existing = ConnectorRegistry.get_instance(bootstrap=False)
+    await existing.shutdown_async()
     ConnectorRegistry.reset_instance()
     registry = ConnectorRegistry.get_instance()
+    try:
+        yield registry
+    finally:
+        await registry.shutdown_async()
+        ConnectorRegistry.reset_instance()
+
+
+def _stream_input(tmp_path: Path, registry: ConnectorRegistry):
+    rows = [
+        {"event_id": "m1", "source_version": 1, "value": 1},
+        {"event_id": "m1", "source_version": 2, "value": 2},
+        {"event_id": "m2", "source_version": 1, "value": 3},
+        {"event_id": "m1", "source_version": 1, "value": 99},
+    ]
+    stream_path = tmp_path / "events.jsonl"
+    stream_path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+    reader = finite_source_reader(
+        tmp_path / "owner",
+        connector_id="stream.jsonl",
+        dataset_id="events",
+        schema_id="benchmark.events",
+        snapshots=[("fixture-current", rows[:3])],
+        transport_path=stream_path,
+    )
     registry.set_default_config(
         "stream.jsonl",
-        ConnectionConfig(
-            url=stream_path.as_uri(),
-            headers={"X-Stream-ChunkSize": "2"},
-        ),
+        ConnectionConfig(url=stream_path.as_uri(), headers={"X-Stream-ChunkSize": "2"}),
     )
+    return reader
 
+
+@pytest.mark.asyncio
+async def test_benchmark_stream_processing_reports_memory_and_throughput(
+    tmp_path: Path, stream_registry: ConnectorRegistry
+):
+    reader = _stream_input(tmp_path, stream_registry)
     store = FileSystemCAS(tmp_path / ".polisyos")
-    cursor_store = CursorStore(store)
     result, report = await benchmark_stream_processing(
         connector_id="stream.jsonl",
         dataset_id="events",
         store=store,
-        cursor_store=cursor_store,
+        cursor_store=CursorStore(store),
         sanitize_rows=_valid_rows,
+        source_progress_readers=(reader,),
     )
 
     assert result.rows_emitted == 3
+    assert result.dedupe_dropped == 1
     assert report.benchmark_kind == "stream_processing"
     assert report.units_processed == 3
     assert report.unit_name == "rows"
     assert report.metadata["chunks_processed"] == 2
-    assert report.metadata["processing_guarantee"] == "at_least_once_with_dedupe"
+    assert report.metadata["processing_guarantee"] == "replay_only"
     assert report.correctness_counters["rows_emitted"] == 3
+    assert report.correctness_counters["dedupe_dropped"] == 1
     assert report.throughput_per_second >= 0.0
     assert report.peak_memory_bytes >= 0
+    persisted = [
+        row
+        for ref in result.chunk_refs
+        for row in from_canonical_bytes(store.get_bytes(ref.artifact_id))["data"]
+    ]
+    assert [(row["event_id"], row["source_version"], row["value"]) for row in persisted] == [
+        ("m1", 1, 1),
+        ("m1", 2, 2),
+        ("m2", 1, 3),
+    ]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("unowned_transport", [False, True])
+async def test_benchmark_stream_refuses_missing_owner_or_unowned_transport_before_effects(
+    tmp_path: Path, stream_registry: ConnectorRegistry, unowned_transport: bool
+):
+    reader = _stream_input(tmp_path, stream_registry)
+    if unowned_transport:
+        copied = tmp_path / "unowned.jsonl"
+        copied.write_bytes(reader.transport_path.read_bytes())
+        stream_registry.set_default_config("stream.jsonl", ConnectionConfig(url=copied.as_uri()))
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    cursors = CursorStore(store)
+    before = set(store.iter_artifact_ids())
+    with pytest.raises(StreamDedupeUnsupported):
+        await benchmark_stream_processing(
+            connector_id="stream.jsonl",
+            dataset_id="events",
+            store=store,
+            cursor_store=cursors,
+            sanitize_rows=_valid_rows,
+            source_progress_readers=(reader,) if unowned_transport else (),
+        )
+    assert set(store.iter_artifact_ids()) == before
+    assert cursors.find_latest_stream_checkpoint("stream.jsonl", "events") is None
+    assert cursors.find_latest_cursor("stream.jsonl", "events") is None
+
+
+@pytest.mark.asyncio
+async def test_benchmark_stream_recovers_committed_owner_frontier_after_process_loss(
+    tmp_path: Path, stream_registry: ConnectorRegistry, monkeypatch: pytest.MonkeyPatch
+):
+    reader = _stream_input(tmp_path, stream_registry)
+    cas_root = tmp_path / ".polisyos"
+    store = FileSystemCAS(cas_root)
+    original_poll = StreamingSourceSession.poll
+    polls = 0
+
+    class ProcessLoss(BaseException):
+        pass
+
+    async def crash_before_second_chunk(session):
+        nonlocal polls
+        if polls == 1:
+            raise ProcessLoss()
+        polls += 1
+        return await original_poll(session)
+
+    monkeypatch.setattr(StreamingSourceSession, "poll", crash_before_second_chunk)
+    with pytest.raises(ProcessLoss):
+        await benchmark_stream_processing(
+            connector_id="stream.jsonl",
+            dataset_id="events",
+            store=store,
+            cursor_store=CursorStore(store),
+            sanitize_rows=_valid_rows,
+            source_progress_readers=(reader,),
+        )
+    prior = CursorStore(store).find_latest_stream_checkpoint("stream.jsonl", "events")
+    assert prior is not None
+    monkeypatch.setattr(StreamingSourceSession, "poll", original_poll)
+    reopened = FileSystemCAS(cas_root)
+    result, report = await benchmark_stream_processing(
+        connector_id="stream.jsonl",
+        dataset_id="events",
+        store=reopened,
+        cursor_store=CursorStore(reopened),
+        sanitize_rows=_valid_rows,
+        source_progress_readers=(reader,),
+    )
+    assert result.rows_emitted == 1
+    assert result.dedupe_dropped == 1
+    assert report.correctness_counters["rows_emitted"] == 1
+    checkpoint = CursorStore(reopened).find_latest_stream_checkpoint("stream.jsonl", "events")
+    assert checkpoint is not None
+    assert checkpoint.checkpoint_id != prior.checkpoint_id
+    rows = [
+        row
+        for artifact_id in reopened.iter_artifact_ids()
+        if reopened.get_manifest(artifact_id).kind == "fabric.stream_chunk"
+        for row in from_canonical_bytes(reopened.get_bytes(artifact_id))["data"]
+    ]
+    assert sorted((row["event_id"], row["source_version"]) for row in rows) == [
+        ("m1", 1),
+        ("m1", 2),
+        ("m2", 1),
+    ]
 
 
 def test_benchmark_world_materialization_reports_baseline(tmp_path: Path):

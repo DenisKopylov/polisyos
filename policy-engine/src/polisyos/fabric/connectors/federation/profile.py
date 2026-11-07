@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
@@ -20,6 +21,7 @@ from polisyos.fabric.connectors.federation.types import (
     CompositionRequest,
     CompositionStrategy,
     FederationError,
+    SchemaIncompatibilityError,
 )
 
 if TYPE_CHECKING:
@@ -38,6 +40,28 @@ MAX_GRAPH_DEPTH = 8
 MAX_GRAPH_CELLS = 4_000_000
 MAX_JSON_DEPTH = 32
 MAX_AUDIT_ENTRIES = 5_000
+_REPLAY_DTYPE = re.compile(
+    r"(?:object|bool|boolean|str|string|[Uu]?[Ii]nt(?:8|16|32|64)|[Ff]loat(?:32|64)|"
+    r"datetime64\[ns(?:, [A-Za-z0-9_+:/-]+)?\])\Z"
+)
+
+
+def is_supported_replay_dtype(dtype: object) -> bool:
+    """Return whether a dtype belongs to the existing finite replay profile."""
+    return isinstance(dtype, str) and _REPLAY_DTYPE.fullmatch(dtype) is not None
+
+
+def admit_replay_dtype(dtype: object) -> None:
+    """Refuse an unsupported dtype before constructing a schema-only output.
+
+    Args:
+        dtype: Declared or reconciled pandas dtype spelling.
+
+    Raises:
+        SchemaIncompatibilityError: If the finite replay owner cannot retain it.
+    """
+    if not is_supported_replay_dtype(dtype):
+        raise SchemaIncompatibilityError(f"Unsupported federation output dtype {dtype!r}")
 
 
 def admit_shape(rows: int, columns: int) -> None:
@@ -216,6 +240,16 @@ def admit_output_envelope(
             # 128 bytes covers every supported primitive numeric/timestamp
             # encoding; long strings retain their measured bounded length.
             maxima[column] = max(maxima.get(column, 0), maximum, 128)
+    if (
+        rows == 0
+        and request is not None
+        and request.strategy == CompositionStrategy.UNION
+        and request.schema is not None
+    ):
+        for column, dtype in request.schema.to_pandas_dtypes().items():
+            admit_replay_dtype(dtype)
+            maxima.setdefault(column, 128)
+            dtype_sizes[column] = max(dtype_sizes.get(column, 0), len(bounded_encode(dtype)), 256)
     admit_shape(rows, len(maxima))
     header_bound = 256 + sum(len(bounded_encode(column)) + dtype_sizes[column] for column in maxima)
     wire_bound = header_bound + rows * (2 + sum(size + 1 for size in maxima.values()))

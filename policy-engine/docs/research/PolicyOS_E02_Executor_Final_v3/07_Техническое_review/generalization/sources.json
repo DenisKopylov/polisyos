@@ -1,0 +1,55 @@
+[
+  {
+    "id": "EXT-PY314",
+    "url": "https://docs.python.org/3.14/library/importlib.metadata.html",
+    "checked": "2026-11-01",
+    "kind": "official_versioned_documentation",
+    "sections": [
+      "Functional API / Entry points"
+    ],
+    "relevant_fact": "Installed distribution entry points selected by group/name expose load(); Python3.14 uses EntryPoints API.",
+    "application": "Retain existing core.discovery.list_entry_points wrapper; no additional plugin framework.",
+    "version_scope": "Target Python>=3.14,<3.15. Document displayed3.14.10; no interpreter execution."
+  },
+  {
+    "id": "EXT-DUCK14",
+    "url": "https://duckdb.org/docs/1.4/guides/performance/indexing",
+    "checked": "2026-11-01",
+    "kind": "official_versioned_documentation",
+    "sections": [
+      "ART Indexes",
+      "ART Index Scans",
+      "Indexes and Memory",
+      "Bestpractice"
+    ],
+    "relevant_fact": "Explicit ART indexes trade write and memory costs against selective equality/IN access; inspect actual query plan.",
+    "application": "Measure first on locked DuckDB1.4.3; retain small immutable scan unless workload makes another access plan worthwhile.",
+    "version_scope": "1.4 docs selected after stable URL redirected to2.0. No recommendation to upgrade."
+  },
+  {
+    "id": "EXT-BAZEL",
+    "url": "https://bazel.build/remote/caching",
+    "checked": "2026-11-01",
+    "kind": "official_documentation",
+    "sections": [
+      "Overview",
+      "How a build uses remote caching"
+    ],
+    "relevant_fact": "Action-cache identity is distinct from content-addressed output storage; stdout alone does not identify execution vs reuse.",
+    "application": "Conceptual comparator only: existing CAS/cache boundary plus independent semantic/currentness checks. Do not introduce Bazel.",
+    "version_scope": "No Bazel dependency or adoption proposed."
+  },
+  {
+    "id": "EXT-PROV",
+    "url": "https://www.w3.org/TR/prov-dm/",
+    "checked": "2026-11-01",
+    "kind": "W3C_Recommendation",
+    "sections": [
+      "Abstract",
+      "PROV Overview"
+    ],
+    "relevant_fact": "Domain-agnostic provenance vocabulary distinguishes entities, activities, agents and derivation; domain extensions remain possible.",
+    "application": "Conceptual provenance/lineage comparison only; retain family-native persistence/CTM adapters, no RDF/global event schema migration.",
+    "version_scope": "Recommendation2013 inspected current URL, not a Python package."
+  }
+]

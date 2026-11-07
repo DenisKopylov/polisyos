@@ -1,0 +1,64 @@
+{
+  "pass_id": "C94",
+  "bundle": "DFI-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C94-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "confidence": "high",
+      "source_ids": [
+        "LA-038"
+      ],
+      "title": "Outer API aggregation теряет empty_shards перед возвратом и записью stage manifest",
+      "evidence": [
+        "S01:1094–1132",
+        "S01:965–1009",
+        "S01:1454–1492",
+        "P04"
+      ],
+      "observed": "Controlled actual inner DTO empty_shards=4 → actual returned outer stats 0 → actual persisted manifest metric 0; completed=5 и observations=6 сохраняются. Inner producer source реально увеличивает empty_shards на complete_empty.",
+      "remaining": "Переносить этот уже существующий счётчик через existing aggregate boundary; проверить nonzero empty вместе с completed/failed/deferred и manifest consumer. Не выводить новые success claims из empty counts и не ослаблять receipt/currentness guard.",
+      "limits": "Inner scheduler result и DB/registry boundaries — fixtures, real source ingestion не выполнен. Native occurrence rate неизвестен. Показана потеря поля, не потеря observation rows, checkpoint ledger или false publication; receipt=None остаётся warning."
+    },
+    {
+      "id": "C94-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "confidence": "high",
+      "source_ids": [
+        "LA-038"
+      ],
+      "title": "Восстановленный старый generated facade delegate может быть принят за override самого себя",
+      "evidence": [
+        "S04:121–183",
+        "P06"
+      ],
+      "observed": "Получить delegate d1, повторно прочитать тот же supported attr (d2), восстановить attr=d1, вызвать → RecursionError. Восстановление текущего d1 без второго lookup работает; direct owner и fresh facade после удаления attr работают.",
+      "remaining": "Различать собственные generated wrappers и настоящие developer substitutions независимо от последнего lookup; сохранить current owner resolution и поддержку разных overrides. Добавить repeated lookup/save/restore regression без возврата global broadcast.",
+      "limits": "Узкий compatibility lifecycle для явного save/restore callable; штатный pipeline использует canonical API. Реальный production caller, выполняющий эту последовательность, не установлен. Не утверждается, что любое pytest monkeypatch restore ломается."
+    },
+    {
+      "id": "C94-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-038"
+      ],
+      "title": "Accountable LA-038 closure ещё требует supported native trace parity обеих групп и actual source-profile/database boundary",
+      "evidence": [
+        "S01–S19",
+        "P01–P05",
+        "C93-G01"
+      ],
+      "remaining": "В supported environment проверить canonical caller без legacy import, обе leaf-группы, profile snapshot/connection/execution policy, real small database, budgets/leases/bytes/errors/counters, stage receipt/currentness и DFK-02 filters. Сохранить один согласованный LANE-08 witness вместо дублированных full ingest suites. Запустить existing no-growth/architecture и соответствующие native tests.",
+      "limits": "Действительный pipeline function и local manifest persistence исполнены, но config/profile/DB/checkpoint/connector boundaries явно подменены. Scoped A/B concurrency и sync runner подтверждены, полного source ingestion или source authority нет. Literal current_lines=184 в budget vs197 physical facade lines не объявляется product defect без фактической semantics budget check."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C94-R01",
+    "C94-R02"
+  ],
+  "decision": "Actual canonical cutover и removal of global broadcast подтверждены в bounded pipeline/API/facade paths. Два low residuals и native joint qualification не позволяют закрыть LA-038 целиком."
+}

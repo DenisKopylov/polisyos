@@ -1,0 +1,26 @@
+id = "2026-11-03-lane09-source-and-llm-reuse"
+title = "Preserve raw source lineage and controlled LLM reuse"
+type = "fixed"
+component = "scientist"
+owner = "e02-coordinator"
+summary = "Reapply current saved-content policy before returning a cached page without DNS; retain actual acquisition bounds and selected raw views through full docs ingestion. Bound provider failover by one monotonic deadline. Preserve provider responses and mandatory settlement errors across optional telemetry failures. Fence new scoped physical spend on unresolved durable outcomes while preserving current live work and Core-verified zero-increment reuse. Re-admit a publication-raced cache lookup once and support exact six-role materialized plain-completion Translator reuse under the current owner."
+compatibility = "Historical missing acquisition facts remain unknown; current-policy-ineligible cache entries require explicit refresh. Preserve WebEvidenceBundle1.0 reads and candidate1.1 status. Existing translator temperature0.1 and tool-calling NL routes are unchanged; materialization is optional. The actual scoped FileBudgetLedger owner refuses new spend after unresolved/orphan outcomes; exact known pending reconciliation and same-owner live concurrency remain supported. Terminal unknown amounts are not rewritten, and another process cannot assert a pending call is locally live. Ordinary opaque calls remain physical-only and Gateway nonfinite JSON remains refused."
+change_class = "python-public-api"
+surface_classification = "public_experimental: materialize_translator_inputs, TranslatorMaterialization and optional PolicyTranslatorWorker materialization; public_stable: preserve existing Scholar result and settlement contracts"
+api = "Expose the canonical finite Translator materializer through the existing lazy policy_design facade. Selected CAS roles and exact prepared request are bound to the existing current authorizer; LLM output remains a candidate."
+migration = "No historical CAS objects or ledger receipts are rewritten. Missing/unsupported closure falls back only to the existing currently admitted physical path; it does not disable the first useful response or waive a closed owner."
+limitations = "Controlled local HTTP/TLS and deterministic LLM providers establish custody, transport, cache and accounting mechanics, not live search quality, model truth, licensing, institutional permission, provider invoices, G acceptance or E02 closure. Ambient non-bypassed proxy refusal and the existing macOS NO_PROXY compatibility limitation remain. Final impact-based cross-lane verification remains in DA-08."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+evidence = ["tests/unit/scholar/search/test_fetcher_security_cache.py", "tests/unit/scholar/search/test_fetcher_dns_pinning.py", "tests/unit/scholar/search/test_service_jobs_tools.py", "tests/unit/remediation/test_scl_03.py", "tests/unit/scholar/test_api_web_bootstrap.py", "tests/unit/core/llm/test_traced_client_settlement.py", "tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py", "tests/unit/scientist/orchestration/llm/test_cache_owner_admission.py", "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py", "tests/unit/scientist/orchestration/engine/test_llm_spend_admission.py"]
+
+[[compatibility_change]]
+id = "lane09-finite-translator-materialization"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.scientist.policy_design finite Translator materialization"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "Opt in to selected six-role CAS materialization and temperature0 plain completion; keep current authorization, exact prepared request and all live/tool/independent-seed boundaries. No automatic reuse for the tool-calling NL compiler."
+generated_client_compatibility = "not_applicable"

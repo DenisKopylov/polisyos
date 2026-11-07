@@ -1,0 +1,258 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          919
+        ]
+      ],
+      "evidence_level": "complete_source_read; exact_definitions_executed_with_history_reader_fixture",
+      "git_blob": "b626d508f566cf0343ed8f951dc90687acf5e69f",
+      "sha256": "47cf5b8f4e1553aa6419ea54c09274e60375ef4e8e52fb91876e1d787c016102",
+      "local_file": null,
+      "note": "Core CAS reader, source scientific replay and index authentication not executed."
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          161
+        ]
+      ],
+      "evidence_level": "complete_source_and_definitions_executed",
+      "git_blob": "c5468be8aa24c475cdcb7312d2a790a23bbb4401",
+      "sha256": "112e9a272240c92fd736c2d1f2b7c65958a47863185e4251845c6ff7346fbc86",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          208
+        ]
+      ],
+      "evidence_level": "complete_source_read; actual_Evaluation_definition_executed",
+      "git_blob": "b999c202092fe4050e0f5b7afcb108030440d399",
+      "sha256": "b0a2b5fbd8b165a3c24b5e34ed9fb08618c43abb11b63a15c4964e34b4366ecb",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          692,
+          699
+        ],
+        [
+          785,
+          1080
+        ],
+        [
+          1082,
+          1095
+        ],
+        [
+          1146,
+          1228
+        ],
+        [
+          1565,
+          1761
+        ],
+        [
+          2377,
+          2394
+        ],
+        [
+          2625,
+          2831
+        ]
+      ],
+      "evidence_level": "actual_selected_DTO_rule_matching_and_unit_definitions_executed",
+      "git_blob": "19f375b836d59954649ac120530df055d42e2758",
+      "sha256": "1e9fefdb189b7bb6afc9aa5fa01f410c14dbdd70afa2918670f41e0017352f66",
+      "local_file": null,
+      "note": "score_assessment_matches_source replaced by explicit fixture. Large owner not claimed fully read."
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          57,
+          74
+        ],
+        [
+          169,
+          221
+        ],
+        [
+          558,
+          637
+        ]
+      ],
+      "evidence_level": "actual_selected_Pydantic_DTO_definitions_executed",
+      "git_blob": "631d87c1ade0b084e92806cc7f253f9628571c0e",
+      "sha256": "a83f8ee607349126395658143040510f4a5c4245155f8e1481f47f532e79a2ae",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          995
+        ]
+      ],
+      "evidence_level": "complete_existing_test_file_read_UNRUN",
+      "git_blob": "ca7044cc270e37558dfe77f7f941b8ecea39a21c",
+      "sha256": "926c16e7a7704de5bccba783ce3a01f98083a41c7b4ae14f408637c11715770c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1840,
+          1913
+        ]
+      ],
+      "evidence_level": "actual_native_consumer_call_site_read_UNRUN",
+      "git_blob": "dcc27af39812c88b0abb9ddfcac1a76f83ca5826",
+      "sha256": "143ecb1eac1e33f916656a0b6dbb15dabc77c8c949bd453544dd4f2f87426dec",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          287,
+          490
+        ]
+      ],
+      "evidence_level": "warm_admission_and_source_verifier_call_site_read_UNRUN",
+      "git_blob": "eb361c5e852f1b44d070cc9a0060d08fce529ace",
+      "sha256": "f933be68848e16cc3cc1b7757d5434d89a68a158b6cb3633c8d33e5576203bd1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          985,
+          1102
+        ]
+      ],
+      "evidence_level": "actual_candidate_only_transfer_loader_read_UNRUN",
+      "git_blob": "87452936dbf87263dbaa6ff59df41d095624fe32",
+      "sha256": "c4322c5177a0de860d6372a300da3f859f1e12deabda3b113f86ee4008345b08",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/ids.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          149
+        ]
+      ],
+      "evidence_level": "actual_ArtifactID_definition_executed",
+      "git_blob": "3c2c8b3269ca290bc8c6b413e2e96c3012a17558",
+      "sha256": "6fbfc522d960556af66e44a8c3d6b59e478ca1ff4578b49a3573c95d33c01b4d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          219,
+          319
+        ],
+        [
+          371,
+          377
+        ]
+      ],
+      "evidence_level": "actual_ArtifactRef_identity_definitions_executed",
+      "git_blob": "f1b3372d9e209cf823bacf7dc38eecd76b6780bb",
+      "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          45,
+          92
+        ]
+      ],
+      "evidence_level": "source_documentation_read_not_native_proof",
+      "git_blob": "97d23e101bd8cad88f2a5db5eb742392abffb048",
+      "sha256": "1d8cf5cbf8e7e1ad4aeff27ee147d87f7c705f5aef0019af1fac9beb2e8bb536",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      3045,
+      3182
+    ]
+  },
+  "discovery": {
+    "reverse_converter_scope": "policy-engine/src and tests, exact name search; source caller absent, tests present",
+    "census": false
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace"
+}

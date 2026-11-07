@@ -1,0 +1,291 @@
+{
+  "packet_id": "EMB-03",
+  "lane": "LANE-08",
+  "source_ids": [
+    "LA-040",
+    "LA-042"
+  ],
+  "protected_distinction_ids": [
+    "LK20"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/EMB-03.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "work_types": "native qualification + compatibility lifecycle",
+  "practical_goal": "Неизменённые legal records действительно переиспользуются; текущий supported owner даёт полезный поиск без ложной authority для нормативных выводов.",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C97_остатки:0",
+      "audit_id": "C97-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-EMB-03-01",
+        "REQ-EMB-03-02",
+        "REQ-EMB-03-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Native incremental plus actual owned positive served path; qualification must not stop at refusal."
+    },
+    {
+      "inventory_id": "audit-residual:C97_остатки:1",
+      "audit_id": "C97-G02",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-EMB-03-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Retained honest wrapper is valid closure within declared scope, removal conditional on caller evidence."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-EMB-03-01",
+      "text": "Incremental reuse сохраняет per-record actual text/assets/tokenizer/projection identity и current membership; неизменённые записи не encode, withdrawal не попадает в current generation.",
+      "source_ids": [
+        "LA-040",
+        "LA-042"
+      ],
+      "audit_ids": [
+        "C97-G01"
+      ],
+      "test_ids": [
+        "TEST-EMB-03-01"
+      ]
+    },
+    {
+      "id": "REQ-EMB-03-02",
+      "text": "Supported owned runtime material должен дать положительный producer→fresh public served query path, сохраняя current intent/runtime checks и drift refusal.",
+      "source_ids": [
+        "LA-040",
+        "LA-042"
+      ],
+      "audit_ids": [
+        "C97-G01"
+      ],
+      "test_ids": [
+        "TEST-EMB-03-02"
+      ]
+    },
+    {
+      "id": "REQ-EMB-03-03",
+      "text": "Retained compatibility wrapper сохраняет default canonical profile, chunk forwarding, exact result/exception identity и отказ любого non-None backend. Retirement заявляется только в конкретном caller/release scope.",
+      "source_ids": [
+        "LA-040",
+        "LA-042"
+      ],
+      "audit_ids": [
+        "C97-G02"
+      ],
+      "test_ids": [
+        "TEST-EMB-03-03"
+      ]
+    },
+    {
+      "id": "REQ-EMB-03-04",
+      "text": "Legal producer использует единственный EMB-02 publisher и сохраняет три projections/chunking/thermal/empty semantics. Search candidate не становится verified legal claim только из-за semantic proximity.",
+      "source_ids": [
+        "LA-040",
+        "LA-042"
+      ],
+      "audit_ids": [
+        "C97-G01"
+      ],
+      "test_ids": [
+        "TEST-EMB-03-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-EMB-03-01",
+      "requirement_ids": [
+        "REQ-EMB-03-01"
+      ],
+      "level": "native unit / integration",
+      "setup": "Real tiny DuckDB/HNSW для entities/facts/provisions; append, changed same-ID text, withdrawal, same-dimension assets/tokenizer/rule change, malformed basis, incremental=False.",
+      "action": "Actual build_local_embeddings_and_indexes→fresh selected reader; capture только encoder call counts.",
+      "oracle": "Точные reused/recomputed IDs и embedded/skipped stats; current ID/vector membership; missing selector/history не cache; invalidator пересчитывает нужный совместимый комплект.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не подменять transaction SQL recorder; лёгкий encoder только compute witness.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-EMB-03-02",
+      "requirement_ids": [
+        "REQ-EMB-03-02"
+      ],
+      "level": "native unit / integration",
+      "setup": "Existing LegalRuntimeMaterialOwner declared pinned model/revision CPU1024/ST2.7.0 с заранее предоставленными local-only assets; current generation; altered asset/runtime/current text controls.",
+      "action": "Resolve owner→build with runtime_material_owner→fresh Legal public search/HTTP; затем drift before/during lease.",
+      "oracle": "Поддержанный material выполняет query encode и возвращает полезные search_candidate results; drift отказывает до недопустимого use, text fallback остаётся пригодным; generic candidate assets не обходят runtime gate.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не mock admission/lease ради PASS; model download/deployment требуют отдельного разрешения. Fixture native compute не закрывает этот owner path.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-EMB-03-03",
+      "requirement_ids": [
+        "REQ-EMB-03-03"
+      ],
+      "level": "native unit / integration",
+      "setup": "Default calls, BackendTrap, canonical explicit model/device, saved caller inventory.",
+      "action": "Actual build_embeddings_and_index и canonical target; scoped external/generated API census если removal предлагается.",
+      "oracle": "Default profile остаётся multilingual-e5-large/mps/chunk; BackendTrap не читается и target не вызывается; exceptions/results не оборачиваются. Без scope wrapper retained, не invented sunset.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Historical ab441 wheel evidence не current native PASS.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-EMB-03-04",
+      "requirement_ids": [
+        "REQ-EMB-03-04"
+      ],
+      "level": "native unit / integration",
+      "setup": "Three populated tables и full withdrawal, quote400/text32000, chunks2; current generic/owned query outputs.",
+      "action": "Actual CLI embed stage manifest→common publisher→public candidate payload; authority request negative control.",
+      "oracle": "Три generation metadata и counters корректны; empty typed; source_relation status verification_missing явно отделён от полезного candidate search. Authority projection не получает fabricated receipt.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Отдельная verification capability не реализуется checksum или универсальным deterministic verifier; future support требует bounded claim class/evidence/validation contract.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I08-B"
+  ],
+  "dependencies": [
+    "EMB-02 prerequisite and shared publisher owner",
+    "E02-I08-B real producer→served query; no duplicate heavy model run"
+  ],
+  "preservation": [
+    "Per-record text/assets/tokenizer/rule identity",
+    "Current membership/withdrawal",
+    "Three projections/chunks/stats",
+    "Historical bytes without cache authority",
+    "Common publisher",
+    "Explicit unsupported backend refusal",
+    "Separate intent/runtime/source-relation gates"
+  ],
+  "design_alignment": [
+    "[Vision §3, §6–§7, §11](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md) — существующий owner, реально подключённый consumer, совместимые новые ресурсы через общий контракт; не бесконечный реестр вместо работы. [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md) — candidate/conditional вычисление не равно эмпирической или институциональной authority.",
+    "Узкий admitted serving profile — начальная рабочая способность, не вечный hardcoded универсум. Generic producers сохраняют candidate output. Дальнейшие profiles и bounded source-relation verification расширяют existing contracts, но не требуют всеобщего детерминированного понимания нормативных текстов."
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0447",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-EMB-03-01",
+        "REQ-EMB-03-02",
+        "REQ-EMB-03-04"
+      ],
+      "rationale": "Native incremental plus actual owned positive served path; qualification must not stop at refusal."
+    },
+    {
+      "inventory_id": "remaining:0448",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-EMB-03-03"
+      ],
+      "rationale": "Retained honest wrapper is valid closure within declared scope, removal conditional on caller evidence."
+    },
+    {
+      "inventory_id": "remaining:0449",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-EMB-03-04"
+      ],
+      "rationale": "Shared C96-R01 исправляет EMB-02, Legal producer обязан пройти тот же staged validator."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0735",
+      "requirement_ids": [
+        "REQ-EMB-03-01"
+      ],
+      "test_ids": [
+        "TEST-EMB-03-01"
+      ],
+      "rationale": "Per-record semantic input identity."
+    },
+    {
+      "inventory_id": "preserve:0736",
+      "requirement_ids": [
+        "REQ-EMB-03-01"
+      ],
+      "test_ids": [
+        "TEST-EMB-03-01"
+      ],
+      "rationale": "Current membership/withdrawal."
+    },
+    {
+      "inventory_id": "preserve:0737",
+      "requirement_ids": [
+        "REQ-EMB-03-01",
+        "REQ-EMB-03-04"
+      ],
+      "test_ids": [
+        "TEST-EMB-03-01",
+        "TEST-EMB-03-04"
+      ],
+      "rationale": "Three projections/chunks/stats."
+    },
+    {
+      "inventory_id": "preserve:0738",
+      "requirement_ids": [
+        "REQ-EMB-03-01"
+      ],
+      "test_ids": [
+        "TEST-EMB-03-01"
+      ],
+      "rationale": "History not cache authority."
+    },
+    {
+      "inventory_id": "preserve:0739",
+      "requirement_ids": [
+        "REQ-EMB-03-04"
+      ],
+      "test_ids": [
+        "TEST-EMB-03-04"
+      ],
+      "rationale": "One common publisher."
+    },
+    {
+      "inventory_id": "preserve:0740",
+      "requirement_ids": [
+        "REQ-EMB-03-03"
+      ],
+      "test_ids": [
+        "TEST-EMB-03-03"
+      ],
+      "rationale": "Honest unsupported backend refusal."
+    },
+    {
+      "inventory_id": "preserve:0741",
+      "requirement_ids": [
+        "REQ-EMB-03-02",
+        "REQ-EMB-03-04"
+      ],
+      "test_ids": [
+        "TEST-EMB-03-02",
+        "TEST-EMB-03-04"
+      ],
+      "rationale": "Intent/runtime/source relation separated."
+    }
+  ],
+  "owners": [
+    "src/polisyos/data_forge/domains/legal/batch/embedder.py",
+    "src/polisyos/data_forge/domains/legal/batch/cli.py",
+    "src/polisyos/data_forge/domains/legal/runtime_material.py",
+    "src/polisyos/data_forge/domains/legal/source_relation.py",
+    "src/polisyos/lex/knowledge/store.py",
+    "src/polisyos/data_forge/kernel/embeddings.py"
+  ]
+}

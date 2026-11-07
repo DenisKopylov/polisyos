@@ -143,7 +143,7 @@
     },
     "BacktestMatrixResult": {
       "additionalProperties": false,
-      "description": "Aggregate calibration-governance view over all required backtest kinds.\n\n`gap_flags` enumerates missing evidence channels, `composite_score` provides\nthe promotion score, and `backtest_report_ref` links to the persisted replay\nartifact for audit and downstream leaderboard scoring.",
+      "description": "Aggregate calibration-governance view over all required backtest kinds.\n\n`gap_flags` enumerates missing evidence channels, `composite_score` is a\ncandidate diagnostic, and `backtest_report_ref` links to the persisted replay\nartifact for audit and downstream leaderboard scoring.",
       "properties": {
         "backtest_report_ref": {
           "anyOf": [
@@ -323,7 +323,7 @@
     },
     "CalibrationLeaderboardMetrics": {
       "additionalProperties": false,
-      "description": "Normalized promotion metrics used to rank calibration candidates.\n\nRequired evidence channels are captured as nullable scores so missing inputs\ncan be surfaced through `gap_flags`. `eligible_for_promotion` is true only\nwhen governance approves, required adversarial suites pass, and no required\nscore is missing.",
+      "description": "Candidate scores and gaps for a calibration leaderboard entry.\n\nForecast and holdout source reconciliation is not established, so the\nleaderboard does not currently grant promotion eligibility.",
       "properties": {
         "adversarial_passed": {
           "anyOf": [

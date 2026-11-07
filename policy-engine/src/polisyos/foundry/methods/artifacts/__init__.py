@@ -24,11 +24,18 @@ from .parts import (
 from .parts import (
     SourceFingerprint as SourceFingerprint,
 )
+from .parts import __all__ as __all__
 from .parts import (
     compute_source_fingerprint as compute_source_fingerprint,
 )
 from .parts import (
     compute_source_hash as compute_source_hash,
+)
+from .parts import (
+    load_compiled_chain as load_compiled_chain,
+)
+from .parts import (
+    load_execution_evidence as load_execution_evidence,
 )
 from .parts import (
     store_chain_artifact as store_chain_artifact,
@@ -39,8 +46,3 @@ from .parts import (
 from .parts import (
     store_method_artifact as store_method_artifact,
 )
-
-try:
-    from .parts import __all__ as __all__
-except ImportError:
-    pass

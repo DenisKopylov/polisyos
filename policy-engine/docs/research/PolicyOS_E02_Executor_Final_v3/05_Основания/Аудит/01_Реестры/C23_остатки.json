@@ -1,0 +1,85 @@
+{
+  "pass": "C23",
+  "bundle": "FUN-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C23-R01",
+      "type": "finite_intermediate_overflow",
+      "severity": "low_extreme_numeric_edge",
+      "source_ids": [
+        "B162"
+      ],
+      "location": "funnel/types.py:286–297",
+      "evidence": [
+        "P24"
+      ],
+      "mechanism": "Finite width=effect=1e308 дают denominator infinity и level0 вместо0.5.",
+      "remaining": "Устойчиво вычислять нормированное отношение и проверять промежуточную арифметику.",
+      "preserve": "Корректные zero/invalid/missing и huge-int conversion guards.",
+      "limits": "Редкий арифметический край; native production достижимость/вред не проверены."
+    },
+    {
+      "id": "C23-R02",
+      "type": "heuristic_uncertainty_method_label_mismatch",
+      "severity": "medium_semantic_diagnostic",
+      "source_ids": [
+        "B162"
+      ],
+      "location": "policy_runtime_metrics.py:450–541; level4_full.py:169–201; funnel/types.py:190–297",
+      "evidence": [
+        "P25",
+        "S09",
+        "S10"
+      ],
+      "mechanism": "Actual producer создаёт heuristic width с draw_status not_instrumented; actual L4 consumer называет finite width full_fidelity_bootstrap.",
+      "remaining": "Сохранить source semantics: proxy или настоящий измеренный interval с method/scale/basis; не выдавать имя fidelity за измерение.",
+      "preserve": "Честные actual draw counts=None, score/source admission guards и separate current uncertainty.",
+      "limits": "Точные producer/consumer definitions с fixture evaluation/fiscal/ambiguity; полный native runtime и scientific/promotion authority не выполнялись."
+    },
+    {
+      "id": "C23-G01",
+      "type": "effective_workload_qualification",
+      "source_ids": [
+        "B157"
+      ],
+      "evidence": [
+        "P01",
+        "P02",
+        "P03",
+        "S07",
+        "S08",
+        "S09"
+      ],
+      "remaining": "Inputs изолированы; настоящий full/reduced work, стоимость и inner engine mutation semantics не аттестованы."
+    },
+    {
+      "id": "C23-G02",
+      "type": "native_test_contract_qualification",
+      "source_ids": [
+        "B157",
+        "B160",
+        "B162",
+        "B165"
+      ],
+      "evidence": [
+        "S11",
+        "S12",
+        "S13",
+        "S14"
+      ],
+      "remaining": "Native pytest отсутствует,3.14 недоступен. Старый L4 test без units требует сверки с нынешним admission, не объявлен выполненным failure."
+    },
+    {
+      "id": "C23-G03",
+      "type": "scientific_source_and_consumer_qualification",
+      "source_ids": [
+        "B160",
+        "B162",
+        "B165"
+      ],
+      "remaining": "Actual source-admitted zero, scientific bootstrap validity и downstream consumer migration/native source chain UNRUN."
+    }
+  ]
+}

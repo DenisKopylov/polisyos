@@ -1,0 +1,10 @@
+id = "2026-10-31-docs-live-authored-reference-scope"
+title = "Separate maintained authored references from exhaustive payload inspection"
+type = "fixed"
+component = "tools"
+owner = "team-polisyos"
+summary = "Give CI an explicit live-authored docs reference contract while retaining the exhaustive default and its unknown-input UNRUN semantics."
+evidence = ["tests/repo_quality/tools/test_document_reference_roles.py", "tests/repo_quality/tools/test_docs_lifecycle.py", "tests/repo_quality/tools/test_docs_gate.py"]
+compatibility = "The default exhaustive mode is unchanged. Only explicit live-authored callers classify named payload and test-literal roles outside the authored-reference claim; all tracked removed paths, selected text failures and unreadable selected inputs remain checked."
+migration = "CI and the path-aware docs gate pass --reference-scope live-authored. Other callers retain exhaustive mode unless they explicitly select the narrower named property."
+limitations = "A live-authored PASS makes no universal claim about references inside omitted historical, binary, test or unknown-format payloads, or about evidence authority."

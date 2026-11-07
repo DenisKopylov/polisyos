@@ -22,6 +22,22 @@ hands the final `WorkflowSpec` to the engine runtime.
 - Builtin DAG specs in [`default.py`](default.py), [`discovery.py`](discovery.py), [`causal_full.py`](causal_full.py), [`policy_verified.py`](policy_verified.py), and [`policy_design.py`](policy_design.py)
 - Engine adapters in [`engine_simple.py`](engine_simple.py) and [`engine_langgraph.py`](engine_langgraph.py): choose between the simple loop and legacy LangGraph bridge
 
+## Governance and evaluation order
+
+The default and causal-full workflows complete their pre-packet producers before
+running governance. The evaluator consumes that report and persists its planning
+verdict and iteration state. A second governance invocation then evaluates the
+full state including those artifacts, and the decision packet consumes that latest
+report. The evaluator verdict remains bound to the first report; it is not a
+verdict on the refreshed report. Currentness is established at the packet input;
+the packet's own later outputs can make the report stale in the final workflow
+state. Refresh reuses a recorded gate decision only when the prior producer's
+selected request and decision, their CAS lineage, and the exact Engine-owned
+evaluator transition are revalidated. Missing or changed proof keeps the gate
+blocked. A separate human-review request is not satisfied by that gate decision
+or by a typed decision marker. A current report or a replayed decision does not
+establish a reviewer's institutional authority.
+
 ## Depends On / Depended On By
 
 - Depends on: [`../engine/README.md`](../engine/README.md), [`../nodes/README.md`](../nodes/README.md), governance helpers, adapters, and shared core runtime services

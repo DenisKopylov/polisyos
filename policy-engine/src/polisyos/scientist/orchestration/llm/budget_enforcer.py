@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import threading
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
@@ -224,7 +225,7 @@ class LLMBudgetEnforcer:
         *,
         reservation: _BudgetReservation | None = None,
         run_id: str | None = None,
-    ) -> Decimal:
+    ) -> Decimal | None:
         """Extract actual cost from response and commit the reservation."""
         reservation = reservation or _BudgetReservation(estimated_cost=Decimal(0))
         resolved_run_id = self._run_id if run_id is None else run_id
@@ -235,8 +236,7 @@ class LLMBudgetEnforcer:
         try:
             actual_cost = self._resolve_actual_cost(data)
         except (ArithmeticError, TypeError, ValueError) as exc:
-            emit_degraded_path(
-                component="llm.budget_enforcer",
+            self._report_degraded(
                 operation="post_record",
                 reason="cost_accounting_fallback",
                 exc=exc,
@@ -245,13 +245,12 @@ class LLMBudgetEnforcer:
                     "model": self._model_name,
                     "run_id": resolved_run_id,
                 },
-                log=logger,
-                metrics=self._resolve_metrics(),
             )
             # Budget-critical path prefers conservative accounting over silent under-charge.
             actual_cost = None
 
         budget_charge = reservation.estimated_cost if actual_cost is None else actual_cost
+        soft_limit_warnings: list[tuple[str, Decimal | None]] = []
 
         with self._lock:
             for key in self._budget_keys:
@@ -261,11 +260,7 @@ class LLMBudgetEnforcer:
                     reservation.clear_key(key)
                 self._budget_state.record_spend(key, budget_charge)
                 if self._budget_state.is_soft_limit_exceeded(key):
-                    logger.warning(
-                        "Soft budget limit exceeded for key={}, spent={}",
-                        key,
-                        self._budget_state.spent.get(key),
-                    )
+                    soft_limit_warnings.append((key, self._budget_state.spent.get(key)))
 
         if self._audit_log:
             self._audit_log.append(
@@ -287,10 +282,52 @@ class LLMBudgetEnforcer:
                 },
             )
 
-        # Emit OTel metrics
-        self._emit_cost_metrics(actual_cost, data)
+        # Finish every mandatory key and audit before running any optional sink,
+        # and keep exporter callbacks outside the budget-state lock.
+        for key, spent in soft_limit_warnings:
+            self._optional_export(
+                "soft_limit_warning",
+                lambda key=key, spent=spent: logger.warning(
+                    "Soft budget limit exceeded for key={}, spent={}", key, spent
+                ),
+            )
+        self._optional_export("cost_metrics", lambda: self._emit_cost_metrics(actual_cost, data))
 
         return actual_cost
+
+    def _report_degraded(
+        self,
+        *,
+        operation: str,
+        reason: str,
+        exc: BaseException,
+        details: dict[str, Any] | None = None,
+    ) -> None:
+        """Keep optional diagnostic failures outside the budget/accounting body."""
+        try:
+            emit_degraded_path(
+                component="llm.budget_enforcer",
+                operation=operation,
+                reason=reason,
+                exc=exc,
+                details=details,
+                log=logger,
+                metrics=self._resolve_metrics(),
+            )
+        except Exception:
+            # A failing metric or log sink cannot recursively report itself or
+            # turn a received response into another physical provider request.
+            pass
+
+    def _optional_export(self, operation: str, export: Callable[[], None]) -> None:
+        try:
+            export()
+        except Exception as exc:
+            self._report_degraded(
+                operation=operation,
+                reason="optional_observability_failed",
+                exc=exc,
+            )
 
     def _resolve_actual_cost(self, data: Any) -> Decimal | None:
         if data.cost_origin == "unknown":
@@ -430,7 +467,7 @@ class LLMBudgetEnforcer:
         committed = False
         try:
             response = await self._client.generate(**_stripped)
-            self._record_latency(time.perf_counter() - t0)
+            self._optional_export("latency", lambda: self._record_latency(time.perf_counter() - t0))
             self._post_record(
                 response,
                 reservation=reservation,
@@ -454,7 +491,7 @@ class LLMBudgetEnforcer:
         committed = False
         try:
             response = self._client.invoke(prompt, **kwargs)
-            self._record_latency(time.perf_counter() - t0)
+            self._optional_export("latency", lambda: self._record_latency(time.perf_counter() - t0))
             self._post_record(
                 response,
                 reservation=reservation,

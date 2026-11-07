@@ -1,0 +1,363 @@
+{
+  "pass_id": "C82",
+  "bundle": "MIG-05",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/common/migrations/_engine.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/migrations/_engine.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          64
+        ]
+      ],
+      "evidence_level": "Полный shared executor прочитан и native исполнен; runtime type hints и реальная последовательность вызовов проверены.",
+      "git_blob": "2e4fee3cec993e9321c712ce094ae955136091b4",
+      "sha256": "08df89953e0ebe66ee97bc981b432ee7a63aec3f7d80169ae28a3e1828351a01",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/common/migrations/base.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/migrations/base.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          101
+        ]
+      ],
+      "evidence_level": "Полный Common profile/registry прочитан и native исполнен: deepcopy/stamp/overwrite/no-op/errors.",
+      "git_blob": "9079f08f1dbf4429c588e548ea824395137a10f8",
+      "sha256": "5575321803537f6c4f8b3d94be5cd959e54dec1e4e6f6536cdd3bc398caa088f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/ir/migrations/base.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/migrations/base.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          34
+        ],
+        [
+          175,
+          213
+        ],
+        [
+          261,
+          329
+        ],
+        [
+          431,
+          659
+        ],
+        [
+          1100,
+          1303
+        ]
+      ],
+      "evidence_level": "Полные relevant registration/fingerprint/profile/negotiation functions прочитаны; whole module импортирован native. Остальной owner-bound representation registry не объявлен полностью проверенным MIG-05. P05 и fresh native control воспроизводят swallowed closure identity refusal.",
+      "git_blob": "d2ad0d68414c1fb5f565cff063c2e4bdb8210869",
+      "sha256": "116c5dd22a54942f29be2fbec6a206d010ff54132e9f1523ae2b1809f43ebae8",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/common/migrations/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/migrations/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          24
+        ]
+      ],
+      "evidence_level": "Полный facade прочитан; экспортируются те же shared objects. Generic import не регистрирует Fabric callback.",
+      "git_blob": "9f824af76221076dad702d4b55d9f54581eeebed",
+      "sha256": "ec2daeb4da70819341721f887cc4669a443627cef426b324d7511c8066bd470f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/common/migrations/manifest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/migrations/manifest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          35
+        ]
+      ],
+      "evidence_level": "Полный explicit legacy callback source-qualified C79/C81, повторно native исполнен в existing tests.",
+      "git_blob": "d8c87c8eef174de89a866d4d9448ddc57131284b",
+      "sha256": "7d7a8ecb625f23fb9e3e0dfc66f7837b9b30353d15a587c3a23525d991b72806",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/ir/migrations/policy_ir.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/migrations/policy_ir.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          33
+        ]
+      ],
+      "evidence_level": "Полный current identity helper прочитан/native исполнен с actual Trinity model; self-edge не зарегистрирован.",
+      "git_blob": "36ce865c83d8284525fe89ac6ff04568a8e529c5",
+      "sha256": "1fd93a8638413a8ca5285d96742aeb93a249240bdaedbaaa606639fb31b8761a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/ir/migrations/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/migrations/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          112
+        ]
+      ],
+      "evidence_level": "Полный policy facade прочитан. Actual version guard и helper boundary; same-version validation ранее квалифицирована C79, не generic runner admission.",
+      "git_blob": "2cb2995d58b2af9e665205ed90700e17065f79bd",
+      "sha256": "3cf0765949035d7aa14eb29c33446788f82d535f1a07f2f80dd0350bedd44e58",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/migrations/schema_registry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          190
+        ]
+      ],
+      "evidence_level": "Полные built-in declarations прочитаны и native imported; selected direct-read cases выполнены, не все DTO compatibility доказаны.",
+      "git_blob": "a218cf2359296bc527bb663c9a5d65f32303a804",
+      "sha256": "9bdeb0e59836bd24d4097bd8315a1bfe4ec82eb8578b9df7a24bde15669263ef",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/migrations.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/schemas/migrations.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          147
+        ]
+      ],
+      "evidence_level": "Полный отдельный graph owner прочитан и native исполнен: shortest path/branching/instance-local/shallow/no stamping.",
+      "git_blob": "f5928d81d4950fe3afe82cb7a9239060483238c9",
+      "sha256": "51fc6ebacfdbe3c310ccc45ac152fd484c9d97fd13dd3e5c4f5107531051d4b2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/_base.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/_base.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          21
+        ]
+      ],
+      "evidence_level": "Полный actual strict model base прочитан/native imported, не fixture model.",
+      "git_blob": "c143399841e23a45866ffa00f839505831d77072",
+      "sha256": "9444c27fd52f03e8ee54861046f4a07ce5e85254c8bf324138138758eede4918",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          31
+        ]
+      ],
+      "evidence_level": "Полные actual exception identities прочитаны/native imported.",
+      "git_blob": "95ee03979a25b74da9e5d4cc1f9d27c629a223a0",
+      "sha256": "0004f31df43e4dd65662bf555250b80e8cae07cc2110340903ab43821eadceb1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/schemas/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/schemas/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          35
+        ]
+      ],
+      "evidence_level": "Полный actual facade прочитан/native imported, без shells.",
+      "git_blob": "033094124e8cbb925fe05f13dad652b24cbe7bb3",
+      "sha256": "a1699faed4cc01753760dfe569e667526e7d5ab8e01189666df99193924844ad",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/tests/unit/remediation/test_mig_05.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_mig_05.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          438
+        ]
+      ],
+      "evidence_level": "Полный19-body regression прочитан, все unchanged bodies PASS на actual product modules с внешними pytest helpers.",
+      "git_blob": "0ea772545d4a9aa07d3963bf5ee22ddcfc55e355",
+      "sha256": "fe12d74068edc20add6201348e9f407e4badefd5aba6424bbaa6dc073cdf1217",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/tests/unit/common/migrations/test_base.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/common/migrations/test_base.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          49
+        ]
+      ],
+      "evidence_level": "Полный2-body real manifest isolation/idempotence corpus прочитан и исполнен.",
+      "git_blob": "2e413bfa42f8f2ec4ca9469656418dd9eff9d24c",
+      "sha256": "b9584130a88b83206789c37c3459aaaef559b9adc228a651a7b4cc126f46819c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/tests/unit/common/migrations/test__engine.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/common/migrations/test__engine.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          126
+        ]
+      ],
+      "evidence_level": "Полный2-body traversal/order/later missing edge corpus прочитан и исполнен.",
+      "git_blob": "1f9c9b46a3e6dc58aea8d6b4c12691c2c2c75df4",
+      "sha256": "f2e920ff32982667180617989abb9140857c658722f5a3b583f48c9a3427ef50",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/tests/unit/common/test_migrations_purity.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/common/test_migrations_purity.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          61
+        ]
+      ],
+      "evidence_level": "Полный2-body export/delegation corpus прочитан и исполнен с wrapping spy, без замены result.",
+      "git_blob": "f9eabe9e9fdb87e5a75ddaed55173c49ff2b6cd5",
+      "sha256": "82cd0398f1d68df330a2286611572ca0a75eaa252cdf07297b3b064a79703437",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/tests/unit/data_forge/test_phase7_schema_quality_observability.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/data_forge/test_phase7_schema_quality_observability.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          227
+        ]
+      ],
+      "evidence_level": "Прочитаны imports/context и complete migration body179–227; исполнялся только этот unchanged body через selected AST с actual imports. Другие tests не заявлены.",
+      "git_blob": "baed59ace000219d0f70bb67e7685370e4799535",
+      "sha256": "f0f9d778a0510111ba50bda4ed8a22a554ae760e5a29a72d7563647604129d96",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S18",
+      "path": "policy-engine/tests/contract/test_ir_migrations.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/contract/test_ir_migrations.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          250
+        ]
+      ],
+      "evidence_level": "Прочитан начальный context и complete4 selected compatibility bodies; исполнялись только четыре, не вся owner representation suite.",
+      "git_blob": "d051b78955bfa66eaacd931603d9ef5cd895d0b1",
+      "sha256": "1af0f33c2b0453bb3f906796e58102ecb8889e0e24e0e576826d9aff5418d320",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S19",
+      "path": "policy-engine/src/polisyos/common/migrations/README.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/migrations/README.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          36
+        ]
+      ],
+      "evidence_level": "Полный ownership/compatibility contract прочитан; historical corpus явно не установлен.",
+      "git_blob": "160192fb91690c41696e0fc2824861e99fca4a2e",
+      "sha256": "da1041dbd91de51d1c5a3273bd71df9ce9f6f1b71b910fe7efa65e9e800d7acd",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S20",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          30
+        ]
+      ],
+      "evidence_level": "Supported runtime/dependency baseline source-qualified prior packets; текущая среда вне него.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

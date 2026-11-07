@@ -10,7 +10,11 @@ from pydantic import ConfigDict, Field, field_validator, model_validator
 
 from polisyos.data_forge.kernel._base import DataForgeModel
 
-from .selection import CatalogSelectionError, select_catalog_sources
+from .selection import (
+    CatalogSelectionError,
+    select_catalog_sources,
+    source_included_in_run_profile,
+)
 from .source_modules import (
     CatalogExecutionTier,
     CatalogHistoryPolicy,
@@ -86,7 +90,7 @@ class CatalogSourceRegistryEntry(DataForgeModel):
 
     def included_in_run_profile(self, profile: CatalogRunProfile) -> bool:
         """Return whether this source participates in a Data Forge run profile."""
-        return self.to_module_spec().included_in_run_profile(profile)
+        return source_included_in_run_profile(self, profile)
 
     def to_module_spec(self) -> CatalogSourceModuleSpec:
         """Convert a registry entry into a source-module contract."""

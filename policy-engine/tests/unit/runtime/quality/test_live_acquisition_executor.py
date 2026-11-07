@@ -478,6 +478,12 @@ def test_live_executor_consults_injected_registry_and_reopens_injected_store(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.core.artifacts import (
+        ArtifactRef,
+        artifact_ref_identity_key,
+        validate_core_model_json_artifact,
+    )
+    from polisyos.core.contracts import DataSnapshot
     from polisyos.runtime.http.services.control_registry_providers import (
         resolve_control_registry_providers,
     )
@@ -498,10 +504,10 @@ def test_live_executor_consults_injected_registry_and_reopens_injected_store(
 
     class RecordingStore(FileSystemCAS):
         def get_bytes(self, artifact_id):
-            reopened.append(str(artifact_id))
+            reopened.append(artifact_id)
             return super().get_bytes(artifact_id)
 
-    reopened: list[str] = []
+    reopened: list[object] = []
     store = RecordingStore(tmp_path / "cas")
     providers = resolve_control_registry_providers(source_profiles=Profiles())
     _authority, evidence, _stub, _journal = _run(
@@ -511,8 +517,16 @@ def test_live_executor_consults_injected_registry_and_reopens_injected_store(
     )
 
     assert requested_profiles == [_PROFILE_ID]
-    assert str(evidence.data_snapshot_ref.artifact_id) in reopened
-    assert str(evidence.normalized_data_artifact_id) in reopened
+    executor_reads = tuple(reopened)
+    snapshot = validate_core_model_json_artifact(DataSnapshot, store, evidence.data_snapshot_ref)
+    selected_reads = {
+        artifact_ref_identity_key(ref) for ref in executor_reads if isinstance(ref, ArtifactRef)
+    }
+    assert evidence.data_snapshot_ref.manifest_profile_sha256 is not None
+    assert snapshot.data_ref.manifest_profile_sha256 is not None
+    assert snapshot.data_ref.artifact_id == evidence.normalized_data_artifact_id
+    assert artifact_ref_identity_key(evidence.data_snapshot_ref) in selected_reads
+    assert artifact_ref_identity_key(snapshot.data_ref) in selected_reads
     assert store.has(evidence.raw_artifact_id)
     assert evidence.transport_trace.raw_evidence_ref == evidence.raw_evidence_ref
 
@@ -690,7 +704,8 @@ def test_live_executor_rejects_foreign_data_snapshot_schema(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
+    from dataclasses import replace
+
     from polisyos.core.artifacts.manifest import SchemaInfo
 
     original_put_json = FileSystemCAS.put_json
@@ -700,25 +715,17 @@ def test_live_executor_rejects_foreign_data_snapshot_schema(
         payload: object,
         opts: Any,
         canon_spec: Any = None,
-        **kwargs: Any,
+        *,
+        return_selected_profile: bool = False,
     ) -> Any:
-        artifact_ref = original_put_json(store, payload, opts, canon_spec, **kwargs)
         if getattr(opts, "kind", None) == "fabric.data_snapshot":
-            manifest = store.get_manifest(artifact_ref.artifact_id)
-            _blob_path, manifest_path = store._paths(artifact_ref.artifact_id)
-            manifest_path.write_bytes(
-                ManifestLifecycle.to_bytes(
-                    manifest.model_copy(
-                        update={
-                            "artifact_schema": SchemaInfo(
-                                name="polisyos.other.DataSnapshot",
-                                version="0.2.0",
-                            )
-                        }
-                    )
-                )
+            opts = replace(
+                opts,
+                schema=SchemaInfo(name="polisyos.other.DataSnapshot", version="0.2.0"),
             )
-        return artifact_ref
+        return original_put_json(
+            store, payload, opts, canon_spec, return_selected_profile=return_selected_profile
+        )
 
     monkeypatch.setattr(FileSystemCAS, "put_json", _put_json_with_foreign_snapshot_schema)
 

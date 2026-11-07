@@ -1,0 +1,73 @@
+{
+  "pass_id": "C87",
+  "bundle": "UDF-04",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C87-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "confidence": "high",
+      "source_ids": [
+        "LA-029"
+      ],
+      "title": "Console installed-layout route не выдаёт promised typed unavailable вне admitted server context",
+      "evidence": [
+        "S01:111–130",
+        "S02:443–455",
+        "S03:96–119",
+        "S06",
+        "S14:25–32",
+        "P03"
+      ],
+      "remaining": "Согласовать порядок неисполняющей диагностики отсутствующего checkout в actual orchestrator/console route с existing domain adapter и documented unavailable contract. Сохранить server admission до любого реального repository subprocess/provisioning; не разрешать C7 на локальной машине ради unavailable. Добавить control default config+installed root+missing marker, наряду с admitted-server/no-checkout и valid-checkout/blocked-server.",
+      "limits": "Actual console→domain→orchestrator path raises LocalExecutionBlockedError до typed unavailable/receipt, тогда как direct run_part_a_gate возвращает unavailable. Linux+marker control возвращает unavailable/exit1. Это узкое diagnostic/compatibility расхождение, не execution-policy bypass, false PASS или доказательство работоспособности installed wheel. Если public server-workflow намеренно должен скрывать unavailable до admission, нужно явно согласовать и документировать этот контракт, а не ослаблять защиту."
+    },
+    {
+      "id": "C87-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-029"
+      ],
+      "title": "Supported installed-wheel/console/CI activation и actual C7 lifecycle остаются UNRUN",
+      "evidence": [
+        "S03",
+        "S04",
+        "S05",
+        "S06",
+        "S10",
+        "S15",
+        "P01",
+        "P04"
+      ],
+      "remaining": "В разрешённом supported окружении проверить установленный console target, packaged tools/receipt plugin и checkout/cwd/root modes. Отдельно на целевом server исполнить C7 с real same-child collection/phase receipts, source/config hashes и skipped/failed cases. Сохранить commands/env/cwd/exit и typed reasons; local synthetic receipts не засчитывать C7.",
+      "limits": "Actual modules/parser/receipt checks исполнены через explicit initializer/timing seams.17 bodies/19 cases bounded PASS, но pytest/pluggy helpers synthetic, child subprocess не создавался. Source bytes plugin сверены, hooks не запускались; весь shell/CI caller corpus не проверен."
+    },
+    {
+      "id": "C87-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-029"
+      ],
+      "title": "Rendered bootstrap и local capabilities не подтверждают provisioning или институциональное разрешение",
+      "evidence": [
+        "S01:31–45",
+        "S04:43–88",
+        "S02:400–441",
+        "S08:79–120",
+        "P02",
+        "P05"
+      ],
+      "remaining": "Сохранить Ops ownership, explicit callbacks, quoted arguments, server-only gate и различение capabilities/authority. При отдельной разрешённой deployment qualification проверить actual target environment и command profile; не запускать apt/uv/C7 в текущем audit environment.",
+      "limits": "Bootstrap script только rendered text, local capability probe лишь readonly факты окружения. Marker и require_server_for_build=False в unit fixture не institutional permission. Historical byte-for-byte script equivalence и удалённый сервер не проверены."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C87-R01"
+  ],
+  "carried_related_residuals": [
+    "C83-R01"
+  ],
+  "decision": "LA-029 workspace-root repair и Ops ownership реализованы в bounded corpus. Один low unavailable-route diagnostic residual; native installed/server acceptance не заявлено."
+}

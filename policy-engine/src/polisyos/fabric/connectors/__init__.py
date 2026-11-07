@@ -41,6 +41,7 @@ from polisyos.fabric.connectors.cache import (
     TTLPolicy,
     VolatileDataPolicy,
     make_schema_hash_provider,
+    verify_selected_cache_payload_ref,
 )
 
 # Capability utilities
@@ -320,6 +321,7 @@ __all__ = [
     # === Validation Helpers ===
     "validate_fetch_result_against_schema",
     "validate_protocol_compliance",
+    "verify_selected_cache_payload_ref",
     "with_circuit_breaker",
     "with_fallback",
     "with_rate_limit",

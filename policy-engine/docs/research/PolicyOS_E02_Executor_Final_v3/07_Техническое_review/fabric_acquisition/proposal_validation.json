@@ -1,0 +1,73 @@
+{
+  "kind": "Document-only validation; no repository imports or product execution",
+  "status": "PASS",
+  "coverage_input_hashes_verified": 143,
+  "manifest_files_checked": 17,
+  "normative_md_json_mirror": "PASS",
+  "original_ids_and_maps_preserved": true,
+  "adjacent_solution_items_preserved": true,
+  "proposed_json_test_statuses": {
+    "NOT_RUN": 33
+  },
+  "json_changes": [
+    {
+      "path": "04_Трассировка/UDF-05.json",
+      "changed_json_paths": [
+        "/requirements/1/text",
+        "/tests/1/action",
+        "/tests/1/oracle",
+        "/tests/1/setup"
+      ]
+    },
+    {
+      "path": "04_Трассировка/DFI-03.json",
+      "changed_json_paths": [
+        "/requirements/1/text",
+        "/tests/1/action",
+        "/tests/1/oracle",
+        "/tests/1/setup"
+      ]
+    },
+    {
+      "path": "04_Трассировка/SCL-01.json",
+      "changed_json_paths": [
+        "/requirements/0/text",
+        "/tests/0/action",
+        "/tests/0/oracle",
+        "/tests/0/setup"
+      ]
+    },
+    {
+      "path": "04_Трассировка/FED-01.json",
+      "changed_json_paths": [
+        "/open_decisions/0/criteria",
+        "/open_decisions/0/required_output",
+        "/tests/0/action"
+      ]
+    },
+    {
+      "path": "04_Трассировка/EMB-01.json",
+      "changed_json_paths": [
+        "/tests/0/oracle",
+        "/tests/0/setup"
+      ]
+    },
+    {
+      "path": "04_Трассировка/EMB-02.json",
+      "changed_json_paths": [
+        "/tests/3/doubles"
+      ]
+    },
+    {
+      "path": "04_Трассировка/EMB-03.json",
+      "changed_json_paths": [
+        "/tests/1/action",
+        "/tests/1/doubles",
+        "/tests/1/oracle",
+        "/tests/1/setup"
+      ]
+    }
+  ],
+  "errors": [],
+  "product_tests": "NOT_RUN"
+}

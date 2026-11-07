@@ -1,0 +1,240 @@
+{
+  "packet_id": "DUR-02",
+  "lane": "LANE-06",
+  "source_ids": [
+    "B38",
+    "B78"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/DUR-02.md",
+    "../05_Основания/Аудит/01_Реестры/C72_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C72-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-DUR-02-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Окончательная остановка heartbeat должна выставить existing lost signal.",
+      "inventory_id": "audit-residual:C72_остатки:0"
+    },
+    {
+      "audit_id": "C72-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-DUR-02-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Actual initialized store/process/takeover/outbox/scoped CAS, PostgreSQL отдельно.",
+      "inventory_id": "audit-residual:C72_остатки:1"
+    },
+    {
+      "audit_id": "C72-G02",
+      "disposition": "capability",
+      "requirement_ids": [
+        "REQ-DUR-02-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Safe outcome_unknown не завершает handover; нужен bounded reconciliation→remaining work путь existing owners.",
+      "inventory_id": "audit-residual:C72_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-DUR-02-01",
+      "text": "Если heartbeat прекращает renewal из-за typed store timeout/unavailable, existing JobExecutionInterrupt.lost устанавливается до выхода pulse; следующий cooperative guard прерывает handler. Если выбрана bounded retry политика, она обязана завершиться до известного lease expiry и также сигналить при невозможности подтверждения. SQL fencing остаётся независимым обязательным guard.",
+      "source_ids": [
+        "B38"
+      ],
+      "audit_ids": [
+        "C72-R01"
+      ],
+      "test_ids": [
+        "TEST-DUR-02-01"
+      ]
+    },
+    {
+      "id": "REQ-DUR-02-02",
+      "text": "Stale A после expiry/takeover не меняет current B running/completed через complete/fail/progress/sibling mutation inlet. Current B и подтверждённое same-attempt renewal работают. Event/commit fault откатывает status/progress/history/outbox вместе; diagnostic CAS A остаётся читаемым в разрешённом scope, но не current result B.",
+      "source_ids": [
+        "B38"
+      ],
+      "audit_ids": [
+        "C72-G01"
+      ],
+      "test_ids": [
+        "TEST-DUR-02-02"
+      ]
+    },
+    {
+      "id": "REQ-DUR-02-03",
+      "text": "Healthy primary выполняется один раз; pre-dispatch unavailable запускает local только при typed permission, BLOCK/access/contract failure не дают нового права. После effect+lost reply нет blind local: existing operation/checkpoint/owner evidence сверяет completed frontier, отзывает старое current admission и продолжает только недоделанное с прежним operation ID и общими deadline/budget; при неоднозначности остаётся outcome_unknown.",
+      "source_ids": [
+        "B78"
+      ],
+      "audit_ids": [
+        "C72-G02"
+      ],
+      "test_ids": [
+        "TEST-DUR-02-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-DUR-02-01",
+      "requirement_ids": [
+        "REQ-DUR-02-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Actual worker/guard, renew=False, typed unavailable/timeout, unrelated worker positive.",
+      "action": "Stop pulse and invoke guard; join heartbeat.",
+      "oracle": "Lost set и handler interrupted для окончательного renewal отказа; unrelated worker продолжает; no stale current write при реальном store. Heartbeat не оставляет бесконечный permitted state.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-DUR-02-02",
+      "requirement_ids": [
+        "REQ-DUR-02-02"
+      ],
+      "level": "native process persistence",
+      "setup": "Actual initialized SQLite store/CAS; A held, lease expiry B takeover; injected event and commit faults.",
+      "action": "A пытается все protected/sibling writes; B completes; same-attempt renew positive; fresh scoped reads.",
+      "oracle": "A affected rows0/typed refusal, B exact current result; faults rollback всех связанных rows/outbox; diagnostic A bytes retained but unattached. PostgreSQL отдельно при заявленной поддержке.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-DUR-02-03",
+      "requirement_ids": [
+        "REQ-DUR-02-03"
+      ],
+      "level": "cross-owner reconciliation integration",
+      "setup": "Primary actual local test effect journal с operation ID и real checkpoint; lost response; explicit fallback permissions; remaining node.",
+      "action": "Run unknown→reconcile→resume; ambiguous evidence and access/BLOCK controls.",
+      "oracle": "Effect count1; completed refs reused, only remaining runs; common budget/deadline not reset, old fence can't commit. Ambiguous remains unknown, no local effect; permitted pre-dispatch local positive once.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-C",
+    "E02-I06-B"
+  ],
+  "dependencies": [
+    "RUN-03",
+    "RES-02"
+  ],
+  "preservation": [
+    "Owner/attempt/running/valid lease SQL fences и affected rows.",
+    "Atomic status/progress/event/outbox, повторная commit admission и legitimate same-transaction renewal.",
+    "Typed pre-dispatch authority/BLOCK, identity-bound health witness.",
+    "Post-dispatch outcome_unknown без local replay; diagnostic CAS можно сохранить без current attachment."
+  ],
+  "design_alignment": [
+    "policy-design-execution-topology.md §3–6: failure превращается в обоснованное продолжение, не слепой повтор.",
+    "policyos-identity-and-custody-boundary.md §3–6: external effect принадлежит его owner; PolicyOS хранит доказанную связь, не присваивает exactly-once."
+  ],
+  "open_decisions": [
+    "DEC-DUR-02-01: выбрать один поддержанный primary/local pair и operation evidence для reconciliation. Выход — real completed/remaining/ambiguous table и positive continuation witness. Внешний непримиримый effect блокирует только соответствующее продолжение."
+  ],
+  "source_obligations": [
+    "B38 → REQ-DUR-02-01/-02: heartbeat interruption + actual stale/current transaction/custody.",
+    "B78 → REQ-DUR-02-03: pre-dispatch policy и positive reconciled continuation после lost reply; существующий safe refusal не продуктовый дефект."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/runtime/http/services/control_worker.py: _run_with_lease_heartbeat / _lease_pulse",
+    "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py: _resolve_job_execution_fence, _job_fence_where, _require_fenced_write, transaction admission",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/fallback_runner.py: typed pre-dispatch decision, PrimaryExecutionOutcomeUnknownError",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py: resume_from_checkpoint"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_dur_02.py",
+    "policy-engine/tests/unit/remediation/test_dur_02_process.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0095",
+      "requirement_ids": [
+        "REQ-DUR-02-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Окончательная остановка heartbeat должна выставить existing lost signal."
+    },
+    {
+      "inventory_id": "remaining:0096",
+      "requirement_ids": [
+        "REQ-DUR-02-02"
+      ],
+      "disposition": "qualify",
+      "rationale": "Actual initialized store/process/takeover/outbox/scoped CAS, PostgreSQL отдельно."
+    },
+    {
+      "inventory_id": "remaining:0097",
+      "requirement_ids": [
+        "REQ-DUR-02-03"
+      ],
+      "disposition": "capability",
+      "rationale": "Safe outcome_unknown не завершает handover; нужен bounded reconciliation→remaining work путь existing owners."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0122",
+      "requirement_ids": [
+        "REQ-DUR-02-01",
+        "REQ-DUR-02-02"
+      ],
+      "test_ids": [
+        "TEST-DUR-02-01",
+        "TEST-DUR-02-02"
+      ],
+      "rationale": "Owner/attempt/lease fencing и affected rows — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0123",
+      "requirement_ids": [
+        "REQ-DUR-02-02"
+      ],
+      "test_ids": [
+        "TEST-DUR-02-02"
+      ],
+      "rationale": "Атомарные status/progress/event и commit admission — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0124",
+      "requirement_ids": [
+        "REQ-DUR-02-03"
+      ],
+      "test_ids": [
+        "TEST-DUR-02-03"
+      ],
+      "rationale": "Typed pre-dispatch authority и BLOCK — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0125",
+      "requirement_ids": [
+        "REQ-DUR-02-03"
+      ],
+      "test_ids": [
+        "TEST-DUR-02-03"
+      ],
+      "rationale": "Post-dispatch outcome_unknown без blind replay — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0126",
+      "requirement_ids": [
+        "REQ-DUR-02-02"
+      ],
+      "test_ids": [
+        "TEST-DUR-02-02"
+      ],
+      "rationale": "Сохранение диагностического CAS без current attachment — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

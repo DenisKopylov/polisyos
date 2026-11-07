@@ -36,7 +36,7 @@ SCENARIO_EVIDENCE_CASES: dict[str, tuple[str, ...]] = {
         "test_linear_scientist_workflow_tool_failure_retries_and_succeeds",
     ),
     "checkpoint_resume": (
-        "test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes",
+        "test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes[incomplete]",
     ),
     "governance_rejection": (
         "test_linear_scientist_workflow_governance_rejection_stops_decision_publication",

@@ -8,22 +8,28 @@ from __future__ import annotations
 
 import re
 import threading
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Literal
 
+from polisyos.core.llm import LLMSettlementOwnershipError
 from polisyos.core.llm.cache_settlement import CacheSettlementSession
 from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError, BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import (
     BudgetLedger,
+    BudgetLedgerInvocationProfile,
+    BudgetLedgerInvocationReservation,
     BudgetLedgerProducerRecord,
     BudgetLedgerProducerRunBinding,
+    BudgetLedgerReentryBudgetScope,
+    BudgetLedgerReentryBudgetWindow,
     BudgetLedgerSettlementOutcomeUnknownError,
     BudgetLedgerSnapshot,
     BudgetLedgerSpendReceipt,
+    FileBudgetLedger,
 )
 
 __all__ = ["BudgetMiddleware"]
@@ -46,11 +52,43 @@ class BudgetMiddleware:
         budget_state: BudgetState,
         *,
         ledger: BudgetLedger | None = None,
+        continuation_owner_identity: tuple[str, str, str] | None = None,
+        continuation_resource_identity: tuple[int, int, str, int, int] | None = None,
+        continuation_snapshot_anchor: tuple[int, str] | None = None,
+        invocation_settlement_profile: Literal["single_owner_local_v1"] | None = None,
     ) -> None:
+        if invocation_settlement_profile not in (None, "single_owner_local_v1"):
+            raise ValueError("budget_invocation_settlement_profile_invalid")
+        if invocation_settlement_profile is not None and type(ledger) is not FileBudgetLedger:
+            raise ValueError("budget_ledger_engine_owner_not_supported")
+        if (
+            invocation_settlement_profile is not None
+            and continuation_owner_identity is not None
+            and (continuation_resource_identity is None or continuation_snapshot_anchor is None)
+        ):
+            raise ValueError("budget_ledger_continuation_binding_incomplete")
         self._ledger = ledger
-        self._budget = (
-            ledger.load_or_bootstrap(budget_state) if ledger is not None else budget_state
-        )
+        self._invocation_settlement_profile = invocation_settlement_profile
+        if continuation_owner_identity is None and (
+            continuation_resource_identity is not None or continuation_snapshot_anchor is not None
+        ):
+            raise ValueError("budget_ledger_continuation_binding_incomplete")
+        self._strict_continuation = continuation_resource_identity is not None
+        if continuation_owner_identity is not None:
+            if ledger is None:
+                raise RuntimeError("budget continuation requires a configured ledger")
+            if self._strict_continuation or continuation_snapshot_anchor is not None:
+                self._budget = ledger.load_existing(
+                    continuation_owner_identity,
+                    expected_resource_identity=continuation_resource_identity,
+                    expected_snapshot_anchor=continuation_snapshot_anchor,
+                )
+            else:
+                self._budget = ledger.load_existing(continuation_owner_identity)
+        else:
+            self._budget = (
+                ledger.load_or_bootstrap(budget_state) if ledger is not None else budget_state
+            )
         self._lock = threading.Lock()
         # Registry lifetime cannot wait behind monetary dependency I/O.
         self._producer_binding_lock = threading.Lock()
@@ -60,6 +98,13 @@ class BudgetMiddleware:
         self._producer_attempt_scope: ContextVar[_ProducerAttemptScope | None] = ContextVar(
             f"budget_producer_attempt_scope_{id(self)}", default=None
         )
+        self._scoped_producer_begin: ContextVar[Literal["physical", "reuse"] | None] = ContextVar(
+            f"budget_scoped_producer_begin_{id(self)}", default=None
+        )
+        # Only an actual durable begin issued by this owner is live. Handles
+        # survive a waiter cancellation until the shielded producer settles.
+        self._live_producer_lock = threading.Lock()
+        self._live_producer_attempts: dict[str, BudgetLedgerProducerRecord] = {}
 
     @property
     def budget_state(self) -> BudgetState:
@@ -69,6 +114,11 @@ class BudgetMiddleware:
         return self._budget
 
     @property
+    def invocation_settlement_profile(self) -> Literal["single_owner_local_v1"] | None:
+        """Return the explicitly selected local invocation-settlement profile."""
+        return self._invocation_settlement_profile
+
+    @property
     def settlement_owner_identity(self) -> tuple[str, str, str]:
         """Expose persisted ledger/contract identity without synthetic memory ownership."""
         with self._lock:
@@ -76,12 +126,96 @@ class BudgetMiddleware:
                 raise RuntimeError("durable budget settlement requires a configured ledger")
             return self._ledger.settlement_owner_identity
 
+    def continuation_binding(
+        self,
+    ) -> tuple[tuple[str, str, str], tuple[int, int, str, int, int], tuple[int, str]]:
+        """Obtain the locked owner/resource/snapshot binding for a local continuation."""
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("budget continuation requires a configured ledger")
+            return self._ledger.continuation_binding()
+
+    def _bind_live_producer_resource(
+        self,
+    ) -> tuple[tuple[str, str, str], tuple[int, int, str, int, int]]:
+        """Keep producer reads and admissions on the same concrete ledger lock."""
+        with self._lock:
+            if type(self._ledger) is not FileBudgetLedger:
+                raise ValueError("budget_ledger_producer_owner_not_supported")
+            return self._ledger._bind_live_producer_resource()
+
+    def _continuation_state(
+        self,
+    ) -> tuple[
+        tuple[str, str, str], tuple[int, int, str, int, int], tuple[int, str], BudgetLedgerSnapshot
+    ]:
+        """Obtain a single confirmed detached snapshot and its exact local binding."""
+        with self._lock:
+            if type(self._ledger) is not FileBudgetLedger:
+                raise ValueError("budget_ledger_engine_owner_not_supported")
+            return self._ledger._continuation_state()
+
+    def _arm_engine_guard(
+        self,
+        owner: tuple[str, str, str],
+        resource: tuple[int, int, str, int, int],
+        anchor: tuple[int, str],
+    ) -> None:
+        """Bind the actual engine owner to its protected local continuation point."""
+        with self._lock:
+            if (
+                type(self._ledger) is not FileBudgetLedger
+                or self._invocation_settlement_profile != "single_owner_local_v1"
+            ):
+                raise ValueError("budget_ledger_engine_owner_not_supported")
+            self._budget = self._ledger.load_existing(
+                owner, expected_resource_identity=resource, expected_snapshot_anchor=anchor
+            )
+            self._strict_continuation = True
+
+    def _issue_engine_settlement_writer(
+        self,
+    ) -> Callable[[str, Decimal, str, str | None], BudgetLedgerSpendReceipt]:
+        """Give the engine a narrow event writer, never the raw ledger."""
+        with self._lock:
+            if type(self._ledger) is not FileBudgetLedger or not self._strict_continuation:
+                raise ValueError("budget_ledger_engine_owner_not_supported")
+            ledger = self._ledger
+            write = ledger._issue_engine_settlement_writer()
+
+        def settle(
+            event_id: str, amount: Decimal, payload_digest: str, provider: str | None
+        ) -> BudgetLedgerSpendReceipt:
+            with self._lock:
+                receipt = write(event_id, amount, payload_digest, provider)
+                try:
+                    self._budget = ledger.load()
+                except (OSError, ValueError, BudgetLedgerSettlementOutcomeUnknownError) as exc:
+                    raise BudgetLedgerSettlementOutcomeUnknownError(
+                        event_id, payload_digest
+                    ) from exc
+                return receipt
+
+        return settle
+
+    def _read_engine_spent(self) -> Decimal:
+        """Read only the confirmed current run spend for an issued engine view."""
+        with self._lock:
+            if type(self._ledger) is not FileBudgetLedger or not self._strict_continuation:
+                raise ValueError("budget_ledger_engine_owner_not_supported")
+            self._budget = self._ledger.load()
+            return self._budget.spent.get("run", Decimal(0))
+
     def pre_check(self, alias: str, budget_key: str = "run") -> None:
         """Raise :class:`BudgetExhaustedError` if budget is exhausted."""
         with self._lock:
-            if self._ledger is not None:
+            if self._ledger is not None and self._strict_continuation:
+                self._budget, remaining = self._ledger.load_for_admission(budget_key)
+            elif self._ledger is not None:
                 self._budget = self._ledger.load()
-            remaining = self._budget.remaining(budget_key)
+                remaining = self._budget.remaining(budget_key)
+            else:
+                remaining = self._budget.remaining(budget_key)
             if remaining is not None and remaining <= Decimal(0):
                 raise BudgetExhaustedError(
                     f"Budget '{budget_key}' exhausted before node '{alias}'",
@@ -172,7 +306,7 @@ class BudgetMiddleware:
             )
             try:
                 self._budget = self._ledger.load()
-            except OSError as exc:
+            except (OSError, BudgetLedgerSettlementOutcomeUnknownError) as exc:
                 raise BudgetLedgerSettlementOutcomeUnknownError(event_id, payload_digest) from exc
             return receipt
 
@@ -182,8 +316,58 @@ class BudgetMiddleware:
             if self._ledger is None:
                 raise RuntimeError("durable budget settlement requires a configured ledger")
             receipt = self._ledger.resolve_spend(event_id)
-            self._budget = self._ledger.load()
+            try:
+                self._budget = self._ledger.load()
+            except (OSError, BudgetLedgerSettlementOutcomeUnknownError) as exc:
+                digest = receipt.payload_digest if receipt is not None else "readback"
+                raise BudgetLedgerSettlementOutcomeUnknownError(event_id, digest) from exc
             return receipt
+
+    @contextmanager
+    def _scoped_producer_admission(
+        self,
+        *,
+        required: bool = False,
+        reuse_session: CacheSettlementSession | None = None,
+        reuse_response: object | None = None,
+        reuse_event_id: str | None = None,
+        reuse_request_digest: str | None = None,
+    ) -> Iterator[None]:
+        """Admit attributed physical work or an exact verified reuse receipt."""
+        scope = self._producer_attempt_scope.get()
+        attributed = scope is not None and (
+            scope.control_job_attempt is not None or scope.pre_admission_attempt_id is not None
+        )
+        if reuse_response is not None:
+            attestation = getattr(reuse_response, "_polisyos_reuse_provenance", None)
+            proof = (
+                reuse_session.verify_reuse_attestation(attestation, reuse_response)
+                if type(reuse_session) is CacheSettlementSession and attestation is not None
+                else None
+            )
+            if (
+                proof is None
+                or proof.reuse_event_id != reuse_event_id
+                or proof.request_digest != reuse_request_digest
+            ):
+                raise LLMSettlementOwnershipError("producer_reuse_proof_not_established")
+        mode = "reuse" if reuse_response is not None else "physical"
+        token = self._scoped_producer_begin.set(mode if required or attributed else None)
+        try:
+            yield
+        finally:
+            self._scoped_producer_begin.reset(token)
+
+    def _finish_scoped_producer_attempt(self, event_id: str, intent: object) -> None:
+        """Retire only the exact handle issued for a producer that has finished."""
+        with self._live_producer_lock:
+            if self._live_producer_attempts.get(event_id) is intent:
+                del self._live_producer_attempts[event_id]
+
+    def _is_live_producer_attempt(self, record: BudgetLedgerProducerRecord) -> bool:
+        """Read actual current liveness without waiting on monetary I/O."""
+        with self._live_producer_lock:
+            return self._live_producer_attempts.get(record.event_id) == record
 
     def begin_producer_event_safe(
         self,
@@ -202,6 +386,42 @@ class BudgetMiddleware:
             control_job_attempt, pre_admission_attempt_id = self._attempt_attribution_for(
                 run_binding
             )
+            mode = self._scoped_producer_begin.get()
+            if mode is not None:
+                scope = self._producer_attempt_scope.get()
+                if scope is None or run_binding is None or scope.run_binding != run_binding:
+                    raise LLMSettlementOwnershipError("producer_job_scope_closed")
+                if control_job_attempt is None and pre_admission_attempt_id is None:
+                    raise ValueError("producer_spend_attempt_not_established")
+                if type(self._ledger) is not FileBudgetLedger:
+                    raise ValueError("producer_spend_admission_backend_not_supported")
+
+                def issue() -> BudgetLedgerProducerRecord:
+                    assert self._ledger is not None
+                    record = self._ledger.begin_producer_event(
+                        event_id,
+                        request_digest,
+                        key,
+                        model,
+                        provider,
+                        run_binding=run_binding,
+                        control_job_attempt=control_job_attempt,
+                        pre_admission_attempt_id=pre_admission_attempt_id,
+                    )
+                    return record
+
+                if mode == "physical":
+                    with self._ledger._guarded_producer_begin(self._is_live_producer_attempt):
+                        record = issue()
+                else:
+                    # The live Core session just proved this exact response is
+                    # a cache reuse; it writes a receipt but cannot dispatch.
+                    record = issue()
+                with self._live_producer_lock:
+                    if record.status != "pending" or event_id in self._live_producer_attempts:
+                        raise ValueError("producer_spend_intent_already_issued")
+                    self._live_producer_attempts[event_id] = record
+                return record
             return self._ledger.begin_producer_event(
                 event_id,
                 request_digest,
@@ -271,7 +491,10 @@ class BudgetMiddleware:
                 cache_reuse_session=cache_reuse_session,
                 cache_reuse_response=cache_reuse_response,
             )
-            self._budget = self._ledger.load()
+            try:
+                self._budget = self._ledger.load()
+            except (OSError, BudgetLedgerSettlementOutcomeUnknownError) as exc:
+                raise BudgetLedgerSettlementOutcomeUnknownError(event_id, payload_digest) from exc
             return record
 
     def resolve_producer_event_safe(self, event_id: str) -> BudgetLedgerProducerRecord | None:
@@ -280,7 +503,15 @@ class BudgetMiddleware:
             if self._ledger is None:
                 raise RuntimeError("durable producer settlement requires a configured ledger")
             record = self._ledger.resolve_producer_event(event_id)
-            self._budget = self._ledger.load()
+            try:
+                self._budget = self._ledger.load()
+            except (OSError, BudgetLedgerSettlementOutcomeUnknownError) as exc:
+                digest = (
+                    (record.payload_digest or record.request_digest)
+                    if record is not None
+                    else "readback"
+                )
+                raise BudgetLedgerSettlementOutcomeUnknownError(event_id, digest) from exc
             return record
 
     @contextmanager
@@ -372,6 +603,87 @@ class BudgetMiddleware:
                 raise TypeError("budget_ledger_snapshot_must_be_typed")
             self._budget = snapshot.state.model_copy(deep=True)
             return snapshot.model_copy(deep=True)
+
+    def configure_invocation_profile_safe(
+        self, profile: BudgetLedgerInvocationProfile
+    ) -> BudgetLedgerInvocationProfile:
+        """Persist the actual owner's finite non-USD invocation allocation."""
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("invocation quota requires a configured ledger")
+            return self._ledger.configure_invocation_profile(profile)
+
+    def select_unconfigured_invocations_safe(self, binding: BudgetLedgerProducerRunBinding) -> None:
+        """Bind this run to no unit guarantee only if no allocation was selected."""
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("invocation quota requires a configured ledger")
+            self._ledger.select_unconfigured_invocations(binding)
+
+    def open_reentry_budget_window_safe(
+        self,
+        scope: BudgetLedgerReentryBudgetScope,
+        *,
+        fresh_limit_usd: Decimal,
+        global_limit_usd: Decimal,
+    ) -> BudgetLedgerReentryBudgetWindow:
+        """Issue the action's one durable USD starting point before source work."""
+        with self._lock:
+            if type(self._ledger) is not FileBudgetLedger:
+                raise RuntimeError("reentry budget requires the durable file ledger owner")
+            return self._ledger.open_reentry_budget_window(
+                scope, fresh_limit_usd=fresh_limit_usd, global_limit_usd=global_limit_usd
+            )
+
+    def resolve_reentry_budget_window_safe(
+        self, scope: BudgetLedgerReentryBudgetScope
+    ) -> BudgetLedgerReentryBudgetWindow | None:
+        """Reopen an existing action window without taking a new baseline."""
+        with self._lock:
+            if type(self._ledger) is not FileBudgetLedger:
+                raise RuntimeError("reentry budget requires the durable file ledger owner")
+            return self._ledger.resolve_reentry_budget_window(scope)
+
+    def reserve_invocation_safe(
+        self,
+        operation_id: str,
+        request_digest: str,
+        *,
+        profile: BudgetLedgerInvocationProfile,
+        purpose: Literal["standard", "diagnostic", "counterevidence"],
+    ) -> tuple[BudgetLedgerInvocationReservation, bool]:
+        """Reserve one physical invocation through the existing ledger owner."""
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("invocation quota requires a configured ledger")
+            return self._ledger.reserve_invocation(
+                operation_id, request_digest, profile=profile, purpose=purpose
+            )
+
+    def finish_invocation_safe(
+        self,
+        operation_id: str,
+        request_digest: str,
+        *,
+        profile: BudgetLedgerInvocationProfile,
+        outcome: Literal["completed", "failed", "unknown"],
+    ) -> BudgetLedgerInvocationReservation:
+        """Retain the actual outcome without releasing a consumed unit."""
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("invocation quota requires a configured ledger")
+            return self._ledger.finish_invocation(
+                operation_id, request_digest, profile=profile, outcome=outcome
+            )
+
+    def resolve_invocation_safe(
+        self, operation_id: str, *, profile: BudgetLedgerInvocationProfile
+    ) -> BudgetLedgerInvocationReservation | None:
+        """Read the exact durable physical-operation record."""
+        with self._lock:
+            if self._ledger is None:
+                raise RuntimeError("invocation quota requires a configured ledger")
+            return self._ledger.resolve_invocation(operation_id, profile=profile)
 
     def _active_run_binding_for_key(
         self,

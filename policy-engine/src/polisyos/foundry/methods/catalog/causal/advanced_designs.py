@@ -25,7 +25,6 @@ from polisyos.foundry.methods.catalog.causal.nuisance_layer import (
     CrossFitNuisanceOutputs,
     bootstrap_mean_interval,
     build_nuisance_config,
-    crossfit_nuisances,
     fit_dr_tau_model,
     fit_r_tau_model,
 )
@@ -107,6 +106,10 @@ def _coerce_shared_nuisance(
             "outcome_backend": next(iter(bundle.outcome_backends), None),
             "calibration_mode": next(iter(bundle.calibration_modes), None),
             "effective_sample_size": diagnostics.get("effective_sample_size"),
+            "fit_identity": bundle.fit_identity,
+            "native_contract": bundle.contract.as_contract_payload(),
+            "native_split_manifest": diagnostics["split_manifest"],
+            "execution_policy": diagnostics["execution_policy"],
         },
     )
 
@@ -118,17 +121,12 @@ def _resolve_nuisance_outputs(
     *,
     params: Mapping[str, Any],
 ) -> CrossFitNuisanceOutputs:
-    shared = params.get("__shared_nuisance_bundle")
-    if isinstance(shared, ATENuisanceBundle):
-        return _coerce_shared_nuisance(shared, params=params)
-
-    try:
-        contract = ATENuisanceContract.from_params(params)
-        bundle = fit_crossfit_nuisance_bundle(X, T, Y, contract, params)
-        return _coerce_shared_nuisance(bundle, params=params)
-    except Exception:
-        config = build_nuisance_config(dict(params))
-        return crossfit_nuisances(X, T, Y, config)
+    # All maintained nuisance consumers resolve offered identity through the
+    # controlled fit core. A canonical refusal cannot select an alternate fit
+    # engine or trust mutable predictions supplied by the caller instead.
+    contract = ATENuisanceContract.from_params(params)
+    bundle = fit_crossfit_nuisance_bundle(X, T, Y, contract, params)
+    return _coerce_shared_nuisance(bundle, params=params)
 
 
 def _truncate_pseudo_outcome(

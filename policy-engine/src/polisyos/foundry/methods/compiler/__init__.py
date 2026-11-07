@@ -32,6 +32,7 @@ from polisyos.foundry.methods.backends.validated import VALIDATED_EXECUTION_PARA
 from polisyos.foundry.methods.base import FoundryMethod, MethodSignature
 from polisyos.foundry.methods.compiler.specialization import (
     BackendSpec,
+    ShapeSpec,
     Specialization,
     build_specialization,
 )
@@ -219,6 +220,26 @@ class CompilationCache:
         _identity: _ExecutableIdentity | None = None,
     ) -> CompiledMethod | None:
         """Return one bound implementation, or no unambiguous unbound lookup."""
+        return self._lookup(spec, token=token, _identity=_identity, account=True)
+
+    def _recheck_after_claim(
+        self,
+        spec: Specialization,
+        *,
+        token: CacheToken,
+        _identity: _ExecutableIdentity,
+    ) -> CompiledMethod | None:
+        """Reconcile a prior miss without counting another user lookup."""
+        return self._lookup(spec, token=token, _identity=_identity, account=False)
+
+    def _lookup(
+        self,
+        spec: Specialization,
+        *,
+        token: CacheToken | None,
+        _identity: _ExecutableIdentity | None,
+        account: bool,
+    ) -> CompiledMethod | None:
         with self._lock:
             if _identity is None:
                 keys = self._matching_keys(spec, token)
@@ -226,13 +247,15 @@ class CompilationCache:
             else:
                 key = self._cache_key(spec, token, _identity)
             if key is not None and key in self._cache:
-                self._hits += 1
+                if account:
+                    self._hits += 1
                 entry = self._cache[key]
                 entry.last_access = time.monotonic()
                 entry.access_count += 1
                 self._cache.move_to_end(key)
                 return entry.compiled
-            self._misses += 1
+            if account:
+                self._misses += 1
             return None
 
     def put(
@@ -691,38 +714,49 @@ class MethodCompiler:
 
             start_time = time.monotonic()
             try:
-                selected = _ResolvedImplementation(
-                    self, sig.fqn, method_class, sig, pure_step, identity
-                )
-                context_token = _resolved_implementation.set(selected)
-                try:
-                    kernel = self._compile_method(
-                        method_class=method_class,
+                # A previous leader may publish between our miss and claim.
+                # Publish that result through this flight as well, so followers
+                # which joined the new claim receive their terminal outcome.
+                cached = self._cache._recheck_after_claim(spec, token=token, _identity=identity)
+                if cached is not None:
+                    compiled = (
+                        cached
+                        if _dynamic_defaults_equal(cached.dynamic_defaults, dynamic_defaults)
+                        else _bind_compiled_method(cached, dynamic_defaults)
+                    )
+                else:
+                    selected = _ResolvedImplementation(
+                        self, sig.fqn, method_class, sig, pure_step, identity
+                    )
+                    context_token = _resolved_implementation.set(selected)
+                    try:
+                        kernel = self._compile_method(
+                            method_class=method_class,
+                            signature=sig,
+                            specialization=spec,
+                            static_params=dict(static_values),
+                            dynamic_defaults=dict(dynamic_defaults),
+                            dynamic_names=dynamic_names,
+                            jit=jit,
+                            capture_hlo=capture_hlo,
+                            vmap_axis=vmap_axis,
+                            donate_argnums=donate_argnums,
+                        )
+                    finally:
+                        _resolved_implementation.reset(context_token)
+                    compile_time_ms = (time.monotonic() - start_time) * 1000
+                    template = CompiledMethod(
+                        method_fqn=sig.fqn,
                         signature=sig,
                         specialization=spec,
-                        static_params=dict(static_values),
-                        dynamic_defaults=dict(dynamic_defaults),
-                        dynamic_names=dynamic_names,
-                        jit=jit,
-                        capture_hlo=capture_hlo,
-                        vmap_axis=vmap_axis,
-                        donate_argnums=donate_argnums,
+                        step_fn=lambda state, params: kernel.step_core(state, (), params),
+                        dynamic_defaults=MappingProxyType(dict(dynamic_defaults)),
+                        lowered_hlo=None,
+                        compile_time_ms=compile_time_ms,
+                        _kernel=kernel,
+                        _implementation_identity=identity,
                     )
-                finally:
-                    _resolved_implementation.reset(context_token)
-                compile_time_ms = (time.monotonic() - start_time) * 1000
-                template = CompiledMethod(
-                    method_fqn=sig.fqn,
-                    signature=sig,
-                    specialization=spec,
-                    step_fn=lambda state, params: kernel.step_core(state, (), params),
-                    dynamic_defaults=MappingProxyType(dict(dynamic_defaults)),
-                    lowered_hlo=None,
-                    compile_time_ms=compile_time_ms,
-                    _kernel=kernel,
-                    _implementation_identity=identity,
-                )
-                compiled = _bind_compiled_method(template, dynamic_defaults)
+                    compiled = _bind_compiled_method(template, dynamic_defaults)
                 published = self._cache.publish_flight(
                     flight_key,
                     flight,
@@ -1002,19 +1036,10 @@ class MethodCompiler:
                     shape_values.pop(slot.name, None)
                 continue
 
-            existing = shape_values.get(slot.name)
-            dtype = getattr(existing, "dtype", None)
-            if dtype is None:
-                dtype = next(
-                    (
-                        getattr(arr, "dtype", None)
-                        for arr in input_shapes.values()
-                        if hasattr(arr, "dtype")
-                    ),
-                    np.float32,
-                )
             if isinstance(shape_values, dict):
-                shape_values[slot.name] = np.empty(tuple(output_shape), dtype=dtype)
+                # SlotSpec declares shape, not output dtype. Keep metadata only;
+                # actual JAX tracing specializes on the real upstream result.
+                shape_values[slot.name] = ShapeSpec(tuple(output_shape), dtype="unknown")
             next_unresolved.discard(slot.name)
         return next_unresolved
 

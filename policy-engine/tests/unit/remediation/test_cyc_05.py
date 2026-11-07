@@ -153,6 +153,8 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
     )
     from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
     from polisyos.runtime.quality.design_generation import DesignGenerationOrganRun
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
     from tests.unit.runtime.http.control_service_test_support import (
         bound_nl_authorization_proof,
     )
@@ -164,6 +166,15 @@ async def test_http_job_progress_exposes_requested_and_effective_recursive_limit
 
     service = _build_control_service(tmp_path)
     try:
+        # The worker requires the durable producer-settlement owner even when
+        # this candidate-only fixture replaces compilation before any producer
+        # call. Keep the real owner binding in the route-to-worker path.
+        service.bind_llm_producer_settlement_store(
+            BudgetMiddleware(
+                BudgetState(),
+                ledger=FileBudgetLedger(tmp_path / ".polisyos" / "producer-ledger.json"),
+            )
+        )
         monkeypatch.setattr(
             promotion_sequence_module,
             "_legacy_policy_promotion_callers",
@@ -574,6 +585,7 @@ def _cyc05_recursive_budget() -> BudgetState:
 async def _run_cyc05_recursive_case(
     *,
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
     root: str,
     graph: object,
     problems: dict[str, object],
@@ -597,36 +609,36 @@ async def _run_cyc05_recursive_case(
         artifact_store=outer_n5_store,
     )
     calls: list[object] = []
-
-    class _RecordingN5:
-        def run(self, concrete_request: object) -> object:
-            calls.append(concrete_request)
-            return original_n5.run(concrete_request)
-
     original_n5 = controller._joint_simulation_controller
-    controller._joint_simulation_controller = _RecordingN5()  # type: ignore[assignment]
-    try:
-        result = await controller.run(
-            graph,  # type: ignore[arg-type]
-            problems_by_node=problems,  # type: ignore[arg-type]
-            budget_state=_cyc05_recursive_budget(),
-            recursive_budget=RecursiveCycleBudget(
-                max_depth=1,
-                max_nodes=3,
-                min_cycles_per_leaf=1,
-                max_cycles_per_leaf=1,
-            ),
-            joint_simulation_requests_by_node={root: request},  # type: ignore[dict-item]
-            subdesign_contracts_by_node={root: subdesigns},
-        )
-    finally:
-        controller._joint_simulation_controller = original_n5
+    original_run = original_n5.run
+
+    def record_n5_invocation(concrete_request: JointSimulationRequest) -> object:
+        calls.append(concrete_request)
+        return original_run(concrete_request)
+
+    # Spy on the actual canonical N5 owner instead of replacing it with a
+    # partial fake that drops owner-bound fields such as its budget observer.
+    monkeypatch.setattr(original_n5, "run", record_n5_invocation)
+    result = await controller.run(
+        graph,  # type: ignore[arg-type]
+        problems_by_node=problems,  # type: ignore[arg-type]
+        budget_state=_cyc05_recursive_budget(),
+        recursive_budget=RecursiveCycleBudget(
+            max_depth=1,
+            max_nodes=3,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        ),
+        joint_simulation_requests_by_node={root: request},  # type: ignore[dict-item]
+        subdesign_contracts_by_node={root: subdesigns},
+    )
     return result, calls, outer_n5_store
 
 
 @pytest.mark.asyncio
 async def test_workspace_fixture_children_flow_through_recursive_graph_and_n5(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Explicit WorkspaceLoop children retain identity through graph, N5 and composition."""
 
@@ -635,6 +647,7 @@ async def test_workspace_fixture_children_flow_through_recursive_graph_and_n5(
     )
     result, calls, outer_n5_store = await _run_cyc05_recursive_case(
         tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
         root=root,
         graph=graph,
         problems=problems,
@@ -739,6 +752,7 @@ def test_workspace_fixture_child_alias_roundtrip_preserves_source_identity(tmp_p
 @pytest.mark.parametrize("control", ["missing_child", "missing_coupling", "identity"])
 async def test_recursive_parent_blocks_without_n5_or_composition_for_missing_inputs(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
     control: str,
 ) -> None:
     """All three incomplete handoffs fail closed before N5 or composition."""
@@ -765,6 +779,7 @@ async def test_recursive_parent_blocks_without_n5_or_composition_for_missing_inp
 
     result, calls, _outer_n5_store = await _run_cyc05_recursive_case(
         tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
         root=root,
         graph=graph,
         problems=problems,
@@ -787,7 +802,10 @@ async def test_recursive_parent_blocks_without_n5_or_composition_for_missing_inp
 
 
 @pytest.mark.asyncio
-async def test_recursive_parent_blocks_for_wrong_parent_workspace_identity(tmp_path: Path) -> None:
+async def test_recursive_parent_blocks_for_wrong_parent_workspace_identity(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """A child exported under another parent cannot reach N5 or composition."""
 
     root, subdesigns, graph, problems, request, outer_n5_store = _cyc05_recursive_fixture_case(
@@ -800,6 +818,7 @@ async def test_recursive_parent_blocks_for_wrong_parent_workspace_identity(tmp_p
 
     result, calls, _outer_n5_store = await _run_cyc05_recursive_case(
         tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
         root=root,
         graph=graph,
         problems=problems,

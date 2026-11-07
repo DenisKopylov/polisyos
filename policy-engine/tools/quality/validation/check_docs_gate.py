@@ -165,7 +165,15 @@ GATE_COMMANDS: dict[str, GateCommand] = {
     "docs_lifecycle": GateCommand(
         key="docs_lifecycle",
         label="verify docs lifecycle, ADR index, nav, and README/AUTHORING coverage",
-        argv=("uv", "run", "polisyos-tools", "validation", "check-docs-lifecycle"),
+        argv=(
+            "uv",
+            "run",
+            "polisyos-tools",
+            "validation",
+            "check-docs-lifecycle",
+            "--reference-scope",
+            "live-authored",
+        ),
     ),
     "extension_examples": GateCommand(
         key="extension_examples",

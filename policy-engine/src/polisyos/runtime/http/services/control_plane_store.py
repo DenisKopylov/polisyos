@@ -1015,6 +1015,40 @@ class ControlJobRecord:
     progress: dict[str, Any]
     method_execution_selection: dict[str, Any] | None = None
 
+    def same_execution_inputs(self, other: object) -> bool:
+        """Compare stable job execution inputs while excluding live telemetry.
+
+        A current manifest pointer and lease expiration can change while the
+        same admitted job is running. The creation-time manifest is compared
+        by ``ControlJobExecutionAdmission``; this method keeps the job's
+        profile, policy, payload, scope-linked identity, and fencing identity
+        stable without treating lease renewal, progress, or diagnostics as a
+        new execution.
+        """
+        if type(other) is not ControlJobRecord:
+            return False
+        return (
+            self.job_id == other.job_id
+            and self.kind == other.kind
+            and self.state == other.state
+            and self.run_id == other.run_id
+            and self.pipeline_id == other.pipeline_id
+            and self.requested_execution_profile == other.requested_execution_profile
+            and self.effective_execution_profile == other.effective_execution_profile
+            and _json_values_equal_strict(self.policy_flags, other.policy_flags)
+            and self.payload_ref == other.payload_ref
+            and self.submitted_by == other.submitted_by
+            and self.created_at == other.created_at
+            and self.started_at == other.started_at
+            and self.finished_at == other.finished_at
+            and self.lease_owner == other.lease_owner
+            and self.attempt == other.attempt
+            and _json_values_equal_strict(
+                self.method_execution_selection,
+                other.method_execution_selection,
+            )
+        )
+
     def to_response(self, *, request_id: str | None = None) -> ControlJobResponse:
         """Convert a durable row snapshot into the public `ControlJobResponse` contract."""
         manifest_ref = None
@@ -1192,6 +1226,34 @@ class ControlJobExecutionAdmission:
     attempt: int
     manifest_pointer_state: ManifestPointerState
 
+    def same_execution_identity(self, other: object) -> bool:
+        """Compare immutable execution identity across fresh lease reads.
+
+        Callers must obtain each admission through
+        ``current_execution_job_admission`` so the persisted SQL lease is
+        revalidated on every read. Renewable lease expiration, worker
+        progress, diagnostics, the mutable current manifest pointer, and its
+        derived pointer state are deliberately excluded. The admitted
+        creation scope and creation-time capability manifest remain bound.
+        """
+        if type(other) is not ControlJobExecutionAdmission:
+            return False
+        return (
+            self.job.same_execution_inputs(other.job)
+            and self.scope == other.scope
+            and self.attempt == self.job.attempt == other.attempt == other.job.attempt
+            and self.admission_capability_manifest_ref
+            == other.admission_capability_manifest_ref
+        )
+
+    def matches_job_record(self, other: object) -> bool:
+        """Match a worker-supplied job to this fresh creation-scoped admission."""
+        return (
+            type(other) is ControlJobRecord
+            and self.job.same_execution_inputs(other)
+            and self.attempt == self.job.attempt == other.attempt
+        )
+
 
 @dataclass(frozen=True)
 class _ControlJobLifecycleSourceEventRecord:
@@ -1345,6 +1407,40 @@ class AcquisitionActionHeadRecord:
 
     evaluation_frontier_before_ref: str | None = None
     evaluation_frontier_ref: str | None = None
+    receipt_manifest_profile_sha256: str | None = None
+
+
+@dataclass(frozen=True)
+class _PreparedAcquisitionActionHeadPublication:
+    """SQL-ready publication for a verified requested acquisition phase.
+
+    The phase artifact and event are prepared and reconciled before job creation.
+    This value carries only the checked pointers and request binding needed to
+    advance the existing action head in the same SQL transaction as the job.
+    """
+
+    tenant_id: str
+    cell_id: str
+    run_id: str
+    source_job_id: str
+    route_id: str
+    action_generation: int
+    job_id: str
+    action_kind: Literal["runtime.evidence.acquisition.candidate_experiment.execute"]
+    request_json: str
+    decision_ref: str
+    payload_ref: str | None
+    receipt_ref: str
+    receipt_sha256: str
+    receipt_manifest_profile_sha256: str
+    durable_event_id: str
+    coarse_phase: str
+    receipt_phase: Literal["requested"]
+    recovery_state: str
+    predecessor_receipt_ref: str | None
+    expected_head_generation: int = 0
+    expected_previous_terminal_ref: str | None = None
+    expected_previous_terminal_manifest_profile_sha256: str | None = None
 
 
 @dataclass(frozen=True)
@@ -1466,8 +1562,6 @@ def _validate_acquisition_evaluation_frontier_cas(
         _validate_acquisition_evaluation_frontier_value(frontier_cas.replacement)
     elif require_replacement:
         raise ValueError("acquisition_evaluation_frontier_replacement_required")
-    elif frontier_cas.expected_revision == 0:
-        raise ValueError("acquisition_evaluation_frontier_not_established")
 
 
 def _acquisition_evaluation_frontier_ref(
@@ -4177,6 +4271,7 @@ class ControlPlaneStore:
         pre_admission_producer_event_observation: ProducerCallState | None = None,
         pre_admission_no_call_reason: NoCallReason | None = None,
         pre_admission_failure_code: str | None = None,
+        prepared_acquisition_action_head: _PreparedAcquisitionActionHeadPublication | None = None,
     ) -> ControlJobRecord:
         """Publish one job and prepared admission diagnostics atomically with SQL only.
 
@@ -4191,6 +4286,82 @@ class ControlPlaneStore:
             raise ValueError("control_job_initial_failure_missing")
         if initial_state == "pending" and initial_error_message is not None:
             raise ValueError("control_job_pending_has_initial_failure")
+        if prepared_acquisition_action_head is not None:
+            publication = prepared_acquisition_action_head
+            if (
+                type(publication) is not _PreparedAcquisitionActionHeadPublication
+                or kind != "acquisition"
+                or initial_state != "pending"
+                or publication.job_id != job_id
+                or publication.action_kind
+                != "runtime.evidence.acquisition.candidate_experiment.execute"
+                or publication.run_id != run_id
+                or publication.payload_ref != payload_ref
+                or type(publication.action_generation) is not int
+                or publication.action_generation < 1
+                or type(publication.expected_head_generation) is not int
+                or publication.expected_head_generation != 0
+                or publication.receipt_phase != "requested"
+                or publication.coarse_phase != "requested"
+                or publication.recovery_state != "none"
+                or publication.predecessor_receipt_ref is not None
+                or not all(
+                    type(value) is str and bool(value)
+                    for value in (
+                        publication.tenant_id,
+                        publication.cell_id,
+                        publication.run_id,
+                        publication.source_job_id,
+                        publication.route_id,
+                        publication.job_id,
+                        publication.request_json,
+                        publication.durable_event_id,
+                        publication.coarse_phase,
+                        publication.recovery_state,
+                    )
+                )
+                or not _is_sha256_ref(publication.decision_ref)
+                or not _is_sha256_ref(publication.receipt_ref)
+                or publication.receipt_ref != publication.receipt_sha256
+                or not _is_sha256_ref(publication.receipt_manifest_profile_sha256)
+                or not _is_sha256_ref(publication.route_id)
+                or publication.payload_ref is None
+                or not _is_sha256_ref(publication.payload_ref)
+            ):
+                raise ValueError("prepared_acquisition_action_publication_invalid")
+            try:
+                request_value = json.loads(publication.request_json)
+            except (TypeError, json.JSONDecodeError) as exc:
+                raise ValueError("prepared_acquisition_action_request_invalid") from exc
+            if (
+                not isinstance(request_value, dict)
+                or json.dumps(request_value, sort_keys=True, separators=(",", ":"))
+                != publication.request_json
+            ):
+                raise ValueError("prepared_acquisition_action_request_invalid")
+            previous_ref = publication.expected_previous_terminal_ref
+            previous_profile = publication.expected_previous_terminal_manifest_profile_sha256
+            pins = request_value.get("replay_pins")
+            selected_previous = (
+                pins.get("predecessor_terminal_ref") if isinstance(pins, dict) else None
+            )
+            if publication.action_generation == 1:
+                if (
+                    previous_ref is not None
+                    or previous_profile is not None
+                    or selected_previous is not None
+                ):
+                    raise ValueError("prepared_acquisition_action_predecessor_invalid")
+            elif (
+                not _is_sha256_ref(previous_ref)
+                or not _is_sha256_ref(previous_profile)
+                or not isinstance(selected_previous, dict)
+                or selected_previous.get("artifact_id") != previous_ref
+                or selected_previous.get("manifest_profile_sha256") != previous_profile
+                or selected_previous.get("kind") != "runtime_quality.acquisition_route_loop_receipt"
+                or selected_previous.get("media_type") != "application/json"
+            ):
+                raise ValueError("prepared_acquisition_action_predecessor_invalid")
         if (pre_admission_attempt_id is None) != (pre_admission_outcome is None):
             raise ValueError("control_job_pre_admission_link_incomplete")
         if pre_admission_attempt_id is not None and (
@@ -4275,6 +4446,36 @@ class ControlPlaneStore:
         created_event_payload = dict(creation_event_payload or {})
         created_event_payload["state"] = initial_state
         with self._job_transaction():
+            if prepared_acquisition_action_head is not None:
+                publication = prepared_acquisition_action_head
+                # This comparison and requested-head insertion share the job
+                # transaction. Per-generation head CAS alone cannot prevent a
+                # stale request from skipping or borrowing another terminal.
+                if self.backend == "postgres":
+                    # The completed source job is the existing shared row even
+                    # before generation one has any head, and across route ids.
+                    self._lock_job_state(publication.source_job_id)
+                heads = self.list_acquisition_action_heads_for_source(
+                    tenant_id=publication.tenant_id,
+                    cell_id=publication.cell_id,
+                    run_id=publication.run_id,
+                    source_job_id=publication.source_job_id,
+                )
+                if any(head.route_id != publication.route_id for head in heads) or tuple(
+                    head.action_generation for head in heads
+                ) != tuple(range(1, publication.action_generation)):
+                    raise ValueError("acquisition_action_generation_predecessor_conflict")
+                previous = heads[-1] if heads else None
+                if (previous is None) != (publication.action_generation == 1) or (
+                    previous is not None
+                    and (
+                        previous.receipt_phase != "terminal"
+                        or previous.receipt_ref != publication.expected_previous_terminal_ref
+                        or previous.receipt_manifest_profile_sha256
+                        != publication.expected_previous_terminal_manifest_profile_sha256
+                    )
+                ):
+                    raise ValueError("acquisition_action_generation_predecessor_conflict")
             self._execute(sql, params)
             self.upsert_progress(job_id=job_id, progress=progress)
             self.append_event(
@@ -4290,6 +4491,34 @@ class ControlPlaneStore:
                 event_type="job_created",
                 payload=created_event_payload,
             )
+            if prepared_acquisition_action_head is not None:
+                publication = prepared_acquisition_action_head
+                head = self.advance_acquisition_action_head(
+                    tenant_id=publication.tenant_id,
+                    cell_id=publication.cell_id,
+                    run_id=publication.run_id,
+                    source_job_id=publication.source_job_id,
+                    route_id=publication.route_id,
+                    action_generation=publication.action_generation,
+                    expected_head_generation=publication.expected_head_generation,
+                    receipt_ref=publication.receipt_ref,
+                    receipt_sha256=publication.receipt_sha256,
+                    durable_event_id=publication.durable_event_id,
+                    coarse_phase=publication.coarse_phase,
+                    receipt_phase=publication.receipt_phase,
+                    recovery_state=publication.recovery_state,
+                    job_id=publication.job_id,
+                    predecessor_receipt_ref=publication.predecessor_receipt_ref,
+                    receipt_manifest_profile_sha256=(publication.receipt_manifest_profile_sha256),
+                )
+                if (
+                    head.head_generation != 1
+                    or head.receipt_ref != publication.receipt_ref
+                    or head.job_id != publication.job_id
+                    or head.receipt_manifest_profile_sha256
+                    != publication.receipt_manifest_profile_sha256
+                ):
+                    raise RuntimeError("prepared_acquisition_action_head_readback_failed")
             if creation_basis is not None:
                 source = self._get_job_created_source_event_record(job_id)
                 if source.payload_sha256 != creation_basis.source_payload_sha256:
@@ -4603,7 +4832,7 @@ class ControlPlaneStore:
         frontier_cas: AcquisitionEvaluationFrontierCAS,
         *,
         require_replacement: bool = False,
-    ) -> AcquisitionEvaluationFrontierRecord:
+    ) -> AcquisitionEvaluationFrontierRecord | None:
         """Compare and append one selected evaluation under the owning SQL transaction."""
 
         _validate_acquisition_evaluation_frontier_cas(
@@ -4651,8 +4880,10 @@ class ControlPlaneStore:
         ):
             raise ValueError("acquisition_evaluation_frontier_conflict")
         if frontier_cas.replacement is None:
+            if current_revision == 0 and current_ref is None:
+                return None
             if current_revision < 1 or current_ref is None:
-                raise ValueError("acquisition_evaluation_frontier_not_established")
+                raise ValueError("acquisition_evaluation_frontier_head_corrupt")
             record = self.get_acquisition_evaluation_frontier_by_ref(current_ref)
             if record is None or record.key != key or record.revision != current_revision:
                 raise RuntimeError("acquisition_evaluation_frontier_head_history_mismatch")
@@ -4806,7 +5037,8 @@ class ControlPlaneStore:
                    action_generation, head_generation, receipt_ref, receipt_sha256,
                    durable_event_id, coarse_phase, receipt_phase, recovery_state,
                    job_id, predecessor_receipt_ref, created_at,
-                   evaluation_frontier_before_ref, evaluation_frontier_ref
+                   evaluation_frontier_before_ref, evaluation_frontier_ref,
+                   receipt_manifest_profile_sha256
             FROM runtime_acquisition_action_heads
             WHERE tenant_id = ? AND cell_id = ? AND run_id = ?
               AND source_job_id = ? AND route_id = ? AND action_generation = ?
@@ -4839,7 +5071,8 @@ class ControlPlaneStore:
                    action_generation, head_generation, receipt_ref, receipt_sha256,
                    durable_event_id, coarse_phase, receipt_phase, recovery_state,
                    job_id, predecessor_receipt_ref, created_at,
-                   evaluation_frontier_before_ref, evaluation_frontier_ref
+                   evaluation_frontier_before_ref, evaluation_frontier_ref,
+                   receipt_manifest_profile_sha256
             FROM runtime_acquisition_action_heads
             WHERE tenant_id = ? AND cell_id = ? AND run_id = ?
               AND source_job_id = ? AND route_id = ? AND action_generation = ?
@@ -4885,7 +5118,8 @@ class ControlPlaneStore:
                    heads.receipt_ref, heads.receipt_sha256, heads.durable_event_id,
                    heads.coarse_phase, heads.receipt_phase, heads.recovery_state,
                    heads.job_id, heads.predecessor_receipt_ref, heads.created_at,
-                   heads.evaluation_frontier_before_ref, heads.evaluation_frontier_ref
+                   heads.evaluation_frontier_before_ref, heads.evaluation_frontier_ref,
+                   heads.receipt_manifest_profile_sha256
             FROM runtime_acquisition_action_heads AS heads
             WHERE heads.tenant_id = ? AND heads.cell_id = ? AND heads.run_id = ?
               AND heads.source_job_id = ? AND heads.route_id = ?
@@ -4930,7 +5164,8 @@ class ControlPlaneStore:
                    heads.receipt_ref, heads.receipt_sha256, heads.durable_event_id,
                    heads.coarse_phase, heads.receipt_phase, heads.recovery_state,
                    heads.job_id, heads.predecessor_receipt_ref, heads.created_at,
-                   heads.evaluation_frontier_before_ref, heads.evaluation_frontier_ref
+                   heads.evaluation_frontier_before_ref, heads.evaluation_frontier_ref,
+                   heads.receipt_manifest_profile_sha256
             FROM runtime_acquisition_action_heads AS heads
             WHERE heads.tenant_id = ? AND heads.cell_id = ? AND heads.run_id = ?
               AND heads.source_job_id = ?
@@ -4968,19 +5203,25 @@ class ControlPlaneStore:
         job_id: str,
         predecessor_receipt_ref: str | None,
         frontier_cas: AcquisitionEvaluationFrontierCAS | None = None,
+        receipt_manifest_profile_sha256: str | None = None,
     ) -> AcquisitionActionHeadRecord:
         """Append one predecessor-consistent action head under the job lease.
 
         When a frontier CAS is supplied, its shared candidate/task selector
         transition is part of this same SQL transaction. Legacy callers retain
         the original route-only behavior and must not emit B09 source-retained
-        terminals.
+        terminals. A selected receipt profile cannot be dropped by a successor;
+        the store never infers a profile for a different or historical receipt.
         """
 
         if action_generation < 1 or expected_head_generation < 0:
             raise ValueError("acquisition_action_generation_invalid")
         if receipt_ref != receipt_sha256 or not _is_sha256_ref(receipt_ref):
             raise ValueError("acquisition_action_receipt_binding_invalid")
+        if receipt_manifest_profile_sha256 is not None and not _is_sha256_ref(
+            receipt_manifest_profile_sha256
+        ):
+            raise ValueError("acquisition_action_receipt_manifest_profile_invalid")
         if frontier_cas is not None:
             _validate_acquisition_evaluation_frontier_cas(frontier_cas)
             if (
@@ -5040,13 +5281,48 @@ class ControlPlaneStore:
                 or (current is None and predecessor_receipt_ref is not None)
             ):
                 raise ValueError("acquisition_action_predecessor_conflict")
+            if (
+                current is not None
+                and current.receipt_manifest_profile_sha256 is not None
+                and receipt_manifest_profile_sha256 is None
+            ):
+                raise ValueError("acquisition_action_receipt_manifest_profile_downgrade")
+            prior_receipts = self._fetchall(
+                """
+                SELECT receipt_manifest_profile_sha256
+                FROM runtime_acquisition_action_heads
+                WHERE tenant_id = ? AND cell_id = ? AND run_id = ?
+                  AND source_job_id = ? AND route_id = ? AND action_generation = ?
+                  AND receipt_ref = ?
+                """,
+                (
+                    tenant_id,
+                    cell_id,
+                    run_id,
+                    source_job_id,
+                    route_id,
+                    action_generation,
+                    receipt_ref,
+                ),
+            )
+            if prior_receipts and (
+                receipt_manifest_profile_sha256 is not None
+                or any(row["receipt_manifest_profile_sha256"] is not None for row in prior_receipts)
+            ):
+                if any(
+                    row["receipt_manifest_profile_sha256"] != receipt_manifest_profile_sha256
+                    for row in prior_receipts
+                ):
+                    raise ValueError("acquisition_action_receipt_manifest_profile_conflict")
+                raise ValueError("acquisition_action_receipt_duplicate")
             next_generation = expected_head_generation + 1
             created_at = _utc_now()
             insert_columns = """tenant_id, cell_id, run_id, source_job_id, route_id,
                 action_generation, head_generation, receipt_ref, receipt_sha256,
                 durable_event_id, coarse_phase, receipt_phase, recovery_state,
                 job_id, predecessor_receipt_ref, created_at,
-                evaluation_frontier_before_ref, evaluation_frontier_ref"""
+                evaluation_frontier_before_ref, evaluation_frontier_ref,
+                receipt_manifest_profile_sha256"""
             values = (
                 tenant_id,
                 cell_id,
@@ -5066,13 +5342,14 @@ class ControlPlaneStore:
                 _iso(created_at),
                 frontier_cas.expected_frontier_ref if frontier_cas is not None else None,
                 committed_frontier.frontier_ref if committed_frontier is not None else None,
+                receipt_manifest_profile_sha256,
             )
             try:
                 if fence is None:
                     affected_rows = self._execute(
                         "INSERT INTO runtime_acquisition_action_heads "
                         f"({insert_columns}) "
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         values,
                     )
                 else:
@@ -5084,7 +5361,7 @@ class ControlPlaneStore:
                     affected_rows = self._execute(
                         "INSERT INTO runtime_acquisition_action_heads "
                         f"({insert_columns}) "
-                        f"SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? "
+                        f"SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? "
                         f"WHERE EXISTS (SELECT 1 FROM control_jobs WHERE {where})",
                         (*values, *where_params),
                     )
@@ -5108,10 +5385,13 @@ class ControlPlaneStore:
             if (
                 loaded is None
                 or loaded.head_generation != next_generation
+                or loaded.receipt_ref != receipt_ref
+                or loaded.receipt_sha256 != receipt_sha256
                 or loaded.evaluation_frontier_ref
                 != (committed_frontier.frontier_ref if committed_frontier is not None else None)
                 or loaded.evaluation_frontier_before_ref
                 != (frontier_cas.expected_frontier_ref if frontier_cas is not None else None)
+                or loaded.receipt_manifest_profile_sha256 != receipt_manifest_profile_sha256
             ):
                 raise RuntimeError("acquisition_action_head_readback_failed")
             return loaded
@@ -5135,10 +5415,13 @@ class ControlPlaneStore:
         job_id: str,
         predecessor_receipt_ref: str | None,
         frontier_cas: AcquisitionEvaluationFrontierCAS,
+        receipt_manifest_profile_sha256: str | None = None,
     ) -> AcquisitionActionHeadFrontierCommit:
         """Append an action head and condition the shared evaluation frontier atomically."""
 
         _validate_acquisition_evaluation_frontier_cas(frontier_cas)
+        if frontier_cas.replacement is None and frontier_cas.expected_revision == 0:
+            raise ValueError("acquisition_evaluation_frontier_check_only_requires_action_head")
         head = self.advance_acquisition_action_head(
             tenant_id=tenant_id,
             cell_id=cell_id,
@@ -5156,6 +5439,7 @@ class ControlPlaneStore:
             job_id=job_id,
             predecessor_receipt_ref=predecessor_receipt_ref,
             frontier_cas=frontier_cas,
+            receipt_manifest_profile_sha256=receipt_manifest_profile_sha256,
         )
         if frontier_cas.replacement is None:
             frontier_ref = frontier_cas.expected_frontier_ref
@@ -5386,6 +5670,53 @@ class ControlPlaneStore:
             )
         except (TypeError, ValueError, json.JSONDecodeError) as exc:
             raise ControlJobLeaseLostError("control job terminal event is malformed") from exc
+
+    def _get_job_terminal_source_event_for_core_run(
+        self,
+        *,
+        job_id: str,
+        control_run_id: str,
+        core_run_id: str,
+        expected_state: Literal["completed", "failed"],
+    ) -> _ControlJobLifecycleSourceEventRecord:
+        """Select an immutable terminal attempt without consulting the current head."""
+        from polisyos.runtime.http.services.adapters.core_run import derive_control_job_core_run_id
+
+        rows = self._fetchall(
+            """
+            SELECT event_id, job_id, event_type, payload_json, created_at
+            FROM control_job_events
+            WHERE job_id = ? AND event_type IN (?, ?)
+            ORDER BY event_id ASC
+            """,
+            (job_id, "job_completed", "job_failed"),
+        )
+        matches: list[_ControlJobLifecycleSourceEventRecord] = []
+        for row in rows:
+            event_type = row.get("event_type") if isinstance(row, Mapping) else row[2]
+            if event_type not in {"job_completed", "job_failed"}:
+                raise ControlJobLeaseLostError("control job terminal history type is invalid")
+            try:
+                event = self._control_job_lifecycle_event_record_from_row(
+                    row, expected_job_id=job_id, expected_event_type=event_type
+                )
+                attempt = event.payload.get("attempt")
+                if type(attempt) is not int or attempt < 1:
+                    raise ValueError("terminal attempt is not established")
+                if event.payload.get("state") != event_type.removeprefix("job_"):
+                    raise ValueError("terminal state disagrees with event type")
+                derived = derive_control_job_core_run_id(
+                    job_id=job_id, control_run_id=control_run_id, attempt=attempt
+                )
+            except (TypeError, ValueError, json.JSONDecodeError) as exc:
+                raise ControlJobLeaseLostError("control job terminal history is malformed") from exc
+            if derived == core_run_id:
+                matches.append(event)
+        if len(matches) != 1 or matches[0].event_type != "job_" + expected_state:
+            raise ControlJobLeaseLostError(
+                "control job exact Core terminal history not established"
+            )
+        return matches[0]
 
     def get_cancelled_job_verified_record(self, job_id: str) -> ControlJobRecord:
         """Reconcile a cancelled row, its creation scope, event, and outbox."""
@@ -8119,6 +8450,9 @@ class ControlPlaneStore:
         )
 
     def _row_to_acquisition_action_head(self, row: Any) -> AcquisitionActionHeadRecord:
+        receipt_profile = row["receipt_manifest_profile_sha256"]
+        if receipt_profile is not None and not _is_sha256_ref(receipt_profile):
+            raise RuntimeError("acquisition_action_receipt_manifest_profile_corrupt")
         return AcquisitionActionHeadRecord(
             tenant_id=str(row["tenant_id"]),
             cell_id=str(row["cell_id"]),
@@ -8150,6 +8484,7 @@ class ControlPlaneStore:
                 if row["evaluation_frontier_ref"] is not None
                 else None
             ),
+            receipt_manifest_profile_sha256=receipt_profile,
         )
 
     def _row_to_worker_lease(self, row: Any) -> ControlWorkerLeaseRecord:
@@ -8688,6 +9023,7 @@ class ControlPlaneStore:
                         predecessor_receipt_ref TEXT,
                         evaluation_frontier_before_ref TEXT,
                         evaluation_frontier_ref TEXT,
+                        receipt_manifest_profile_sha256 TEXT,
                         created_at TEXT NOT NULL,
                         PRIMARY KEY (
                             tenant_id, cell_id, run_id, source_job_id, route_id,
@@ -8904,7 +9240,11 @@ class ControlPlaneStore:
                             "PRAGMA table_info(runtime_acquisition_action_heads)"
                         )
                     }
-                    for column in ("evaluation_frontier_before_ref", "evaluation_frontier_ref"):
+                    for column in (
+                        "evaluation_frontier_before_ref",
+                        "evaluation_frontier_ref",
+                        "receipt_manifest_profile_sha256",
+                    ):
                         if column not in action_head_columns:
                             conn.execute(
                                 "ALTER TABLE runtime_acquisition_action_heads ADD COLUMN "
@@ -9141,8 +9481,9 @@ class ControlPlaneStore:
                     recovery_state TEXT NOT NULL,
                     job_id TEXT NOT NULL,
                     predecessor_receipt_ref TEXT,
-                        evaluation_frontier_before_ref TEXT,
-                        evaluation_frontier_ref TEXT,
+                    evaluation_frontier_before_ref TEXT,
+                    evaluation_frontier_ref TEXT,
+                    receipt_manifest_profile_sha256 TEXT,
                     created_at TIMESTAMPTZ NOT NULL,
                     PRIMARY KEY (
                         tenant_id, cell_id, run_id, source_job_id, route_id,
@@ -9158,6 +9499,10 @@ class ControlPlaneStore:
             cur.execute(
                 "ALTER TABLE runtime_acquisition_action_heads "
                 "ADD COLUMN IF NOT EXISTS evaluation_frontier_ref TEXT"
+            )
+            cur.execute(
+                "ALTER TABLE runtime_acquisition_action_heads "
+                "ADD COLUMN IF NOT EXISTS receipt_manifest_profile_sha256 TEXT"
             )
             cur.execute(
                 """

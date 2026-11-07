@@ -1,0 +1,304 @@
+{
+  "packet_id": "DFI-02",
+  "lane": "LANE-08",
+  "source_ids": [
+    "LA-038"
+  ],
+  "protected_distinction_ids": [
+    "LK19"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/DFI-02.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "work_types": "fix + native migration closure",
+  "practical_goal": "Canonical ingest сохраняет точную empty/delivery диагностику, а finite compatibility surface остаётся пригодной для поддержанных test/caller substitutions.",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C94_остатки:0",
+      "audit_id": "C94-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-DFI-02-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Carry existing empty counter through aggregate/manifest."
+    },
+    {
+      "inventory_id": "audit-residual:C94_остатки:1",
+      "audit_id": "C94-R02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-DFI-02-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Stable self-wrapper recognition and current owner dispatch."
+    },
+    {
+      "inventory_id": "audit-residual:C94_остатки:2",
+      "audit_id": "C94-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-DFI-02-03",
+        "REQ-DFI-02-04"
+      ],
+      "shared_owner": null,
+      "rationale": "JointnativeLA038/DFK profile/DB/receipt qualification."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-DFI-02-01",
+      "text": "Outer core-source API должен переносить existing empty_shards вместе с completed/failed/deferred/observations counters в returned stats и persisted stage manifest. Complete_empty не даёт publication authority без current receipt.",
+      "source_ids": [
+        "LA-038"
+      ],
+      "audit_ids": [
+        "C94-R01"
+      ],
+      "test_ids": [
+        "TEST-DFI-02-01"
+      ]
+    },
+    {
+      "id": "REQ-DFI-02-02",
+      "text": "Facade должен распознавать все собственные live generated delegates независимо от последнего lookup и не принять restored old wrapper за self-override. Current owner lookup и legitimate custom developer overrides сохраняются.",
+      "source_ids": [
+        "LA-038"
+      ],
+      "audit_ids": [
+        "C94-R02"
+      ],
+      "test_ids": [
+        "TEST-DFI-02-02"
+      ]
+    },
+    {
+      "id": "REQ-DFI-02-03",
+      "text": "Native canonical pipeline должен без legacy import пройти оба leaf groups, actual config/profile/DB/lease/budget и current output receipt до fresh consumer, сохраняя source filters и все 7 counter metrics.",
+      "source_ids": [
+        "LA-038"
+      ],
+      "audit_ids": [
+        "C94-G01"
+      ],
+      "test_ids": [
+        "TEST-DFI-02-03"
+      ]
+    },
+    {
+      "id": "REQ-DFI-02-04",
+      "text": "Final LA-038 closure сохраняет finite remaining-leaf bindings, архитектурные/no-growth checks и DFI-01 qualified trace; facade aliases retires только по caller qualification.",
+      "source_ids": [
+        "LA-038"
+      ],
+      "audit_ids": [
+        "C94-G01"
+      ],
+      "test_ids": [
+        "TEST-DFI-02-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-DFI-02-01",
+      "requirement_ids": [
+        "REQ-DFI-02-01"
+      ],
+      "level": "native unit / integration",
+      "setup": "Inner stats empty 4/completed 5/observations 6 и nonzero failed/deferred; actual outerAPI/stage writer; missing receipt control.",
+      "action": "Execute merge→return→manifest→fresh reader.",
+      "oracle": "Все counters совпадают с inner defined aggregation, empty 4 не 0; missing receipt warning сохраняется. Old merge fail oracle exact.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Inner controlled result allowed для unit; real inner producer+DB в shared native TEST03.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-DFI-02-02",
+      "requirement_ids": [
+        "REQ-DFI-02-02"
+      ],
+      "level": "native unit / integration",
+      "setup": "saved d1→lookup d2→restore attribute=d1; current restore, custom function, owner replacement, async wrapper.",
+      "action": "Call actual facade/scope; cleanup attribute и повтор canonical.",
+      "oracle": "Нет recursion; restored own wrapper выбирает current owner, custom override действует только в scope; no global broadcast, cancellation cleanup.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не unconditional cache устаревшего owner; exact wrapper identity, не arbitrary name heuristic.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-DFI-02-03",
+      "requirement_ids": [
+        "REQ-DFI-02-03"
+      ],
+      "level": "native unit / integration",
+      "setup": "DFK custom rich registry и actual DatasetBatchConfig; tiny DB; success/empty/error sources, resumed lease, missing receipt.",
+      "action": "Canonical pipeline→core_sources.api→real writes→receipt→fresh reader; scopes A/B и sync bridge.",
+      "oracle": "Source/provenance/filters intact; no duplicate resumed lease submission; budgets учитывают failed attempt; counters/manifest согласованы; current valid receipt yields useful consumer, missing receipt warning.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Controlled connector allowed; actual config/profile/DB/checkpoint receipts, не synthetic neighbors.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-DFI-02-04",
+      "requirement_ids": [
+        "REQ-DFI-02-04"
+      ],
+      "level": "native unit / integration",
+      "setup": "Actual registry/transformers/api tables и architecture checks на new commit.",
+      "action": "Run existing checks и caller inventory; verify no wildcard/domain transport duplication.",
+      "oracle": "Canonical caller remains canonical, no arbitrary globals; reported module budget по реальной семантике check, не literal physical-line count guess.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не требовать rewrite all source algorithms или delete tests ради small facade.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I08-A"
+  ],
+  "dependencies": [
+    "DFI-01 predecessor/accountable LA-038 includes phase1",
+    "DFI-03/EMB-02 shared pipeline writer; E02-I08-A"
+  ],
+  "preservation": [
+    "Canonical API pipeline caller",
+    "Finite remaining-leaf owners",
+    "Scoped concurrent overrides",
+    "Actual sync context bridge",
+    "Existing Fabric contracts",
+    "Source filters",
+    "Warning for missing output receipt"
+  ],
+  "design_alignment": [
+    "[Vision §3, §6–§7, §11](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md) — существующий owner, реально подключённый consumer, совместимые новые ресурсы через общий контракт; не бесконечный реестр вместо работы. [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md) — candidate/conditional вычисление не равно эмпирической или институциональной authority.",
+    "Freegrow — конечные per-owner bindings, а не особый global patch каждому случаю. Lawful empty полезен; accurate counter не scientific absence claim."
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0437",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-DFI-02-01"
+      ],
+      "rationale": "Carry existing empty counter through aggregate/manifest."
+    },
+    {
+      "inventory_id": "remaining:0438",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-DFI-02-02"
+      ],
+      "rationale": "Stable self-wrapper recognition and current owner dispatch."
+    },
+    {
+      "inventory_id": "remaining:0439",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-DFI-02-03",
+        "REQ-DFI-02-04"
+      ],
+      "rationale": "JointnativeLA038/DFK profile/DB/receipt qualification."
+    },
+    {
+      "inventory_id": "remaining:0440",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-DFI-02-03",
+        "REQ-DFI-02-04"
+      ],
+      "rationale": "C93-G01 закрывается общим actualDB/tracewitness обеихгрупп, не повтором 15fixturecases."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0708",
+      "requirement_ids": [
+        "REQ-DFI-02-03",
+        "REQ-DFI-02-04"
+      ],
+      "test_ids": [
+        "TEST-DFI-02-03",
+        "TEST-DFI-02-04"
+      ],
+      "rationale": "CanonicalAPIcaller."
+    },
+    {
+      "inventory_id": "preserve:0709",
+      "requirement_ids": [
+        "REQ-DFI-02-04"
+      ],
+      "test_ids": [
+        "TEST-DFI-02-04"
+      ],
+      "rationale": "Finite remainingowners."
+    },
+    {
+      "inventory_id": "preserve:0710",
+      "requirement_ids": [
+        "REQ-DFI-02-02",
+        "REQ-DFI-02-03"
+      ],
+      "test_ids": [
+        "TEST-DFI-02-02",
+        "TEST-DFI-02-03"
+      ],
+      "rationale": "Concurrent scopes."
+    },
+    {
+      "inventory_id": "preserve:0711",
+      "requirement_ids": [
+        "REQ-DFI-02-02",
+        "REQ-DFI-02-03"
+      ],
+      "test_ids": [
+        "TEST-DFI-02-02",
+        "TEST-DFI-02-03"
+      ],
+      "rationale": "Synccontextbridge."
+    },
+    {
+      "inventory_id": "preserve:0712",
+      "requirement_ids": [
+        "REQ-DFI-02-03"
+      ],
+      "test_ids": [
+        "TEST-DFI-02-03"
+      ],
+      "rationale": "Fabriccontracts."
+    },
+    {
+      "inventory_id": "preserve:0713",
+      "requirement_ids": [
+        "REQ-DFI-02-03"
+      ],
+      "test_ids": [
+        "TEST-DFI-02-03"
+      ],
+      "rationale": "Richsourcefilters."
+    },
+    {
+      "inventory_id": "preserve:0714",
+      "requirement_ids": [
+        "REQ-DFI-02-01",
+        "REQ-DFI-02-03"
+      ],
+      "test_ids": [
+        "TEST-DFI-02-01",
+        "TEST-DFI-02-03"
+      ],
+      "rationale": "Missingreceiptwarning."
+    }
+  ],
+  "owners": [
+    "src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+    "src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
+    "src/polisyos/data_forge/domains/catalog/batch/pipeline.py"
+  ]
+}

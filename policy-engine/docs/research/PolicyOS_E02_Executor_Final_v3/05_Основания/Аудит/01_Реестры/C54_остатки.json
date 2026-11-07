@@ -1,0 +1,84 @@
+{
+  "pass": "C54",
+  "bundle": "CAU-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C54-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "high",
+      "confidence": "high_bounded_reproduction",
+      "source_ids": [
+        "B211"
+      ],
+      "title": "Conventional WLS проходит rank guard, но raw Gram pseudoinverse теряет slope при смене единиц x",
+      "location": [
+        "S01:98–120"
+      ],
+      "evidence": [
+        "P06",
+        "S01:103–114",
+        "bounded_run.log"
+      ],
+      "reproduction": "Exact linear conventional caller с одинаковыми outcomes, assignment и относительным bandwidth даёт jump≈3 на x и ≈3.14100798995 на x*1e-8, h*1e-8; оба typed SUCCESS. Weighted design rank=2 в обоих случаях. Scaled right Gram singular values≈69.8492 и1.88775e-16 приводят к truncation slope. Независимый weighted-lstsq в x/h даёт3; existing scaled RBC control также сохраняет3.",
+      "remaining": "Согласовать conventional solve/rank с масштабированной x/h basis либо weighted QR/SVD, сохранив заявленный residual covariance profile и support. Проверять invariance единиц running variable/threshold/bandwidth и согласованность effective rank; не называть RBC обязательным workaround для обычной regression.",
+      "limits": "Finite noiseless synthetic linear sharp design; full native chain не исполнена. RBC route с normalized basis этот контроль проходит; распространённость на real data и все orders не установлена. Severity связана с silently wrong numerical effect/SE при SUCCESS, не доказанной policy publication."
+    },
+    {
+      "id": "C54-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B210",
+        "B211"
+      ],
+      "title": "Native registered/input-output/CAS lifecycle не квалифицирован",
+      "evidence": [
+        "S09–S13",
+        "P01–P07",
+        "native_attempt.log",
+        "native_rdd_import.log"
+      ],
+      "remaining": "В поддержанном окружении выполнить existing focused/native registry/materialization/CAS/fresh reader tests; сохранить real cutoff и bound numerical profile. Проверить actual output projection/consumer без подмены fixture envelope.",
+      "limits": "Pytest отсутствует, public import блокируется Python 3.14 syntax under3.12. 26 bodies/66 cases — isolated AST; signatures/registration/CAS пропущены. Установки не выполнялись."
+    },
+    {
+      "id": "C54-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B210"
+      ],
+      "title": "Clean-room RBC имеет finite numerical evidence, но не универсальную inferential аттестацию",
+      "evidence": [
+        "S01:124–177",
+        "S01:453–641",
+        "S11",
+        "P02–P04",
+        "bounded_coverage.json"
+      ],
+      "remaining": "Сохранять exact sharp/fixed-bandwidth/q=p+1/HC0/no-cluster/no-masspoints profile и его limitations. Перед расширением сверить с primary methodological/maintained reference для фактического профиля и independently qualify новые designs. Отдельно обосновывать continuity/manipulation/bandwidth на реальных данных.",
+      "limits": "Independent sensitivity oracle и400 fixed-DGP repetitions (371/400 coverage) не доказывают all-profile nominal coverage. External rdrobust не установлен/не запускался; это clean-room owner, не ложное имя внешней зависимости. Current point+variance correction реальна, не просто quadratic refit/metadata flag."
+    },
+    {
+      "id": "C54-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B211"
+      ],
+      "title": "Структурная экономия памяти подтверждена, end-to-end скорость/peak memory не измерены",
+      "evidence": [
+        "S01:88–120",
+        "S01:146–173",
+        "P01",
+        "P02",
+        "P05"
+      ],
+      "remaining": "Если нужен performance acceptance, измерить реальный размер/input profile и полный method lifecycle отдельно от numerical correctness. Сохранить vector weights, одну small-Gram pinv в conventional route и отдельные small p/q solves в RBC.",
+      "limits": "400 admitted rows, product np.diag tripwire и pinv2x2 подтверждены;6400 vs1280000bytes — размеры сравниваемых design/diagonal структур, не измеренный peak RSS или коэффициент ускорения. Малые independent diagonal oracles намеренно создают N×N только в audit tests."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C54-R01"
+  ],
+  "decision": "B210 содержит real bounded point/covariance RBC, B211 устранил N×N weights/repeated Gram pinv. Остался raw-coordinate numerical truncation в conventional route; native/general coverage/performance qualification открыта."
+}

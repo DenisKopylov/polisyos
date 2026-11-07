@@ -492,3 +492,26 @@ class TestQualityGateIntegration:
         gate = QualityGatePass()
         issues = gate.validate(ctx)
         assert any(issue.severity.value == "blocker" for issue in issues)
+
+
+@pytest.mark.parametrize("conversion_error", [TypeError, ValueError, OverflowError, RuntimeError])
+def test_quality_evidence_numeric_fallback_keeps_unexpected_errors_visible(conversion_error):
+    """Malformed optional numeric indicators degrade; programming errors propagate."""
+    report = DataQualityValidator().validate(
+        make_fetch_result(data=pd.DataFrame({"value": [1, 2]})),
+        make_schema([FieldSpec(name="value", data_type=SchemaType.INT32)]),
+    )
+    report.quality_indicators = None
+
+    class BrokenNumeric:
+        def __float__(self):
+            raise conversion_error("controlled anomaly conversion failure")
+
+    report.anomaly_report = SimpleNamespace(findings=[], overall_anomaly_rate=BrokenNumeric())
+    if conversion_error is RuntimeError:
+        with pytest.raises(RuntimeError, match="controlled anomaly conversion failure"):
+            build_fabric_quality_governance_evidence(report)
+    else:
+        evidence = build_fabric_quality_governance_evidence(report)
+        assert evidence.quality_indicators is None
+        assert evidence.source_evidence_hash == report.to_evidence()["content_hash"]

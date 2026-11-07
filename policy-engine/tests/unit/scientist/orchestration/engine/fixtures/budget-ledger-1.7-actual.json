@@ -1,0 +1,138 @@
+{
+  "schema_version": "1.7",
+  "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+  "coordination_mode": "shared_posix_file_lock",
+  "ledger_id": "ledger:c3d88de79f420407",
+  "revision": 3,
+  "updated_at": "2026-11-03T15:45:16.544483Z",
+  "last_writer": {
+    "host_id": "MacBook-Air-Denis.local",
+    "writer_id": "MacBook-Air-Denis.local:82601:legacy17-owner.json",
+    "pid": 82601
+  },
+  "recent_mutations": [
+    {
+      "revision": 0,
+      "operation": "bootstrap",
+      "writer": {
+        "host_id": "MacBook-Air-Denis.local",
+        "writer_id": "MacBook-Air-Denis.local:82601:legacy17-owner.json",
+        "pid": 82601
+      },
+      "committed_at": "2026-11-03T15:45:16.539556Z"
+    },
+    {
+      "revision": 1,
+      "operation": "settle_producer_event",
+      "key": "nl-run:run-a",
+      "amount": "0.20",
+      "applied_amount": "0.20",
+      "provider": "fixture-provider",
+      "writer": {
+        "host_id": "MacBook-Air-Denis.local",
+        "writer_id": "MacBook-Air-Denis.local:82601:legacy17-owner.json",
+        "pid": 82601
+      },
+      "committed_at": "2026-11-03T15:45:16.541090Z"
+    },
+    {
+      "revision": 2,
+      "operation": "configure_invocation_quota",
+      "key": "nl-run:run-a",
+      "writer": {
+        "host_id": "MacBook-Air-Denis.local",
+        "writer_id": "MacBook-Air-Denis.local:82601:legacy17-owner.json",
+        "pid": 82601
+      },
+      "committed_at": "2026-11-03T15:45:16.542683Z"
+    },
+    {
+      "revision": 3,
+      "operation": "reserve_invocation",
+      "key": "nl-run:run-a",
+      "writer": {
+        "host_id": "MacBook-Air-Denis.local",
+        "writer_id": "MacBook-Air-Denis.local:82601:legacy17-owner.json",
+        "pid": 82601
+      },
+      "committed_at": "2026-11-03T15:45:16.544478Z"
+    }
+  ],
+  "state": {
+    "limits": {},
+    "spent": {
+      "nl-run:run-a": "0.20"
+    },
+    "provider_spent": {
+      "fixture-provider": "0.20"
+    },
+    "reserved": {}
+  },
+  "spend_receipts": {
+    "legacy-event": {
+      "event_id": "legacy-event",
+      "payload_digest": "a9f4b3d22a523fdada41c85c175425bcd15b32b4cd0f54d9433accd52d7195a1",
+      "key": "nl-run:run-a",
+      "amount": "0.20",
+      "provider": "fixture-provider",
+      "revision": 1,
+      "committed_at": "2026-11-03T15:45:16.541078Z"
+    }
+  },
+  "producer_settlements": {
+    "legacy-event": {
+      "event_id": "legacy-event",
+      "request_digest": "1f58b9145b24d108d7ac38887338b3ea3229833b9c1e418250343f907bfd1047",
+      "payload_digest": "a9f4b3d22a523fdada41c85c175425bcd15b32b4cd0f54d9433accd52d7195a1",
+      "key": "nl-run:run-a",
+      "model": "fixture-model",
+      "provider": "fixture-provider",
+      "amount": "0.20",
+      "cost_origin": "reported",
+      "status": "committed",
+      "run_binding": {
+        "schema_version": "polisyos.scientist.budget_ledger.producer_run_binding.v1",
+        "run_id": "run-a",
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a",
+        "profile_id": "profile-a",
+        "control_job_id": "job-run-a"
+      },
+      "control_job_attempt": 1,
+      "revision": 1,
+      "committed_at": "2026-11-03T15:45:16.540901Z"
+    }
+  },
+  "compute_reservations": {},
+  "invocation_profiles": {
+    "run-a": {
+      "schema_version": "scientist.n5_invocation_quota.v1",
+      "allocation_id": "legacy-quota",
+      "total_units": 2,
+      "protected_units": 1,
+      "work_unit": "n5_physical_invocation",
+      "price_origin": "unknown",
+      "run_binding": {
+        "schema_version": "polisyos.scientist.budget_ledger.producer_run_binding.v1",
+        "run_id": "run-a",
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a",
+        "profile_id": "profile-a",
+        "control_job_id": "job-run-a"
+      }
+    }
+  },
+  "invocation_unconfigured_runs": {},
+  "invocation_reservations": {
+    "385cfdbc00ec32031699460779c15099b2bba3cad0e440fffb08e10df0acb9e1": {
+      "operation_id": "385cfdbc00ec32031699460779c15099b2bba3cad0e440fffb08e10df0acb9e1",
+      "request_digest": "1e6dee8fecddd69c962f5ebe17833693bfb9f0d7f1d0e92ebb4085bd34897e06",
+      "run_id": "run-a",
+      "profile_digest": "bc7a144f94b7fd64f227f3da0a0cc7f6dfc601f7c3d74bf7dcf1b91cc0fd6349",
+      "purpose": "standard",
+      "units": 1,
+      "status": "reserved",
+      "revision": 3
+    }
+  }
+}

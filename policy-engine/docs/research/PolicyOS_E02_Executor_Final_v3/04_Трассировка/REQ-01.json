@@ -1,0 +1,687 @@
+{
+  "packet_id": "REQ-01",
+  "lane": "LANE-01",
+  "source_ids": [
+    "LA-045",
+    "LA-046"
+  ],
+  "audit_reports": [
+    "02_Пакеты/REQ-01.md"
+  ],
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "title": "Сохранность явной потребности и domain-нормализация DataRequirement",
+  "work_type": "Локальный behavior fix нормализации домена; qualify/preserve выполненную private-чистку, scope/discovery и historical readers; LA-046 этап1/2.",
+  "practical_goal": "Одинаковый запрос об образовании не превращается в fiscal из-за написания domain; явные потребности и неизвестные остаются видимыми и поступают действительному resolver. Новый совместимый construct/resource подключается общим путём без возврата hardcoded family authority.",
+  "residual_dispositions": [
+    {
+      "audit_id": "LA-045",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-REQ-01-06",
+        "REQ-REQ-01-09"
+      ],
+      "shared_owner": null,
+      "rationale": "Точная private-группа уже отсутствует; не заказывать повторное удаление."
+    },
+    {
+      "audit_id": "AM03",
+      "disposition": "preserve",
+      "requirement_ids": [
+        "REQ-REQ-01-06"
+      ],
+      "shared_owner": null,
+      "rationale": "_digest включён в семь функций; hashlib/json остаются живыми."
+    },
+    {
+      "audit_id": "LA-046 original generic/pilot obligations",
+      "disposition": "preserve",
+      "requirement_ids": [
+        "REQ-REQ-01-03",
+        "REQ-REQ-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Большинство исходных scope/ID/text потерь уже изменены; regression по полному query."
+    },
+    {
+      "audit_id": "REQ-01 §2 domain alias",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-REQ-01-01",
+        "REQ-REQ-01-02",
+        "REQ-REQ-01-09"
+      ],
+      "shared_owner": null,
+      "rationale": "Реальный source-класс education_policy→fiscal; один общий нормализатор."
+    },
+    {
+      "audit_id": "C03_C04 R03",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-REQ-01-01",
+        "REQ-REQ-01-02",
+        "REQ-REQ-01-09"
+      ],
+      "shared_owner": "REQ-01",
+      "rationale": "Единый shared domain-дефект; другие пакеты не создают свой resolver alias fix.",
+      "inventory_id": "audit-residual:C03_C04_остатки:2"
+    },
+    {
+      "audit_id": "REQ-01 §3 retirement reinterpretation",
+      "disposition": "preserve",
+      "requirement_ids": [
+        "REQ-REQ-01-07"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный preserve эвристики заменён явным решением и проверкой полезности replacement."
+    },
+    {
+      "audit_id": "REQ-01 §3 replacement usefulness",
+      "disposition": "capability",
+      "requirement_ids": [
+        "REQ-REQ-01-04",
+        "REQ-REQ-01-07"
+      ],
+      "shared_owner": null,
+      "rationale": "Положительный новый совместимый ресурс и реальный consumer, не один removal flag."
+    },
+    {
+      "audit_id": "REQ-01 §4 finite compatibility census",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-REQ-01-06",
+        "REQ-REQ-01-09"
+      ],
+      "shared_owner": null,
+      "rationale": "Закрытая область first-party/distribution вместо неограниченного поиска внешних users."
+    },
+    {
+      "audit_id": "REQ-01 §5 top-level construct characterization",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-REQ-01-08"
+      ],
+      "shared_owner": null,
+      "rationale": "Поддержка top-level shape не установлена; bounded DEC до расширения API."
+    },
+    {
+      "audit_id": "AM04 original handoff, reinterpreted",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-REQ-01-05"
+      ],
+      "shared_owner": "REQ-01",
+      "rationale": "Старое raw explicit-spec precedence не восстанавливать: текущий source отмечает такие поля unbound; сохранять semantic declarations и owner-bound source gap."
+    },
+    {
+      "audit_id": "C03_C04 R02",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-REQ-01-04",
+        "REQ-REQ-01-05"
+      ],
+      "shared_owner": "ACQ-01",
+      "rationale": "Реальные compiler/planner missing-byte controls и конечный acquisition consumer — ACQ-01."
+    },
+    {
+      "audit_id": "LA-046 closure",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-REQ-01-04",
+        "REQ-REQ-01-05",
+        "REQ-REQ-01-07"
+      ],
+      "shared_owner": "ACQ-01",
+      "rationale": "Нативный compiler результат не является полной LA-046 приёмкой."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-REQ-01-01",
+      "text": "Явный canonical domain или документированный spelling alias должен нормализоваться в тот же ProblemDomain; образование/education_policy/Education Policy не должны заменяться fiscal. Поддержанные fiscal/social/healthcare и остальные canonical enum значения сохраняются.",
+      "source_ids": [
+        "LA-046"
+      ],
+      "audit_ids": [
+        "C03_C04 R03",
+        "REQ-01 §2 domain alias"
+      ],
+      "test_ids": [
+        "TEST-REQ-01-01",
+        "TEST-REQ-01-02"
+      ]
+    },
+    {
+      "id": "REQ-REQ-01-02",
+      "text": "Неподдержанный явный domain должен сохраняться как исходная строка и давать явно ограниченное CUSTOM/unresolved представление либо адресный input refusal; он не должен становиться другой предметной областью по fallback. Доступные explicit constructs и candidate работа не должны теряться только из-за незнакомого label.",
+      "source_ids": [
+        "LA-046"
+      ],
+      "audit_ids": [
+        "REQ-01 §2 unsupported-domain contract",
+        "S08"
+      ],
+      "test_ids": [
+        "TEST-REQ-01-01",
+        "TEST-REQ-01-08"
+      ]
+    },
+    {
+      "id": "REQ-REQ-01-03",
+      "text": "Compiler adapter должен сохранить text/request и объявленные jurisdiction/interval/constructs; opaque scenario ID, generic geography/time и lexical topic proposal не должны создавать обязательный construct, UA/2022 или source authority.",
+      "source_ids": [
+        "LA-046"
+      ],
+      "audit_ids": [
+        "LA-046 original generic/pilot obligations",
+        "REQ-01 §§1,4"
+      ],
+      "test_ids": [
+        "TEST-REQ-01-02",
+        "TEST-REQ-01-03"
+      ]
+    },
+    {
+      "id": "REQ-REQ-01-04",
+      "text": "Поддержанные explicit semantic constructs должны доходить до actual capability resolver с согласованным scope; обязательный отсутствующий resolver и неизвестная basis должны иметь точный исход, отличный от доказанного отсутствия потребности.",
+      "source_ids": [
+        "LA-046"
+      ],
+      "audit_ids": [
+        "REQ-01 §3 replacement usefulness",
+        "LK24",
+        "LK31"
+      ],
+      "test_ids": [
+        "TEST-REQ-01-02",
+        "TEST-REQ-01-03",
+        "TEST-REQ-01-04"
+      ]
+    },
+    {
+      "id": "REQ-REQ-01-05",
+      "text": "REQ-01 и ACQ-01 должны передать один versioned compiler-owned denominator и report в N7; caller-supplied raw specs не должны подменять его. Owner-bound typed gap может выбрать только действительно скомпилированную потребность без изменения её смысла.",
+      "source_ids": [
+        "LA-046"
+      ],
+      "audit_ids": [
+        "AM04 original handoff, reinterpreted",
+        "C03_C04 R02",
+        "LK31"
+      ],
+      "test_ids": [
+        "TEST-REQ-01-02",
+        "TEST-REQ-01-05"
+      ]
+    },
+    {
+      "id": "REQ-REQ-01-06",
+      "text": "Семь retired private функций и _DATA_FAMILY_ORDER не должны возвращаться; действующие compiler/facade/hash/report/reader exports и конечный поддержанный набор consumers должны сохраняться. Изменение AST сентября не является критерием эквивалентности сегодняшнего behavior fix. Не требовать AST-равенства текущих функций историческому relocation commit: проверять нынешний контракт и конечный caller scope.",
+      "source_ids": [
+        "LA-045"
+      ],
+      "audit_ids": [
+        "LA-045",
+        "AM03",
+        "REQ-01 §4"
+      ],
+      "test_ids": [
+        "TEST-REQ-01-06"
+      ]
+    },
+    {
+      "id": "REQ-REQ-01-07",
+      "text": "Старый feature flag не должен восстанавливать retired family-authority эвристику; при добавлении совместимого нового construct/resource положительная потребность должна проходить existing governed resolver без новой ветки по кейсу. Candidate proposals остаются proposals.",
+      "source_ids": [
+        "LA-045",
+        "LA-046"
+      ],
+      "audit_ids": [
+        "REQ-01 §3 retirement reinterpretation",
+        "LK24",
+        "S08"
+      ],
+      "test_ids": [
+        "TEST-REQ-01-04",
+        "TEST-REQ-01-06"
+      ]
+    },
+    {
+      "id": "REQ-REQ-01-08",
+      "text": "Поддержанный producer shape required_constructs должен быть определён конечным source/caller census: значение в supported shape не теряется при _claim_record_like. Неподдержанный shape должен иметь явный договор/отказ, а не обещанную совместимость private helper.",
+      "source_ids": [
+        "LA-046"
+      ],
+      "audit_ids": [
+        "REQ-01 §5 top-level construct characterization"
+      ],
+      "test_ids": [
+        "TEST-REQ-01-07"
+      ]
+    },
+    {
+      "id": "REQ-REQ-01-09",
+      "text": "Новая domain/input interpretation должна быть отражена в versioned rule/provenance текущего report; original raw domain/text/scope и historical v1/v2 bytes сохраняются без повышения их evidence basis задним числом.",
+      "source_ids": [
+        "LA-045",
+        "LA-046"
+      ],
+      "audit_ids": [
+        "REQ-01 §§2–4 compatibility",
+        "LK24"
+      ],
+      "test_ids": [
+        "TEST-REQ-01-08"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-REQ-01-01",
+      "requirement_ids": [
+        "REQ-REQ-01-01",
+        "REQ-REQ-01-02"
+      ],
+      "level": "native compiler unit",
+      "status": "NOT_RUN",
+      "setup": "Настоящий _scenario_adapter_input/compile_for_scenario; параметризовать все canonical ProblemDomain values и поддержанные spellings, включая education/education_policy/Education Policy и fiscal/social/healthcare controls.",
+      "action": "Подать одинаковый meaningful text с каждым spelling; затем unsupported label с тем же текстом, malformed value и конфликт domain/domain_hint.",
+      "oracle": "Canonical/alias пары дают один canonical domain; unsupported не FISCAL по умолчанию, raw строка сохранена; malformed/conflict дают адресный input outcome. Изменение opaque ID не меняет domain.",
+      "expected": "education_policy воспроизводит старый дефект до fix; отрицательный контроль намеренного возврата старого fallback ломает тест.",
+      "evidence_required": "Параметры и full normalized input/grammar call; exact error code и raw-domain trace.",
+      "allowed_doubles_and_forbidden_substitutions": "Recording grammar разрешена только для boundary assertion; компилятор/adapter не подменяются. Это не downstream admission PASS."
+    },
+    {
+      "id": "TEST-REQ-01-02",
+      "requirement_ids": [
+        "REQ-REQ-01-01",
+        "REQ-REQ-01-03",
+        "REQ-REQ-01-04",
+        "REQ-REQ-01-05"
+      ],
+      "level": "native N7→compiler→resolver integration",
+      "status": "NOT_RUN",
+      "setup": "Actual GenerationCycleController._n7_data_requirement_basis_with_report и actual DataRequirementCompiler; два разных explicit statements/scopes, действительный finite release-backed resolver fixture через существующий owner.",
+      "action": "Пройти canonical education и alias education_policy до grammar, report и resolver; прочитать report/basis в N7 consumer.",
+      "oracle": "Сохраняются text/domain/jurisdiction/interval/required constructs; эквивалентный alias не меняет subject/domain query; разные meaningful requests дают различимое основание. Report denominator потреблён, не captured dict подставного compiler.",
+      "expected": "Рабочая compatible requirement доходит до actual resolver result; exact missing resolver/basis не представляется no-need; raw specs не расширяют denominator.",
+      "evidence_required": "Current source/backend, реальные report/query/selected source refs, negative mutation raw specs и domain.",
+      "allowed_doubles_and_forbidden_substitutions": "Контролируемый finite external data source разрешён; запрещены _RecordingCompiler и resolver, который всегда выдаёт готовую authority по любому запросу. Actual resolver owners обязательны для integration claim."
+    },
+    {
+      "id": "TEST-REQ-01-03",
+      "requirement_ids": [
+        "REQ-REQ-01-03",
+        "REQ-REQ-01-04"
+      ],
+      "level": "native compiler contract regression",
+      "status": "NOT_RUN",
+      "setup": "Существующие test_compiler.py tests opaque_scenario_id, negated_topic, generic_scope, explicit_constructs и named profiles; actual DTO.",
+      "action": "Тот же вопрос с case-alpha/parent-support; отрицание rent; national/annual без profile; два explicit jurisdiction/interval; required/proposed/empty/unknown constructs.",
+      "oracle": "ID/отрицание не создают required housing_rent_burden; generic labels не подставляют UA/2022; explicit scope сохранён; unknown basis и explicit empty различаются; proposals не выдаются за required или authority.",
+      "expected": "Есть положительный explicit construct resolver path и все отрицательные controls.",
+      "evidence_required": "Полные query/basis/reason fields, а не число specs; diff ключевых semantic полей.",
+      "allowed_doubles_and_forbidden_substitutions": "Для unit допустим recording resolver как наблюдатель; его output не считать реальным admission и не использовать вместо TEST-02."
+    },
+    {
+      "id": "TEST-REQ-01-04",
+      "requirement_ids": [
+        "REQ-REQ-01-04",
+        "REQ-REQ-01-07"
+      ],
+      "level": "capability growth, native resolver + shared scenario",
+      "status": "NOT_RUN",
+      "setup": "Действительный supported construct/resource profile вне одного пилота, с owner-scoped данными и declared mapping; заранее записать обязательную потребность и available resource.",
+      "action": "Добавить совместимую запись через existing corpus/index/mapping owner без case-code branch; получить compiled requirement и actual resolver binding; передать его ACQ-01 в E02-I01-B.",
+      "oracle": "Потребность обнаружена и потреблена по общему contract; unknown/incompatible resource не подавляет explicit requirement и не получает authority. Старый family flag не влияет на required output.",
+      "expected": "Положительная пригодная потребность не потеряна после retirement; нет обещания полноты arbitrary semantic parsing.",
+      "evidence_required": "Before/after catalog rows, code delta (если общий adapter понадобился — DEC), query/report/consumer refs и useful result либо scoped unresolved.",
+      "allowed_doubles_and_forbidden_substitutions": "Допустим declared finite controlled source; нельзя выдавать hash/index-hit за consumed capability или скрыть per-case rule в JSON как якобы универсальный алгоритм."
+    },
+    {
+      "id": "TEST-REQ-01-05",
+      "requirement_ids": [
+        "REQ-REQ-01-05"
+      ],
+      "level": "native boundary negative + positive",
+      "status": "NOT_RUN",
+      "setup": "Реальный скомпилированный denominator и owner-bound typed gap; отдельно caller supplies raw data_requirement_specs/compiled_requirement_specs/runtime hint.",
+      "action": "Попытаться заменить/добавить raw spec и подменить source gap; затем выполнить легальный выбор существующего compiled requirement.",
+      "oracle": "Unbound fields не маршрутизируют новый gap; конкретная routing limitation сохраняется; легальный source gap выбирает только compiler-owned requirement без изменения denominator.",
+      "expected": "Нет регрессии к historical raw-spec precedence; положительный typed gap продолжает действительный acquisition.",
+      "evidence_required": "N7 report/denominator/binding and routing reason; ACQ shared evidence для конца цепи.",
+      "allowed_doubles_and_forbidden_substitutions": "Нельзя подменять _n7_route_compiler_gaps или вручную выдавать gap owner receipt."
+    },
+    {
+      "id": "TEST-REQ-01-06",
+      "requirement_ids": [
+        "REQ-REQ-01-06",
+        "REQ-REQ-01-07"
+      ],
+      "level": "static finite census + native installed import",
+      "status": "NOT_RUN",
+      "setup": "Точная группа LA-045: _data_families_from_obligation_graph,_data_family_token_from_frontier_item,_nested,_normalised_family,_slug_family,_ordered_data_families,_digest,_DATA_FAMILY_ORDER; first-party maintained source/tests/generated export inventories и поставляемый wheel.",
+      "action": "Проверить отсутствие retired definitions/необходимых callers, actual public imports и existing test_req_01_installed.py; поднять legacy flag в существующем removed-family test.",
+      "oracle": "Живые compiler/facade/resolver/hash/report функции доступны; retired группа и family heuristic не воскресают; найденный реальный supported consumer получает явную миграцию, не массовое удаление.",
+      "expected": "Cleanup-квалификация без искусственного нового source edit; никаких требований AST равенства сентябрю.",
+      "evidence_required": "Именованный denominator scan, команды/результаты cold import/installed test, caller disposition.",
+      "allowed_doubles_and_forbidden_substitutions": "Не считать простой grep-zero полным external census; no installed interpreter — UNRUN, не PASS."
+    },
+    {
+      "id": "TEST-REQ-01-07",
+      "requirement_ids": [
+        "REQ-REQ-01-08"
+      ],
+      "level": "bounded contract census + native normalization",
+      "status": "NOT_RUN",
+      "setup": "Прочитать все first-party producers, передающие Mapping claim с required_constructs в compiler; current _claim_record_like и supported metadata form.",
+      "action": "Для найденного supported producer прогнать actual public compile path, сравнив top-level и metadata форму; если support не установлен, закрепить допустимый shape и отказ/diagnostic неподдержанного.",
+      "oracle": "Поддержанное declared requirement сохраняется до resolver; unknown shape не получает вымышленную публичную поддержку. Решение DEC-REQ-01-02 имеет конечный evidence и owner.",
+      "expected": "Либо bounded adapter fix с двумя representations, либо ограниченный documented contract с negative test; не новый неподтверждённый bug.",
+      "evidence_required": "Список producers/schema и конкретный native reproduction; selected decision.",
+      "allowed_doubles_and_forbidden_substitutions": "Private helper-only test недостаточен для public support."
+    },
+    {
+      "id": "TEST-REQ-01-08",
+      "requirement_ids": [
+        "REQ-REQ-01-02",
+        "REQ-REQ-01-09"
+      ],
+      "level": "native persistence compatibility",
+      "status": "NOT_RUN",
+      "setup": "Tracked historical v1/v2 report bytes и новый domain-resolution report; actual parse/write/audit_surface readers.",
+      "action": "Прочитать/сохранить заново исторические bytes и новый report, открыть fresh reader; сравнить raw/canonical domain и rule_version binding.",
+      "oracle": "Historical bytes и их прежняя basis не изменены; новый input interpretation даёт новое честное rule/provenance поле; unknown/CUSTOM не promoted. Старые consumers либо читают supported metadata, либо имеют явный versioned отказ.",
+      "expected": "Нет silent reinterpretation/rename старого report как нового proof; данные доступны следующему consumer.",
+      "evidence_required": "Byte hashes, version/metadata/result fields, roundtrip и tamper negative.",
+      "allowed_doubles_and_forbidden_substitutions": "Реальные serializers/readers; forbidden preassembled new report masquerading as old bytes."
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I01-B",
+    "E02-X02"
+  ],
+  "dependencies": [
+    "ACQ-01: владелец полного LA-046 caller→compiler→resolver→admission→reentry; domain rule реализуется один раз REQ-01.",
+    "CYC-03: current continuation и reuse; REQ-01 не повторяет dispatcher.",
+    "LA-045 совместимость: first-party imports/loaders/exports/distribution scope; не бесконечный внешний census."
+  ],
+  "preservation": [
+    "LK24: compiler, construct extractor, resolver guards, reports и исторические readers живы; bounded helper cleanup не разрешает удалить весь compiler.",
+    "LK31: actual N7/compiler/planner/reentry не legacy целиком; typed source gap и explicit semantic constructs не заменяются family labels.",
+    "Исходный preserve family-heuristic пересмотрен: retirement сохраняется; полезность replacement проверяется положительно.",
+    "Canonical domains и названный pilot profile, raw input, versioned report bytes; missing/unknown/explicit-empty различаются.",
+    "LA-046 accountable closure ACQ-01; compiler unit PASS не закрывает весь acquisition."
+  ],
+  "design_alignment": [
+    "Vision Rule12: совместимый construct/resource через общий resolver; не буквальный запрет нового общего кода и не восстановление retired fallback.",
+    "Stage0 K03/K06 и W5 K01/K08: unknown domain/context допускает candidate работу, не создаёт предметного/полномочного основания.",
+    "S01/S03/S08: потребность доходит до реального ресурса/consumer; отсутствие match не доказывает отсутствие потребности.",
+    "Конкретное архитектурное основание: [System Vision §5 Rule12 и §6 Capability Reality Bar](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): explicit requirements и настоящий resolver/consumer вместо hardcoded family fallback; [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): unknown domain сохраняется как limitation candidate работы, а не молчаливый fiscal."
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-REQ-01-01",
+      "question": "Как текущий grammar/resolver потребляет CUSTOM и отсутствие domain без потери explicit requirement?",
+      "owner": "REQ-01; ACQ-01 подтверждает N7 error/continuation surface",
+      "options": [
+        "CUSTOM + raw/status metadata, explicit constructs/scope продолжаются — предпочтительный путь.",
+        "Typed adapter refusal только для отсутствующей indispensable semantics, с сохранённым candidate/report и точным запросом; не blanket unknown-domain refusal."
+      ],
+      "selection_evidence": "Actual PolicyGrammarCompiler/compiled report для neutral unknown и явно заданного construct; existing ProblemDomain.CUSTOM escape hatch.",
+      "required_output": "До merge domain fix закрепить один exact contract, rule version и TEST-01/02/08; explicit alias fix и finite cleanup проверки не ждут всемирного semantic решения."
+    },
+    {
+      "id": "DEC-REQ-01-02",
+      "question": "Входит ли top-level required_constructs у Mapping claim в фактически поддержанный producer contract?",
+      "owner": "REQ-01 compiler owner",
+      "options": [
+        "Да: перенести без потери в canonical record, reject conflicting aliases.",
+        "Нет: сохранить metadata contract и сделать unsupported top-level input явным."
+      ],
+      "selection_evidence": "Конечные first-party producers + публичные DTO/schema + actual compile trace, не private helper поведение.",
+      "required_output": "Именованный перечень producer scope и выбранный поддержанный shape с TEST-07; не оставлять «разобраться вообще»."
+    }
+  ],
+  "technical_solution": [
+    {
+      "title": "Один нормализатор, точные spelling aliases",
+      "text": "Исправлять _problem_domain_for_scenario через _scenario_adapter_input, не дублировать mapping в N7. Сначала различить absent, present non-string, empty и supplied string/enum. Нормализовать case/разделители как spelling; построить canonical aliases из ProblemDomain.name/value и общего suffix «policy» для того же canonical token. Существующие обоснованные health→healthcare aliases сохранить отдельным небольшим vocabulary mapping. Не выбирать domain по случайной подстроке или ID."
+    },
+    {
+      "title": "Unknown не fiscal и не запрет исследования",
+      "text": "Предпочтительный путь — уже существующий ProblemDomain.CUSTOM как transport escape hatch, с сохранением raw domain, статусом unresolved и причиной в compiler report metadata. Это не утверждение, что CUSTOM методологически поддерживает любую задачу: resolver получает explicit constructs/scope и ограничения. Malformed value или несовместимые одновременно supplied domain/domain_hint получают typed input error до grammar. Сначала использовать подходящий existing typed input error; только если его код/поле не выражает новый domain contract, небольшой новый ScenarioDomainInputError внутри compiler должен иметь code/reason/field по образцу соседних input errors; N7 переводит его в адресный GenerationCycleError, не generic success. Имена новых code — предлагаемый contract, зафиксировать вместе с tests."
+    },
+    {
+      "title": "Provenance и отсутствие поля",
+      "text": "_bind_scenario_compilation_inputs уже хэширует полный raw scenario и связывает rule refs; использовать его и versioned metadata, не создавать отдельный store. Для отсутствующего domain сохранить raw absence; выбор CUSTOM/явно ограниченного semantic proposal определить DEC-REQ-01-01, не молча назначать factual fiscal. Явный pilot обязан передать свой domain/profile. Новая interpretation version не меняет старые bytes."
+    },
+    {
+      "title": "Compiler-owned denominator, важное уточнение старого плана",
+      "text": "Текущий _n7_data_requirement_basis_with_report:9946–9962 помечает raw specs inputs unbound;10109–10118 разрешает routing только без отказа. Поэтому исходное «explicit specs precedence» сохранить как precedence явного semantic requirement и owner-bound source gap, а не вернуть произвольную инъекцию specs. DataRequirementCompiler и capability_resolutions остаются единственным производителем denominator. ACQ-01 владеет изменениями N7 composition; REQ-01 передаёт domain error/provenance contract и совместный тест."
+    },
+    {
+      "title": "Сохранить активную пользу после retirement",
+      "text": "Не возвращать _required_data_families_from_heuristic. Explicit constructs → _construct_resolution_inputs → _resolve_capability_requirements → injected resolver → compilation report остаются основным путём. Lexical proposals могут расширять поиск, но не входят в required authority без явного основания. TEST-04 требует положительный новый compatible resource/consumer; если общий adapter действительно отсутствует, расширить его один раз, а не завести новый case switch."
+    },
+    {
+      "title": "Private cleanup и claim shape",
+      "text": "LA-045 здесь qualify-only: семь функций/constant уже удалены. Проверить actual public/installed callers, не требовать искусственный cleanup diff. _claim_record_like теряет top-level required_constructs, но public поддержка неизвестна: DEC-REQ-01-02 ограничивает census и выбор. Если producer поддержан — нормализовать его декларацию в существующую canonical metadata форму до создания claim, проверить конфликт aliases; иначе явно документировать неподдержанный shape без присвоения новой capability."
+    },
+    {
+      "title": "Альтернативы",
+      "text": "Отвергнуть regex только для education_policy, немой fiscal fallback, глобальный NLP framework и blanket отказ всем неизвестным доменам. Governed domain vocabulary допустим как маршрутизирующий язык; он не должен стать закрытым списком доступных политических вопросов. Принципиально новая семантика может требовать нового общего кода, но не скрытой ручной авторизации."
+    }
+  ],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+      "symbol": "_ScenarioAdapterInput / typed input error conventions",
+      "lines": [
+        122,
+        196
+      ],
+      "sha256": "01664bd6b6f4863bdead5b420ecbf685fa06985c4fef9e4557a270f1aacfc509",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_requirement/compiler.py#L122-L196"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+      "symbol": "compile_for_scenario",
+      "lines": [
+        486,
+        572
+      ],
+      "sha256": "01664bd6b6f4863bdead5b420ecbf685fa06985c4fef9e4557a270f1aacfc509",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_requirement/compiler.py#L486-L572"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+      "symbol": "_claim_record_like",
+      "lines": [
+        797,
+        812
+      ],
+      "sha256": "01664bd6b6f4863bdead5b420ecbf685fa06985c4fef9e4557a270f1aacfc509",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_requirement/compiler.py#L797-L812"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+      "symbol": "_bind_scenario_compilation_inputs",
+      "lines": [
+        1435,
+        1478
+      ],
+      "sha256": "01664bd6b6f4863bdead5b420ecbf685fa06985c4fef9e4557a270f1aacfc509",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_requirement/compiler.py#L1435-L1478"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_requirement/compiler.py",
+      "symbol": "_problem_domain_for_scenario",
+      "lines": [
+        2279,
+        2300
+      ],
+      "sha256": "01664bd6b6f4863bdead5b420ecbf685fa06985c4fef9e4557a270f1aacfc509",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_requirement/compiler.py#L2279-L2300"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/governance/problem_frame.py",
+      "symbol": "ProblemDomain including CUSTOM",
+      "lines": [
+        49,
+        68
+      ],
+      "sha256": "a1f61785d8afeb523faf8e7b48471f3f939c505b6681581fb38ae5cd77e2b3db",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/governance/problem_frame.py#L49-L68"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "symbol": "compiler-owned N7 basis/unbound overrides",
+      "lines": [
+        9937,
+        9963
+      ],
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L9937-L9963"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "symbol": "actual compiler/resolver and routing refusal",
+      "lines": [
+        10090,
+        10118
+      ],
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L10090-L10118"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_requirement/test_compiler.py",
+      "symbol": "scenario adapter unit doubles and retirement control",
+      "lines": [
+        725,
+        799
+      ],
+      "sha256": "61d3ca8af4245ba9853e20d59b4d867415491112e1bde77edd259cb6a25ea0a0",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/data_requirement/test_compiler.py#L725-L799"
+    }
+  ],
+  "compatibility": "Не переписывать v1/v2 reports; учитывать rule interpretation version в новых outputs. Семантически одинаковый spelling разрешён как тот же canonical domain, raw input identity остаётся различимой для audit. Не удалять canonical domain enum/facade или historical readers. Смена unknown handling — intentional behavior fix, отдельно от cleanup. При rollback сохранить новые immutable outputs и их versioned reader/точный unsupported outcome; не присваивать им старую fiscal интерпретацию.",
+  "acceptance": "Предъявить до/после domain counterexample и работающие canonical/unknown/explicit-construct контроли, actual N7→compiler→resolver report, finite LA-045 census и versioned readback. TEST-02/04 с shared E02-I01-B нужен для полезности replacement; source-only или RecordingCompiler не закрывает LA-046. Полное LA-046 закрытие только вместе с ACQ-01 actual acquisition/reentry. Native среда отсутствует — сохранить UNRUN, не объявлять недействительными все specs.",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0458",
+      "requirement_ids": [
+        "REQ-REQ-01-06"
+      ],
+      "disposition": "qualify",
+      "rationale": "Конечный installed/public caller scope и существующие compiler tests."
+    },
+    {
+      "inventory_id": "remaining:0459",
+      "requirement_ids": [
+        "REQ-REQ-01-06"
+      ],
+      "disposition": "superseded",
+      "rationale": "Историческое AST equality было ограничением отдельного cleanup, не нынешнего развившегося compiler; replacement — текущие contract/installed checks."
+    },
+    {
+      "inventory_id": "remaining:0460",
+      "requirement_ids": [
+        "REQ-REQ-01-01",
+        "REQ-REQ-01-02",
+        "REQ-REQ-01-09"
+      ],
+      "disposition": "fix",
+      "rationale": "Общий domain-normalizer, unknown metadata и versioned input provenance."
+    },
+    {
+      "inventory_id": "remaining:0461",
+      "requirement_ids": [
+        "REQ-REQ-01-03",
+        "REQ-REQ-01-04",
+        "REQ-REQ-01-07"
+      ],
+      "disposition": "capability",
+      "rationale": "Actual injected resolver/consumer и новый совместимый ресурс; family fallback не восстанавливать."
+    },
+    {
+      "inventory_id": "remaining:0462",
+      "requirement_ids": [
+        "REQ-REQ-01-04",
+        "REQ-REQ-01-05"
+      ],
+      "disposition": "shared",
+      "rationale": "Фраза «ещё не рассмотрена полностью» исторически superseded завершённым ACQ-01 аудитом; обязанность acquisition→changed calculation остаётся у ACQ-01 и E02-I01-B.",
+      "shared_owner": "ACQ-01"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0757",
+      "requirement_ids": [
+        "REQ-REQ-01-04",
+        "REQ-REQ-01-06",
+        "REQ-REQ-01-09"
+      ],
+      "test_ids": [
+        "TEST-REQ-01-02",
+        "TEST-REQ-01-06",
+        "TEST-REQ-01-08"
+      ],
+      "rationale": "Действующий resolver/compiler, hash/version и публичные/history readers."
+    },
+    {
+      "inventory_id": "preserve:0758",
+      "requirement_ids": [
+        "REQ-REQ-01-06"
+      ],
+      "test_ids": [
+        "TEST-REQ-01-06"
+      ],
+      "rationale": "Конечный caller check не восстанавливает удалённые private helpers."
+    },
+    {
+      "inventory_id": "preserve:0759",
+      "requirement_ids": [
+        "REQ-REQ-01-03",
+        "REQ-REQ-01-05"
+      ],
+      "test_ids": [
+        "TEST-REQ-01-03",
+        "TEST-REQ-01-05"
+      ],
+      "rationale": "Declared constructs отдельно от proposals; arbitrary raw specs не authority."
+    },
+    {
+      "inventory_id": "preserve:0760",
+      "requirement_ids": [
+        "REQ-REQ-01-03"
+      ],
+      "test_ids": [
+        "TEST-REQ-01-03"
+      ],
+      "rationale": "Explicit scope, no implicit UA/2022, opaque ID не semantic content."
+    },
+    {
+      "inventory_id": "preserve:0761",
+      "requirement_ids": [
+        "REQ-REQ-01-01",
+        "REQ-REQ-01-02",
+        "REQ-REQ-01-03",
+        "REQ-REQ-01-04"
+      ],
+      "test_ids": [
+        "TEST-REQ-01-01",
+        "TEST-REQ-01-02",
+        "TEST-REQ-01-03"
+      ],
+      "rationale": "Text/domain/profile и real injected resolver; unknown basis сохраняется."
+    }
+  ],
+  "sourceplan_lines": [
+    303,
+    507
+  ],
+  "audit_report_sha256": "861363b105fd9f90abe9f89c9015cb85a9f7334a3ff9900dbd8b7a4abb6b1fbd"
+}

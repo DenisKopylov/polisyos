@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import importlib
 import json
+import os
 import sys
 import types
 from collections.abc import Callable, Sequence
@@ -1659,13 +1660,21 @@ def test_local_owned_runtime_material_producer_get_post_and_callable_falsifier(
         pytest.skip("the controlled witness requires SentenceTransformers 2.7.0")
 
     repo_root = Path(__file__).resolve().parents[3]
+    explicit_profile_root = os.environ.get("POLISYOS_LEGAL_RUNTIME_MATERIAL_PROFILE_ROOT")
     profile_root = (
-        repo_root / "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/"
-        "c12-real-encoder-profile"
+        Path(explicit_profile_root).expanduser().resolve()
+        if explicit_profile_root
+        else repo_root
+        / "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/"
+        / "c12-real-encoder-profile"
     )
     cache_root = profile_root / "hf-cache"
     manifest_path = profile_root / "asset-file-manifest.txt"
     if not cache_root.is_dir() or not manifest_path.is_file():
+        if explicit_profile_root:
+            pytest.fail(
+                "the explicitly selected local-only controlled model inputs are unavailable"
+            )
         pytest.skip("the named local-only controlled model inputs are unavailable")
 
     try:

@@ -91,8 +91,8 @@ _OWNER_CASES = (
         "DynamicTreatmentRegime",
         "ir.dynamic_treatment_regime",
         "ir.dynamic_treatment_regime",
-        "1.0",
-        None,
+        "1.1",
+        "1.1",
         "dynamic_treatment_regime",
     ),
     (
@@ -204,12 +204,23 @@ def test_analytics_owner_registers_one_exact_profiled_wire_tuple(
     )
 
     dto_fqn = f"polisyos.ir.analytics.{module_name}.{model_name}"
-    wire_policy = (f"{dto_fqn}.wire", "1")
+    learned_regime = model_name == "DynamicTreatmentRegime"
+    wire_policy = (f"{dto_fqn}.wire", "2" if learned_regime else "1")
     assert model.__module__ == f"polisyos.ir.analytics.{module_name}"
     assert owner.dto_fqn == dto_fqn
     assert owner.registry_key == registry_key
     assert owner.purpose == purpose
-    assert owner.accepted_wire_policies == (wire_policy,)
+    if learned_regime:
+        assert owner.accepted_wire_policies == ((f"{dto_fqn}.wire", "1"), wire_policy)
+        assert len(rows) == 2
+        legacy = next(row for row in rows if row.schema_version == "1.0")
+        assert legacy.payload_version is None
+        assert legacy.wire_policy_revision == "1"
+        assert legacy.readable and legacy.writable
+        assert not legacy.current and not legacy.default_write
+        rows = tuple(row for row in rows if row.current)
+    else:
+        assert owner.accepted_wire_policies == (wire_policy,)
     assert len(rows) == 1
 
     row = rows[0]
@@ -224,7 +235,7 @@ def test_analytics_owner_registers_one_exact_profiled_wire_tuple(
     assert row.readable and row.writable and row.current and row.default_write
     rule = get_schema_rule(registry_key, schema_version)
     assert rule is not None
-    assert rule.mode is CompatibilityMode.NONE
+    assert rule.mode is (CompatibilityMode.BACKWARD if learned_regime else CompatibilityMode.NONE)
     assert rule.notes == ()
 
 
@@ -468,7 +479,7 @@ class _DumpPayload:
     ("module_name", "writer_name", "payload_version"),
     _WRITER_CASES,
 )
-@pytest.mark.parametrize("override_field", [("schema_name",), ("schema_version",)])
+@pytest.mark.parametrize("override_field", ["schema_name", "schema_version"])
 def test_every_public_writer_propagates_unregistered_schema_overrides_before_cas(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

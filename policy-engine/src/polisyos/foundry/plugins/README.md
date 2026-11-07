@@ -16,6 +16,29 @@ than operate directly on the low-level agent-sim runtime. This package owns the
 legacy domain-plugin contract, discovery/registration path, composite execution, and the
 `PolisySimulator` orchestration facade.
 
+`discover_plugins()` checks sources in this order: built-ins, declared
+`polisyos.plugins` entry points, caller-supplied development roots, then the
+distribution-name prefix fallback. Within a source, existing Core, path, and
+distribution sorting rules remain in effect. Registration keeps the first
+valid plugin for a duplicate name; this is conflict resolution, not a trust or
+authority judgment about the source.
+
+Discovery validates materialized factory metadata before admitting a candidate.
+Registration then owns a detached metadata snapshot for names, dependencies and
+capability/tag filters. It does not re-enter the plugin's metadata callback to
+report a failure or list registered entries. Returned metadata copies cannot
+rename the registered entry; changing a declaration requires explicit
+unregistration and registration. Successful lazy loading still runs once;
+failed load hooks remain retryable, and live dependents prevent removal.
+
+Known in-repository consumers are `PolisySimulator` and the plugin CLI; the
+seven maintained extension examples use other extension groups. This bounded
+source inventory says nothing about external installed consumers. The prefix
+fallback has no approved retirement date and remains supported. Registration
+is one pass in source order: a child encountered before its missing dependency
+warns and is not silently retried as a topological loader. Builtin import
+failures remain module-qualified diagnostics while other sources continue.
+
 The selected Economics training bridge admits finite, nonnegative active
 wealth and income because each `EconomicState` projection materializes both
 classical Gini values. It checks native-to-composite inputs and each
@@ -24,6 +47,23 @@ erase an invalid intermediate state. A failed predicate stops the training
 attempt before PPO, evaluation output, or CAS persistence; the descriptor
 stored with a selected Economics policy artifact records this profile and is
 not an authority or trajectory proof.
+
+`TrainingResult(loss_history, reward_history, final_state)` remains a valid
+legacy constructor, but defaults to `unqualified` / `legacy_or_evaluation`.
+Only the native producer explicitly emits `trained` / `native_training_v1`
+with a non-null learned policy and no bridge refusal. CLI success reporting
+and loss plotting require that qualification. A genuine in-memory trained
+result need not have CAS references; references are persistence, not a proxy
+for an observed update. Unsupported composite/fidelity profiles remain typed
+`bridge_pending` outcomes and cannot be presented as optimizer success.
+
+Policy training supports `SURROGATE_FLUID` (`"fluid"`) and
+`RELAXED_DISCRETE` (`"relaxed"`). HARD training and unknown profiles are
+rejected before rollout, actor/store setup or artifact production; ordinary
+HARD evaluation remains supported. The native policy trainer additionally
+requires exactly one applied temporal policy consumer. These restrictions
+replace success-shaped evaluation/fallback output; they do not establish
+universal learning or monotonic welfare improvement.
 
 Do not use this package to publish Foundry methods. Method authors should
 follow `src/polisyos/foundry/methods/AUTHORING.md` and the installable example
@@ -50,7 +90,7 @@ under `examples/extensions/foundry_method/`.
 | ------------------------- | ---------------------------------------------------- |
 | `DomainPlugin`            | Base contract for a pluggable domain.                |
 | `PluginRegistry`          | Registry for loaded plugins and metadata.            |
-| `discover_plugins()`      | Finds built-in and entry-point plugins.              |
+| `discover_plugins()`      | Finds built-ins, explicit declarations, dev roots, and prefix fallback in precedence order. |
 | `auto_register_plugins()` | Registers built-in plugins into a registry.          |
 | `create_simple_plugin()`  | Helper for lightweight plugin scaffolding.           |
 | `CompositeState`          | Combined state across multiple domains.              |

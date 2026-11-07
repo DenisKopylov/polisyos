@@ -222,6 +222,14 @@ implementation, appoint an owner, validate receipt semantics, or amend a plan.
 
 ### Mutation testing
 
+The Core Runtime subset stages the four checked-in curated catalog YAML defaults
+listed by its target. Only those data files enter the temporary stage; private
+or ignored data siblings and `production_data` do not. The staged catalog directory
+is then included in pinned mutmut's `also_copy`, so its clean baseline sees the same
+source-checkout defaults. Missing or outside-root static inputs remain harness
+errors, not killed mutants or authorization failures. Mutation score and test/source
+selections are unchanged. Native Darwin arm64 mutation execution remains unsupported.
+
 ```bash
 uv run python tools/quality/testing/mutation.py --suite foundry --target backends
 uv run python tools/quality/testing/mutation.py --suite scientist --target governance

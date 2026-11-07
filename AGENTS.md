@@ -17,6 +17,7 @@ We are building a **causal operating system for policy**, and its ratified ident
 ## Working Model
 
 - Prefer `wire-existing` → `extend-existing` → `consolidate-existing` → `build-new`. Keep changes typed and boundary-aware; preserve unrelated/user work.
+- Check the target before editing retained source: an ordinary file may have hardlinked snapshot aliases. Atomically detach only the owned path before changing a multiply linked file; preserve its bytes/mode and never write through a symlink into another workspace. This prevents editing historical inputs or another checkout.
 - Named owners edit real source and mirrored tests directly. Assign one writer per overlapping mechanism and mandatory companions; independent authors may work concurrently. RAW/postimages/chat must not be the sole home of new useful code.
 - One coordinator owns the canonical Git index, commits, shared generated families and refs. Stage only a released owner's explicit paths, inspect the staged diff and hook changes, and keep the affected dependency set stable through verification and commit binding. Use visible worktree isolation when that cannot be guaranteed; do not copy environments/data per worker.
 - Maintain one current plan/status for an existing workstream; update it in place. Git supplies history. Do not add a dated plan, receipt schema, copied source inventory or another approval round for an already authorized routine step.

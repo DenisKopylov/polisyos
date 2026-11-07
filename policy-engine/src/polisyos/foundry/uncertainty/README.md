@@ -19,6 +19,66 @@ output metric uncertainty in Foundry simulations.
 - **Aggregation** - envelope merging for multi-strategy or multi-run outputs.
 - **Config-driven fallback** - strategy choice is explicit and inspectable.
 
+### Empirical sampling and adaptive stopping
+
+Empirical weights are normalized once in finite binary64. Each positive source
+weight must retain a nonempty cumulative interval intersecting `[0, 1)`;
+otherwise propagation returns `empirical_numeric_resolution` without executing
+the evaluator. Aligned columns require the same normalized weights. Random and
+QMC sampling map their actual finite uniform coordinates through that same
+admitted CDF; zero-weight atoms are skipped. Neither finite lattice nor a finite
+sample promises to visit every representable positive interval. This fixes the
+previous Gaussian-style endpoint clipping on empirical draws and changes seeded
+random empirical streams; historical samples are not rewritten. The output's
+`empirical_sampling_profile` is a producer assertion, not an independently
+verified implementation identity or generic persisted-replay proof.
+
+Foundry and the Scientist welfare consumer use the same admitted empirical
+rows and CDF. Delta covariance is recomputed from the actual weighted rows,
+including their cross terms; inconsistent row identities, weights, or declared
+covariance are refused. Moment calculation can remain representable when a
+finite sampling CDF cannot: these are separate admissions. A declared joint
+row identity remains candidate provenance, not verified authority.
+
+Multiple outputs from one Monte Carlo execution carry a new candidate joint
+row ID bound to the realized input and output corpus and the exact successful
+draw positions. Outputs with different surviving positions or different
+realizations cannot be joined by row count alone. This ID is not the source
+row ID and does not establish scientific independence, source authority, or
+new information. The output preserves the compatible source axis label; it
+does not claim that the resampled row positions are the original source rows.
+Each output row already represents a draw from the input weights and therefore
+has uniform mass; source weights remain with the selected input artifacts.
+
+Finite evaluator values that overflow the output's float32 representation, or
+nonzero values rounded to zero by it, are recorded as per-output numerical
+failures. Other outputs from the same draw remain available, and incomplete
+results retain their conditional, non-gating status. These failures use draw
+ledger 1.2 and Science propagation report 1.3; older ledger/report versions keep
+their existing interpretation. Output rows retain their admitted float32 values:
+the existing exact-decimal policy is selected if default canonicalization would
+change a row. If float32 summary arithmetic would overflow, erase a nonzero
+scale, or process subnormal rows, the same rows are summarized with the shared
+finite binary64 mean and moments and NumPy quantiles. This scoped fallback does
+not increase source precision or establish evidence authority.
+
+Adaptive stopping retains the historical `ci_half_width_target` serialized
+field and its existing meaning. It is a target for the **full relative output
+interval width**, not a half-width or Monte Carlo standard error. New callers
+may supply `relative_full_width_target` to the Python model; the current schema
+and serialized historical reports retain the old field. Results declare
+`relative_full_output_width_heuristic_v1` and
+whether an early stop reached that target. This heuristic does not establish
+convergence, coverage, a sampling-error bound, or policy authority.
+
+The delta backend uses float32 for varying coordinates and its Jacobian,
+independently of the global JAX x64 setting. Applicability probing, output
+roster discovery and execution all evaluate the same float32 nominal point;
+fixed inputs retain their supplied values and types. Results disclose the
+coordinate dtype and names whose nominal values rounded. Coordinates outside
+finite float32 range are refused before any evaluator call rather than silently
+falling back to a different nominal meaning.
+
 Precision-weighted and Bayesian aggregation require a resolved relation basis before they can
 narrow distinct inputs. In-memory IDs, composition labels, and metadata such as
 `dependency="independent"` or `independence=true` cannot establish source identity or statistical
@@ -59,6 +119,31 @@ ledger. Sampling errors and all other failure classes are not retried. The legac
 candidate behavior is retained only for an unchained built-in `RuntimeError` raised by an individual
 draw. Other errors propagate instead of producing a conditional partial distribution.
 
+## Numerical input admission
+
+Empirical coordinates and weights must be finite real values that retain their
+numeric support in the float64 consumer representation. Raw copied carriers
+cannot discard complex parts, parse numeric strings or round away integer,
+extended-precision or rational support. The existing common input
+preparation refuses these laws before evaluating the response function.
+
+Covariance construction validates marginal variances in float64 before choosing
+the existing float32 storage profile. Overflow and nonzero storage underflow
+refuse. On the actual JAX CPU device, nonzero subnormal covariance operands also
+refuse because arithmetic flushes them even when storage retains their bits;
+that CPU restriction is not imposed on another selected device. Delta admits
+this covariance before its nominal callback. Exact zero variance remains a
+point mass in random, Sobol and Halton sampling rather than receiving an
+artificial minimum spread.
+
+Gaussian decomposition combines finite component scales without squaring them
+first. A representable nonzero interval uses the existing exact numeric profile
+when the default rounding would erase a bound; a nonzero interval that binary64
+cannot represent is refused. Zero variance remains an explicit point interval.
+
+These checks preserve numerical input laws; they do not establish a source
+population, dependence provenance, calibration or downstream authority.
+
 ## Public API
 
 | Type/Function                   | Description                                               |
@@ -81,6 +166,7 @@ draw. Other errors propagate instead of producing a conditional partial distribu
 | `compute_first_order_indices()` | Sensitivity helper for variance attribution.              |
 | `extract_std()`                 | Extracts scale from a typed parametric fit or legacy interval. |
 | Covariance reconciliation constants and builders | Lazy exact-owner exports for covariance construction, reconciliation, and singular-matrix handling. |
+| Empirical admission, CDF, and moment helpers | One shared finite-weight, aligned-row law for Foundry and Scientist consumers. |
 | `EvaluationFailureClassification` and classifier | Bounded exception-graph classification and existing node/edge limits. |
 
 ## Envelope aggregation boundaries
@@ -147,13 +233,6 @@ interval, and draws in its returned summary, omits the incompatible `Uncertainty
 returns the typed `point_outside_credible_interval` limitation. The existing envelope validator
 still enforces point-in-interval for representable envelope artifacts; no clipping or median
 substitution is applied.
-
-## Current State
-
-- Last updated: 2026-10-20
-- Files: 13 Python files in this package
-- Exports: 30 names declared in `__all__`
-
 
 ### Source-derived posterior consumption
 

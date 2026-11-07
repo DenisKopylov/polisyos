@@ -49,8 +49,14 @@ from polisyos.foundry.agent_sim.temporal import build_temporal_observations
 from polisyos.foundry.agent_sim.temporal_mechanisms import (
     TemporalConsumptionMechanism,
     _empty_temporal_consumption_metrics,
+    _temporal_policy_decision,
+    _UnsupportedPolicyExecutorError,
 )
 from polisyos.foundry.agent_sim.training import TrainingConfig, train_actor_critic_with_artifact
+from polisyos.foundry.agent_sim.training_config import (
+    _require_supported_training_fidelity,
+    _UnsupportedTrainingFidelityError,
+)
 from polisyos.foundry.contracts.fidelity import FidelityLevel
 from polisyos.foundry.plugins.composite import (
     CompositeExecutor,
@@ -182,8 +188,24 @@ class _EconomicsTemporalConsumptionMechanism(TemporalConsumptionMechanism):
             )
 
         def _empty_metrics() -> dict[str, jnp.ndarray | _GiniPopulationStatus]:
+            decision_template = (
+                eqx.filter_eval_shape(
+                    lambda actor, current: _temporal_policy_decision(
+                        actor,
+                        current,
+                        rng_key,
+                        fidelity,
+                        horizon=self.horizon,
+                        include_expectations=self.include_expectations,
+                    ),
+                    self.actor_critic,
+                    state,
+                )
+                if self._capture_policy_decision
+                else None
+            )
             return {
-                **_empty_temporal_consumption_metrics(state),
+                **_empty_temporal_consumption_metrics(state, decision_template=decision_template),
                 _GINI_POPULATION_STATUS_METRIC: _status(False),
             }
 
@@ -419,6 +441,41 @@ def _composite_to_native(state: CompositeState, template: GlobalState) -> Global
 
 class EconomicsTrainingAdapter:
     """Admit and execute the one-domain Economics training profile."""
+
+    def require_supported_training_config(self, config: TrainingConfig) -> None:
+        """Refuse unsupported action likelihoods before actor or output setup."""
+        try:
+            _require_supported_training_fidelity(config.fidelity)
+        except _UnsupportedTrainingFidelityError as exc:
+            raise TrainingBridgeError(exc.code, str(exc)) from exc
+        gini_assessment = _training_gini_profile_assessment(self.state.get_domain(ECONOMICS_DOMAIN))
+        if not bool(self.state.gini_profile_supported):
+            gini_assessment = BridgeAssessment(
+                "training_active_gini_profile_unsupported",
+                "The supplied composite state already carries a terminal Gini-profile refusal.",
+            )
+        if gini_assessment is not None:
+            raise TrainingBridgeError(gini_assessment.code, gini_assessment.message)
+
+        if config.utility_type != "crra":
+            raise TrainingBridgeError(
+                "training_utility_profile_unsupported",
+                "The Economics reward bridge is admitted only for CRRA training.",
+            )
+        selected_profile = GiniPopulationProfile.ECONOMICS_ACTIVE_WEALTH_INCOME_V1
+        if (
+            config.gini_population_profile is not None
+            and config.gini_population_profile is not selected_profile
+        ):
+            raise TrainingBridgeError(
+                "training_composite_profile_unsupported",
+                "The Economics adapter only admits its source-defined active wealth and income profile.",
+            )
+        if config.n_episodes <= 0 or config.steps_per_episode <= 0 or config.ppo_epochs <= 0:
+            raise TrainingBridgeError(
+                "training_update_not_observed",
+                "Training requires positive episodes, rollout steps, and PPO epochs.",
+            )
 
     def __init__(self, state: CompositeState, executor: CompositeExecutor) -> None:
         self.state = state
@@ -692,36 +749,9 @@ class EconomicsTrainingAdapter:
         artifact_store: ArtifactStore | None = None,
     ) -> AdapterTrainingOutcome:
         """Run the existing native optimizer and persist/read back its artifact."""
-
-        gini_assessment = _training_gini_profile_assessment(self.state.get_domain(ECONOMICS_DOMAIN))
-        if not bool(self.state.gini_profile_supported):
-            gini_assessment = BridgeAssessment(
-                "training_active_gini_profile_unsupported",
-                "The supplied composite state already carries a terminal Gini-profile refusal.",
-            )
-        if gini_assessment is not None:
-            raise TrainingBridgeError(gini_assessment.code, gini_assessment.message)
-
-        if config.utility_type != "crra":
-            raise TrainingBridgeError(
-                "training_utility_profile_unsupported",
-                "The Economics reward bridge is admitted only for CRRA training.",
-            )
+        self.require_supported_training_config(config)
         selected_profile = GiniPopulationProfile.ECONOMICS_ACTIVE_WEALTH_INCOME_V1
-        if (
-            config.gini_population_profile is not None
-            and config.gini_population_profile is not selected_profile
-        ):
-            raise TrainingBridgeError(
-                "training_composite_profile_unsupported",
-                "The Economics adapter only admits its source-defined active wealth and income profile.",
-            )
         selected_config = replace(config, gini_population_profile=selected_profile)
-        if config.n_episodes <= 0 or config.steps_per_episode <= 0 or config.ppo_epochs <= 0:
-            raise TrainingBridgeError(
-                "training_update_not_observed",
-                "Training requires positive episodes, rollout steps, and PPO epochs.",
-            )
 
         initial_state = self.to_native_state(seed=seed)
         try:
@@ -737,7 +767,7 @@ class EconomicsTrainingAdapter:
                 seed=seed,
                 track_active_wealth=True,
             )
-        except _ActiveWealthTrajectoryValidationError as exc:
+        except (_ActiveWealthTrajectoryValidationError, _UnsupportedPolicyExecutorError) as exc:
             raise TrainingBridgeError(exc.code, str(exc)) from exc
         except _NativeExecutionValidationError as exc:
             raise TrainingBridgeError(
@@ -900,9 +930,13 @@ def _action_delta(
         horizon=config.horizon,
         include_expectations=config.include_expectations,
     )
+    obs = jnp.where(initial_state.agents.active[:, None], obs, 0.0)
     before_action, _ = before(obs, deterministic=True)
     after_action, _ = after(obs, deterministic=True)
-    return jnp.max(jnp.abs(after_action - before_action))
+    difference = jnp.where(
+        initial_state.agents.active[:, None], jnp.abs(after_action - before_action), 0.0
+    )
+    return jnp.max(difference)
 
 
 __all__ = [

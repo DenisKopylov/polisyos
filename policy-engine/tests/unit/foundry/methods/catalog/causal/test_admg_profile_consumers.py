@@ -738,6 +738,38 @@ def test_shared_cache_retains_the_exact_admitted_graph_snapshot():
     assert cached.directed_edges == frozenset({("X", "Y")})
 
 
+@pytest.mark.parametrize("warm", [False, True])
+def test_conditioned_query_prepares_canonical_content_once(monkeypatch, warm):
+    """One admission serves traversal and collider-ancestor closure, never callers."""
+    graph = _graph(
+        [CausalEdge(src="X", dst="Z"), CausalEdge(src="Y", dst="Z")],
+        nodes=("X", "Y", "Z"),
+        graph_type=GraphType.DAG,
+    )
+    ops._ADJ_CACHE.clear()
+    if warm:
+        assert ops.m_separation(graph, frozenset({"X"}), frozenset({"Y"}), frozenset())
+    counts = {"snapshot": 0, "hash": 0}
+    snapshot = ops.canonical_causal_graph_snapshot
+    content_key = ops._canonical_snapshot_content_key
+
+    def record_snapshot(current):
+        counts["snapshot"] += 1
+        return snapshot(current)
+
+    def record_key(current):
+        counts["hash"] += 1
+        return content_key(current)
+
+    monkeypatch.setattr(ops, "canonical_causal_graph_snapshot", record_snapshot)
+    monkeypatch.setattr(ops, "_canonical_snapshot_content_key", record_key)
+    assert not ops.m_separation(graph, frozenset({"X"}), frozenset({"Y"}), frozenset({"Z"}))
+    assert counts == {"snapshot": 1, "hash": 1}
+    for _ in range(10):
+        assert ops.ancestors(graph, frozenset({"Z"})) == frozenset({"X", "Y", "Z"})
+    assert counts == {"snapshot": 11, "hash": 11}
+
+
 def test_canonical_scalar_admission_preserves_resolved_and_sigma_controls():
     from polisyos.foundry.methods.catalog.causal.admg_ops import canonical_scalar_query_graph
 

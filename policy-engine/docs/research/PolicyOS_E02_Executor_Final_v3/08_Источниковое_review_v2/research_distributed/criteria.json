@@ -1,0 +1,442 @@
+{
+  "schema_version": "1.0",
+  "language": "ru",
+  "phase": "source_research_only",
+  "created_at_utc": "2026-11-01",
+  "baseline_not_audited": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2",
+  "expected_later_scope": {
+    "packets": 127,
+    "lanes": 12,
+    "scenarios": "38+4"
+  },
+  "repository_reference_not_audited": "e02_repository@20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "method": "Прочитаны выбранные содержательные разделы первичных интернет-источников через web.open/find. Критерии — вывод исследователя, не автоматические требования ко всем платформам.",
+  "scope_exclusions": [
+    "Не читались и не аудировались спецификации E02 в рамках этого подзадания.",
+    "Не изменялись продукт, спецификации или репозиторий.",
+    "Не выполнялись native/runtime/интеграционные тесты, установки или внешние мутации.",
+    "Ни один предлагаемый discriminator не помечен как выполненный тест."
+  ],
+  "applicability_rule": "Применять критерий только после подтверждения его trigger в конкретном пакете или lane; отсутствие технологии/обещания даёт not_applicable с основанием, а не finding.",
+  "finding_rule": "Для finding нужны точная цитата/путь E02, нарушенное обещание, достижимая история и наблюдаемый oracle. Пробел спецификации, отсутствие теста и подтверждённый дефект — разные классы.",
+  "access_limit": "DRS-X01: HTTP 403, текст POSIX не прочитан, повторов/обхода не было; остальные источники прочитаны в указанных разделах.",
+  "criteria": [
+    {
+      "id": "DRT-01",
+      "title": "Идентичность намерения, а не только payload",
+      "applicability_trigger": "Есть повторяемая изменяющая операция.",
+      "corner_case": "Один ключ использован с другим payload; одинаковый payload означает два намеренных создания.",
+      "false_assurance": "Хеш параметров полностью заменяет request identity.",
+      "test_discriminator": "Различить: тот же caller/key+payload; тот же key+изменённый параметр; другой key+тот же payload; тот же key другого caller. Проверить результаты и количество эффектов.",
+      "limitations_tradeoffs": "Scope ключа и перечень значимых параметров задаются контрактом; глобальная уникальность не обязательна.",
+      "source_refs": [
+        {
+          "source_id": "DRS-01",
+          "section": "Reducing client complexity; Same client request ID, different intent"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-02",
+      "title": "Разрыв между dedupe и эффектом",
+      "applicability_trigger": "Dedupe-запись и побочный эффект сохраняются раздельно.",
+      "corner_case": "Crash после эффекта, но до token; либо token записан, эффект отсутствует.",
+      "false_assurance": "Таблица idempotency_keys сама обеспечивает at-most-once.",
+      "test_discriminator": "Потребовать сценарии обоих crash-window и конкурентного первого запроса; oracle сравнивает effect ledger, token state и результат восстановления.",
+      "limitations_tradeoffs": "ACID подходит одной транзакционной границе; внешнему эффекту нужен явно ограниченный recovery-протокол, не магическое exactly-once.",
+      "source_refs": [
+        {
+          "source_id": "DRS-01",
+          "section": "Reducing client complexity"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-03",
+      "title": "Поздний повтор после удаления и истечения памяти",
+      "applicability_trigger": "Ключи/ресурсы удаляются, есть retention или TTL.",
+      "corner_case": "Задержанный create приходит после delete либо очистки dedupe.",
+      "false_assurance": "Повтор в пределах короткого unit-теста доказывает вечную идемпотентность.",
+      "test_discriminator": "Разыграть create→delete→late retry до и после границы retention. Проверить запрет неожиданного восстановления ресурса внутри обещанного окна и определённое поведение вне него.",
+      "limitations_tradeoffs": "Не требовать бесконечного хранения; срок, tie на границе и response semantics должны быть явны.",
+      "source_refs": [
+        {
+          "source_id": "DRS-01",
+          "section": "Late arriving requests; Retries and semantic equivalence"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-04",
+      "title": "Транспортное получение не является commit",
+      "applicability_trigger": "Есть socket ACK, write/send success или transport receipt.",
+      "corner_case": "Байты приняты транспортом, процесс падает до бизнес-обработки.",
+      "false_assurance": "TCP ACK подтверждает сохранение операции.",
+      "test_discriminator": "В спецификации найти отдельные состояния transport_received, accepted, committed. Тестовая история обрывает процесс после получения байтов, до commit; oracle читает authoritative state, не socket log.",
+      "limitations_tradeoffs": "Вывод из границ TCP, а не требование новых публичных статусов каждому API.",
+      "source_refs": [
+        {
+          "source_id": "DRS-06",
+          "section": "3.1 Header Format — Acknowledgment Number"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-05",
+      "title": "Асинхронное принятие отдельно от конечного результата",
+      "applicability_trigger": "HTTP 202 или аналогичная async-квитанция.",
+      "corner_case": "Принятое задание позже отвергнуто, отменено или не выполнено.",
+      "false_assurance": "Любой 2xx означает завершённую бизнес-операцию.",
+      "test_discriminator": "Проверить accepted→failed и accepted→completed, стабильный operation ID, способ получить terminal status; тест не должен завершаться только после 202.",
+      "limitations_tradeoffs": "Для HTTP действует §15.3.3; иной протокол может иметь другую явно заявленную семантику.",
+      "source_refs": [
+        {
+          "source_id": "DRS-05",
+          "section": "15.3.3 202 Accepted"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-06",
+      "title": "Неопределённый исход после потери ответа",
+      "applicability_trigger": "Операция меняет состояние через сеть.",
+      "corner_case": "Commit состоялся, но ответ утрачен; timeout не различает выполнено/не выполнено.",
+      "false_assurance": "Timeout автоматически означает rollback.",
+      "test_discriminator": "Две истории дают одинаковый клиентский timeout: drop до commit и drop после commit. Проверить reconciliation по operation identity и отсутствие повторного эффекта при разрешённом redrive.",
+      "limitations_tradeoffs": "unknown — состояние знания клиента, не обязательно состояние хранения; bounded retry не гарантирует выяснение исхода.",
+      "source_refs": [
+        {
+          "source_id": "DRS-13",
+          "section": "etcd specific definitions / Operation completed"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-07",
+      "title": "Логический commit отдельно от crash durability",
+      "applicability_trigger": "Успешный commit запускает внешнее действие либо обещает сохранность.",
+      "corner_case": "Успех возвращён до durable WAL; crash теряет подтверждённую запись.",
+      "false_assurance": "Есть транзакция, значит потеря подтверждённых данных невозможна.",
+      "test_discriminator": "Назвать режим commit, failure model и точку durable barrier; сценарий success→crash→recovery сверяет подтверждённый журнал с восстановленным. Внешний эффект сопоставляется с сохранённым основанием.",
+      "limitations_tradeoffs": "PostgreSQL — контрпример; допустима документированная потеря с RPO. Process crash, OS crash и потеря носителя не взаимозаменяемы.",
+      "source_refs": [
+        {
+          "source_id": "DRS-10",
+          "section": "28.4 Asynchronous Commit; Caution"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-08",
+      "title": "Получено репликой, записано, fsync и применено — разные границы",
+      "applicability_trigger": "Есть репликация, failover или read-after-write через replica.",
+      "corner_case": "Replica получила WAL, но не сохранила/не применила; клиент читает старое.",
+      "false_assurance": "Synchronous replication автоматически означает видимость на любой replica.",
+      "test_discriminator": "Указать failure domain, подтверждающий набор и barrier. Раздельно проверить потерю primary, OS crash standby и чтение после write на разрешённой replica.",
+      "limitations_tradeoffs": "Названия remote_write/on/remote_apply специфичны PostgreSQL; усиление durability/visibility увеличивает задержку и может снижать доступность.",
+      "source_refs": [
+        {
+          "source_id": "DRS-11",
+          "section": "26.2.8 Synchronous Replication; 26.2.8.4 Planning for High Availability"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-09",
+      "title": "Publisher confirm не является бизнес-ACK потребителя",
+      "applicability_trigger": "Есть брокер между producer и бизнес-обработчиком.",
+      "corner_case": "Публикация подтверждена, но consumer ещё не исполнил эффект; unroutable тоже может получить confirm.",
+      "false_assurance": "Broker ACK доказывает доставку нужному обработчику и завершение.",
+      "test_discriminator": "Разделить publish_confirm, routing outcome, consumer receipt и effect commit. Проверить unroutable publish и consumer crash перед/после эффекта, до manual ACK.",
+      "limitations_tradeoffs": "Границы зависят от broker/queue/persistence mode; нельзя механически требовать RabbitMQ в E02.",
+      "source_refs": [
+        {
+          "source_id": "DRS-14",
+          "section": "Are Publisher Confirms Related to Consumer Delivery Acknowledgements?; When Will Published Messages Be Confirmed by the Broker?"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-10",
+      "title": "Корреляция ACK вместо предположения о порядке",
+      "applicability_trigger": "Несколько сообщений/операций одновременно in-flight.",
+      "corner_case": "Подтверждение второй публикации приходит раньше первой; channel пересоздан.",
+      "false_assurance": "FIFO отправки гарантирует FIFO подтверждений и глобальную идентичность tag.",
+      "test_discriminator": "Доставить ACK в обратном порядке, batch ACK и старый ACK после reconnect; проверить привязку к своему channel/generation/operation, без завершения чужой записи.",
+      "limitations_tradeoffs": "Нужен порядок только в заявленной области; глобальный порядок всех lane не требуется.",
+      "source_refs": [
+        {
+          "source_id": "DRS-14",
+          "section": "Delivery Identifiers: Delivery Tags; Ordering Considerations for Publisher Confirms"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-11",
+      "title": "Общий бюджет повторов и явный владелец retry",
+      "applicability_trigger": "Есть несколько клиентов, retry-слоёв или скрытые SDK retries.",
+      "corner_case": "Малый per-request limit умножается через слои; reconnect сбрасывает бюджет.",
+      "false_assurance": "Три попытки на каждом уровне безопасны.",
+      "test_discriminator": "Построить цепочку вызовов с числом всех attempts; удержать зависимость перегруженной. Проверить aggregate budget, deadline stop и propagation terminal/nonretryable ошибки.",
+      "limitations_tradeoffs": "Числа Google/AWS — примеры. Retry-owner выбирается по цене потерянной работы, не универсально верхний или нижний слой.",
+      "source_refs": [
+        {
+          "source_id": "DRS-02",
+          "section": "Retries and backoff"
+        },
+        {
+          "source_id": "DRS-03",
+          "section": "Handling Overload Errors / Deciding to Retry"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-12",
+      "title": "End-to-end timeout включает нужные фазы",
+      "applicability_trigger": "Есть удалённый вызов и latency bound.",
+      "corner_case": "DNS, connect, TLS, очередь или retries не входят в измеряемый интервал.",
+      "false_assurance": "SO_RCVTIMEO или request timeout ограничивает весь workflow.",
+      "test_discriminator": "Сравнить cold connection после deploy и reused connection; отдельно задержать каждую покрываемую фазу. Oracle — полное elapsed время и удержанные ресурсы.",
+      "limitations_tradeoffs": "Не все таймеры обязаны быть одинаковы; покрытие, запас на сеть и бюджет ответа задаются явно.",
+      "source_refs": [
+        {
+          "source_id": "DRS-02",
+          "section": "Timeouts"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-13",
+      "title": "Синхронные повторы и периодические задачи",
+      "applicability_trigger": "Много клиентов имеют одинаковые таймеры или общий restart.",
+      "corner_case": "Capped backoff выравнивает retry; periodic polling создаёт короткие пики.",
+      "false_assurance": "Exponential backoff без jitter устраняет шторм.",
+      "test_discriminator": "В сценарии синхронного сбоя/старта проверить распределение attempts во времени и peak load, не только средний RPS.",
+      "limitations_tradeoffs": "Jitter не заменяет budget; для periodic work допустим воспроизводимый offset. Значимые пользовательские deadlines сохраняются.",
+      "source_refs": [
+        {
+          "source_id": "DRS-02",
+          "section": "Retries and backoff; Jitter"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-14",
+      "title": "Отмена не доказывает rollback",
+      "applicability_trigger": "Есть cancel, timeout либо fan-out.",
+      "corner_case": "Cancel приходит после commit; handler/дочерний RPC продолжает работу.",
+      "false_assurance": "Отмена клиентского future остановила все эффекты.",
+      "test_discriminator": "Поставить cancel перед dispatch, во время handler, после durable effect; проверить cooperative stop, cleanup, дочерние операции и конечный outcome независимо от client cancellation.",
+      "limitations_tradeoffs": "Не требовать отмены необратимого эффекта; компенсация/продолжение — отдельный контракт. Автопропагация зависит от runtime.",
+      "source_refs": [
+        {
+          "source_id": "DRS-07",
+          "section": "Overview; Cancelling an RPC Call on the Client Side; Language Support"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-15",
+      "title": "Остаточный deadline, а не новый бюджет на hop",
+      "applicability_trigger": "Есть последовательные/вложенные RPC.",
+      "corner_case": "Каждый hop начинает полный timeout; абсолютные часы узлов расходятся.",
+      "false_assurance": "Все вызовы имеют timeout, значит весь запрос ограничен.",
+      "test_discriminator": "Задержать первый hop; следующий получает остаток с учётом elapsed, а не исходное значение. Повторить при clock skew между узлами и исчерпанном бюджете.",
+      "limitations_tradeoffs": "Не предписывает gRPC; другая реализация должна объяснять преобразование clock domain и propagation. Долговечная async-задача может жить дольше запроса по явному контракту.",
+      "source_refs": [
+        {
+          "source_id": "DRS-08",
+          "section": "Overview; Deadline Propagation"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-16",
+      "title": "Стоимость нагрузки и изоляция клиентов",
+      "applicability_trigger": "Общий runtime обслуживает неоднородные запросы/tenants.",
+      "corner_case": "Небольшой RPS дорогих операций или поток reject исчерпывает ресурсы.",
+      "false_assurance": "Глобальный RPS-limit гарантирует защиту и fairness.",
+      "test_discriminator": "При равном RPS сменить cost mix; отдельно создать noisy tenant и connection churn. Проверить память/CPU/in-flight, стоимость отказа и прогресс разрешённого независимого клиента.",
+      "limitations_tradeoffs": "Сигналы и fairness зависят от workload; CPU не универсальная метрика. Низкочастотный клиент имеет мало данных для adaptive throttling.",
+      "source_refs": [
+        {
+          "source_id": "DRS-03",
+          "section": "The Pitfalls of \"Queries per Second\"; Per-Customer Limits; Client-Side Throttling; Load from Connections"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-17",
+      "title": "Очередь, просроченная работа и восстановление после перегруза",
+      "applicability_trigger": "Есть очереди, worker pool, health checks или failover.",
+      "corner_case": "Просроченные задания продолжают занимать workers; restart возвращает холодный узел под прежний поток.",
+      "false_assurance": "Конечная очередь или autoscaling автоматически предотвращают cascade.",
+      "test_discriminator": "Сценарий burst→частичная потеря capacity→снижение входа проверяет queue age/size, полезный throughput, health и восстановление без бесконечного crash-loop.",
+      "limitations_tradeoffs": "Размер очереди выбирается по burst profile. Допустимо закончить checkpoint после deadline, если это явно полезно и ограничено.",
+      "source_refs": [
+        {
+          "source_id": "DRS-04",
+          "section": "Queue Management; Service Unavailability; Latency and Deadlines"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-18",
+      "title": "Устаревший владелец после lease/GC-паузы",
+      "applicability_trigger": "Exclusive ownership защищает изменяющую операцию.",
+      "corner_case": "Владелец проверил lease, завис; новый владелец вступил, старый продолжил write.",
+      "false_assurance": "Успешное acquire lease исключает все конкурентные эффекты.",
+      "test_discriminator": "История acquire→pause→expiry→new owner→resume old проверяет rejection stale effect в authoritative boundary либо доказанную безвредность дублирования.",
+      "limitations_tradeoffs": "Fencing/CAS/idempotency — варианты, не обязательный конкретный механизм. Если эффект коммутативен и дубли безопасны, строгая эксклюзивность может быть излишней.",
+      "source_refs": [
+        {
+          "source_id": "DRS-12",
+          "section": "How Amazon elects a leader; Best practices for leader election; Conclusion"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-19",
+      "title": "Разделение ролей часов",
+      "applicability_trigger": "Используются timeout, lease, TTL, audit timestamp или revision.",
+      "corner_case": "Wall clock сдвинулся; локальный elapsed/revision ошибочно сравнивается между процессами.",
+      "false_assurance": "UTC timestamp задаёт причинный порядок и надёжный interval.",
+      "test_discriminator": "Для каждого поля назвать clock role/domain; сценарии wall-clock step и restart проверяют interval expiry, lease validity и ordering независимо от отображаемого времени.",
+      "limitations_tradeoffs": "Не запрещает wall-clock TTL или синхронизированные clocks при заявленных предпосылках. POSIX API здесь не верифицирован; глобальная упорядоченность не навязывается.",
+      "source_refs": [
+        {
+          "source_id": "DRS-12",
+          "section": "How Amazon elects a leader"
+        },
+        {
+          "source_id": "DRS-13",
+          "section": "Revision"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-20",
+      "title": "Условное обновление против lost update",
+      "applicability_trigger": "Два автора меняют одну версию ресурса.",
+      "corner_case": "Оба прочитали v1; поздняя запись затирает v2.",
+      "false_assurance": "Проверка версии перед записью достаточна вне атомарной границы.",
+      "test_discriminator": "Параллельно применить два изменения с одним expected version; проверить один разрешённый исход либо явный merge, без тихой перезаписи. Для HTTP проверить strong If-Match и failed precondition.",
+      "limitations_tradeoffs": "CAS не даёт атомарность нескольких ресурсов. Политика конфликта может быть merge/LWW, если это сознательная семантика, а не случайность.",
+      "source_refs": [
+        {
+          "source_id": "DRS-05",
+          "section": "13.1.1 If-Match"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-21",
+      "title": "Snapshot не равен сохранению межзаписного инварианта",
+      "applicability_trigger": "Транзакции читают несколько записей и изменяют зависимые данные.",
+      "corner_case": "Write skew допускает оба commit; повторен только последний SQL, основанный на старом чтении.",
+      "false_assurance": "ACID или repeatable snapshot исключает все гонки.",
+      "test_discriminator": "Задать две транзакции с пересекающимися чтениями и разными writes; oracle проверяет бизнес-инвариант. При serialization failure требовать повтор всей зависимой логики и отсутствие утечки aborted результата.",
+      "limitations_tradeoffs": "Serializable/locks/CAS выбираются по инварианту и contention; не требовать SERIALIZABLE всюду. DB isolation не включает внешние эффекты.",
+      "source_refs": [
+        {
+          "source_id": "DRS-09",
+          "section": "Table 13.1; 13.2.2 Repeatable Read Isolation Level; 13.2.3 Serializable Isolation Level"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-22",
+      "title": "Watch/cache не наследует свойства authoritative read",
+      "applicability_trigger": "Есть подписка, projection/cache или восстановление cursor.",
+      "corner_case": "Watch отстал/разорван; cursor старше compaction; отсутствие события принято за отсутствие изменения.",
+      "false_assurance": "Ordered reliable watch всегда актуален и возобновляется навсегда.",
+      "test_discriminator": "Задержать события, обновить state через KV, затем reconnect внутри/вне history window. Проверить revision comparison и явный resnapshot/gap outcome вместо тихой потери.",
+      "limitations_tradeoffs": "etcd watch не linearizable; freshness bound — отдельное обещание E02. Не требовать глобального порядка между независимыми потоками.",
+      "source_refs": [
+        {
+          "source_id": "DRS-13",
+          "section": "APIs to consider; Watch APIs"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-23",
+      "title": "Повторная доставка без бесконечного poison-loop",
+      "applicability_trigger": "Consumer может nack/requeue.",
+      "corner_case": "Все consumers немедленно возвращают одно необрабатываемое сообщение; оно забивает очередь.",
+      "false_assurance": "Manual ACK и requeue гарантируют прогресс.",
+      "test_discriminator": "Устойчиво ошибочное сообщение рядом с валидным: проверить ограничение redelivery, backoff/terminal route и прогресс валидного; loss/duplicate outcome явно наблюдаем.",
+      "limitations_tradeoffs": "DLQ не обязательна; discard допустим только по контракту. Backpressure ограничивает in-flight, но не лечит poison message.",
+      "source_refs": [
+        {
+          "source_id": "DRS-14",
+          "section": "Negative Acknowledgement and Requeuing of Deliveries; Channel Prefetch Setting (QoS)"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    },
+    {
+      "id": "DRT-24",
+      "title": "Деградация сохраняет заявленный смысл результата",
+      "applicability_trigger": "Есть fallback, cached/stale response или degraded mode.",
+      "corner_case": "Быстрый fallback выглядит как полный свежий authoritative результат.",
+      "false_assurance": "Fallback success эквивалентен normal success.",
+      "test_discriminator": "Включить degraded mode и проверить качество/свежесть/полноту по обещанному контракту; затем восстановить dependency и проверить выход без колебаний и ложного успеха.",
+      "limitations_tradeoffs": "Не любая операция допускает деградацию; политика должна учитывать безопасность и бизнес-инвариант. Порог и механизм отключения контекстны.",
+      "source_refs": [
+        {
+          "source_id": "DRS-04",
+          "section": "Load Shedding and Graceful Degradation"
+        }
+      ],
+      "derivation": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+      "status": "research_only_not_applied"
+    }
+  ]
+}
+

@@ -495,6 +495,39 @@ def _callable_source(value: object) -> tuple[ModuleType, Path]:
     return module, code_path
 
 
+def describe_callable_source(function: object, *, expected_module: str) -> dict[str, str]:
+    """Observe a direct Python callable's current source without invoking it.
+
+    This reuses the component origin reader's code-to-module reconciliation.
+    It does not authenticate dependencies, installation records, a publisher,
+    permission, or subsequent executions. It is descriptive evidence only.
+
+    Args:
+        function: Direct Python function whose current source is observed.
+        expected_module: Required module name or parent module namespace.
+
+    Returns:
+        Recomputed direct source coordinates and file digest, or only a
+        ``not_established`` basis when the source cannot be reconciled.
+    """
+    if not isinstance(function, FunctionType):
+        return {"basis": "not_established"}
+    try:
+        module, source = _callable_source(function)
+        if module.__name__ != expected_module and not module.__name__.startswith(
+            expected_module + "."
+        ):
+            return {"basis": "not_established"}
+        return {
+            "basis": "recomputed",
+            "module": module.__name__,
+            "qualname": function.__qualname__,
+            "module_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+        }
+    except (_OriginError, OSError, RuntimeError, TypeError, ValueError):
+        return {"basis": "not_established"}
+
+
 def _failure_binding(
     ep: object,
     *,

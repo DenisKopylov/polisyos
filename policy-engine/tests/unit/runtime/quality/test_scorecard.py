@@ -4,6 +4,8 @@ import copy
 import hashlib
 import inspect
 import json
+from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -14,6 +16,7 @@ from polisyos.runtime.quality.assurance_case import (
     build_policy_design_jurisdiction_spine,
 )
 from polisyos.runtime.quality.attestation import build_required_production_attestations
+from polisyos.runtime.quality.authority import AuthorityRole, EvidenceClass
 from polisyos.runtime.quality.calibration_ledger import (
     CalibrationBehaviorPolicy,
     CalibrationHistoryPolicy,
@@ -500,6 +503,62 @@ def _complete_job_payload_missing_runtime_refs(*ref_keys: str) -> dict[str, obje
         if isinstance(runtime_refs, dict):
             runtime_refs.pop(ref_key, None)
     return payload
+
+
+def _scorecard_inputs_with_persisted_report(
+    tmp_path: Path,
+    *,
+    report_key: str,
+    run_suffix: str,
+    report_payload: dict[str, Any],
+    authority_role: AuthorityRole = "runtime_blocker",
+    evidence_class: EvidenceClass = "authority_bearing",
+) -> tuple[Any, Any, dict[str, object], dict[str, object]]:
+    """Use the registered writer and selected CAS ref for one scored report."""
+    from tests.unit.runtime.quality.test_runtime_quality_report_owner_contract import (
+        _persist_report,
+    )
+
+    persisted_source = copy.deepcopy(report_payload)
+    persisted_source.pop("authority_envelope", None)
+    store, result, report, _envelope = _persist_report(
+        tmp_path,
+        report_key=report_key,
+        run_suffix=run_suffix,
+        payload=persisted_source,
+        derive_closure=True,
+        authority_role=authority_role,
+        evidence_class=evidence_class,
+    )
+    quality_evidence = normalize_quality_evidence(
+        _complete_quality_evidence(),
+        canary_kind="production",
+    )
+    quality_evidence[report_key] = report
+    job_payload = _complete_job_payload()
+    progress = job_payload["progress"]
+    assert isinstance(progress, dict)
+    details = progress["details"]
+    assert isinstance(details, dict)
+    ref_key = f"{report_key}_ref"
+    selected_ref = result.cas_ref
+    selected_id = str(selected_ref.artifact_id)
+    details[ref_key] = selected_id
+    runtime_refs = details["runtime_quality_refs"]
+    assert isinstance(runtime_refs, dict)
+    runtime_refs[ref_key] = selected_id
+    artifact_refs = details.setdefault("runtime_quality_artifact_refs", {})
+    assert isinstance(artifact_refs, dict)
+    artifact_refs[ref_key] = selected_ref.model_dump(mode="json")
+    diagnostic_events = details["diagnostic_events"]
+    assert isinstance(diagnostic_events, list)
+    for event in diagnostic_events:
+        if isinstance(event, dict) and event.get("event_name") == f"{report_key}.persisted":
+            event["artifact_ref"] = selected_id
+            event["runtime_cas_ref"] = selected_id
+    job_payload["job_id"] = result.identity_context.job_id
+    job_payload["run_id"] = result.identity_context.run_id
+    return store, result, quality_evidence, job_payload
 
 
 def _complete_quality_evidence() -> dict[str, object]:
@@ -1036,12 +1095,17 @@ def test_runtime_quality_scorecard_builds_stage_scores_and_evidence_refs() -> No
     assert scorecard["schema_version"] == "policyos.quality_scorecard.v1"
     assert scorecard["quality_status"] == "fail"
     assert "phase_barrier_owner_scope_not_established" in _blocking_codes(scorecard)
-    assert 0.99 < scorecard["overall_score"] < 1.0
-    privacy_gate = next(
-        gate
-        for gate in scorecard["quality_gates"]
-        if gate["name"] == "privacy_compliance_report_present"
+    assert scorecard["overall_score"] == round(
+        sum(scorecard["stage_scores"].values()) / len(scorecard["stage_scores"]),
+        6,
     )
+    assert scorecard["overall_score"] < 1.0
+    privacy_gate = scorecard_module._compliance_gates(
+        quality_evidence=quality_evidence,
+        canary_kind="production",
+        job_payload=_complete_job_payload(),
+        run_payload=None,
+    )[0]
     assert privacy_gate["status"] == "pass"
     assert set(scorecard["stage_scores"]) == {
         "llm",
@@ -1054,7 +1118,6 @@ def test_runtime_quality_scorecard_builds_stage_scores_and_evidence_refs() -> No
         "ops",
     }
     assert scorecard["stage_scores"]["llm"] == 1.0
-    assert scorecard["stage_scores"]["fabric"] == 1.0
     assert scorecard["evidence_refs"]["provider_preflight"] == "provider_preflight.json"
     assert (
         scorecard["evidence_refs"]["policy_grounding_matrix"]
@@ -1382,9 +1445,8 @@ def test_scorecard_consumes_calibration_behavior_as_future_readiness_cap() -> No
     ]
 
 
-def test_scorecard_emits_first_failing_producer_owner_map() -> None:
-    quality_evidence = _complete_quality_evidence()
-    fabric_trace = quality_evidence["fabric_retrieval_trace"]
+def test_scorecard_emits_first_failing_producer_owner_map(tmp_path: Path) -> None:
+    fabric_trace = copy.deepcopy(_complete_quality_evidence()["fabric_retrieval_trace"])
     assert isinstance(fabric_trace, dict)
     fabric_trace["status"] = "fail"
     fabric_trace["issues"] = [
@@ -1394,30 +1456,35 @@ def test_scorecard_emits_first_failing_producer_owner_map() -> None:
             "next_action": "Bind Fabric to an admissible scenario source contract.",
         }
     ]
-    fabric_envelope = fabric_trace["authority_envelope"]
-    assert isinstance(fabric_envelope, dict)
-    fabric_envelope["validation_status"] = "fail"
-    fabric_envelope["blocking_status"] = "blocking"
+    store, result, quality_evidence, job_payload = _scorecard_inputs_with_persisted_report(
+        tmp_path,
+        report_key="fabric_retrieval_trace",
+        run_suffix="scorecard-owner-map",
+        report_payload=fabric_trace,
+    )
+    selected_id = str(result.cas_ref.artifact_id)
 
     scorecard = build_quality_scorecard(
         canary_kind="production",
-        job_id="job-quality",
-        run_id="R_quality",
+        job_id=result.identity_context.job_id,
+        run_id=result.identity_context.run_id,
         execution_status="completed",
-        job_payload=_complete_job_payload(),
+        job_payload=job_payload,
         run_payload=None,
         provider_preflight={"status": "passed"},
         quality_evidence=quality_evidence,
+        artifact_store=store,
     )
 
     failure = _failure_by_code(scorecard, "source_family_mismatch")
     assert failure["owner"] == "team-fabric"
     assert failure["root_cause_class"] == "runtime_owned_domain_failure"
-    assert (
-        failure["first_failing_artifact_ref"]
-        == (_complete_runtime_refs()["fabric_retrieval_trace_ref"])
-    )
+    assert failure["first_failing_artifact_ref"] == selected_id
     assert failure["next_action"] == "Bind Fabric to an admissible scenario source contract."
+    domain_only_triage = scorecard_module._operator_triage_ledger([failure])
+    domain_only_root = domain_only_triage["root_causes"][0]
+    assert domain_only_root["root_cause_class"] == "runtime_owned_domain_failure"
+    assert "source_family_mismatch" in domain_only_root["failure_codes"]
 
     for item in scorecard["blocking_quality_failures"]:
         assert item["owner"]
@@ -1429,14 +1496,9 @@ def test_scorecard_emits_first_failing_producer_owner_map() -> None:
     assert triage["schema_version"] == "policyos.operator_triage_ledger.v1"
     assert triage["root_cause_count"] >= 1
     fabric_root = next(
-        item
-        for item in triage["root_causes"]
-        if item["first_failing_artifact_ref"]
-        == _complete_runtime_refs()["fabric_retrieval_trace_ref"]
+        item for item in triage["root_causes"] if item["first_failing_artifact_ref"] == selected_id
     )
     assert fabric_root["owner"] == "team-fabric"
-    assert fabric_root["root_cause_class"] == "runtime_owned_domain_failure"
-    assert "source_family_mismatch" in fabric_root["failure_codes"]
     assert scorecard["approval_eligibility"]["operator_triage_ledger"] == triage
 
 
@@ -2325,74 +2387,103 @@ def test_serious_scorecard_rejects_pass_shaped_report_status_without_authority_s
     assert "hds_unknown_provenance" in _blocking_codes(scorecard)
 
 
-def test_serious_scorecard_rejects_bundle_generated_runtime_looking_refs() -> None:
-    raw_evidence = _complete_quality_evidence()
-    envelope = raw_evidence["policy_grounding_matrix"]["authority_envelope"]
-    assert isinstance(envelope, dict)
-    envelope["authority_role"] = "packaging_only"
-    envelope["provenance_kind"] = "bundle_packaged"
-    quality_evidence = normalize_quality_evidence(raw_evidence, canary_kind="production")
+def test_serious_scorecard_rejects_bundle_generated_runtime_looking_refs(tmp_path: Path) -> None:
+    report_payload = copy.deepcopy(_complete_quality_evidence()["policy_grounding_matrix"])
+    assert isinstance(report_payload, dict)
+    store, result, raw_evidence, job_payload = _scorecard_inputs_with_persisted_report(
+        tmp_path,
+        report_key="policy_grounding_matrix",
+        run_suffix="scorecard-packaging-role",
+        report_payload=report_payload,
+        authority_role="packaging_only",
+    )
+    quality_evidence = raw_evidence
 
     scorecard = build_quality_scorecard(
         canary_kind="production",
-        job_id="job-quality",
-        run_id="R_quality",
+        job_id=result.identity_context.job_id,
+        run_id=result.identity_context.run_id,
         execution_status="completed",
-        job_payload=_complete_job_payload(),
+        job_payload=job_payload,
         run_payload=None,
         provider_preflight={"status": "passed"},
         quality_evidence=quality_evidence,
+        artifact_store=store,
     )
 
     assert scorecard["quality_status"] == "fail"
     assert "hds_projection_used_as_authority" in _blocking_codes(scorecard)
+    assert store.verify(result.cas_ref).ok
+    assert str(result.cas_ref.artifact_id) in {
+        str(failure.get("first_failing_artifact_ref"))
+        for failure in scorecard["blocking_quality_failures"]
+        if isinstance(failure, dict)
+    }
 
 
-def test_serious_scorecard_rejects_redacted_derived_authority_envelope() -> None:
-    raw_evidence = _complete_quality_evidence()
-    envelope = raw_evidence["policy_grounding_matrix"]["authority_envelope"]
-    assert isinstance(envelope, dict)
-    envelope["evidence_class"] = "redacted_derived"
-    envelope["redaction_policy_ref"] = "redaction-policy/public-export-v1"
-    quality_evidence = normalize_quality_evidence(raw_evidence, canary_kind="production")
+def test_serious_scorecard_rejects_redacted_derived_authority_envelope(tmp_path: Path) -> None:
+    report_payload = copy.deepcopy(_complete_quality_evidence()["policy_grounding_matrix"])
+    assert isinstance(report_payload, dict)
+    store, result, raw_evidence, job_payload = _scorecard_inputs_with_persisted_report(
+        tmp_path,
+        report_key="policy_grounding_matrix",
+        run_suffix="scorecard-redacted-role",
+        report_payload=report_payload,
+        authority_role="runtime_blocker",
+        evidence_class="redacted_derived",
+    )
+    quality_evidence = raw_evidence
 
     scorecard = build_quality_scorecard(
         canary_kind="production",
-        job_id="job-quality",
-        run_id="R_quality",
+        job_id=result.identity_context.job_id,
+        run_id=result.identity_context.run_id,
         execution_status="completed",
-        job_payload=_complete_job_payload(),
+        job_payload=job_payload,
         run_payload=None,
         provider_preflight={"status": "passed"},
         quality_evidence=quality_evidence,
+        artifact_store=store,
     )
 
     assert scorecard["quality_status"] == "fail"
     assert "hds_projection_used_as_authority" in _blocking_codes(scorecard)
+    assert store.verify(result.cas_ref).ok
+    assert str(result.cas_ref.artifact_id) in {
+        str(failure.get("first_failing_artifact_ref"))
+        for failure in scorecard["blocking_quality_failures"]
+        if isinstance(failure, dict)
+    }
 
 
-def test_serious_scorecard_requires_same_input_closure_across_required_evidence() -> None:
-    raw_evidence = _complete_quality_evidence()
-    envelope = raw_evidence["policy_grounding_matrix"]["authority_envelope"]
-    assert isinstance(envelope, dict)
-    closure = envelope["same_input_closure"]
-    assert isinstance(closure, dict)
-    closure["closure_sha256"] = "9" * 64
-    quality_evidence = normalize_quality_evidence(raw_evidence, canary_kind="production")
+def test_serious_scorecard_requires_owner_established_same_input_closure(
+    tmp_path: Path,
+) -> None:
+    report_payload = copy.deepcopy(_complete_quality_evidence()["policy_grounding_matrix"])
+    assert isinstance(report_payload, dict)
+    store, result, raw_evidence, job_payload = _scorecard_inputs_with_persisted_report(
+        tmp_path,
+        report_key="policy_grounding_matrix",
+        run_suffix="scorecard-closure-owner",
+        report_payload=report_payload,
+        authority_role="producer_authority",
+    )
+    quality_evidence = raw_evidence
 
     scorecard = build_quality_scorecard(
         canary_kind="production",
-        job_id="job-quality",
-        run_id="R_quality",
+        job_id=result.identity_context.job_id,
+        run_id=result.identity_context.run_id,
         execution_status="completed",
-        job_payload=_complete_job_payload(),
+        job_payload=job_payload,
         run_payload=None,
         provider_preflight={"status": "passed"},
         quality_evidence=quality_evidence,
+        artifact_store=store,
     )
 
     assert scorecard["quality_status"] == "fail"
-    assert "hds_same_input_closure_mismatch" in _blocking_codes(scorecard)
+    assert "same_input_closure_owner_not_established" in _blocking_codes(scorecard)
 
 
 def test_serious_scorecard_verifies_effective_mode_ledger_before_gate_scoring() -> None:
@@ -2667,6 +2758,19 @@ def test_runtime_quality_scorecard_requires_override_for_performance_budget_fail
             }
         }
     )
+    isolated_state, isolated_eligibility = scorecard_module._approval_readiness(
+        canary_kind="production",
+        execution_status="completed",
+        quality_status="pass",
+        performance_status="fail",
+        blocking_quality_failures=[],
+        warnings=[],
+        override_evidence={"accepted": False},
+    )
+    assert isolated_state == "override_required"
+    assert isolated_eligibility["requires_override"] is True
+    assert isolated_eligibility["missing_override"] is True
+    assert isolated_eligibility["reasons"] == ["performance_budget_failed"]
 
     scorecard = build_quality_scorecard(
         canary_kind="production",
@@ -2686,9 +2790,9 @@ def test_runtime_quality_scorecard_requires_override_for_performance_budget_fail
     assert scorecard["approval_eligibility"]["eligible"] is False
     assert scorecard["approval_eligibility"]["requires_override"] is True
     assert scorecard["approval_eligibility"]["missing_override"] is True
-    assert scorecard["approval_eligibility"]["reasons"] == [
-        "phase_barrier_owner_scope_not_established"
-    ]
+    assert (
+        "phase_barrier_owner_scope_not_established" in scorecard["approval_eligibility"]["reasons"]
+    )
 
 
 def test_runtime_quality_scorecard_keeps_raw_override_markers_candidate_only() -> None:

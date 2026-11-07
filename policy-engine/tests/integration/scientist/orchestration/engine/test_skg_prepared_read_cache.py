@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import logging
 import os
 import signal
 import sys
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
@@ -18,7 +19,6 @@ import duckdb
 import pytest
 from _helpers.run_lifecycle import (
     assert_one_resumed_terminal_lifecycle,
-    interrupt_and_suspend_before_finalize,
     start_or_resume_run,
 )
 
@@ -28,7 +28,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.components import ComponentId
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.tenant_context import (
@@ -93,13 +93,16 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_TRINITY_BUNDLE_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor, WorkflowReport
+from polisyos.scientist.orchestration.engine.executor import (
+    WorkflowExecutionResult,
+    WorkflowExecutor,
+    WorkflowReport,
+)
 from polisyos.scientist.orchestration.engine.idempotency import (
     NodeCacheEntry,
     NodeResultCache,
-    compute_idempotency_key,
 )
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.skg_snapshot import (
     SNAPSHOT_INPUT_KEY,
@@ -189,7 +192,7 @@ def _set_unrelated_value(path: Path, value: int) -> None:
 
 
 @contextmanager
-def _access_scope_context(access_scope: AccessScope) -> Iterator[None]:
+def _access_scope_context(access_scope: AccessScope | None) -> Iterator[None]:
     """Install one exact typed caller scope for lifecycle admission."""
     token = set_current_access_scope(access_scope)
     try:
@@ -207,7 +210,17 @@ def _build_run_context(
     resume_from: ExecutionContext | None = None,
     selected_registry_profile: bool = False,
 ) -> tuple[ExecutionContext, NodeRegistry]:
-    with tenant_scope(None, tenant_id=tenant_id or "tenant-a", cell_id=cell_id):
+    owner_scope = get_current_access_scope_or_none()
+    if owner_scope is None and tenant_id is not None:
+        owner_scope = AccessScope.for_service(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            spiffe_id="spiffe://polisyos.test/svc/skg-prepared-read-cache",
+        )
+    with (
+        tenant_scope(None, tenant_id=tenant_id or "tenant-a", cell_id=cell_id),
+        _access_scope_context(owner_scope),
+    ):
         registry_bundle = (
             build_default_registry_bundle(
                 store, return_selected_profile=selected_registry_profile
@@ -222,7 +235,7 @@ def _build_run_context(
             resume_from=None if resume_from is None else resume_from.run,
             tenant_id=tenant_id,
             cell_id=cell_id,
-            access_scope=get_current_access_scope_or_none(),
+            access_scope=owner_scope,
         )
     context = ExecutionContext(
         store=store,
@@ -280,50 +293,178 @@ def _execute_workflow(
     workflow: WorkflowSpec,
     state: ExperimentState,
 ):
-    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+    with (
+        tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"),
+        _access_scope_context(context.run.access_scope),
+    ):
         return WorkflowExecutor(context, registry).execute(workflow, state)
 
 
-def _workflow_result_from_events(
-    context: ExecutionContext, events: list[dict[str, Any]]
-) -> tuple[WorkflowReport, ExperimentState]:
-    """Read the actual persisted workflow outputs before an interrupted terminal boundary."""
-    refs = [
-        ArtifactRef.model_validate(raw_ref)
-        for event in events
-        if event.get("event") == "RUN_OUTPUT_ADDED"
-        for raw_ref in event.get("refs", {}).get("outputs", [])
-    ]
-    report_ref = next(ref for ref in reversed(refs) if ref.kind == "scientist.workflow_report")
-    state_ref = next(ref for ref in reversed(refs) if ref.kind == "scientist.experiment_state")
+def _seed_input_bundle(context: ExecutionContext, state: ExperimentState) -> ExperimentState:
+    """Produce a genuine initial ref that later declared nodes can restore without deletion."""
+    with (
+        tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"),
+        _access_scope_context(context.run.access_scope),
+    ):
+        produced = ResolveParametersNode().execute(context, state)
+    assert produced.status == "ok"
+    initial = state.model_copy(deep=True)
+    initial.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = (
+        produced.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    )
+    return initial
+
+
+def _async_skg_fixture(
+    tmp_path: Path, run_id: str
+) -> tuple[Path, FileSystemCAS, ExecutionContext, NodeRegistry, ExperimentState]:
+    """Create one real scoped native source and owner for async consumer controls."""
+    source = tmp_path / "async-source.duckdb"
+    _seed_skg(source)
+    store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a")
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
-        report = WorkflowReport.model_validate(
-            from_canonical_bytes(context.store.get_bytes(report_ref.artifact_id))
+        graph_ref = persist_causal_graph_model(
+            _ensure_ir_artifact_store(store),
+            CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
         )
-        state = ExperimentState.model_validate(
-            from_canonical_bytes(context.store.get_bytes(state_ref.artifact_id))
-        )
-    return report, state
+    initial = ExperimentState(
+        run_id=run_id,
+        artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+        params={
+            "target_context": {"context_id": "us-2025", "countries": ["US"]},
+            "required_parameters": ["fiscal_multiplier"],
+            "domain": "fiscal",
+            "skg_db_path": str(source),
+            "phase15_runtime_backend": "numpy",
+        },
+    )
+    context, registry = _build_run_context(
+        store,
+        initial.run_id,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        selected_registry_profile=True,
+    )
+    return source, store, context, registry, initial
 
 
-def _execute_workflow_and_suspend(
+async def _execute_async_workflow(
     context: ExecutionContext,
     registry: NodeRegistry,
     workflow: WorkflowSpec,
     state: ExperimentState,
-    *,
-    expected_resumes: int,
-) -> tuple[WorkflowReport, ExperimentState, list[dict[str, object]]]:
-    """Run real consumers, retain their CAS outputs, and pause before terminal publication."""
-    start_line = _trace_event_count(context)
-    interrupt_and_suspend_before_finalize(
-        context.run,
-        lambda: _execute_workflow(context, registry, workflow, state),
-        expected_resumes=expected_resumes,
+) -> WorkflowExecutionResult:
+    from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
+
+    with (
+        tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"),
+        _access_scope_context(context.run.access_scope),
+    ):
+        return await AsyncWorkflowExecutor(context, registry, max_parallelism=1).execute(
+            workflow, state
+        )
+
+
+class _SkgTransitionNode:
+    """Mutate only owned fixture databases and restore the declared original bundle input."""
+
+    def __init__(
+        self,
+        name: str,
+        initial_bundle: ArtifactRef,
+        updates: tuple[tuple[str, float | int, bool], ...] = (),
+    ) -> None:
+        self.name = name
+        self.bundle_payload = initial_bundle.model_dump(mode="json")
+        self.updates = updates
+
+    @property
+    def spec(self) -> NodeSpec:
+        return NodeSpec(
+            metadata=ComponentMetadata(
+                component_id=ComponentId.parse(f"test.skg_transition_{self.name}@1.0.0"),
+                kind=ComponentKind.SCIENTIST_NODE,
+                abi_targets={"world_abi": "1.x"},
+                display_name="SKG fixture transition",
+                description="Declared transition between actual cold and warm invocations",
+                capabilities=Capability.SCIENTIST_NODE,
+            ),
+            state_reads=["params.study_source_inventory"],
+            state_writes=[
+                f"artifacts_index.{ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF}",
+                "params.study_source_inventory",
+            ],
+        )
+
+    def execute(self, _context: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        for source_path, value, unrelated in self.updates:
+            path = Path(source_path)
+            if unrelated:
+                _set_unrelated_value(path, int(value))
+            else:
+                _set_skg_value(path, float(value))
+            inventory = state.params.get("study_source_inventory")
+            if isinstance(inventory, dict):
+                for item in inventory.values():
+                    if item["path"] == source_path:
+                        item["sha256"] = _file_sha256(path)
+        state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = (
+            ArtifactRef.model_validate(self.bundle_payload)
+        )
+        return NodeOutcome(status="ok", state=state)
+
+
+def _planned_skg_workflow(
+    registry: NodeRegistry,
+    initial: ExperimentState,
+    phases: list[tuple[str, tuple[tuple[str, float | int, bool], ...]]],
+) -> WorkflowSpec:
+    """Declare every invocation before execution; no resumed full-DAG dispatch is inferred."""
+    bundle_ref = ArtifactRef.model_validate(
+        initial.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF].model_dump(
+            mode="json"
+        )
     )
-    events = _trace_events(context, start_line=start_line)
-    report, result_state = _workflow_result_from_events(context, events)
-    return report, result_state, events
+    nodes = [NodeInvocation(alias="cold", node_id=_RESOLVE_NODE_ID)]
+    previous = "cold"
+    for name, updates in phases:
+        transition = _SkgTransitionNode(name, bundle_ref, updates)
+        registry.register(transition)
+        transition_alias = f"prepare_{name}"
+        nodes.extend(
+            [
+                NodeInvocation(
+                    alias=transition_alias,
+                    node_id=transition.spec.metadata.component_id,
+                    depends_on=[previous],
+                ),
+                NodeInvocation(alias=name, node_id=_RESOLVE_NODE_ID, depends_on=[transition_alias]),
+            ]
+        )
+        previous = name
+    return WorkflowSpec(workflow_id="planned_skg_invocations", nodes=nodes)
+
+
+def _phase_events(context: ExecutionContext, alias: str) -> list[dict[str, object]]:
+    return [
+        event for event in _trace_events(context) if event.get("phase") == f"scientist.node.{alias}"
+    ]
+
+
+def _phase_bundle_ref(report: WorkflowReport, alias: str) -> ArtifactRef:
+    record = next(node for node in report.nodes if node.alias == alias)
+    assert record.status == "ok", record.model_dump_json()
+    return next(
+        ref for ref in record.artifacts if ref.kind == "ir.context_adaptive_parameter_bundle"
+    )
+
+
+def _phase_value(store: FileSystemCAS, report: WorkflowReport, alias: str) -> float:
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(store), _phase_bundle_ref(report, alias)
+        )
+    return float(bundle.parameters["fiscal_multiplier"].value)
 
 
 def _trinity_bundle() -> TrinityBundle:
@@ -408,6 +549,7 @@ def test_hierarchical_candidate_callback_keeps_executor_prepared_read(
     )
     state = minimal_state.model_copy(deep=True)
     observed: list[object | None] = []
+    selected_stores: list[object] = []
 
     def capture_prepared_read(
         ctx: ExecutionContext,
@@ -425,8 +567,14 @@ def test_hierarchical_candidate_callback_keeps_executor_prepared_read(
         return {"status": "ok", "feasible": True, "objective_value": 1.0}
 
     def run_search(_adapter, _candidate, **kwargs):
+        assert kwargs["source_store"] is context.store
         kwargs["stage_b_evaluator"](_candidate.as_search_payload(), {})
         return SimpleNamespace(model_dump=lambda mode="json": {"status": "ok"})
+
+    def select_champion(_search_result, *, source_store):
+        assert source_store is context.store
+        selected_stores.append(source_store)
+        return candidate
 
     monkeypatch.setattr(
         "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._evaluate_candidate_payload",
@@ -443,7 +591,7 @@ def test_hierarchical_candidate_callback_keeps_executor_prepared_read(
     )
     monkeypatch.setattr(
         "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._select_champion_candidate",
-        lambda _search_result: candidate,
+        select_champion,
     )
     monkeypatch.setattr(
         "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._persist_trinity_bundle",
@@ -458,6 +606,7 @@ def test_hierarchical_candidate_callback_keeps_executor_prepared_read(
 
     assert outcome.status == "ok"
     assert observed == [prepared_read]
+    assert selected_stores == [context.store]
 
 
 def test_workflow_executor_binds_source_transaction_and_emits_hit_receipt(tmp_path: Path) -> None:
@@ -484,18 +633,29 @@ def test_workflow_executor_binds_source_transaction_and_emits_hit_receipt(tmp_pa
             "skg_db_path": str(db_path),
         },
     )
-    workflow = _workflow()
-
     ctx_first, registry_first = _build_run_context(
-        store, initial_state.run_id, selected_registry_profile=True
+        store,
+        initial_state.run_id,
+        selected_registry_profile=True,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
     )
-    first_report, first_state, first_events = _execute_workflow_and_suspend(
-        ctx_first, registry_first, workflow, initial_state, expected_resumes=0
+    initial_state = _seed_input_bundle(ctx_first, initial_state)
+    workflow = _planned_skg_workflow(
+        registry_first,
+        initial_state,
+        [
+            ("warm", ()),
+            ("unrelated", ((str(db_path), 2, True),)),
+            ("changed", ((str(db_path), 2.6, False),)),
+        ],
     )
-    first_value = _resolved_value(store, first_state)
-    assert first_report.status == "ok"
+    changed = _execute_workflow(ctx_first, registry_first, workflow, initial_state)
+    assert changed.report.status == "ok"
+    first_events = _phase_events(ctx_first, "cold")
+    first_value = _phase_value(store, changed.report, "cold")
     assert first_value == 1.4
-    bundle_ref = first_state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+    bundle_ref = _phase_bundle_ref(changed.report, "cold")
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         first_bundle = load_context_adaptive_parameter_bundle(
             _ensure_ir_artifact_store(store), bundle_ref
@@ -544,25 +704,23 @@ def test_workflow_executor_binds_source_transaction_and_emits_hit_receipt(tmp_pa
     query_fingerprints = json.loads(origin_attrs["connection_query_fingerprints_json"])
     assert query_fingerprints
 
-    ctx_hit, registry_hit = _build_run_context(store, initial_state.run_id, resume_from=ctx_first)
-    hit_report, hit_state, hit_events = _execute_workflow_and_suspend(
-        ctx_hit, registry_hit, workflow, initial_state, expected_resumes=1
-    )
-
-    assert hit_report.status == "ok"
-    assert _resolved_value(store, hit_state) == first_value
-    hit_events = [event for event in hit_events if event.get("event") == "NODE_CACHE_HIT"]
+    hit_events = [
+        event
+        for event in _phase_events(ctx_first, "warm")
+        if event.get("event") == "NODE_CACHE_HIT"
+    ]
     assert len(hit_events) == 1
+    assert _phase_value(store, changed.report, "warm") == first_value
+    hit_record = next(node for node in changed.report.nodes if node.alias == "warm")
     receipt_refs = [
-        ref
-        for ref in hit_report.nodes[0].artifacts
-        if ref.kind == "scientist.skg_cache_read_receipt"
+        ref for ref in hit_record.artifacts if ref.kind == "scientist.skg_cache_read_receipt"
     ]
     assert len(receipt_refs) == 1
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         receipt = PreparedSKGReadReceipt.model_validate_json(
             store.get_bytes(receipt_refs[0].artifact_id)
         )
+    assert receipt.cache_key == cache_entry.idempotency_key
     assert receipt.authority_band == "candidate"
     assert receipt.source_snapshot_authenticity == "not_established"
     assert receipt.schema_version == "scientist.skg_cache_read_receipt.v3"
@@ -584,36 +742,15 @@ def test_workflow_executor_binds_source_transaction_and_emits_hit_receipt(tmp_pa
     ):
         foreign_store.get_bytes(receipt_refs[0].artifact_id)
 
-    _set_unrelated_value(db_path, 2)
-    ctx_unrelated, registry_unrelated = _build_run_context(
-        store, initial_state.run_id, resume_from=ctx_hit
-    )
-    unrelated_report, unrelated_state, unrelated_events = _execute_workflow_and_suspend(
-        ctx_unrelated,
-        registry_unrelated,
-        workflow,
-        initial_state,
-        expected_resumes=2,
-    )
-
-    assert unrelated_report.status == "ok"
-    assert _resolved_value(store, unrelated_state) == first_value
+    unrelated_events = _phase_events(ctx_first, "unrelated")
+    assert _phase_value(store, changed.report, "unrelated") == first_value
     assert not any(event.get("event") == "NODE_CACHE_HIT" for event in unrelated_events)
     assert sum(event.get("event") == "NODE_CACHE_STORE" for event in unrelated_events) == 1
-
-    _set_skg_value(db_path, 2.6)
-    ctx_changed, registry_changed = _build_run_context(
-        store, initial_state.run_id, resume_from=ctx_unrelated
-    )
-    changed_trace_start = _trace_event_count(ctx_changed)
-    changed = _execute_workflow(ctx_changed, registry_changed, workflow, unrelated_state)
-
-    assert changed.report.status == "ok"
     assert _resolved_value(store, changed.state) == 2.6
-    changed_events = _trace_events(ctx_changed, start_line=changed_trace_start)
+    changed_events = _phase_events(ctx_first, "changed")
     assert not any(event.get("event") == "NODE_CACHE_HIT" for event in changed_events)
     assert sum(event.get("event") == "NODE_CACHE_STORE" for event in changed_events) == 1
-    assert_one_resumed_terminal_lifecycle(ctx_changed.run, expected_resumes=3)
+    assert_one_resumed_terminal_lifecycle(ctx_first.run, expected_resumes=0)
 
 
 def test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes(
@@ -655,9 +792,23 @@ def test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes(
             "study_source_inventory": initial_inventory,
         },
     )
-    workflow = _workflow()
+    first_context, first_registry = _build_run_context(
+        store,
+        state.run_id,
+        selected_registry_profile=True,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+    )
+    state = _seed_input_bundle(first_context, state)
+    workflow = _planned_skg_workflow(
+        first_registry,
+        state,
+        [("after_b", ((str(other_b), 4.5, False),)), ("after_a", ((str(selected_a), 2.6, False),))],
+    )
     executions: list[tuple[Path, float]] = []
     bindings: list[dict[str, str]] = []
+    validated_inventories: list[dict[str, Any]] = []
+    original_validate = ResolveParametersNode.validate_cache_hit
     original_execute = ResolveParametersNode.execute
     original_binding = PreparedSKGRead.cache_binding
 
@@ -682,23 +833,28 @@ def test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes(
         bindings.append(binding)
         return binding
 
-    monkeypatch.setattr(ResolveParametersNode, "execute", record_real_resolve)
-    monkeypatch.setattr(PreparedSKGRead, "cache_binding", record_real_binding)
-    first_context, first_registry = _build_run_context(
-        store, state.run_id, selected_registry_profile=True
-    )
-    first_report, first_state, _first_events = _execute_workflow_and_suspend(
-        first_context,
-        first_registry,
-        workflow,
-        state,
-        expected_resumes=0,
-    )
-    assert first_report.status == "ok"
-    assert _resolved_value(store, first_state) == 1.4
+    def record_real_validate(node, context, current_state, cached_outcome):
+        validated_inventories.append(
+            current_state.model_dump(mode="python")["params"]["study_source_inventory"]
+        )
+        return original_validate(node, context, current_state, cached_outcome)
 
+    monkeypatch.setattr(ResolveParametersNode, "execute", record_real_resolve)
+    monkeypatch.setattr(ResolveParametersNode, "validate_cache_hit", record_real_validate)
+    monkeypatch.setattr(PreparedSKGRead, "cache_binding", record_real_binding)
+    result = _execute_workflow(first_context, first_registry, workflow, state)
+    assert result.report.status == "ok", result.report.model_dump_json(indent=2)
+    assert _phase_value(store, result.report, "cold") == 1.4
+    assert _phase_value(store, result.report, "after_b") == 1.4
+    assert _phase_value(store, result.report, "after_a") == 2.6
+    assert executions == [(selected_a, 1.4), (selected_a, 2.6)]
+    b_events = _phase_events(first_context, "after_b")
+    assert [event.get("event") for event in b_events].count("NODE_CACHE_HIT") == 1
+    assert not any(event.get("event") == "NODE_CACHE_STORE" for event in b_events)
+    a_events = _phase_events(first_context, "after_a")
+    assert not any(event.get("event") == "NODE_CACHE_HIT" for event in a_events)
+    assert sum(event.get("event") == "NODE_CACHE_STORE" for event in a_events) == 1
     old_b_digest = initial_inventory["other_b"]["sha256"]
-    _set_skg_value(other_b, 4.5)
     new_b_digest = _file_sha256(other_b)
     assert new_b_digest != old_b_digest
     with duckdb.connect(str(other_b), read_only=True) as connection:
@@ -706,49 +862,14 @@ def test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes(
             "SELECT point_estimate FROM ac_skg_simulation_parameters "
             "WHERE canonical_name = 'fiscal_multiplier'"
         ).fetchone() == (4.5,)
-    inventory_after_b = {key: dict(value) for key, value in initial_inventory.items()}
-    inventory_after_b["other_b"]["sha256"] = new_b_digest
-    state_after_b = first_state.model_copy(deep=True)
-    state_after_b.params["study_source_inventory"] = inventory_after_b
-    state_after_b.artifacts_index.pop(ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF, None)
-    b_context, b_registry = _build_run_context(store, state.run_id, resume_from=first_context)
-    b_report, b_state, b_events = _execute_workflow_and_suspend(
-        b_context,
-        b_registry,
-        workflow,
-        state_after_b,
-        expected_resumes=1,
-    )
-    assert b_report.status == "ok"
-    assert _resolved_value(store, b_state) == 1.4
-    assert executions == [(selected_a, 1.4)]
-    assert b_state.params["study_source_inventory"]["other_b"]["sha256"] == new_b_digest
-    assert [event.get("event") for event in b_events].count("NODE_CACHE_HIT") == 1
-    assert not any(event.get("event") == "NODE_CACHE_STORE" for event in b_events)
-
     old_a_digest = initial_inventory["selected_a"]["sha256"]
-    _set_skg_value(selected_a, 2.6)
     new_a_digest = _file_sha256(selected_a)
     assert new_a_digest != old_a_digest
-    inventory_after_a = {
-        key: dict(value) for key, value in b_state.params["study_source_inventory"].items()
-    }
-    inventory_after_a["selected_a"]["sha256"] = new_a_digest
-    state_after_a = b_state.model_copy(deep=True)
-    state_after_a.params["study_source_inventory"] = inventory_after_a
-    state_after_a.artifacts_index.pop(ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF, None)
-    a_context, a_registry = _build_run_context(store, state.run_id, resume_from=b_context)
-    a_trace_start = _trace_event_count(a_context)
-    a_result = _execute_workflow(a_context, a_registry, workflow, state_after_a)
-    a_events = _trace_events(a_context, start_line=a_trace_start)
-    a_report = a_result.report
-    a_state = a_result.state
-
-    assert a_report.status == "ok"
-    assert executions == [(selected_a, 1.4), (selected_a, 2.6)]
-    assert _resolved_value(store, a_state) == 2.6
-    assert a_state.params["study_source_inventory"]["selected_a"]["sha256"] == new_a_digest
-    assert a_state.params["study_source_inventory"]["other_b"]["sha256"] == new_b_digest
+    assert len(validated_inventories) == 1
+    assert validated_inventories[0]["other_b"]["sha256"] == new_b_digest
+    assert validated_inventories[0]["selected_a"]["sha256"] == old_a_digest
+    assert result.state.params["study_source_inventory"]["selected_a"]["sha256"] == new_a_digest
+    assert result.state.params["study_source_inventory"]["other_b"]["sha256"] == new_b_digest
     assert len(bindings) == 3
     assert all(
         binding["source_snapshot_ref"].startswith(f"duckdb://{selected_a}") for binding in bindings
@@ -758,9 +879,20 @@ def test_executor_reuses_selected_skg_a_when_unconsumed_study_source_b_changes(
         old_a_digest,
         new_a_digest,
     ]
-    assert not any(event.get("event") == "NODE_CACHE_HIT" for event in a_events)
-    assert sum(event.get("event") == "NODE_CACHE_STORE" for event in a_events) == 1
-    assert_one_resumed_terminal_lifecycle(a_context.run, expected_resumes=2)
+    cold_store_event = next(
+        event
+        for event in _phase_events(first_context, "cold")
+        if event.get("event") == "NODE_CACHE_STORE"
+    )
+    cold_ref = ArtifactRef.model_validate(cold_store_event["refs"]["outputs"][0])
+    cold_entry = NodeCacheEntry.model_validate(from_canonical_bytes(store.get_bytes(cold_ref)))
+    hit_record = next(node for node in result.report.nodes if node.alias == "after_b")
+    hit_ref = next(
+        ref for ref in hit_record.artifacts if ref.kind == "scientist.skg_cache_read_receipt"
+    )
+    receipt = PreparedSKGReadReceipt.model_validate_json(store.get_bytes(hit_ref))
+    assert receipt.cache_key == cold_entry.idempotency_key
+    assert_one_resumed_terminal_lifecycle(first_context.run, expected_resumes=0)
 
 
 def test_workflow_executor_scopes_constant_query_as_execution_only(
@@ -798,13 +930,19 @@ def test_workflow_executor_scopes_constant_query_as_execution_only(
     monkeypatch.setattr(ResolveParametersNode, "validate_cache_hit", lambda *_args: True)
 
     first_context, first_registry = _build_run_context(
-        store, state.run_id, selected_registry_profile=True
+        store, state.run_id, selected_registry_profile=True, tenant_id="tenant-a", cell_id="cell-a"
     )
-    first_report, _first_state, first_events = _execute_workflow_and_suspend(
-        first_context, first_registry, _workflow(), state, expected_resumes=0
+    workflow = WorkflowSpec(
+        workflow_id="constant_query_cold_warm",
+        nodes=[
+            NodeInvocation(alias="cold", node_id=_RESOLVE_NODE_ID),
+            NodeInvocation(alias="warm", node_id=_RESOLVE_NODE_ID, depends_on=["cold"]),
+        ],
     )
-    assert first_report.status == "ok"
+    hit = _execute_workflow(first_context, first_registry, workflow, state)
+    assert hit.report.status == "ok"
     assert observed == [1]
+    first_events = _phase_events(first_context, "cold")
     store_event = next(event for event in first_events if event.get("event") == "NODE_CACHE_STORE")
     cache_entry_ref = ArtifactRef.model_validate(store_event["refs"]["outputs"][0])
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
@@ -823,15 +961,13 @@ def test_workflow_executor_scopes_constant_query_as_execution_only(
     assert origin.attrs["read_evidence_scope"] == "bound_connection_query_execution_only"
     assert origin.attrs["output_dependency"] == "not_established"
 
-    hit_context, hit_registry = _build_run_context(store, state.run_id, resume_from=first_context)
-    hit = _execute_workflow(hit_context, hit_registry, _workflow(), state)
-    assert hit.report.status == "ok"
-    assert observed == [1]
-    assert_one_resumed_terminal_lifecycle(hit_context.run)
+    assert_one_resumed_terminal_lifecycle(first_context.run, expected_resumes=0)
+    hit_record = next(node for node in hit.report.nodes if node.alias == "warm")
+    assert any(
+        event.get("event") == "NODE_CACHE_HIT" for event in _phase_events(first_context, "warm")
+    )
     receipt_refs = [
-        ref
-        for ref in hit.report.nodes[0].artifacts
-        if ref.kind == "scientist.skg_cache_read_receipt"
+        ref for ref in hit_record.artifacts if ref.kind == "scientist.skg_cache_read_receipt"
     ]
     assert len(receipt_refs) == 1
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
@@ -887,7 +1023,9 @@ def test_workflow_executor_closes_prepared_reader_when_duckdb_error_escapes(
     monkeypatch.setattr(SKGQuery, "prepare_read", staticmethod(track_prepare))
     monkeypatch.setattr(PreparedSKGRead, "close", track_close)
     monkeypatch.setattr(ResolveParametersNode, "execute", execute_missing_relation)
-    context, registry = _build_run_context(store, state.run_id)
+    context, registry = _build_run_context(
+        store, state.run_id, tenant_id="tenant-a", cell_id="cell-a"
+    )
 
     with pytest.raises(duckdb.CatalogException):
         _execute_workflow(context, registry, _workflow(), state)
@@ -895,6 +1033,585 @@ def test_workflow_executor_closes_prepared_reader_when_duckdb_error_escapes(
     assert len(prepared_reads) == 1
     assert close_calls == prepared_reads
     assert prepared_reads[0]._closed is True
+
+
+@pytest.mark.asyncio
+async def test_async_live_skg_rebinds_source_before_reusing_cached_prior(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    record_testsuite_property: Callable[[str, object], None],
+) -> None:
+    """Actual async cache reuse cannot turn an old source result into a current prior."""
+    from polisyos.scientist.orchestration.engine import async_executor as async_module
+    from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
+    from polisyos.scientist.orchestration.engine.idempotency import compute_idempotency_key
+
+    source = tmp_path / "async-live-skg.duckdb"
+    _seed_skg(source)
+    store = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a")
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        graph_ref = persist_causal_graph_model(
+            _ensure_ir_artifact_store(store),
+            CausalGraphModel(graph_type=GraphType.DAG, nodes=["fiscal_multiplier"], edges=[]),
+        )
+    initial = ExperimentState(
+        run_id="R_async_live_skg_current_source",
+        artifacts_index={ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF: graph_ref},
+        params={
+            "target_context": {"context_id": "us-2025", "countries": ["US"]},
+            "required_parameters": ["fiscal_multiplier"],
+            "domain": "fiscal",
+            "skg_db_path": str(source),
+            "phase15_runtime_backend": "numpy",
+        },
+    )
+    context, registry = _build_run_context(
+        store,
+        initial.run_id,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        selected_registry_profile=True,
+    )
+    initial = _seed_input_bundle(context, initial)
+    workflow = _planned_skg_workflow(
+        registry,
+        initial,
+        [("changed", ((str(source), 9.75, False),))],
+    )
+    key_observations: list[dict[str, str]] = []
+
+    def observe_actual_key(**kwargs: Any) -> str:
+        actual = compute_idempotency_key(**kwargs)
+        if str(kwargs["spec"].metadata.component_id) == _RESOLVE_NODE_ID:
+            unbound = dict(kwargs.get("bind_params") or {})
+            unbound.pop("prepared_skg_read", None)
+            declared = compute_idempotency_key(**{**kwargs, "bind_params": unbound})
+            key_observations.append({"cache_key": actual, "declared_only_key": declared})
+        return actual
+
+    monkeypatch.setattr(async_module, "compute_idempotency_key", observe_actual_key)
+    with (
+        tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"),
+        _access_scope_context(context.run.access_scope),
+    ):
+        result = await AsyncWorkflowExecutor(context, registry, max_parallelism=1).execute(
+            workflow, initial
+        )
+        assert result.report.status == "ok", result.report.model_dump_json(indent=2)
+        cold_event = next(
+            event
+            for event in _phase_events(context, "cold")
+            if event.get("event") == "NODE_CACHE_STORE"
+        )
+        entry_ref = ArtifactRef.model_validate(cold_event["refs"]["outputs"][0])
+        entry = NodeCacheEntry.model_validate(from_canonical_bytes(store.get_bytes(entry_ref)))
+        old_ref = _phase_bundle_ref(result.report, "cold")
+        current_ref = _phase_bundle_ref(result.report, "changed")
+        old_bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(store), old_ref
+        )
+        current_bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(store), current_ref
+        )
+    with duckdb.connect(str(source), read_only=True) as connection:
+        row = connection.execute(
+            "SELECT point_estimate FROM ac_skg_simulation_parameters "
+            "WHERE canonical_name = 'fiscal_multiplier'"
+        ).fetchone()
+    assert row == (9.75,)
+    changed_events = _phase_events(context, "changed")
+    observation = {
+        "cold_entry_ref": entry_ref.model_dump(mode="json"),
+        "cold_cache_key": entry.idempotency_key,
+        "actual_key_observations": key_observations,
+        "old_bundle_ref": old_ref.model_dump(mode="json"),
+        "current_bundle_ref": current_ref.model_dump(mode="json"),
+        "old_value": old_bundle.parameters["fiscal_multiplier"].value,
+        "current_value": current_bundle.parameters["fiscal_multiplier"].value,
+        "independent_live_value": row[0],
+        "live_source_sha256": _file_sha256(source),
+        "changed_cache_hits": sum(
+            event.get("event") == "NODE_CACHE_HIT" for event in changed_events
+        ),
+        "authority": "Synthetic mechanism fixture; no empirical or institutional source authority",
+    }
+    record_testsuite_property(
+        "async_live_skg_source_controls", json.dumps(observation, sort_keys=True)
+    )
+    assert len(key_observations) == 2
+    assert key_observations[0]["declared_only_key"] == key_observations[1]["declared_only_key"]
+    assert key_observations[0]["cache_key"] == entry.idempotency_key
+    assert key_observations[1]["cache_key"] != entry.idempotency_key
+    assert old_bundle.parameters["fiscal_multiplier"].value == 1.4
+    assert current_bundle.parameters["fiscal_multiplier"].value == 9.75
+    assert not any(event.get("event") == "NODE_CACHE_HIT" for event in changed_events)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("selected_snapshot", [False, True], ids=["live", "retained"])
+async def test_async_same_source_hit_persists_fresh_receipt_and_origin(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    selected_snapshot: bool,
+) -> None:
+    """Actual async reuse retains its source lineage and a current candidate read receipt."""
+    source, store, context, registry, initial = _async_skg_fixture(
+        tmp_path, f"R_async_warm_skg_{selected_snapshot}"
+    )
+    initial = _seed_input_bundle(context, initial)
+    selected_ref = None
+    if selected_snapshot:
+        prepared = SKGQuery.prepare_read(db_path=source, index_dir=tmp_path)
+        try:
+            with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+                selected_ref = retain_prepared_skg_read(store, prepared)
+        finally:
+            prepared.close()
+        initial.inputs[SNAPSHOT_INPUT_KEY] = selected_ref
+    if selected_snapshot:
+        _set_skg_value(source, 9.75)
+    workflow = _planned_skg_workflow(registry, initial, [("warm", ())])
+    readers: list[PreparedSKGRead] = []
+    closes: list[PreparedSKGRead] = []
+    binding_connections: list[tuple[PreparedSKGRead, int]] = []
+    producer_connections: list[tuple[PreparedSKGRead, int]] = []
+    validator_connections: list[tuple[PreparedSKGRead, int]] = []
+    original_prepare = SKGQuery.prepare_read
+    original_close = PreparedSKGRead.close
+    original_binding = PreparedSKGRead.cache_binding
+    original_execute = ResolveParametersNode.execute
+    original_validate = ResolveParametersNode.validate_cache_hit
+
+    def track_prepare(*, db_path: Path, index_dir: Path) -> PreparedSKGRead:
+        reader = original_prepare(db_path=db_path, index_dir=index_dir)
+        readers.append(reader)
+        return reader
+
+    def track_close(reader: PreparedSKGRead) -> None:
+        closes.append(reader)
+        original_close(reader)
+
+    def track_binding(reader: PreparedSKGRead, **kwargs: Any):
+        binding_connections.append((reader, id(reader.query._confidence_connection())))
+        return original_binding(reader, **kwargs)
+
+    def track_execute(self, ctx, state):
+        reader = ctx.prepared_skg_read
+        assert isinstance(reader, PreparedSKGRead)
+        producer_connections.append((reader, id(reader.query._confidence_connection())))
+        return original_execute(self, ctx, state)
+
+    def track_validate(self, ctx, state, outcome):
+        reader = ctx.prepared_skg_read
+        assert isinstance(reader, PreparedSKGRead)
+        validator_connections.append((reader, id(reader.query._confidence_connection())))
+        return original_validate(self, ctx, state, outcome)
+
+    monkeypatch.setattr(SKGQuery, "prepare_read", staticmethod(track_prepare))
+    monkeypatch.setattr(PreparedSKGRead, "close", track_close)
+    monkeypatch.setattr(PreparedSKGRead, "cache_binding", track_binding)
+    monkeypatch.setattr(ResolveParametersNode, "execute", track_execute)
+    monkeypatch.setattr(ResolveParametersNode, "validate_cache_hit", track_validate)
+    result = await _execute_async_workflow(context, registry, workflow, initial)
+    assert result.report.status == "ok", result.report.model_dump_json(indent=2)
+    assert _phase_value(store, result.report, "cold") == 1.4
+    assert _phase_value(store, result.report, "warm") == 1.4
+    assert (
+        sum(event.get("event") == "NODE_CACHE_HIT" for event in _phase_events(context, "warm")) == 1
+    )
+    assert len(readers) == 2
+    assert closes == readers
+    assert all(reader._closed is True for reader in readers)
+    assert producer_connections == [binding_connections[0]]
+    assert validator_connections == [binding_connections[1]]
+    assert [reader for reader, _connection in binding_connections] == readers
+    warm_record = next(record for record in result.report.nodes if record.alias == "warm")
+    receipt_refs = [
+        ref for ref in warm_record.artifacts if ref.kind == "scientist.skg_cache_read_receipt"
+    ]
+    assert len(receipt_refs) == 1
+    cold_event = next(
+        event
+        for event in _phase_events(context, "cold")
+        if event.get("event") == "NODE_CACHE_STORE"
+    )
+    entry_ref = ArtifactRef.model_validate(cold_event["refs"]["outputs"][0])
+    fresh = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a")
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        fresh_cache = NodeResultCache(fresh, run_id=initial.run_id)
+        assert fresh_cache.load_entry(entry_ref)
+        entry = NodeCacheEntry.model_validate(from_canonical_bytes(fresh.get_bytes(entry_ref)))
+        cached = fresh_cache.get(entry.idempotency_key)
+        assert cached is not None
+        origins = [
+            event for event in cached.events if event.code == "skg.prepared_connection_query"
+        ]
+        assert len(origins) == 1
+        origin = origins[0].attrs
+        retained_ref = ArtifactRef.model_validate_json(origin["retained_snapshot_ref_json"])
+        retained = load_retained_skg_snapshot(fresh, retained_ref)
+        receipt = PreparedSKGReadReceipt.model_validate_json(fresh.get_bytes(receipt_refs[0]))
+        warm_bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(fresh), _phase_bundle_ref(result.report, "warm")
+        )
+    assert receipt.run_id == initial.run_id
+    assert receipt.node_id == _RESOLVE_NODE_ID
+    assert receipt.cache_key == entry.idempotency_key
+    assert receipt.current_source_snapshot_sha256 == receipt.original_source_snapshot_sha256
+    assert receipt.current_source_snapshot_sha256 == origin["source_snapshot_sha256"]
+    assert receipt.current_source_snapshot_sha256 == retained.source_sha256
+    assert receipt.current_source_snapshot_ref == receipt.original_source_snapshot_ref
+    assert receipt.current_prepared_at >= receipt.original_prepared_at
+    assert receipt.authority_band == "candidate"
+    assert receipt.source_snapshot_authenticity == "not_established"
+    assert receipt.read_evidence_scope == "bound_connection_query_execution_only"
+    assert receipt.output_dependency == "not_established"
+    assert receipt.time_semantics == "read_transaction_opened_at"
+    assert _phase_bundle_ref(result.report, "cold") in receipt.original_output_refs
+    assert receipt_refs[0] not in receipt.original_output_refs
+    assert origin["authority_band"] == "candidate"
+    assert origin["read_evidence_scope"] == "bound_connection_query_execution_only"
+    assert origin["output_dependency"] == "not_established"
+    assert json.loads(origin["connection_query_fingerprints_json"])
+    assert isinstance(warm_bundle, ContextAdaptiveParameterBundleV12)
+    assert warm_bundle.selected_skg_source.descriptor_ref == retained_ref
+    if selected_ref is not None:
+        assert retained_ref == selected_ref
+        assert result.state.inputs[SNAPSHOT_INPUT_KEY] == selected_ref
+        assert _file_sha256(source) != retained.source_sha256
+        with duckdb.connect(str(source), read_only=True) as connection:
+            assert connection.execute(
+                "SELECT point_estimate FROM ac_skg_simulation_parameters"
+            ).fetchone() == (9.75,)
+    else:
+        assert _file_sha256(source) == retained.source_sha256
+    assert_one_resumed_terminal_lifecycle(context.run, expected_resumes=0)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("fault", ["removed_key", "missing_origin", "wrong_origin"])
+async def test_async_cache_origin_guard_recomputes_without_stale_or_unbound_hit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    fault: str,
+) -> None:
+    """A real cache entry needs origin reconciliation after the independent matcher passes."""
+    from polisyos.scientist.orchestration.engine import async_executor as async_module
+
+    source, store, context, registry, initial = _async_skg_fixture(
+        tmp_path, f"R_async_origin_{fault}"
+    )
+    initial = _seed_input_bundle(context, initial)
+    updates = ((str(source), 9.75, False),) if fault == "removed_key" else ()
+    workflow = _planned_skg_workflow(registry, initial, [("after_fault", updates)])
+    original_key = async_module.compute_idempotency_key
+    original_attach = async_module._attach_prepared_read_success
+    original_execute = ResolveParametersNode.execute
+    executions: list[PreparedSKGRead] = []
+    attachments = 0
+
+    def track_execute(self, ctx, state):
+        assert isinstance(ctx.prepared_skg_read, PreparedSKGRead)
+        executions.append(ctx.prepared_skg_read)
+        return original_execute(self, ctx, state)
+
+    def remove_prepared_key(**kwargs: Any) -> str:
+        bind_params = dict(kwargs.get("bind_params") or {})
+        bind_params.pop("prepared_skg_read", None)
+        return original_key(**{**kwargs, "bind_params": bind_params})
+
+    def corrupt_first_origin(**kwargs: Any) -> None:
+        nonlocal attachments
+        original_attach(**kwargs)
+        attachments += 1
+        if attachments != 1:
+            return
+        outcome = kwargs["outcome"]
+        if fault == "missing_origin":
+            outcome.events[:] = [
+                event for event in outcome.events if event.code != "skg.prepared_connection_query"
+            ]
+        elif fault == "wrong_origin":
+            outcome.events[:] = [
+                event.model_copy(
+                    update={"attrs": {**event.attrs, "source_snapshot_sha256": "f" * 64}}
+                )
+                if event.code == "skg.prepared_connection_query"
+                else event
+                for event in outcome.events
+            ]
+
+    monkeypatch.setattr(ResolveParametersNode, "execute", track_execute)
+    if fault == "removed_key":
+        monkeypatch.setattr(async_module, "compute_idempotency_key", remove_prepared_key)
+        monkeypatch.setattr(ResolveParametersNode, "validate_cache_hit", lambda *_args: True)
+    else:
+        monkeypatch.setattr(async_module, "_attach_prepared_read_success", corrupt_first_origin)
+    result = await _execute_async_workflow(context, registry, workflow, initial)
+    assert result.report.status == "ok", result.report.model_dump_json(indent=2)
+    assert _phase_value(store, result.report, "cold") == 1.4
+    expected = 9.75 if fault == "removed_key" else 1.4
+    assert _phase_value(store, result.report, "after_fault") == expected
+    assert len(executions) == 2
+    events = _phase_events(context, "after_fault")
+    assert not any(event.get("event") == "NODE_CACHE_HIT" for event in events)
+    assert any(
+        event.get("event") == "NODE_CACHE_BYPASS"
+        and event.get("metrics", {}).get("reason_code") == 5
+        for event in events
+    )
+    cold_event = next(
+        event
+        for event in _phase_events(context, "cold")
+        if event.get("event") == "NODE_CACHE_STORE"
+    )
+    entry_ref = ArtifactRef.model_validate(cold_event["refs"]["outputs"][0])
+    fresh = FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a")
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        entry = NodeCacheEntry.model_validate(from_canonical_bytes(fresh.get_bytes(entry_ref)))
+        fresh_cache = NodeResultCache(fresh, run_id=initial.run_id)
+        assert fresh_cache.load_entry(entry_ref)
+        cold_outcome = fresh_cache.get(entry.idempotency_key)
+        assert cold_outcome is not None
+        assert _resolved_value(fresh, cold_outcome.state) == 1.4
+        origins = [
+            event for event in cold_outcome.events if event.code == "skg.prepared_connection_query"
+        ]
+    if fault == "missing_origin":
+        assert origins == []
+    elif fault == "wrong_origin":
+        assert len(origins) == 1
+        assert origins[0].attrs["source_snapshot_sha256"] == "f" * 64
+    else:
+        assert len(origins) == 1
+        assert origins[0].attrs["source_snapshot_sha256"] != _file_sha256(source)
+    assert_one_resumed_terminal_lifecycle(context.run, expected_resumes=0)
+
+
+@pytest.mark.asyncio
+async def test_async_cancelled_preparation_closes_late_real_reader_once(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A cancelled await does not strand the real reader returned by a late preparation."""
+    _source, _store, context, registry, initial = _async_skg_fixture(
+        tmp_path, "R_async_late_preparation"
+    )
+    entered, release, returning, closed = Event(), Event(), Event(), Event()
+    readers: list[PreparedSKGRead] = []
+    close_facts: list[tuple[PreparedSKGRead, bool]] = []
+    original_prepare = ResolveParametersNode.prepare_cache_input
+    original_close = PreparedSKGRead.close
+
+    def delayed_prepare(self, ctx, state):
+        reader = original_prepare(self, ctx, state)
+        assert isinstance(reader, PreparedSKGRead)
+        readers.append(reader)
+        entered.set()
+        try:
+            assert release.wait(8), "test did not release the physical preparation"
+            return reader
+        finally:
+            returning.set()
+
+    def track_close(reader: PreparedSKGRead) -> None:
+        close_facts.append((reader, returning.is_set()))
+        original_close(reader)
+        closed.set()
+
+    monkeypatch.setattr(ResolveParametersNode, "prepare_cache_input", delayed_prepare)
+    monkeypatch.setattr(PreparedSKGRead, "close", track_close)
+    task = asyncio.create_task(_execute_async_workflow(context, registry, _workflow(), initial))
+    try:
+        assert await asyncio.to_thread(entered.wait, 6)
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await asyncio.wait_for(task, timeout=3)
+        assert len(readers) == 1
+        assert readers[0]._closed is False
+        assert close_facts == []
+        assert not returning.is_set()
+    finally:
+        release.set()
+        if not task.done():
+            task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+    assert await asyncio.to_thread(closed.wait, 6)
+    assert close_facts == [(readers[0], True)]
+    assert readers[0]._closed is True
+    assert ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF not in initial.artifacts_index
+    assert not any(
+        event.get("event") in {"NODE_CACHE_HIT", "NODE_CACHE_STORE"}
+        for event in _trace_events(context)
+    )
+    context.run.suspend_for_resume()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("physical_user", ["producer", "validator"])
+async def test_async_cancelled_physical_user_keeps_real_reader_until_return(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    physical_user: str,
+) -> None:
+    """A running producer or validator owns the native reader beyond coroutine cancellation."""
+    _source, _store, context, registry, initial = _async_skg_fixture(
+        tmp_path, f"R_async_reader_pin_{physical_user}"
+    )
+    workflow = _workflow()
+    if physical_user == "validator":
+        initial = _seed_input_bundle(context, initial)
+        workflow = _planned_skg_workflow(registry, initial, [("warm", ())])
+    entered, release, physical_done, closed = Event(), Event(), Event(), Event()
+    held: list[PreparedSKGRead] = []
+    close_facts: list[tuple[PreparedSKGRead, bool]] = []
+    observed_values: list[float] = []
+    errors: list[BaseException] = []
+    original_close = PreparedSKGRead.close
+    original_call = (
+        ResolveParametersNode.execute
+        if physical_user == "producer"
+        else ResolveParametersNode.validate_cache_hit
+    )
+
+    def hold_actual_call(self, ctx, state, *args):
+        reader = ctx.prepared_skg_read
+        assert isinstance(reader, PreparedSKGRead)
+        held.append(reader)
+        entered.set()
+        try:
+            assert release.wait(8), "test did not release the physical reader user"
+            assert reader._closed is False
+            observed_values.append(
+                float(reader.query.query_parameters("fiscal_multiplier")[0].parameter.value)
+            )
+            return original_call(self, ctx, state, *args)
+        except BaseException as exc:
+            errors.append(exc)
+            raise
+        finally:
+            physical_done.set()
+
+    def track_close(reader: PreparedSKGRead) -> None:
+        close_facts.append((reader, physical_done.is_set()))
+        original_close(reader)
+        if held and reader is held[0]:
+            closed.set()
+
+    method = "execute" if physical_user == "producer" else "validate_cache_hit"
+    monkeypatch.setattr(ResolveParametersNode, method, hold_actual_call)
+    monkeypatch.setattr(PreparedSKGRead, "close", track_close)
+    task = asyncio.create_task(_execute_async_workflow(context, registry, workflow, initial))
+    try:
+        assert await asyncio.to_thread(entered.wait, 6)
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await asyncio.wait_for(task, timeout=3)
+        assert len(held) == 1
+        assert held[0]._closed is False
+        assert not physical_done.is_set()
+        assert not any(reader is held[0] for reader, _done in close_facts)
+    finally:
+        release.set()
+        if not task.done():
+            task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+    assert await asyncio.to_thread(closed.wait, 6)
+    assert observed_values == [1.4]
+    assert [(reader, done) for reader, done in close_facts if reader is held[0]] == [
+        (held[0], True)
+    ]
+    assert held[0]._closed is True
+    if physical_user == "producer":
+        from polisyos.scientist.orchestration.engine.retry import _AttemptWriteDeniedError
+
+        assert len(errors) == 1
+        assert isinstance(errors[0], _AttemptWriteDeniedError)
+        assert ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF not in initial.artifacts_index
+    else:
+        assert errors == []
+        cold_ref = next(
+            ArtifactRef.model_validate(event["refs"]["outputs"][0])
+            for event in _phase_events(context, "cold")
+            if event.get("event") == "NODE_CACHE_STORE"
+        )
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            assert (
+                FileSystemCAS(tmp_path / "cas").for_tenant("tenant-a", "cell-a").verify(cold_ref).ok
+            )
+        assert not any(
+            event.get("event") in {"NODE_CACHE_HIT", "NODE_CACHE_STORE"}
+            for event in _phase_events(context, "warm")
+        )
+    context.run.suspend_for_resume()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(("timeout_s", "reason_code"), [(None, 5), (30.0, 7)])
+async def test_async_preparer_protocol_keeps_ordinary_async_producer_available(
+    tmp_path: Path, timeout_s: float | None, reason_code: int
+) -> None:
+    """An async producer without a physical-reader lifetime uses ordinary uncached execution."""
+    _source, _store, context, registry, initial = _async_skg_fixture(
+        tmp_path, f"R_async_preparer_protocol_{reason_code}"
+    )
+
+    class AsyncPreparedNode:
+        def __init__(self) -> None:
+            self.calls = 0
+            self.preparations = 0
+
+        @property
+        def spec(self) -> NodeSpec:
+            return NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("test.async_prepared_consumer@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="Async prepared-protocol fixture",
+                    description="Actual ordinary async execution without borrowed reader ownership",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_reads=["params"],
+                state_writes=["params.async_producer_result"],
+            )
+
+        def prepare_cache_input(self, _ctx, _state) -> PreparedSKGRead:
+            self.preparations += 1
+            raise AssertionError("a detached coroutine cannot borrow the physical reader")
+
+        def execute(self, _ctx, _state) -> NodeOutcome:
+            raise AssertionError("the ordinary async producer must be selected")
+
+        async def execute_async(self, ctx, state) -> NodeOutcome:
+            self.calls += 1
+            assert ctx.prepared_skg_read is None
+            await asyncio.sleep(0)
+            state.params["async_producer_result"] = 4
+            return NodeOutcome(status="ok", state=state)
+
+    node = AsyncPreparedNode()
+    registry.register(node)
+    workflow = WorkflowSpec(
+        workflow_id="async_preparer_protocol",
+        nodes=[
+            NodeInvocation(
+                alias="async_consumer",
+                node_id=node.spec.metadata.component_id,
+                timeout_s=timeout_s,
+            )
+        ],
+    )
+    result = await _execute_async_workflow(context, registry, workflow, initial)
+    assert result.report.status == "ok", result.report.model_dump_json(indent=2)
+    assert result.state.params["async_producer_result"] == 4
+    assert node.calls == 1
+    assert node.preparations == 0
+    events = _phase_events(context, "async_consumer")
+    bypasses = [event for event in events if event.get("event") == "NODE_CACHE_BYPASS"]
+    assert len(bypasses) == 1
+    assert bypasses[0]["metrics"]["reason_code"] == reason_code
+    assert not any(event.get("event") in {"NODE_CACHE_HIT", "NODE_CACHE_STORE"} for event in events)
+    assert_one_resumed_terminal_lifecycle(context.run, expected_resumes=0)
 
 
 def test_timed_executor_thread_fallback_bypasses_shared_read_until_worker_finishes(
@@ -943,11 +1660,18 @@ def test_timed_executor_thread_fallback_bypasses_shared_read_until_worker_finish
             "skg_db_path": str(db_path),
         },
     )
-    context, registry = _build_run_context(store, state.run_id, selected_registry_profile=True)
-    writes_before_warmup = tuple(underlying_store_write_calls)
-    warmup_report, warmup_state, warmup_events = _execute_workflow_and_suspend(
-        context, registry, _workflow(), state, expected_resumes=0
+    warmup_input = state.model_copy(update={"run_id": f"{state.run_id}_warmup"})
+    warmup_context, warmup_registry = _build_run_context(
+        store,
+        warmup_input.run_id,
+        selected_registry_profile=True,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
     )
+    writes_before_warmup = tuple(underlying_store_write_calls)
+    warmup = _execute_workflow(warmup_context, warmup_registry, _workflow(), warmup_input)
+    warmup_report, warmup_state = warmup.report, warmup.state
+    warmup_events = _trace_events(warmup_context)
     warmup_write_delta = tuple(underlying_store_write_calls)[len(writes_before_warmup) :]
     assert warmup_report.status == "ok"
     assert _resolved_value(store, warmup_state) == 1.4
@@ -972,32 +1696,22 @@ def test_timed_executor_thread_fallback_bypasses_shared_read_until_worker_finish
         source_bound_entry = NodeCacheEntry.model_validate(
             from_canonical_bytes(store.get_bytes(source_bound_entry_ref.artifact_id))
         )
-        prior_cache = NodeResultCache(store, run_id=state.run_id)
+        prior_cache = NodeResultCache(store, run_id=warmup_input.run_id)
         assert prior_cache.load_entry(source_bound_entry_ref)
         prior_outcome = prior_cache.get(source_bound_entry.idempotency_key)
         assert prior_outcome is not None
-        unbound_key = compute_idempotency_key(
-            spec=ResolveParametersNode().spec,
-            state=state,
-            bind_params={},
-        )
-        assert unbound_key != source_bound_entry.idempotency_key
-        unbound_entry_ref = prior_cache.put(
-            unbound_key,
-            node_id=_RESOLVE_NODE_ID,
-            outcome=prior_outcome,
-        )
-        stale_outcome = prior_cache.get(unbound_key)
-        assert stale_outcome is not None
-        assert _resolved_value(store, stale_outcome.state) == 1.4
-    context, registry = _build_run_context(store, state.run_id, resume_from=context)
-    context.run.emit(
-        "scientist.node.resolve",
-        "NODE_CACHE_STORE",
-        outputs=[unbound_entry_ref],
+        assert _resolved_value(store, prior_outcome.state) == 1.4
+    assert_one_resumed_terminal_lifecycle(warmup_context.run, expected_resumes=0)
+    # Same-run stale/unbound-key faults are exercised by the planned alias controls.
+    # This is a new logical timed invocation; its initially absent output must remain absent.
+    context, registry = _build_run_context(
+        store,
+        state.run_id,
+        selected_registry_profile=True,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
     )
-
-    # A cache key that omits source bytes would now return the old 1.4 result.
+    assert ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF not in state.artifacts_index
     _set_skg_value(db_path, 2.6)
     trace_start = _trace_event_count(context)
     started = Event()
@@ -1110,7 +1824,7 @@ def test_timed_executor_thread_fallback_bypasses_shared_read_until_worker_finish
     assert len(prepared_reads) == 1
     assert close_calls == prepared_reads
     assert prepared_reads[0]._closed is True
-    assert_one_resumed_terminal_lifecycle(context.run)
+    assert_one_resumed_terminal_lifecycle(context.run, expected_resumes=0)
 
 
 @pytest.mark.skipif(
@@ -1159,62 +1873,56 @@ def test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineag
             "skg_db_path": str(db_path),
         },
     )
+    warmup_input = state.model_copy(update={"run_id": f"{state.run_id}_warmup"})
     with _access_scope_context(owner_scope):
-        context, registry = _build_run_context(
+        warmup_context, warmup_registry = _build_run_context(
             store,
-            state.run_id,
+            warmup_input.run_id,
             tenant_id="tenant-a",
             cell_id="cell-a",
             selected_registry_profile=True,
         )
-    warmup_report, warmup_state, warmup_events = _execute_workflow_and_suspend(
-        context, registry, _workflow(), state, expected_resumes=0
-    )
-    assert warmup_report.status == "ok"
-    assert _resolved_value(store, warmup_state) == 1.4
-
+    warmup = _execute_workflow(warmup_context, warmup_registry, _workflow(), warmup_input)
+    assert warmup.report.status == "ok"
+    assert _resolved_value(store, warmup.state) == 1.4
     warmup_store_event = next(
-        event for event in warmup_events if event.get("event") == "NODE_CACHE_STORE"
+        event for event in _trace_events(warmup_context) if event.get("event") == "NODE_CACHE_STORE"
     )
     source_bound_entry_ref = ArtifactRef.model_validate(warmup_store_event["refs"]["outputs"][0])
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         source_bound_entry = NodeCacheEntry.model_validate(
-            from_canonical_bytes(store.get_bytes(source_bound_entry_ref.artifact_id))
+            from_canonical_bytes(store.get_bytes(source_bound_entry_ref))
         )
-        prior_cache = NodeResultCache(store, run_id=state.run_id)
+        prior_cache = NodeResultCache(store, run_id=warmup_input.run_id)
         assert prior_cache.load_entry(source_bound_entry_ref)
         prior_outcome = prior_cache.get(source_bound_entry.idempotency_key)
         assert prior_outcome is not None
-        unbound_key = compute_idempotency_key(
-            spec=ResolveParametersNode().spec,
-            state=state,
-            bind_params={},
+        assert _resolved_value(store, prior_outcome.state) == 1.4
+    assert_one_resumed_terminal_lifecycle(warmup_context.run, expected_resumes=0)
+
+    # Owner admission is tested on a genuine paused owner before any node effects.
+    # It does not grant replay permission for the completed warmup workflow.
+    probe_run_id = f"{state.run_id}_owner_probe"
+    with _access_scope_context(owner_scope):
+        probe_context, _ = _build_run_context(
+            store,
+            probe_run_id,
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+            selected_registry_profile=True,
         )
-        assert unbound_key != source_bound_entry.idempotency_key
-        unbound_entry_ref = prior_cache.put(
-            unbound_key,
-            node_id=_RESOLVE_NODE_ID,
-            outcome=prior_outcome,
-        )
-        stale_outcome = prior_cache.get(unbound_key)
-        assert stale_outcome is not None
-        assert _resolved_value(store, stale_outcome.state) == 1.4
-    assert context.run.trace_path is not None
-    owner_trace = context.run.trace_path
+    probe_context.run.suspend_for_resume()
+    assert probe_context.run.trace_path is not None
+    owner_trace = probe_context.run.trace_path
     trace_before_rejected_resume = owner_trace.read_bytes()
     with (
         _access_scope_context(owner_scope),
         pytest.raises(ValueError, match="run_resume_owner_inputs_mismatch"),
     ):
         _build_run_context(
-            store,
-            state.run_id,
-            tenant_id="tenant-b",
-            cell_id="cell-a",
-            resume_from=context,
+            store, probe_run_id, tenant_id="tenant-b", cell_id="cell-a", resume_from=probe_context
         )
     assert owner_trace.read_bytes() == trace_before_rejected_resume
-
     changed_scope = AccessScope.for_service(
         tenant_id="tenant-a",
         cell_id="cell-a",
@@ -1225,28 +1933,27 @@ def test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineag
         pytest.raises(ValueError, match="run_resume_owner_inputs_mismatch"),
     ):
         _build_run_context(
-            store,
-            state.run_id,
-            tenant_id="tenant-a",
-            cell_id="cell-a",
-            resume_from=context,
+            store, probe_run_id, tenant_id="tenant-a", cell_id="cell-a", resume_from=probe_context
         )
     assert owner_trace.read_bytes() == trace_before_rejected_resume
+    with _access_scope_context(owner_scope):
+        probe_context, _ = _build_run_context(
+            store, probe_run_id, tenant_id="tenant-a", cell_id="cell-a", resume_from=probe_context
+        )
+        probe_context.run.finalize()
+    assert_one_resumed_terminal_lifecycle(probe_context.run, expected_resumes=1)
 
+    # Cache-key/origin attacks remain in the same-run planned alias controls above.
+    # The native worker is a new logical invocation with a real, initially empty result inlet.
     with _access_scope_context(owner_scope):
         context, registry = _build_run_context(
             store,
             state.run_id,
             tenant_id="tenant-a",
             cell_id="cell-a",
-            resume_from=context,
+            selected_registry_profile=True,
         )
-    context.run.emit(
-        "scientist.node.resolve",
-        "NODE_CACHE_STORE",
-        outputs=[unbound_entry_ref],
-    )
-
+    assert ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF not in state.artifacts_index
     # Preserve the 1s negative result separately; this positive run tests the same
     # native spawn consumer with an explicit, larger test-only observation budget.
     _set_skg_value(db_path, 2.6)
@@ -1496,7 +2203,7 @@ def test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineag
     assert race_worker_closes[0]["alive_before_close"] is False
     assert race_worker_closes[0]["closed_after"] is True
     assert _file_sha256(race_materialization) == after
-    assert_one_resumed_terminal_lifecycle(context.run)
+    assert_one_resumed_terminal_lifecycle(context.run, expected_resumes=0)
 
 
 def test_spawn_timeout_refuses_live_prepared_read_before_child_start(
@@ -1616,7 +2323,9 @@ def test_duckdb_cache_preparation_failure_bypasses_cache_and_runs_node(
             connection.close()
 
     monkeypatch.setattr(ResolveParametersNode, "prepare_cache_input", fail_during_preparation)
-    context, registry = _build_run_context(store, state.run_id)
+    context, registry = _build_run_context(
+        store, state.run_id, tenant_id="tenant-a", cell_id="cell-a"
+    )
     result = _execute_workflow(context, registry, _workflow(), state)
 
     assert result.report.status == "ok"
@@ -1857,7 +2566,7 @@ def test_resolve_parameters_recomputes_existing_bundle_from_changed_prepared_sou
             "skg_db_path": str(db_path),
         },
     )
-    context, _ = _build_run_context(store, state.run_id)
+    context, _ = _build_run_context(store, state.run_id, tenant_id="tenant-a", cell_id="cell-a")
 
     for expected_value in (1.4, 2.6):
         if expected_value != 1.4:
@@ -2000,15 +2709,21 @@ def test_removed_cache_key_binding_is_stopped_by_origin_read_set_check(
         return real_compute_idempotency_key(**{**kwargs, "bind_params": params})
 
     monkeypatch.setattr(executor_module, "compute_idempotency_key", original_binding_free_key)
+    # Remove the independent request-matcher shield as well, so this control
+    # reaches the original read-set reconciliation rather than an earlier refusal.
+    monkeypatch.setattr(ResolveParametersNode, "validate_cache_hit", lambda *_args: True)
 
-    workflow = _workflow()
     ctx_first, registry_first = _build_run_context(
         store, initial_state.run_id, selected_registry_profile=True
     )
-    cold_events = interrupt_and_suspend_before_finalize(
-        ctx_first.run,
-        lambda: _execute_workflow(ctx_first, registry_first, workflow, initial_state),
+    initial_state = _seed_input_bundle(ctx_first, initial_state)
+    workflow = _planned_skg_workflow(
+        registry_first,
+        initial_state,
+        [("changed", ((str(db_path), 3.1, False),))],
     )
+    second = _execute_workflow(ctx_first, registry_first, workflow, initial_state)
+    cold_events = _phase_events(ctx_first, "cold")
     cache_store_event = next(
         event for event in cold_events if event.get("event") == "NODE_CACHE_STORE"
     )
@@ -2023,20 +2738,18 @@ def test_removed_cache_key_binding_is_stopped_by_origin_read_set_check(
     assert first_outcome is not None
     assert _resolved_value(store, first_outcome.state) == 1.4
 
-    _set_skg_value(db_path, 3.1)
-    ctx_second, registry_second = _build_run_context(
-        store, initial_state.run_id, resume_from=ctx_first
-    )
-    second_trace_start = _trace_event_count(ctx_second)
-    second = WorkflowExecutor(ctx_second, registry_second).execute(workflow, initial_state)
-
-    assert second.report.status == "ok"
+    assert second.report.status == "ok", second.report.model_dump_json(indent=2)
     second_value = _resolved_value(store, second.state)
     assert second_value == 3.1
-    second_events = _trace_events(ctx_second, start_line=second_trace_start)
+    second_events = _phase_events(ctx_first, "changed")
     second_cache_hits = [event for event in second_events if event.get("event") == "NODE_CACHE_HIT"]
     assert not second_cache_hits
-    assert_one_resumed_terminal_lifecycle(ctx_second.run)
+    assert any(
+        event.get("event") == "NODE_CACHE_BYPASS"
+        and event.get("metrics", {}).get("reason_code") == 5
+        for event in second_events
+    )
+    assert_one_resumed_terminal_lifecycle(ctx_first.run, expected_resumes=0)
 
     observation_root = os.environ.get("E02_B_PROPERTY_REMOVAL_OBSERVATION")
     if observation_root:

@@ -1,0 +1,317 @@
+{
+  "packet_id": "SCL-03",
+  "lane": "LANE-09",
+  "source_ids": [
+    "LA-025"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/SCL-03.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "title": "Selected snapshot проходит normalization и полный enrich",
+  "practical_goal": "Полный найденный документ той же версии, с известными applied constraints, достигает docs/claims без повторной загрузки и без потери selected reference.",
+  "work_types": "fix + migration preserve + native qualification",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C105_остатки:0",
+      "audit_id": "C105-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SCL-03-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Carry existing typed ref through normalization до intended recheck."
+    },
+    {
+      "inventory_id": "audit-residual:C105_остатки:1",
+      "audit_id": "C105-R02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SCL-03-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Producer записывает фактически применённый profile; перенос synthetic field недостаточен."
+    },
+    {
+      "inventory_id": "audit-residual:C105_остатки:2",
+      "audit_id": "C105-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-SCL-03-03",
+        "REQ-SCL-03-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Native full CAS/docs/fresh reader и applicable source rules; product wiring fix только по установленному разрыву."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-SCL-03-01",
+      "text": "Bytes normalization должна сохранить typed selected raw_artifact_ref и согласованную source identity, чтобы actual _acquire_bytes повторно проверил тот же selected CAS view. Digest/size/bytes mismatch или недоступность selected view даёт gap/refusal до docs ingest; обычные manual bytes без ref остаются рабочими.",
+      "source_ids": [
+        "LA-025"
+      ],
+      "audit_ids": [
+        "C105-R01"
+      ],
+      "test_ids": [
+        "TEST-SCL-03-01",
+        "TEST-SCL-03-02"
+      ]
+    },
+    {
+      "id": "REQ-SCL-03-02",
+      "text": "Actual fetch producer должен записать effective fetch_profile с реально применёнными normalized constraints, raw max_bytes, timeout, user-agent и transport/profile version, а также фактический byte_size независимо от наличия cache. Cache/SourceMetadata/API seed должны сохранить profile без подмены default policy. Historical missing profile явно unknown.",
+      "source_ids": [
+        "LA-025"
+      ],
+      "audit_ids": [
+        "C105-R02"
+      ],
+      "test_ids": [
+        "TEST-SCL-03-03"
+      ]
+    },
+    {
+      "id": "REQ-SCL-03-03",
+      "text": "Search snapshot v1 должен доходить до full docs/claims consumer без повторного URL fetch; явный refresh v2 создаёт новую lineage и сохраняет доступный v1. Missing/denied raw не реконструируется из snippets и не запускает скрытый live fallback.",
+      "source_ids": [
+        "LA-025"
+      ],
+      "audit_ids": [
+        "C105-G01"
+      ],
+      "test_ids": [
+        "TEST-SCL-03-02",
+        "TEST-SCL-03-04"
+      ]
+    },
+    {
+      "id": "REQ-SCL-03-04",
+      "text": "API source-binding gate должен проверять selected manifest/digest/schema/producer/profile и каждый snippet как exact extracted substring; document/byte/MIME и current applicable access/reuse limits сохраняются через normalization/acquire. Public-web label не является самостоятельным разрешением.",
+      "source_ids": [
+        "LA-025"
+      ],
+      "audit_ids": [
+        "C105-G01"
+      ],
+      "test_ids": [
+        "TEST-SCL-03-01",
+        "TEST-SCL-03-04",
+        "TEST-SCL-03-05"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-SCL-03-01",
+      "requirement_ids": [
+        "REQ-SCL-03-01",
+        "REQ-SCL-03-04"
+      ],
+      "level": "native normalization→acquire",
+      "setup": "Реальный bytes SourceSpec с selected nondefault ArtifactRef и props/hash/size; actual CAS. Контроль manual bytes без ref.",
+      "action": "Нормализовать через discover/manual.py и вызвать whole orchestrator; между API preflight и acquisition отказать selected read/подменить bytes в owned fixture.",
+      "oracle": "Ref/profile preserved точно; actual selected get_manifest/get_bytes вызываются и отказ блокирует docs ingest. Direct и whole route согласованы. Manual bytes остаются допустимы.",
+      "expected": "Old ref-loss reproducer различающий; positive normal/manual paths.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Controlled denial own-store allowed; CAS binding/normalizer/acquire реальные, не compare DTO alone."
+    },
+    {
+      "id": "TEST-SCL-03-02",
+      "requirement_ids": [
+        "REQ-SCL-03-01",
+        "REQ-SCL-03-03"
+      ],
+      "level": "native source version lineage",
+      "setup": "Search raw v1 с exact snapshot; URL transport теперь v2; public API cache hit/miss.",
+      "action": "Enrich v1 twice, затем explicit refresh v2.",
+      "oracle": "Первые два enrich читают v1 без fetch; refresh получает v2 один раз и связывает parentv1; v1 immutable доступен. No snippet reconstruction или silent URL path.",
+      "expected": "Positive useful persisted source handoff.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Local deterministic HTTP endpoint допустим; API/cache/normalizer/orchestrator реальные."
+    },
+    {
+      "id": "TEST-SCL-03-03",
+      "requirement_ids": [
+        "REQ-SCL-03-02"
+      ],
+      "level": "native actual producer→metadata",
+      "setup": "Nondefault domain/MIME/timeout3/UA/maxbytes4096, no-cache и cache routes; реальные normalized constraints.",
+      "action": "Actual fetch_open_page, cache JSON reload, SourceMetadata, _seed_sources_from_web_bundle.",
+      "oracle": "Каждое profile field равно реально переданному transport argument; byte_size=len(raw) в обоих routes; seed retains same profile; no manually populated FETCH_PROFILE. Legacy{} явно unknown.",
+      "expected": "Old actual producer{} должен нарушить oracle; second compatible profile проходит без branch.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Fake response допустим; не fake FetchResult/profile producer."
+    },
+    {
+      "id": "TEST-SCL-03-04",
+      "requirement_ids": [
+        "REQ-SCL-03-03",
+        "REQ-SCL-03-04"
+      ],
+      "level": "native API→CAS→docs/claims→fresh reader",
+      "setup": "Existing full bootstrap tiny corpus; native FileSystemCAS и настоящий docs pipeline, выбранный manifest profile, exact snippets; output root новый.",
+      "action": "Исполнить full enrich, закрыть process objects и прочитать published document/fragments/claims через actual reader; missing/corrupt blob variant.",
+      "oracle": "Fresh artifacts имеют input lineage к exact rawv1/v2; fragments offsets/content связаны с bytes; no capture/sentinel до публикации. Invalid selected source не становится valid knowledge bundle; остальные законные docs сохраняются.",
+      "expected": "Положительный полный downstream путь; scientific truth и whole corpus completeness не заявляются.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Контролируемая сеть/model extraction при declared scope разрешены; fake CAS/manifest publication/docs ingest запрещены."
+    },
+    {
+      "id": "TEST-SCL-03-05",
+      "requirement_ids": [
+        "REQ-SCL-03-04"
+      ],
+      "level": "native policy and span boundaries",
+      "setup": "Каждый snippet tampered separately, mismatched manifest/profile, denied selected view, MIME/byte/maxdocs limits, explicit rights unknown.",
+      "action": "Выполнить public source binding и actual enrich with limits.",
+      "oracle": "All-snippet validation отказывает на любом mismatch, не только первом; maxdocs1→1doc и totalbytes1→0doc с точной причиной; rights unknown не объявлены разрешением. Valid independent docs остаются полезны.",
+      "expected": "Positive exact span и partial independent work плюс targeted refusals.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Не invent license/authority; applicable policy witness конкретный, иначе qualify stronger claim."
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I09-A"
+  ],
+  "dependencies": [
+    "SCL-01 predecessor/shared fetcher mutex; E02-I09-A; existing CAS/docs owners"
+  ],
+  "preservation": [
+    "Exact raw snapshot вместо URL-only seed",
+    "API manifest/digest/schema/producer/profile/spans gate",
+    "Missing/denied snapshot gap без live fallback",
+    "Явный refresh и сохранённый v1",
+    "Отдельные search/discover/enrich owners",
+    "Document и byte limits",
+    "Web evidence raw-ref provenance"
+  ],
+  "design_alignment": [
+    "Vision §3,7; custody/time model; LK09/LK20"
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0407",
+      "requirement_ids": [
+        "REQ-SCL-03-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Carry existing typed ref through normalization до intended recheck."
+    },
+    {
+      "inventory_id": "remaining:0408",
+      "requirement_ids": [
+        "REQ-SCL-03-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Producer записывает фактически применённый profile; перенос synthetic field недостаточен."
+    },
+    {
+      "inventory_id": "remaining:0409",
+      "requirement_ids": [
+        "REQ-SCL-03-03",
+        "REQ-SCL-03-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native full CAS/docs/fresh reader и applicable source rules; product wiring fix только по установленному разрыву."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0653",
+      "requirement_ids": [
+        "REQ-SCL-03-03"
+      ],
+      "test_ids": [
+        "TEST-SCL-03-02",
+        "TEST-SCL-03-04"
+      ],
+      "rationale": "Exact snapshot, не URL-only seed."
+    },
+    {
+      "inventory_id": "preserve:0654",
+      "requirement_ids": [
+        "REQ-SCL-03-04"
+      ],
+      "test_ids": [
+        "TEST-SCL-03-01",
+        "TEST-SCL-03-05"
+      ],
+      "rationale": "Manifest/hash/schema/producer/profile/all-snippet gate."
+    },
+    {
+      "inventory_id": "preserve:0655",
+      "requirement_ids": [
+        "REQ-SCL-03-01",
+        "REQ-SCL-03-03"
+      ],
+      "test_ids": [
+        "TEST-SCL-03-01",
+        "TEST-SCL-03-02"
+      ],
+      "rationale": "Missing/denied source gap, no hiddenlive fallback."
+    },
+    {
+      "inventory_id": "preserve:0656",
+      "requirement_ids": [
+        "REQ-SCL-03-03"
+      ],
+      "test_ids": [
+        "TEST-SCL-03-02"
+      ],
+      "rationale": "Explicitrefresh и доступный immutablev1."
+    },
+    {
+      "inventory_id": "preserve:0657",
+      "requirement_ids": [
+        "REQ-SCL-03-01",
+        "REQ-SCL-03-03"
+      ],
+      "test_ids": [
+        "TEST-SCL-03-01",
+        "TEST-SCL-03-04"
+      ],
+      "rationale": "Search/discover/enrich отдельные owners."
+    },
+    {
+      "inventory_id": "preserve:0658",
+      "requirement_ids": [
+        "REQ-SCL-03-04"
+      ],
+      "test_ids": [
+        "TEST-SCL-03-05"
+      ],
+      "rationale": "Document/byte limits preserved."
+    },
+    {
+      "inventory_id": "preserve:0659",
+      "requirement_ids": [
+        "REQ-SCL-03-01",
+        "REQ-SCL-03-03"
+      ],
+      "test_ids": [
+        "TEST-SCL-03-01",
+        "TEST-SCL-03-04"
+      ],
+      "rationale": "Web evidence rawref provenance alongside acquire ref."
+    }
+  ],
+  "owners": [
+    "src/polisyos/scholar/discover/manual.py::normalize_source",
+    "src/polisyos/scholar/orchestrator/enrich.py::_acquire_bytes",
+    "src/polisyos/scholar/search/fetcher.py::fetch_open_page",
+    "src/polisyos/scholar/api.py::_seed_sources_from_web_bundle"
+  ],
+  "protected_distinction_ids": [
+    "LK09",
+    "LK20"
+  ]
+}

@@ -3138,7 +3138,7 @@ def _check_propagation_report_version(
     """Keep the selected report schema and payload versions bound."""
     schema = getattr(manifest, "artifact_schema", None)
     manifest_version = getattr(schema, "version", None)
-    if manifest_version not in ("1.1", "1.2"):
+    if manifest_version not in ("1.1", "1.2", "1.3"):
         limitations.append("propagation_report_schema_version_mismatch")
     if report.get("schema_version") != manifest_version:
         limitations.append("propagation_report_payload_version_mismatch")
@@ -3177,7 +3177,7 @@ def _check_propagation_report(
     provenance = report.get("draw_outcome_provenance")
     report_version = report.get("schema_version")
     ledger_version = (
-        {"1.1": "1.0", "1.2": "1.1"}.get(report_version)
+        {"1.1": "1.0", "1.2": "1.1", "1.3": "1.2"}.get(report_version)
         if isinstance(report_version, str)
         else None
     )

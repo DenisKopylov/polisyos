@@ -432,7 +432,19 @@ def ancestors(
     variables:    seed set
     include_self: if True (default), variables themselves are in the returned set
     """
-    rev = _get_cached_adjacency(graph).rev
+    return _ancestors_from_prepared(
+        _get_cached_adjacency(graph), variables, include_self=include_self
+    )
+
+
+def _ancestors_from_prepared(
+    prepared: CachedAdjacency,
+    variables: frozenset[str],
+    *,
+    include_self: bool = True,
+) -> frozenset[str]:
+    """Traverse a snapshot admitted by this query's public boundary."""
+    rev = prepared.rev
 
     visited: set[str] = set()
     queue: deque[str] = deque()
@@ -697,20 +709,19 @@ def induced_subgraph(
 
 
 def _m_separation_adjacency(
-    graph: CausalGraphModel,
+    prepared: CachedAdjacency,
 ) -> dict[str, list[tuple[str, Any, Any]]]:
     """Build traversal entries carrying both endpoint marks for each edge."""
     from polisyos.ir.analytics.causal_graph import EdgeMark
 
-    cached = _get_cached_adjacency(graph)
-    graph = cached.graph
+    graph = prepared.graph
     adj: dict[str, list[tuple[str, Any, Any]]] = {n: [] for n in graph.nodes}
 
-    for src, dst in cached.directed_edges:
+    for src, dst in prepared.directed_edges:
         adj[src].append((dst, EdgeMark.TAIL, EdgeMark.ARROW))
         adj[dst].append((src, EdgeMark.ARROW, EdgeMark.TAIL))
 
-    for pair in cached.bidirected_edges:
+    for pair in prepared.bidirected_edges:
         src, dst = tuple(pair)
         adj[src].append((dst, EdgeMark.ARROW, EdgeMark.ARROW))
         adj[dst].append((src, EdgeMark.ARROW, EdgeMark.ARROW))
@@ -732,14 +743,14 @@ def m_separation(
     """
     from polisyos.ir.analytics.causal_graph import EdgeMark
 
-    graph = _validate_static_admg(graph)
+    prepared = _get_cached_adjacency(graph)
     if x_set & y_set:
         return False
     if not x_set or not y_set:
         return True
 
-    adj = _m_separation_adjacency(graph)
-    an_z = ancestors(graph, z_set) if z_set else frozenset()
+    adj = _m_separation_adjacency(prepared)
+    an_z = _ancestors_from_prepared(prepared, z_set) if z_set else frozenset()
 
     # State is (node, incoming mark at node).  Keeping the actual endpoint mark
     # distinguishes parent/child arrival and bidirected collider passages.

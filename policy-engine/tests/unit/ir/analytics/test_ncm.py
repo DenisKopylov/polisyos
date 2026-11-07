@@ -315,6 +315,108 @@ def test_candidate_ncm_is_derived_from_declared_baseline_and_selected_view(
             )
 
 
+def test_default_ncm_source_keeps_exact_view_over_incompatible_default(tmp_path) -> None:
+    """A real default-codec producer keeps A even when the payload default is B."""
+    from polisyos.ir.analytics.ncm import (
+        candidate_ncm_spec_from_declaration,
+        load_ncm_spec_default_view,
+        persist_ncm_spec,
+    )
+    from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
+
+    tenant_id, cell_id = "tenant-default-ncm", "cell-default-ncm"
+    spec = candidate_ncm_spec_from_declaration(_declaration(coefficient=3.0))
+    store = FileSystemCAS(tmp_path / "default-source-cas")
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        # B is a real opaque CAS view of these exact bytes, not an IR owner
+        # representation. Its first-writer default must not replace A.
+        default_ref = store.put_bytes(
+            to_canonical_bytes(spec.model_dump(mode="json"), CanonSpec(forbid_floats=False)),
+            _candidate_simulation_write_options(
+                kind="ir.ncm_spec",
+                schema_name="fixture.opaque_ncm_history",
+                schema_version="1.0",
+                job_id="job-default-ncm",
+                run_id="run-default-ncm",
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                source_ref="fixture-default-ncm",
+            ),
+        )
+        adapter = _ensure_ir_artifact_store(store)
+        selected_ref = persist_ncm_spec(adapter, spec)
+        assert selected_ref.manifest_profile_sha256 is not None
+        assert str(selected_ref.artifact_id) == str(default_ref.artifact_id)
+        assert store.get_manifest(str(selected_ref.artifact_id)).artifact_schema.name == (
+            "fixture.opaque_ncm_history"
+        )
+        assert load_ncm_spec_default_view(adapter, selected_ref) == spec
+        stripped = selected_ref.model_copy(update={"manifest_profile_sha256": None})
+        with pytest.raises(ValueError):
+            load_ncm_spec_default_view(adapter, stripped)
+
+
+def test_default_ncm_source_refuses_declaration_codec_and_control_detects_removal(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Only the declaration-aware reader may consume a real declaration view."""
+    from polisyos.ir.analytics import ncm as owner
+
+    tenant_id, cell_id = "tenant-declared-ncm", "cell-declared-ncm"
+    declaration = _declaration(coefficient=3.0)
+    spec = owner.candidate_ncm_spec_from_declaration(declaration)
+    store = FileSystemCAS(tmp_path / "declared-source-cas")
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        repository = GenerationSourceRepository(store)
+        declaration_ref = repository.persist_candidate_model_declaration(
+            declaration=declaration,
+            job_id="job-declared-ncm",
+            run_id="run-declared-ncm",
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        selected_ref = repository.persist_candidate_ncm_selected_view(
+            ncm_spec=spec,
+            declaration_ref=declaration_ref,
+            job_id="job-declared-ncm",
+            run_id="run-declared-ncm",
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            profile_content_hash=declaration.profile_content_hash,
+        )
+        adapter = _ensure_ir_artifact_store(store)
+        assert (
+            owner.load_ncm_spec_selected_view(
+                adapter,
+                selected_ref,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+                expected_declaration_ref=declaration_ref,
+            )
+            == spec
+        )
+
+        def assert_default_refusal() -> None:
+            try:
+                owner.load_ncm_spec_default_view(adapter, selected_ref)
+            except owner.NCMSourceProfileMismatchError:
+                return
+            raise AssertionError("declaration_source_was_admitted_as_default")
+
+        assert_default_refusal()
+        original = owner._get_owned_json_artifact_with_bytes
+
+        def without_source_constraint(*args, **kwargs):
+            kwargs.pop("expected_profile")
+            return original(*args, **kwargs)
+
+        with monkeypatch.context() as control:
+            control.setattr(owner, "_get_owned_json_artifact_with_bytes", without_source_constraint)
+            with pytest.raises(AssertionError, match="declaration_source_was_admitted"):
+                assert_default_refusal()
+        assert_default_refusal()
+
+
 def _assert_complete_native_selected_values(prepared: object, actual: object) -> None:
     """Compare every consumed typed field, preserving native float distinctions."""
     import struct

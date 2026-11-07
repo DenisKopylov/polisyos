@@ -50,7 +50,7 @@ from polisyos.ir.analytics.structural_causal_model import (
 
 
 def _chain_scm(*, noise_std: float = 0.0) -> StructuralCausalModelSpec:
-    """Simple linear chain X → Y: Y = 0.5 + 2.0 * X + U_Y."""
+    """Synthetic linear chain with a declared normal root prior, not empirical rows."""
     graph = CausalGraphModel(
         graph_type=GraphType.DAG,
         nodes=["X", "Y"],
@@ -62,7 +62,7 @@ def _chain_scm(*, noise_std: float = 0.0) -> StructuralCausalModelSpec:
             NodeMechanism(
                 variable="X",
                 parents=[],
-                family=MechanismFamily.EMPIRICAL,
+                family=MechanismFamily.PARAMETRIC_PRIOR,
                 family_params={"mean": 0.0, "std": 1.0},
                 source=MechanismSource.DEFAULT,
             ),
@@ -599,3 +599,146 @@ class TestNCMSpecValidation:
         restored = NCMSpec.model_validate(dumped)
         assert restored.endogenous_vars == ncm.endogenous_vars
         assert len(restored.structural_equations) == len(ncm.structural_equations)
+
+
+def test_ncm_summary_does_not_sample_auxiliary_ambient_quantile(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    query = NCMQueryData(
+        ncm_spec=_symbolic_chain_ncm(),
+        evidence={},
+        interventions=[{"X": 0.0}],
+        query_vars=["Y"],
+        n_samples=32,
+    )
+
+    def auxiliary_quantile(*args, **kwargs):
+        raise AssertionError("auxiliary global normal draws are not a quantile")
+
+    monkeypatch.setattr(np.random, "standard_normal", auxiliary_quantile)
+    results = []
+    for ambient_seed in (1, 999):
+        np.random.seed(ambient_seed)
+        before = np.random.get_state()
+        output = NCMEngineMethod.pure_step(
+            {"ncm_query_data": query}, {"__seed__": 7, "confidence_level": 0.95}
+        )["counterfactual_result"]
+        after = np.random.get_state()
+        assert before[0] == after[0]
+        np.testing.assert_array_equal(before[1], after[1])
+        assert before[2:] == after[2:]
+        output.pop("computation_time_seconds")
+        results.append(output)
+    assert results[0] == results[1]
+
+
+@pytest.mark.parametrize(
+    "confidence", [0.0, 1.0, -0.1, 1.1, float("nan"), float("inf"), float("-inf")]
+)
+def test_ncm_invalid_confidence_refuses_before_world_sampling(
+    monkeypatch: pytest.MonkeyPatch, confidence: float
+) -> None:
+    import polisyos.foundry.methods.catalog.causal.ncm_engine as module
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("invalid confidence reached model sampling")
+
+    monkeypatch.setattr(module, "_parallel_worlds", forbidden)
+    query = NCMQueryData(ncm_spec=_chain_ncm(), n_samples=2)
+    with pytest.raises(ValueError, match="confidence_level"):
+        module.NCMEngineMethod.pure_step(
+            {"ncm_query_data": query}, {"confidence_level": confidence}
+        )
+
+
+@pytest.mark.parametrize(
+    "n_samples, confidence, reason",
+    [
+        (1, 0.95, "singleton_monte_carlo_mean"),
+        (8, np.nextafter(0.0, 1.0), "normal_quantile_not_representable"),
+    ],
+)
+def test_ncm_unavailable_interval_preserves_actual_mean_and_sample_count(
+    n_samples: int, confidence: float, reason: str
+) -> None:
+    query = NCMQueryData(
+        ncm_spec=_symbolic_chain_ncm(),
+        evidence={},
+        interventions=[{"X": 1.0}],
+        query_vars=["Y"],
+        n_samples=n_samples,
+    )
+    output = NCMEngineMethod.pure_step(
+        {"ncm_query_data": query}, {"__seed__": 7, "confidence_level": confidence}
+    )["counterfactual_result"]
+    summary = output["world_summaries"][0]["Y"]
+    assert output["schema_version"] == "2.0"
+    assert summary["n_samples"] == n_samples
+    assert math.isfinite(summary["mean"]) and math.isfinite(summary["std"])
+    assert summary["ci_lower"] is None and summary["ci_upper"] is None
+    assert summary["interval_status"] == "not_estimated"
+    assert reason in summary["interval_limitations"]
+
+
+@pytest.mark.parametrize("confidence", [0.5, 0.8, 0.95, 0.99, np.nextafter(1.0, 0.0)])
+def test_ncm_normal_reference_interval_uses_confidence_and_independent_tail_oracle(
+    confidence: float,
+) -> None:
+    # DEC-SIM-03-02: binary64,32 actual model draws,one world. This validates
+    # deterministic normal-reference arithmetic, not empirical CI coverage.
+    query = NCMQueryData(
+        ncm_spec=_symbolic_chain_ncm(),
+        evidence={},
+        interventions=[{"X": 1.0}],
+        query_vars=["Y"],
+        n_samples=32,
+    )
+    output = NCMEngineMethod.pure_step(
+        {"ncm_query_data": query}, {"__seed__": 7, "confidence_level": confidence}
+    )["counterfactual_result"]
+    point = output["world_summaries"][0]["Y"]
+    assert point["std"] > 0.0
+    assert point["interval_status"] == "descriptive_unqualified"
+    assert point["interval_profile"] == "ncm_normal_reference_mean_ddof0.v1"
+    assert "coverage_not_established" in point["interval_limitations"]
+    z = (point["mean"] - point["ci_lower"]) * math.sqrt(32) / point["std"]
+    target_tail = (1.0 - confidence) / 2.0
+    observed_tail = math.erfc(z / math.sqrt(2.0)) / 2.0
+    # Reconstructing z through endpoint subtraction and erfc amplifies a few
+    # binary64 rounding steps by at most the q<=9 tail conditioning here.
+    assert abs(observed_tail - target_tail) <= 2048 * np.finfo(float).eps * target_tail
+    assert point["ci_upper"] >= point["mean"] >= point["ci_lower"]
+
+
+def test_causal_engine_preserves_versioned_unavailable_ncm_interval() -> None:
+    from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+
+    query = NCMQueryData(
+        ncm_spec=_symbolic_chain_ncm(),
+        evidence={"X": 1.0, "Y": 3.0},
+        interventions=[{"X": 2.0}],
+        query_vars=["Y"],
+        n_samples=1,
+    )
+    result = CausalEngine(registry=None, knowledge_base=None).counterfactual_query(
+        query, query="counterfactual", evidence=dict(query.evidence)
+    )
+    restored = json.loads(json.dumps(result, allow_nan=False))
+    assert restored["schema_version"] == "2.0"
+    summary = restored["world_summaries"][0]["Y"]
+    assert summary["mean"] == 6.0
+    assert summary["std"] == 0.0
+    assert summary["n_samples"] == 1
+    assert summary["ci_lower"] is summary["ci_upper"] is None
+    assert summary["interval_status"] == "not_estimated"
+    assert "coverage_not_established" in summary["interval_limitations"]
+
+
+def test_ncm_summary_refuses_missing_empirical_root_rows() -> None:
+    # The synthetic root prior above must not make an unobserved empirical
+    # root silently admissible. Exercise the actual sampling boundary.
+    payload = _chain_ncm().model_dump(mode="python")
+    payload["scm_spec"]["mechanisms"][0]["family"] = MechanismFamily.EMPIRICAL
+    query = NCMQueryData(ncm_spec=NCMSpec.model_validate(payload), n_samples=2)
+    with pytest.raises(ValueError, match="empirical root 'X' has no observed rows"):
+        NCMEngineMethod.pure_step({"ncm_query_data": query}, {"__seed__": 7})

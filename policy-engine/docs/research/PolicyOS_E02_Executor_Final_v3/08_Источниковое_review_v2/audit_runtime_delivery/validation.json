@@ -1,0 +1,17 @@
+{
+  "status": "PASS_DOCUMENT_STRUCTURE_ONLY",
+  "packets": 26,
+  "dispositions": 1820,
+  "unique_criteria_per_packet": 70,
+  "baseline_hashes_match_index": true,
+  "catalog_hash_matches_freeze": true,
+  "evidence_req_test_locators_exist": true,
+  "findings_count": 0,
+  "product_tests": "NOT_RUN",
+  "final_artifact_readback": "PASS",
+  "review_substantive_packet_sections": 26,
+  "criterion_source_refs_match_frozen_catalog": true,
+  "coverage_source_records": 67,
+  "coverage_source_sections_nonempty": true,
+  "review_bytes": 51296
+}

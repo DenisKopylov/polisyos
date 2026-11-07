@@ -253,7 +253,7 @@ assert "polisyos.fabric" not in sys.modules
 
 
 @pytest.mark.parametrize("suffix", [".json", ".yaml"])
-def test_canonical_cli_uses_fabric_registration_for_json_and_yaml(
+def test_canonical_cli_uses_selected_fabric_converter_for_json_and_yaml(
     tmp_path: Path,
     suffix: str,
 ) -> None:
@@ -304,3 +304,268 @@ def test_operational_binding_points_to_fabric_converter() -> None:
         "dataset_name": "baseline",
         "raw_hash": "sha256:abc",
     }
+
+
+@pytest.mark.parametrize("suffix", [".json", ".yaml"])
+def test_registered_cli_complete_profile_reopens_through_fresh_registry(
+    tmp_path: Path, suffix: str
+) -> None:
+    """Persisted conversion is distinct from actual registry admission."""
+    from tools.cli import main as tools_cli_main
+
+    payload = _complete_current_manifest()
+    source = tmp_path / f"legacy{suffix}"
+    if suffix == ".json":
+        source.write_text(json.dumps(payload))
+    else:
+        yaml = pytest.importorskip("yaml")
+        source.write_text(yaml.safe_dump(payload, sort_keys=False))
+    before = source.read_bytes()
+    outputs = []
+    for mode in ("default", "explicit"):
+        output = tmp_path / f"{mode}{suffix}"
+        args = [
+            "migrations",
+            "migrate",
+            "--timing-log",
+            str(tmp_path / "timing.jsonl"),
+            "dataset_manifest",
+            str(source),
+            str(output),
+        ]
+        if mode == "explicit":
+            args.extend(["--to", "1.0"])
+        assert tools_cli_main(args) == 0
+        converted = (
+            json.loads(output.read_text())
+            if suffix == ".json"
+            else yaml.safe_load(output.read_text())
+        )
+        outputs.append(converted)
+        curated = tmp_path / mode
+        curated.mkdir()
+        (curated / "baseline_manifest.json").write_text(json.dumps(converted))
+        observed = _fresh_registry(curated)
+        assert observed["dataset_name"] == "baseline"
+        assert observed["raw_hash"] == payload["rawHash"]
+        assert observed["created_at"] == payload["created_at"]
+        assert observed["schema_version"] == "1.0"
+    assert outputs[0] == outputs[1]
+    output = tmp_path / f"unsupported{suffix}"
+    output.write_bytes(b"old output")
+    assert (
+        tools_cli_main(
+            [
+                "migrations",
+                "migrate",
+                "--timing-log",
+                str(tmp_path / "timing.jsonl"),
+                "dataset_manifest",
+                str(source),
+                str(output),
+                "--to",
+                "2.0",
+            ]
+        )
+        != 0
+    )
+    assert output.read_bytes() == b"old output"
+    assert source.read_bytes() == before
+
+
+_REGISTRY_READER = r"""
+import json
+import sys
+from pathlib import Path
+import polisyos.fabric._internal.registry as registry_module
+try:
+    registry = registry_module.ManifestRegistry(Path(sys.argv[1]))
+    selected = registry.require("baseline")
+except ValueError as error:
+    print(json.dumps({"accepted": False, "error": str(error)}))
+else:
+    print(json.dumps({"accepted": True, "payload": selected.model_dump(mode="json"),
+                      "origin": str(Path(registry_module.__file__).resolve())}))
+"""
+
+
+def _fresh_registry(curated: Path, *, accepted: bool = True) -> dict[str, Any]:
+    """Require a persisted manifest in a new native Fabric reader process."""
+    completed = subprocess.run(
+        [sys.executable, "-B", "-c", _REGISTRY_READER, str(curated)],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=20,
+    )
+    assert completed.returncode == 0, completed.stderr or completed.stdout
+    result = json.loads(completed.stdout)
+    assert result["accepted"] is accepted, result
+    if not accepted:
+        return result
+    import polisyos.fabric._internal.registry as registry_module
+
+    assert result["origin"] == str(Path(registry_module.__file__).resolve())
+    return result["payload"]
+
+
+@pytest.mark.parametrize(
+    ("profile", "accepted"),
+    [
+        ("legacy", True),
+        ("current", True),
+        ("equal_aliases", False),
+        ("conflicting_aliases", False),
+        ("unknown", False),
+        ("missing_raw_hash", False),
+        ("missing_created_at", True),
+        ("reconciliation_fail", False),
+    ],
+)
+def test_finite_format_matrix_separates_conversion_from_registry_admission(
+    tmp_path: Path, profile: str, accepted: bool
+) -> None:
+    """Synthetic profile outcomes do not invent provenance or resolve conflicts."""
+    from tools.ops_runners.migrations.migrate import main as canonical_main
+
+    payload = _complete_current_manifest()
+    if profile == "current":
+        payload["dataset_name"] = payload.pop("datasetName")
+        payload["raw_hash"] = payload.pop("rawHash")
+    elif profile in {"equal_aliases", "conflicting_aliases"}:
+        payload["dataset_name"] = "baseline" if profile == "equal_aliases" else "different"
+        payload["raw_hash"] = payload["rawHash"] if profile == "equal_aliases" else "other"
+    elif profile == "unknown":
+        payload["unknown_field"] = {"preserve": True}
+    elif profile == "missing_raw_hash":
+        del payload["rawHash"]
+    elif profile == "missing_created_at":
+        del payload["created_at"]
+    elif profile == "reconciliation_fail":
+        payload["reconciliation"] = {
+            "status": "fail",
+            "tolerance": 0.0,
+            "total_outflow": 1.0,
+            "total_inflow": 2.0,
+            "diff": 1.0,
+        }
+    source = tmp_path / "legacy.json"
+    source.write_text(json.dumps(payload))
+    before = source.read_bytes()
+    curated = tmp_path / "curated"
+    curated.mkdir()
+    output = curated / "baseline_manifest.json"
+    assert canonical_main(["dataset_manifest", str(source), str(output)]) == 0
+    converted = json.loads(output.read_text())
+    assert converted["schema_version"] == "1.0"
+    assert ("created_at" in converted) == ("created_at" in payload)
+    assert ("raw_hash" in converted) == ("rawHash" in payload or "raw_hash" in payload)
+    assert source.read_bytes() == before
+    observed = _fresh_registry(curated, accepted=accepted)
+    if profile in {"equal_aliases", "conflicting_aliases"}:
+        assert converted["datasetName"] == payload["datasetName"]
+        assert converted["dataset_name"] == payload["dataset_name"]
+        assert converted["rawHash"] == payload["rawHash"]
+        assert converted["raw_hash"] == payload["raw_hash"]
+    if profile == "unknown":
+        assert converted["unknown_field"] == {"preserve": True}
+    if profile == "missing_created_at":
+        # Native DTO's current-clock default is not supplied source provenance.
+        assert observed["created_at"]
+        assert "created_at" not in converted
+    if profile == "reconciliation_fail":
+        assert "marked unusable" in observed["error"]
+    elif not accepted:
+        assert "Invalid manifest" in observed["error"]
+        if profile == "missing_raw_hash":
+            assert "raw_hash" in observed["error"]
+            assert "Field required" in observed["error"]
+        elif profile == "unknown":
+            assert "unknown_field" in observed["error"]
+            assert "Extra inputs are not permitted" in observed["error"]
+        else:
+            assert "datasetName" in observed["error"]
+            assert "Extra inputs are not permitted" in observed["error"]
+
+
+def test_callback_engine_and_noop_keep_distinct_nested_copy_contracts() -> None:
+    """Raw callback identity is separate from deep-isolated public traversal."""
+    from copy import deepcopy
+
+    from polisyos.common.migrations import migrate_artifact
+    from polisyos.fabric.identity.migrations import migrate_manifest_0_9_to_1_0
+
+    raw = _complete_current_manifest()
+    nested = raw["quality"]
+    assert migrate_manifest_0_9_to_1_0(raw) is raw
+    assert raw["quality"] is nested
+    assert raw["schema_version"] == "0.9"
+    source = _complete_current_manifest()
+    before = deepcopy(source)
+    converted = migrate_artifact(
+        source,
+        "dataset_manifest",
+        "1.0",
+        selected_edges={"0.9": ("1.0", migrate_manifest_0_9_to_1_0)},
+    )
+    assert source == before
+    assert converted["quality"] is not source["quality"]
+    converted["quality"]["coverage"]["region_coverage"] = "changed"
+    assert source == before
+    noop = migrate_artifact(converted, "dataset_manifest", "1.0")
+    assert noop == converted
+    assert noop is not converted
+    assert noop["quality"] is not converted["quality"]
+
+
+@pytest.mark.parametrize("order", ["legacy_first", "fabric_first"])
+def test_bounded_callback_profiles_and_import_order_in_fresh_process(order: str) -> None:
+    """Both explicit registration orders retain equivalent bounded callbacks."""
+    code = r"""
+import copy
+import importlib
+import sys
+from polisyos.common.migrations import migrate_artifact
+assert not any(name.startswith("polisyos.fabric") for name in sys.modules)
+names = ["polisyos.common.migrations.manifest", "polisyos.fabric.identity.migrations"]
+if sys.argv[1] == "fabric_first":
+    names.reverse()
+modules = {name: importlib.import_module(name) for name in names}
+legacy = modules["polisyos.common.migrations.manifest"]
+fabric = modules["polisyos.fabric.identity.migrations"]
+assert legacy.MANIFEST_CURRENT_VERSION == fabric.MANIFEST_CURRENT_VERSION == "1.0"
+fabric.register_manifest_migration()
+corpus = [
+    {"schema_version":"0.9", "datasetName":"baseline", "rawHash":"a"},
+    {"schema_version":"0.9", "dataset_name":"baseline", "raw_hash":"a"},
+    {"schema_version":"0.9", "datasetName":"baseline", "dataset_name":"baseline"},
+    {"schema_version":"0.9", "datasetName":"baseline", "dataset_name":"other"},
+    {"schema_version":"0.9", "unknown":{"nested":[1]}},
+    {"schema_version":"0.9"},
+]
+for original in corpus:
+    left, right = copy.deepcopy(original), copy.deepcopy(original)
+    assert legacy.migrate_manifest_0_9_to_1_0(left) is left
+    assert fabric.migrate_manifest_0_9_to_1_0(right) is right
+    assert left == right
+    assert left["schema_version"] == "0.9"
+    before = copy.deepcopy(original)
+    converted = migrate_artifact(original, "dataset_manifest", "1.0")
+    assert original == before
+    assert converted == {**right, "schema_version":"1.0"}
+for callback in (legacy.migrate_manifest_0_9_to_1_0, fabric.migrate_manifest_0_9_to_1_0):
+    try:
+        callback(None)
+    except TypeError:
+        pass
+    else:
+        raise AssertionError("unsupported input no longer raises TypeError")
+"""
+    completed = subprocess.run(
+        [sys.executable, "-B", "-c", code, order],
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=20,
+    )
+    assert completed.returncode == 0, completed.stderr or completed.stdout

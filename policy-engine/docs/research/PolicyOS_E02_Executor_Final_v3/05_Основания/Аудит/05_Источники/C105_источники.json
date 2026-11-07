@@ -1,0 +1,397 @@
+{
+  "pass_id": "C105",
+  "bundle": "SCL-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scholar/api.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scholar/api.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          451
+        ]
+      ],
+      "evidence_level": "Полный API прочитан. Все original non-import AST nodes исполнены без изменения тел; тяжёлый import graph исключён. Actual public API, source-binding gate, converter и service persistence; store fixture и docs-ingest stop явно отделены.",
+      "git_blob": "c6fae8f01976de259f50bd986332fb9f6cf2de04",
+      "sha256": "0b77514837464b700fc1fc40dc57eb33c0bb0ff46ff07fdc59a801f52c9ca268",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scholar/orchestrator/enrich.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scholar/orchestrator/enrich.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1012
+        ]
+      ],
+      "evidence_level": "Полностью прочитан. Все original non-import nodes исполнены; whole enrich function до actual docs-ingest call либо pre-docs line565. Docs/claims/reconcile publication не исполнялась.",
+      "git_blob": "62cbe75612205bb6f688702bb28e9942db926cc4",
+      "sha256": "fe051e48796577f6f0159c9da2d3848fe1f8331ba05960651aa69a3925ad0fde",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scholar/discover/manual.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scholar/discover/manual.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          169
+        ]
+      ],
+      "evidence_level": "Полный модуль прочитан C104 и повторно прослежен C105. Actual bytes normalization удаляет selected raw ref, сохраняя data/props/license; source-binding gate API этим не отменяется.",
+      "git_blob": "0d58acd0ae09b9263f1054608bc3088236684f37",
+      "sha256": "8762af840e7f693d7abc26a7147cd816f12d261eef102e93dbf8c7209dd065b4",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/scholar/search/source_binding.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scholar/search/source_binding.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          270
+        ]
+      ],
+      "evidence_level": "Полностью прочитан/импортирован unchanged: selected/default manifest view, exact digest/schema/producer/profile, extraction и all-snippet spans. Store — явно finite filesystem fixture, не native custody.",
+      "git_blob": "9c731a29efa35c017f01444bf84978710e66c3cb",
+      "sha256": "d8e3621ea25f5a3d0962996f8eced9b2914ee8fbf5aa6c351bc5aa69b86d147d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/scholar/search/cache.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scholar/search/cache.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          201
+        ]
+      ],
+      "evidence_level": "Полностью прочитан C104, actual cache put/reload/ref/lineage исполняется C105 с fixture store и настоящим JSON index.",
+      "git_blob": "b75bb769f059b04e745952262ec47ef6686f7867",
+      "sha256": "fdb1c7af47a42b109f06013c041807be1dc68065521ed55778f4b2e32dc56600",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scholar/search/models.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scholar/search/models.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          698
+        ]
+      ],
+      "evidence_level": "Полный DTO/validator модуль прочитан C104, actual current models использованы C105. Raw ref и fetch_profile поля существуют, но это не доказательство сохранения в каждой границе.",
+      "git_blob": "4cf254c111547c4bf282480b9912e3ce02b46bf7",
+      "sha256": "886842f7dfe344aa4a06b56b985f21f0ab2bedfc768b8708fa360f34dc54e7ae",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/scholar/search/fetcher.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scholar/search/fetcher.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          290
+        ]
+      ],
+      "evidence_level": "Полный модуль прочитан C104, actual raw producer/consumer C105. Nondefault request не заполняет FetchResult.fetch_profile; synthetic test profiles не заменяют producer evidence.",
+      "git_blob": "918038a23504997b7669213cc99c57b814e8d9af",
+      "sha256": "2dd9e13a8f75cbc66bcd1a751012c7aee67d55f83556c9b6ba448acbbeedfe2f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/scholar/search/scoring.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scholar/search/scoring.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          299
+        ]
+      ],
+      "evidence_level": "Полный модуль прочитан C104, actual metadata и snippets C105. fetch_profile копируется, а не восстанавливает неизвестный контекст.",
+      "git_blob": "56b245584a80ac4e3affdecca50044d3d68897b3",
+      "sha256": "ddcdeb005f535b73a9d83b38218212bc90d18440c4769c492c517b69333d5405",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/scholar/search/service.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scholar/search/service.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          766
+        ]
+      ],
+      "evidence_level": "Полный service прочитан C104. Actual deep_search/persist_bundle C105 с explicit one-node planner и provider fixtures; raw miss/cache hit/explicit expiry до docs-ingest.",
+      "git_blob": "9313964a19bbd84c6bd7bc69fc04cb1923c7e936",
+      "sha256": "6fc3e679077ce566a9b8ebbae16edf787007de00dc956e0ca5ca523724c8967c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/scholar/discover/transport.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scholar/discover/transport.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          379
+        ]
+      ],
+      "evidence_level": "Полный transport прочитан C104; actual shared raw path с fake DNS/opener C105. No live HTTP.",
+      "git_blob": "2cdf944f5500bf73f8b065edfd3094570865bfdc",
+      "sha256": "e0083955406e8d4b0dac642f2e737764e596de921ada9c565d364d52d44bffd9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/scholar/discover/http_fetch.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scholar/discover/http_fetch.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          144
+        ]
+      ],
+      "evidence_level": "Полный seed adapter прочитан C104; unchanged existing old-DNS case FAIL, отдельный current resolver control MATCH.",
+      "git_blob": "4131f46c8c2b4aedda9a4217f9d6987ee200d952",
+      "sha256": "29dcb67f926d7a6b7921db82796d8228195164bc6f7dd98caab96185131a49b0",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/scholar/orchestrator/policies.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scholar/orchestrator/policies.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          163
+        ]
+      ],
+      "evidence_level": "Полный policy прочитан source-only. Boundary probes передают явно минимальный policy fixture, actual budget models/resolve functions и guards исполняются; policy не заменён реализацией reuse permissions.",
+      "git_blob": "728b7ff218ebda3cb05fdabc0cf5d91243688a7e",
+      "sha256": "1edb669e70df284823d117ee48a3f74da59a94b6f8fc26b0bdc7112c4362fa56",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/core/contracts/scholar.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/contracts/scholar.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          170
+        ]
+      ],
+      "evidence_level": "SourceSpec/ResearchIntent и validators прочитаны C104, actual models C105. Raw_ref разрешён только для bytes с соответствующим locator/MIME.",
+      "git_blob": "74d0f99cbb526822f07e760f119fa4099b30586e",
+      "sha256": "5d751a43f3327f5a9e896c276ad1e061edbc85d644ede9d5f482c8df1c014b77",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/tests/unit/remediation/test_scl_03.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_scl_03.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          520
+        ]
+      ],
+      "evidence_level": "Полный test corpus прочитан;9 unchanged bodies/cases:8PASS1FAIL. Store replacement явно ограничен, _bootstrap captures downstream boundary по самому существующему тесту.",
+      "git_blob": "37d875dd94131cb3ecf2ed4ebcecb6bd016b5c8c",
+      "sha256": "698522c4b6e0609e6eef614f449432194ebdf9a4b5cac45eac29a2f8b0f4f84f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/tests/unit/scholar/search/test_source_binding.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scholar/search/test_source_binding.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          246
+        ]
+      ],
+      "evidence_level": "Полностью прочитан.5 unchanged bodies/cases PASS. Первые2 тела с дополнительным Scientist verifier source-only; они не исполнялись и не суммируются.",
+      "git_blob": "8467566e7ef6924c465af8e6fb2d3321397849a4",
+      "sha256": "ee3b75fbce58bf22af512fa799e48a91791ebe93df77f5d27610a846ef5c71fe",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/tests/unit/scholar/test_api_web_bootstrap.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scholar/test_api_web_bootstrap.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          325
+        ],
+        [
+          588,
+          865
+        ]
+      ],
+      "evidence_level": "Relevant helpers и полный actual HTTP→native CAS→full enrich test624–865 прочитаны source-only. Local server не запускался; inherited assertion existence не повышено до PASS.",
+      "git_blob": "587710c37220858ba8826f563da818801a63d401",
+      "sha256": "498f348c004d629f132d7ab258223dcddc697bc6ae6faa07d330ead2851a78d7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          75
+        ],
+        [
+          1435,
+          1545
+        ],
+        [
+          2163,
+          2245
+        ],
+        [
+          2350,
+          2455
+        ]
+      ],
+      "evidence_level": "Relevant native selected-reader boundaries прочитаны source-only. get_bytes/get_manifest требуют owner/profile; native implementation не подменена на evidence PASS, fixture отдельно. Не весь6400-line store прочитан в C105.",
+      "git_blob": "f855f9f023d8152b67bb4c1e71a8b9568d0c6994",
+      "sha256": "208b9aa6867c2303e5444ce6d7e446af2fcf2e9ca60e43c6205d68cf45a0ccc7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S18",
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          403
+        ]
+      ],
+      "evidence_level": "Actual manifest/ref/profile fields и normalization прочитаны. Typed DTO используются fixture store; это не native ownership/signature verification.",
+      "git_blob": "f1b3372d9e209cf823bacf7dc38eecd76b6780bb",
+      "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S19",
+      "path": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          165
+        ]
+      ],
+      "evidence_level": "Полный lifecycle прочитан. Actual build/profile digest используют fixture store; publication/locks/native custody здесь не исполняются.",
+      "git_blob": "513f375b40c4366e26f1e31999b24bce2c78ca18",
+      "sha256": "89c231e69ec95c1223d3a2637ca2ba79bc1048ac2644e266216a8f1cb8fdea08",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S20",
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          235,
+          255
+        ]
+      ],
+      "evidence_level": "Actual facade profile-sha256 function извлечена unchanged; heavy initializer не исполняется в bounded setup.",
+      "git_blob": "cd56c3d72091bd42efe0c1e40ef922f2dc000379",
+      "sha256": "81c423202e396199b19a6bba6fa2293fba0b02618560e1b046b12e04e04c04d6",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S21",
+      "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          41
+        ]
+      ],
+      "evidence_level": "Полный write-options contract прочитан, actual options используются cache/service и fixture store.",
+      "git_blob": "610a563ce506be29c3606b4229ae4ab427920d5f",
+      "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S22",
+      "path": "policy-engine/src/polisyos/core/artifacts/_profiled_ref.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/_profiled_ref.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          70
+        ]
+      ],
+      "evidence_level": "Полный adjacent selected-ref binder прочитан source-only; не заменяет Scholar current normalization edge и не был вызван как обход native graph.",
+      "git_blob": "78c483fa4e984a39e613223c3a11c29fc095d413",
+      "sha256": "08d2a03c8b7ec879a94f8dfbd909161562d4c592c6b33e227a4db1febcbec2c1",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

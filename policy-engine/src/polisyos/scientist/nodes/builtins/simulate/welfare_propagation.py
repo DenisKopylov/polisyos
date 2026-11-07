@@ -12,13 +12,20 @@ import numpy as np
 from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
-from polisyos.foundry.uncertainty import PropagationConfig
+from polisyos.foundry.uncertainty import (
+    EmpiricalNumericResolutionError,
+    PropagationConfig,
+    empirical_joint_moments,
+    prepare_empirical_joint,
+)
 from polisyos.ir import (
     ArtifactRefModel,
+    DistributionFamily,
+    IntervalSemantics,
+    PosteriorSamplesCarrier,
     UncertaintyEnvelope,
     UncertaintyEnvelopeRef,
     WelfareMethod,
-    persist_uncertainty_envelope,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -55,8 +62,10 @@ from .welfare_types import (
     _fail_error,
     _input_envelope_refs,
     _input_ref,
+    _persist_collected_envelope,
     _persist_json_payload,
     _PropagationOutcome,
+    _reconcile_calibration_requested_inputs,
     _ResolvedWelfareContext,
 )
 
@@ -69,7 +78,9 @@ def _resolve_pe_simulation_envelopes(
     used_envelopes: dict[str, UncertaintyEnvelope] = {}
     pe_refs: dict[str, UncertaintyEnvelopeRef] = {}
     for label in context.labels:
-        for param_name in context.pe_sensitivity.get(label, {}):
+        for param_name, coefficient in context.pe_sensitivity.get(label, {}).items():
+            if coefficient == 0.0:
+                continue
             envelope = available_envelopes.envelopes.get(param_name)
             if envelope is not None:
                 used_envelopes[param_name] = envelope
@@ -114,15 +125,20 @@ def _bind_pe_envelope_refs(
     for param_name in list(pe_refs):
         if param_name not in used_envelopes:
             pe_refs.pop(param_name)
-    pe_param_names = {name for mapping in context.pe_sensitivity.values() for name in mapping}
+    pe_param_names = {
+        name
+        for label in context.labels
+        for name, coefficient in context.pe_sensitivity.get(label, {}).items()
+        if coefficient != 0.0
+    }
     for param_name, envelope in used_envelopes.items():
         if param_name in pe_param_names and param_name not in pe_refs:
             ref = available_envelopes.refs.get(param_name)
             if ref is not None:
                 pe_refs[param_name] = ref
             else:
-                pe_refs[param_name] = persist_uncertainty_envelope(
-                    _ensure_ir_artifact_store(ctx.store), envelope
+                pe_refs[param_name] = _persist_collected_envelope(
+                    ctx, available_envelopes, param_name, envelope
                 )
 
 
@@ -658,6 +674,73 @@ def _propagate_credible_interval(
         ),
         return_selected_profile=return_selected_profile,
     )
+    missing_fields, center_mismatches = _reconcile_calibration_requested_inputs(
+        context, calibration_source, input_envelopes
+    )
+    if missing_fields or center_mismatches:
+        method_used = (
+            WelfareMethod.DELTA
+            if requested_method in {"delta", "delta_method"}
+            else WelfareMethod.MONTE_CARLO
+            if requested_method in {"monte_carlo", "mc"}
+            else WelfareMethod.INTERVAL_OUTER
+        )
+        return _limited_covariance_outcome(
+            ctx,
+            config_ref=config_ref,
+            simulation_fn=simulation_fn,
+            nominal_params=nominal_params,
+            input_envelopes=input_envelopes,
+            input_envelope_refs=input_envelope_refs,
+            calibration_source=calibration_source,
+            requested_method=requested_method,
+            method_used=method_used,
+            limitation_code=(
+                "calibration_used_field_center_mismatch"
+                if center_mismatches
+                else "calibration_used_field_uncertainty_missing"
+            ),
+            dependence_note={
+                "strategy": "selected_calibration_requested_inputs",
+                "qualified_law_scope": calibration_source.field_order if calibration_source else (),
+                "missing_fields": missing_fields,
+                "center_mismatch_fields": center_mismatches,
+            },
+        )
+    if requested_method not in {"interval_outer", "robust_set", "none", "deterministic"}:
+        missing_law = sorted(
+            name
+            for name, envelope in input_envelopes.items()
+            if envelope.distribution_family
+            in {
+                DistributionFamily.UNKNOWN,
+                DistributionFamily.BAYESIAN,
+                DistributionFamily.BOOTSTRAP,
+            }
+            and not isinstance(envelope.distribution_payload, PosteriorSamplesCarrier)
+            and not (
+                envelope.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
+                and envelope.ci_lower == envelope.ci_upper == envelope.point_estimate
+            )
+        )
+        if missing_law:
+            return _limited_covariance_outcome(
+                ctx,
+                config_ref=config_ref,
+                simulation_fn=simulation_fn,
+                nominal_params=nominal_params,
+                input_envelopes=input_envelopes,
+                input_envelope_refs=input_envelope_refs,
+                calibration_source=calibration_source,
+                requested_method=requested_method,
+                method_used=(
+                    WelfareMethod.DELTA
+                    if requested_method == "delta"
+                    else WelfareMethod.MONTE_CARLO
+                ),
+                limitation_code="welfare_input_distribution_not_established",
+                dependence_note={"strategy": "input_law_admission", "missing_fields": missing_law},
+            )
     if not input_envelopes:
         return _propagate_without_envelopes(
             ctx,
@@ -764,6 +847,58 @@ def _propagate_delta_interval(
     requested_method: str,
 ) -> _PropagationOutcome:
     param_names = sorted(input_envelopes)
+    empirical_covariance: np.ndarray | None = None
+    empirical_note: dict[str, Any] | None = None
+    if any(
+        isinstance(input_envelopes[name].distribution_payload, PosteriorSamplesCarrier)
+        for name in param_names
+    ):
+        joint, limitation = prepare_empirical_joint(
+            param_names, input_envelopes, require_sampling_cdf=False
+        )
+        if calibration_source is not None:
+            joint, limitation = None, "empirical_joint_law_missing"
+        if joint is None:
+            return _limited_covariance_outcome(
+                ctx,
+                config_ref=config_ref,
+                simulation_fn=simulation_fn,
+                nominal_params=nominal_params,
+                input_envelopes=input_envelopes,
+                input_envelope_refs=input_envelope_refs,
+                calibration_source=calibration_source,
+                requested_method=requested_method,
+                method_used=WelfareMethod.DELTA,
+                limitation_code=(
+                    "empirical_numeric_resolution"
+                    if limitation == "empirical_numeric_resolution"
+                    else "empirical_joint_law_missing"
+                ),
+                dependence_note={"strategy": "empirical_joint_rows", "reason": limitation},
+            )
+        try:
+            _, empirical_covariance = empirical_joint_moments(joint, input_envelopes)
+        except (EmpiricalNumericResolutionError, ValueError) as exc:
+            return _limited_covariance_outcome(
+                ctx,
+                config_ref=config_ref,
+                simulation_fn=simulation_fn,
+                nominal_params=nominal_params,
+                input_envelopes=input_envelopes,
+                input_envelope_refs=input_envelope_refs,
+                calibration_source=calibration_source,
+                requested_method=requested_method,
+                method_used=WelfareMethod.DELTA,
+                limitation_code="empirical_moment_unavailable",
+                dependence_note={"strategy": "empirical_joint_rows", "reason": str(exc)},
+            )
+        empirical_note = {
+            "strategy": "empirical_weighted_moments",
+            "covered_params": list(param_names),
+            "uncovered_params": [],
+            "joint_identity_status": "declared_non_authoritative",
+            "sample_axis": joint.sample_axis,
+        }
     gradient, base_value = _finite_difference_gradient(
         simulation_fn=simulation_fn,
         nominal_params=nominal_params,
@@ -794,7 +929,12 @@ def _propagate_delta_interval(
             dependence_note=calibration_resolution.note,
             input_envelope_refs=input_envelope_refs,
         )
-    if calibration_resolution is None:
+    if empirical_covariance is not None:
+        covariance = empirical_covariance
+        dependence_applied = len(param_names) > 1
+        assert empirical_note is not None
+        dependence_note = empirical_note
+    elif calibration_resolution is None:
         covariance, dependence_applied, dependence_note = _build_parameter_covariance(
             context.dependence_context,
             param_names=param_names,

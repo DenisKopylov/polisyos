@@ -1,0 +1,253 @@
+[
+  {
+    "finding_id": "RD-01",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Shared transport adapter and full actual caller matrix, preserve bounded user callbacks",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "RD-02",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Computed own keys/presence, no TS lib upgrade needed ES2023; actual generated client future tests",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "RD-03",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Bounded registration descriptor semantics; no blanket freeze/rehash observational closures",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "RD-04",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Warm numerical parent qualification and startmethod decision, no automaticspawn rewrite",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "RD-05",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Independent prior mapping with actualstd_error=.2 and noCI precedence, preserveadapterparity",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "RD-06",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Bidirectional actualservice→generatedclient evidence, existing scopedbridgeowner",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "CS-001",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Kernel localization covariance corrected with explicit varianceprofile andlegacyreadback",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "CS-002",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Retain same-backendadapterparity plus concreteindependentanalyticpoint/SE/CI fixture",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "CS-003",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Fold-owned preprocessing; heldoutYmayaffectfinaltargeting notnuisancepredictions",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "CS-004",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Truthfulmethodproducerlineage and actualsourceobservationholdout; externalMBB allowed; noarbitraryIDproof",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "CS-005",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Independentper-replicacontrast/quantile oracle; existingwidth/fitcountsretained",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "CS-006",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Exactnativeprofiles only, no mandatoryKuzumigration orallplatformgate",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "FA-01",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Originalscalaradmission beforeinferredfloatdtype; preserveintegralfloat andsignedIDdomain",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "FA-02",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Existingasyncfiniteharvestroute; directsmartcurrentness aswellasoff; no unsupported synchelper",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "FA-03",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "OfflineURLpolicy→cacheadmission beforeliveDNS, preserveliveSSRFPin/peerconstraints",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "FA-04",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Stdlibmeanpreferredthinwrapper, independentoracle, customonlymeasuredjustification",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "FA-05",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Measurementfirstoptimizationqualification only, notnewleaseorvectordbmandate",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "FA-06",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Strongerfiniteutilitywitness withexistingGL/G5 patterns, notpublisherrepairgate orallANNexactness",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "FA-07",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Correctlane8index/legalownedassetprofiles, removeunneededGPprerequisite",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "PS-F01",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "One versioned honest metric/sampling contract, boundedFORvsFNRdecision, descriptivezeronotpopulationPASS",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "PS-F02",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Separateboundedcapabilityextension/DEC; preserveexistingfittedGPguardandlocalrepairDOD",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "PS-F03",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Budgetexhaustionnotfiniteexhaustion, scopedpending+completedidentity andexplicitreplicas",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "PS-F04",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Native seed-sensitive actualmodel witness; preserveintegerconditionaloracle",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "PS-F07",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "ExplicitNone/zerocarrier selection preservingactualscoreDTOdomain",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "GEN-01",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Operationalfreeze/heldoutclarification ofexistingprinciple, notmissingheldoutclaim",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_SHARED_INTEGRATION_REVISION"
+  },
+  {
+    "finding_id": "GEN-02",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Conditionalactualrequest→discovery→consumerqualification; reuseexistingGL/G5, notnewNLPframework",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_SHARED_INTEGRATION_REVISION"
+  },
+  {
+    "finding_id": "GEN-03",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Measureactualpath/cardinalitybeforeoptimize; currentfallback3capabilitiesscanreasonable",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_SHARED_INTEGRATION_REVISION"
+  },
+  {
+    "finding_id": "GEN-04",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "RefinealreadyexplicitX04gapswithconditionalexistingownerfeasibility+same-resultlifecycle, notnewallocator",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_SHARED_INTEGRATION_REVISION"
+  },
+  {
+    "finding_id": "FN-CAL-MASK",
+    "canonical_finding_id": "FN-CAL-MASK",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Maskbefore nonlinearprimitives; pertargetzero onlywithotherfitsupport,wholeemptycorpusno-fit,modelguardpreserved",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "FN-BKT-RANGE",
+    "canonical_finding_id": "FN-BKT-RANGE",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Preservefiniterepresentableresidualrow/MAERMSE;SSEavailabilityseparate,nofaketrust",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "FN-UQS-STDLIB",
+    "canonical_finding_id": "FA-04",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "AliasFA04sharedmeanpreferredstdlib,Decimalcrosscheck, validpermutation/fullmultisetreplicationonly",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "FN-PLG-ORACLE",
+    "canonical_finding_id": "FN-PLG-ORACLE",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "AnalyticPPO/GAEsign/clipping/targetgradientoracle plusactualnativeupdate; no welfaremonotonicityclaim",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "FN-PLG-INACTIVE",
+    "canonical_finding_id": "FN-PLG-INACTIVE",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Nativequalificationofpromisedinactivepadding, hypothesisnotexecutedbug; preservestoredstateandactiveguards",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "FN-DOE-PCA-RNG",
+    "canonical_finding_id": "FN-DOE-PCA-RNG",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "ExplicitPCAprofile/derivedlocalstream; deterministicparameter-onlyfixture/preflight, noforcefullSVDallscale",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "PENDING_AUTHOR_AND_INDEPENDENT_REVIEW"
+  },
+  {
+    "finding_id": "PS-F08",
+    "decision": "ACCEPT_FOR_PROPOSED_SPEC_REVISION",
+    "scope_note": "Replace auxiliary100k global quantile draws with deterministic inversion; stable lower-tail, multiplelevelsindependentCDF controls, preserve actualworldRNG/means/trajectories; singleton/tiny CI qualification explicit",
+    "product_implementation": "NOT_AUTHORIZED_NOT_RUN",
+    "spec_revision": "AUTHOR_APPLIED_PENDING_FINAL_PEER"
+  }
+]

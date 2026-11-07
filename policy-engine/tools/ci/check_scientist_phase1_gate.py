@@ -10,9 +10,16 @@ import sys
 import xml.etree.ElementTree as ET
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import TypedDict
+from typing import Literal, TypedDict
 
-from tools.lib.fs import atomic_write_text
+from tools.lib.fs import (
+    FileReadMeasurement,
+    atomic_write_text,
+    measure_file_reads,
+    measured_is_dir,
+    measured_read_bytes,
+    measured_read_text,
+)
 from tools.lib.imports import ensure_repo_import_roots
 from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 
@@ -26,7 +33,9 @@ ASSESSMENT_ID = "scientist_phase1_gate"
 MEASUREMENT_SCOPE = (
     "Partial coverage: supplied JUnit pass names and benchmark names, plus Python AST "
     "bare or unqualified Exception/BaseException handler syntax (including tuples) "
-    "and explicit .model_copy(deep=True) syntax. Unmeasured: execution "
+    "excluding structurally verified same-primary cleanup/reraise paths, and explicit "
+    ".model_copy(deep=True) syntax. Cleanup recognition checks source control flow, "
+    "not the behavior of opaque runtime callables. Unmeasured: execution "
     "provenance of those reports, benchmark performance, runtime receiver types, call "
     "reachability/hotness, copy necessity/cost, opaque aliases and dynamic arguments, "
     "qualified/aliased exception types, and allowlisted/excluded source."
@@ -97,7 +106,7 @@ def _iter_suites(root: ET.Element) -> Iterable[ET.Element]:
 
 def _load_passed_test_cases(path: Path) -> set[str]:
     try:
-        root = ET.parse(path).getroot()
+        root = ET.fromstring(measured_read_bytes(path))
     except ET.ParseError as exc:
         raise ValueError(f"invalid JUnit XML: {path}") from exc
 
@@ -119,7 +128,7 @@ def _load_passed_test_cases(path: Path) -> set[str]:
 
 def _load_benchmark_names(path: Path) -> set[str]:
     try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
+        payload = json.loads(measured_read_text(path))
     except json.JSONDecodeError as exc:
         raise ValueError(f"invalid pytest-benchmark JSON: {path}") from exc
     if not isinstance(payload, dict):
@@ -139,21 +148,156 @@ def _load_benchmark_names(path: Path) -> set[str]:
     return names
 
 
-def _scan_for_broad_handlers(repo_root: Path, targets: Sequence[str]) -> list[str]:
+def _is_broad_handler(handler: ast.ExceptHandler) -> bool:
+    names = ast.walk(handler.type) if handler.type is not None else ()
+    return handler.type is None or any(
+        isinstance(item, ast.Name) and item.id in {"Exception", "BaseException"} for item in names
+    )
+
+
+def _is_same_primary_raise(node: ast.Raise, primary: str | None) -> bool:
+    return node.cause is None and (
+        node.exc is None
+        or (primary is not None and isinstance(node.exc, ast.Name) and node.exc.id == primary)
+    )
+
+
+def _is_cleanup_note(statement: ast.stmt, primary: str, secondary: str | None) -> bool:
+    if not isinstance(statement, ast.Expr) or not isinstance(statement.value, ast.Call):
+        return False
+    call = statement.value
+    if not (
+        isinstance(call.func, ast.Attribute)
+        and isinstance(call.func.value, ast.Name)
+        and call.func.value.id == primary
+        and call.func.attr == "add_note"
+        and len(call.args) == 1
+        and not call.keywords
+    ):
+        return False
+    note = call.args[0]
+    if secondary is None or not isinstance(note, ast.JoinedStr):
+        return False
+    records_secondary_class = False
+    for item in note.values:
+        if isinstance(item, ast.Constant) and isinstance(item.value, str):
+            continue
+        if not (
+            isinstance(item, ast.FormattedValue)
+            and item.conversion == -1
+            and item.format_spec is None
+            and isinstance(item.value, ast.Attribute)
+            and item.value.attr == "__name__"
+            and isinstance(item.value.value, ast.Call)
+            and isinstance(item.value.value.func, ast.Name)
+            and item.value.value.func.id == "type"
+            and not item.value.value.keywords
+            and len(item.value.value.args) == 1
+            and isinstance(item.value.value.args[0], ast.Name)
+            and item.value.value.args[0].id == secondary
+        ):
+            return False
+        records_secondary_class = True
+    return records_secondary_class
+
+
+def _cleanup_reraise_handlers(handler: ast.ExceptHandler) -> set[ast.ExceptHandler]:
+    """Recognize a constrained no-recovery path without judging cleanup effects."""
+    primary = handler.name
+    for statement in handler.body:
+        for node in ast.walk(statement):
+            if isinstance(
+                node,
+                (
+                    ast.Return,
+                    ast.Break,
+                    ast.Continue,
+                    ast.Yield,
+                    ast.YieldFrom,
+                    ast.For,
+                    ast.AsyncFor,
+                    ast.While,
+                    ast.comprehension,
+                    ast.FunctionDef,
+                    ast.AsyncFunctionDef,
+                    ast.ClassDef,
+                ),
+            ):
+                return set()
+            if primary is not None and (
+                (
+                    isinstance(node, ast.Name)
+                    and node.id == primary
+                    and not isinstance(node.ctx, ast.Load)
+                )
+                or (isinstance(node, ast.ExceptHandler) and node.name == primary)
+                or (
+                    isinstance(node, (ast.Attribute, ast.Subscript))
+                    and not isinstance(node.ctx, ast.Load)
+                    and isinstance(node.value, ast.Name)
+                    and node.value.id == primary
+                )
+            ):
+                return set()
+
+    recognized: set[ast.ExceptHandler] = {handler}
+
+    def preserves_primary(statements: Sequence[ast.stmt]) -> bool:
+        if not statements:
+            return False
+        first, *rest = statements
+        if isinstance(first, ast.Raise):
+            return _is_same_primary_raise(first, primary)
+        if isinstance(first, ast.Pass):
+            return preserves_primary(rest)
+        if not (
+            primary is not None
+            and isinstance(first, ast.Try)
+            and len(first.handlers) == 1
+            and all(
+                isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Call)
+                for statement in first.body
+            )
+            and not first.orelse
+            and not first.finalbody
+        ):
+            return False
+        cleanup = first.handlers[0]
+        if cleanup.type is not None and not (
+            isinstance(cleanup.type, ast.Name) and cleanup.type.id == "BaseException"
+        ):
+            return False
+        if not cleanup.body or not all(
+            _is_cleanup_note(statement, primary, cleanup.name) for statement in cleanup.body
+        ):
+            return False
+        recognized.add(cleanup)
+        return preserves_primary(rest)
+
+    return recognized if preserves_primary(handler.body) else set()
+
+
+def _classify_broad_handlers(
+    repo_root: Path, targets: Sequence[str]
+) -> tuple[list[str], list[str]]:
     findings: list[str] = []
+    cleanup_reraises: list[str] = []
     for relative_path in targets:
         source_path = repo_root / relative_path
-        tree = ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
-        for node in ast.walk(tree):
-            if not isinstance(node, ast.ExceptHandler):
-                continue
-            names = ast.walk(node.type) if node.type is not None else ()
-            if node.type is None or any(
-                isinstance(item, ast.Name) and item.id in {"Exception", "BaseException"}
-                for item in names
-            ):
+        tree = ast.parse(measured_read_text(source_path), filename=str(source_path))
+        handlers = [node for node in ast.walk(tree) if isinstance(node, ast.ExceptHandler)]
+        recognized = set().union(*(_cleanup_reraise_handlers(node) for node in handlers))
+        for node in handlers:
+            if _is_broad_handler(node):
+                if node in recognized:
+                    cleanup_reraises.append(f"{relative_path}:{node.lineno}")
+                    continue
                 findings.append(f"{relative_path}:{node.lineno}")
-    return sorted(findings)
+    return sorted(findings), sorted(cleanup_reraises)
+
+
+def _scan_for_broad_handlers(repo_root: Path, targets: Sequence[str]) -> list[str]:
+    return _classify_broad_handlers(repo_root, targets)[0]
 
 
 class _DeepCopyScan(TypedDict):
@@ -169,14 +313,14 @@ def _scan_for_explicit_deep_copy_calls(repo_root: Path, allowlist: set[str]) -> 
     unresolved: list[dict[str, str | int]] = []
     source_files: list[str] = []
     source_root = repo_root / "src/polisyos/scientist"
-    if not source_root.is_dir():
+    if not measured_is_dir(source_root):
         raise ValueError(f"source root is unavailable: {source_root}")
     for source_path in sorted(source_root.rglob("*.py")):
         relative_path = str(source_path.relative_to(repo_root))
         if relative_path in allowlist:
             continue
         source_files.append(relative_path)
-        tree = ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
+        tree = ast.parse(measured_read_text(source_path), filename=str(source_path))
         for node in ast.walk(tree):
             if not isinstance(node, ast.Call):
                 continue
@@ -237,7 +381,9 @@ def _build_payload(
         category: all(_has_case(passed_cases, case) for case in cases)
         for category, cases in PHASE1_TEST_CASES.items()
     }
-    broad_handler_findings = _scan_for_broad_handlers(repo_root, broad_exception_targets)
+    broad_handler_findings, cleanup_reraise_handlers = _classify_broad_handlers(
+        repo_root, broad_exception_targets
+    )
     deep_copy_scan = _scan_for_explicit_deep_copy_calls(repo_root, deep_copy_allowlist)
     deep_copy_findings = deep_copy_scan["findings"]
     ratchet_results = {
@@ -275,6 +421,7 @@ def _build_payload(
         "required_cases": {key: list(value) for key, value in PHASE1_TEST_CASES.items()},
         "ratchet_results": ratchet_results,
         "broad_exception_findings": broad_handler_findings,
+        "recognized_cleanup_reraise_handlers": cleanup_reraise_handlers,
         "deep_copy_findings": deep_copy_findings,
         "deep_copy_scan": deep_copy_scan,
         "broad_exception_targets": list(broad_exception_targets),
@@ -300,7 +447,65 @@ def _matches_required_case(observed_case: str, required_case: str) -> bool:
     )
 
 
+def _measurement_receipt(
+    reads: FileReadMeasurement,
+    payload: dict[str, object],
+    *,
+    broad_exception_targets: Sequence[str],
+    deep_copy_allowlist: set[str],
+) -> dict[str, object]:
+    complete = payload.get("complete_verdict") is True
+    receipt = reads.snapshot(complete_verdict=complete)
+    scan = payload.get("deep_copy_scan")
+    source_files = scan.get("source_files", []) if isinstance(scan, dict) else []
+    receipt["selector"] = {
+        "broad_exception_targets": list(broad_exception_targets),
+        "deep_copy_source_root": "src/polisyos/scientist",
+        "deep_copy_glob": "**/*.py",
+        "excluded_paths": sorted(deep_copy_allowlist),
+    }
+    receipt["denominator"] = {
+        "broad_exception_targets": list(broad_exception_targets),
+        "deep_copy_source_files": source_files,
+        "deep_copy_enumeration_completed": isinstance(scan, dict),
+    }
+    receipt["unresolved_by_construction"].extend(
+        [
+            "supplied_report_provenance: JUnit/benchmark names do not establish which "
+            "source, inputs or backend executed, nor benchmark performance.",
+            "unselected_or_qualified_handlers: only the selected files and bare or "
+            "unqualified broad exception syntax are classified.",
+            "opaque_cleanup_effects: source flow does not establish termination or "
+            "exception-object effects of called cleanup, note or type implementations.",
+            "runtime_copy_contract: receiver types, call reachability/hotness, copy "
+            "necessity/cost, aliases and excluded paths are not decided by syntax.",
+            "filesystem_visibility: selected glob members do not establish absence "
+            "in inaccessible or unselected source trees.",
+        ]
+    )
+    if not complete:
+        receipt["unresolved_by_construction"].append(
+            "input_scan_incomplete: failed reads/parses prevent a complete source/evidence verdict."
+        )
+    return receipt
+
+
 def _phase1_result(payload: dict[str, object]) -> ToolResult:
+    if payload.get("status") == "UNRUN":
+        return ToolResult(
+            tool="ci.check-scientist-phase1-gate",
+            status="UNRUN",
+            summary=f"No complete verdict: {payload.get('error')}. {MEASUREMENT_SCOPE}",
+            exit_code=2,
+            messages=(
+                ToolMessage(
+                    level="error",
+                    message=str(payload.get("error")),
+                    rule_id="SCIENTIST_PHASE1_INPUT",
+                ),
+            ),
+            data=payload,
+        )
     notes = payload.get("notes")
     missing = list(notes) if isinstance(notes, list) else []
     status = "ok" if payload.get("passes_all") else "failed"
@@ -325,6 +530,25 @@ def _phase1_result(payload: dict[str, object]) -> ToolResult:
         messages=messages,
         data=payload,
     )
+
+
+def _render_payload(
+    payload: dict[str, object], output_format: Literal["text", "json", "junit"]
+) -> str:
+    if output_format == "json":
+        return json.dumps(payload, indent=2, sort_keys=True)
+    rendered = format_tool_result(_phase1_result(payload), output_format=output_format)
+    measurement = json.dumps(payload["measurement"], sort_keys=True)
+    if output_format == "text":
+        return f"{rendered}measurement: {measurement}\n"
+    suite = ET.fromstring(rendered)
+    if payload.get("status") == "UNRUN":
+        for failure in suite.iter("failure"):
+            failure.tag = "error"
+        suite.set("errors", suite.get("failures", "0"))
+        suite.set("failures", "0")
+    ET.SubElement(suite, "system-out").text = measurement
+    return ET.tostring(suite, encoding="unicode") + "\n"
 
 
 def _emit(content: str, *, output: Path | None) -> None:
@@ -381,53 +605,37 @@ def main(argv: Sequence[str] | None = None) -> int:
     broad_exception_targets = tuple(args.broad_exception_targets or DEFAULT_BROAD_EXCEPTION_TARGETS)
     deep_copy_allowlist = set(args.deep_copy_allowlist or DEFAULT_DEEP_COPY_ALLOWLIST)
 
-    try:
-        payload = _build_payload(
-            benchmark_json=args.benchmark_json,
-            junit_xml=args.junit_xml,
-            repo_root=args.repo_root.resolve(),
+    with measure_file_reads(args.repo_root.resolve()) as reads:
+        try:
+            payload = _build_payload(
+                benchmark_json=args.benchmark_json,
+                junit_xml=args.junit_xml,
+                repo_root=args.repo_root.resolve(),
+                broad_exception_targets=broad_exception_targets,
+                deep_copy_allowlist=deep_copy_allowlist,
+            )
+        except (OSError, UnicodeError, SyntaxError, ValueError) as exc:
+            payload = {
+                "assessment_id": ASSESSMENT_ID,
+                "status": "UNRUN",
+                "complete_verdict": False,
+                "passes_all": False,
+                "error": str(exc),
+                "measurement_scope": MEASUREMENT_SCOPE,
+            }
+        payload["measurement"] = _measurement_receipt(
+            reads,
+            payload,
             broad_exception_targets=broad_exception_targets,
             deep_copy_allowlist=deep_copy_allowlist,
         )
-    except (OSError, UnicodeError, SyntaxError, ValueError) as exc:
-        result = ToolResult(
-            tool="ci.check-scientist-phase1-gate",
-            status="UNRUN",
-            summary=f"No complete verdict: {exc}. {MEASUREMENT_SCOPE}",
-            exit_code=2,
-        )
-        if args.output_format == "json":
-            _emit(
-                json.dumps(
-                    {
-                        "assessment_id": ASSESSMENT_ID,
-                        "status": "UNRUN",
-                        "complete_verdict": False,
-                        "passes_all": False,
-                        "error": str(exc),
-                        "measurement_scope": MEASUREMENT_SCOPE,
-                    },
-                    indent=2,
-                    sort_keys=True,
-                ),
-                output=args.output,
-            )
-        else:
-            _emit(format_tool_result(result, output_format=args.output_format), output=args.output)
-        if args.output is not None:
-            print(result.summary)
-        return 2
 
-    if args.output_format == "json":
-        _emit(json.dumps(payload, indent=2, sort_keys=True), output=args.output)
-    else:
-        _emit(
-            format_tool_result(_phase1_result(payload), output_format=args.output_format),
-            output=args.output,
-        )
+    _emit(_render_payload(payload, args.output_format), output=args.output)
     if args.output is not None:
         print(_phase1_result(payload).summary)
 
+    if payload.get("status") == "UNRUN":
+        return 2
     if args.require_passing and not bool(payload.get("passes_all")):
         return 1
     return 0

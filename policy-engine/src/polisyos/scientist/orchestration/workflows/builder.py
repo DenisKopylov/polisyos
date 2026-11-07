@@ -9,7 +9,7 @@ nodes, enforce run locks/checkpoint policy, and delegate to the selected
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from pydantic import ValidationError
 
@@ -76,6 +76,7 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.security import AuditLog
     from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
     from polisyos.scientist.orchestration.engine.context import (
         CompletedMethodHTESelectionOwnerPort,
         FabricPort,
@@ -287,7 +288,7 @@ def build_default_registry(store: ArtifactStore) -> ArtifactRef:
     Returns:
         CAS reference to the generated registry bundle.
     """
-    bundle = build_default_registry_bundle(store)
+    bundle = build_default_registry_bundle(store, return_selected_profile=True)
     return bundle.bundle_ref
 
 
@@ -303,6 +304,7 @@ def build_execution_context(
     registry_bundle_ref: ArtifactRef,
     *,
     run_id: str,
+    resume_run_dir: Path | None = None,
     logger: logging.Logger | None = None,
     tracer: Tracer | None = None,
     foundry: FoundryPort | None = None,
@@ -326,6 +328,7 @@ def build_execution_context(
         store: Artifact store used for node inputs, outputs, and checkpoints.
         registry_bundle_ref: Registry bundle ref pinned into the run manifest.
         run_id: Run identifier used by provenance, metrics, and artifact lineage.
+        resume_run_dir: Existing incomplete lifecycle to reopen through Core admission.
         logger: Optional logger injected into node execution.
         tracer: Optional tracer propagated to the executor.
         foundry: Optional Foundry port override, otherwise nodes may use defaults.
@@ -341,7 +344,7 @@ def build_execution_context(
             composition; never read from workflow state.
 
     Returns:
-        Fully initialized `ExecutionContext` with a started `RunContext`.
+        Fully initialized `ExecutionContext` with a started or resumed `RunContext`.
     """
     access_scope = get_current_access_scope_or_none()
     tenant_id = get_current_tenant_id_or_none()
@@ -350,41 +353,59 @@ def build_execution_context(
         tenant_id = tenant_id or access_scope.tenant_id
         cell_id = cell_id or access_scope.cell_id
 
-    run = RunContext.start(
-        store,
-        registry_bundle_ref,
-        run_id=run_id,
-        tenant_id=tenant_id,
-        cell_id=cell_id,
-        access_scope=access_scope,
-    )
-    resolved_metrics: EngineMetricsCollector | None = metrics
-    if resolved_metrics is None and engine_metrics_factory is not None:
-        resolved_metrics = engine_metrics_factory()
+    if resume_run_dir is None:
+        run = RunContext.start(
+            store,
+            registry_bundle_ref,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            access_scope=access_scope,
+        )
+    else:
+        run = RunContext.resume(
+            store,
+            run_id=run_id,
+            run_dir=resume_run_dir,
+            registry_bundle=registry_bundle_ref,
+            producer=None,
+            env=None,
+            access_scope=access_scope,
+        )
+    try:
+        resolved_metrics: EngineMetricsCollector | None = metrics
+        if resolved_metrics is None and engine_metrics_factory is not None:
+            resolved_metrics = engine_metrics_factory()
 
-    return ClaimCapableExecutionContext(
-        store=store,
-        run=run,
-        logger=cast(
-            "logging.Logger",
-            logger or get_logger("polisyos.scientist.orchestration.engine"),
-        ),
-        tracer=tracer,
-        depth=depth,
-        metrics=resolved_metrics if resolved_metrics is not None else _default_engine_metrics(),
-        audit=audit,
-        fabric=fabric,
-        foundry=foundry,
-        scholar=scholar,
-        lex=lex,
-        eval_safety_execution_context=eval_safety_execution_context,
-        eval_safety_verifier=eval_safety_verifier,
-        epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
-        method_metric_selection_owner=method_metric_selection_owner,
-        completed_method_hte_selection_owner=completed_method_hte_selection_owner,
-        memory=memory,
-        claim_ledger_owner=build_default_claim_ledger_owner(store=store),
-    )
+        return ClaimCapableExecutionContext(
+            store=store,
+            run=run,
+            logger=cast(
+                "logging.Logger",
+                logger or get_logger("polisyos.scientist.orchestration.engine"),
+            ),
+            tracer=tracer,
+            depth=depth,
+            metrics=resolved_metrics if resolved_metrics is not None else _default_engine_metrics(),
+            audit=audit,
+            fabric=fabric,
+            foundry=foundry,
+            scholar=scholar,
+            lex=lex,
+            eval_safety_execution_context=eval_safety_execution_context,
+            eval_safety_verifier=eval_safety_verifier,
+            epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
+            method_metric_selection_owner=method_metric_selection_owner,
+            completed_method_hte_selection_owner=completed_method_hte_selection_owner,
+            memory=memory,
+            claim_ledger_owner=build_default_claim_ledger_owner(store=store),
+        )
+    except BaseException as primary:
+        try:
+            run.suspend_for_resume()
+        except BaseException as cleanup:
+            primary.add_note(f"execution_context_suspend_failed: {type(cleanup).__name__}")
+        raise
 
 
 def _propagate_runtime_run_metadata(ctx: ExecutionContext, state: ExperimentState) -> None:
@@ -581,6 +602,9 @@ def run_selected_workflow(
     epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
     method_metric_selection_owner: MethodMetricSelectionOwnerPort | None = None,
     completed_method_hte_selection_owner: CompletedMethodHTESelectionOwnerPort | None = None,
+    budget_middleware: BudgetMiddleware | None = None,
+    strict_budget_attempts: bool = False,
+    capture_workflow_execution_admission: bool = False,
 ) -> WorkflowExecutionResult:
     """Dispatch to the builtin workflow runner chosen by `resolve_workflow_id()`.
 
@@ -599,11 +623,20 @@ def run_selected_workflow(
         tracer: Optional tracer object.
         completed_method_hte_selection_owner: Runtime-owned HTE source reader forwarded only to
             the policy-design workflow.
+        budget_middleware: Trusted existing ledger for the supported local default workflow.
+        strict_budget_attempts: Deliberately selected serial invocation-settlement profile.
+        capture_workflow_execution_admission: Explicit original candidate definition capture.
 
     Returns:
         `WorkflowExecutionResult` from the concrete DAG runner.
     """
     workflow_id = resolve_workflow_id(initial_state)
+    if strict_budget_attempts and budget_middleware is None:
+        raise ValueError("strict_budget_attempts_require_durable_budget")
+    if budget_middleware is not None and workflow_id != "scientist_default":
+        raise ValueError("workflow_budget_profile_requires_scientist_default")
+    if capture_workflow_execution_admission and workflow_id != "scientist_default":
+        raise ValueError("workflow_continuation_profile_requires_scientist_default")
     if workflow_id == "scientist_policy_design":
         return run_policy_design_workflow(
             initial_state,
@@ -686,6 +719,13 @@ def run_selected_workflow(
             eval_safety_verifier=eval_safety_verifier,
             epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
         )
+    budget_kwargs: dict[str, Any] = (
+        {"budget_middleware": budget_middleware} if budget_middleware is not None else {}
+    )
+    if strict_budget_attempts:
+        budget_kwargs["strict_budget_attempts"] = True
+    if capture_workflow_execution_admission:
+        budget_kwargs["capture_workflow_execution_admission"] = True
     return run_default_workflow(
         initial_state,
         store=store,
@@ -705,6 +745,7 @@ def run_selected_workflow(
         eval_safety_execution_context=eval_safety_execution_context,
         eval_safety_verifier=eval_safety_verifier,
         epoch_certificate_issuance_owner=epoch_certificate_issuance_owner,
+        **budget_kwargs,
     )
 
 
@@ -916,8 +957,17 @@ def run_default_workflow(
     eval_safety_execution_context: EvaluationExecutionContext | None = None,
     eval_safety_verifier: EvalSafetyVerifierPort | None = None,
     epoch_certificate_issuance_owner: EpochCertificateIssuanceOwner | None = None,
+    budget_middleware: BudgetMiddleware | None = None,
+    strict_budget_attempts: bool = False,
+    capture_workflow_execution_admission: bool = False,
 ) -> WorkflowExecutionResult:
     """Execute the baseline simulation/governance DAG."""
+    if strict_budget_attempts and budget_middleware is None:
+        raise ValueError("strict_budget_attempts_require_durable_budget")
+    if budget_middleware is not None and WorkflowRunnerConfig.from_env().backend != "local":
+        raise ValueError("workflow_budget_profile_requires_local_backend")
+    if capture_workflow_execution_admission and WorkflowRunnerConfig.from_env().backend != "local":
+        raise ValueError("workflow_continuation_profile_requires_local_backend")
     store = _resolve_store(store, store_factory=store_factory)
     policy = normalize_checkpoint_policy(checkpoint_policy)
 
@@ -979,6 +1029,31 @@ def run_default_workflow(
 
         runner_config = WorkflowRunnerConfig.from_env()
         workflow = default_workflow_spec()
+        if budget_middleware is not None or capture_workflow_execution_admission:
+            from polisyos.common import async_tools
+            from polisyos.scientist.orchestration.engine.runner.local_runner import (
+                LocalWorkflowRunner,
+            )
+
+            if runner_config.backend != "local":
+                raise ValueError("workflow_budget_profile_requires_local_backend")
+            runner = LocalWorkflowRunner(
+                max_parallelism=1,
+                budget_middleware=budget_middleware,
+                strict_budget_attempts=strict_budget_attempts,
+                capture_workflow_execution_admission=capture_workflow_execution_admission,
+            )
+            result = async_tools.run_coro_sync(
+                runner.execute_workflow(
+                    workflow,
+                    state,
+                    ctx,
+                    registry,
+                    checkpoint_hook=checkpoint_hook,
+                    max_parallelism=1,
+                )
+            )
+            return _attach_foundry_method_report_if_required(result, store=store)
         if runner_config.backend != "local":
             import asyncio
 

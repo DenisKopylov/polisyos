@@ -1,0 +1,286 @@
+{
+  "packet_id": "DOE-02",
+  "title": "Native typed law/RNG и source-bound design",
+  "goal": "Sampler и analyzer исследуют один заданный закон и одну идентичность дизайна.",
+  "work_type": "C117-G01 native qualification; C117-G02 provenance/lifecycle qualification, R нет",
+  "preservation": [
+    "Canonical typed bounded mapping; legacy ambiguous nonuniform refusal.",
+    "Local domain-separated seeds; seeded FAST и bounded LOGNORMAL compatibility_pending сохраняются.",
+    "Fingerprint описывает mapping, не доказывает origin bare matrix."
+  ],
+  "technical_solution": [
+    "_build_salib_problem в designs.py — единственный mapping owner; sampler/analyzer wrappers уже reuse. Не дублировать dict для исправления тестов. Verify lock SALib1.5.2 и actual extras environment, не install/upgrade as hidden fix.",
+    "Census existing design/trajectory artifact writer и consumers; связать matrix digest, axes, canonical mapping fingerprint и stage seeds с его existing payload/ref. Analyzer API bare arrays может остаться исследовательским, но authority consumer требует independently resolved producer context. DOE-01 final result reference использует тот же contract.",
+    "Полная reproducibility table включает uncertainty.random_seed и model randomness отдельно от plan.seed. При неизбежном legacy backend — explicit isolation/profile, не process-global reset."
+  ],
+  "owners": [
+    "src/polisyos/scientist/methods/doe/designs.py",
+    "src/polisyos/scientist/methods/doe/sampling.py",
+    "src/polisyos/scientist/methods/doe/analysis.py",
+    "src/polisyos/scientist/methods/doe/uncertainty.py",
+    "tests/unit/remediation/test_doe_02.py"
+  ],
+  "shared_scenarios": [
+    "E02-I10-C"
+  ],
+  "coordination": "Shared design identity owner для DOE-01/03, mutex sampling/analysis. Native SALib wave совместить, не три suites.",
+  "compatibility": "UNIFORM legacy однозначный путь сохраняется; nonuniform требует typed migration. Seed sequences могут отличаться от старого global reset намеренно; replay привязан к version/profile, не к фантазии о perpetual bitwise stability.",
+  "design_alignment": [
+    "[North Star §5](../05_Основания/Архитектура/policy-design-causal-operating-system-north-star.md#5-data-acquisition-and-the-real-product) и [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md#d25-epistemic-regime-architecture): ограниченный поиск даёт полезный результат и следующий запрос данных, не ложную полноту. [Синтез §4](../05_Основания/Исследование/design_direction.md): развивать существующий общий механизм."
+  ],
+  "open_decisions": [
+    "DEC-DOE-02-01: bounded inventory existing artifact writer/readers и RNG stages, выбрать minimal context binding. Если missing source owner, сохранить gap и дать конкретный adapter proposal; bare-array test не доказывает production mismatch."
+  ],
+  "acceptance": "Native backend, full request replay и source binding доказать отдельно. Adapter не создаёт независимость параметров/world-model validity.",
+  "lane": "LANE-10",
+  "source_ids": [
+    "B100",
+    "B101"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/DOE-02.md"
+  ],
+  "requirements": [
+    {
+      "text": "Native SALib sampler/analyzer должны использовать один typed law mapping с physical bounds и declared profile; ambiguous/unsupported law не заменяется uniform.",
+      "source_ids": [
+        "B100"
+      ],
+      "audit_ids": [
+        "C117-G01"
+      ],
+      "id": "REQ-DOE-02-01",
+      "test_ids": [
+        "TEST-DOE-02-01"
+      ]
+    },
+    {
+      "text": "Полный запрос должен задавать stage/model/uncertainty RNG streams; replay сохраняет stream identity, новая replica различается, global NumPy state не сбрасывается.",
+      "source_ids": [
+        "B101"
+      ],
+      "audit_ids": [
+        "C117-G01"
+      ],
+      "id": "REQ-DOE-02-02",
+      "test_ids": [
+        "TEST-DOE-02-02"
+      ]
+    },
+    {
+      "text": "Scientific consumer должен сверять actual source design matrix/axes/law/backend/seed/replica с producer record; current-plan fingerprint сам не аутентифицирует samples.",
+      "source_ids": [
+        "B100",
+        "B101"
+      ],
+      "audit_ids": [
+        "C117-G02"
+      ],
+      "id": "REQ-DOE-02-03",
+      "test_ids": [
+        "TEST-DOE-02-03"
+      ]
+    },
+    {
+      "text": "Unsupported seeded FAST/bounded LOGNORMAL остаются адресно compatibility_pending до отдельной квалификации; native backend receipt не переносится на другую версию.",
+      "source_ids": [
+        "B100",
+        "B101"
+      ],
+      "audit_ids": [
+        "C117-G01"
+      ],
+      "id": "REQ-DOE-02-04",
+      "test_ids": [
+        "TEST-DOE-02-01",
+        "TEST-DOE-02-02"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "SALib1.5.2 + SciPy law",
+      "setup": "Uniform[-2,2], typed truncated Normal mean0/std.5 same bounds, triangular mode.25; fixed seed.",
+      "action": "Actual sampling/analysis mapping and typed roundtrip; inverse-CDF grid controls u=.1,.5,.9.",
+      "oracle": "Same canonical problem/fingerprint; support within bounds; quantiles equal independent SciPy profile oracle rtol=1e-10 atol=1e-12; nonuniform differs. Legacy ambiguity/LOGNORMAL refuse, не uniform fallback.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DOE-02-01",
+      "requirement_ids": [
+        "REQ-DOE-02-01",
+        "REQ-DOE-02-04"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "native reproducibility",
+      "setup": "Two requests seeds13/17, explicit uncertainty seed and model stream; order AB/BA.",
+      "action": "Sample/analyze twice, inspect external NumPy state; new replica vs replay.",
+      "oracle": "Same full request/profile repeats arrays/indices under declared tolerance; AB/BA corresponding outputs equal; external RNG state unchanged. Sampling/analysis streams differ; seeded FAST pending remains refusal, not nondeterministic success.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DOE-02-02",
+      "requirement_ids": [
+        "REQ-DOE-02-02",
+        "REQ-DOE-02-04"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "E02-I10-C design→fresh analyzer",
+      "setup": "Actual generated uniform design saved through existing artifact owner; normal-plan swap negative, axes/replica/backend mutations.",
+      "action": "Fresh consumer resolves original design record and compares expected contract before analyzer.",
+      "oracle": "Matched design useful result; uniform source+normal current plan mismatch cannot be relabelled normal provenance. Bare arrays remain explicitly in-memory/unverified, not retroactive source proof.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DOE-02-03",
+      "requirement_ids": [
+        "REQ-DOE-02-03"
+      ],
+      "status": "NOT_RUN"
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "B100",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Mapping repaired; native/source design scope открыт.",
+      "requirement_ids": [
+        "REQ-DOE-02-01",
+        "REQ-DOE-02-03",
+        "REQ-DOE-02-04"
+      ]
+    },
+    {
+      "audit_id": "B101",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Local streams repaired; full pipeline RNG не доказан одним plan.seed.",
+      "requirement_ids": [
+        "REQ-DOE-02-02",
+        "REQ-DOE-02-04"
+      ]
+    },
+    {
+      "audit_id": "C117-G01",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Pinned SALib1.5.2 actual path; no version upgrade implied.",
+      "requirement_ids": [
+        "REQ-DOE-02-01",
+        "REQ-DOE-02-02",
+        "REQ-DOE-02-04"
+      ],
+      "inventory_id": "audit-residual:C117_остатки:0"
+    },
+    {
+      "audit_id": "C117-G02",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Связать existing design artifact, не новый provenance registry.",
+      "requirement_ids": [
+        "REQ-DOE-02-03"
+      ],
+      "inventory_id": "audit-residual:C117_остатки:1"
+    }
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "SPECIFICATION_NOT_IMPLEMENTED",
+  "dependencies": [
+    "DOE-01"
+  ],
+  "protected_distinction_ids": [],
+  "original_source": "../05_Основания/Аудит/05_Источники/DOE-02_исходные_строки.txt",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0163",
+      "requirement_ids": [
+        "REQ-DOE-02-01",
+        "REQ-DOE-02-02",
+        "REQ-DOE-02-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Pinned SALib1.5.2 actual path; no version upgrade implied."
+    },
+    {
+      "inventory_id": "remaining:0164",
+      "requirement_ids": [
+        "REQ-DOE-02-03"
+      ],
+      "disposition": "lifecycle",
+      "rationale": "Связать existing design artifact, не новый provenance registry."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0267",
+      "requirement_ids": [
+        "REQ-DOE-02-01"
+      ],
+      "test_ids": [
+        "TEST-DOE-02-01"
+      ],
+      "rationale": "Canonical typed law mapping — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0268",
+      "requirement_ids": [
+        "REQ-DOE-02-01",
+        "REQ-DOE-02-04"
+      ],
+      "test_ids": [
+        "TEST-DOE-02-01",
+        "TEST-DOE-02-02"
+      ],
+      "rationale": "Legacy ambiguity refusal — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0269",
+      "requirement_ids": [
+        "REQ-DOE-02-02"
+      ],
+      "test_ids": [
+        "TEST-DOE-02-02"
+      ],
+      "rationale": "Local domain-separated seeds — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0270",
+      "requirement_ids": [
+        "REQ-DOE-02-04"
+      ],
+      "test_ids": [
+        "TEST-DOE-02-01",
+        "TEST-DOE-02-02"
+      ],
+      "rationale": "Seeded FAST refusal — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0271",
+      "requirement_ids": [
+        "REQ-DOE-02-04"
+      ],
+      "test_ids": [
+        "TEST-DOE-02-01",
+        "TEST-DOE-02-02"
+      ],
+      "rationale": "Bounded LOGNORMAL compatibility refusal — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0272",
+      "requirement_ids": [
+        "REQ-DOE-02-01",
+        "REQ-DOE-02-03"
+      ],
+      "test_ids": [
+        "TEST-DOE-02-01",
+        "TEST-DOE-02-03"
+      ],
+      "rationale": "Mapping fingerprint — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+
+### e02_repository/policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py:354-393
+  354     def check_with_text(
+  355         self,
+  356         metric_value: float,
+  357         text: str | None = None,
+  358     ) -> ConvergenceState:
+  359         """Like :meth:`check` but also tracks text embeddings.
+  360 
+  361         When an *embedder* was provided at construction time and *text* is not
+  362         ``None``, the text is embedded and stored for cosine-based convergence
+  363         strategies.
+  364         """
+  365         self._signal_kind = "text_embedding"
+  366         self._observation_status = "embedding_not_established"
+  367         self._current_signal_admitted = True
+  368         if text is not None and self._embedder is not None:
+  369             try:
+  370                 model_ref, model_version = self._embedding_provenance()
+  371                 emb = self._embedder.embed([text])[0]
+  372                 vector = tuple(float(value) for value in emb)
+  373                 self._text_embeddings.append(
+  374                     _EmbeddingRecord(
+  375                         iteration=self._iteration + 1,
+  376                         input_ref=sha256(text.encode("utf-8")).hexdigest(),
+  377                         model_ref=model_ref,
+  378                         model_version=model_version,
+  379                         dimension=len(vector),
+  380                         vector=vector,
+  381                     )
+  382                 )
+  383             except (AttributeError, IndexError, RuntimeError, TypeError, ValueError) as exc:
+  384                 emit_degraded_path(
+  385                     component="engine.convergence",
+  386                     operation="embed_text",
+  387                     reason="text_embedding_unavailable",
+  388                     exc=exc,
+  389                     retryable=True,
+  390                     details={"strategy": self._config.strategy.value},
+  391                     log=logger,
+  392                 )
+  393         return self._do_check(metric_value)
+
+### e02_repository/policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py:588-615
+  588     def _current_embedding_pair(self) -> tuple[_EmbeddingRecord, _EmbeddingRecord] | None:
+  589         """Return the latest compatible pair or ``None`` when it is stale."""
+  590         if len(self._text_embeddings) < 2:
+  591             return None
+  592         previous, current = self._text_embeddings[-2:]
+  593         if current.iteration != self._iteration or previous.iteration != self._iteration - 1:
+  594             return None
+  595         if (
+  596             not previous.input_ref
+  597             or not current.input_ref
+  598             or not previous.model_ref
+  599             or not current.model_ref
+  600             or not previous.model_version
+  601             or not current.model_version
+  602             or not previous.vector
+  603             or any(not math.isfinite(value) for value in (*previous.vector, *current.vector))
+  604             or not any(value != 0.0 for value in previous.vector)
+  605             or not any(value != 0.0 for value in current.vector)
+  606         ):
+  607             return None
+  608         if (previous.model_ref, previous.model_version) != (
+  609             current.model_ref,
+  610             current.model_version,
+  611         ):
+  612             return None
+  613         if previous.dimension != current.dimension:
+  614             return None
+  615         return previous, current
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/stopping.py:150-207
+  150 class ImprovementPlateau(StoppingCriterion):
+  151     """Stop if no significant improvement for N consecutive iterations."""
+  152 
+  153     def __init__(
+  154         self,
+  155         patience: int = 3,
+  156         min_improvement: float = 0.01,
+  157         objective_key: str = "objective_value",
+  158         tolerance_profile: PlateauToleranceProfile | None = None,
+  159     ):
+  160         if patience < 1:
+  161             raise ValueError("patience must be >= 1")
+  162         self._patience = patience
+  163         self._min_improvement = min_improvement
+  164         self._objective_key = objective_key
+  165         if tolerance_profile is not None and type(tolerance_profile) is not PlateauToleranceProfile:
+  166             raise TypeError("tolerance_profile must be a validated PlateauToleranceProfile")
+  167         self._tolerance_profile = tolerance_profile
+  168 
+  169     @property
+  170     def name(self) -> str:
+  171         return "improvement_plateau"
+  172 
+  173     def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
+  174         if len(history) < self._patience + 1:
+  175             return StoppingCondition(should_stop=False)
+  176 
+  177         # The baseline and patience window are one evidence set. Do not drop
+  178         # absent or malformed rows, or let NaN/infinity become a convergence
+  179         # signal through min() and the signed-gain comparison.
+  180         values: list[float] = []
+  181         for record in history:
+  182             if not isinstance(record, Mapping) or self._objective_key not in record:
+  183                 return StoppingCondition(should_stop=False)
+  184             raw_value = record[self._objective_key]
+  185             if isinstance(raw_value, bool) or not isinstance(raw_value, (int, float, Decimal)):
+  186                 return StoppingCondition(should_stop=False)
+  187             try:
+  188                 value = float(raw_value)
+  189             except (OverflowError, TypeError, ValueError):
+  190                 return StoppingCondition(should_stop=False)
+  191             if not isfinite(value):
+  192                 return StoppingCondition(should_stop=False)
+  193             values.append(value)
+  194 
+  195         recent_values = values[-self._patience :]
+  196         historical_values = values[: -self._patience]
+  197 
+  198         profile = self._tolerance_profile
+  199         select_best = max if profile is not None and profile.direction == "maximize" else min
+  200         best_recent = select_best(recent_values)
+  201         best_historical = select_best(historical_values)
+  202         if profile is not None:
+  203             signed_improvement = (
+  204                 best_recent - best_historical
+  205                 if profile.direction == "maximize"
+  206                 else best_historical - best_recent
+  207             )

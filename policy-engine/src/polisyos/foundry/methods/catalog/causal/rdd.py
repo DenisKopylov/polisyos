@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import math
 from collections.abc import Mapping
-from statistics import NormalDist
+from dataclasses import replace
 from typing import Any, ClassVar
 
 import numpy as np
@@ -24,6 +24,7 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 from polisyos.foundry.methods.catalog.causal._common import (
+    _normal_critical_value,
     build_failure_report,
     build_success_report,
     compute_cohen_d,
@@ -31,15 +32,6 @@ from polisyos.foundry.methods.catalog.causal._common import (
 )
 from polisyos.foundry.methods.catalog.causal.protocols import RDDObservationalData
 from polisyos.ir.analytics.causal import CausalMethod, DiagnosticTest, EstimationStatus
-
-
-def _normal_critical_value(confidence_level: float) -> float:
-    """Return the two-sided normal critical value for a validated level."""
-
-    level = float(confidence_level)
-    if not math.isfinite(level) or not 0.0 < level < 1.0:
-        raise ValueError("confidence_level must be in (0, 1)")
-    return float(NormalDist().inv_cdf((1.0 + level) / 2.0))
 
 
 def _normal_two_sided_pvalue(z_score: float) -> float:
@@ -74,51 +66,58 @@ def _fit_local_polynomial(
     poly_order: int,
     kernel: str,
     bandwidth: float,
+    variance_profile: str = "weighted_residual_homoskedastic",
 ) -> tuple[float, float, float]:
-    if cutoff_side == "right":
-        mask = x_centered >= 0
-    else:
-        mask = x_centered < 0
+    """Fit a cutoff intercept with one dimensionless weighted-design factorization.
 
-    x_side = x_centered[mask]
-    y_side = y_vec[mask]
+    Kernel weights localize observations; they do not specify their error
+    variances. ``kernel_hc0`` uses squared equivalent weights and residuals.
+    The separate legacy profile retains its historical weighted-residual
+    inverse-Gram computation, without claiming iid kernel inference.
+    """
+    if variance_profile not in {"kernel_hc0", "weighted_residual_homoskedastic"}:
+        raise ValueError("unsupported conventional variance_profile")
+    mask = x_centered >= 0 if cutoff_side == "right" else x_centered < 0
+    x_side, y_side = x_centered[mask], y_vec[mask]
     if x_side.shape[0] < max(10, poly_order + 2):
         raise ValueError(f"insufficient observations on {cutoff_side} side")
 
-    distance = x_side / bandwidth
-    weights = _kernel_weights(distance, kernel=kernel)
+    # Values outside the finite window never enter a polynomial basis.
+    with np.errstate(over="ignore", invalid="ignore"):
+        coordinate = x_side / bandwidth
+    weights = _kernel_weights(coordinate, kernel=kernel)
     valid = weights > 0
-    x_side = x_side[valid]
-    y_side = y_side[valid]
-    weights = weights[valid]
-
-    if x_side.shape[0] < max(10, poly_order + 2):
+    coordinate, y_side, weights = coordinate[valid], y_side[valid], weights[valid]
+    if coordinate.shape[0] < max(10, poly_order + 2):
         raise ValueError(f"insufficient weighted observations on {cutoff_side} side")
+    if not np.isfinite(coordinate).all() or not np.isfinite(y_side).all():
+        raise ValueError("non-finite conventional local-polynomial input")
 
-    design = [np.ones_like(x_side)]
-    for order in range(1, poly_order + 1):
-        design.append(x_side**order)
-    x_mat = np.column_stack(design)
-
-    weighted_design = weights[:, None] * x_mat
-    rank = int(np.linalg.matrix_rank(weighted_design))
-    if rank < x_mat.shape[1]:
+    design = np.vander(coordinate, poly_order + 1, increasing=True)
+    root_weight = np.sqrt(weights)
+    weighted_design = root_weight[:, None] * design
+    left, singular, right = np.linalg.svd(weighted_design, full_matrices=False)
+    tolerance = float(singular[0] * max(weighted_design.shape) * np.finfo(float).eps)
+    rank = int(np.sum(singular > tolerance))
+    if rank != design.shape[1]:
         raise ValueError(
             f"rank deficient design on {cutoff_side} side: "
-            f"rank={rank} < parameters={x_mat.shape[1]}"
+            f"rank={rank} < parameters={design.shape[1]}"
         )
-
-    xtwx = x_mat.T @ weighted_design
-    xtwy = x_mat.T @ (weights * y_side)
-    xtwx_pinv = np.linalg.pinv(xtwx)
-    beta = xtwx_pinv @ xtwy
-    residual = y_side - x_mat @ beta
-    dof = max(x_side.shape[0] - x_mat.shape[1], 1)
-    sigma2 = float((weights * residual**2).sum() / dof)
-    cov = sigma2 * xtwx_pinv
-    intercept = float(beta[0])
-    intercept_se = float(np.sqrt(max(cov[0, 0], 0.0)))
-    return intercept, intercept_se, float(x_side.shape[0])
+    coefficients = right.T @ ((left.T @ (root_weight * y_side)) / singular)
+    residual = y_side - design @ coefficients
+    intercept = float(coefficients[0])
+    if variance_profile == "kernel_hc0":
+        equivalent_weights = ((right[:, 0] / singular) @ left.T) * root_weight
+        standard_error = math.hypot(*(equivalent_weights * residual))
+    else:
+        dof = coordinate.shape[0] - design.shape[1]
+        residual_scale = math.hypot(*(root_weight * residual)) / math.sqrt(dof)
+        inverse_intercept_scale = math.hypot(*(right[:, 0] / singular))
+        standard_error = residual_scale * inverse_intercept_scale
+    if not math.isfinite(intercept) or not math.isfinite(standard_error):
+        raise ValueError("non-finite conventional local-polynomial fit or variance")
+    return intercept, standard_error, float(coordinate.shape[0])
 
 
 def _fit_rbc_polynomial(
@@ -249,6 +248,7 @@ class RegressionDiscontinuity:
         ),
         parameters=(
             ParameterSpec(name="polynomial_order", default=1),
+            ParameterSpec(name="variance_profile", default="weighted_residual_homoskedastic"),
             ParameterSpec(name="bandwidth", default=None),
             ParameterSpec(name="kernel", default="triangular"),
             ParameterSpec(name="bias_correction", default=False),
@@ -322,6 +322,19 @@ class RegressionDiscontinuity:
 
     @staticmethod
     def pure_step(state: RDDObservationalData, params: Mapping[str, Any]) -> dict[str, Any]:
+        """Preserve the version1.0 weighted-residual computational profile."""
+        return RegressionDiscontinuity._estimate(
+            state, params, variance_profile="weighted_residual_homoskedastic", version="1.0.0"
+        )
+
+    @staticmethod
+    def _estimate(
+        state: RDDObservationalData,
+        params: Mapping[str, Any],
+        *,
+        variance_profile: str,
+        version: str,
+    ) -> dict[str, Any]:
         data = (
             state
             if isinstance(state, RDDObservationalData)
@@ -417,6 +430,39 @@ class RegressionDiscontinuity:
 
         poly_order = polynomial_order
         bandwidth = params.get("bandwidth")
+        try:
+            selected_variance = params.get("variance_profile", variance_profile)
+            if selected_variance != variance_profile:
+                raise ValueError(
+                    f"method version{version} requires variance_profile={variance_profile}"
+                )
+            if not bias_correction and variance_profile == "kernel_hc0":
+                if bandwidth is None:
+                    raise ValueError("kernel HC0 requires explicit fixed bandwidth")
+                for key, value in (
+                    ("vce", "hc0"),
+                    ("masspoints", "off"),
+                    ("bandwidth_selector", "fixed"),
+                ):
+                    if params.get(key, value) != value:
+                        raise ValueError(f"kernel HC0 supports only {key}={value}")
+                if params.get("cluster") is not None:
+                    raise ValueError("kernel HC0 profile does not support clustering")
+        except ValueError as exc:
+            report = build_failure_report(
+                method=CausalMethod.REGRESSION_DISCONTINUITY,
+                status=EstimationStatus.INPUT_INVALID,
+                reason=str(exc),
+                estimand="LATE",
+                sample_size=data.sample_size,
+                n_treated=treated_count,
+                n_control=control_count,
+                pre_periods=0,
+                post_periods=0,
+                assumptions=dict(RegressionDiscontinuity.metadata.assumptions),
+                method_params={"variance_profile": variance_profile, "estimator_version": version},
+            )
+            return wrap_causal_output(report, warnings=[str(exc)])
         try:
             if isinstance(bandwidth, bool):
                 raise ValueError("bandwidth must be finite and positive")
@@ -557,6 +603,7 @@ class RegressionDiscontinuity:
                     poly_order=poly_order,
                     kernel=kernel,
                     bandwidth=bandwidth_value,
+                    variance_profile=variance_profile,
                 )
                 left_mu, left_se, left_n = _fit_local_polynomial(
                     x_centered,
@@ -565,6 +612,7 @@ class RegressionDiscontinuity:
                     poly_order=poly_order,
                     kernel=kernel,
                     bandwidth=bandwidth_value,
+                    variance_profile=variance_profile,
                 )
         except Exception as exc:
             report = build_failure_report(
@@ -582,8 +630,40 @@ class RegressionDiscontinuity:
             return wrap_causal_output(report, warnings=[report.status_reason or "fit failure"])
 
         tau = float(right_mu - left_mu)
-        tau_se = float(math.sqrt(right_se**2 + left_se**2))
-        ci = (tau - z_critical * tau_se, tau + z_critical * tau_se)
+        tau_se = float(rbc_params["se_rb"]) if bias_correction else math.hypot(right_se, left_se)
+        radius = z_critical * tau_se
+        ci = (tau - radius, tau + radius)
+        if not all(math.isfinite(value) for value in (tau, tau_se, radius, *ci)) or (
+            tau_se > 0.0 and not ci[0] < tau < ci[1]
+        ):
+            reason = "RDD normal interval is outside the representable numerical range"
+            report = build_failure_report(
+                method=CausalMethod.REGRESSION_DISCONTINUITY,
+                status=EstimationStatus.NUMERICAL_FAILURE,
+                reason=reason,
+                estimand="LATE",
+                sample_size=data.sample_size,
+                n_treated=treated_count,
+                n_control=control_count,
+                pre_periods=0,
+                post_periods=0,
+                assumptions=dict(RegressionDiscontinuity.metadata.assumptions),
+                point_estimate=tau if math.isfinite(tau) else None,
+                standard_error=tau_se if math.isfinite(tau_se) else None,
+                confidence_level=None,
+                method_params={
+                    "estimator_version": version,
+                    "variance_profile": variance_profile,
+                    "bandwidth": bandwidth_value,
+                    "kernel": kernel,
+                    "polynomial_order": poly_order,
+                    "bias_correction": bias_correction,
+                    "cutoff": float(data.cutoff),
+                    "input_sha256": _rdd_input_digest(data),
+                    **rbc_params,
+                },
+            )
+            return wrap_causal_output(report, warnings=[reason])
         z_score = 0.0 if tau_se <= 0 else tau / tau_se
         p_value = _normal_two_sided_pvalue(z_score)
 
@@ -622,10 +702,17 @@ class RegressionDiscontinuity:
             post_periods=0,
             assumptions=dict(RegressionDiscontinuity.metadata.assumptions),
             method_params={
-                "profile": "sharp_conventional_local_polynomial",
-                "variance_profile": "weighted_residual_homoskedastic"
+                "profile": "sharp_conventional_kernel_hc0_fixed"
+                if variance_profile == "kernel_hc0"
+                else "sharp_conventional_local_polynomial",
+                "estimator_version": version,
+                "variance_profile": variance_profile
                 if not bias_correction
                 else "cct_corrected_weights_hc0",
+                "cutoff": float(data.cutoff),
+                "input_sha256": _rdd_input_digest(data),
+                "vce": "hc0" if variance_profile == "kernel_hc0" else "legacy_weighted_residual",
+                "authority_limit": "Conditional numerical candidate; continuity, no manipulation, independent observation errors and bandwidth validity are not established by computation",
                 "bandwidth_selector": "heuristic_ik_like" if bandwidth is None else "fixed",
                 "treatment_assignment": "running_variable>=cutoff",
                 "bandwidth": bandwidth_value,
@@ -642,4 +729,37 @@ class RegressionDiscontinuity:
         return wrap_causal_output(report)
 
 
-__all__ = ["RegressionDiscontinuity"]
+@foundry_method(
+    namespace="causal.inference",
+    version="1.1.0",
+    tags={"causal", "quasi-experimental", "regression-discontinuity"},
+)
+class KernelHC0RegressionDiscontinuity(RegressionDiscontinuity):
+    """Estimate a sharp fixed-bandwidth jump with localization-kernel HC0 covariance.
+
+    The separately named version1.1 method is an explicit covariance opt-in.
+    The original method name and version1.0
+    remains available for historical weighted-residual computational requests;
+    neither numerical route establishes a real study's identifying assumptions.
+    """
+
+    signature: ClassVar[MethodSignature] = replace(
+        RegressionDiscontinuity.signature,
+        name="regression_discontinuity_kernel_hc0",
+        parameters=tuple(
+            replace(parameter, default="kernel_hc0")
+            if parameter.name == "variance_profile"
+            else parameter
+            for parameter in RegressionDiscontinuity.signature.parameters
+        ),
+    )
+
+    @staticmethod
+    def pure_step(state: RDDObservationalData, params: Mapping[str, Any]) -> dict[str, Any]:
+        """Use the versioned kernel-HC0 profile without changing historical defaults."""
+        return RegressionDiscontinuity._estimate(
+            state, params, variance_profile="kernel_hc0", version="1.1.0"
+        )
+
+
+__all__ = ["KernelHC0RegressionDiscontinuity", "RegressionDiscontinuity"]

@@ -41,12 +41,16 @@ def test_root_facade_resolves_to_semantic_packages() -> None:
         "evaluate_continuous",
         "evaluate_multiclass",
         "fit_calibrator",
+        "load_continuous_evaluation",
         "load_empirical_calibration_evidence",
+        "persist_continuous_evaluation",
         "persist_empirical_calibration_evidence",
         "produce_empirical_calibration_evidence",
         "to_validation_report",
     ]
     assert calibration.evaluate_continuous is continuous.evaluate_continuous
+    assert calibration.persist_continuous_evaluation is continuous.persist_continuous_evaluation
+    assert calibration.load_continuous_evaluation is continuous.load_continuous_evaluation
     assert calibration.evaluate_multiclass is multiclass.evaluate_multiclass
     assert calibration.to_validation_report is adapters.to_validation_report
     assert calibration.fit_calibrator is fit_calibrator

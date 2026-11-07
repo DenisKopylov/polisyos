@@ -1,0 +1,488 @@
+{
+  "packet_id": "FUN-03",
+  "lane": "LANE-02",
+  "title": "Текущее same-basis знание и разрешённый commit",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B161",
+    "B163",
+    "B164"
+  ],
+  "audit_reports": [
+    "02_Пакеты/FUN-03.md"
+  ],
+  "audit_report_sha256": "ece3fec1ec21eae6510c264e7cf031512b98f6f0bf319db1f6c5db61d62c11fe",
+  "sourceplan_lines": [
+    2933,
+    3044
+  ],
+  "practical_goal": "Поздняя реальная оценка уточняет своё знание, калибровка не выдумывает измерения, а нормальный разрешённый promotion действительно проходит protected writer.",
+  "requirements": [
+    {
+      "id": "REQ-FUN-03-01",
+      "text": "Замкнуть blueprint selected-method/source context на существующий task admission→first assessment→fresh current reader.",
+      "source_ids": [
+        "B161",
+        "B163",
+        "B164"
+      ],
+      "audit_ids": [
+        "remaining:0273",
+        "remaining:0274",
+        "preserve:0403",
+        "preserve:0404",
+        "preserve:0410",
+        "audit-residual:C24_остатки:2",
+        "audit-residual:C24_остатки:5"
+      ],
+      "test_ids": [
+        "TEST-FUN-03-01"
+      ]
+    },
+    {
+      "id": "REQ-FUN-03-02",
+      "text": "Calibration различает empty, insufficient samples, undefined rank variation и measured poor correlation.",
+      "source_ids": [
+        "B161",
+        "B163",
+        "B164"
+      ],
+      "audit_ids": [
+        "remaining:0277",
+        "preserve:0407",
+        "audit-residual:C24_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-FUN-03-02"
+      ]
+    },
+    {
+      "id": "REQ-FUN-03-03",
+      "text": "Acceptance criterion без eligible denominator — GAP, а snapshot producer связывает совместимый corpus для следующего накопления.",
+      "source_ids": [
+        "B161",
+        "B163",
+        "B164"
+      ],
+      "audit_ids": [
+        "remaining:0278",
+        "remaining:0279",
+        "preserve:0408",
+        "audit-residual:C24_остатки:1",
+        "audit-residual:C24_остатки:3",
+        "audit-residual:C24_остатки:5"
+      ],
+      "test_ids": [
+        "TEST-FUN-03-03"
+      ]
+    },
+    {
+      "id": "REQ-FUN-03-04",
+      "text": "Интегрировать положительный L6 route через typed owner-issued permit и revoke-serialized commit, сохранив caps/read-only.",
+      "source_ids": [
+        "B161",
+        "B163",
+        "B164"
+      ],
+      "audit_ids": [
+        "remaining:0280",
+        "remaining:0281",
+        "preserve:0409",
+        "preserve:0410",
+        "audit-residual:C24_остатки:4",
+        "audit-residual:C24_остатки:5"
+      ],
+      "test_ids": [
+        "TEST-FUN-03-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-FUN-03-01",
+      "requirement_ids": [
+        "REQ-FUN-03-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Actual selected tiny method с declared quantity/population/outcome/units и persisted source, initial unknown obligation, independent risk0.8, два competing completion и другое generation.",
+      "action": "Blueprint→admission→actual method→completion association→record_first_assessment→new-process current read; затем изменить одну basis или удалить child.",
+      "oracle": "Своё unknown заменено связанным assessment0.1, independent risk0.8/history сохранены; second same-generation contested, late old generation history-only; missing/tamper not_established.",
+      "expected": "0.1 здесь заранее заданное валидное assessment test source по declared procedure, не автоматически scientific probability; native method oracle и source profile зафиксировать по DEC-FUN-03-01.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-FUN-03-02",
+      "requirement_ids": [
+        "REQ-FUN-03-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "0,1,2 aligned pairs; пять x=1..5 и y=x; y=6-x; пять constant pairs; ties с independent rank oracle.",
+      "action": "Actual tracker→metrics→routing→stage5/report.",
+      "oracle": "Aligned5 rho=1, inverse5 rho=-1; constant/short rho unavailable с причиной, no measured PROMOTION_BAN alert; оба public interfaces согласованы.",
+      "expected": "No_promotion cap не снимается ради green; отрицательный measured корпус сохраняет actual drift alert.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-FUN-03-03",
+      "requirement_ids": [
+        "REQ-FUN-03-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Empty report; five eligible rejected-A examples без false negatives; known snapshot scope и incompatible tenant/objective; genuine JSON/CAS fresh read.",
+      "action": "Builder→Markdown+JSON→node from_snapshot→добавить новую source-bound pair→new report.",
+      "oracle": "Пустой criterion не PASS; measured zero корректен; compatible corpus count5→6; incompatible scope не сливается; missing snapshot не стирает существующий report routing.",
+      "expected": "Старые inf/obsolete feedback assertions примирить с None/structured v2; native pytest не объявлять уже падавшим.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-FUN-03-04",
+      "requirement_ids": [
+        "REQ-FUN-03-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Authorized test principal и sandbox target, actual configured writer; normal permit, no_promotion/reduced_judge/auto_cap, revoked-after-preflight permit, stale predecessor, retained payload.",
+      "action": "L6 prepare→issuer→writer commit→fresh receipt reader; синхронизированная revoke между preflight и commit; retry того же attempt.",
+      "oracle": "Normal разрешённый effect ровно1, retry idempotent; revoke-before-commit effect0; caps не вызывают producer; retained payload read-only без нового effect.",
+      "expected": "Technical APPROVE/score или подпись сами по себе не authority. Не создавать credentials/назначение тестовым кодом без authorised fixture; unavailable owner даёт precise BLOCKED, не снятие guard.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C24_остатки:0",
+      "requirement_ids": [
+        "REQ-FUN-03-02"
+      ],
+      "rationale": "Typed metric state.",
+      "disposition": "fix",
+      "audit_id": "C24-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C24_остатки:1",
+      "requirement_ids": [
+        "REQ-FUN-03-03"
+      ],
+      "rationale": "Denominator-bound criterion.",
+      "disposition": "fix",
+      "audit_id": "C24-R02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C24_остатки:2",
+      "requirement_ids": [
+        "REQ-FUN-03-01"
+      ],
+      "rationale": "Source-traced blueprint context, существующий v2 owner.",
+      "disposition": "capability",
+      "audit_id": "C24-G01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C24_остатки:3",
+      "requirement_ids": [
+        "REQ-FUN-03-03"
+      ],
+      "rationale": "Existing snapshot producer wiring.",
+      "disposition": "capability",
+      "audit_id": "C24-G02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C24_остатки:4",
+      "requirement_ids": [
+        "REQ-FUN-03-04"
+      ],
+      "rationale": "Positive protected writer без bool bypass.",
+      "disposition": "capability",
+      "audit_id": "C24-G03",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C24_остатки:5",
+      "requirement_ids": [
+        "REQ-FUN-03-01",
+        "REQ-FUN-03-03",
+        "REQ-FUN-03-04"
+      ],
+      "rationale": "Actual native chain и stale tests reconciliation.",
+      "disposition": "qualify",
+      "audit_id": "C24-G04",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B161",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-FUN-03-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B163",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-FUN-03-02",
+        "REQ-FUN-03-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B164",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-FUN-03-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0273",
+      "requirement_ids": [
+        "REQ-FUN-03-01"
+      ],
+      "rationale": "Complete actual selected method basis.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0274",
+      "requirement_ids": [
+        "REQ-FUN-03-01"
+      ],
+      "rationale": "Native current consumer replay.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0277",
+      "requirement_ids": [
+        "REQ-FUN-03-02"
+      ],
+      "rationale": "Insufficient/undefined ≠ measured zero.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0278",
+      "requirement_ids": [
+        "REQ-FUN-03-03"
+      ],
+      "rationale": "Empty criterion GAP.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0279",
+      "requirement_ids": [
+        "REQ-FUN-03-03"
+      ],
+      "rationale": "Snapshot handoff и compatible scope.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0280",
+      "requirement_ids": [
+        "REQ-FUN-03-04"
+      ],
+      "rationale": "Actual permit/writer bridge.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0281",
+      "requirement_ids": [
+        "REQ-FUN-03-04"
+      ],
+      "rationale": "Normal plus revoke protected execution.",
+      "disposition": "qualify"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0403",
+      "requirement_ids": [
+        "REQ-FUN-03-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: Замкнуть blueprint selected-method/source context на существующий task admission→first assessment→fresh current reader.",
+      "test_ids": [
+        "TEST-FUN-03-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0404",
+      "requirement_ids": [
+        "REQ-FUN-03-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: Замкнуть blueprint selected-method/source context на существующий task admission→first assessment→fresh current reader.",
+      "test_ids": [
+        "TEST-FUN-03-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0407",
+      "requirement_ids": [
+        "REQ-FUN-03-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Calibration различает empty, insufficient samples, undefined rank variation и measured poor correlation.",
+      "test_ids": [
+        "TEST-FUN-03-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0408",
+      "requirement_ids": [
+        "REQ-FUN-03-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Acceptance criterion без eligible denominator — GAP, а snapshot producer связывает совместимый corpus для следующего накопления.",
+      "test_ids": [
+        "TEST-FUN-03-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0409",
+      "requirement_ids": [
+        "REQ-FUN-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Интегрировать положительный L6 route через typed owner-issued permit и revoke-serialized commit, сохранив caps/read-only.",
+      "test_ids": [
+        "TEST-FUN-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0410",
+      "requirement_ids": [
+        "REQ-FUN-03-01",
+        "REQ-FUN-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Замкнуть blueprint selected-method/source context на существующий task admission→first assessment→fresh current reader.; Интегрировать положительный L6 route через typed owner-issued permit и revoke-serialized commit, сохранив caps/read-only.",
+      "test_ids": [
+        "TEST-FUN-03-01",
+        "TEST-FUN-03-04"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I02-C"
+  ],
+  "dependencies": [
+    "FUN-01 — attempts/lineage; FUN-02 — diagnostic interval origin и aggregate.",
+    "Существующий search uncertainty owner единственный хранит task/current generations; UQS shared integration согласует source semantics, не второй ledger.",
+    "FUN-03 — L6 adapter, existing protected promotion writer — final effect authority; назначение issuer/port фиксируется DEC-FUN-03-02, не автоматически CYC-05 readiness issuer."
+  ],
+  "preservation": [
+    "Numeric-free unknown; exact basis/generation/predecessor relation.",
+    "Independent obligations/contested/history preserved by source-traced owner.",
+    "Empty no_promotion/not_established без measured drift.",
+    "Actual corpus JSONsnapshot restore and preserved report routing projection.",
+    "No effects under caps; normal bool callback не authority.",
+    "Ready payload read-only; score admission remains distinct."
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    ""
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-FUN-03-01",
+      "question": "Какой уже реализованный selected method/source profile квалифицирует первый blueprint assessment?",
+      "owner": "FUN-03 с existing uncertainty/method owner",
+      "options": [
+        "существующий RuntimeHTE completion profile с полным selected method basis",
+        "другой already-supported source-owned method с точным inference contract"
+      ],
+      "selection_evidence": "Actual method ABI/input/profile refs, units/population/contrast, independent numerical oracle и complete task admission",
+      "required_output": "Один bounded positive fixture с формулой/данными/expected assessment и negative basis mutation до execution; не выдумывать универсальную0.1"
+    },
+    {
+      "id": "DEC-FUN-03-02",
+      "question": "Какой назначенный protected promotion writer и issuer обслуживает L6?",
+      "owner": "FUN-03 и existing promotion authority owner",
+      "options": [
+        "адаптация существующего typed issuer/commit port",
+        "минимальное расширение существующего writer если port отсутствует"
+      ],
+      "selection_evidence": "Caller/owner census, назначение test principal, текущий revoke serialization и predecessor operation",
+      "required_output": "Точный symbol/interface, единственный owner, permit schema и commit/revoke linearization test до реализации; отсутствие port означает capability work, не снятие normal gate"
+    }
+  ],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stages.py",
+      "symbol_or_anchor": "    def _metrics_for_records(",
+      "lines": [
+        682,
+        714
+      ],
+      "sha256": "13a5d9b19e4966b7b18b5aa3ac74e0c7ad155b726d46a09f96268601a4ab83c2",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/stages.py#L682-L714"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+      "symbol_or_anchor": "def build_calibration_report(",
+      "lines": [
+        80,
+        112
+      ],
+      "sha256": "62c26dc393bf89d093b05be18bda03cb1ba04a9483715ab55a6866a0883d6f2f",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/calibration_report.py#L80-L112"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_engine.py",
+      "symbol_or_anchor": "def _build_search_uncertainty_owner_context(",
+      "lines": [
+        244,
+        276
+      ],
+      "sha256": "b5fedeec4a249624ac8e40a79156f42eb6f0e2f021718c2d70664bdeae80ce97",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_engine.py#L244-L276"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+      "symbol_or_anchor": "    def evaluate(",
+      "lines": [
+        64,
+        96
+      ],
+      "sha256": "109885a157b4a9ee7622765bed53be617f542d31ac6630e83edf0a4024da23db",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py#L64-L96"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+      "symbol_or_anchor": "def run_promotion_with_evidence(",
+      "lines": [
+        1530,
+        1562
+      ],
+      "sha256": "f036a2a231814ef29cff2690a61df0115d7aef617d4672e4a887db1a5bec0f6f",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py#L1530-L1562"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-FUN-03-01",
+      "text": "В _build_search_uncertainty_owner_context получить actual выбранные rule/profile/procedure/ABI/params/seed/input/semantic scope из existing selection/method owners и owned HTE request projection. Проверять refs/content/tenant/epoch до dispatch через existing produce_search_task_admission. По actual Runtime completion записать first assessment existing uncertainty owner, затем fresh read. Не заполнить missing_slices константами и не создать второй truth registry; RuntimeHTE v2 путь уже существует."
+    },
+    {
+      "requirement_id": "REQ-FUN-03-02",
+      "text": "У CorrelationTracker ввести единый typed metric availability/reason/eligible count, используемый compute_metrics/routing/drift/report. Для len≤2 сохранить no_promotion/insufficient_window, не observed correlation0. Constant ranks дают undefined_variation, не measured drift. Достаточные finite pairs используют существующий Spearman с average ties. Исследование и сбор калибровки разрешены без ложного promotion."
+    },
+    {
+      "requirement_id": "REQ-FUN-03-03",
+      "text": "build_calibration_report берёт availability и denominator от tracker; false_negative_rate empty/rejected_count0 становится None/GAP с причиной, настоящий observed0 при ненулевом denominator может PASS. В metadata включить existing to_snapshot с version и actual tenant/model/objective/calibration scope. Node resolver восстанавливает только compatible snapshot, иначе сохраняет routing/history projection и адресную причину без нового пустого tracker."
+    },
+    {
+      "requirement_id": "REQ-FUN-03-04",
+      "text": "FUN-03 владеет funnel adapter: pure prepare получает subject/attempt/predecessor/purpose binding, запрашивает permit у назначенного existing promotion authority и передаёт actual protected writer. Writer независимо в одной serialization domain с revoke проверяет current generation/expiry/authority и predecessor, затем commit и durable receipt. Если подходящего port нет, реализовать минимальный port в существующем writer, не bool callback и не параллельный registry. До wiring bridge_missing остаётся честным; normal candidate work не блокируется. Начальная точка адаптации: run_policy_blueprint_runtime._policy_promotion_runner → policy_runtime_support.run_promotion_with_evidence → его actual runtime writer. Проверить конкретно subject/attempt/predecessor binding и общий revoke/commit serialization predicate. OPT-04 champion pointer не автоматически тот же институциональный policy act; DUR-02 lease fence не заменяет promotion permit."
+    }
+  ]
+}

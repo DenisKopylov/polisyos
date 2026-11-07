@@ -5,7 +5,6 @@ import pytest
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.jit_training import (
     JITTrainingConfig,
-    _resolve_temporal_salt,
     create_jit_trainer,
     create_jit_trainer_with_metrics,
 )
@@ -27,17 +26,6 @@ def _make_actor_and_state() -> tuple[ActorCritic, GlobalState]:
         action_dim=1,
     )
     return actor, state
-
-
-def test_resolve_temporal_salt_reads_executor_prng_config() -> None:
-    actor, _ = _make_actor_and_state()
-    executor = create_temporal_executor(
-        actor,
-        horizon=8,
-        prng_config={"temporal_consumption": 17},
-    )
-
-    assert _resolve_temporal_salt(executor) == 17
 
 
 def test_create_jit_trainer_returns_finite_loss_history() -> None:

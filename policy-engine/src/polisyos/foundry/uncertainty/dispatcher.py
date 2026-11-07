@@ -21,7 +21,7 @@ from polisyos.ir.analytics.uncertainty import (
 from .analytical import AnalyticalPropagator
 from .config import PropagationConfig
 from .covariance import build_covariance_matrix
-from .delta import DeltaMethodPropagator
+from .delta import DeltaMethodPropagator, _DeltaNumericDomainError, _prepare_delta_nominal
 from .monte_carlo import (
     MonteCarloPropagator,
     _finalize_prepared_results,
@@ -224,6 +224,8 @@ class PropagationDispatcher:
                 input_envelopes,
                 output_metric_ids,
             )
+        except _DeltaNumericDomainError:
+            raise
         except Exception as exc:
             logger.warning("Delta propagation failed (%s). Falling back to Monte Carlo.", exc)
             return self._mc._propagate_prepared(simulation_fn, prepared)
@@ -292,10 +294,6 @@ class PropagationDispatcher:
     ) -> bool:
         param_names = sorted(input_envelopes.keys())
         effective_nominal = dict(nominal_params)
-        nominal = jnp.asarray(
-            [float(effective_nominal[name]) for name in param_names],
-            dtype=jnp.float32,
-        )
 
         def _vectorized(theta: jnp.ndarray) -> jnp.ndarray:
             params = dict(effective_nominal)
@@ -307,7 +305,8 @@ class PropagationDispatcher:
             return jnp.stack(vals)
 
         try:
-            nominal_result = simulation_fn(**effective_nominal)
+            nominal, numeric_nominal, _ = _prepare_delta_nominal(effective_nominal, param_names)
+            nominal_result = simulation_fn(**numeric_nominal)
             if not isinstance(nominal_result, Mapping):
                 return False
             if any(
@@ -319,6 +318,8 @@ class PropagationDispatcher:
                 return True
             jax.eval_shape(lambda x: jax.jacfwd(_vectorized)(x), nominal)
             return True
+        except _DeltaNumericDomainError:
+            raise
         except Exception as exc:
             logger.info("Delta dry-run failed; fallback to Monte Carlo: %s", exc)
             return False

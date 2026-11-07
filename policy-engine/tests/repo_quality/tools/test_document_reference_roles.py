@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import gzip
 import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -12,6 +13,330 @@ from tools.quality.validation import check_docs_lifecycle as lifecycle
 
 OLD_DASHBOARD = "frontend" + "/runtime-dashboard"
 OLD_CLIENT = "frontend" + "/runtime-api-client"
+E02_EXECUTOR_ROOT = "docs/research/PolicyOS_E02_Executor_Final_v3"
+E02_CAPTURE_DIRECTORIES = (
+    "05_Основания/Архитектура",
+    "05_Основания/Аудит",
+    "05_Основания/Исследование",
+    "07_Техническое_review/baseline",
+    "08_Источниковое_review_v2",
+)
+
+
+def test_e02_received_source_captures_are_named_not_rewritten_or_certified(
+    tmp_path: Path,
+) -> None:
+    originals = {
+        f"{E02_EXECUTOR_ROOT}/{directory}/captured.md": f"Recorded path: {OLD_CLIENT}\n"
+        for directory in E02_CAPTURE_DIRECTORIES
+    }
+    originals.update(
+        {
+            f"{E02_EXECUTOR_ROOT}/05_Основания/Аудит/captured.json": json.dumps(
+                {"recorded_reference": OLD_CLIENT}
+            ),
+            f"{E02_EXECUTOR_ROOT}/05_Основания/Аудит/captured.txt": OLD_CLIENT,
+            f"{E02_EXECUTOR_ROOT}/07_Техническое_review/baseline/captured.py": (
+                f"RECORDED = {OLD_CLIENT!r}\n"
+            ),
+        }
+    )
+    for relative, text in originals.items():
+        _write(tmp_path, relative, text)
+    live = f"{E02_EXECUTOR_ROOT}/02_Пакеты/current.md"
+    _write(tmp_path, live, "Current instructions use the maintained topology.\n")
+    receipt: dict[str, object] = {}
+
+    findings = lifecycle.check_removed_stub_references(
+        tmp_path, receipt=receipt, reference_scope="live-authored"
+    )
+
+    assert findings == []
+    assert receipt["denominator"]["tracked_path_count"] == 9
+    assert receipt["denominator"]["selected_path_count"] == 1
+    assert receipt["denominator"]["excluded_path_count"] == 8
+    assert receipt["outside_authored_claim_path_count"] == 8
+    role = "outside-live-authored:received-e02-source-capture"
+    assert receipt["excluded_inputs"][role] == sorted(originals)
+    assert receipt["file_type_counts"][".md"] == {
+        "tracked": 6,
+        "selected": 1,
+        "outside_authored_claim": 5,
+    }
+    assert {row["path"] for row in receipt["read_evidence"]["operations"]} == {live}
+    assert all((tmp_path / relative).read_text() == text for relative, text in originals.items())
+    exhaustive = lifecycle.check_removed_stub_references(tmp_path)
+    assert {finding.path for finding in exhaustive} == set(originals)
+
+
+@pytest.mark.parametrize(
+    "directory",
+    [
+        "00_Общее",
+        "01_Лейны",
+        "02_Пакеты",
+        "03_Интеграция",
+        "04_Трассировка",
+        "06_Приёмка",
+        "07_Техническое_review/current",
+        "07_Техническое_review/baseline-lookalike",
+        "08_Источниковое_review_v2-lookalike",
+        "09_Исполнение",
+        "05_Основания/Архитектура-lookalike",
+    ],
+)
+def test_e02_live_instructions_and_capture_name_lookalikes_still_fail(
+    tmp_path: Path, directory: str
+) -> None:
+    relative = f"{E02_EXECUTOR_ROOT}/{directory}/current.md"
+    _write(tmp_path, relative, f"# Received historical material\n\nUse {OLD_CLIENT}.\n")
+
+    findings = lifecycle.check_removed_stub_references(tmp_path, reference_scope="live-authored")
+
+    assert [(finding.check, finding.path) for finding in findings] == [
+        ("removed_stub_reference", relative)
+    ]
+
+
+@pytest.mark.parametrize(
+    "relative",
+    [
+        f"{E02_EXECUTOR_ROOT}/НАЧАТЬ_ЗДЕСЬ.md",
+        f"{E02_EXECUTOR_ROOT}/README.md",
+        f"{E02_EXECUTOR_ROOT}/05_Основания/Дополнительное_CI/current.md",
+        f"{E02_EXECUTOR_ROOT}-lookalike/05_Основания/Архитектура/current.md",
+    ],
+)
+def test_e02_capture_policy_keeps_start_documents_and_uncaptured_siblings_live(
+    tmp_path: Path, relative: str
+) -> None:
+    _write(tmp_path, relative, OLD_CLIENT)
+
+    findings = lifecycle.check_removed_stub_references(tmp_path, reference_scope="live-authored")
+
+    assert [(finding.check, finding.path) for finding in findings] == [
+        ("removed_stub_reference", relative)
+    ]
+
+
+def test_e02_lychee_preserves_capture_context_but_checks_live_targets(tmp_path: Path) -> None:
+    binary = shutil.which("lychee")
+    if binary is None:
+        pytest.skip("native lychee executable is not installed in this test profile")
+    config = Path(__file__).resolve().parents[4] / "lychee.toml"
+    product = tmp_path / "policy-engine"
+    captured_bytes = b"[Historical source-relative link](../adr/not-in-this-capture.md)\n"
+    captured = [
+        _write(product, f"{E02_EXECUTOR_ROOT}/{directory}/captured.md", captured_bytes.decode())
+        for directory in E02_CAPTURE_DIRECTORIES
+    ]
+    live = f"{E02_EXECUTOR_ROOT}/02_Пакеты/current.md"
+    _write(product, live, "[Captured source](../05_Основания/Архитектура/captured.md)\n")
+
+    def check() -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            [binary, "--offline", "--config", str(config), "--no-progress", str(product / "docs")],
+            cwd=tmp_path,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=30,
+        )
+
+    positive = check()
+    assert positive.returncode == 0, positive.stdout + positive.stderr
+    assert all(target.read_bytes() == captured_bytes for target in captured)
+    _write(product, live, "[Missing live target](missing-live.md)\n")
+    negative = check()
+    assert negative.returncode != 0
+    assert "missing-live.md" in negative.stdout + negative.stderr
+    # The source-capture rule does not make a missing target from live navigation valid.
+    _write(product, live, "[Missing captured file](../05_Основания/Архитектура/missing.md)\n")
+    missing_capture = check()
+    assert missing_capture.returncode != 0
+    assert "missing.md" in missing_capture.stdout + missing_capture.stderr
+
+
+def test_live_authored_scope_names_payloads_without_certifying_their_contents(
+    tmp_path: Path,
+) -> None:
+    _git(tmp_path, "init")
+    _write(tmp_path, "docs/current.md", "The current guide uses maintained paths.\n")
+    _write(tmp_path, "docs/research/topic/owned.py", "SOURCE = 'src/current.py'\n")
+    _write(tmp_path, "tests/unit/test_old_paths.py", f"RECORDED = '{OLD_CLIENT}'\n")
+    _write(tmp_path, "docs/research/e02/results/received.txt", OLD_CLIENT)
+    archive = tmp_path / "vendor" / "source.whl"
+    archive.parent.mkdir(parents=True)
+    archive.write_bytes(gzip.compress(OLD_CLIENT.encode()))
+    _git(tmp_path, "add", ".")
+    receipt: dict[str, object] = {}
+
+    findings = lifecycle.check_removed_stub_references(
+        tmp_path, receipt=receipt, reference_scope="live-authored"
+    )
+
+    assert findings == []
+    assert receipt["scope"] == "live-authored-removed-stub-reference-scan-only"
+    assert receipt["reference_scan_status"] == "complete"
+    assert receipt["denominator"]["tracked_path_count"] == 5
+    assert receipt["denominator"]["selected_path_count"] == 2
+    assert receipt["outside_authored_claim_path_count"] == 3
+    assert receipt["file_type_counts"][".py"] == {
+        "tracked": 2,
+        "selected": 1,
+        "outside_authored_claim": 1,
+    }
+    assert sum(receipt["path_role_counts"].values()) == 5
+    assert receipt["receipt_coverage"] == "partial"
+    assert "No absence claim" in receipt["measured_property"]
+    assert {operation["path"] for operation in receipt["read_evidence"]["operations"]} == {
+        "docs/current.md",
+        "docs/research/topic/owned.py",
+    }
+    exhaustive_receipt: dict[str, object] = {}
+    exhaustive = lifecycle.check_removed_stub_references(tmp_path, receipt=exhaustive_receipt)
+    assert exhaustive_receipt["reference_scope"] == "exhaustive"
+    assert exhaustive_receipt["reference_scan_status"] == "partial"
+    assert any(finding.check == "reference_scan_unresolved" for finding in exhaustive)
+    assert any(finding.check == "removed_stub_reference" for finding in exhaustive)
+
+
+@pytest.mark.parametrize(
+    "relative",
+    [
+        "docs/current.md",
+        "src/current.py",
+        "apps/page.ts",
+        "architecture/config.json",
+        "architecture/config.toml",
+        "tools/current.sh",
+        "docs/research/topic/owned.py",
+        "apps/runtime-dashboard/src/features/runs/page.tsx",
+        "src/worker/runs/context.py",
+        "tools/owned/production_data/config.toml",
+        "tests/fixtures/README.md",
+        "tests/fixtures/production_data/README.md",
+    ],
+)
+def test_live_authored_scope_keeps_real_document_and_code_path_failures(
+    tmp_path: Path, relative: str
+) -> None:
+    text = json.dumps({"path": OLD_CLIENT}) if relative.endswith(".json") else OLD_CLIENT
+    _write(tmp_path, relative, text)
+    receipt: dict[str, object] = {}
+
+    findings = lifecycle.check_removed_stub_references(
+        tmp_path, receipt=receipt, reference_scope="live-authored"
+    )
+
+    assert [(finding.check, finding.path) for finding in findings] == [
+        ("removed_stub_reference", relative)
+    ]
+    assert receipt["selected_reference_scan_complete"] is True
+
+
+@pytest.mark.parametrize(
+    ("relative", "payload"),
+    [
+        ("docs/current.md", gzip.compress(b"opaque document")),
+        ("architecture/current.json", b"{not JSON"),
+        ("tools/current.py", b"invalid UTF8: \xff"),
+        ("docs/current.md", b"UTF8-decodable binary: \x00"),
+        ("tools/current.py", b"UTF8-decodable control: \x01"),
+    ],
+)
+def test_live_authored_scope_does_not_green_unreadable_selected_inputs(
+    tmp_path: Path, relative: str, payload: bytes
+) -> None:
+    target = tmp_path / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(payload)
+    receipt: dict[str, object] = {}
+
+    findings = lifecycle.check_removed_stub_references(
+        tmp_path, receipt=receipt, reference_scope="live-authored"
+    )
+
+    assert receipt["reference_scan_status"] == "partial"
+    assert receipt["selected_reference_scan_complete"] is False
+    assert {finding.check for finding in findings} <= {
+        "reference_scan_unresolved",
+        "reference_scan_ambiguous",
+    }
+    assert findings
+
+
+def test_live_authored_scope_checks_removed_directories_even_in_payloads(tmp_path: Path) -> None:
+    removed = "/".join(("tests", "architecture"))
+    target = tmp_path / removed / "production_data" / "retained.bin"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"\xff")
+
+    findings = lifecycle.check_removed_stub_references(tmp_path, reference_scope="live-authored")
+
+    assert ("removed_stub_path", removed) in {(finding.check, finding.path) for finding in findings}
+
+
+def test_docs_gate_explicitly_selects_live_authored_reference_contract() -> None:
+    from tools.quality.validation.check_docs_gate import GATE_COMMANDS
+
+    assert GATE_COMMANDS["docs_lifecycle"].argv[-2:] == ("--reference-scope", "live-authored")
+    assert lifecycle._build_parser().parse_args([]).reference_scope == "exhaustive"
+
+
+@pytest.mark.parametrize(
+    ("relative", "role"),
+    [
+        ("apps/feature/runs/node_modules/vendor.js", "dependency-or-environment:node_modules"),
+        ("apps/feature/runs/.polisyos/config.toml", "dependency-or-environment:.polisyos"),
+        ("apps/feature/runs/package-lock.json", "filename:package-lock.json"),
+        ("apps/feature/runs/pnpm-lock.yaml", "filename:pnpm-lock.yaml"),
+    ],
+)
+def test_live_authored_maintained_root_does_not_admit_nested_dependencies(
+    tmp_path: Path, relative: str, role: str
+) -> None:
+    _write(tmp_path, relative, OLD_CLIENT)
+    receipt: dict[str, object] = {}
+
+    findings = lifecycle.check_removed_stub_references(
+        tmp_path, receipt=receipt, reference_scope="live-authored"
+    )
+
+    assert findings == []
+    assert receipt["denominator"]["tracked_path_count"] == 1
+    assert receipt["denominator"]["selected_path_count"] == 0
+    assert receipt["outside_authored_claim_path_count"] == 1
+    assert receipt["path_role_counts"][f"outside-live-authored:{role}"] == 1
+
+
+@pytest.mark.parametrize("declared_historical_role", [True, False])
+def test_live_authored_scope_discloses_editorial_historical_role_boundary(
+    tmp_path: Path, declared_historical_role: bool
+) -> None:
+    relative = "docs/research/topic/audits/record.md"
+    header = "---\nkind: research-audit\nresearch_only: true\n"
+    if declared_historical_role:
+        header += (
+            f"historical_repository_commit: {'a' * 40}\ncurrent_repository_commit: {'b' * 40}\n"
+        )
+    _write(tmp_path, relative, header + f"---\nRecorded reference: {OLD_CLIENT}\n")
+    receipt: dict[str, object] = {}
+
+    findings = lifecycle.check_removed_stub_references(
+        tmp_path, receipt=receipt, reference_scope="live-authored"
+    )
+
+    assert receipt["denominator"]["selected_path_count"] == 1
+    assert (
+        "after the declared documentary-reference role projection" in receipt["measured_property"]
+    )
+    assert any("not content-bound proof" in item for item in receipt["unresolved_by_construction"])
+    assert bool(findings) is not declared_historical_role
+    if findings:
+        assert [(finding.check, finding.path) for finding in findings] == [
+            ("removed_stub_reference", relative)
+        ]
 
 
 def _write(root: Path, relative: str, text: str) -> Path:

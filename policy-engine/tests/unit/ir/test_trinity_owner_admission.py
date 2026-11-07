@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from types import SimpleNamespace
 
 import pytest
 
@@ -18,12 +17,17 @@ from polisyos.core.artifacts import (
     ensure_ir_artifact_store,
     with_ambient_ownership_enforcement_if_supported,
 )
-from polisyos.core.canon import CanonSpec
+from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.trinity import TrinityBundleRef
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.core.security.access_scope import AccessScope
-from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.core.security.tenant_context import (
+    reset_current_access_scope,
+    set_current_access_scope,
+    tenant_scope,
+)
 from polisyos.ir.artifacts.io import get_json_artifact
 from polisyos.ir.model_layer.canon import CanonViolation
 from polisyos.ir.registry.refs import ArtifactRefModel
@@ -91,8 +95,11 @@ def _execution_context(
     tenant_id: str | None = None,
     cell_id: str | None = None,
     access_scope: AccessScope | None = None,
+    selected_registry: bool = False,
 ) -> ExecutionContext:
-    registry_bundle = build_default_registry_bundle(store).bundle_ref
+    registry_bundle = build_default_registry_bundle(
+        store, return_selected_profile=selected_registry
+    ).bundle_ref
     run = RunContext.start(
         store=store,
         registry_bundle=registry_bundle,
@@ -391,17 +398,21 @@ def test_hierarchical_trinity_producer_preserves_profile_lineage_and_uses_run_ow
         assert load_trinity_bundle_artifact(fresh_reader, ref) == _bundle()
 
 
+@pytest.mark.parametrize("scope_case", ["owner", "other-principal", "missing"])
 def test_hierarchical_trinity_producer_carries_scope_through_subworkflow_child_state(
-    monkeypatch: pytest.MonkeyPatch,
-    tmp_path: Path,
+    tmp_path: Path, scope_case: str
 ) -> None:
-    import polisyos.scientist.orchestration.engine.executor as executor_module
+    from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+    from polisyos.core.run.manifest import RunManifest
+    from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
+    from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
     from polisyos.scientist.orchestration.engine.registry import NodeRegistry
     from polisyos.scientist.orchestration.engine.sub_workflow import (
+        StateMapping,
         SubWorkflowConfig,
         SubWorkflowNode,
     )
-    from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
+    from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
     cas_root = tmp_path / "tenant-owned-cas"
     owner_store = FileSystemCAS(cas_root).for_tenant("tenant-a", "cell-a")
@@ -413,57 +424,130 @@ def test_hierarchical_trinity_producer_carries_scope_through_subworkflow_child_s
     parent_run_id = "trinity-tenant-owner-run"
     captured: dict[str, object] = {}
 
-    class _CapturingChildExecutor:
-        def __init__(self, ctx: ExecutionContext, _registry: object) -> None:
-            self._ctx = ctx
-
-        def execute(self, _workflow: WorkflowSpec, state: ExperimentState) -> SimpleNamespace:
-            captured["child_run_id"] = state.run_id
-            captured["child_run_context"] = self._ctx.run
-            captured["ref"] = _persist_trinity_bundle(self._ctx, _bundle(), state=state)
-            return SimpleNamespace(
-                report=SimpleNamespace(nodes=[], status="ok"),
-                state=state,
+    class _TrinityLeaf:
+        @property
+        def spec(self) -> NodeSpec:
+            return NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("test.trinity_child@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    display_name="Scoped Trinity child",
+                    description="Persist a Trinity bundle in the actual child run",
+                    capabilities=Capability.SCIENTIST_NODE,
+                ),
+                state_writes=["artifacts_index.trinity"],
             )
 
-    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
-        execution = _execution_context(
-            owner_store,
-            run_dir=tmp_path / "tenant-run",
-            run_id=parent_run_id,
+        def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+            captured["child_run_id"] = state.run_id
+            captured["scope"] = ctx.run.access_scope
+            ref = _persist_trinity_bundle(ctx, _bundle(), state=state)
+            captured["ref"] = ref
+            state.artifacts_index["trinity"] = ref
+            return NodeOutcome(status="ok", state=state, artifacts=[ref])
+
+    if scope_case == "owner":
+        active_scope = scope
+    elif scope_case == "other-principal":
+        active_scope = AccessScope.for_service(
             tenant_id="tenant-a",
             cell_id="cell-a",
-            access_scope=scope,
+            spiffe_id="spiffe://tests/different-principal",
         )
-        monkeypatch.setattr(executor_module, "WorkflowExecutor", _CapturingChildExecutor)
-        subworkflow = SubWorkflowNode(
-            SubWorkflowConfig(workflow=WorkflowSpec(workflow_id="child_scope", nodes=[])),
-            NodeRegistry(),
-            alias="tenant_child",
-        )
-        outcome = subworkflow.execute(execution, ExperimentState(run_id=parent_run_id))
-
-        assert outcome.status == "ok"
-        assert captured["child_run_id"] == f"{parent_run_id}__sub_tenant_child"
-        assert captured["child_run_context"] is execution.run
-        ref = captured["ref"]
-        assert isinstance(ref, TrinityBundleRef)
-        manifest = owner_store.get_manifest(ref)
-        assert manifest.tenant_context == ArtifactTenantContextInfo(
-            tenant_id="tenant-a",
-            cell_id="cell-a",
-        )
-        assert manifest.canon == CanonInfo.from_spec(TRINITY_OWNER_SPEC)
-
-        fresh_owner_store = FileSystemCAS(cas_root).for_tenant("tenant-a", "cell-a")
+    else:
+        active_scope = None
+    scope_token = set_current_access_scope(active_scope)
+    try:
         with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            execution = _execution_context(
+                owner_store,
+                run_dir=tmp_path / "tenant-run",
+                run_id=parent_run_id,
+                tenant_id="tenant-a",
+                cell_id="cell-a",
+                access_scope=None if scope_case == "missing" else scope,
+                selected_registry=True,
+            )
+            child_registry = NodeRegistry()
+            child_registry.register(_TrinityLeaf())
+            subworkflow = SubWorkflowNode(
+                SubWorkflowConfig(
+                    workflow=WorkflowSpec(
+                        workflow_id="child_scope",
+                        nodes=[NodeInvocation(alias="trinity", node_id="test.trinity_child@1.0.0")],
+                    ),
+                    output_mappings=[
+                        StateMapping(
+                            source_path="artifacts_index.trinity",
+                            target_path="artifacts_index.trinity",
+                        )
+                    ],
+                ),
+                child_registry,
+                alias="tenant_child",
+            )
+            outer_registry = NodeRegistry()
+            outer_registry.register(subworkflow)
+            workflow = WorkflowSpec(
+                workflow_id="tenant_parent",
+                nodes=[
+                    NodeInvocation(
+                        alias="tenant_child", node_id=subworkflow.spec.metadata.component_id
+                    )
+                ],
+            )
+            result = WorkflowExecutor(execution, outer_registry).execute(
+                workflow, ExperimentState(run_id=parent_run_id)
+            )
+
+            if scope_case != "owner":
+                assert result.report.status == "fail"
+                assert result.report.nodes[0].error is not None
+                if scope_case == "missing":
+                    assert (
+                        result.report.nodes[0].error.code
+                        == "sub_workflow.access_scope_not_established"
+                    )
+                else:
+                    assert result.report.nodes[0].error.message == "child_run_parent_scope_mismatch"
+                assert captured == {}
+                assert not list((tmp_path / "tenant-run" / "children").glob("*/trace.jsonl"))
+                return
+
+            assert result.report.status == "ok"
+            child_ref = next(
+                ref for ref in result.report.nodes[0].artifacts if ref.kind == "core.run_manifest"
+            )
+            fresh_owner_store = FileSystemCAS(cas_root).for_tenant("tenant-a", "cell-a")
+            assert fresh_owner_store.verify(child_ref).ok
+            child_manifest = RunManifest.model_validate(
+                from_canonical_bytes(fresh_owner_store.get_bytes(child_ref))
+            )
+            assert child_manifest.run_id == captured["child_run_id"] != parent_run_id
+            assert child_manifest.parent_run_id == parent_run_id
+            assert (child_manifest.tenant_id, child_manifest.cell_id) == ("tenant-a", "cell-a")
+            assert captured["scope"] == scope
+            ref = captured["ref"]
+            assert isinstance(ref, TrinityBundleRef)
+            selected_key = artifact_ref_identity_key(ref)
             assert (
-                load_trinity_bundle_artifact(
-                    ensure_ir_artifact_store(fresh_owner_store),
-                    ref,
-                )
+                artifact_ref_identity_key(result.state.artifacts_index["trinity"]) == selected_key
+            )
+            assert selected_key in {
+                artifact_ref_identity_key(item) for item in result.report.nodes[0].artifacts
+            }
+            manifest = fresh_owner_store.get_manifest(ref)
+            assert manifest.tenant_context == ArtifactTenantContextInfo(
+                tenant_id="tenant-a", cell_id="cell-a"
+            )
+            assert manifest.canon == CanonInfo.from_spec(TRINITY_OWNER_SPEC)
+            assert (
+                load_trinity_bundle_artifact(ensure_ir_artifact_store(fresh_owner_store), ref)
                 == _bundle()
             )
+    finally:
+        reset_current_access_scope(scope_token)
 
 
 @pytest.mark.parametrize(

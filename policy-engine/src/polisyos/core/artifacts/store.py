@@ -39,6 +39,7 @@ from pydantic import ValidationError
 
 from polisyos.common.canonical import _admit_canon_spec
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.core.security.exceptions import AuthorizationDeniedError
 
 from ..canon import content_hash
 from ..canon.canon_json import (
@@ -59,6 +60,7 @@ from ._atomic_write import (
 from ._atomic_write import (
     ensure_directory_durable as _ensure_directory_durable,
 )
+from ._export_admission import DEFAULT_MAX_RETAINED_BYTES, DEFAULT_MAX_RETAINED_GENERATIONS
 from ._integrity_ops import (
     ArtifactBoundedManifestRead,
     ArtifactBoundedManifestReadError,
@@ -106,10 +108,13 @@ from ._signature_ops import (
 )
 from ._transfer_ops import (
     ExportReport,
-    ImportPublication,
     ImportReport,
+    ImportSignatureVerificationError,
     TransferAdmission,
     TransferMemberSnapshot,
+)
+from ._transfer_ops import (
+    ImportPublication as ImportPublication,
 )
 from ._transfer_ops import (
     artifact_id_from_member as _artifact_id_from_member,
@@ -135,6 +140,7 @@ from ._transfer_ops import (
 from ._transfer_ops import (
     validate_transfer_signatures as _validate_transfer_signatures,
 )
+from .batch_control import BatchAuthorizationLossSignal, _probe_batch_stop, _raise_if_batch_stopped
 from .ids import ArtifactID
 from .manifest import (
     ArtifactManifest,
@@ -185,7 +191,6 @@ if TYPE_CHECKING:
     from ..observability import MetricsRegistry, PolicyOSTracer
     from ._transfer_ops import CASMemberStream
     from .backends.config import ArtifactStoreConfig
-    from .batch_control import BatchAuthorizationLossSignal
     from .owned_json import _PreparedCoreJsonWrite
 
 
@@ -194,6 +199,8 @@ ArtifactMemberKind = Literal["blob", "manifest", "signature"]
 _TransactionalParams = ParamSpec("_TransactionalParams")
 _TransactionalResult = TypeVar("_TransactionalResult")
 _READ_ONLY_READER_TOKEN = object()
+_DEFAULT_ARTIFACT_OWNERSHIP_EVIDENCE_METHOD = ArtifactOwnershipIndex.evidence
+_DEFAULT_ARTIFACT_OWNERSHIP_TOKEN_METHOD = ArtifactOwnershipIndex._current_generation_token
 
 
 class _ResolvedOwner(TypedDict):
@@ -279,10 +286,20 @@ def _canonical_artifact_id_sequence(
 
 def _iter_canonical_artifact_ids(
     artifact_ids: Iterable[ArtifactID],
+    *,
+    stop_probe: Callable[[], None] | None = None,
 ) -> Iterator[ArtifactID]:
     """Yield first-seen typed IDs without draining an explicit source."""
     seen: set[str] = set()
-    for artifact_id in artifact_ids:
+    iterator = iter(artifact_ids)
+    while True:
+        _probe_batch_stop(stop_probe)
+        try:
+            artifact_id = next(iterator)
+        except StopIteration:
+            _probe_batch_stop(stop_probe)
+            return
+        _probe_batch_stop(stop_probe)
         identity = artifact_id.hex
         if identity in seen:
             continue
@@ -991,6 +1008,26 @@ class FileSystemCAS:
             ownership_requires_scope=ownership_requires_scope,
             ownership_index=ownership_index,
             read_only=False,
+        )
+
+    def has_stock_component_types(self) -> bool:
+        """Check the exact stock component classes of this filesystem CAS.
+
+        This checks type shape only; callers must independently establish
+        configuration, filesystem relations, access enforcement, and authority.
+
+        Returns:
+            Whether this owner and its five components use the exact stock types.
+        """
+        from .ownership import _RootTransactionCoordinator
+
+        return (
+            type(self) is FileSystemCAS
+            and type(self._ownership_index) is ArtifactOwnershipIndex
+            and type(self._coordinator) is _RootTransactionCoordinator
+            and type(self._layout) is _CASPathLayout
+            and type(self._files) is _AtomicFileWriter
+            and type(self._manifests) is _ManifestLifecycle
         )
 
     @classmethod
@@ -3001,10 +3038,14 @@ class FileSystemCAS:
         cancel_event: threading.Event | None = None,
     ) -> BulkSigningReport:
         """Sign many artifacts concurrently and summarize signed/skipped/error counts."""
+
+        def stop_probe() -> None:
+            _raise_if_batch_stopped(cancel_event)
+
         ids = (
-            self._iter_artifact_ids_lazy()
+            self._iter_artifact_ids_lazy(stop_probe=stop_probe)
             if artifact_ids is None
-            else _iter_canonical_artifact_ids(artifact_ids)
+            else _iter_canonical_artifact_ids(artifact_ids, stop_probe=stop_probe)
         )
         return _sign_all_artifacts(
             signer=signer,
@@ -3031,12 +3072,36 @@ class FileSystemCAS:
         pending_window: int | None = None,
         cancel_event: threading.Event | None = None,
         authorization_loss_signal: BatchAuthorizationLossSignal | None = None,
+        request_authorizer: Callable[[str | None, str | None], None] | None = None,
     ) -> BulkVerificationReport:
-        """Verify many artifact signatures concurrently and summarize verifier outcomes."""
+        """Verify signatures with optional caller-owned request authorization.
+
+        The authorizer receives the actual CAS tenant/cell scope. Only its typed
+        ``AuthorizationDeniedError`` means request-wide loss; other failures
+        remain inventory errors. Checks are cooperative admission boundaries,
+        not continuous revocation or preemption of running callbacks.
+        """
+        if request_authorizer is not None and authorization_loss_signal is None:
+            authorization_loss_signal = BatchAuthorizationLossSignal()
+
+        def stop_probe() -> None:
+            _raise_if_batch_stopped(cancel_event, authorization_loss_signal)
+            if request_authorizer is not None:
+                owner = self._resolve_owner(required=self._ownership_requires_scope)
+                try:
+                    request_authorizer(*owner)
+                except AuthorizationDeniedError:
+                    if authorization_loss_signal is None:
+                        raise RuntimeError(
+                            "request authorizer requires an authorization loss signal"
+                        ) from None
+                    authorization_loss_signal.request()
+            _raise_if_batch_stopped(cancel_event, authorization_loss_signal)
+
         ids = (
-            self._iter_artifact_ids_lazy()
+            self._iter_artifact_ids_lazy(stop_probe=stop_probe)
             if artifact_ids is None
-            else _iter_canonical_artifact_ids(artifact_ids)
+            else _iter_canonical_artifact_ids(artifact_ids, stop_probe=stop_probe)
         )
         return _verify_all_signatures(
             verifier=verifier,
@@ -3051,6 +3116,7 @@ class FileSystemCAS:
             pending_window=pending_window,
             cancel_event=cancel_event,
             authorization_loss_signal=authorization_loss_signal,
+            stop_probe=stop_probe,
         )
 
     def _transaction_stage_relative(self, operation_id: str, name: str) -> str:
@@ -4484,6 +4550,8 @@ class FileSystemCAS:
         staging_root: Path,
         members: set[str],
         artifact_refs: set[str],
+        *,
+        signature_verifier: Ed25519Verifier | None = None,
     ) -> ImportPublication:
         """Re-admit staged bytes before the durable owner transaction publishes them."""
         try:
@@ -4510,21 +4578,66 @@ class FileSystemCAS:
                     raise ArtifactIntegrityError("CAS import member is not a regular file")
                 intake[member] = _snapshot_transfer_member(member, stream)
         with self._admit_import_members(intake) as admission:
+            if signature_verifier is not None:
+                return self._publish_admitted_staged_import(
+                    staging_root,
+                    members,
+                    artifact_refs,
+                    signature_verifier=signature_verifier,
+                    pending_artifact_ids=admission.pending_artifact_ids,
+                    exact_reused_refs=admission.canonical_exact_refs or admission.exact_refs,
+                )
             if not admission.pending_artifact_ids:
                 return ImportPublication(
                     refs=admission.exact_refs,
                     published_refs=(),
                     reused_refs=admission.canonical_exact_refs or admission.exact_refs,
+                    basis="exact_owned_view_admission",
+                    imported_member_count=0,
                 )
             if set(artifact_refs) != set(admission.pending_artifact_ids):
                 raise ArtifactIntegrityError("Admitted import set differs from staged artifacts")
             return self._publish_admitted_staged_import(staging_root, members, artifact_refs)
+
+    def _import_manifest_destinations(
+        self,
+        artifact_id: ArtifactID,
+        source_view: dict[str, Any],
+        *,
+        source_info: dict[str, Any],
+        default_manifest_path: Path,
+        default_owned: bool,
+        has_claims: bool,
+        default_existing_profile: str | None,
+    ) -> tuple[Path, ...]:
+        """Derive one destination set without synthesizing over an explicit view.
+
+        A default-only packet still materializes its selected-profile fallback.
+        An explicit selected input instead owns that slot, including the absence
+        of a sidecar; default signature bytes must not overwrite or promote it.
+        """
+        profile = source_view["profile"]
+        is_default = _member_profile_sha256(source_view["member"]) is None
+        can_use_default = (
+            is_default
+            and (default_owned or not has_claims)
+            and (default_existing_profile is None or default_existing_profile == profile)
+        )
+        explicit_profiles = source_info["explicit_profiles"]
+        paths = [default_manifest_path] if can_use_default else []
+        if not is_default or profile not in explicit_profiles:
+            paths.append(self._layout.view_manifest_path(artifact_id, profile))
+        return tuple(paths)
 
     def _publish_admitted_staged_import(
         self,
         staging_root: Path,
         members: set[str],
         artifact_refs: set[str],
+        *,
+        signature_verifier: Ed25519Verifier | None = None,
+        pending_artifact_ids: frozenset[str] | None = None,
+        exact_reused_refs: tuple[ArtifactRef, ...] = (),
     ) -> ImportPublication:
         """Publish already-admitted members through durable owner transactions."""
         try:
@@ -4638,9 +4751,66 @@ class FileSystemCAS:
                 "blob_sha256": f"sha256:{blob_sha}",
                 "blob_size": blob_size,
                 "source_views": source_views,
+                "explicit_profiles": {
+                    profile
+                    for view in source_views
+                    if (profile := _member_profile_sha256(view["member"])) is not None
+                },
                 "members": artifact_members,
             }
 
+        signature_verified: dict[tuple[str, str], ArtifactRef] = {}
+        if signature_verifier is not None:
+            # This whole-set gate consumes the same immutable manifest/signature
+            # bytes below and one owned blob snapshot at a time, before ANY intent.
+            for source_info in source_by_artifact.values():
+                artifact_id = source_info["artifact_id"]
+                data = self._read_cas_file_no_follow(source_info["blob_source"], member="blob")
+                digest = content_hash(data)
+                for source_view in source_info["source_views"]:
+                    reference = ArtifactRef(
+                        artifact_id=artifact_id,
+                        kind=source_view["manifest"].kind,
+                        media_type=source_view["manifest"].media_type,
+                        manifest_profile_sha256=source_view["profile"],
+                    )
+                    _validate_read_integrity_with_digest(
+                        artifact_id,
+                        data=data,
+                        manifest=source_view["manifest"],
+                        actual_sha256_hex=digest,
+                    )
+                    signature_data = source_view["signature_data"]
+                    if signature_data is None:
+                        result = SignatureVerificationResult(
+                            status=SignatureVerificationStatus.UNSIGNED,
+                            artifact_id=str(artifact_id),
+                            message="Required signature is absent",
+                        )
+                    else:
+                        result = signature_verifier.verify(
+                            artifact_id,
+                            data,
+                            source_view["manifest_data"],
+                            DetachedSignature.model_validate_json(signature_data),
+                        )
+                    if result.status != SignatureVerificationStatus.VALID:
+                        raise ImportSignatureVerificationError(reference, result)
+                    signature_verified[(artifact_id.hex, source_view["profile"])] = reference
+                del data
+            # Claimed exact no-op views pass the same crypto gate, but do not
+            # produce transactions, rewritten signatures or new owner claims.
+            if pending_artifact_ids is not None:
+                source_by_artifact = {
+                    key: value
+                    for key, value in source_by_artifact.items()
+                    if str(value["artifact_id"]) in pending_artifact_ids
+                }
+                artifact_ids = tuple(
+                    aid for aid in artifact_ids if str(aid) in pending_artifact_ids
+                )
+
+        imported_member_count = 0
         published_views: dict[tuple[str, str | None], ArtifactRef] = {}
         manifest_published: dict[tuple[str, str, str, str], ArtifactRef] = {}
         manifest_reused: dict[tuple[str, str, str, str], ArtifactRef] = {}
@@ -4724,23 +4894,15 @@ class FileSystemCAS:
 
                 for source_view in source_info["source_views"]:
                     profile_sha256 = source_view["profile"]
-                    is_source_default = source_view["member"].endswith(
-                        f"{artifact_id.hex}.manifest.json"
+                    target_paths = self._import_manifest_destinations(
+                        artifact_id,
+                        source_view,
+                        source_info=source_info,
+                        default_manifest_path=default_manifest_path,
+                        default_owned=default_owned,
+                        has_claims=has_claims,
+                        default_existing_profile=default_existing_profile,
                     )
-                    can_use_default = (
-                        is_source_default
-                        and (default_owned or not has_claims)
-                        and (
-                            default_existing_profile is None
-                            or default_existing_profile == profile_sha256
-                        )
-                    )
-                    target_paths = [default_manifest_path] if can_use_default else []
-                    selected_view_path = self._layout.view_manifest_path(
-                        artifact_id, profile_sha256
-                    )
-                    if not can_use_default or is_source_default:
-                        target_paths.append(selected_view_path)
 
                     for target_path in target_paths:
                         self._validate_import_destination(
@@ -4844,24 +5006,15 @@ class FileSystemCAS:
                 desired_signatures: dict[str, dict[str, Any]] = {}
                 for source_view in source_info["source_views"]:
                     profile_sha256 = source_view["profile"]
-                    is_source_default = source_view["member"].endswith(
-                        f"{artifact_id.hex}.manifest.json"
-                    )
-                    can_use_default = (
-                        is_source_default
-                        and (default_owned or not has_claims)
-                        and (
-                            publication_default_existing_profile is None
-                            or publication_default_existing_profile == profile_sha256
-                        )
-                    )
-                    view_targets = [default_manifest_path] if can_use_default else []
-                    selected_view_path = self._layout.view_manifest_path(
+                    view_targets = self._import_manifest_destinations(
                         artifact_id,
-                        profile_sha256,
+                        source_view,
+                        source_info=source_info,
+                        default_manifest_path=default_manifest_path,
+                        default_owned=default_owned,
+                        has_claims=has_claims,
+                        default_existing_profile=publication_default_existing_profile,
                     )
-                    if not can_use_default or is_source_default:
-                        view_targets.append(selected_view_path)
 
                     for target_path in view_targets:
                         selector = (
@@ -5284,6 +5437,7 @@ class FileSystemCAS:
                     lease=leases[artifact_id.hex],
                 )
                 self._remove_transaction_stage(operation_id)
+                imported_member_count += len(source_info["members"])
                 staged_selectors = {
                     spec["selector"]
                     for spec in intent["views"]
@@ -5303,12 +5457,22 @@ class FileSystemCAS:
         for key in manifest_published:
             manifest_reused.pop(key, None)
         return ImportPublication(
+            basis=(
+                "durable_owner_manifest_stage_intent"
+                if imported_member_count
+                else "exact_owned_view_admission"
+            ),
+            imported_member_count=imported_member_count,
             refs=tuple(
                 published_views[key]
                 for key in sorted(published_views, key=lambda item: (item[0], item[1] or ""))
             ),
             published_refs=tuple(manifest_published[key] for key in sorted(manifest_published)),
-            reused_refs=tuple(manifest_reused[key] for key in sorted(manifest_reused)),
+            signature_verified_refs=tuple(
+                signature_verified[key] for key in sorted(signature_verified)
+            ),
+            reused_refs=exact_reused_refs
+            + tuple(manifest_reused[key] for key in sorted(manifest_reused)),
         )
 
     @staticmethod
@@ -5341,7 +5505,22 @@ class FileSystemCAS:
         return list(self._bulk_inventory_artifact_ids())
 
     def _owner_generation_token(self) -> str:
-        evidence = self._ownership_index.evidence()
+        owner_index = self._ownership_index
+        owner_methods = getattr(owner_index, "__dict__", {})
+        if (
+            type(owner_index) is ArtifactOwnershipIndex
+            and type(owner_index).evidence is _DEFAULT_ARTIFACT_OWNERSHIP_EVIDENCE_METHOD
+            and type(owner_index)._current_generation_token
+            is _DEFAULT_ARTIFACT_OWNERSHIP_TOKEN_METHOD
+            and "evidence" not in owner_methods
+            and "_current_generation_token" not in owner_methods
+        ):
+            return owner_index._current_generation_token()
+
+        # Preserve custom owner/test seams. Only the concrete stock index uses
+        # the lean token reader; replacements retain the established evidence
+        # contract, including its diagnostic history projection.
+        evidence = owner_index.evidence()
         generation = evidence.get("ownership_index_generation_sha256")
         if isinstance(generation, str):
             return generation
@@ -5352,30 +5531,34 @@ class FileSystemCAS:
 
     def _capture_inventory_member_paths(
         self,
+        *,
+        stop_probe: Callable[[], None] | None = None,
     ) -> tuple[tuple[str, ...], dict[tuple[str, str], Path]]:
         """Parse the complete canonical member-name set without reading contents."""
         names: set[str] = set()
-        walk_errors: list[OSError] = []
-
-        def onerror(error: OSError) -> None:
-            walk_errors.append(error)
-
-        for directory, children, files in os.walk(
-            self.base,
-            topdown=True,
-            followlinks=False,
-            onerror=onerror,
-        ):
-            parent = Path(directory)
-            if any((parent / child).is_symlink() for child in children):
-                raise ArtifactIntegrityError("cas_inventory_symlink_directory")
-            for filename in files:
-                path = parent / filename
-                if path.is_symlink() or not path.is_file():
-                    raise ArtifactIntegrityError("cas_inventory_nonregular_member")
-                names.add(path.relative_to(self.base).as_posix())
-        if walk_errors:
-            raise walk_errors[0]
+        pending_directories = [self.base]
+        while pending_directories:
+            _probe_batch_stop(stop_probe)
+            parent = pending_directories.pop()
+            # Own the scandir loop so cancellation also reaches entry processing;
+            # os.walk would consume a complete directory inside its opaque next().
+            with os.scandir(parent) as entries:
+                while True:
+                    _probe_batch_stop(stop_probe)
+                    try:
+                        entry = next(entries)
+                    except StopIteration:
+                        _probe_batch_stop(stop_probe)
+                        break
+                    _probe_batch_stop(stop_probe)
+                    if entry.is_symlink():
+                        raise ArtifactIntegrityError("cas_inventory_symlink_member")
+                    if entry.is_dir(follow_symlinks=False):
+                        pending_directories.append(Path(entry.path))
+                    elif entry.is_file(follow_symlinks=False):
+                        names.add(Path(entry.path).relative_to(self.base).as_posix())
+                    else:
+                        raise ArtifactIntegrityError("cas_inventory_nonregular_member")
 
         members: dict[tuple[str, str], Path] = {}
         member_pattern = re.compile(
@@ -5383,6 +5566,7 @@ class FileSystemCAS:
             r"\.(?P<kind>blob|manifest\.json|sig)$"
         )
         for name in names:
+            _probe_batch_stop(stop_probe)
             relative = Path(name)
             if len(relative.parts) != 3:
                 raise ArtifactIntegrityError("cas_inventory_member_path_invalid")
@@ -5401,20 +5585,25 @@ class FileSystemCAS:
                 raise ArtifactIntegrityError("cas_inventory_duplicate_member")
             members[key] = self.base / relative
 
-        artifacts = {artifact_hex for artifact_hex, _member_key in members}
+        artifacts: set[str] = set()
+        manifests: set[str] = set()
+        for artifact_hex, member_key in members:
+            _probe_batch_stop(stop_probe)
+            artifacts.add(artifact_hex)
+            if member_key.endswith(":manifest.json"):
+                manifests.add(artifact_hex)
         for artifact_hex in artifacts:
+            _probe_batch_stop(stop_probe)
             if (artifact_hex, "default:blob") not in members:
                 raise ArtifactIntegrityError("cas_inventory_blob_missing")
-            if not any(
-                key[0] == artifact_hex and key[1].endswith(":manifest.json") for key in members
-            ):
+            if artifact_hex not in manifests:
                 raise ArtifactIntegrityError("cas_inventory_manifest_missing")
-            for member_key, _path in (
-                (key[1], path) for key, path in members.items() if key[0] == artifact_hex
-            ):
-                selector, kind = member_key.split(":", 1)
-                if kind == "sig" and (artifact_hex, f"{selector}:manifest.json") not in members:
-                    raise ArtifactIntegrityError("cas_inventory_signature_view_missing")
+        for (artifact_hex, member_key), _path in members.items():
+            _probe_batch_stop(stop_probe)
+            selector, kind = member_key.split(":", 1)
+            if kind == "sig" and (artifact_hex, f"{selector}:manifest.json") not in members:
+                raise ArtifactIntegrityError("cas_inventory_signature_view_missing")
+        _probe_batch_stop(stop_probe)
 
         return tuple(sorted(names)), members
 
@@ -5422,18 +5611,23 @@ class FileSystemCAS:
         self,
         *,
         owner_scope: tuple[str | None, str | None],
+        stop_probe: Callable[[], None] | None = None,
     ) -> tuple[tuple[str, ...], tuple[ArtifactID, ...], str]:
         """Capture visible default-view identities without reading manifests or blobs."""
-        _all_names, members = self._capture_inventory_member_paths()
-        default_ids = {
-            artifact_hex
-            for artifact_hex, selector_kind in members
-            if selector_kind == "default:blob"
-            and (artifact_hex, "default:manifest.json") in members
-        }
+        _all_names, members = self._capture_inventory_member_paths(stop_probe=stop_probe)
+        default_ids: set[str] = set()
+        for artifact_hex, selector_kind in members:
+            _probe_batch_stop(stop_probe)
+            if (
+                selector_kind == "default:blob"
+                and (artifact_hex, "default:manifest.json") in members
+            ):
+                default_ids.add(artifact_hex)
         tenant_id, cell_id = owner_scope
         visible_ids: list[ArtifactID] = []
+        _probe_batch_stop(stop_probe)
         for artifact_hex in sorted(default_ids):
+            _probe_batch_stop(stop_probe)
             artifact_id = ArtifactID.from_sha256_hex(artifact_hex)
             if self._ownership_enforced:
                 if tenant_id is None:
@@ -5445,31 +5639,40 @@ class FileSystemCAS:
                     cell_id=cell_id,
                 ):
                     continue
+            _probe_batch_stop(stop_probe)
             visible_ids.append(artifact_id)
-        visible_hex = {artifact_id.hex for artifact_id in visible_ids}
-        default_names = tuple(
-            sorted(
-                path.relative_to(self.base).as_posix()
-                for (artifact_hex, selector_kind), path in members.items()
-                if artifact_hex in visible_hex
-                and selector_kind in {"default:blob", "default:manifest.json"}
-            )
-        )
+        visible_hex: set[str] = set()
+        for artifact_id in visible_ids:
+            _probe_batch_stop(stop_probe)
+            visible_hex.add(artifact_id.hex)
+        selected_names: list[str] = []
+        for (artifact_hex, selector_kind), path in members.items():
+            _probe_batch_stop(stop_probe)
+            if artifact_hex in visible_hex and selector_kind in {
+                "default:blob",
+                "default:manifest.json",
+            }:
+                selected_names.append(path.relative_to(self.base).as_posix())
+        _probe_batch_stop(stop_probe)
+        default_names = tuple(sorted(selected_names))
         return default_names, tuple(visible_ids), self._owner_generation_token()
 
-    def _authenticated_default_inventory_cursor(self) -> Iterator[ArtifactID]:
+    def _authenticated_default_inventory_cursor(
+        self, *, stop_probe: Callable[[], None] | None = None
+    ) -> Iterator[ArtifactID]:
         """Yield default IDs from the active-scope membership projection.
 
         The first iteration walks the complete CAS name tree and materializes
         its member map and visible default IDs before yielding. It does not read
         every manifest or blob during that census. Cancellation stops later
-        item admission, but cannot interrupt the initial filesystem walk. On
+        item admission and cooperatively interrupts scanner/member preparation. On
         successful exhaustion, the owner recomputes the active-scope default
         IDs and their blob/manifest member names. The shared owner-generation
         token is sampled but is not itself the completion predicate: unrelated
         tenant claims and signature-only writes may advance it without changing
         this scope's default membership.
         """
+        _probe_batch_stop(stop_probe)
         owner_scope = (
             self._resolve_owner(required=self._ownership_requires_scope)
             if self._ownership_enforced
@@ -5478,26 +5681,33 @@ class FileSystemCAS:
         try:
             with self._coordinator.root_exclusive():
                 names_before, ids_before, generation_before = self._capture_default_inventory_state(
-                    owner_scope=owner_scope
+                    owner_scope=owner_scope, stop_probe=stop_probe
                 )
         except (ArtifactIntegrityError, OSError, ValueError, TypeError) as exc:
             raise ArtifactIntegrityError("cas_batch_inventory_capture_failed") from exc
 
         processed: set[str] = set()
         for artifact_id in ids_before:
+            _probe_batch_stop(stop_probe)
             processed.add(artifact_id.hex)
             yield artifact_id
 
         try:
             with self._coordinator.root_exclusive():
                 names_after, ids_after, generation_after = self._capture_default_inventory_state(
-                    owner_scope=owner_scope
+                    owner_scope=owner_scope, stop_probe=stop_probe
                 )
         except (ArtifactIntegrityError, OSError, ValueError, TypeError) as exc:
             raise ArtifactIntegrityError("cas_batch_inventory_recheck_failed") from exc
-        visible_membership_changed = names_before != names_after or tuple(
-            artifact_id.hex for artifact_id in ids_after
-        ) != tuple(sorted(processed))
+        _probe_batch_stop(stop_probe)
+        after_hex: list[str] = []
+        for artifact_id in ids_after:
+            _probe_batch_stop(stop_probe)
+            after_hex.append(artifact_id.hex)
+        _probe_batch_stop(stop_probe)
+        visible_membership_changed = names_before != names_after or tuple(after_hex) != tuple(
+            sorted(processed)
+        )
         owner_generation_changed = generation_before != generation_after
         if visible_membership_changed:
             raise ArtifactIntegrityError("cas_batch_inventory_changed_during_scan")
@@ -5878,9 +6088,11 @@ class FileSystemCAS:
             entries=tuple(entries),
         )
 
-    def _iter_artifact_ids_lazy(self) -> Iterator[ArtifactID]:
+    def _iter_artifact_ids_lazy(
+        self, *, stop_probe: Callable[[], None] | None = None
+    ) -> Iterator[ArtifactID]:
         """Yield authenticated default IDs through the bounded batch cursor."""
-        yield from self._authenticated_default_inventory_cursor()
+        yield from self._authenticated_default_inventory_cursor(stop_probe=stop_probe)
 
     def export_subgraph(
         self,
@@ -5889,20 +6101,24 @@ class FileSystemCAS:
         *,
         compress: bool = True,
         include_manifests: bool = True,
+        max_retained_generations: int = DEFAULT_MAX_RETAINED_GENERATIONS,
+        max_retained_bytes: int = DEFAULT_MAX_RETAINED_BYTES,
     ) -> ExportReport:
         """Export a CAS subgraph to a tarball or directory using the stable CAS layout."""
-        artifact_ids = list(artifact_ids)
-        for artifact_id in artifact_ids:
-            aid, profile_sha256, _ref = _artifact_reference(artifact_id)
-            if profile_sha256 is None:
-                self._require_artifact_owner(aid, operation="export")
-            else:
-                self._require_blob_owner(aid, operation="export")
-                self._require_manifest_view_owner(
-                    aid,
-                    profile_sha256,
-                    operation="export_manifest",
-                )
+
+        def admitted_requests() -> Iterator[ArtifactID | ArtifactRef | str]:
+            for artifact_id in artifact_ids:
+                aid, profile_sha256, _ref = _artifact_reference(artifact_id)
+                if profile_sha256 is None:
+                    self._require_artifact_owner(aid, operation="export")
+                else:
+                    self._require_blob_owner(aid, operation="export")
+                    self._require_manifest_view_owner(
+                        aid,
+                        profile_sha256,
+                        operation="export_manifest",
+                    )
+                yield artifact_id
 
         def member_name(request: ArtifactID | ArtifactRef, member: str) -> str:
             aid, profile_sha256, _ref = _artifact_reference(request)
@@ -5919,10 +6135,12 @@ class FileSystemCAS:
         return _export_subgraph(
             open_member=open_member_for_export,
             member_name=member_name,
-            artifact_ids=artifact_ids,
+            artifact_ids=admitted_requests(),
             target=target,
             compress=compress,
             include_manifests=include_manifests,
+            max_retained_generations=max_retained_generations,
+            max_retained_bytes=max_retained_bytes,
         )
 
     def import_subgraph(
@@ -5930,15 +6148,25 @@ class FileSystemCAS:
         source: Path,
         *,
         verify_integrity: bool = False,
+        signature_verifier: Ed25519Verifier | None = None,
     ) -> ImportReport:
         """Import a CAS export from a directory/tarball and optionally re-verify integrity."""
+        if signature_verifier is not None and type(signature_verifier) is not Ed25519Verifier:
+            raise TypeError("signature_verifier must be a configured Ed25519Verifier")
         return _import_subgraph(
             root=self.root,
             verify_artifact=self._verify_staged_artifact,
-            publish_staged=self._publish_staged_import,
+            publish_staged=(
+                self._publish_staged_import
+                if signature_verifier is None
+                else lambda stage, members, refs: self._publish_staged_import(
+                    stage, members, refs, signature_verifier=signature_verifier
+                )
+            ),
             admit_members=self._admit_import_members,
             source=source,
             verify_integrity=verify_integrity,
+            signature_verification_requested=signature_verifier is not None,
         )
 
     @staticmethod
@@ -6382,3 +6610,13 @@ class ReadOnlyFileSystemCAS(ArtifactReader):
     ) -> VerificationReport:
         """Verify the selected artifact view without exposing write operations."""
         return self.__store.verify(artifact_id)
+
+    def verify_signature(
+        self,
+        artifact_id: ArtifactID | ArtifactRef | str,
+        verifier: Ed25519Verifier,
+        *,
+        strict_identity: bool | None = None,
+    ) -> SignatureVerificationResult:
+        """Verify an exact signed view through the existing read-only guarded owner."""
+        return self.__store.verify_signature(artifact_id, verifier, strict_identity=strict_identity)

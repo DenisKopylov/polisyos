@@ -215,6 +215,24 @@ Catalog-family tests should mirror the package layout under
 - [docs/reference/foundry/observability-reproducibility.md](../../../../docs/reference/foundry/observability-reproducibility.md)
 - [docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md](../../../../docs/plans/active/FOUNDRY_REMEDIATION_PLAN.md)
 
+## Checkpoint and compilation contracts
+
+Checkpoint node-result schema1 retains the original typed restricted-invocation
+evidence alongside outputs, seed and execution identity. Legacy results missing
+that field remain inspectable and retain their values through a forward save,
+but their history is incomplete and cannot authorize resume. Full and partial
+histories use one encoded state/history envelope so tensor sidecar namespaces
+cannot collide. A failure after manifest publication preserves reachable
+sidecars while reporting the durability failure; it does not report success.
+Transporting an original verified receipt does not perform a new verification.
+
+JIT specialization propagates declared downstream shapes as data-only
+`ShapeSpec(dtype="unknown")` metadata. Preparation neither evaluates a method
+nor allocates its declared output array. Actual lazy JAX execution specializes
+on the supplied runtime arrays; this metadata is not an observed output dtype
+or a portable machine executable. Concurrent miss/claim rechecks preserve one
+published wrapper, caller-specific defaults and request-level cache statistics.
+
 ## Generated ABI semantics
 
 The five committed method stubs are produced together by `polisyos-tools foundry generate-stubs`. The owner uses

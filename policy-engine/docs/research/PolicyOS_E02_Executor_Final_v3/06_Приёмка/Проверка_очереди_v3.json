@@ -1,0 +1,25 @@
+{
+  "status": "PASS_SCHEDULE_STRUCTURE",
+  "schedule_path": "/workspace/scratch/91929078ca31/e02_executor_final_work/PolicyOS_E02_Executor_Final_v3/09_Исполнение/План_исполнения.json",
+  "schedule_sha256": "921ef67745eed71ce0810b373d60e6b2fc16934ecb60dda2372479c2cd02beaa",
+  "checks": 1538,
+  "errors": [],
+  "packet_count": 127,
+  "lane_order": [
+    "LANE-06",
+    "LANE-08",
+    "LANE-07",
+    "LANE-04",
+    "LANE-10",
+    "LANE-05",
+    "LANE-09",
+    "LANE-01",
+    "LANE-03",
+    "LANE-02",
+    "LANE-11",
+    "LANE-12"
+  ],
+  "deferred_count": 8,
+  "scope": "Structure and declared DAG only; actual write sets and native dependency qualification must be re-evaluated at execution.",
+  "product_execution": "NOT_RUN"
+}

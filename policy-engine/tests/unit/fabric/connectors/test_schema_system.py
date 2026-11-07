@@ -652,6 +652,56 @@ class TestDataSchema:
 class TestSchemaInference:
     """Tests for schema inference."""
 
+    @pytest.mark.parametrize(
+        ("dtype", "expected"),
+        [
+            ("int64", SchemaType.INT64),
+            ("Int64", SchemaType.INT64),
+            ("uint8", SchemaType.UINT8),
+            ("UInt64", SchemaType.UINT64),
+            ("float64", SchemaType.FLOAT64),
+            ("Float32", SchemaType.FLOAT32),
+            ("bool", SchemaType.BOOLEAN),
+            ("boolean", SchemaType.BOOLEAN),
+            ("object", SchemaType.STRING),
+            ("string", SchemaType.STRING),
+        ],
+    )
+    def test_empty_columns_preserve_declared_dtype_without_empirical_quality(self, dtype, expected):
+        result = SchemaInference().infer_from_sample(pd.DataFrame({"id": pd.Series(dtype=dtype)}))
+        field = result.schema.get_field("id")
+        assert field.data_type is expected
+        assert field.nullable is True
+        assert field.expected_completeness == 0.0
+        assert result.field_confidences == {"id": 0.0}
+        assert result.schema.primary_key == ()
+        assert result.sample_size == 0
+        assert any(
+            "unestablished" in warning and "not measured zero" in warning
+            for warning in result.warnings
+        )
+        assert not any("low completeness" in suggestion for suggestion in result.suggestions)
+
+    @pytest.mark.parametrize("categories", [[], ["active", "inactive"]])
+    def test_empty_category_domain_is_declared_or_unknown(self, categories):
+        result = SchemaInference().infer_from_sample(
+            pd.DataFrame({"status": pd.Series(pd.Categorical([], categories=categories))})
+        )
+        field = result.schema.get_field("status")
+        assert field.data_type is SchemaType.CATEGORY
+        assert field.allowed_values == (frozenset(categories) if categories else None)
+        assert result.field_confidences["status"] == 0.0
+
+    def test_empty_explicit_type_and_key_hints_remain_declarations(self):
+        result = SchemaInference().infer_from_sample(
+            pd.DataFrame({"id": pd.Series(dtype="object")}),
+            hints=SchemaHints(field_types={"id": SchemaType.UINT16}, primary_key=("id",)),
+        )
+        assert result.schema.get_field("id").data_type is SchemaType.UINT16
+        assert result.schema.primary_key == ("id",)
+        assert result.field_confidences["id"] == 0.0
+        assert any("unestablished" in warning for warning in result.warnings)
+
     def test_infer_from_sample(self, sample_dataframe: pd.DataFrame) -> None:
         """Test basic schema inference."""
         inference = SchemaInference()

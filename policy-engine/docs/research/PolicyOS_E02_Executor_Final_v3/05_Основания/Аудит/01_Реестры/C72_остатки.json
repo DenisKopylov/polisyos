@@ -1,0 +1,68 @@
+{
+  "pass_id": "C72",
+  "bundle": "DUR-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C72-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "confidence": "high_for_cooperative_signal",
+      "source_ids": [
+        "B38"
+      ],
+      "title": "Остановка heartbeat при недоступности store не отзывает cooperative execution signal",
+      "evidence": [
+        "S02:194–235",
+        "S02:254–308",
+        "S09:48–55",
+        "P04"
+      ],
+      "actual": "renew=False устанавливает lost и actual guard прерывает handler. При typed RuntimeDependencyUnavailableError heartbeat завершается, но lost остается false: тот же guard разрешает handler продолжить. Оба потока завершены и joined.",
+      "remaining": "Согласовать утрату возможности продления с существующим cooperative interruption contract: отказ от дальнейшей работы или ограниченная политика повторного подтверждения до истечения lease. Не продолжать бессрочно с навсегда остановленным heartbeat; не заменять этим SQL fencing.",
+      "limits": "Store здесь fixture, реальное истечение lease и takeover в этом опыте не моделировались. Это локальная потеря cooperative остановки и возможная лишняя работа, а не обход actual SQL fencing, доказанный внешний эффект или exactly-once нарушение."
+    },
+    {
+      "id": "C72-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B38"
+      ],
+      "title": "Native custody lifecycle и межпроцессный takeover не исполнены",
+      "evidence": [
+        "S01:1833–1887",
+        "S01:9522–9664",
+        "S08:1–635",
+        "P01",
+        "P02",
+        "P03"
+      ],
+      "remaining": "Исполнить существующий native process regression на supported runtime: expiry/new running/new completed, current completion, mutation siblings, status/event/outbox atomicity, same-attempt renewal, CAS diagnostic retention без current attachment. PostgreSQL и actual scoped readback квалифицировать отдельно.",
+      "limits": "SQL fences/affected rows и rollback реально исполнены на SQLite, но schema, DTO и предметные projection/outbox helpers fixture. Прочитанные process tests не получили фиктивного PASS; отсутствие среды не объявлено дефектом продукта."
+    },
+    {
+      "id": "C72-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B78"
+      ],
+      "title": "Безопасный отказ после dispatch не равен завершённому reconciled handover",
+      "evidence": [
+        "S03:273–348",
+        "S04:31–74",
+        "S11:296–350",
+        "S11:2466–2515",
+        "P05",
+        "P06",
+        "P07"
+      ],
+      "remaining": "Общим LANE-06 сценарием подтвердить primary effect → потерянный ответ → reconciliation фактического рубежа и owner → продолжение только недоделанного под общими deadline/бюджетом и прежним operation ID. Использовать существующие checkpoint/custody owners, а не новый параллельный журнал.",
+      "limits": "Current fallback сознательно поднимает outcome_unknown и не вызывает local после dispatch. В wrapper нет автоматической сверки; соседний checkpoint существует и отдельно оценен C65, но его связка с handover здесь не исполнена. Безопасный отказ сам по себе не дефект и не обещание availability."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C72-R01"
+  ],
+  "decision": "Основной stale SQL write и blind post-dispatch replay исправлены в проверенных owners. Cooperative heartbeat residual и native/reconciled-handover qualification остаются."
+}

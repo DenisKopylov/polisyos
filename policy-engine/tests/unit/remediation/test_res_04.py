@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import replace
+from dataclasses import asdict, replace
 from types import SimpleNamespace
 from uuid import uuid4
 
@@ -25,6 +25,7 @@ from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodTiming,
     ReproducibilityInfo,
+    RestrictedMethodInvocationEvidence,
 )
 from polisyos.foundry.methods.backends.validated import (
     ValidatedBound,
@@ -126,7 +127,7 @@ def _runtime_registry(chain: _FakeChain):
             (),
             {
                 "method_fqn": node.method_fqn,
-                "signature": SimpleNamespace(backend=ComputeBackend.NUMPY),
+                "signature": chain.get_signature(node.id),
             },
         )
         for node in chain._nodes.values()
@@ -441,7 +442,7 @@ def test_same_manifest_concurrent_saves_publish_complete_generations(tmp_path) -
             chain_digest="concurrent",
             completed_fqns=[],
             completed_node_ids=[],
-            intermediate_state={"arr": np.array([value])},
+            intermediate_state={"arr": np.array([value]), "marker": value},
         ).save(path)
 
     with ThreadPoolExecutor(max_workers=2) as pool:
@@ -449,6 +450,7 @@ def test_same_manifest_concurrent_saves_publish_complete_generations(tmp_path) -
 
     loaded = ChainCheckpoint.load(path)
     assert loaded.intermediate_state["arr"].tolist() in ([1.0], [2.0])
+    assert loaded.intermediate_state["arr"][0] == loaded.intermediate_state["marker"]
     assert len(list(tmp_path.glob("checkpoint_concurrent*.npy"))) >= 2
 
 
@@ -499,3 +501,249 @@ def test_failed_new_save_leaves_previous_snapshot_readable(tmp_path, monkeypatch
 
     loaded = ChainCheckpoint.load(path)
     np.testing.assert_array_equal(loaded.intermediate_state["arr"], np.array([1.0]))
+
+
+def _restricted_evidence(status="unavailable"):
+    return RestrictedMethodInvocationEvidence(
+        status=status,
+        limitation="declared_test_boundary" if status == "unavailable" else None,
+        profile_id="restricted-test@1",
+        profile_revision_sha256="a" * 64,
+        method_fqn="demo.multiply@1.0.0",
+        method_version="1.0.0",
+        method_abi_digest="b" * 64,
+        method_callable_sha256="c" * 64,
+        runner_callable_sha256="d" * 64,
+        backend_runtime_fingerprint="e" * 64,
+        state_reads=("value",),
+        parameter_reads=("factor",),
+        parameter_origin="explicit_parameter",
+        poverty_line_value=None,
+        output_slot_id="result",
+        output_value_path=("value",),
+        output_value_sha256="f" * 64,
+    )
+
+
+def _history_checkpoint(*, evidence=None, state=None):
+    from polisyos.foundry.methods.backends.checkpointing import _snapshot_node_result
+
+    node_id = uuid4()
+    result = MethodResult(
+        output={"arr": np.array([2.0])},
+        timing=MethodTiming(wall_time_ms=1.0, cpu_time_ms=0.25, compile_time_ms=0.1),
+        reproducibility=ReproducibilityInfo(
+            backend=ComputeBackend.NUMPY,
+            determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
+            seed=7,
+            fingerprint="original-runtime",
+        ),
+        artifacts={"native": np.array([8.0])},
+        slot_outputs={"value": 3},
+        cross_backend_equivalence_ref="fixture-original-equivalence",
+        validated_bound=ValidatedBound(
+            status=ValidatedStatus.INDETERMINATE,
+            quantity="value",
+            lower=None,
+            upper=None,
+            contains_point_estimate=None,
+            method_family=ValidatedMethodFamily.INTERVAL,
+            engine="fixture-original-engine",
+        ),
+        warnings=("original-warning",),
+        restricted_invocation=evidence,
+    )
+    return ChainCheckpoint(
+        chain_digest="history-boundary",
+        completed_fqns=["demo.multiply@1.0.0"],
+        completed_node_ids=[str(node_id)],
+        intermediate_state={} if state is None else state,
+        node_timing_ms=[1.0],
+        history_complete=True,
+        node_results=[_snapshot_node_result(node_id, "demo.multiply@1.0.0", result)],
+    )
+
+
+def test_post_manifest_rename_durability_failure_keeps_reachable_sidecars(tmp_path, monkeypatch):
+    import polisyos.foundry.methods.backends.checkpointing as checkpointing
+
+    path = tmp_path / "published.json"
+    old = ChainCheckpoint("durability", [], [], {"arr": np.array([1.0])})
+    old.save(path)
+    old_bytes = path.read_bytes()
+    original_fsync = checkpointing._fsync_dir
+
+    def fail_only_after_manifest_publication(directory):
+        original_fsync(directory)
+        if path.read_bytes() != old_bytes:
+            raise OSError("injected post-rename directory durability failure")
+
+    monkeypatch.setattr(checkpointing, "_fsync_dir", fail_only_after_manifest_publication)
+    with pytest.raises(CheckpointSaveError, match="durability failure"):
+        ChainCheckpoint("durability", [], [], {"arr": np.array([2.0])}).save(path)
+
+    fresh = ChainCheckpoint.load(path)
+    np.testing.assert_array_equal(fresh.intermediate_state["arr"], [2.0])
+    assert path.read_bytes() != old_bytes
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+def test_state_and_history_array_namespaces_stay_distinct_on_repeat_save(tmp_path, reverse):
+    state = {
+        "node_results": [{"output": {"arr": np.array([1.0])}}],
+        "a_b": np.array([3.0]),
+        "a": {"b": np.array([4.0])},
+    }
+    if reverse:
+        state = dict(reversed(list(state.items())))
+    checkpoint = _history_checkpoint(state=state)
+    path = tmp_path / "namespace.json"
+    for _ in range(2):
+        checkpoint.save(path)
+        fresh = ChainCheckpoint.load(path)
+        np.testing.assert_array_equal(
+            fresh.intermediate_state["node_results"][0]["output"]["arr"], [1.0]
+        )
+        np.testing.assert_array_equal(fresh.node_results[0]["output"]["arr"], [2.0])
+        np.testing.assert_array_equal(fresh.intermediate_state["a_b"], [3.0])
+        np.testing.assert_array_equal(fresh.intermediate_state["a"]["b"], [4.0])
+
+
+@pytest.mark.parametrize("status", ["verified", "unavailable"])
+def test_restricted_invocation_history_round_trips_original_typed_fields(tmp_path, status):
+    from polisyos.foundry.methods.backends.checkpointing import _restore_node_result
+
+    evidence = _restricted_evidence(status)
+    path = tmp_path / "evidence.json"
+    _history_checkpoint(evidence=evidence).save(path)
+    fresh = ChainCheckpoint.load(path)
+    _, restored = _restore_node_result(fresh.node_results[0], fresh)
+    assert restored.restricted_invocation == evidence
+    assert isinstance(restored.restricted_invocation.state_reads, tuple)
+    assert restored.timing == MethodTiming(1.0, 0.25, 0.1)
+    assert restored.reproducibility.fingerprint == "original-runtime"
+    assert restored.warnings == ("original-warning",)
+    assert restored.slot_outputs == {"value": 3}
+    assert restored.cross_backend_equivalence_ref == "fixture-original-equivalence"
+    assert restored.validated_bound.status is ValidatedStatus.INDETERMINATE
+    np.testing.assert_array_equal(restored.artifacts["native"], [8.0])
+
+
+def test_missing_legacy_restricted_field_is_distinct_from_explicit_null(tmp_path):
+    path = tmp_path / "legacy-evidence.json"
+    _history_checkpoint().save(path)
+    explicit = ChainCheckpoint.load(path)
+    assert explicit.history_complete
+    payload = json.loads(path.read_text())
+    payload["node_results"][0].pop("restricted_invocation", None)
+    path.write_text(json.dumps(payload))
+    historical = ChainCheckpoint.load(path)
+    assert not historical.history_complete
+    assert historical.node_results[0]["output"]["arr"].tolist() == [2.0]
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("status", "author_says_verified"),
+        ("state_reads", ["value", 7]),
+        ("parameter_origin", "guess"),
+        ("output_value_path", [False]),
+        ("poverty_line_value", 0),
+        ("profile_id", 42),
+    ],
+)
+@pytest.mark.parametrize("missing_warning", [False, True])
+def test_malformed_restricted_history_is_refused_on_fresh_load(
+    tmp_path, field, value, missing_warning
+):
+    path = tmp_path / "invalid-evidence.json"
+    _history_checkpoint().save(path)
+    payload = json.loads(path.read_text())
+    evidence = asdict(_restricted_evidence())
+    evidence[field] = value
+    payload["node_results"][0]["restricted_invocation"] = evidence
+    if missing_warning:
+        payload["node_results"][0]["warnings"].append("restricted_invocation_history_missing")
+    path.write_text(json.dumps(payload))
+    with pytest.raises(CheckpointLoadError, match="restricted"):
+        ChainCheckpoint.load(path)
+
+
+def test_uncertain_manifest_replace_preserves_referenced_generation(tmp_path, monkeypatch):
+    from pathlib import Path
+
+    path = tmp_path / "uncertain.json"
+    ChainCheckpoint("uncertain", [], [], {"arr": np.array([1.0])}).save(path)
+    old_refs = {p.name: p.read_bytes() for p in tmp_path.glob("*.npy")}
+    actual_replace = Path.replace
+
+    def replace_then_report_error(source, target):
+        result = actual_replace(source, target)
+        if target == path:
+            raise OSError("uncertain manifest rename result")
+        return result
+
+    monkeypatch.setattr(Path, "replace", replace_then_report_error)
+    with pytest.raises(CheckpointSaveError, match="uncertain manifest rename"):
+        ChainCheckpoint("uncertain", [], [], {"arr": np.array([2.0])}).save(path)
+    np.testing.assert_array_equal(ChainCheckpoint.load(path).intermediate_state["arr"], [2.0])
+    for name, content in old_refs.items():
+        assert (tmp_path / name).read_bytes() == content
+
+
+def test_unsupported_array_new_save_preserves_old_manifest_and_sidecars(tmp_path):
+    path = tmp_path / "object-array.json"
+    ChainCheckpoint("object", [], [], {"arr": np.array([1.0])}).save(path)
+    old_bytes = path.read_bytes()
+    with pytest.raises(CheckpointSaveError, match="Object-dtype"):
+        ChainCheckpoint("object", [], [], {"arr": np.array([object()], dtype=object)}).save(path)
+    assert path.read_bytes() == old_bytes
+    np.testing.assert_array_equal(ChainCheckpoint.load(path).intermediate_state["arr"], [1.0])
+
+
+@pytest.mark.parametrize("version", [2, True, "1", None])
+def test_unknown_node_result_version_is_not_restored_as_current_history(tmp_path, version):
+    path = tmp_path / "history-version.json"
+    _history_checkpoint().save(path)
+    payload = json.loads(path.read_text())
+    payload["node_results"][0]["result_schema_version"] = version
+    path.write_text(json.dumps(payload))
+    with pytest.raises(CheckpointLoadError, match="schema version"):
+        ChainCheckpoint.load(path)
+
+
+def test_forward_save_preserves_incomplete_historical_outputs_without_promotion(tmp_path):
+    original_path = tmp_path / "legacy-original.json"
+    _history_checkpoint().save(original_path)
+    payload = json.loads(original_path.read_text())
+    payload["node_results"][0].pop("restricted_invocation")
+    original_path.write_text(json.dumps(payload))
+    historical = ChainCheckpoint.load(original_path)
+    assert not historical.history_complete
+    derived_path = tmp_path / "legacy-derived.json"
+    historical.save(derived_path)
+    fresh = ChainCheckpoint.load(derived_path)
+    assert not fresh.history_complete
+    assert len(fresh.node_results) == 1
+    np.testing.assert_array_equal(fresh.node_results[0]["output"]["arr"], [2.0])
+    assert fresh.node_results[0]["reproducibility"]["fingerprint"] == "original-runtime"
+    assert fresh.node_results[0].get("restricted_invocation") is None
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "reason"),
+    [
+        ("__npy_shape__", [9], "shape or dtype"),
+        ("__npy_dtype__", "<i8", "shape or dtype"),
+        ("__npy_sha256__", "0" * 64, "content mismatch"),
+    ],
+)
+def test_sidecar_metadata_corruption_is_refused_by_fresh_reader(tmp_path, field, value, reason):
+    path = tmp_path / "metadata-corruption.json"
+    _history_checkpoint(state={"arr": np.array([1.0])}).save(path)
+    payload = json.loads(path.read_text())
+    payload["intermediate_state"]["arr"][field] = value
+    path.write_text(json.dumps(payload))
+    with pytest.raises(CheckpointLoadError, match=reason):
+        ChainCheckpoint.load(path)

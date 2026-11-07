@@ -93,7 +93,7 @@ def build_fabric_quality_governance_evidence(
     else:
         try:
             indicators_payload = QualityIndicators.from_quality_report(report).to_dict()
-        except Exception:
+        except (TypeError, ValueError, OverflowError):
             indicators_payload = None
 
     contract_payload = (

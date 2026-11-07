@@ -32,6 +32,25 @@ record and owner-snapshot chain, then requires the full ordered input/output eve
 refs to match the current manifest. It is useful when a downstream consumer must
 prove a selected output was added through the owner writer; it does not attest an
 external producer, policy authority, or deployment identity.
+
+`read_runtime_invocation_attempts(store, trace_path, run_id=...)` reads the same
+validated owner chain without resuming a terminal run. It returns the existing
+immutable `RunInvocationAttempt` views; an empty chain establishes nothing.
+Callers making continuation decisions must separately hold the run lock and
+any applicable execution fence. An observed outcome is not external authority.
+`read_run_owner_snapshot` additionally checks the saved scope against the
+supplied active scope and returns the existing typed owner snapshot. Its job,
+registry and scope fields are facts to reconcile, not an execution grant.
+
+`read_terminal_run` acquires the run lease and reconciles the selected terminal
+manifest with its owner trace. It returns exact transition inputs without
+inventing a missing transition or interpreting a consumer's output.
+
+`RunContext.start_child` accepts only the live parent owner, its exact selected
+unfinished invocation basis, and the same store. The child receives a separate
+run/trace/lease and inherited owner provenance. A failed start after admission
+raises `ChildRunStartUnknownError` with its locator; retry and child-dispatch policy
+must reconcile that outcome and recheck the parent/fence before doing work.
 ## Workflow node lifecycle view
 
 Sync and async workflow executors pass ordinary node callbacks a restricted,

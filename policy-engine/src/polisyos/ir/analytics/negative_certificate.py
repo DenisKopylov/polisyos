@@ -982,7 +982,19 @@ def persist_negative_certificate(
     schema_name: str = "ir.negative_certificate",
     schema_version: str = "1.0",
 ) -> NegativeCertificateRef:
-    """Persist negative certificate helper."""
+    """Persist a negative-identification certificate under its typed artifact owner.
+
+    Args:
+        store: IR artifact store that receives the certificate.
+        certificate: Constructive account of an identification barrier and
+            available recovery guidance.
+        inputs: Optional input references to bind to the persisted artifact.
+        schema_name: Registered artifact schema name.
+        schema_version: Registered artifact schema version.
+
+    Returns:
+        The typed reference for the selected persisted certificate.
+    """
     ref = _put_owned_json_artifact(
         store,
         certificate.model_dump(mode="json"),

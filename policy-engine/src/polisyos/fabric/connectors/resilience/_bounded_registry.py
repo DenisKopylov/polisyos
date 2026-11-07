@@ -18,6 +18,7 @@ def _monotonic() -> float:
 
 
 _LOCAL_ADMISSION_OWNER = object()
+_LOCAL_RATE_FEEDBACK_OWNER = object()
 
 
 class BoundedResourceRegistryCapacityError(RuntimeError):
@@ -36,6 +37,14 @@ class InvalidRateLimitError(ValueError):
         self._owner = _owner
 
 
+class RateLimiterFeedbackError(RuntimeError):
+    """Raised when local adaptive feedback bookkeeping fails after a provider result."""
+
+    def __init__(self, *args: object, _owner: object | None = None) -> None:
+        super().__init__(*args)
+        self._owner = _owner
+
+
 def _capacity_refusal(message: str) -> BoundedResourceRegistryCapacityError:
     return BoundedResourceRegistryCapacityError(message, _owner=_LOCAL_ADMISSION_OWNER)
 
@@ -44,10 +53,16 @@ def _invalid_rate_refusal(message: str) -> InvalidRateLimitError:
     return InvalidRateLimitError(message, _owner=_LOCAL_ADMISSION_OWNER)
 
 
+def _rate_limiter_feedback_refusal(message: str) -> RateLimiterFeedbackError:
+    return RateLimiterFeedbackError(message, _owner=_LOCAL_RATE_FEEDBACK_OWNER)
+
+
 def _is_local_admission_error(error: Exception) -> bool:
-    return isinstance(error, (BoundedResourceRegistryCapacityError, InvalidRateLimitError)) and (
-        error._owner is _LOCAL_ADMISSION_OWNER
-    )
+    if isinstance(error, (BoundedResourceRegistryCapacityError, InvalidRateLimitError)):
+        return error._owner is _LOCAL_ADMISSION_OWNER
+    if isinstance(error, RateLimiterFeedbackError):
+        return error._owner is _LOCAL_RATE_FEEDBACK_OWNER
+    return False
 
 
 @dataclass(slots=True)

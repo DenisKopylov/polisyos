@@ -12,7 +12,7 @@ import optax
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.foundry.agent_sim.actor_critic import ActorCritic, compute_log_prob, sample_actions
+from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.artifact import (
     AgentPolicyArtifact,
     TrainingProfileDescriptor,
@@ -20,12 +20,21 @@ from polisyos.foundry.agent_sim.artifact import (
 )
 from polisyos.foundry.agent_sim.distributions import GiniPopulationProfile
 from polisyos.foundry.agent_sim.executor import PureExecutor
-from polisyos.foundry.agent_sim.prng import get_mechanism_key
 from polisyos.foundry.agent_sim.rewards import compute_agent_reward
 from polisyos.foundry.agent_sim.rl import Trajectory, compute_returns_and_advantages, ppo_loss
 from polisyos.foundry.agent_sim.temporal import build_temporal_observations
-from polisyos.foundry.agent_sim.temporal_mechanisms import TemporalConsumptionMechanism
-from polisyos.foundry.agent_sim.training_config import TrainingConfigBase
+from polisyos.foundry.agent_sim.temporal_mechanisms import (
+    _TEMPORAL_DECISION_METRIC,
+    TemporalConsumptionMechanism,
+    _capture_temporal_decisions,
+    _next_temporal_observations,
+    _read_temporal_decision,
+    _require_temporal_policy_executor,
+)
+from polisyos.foundry.agent_sim.training_config import (
+    TrainingConfigBase,
+    _require_supported_training_fidelity,
+)
 from polisyos.foundry.runtime.fingerprint import DeterminismTier, EnvironmentFingerprint
 
 
@@ -47,6 +56,7 @@ class TrainingConfig(TrainingConfigBase):
 
 def _require_unprofiled_training_config(config: TrainingConfig) -> None:
     """Keep the legacy non-guarded trainer from silently ignoring a profile."""
+    _require_supported_training_fidelity(config.fidelity)
     if config.gini_population_profile is not None:
         raise ValueError("selected Gini profiles require train_actor_critic_jit")
 
@@ -63,6 +73,8 @@ def train_actor_critic(
     _require_unprofiled_training_config(config)
     if executor is None and make_executor is None:
         raise ValueError("Provide either executor or make_executor.")
+    probe = make_executor(actor_critic) if make_executor is not None else executor
+    _require_temporal_policy_executor(probe)
 
     params, static = eqx.partition(actor_critic, eqx.is_inexact_array)
     optimizer = optax.chain(
@@ -139,24 +151,16 @@ def collect_trajectory(
 ) -> Trajectory:
     """Roll out one executor trajectory and capture PPO training tensors."""
     _require_unprofiled_training_config(config)
+    executor = _capture_temporal_decisions(executor)
     mech = _find_temporal_mechanism(executor)
-    salt = executor.prng_config.get(mech.spec.name, 0)
+    decision_key = f"{mech.spec.name}/{_TEMPORAL_DECISION_METRIC}"
 
     def _step_fn(state, _):
-        obs = build_temporal_observations(
-            state,
-            horizon=config.horizon,
-            include_expectations=config.include_expectations,
-        )
-        action_out, value = actor_critic(obs, deterministic=True)
-        dist = actor_critic.get_action_distribution(obs, action_output=action_out)
-        mech_key = get_mechanism_key(state.rng_key, state.time_step, salt)
-        action = sample_actions(dist, mech_key, action_type=actor_critic.action_type)
+        next_state, step_metrics = executor.step(state, fidelity=config.fidelity)
+        decision = _read_temporal_decision(step_metrics, decision_key)
+        obs, action, log_prob, value, active, _sampled = decision
         if actor_critic.action_type == "continuous" and action.ndim == 1:
             action = action[:, None]
-        log_prob = compute_log_prob(action, dist, action_type=actor_critic.action_type)
-
-        next_state, _ = executor.step(state, fidelity=config.fidelity)
         reward = compute_agent_reward(state, next_state, utility_type=config.utility_type)
 
         transition = {
@@ -166,7 +170,7 @@ def collect_trajectory(
             "values": value,
             "log_probs": log_prob,
             "dones": jnp.zeros_like(state.agents.active, dtype=jnp.bool_),
-            "active_mask": state.agents.active,
+            "active_mask": active,
         }
         return next_state, transition
 
@@ -177,18 +181,16 @@ def collect_trajectory(
         length=config.steps_per_episode,
     )
 
-    final_obs = build_temporal_observations(
-        state,
-        horizon=config.horizon,
-        include_expectations=config.include_expectations,
-    )
+    final_obs, final_active = _next_temporal_observations(executor, state, config.fidelity)
+    following_active = jnp.concatenate((transitions["active_mask"][1:], final_active[None]), axis=0)
+    dones = transitions["active_mask"] & ~following_active
 
     return Trajectory(
         observations=transitions["observations"],
         actions=transitions["actions"],
         rewards=transitions["rewards"],
         values=transitions["values"],
-        dones=transitions["dones"],
+        dones=dones,
         log_probs=transitions["log_probs"],
         final_observation=final_obs,
         active_mask=transitions["active_mask"],
@@ -313,6 +315,8 @@ def train_actor_critic_with_artifact(
     """
     from polisyos.foundry.agent_sim.jit_training import _require_exact_bool_selector
 
+    _require_supported_training_fidelity(config.fidelity)
+    _require_temporal_policy_executor(make_executor(actor_critic))
     track_active_wealth = _require_exact_bool_selector(track_active_wealth, "track_active_wealth")
     log = get_logger(__name__)
 

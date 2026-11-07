@@ -1682,8 +1682,10 @@ def test_candidate_census_removal_stays_unrun_and_unrelated_control(tmp_path: Pa
     assert unrelated_control.authority_currentness == "UNRUN"
 
 
+@pytest.mark.parametrize("parsed", [False, True])
 def test_context_history_consumer_requires_owner_anchored_initial_problem(
     tmp_path: Path,
+    parsed: bool,
 ) -> None:
     """Historical bytes alone cannot supply the owner-persisted cycle-zero basis."""
 
@@ -1694,7 +1696,8 @@ def test_context_history_consumer_requires_owner_anchored_initial_problem(
     )
 
     owner = CycleSubstrateContextArtifactOwner(store=FileSystemCAS(tmp_path / "history-cas"))
-    _fixture_name, run = _v3_history_fixtures()[0]
+    _fixture_name, payload = _v3_history_fixtures()[0]
+    run = GenerationCycleRun.model_validate(payload) if parsed else payload
     projection = resolve_generation_cycle_run_context_history(
         run,
         context_owner=owner,

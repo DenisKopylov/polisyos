@@ -376,15 +376,27 @@ def _validate_producer_state(base_state: ExperimentState) -> None:
 
 
 def snapshot_state(base_state: ExperimentState) -> ExperimentState:
-    """Return a full rollback-safe snapshot of the mutable state surfaces."""
+    """Return a rollback-safe snapshot, preserving aliases and producer tracking.
 
-    branched = base_state.model_copy(deep=False)
-    memo: dict[int, Any] = {}
-    for field_name in _TOP_LEVEL_MUTABLE_FIELDS:
-        value = getattr(base_state, field_name, None)
-        if isinstance(value, dict):
-            object.__setattr__(branched, field_name, deepcopy(value, memo))
-            _bind_mutation_root(getattr(branched, field_name), branched, field_name, (field_name,))
+    Unlike a declared-write branch, a snapshot must isolate the complete state
+    graph: references outside the mapping fields are mutable too. A shared memo
+    retains aliases across fields and runtime slots.
+    """
+
+    # The guarded override binds shallow children to its result. Bypass that
+    # intermediate binding: those children are about to be detached, and must
+    # not acquire a root pointing to the snapshot on the source graph.
+    branched = (
+        BaseModel.model_copy(base_state, deep=False)
+        if type(base_state) is _JournaledExperimentState
+        else base_state.model_copy(deep=False)
+    )
+    memo: dict[int, Any] = {id(base_state): branched}
+    object.__setattr__(branched, "__dict__", deepcopy(base_state.__dict__, memo))
+    for slot in ("__pydantic_extra__", "__pydantic_private__"):
+        object.__setattr__(branched, slot, deepcopy(getattr(base_state, slot), memo))
+    for field_name in type(base_state).model_fields:
+        _bind_mutation_root(getattr(branched, field_name), branched, field_name, (field_name,))
     return branched
 
 
@@ -502,8 +514,8 @@ def _isolate_write_path(
         return
 
     top_level = parts[0]
-    source_value = getattr(source_state, top_level, _MISSING)
-    target_value = getattr(target_state, top_level, _MISSING)
+    source_value = _model_field_value(source_state, top_level)
+    target_value = _model_field_value(target_state, top_level)
     if source_value is _MISSING or target_value is _MISSING:
         return
 
@@ -554,7 +566,7 @@ def _ensure_isolated_container(
 
 def _get_child(container: Any, key: str) -> Any:
     if isinstance(container, BaseModel):
-        return getattr(container, key, _MISSING)
+        return _model_field_value(container, key)
     if isinstance(container, dict):
         return container.get(key, _MISSING)
     if isinstance(container, (list, tuple)):
@@ -832,7 +844,7 @@ def _get_path(root: Any, parts: tuple[str, ...]) -> Any:
     current = root
     for part in parts:
         if isinstance(current, BaseModel):
-            current = getattr(current, part, _MISSING)
+            current = _model_field_value(current, part)
         elif isinstance(current, dict):
             current = current.get(part, _MISSING)
         elif isinstance(current, list):
@@ -845,6 +857,158 @@ def _get_path(root: Any, parts: tuple[str, ...]) -> Any:
         if current is _MISSING:
             return _MISSING
     return current
+
+
+def _model_field_value(model: BaseModel, name: str) -> Any:
+    """Read a declared field without evaluating properties or computed fields."""
+    if name not in type(model).model_fields:
+        return _MISSING
+    return object.__getattribute__(model, "__dict__").get(name, _MISSING)
+
+
+def _state_path_trace(
+    root: Any, parts: tuple[str, ...]
+) -> tuple[list[tuple[int, str, str | int]], list[Any]] | None:
+    """Resolve concrete slots without assuming a numeric mapping key is an index."""
+    if not parts or any(not isinstance(part, str) or not part for part in parts):
+        return None
+    slots: list[tuple[int, str, str | int]] = []
+    values: list[Any] = []
+    current = root
+    for position, part in enumerate(parts):
+        if isinstance(current, BaseModel):
+            if part not in type(current).model_fields:
+                return None
+            slot: tuple[int, str, str | int] = (id(current), "field", part)
+            value = _model_field_value(current, part)
+        elif type(current) in {dict, _TrackedDict}:
+            slot = (id(current), "key", part)
+            value = dict.get(current, part, _MISSING)
+        elif type(current) in {list, _TrackedList}:
+            try:
+                index = int(part)
+                size = list.__len__(current)
+                if index < 0:
+                    index += size
+                if index < 0 or index >= size:
+                    return None
+                value = list.__getitem__(current, index)
+            except (IndexError, TypeError, ValueError):
+                return None
+            slot = (id(current), "index", index)
+        else:
+            return None
+        slots.append(slot)
+        values.append(value)
+        if value is _MISSING and position != len(parts) - 1:
+            return None
+        current = value
+    return slots, values
+
+
+def _state_path_contains(root: Any, parent: tuple[str, ...], child: tuple[str, ...]) -> bool:
+    """Check declared path containment with actual list-slot identity."""
+    if len(parent) > len(child) or not parent:
+        return False
+    if _is_path_prefix(parent, child):
+        return True
+    left = _state_path_trace(root, parent)
+    right = _state_path_trace(root, child[: len(parent)])
+    return left is not None and right is not None and left[0] == right[0]
+
+
+def _mutable_graph_ids(value: Any, *, limit: int = 10_000) -> set[int] | None:
+    """Return bounded mutable identities, or None if an alias cannot be excluded."""
+    identities: set[int] = set()
+    active: set[int] = set()
+    visited: set[int] = set()
+    stack: list[tuple[Any, bool]] = [(value, False)]
+    examined = 0
+    while stack:
+        current, leaving = stack.pop()
+        identity = id(current)
+        if leaving:
+            active.remove(identity)
+            continue
+        examined += 1
+        if examined > limit:
+            return None
+        if (
+            current is _MISSING
+            or current is None
+            or type(current) in {bool, int, float, str, bytes, Decimal, date, datetime}
+        ):
+            continue
+        if isinstance(current, BaseModel):
+            fields = type(current).model_fields
+            data = object.__getattribute__(current, "__dict__")
+            if len(fields) > limit - examined:
+                return None
+            children = [data[name] for name in fields if name in data]
+            mutable = True
+        elif type(current) in {dict, _TrackedDict}:
+            if dict.__len__(current) > limit - examined:
+                return None
+            children = list(dict.values(current))
+            mutable = True
+        elif type(current) in {list, _TrackedList}:
+            if list.__len__(current) > limit - examined:
+                return None
+            children = list(list.__iter__(current))
+            mutable = True
+        elif type(current) is tuple:
+            if tuple.__len__(current) > limit - examined:
+                return None
+            children = list(tuple.__iter__(current))
+            mutable = False
+        else:
+            return None
+        if identity in active:
+            return None
+        if identity in visited:
+            continue
+        if len(children) > limit - examined:
+            return None
+        visited.add(identity)
+        active.add(identity)
+        if mutable:
+            identities.add(identity)
+        stack.append((current, True))
+        stack.extend((child, False) for child in children)
+    return identities
+
+
+def _state_paths_may_overlap(root: Any, left: tuple[str, ...], right: tuple[str, ...]) -> bool:
+    """Prove disjoint concrete state targets, otherwise conservatively overlap."""
+    left_trace = _state_path_trace(root, left)
+    right_trace = _state_path_trace(root, right)
+    if left_trace is None or right_trace is None:
+        return True
+    left_slots, left_values = left_trace
+    right_slots, right_values = right_trace
+    divergence = 0
+    for left_slot, right_slot in zip(left_slots, right_slots, strict=False):
+        if left_slot != right_slot:
+            break
+        divergence += 1
+    if divergence == min(len(left_slots), len(right_slots)):
+        return True
+
+    left_ids = _mutable_graph_ids(left_values[-1])
+    right_ids = _mutable_graph_ids(right_values[-1])
+    if left_ids is None or right_ids is None:
+        return True
+    left_ids.update(
+        id(value)
+        for value in left_values[divergence:-1]
+        if isinstance(value, (dict, list, BaseModel))
+    )
+    right_ids.update(
+        id(value)
+        for value in right_values[divergence:-1]
+        if isinstance(value, (dict, list, BaseModel))
+    )
+    return not left_ids.isdisjoint(right_ids)
 
 
 def _set_path(root: Any, parts: tuple[str, ...], value: Any) -> None:
@@ -1024,8 +1188,8 @@ class _TrackedList(list[Any]):
             _bind_mutation_parent(list.__getitem__(self, index), self)
 
     def __setitem__(self, index: SupportsIndex | slice, value: Any) -> None:
-        _authorize_container_mutation(self)
         if isinstance(index, slice):
+            _authorize_container_mutation(self)
             values = list(value)
             for child in values:
                 _validate_mutation_attachment(self, child)
@@ -1054,6 +1218,7 @@ class _TrackedList(list[Any]):
             )
             return
         index = _index(index)
+        _authorize_container_mutation(self, suffixes=((str(index),),))
         _validate_mutation_attachment(self, value)
         list.__setitem__(
             self,
@@ -1891,18 +2056,50 @@ def _authorize_container_mutation(
         return
     declared = [tuple(path.split(".")) for path in container._mutation_journal.isolated_paths]
     suffixes = tuple(suffixes)
-    paths = [
-        (*path, *suffix)
+    path_and_suffix = [
+        ((*path, *suffix), suffix)
         for path in _current_mutation_paths(container, include_detached=True)
         for suffix in suffixes
     ]
-    unauthorized = [
-        path for path in paths if not any(_is_path_prefix(write, path) for write in declared)
-    ]
+    roots: list[ExperimentState] | None = None
+
+    def is_declared(path: tuple[str, ...], suffix: tuple[str, ...]) -> bool:
+        nonlocal roots
+        if any(_is_path_prefix(write, path) for write in declared):
+            return True
+        if roots is None:
+            roots = _mutation_state_roots(container)
+        parent_path = path[: len(path) - len(suffix)]
+        return any(
+            _get_path(root, parent_path) is container
+            and any(_state_path_contains(root, write, path) for write in declared)
+            for root in roots
+        )
+
+    unauthorized = [path for path, suffix in path_and_suffix if not is_declared(path, suffix)]
     if unauthorized:
         raise ValueError(
             f"undeclared state_writes at live paths: {['.'.join(p) for p in unauthorized]}"
         )
+
+
+def _mutation_state_roots(
+    value: _TrackedDict | _TrackedList | _TrackedModelMixin,
+    seen: frozenset[int] = frozenset(),
+) -> list[ExperimentState]:
+    """Find live state roots that can resolve this tracked container's paths."""
+    if id(value) in seen:
+        return []
+    seen = seen | {id(value)}
+    roots: dict[int, ExperimentState] = {}
+    for model, _name, _path in value._mutation_roots:
+        if isinstance(model, ExperimentState):
+            roots[id(model)] = model
+        elif isinstance(model, _TrackedModelMixin):
+            roots.update((id(root), root) for root in _mutation_state_roots(model, seen))
+    for parent, _owner_value, _suffix in value._mutation_owners:
+        roots.update((id(root), root) for root in _mutation_state_roots(parent, seen))
+    return list(roots.values())
 
 
 def _record_container_mutation(

@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "research_scope": "Requirements and architecture; source research only; E02 baseline not audited",
+  "sources": [
+    {
+      "id": "RA-S01",
+      "title": "Systems Engineering Handbook, Appendix C: How to Write a Good Requirement",
+      "publisher": "NASA",
+      "url": "https://www.nasa.gov/reference/appendix-c-how-to-write-a-good-requirement/",
+      "document_date": "Web page updated 2023-07-26; handbook NASA/SP-2016-6105 Rev 2",
+      "accessed_utc_date": "2026-11-01",
+      "access_status": "opened_and_read",
+      "source_kind": "guidance",
+      "locators": [
+        "C.1; C.2 Product Requirement; C.3 General Goodness Checklist; C.4 Clarity, Consistency, Traceability, Performance, Interfaces, Reliability, Verifiability/Testability, Data Usage"
+      ],
+      "access_and_applicability_limits": "Чеклист NASA, не обязательный стандарт для E02. Буквальные правила о shall, отрицательных формулировках и расположении разделов не переносить механически."
+    },
+    {
+      "id": "RA-S02",
+      "title": "Systems Engineering Handbook, 4.2 Technical Requirements Definition",
+      "publisher": "NASA",
+      "url": "https://www.nasa.gov/reference/4-2-technical-requirements-definition/",
+      "document_date": "NASA/SP-2016-6105 Rev 2; web edition accessed 2026-11-01",
+      "accessed_utc_date": "2026-11-01",
+      "access_status": "opened_and_read",
+      "source_kind": "guidance",
+      "locators": [
+        "4.2.1.2.3 Define Requirements in Acceptable Statements, Rationale; 4.2.1.2.4 Validate Technical Requirements; 4.2.1.2.7 Capture Work Products"
+      ],
+      "access_and_applicability_limits": "Открытый первичный источник; прочитаны указанные разделы, не только поисковый сниппет."
+    },
+    {
+      "id": "RA-S03",
+      "title": "Systems Engineering Handbook, Appendix D: Requirements Verification Matrix",
+      "publisher": "NASA",
+      "url": "https://www.nasa.gov/reference/appendix-d-requirements-verification-matrix/",
+      "document_date": "Web page updated 2023-07-26",
+      "accessed_utc_date": "2026-11-01",
+      "access_status": "opened_and_read",
+      "source_kind": "guidance",
+      "locators": [
+        "Body paragraphs before Table D-1: verification approach, unique identifier, definitive source"
+      ],
+      "access_and_applicability_limits": "Прочитано текстовое описание; содержимое таблицы D-1 в HTML не извлечено и не используется для утверждения полного набора колонок."
+    },
+    {
+      "id": "RA-S04",
+      "title": "Systems Engineering Handbook, Appendix E: Creating the Validation Plan with a Validation Requirements Matrix",
+      "publisher": "NASA",
+      "url": "https://www.nasa.gov/reference/appendix-e-creating-the-validation-plan-with-a-validation-requirements-matrix/",
+      "document_date": "Web page updated 2023-07-26",
+      "accessed_utc_date": "2026-11-01",
+      "access_status": "opened_and_read",
+      "source_kind": "guidance",
+      "locators": [
+        "Body: sources for validation plan; validation products; lifecycle planning"
+      ],
+      "access_and_applicability_limits": "Использована открытая текстовая часть; таблица E-1 не переписывалась. NASA-specific flight/certification artifacts не требуются для E02."
+    },
+    {
+      "id": "RA-S05",
+      "title": "Systems Engineering Handbook, Appendix L: Interface Requirements Document Outline",
+      "publisher": "NASA",
+      "url": "https://www.nasa.gov/reference/appendix-l-interface-requirements-document-outline/",
+      "document_date": "NASA/SP-2016-6105 Rev 2; web edition accessed 2026-11-01",
+      "accessed_utc_date": "2026-11-01",
+      "access_status": "opened_and_read",
+      "source_kind": "guidance",
+      "locators": [
+        "1.2 Precedence; 1.3 Responsibility and Change Authority; 2.1 Applicable Documents; 3.1.2 Interface Responsibilities; 3.2.6 Software and Data"
+      ],
+      "access_and_applicability_limits": "Релевантны ответственность, приоритет и software/data interfaces; physical/fluid/electrical/spacecraft требования исключены."
+    },
+    {
+      "id": "RA-S06",
+      "title": "Systems Engineering Handbook, 6.3 Interface Management",
+      "publisher": "NASA",
+      "url": "https://www.nasa.gov/reference/6-3-interface-management/",
+      "document_date": "Web page updated 2023-07-26",
+      "accessed_utc_date": "2026-11-01",
+      "access_status": "opened_and_read",
+      "source_kind": "guidance",
+      "locators": [
+        "6.3.1.2.2–6.3.1.2.5; 6.3.1.3 Outputs"
+      ],
+      "access_and_applicability_limits": "Не навязывает E02 создание формального NASA Interface Working Group; важны явные стороны, владельцы, версия, согласование изменения и влияние на проверки."
+    },
+    {
+      "id": "RA-S07",
+      "title": "SWE-055 Requirements Validation, Software Engineering Handbook Ver D",
+      "publisher": "NASA",
+      "url": "https://swehb.nasa.gov/spaces/SWEHBVD/pages/102695440/SWE-055%2B-%2BRequirements%2BValidation",
+      "document_date": "Ver D; current page read 2026-11-01; AI-additions tracker lists 2025-08-27",
+      "accessed_utc_date": "2026-11-01",
+      "access_status": "opened_and_read",
+      "source_kind": "guidance",
+      "locators": [
+        "1 Requirements; 3.2 Requirements Validation Throughout the Life Cycle; 3.3 Validation Planning; 3.4 Validation Process; 3.5 Select Life Cycle Products; 3.6 Validation Techniques & Methods"
+      ],
+      "access_and_applicability_limits": "Официальная guidance-страница, не самостоятельный общий стандарт. Ее нормативная 4.1.7 сверена с NPR 7150.2D (RA-S08); базовые идеи также присутствуют в Ver C от 2023-07-31. AI-additions tracker фиксирует добавления 2025-08-27, поэтому новые исторические narratives/lesson claims не использованы без отдельной проверки."
+    },
+    {
+      "id": "RA-S08",
+      "title": "NPR 7150.2D Chapter 4: Software Engineering Life Cycle Requirements",
+      "publisher": "NASA Office of the Chief Engineer",
+      "url": "https://nodis3.gsfc.nasa.gov/displayDir.cfm?Internal_ID=N_PR_7150_002D_&page_name=Chapter4",
+      "document_date": "Effective 2022-03-08; page states expiration 2027-03-08",
+      "accessed_utc_date": "2026-11-01",
+      "access_status": "opened_and_read",
+      "source_kind": "NASA_procedural_requirement",
+      "locators": [
+        "4.1.1–4.1.7; 4.2 Software Architecture; 4.3 Software Design"
+      ],
+      "access_and_applicability_limits": "Нормативно для NASA; в E02 — добровольный источник методов, не доказательство юридической обязанности или aerospace certification."
+    },
+    {
+      "id": "RA-S09",
+      "title": "Guide to Writing Requirements v4 — Summary Sheet, INCOSE-TP-2010-006-04",
+      "publisher": "INCOSE Requirements Working Group",
+      "url": "https://www.incose.org/docs/default-source/working-groups/requirements-wg/guidetowritingrequirements/incose_rwg_gtwr_v4_summary_sheet.pdf",
+      "document_date": "June 2023",
+      "accessed_utc_date": "2026-11-01",
+      "access_status": "opened_and_read",
+      "source_kind": "official_public_summary",
+      "locators": [
+        "Printed p.2: C2, C4, C5, C10–C15; p.3: R14–R15, R18, R23–R28, R30–R36, R40; p.7: attributes A1–A15, A32–A33"
+      ],
+      "access_and_applicability_limits": "Открыт официальный 7-страничный summary PDF через ссылку RWG. Полный платный Guide не прочитан; summary не передает все исключения/пояснения полного руководства. Правила не являются автоматическим grammar-lint verdict."
+    },
+    {
+      "id": "RA-S10",
+      "title": "Webinar 168: Guide to Writing Requirements Version 4, Lou Wheatcraft",
+      "publisher": "INCOSE Requirements Working Group",
+      "url": "https://www.incose.org/wp-content/uploads/legacy/professional-development-portal/pdp-pdf-documents/webinar_168_wheatcraft_guide_to_writing_requirements_version_4.pdf",
+      "document_date": "2023-10-25",
+      "accessed_utc_date": "2026-11-01",
+      "access_status": "opened_and_read",
+      "source_kind": "official_presentation",
+      "locators": [
+        "Slide 28: Focus of the GtWR; slide 30: types of requirements; slides 33–34: integrated needs/design inputs; slides 42–43: individual/set characteristics; slide 50: rules necessary but not sufficient"
+      ],
+      "access_and_applicability_limits": "Прочитан открытый PDF с официального домена; video resource обозначен members-only, видео не просмотрено. Web screenshot slide 28 завершился Cache miss; доступный текст PDF прочитан. Не цитируется содержание полного Guide."
+    },
+    {
+      "id": "RA-S11",
+      "title": "Quality Attribute Workshops (QAWs), Third Edition, CMU/SEI-2003-TR-016",
+      "publisher": "Carnegie Mellon University Software Engineering Institute",
+      "url": "https://sei.cmu.edu/documents/716/2003_005_001_14249.pdf",
+      "document_date": "2003; landing page dates 2003-10-01",
+      "accessed_utc_date": "2026-11-01",
+      "access_status": "opened_and_read",
+      "source_kind": "primary_technical_report",
+      "locators": [
+        "3.5 Scenario Brainstorming, printed pp.9–10 / PDF pp.21–22; 3.8 Scenario Refinement, printed p.11 / PDF p.23; Appendix A p.19, Appendix B p.21"
+      ],
+      "access_and_applicability_limits": "Метод выявления/уточнения требований, применим до готовой архитектуры. Использование его идей не означает, что проведен формальный фасилитируемый QAW."
+    },
+    {
+      "id": "RA-S12",
+      "title": "ATAM: Method for Architecture Evaluation, CMU/SEI-2000-TR-004",
+      "publisher": "Carnegie Mellon University Software Engineering Institute",
+      "url": "https://www.sei.cmu.edu/documents/629/2000_005_001_13706.pdf",
+      "document_date": "August 2000",
+      "accessed_utc_date": "2026-11-01",
+      "access_status": "opened_and_read",
+      "source_kind": "primary_technical_report",
+      "locators": [
+        "7.1 Risks and Non-Risks, printed pp.21–22 / PDF pp.33–34; 7.2 Sensitivity and Tradeoff Points, printed pp.22–23 / PDF pp.34–35; 7.3 A Structure for Reasoning, printed pp.23–24; 8.7 Scenario Brainstorming, printed pp.33–34"
+      ],
+      "access_and_applicability_limits": "Рамка анализа архитектурных рисков, не доказательство качества конкретного продукта и не обязательное проведение полного ATAM. Старые illustrative cryptography values не переносились."
+    },
+    {
+      "id": "RA-S13",
+      "title": "Integrability, CMU/SEI-2020-TR-001, Kazman/Bianco/Ivers/Klein",
+      "publisher": "Carnegie Mellon University Software Engineering Institute",
+      "url": "https://www.sei.cmu.edu/documents/1286/2020_005_001_637385.pdf",
+      "document_date": "February 2020",
+      "accessed_utc_date": "2026-11-01",
+      "access_status": "opened_and_read",
+      "source_kind": "primary_technical_report",
+      "locators": [
+        "3 Evaluating Integrability, printed pp.6–7; 3.1 Measuring Integrability, printed pp.7–8 / PDF pp.13–14; 4 Integrability Scenarios, printed pp.11–16; 7.4 Derived Decisions and Special Cases, printed pp.42–44 / PDF pp.48–50"
+      ],
+      "access_and_applicability_limits": "Прочитан PDF-текст с первичного домена; screenshot отдельных страниц вернул Cache miss. Не утверждаем количественную стоимость интеграции E02 из общей формулы отчета."
+    }
+  ],
+  "access_notes": [
+    {
+      "url": "https://www.incose.org/docs/default-source/working-groups/requirements-wg/shared_gtwr/gtwr_characteristics_section_4_050423.pdf?sfvrsn=9a7548c7_2",
+      "status": "404_on_open",
+      "use": "Excluded; search excerpt not treated as reviewed source"
+    },
+    {
+      "url": "https://www.incose.org/docs/default-source/working-groups/requirements-wg/gtwr/incose_rwg_gtwr_v4_040423_final_drafts.pdf?sfvrsn=5c877fc7_2",
+      "status": "404_on_open",
+      "use": "Excluded; no claim to have read full Guide"
+    },
+    {
+      "url": "https://www.nasa.gov/reference/appendix-f-functional-timing-and-state-analysis/",
+      "status": "opened_but_content_removed",
+      "use": "Not used as state/timing guidance; page redirects readers to Expanded Guidance, which was not read"
+    },
+    {
+      "url": "https://swehb.nasa.gov/spaces/SWEHBVC/pages/50888911/SWE-055%2B-%2BRequirements%2BValidation",
+      "status": "opened_read_historical_revision_C",
+      "use": "Historical corroboration only; used Ver D and NPR 7150.2D in main catalog"
+    },
+    {
+      "url": "https://swehb.nasa.gov/spaces/SITE/pages/211386411/AI%2BAdditions%2Bto%2BSWEHBVD",
+      "status": "opened_read",
+      "use": "Provenance limitation: SWE-055 listed for AI raw content added 2025-08-27; no conclusion about authorship of any individual paragraph"
+    },
+    {
+      "url": "https://www.incose.org/group/requirements-working-group/",
+      "status": "opened_read",
+      "use": "Official discovery/verification of free v4 summary sheet; no private/member source accessed"
+    }
+  ]
+}

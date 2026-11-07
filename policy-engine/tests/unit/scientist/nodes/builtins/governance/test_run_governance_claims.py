@@ -22,6 +22,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.validation.policy_verified.models import (
+    SourceVerificationReport,
+    persist_source_verification_report,
+)
 
 
 def test_governance_rejects_selected_workflow_with_decision_artifact_without_claims_ref(
@@ -44,9 +48,15 @@ def test_governance_rejects_selected_workflow_with_decision_artifact_without_cla
         kind="scientist.policy_artifact_bundle",
         media_type="application/json",
     )
+    source_report_ref = persist_source_verification_report(
+        store, SourceVerificationReport(request_id="synthetic", notes=["fixture_only"])
+    )
     state = ExperimentState(
         run_id="R_governance_naked_claim_gate",
-        artifacts_index={"policy_output_bundle_ref": policy_bundle_ref},
+        artifacts_index={
+            "policy_output_bundle_ref": policy_bundle_ref,
+            "source_verification_report_ref": source_report_ref,
+        },
         params={
             "governance_profile": "fast",
             "workflow_id": "scientist_policy_design",
@@ -61,6 +71,13 @@ def test_governance_rejects_selected_workflow_with_decision_artifact_without_cla
 
     assert outcome.status == "ok"
     assert report["verdict"] == "reject"
+    # The stale policy projection is archived, while the actual selected
+    # source-verification artifact remains subject to the claims gate.
+    assert "policy_output_bundle_ref" not in outcome.state.artifacts_index
+    assert outcome.state.artifacts_index["source_verification_report_ref"] == source_report_ref
+    assert report["links"]["source_verification_report_ref"]["artifact_id"] == str(
+        source_report_ref.artifact_id
+    )
     assert ARTIFACT_CLAIMS_REF not in outcome.state.artifacts_index
     assert report["links"].get("claims_ref") is None
     assert report_ref.kind == "scientist.governance_report"

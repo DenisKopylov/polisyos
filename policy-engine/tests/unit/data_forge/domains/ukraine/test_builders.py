@@ -213,6 +213,7 @@ def test_validation_subset_downsamples_large_runtime_frames(
         }
     )
 
+    originals = [frame.copy(deep=True) for frame in (runtime_agents, cell_registry, cell_state)]
     agents_subset, cells_subset, cell_state_subset, warnings = _validation_subset(
         runtime_agents,
         cell_registry,
@@ -226,6 +227,15 @@ def test_validation_subset_downsamples_large_runtime_frames(
         "bindings_validation_agent_sampled:2/3",
         "bindings_validation_cell_sampled:1/2",
     ]
+    assert agents_subset["agent_id"].tolist() == ["agent::1", "agent::2"]
+    assert cells_subset["cell_id"].tolist() == cell_state_subset["cell_id"].tolist() == ["cell::a"]
+    agents_subset.loc[0, "agent_id"] = "mutated returned diagnostic subset"
+    cells_subset.loc[0, "cell_id"] = "mutated returned diagnostic subset"
+    cell_state_subset.loc[0, "population"] = 999.0
+    for actual, original in zip(
+        (runtime_agents, cell_registry, cell_state), originals, strict=True
+    ):
+        pd.testing.assert_frame_equal(actual, original)
 
 
 def test_stream_parquet_numeric_column_stats_streams_mean_and_head(tmp_path) -> None:

@@ -12,6 +12,34 @@ from importlib import import_module
 from typing import Any
 
 _EXPORTS: dict[str, tuple[str, str]] = {
+    "StockFlowSystemDynamicsEstimator": (
+        "polisyos.foundry.methods.catalog.simulation.dynamics",
+        "StockFlowSystemDynamicsEstimator",
+    ),
+    "UnboundFoundryDiscoveryInputError": (
+        "polisyos.foundry.extensions.registry",
+        "UnboundFoundryDiscoveryInputError",
+    ),
+    "MethodSelectionDisposition": (
+        "polisyos.foundry.methods.selection.receipt",
+        "MethodSelectionDisposition",
+    ),
+    "FoundryExtensionRegistryReport": (
+        "polisyos.foundry.extensions.registry",
+        "FoundryExtensionRegistryReport",
+    ),
+    "bootstrap_foundry_method_registry": (
+        "polisyos.foundry.extensions.registry",
+        "bootstrap_foundry_method_registry",
+    ),
+    "controlled_builtin_foundry_method_registry_scope": (
+        "polisyos.foundry.extensions.registry",
+        "controlled_builtin_foundry_method_registry_scope",
+    ),
+    "verify_value_method_selection_receipt": (
+        "polisyos.foundry.methods.selection.advisor",
+        "verify_value_method_selection_receipt",
+    ),
     "causal_worker_execution_context": (
         "polisyos.foundry.methods.catalog.causal._dowhy_worker",
         "worker_execution_context",

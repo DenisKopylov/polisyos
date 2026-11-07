@@ -558,13 +558,17 @@ class ProvenanceCoreRef:
     graph_id: str
     stable_id: str
     artifact_id: str
+    manifest_profile_sha256: str | None = None
 
     def to_dict(self) -> dict[str, str]:
-        return {
+        payload = {
             "graph_id": self.graph_id,
             "stable_id": self.stable_id,
             "artifact_id": self.artifact_id,
         }
+        if self.manifest_profile_sha256 is not None:
+            payload["manifest_profile_sha256"] = self.manifest_profile_sha256
+        return payload
 
     @classmethod
     def from_dict(cls, data: dict[str, str]) -> ProvenanceCoreRef:
@@ -572,4 +576,5 @@ class ProvenanceCoreRef:
             graph_id=data["graph_id"],
             stable_id=data["stable_id"],
             artifact_id=data["artifact_id"],
+            manifest_profile_sha256=data.get("manifest_profile_sha256"),
         )

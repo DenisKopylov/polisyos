@@ -1,5 +1,8 @@
 # Acquisition source-reaction diagnostic identities
 
+Owner: Runtime quality and acquisition owners.
+Source of truth: `src/polisyos/runtime/quality/generation_cycle.py`, `src/polisyos/runtime/quality/acquisition_retained_continuation.py`, and `tests/unit/runtime/quality/test_generation_cycle_source_reaction_identities.py`.
+
 The existing generation-cycle diagnostic constructors accept an optional selected
 `source_reaction_ref` naming `runtime_quality.acquisition_evaluation_basis`. The
 ref must be JSON with an explicit selected manifest profile. This is an identifier

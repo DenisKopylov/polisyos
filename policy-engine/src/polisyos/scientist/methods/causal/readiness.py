@@ -52,8 +52,7 @@ from polisyos.ir.analytics.transportability import (
     TransportMode,
     persist_transportability_result,
 )
-from polisyos.ir.artifacts import InputRef, normalize_input_refs
-from polisyos.ir.artifacts._lineage import InputRefLike
+from polisyos.ir.artifacts import InputRef, InputRefLike, normalize_input_refs
 from polisyos.ir.observation.bundles import (
     CounterfactualCheckBundle,
     InterferenceLossSpecBundle,

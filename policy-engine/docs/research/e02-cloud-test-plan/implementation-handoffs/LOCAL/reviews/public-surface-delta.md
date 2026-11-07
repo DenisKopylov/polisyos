@@ -1,6 +1,6 @@
 # Independent public-surface and consumer review
 
-Review target: candidate worktree `/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine`, with parent-supplied source base `077a572ff5880b3f50a85d3e3db6a232d277659a`. The immutable candidate commit was not available during this pass, so the review is bound to the per-file SHA-256 values in [public-surface-runtime.txt](raw/public-surface-runtime.txt) (raw log SHA-256: `783ae9bf0d3e25d2aec188537962c51a6d8a7f9c80c8789af26a4aab7dd43728`). I used each worktree's own `.venv/bin/python` with `PYTHONPATH=src:.` and one numerical thread. No product files, generators, browser servers, tests, or Git commands were run; only this report and its raw log were written.
+Review target: candidate worktree `/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine`, with parent-supplied source base `077a572ff5880b3f50a85d3e3db6a232d277659a`. The immutable candidate commit was not available during this pass, so the review is bound to the per-file SHA-256 values in public-surface-runtime.txt (`raw/public-surface-runtime.txt`; unavailable in this checkout) (raw log SHA-256: `783ae9bf0d3e25d2aec188537962c51a6d8a7f9c80c8789af26a4aab7dd43728`). I used each worktree's own `.venv/bin/python` with `PYTHONPATH=src:.` and one numerical thread. No product files, generators, browser servers, tests, or Git commands were run; only this report and its raw log were written.
 
 ## Export resolution and compatibility
 

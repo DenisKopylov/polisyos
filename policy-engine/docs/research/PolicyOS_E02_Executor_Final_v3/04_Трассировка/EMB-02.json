@@ -1,0 +1,282 @@
+{
+  "packet_id": "EMB-02",
+  "lane": "LANE-08",
+  "source_ids": [
+    "LA-039"
+  ],
+  "protected_distinction_ids": [
+    "LK20"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/EMB-02.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "work_types": "fix + native publication qualification",
+  "practical_goal": "Новый complete индекс становится выбранным только когда тот же consumer действительно может прочитать согласованные IDs, matrix и binary index.",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C96_остатки:0",
+      "audit_id": "C96-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-EMB-02-01",
+        "REQ-EMB-02-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Existing semantic checker moved/shared at preselection boundary, reader recheck remains."
+    },
+    {
+      "inventory_id": "audit-residual:C96_остатки:1",
+      "audit_id": "C96-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-EMB-02-02",
+        "REQ-EMB-02-03",
+        "REQ-EMB-02-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Real HNSW/DuckDB full guarded reader chain."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-EMB-02-01",
+      "text": "До замены selector complete generation должна пройти existing semantic matrix/index admission, включая finite float32 matrix, полный label set и stored vector correspondence. Failed staged admission сохраняет прежний selector.",
+      "source_ids": [
+        "LA-039"
+      ],
+      "audit_ids": [
+        "C96-R01"
+      ],
+      "test_ids": [
+        "TEST-EMB-02-01"
+      ]
+    },
+    {
+      "id": "REQ-EMB-02-02",
+      "text": "Single selector, mandatory inventory, typed empty и failure phases сохраняются. Postcommit compatibility copy failure не откатывает уже admitted selected generation.",
+      "source_ids": [
+        "LA-039"
+      ],
+      "audit_ids": [
+        "C96-R01",
+        "C96-G01"
+      ],
+      "test_ids": [
+        "TEST-EMB-02-02"
+      ]
+    },
+    {
+      "id": "REQ-EMB-02-03",
+      "text": "Оба actual readers повторяют current effective membership/text и semantic output check на warm/fresh read; malformed selector не fallback на flat pair.",
+      "source_ids": [
+        "LA-039"
+      ],
+      "audit_ids": [
+        "C96-G01"
+      ],
+      "test_ids": [
+        "TEST-EMB-02-03"
+      ]
+    },
+    {
+      "id": "REQ-EMB-02-04",
+      "text": "Полная native публикация проходит existing readiness/publish и resume consumers с explicit encoder identity; encode/manifest success сам по себе не consumer readiness.",
+      "source_ids": [
+        "LA-039"
+      ],
+      "audit_ids": [
+        "C96-G01"
+      ],
+      "test_ids": [
+        "TEST-EMB-02-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-EMB-02-01",
+      "requirement_ids": [
+        "REQ-EMB-02-01"
+      ],
+      "level": "native unit / integration",
+      "setup": "Old valid generation; controlled writer сохраняет index с одним altered vector без exception и coherent new hashes; native binary variant с mismatched index.",
+      "action": "Actual domain wrapper → staged validation → selector/readback.",
+      "oracle": "Old implementation выбирает unusable complete; fixed path отказывает до selection и old reader остаётся полезным. Valid new complete выбирается и читается.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не только hash corruption; semantic fault должен пережить coherent inventory hashing.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-EMB-02-02",
+      "requirement_ids": [
+        "REQ-EMB-02-02"
+      ],
+      "level": "native unit / integration",
+      "setup": "Complete/empty, NPZ/index/selector write failures; copy failure каждого legacy file в обоих domains.",
+      "action": "Run actual publisher и fresh resolver после каждого fault.",
+      "oracle": "До selection старый selector неизменён; empty не содержит index и не выбирает старый complete; после selection typed EmbeddingCompatibilityProjectionError с generation/target, current selected комплект пригоден.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не обещать power-loss durability без отдельного испытания; два atomic file writes не atomic pair.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-EMB-02-03",
+      "requirement_ids": [
+        "REQ-EMB-02-03"
+      ],
+      "level": "native unit / integration",
+      "setup": "Real DB/HNSW, same-ID effective text mutation и beyond-truncation control, missing member, coherent hash vector mismatch, legacy-only corpus.",
+      "action": "Public Academic/Catalog search/load, rebuild, fresh reader и current read-session guard.",
+      "oracle": "Current valid vectors дают useful search; effective change отказ, beyond-truncation сохраняет admission; bad selector отказ; legacy unsupported vectors дают declared text fallback без скрытой query model load.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не удалять DB custody guard как в bounded audit fixture.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-EMB-02-04",
+      "requirement_ids": [
+        "REQ-EMB-02-04"
+      ],
+      "level": "native unit / integration",
+      "setup": "Tiny native common corpus, two revisions, row permutation, bound and unbound encoders, current catalog QC/benchmark basis.",
+      "action": "EMB-01 compute→generation→Academic publish/Catalog readiness→DFI-03 content receipt→fresh consumer.",
+      "oracle": "Нужные selected paths и status согласованы; valid producer полезен; unbound/currentness/readiness mismatch типизированы.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не выдавать admission за causal/model authority; не запускать full corpus rebuild. Для stronger масштабного claim отдельно снять cold/warm bytes read, hash/SQL projection/NPZ/load/encode/knn cost и RSS на bounded N ladder. Это measurement-first, не требование внедрить новый lease/cache и не gate локального preselection repair.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I08-B"
+  ],
+  "dependencies": [
+    "EMB-01 prerequisite and shared native witness; LA-039 accountable here",
+    "EMB-03 consumes shared C96-R01; DFI-03 separate LA-041 resume",
+    "E02-I08-B; pipeline writes serialized with DFI-02/03"
+  ],
+  "preservation": [
+    "Single selector/staging",
+    "Mandatory inventory/typed empty",
+    "Old generation preservation",
+    "Separate postcommit copy failure",
+    "Current source membership",
+    "Semantic matrix/index reader admission",
+    "Intentional legacy refusal/text fallback"
+  ],
+  "design_alignment": [
+    "[Vision §3, §6–§7, §11](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md) — существующий owner, реально подключённый consumer, совместимые новые ресурсы через общий контракт; не бесконечный реестр вместо работы. [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md) — candidate/conditional вычисление не равно эмпирической или институциональной authority.",
+    "Небольшой общий validator лучше нового publication framework. Новые profiles пользуются тем же producer/consumer contract; representation integrity не обещает scientific truth."
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0443",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-EMB-02-01",
+        "REQ-EMB-02-02"
+      ],
+      "rationale": "Existing semantic checker moved/shared at preselection boundary, reader recheck remains."
+    },
+    {
+      "inventory_id": "remaining:0444",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-EMB-02-02",
+        "REQ-EMB-02-03",
+        "REQ-EMB-02-04"
+      ],
+      "rationale": "Real HNSW/DuckDB full guarded reader chain."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0721",
+      "requirement_ids": [
+        "REQ-EMB-02-01",
+        "REQ-EMB-02-02"
+      ],
+      "test_ids": [
+        "TEST-EMB-02-01",
+        "TEST-EMB-02-02"
+      ],
+      "rationale": "Single staged publication."
+    },
+    {
+      "inventory_id": "preserve:0722",
+      "requirement_ids": [
+        "REQ-EMB-02-02"
+      ],
+      "test_ids": [
+        "TEST-EMB-02-02"
+      ],
+      "rationale": "Mandatory inventory and typed empty."
+    },
+    {
+      "inventory_id": "preserve:0723",
+      "requirement_ids": [
+        "REQ-EMB-02-01",
+        "REQ-EMB-02-02"
+      ],
+      "test_ids": [
+        "TEST-EMB-02-01",
+        "TEST-EMB-02-02"
+      ],
+      "rationale": "Old generation preserved."
+    },
+    {
+      "inventory_id": "preserve:0724",
+      "requirement_ids": [
+        "REQ-EMB-02-02"
+      ],
+      "test_ids": [
+        "TEST-EMB-02-02"
+      ],
+      "rationale": "Postcommit copy distinction."
+    },
+    {
+      "inventory_id": "preserve:0725",
+      "requirement_ids": [
+        "REQ-EMB-02-03"
+      ],
+      "test_ids": [
+        "TEST-EMB-02-03"
+      ],
+      "rationale": "Current membership/text."
+    },
+    {
+      "inventory_id": "preserve:0726",
+      "requirement_ids": [
+        "REQ-EMB-02-01",
+        "REQ-EMB-02-03"
+      ],
+      "test_ids": [
+        "TEST-EMB-02-01",
+        "TEST-EMB-02-03"
+      ],
+      "rationale": "Semantic checks at both boundaries."
+    },
+    {
+      "inventory_id": "preserve:0727",
+      "requirement_ids": [
+        "REQ-EMB-02-03"
+      ],
+      "test_ids": [
+        "TEST-EMB-02-03"
+      ],
+      "rationale": "Legacy refusal with useful text fallback."
+    }
+  ],
+  "owners": [
+    "src/polisyos/data_forge/kernel/embeddings.py",
+    "src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+    "src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+    "src/polisyos/data_forge/domains/academic/knowledge/store.py"
+  ]
+}

@@ -11,8 +11,23 @@ from typing import Any
 
 from tools.lib.fs import atomic_write_text
 from tools.lib.imports import ensure_repo_import_roots
+from tools.ops_runners.migrations.contracts import (
+    resolve_contract_root,
+    resolve_helper_implementation,
+    validate_helper_binding,
+)
 
-REPO_ROOT, SRC_ROOT = ensure_repo_import_roots(__file__)
+
+def _resolve_migration_roots(module_path: str | Path) -> tuple[Path, Path]:
+    """Resolve contract roots without adding a checkout to an installed runner."""
+    module_file = Path(module_path).resolve()
+    root = resolve_contract_root(module_path=module_file)
+    if module_file == (root / "tools/ops_runners/migrations/migrate.py").resolve():
+        ensure_repo_import_roots(module_file)
+    return root, root / "src"
+
+
+REPO_ROOT, SRC_ROOT = _resolve_migration_roots(__file__)
 
 try:
     import yaml  # type: ignore
@@ -22,9 +37,7 @@ except ImportError:
 from polisyos.common.migrations import (
     migrate_artifact as migrate_common_artifact,
 )
-from polisyos.ir.migrations import POLICY_IR_CURRENT_VERSION, migrate_policy_ir
-from polisyos.runtime.manifest_migrations import migrate_run_manifest_paths
-from tools.ops_runners.migrations.contracts import validate_helper_binding
+from polisyos.ir.migrations import POLICY_IR_CURRENT_VERSION
 
 
 def _load(path: Path) -> tuple[dict[str, Any], str]:
@@ -43,6 +56,8 @@ def _load(path: Path) -> tuple[dict[str, Any], str]:
 
 
 def _dump(path: Path, data: dict[str, Any], fmt: str) -> None:
+    if not isinstance(data, dict):
+        raise TypeError("migration output must be a JSON/YAML object")
     if fmt == "yaml":
         if yaml is None:
             raise RuntimeError("PyYAML is not installed; only JSON is supported.")
@@ -58,11 +73,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("output", type=Path)
     parser.add_argument("--to", dest="target_version")
     args = parser.parse_args(argv)
-    validate_helper_binding(args.artifact, REPO_ROOT)
+    binding = validate_helper_binding(args.artifact, REPO_ROOT)
+    implementation = resolve_helper_implementation(binding)
 
     data, fmt = _load(args.input)
     if args.artifact == "run_manifest":
-        migrated = migrate_run_manifest_paths(
+        migrated = implementation(
             data,
             manifest_path=args.input,
             target_version=args.target_version,
@@ -72,16 +88,14 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.artifact == "policy_ir":
         target = args.target_version or POLICY_IR_CURRENT_VERSION
-        migrated = migrate_policy_ir(data, target)
+        migrated = implementation(data, target)
     else:
-        from polisyos.fabric.identity.migrations import (
-            MANIFEST_CURRENT_VERSION,
-            register_manifest_migration,
-        )
+        from polisyos.fabric.identity.migrations import MANIFEST_CURRENT_VERSION
 
-        register_manifest_migration()
         target = args.target_version or MANIFEST_CURRENT_VERSION
-        migrated = migrate_common_artifact(data, args.artifact, target)
+        migrated = migrate_common_artifact(
+            data, args.artifact, target, selected_edges={"0.9": ("1.0", implementation)}
+        )
     _dump(args.output, migrated, fmt)
     return 0
 

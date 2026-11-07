@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import copy
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 
 from polisyos.common.migrations._engine import (
     LinearMigrationProfile,
@@ -90,12 +90,33 @@ def migrate_artifact(
     data: ArtifactPayload,
     artifact: str,
     target_version: str,
+    *,
+    selected_edges: Mapping[str, tuple[str, MigrationFn]] | None = None,
 ) -> ArtifactPayload:
-    """Apply the registered migration chain without mutating caller-owned input."""
+    """Apply the migration chain without mutating caller-owned input.
+
+    Args:
+        data: Payload to copy and migrate.
+        artifact: Registry artifact key.
+        target_version: Requested schema version.
+        selected_edges: Optional version edges selected for this call. They
+            override the registry in a per-call snapshot and never register
+            their callbacks globally.
+    """
+    edge_lookup = _lookup_common_edge
+    if selected_edges is not None:
+        edges = dict(_MIGRATIONS.get(artifact, {}))
+        edges.update(selected_edges)
+
+        def selected_lookup(_artifact: str, from_version: str) -> tuple[str, MigrationFn] | None:
+            return edges.get(from_version)
+
+        edge_lookup = selected_lookup
+
     return run_linear_migration(
         data,
         artifact=artifact,
         target_version=target_version,
-        edge_lookup=_lookup_common_edge,
+        edge_lookup=edge_lookup,
         profile=_COMMON_PROFILE,
     )

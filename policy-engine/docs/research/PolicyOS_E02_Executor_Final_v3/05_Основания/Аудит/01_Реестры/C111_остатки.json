@@ -1,0 +1,44 @@
+{
+  "pass_id": "C111",
+  "bundle": "CAL-06",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C111-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "title": "Не назначенный в active groups handle блокирует пригодную projection выбранных tied полей",
+      "evidence": [
+        "P03",
+        "S01:2020–2107",
+        "S01:3305–3311",
+        "S01:3514–3533",
+        "S03:260–284",
+        "S02:177–260"
+      ],
+      "remaining": "Согласовать producer report scope и существующий projection contract так, чтобы validated active A/B covariance сохранялась при явно неизвестной uncertainty других полей. Не удалять complete/coordinate guards и не назначать неоценённому C.rate fake zero variance. Разделить фиксированные reported values и подтверждённый uncertainty scope либо дать явное ограниченное представление на существующих contracts.",
+      "limits": "Actual selected group resolver/projection/DTO/adapter: A/B tied group даёт 2 envelopes; добавление не назначенного C.rate даёт incomplete и 0. Group covariance остаётся в report, запрет безопасен, это availability/partial-result loss, не false authority. Full optimizer не запускался."
+    },
+    {
+      "id": "C111-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Full native calibration→CAS→propagation и broader law qualification не выполнены",
+      "evidence": [
+        "P01",
+        "P02",
+        "P04",
+        "commands.json",
+        "S03",
+        "S06"
+      ],
+      "remaining": "В поддерживаемой среде квалифицировать existing tied/untied, renamed group, partial scope, unknown STD, incompatible bounds и typed-scale roundtrip вместе с actual persistence и propagation. Сохранить singular dependence и heuristic/gate prohibition. Legacy interval fallback не считать универсальным Normal-law; более широкие UQP consumers оцениваются в своей очереди, не объявлены закрытыми здесь.",
+      "limits": "Actual selected DTO JSON не CAS; Gaussian joint builder не full MonteCarloPropagator. Reference-only annotation Any не проверяет artifact admission. JAX/pytest отсутствуют. Conditional Hessian scale не empirical/inferential authority; numeric policy и heuristics остаются ограничениями."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C111-R01"
+  ],
+  "decision": "Explicit tied projection и typed conditional law полезно реализованы. Partial active scope теряется при unrelated unassigned handle; full native persistence/propagation qualification открыта."
+}

@@ -962,7 +962,13 @@ class EvidenceSourceStatus(BaseModel):
 
 
 class CrossGraphEvidenceProfile(BaseModel):
-    """Cross graph evidence profile data model."""
+    """Collect cross-graph evidence needs, assessments, and source-state summaries.
+
+    The profile records diagnostics, ontology concepts and bridges, source
+    references and statuses, benchmark summaries, and optional target context
+    for planning and governance consumers. It organizes reported evidence state;
+    it is not by itself an admissibility decision or proof of source currency.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 

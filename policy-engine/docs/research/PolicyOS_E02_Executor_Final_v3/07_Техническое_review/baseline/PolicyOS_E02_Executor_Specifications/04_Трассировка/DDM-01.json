@@ -1,0 +1,309 @@
+{
+  "packet_id": "DDM-01",
+  "title": "Квалификация canonical contracts/lazy facade без повторного move",
+  "goal": "Contract consumers получают один тип без загрузки monitoring orchestration, public monitor остаётся доступным.",
+  "work_type": "preserve/qualify-only C121-G01/G02; product changes только по reproduced mismatch",
+  "preservation": [
+    "LK01/14: DDM monitoring не Foundry fit/predictive calibration/N11 ledger.",
+    "Canonical events/budget identity, lazy parents и forwarding old FQN.",
+    "LK35 manual channel schema и runtime reversed-window guards разные; LK33/34 current validity/R2/diagnostic roles принадлежат DDM-02."
+  ],
+  "technical_solution": [
+    "Не менять canonical contracts/events.py/metric_budget.py и lazy __getattr__ без native mismatch. Existing facade/compatibility/fresh-consumer tests — primary owners.",
+    "G01 run supported3.14 pinned extras; test that RFC3339 checker installed, не лечить missing environment удалением schema format. Build/package evidence reuses LANE12, без второго packaging harness.",
+    "G02 bounded current/historical/plugin census, retain forwarding until owner/release window and all found consumers migrated. ReadinessPolicy remains executable readiness owner. Новые DDM-02 fields отдельно от equivalent relocation evidence; currentHEAD не доказывает byte-equivalent historical commit."
+  ],
+  "owners": [
+    "src/polisyos/ddm/__init__.py",
+    "src/polisyos/ddm/contracts/events.py",
+    "src/polisyos/ddm/contracts/metric_budget.py",
+    "src/polisyos/ddm/integration/__init__.py",
+    "src/polisyos/ddm/integration/events.py",
+    "src/polisyos/ddm/integration/shift_event.schema.json",
+    "tests/unit/ddm/test_facade.py",
+    "tests/unit/ddm/test_contract_compatibility.py",
+    "tests/unit/ddm/test_contract_fresh_consumers.py"
+  ],
+  "shared_scenarios": [
+    "E02-I11-B",
+    "E02-I12-A"
+  ],
+  "coordination": "DDM-02 owns applicability/policy/source extension. LANE12 owns actual package evidence, not DDM semantic tests. MOVE-10 already resolved to actual current owners.",
+  "compatibility": "Old supported FQN exports retained. Trusted historical pickle only, не произвольные внешние bytes. Explicit alias exit decision требует corpus/consumer evidence; отсутствие найденных consumers не доказательство отсутствия внешних.",
+  "design_alignment": [
+    "[Stage-0 §4.3](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md#43-k06--fail-closed-binds-the-protected-action-not-the-computation) и [синтез §4](../05_Основания/Исследование/design_direction.md): защищённый claim ограничивается своим основанием; useful diagnostic computation не блокируется целиком."
+  ],
+  "open_decisions": [
+    "DEC-DDM-01-01: inventory обнаруженных plugin/FQN/historical readers; определить поддерживаемое окно forwarding и evidence для retirement. Если historical corpus недоступен, bounded fixture qualification с точной границей, не invented PASS."
+  ],
+  "acceptance": "Нет обязательного нового product diff. Native tests/resources/format checker и historical qualification отдельно; canonical identity не gate equivalence.",
+  "lane": "LANE-11",
+  "source_ids": [
+    "LA-056"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/DDM-01.md"
+  ],
+  "requirements": [
+    {
+      "text": "Cold contract-only imports не должны загружать monitor/registry/incident; все supported old exports возвращают canonical class objects, root monitor API доступен по запросу.",
+      "source_ids": [
+        "LA-056"
+      ],
+      "audit_ids": [
+        "C121-G01"
+      ],
+      "id": "REQ-DDM-01-01",
+      "test_ids": [
+        "TEST-DDM-01-01"
+      ]
+    },
+    {
+      "text": "Canonical relocation должна сохранять enum/event_type/pass aliases, strict extras и native validation; manual anyOf channel и runtime cross-field windows не заменяют друг друга.",
+      "source_ids": [
+        "LA-056"
+      ],
+      "audit_ids": [
+        "C121-G01"
+      ],
+      "id": "REQ-DDM-01-02",
+      "test_ids": [
+        "TEST-DDM-01-02"
+      ]
+    },
+    {
+      "text": "Supported historical FQN/plugin/serialization consumers должны быть проверены на фактически доступном corpus; synthetic fixture не выдаётся за historical replay, aliases не удаляются до exit criteria.",
+      "source_ids": [
+        "LA-056"
+      ],
+      "audit_ids": [
+        "C121-G02"
+      ],
+      "id": "REQ-DDM-01-03",
+      "test_ids": [
+        "TEST-DDM-01-03"
+      ]
+    },
+    {
+      "text": "Actual monitor должен сохранять drift-only/diagnostic-only/readiness/incident outputs; relocation не считается выполненной applicability/R2/authority работой DDM-02.",
+      "source_ids": [
+        "LA-056"
+      ],
+      "audit_ids": [
+        "C121-G02"
+      ],
+      "id": "REQ-DDM-01-04",
+      "test_ids": [
+        "TEST-DDM-01-04"
+      ]
+    },
+    {
+      "text": "Installed wheel/sdist и supported tooling должны сохранять contract resources/exports, typing/import boundaries и действующий date-time checker.",
+      "source_ids": [
+        "LA-056"
+      ],
+      "audit_ids": [
+        "C121-G01"
+      ],
+      "id": "REQ-DDM-01-05",
+      "test_ids": [
+        "TEST-DDM-01-01",
+        "TEST-DDM-01-02",
+        "TEST-DDM-01-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "cold processes/import trap",
+      "setup": "Fresh process для root/contracts/events/budget/old-events; trap monitor import; installed package profile.",
+      "action": "Import каждый surface, затем actual root monitor export.",
+      "oracle": "Contracts не достигают trap, actual monitor достигает контрольного trap; без trap доступен. Все14 event/enum exports и budget old/new is-identical.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DDM-01-01",
+      "requirement_ids": [
+        "REQ-DDM-01-01",
+        "REQ-DDM-01-05"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "runtime/manual schema corpus",
+      "setup": "Valid shift; no p/e/ert; reversed window; bad RFC3339 date; pass/pass_; nested extra.",
+      "action": "Actual Pydantic и manual JSON schema with installed format-nongpl checker; проверить checker capability отрицательной датой.",
+      "oracle": "No-channel runtime+manual reject, plain generated shape не заменяет их; reversed window runtime reject; malformed date действительно reject, не просто создан FormatChecker. Existing aliases/literals preserved.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DDM-01-02",
+      "requirement_ids": [
+        "REQ-DDM-01-02",
+        "REQ-DDM-01-05"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "historical + package",
+      "setup": "Finite inventory plugins/FQN/resources и доступных trusted historical bytes; synthetic old-FQN event/budget controls отдельно.",
+      "action": "Fresh reader JSON/pickle только trusted existing corpus; wheel/sdist resource/import census совместно с LANE12.",
+      "oracle": "Actual discovered consumers pass declared profile либо explicit migration issue; unknown corpus not claimed checked. No duplicate classes, old globals remain forwarding. Payload semantic/bytes where promised unchanged.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DDM-01-03",
+      "requirement_ids": [
+        "REQ-DDM-01-03",
+        "REQ-DDM-01-05"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "E02-I11-B monitor",
+      "setup": "Real shift .95; identical diagnostic-only control; no production registry grant.",
+      "action": "Actual monitor→risk/readiness/root-cause/incident.",
+      "oracle": "Drift-only R2, diagnostic-only R4 under existing default profile; typed useful outputs present, registry_record None without context. No deployment/retrain side effect; DDM-02 gates separately.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DDM-01-04",
+      "requirement_ids": [
+        "REQ-DDM-01-04"
+      ],
+      "status": "NOT_RUN"
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "LA-056",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Move/lazy repaired; не повторять физический перенос.",
+      "requirement_ids": [
+        "REQ-DDM-01-01",
+        "REQ-DDM-01-02",
+        "REQ-DDM-01-03",
+        "REQ-DDM-01-04",
+        "REQ-DDM-01-05"
+      ]
+    },
+    {
+      "audit_id": "C121-G01",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Native supported extras/package qualification; отсутствующий optional checker не schema bug.",
+      "requirement_ids": [
+        "REQ-DDM-01-01",
+        "REQ-DDM-01-02",
+        "REQ-DDM-01-05"
+      ],
+      "inventory_id": "audit-residual:C121_остатки:0"
+    },
+    {
+      "audit_id": "C121-G02",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Реальный historical census и DDM-02 semantic ownership.",
+      "requirement_ids": [
+        "REQ-DDM-01-03",
+        "REQ-DDM-01-04"
+      ],
+      "inventory_id": "audit-residual:C121_остатки:1"
+    }
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "SPECIFICATION_NOT_IMPLEMENTED",
+  "dependencies": [],
+  "protected_distinction_ids": [
+    "LK01",
+    "LK14",
+    "LK33",
+    "LK34",
+    "LK35"
+  ],
+  "original_source": "../05_Основания/Аудит/05_Источники/DDM-01_исходные_строки.txt",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0489",
+      "requirement_ids": [
+        "REQ-DDM-01-01",
+        "REQ-DDM-01-02",
+        "REQ-DDM-01-05"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native supported extras/package qualification; отсутствующий optional checker не schema bug."
+    },
+    {
+      "inventory_id": "remaining:0490",
+      "requirement_ids": [
+        "REQ-DDM-01-03",
+        "REQ-DDM-01-04"
+      ],
+      "disposition": "lifecycle",
+      "rationale": "Реальный historical census и DDM-02 semantic ownership."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0798",
+      "requirement_ids": [
+        "REQ-DDM-01-01"
+      ],
+      "test_ids": [
+        "TEST-DDM-01-01"
+      ],
+      "rationale": "Single canonical event/budget object — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0799",
+      "requirement_ids": [
+        "REQ-DDM-01-01"
+      ],
+      "test_ids": [
+        "TEST-DDM-01-01"
+      ],
+      "rationale": "Lazy root/integration facades — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0800",
+      "requirement_ids": [
+        "REQ-DDM-01-03"
+      ],
+      "test_ids": [
+        "TEST-DDM-01-03"
+      ],
+      "rationale": "Legacy forwarding and pickle globals — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0801",
+      "requirement_ids": [
+        "REQ-DDM-01-02"
+      ],
+      "test_ids": [
+        "TEST-DDM-01-02"
+      ],
+      "rationale": "Manual channel schema plus runtime cross-field guards — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0802",
+      "requirement_ids": [
+        "REQ-DDM-01-04"
+      ],
+      "test_ids": [
+        "TEST-DDM-01-04"
+      ],
+      "rationale": "ReadinessPolicy owner — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0803",
+      "requirement_ids": [
+        "REQ-DDM-01-04"
+      ],
+      "test_ids": [
+        "TEST-DDM-01-04"
+      ],
+      "rationale": "Diagnostic-only/drift-only distinctions — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    }
+  ]
+}

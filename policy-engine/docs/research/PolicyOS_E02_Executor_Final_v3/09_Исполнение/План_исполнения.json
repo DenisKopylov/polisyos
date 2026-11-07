@@ -1,0 +1,4040 @@
+{
+  "version": "1.0",
+  "status": "EXECUTOR_SCHEDULE_NOT_IMPLEMENTATION_EVIDENCE",
+  "baseline_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "lane_order": [
+    "LANE-06",
+    "LANE-08",
+    "LANE-07",
+    "LANE-04",
+    "LANE-10",
+    "LANE-05",
+    "LANE-09",
+    "LANE-01",
+    "LANE-03",
+    "LANE-02",
+    "LANE-11",
+    "LANE-12"
+  ],
+  "packet_count": 127,
+  "scope": "One active lane implementation window at a time; independent tracks inside it subject to actual write leases and resource budget. Deferred acceptance is not PASS or permission to implement against missing contracts.",
+  "lanes": [
+    {
+      "sequence": 1,
+      "lane_id": "LANE-06",
+      "reason_for_position": "Runtime/state, durable effect и CAS нужны downstream; сначала квалифицировать существующие primitives, не ждать consumers всех лейнов.",
+      "tracks": [
+        {
+          "track_id": "06-A",
+          "packets": [
+            "STA-01",
+            "STA-02",
+            "RES-02",
+            "RES-01",
+            "EXE-02",
+            "RES-03",
+            "REP-01"
+          ],
+          "serial_order": true,
+          "meaning": "State/journal→cache→atomic frontier→fresh resume→dependency ordering→partial leaf→CLI replay",
+          "shared_write_boundaries": [
+            "engine/state_merge.py",
+            "engine/async_executor.py",
+            "engine/idempotency.py",
+            "checkpoint readers",
+            "runtime generation_cycle.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "STA-01": [
+              "src/polisyos/scientist/nodes/builtins/guards.py",
+              "src/polisyos/scientist/orchestration/engine/executor.py",
+              "src/polisyos/scientist/orchestration/engine/idempotency.py",
+              "src/polisyos/scientist/orchestration/engine/state_branching.py",
+              "src/polisyos/scientist/orchestration/engine/state_merge.py"
+            ],
+            "STA-02": [
+              "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+              "src/polisyos/foundry/methods/catalog/causal/parameter_transfer.py",
+              "src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+              "src/polisyos/scientist/orchestration/engine/idempotency.py",
+              "src/polisyos/scientist/orchestration/engine/skg_snapshot.py"
+            ],
+            "RES-02": [
+              "src/polisyos/scientist/orchestration/engine/async_executor.py",
+              "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+              "tests/unit/remediation/test_res_02.py"
+            ],
+            "RES-01": [
+              "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+              "src/polisyos/scientist/orchestration/engine/idempotency.py",
+              "src/polisyos/scientist/orchestration/engine/runner/local_runner.py"
+            ],
+            "EXE-02": [
+              "src/polisyos/scientist/orchestration/engine/async_executor.py",
+              "src/polisyos/scientist/orchestration/engine/state_merge.py",
+              "tests/unit/remediation/test_exe_02.py"
+            ],
+            "RES-03": [
+              "src/polisyos/foundry/methods/backends/async_chain_executor.py",
+              "src/polisyos/runtime/http/routes/runs.py",
+              "src/polisyos/runtime/http/services/control/generation_cycle.py",
+              "src/polisyos/runtime/quality/generation_cycle.py",
+              "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+              "src/polisyos/scientist/orchestration/workflows/engine_simple.py"
+            ],
+            "REP-01": [
+              "architecture/imports/dynamic.toml",
+              "benchmarks/advanced/common.py",
+              "src/polisyos/core/components/_cli_replay.py",
+              "src/polisyos/runtime/__init__.py",
+              "src/polisyos/runtime/manifest",
+              "src/polisyos/runtime/replay.py",
+              "src/polisyos/scientist/replay/backend.py",
+              "src/polisyos/scientist/replay/deterministic.py"
+            ]
+          }
+        },
+        {
+          "track_id": "06-B",
+          "packets": [
+            "RUN-01",
+            "EXE-01",
+            "RUN-02",
+            "WIRE-01",
+            "RUN-03",
+            "DUR-01",
+            "DUR-02"
+          ],
+          "serial_order": true,
+          "meaning": "Deadline/async bridge→process/typed receipt→known cost→durability→fenced continuation",
+          "shared_write_boundaries": [
+            "common/async_tools/__init__.py",
+            "engine/retry.py",
+            "budget_ledger.py",
+            "budget_middleware.py",
+            "process lifecycle"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "RUN-01": [
+              "src/polisyos/common/async_tools/__init__.py",
+              "src/polisyos/fabric/data_plane/orchestrator.py",
+              "src/polisyos/scientist/orchestration/engine/retry.py"
+            ],
+            "EXE-01": [
+              "src/polisyos/common/async_tools/__init__.py",
+              "src/polisyos/core/artifacts/async_store.py",
+              "src/polisyos/scientist/orchestration/engine/async_executor.py",
+              "src/polisyos/scientist/orchestration/engine/idempotency.py",
+              "src/polisyos/scientist/orchestration/engine/retry.py"
+            ],
+            "RUN-02": [
+              "src/polisyos/scientist/orchestration/engine/retry.py",
+              "src/polisyos/scientist/orchestration/engine/runner/serialization.py"
+            ],
+            "WIRE-01": [
+              "src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+              "tests/unit/remediation/test_wire_01.py",
+              "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py"
+            ],
+            "RUN-03": [
+              "src/polisyos/scientist/orchestration/engine/executor.py",
+              "src/polisyos/scientist/orchestration/engine/protocol.py",
+              "src/polisyos/scientist/orchestration/engine/retry.py",
+              "src/polisyos/scientist/orchestration/engine/runner/error_classifier.py"
+            ],
+            "DUR-01": [
+              "src/polisyos/core/artifacts/_atomic_write.py",
+              "src/polisyos/core/llm/traced_client.py",
+              "src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+              "src/polisyos/scientist/orchestration/engine/budget_middleware.py"
+            ],
+            "DUR-02": [
+              "src/polisyos/runtime/http/services/control_plane_store.py",
+              "src/polisyos/runtime/http/services/control_worker.py",
+              "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+              "src/polisyos/scientist/orchestration/engine/runner/fallback_runner.py"
+            ]
+          }
+        },
+        {
+          "track_id": "06-C",
+          "packets": [
+            "CAS-01",
+            "CAS-02",
+            "CAS-03"
+          ],
+          "serial_order": true,
+          "meaning": "Selected views→phase-aware transfer→signature/snapshot/cancellation",
+          "shared_write_boundaries": [
+            "core/artifacts/store.py",
+            "_transfer_ops.py",
+            "_signature_ops.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "CAS-01": [
+              "src/polisyos/core/artifacts/_atomic_write.py",
+              "src/polisyos/core/artifacts/_manifest_lifecycle.py",
+              "src/polisyos/core/artifacts/ownership.py",
+              "src/polisyos/core/artifacts/store.py"
+            ],
+            "CAS-02": [
+              "src/polisyos/core/artifacts/_atomic_write.py",
+              "src/polisyos/core/artifacts/_transfer_ops.py",
+              "src/polisyos/core/artifacts/store.py"
+            ],
+            "CAS-03": [
+              "src/polisyos/core/artifacts/_integrity_ops.py",
+              "src/polisyos/core/artifacts/_signature_ops.py",
+              "src/polisyos/core/artifacts/batch_control.py",
+              "src/polisyos/core/artifacts/store.py",
+              "src/polisyos/core/components/_cli_crypto.py"
+            ]
+          }
+        },
+        {
+          "track_id": "06-D",
+          "packets": [
+            "CAN-01",
+            "MIG-05",
+            "MIG-01",
+            "MIG-02",
+            "MIG-04"
+          ],
+          "serial_order": true,
+          "meaning": "Canonical profiles→shared linear migration→single cleanup owner→converters/readers",
+          "shared_write_boundaries": [
+            "common/IR migration engine",
+            "tools/lib/fs.py",
+            "tools/ops_runners/migrations/migrate.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "CAN-01": [
+              "src/polisyos/common/canonical.py",
+              "src/polisyos/common/canonical_profile.py",
+              "src/polisyos/common/hashing.py",
+              "src/polisyos/core/canon/canon_json.py",
+              "src/polisyos/ir/artifacts/io.py",
+              "src/polisyos/ir/model_layer/canon.py"
+            ],
+            "MIG-05": [
+              "src/polisyos/common/migrations/_engine.py",
+              "src/polisyos/common/migrations/base.py",
+              "src/polisyos/data_forge/kernel/schemas/migrations.py",
+              "src/polisyos/ir/migrations/base.py",
+              "src/polisyos/ir/migrations/policy_ir.py"
+            ],
+            "MIG-01": [
+              "ops/migrations/migration-contracts.toml",
+              "src/polisyos/ir/loading/loaders.py",
+              "src/polisyos/ir/migrations/__init__.py",
+              "src/polisyos/ir/migrations/policy_ir.py",
+              "tools/lib/fs.py",
+              "tools/ops_runners/migrations/migrate.py"
+            ],
+            "MIG-02": [
+              "src/polisyos/runtime/api.py",
+              "src/polisyos/runtime/manifest",
+              "src/polisyos/runtime/manifest_migrations.py",
+              "tools/ops_runners/migrations/migrate.py"
+            ],
+            "MIG-04": [
+              "src/polisyos/common/migrations/base.py",
+              "src/polisyos/common/migrations/manifest.py",
+              "src/polisyos/fabric/_internal/registry.py",
+              "src/polisyos/fabric/identity/manifest.py",
+              "src/polisyos/fabric/identity/migrations.py",
+              "tools/ops_runners/migrations/migrate.py"
+            ]
+          }
+        }
+      ],
+      "cross_track_gates": [
+        {
+          "before": [
+            "STA-01"
+          ],
+          "after": [
+            "EXE-01"
+          ],
+          "reason": "EXE-01 исходный dependency STA-01; RUN-01 уже раньше в06-B"
+        },
+        {
+          "before": [
+            "RES-02"
+          ],
+          "after": [
+            "DUR-02"
+          ],
+          "reason": "DUR-02 takeover использует настоящий checkpoint frontier"
+        },
+        {
+          "before": [
+            "CAS-01"
+          ],
+          "after": [
+            "RES-02"
+          ],
+          "reason": "Native CAS profile должен быть квалифицирован до durable checkpoint witness; repair непересекающихся state files можно готовить раньше"
+        },
+        {
+          "before": [
+            "EXE-01"
+          ],
+          "after": [
+            "EXE-02"
+          ],
+          "reason": "Общий async_executor/idempotency writer; не конфликтовать со state-track"
+        },
+        {
+          "before": [
+            "MIG-01"
+          ],
+          "after": [
+            "MIG-02",
+            "MIG-04"
+          ],
+          "reason": "C79 cleanup единственный owner MIG-01, уже отражён serial order"
+        }
+      ],
+      "local_exit_evidence": "I06-A/C/D/E и доступные части I06-B с настоящими primitives. Для RES-03 проверить текущие CMP-01/CYC-02 contracts до edit. RES-02→RES-01 здесь означает сначала atomic-frontier primitive, затем sufficient-state/fresh-resume proof: исходный JSON RES-01 требует RES-02. Это не отменяет взаимный consumer review.",
+      "deferred_acceptance_ids": [
+        "DA-01",
+        "DA-08"
+      ],
+      "topological_ready_batches": [
+        [
+          "CAN-01",
+          "CAS-01",
+          "RUN-01",
+          "STA-01"
+        ],
+        [
+          "CAS-02",
+          "EXE-01",
+          "MIG-05",
+          "STA-02"
+        ],
+        [
+          "CAS-03",
+          "MIG-01",
+          "RES-02",
+          "RUN-02"
+        ],
+        [
+          "MIG-02",
+          "RES-01",
+          "WIRE-01"
+        ],
+        [
+          "EXE-02",
+          "MIG-04",
+          "RUN-03"
+        ],
+        [
+          "DUR-01",
+          "RES-03"
+        ],
+        [
+          "DUR-02",
+          "REP-01"
+        ]
+      ],
+      "ready_batch_warning": "Готовность по порядку не выдаёт simultaneous write lease. Перед запуском конкретных patches проверить фактический write set; общий файл/semantic owner/resource сериализует работу даже внутри batch.",
+      "packet_count": 22,
+      "evidence_input_version": "immutable delivered v2, schedule derivation source; not a claim of final-v3 file hash",
+      "evidence_inputs": [
+        {
+          "path": "01_Лейны/LANE-06.md",
+          "sha256": "6fa64228b13d5ed3fe46edab10fe7e18fa6787c89fce172e42ffab611f92f9f6"
+        }
+      ],
+      "original_packet_dependencies": {
+        "STA-01": [
+          "STA-02: cache identity contract",
+          "RES-01 / RES-02: checkpoint readers",
+          "RUN-03 / DUR-01 / DUR-02: external effects"
+        ],
+        "STA-02": [
+          "STA-01"
+        ],
+        "RES-02": [
+          "STA-01"
+        ],
+        "RES-01": [
+          "STA-02",
+          "RES-02"
+        ],
+        "EXE-02": [
+          "RES-02",
+          "RES-01"
+        ],
+        "RES-03": [
+          "CYC-02",
+          "CMP-01"
+        ],
+        "REP-01": [],
+        "RUN-01": [],
+        "EXE-01": [
+          "STA-01",
+          "RUN-01"
+        ],
+        "RUN-02": [
+          "RUN-01"
+        ],
+        "WIRE-01": [],
+        "RUN-03": [
+          "STA-01",
+          "RUN-01"
+        ],
+        "DUR-01": [],
+        "DUR-02": [
+          "RUN-03",
+          "RES-02"
+        ],
+        "CAS-01": [],
+        "CAS-02": [
+          "CAS-01"
+        ],
+        "CAS-03": [
+          "CAS-01"
+        ],
+        "CAN-01": [],
+        "MIG-05": [
+          "MIG-01 / MIG-02 / MIG-04: реальные converter/reader witnesses",
+          "CAN-01: исторический profile contract"
+        ],
+        "MIG-01": [],
+        "MIG-02": [
+          "MIG-01"
+        ],
+        "MIG-04": [
+          "MIG-01"
+        ]
+      }
+    },
+    {
+      "sequence": 2,
+      "lane_id": "LANE-08",
+      "reason_for_position": "После CAS/runtime создать реальные ingestion/embedding generations, нужные Fabric и acquisition.",
+      "tracks": [
+        {
+          "track_id": "08-A",
+          "packets": [
+            "DFK-02",
+            "DFI-01",
+            "DFI-02",
+            "DFI-03"
+          ],
+          "serial_order": true,
+          "meaning": "Catalog admission→leaf ingestion→pipeline→selected generation resume",
+          "shared_write_boundaries": [
+            "catalog registry/selection",
+            "catalog/batch/pipeline.py",
+            "catalog checkpoints/CLI"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "DFK-02": [
+              "src/polisyos/data_forge/domains/catalog/registry.py",
+              "src/polisyos/data_forge/domains/catalog/selection.py",
+              "src/polisyos/data_forge/domains/catalog/source_modules.py",
+              "src/polisyos/fabric/retrieval/service.py"
+            ],
+            "DFI-01": [
+              "src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+              "src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+              "src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+              "src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py"
+            ],
+            "DFI-02": [
+              "src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+              "src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
+              "src/polisyos/data_forge/domains/catalog/batch/pipeline.py"
+            ],
+            "DFI-03": [
+              "src/polisyos/data_forge/domains/catalog/batch/checkpoints.py",
+              "src/polisyos/data_forge/domains/catalog/batch/cli.py",
+              "src/polisyos/data_forge/domains/catalog/batch/harvester.py",
+              "src/polisyos/data_forge/domains/catalog/batch/pipeline.py"
+            ]
+          }
+        },
+        {
+          "track_id": "08-D",
+          "packets": [
+            "EMB-01",
+            "EMB-02",
+            "EMB-03"
+          ],
+          "serial_order": true,
+          "meaning": "Embedding compute→semantic publication→Legal serving",
+          "shared_write_boundaries": [
+            "kernel/embeddings.py",
+            "catalog/batch/pipeline.py",
+            "Legal knowledge/store"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "EMB-01": [
+              "src/polisyos/data_forge/domains/academic/batch/embedder.py",
+              "src/polisyos/data_forge/domains/catalog/batch/embedder.py",
+              "src/polisyos/data_forge/kernel/embeddings.py"
+            ],
+            "EMB-02": [
+              "src/polisyos/data_forge/domains/academic/knowledge/store.py",
+              "src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+              "src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+              "src/polisyos/data_forge/kernel/embeddings.py"
+            ],
+            "EMB-03": [
+              "src/polisyos/data_forge/domains/legal/batch/cli.py",
+              "src/polisyos/data_forge/domains/legal/batch/embedder.py",
+              "src/polisyos/data_forge/domains/legal/runtime_material.py",
+              "src/polisyos/data_forge/domains/legal/source_relation.py",
+              "src/polisyos/data_forge/kernel/embeddings.py",
+              "src/polisyos/lex/knowledge/store.py"
+            ]
+          }
+        },
+        {
+          "track_id": "08-B",
+          "packets": [
+            "NET-01",
+            "ING-01",
+            "ING-02",
+            "ING-03"
+          ],
+          "serial_order": true,
+          "meaning": "Physical pool/cursor→frontier/withdrawal→schema/quarantine",
+          "shared_write_boundaries": [
+            "fabric/data_plane/streaming.py",
+            "cursor_store.py",
+            "core/artifacts/store.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "NET-01": [
+              "src/polisyos/fabric/connectors/_registry_lifecycle.py",
+              "src/polisyos/fabric/connectors/pool.py",
+              "src/polisyos/fabric/connectors/registry_core_parts.py",
+              "src/polisyos/fabric/data_plane/streaming.py"
+            ],
+            "ING-01": [
+              "src/polisyos/fabric/connectors/testing/simulator.py",
+              "src/polisyos/fabric/data_plane/cursor_store.py",
+              "src/polisyos/fabric/data_plane/modes.py",
+              "src/polisyos/fabric/data_plane/replay_store.py",
+              "src/polisyos/fabric/ingestion/ingestion.py",
+              "src/polisyos/fabric/ingestion/source_progress.py"
+            ],
+            "ING-02": [
+              "src/polisyos/core/artifacts/store.py",
+              "src/polisyos/fabric/data_plane/cursor_store.py",
+              "src/polisyos/fabric/data_plane/streaming.py"
+            ],
+            "ING-03": [
+              "src/polisyos/fabric/connectors/contracts/_schema_field.py",
+              "src/polisyos/fabric/data_plane/quarantine.py",
+              "src/polisyos/fabric/data_plane/schema_rows.py",
+              "src/polisyos/fabric/data_plane/streaming.py"
+            ]
+          }
+        },
+        {
+          "track_id": "08-C",
+          "packets": [
+            "NET-02"
+          ],
+          "serial_order": true,
+          "meaning": "Rate/circuit feedback и optional observability",
+          "shared_write_boundaries": [
+            "resilience/rate_limiter.py",
+            "circuit_breaker.py",
+            "reference/rest_json.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "NET-02": [
+              "src/polisyos/fabric/connectors/reference/rest_json.py",
+              "src/polisyos/fabric/connectors/resilience/__init__.py",
+              "src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+              "src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+              "src/polisyos/fabric/connectors/resilience/rate_limiter.py"
+            ]
+          }
+        }
+      ],
+      "cross_track_gates": [
+        {
+          "before": [
+            "DFI-02"
+          ],
+          "after": [
+            "EMB-02"
+          ],
+          "reason": "Catalog pipeline counter/facade patch до embedding consumption; one pipeline.py writer"
+        },
+        {
+          "before": [
+            "EMB-02"
+          ],
+          "after": [
+            "DFI-03"
+          ],
+          "reason": "Selected generation publisher перед receipt/resume; pipeline.py lease возвращается08-A"
+        }
+      ],
+      "local_exit_evidence": "I08-A/B/C: actual ingest, selected NPZ/HNSW generation, served reader, restart/withdrawal. Native embedding assets/ABI — entry qualification; отсутствие не закрывается fake encoder. NET-02 transport witness после08-B. Local compute подготовка EMB-01 может идти раньше DFI-02 только на отдельном kernel file lease, publication остаётся после обеих частей.",
+      "deferred_acceptance_ids": [
+        "DA-08"
+      ],
+      "topological_ready_batches": [
+        [
+          "DFK-02",
+          "EMB-01",
+          "NET-01",
+          "NET-02"
+        ],
+        [
+          "DFI-01",
+          "ING-01"
+        ],
+        [
+          "DFI-02",
+          "ING-02"
+        ],
+        [
+          "EMB-02",
+          "ING-03"
+        ],
+        [
+          "DFI-03",
+          "EMB-03"
+        ]
+      ],
+      "ready_batch_warning": "Готовность по порядку не выдаёт simultaneous write lease. Перед запуском конкретных patches проверить фактический write set; общий файл/semantic owner/resource сериализует работу даже внутри batch.",
+      "packet_count": 12,
+      "evidence_input_version": "immutable delivered v2, schedule derivation source; not a claim of final-v3 file hash",
+      "evidence_inputs": [
+        {
+          "path": "01_Лейны/LANE-08.md",
+          "sha256": "ebf6df3390e33c39d15720a6da7247548b4a5dcee171ea7dcd37dfedda4a9b3c"
+        }
+      ],
+      "original_packet_dependencies": {
+        "DFK-02": [
+          "DFI-01/02 actual ingest consumers; общий E02-I08-A",
+          "LK19/LK20; source registry writer freeze before integration"
+        ],
+        "DFI-01": [
+          "DFI-02 accountable LA-038/shared facade mutex",
+          "DFK-02 rich filters; E02-I08-A один actual ingest witness"
+        ],
+        "DFI-02": [
+          "DFI-01 predecessor/accountable LA-038 includes phase1",
+          "DFI-03/EMB-02 shared pipeline writer; E02-I08-A"
+        ],
+        "DFI-03": [
+          "EMB-02 predecessor and shared C96-R01 owner",
+          "DFI-02 shared pipeline writer; E02-I08-A plus native EMB consumer witness"
+        ],
+        "EMB-01": [
+          "EMB-02 accountable LA-039; EMB-03 shared kernel mutex",
+          "E02-I08-B uses one native binary corpus"
+        ],
+        "EMB-02": [
+          "EMB-01 prerequisite and shared native witness; LA-039 accountable here",
+          "EMB-03 consumes shared C96-R01; DFI-03 separate LA-041 resume",
+          "E02-I08-B; pipeline writes serialized with DFI-02/03"
+        ],
+        "EMB-03": [
+          "EMB-02 prerequisite and shared publisher owner",
+          "E02-I08-B real producer→served query; no duplicate heavy model run"
+        ],
+        "NET-01": [
+          "ING-02 depends on cleanup; streaming.py section mutex with ING-02/03",
+          "E02-I08-C physical resources and useful fresh consumer"
+        ],
+        "ING-01": [
+          "ING-02 jointly preserves frontier; ING-03 schema/identity; E02-I08-C",
+          "NET-01 lifecycle and NET-02 transport owners remain separate"
+        ],
+        "ING-02": [
+          "ING-01 and NET-01 predecessors; ING-03 shared streaming writer",
+          "E02-I08-C; CAS/revalidation owner review for withdrawal test"
+        ],
+        "ING-03": [
+          "ING-02 predecessor and shared streaming.py mutex",
+          "E02-I08-C actual CAS/quarantine/fresh consumer"
+        ],
+        "NET-02": [
+          "NET-01 owns physical pool independently; E02-I08-C",
+          "Optional telemetry fallback coordinated with existing core observability owner"
+        ]
+      }
+    },
+    {
+      "sequence": 3,
+      "lane_id": "LANE-07",
+      "reason_for_position": "После CAS/generation; source and alignment contracts должны предшествовать calibration10, FED numeric helper — UQS.",
+      "tracks": [
+        {
+          "track_id": "07-A",
+          "packets": [
+            "UDF-01",
+            "OBS-01",
+            "UDF-02",
+            "OBS-02"
+          ],
+          "serial_order": true,
+          "meaning": "Lazy contracts→calendar→native IO/intake→snapshot retry",
+          "shared_write_boundaries": [
+            "Ukraine builders/contracts/common/sources",
+            "Foundry data_plane/bindings"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "UDF-01": [
+              "src/polisyos/data_forge/domains/ukraine/builders/__init__.py",
+              "src/polisyos/data_forge/domains/ukraine/builders/contracts.py",
+              "src/polisyos/data_forge/domains/ukraine/builders/governance_handoff.py",
+              "src/polisyos/data_forge/read_api/ukraine.py",
+              "src/polisyos/scientist/governance/blueprint_release.py"
+            ],
+            "OBS-01": [
+              "src/polisyos/data_forge/domains/ukraine/builders/demography.py",
+              "src/polisyos/data_forge/domains/ukraine/builders/observation.py",
+              "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+              "src/polisyos/scientist/governance/blueprint_release.py"
+            ],
+            "UDF-02": [
+              "src/polisyos/data_forge/domains/ukraine/builders/bindings_validation.py",
+              "src/polisyos/data_forge/domains/ukraine/builders/common.py",
+              "src/polisyos/data_forge/domains/ukraine/builders/io.py",
+              "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+              "src/polisyos/foundry/data_plane/bindings.py"
+            ],
+            "OBS-02": [
+              "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+              "src/polisyos/data_forge/domains/ukraine/orchestrator.py",
+              "src/polisyos/data_forge/read_api/ukraine.py"
+            ]
+          }
+        },
+        {
+          "track_id": "07-B",
+          "packets": [
+            "UDF-05",
+            "FED-01",
+            "FED-02"
+          ],
+          "serial_order": true,
+          "meaning": "Demography admission→finite reduction helper→typed empty federation",
+          "shared_write_boundaries": [
+            "demography source inventory",
+            "federation/composer.py",
+            "federation/resolver.py",
+            "common/numeric_reductions.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "UDF-05": [
+              "src/polisyos/data_forge/domains/ukraine/builders/demography_inventory.py",
+              "src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+              "src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+              "src/polisyos/data_forge/domains/ukraine/static_aging.py",
+              "src/polisyos/data_forge/read_api/ukraine.py"
+            ],
+            "FED-01": [
+              "src/polisyos/common/numeric_reductions.py (proposed new)",
+              "src/polisyos/fabric/connectors/federation/artifact.py",
+              "src/polisyos/fabric/connectors/federation/composer.py",
+              "src/polisyos/fabric/connectors/federation/resolver.py"
+            ],
+            "FED-02": [
+              "src/polisyos/fabric/connectors/federation/artifact.py",
+              "src/polisyos/fabric/connectors/federation/composer.py"
+            ]
+          }
+        },
+        {
+          "track_id": "07-C",
+          "packets": [
+            "CAL-01"
+          ],
+          "serial_order": true,
+          "meaning": "Paired source/time/units alignment and explicit target contract",
+          "shared_write_boundaries": [
+            "calibration/preflight.py",
+            "ir/observation",
+            "ir/analytics/calibration.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "CAL-01": [
+              "src/polisyos/foundry/calibration/measurement.py",
+              "src/polisyos/foundry/calibration/preflight.py",
+              "src/polisyos/ir/analytics/calibration.py"
+            ]
+          }
+        },
+        {
+          "track_id": "07-D",
+          "packets": [
+            "UDF-04"
+          ],
+          "serial_order": true,
+          "meaning": "Public operational gate and provenance",
+          "shared_write_boundaries": [
+            "ops receipt plugin/commands"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "UDF-04": [
+              "src/polisyos/data_forge/domains/ukraine/cli.py",
+              "src/polisyos/data_forge/domains/ukraine/orchestrator.py",
+              "src/polisyos/data_forge/domains/ukraine/server.py",
+              "tools/ops_runners/ukraine_data/validate_part_a.py",
+              "tools/ops_runners/ukraine_data_cli.py"
+            ]
+          }
+        }
+      ],
+      "cross_track_gates": [
+        {
+          "before": [
+            "UDF-01"
+          ],
+          "after": [
+            "UDF-04"
+          ],
+          "reason": "Shared import/facade contract before operational gate; server qualification remains separate authorized job"
+        }
+      ],
+      "local_exit_evidence": "I07-A/B positive source→native consumer, local CAL-01 source→target. FAC-01 фазовые отказы и FAC-02 source/target predicate включены в финальную редакцию. При реальной зависимости intake от незавершённого04 использовать DA-02, не подменять consumer.",
+      "deferred_acceptance_ids": [
+        "DA-02",
+        "DA-03",
+        "DA-08"
+      ],
+      "topological_ready_batches": [
+        [
+          "CAL-01",
+          "UDF-01",
+          "UDF-05"
+        ],
+        [
+          "FED-01",
+          "OBS-01",
+          "UDF-04"
+        ],
+        [
+          "FED-02",
+          "UDF-02"
+        ],
+        [
+          "OBS-02"
+        ]
+      ],
+      "ready_batch_warning": "Готовность по порядку не выдаёт simultaneous write lease. Перед запуском конкретных patches проверить фактический write set; общий файл/semantic owner/resource сериализует работу даже внутри batch.",
+      "packet_count": 9,
+      "evidence_input_version": "immutable delivered v2, schedule derivation source; not a claim of final-v3 file hash",
+      "evidence_inputs": [
+        {
+          "path": "01_Лейны/LANE-07.md",
+          "sha256": "fa3267d0d6aa96035eb1b0e9bb8bad600876f4b57ad2152920c40f4bd3bf03dc"
+        }
+      ],
+      "original_packet_dependencies": {
+        "UDF-01": [
+          "UDF-01 sole shared facade/import writer; OBS-01/UDF-02 потребляют C83-R01",
+          "LA-031 accountable owner UDF-02; общий E02-I07-A"
+        ],
+        "OBS-01": [
+          "UDF-01 predecessor/shared import owner; UDF-02 accountable LA-031",
+          "OBS-02 reader qualification; один writer sources/common"
+        ],
+        "UDF-02": [
+          "UDF-01 и OBS-01 prerequisites; UDF02 accountable LA-031",
+          "Foundry binding owner co-review; OBS02 shared sources writer"
+        ],
+        "OBS-02": [
+          "UDF-02 predecessor; UDF-01 shared import fix; OBS-01 periods",
+          "Один writer sources.py; общий E02-I07-A"
+        ],
+        "UDF-05": [
+          "E02-I07-B shared with FED-01/FED-02; existing CAS/generation contract owners LANE-06/08"
+        ],
+        "FED-01": [
+          "FED-02 shares composer/resolver mutex; UDF-05 общий E02-I07-B",
+          "Не переносить numeric requirements в новый общий provenance owner",
+          "FED-01 proposes shared finite-binary64 numeric_reductions owner; UQS-01 consumer; no duplicate Fabric/Scientist implementations."
+        ],
+        "FED-02": [
+          "FED-01 predecessor/shared composer writer",
+          "Общий E02-I07-B; performance job scoped отдельно"
+        ],
+        "CAL-01": [
+          "CAL-02/CAL-06 shared preflight/measurement write mutex; one writer",
+          "E02-I07-C local source→target; shared lane10 optimizer/report evidence without duplicate infrastructure"
+        ],
+        "UDF-04": [
+          "UDF-01 shared import owner; no required original predecessor",
+          "Ops sole writer receipt plugin/commands; server qualification отдельным разрешённым job"
+        ]
+      }
+    },
+    {
+      "sequence": 4,
+      "lane_id": "LANE-04",
+      "reason_for_position": "После данных/runtime — actual compiler/composition/numerical producer и trainer, затем calibration10.",
+      "tracks": [
+        {
+          "track_id": "04-A",
+          "packets": [
+            "FRY-01",
+            "CMP-01",
+            "CMP-02",
+            "CMP-03",
+            "JIT-01",
+            "RES-04"
+          ],
+          "serial_order": true,
+          "meaning": "Family/IR→persisted executable recipe→ordering/matching→warm compilation→checkpoint",
+          "shared_write_boundaries": [
+            "treasury/layout/slots",
+            "composer.py",
+            "linker.py",
+            "semantic_validator.py",
+            "methods/compiler",
+            "backends/checkpointing.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "FRY-01": [
+              "src/polisyos/foundry/compile/randomization.py",
+              "src/polisyos/foundry/compile/trinity_compiler.py",
+              "src/polisyos/foundry/execute/_internal/graph/__init__.py",
+              "src/polisyos/foundry/methods/catalog/mechanism/families.py",
+              "src/polisyos/foundry/methods/catalog/mechanism/runtime_registry.py",
+              "src/polisyos/ir/kernel/slots.py",
+              "src/polisyos/scientist/validation/verification/ic/service.py"
+            ],
+            "CMP-01": [
+              "src/polisyos/foundry/methods/artifacts/_chain.py",
+              "src/polisyos/foundry/methods/artifacts/parts.py",
+              "src/polisyos/foundry/methods/backends/async_chain_executor.py",
+              "src/polisyos/foundry/methods/backends/chain_executor.py",
+              "src/polisyos/foundry/methods/backends/ray_chain_executor.py",
+              "src/polisyos/foundry/methods/components/composer.py"
+            ],
+            "CMP-02": [
+              "src/polisyos/foundry/methods/backends/checkpointing.py",
+              "src/polisyos/foundry/methods/components/composer.py",
+              "src/polisyos/foundry/methods/components/linker.py",
+              "src/polisyos/foundry/methods/components/semantic_validator.py"
+            ],
+            "CMP-03": [
+              "src/polisyos/foundry/methods/components/composer.py",
+              "src/polisyos/foundry/methods/components/linker.py",
+              "src/polisyos/foundry/methods/components/slot_schema.py",
+              "src/polisyos/foundry/methods/types/checker.py"
+            ],
+            "JIT-01": [
+              "src/polisyos/foundry/methods/_internal/executable_identity.py",
+              "src/polisyos/foundry/methods/backends/jax_runner.py",
+              "src/polisyos/foundry/methods/compiler/__init__.py",
+              "src/polisyos/foundry/methods/compiler/specialization.py"
+            ],
+            "RES-04": [
+              "src/polisyos/foundry/methods/backends/checkpointing.py",
+              "src/polisyos/foundry/methods/backends/dispatch.py",
+              "src/polisyos/foundry/methods/backends/numpy_runner.py",
+              "src/polisyos/foundry/methods/backends/protocol.py"
+            ]
+          }
+        },
+        {
+          "track_id": "04-B",
+          "packets": [
+            "FRY-03",
+            "ECO-01"
+          ],
+          "serial_order": true,
+          "meaning": "Fiscal/labor semantics и exact loss profile",
+          "shared_write_boundaries": [
+            "execute/mechanisms/fiscal.py",
+            "labor.py",
+            "plugins/economics",
+            "plugins/composite.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "FRY-03": [
+              "src/polisyos/foundry/execute/_internal/patching/__init__.py",
+              "src/polisyos/foundry/execute/mechanisms/fiscal.py",
+              "src/polisyos/foundry/execute/mechanisms/labor.py",
+              "src/polisyos/foundry/methods/catalog/mechanism/runtime.py",
+              "src/polisyos/foundry/methods/catalog/mechanism/runtime_registry.py"
+            ],
+            "ECO-01": [
+              "src/polisyos/foundry/execute/_internal/numeric/__init__.py",
+              "src/polisyos/foundry/methods/_internal/loss.py",
+              "src/polisyos/foundry/plugins/composite.py",
+              "src/polisyos/foundry/plugins/economics/baselines.py",
+              "src/polisyos/foundry/plugins/economics/mechanisms.py"
+            ]
+          }
+        },
+        {
+          "track_id": "04-C",
+          "packets": [
+            "PLG-01",
+            "PLG-02",
+            "PLG-03"
+          ],
+          "serial_order": true,
+          "meaning": "Discovery→result-role/CLI→actual update/artifact",
+          "shared_write_boundaries": [
+            "plugins/api.py",
+            "plugins/training_adapter.py",
+            "agent_sim/training.py",
+            "jit_training.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "PLG-01": [
+              "src/polisyos/core/discovery/base.py",
+              "src/polisyos/foundry/plugins/api.py",
+              "src/polisyos/foundry/plugins/core.py",
+              "src/polisyos/foundry/plugins/discovery.py"
+            ],
+            "PLG-02": [
+              "src/polisyos/foundry/plugins/api.py",
+              "src/polisyos/foundry/plugins/cli.py",
+              "src/polisyos/foundry/plugins/training_adapter.py"
+            ],
+            "PLG-03": [
+              "src/polisyos/foundry/agent_sim/artifact.py",
+              "src/polisyos/foundry/agent_sim/jit_training.py",
+              "src/polisyos/foundry/agent_sim/temporal_mechanisms.py",
+              "src/polisyos/foundry/agent_sim/training.py",
+              "src/polisyos/foundry/plugins/api.py",
+              "src/polisyos/foundry/plugins/training_adapter.py"
+            ]
+          }
+        },
+        {
+          "track_id": "04-D",
+          "packets": [
+            "CAL-05"
+          ],
+          "serial_order": true,
+          "meaning": "Pure executor conditional batching",
+          "shared_write_boundaries": [
+            "calibration/pure_executor.py",
+            "calibration/calibrator.py",
+            "components/merge_engine.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "CAL-05": [
+              "src/polisyos/foundry/calibration/calibrator.py",
+              "src/polisyos/foundry/calibration/pure_executor.py",
+              "src/polisyos/foundry/methods/components/merge_engine.py"
+            ]
+          }
+        }
+      ],
+      "cross_track_gates": [
+        {
+          "before": [
+            "FRY-01"
+          ],
+          "after": [
+            "FRY-03"
+          ],
+          "reason": "Actual family/runtime registry contract"
+        },
+        {
+          "before": [
+            "ECO-01"
+          ],
+          "after": [
+            "PLG-03"
+          ],
+          "reason": "Qualification выбранного economics training profile uses corrected base/loss; discovery/result-role can proceed before"
+        },
+        {
+          "before": [
+            "CMP-02"
+          ],
+          "after": [
+            "CAL-05"
+          ],
+          "reason": "Shared composition/merge boundary frozen before native conditional batch integration"
+        }
+      ],
+      "local_exit_evidence": "I04-A/B/C и локальный pure executor I04-D. RES-04 fresh checkpoint потребляет CMP-01 executable identity; не выдавать checkpoint за standalone reconstruction. One native JAX/trainer slot. Общий CAL-05 calibrator edit завершается до10.",
+      "deferred_acceptance_ids": [
+        "DA-01",
+        "DA-02",
+        "DA-04",
+        "DA-08"
+      ],
+      "topological_ready_batches": [
+        [
+          "FRY-01",
+          "PLG-01"
+        ],
+        [
+          "CMP-01",
+          "FRY-03",
+          "PLG-02"
+        ],
+        [
+          "CMP-02",
+          "ECO-01"
+        ],
+        [
+          "CAL-05",
+          "CMP-03",
+          "PLG-03"
+        ],
+        [
+          "JIT-01"
+        ],
+        [
+          "RES-04"
+        ]
+      ],
+      "ready_batch_warning": "Готовность по порядку не выдаёт simultaneous write lease. Перед запуском конкретных patches проверить фактический write set; общий файл/semantic owner/resource сериализует работу даже внутри batch.",
+      "packet_count": 12,
+      "evidence_input_version": "immutable delivered v2, schedule derivation source; not a claim of final-v3 file hash",
+      "evidence_inputs": [
+        {
+          "path": "01_Лейны/LANE-04.md",
+          "sha256": "cd157f8a8d00f5fbd4a29a3baaadce9c7e3531d3b408f6dfff24d2478b580a8b"
+        }
+      ],
+      "original_packet_dependencies": {
+        "FRY-01": [],
+        "CMP-01": [],
+        "CMP-02": [
+          "CMP-01"
+        ],
+        "CMP-03": [
+          "CMP-02"
+        ],
+        "JIT-01": [],
+        "RES-04": [
+          "CMP-02"
+        ],
+        "FRY-03": [
+          "FRY-01"
+        ],
+        "ECO-01": [
+          "FRY-03"
+        ],
+        "PLG-01": [],
+        "PLG-02": [],
+        "PLG-03": [
+          "PLG-02"
+        ],
+        "CAL-05": []
+      }
+    },
+    {
+      "sequence": 5,
+      "lane_id": "LANE-10",
+      "reason_for_position": "CAL-01 alignment из07, CAL-05 executor из04 и FED helper из07 готовы; получить tied uncertainty до downstream judgments.",
+      "tracks": [
+        {
+          "track_id": "10-A",
+          "packets": [
+            "CAL-02",
+            "CAL-03",
+            "CAL-04",
+            "CAL-06",
+            "UQS-01"
+          ],
+          "serial_order": true,
+          "meaning": "Fit-mask/objective→finite selected state→snapshot/Hessian→tied law→summary",
+          "shared_write_boundaries": [
+            "calibration/calibrator.py",
+            "uncertainty_adapter.py",
+            "report.py",
+            "uncertainty/covariance.py",
+            "uncertainty/protocol.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "CAL-02": [
+              "src/polisyos/foundry/calibration/calibrator.py",
+              "src/polisyos/foundry/calibration/loss.py",
+              "src/polisyos/foundry/calibration/measurement.py",
+              "src/polisyos/ir/observation/compiler.py",
+              "tests/unit/foundry/calibration/test_calibration_lifecycle.py",
+              "tests/unit/foundry/calibration/test_loss.py",
+              "tests/unit/remediation/test_cal_02.py"
+            ],
+            "CAL-03": [
+              "src/polisyos/foundry/calibration/calibrator.py",
+              "src/polisyos/foundry/calibration/hessian.py",
+              "src/polisyos/foundry/calibration/multi_start.py",
+              "tests/unit/foundry/calibration/test_calibration_lifecycle.py",
+              "tests/unit/foundry/calibration/test_multi_start.py",
+              "tests/unit/remediation/test_cal_03.py"
+            ],
+            "CAL-04": [
+              "src/polisyos/foundry/calibration/calibrator.py",
+              "src/polisyos/foundry/calibration/hessian.py",
+              "tests/unit/remediation/test_cal_04.py"
+            ],
+            "CAL-06": [
+              "src/polisyos/foundry/calibration/calibrator.py",
+              "src/polisyos/foundry/calibration/report.py",
+              "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+              "src/polisyos/foundry/uncertainty/covariance.py",
+              "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+              "tests/unit/remediation/test_cal_06.py"
+            ],
+            "UQS-01": [
+              "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+              "src/polisyos/foundry/uncertainty/aggregator.py",
+              "src/polisyos/foundry/uncertainty/protocol.py",
+              "tests/unit/remediation/test_uqs_01.py"
+            ]
+          }
+        },
+        {
+          "track_id": "10-B",
+          "packets": [
+            "UQP-01",
+            "UQP-02",
+            "UQP-03"
+          ],
+          "serial_order": true,
+          "meaning": "Invocation→joint law→failure/stop consumers",
+          "shared_write_boundaries": [
+            "uncertainty/dispatcher.py",
+            "monte_carlo.py",
+            "covariance.py",
+            "protocol.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "UQP-01": [
+              "src/polisyos/foundry/uncertainty/delta.py",
+              "src/polisyos/foundry/uncertainty/dispatcher.py",
+              "src/polisyos/foundry/uncertainty/protocol.py",
+              "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+              "tests/unit/foundry/uncertainty/test_delta.py",
+              "tests/unit/remediation/test_uqp_01.py",
+              "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py"
+            ],
+            "UQP-02": [
+              "src/polisyos/foundry/uncertainty/analytical.py",
+              "src/polisyos/foundry/uncertainty/covariance.py",
+              "src/polisyos/foundry/uncertainty/monte_carlo.py",
+              "tests/unit/remediation/test_uqp_02.py"
+            ],
+            "UQP-03": [
+              "src/polisyos/foundry/uncertainty/config.py",
+              "src/polisyos/foundry/uncertainty/evaluation_failures.py",
+              "src/polisyos/foundry/uncertainty/monte_carlo.py",
+              "src/polisyos/ir/analytics/uncertainty.py",
+              "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+              "tests/unit/remediation/test_uqp_03.py"
+            ]
+          }
+        },
+        {
+          "track_id": "10-C",
+          "packets": [
+            "DOE-01",
+            "DOE-02",
+            "DOE-03"
+          ],
+          "serial_order": true,
+          "meaning": "Source-bound design→analysis→retained/PCA sensitivity",
+          "shared_write_boundaries": [
+            "doe/designs.py",
+            "sampling.py",
+            "analysis.py",
+            "uncertainty.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "DOE-01": [
+              "src/polisyos/scientist/methods/doe/adaptive.py",
+              "src/polisyos/scientist/methods/doe/designs.py",
+              "src/polisyos/scientist/methods/doe/sampling.py",
+              "tests/unit/remediation/test_doe_01.py"
+            ],
+            "DOE-02": [
+              "src/polisyos/scientist/methods/doe/analysis.py",
+              "src/polisyos/scientist/methods/doe/designs.py",
+              "src/polisyos/scientist/methods/doe/sampling.py",
+              "src/polisyos/scientist/methods/doe/uncertainty.py",
+              "tests/unit/remediation/test_doe_02.py"
+            ],
+            "DOE-03": [
+              "src/polisyos/scientist/methods/doe/analysis.py",
+              "src/polisyos/scientist/methods/doe/multi_output.py",
+              "src/polisyos/scientist/methods/doe/uncertainty.py",
+              "tests/unit/remediation/test_doe_03.py"
+            ]
+          }
+        },
+        {
+          "track_id": "10-D",
+          "packets": [
+            "STR-01"
+          ],
+          "serial_order": true,
+          "meaning": "Selected stress objective/plan",
+          "shared_write_boundaries": [
+            "search/adversarial.py",
+            "doe/stress_report.py",
+            "search/objective.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "STR-01": [
+              "src/polisyos/scientist/methods/doe/stress_report.py",
+              "src/polisyos/scientist/methods/search/adversarial.py",
+              "src/polisyos/scientist/methods/search/objective.py",
+              "tests/unit/scientist/search/test_adversarial.py",
+              "tests/unit/scientist/search/test_adversarial_direction_c49.py"
+            ]
+          }
+        }
+      ],
+      "cross_track_gates": [
+        {
+          "before": [
+            "UQP-02"
+          ],
+          "after": [
+            "CAL-06"
+          ],
+          "reason": "Joint law before adapter; covariance.py lease transfers from10-B to10-A"
+        },
+        {
+          "before": [
+            "UQP-03"
+          ],
+          "after": [
+            "UQS-01"
+          ],
+          "reason": "Summary after settled result/stop semantics and shared protocol release"
+        },
+        {
+          "before": [
+            "DOE-01"
+          ],
+          "after": [
+            "STR-01"
+          ],
+          "reason": "Finite stress-plan contract before integration; independent source inspection/tests can begin earlier"
+        }
+      ],
+      "local_exit_evidence": "I10-A/B/C, I07-C and I04-D revisits on final merged numerical code. CAL02/03/04 share one writer. UQP02/03 and CAL06 may not edit covariance/MC concurrently. DOE and STR no blanket parallel native SALib/JAX jobs.",
+      "deferred_acceptance_ids": [
+        "DA-03",
+        "DA-04",
+        "DA-08"
+      ],
+      "topological_ready_batches": [
+        [
+          "CAL-02",
+          "DOE-01",
+          "UQP-01"
+        ],
+        [
+          "CAL-03",
+          "DOE-02",
+          "STR-01",
+          "UQP-02"
+        ],
+        [
+          "CAL-04",
+          "DOE-03",
+          "UQP-03"
+        ],
+        [
+          "CAL-06"
+        ],
+        [
+          "UQS-01"
+        ]
+      ],
+      "ready_batch_warning": "Готовность по порядку не выдаёт simultaneous write lease. Перед запуском конкретных patches проверить фактический write set; общий файл/semantic owner/resource сериализует работу даже внутри batch.",
+      "packet_count": 12,
+      "evidence_input_version": "immutable delivered v2, schedule derivation source; not a claim of final-v3 file hash",
+      "evidence_inputs": [
+        {
+          "path": "01_Лейны/LANE-10.md",
+          "sha256": "831388812733b8c4bc6622731026ad3be4610e92128bb444b5b89719697c4d24"
+        }
+      ],
+      "original_packet_dependencies": {
+        "CAL-02": [
+          "CAL-01"
+        ],
+        "CAL-03": [
+          "CAL-02"
+        ],
+        "CAL-04": [
+          "CAL-03"
+        ],
+        "CAL-06": [
+          "CAL-04",
+          "UQP-02"
+        ],
+        "UQS-01": [
+          "UQP-02",
+          "CAL-06"
+        ],
+        "UQP-01": [],
+        "UQP-02": [
+          "UQP-01"
+        ],
+        "UQP-03": [
+          "UQP-02"
+        ],
+        "DOE-01": [],
+        "DOE-02": [
+          "DOE-01"
+        ],
+        "DOE-03": [
+          "DOE-02"
+        ],
+        "STR-01": []
+      }
+    },
+    {
+      "sequence": 6,
+      "lane_id": "LANE-05",
+      "reason_for_position": "Runtime/native numerics готовы; canonical graph/causal and fit capabilities до EMP/search.",
+      "tracks": [
+        {
+          "track_id": "05-A",
+          "packets": [
+            "GRF-01",
+            "GRF-02",
+            "GRF-03",
+            "API-01"
+          ],
+          "serial_order": true,
+          "meaning": "Graph semantics→transport/cache→canonical projection→public facade",
+          "shared_write_boundaries": [
+            "causal/admg_ops.py",
+            "causal_graph.py",
+            "graph public packages"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "GRF-01": [
+              "src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+              "src/polisyos/foundry/methods/catalog/causal/do_calculus.py",
+              "src/polisyos/foundry/methods/catalog/causal/id_engine/core.py",
+              "tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py"
+            ],
+            "GRF-02": [
+              "src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+              "src/polisyos/ir/analytics/causal_graph.py",
+              "src/polisyos/ir/analytics/causal_graph_kuzu.py",
+              "tests/unit/ir/test_causal_graph_networkx_roundtrip.py"
+            ],
+            "GRF-03": [
+              "src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+              "src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+              "src/polisyos/ir/analytics/causal_graph.py",
+              "src/polisyos/ir/analytics/structural_causal_model.py",
+              "tests/unit/remediation/test_grf_03.py"
+            ],
+            "API-01": [
+              "src/polisyos/foundry/methods/catalog/causal/causal_engine/__init__.py",
+              "src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+              "src/polisyos/foundry/methods/catalog/causal/interference/__init__.py",
+              "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+              "tests/unit/remediation/test_api_01.py"
+            ]
+          }
+        },
+        {
+          "track_id": "05-B",
+          "packets": [
+            "CAU-01",
+            "CAU-02",
+            "CAU-03",
+            "CAU-04",
+            "CAU-05"
+          ],
+          "serial_order": true,
+          "meaning": "Method-specific numerical controls→shared whole-report/lifecycle closure",
+          "shared_write_boundaries": [
+            "causal/did.py",
+            "causal/_common.py",
+            "causal/rdd.py",
+            "DoWhy adapter",
+            "IR causal report",
+            "worker protocol"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "CAU-01": [
+              "src/polisyos/foundry/methods/catalog/causal/did.py",
+              "src/polisyos/foundry/methods/catalog/causal/protocols.py",
+              "src/polisyos/foundry/methods/catalog/causal/rdd.py",
+              "src/polisyos/ir/analytics/causal.py"
+            ],
+            "CAU-02": [
+              "src/polisyos/foundry/methods/catalog/causal/did.py",
+              "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+              "tests/unit/foundry/methods/catalog/causal/test_did_selected_participation.py"
+            ],
+            "CAU-03": [
+              "src/polisyos/foundry/methods/catalog/causal/rdd.py",
+              "tests/unit/foundry/methods/catalog/causal/test_rdd_dml_input_materialization.py",
+              "tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py"
+            ],
+            "CAU-04": [
+              "src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+              "src/polisyos/foundry/methods/catalog/causal/dowhy_identify_estimate.py",
+              "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+              "workers/dowhy-014/tests/test_worker.py",
+              "workers/dowhy-014/worker.py"
+            ],
+            "CAU-05": [
+              "src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
+              "src/polisyos/foundry/methods/catalog/causal/did.py",
+              "src/polisyos/foundry/methods/selection/registry.py",
+              "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py",
+              "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py"
+            ]
+          }
+        },
+        {
+          "track_id": "05-C",
+          "packets": [
+            "SCM-03",
+            "SCM-02",
+            "SCM-01"
+          ],
+          "serial_order": true,
+          "meaning": "Prepared-plan/coordinates→conditional law/refit→twin integration/native fit→query",
+          "shared_write_boundaries": [
+            "gcm_query.py",
+            "twin_network_query.py",
+            "SCM worker/protocol"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "SCM-03": [
+              "src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+              "src/polisyos/ir/analytics/causal_graph.py",
+              "src/polisyos/ir/analytics/structural_causal_model.py",
+              "tests/unit/remediation/test_scm_03.py"
+            ],
+            "SCM-02": [
+              "src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+              "src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+              "src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py",
+              "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+              "workers/dowhy-014/worker.py"
+            ],
+            "SCM-01": [
+              "src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+              "src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+              "src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+              "src/polisyos/ir/analytics/structural_causal_model.py",
+              "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py"
+            ]
+          }
+        },
+        {
+          "track_id": "05-D",
+          "packets": [
+            "FIT-01"
+          ],
+          "serial_order": true,
+          "meaning": "TMLE nuisance fit reuse/current view/outer process pool",
+          "shared_write_boundaries": [
+            "existing TMLE fit owner",
+            "qualified process-pool budget"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "FIT-01": [
+              "src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+              "src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+              "src/polisyos/scientist/orchestration/engine/runner/local_pool.py",
+              "tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py"
+            ]
+          }
+        }
+      ],
+      "cross_track_gates": [
+        {
+          "before": [
+            "GRF-03"
+          ],
+          "after": [
+            "SCM-03"
+          ],
+          "reason": "Canonical static graph/source disposition before common SCM plan"
+        },
+        {
+          "before": [
+            "CAU-04"
+          ],
+          "after": [
+            "SCM-01"
+          ],
+          "reason": "Shared worker/protocol edits frozen; linear_ate qualification does not stand in for gcm_fit"
+        },
+        {
+          "before": [
+            "CAU-01",
+            "CAU-02"
+          ],
+          "after": [
+            "CAU-05"
+          ],
+          "reason": "Original numerical predecessors; CAU03/04 own separate oracles"
+        }
+      ],
+      "local_exit_evidence": "I05-A/B/C excluding only installed/distribution evidence explicitly DA-05. SCM order is interface decomposition of historical cycle, not removal of SCM02→SCM03 law requirement: prepare interface first, qualify all three together. FIT native heavy job separately from SCM refit.",
+      "deferred_acceptance_ids": [
+        "DA-05",
+        "DA-08"
+      ],
+      "topological_ready_batches": [
+        [
+          "CAU-01",
+          "FIT-01",
+          "GRF-01"
+        ],
+        [
+          "CAU-02",
+          "GRF-02"
+        ],
+        [
+          "CAU-03",
+          "GRF-03"
+        ],
+        [
+          "API-01",
+          "CAU-04",
+          "SCM-03"
+        ],
+        [
+          "CAU-05",
+          "SCM-02"
+        ],
+        [
+          "SCM-01"
+        ]
+      ],
+      "ready_batch_warning": "Готовность по порядку не выдаёт simultaneous write lease. Перед запуском конкретных patches проверить фактический write set; общий файл/semantic owner/resource сериализует работу даже внутри batch.",
+      "packet_count": 13,
+      "evidence_input_version": "immutable delivered v2, schedule derivation source; not a claim of final-v3 file hash",
+      "evidence_inputs": [
+        {
+          "path": "01_Лейны/LANE-05.md",
+          "sha256": "fc111556b51776ced9f2f7198d10ad01bfbd58c3aab1d62186be967663bba229"
+        }
+      ],
+      "original_packet_dependencies": {
+        "GRF-01": [
+          {
+            "packet": "GRF-02 / GRF-03",
+            "relation": "Общий admg_ops admission/cache/topology owner; не снимать outer validation ради экономии."
+          },
+          {
+            "packet": "API-01",
+            "relation": "Public facade identity/installed evidence shared; не смешивать точечное sibling retirement с facade migration."
+          },
+          {
+            "packet": "SCM-01 / SCM-02",
+            "relation": "Perfect-do structural semantics не доказывает factual abduction/shared-noise query correctness; отдельный E02-I05-C."
+          },
+          {
+            "packet": "LANE-12",
+            "relation": "Одна coordinated wheel/sdist/public-surface qualification, не build на каждый пакет."
+          }
+        ],
+        "GRF-02": [
+          {
+            "packet": "GRF-01",
+            "relation": "Endpoint-aware semantics и outer canonical admission сохраняются, finite oracle общий."
+          },
+          {
+            "packet": "GRF-03",
+            "relation": "DAG export использует validated topology, отдельно от lossless mixed transport."
+          },
+          {
+            "packet": "LANE-06 CAS owners",
+            "relation": "Переиспользовать exact profile/native CAS, не новый graph store."
+          }
+        ],
+        "GRF-03": [
+          {
+            "packet": "GRF-02",
+            "relation": "Lossless graph content/selected profiles и immutable preparation."
+          },
+          {
+            "packet": "SCM-01 / SCM-02 / SCM-03",
+            "relation": "Общие gcm_fit/query/source DTO; selected worker/twin semantics owners separate, один writer."
+          },
+          {
+            "packet": "BKT-01",
+            "relation": "Temporal adapter не заменяет feature availability/as-of validation реальных данных."
+          }
+        ],
+        "API-01": [
+          {
+            "packet": "GRF-01",
+            "relation": "Native packages и installed evidence разделяются; точечное sibling retirement не facade rewrite."
+          },
+          {
+            "packet": "LANE-12",
+            "relation": "Общий packaging/docs/public-surface job, не отдельная сборка на каждый alias."
+          }
+        ],
+        "CAU-01": [
+          {
+            "packet": "CAU-02",
+            "relation": "Общий did.py и staggered phase LA-016; не независимая копия common inference."
+          },
+          {
+            "packet": "CAU-03",
+            "relation": "RDD consumer confidence-level общего B206; RBC/численная устойчивость остаются у CAU-03."
+          },
+          {
+            "packet": "CAU-05",
+            "relation": "Accountable LA-016 closure и historical FQN lifecycle; не блокирует локальный partition repair."
+          },
+          {
+            "packet": "LANE-06",
+            "relation": "Повторное использование действительных CAS/worker contracts без нового store."
+          }
+        ],
+        "CAU-02": [
+          {
+            "packet": "CAU-01",
+            "relation": "Panel metadata/identity and shared report contract, но standard CR0 NaN-label defect не переносится на staggered route без evidence."
+          },
+          {
+            "packet": "CAU-05",
+            "relation": "Accountable dedicated/old-plan lifecycle и один registry/source/report integration owner."
+          }
+        ],
+        "CAU-03": [
+          {
+            "packet": "CAU-01",
+            "relation": "Shared typed causal report/metadata, not replacement of RDD inference."
+          },
+          {
+            "packet": "CAU-05",
+            "relation": "Native registry/source→whole-report selected-consumer acceptance shared."
+          }
+        ],
+        "CAU-04": [
+          {
+            "packet": "CAU-05",
+            "relation": "Единый owner metadata/FQN lifecycle и общей report custody; CAU-04 отвечает за selected DoWhy semantics."
+          },
+          {
+            "packet": "SCM-01/SCM-02",
+            "relation": "Общий worker distribution/protocol owner, но gcm_fit/query не считается квалифицированным тестом linear_ate."
+          }
+        ],
+        "CAU-05": [
+          {
+            "packet": "CAU-01",
+            "relation": "Оригинальный predecessor: detached metadata и corrected standard inference, включая partition repair."
+          },
+          {
+            "packet": "CAU-02",
+            "relation": "Оригинальный predecessor: corrected staggered target/variance/anticipation/bootstrap."
+          },
+          {
+            "packet": "CAU-03/CAU-04",
+            "relation": "Переиспользуют shared whole-report lifecycle сценарий, но не являются новой обязательной зависимостью локального DiD migration."
+          }
+        ],
+        "SCM-03": [
+          {
+            "packet": "SCM-02",
+            "relation": "Оригинальный predecessor: posterior factor/joint conditioning; canonical coordinate fix согласован с numerical change."
+          },
+          {
+            "packet": "GRF-01",
+            "relation": "Оригинальный predecessor: intervention surgery и graph semantics."
+          },
+          {
+            "packet": "GRF-02",
+            "relation": "Оригинальный predecessor: immutable canonical identity/prepared adjacency."
+          },
+          {
+            "packet": "GRF-03",
+            "relation": "Existing canonical projection/disposition reuse, static/temporal boundary."
+          },
+          {
+            "packet": "SCM-01",
+            "relation": "Twin query-specific closure использует тот же supported-plan semantics, не отдельный parser."
+          }
+        ],
+        "SCM-02": [
+          {
+            "packet": "SCM-01",
+            "relation": "Оригинальный predecessor; shared carrier/predictor и twin relevance closure сохраняют joint evidence dependencies."
+          },
+          {
+            "packet": "SCM-03",
+            "relation": "SCM-03 — единственный writer common closure/prepared-plan API и canonical stream coordinates; inference/refit qualification остаётся SCM-02."
+          },
+          {
+            "packet": "GRF-03",
+            "relation": "Static declared DAG/source disposition для selected fit; temporal/partial support отдельно."
+          }
+        ],
+        "SCM-01": [
+          {
+            "packet": "GRF-02",
+            "relation": "Оригинальный predecessor: canonical graph identity/immutable adjacency."
+          },
+          {
+            "packet": "SCM-02",
+            "relation": "SCM-02 — единственный writer conditional-row/PSD и owner refit qualification; empirical root evidence требует joint conditioning, не removal non-ancestor."
+          },
+          {
+            "packet": "SCM-03",
+            "relation": "SCM-03 — единственный writer common closure/prepared-plan API и canonical stream coordinates; twin потребляет этот API, не копирует planner."
+          },
+          {
+            "packet": "GRF-03",
+            "relation": "Canonical static DAG/source disposition, temporal restriction не обходить."
+          }
+        ],
+        "FIT-01": [
+          {
+            "packet": "LANE-06",
+            "relation": "Переиспользовать actual worker lifecycle/receipt/CAS; найденные дефекты admission направлять владельцам, не дублировать scheduler."
+          },
+          {
+            "packet": "SCM-01/SCM-02/SCM-03",
+            "relation": "Совместное окно E02-I05-C, но TMLE nuisance cache не объявлять SCM fit/twin backend. Независимые branches сохраняют собственные oracles."
+          }
+        ]
+      }
+    },
+    {
+      "sequence": 7,
+      "lane_id": "LANE-09",
+      "reason_for_position": "Real source material/CAS/ledger уже готовы; translator and acquisition до candidate cycle.",
+      "tracks": [
+        {
+          "track_id": "09-A",
+          "packets": [
+            "SCL-01",
+            "SCL-03"
+          ],
+          "serial_order": true,
+          "meaning": "Search/fetch→actual bytes/docs source consumer",
+          "shared_write_boundaries": [
+            "scholar/search/fetcher.py",
+            "scholar/orchestrator/enrich.py",
+            "scholar/api.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "SCL-01": [
+              "src/polisyos/scholar/search/fetcher.py",
+              "src/polisyos/scholar/search/providers.py",
+              "src/polisyos/scholar/search/service.py"
+            ],
+            "SCL-03": [
+              "src/polisyos/scholar/api.py",
+              "src/polisyos/scholar/discover/manual.py",
+              "src/polisyos/scholar/orchestrator/enrich.py",
+              "src/polisyos/scholar/search/fetcher.py"
+            ]
+          }
+        },
+        {
+          "track_id": "09-B",
+          "packets": [
+            "LLM-01",
+            "LLM-02"
+          ],
+          "serial_order": true,
+          "meaning": "Optional observability→current strict reuse/singleflight/translator",
+          "shared_write_boundaries": [
+            "traced_client.py",
+            "budget_enforcer.py",
+            "prompt_cache.py",
+            "factory.py",
+            "nl_pipeline.py",
+            "translator.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "LLM-01": [
+              "src/polisyos/core/llm/traced_client.py",
+              "src/polisyos/core/observability/__init__.py",
+              "src/polisyos/scientist/orchestration/llm/budget_enforcer.py"
+            ],
+            "LLM-02": [
+              "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+              "src/polisyos/scientist/orchestration/llm/factory.py",
+              "src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+              "src/polisyos/scientist/policy_design/translator.py"
+            ]
+          }
+        }
+      ],
+      "cross_track_gates": [],
+      "local_exit_evidence": "I09-A/B: actual bytes and fresh docs consumer; positive prepared-input strict reuse, per-consumer receipts, cancellation and current authorization. Controlled external transport permitted only per TEST; actual cache/CAS/ledger not stubbed.",
+      "deferred_acceptance_ids": [
+        "DA-08"
+      ],
+      "topological_ready_batches": [
+        [
+          "LLM-01",
+          "SCL-01"
+        ],
+        [
+          "LLM-02",
+          "SCL-03"
+        ]
+      ],
+      "ready_batch_warning": "Готовность по порядку не выдаёт simultaneous write lease. Перед запуском конкретных patches проверить фактический write set; общий файл/semantic owner/resource сериализует работу даже внутри batch.",
+      "packet_count": 4,
+      "evidence_input_version": "immutable delivered v2, schedule derivation source; not a claim of final-v3 file hash",
+      "evidence_inputs": [
+        {
+          "path": "01_Лейны/LANE-09.md",
+          "sha256": "04c1406e38fa04c333ebc32bc59fb40454de28a82259d45ee44fec5cbfa32d8f"
+        }
+      ],
+      "original_packet_dependencies": {
+        "SCL-01": [
+          "SCL-03 shared fetch profile writer coordination; E02-I09-A"
+        ],
+        "SCL-03": [
+          "SCL-01 predecessor/shared fetcher mutex; E02-I09-A; existing CAS/docs owners"
+        ],
+        "LLM-01": [
+          "LLM-02 shared writer mutex and E02-I09-B"
+        ],
+        "LLM-02": [
+          "LLM-01 shared write mutex and no-OTel fallback owner",
+          "E02-I09-B shared factory/cache/ledger evidence",
+          "Current runtime binder and translator caller owner review; existing LANE-06 CAS/ledger contracts"
+        ]
+      }
+    },
+    {
+      "sequence": 8,
+      "lane_id": "LANE-01",
+      "reason_for_position": "Входные источники, численные owners, graph и translator уже квалифицированы; теперь ordinary intent→candidate→persisted reader.",
+      "tracks": [
+        {
+          "track_id": "01-A",
+          "packets": [
+            "REQ-01",
+            "CYC-01",
+            "ACQ-01",
+            "CYC-03",
+            "CYC-04",
+            "CYC-05",
+            "CYC-02"
+          ],
+          "serial_order": true,
+          "meaning": "Compiler denominator→served context→acquisition→new basis/reuse→fallback→decomposition/readiness bridge→fresh conditional projection",
+          "shared_write_boundaries": [
+            "runtime/http/services/control/generation_cycle.py",
+            "runtime/quality/generation_cycle.py",
+            "requirement normalizers",
+            "confidence_ledger"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "REQ-01": [
+              "src/polisyos/data_requirement/compiler.py",
+              "src/polisyos/ir/governance/problem_frame.py",
+              "src/polisyos/runtime/quality/generation_cycle.py",
+              "tests/unit/data_requirement/test_compiler.py"
+            ],
+            "CYC-01": [
+              "src/polisyos/runtime/http/services/control/generation_cycle.py",
+              "src/polisyos/runtime/http/services/control/job_nl_execution.py",
+              "src/polisyos/runtime/quality/generation_cycle.py",
+              "tests/integration/runtime_quality/test_configured_candidate_simulation_served.py"
+            ],
+            "ACQ-01": [
+              "src/polisyos/runtime/quality/acquisition_evaluation_dispatch.py",
+              "src/polisyos/runtime/quality/acquisition_world_growth.py",
+              "src/polisyos/runtime/quality/generation_cycle.py"
+            ],
+            "CYC-03": [
+              "src/polisyos/runtime/http/routes/runs.py",
+              "src/polisyos/runtime/quality/acquisition_evaluation_dispatch.py",
+              "src/polisyos/runtime/quality/generation_cycle.py"
+            ],
+            "CYC-04": [
+              "src/polisyos/runtime/quality/generation_cycle.py",
+              "src/polisyos/scientist/methods/search/voi_scheduler.py",
+              "src/polisyos/scientist/orchestration/engine/producer_budget.py"
+            ],
+            "CYC-05": [
+              "src/polisyos/runtime/http/services/control/generation_cycle.py",
+              "src/polisyos/runtime/quality/confidence_ledger.py",
+              "src/polisyos/runtime/quality/generation_cycle.py",
+              "src/polisyos/runtime/quality/recursive_generation_cycle.py"
+            ],
+            "CYC-02": [
+              "src/polisyos/runtime/quality/generation_cycle.py",
+              "tests/unit/remediation/test_cyc_02.py"
+            ]
+          }
+        },
+        {
+          "track_id": "01-B",
+          "packets": [
+            "SIM-01",
+            "SIM-02",
+            "SIM-03"
+          ],
+          "serial_order": true,
+          "meaning": "Request preflight→resolved writes/cause→statistics/joint comparator",
+          "shared_write_boundaries": [
+            "simulation request/result DTO",
+            "horizon.py",
+            "simulation numerical owners"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "SIM-01": [
+              "src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+              "src/polisyos/runtime/quality/joint_simulation_horizon.py"
+            ],
+            "SIM-02": [
+              "src/polisyos/runtime/quality/joint_simulation_horizon.py"
+            ],
+            "SIM-03": [
+              "src/polisyos/foundry/coupling/estimation.py",
+              "src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+              "src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+              "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+              "tests/unit/foundry/methods/catalog/causal/test_ncm_engine.py"
+            ]
+          }
+        },
+        {
+          "track_id": "01-C",
+          "packets": [
+            "SEL-01"
+          ],
+          "serial_order": true,
+          "meaning": "Advisor/intake/opaque identity/receipt",
+          "shared_write_boundaries": [
+            "method advisor/catalog selector"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "SEL-01": [
+              "src/polisyos/foundry/methods/selection/advisor.py",
+              "src/polisyos/foundry/methods/selection/receipt.py"
+            ]
+          }
+        }
+      ],
+      "cross_track_gates": [
+        {
+          "before": [
+            "REQ-01"
+          ],
+          "after": [
+            "ACQ-01"
+          ],
+          "reason": "Compiler-owned normalizer before LA046 closure"
+        },
+        {
+          "before": [
+            "ACQ-01"
+          ],
+          "after": [
+            "CYC-03"
+          ],
+          "reason": "Actual new source/admission before changed-basis continuation"
+        },
+        {
+          "before": [
+            "SIM-03"
+          ],
+          "after": [
+            "CYC-02"
+          ],
+          "reason": "Actual numerical result/identity before fresh conditional readback"
+        },
+        {
+          "before": [
+            "CYC-05",
+            "SIM-03"
+          ],
+          "after": [
+            "CYC-02"
+          ],
+          "reason": "Authored compound relation and actual contrast jointly qualified; no duplicated composition owner"
+        }
+      ],
+      "local_exit_evidence": "I01-A/B/C on merged actual paths. Shared generation_cycle.py edits serialized even if SIM/SEL task analysis runs concurrently. Positive readiness bridge local contract can be implemented here, final loaded artifact/census after12. Re-run RES03 fresh partial route when CYC02 is ready.",
+      "deferred_acceptance_ids": [
+        "DA-01",
+        "DA-06",
+        "DA-07",
+        "DA-08"
+      ],
+      "topological_ready_batches": [
+        [
+          "REQ-01",
+          "SEL-01",
+          "SIM-01"
+        ],
+        [
+          "CYC-01",
+          "SIM-02"
+        ],
+        [
+          "ACQ-01",
+          "SIM-03"
+        ],
+        [
+          "CYC-03"
+        ],
+        [
+          "CYC-04"
+        ],
+        [
+          "CYC-05"
+        ],
+        [
+          "CYC-02"
+        ]
+      ],
+      "ready_batch_warning": "Готовность по порядку не выдаёт simultaneous write lease. Перед запуском конкретных patches проверить фактический write set; общий файл/semantic owner/resource сериализует работу даже внутри batch.",
+      "packet_count": 11,
+      "evidence_input_version": "immutable delivered v2, schedule derivation source; not a claim of final-v3 file hash",
+      "evidence_inputs": [
+        {
+          "path": "01_Лейны/LANE-01.md",
+          "sha256": "8c4a9ffa024a39d88eb10f940882e653a315e8817505a5616e3c47f2122b062c"
+        }
+      ],
+      "original_packet_dependencies": {
+        "REQ-01": [
+          "ACQ-01: владелец полного LA-046 caller→compiler→resolver→admission→reentry; domain rule реализуется один раз REQ-01.",
+          "CYC-03: current continuation и reuse; REQ-01 не повторяет dispatcher.",
+          "LA-045 совместимость: first-party imports/loaders/exports/distribution scope; не бесконечный внешний census."
+        ],
+        "CYC-01": [
+          "CYC-02: положительный conditional N8 и свежий независимый reader; не приписывать это candidate-N5 тесту.",
+          "SIM-01/SIM-02/SIM-03/SEL-01: numerical/selection falsifiers принимаются у своих owners; CYC-01 проверяет их штатное соединение.",
+          "CYC-03/ACQ-01: новая basis и continuation отдельно; CYC-05: действительная child/composition способность отдельно.",
+          "CP1: составная приёмка нужного пути; интерфейсы LANE-04 и LANE-06 только по фактическому выбранному маршруту."
+        ],
+        "ACQ-01": [
+          "REQ-01 normalizer/report contract перед ACQ full closure; CYC-03 owns basis/occurrence and reuse semantics.",
+          "Shared generation_cycle.py mutations выполняет один writer по agreed patch order; no independent duplicated compiler adapter.",
+          "Source trust/acquisition owners других lanes остаются настоящими boundaries; fixture network допустим, admission/consumer не подменять."
+        ],
+        "CYC-03": [
+          "REQ-01 domain/construct contract → ACQ-01 actual admission/world → CYC-03 continuation/current occurrence.",
+          "generation_cycle.py общий mutex с CYC-01/02/04/05; ACQ-01 writer общего world bridge, CYC-03 writer basis-transition/occurrence.",
+          "Независимая реплика не создаёт empirical authority автоматически; SIM-03 владеет replication statistics."
+        ],
+        "CYC-04": [
+          "CYC-04 единственный owner late-candidate queue в N6; SIM-01 — альтернативные engine plans внутри одного N5 request, не дублировать эти уровни.",
+          "ACQ-01 сохраняет data acquisition action; shared failure не превращать в обход через новую acquisition.",
+          "Budget owner/middleware изменения согласовать с RES/ответственными integration lanes; CYC-04 owns consumer purpose/admission контракт."
+        ],
+        "CYC-05": [
+          "CYC-05 единственный writer положительного confidence_ledger readiness bridge/current consumer. LANE-12 DFK/HYG/CLI — фактические build/distribution/census/test artifact producers; не второй readiness issuer.",
+          "Issuer appointment и purpose/baseline contract согласовать с существующим identity owner до coding; не создавать внешний authority факт самостоятельно.",
+          "SIM-03 owns actual compound contrast/math; CYC-05 owns authored relationships, decomposition и propagation.",
+          "CYC-02 preserved numeric readback; CYC-03 current vs historical identities; общий generation_cycle.py mutex."
+        ],
+        "CYC-02": [
+          "CYC-01 ordinary served entry; CYC-02 owns conditional projection/legacy fix/new-process reader.",
+          "SIM-03 owns model-bound comparator и interaction math; CYC-05 authored child relationships не заменяет joint numerical semantics.",
+          "Общий generation_cycle.py writer координируется с соседними CYC/ACQ; не создавать второй CAS/N8."
+        ],
+        "SIM-01": [
+          "SIM-01 owns engine-plan input preflight; CYC-04 owns кандидатные alternatives после локального N5/N8 отказа.",
+          "SIM-02 owns resolved write paths/interruption reasons; SIM-03 comparator/replications/joint math.",
+          "CYC-01 builder handoff и CYC-02 reader должны использовать один exact request/selected binding; shared horizon.py один writer."
+        ],
+        "SIM-02": [
+          "SIM-02 единственный owner common resolved-write и retained cause contract; SIM-03 использует этот cause для replication interruption.",
+          "SIM-01 preflight не catch-all retry; CYC-02 actual conditional consumer принимает только qualified выбранный профиль.",
+          "Temporal/aggregation profile согласовать с actual method owner, не менять units/estimand ради зелёной длины."
+        ],
+        "SIM-03": [
+          "SIM-02 owns exact cause/temporal contract; SIM-03 does finite/statistics/comparator/interaction.",
+          "CYC-05 owns authored relationships, SIM-03 owns actual joint numerical semantics; neither soleowner всего compound meaning.",
+          "CYC-02 exposes conditional result; no empirical/N9 proof от этой приёмки."
+        ],
+        "SEL-01": [
+          "SEL-01 owns advisor/receipt semantics; existing MethodRegistry/catalog owner supplies intake, не второй registry. LK06 roles view/kernel сохраняются.",
+          "REQ-01 аналогичный invariant ID≠semantics, но другой compiler owner: не объединять два механизма в новый NLP framework.",
+          "CYC-02/EMP actual value consumer и SIM numeric profile; выбор одного метода не cross-method consensus."
+        ]
+      }
+    },
+    {
+      "sequence": 9,
+      "lane_id": "LANE-03",
+      "reason_for_position": "После candidate source/context01, graph05, numeric04 иdata07 — empirical/forecast/actual backtesting.",
+      "tracks": [
+        {
+          "track_id": "03-A",
+          "packets": [
+            "EMP-01",
+            "FRC-01",
+            "PCL-01",
+            "FRC-02"
+          ],
+          "serial_order": true,
+          "meaning": "Scope/value boundary→summary→continuous report→real empirical relation bridge",
+          "shared_write_boundaries": [
+            "runtime/quality/generation_cycle.py",
+            "predictive service/source schemas",
+            "dispatcher report normalizer"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "EMP-01": [
+              "src/polisyos/core/contracts/value_outer_set.py",
+              "src/polisyos/ir/observation/contracts.py",
+              "src/polisyos/runtime/quality/generation_cycle.py"
+            ],
+            "FRC-01": [
+              "src/polisyos/calibration/forecast_bridge.py",
+              "src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+              "src/polisyos/runtime/quality/generation_cycle.py",
+              "tests/unit/remediation/test_frc_01.py"
+            ],
+            "PCL-01": [
+              "src/polisyos/calibration/curve/_compute.py",
+              "src/polisyos/calibration/diagnostics/continuous.py",
+              "src/polisyos/foundry/methods/backends/dispatch.py",
+              "src/polisyos/foundry/methods/backends/protocol.py",
+              "src/polisyos/ir/analytics/_truthfulness.py",
+              "src/polisyos/ir/analytics/calibration_diagnostics.py",
+              "tests/unit/scientist/methods/backtesting/test_calibration_curve.py"
+            ],
+            "FRC-02": [
+              "src/polisyos/calibration/forecast_bridge.py",
+              "src/polisyos/runtime/http/services/predictive_calibration.py",
+              "src/polisyos/runtime/quality/generation_cycle.py",
+              "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+              "tests/unit/remediation/test_frc_02_s10.py"
+            ]
+          }
+        },
+        {
+          "track_id": "03-B",
+          "packets": [
+            "BKT-01",
+            "BKT-02",
+            "BKT-03"
+          ],
+          "serial_order": true,
+          "meaning": "As-of trajectory→evaluation/range/completeness→fresh packet",
+          "shared_write_boundaries": [
+            "backtesting/orchestrator.py",
+            "ir/analytics/backtest.py",
+            "backtest evaluator/report"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "BKT-01": [
+              "src/polisyos/scientist/methods/backtesting/masking.py",
+              "src/polisyos/scientist/methods/backtesting/orchestrator.py",
+              "src/polisyos/scientist/methods/backtesting/plan.py",
+              "src/polisyos/scientist/nodes/builtins/simulate/uncertainty_source_projection.py"
+            ],
+            "BKT-02": [
+              "src/polisyos/ir/analytics/backtest.py",
+              "src/polisyos/scientist/governance/backtest_matrix.py",
+              "src/polisyos/scientist/methods/backtesting/evaluator.py",
+              "src/polisyos/scientist/methods/backtesting/orchestrator.py",
+              "src/polisyos/scientist/methods/backtesting/trust_scorer.py",
+              "src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py",
+              "tests/unit/remediation/test_bkt_02.py"
+            ],
+            "BKT-03": [
+              "src/polisyos/ir/analytics/backtest.py",
+              "src/polisyos/scientist/governance/backtest_matrix.py",
+              "src/polisyos/scientist/methods/backtesting/orchestrator.py",
+              "src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py",
+              "tests/unit/scientist/nodes/test_decision_packet_node_v3.py"
+            ]
+          }
+        },
+        {
+          "track_id": "03-C",
+          "packets": [
+            "BKT-04"
+          ],
+          "serial_order": true,
+          "meaning": "CV/bootstrap selected caller and sampling unit",
+          "shared_write_boundaries": [
+            "existing CV/bootstrap helpers"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "BKT-04": [
+              "src/polisyos/scientist/methods/backtesting/__init__.py",
+              "src/polisyos/scientist/methods/backtesting/bootstrap.py",
+              "src/polisyos/scientist/methods/backtesting/cv.py",
+              "tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+              "tests/unit/scientist/methods/backtesting/test_cv.py"
+            ]
+          }
+        }
+      ],
+      "cross_track_gates": [
+        {
+          "before": [
+            "FRC-02"
+          ],
+          "after": [
+            "BKT-03"
+          ],
+          "reason": "Final forecast/uncertainty semantics before shared report claim; local BKT numeric repairs may proceed earlier"
+        }
+      ],
+      "local_exit_evidence": "I03-A/B/C with independent numerical controls and real selected refs. BKT04 standalone helper work independent; shared acceptance waits BKT02 metric denominator agreement. Refresh any I01 dependent optional forecast/source consumer changed here. Predictive coverage remains distinct from causal/authority claims.",
+      "deferred_acceptance_ids": [
+        "DA-07",
+        "DA-08"
+      ],
+      "topological_ready_batches": [
+        [
+          "BKT-01",
+          "BKT-04",
+          "EMP-01"
+        ],
+        [
+          "BKT-02",
+          "FRC-01"
+        ],
+        [
+          "PCL-01"
+        ],
+        [
+          "FRC-02"
+        ],
+        [
+          "BKT-03"
+        ]
+      ],
+      "ready_batch_warning": "Готовность по порядку не выдаёт simultaneous write lease. Перед запуском конкретных patches проверить фактический write set; общий файл/semantic owner/resource сериализует работу даже внутри batch.",
+      "packet_count": 8,
+      "evidence_input_version": "immutable delivered v2, schedule derivation source; not a claim of final-v3 file hash",
+      "evidence_inputs": [
+        {
+          "path": "01_Лейны/LANE-03.md",
+          "sha256": "da5c8ad38e5e2c72119a6560e213fffae795050fa5c97cb4b800ec07a78259f3"
+        }
+      ],
+      "original_packet_dependencies": {
+        "EMP-01": [
+          {
+            "packet": "CYC-01",
+            "relation": "Существующий selected problem/profile/context producer; наследованный предшественник, не повторный заказ его реализации."
+          },
+          {
+            "packet": "FRC-01/FRC-02",
+            "relation": "Время, calibration receipt и S10 находятся у этих owners. Scope/ValueOuterSet здесь не должны переписывать forecast gate."
+          },
+          {
+            "packet": "ACQ-01 / LANE-07",
+            "relation": "Activated projection и ObservationRecord semantics согласовать с настоящим producer; не новый параллельный measurement DTO."
+          },
+          {
+            "packet": "GRF-01/GRF-02",
+            "relation": "Переиспользовать canonical graph/solver contracts, не собственный graph engine."
+          }
+        ],
+        "FRC-01": [
+          {
+            "packet": "CYC-01",
+            "relation": "Реальный request/context owner, не повторная реализация."
+          },
+          {
+            "packet": "FRC-02",
+            "relation": "Accountable LA-051 bridge/served qualification; совместные gateway fields и temporal profile."
+          },
+          {
+            "packet": "PCL-01",
+            "relation": "Canonical numeric calibration/report/receipt contract; не второй расчет coverage здесь."
+          },
+          {
+            "packet": "EMP-01",
+            "relation": "Сохраняемые scope/value bounds переданы в общую summary без повышения силы."
+          }
+        ],
+        "PCL-01": [
+          {
+            "packet": "FRC-02",
+            "relation": "Один measurement-source bridge и общий native scenario; numeric report здесь не повышает роль сам."
+          },
+          {
+            "packet": "FRC-01",
+            "relation": "Summary/support refs должны сохранять ограничения report/receipt; shared gateway writer согласован."
+          },
+          {
+            "packet": "API-01 / LANE-12",
+            "relation": "Переиспользовать existing public-surface/packaging правила для finite alias lifecycle, без общего массового удаления."
+          }
+        ],
+        "FRC-02": [
+          {
+            "packet": "FRC-01",
+            "relation": "Summary preservation и honest optional refs; единый gateway writer, один shared chain."
+          },
+          {
+            "packet": "PCL-01",
+            "relation": "Continuous report/receipt representation и denominator; не второй calibration owner."
+          },
+          {
+            "packet": "EMP-01",
+            "relation": "Selected source population/time и useful candidate scope; relation не выводится из country-only data."
+          },
+          {
+            "packet": "CYC-01 / ACQ-01",
+            "relation": "Использовать существующие N4 selected source/context/profile и acquisition, не новый planning registry."
+          }
+        ],
+        "BKT-01": [
+          {
+            "packet": "BKT-02 / BKT-03",
+            "relation": "Один orchestrator/report writer: numeric empty/overflow and aggregate repairs согласовать, не дублировать report projections."
+          },
+          {
+            "packet": "BKT-04",
+            "relation": "Выбранные CV train/test boundaries согласованы с temporal view; expanding-window selection не заменяет feature availability."
+          },
+          {
+            "packet": "FRC-02",
+            "relation": "Переиспользовать forecast/source semantics и existing uncertainty owner; predictive experiment не causal CI."
+          },
+          {
+            "packet": "LANE-06",
+            "relation": "Существующие runtime budget/cost/admission и exact artifacts; не создавать собственную параллельную execution ledger."
+          }
+        ],
+        "BKT-02": [
+          {
+            "packet": "BKT-01",
+            "relation": "Actual trajectory/uncertainty semantics и native source path; не принимать произвольный envelope."
+          },
+          {
+            "packet": "BKT-03",
+            "relation": "Общий stable arithmetic/reconciliation writer: mean cancellation и numerical-range policy согласованы, не два расходящихся helper."
+          },
+          {
+            "packet": "FRC-02",
+            "relation": "Predictive experiment/coverage scientific scope, не general authority от point score."
+          }
+        ],
+        "BKT-03": [
+          {
+            "packet": "BKT-02",
+            "relation": "Один coordinated numerical-range/IR reconciliation contract; cancellation distinct from SSE overflow."
+          },
+          {
+            "packet": "BKT-01",
+            "relation": "Actual historical input и forecast/replica semantics до residual science."
+          }
+        ],
+        "BKT-04": [
+          {
+            "packet": "BKT-01",
+            "relation": "Historical feature leakage отдельно от CV boundaries; selected folds не доказывают as-of admissibility."
+          },
+          {
+            "packet": "BKT-02",
+            "relation": "Переиспользовать per-metric completeness/weight semantics у actual consumer, не смешивать CV mean с microRMSE."
+          },
+          {
+            "packet": "BKT-03",
+            "relation": "Independence/effective-n scientific assumptions сохраняются при bootstrap interpretation."
+          }
+        ]
+      }
+    },
+    {
+      "sequence": 10,
+      "lane_id": "LANE-02",
+      "reason_for_position": "Search consumes qualified numerical, source, uncertainty, fit and actual continuation services; execute after their owners.",
+      "tracks": [
+        {
+          "track_id": "02-A",
+          "packets": [
+            "OPT-01",
+            "OPT-02",
+            "CTL-02",
+            "OPT-03",
+            "OPT-04"
+          ],
+          "serial_order": true,
+          "meaning": "Coordinate source→effective action→portable restore→conditioned GP→champion",
+          "shared_write_boundaries": [
+            "autotune/bayesian.py",
+            "autotune/runtime.py",
+            "strategy state/codec"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "OPT-01": [
+              "src/polisyos/scientist/methods/autotune/pareto.py",
+              "src/polisyos/scientist/methods/search/objective.py"
+            ],
+            "OPT-02": [
+              "src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+              "src/polisyos/scientist/methods/search/strategies/bayesian.py"
+            ],
+            "CTL-02": [
+              "src/polisyos/scientist/methods/search/frontier.py",
+              "src/polisyos/scientist/methods/search/strategies/base.py"
+            ],
+            "OPT-03": [
+              "src/polisyos/scientist/methods/search/strategies/bayesian.py"
+            ],
+            "OPT-04": [
+              "src/polisyos/scientist/methods/autotune/registry.py",
+              "src/polisyos/scientist/methods/autotune/runtime.py"
+            ]
+          }
+        },
+        {
+          "track_id": "02-B",
+          "packets": [
+            "CTL-01",
+            "SRV-01",
+            "CTL-03",
+            "STP-01",
+            "SRV-03"
+          ],
+          "serial_order": true,
+          "meaning": "Run generation→atomic tell→cost/counts→stop→actual runner closure",
+          "shared_write_boundaries": [
+            "search service/lifecycle/run_state",
+            "autotune/runtime.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "CTL-01": [
+              "src/polisyos/scientist/methods/search/lifecycle.py",
+              "src/polisyos/scientist/methods/search/service.py"
+            ],
+            "SRV-01": [
+              "src/polisyos/scientist/methods/search/adapters.py",
+              "src/polisyos/scientist/methods/search/contracts.py",
+              "src/polisyos/scientist/methods/search/lifecycle.py",
+              "src/polisyos/scientist/methods/search/service.py"
+            ],
+            "CTL-03": [
+              "src/polisyos/scientist/methods/search/lifecycle.py",
+              "src/polisyos/scientist/methods/search/run_state.py",
+              "src/polisyos/scientist/methods/search/stopping.py"
+            ],
+            "STP-01": [
+              "src/polisyos/scientist/methods/search/stopping.py",
+              "src/polisyos/scientist/orchestration/engine/convergence.py"
+            ],
+            "SRV-03": [
+              "src/polisyos/scientist/methods/autotune/models.py",
+              "src/polisyos/scientist/methods/autotune/runtime.py",
+              "src/polisyos/scientist/methods/search/sentinels.py"
+            ]
+          }
+        },
+        {
+          "track_id": "02-C",
+          "packets": [
+            "TRN-03",
+            "TRN-01",
+            "TRN-02"
+          ],
+          "serial_order": true,
+          "meaning": "Aware-time/context→numerical history admission→exact-ref discovery",
+          "shared_write_boundaries": [
+            "transfer.py",
+            "lesson/history DTO",
+            "HNSW selected generation"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "TRN-03": [
+              "src/polisyos/scientist/methods/search/lessons.py",
+              "src/polisyos/scientist/methods/search/transfer_context.py"
+            ],
+            "TRN-01": [
+              "src/polisyos/scientist/methods/autotune/warm_start.py",
+              "src/polisyos/scientist/methods/search/strategies/transfer.py"
+            ],
+            "TRN-02": [
+              "src/polisyos/scientist/agent/vector_memory.py",
+              "src/polisyos/scientist/methods/search/strategies/transfer.py"
+            ]
+          }
+        },
+        {
+          "track_id": "02-D",
+          "packets": [
+            "FUN-01",
+            "FUN-02",
+            "FUN-03"
+          ],
+          "serial_order": true,
+          "meaning": "Fresh attempt/re-gating→fidelity/aggregate→current knowledge and protected promotion",
+          "shared_write_boundaries": [
+            "funnel orchestrator/blueprint",
+            "uncertainty tracker",
+            "protected promotion adapter"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "FUN-01": [
+              "src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+              "src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py"
+            ],
+            "FUN-02": [
+              "src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+              "src/polisyos/scientist/methods/search/funnel/types.py",
+              "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_metrics.py"
+            ],
+            "FUN-03": [
+              "src/polisyos/scientist/methods/search/calibration_report.py",
+              "src/polisyos/scientist/methods/search/cold_start.py",
+              "src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+              "src/polisyos/scientist/methods/search/stage_contracts.py",
+              "src/polisyos/scientist/methods/search/stages.py",
+              "src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_engine.py",
+              "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py"
+            ]
+          }
+        }
+      ],
+      "cross_track_gates": [
+        {
+          "before": [
+            "OPT-01"
+          ],
+          "after": [
+            "CTL-01",
+            "CTL-03",
+            "STP-01"
+          ],
+          "reason": "Objective/source coordinate basis before scientific-best/counter/meaningful plateau acceptance"
+        },
+        {
+          "before": [
+            "SRV-01"
+          ],
+          "after": [
+            "OPT-02"
+          ],
+          "reason": "One atomic tell owner; effective action must not invent second pending registry"
+        },
+        {
+          "before": [
+            "OPT-02"
+          ],
+          "after": [
+            "TRN-01"
+          ],
+          "reason": "Canonical parameters and executed identity before target history admission"
+        },
+        {
+          "before": [
+            "TRN-01",
+            "TRN-02",
+            "CTL-02"
+          ],
+          "after": [
+            "OPT-03"
+          ],
+          "reason": "Compatible source history and atomic base restore before fitted GP qualification"
+        },
+        {
+          "before": [
+            "CTL-02",
+            "OPT-02",
+            "STP-01"
+          ],
+          "after": [
+            "SRV-03"
+          ],
+          "reason": "Actual resume/runner uses completed shared contracts"
+        },
+        {
+          "before": [
+            "SRV-03"
+          ],
+          "after": [
+            "OPT-04"
+          ],
+          "reason": "Shared runtime.py merge lease, then champion native evidence"
+        },
+        {
+          "before": [
+            "CTL-03"
+          ],
+          "after": [
+            "FUN-01"
+          ],
+          "reason": "Resource admission contract before bounded continuation"
+        },
+        {
+          "before": [
+            "TRN-03"
+          ],
+          "after": [
+            "FUN-03"
+          ],
+          "reason": "Shared effective lesson/time projection"
+        }
+      ],
+      "local_exit_evidence": "I02-A/B/C/D after all relevant gates. Initial CTL01/SRV01 contract can be drafted jointly before OPT01, but accepted state mutation follows frozen objective basis. No deadlock between OPT03 andTRN: contract-level parameters→history admission→qualified GP in that order; reevaluation remains usable if optional measurement-reuse profile not chosen.",
+      "deferred_acceptance_ids": [
+        "DA-08"
+      ],
+      "topological_ready_batches": [
+        [
+          "OPT-01",
+          "TRN-03"
+        ],
+        [
+          "CTL-01"
+        ],
+        [
+          "SRV-01"
+        ],
+        [
+          "CTL-03",
+          "OPT-02"
+        ],
+        [
+          "CTL-02",
+          "FUN-01",
+          "STP-01",
+          "TRN-01"
+        ],
+        [
+          "FUN-02",
+          "SRV-03",
+          "TRN-02"
+        ],
+        [
+          "FUN-03",
+          "OPT-03"
+        ],
+        [
+          "OPT-04"
+        ]
+      ],
+      "ready_batch_warning": "Готовность по порядку не выдаёт simultaneous write lease. Перед запуском конкретных patches проверить фактический write set; общий файл/semantic owner/resource сериализует работу даже внутри batch.",
+      "packet_count": 16,
+      "evidence_input_version": "immutable delivered v2, schedule derivation source; not a claim of final-v3 file hash",
+      "evidence_inputs": [
+        {
+          "path": "01_Лейны/LANE-02.md",
+          "sha256": "f32af01898b24a89803e9812697273403813e692c45c1601b33bb717a92e27b3"
+        }
+      ],
+      "original_packet_dependencies": {
+        "OPT-01": [
+          "OPT-02 делит autotune файлы: один writer на общий контракт; этот пакет владеет Pareto coordinate schema.",
+          "OPT-04 потребляет comparison basis, но владеет champion publication и atomic registry.",
+          "LAW/measurement owner даёт предметный закон; не выдумывать его в generic Pareto layer."
+        ],
+        "OPT-02": [
+          "CTL-02 владеет portable RNG/base snapshot; OPT-03 GP continuation. Общий bayesian.py — последовательный writer.",
+          "SRV-01 владеет атомарным tell, SRV-03 typed role envelope; не второй pending registry.",
+          "TRN-01/02 обеспечивают совместимый source history, но similarity не admission."
+        ],
+        "CTL-02": [
+          "OPT-02 исполняемый параметр/identity до checkpoint consumer; OPT03model state owner.",
+          "CTL-02 owns общий codec/atomic restore, не independent RNG fixes в стратегиях; SRV-03 проверяет actual resume."
+        ],
+        "OPT-03": [
+          "CTL-02 — общий portable RNG и base state; OPT-03 владеет GP atomic staging, не второй restore framework.",
+          "OPT-02 — canonical params/source corpus; TRN-01/02 — discovery и compatible history.",
+          "Проверять source verifier совместно с его actual owner; не отключать private admission."
+        ],
+        "OPT-04": [
+          "OPT-01 — comparison coordinate contract; OPT-02/03 — source-admitted evaluations, не issuer полномочий.",
+          "SRV-03/OPT-02 разделяют runtime.py: один writer.",
+          "Existing claim verifier владеет appointment/signature/expiry; этот пакет интегрирует разрешённый test principal, не создаёт право из score."
+        ],
+        "CTL-01": [
+          "OPT-01 objective/source identity before accepted scientific best; чтение поregistry не integration order.",
+          "CTL-01 owner generation/failure-finalize; SRV-01 atomic pending/commit и split lifecycle; CTL-03 counters/budget; SRV-03 actual runner and LA-015 closure.",
+          "service/lifecycle/run_state общий один writer на согласованный atomic patch, не independent facade locks."
+        ],
+        "SRV-01": [
+          "SRV-01 owns atomic acceptance API; CTL-01 owns run-generation replacement. Реализовать одним согласованным shared-owner patch, не два locks.",
+          "CTL-03 supplies work/cost/typed eligibility semantics; SRV-03 validates actual autotune split/full consumer and LA015 closure.",
+          "LA014 closed only after ownactualcontracts/caller/evidence; protocol presence не acceptance."
+        ],
+        "CTL-03": [
+          "CTL-03 owns counter semantics/finite monetary cap; CTL-01 failure attempt snapshot; SRV-01 shared split admission; SRV-03 actual consumer.",
+          "OPT-01 source/coordinate contract governs usable objectives; scalar diagnostic не обходит его."
+        ],
+        "STP-01": [
+          "STP-01 ownsdetector/plateau; CTL-01/CTL-03 owns run/cost/counters, не второй stop framework.",
+          "SRV-03 complex resume сохраняет declared stop basis; OPT01actual objective units/source до meaningful plateau."
+        ],
+        "SRV-03": [
+          "CTL01run/partial; CTL03counts/cost; SRV01acceptance; CTL02RNG; STP01stop — обязательные общие contracts.",
+          "SRV-03 accountable LA-015 closure; CTL-01 phase 1 не закрывает целое. OPT-02 owns MethodJob binding; OPT-04 promotion atomicity, здесь sentinel role consumer."
+        ],
+        "TRN-03": [
+          "TRN-01 использует общий aware-time contract для history; timestamp policy один, не duplicated defaults.",
+          "FUN-03 calibration report использует тот же effective lesson projection; report snapshot не новая authority.",
+          "Actual tenant/CAS owner подтверждает доступ; lesson similarity — proposal, не научное или институциональное полномочие."
+        ],
+        "TRN-01": [
+          "TRN-02 владеет exact ref/cache/discovery; общий transfer.py один writer.",
+          "OPT-02 — canonical training params; OPT-03 — learned GP/source-fit qualification.",
+          "TRN-03 определяет aware timestamp boundary; historical unknown не автоматически UTC-now."
+        ],
+        "TRN-02": [
+          "TRN-01 — численный admission и target reevaluation, не ANN similarity.",
+          "Existing Core/CAS owner сохраняет доступ/profile на cached read; не второй authority cache.",
+          "Тяжёлый tiny native job один coordinated slot, без одновременного GP job."
+        ],
+        "FUN-01": [
+          "FUN-01 — orchestration/continuation owner; FUN-02 — fidelity/aggregate projection; FUN-03 — current knowledge/calibration/protected action.",
+          "CTL-03 владеет actual resource admission; bound continuation не создаёт второй budget owner.",
+          "Источник immutable numerical work остаётся у existing Foundry/AD01 owner; не общий ticket-cache."
+        ],
+        "FUN-02": [
+          "FUN-01 владеет попытками/re-gating/reuse; общие orchestrator edits последовательны.",
+          "FUN-03/UQS — source-traced current uncertainty, здесь interval origin и aggregate presentation.",
+          "Actual engine owner подтверждает executed draws; диагностический label не назначает scientific authority."
+        ],
+        "FUN-03": [
+          "FUN-01 — attempts/lineage; FUN-02 — diagnostic interval origin и aggregate.",
+          "Существующий search uncertainty owner единственный хранит task/current generations; UQS shared integration согласует source semantics, не второй ledger.",
+          "FUN-03 — L6 adapter, existing protected promotion writer — final effect authority; назначение issuer/port фиксируется DEC-FUN-03-02, не автоматически CYC-05 readiness issuer."
+        ]
+      }
+    },
+    {
+      "sequence": 11,
+      "lane_id": "LANE-11",
+      "reason_for_position": "After source/numerical runtime paths, qualify explanation/monitoring/legal consumers; package origin final at12.",
+      "tracks": [
+        {
+          "track_id": "11-A",
+          "packets": [
+            "BER-01"
+          ],
+          "serial_order": true,
+          "meaning": "Strict persisted explanation→fresh display",
+          "shared_write_boundaries": [
+            "berl/contracts",
+            "berl/persistence",
+            "phase5_preflight.py"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "BER-01": [
+              "src/polisyos/berl/contracts/schema.py",
+              "src/polisyos/berl/contracts/validation_rules.py",
+              "src/polisyos/berl/persistence.py",
+              "src/polisyos/berl/service/__init__.py",
+              "src/polisyos/berl/service/cache_identity.py",
+              "src/polisyos/scientist/validation/phase5_preflight.py",
+              "tests/unit/berl/test_persisted_wire_profile.py",
+              "tests/unit/remediation/test_ber_01.py"
+            ]
+          }
+        },
+        {
+          "track_id": "11-B",
+          "packets": [
+            "DDM-01",
+            "DDM-02"
+          ],
+          "serial_order": true,
+          "meaning": "Canonical event classes→source calibration/holdout/applicability",
+          "shared_write_boundaries": [
+            "ddm/contracts",
+            "ddm/integration",
+            "ddm/calibration"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "DDM-01": [
+              "src/polisyos/ddm/__init__.py",
+              "src/polisyos/ddm/contracts/events.py",
+              "src/polisyos/ddm/contracts/metric_budget.py",
+              "src/polisyos/ddm/integration/__init__.py",
+              "src/polisyos/ddm/integration/events.py",
+              "src/polisyos/ddm/integration/shift_event.schema.json",
+              "tests/unit/ddm/test_contract_compatibility.py",
+              "tests/unit/ddm/test_contract_fresh_consumers.py",
+              "tests/unit/ddm/test_facade.py"
+            ],
+            "DDM-02": [
+              "src/polisyos/ddm/calibration/audit.py",
+              "src/polisyos/ddm/calibration/calibrate.py",
+              "src/polisyos/ddm/calibration/observations.py",
+              "src/polisyos/ddm/integration/model_registry.py",
+              "src/polisyos/ddm/integration/monitor.py",
+              "src/polisyos/ddm/readiness/readiness_mapper.py",
+              "src/polisyos/ddm/readiness/readiness_policy.yaml",
+              "tests/unit/ddm/test_full_acceptance.py",
+              "tests/unit/ddm/test_observation_source_admission.py",
+              "tests/unit/ddm/test_readiness_mapping.py"
+            ]
+          }
+        },
+        {
+          "track_id": "11-C",
+          "packets": [
+            "LEX-01"
+          ],
+          "serial_order": true,
+          "meaning": "Norm diff→selected report→reader-first CLI",
+          "shared_write_boundaries": [
+            "lex/normpack/diff.py",
+            "legal_evaluation/impact_diff.py",
+            "lex simulator CLI"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "LEX-01": [
+              "src/polisyos/core/components/_cli_lex.py",
+              "src/polisyos/lex/legal_evaluation/impact_diff.py",
+              "src/polisyos/lex/normpack/diff.py",
+              "src/polisyos/lex/simulator/cli.py",
+              "tests/unit/lex/legal_evaluation/test_impact_diff.py",
+              "tests/unit/lex/simulator/test_diff.py",
+              "tests/unit/remediation/test_lex_01.py",
+              "tests/unit/remediation/test_lex_impact_semantics.py"
+            ]
+          }
+        }
+      ],
+      "cross_track_gates": [],
+      "local_exit_evidence": "I11-A/B/C; DDM actual source provenance and current authority separately from class relocation. Missing production source does not permit fabricated certificate; exact bounded outcome required. No empirical/legal authority from synthetic fixtures.",
+      "deferred_acceptance_ids": [
+        "DA-05",
+        "DA-08"
+      ],
+      "topological_ready_batches": [
+        [
+          "BER-01",
+          "DDM-01",
+          "LEX-01"
+        ],
+        [
+          "DDM-02"
+        ]
+      ],
+      "ready_batch_warning": "Готовность по порядку не выдаёт simultaneous write lease. Перед запуском конкретных patches проверить фактический write set; общий файл/semantic owner/resource сериализует работу даже внутри batch.",
+      "packet_count": 4,
+      "evidence_input_version": "immutable delivered v2, schedule derivation source; not a claim of final-v3 file hash",
+      "evidence_inputs": [
+        {
+          "path": "01_Лейны/LANE-11.md",
+          "sha256": "21706b5c7de0d010311eda7228baf81df89571e19173652daccfd628adfd12d6"
+        }
+      ],
+      "original_packet_dependencies": {
+        "BER-01": [],
+        "DDM-01": [],
+        "DDM-02": [
+          "DDM-01"
+        ],
+        "LEX-01": []
+      }
+    },
+    {
+      "sequence": 12,
+      "lane_id": "LANE-12",
+      "reason_for_position": "Последний delivery lane: actual source/census/generator snapshot должен включать все предыдущие изменения.",
+      "tracks": [
+        {
+          "track_id": "12-A",
+          "packets": [
+            "DFK-01",
+            "HYG-02",
+            "HYG-04"
+          ],
+          "serial_order": true,
+          "meaning": "Schema/alias census→actual facade migration→bootstrap/benchmark/docs compatibility",
+          "shared_write_boundaries": [
+            "schema registry/codegen",
+            "schema_fqn_census.py",
+            "Scientist/Core facades",
+            "bootstrap/docs/benchmark owners"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "DFK-01": [
+              "src/polisyos/data_forge/kernel/pipeline/schemas/__init__.py",
+              "src/polisyos/data_forge/kernel/schemas/codegen.py",
+              "src/polisyos/data_forge/kernel/schemas/evolution.py",
+              "src/polisyos/data_forge/kernel/schemas/migrations.py",
+              "src/polisyos/data_forge/kernel/schemas/registry.py",
+              "src/polisyos/foundry/domain/schema.py",
+              "tests/repo_quality/tools/test_e02_installed_census_contract.py",
+              "tests/unit/data_forge/test_phase7_schema_quality_observability.py",
+              "tests/unit/foundry/hygiene/test_no_compat_facade_imports.py",
+              "tests/unit/remediation/test_dfk_01.py",
+              "tools/quality/validation/schema_fqn_census.py"
+            ],
+            "HYG-02": [
+              "src/polisyos/fabric/world/store/segments.py",
+              "src/polisyos/lex/normpack/select_sources.py",
+              "src/polisyos/scientist/evidence/_shim.py",
+              "src/polisyos/scientist/evidence/compatibility.py",
+              "src/polisyos/scientist/governance/pass_entrypoints.py",
+              "src/polisyos/scientist/governance/passes/__init__.py",
+              "tests/unit/lex/normpack/test_fabric_world_reader.py",
+              "tests/unit/scientist/evidence/test_phase44_taxonomy.py",
+              "tests/unit/scientist/governance/test_shared_shims.py",
+              "tests/unit/scientist/methods/test_import_shims.py"
+            ],
+            "HYG-04": [
+              "src/polisyos/common/jax_env/__init__.py",
+              "tests/unit/common/jax_env/test__policy.py",
+              "tests/unit/remediation/test_hyg_04.py",
+              "tools/devx/workspace/bootstrap.py",
+              "tools/quality/validation/check_docs_lifecycle.py",
+              "tools/research/benchmarks/harness.py",
+              "tools/research/benchmarks/metrics.py",
+              "tools/research/benchmarks/suite_registry.py"
+            ]
+          }
+        },
+        {
+          "track_id": "12-B",
+          "packets": [
+            "CLI-01"
+          ],
+          "serial_order": true,
+          "meaning": "OpenAPI private raw→canonical generated client→actual Runtime",
+          "shared_write_boundaries": [
+            "runtime client generator/scripts",
+            "architecture checker",
+            "TS/JS package tests"
+          ],
+          "source_impact_inventory_not_write_authorization": {
+            "CLI-01": [
+              "packages/runtime-api-client/remediation.test.mjs",
+              "packages/runtime-api-client/runtimeApiClient.test.mjs",
+              "packages/runtime-api-client/runtimeApiClient.type-test.ts",
+              "packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs",
+              "packages/runtime-api-client/scripts/check-architecture.mjs",
+              "packages/runtime-api-client/scripts/generate-openapi-types.mjs",
+              "packages/runtime-api-client/scripts/generate-runtime-api-client.sh",
+              "packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs",
+              "tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py",
+              "tools/devx/architecture/guardrails.py",
+              "tools/ops_runners/runtime/check_runtime_api_contract.py",
+              "tools/ops_runners/runtime/generate_runtime_client.py"
+            ]
+          }
+        }
+      ],
+      "cross_track_gates": [],
+      "local_exit_evidence": "One frozen Python Q2 wheel→sdist→rebuilt wheel/noneditable install window; one Node22 frozen generation/type/runtime bridge window. No source edits during these jobs. I12-A/B plus DA05/06/08 close using exact final artifact identity. CYC05 existing bridge consumes evidence; no second issuer. Product release only after all pending applicable acceptances resolved.",
+      "deferred_acceptance_ids": [
+        "DA-05",
+        "DA-06",
+        "DA-08"
+      ],
+      "topological_ready_batches": [
+        [
+          "CLI-01",
+          "DFK-01"
+        ],
+        [
+          "HYG-02"
+        ],
+        [
+          "HYG-04"
+        ]
+      ],
+      "ready_batch_warning": "Готовность по порядку не выдаёт simultaneous write lease. Перед запуском конкретных patches проверить фактический write set; общий файл/semantic owner/resource сериализует работу даже внутри batch.",
+      "packet_count": 4,
+      "evidence_input_version": "immutable delivered v2, schedule derivation source; not a claim of final-v3 file hash",
+      "evidence_inputs": [
+        {
+          "path": "01_Лейны/LANE-12.md",
+          "sha256": "44f4346608515172a9371de19203870ff939a0a649d2324009126c711bf78b12"
+        }
+      ],
+      "original_packet_dependencies": {
+        "DFK-01": [],
+        "HYG-02": [],
+        "HYG-04": [],
+        "CLI-01": []
+      }
+    }
+  ],
+  "deferred_acceptance": [
+    {
+      "id": "DA-01",
+      "owners": [
+        "RES-03",
+        "CMP-01",
+        "CYC-02"
+      ],
+      "origin_lane": "LANE-06",
+      "trigger": "CMP-01 после04 и CYC-02 после01 merged; RES-03 consumer-affecting changes frozen",
+      "required_real_consumer": "E02-I06-B actual same-leaf partial result→checkpoint/head→fresh CYC/CLI continuation; I04-B where restricted invocation/checkpoint is affected",
+      "early_allowed": "Inspect existing CMP/CYC contracts and implement local partial projection only if sufficient native contract exists; record exact unqualified consumer edge",
+      "blocked_if": "Required producer/consumer contract absent or incompatible: affected implementation step BLOCKED, not merely deferred test",
+      "closure": "After01 run real linked route; any repair reopens the owning lane as a serial corrective window before downstream affected work",
+      "scenario_ids": [
+        "E02-I06-B",
+        "E02-X02"
+      ],
+      "binding_ids": [
+        "E02-I06-B-B03",
+        "E02-X02-B05"
+      ],
+      "requirement_ids": [
+        "REQ-RES-03-02",
+        "REQ-RES-03-03"
+      ],
+      "local_test_ids": [
+        "TEST-RES-03-02",
+        "TEST-RES-03-03"
+      ],
+      "coverage_extent": "Partial transition/consumer evidence only; local test IDs are trace locators, not permission to defer entire tests or requirements.",
+      "scope_note": "Late CYC public reader/leaf projection only; RES03-01 local async-chain control is not automatically deferred. I04-B/RES04 is an impact-triggered extra, not prerequisite of every RES03 test.",
+      "binding_requirement_subsets": [
+        {
+          "binding_id": "E02-I06-B-B03",
+          "requirement_ids": [
+            "REQ-RES-03-02",
+            "REQ-RES-03-03"
+          ],
+          "local_test_ids": [
+            "TEST-RES-03-02",
+            "TEST-RES-03-03"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X02-B05",
+          "requirement_ids": [
+            "REQ-RES-03-02",
+            "REQ-RES-03-03"
+          ],
+          "local_test_ids": [
+            "TEST-RES-03-02",
+            "TEST-RES-03-03"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        }
+      ],
+      "local_only_or_separate_requirement_ids": [],
+      "additional_invalidated_binding_ids": [],
+      "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope."
+    },
+    {
+      "id": "DA-02",
+      "owners": [
+        "UDF-02",
+        "CMP-01",
+        "FRY-01"
+      ],
+      "origin_lane": "LANE-07",
+      "trigger": "Selected Foundry intake/execution profile from04 frozen",
+      "required_real_consumer": "E02-I07-A native source/Parquet/CAS→actual Foundry binding and useful conditional result",
+      "early_allowed": "Native format/readback and existing qualified intake can close early; defer only demonstrably changed unavailable Foundry consumer",
+      "blocked_if": "No declared actual intake contract exists; do not invent converter/mock accepted as product",
+      "closure": "After04 re-run affected I07-A binding; existing unchanged qualified consumer may remove this pending item with evidence",
+      "scenario_ids": [
+        "E02-I07-A"
+      ],
+      "binding_ids": [
+        "E02-I07-A-B01"
+      ],
+      "requirement_ids": [
+        "REQ-UDF-02-02",
+        "REQ-UDF-02-04"
+      ],
+      "local_test_ids": [
+        "TEST-UDF-02-02",
+        "TEST-UDF-02-04"
+      ],
+      "coverage_extent": "Partial transition/consumer evidence only; local test IDs are trace locators, not permission to defer entire tests or requirements.",
+      "scope_note": "Only actual selected-snapshot→Foundry consumer and its carried diagnostics; UDF01 import/IO byte tests in the same binding remain early. Existing qualified unchanged intake can close immediately.",
+      "binding_requirement_subsets": [
+        {
+          "binding_id": "E02-I07-A-B01",
+          "requirement_ids": [
+            "REQ-UDF-02-02",
+            "REQ-UDF-02-04"
+          ],
+          "local_test_ids": [
+            "TEST-UDF-02-02",
+            "TEST-UDF-02-04"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        }
+      ],
+      "local_only_or_separate_requirement_ids": [],
+      "additional_invalidated_binding_ids": [],
+      "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope."
+    },
+    {
+      "id": "DA-03",
+      "owners": [
+        "CAL-01",
+        "CAL-02",
+        "CAL-06"
+      ],
+      "origin_lane": "LANE-07",
+      "trigger": "LANE10 final objective/uncertainty report merged",
+      "required_real_consumer": "E02-I07-C source/time/mask/units→actual calibration objective/optimizer→fresh report",
+      "early_allowed": "CAL01 finite source/target and paired-order local controls on declared model/query contract",
+      "blocked_if": "Alignment semantics unresolved; target uniqueness must not be guessed from source uniqueness",
+      "closure": "During10 shared I10-A/I07-C actual evidence, original local numeric tests remain",
+      "scenario_ids": [
+        "E02-I07-C"
+      ],
+      "binding_ids": [
+        "E02-I07-C-B01",
+        "E02-I07-C-B02"
+      ],
+      "requirement_ids": [
+        "REQ-CAL-01-01",
+        "REQ-CAL-01-02",
+        "REQ-CAL-01-03",
+        "REQ-CAL-01-04",
+        "REQ-CAL-01-05"
+      ],
+      "local_test_ids": [
+        "TEST-CAL-01-01",
+        "TEST-CAL-01-02",
+        "TEST-CAL-01-03",
+        "TEST-CAL-01-04",
+        "TEST-CAL-01-05"
+      ],
+      "coverage_extent": "Partial transition/consumer evidence only; local test IDs are trace locators, not permission to defer entire tests or requirements.",
+      "scope_note": "Only final actual calibration-consumer part of these bindings; all source/preflight local controls can run earlier. FAC02 revised target predicate applies.",
+      "binding_requirement_subsets": [
+        {
+          "binding_id": "E02-I07-C-B01",
+          "requirement_ids": [
+            "REQ-CAL-01-01",
+            "REQ-CAL-01-02",
+            "REQ-CAL-01-05"
+          ],
+          "local_test_ids": [
+            "TEST-CAL-01-01",
+            "TEST-CAL-01-02",
+            "TEST-CAL-01-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-I07-C-B02",
+          "requirement_ids": [
+            "REQ-CAL-01-03",
+            "REQ-CAL-01-04"
+          ],
+          "local_test_ids": [
+            "TEST-CAL-01-03",
+            "TEST-CAL-01-04"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        }
+      ],
+      "local_only_or_separate_requirement_ids": [],
+      "additional_invalidated_binding_ids": [],
+      "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope."
+    },
+    {
+      "id": "DA-04",
+      "owners": [
+        "CAL-05",
+        "CAL-02",
+        "CAL-04"
+      ],
+      "origin_lane": "LANE-04",
+      "trigger": "LANE10 final calibrator.py objective/state/report merged",
+      "required_real_consumer": "I04-D actual conditional pure executor→calibration objective/derivatives/report, relevant I10-A",
+      "early_allowed": "Native pure executor eager/tracer/cond behavior on existing supported scalar-map profile",
+      "blocked_if": "Required conditional executor semantics not implementable against current primitive",
+      "closure": "During10 rerun CAL05 integration after shared calibrator edits; no assertion of old evidence freshness",
+      "scenario_ids": [
+        "E02-I04-D"
+      ],
+      "binding_ids": [
+        "E02-I04-D-B02"
+      ],
+      "requirement_ids": [
+        "REQ-CAL-05-03"
+      ],
+      "local_test_ids": [
+        "TEST-CAL-05-03"
+      ],
+      "coverage_extent": "Partial transition/consumer evidence only; local test IDs are trace locators, not permission to defer entire tests or requirements.",
+      "scope_note": "Only final Calibrator loss/report consumption after calibrator edits; CAL05-01/02 pure executor controls are not deferred.",
+      "binding_requirement_subsets": [
+        {
+          "binding_id": "E02-I04-D-B02",
+          "requirement_ids": [
+            "REQ-CAL-05-03"
+          ],
+          "local_test_ids": [
+            "TEST-CAL-05-03"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        }
+      ],
+      "local_only_or_separate_requirement_ids": [],
+      "additional_invalidated_binding_ids": [],
+      "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope."
+    },
+    {
+      "id": "DA-05",
+      "owners": [
+        "API-01",
+        "GRF-01",
+        "DDM-01",
+        "DFK-01",
+        "HYG-02",
+        "HYG-04"
+      ],
+      "origin_lane": "LANE-05/LANE-11",
+      "trigger": "LANE12 final noneditable artifacts and census ready",
+      "required_real_consumer": "I12-A actual installed-origin public/FQN/alias consumers on final wheel/sdist/rebuilt artifact",
+      "early_allowed": "Source-local alias/import/caller regression and native semantics; source tests not installed proof",
+      "blocked_if": "Retirement lacks supported caller/window decision; absence of installed evidence does not authorize deletion",
+      "closure": "At12 Q2 single shared evidence with exact source/artifact mapping; no build per packet",
+      "scenario_ids": [
+        "E02-I12-A"
+      ],
+      "binding_ids": [
+        "E02-I12-A-B02"
+      ],
+      "requirement_ids": [
+        "REQ-DFK-01-04",
+        "REQ-API-01-05",
+        "REQ-GRF-01-04",
+        "REQ-DDM-01-05"
+      ],
+      "local_test_ids": [
+        "TEST-API-01-05",
+        "TEST-API-01-06",
+        "TEST-DDM-01-01",
+        "TEST-DDM-01-02",
+        "TEST-DDM-01-03",
+        "TEST-DFK-01-03",
+        "TEST-GRF-01-05",
+        "TEST-GRF-01-06"
+      ],
+      "coverage_extent": "Partial transition/consumer evidence only; local test IDs are trace locators, not permission to defer entire tests or requirements.",
+      "scope_note": "I12-A-B02 supplies shared artifact/origin evidence. API05/GRF04/DDM05 are local-only obligations: their explicit local tests still run against that artifact and do not acquire new invented binding coverage. Source/census tests are not deferred wholesale.",
+      "binding_requirement_subsets": [
+        {
+          "binding_id": "E02-I12-A-B02",
+          "requirement_ids": [
+            "REQ-DFK-01-04"
+          ],
+          "local_test_ids": [
+            "TEST-DFK-01-03"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        }
+      ],
+      "local_only_or_separate_requirement_ids": [
+        "REQ-API-01-05",
+        "REQ-DDM-01-05",
+        "REQ-GRF-01-04"
+      ],
+      "additional_invalidated_binding_ids": [],
+      "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope."
+    },
+    {
+      "id": "DA-06",
+      "owners": [
+        "CYC-05",
+        "DFK-01",
+        "HYG-04",
+        "CLI-01"
+      ],
+      "origin_lane": "LANE-01",
+      "trigger": "LANE12 actual final build/distribution/census/client evidence exists with issuer appointment/profile",
+      "required_real_consumer": "CYC05 existing confidence_ledger positive build/deployment→N6 currentness consumer for loaded artifact",
+      "early_allowed": "Implement/qualify bridge contract using allowed inputs, but no final loaded-artifact readiness claim",
+      "blocked_if": "Appointed issuer/consumer predicate absent: targeted decision remains BLOCKED, no self-issued candidate manifest",
+      "closure": "At12 feed real bound evidence into existing bridge; revoke/currentness negatives and positive path, no second registry",
+      "scenario_ids": [
+        "E02-I01-C"
+      ],
+      "binding_ids": [
+        "E02-I01-C-B03"
+      ],
+      "requirement_ids": [
+        "REQ-CYC-05-04",
+        "REQ-CYC-05-05",
+        "REQ-CYC-05-06"
+      ],
+      "local_test_ids": [
+        "TEST-CYC-05-04",
+        "TEST-CYC-05-05",
+        "TEST-CYC-05-06"
+      ],
+      "coverage_extent": "Partial transition/consumer evidence only; local test IDs are trace locators, not permission to defer entire tests or requirements.",
+      "scope_note": "Only actual final loaded build/census→readiness evidence. Local malformed-census/currentness controls remain runnable earlier; no final positive readiness before appointed evidence.",
+      "binding_requirement_subsets": [
+        {
+          "binding_id": "E02-I01-C-B03",
+          "requirement_ids": [
+            "REQ-CYC-05-04",
+            "REQ-CYC-05-05",
+            "REQ-CYC-05-06"
+          ],
+          "local_test_ids": [
+            "TEST-CYC-05-04",
+            "TEST-CYC-05-05",
+            "TEST-CYC-05-06"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        }
+      ],
+      "local_only_or_separate_requirement_ids": [],
+      "additional_invalidated_binding_ids": [],
+      "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope."
+    },
+    {
+      "id": "DA-07",
+      "owners": [
+        "CYC-01",
+        "CYC-02",
+        "EMP-01",
+        "FRC-01",
+        "FRC-02"
+      ],
+      "origin_lane": "LANE-01",
+      "trigger": "LANE03 modified selected forecast/source/summary consumers merged",
+      "required_real_consumer": "Only affected I01 and I03 selected context→real forecast/summary→fresh conditional reader edges",
+      "early_allowed": "Already qualified direct numerical N5/N8 candidate path remains valid within its declared profile",
+      "blocked_if": "Claim requires absent observed-outcome relation; candidate or series calibration cannot substitute",
+      "closure": "After03 refresh impacted evidence only; not mandatory rebuild of every unchanged I01 test",
+      "scenario_ids": [
+        "E02-I01-A",
+        "E02-I03-A",
+        "E02-I03-B"
+      ],
+      "binding_ids": [
+        "E02-I01-A-B01",
+        "E02-I03-A-B01",
+        "E02-I03-A-B02",
+        "E02-I03-B-B03",
+        "E02-I03-B-B04"
+      ],
+      "requirement_ids": [
+        "REQ-CYC-01-03",
+        "REQ-CYC-01-04",
+        "REQ-CYC-02-03",
+        "REQ-CYC-02-04",
+        "REQ-CYC-02-05",
+        "REQ-EMP-01-04",
+        "REQ-EMP-01-05",
+        "REQ-EMP-01-07",
+        "REQ-FRC-01-01",
+        "REQ-FRC-01-02",
+        "REQ-FRC-01-04",
+        "REQ-FRC-01-05",
+        "REQ-FRC-01-06",
+        "REQ-FRC-02-04",
+        "REQ-FRC-02-05"
+      ],
+      "local_test_ids": [
+        "TEST-CYC-01-01",
+        "TEST-CYC-01-04",
+        "TEST-CYC-02-03",
+        "TEST-CYC-02-04",
+        "TEST-CYC-02-05",
+        "TEST-EMP-01-03",
+        "TEST-EMP-01-04",
+        "TEST-EMP-01-05",
+        "TEST-EMP-01-06",
+        "TEST-EMP-01-07",
+        "TEST-FRC-01-01",
+        "TEST-FRC-01-02",
+        "TEST-FRC-01-03",
+        "TEST-FRC-01-04",
+        "TEST-FRC-01-05",
+        "TEST-FRC-01-06",
+        "TEST-FRC-02-05",
+        "TEST-FRC-02-06"
+      ],
+      "coverage_extent": "Partial transition/consumer evidence only; local test IDs are trace locators, not permission to defer entire tests or requirements.",
+      "scope_note": "Conditional impact-recheck only if changed EMP/FRC/summary route is actually consumed. Does not suspend previously qualified independent candidate N5/N8 profile or unrelated EMP numeric tests.",
+      "binding_requirement_subsets": [
+        {
+          "binding_id": "E02-I01-A-B01",
+          "requirement_ids": [
+            "REQ-CYC-01-03",
+            "REQ-CYC-01-04",
+            "REQ-CYC-02-03",
+            "REQ-CYC-02-04",
+            "REQ-CYC-02-05"
+          ],
+          "local_test_ids": [
+            "TEST-CYC-01-01",
+            "TEST-CYC-01-04",
+            "TEST-CYC-02-03",
+            "TEST-CYC-02-04",
+            "TEST-CYC-02-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-I03-A-B01",
+          "requirement_ids": [
+            "REQ-EMP-01-04",
+            "REQ-EMP-01-05",
+            "REQ-EMP-01-07"
+          ],
+          "local_test_ids": [
+            "TEST-EMP-01-03",
+            "TEST-EMP-01-04",
+            "TEST-EMP-01-05",
+            "TEST-EMP-01-07"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-I03-A-B02",
+          "requirement_ids": [
+            "REQ-FRC-01-01",
+            "REQ-FRC-01-02",
+            "REQ-FRC-01-04",
+            "REQ-FRC-01-05"
+          ],
+          "local_test_ids": [
+            "TEST-FRC-01-01",
+            "TEST-FRC-01-02",
+            "TEST-FRC-01-04",
+            "TEST-FRC-01-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-I03-B-B03",
+          "requirement_ids": [
+            "REQ-FRC-02-04",
+            "REQ-FRC-02-05"
+          ],
+          "local_test_ids": [
+            "TEST-FRC-02-05",
+            "TEST-FRC-02-06"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-I03-B-B04",
+          "requirement_ids": [
+            "REQ-FRC-01-06"
+          ],
+          "local_test_ids": [
+            "TEST-FRC-01-06"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        }
+      ],
+      "local_only_or_separate_requirement_ids": [],
+      "additional_invalidated_binding_ids": [],
+      "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope."
+    },
+    {
+      "id": "DA-08",
+      "owners": [
+        "coordinator",
+        "all activated scenario owners"
+      ],
+      "origin_lane": "all",
+      "trigger": "All participating lanes merged and final selected runtime/artifact profile frozen; final checkpoint after12",
+      "required_real_consumer": "E02-X01/X02/X03/X04 activated paths and materially different compatible holdout, plus all stale impacted Ixx evidence",
+      "early_allowed": "Run early cross-lane stories when actual participants exist; record inputs/outputs/profiles and limitations",
+      "blocked_if": "Required endpoint absent, skip, fabricated ready object, case-ID branch or changed owner invalidates evidence",
+      "closure": "Final impact-based rerun on delivered commit/artifact. Shared run reused only for matching property/profile, never counted as independent repetitions",
+      "scenario_ids": [
+        "E02-X01",
+        "E02-X02",
+        "E02-X03",
+        "E02-X04"
+      ],
+      "binding_ids": [
+        "E02-X01-B01",
+        "E02-X01-B02",
+        "E02-X01-B03",
+        "E02-X01-B04",
+        "E02-X01-B05",
+        "E02-X02-B01",
+        "E02-X02-B02",
+        "E02-X02-B03",
+        "E02-X02-B04",
+        "E02-X02-B05",
+        "E02-X03-B01",
+        "E02-X03-B02",
+        "E02-X03-B03",
+        "E02-X03-B04",
+        "E02-X03-B05",
+        "E02-X04-B01",
+        "E02-X04-B02",
+        "E02-X04-B03",
+        "E02-X04-B04",
+        "E02-X04-B05",
+        "E02-X04-B06"
+      ],
+      "requirement_ids": [
+        "REQ-ACQ-01-02",
+        "REQ-ACQ-01-03",
+        "REQ-ACQ-01-05",
+        "REQ-ACQ-01-06",
+        "REQ-CAS-01-01",
+        "REQ-CLI-01-05",
+        "REQ-CMP-01-02",
+        "REQ-CYC-01-03",
+        "REQ-CYC-01-04",
+        "REQ-CYC-01-07",
+        "REQ-CYC-02-03",
+        "REQ-CYC-02-05",
+        "REQ-CYC-03-01",
+        "REQ-CYC-03-04",
+        "REQ-CYC-03-05",
+        "REQ-CYC-03-06",
+        "REQ-CYC-04-03",
+        "REQ-DDM-02-01",
+        "REQ-DDM-02-02",
+        "REQ-DDM-02-03",
+        "REQ-DDM-02-07",
+        "REQ-DFI-03-03",
+        "REQ-DFK-02-01",
+        "REQ-DFK-02-03",
+        "REQ-DFK-02-04",
+        "REQ-FRC-02-04",
+        "REQ-FRC-02-08",
+        "REQ-ING-02-03",
+        "REQ-ING-02-04",
+        "REQ-LEX-01-03",
+        "REQ-LEX-01-04",
+        "REQ-PCL-01-05",
+        "REQ-REQ-01-04",
+        "REQ-REQ-01-05",
+        "REQ-REQ-01-07",
+        "REQ-RES-03-02",
+        "REQ-RES-03-03",
+        "REQ-SCL-03-01",
+        "REQ-SCL-03-03",
+        "REQ-SCL-03-04",
+        "REQ-SCM-01-01",
+        "REQ-SCM-01-02",
+        "REQ-SCM-02-04",
+        "REQ-SCM-02-05",
+        "REQ-SEL-01-05",
+        "REQ-SIM-03-02",
+        "REQ-SIM-03-06",
+        "REQ-TRN-01-03",
+        "REQ-TRN-02-04",
+        "REQ-TRN-03-04",
+        "REQ-UQP-01-04",
+        "REQ-UQP-02-03",
+        "REQ-UQP-02-04",
+        "REQ-UQP-03-03",
+        "REQ-UQP-03-05",
+        "REQ-UQS-01-03",
+        "REQ-UQS-01-04"
+      ],
+      "local_test_ids": [
+        "TEST-ACQ-01-02",
+        "TEST-ACQ-01-03",
+        "TEST-ACQ-01-05",
+        "TEST-ACQ-01-06",
+        "TEST-CAS-01-01",
+        "TEST-CLI-01-04",
+        "TEST-CLI-01-05",
+        "TEST-CMP-01-02",
+        "TEST-CYC-01-01",
+        "TEST-CYC-01-04",
+        "TEST-CYC-01-06",
+        "TEST-CYC-02-03",
+        "TEST-CYC-02-05",
+        "TEST-CYC-03-01",
+        "TEST-CYC-03-04",
+        "TEST-CYC-03-05",
+        "TEST-CYC-03-06",
+        "TEST-CYC-04-03",
+        "TEST-DDM-02-01",
+        "TEST-DDM-02-02",
+        "TEST-DDM-02-03",
+        "TEST-DDM-02-04",
+        "TEST-DDM-02-06",
+        "TEST-DDM-02-08",
+        "TEST-DFI-03-03",
+        "TEST-DFK-02-01",
+        "TEST-DFK-02-03",
+        "TEST-DFK-02-04",
+        "TEST-FRC-02-03",
+        "TEST-FRC-02-04",
+        "TEST-FRC-02-05",
+        "TEST-FRC-02-06",
+        "TEST-FRC-02-08",
+        "TEST-ING-02-03",
+        "TEST-ING-02-04",
+        "TEST-LEX-01-02",
+        "TEST-LEX-01-03",
+        "TEST-LEX-01-04",
+        "TEST-PCL-01-05",
+        "TEST-REQ-01-02",
+        "TEST-REQ-01-03",
+        "TEST-REQ-01-04",
+        "TEST-REQ-01-05",
+        "TEST-REQ-01-06",
+        "TEST-RES-03-02",
+        "TEST-RES-03-03",
+        "TEST-SCL-03-01",
+        "TEST-SCL-03-02",
+        "TEST-SCL-03-04",
+        "TEST-SCL-03-05",
+        "TEST-SCM-01-01",
+        "TEST-SCM-01-02",
+        "TEST-SCM-01-03",
+        "TEST-SCM-01-04",
+        "TEST-SCM-02-04",
+        "TEST-SCM-02-05",
+        "TEST-SCM-02-06",
+        "TEST-SCM-02-07",
+        "TEST-SEL-01-05",
+        "TEST-SIM-03-02",
+        "TEST-SIM-03-06",
+        "TEST-TRN-01-03",
+        "TEST-TRN-02-04",
+        "TEST-TRN-03-04",
+        "TEST-UQP-01-04",
+        "TEST-UQP-02-02",
+        "TEST-UQP-02-03",
+        "TEST-UQP-02-04",
+        "TEST-UQP-03-03",
+        "TEST-UQP-03-05",
+        "TEST-UQS-01-03",
+        "TEST-UQS-01-04",
+        "TEST-UQS-01-05"
+      ],
+      "coverage_extent": "Partial transition/consumer evidence only; local test IDs are trace locators, not permission to defer entire tests or requirements.",
+      "scope_note": "Cross-story activation conditions remain canonical. Listed refs identify potential final checks, not mandatory activation of every optional backend. Any additional Ixx stale evidence must be added to additional_invalidated_binding_ids with actual changed owner/reason; no blanket full rerun inferred.",
+      "binding_requirement_subsets": [
+        {
+          "binding_id": "E02-X01-B01",
+          "requirement_ids": [
+            "REQ-CYC-01-03",
+            "REQ-CYC-01-04",
+            "REQ-SIM-03-02",
+            "REQ-SEL-01-05"
+          ],
+          "local_test_ids": [
+            "TEST-CYC-01-01",
+            "TEST-CYC-01-04",
+            "TEST-SEL-01-05",
+            "TEST-SIM-03-02"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X01-B02",
+          "requirement_ids": [
+            "REQ-CYC-04-03"
+          ],
+          "local_test_ids": [
+            "TEST-CYC-04-03"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X01-B03",
+          "requirement_ids": [
+            "REQ-CMP-01-02"
+          ],
+          "local_test_ids": [
+            "TEST-CMP-01-02"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X01-B04",
+          "requirement_ids": [
+            "REQ-CAS-01-01",
+            "REQ-CYC-02-03",
+            "REQ-CYC-02-05"
+          ],
+          "local_test_ids": [
+            "TEST-CAS-01-01",
+            "TEST-CYC-02-03",
+            "TEST-CYC-02-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X01-B05",
+          "requirement_ids": [
+            "REQ-LEX-01-03",
+            "REQ-LEX-01-04"
+          ],
+          "local_test_ids": [
+            "TEST-LEX-01-02",
+            "TEST-LEX-01-03",
+            "TEST-LEX-01-04"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X02-B01",
+          "requirement_ids": [
+            "REQ-REQ-01-04",
+            "REQ-REQ-01-05",
+            "REQ-ACQ-01-02"
+          ],
+          "local_test_ids": [
+            "TEST-ACQ-01-02",
+            "TEST-REQ-01-02",
+            "TEST-REQ-01-03",
+            "TEST-REQ-01-04",
+            "TEST-REQ-01-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X02-B02",
+          "requirement_ids": [
+            "REQ-ACQ-01-03",
+            "REQ-CYC-03-01",
+            "REQ-CYC-03-04",
+            "REQ-CYC-03-05"
+          ],
+          "local_test_ids": [
+            "TEST-ACQ-01-03",
+            "TEST-CYC-03-01",
+            "TEST-CYC-03-04",
+            "TEST-CYC-03-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X02-B03",
+          "requirement_ids": [
+            "REQ-ING-02-03",
+            "REQ-ING-02-04"
+          ],
+          "local_test_ids": [
+            "TEST-ING-02-03",
+            "TEST-ING-02-04"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X02-B04",
+          "requirement_ids": [
+            "REQ-SCL-03-01",
+            "REQ-SCL-03-03",
+            "REQ-SCL-03-04"
+          ],
+          "local_test_ids": [
+            "TEST-SCL-03-01",
+            "TEST-SCL-03-02",
+            "TEST-SCL-03-04",
+            "TEST-SCL-03-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X02-B05",
+          "requirement_ids": [
+            "REQ-RES-03-02",
+            "REQ-RES-03-03"
+          ],
+          "local_test_ids": [
+            "TEST-RES-03-02",
+            "TEST-RES-03-03"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X03-B01",
+          "requirement_ids": [
+            "REQ-CYC-01-07",
+            "REQ-CYC-03-06",
+            "REQ-REQ-01-07",
+            "REQ-ACQ-01-05",
+            "REQ-ACQ-01-06"
+          ],
+          "local_test_ids": [
+            "TEST-ACQ-01-05",
+            "TEST-ACQ-01-06",
+            "TEST-CYC-01-06",
+            "TEST-CYC-03-06",
+            "TEST-REQ-01-04",
+            "TEST-REQ-01-06"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X03-B02",
+          "requirement_ids": [
+            "REQ-DFK-02-01",
+            "REQ-DFK-02-03",
+            "REQ-DFK-02-04",
+            "REQ-DFI-03-03"
+          ],
+          "local_test_ids": [
+            "TEST-DFI-03-03",
+            "TEST-DFK-02-01",
+            "TEST-DFK-02-03",
+            "TEST-DFK-02-04"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X03-B03",
+          "requirement_ids": [
+            "REQ-TRN-01-03",
+            "REQ-TRN-02-04",
+            "REQ-TRN-03-04"
+          ],
+          "local_test_ids": [
+            "TEST-TRN-01-03",
+            "TEST-TRN-02-04",
+            "TEST-TRN-03-04"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X03-B04",
+          "requirement_ids": [
+            "REQ-SCL-03-03",
+            "REQ-SCL-03-04"
+          ],
+          "local_test_ids": [
+            "TEST-SCL-03-01",
+            "TEST-SCL-03-02",
+            "TEST-SCL-03-04",
+            "TEST-SCL-03-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X03-B05",
+          "requirement_ids": [
+            "REQ-CLI-01-05"
+          ],
+          "local_test_ids": [
+            "TEST-CLI-01-04",
+            "TEST-CLI-01-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X04-B01",
+          "requirement_ids": [
+            "REQ-SIM-03-06"
+          ],
+          "local_test_ids": [
+            "TEST-SIM-03-06"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X04-B02",
+          "requirement_ids": [
+            "REQ-SCM-01-01",
+            "REQ-SCM-01-02",
+            "REQ-SCM-02-04",
+            "REQ-SCM-02-05"
+          ],
+          "local_test_ids": [
+            "TEST-SCM-01-01",
+            "TEST-SCM-01-02",
+            "TEST-SCM-01-03",
+            "TEST-SCM-01-04",
+            "TEST-SCM-02-04",
+            "TEST-SCM-02-05",
+            "TEST-SCM-02-06",
+            "TEST-SCM-02-07"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X04-B03",
+          "requirement_ids": [
+            "REQ-UQP-01-04",
+            "REQ-UQP-02-03",
+            "REQ-UQP-02-04",
+            "REQ-UQP-03-03",
+            "REQ-UQP-03-05",
+            "REQ-UQS-01-03",
+            "REQ-UQS-01-04"
+          ],
+          "local_test_ids": [
+            "TEST-UQP-01-04",
+            "TEST-UQP-02-02",
+            "TEST-UQP-02-03",
+            "TEST-UQP-02-04",
+            "TEST-UQP-03-03",
+            "TEST-UQP-03-05",
+            "TEST-UQS-01-03",
+            "TEST-UQS-01-04",
+            "TEST-UQS-01-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X04-B04",
+          "requirement_ids": [
+            "REQ-PCL-01-05",
+            "REQ-FRC-02-04",
+            "REQ-FRC-02-08"
+          ],
+          "local_test_ids": [
+            "TEST-FRC-02-03",
+            "TEST-FRC-02-04",
+            "TEST-FRC-02-05",
+            "TEST-FRC-02-06",
+            "TEST-FRC-02-08",
+            "TEST-PCL-01-05"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X04-B05",
+          "requirement_ids": [
+            "REQ-DDM-02-01",
+            "REQ-DDM-02-02",
+            "REQ-DDM-02-03",
+            "REQ-DDM-02-07"
+          ],
+          "local_test_ids": [
+            "TEST-DDM-02-01",
+            "TEST-DDM-02-02",
+            "TEST-DDM-02-03",
+            "TEST-DDM-02-04",
+            "TEST-DDM-02-06"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        },
+        {
+          "binding_id": "E02-X04-B06",
+          "requirement_ids": [
+            "REQ-LEX-01-03",
+            "REQ-LEX-01-04"
+          ],
+          "local_test_ids": [
+            "TEST-LEX-01-02",
+            "TEST-LEX-01-03",
+            "TEST-LEX-01-04"
+          ],
+          "extent": "only late transition identified by required_real_consumer; unchanged independent assertions remain early"
+        }
+      ],
+      "local_only_or_separate_requirement_ids": [],
+      "additional_invalidated_binding_ids": [],
+      "additional_invalidated_binding_policy": "Populate only after concrete change-impact discovery, with owner/reason/profile; do not silently expand pending scope."
+    }
+  ],
+  "validation": {
+    "exact_packet_partition": "PASS_127_UNIQUE",
+    "lane_membership": "PASS",
+    "intra_lane_schedule_dag": "PASS",
+    "native_product_tests": "NOT_RUN"
+  }
+}

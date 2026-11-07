@@ -256,7 +256,7 @@
       "type": "object"
     },
     "PAGIdentificationPolicy": {
-      "description": "PAG identification policy data model.",
+      "description": "Select a supported identification mode for a partial ancestral graph.\n\nThe modes distinguish conservative, optimistic, and probabilistic handling\nof unresolved graph orientations. Probabilistic mode can carry an explicit\nidentification-confidence value in the graph contract.",
       "enum": [
         "conservative",
         "optimistic",
@@ -691,7 +691,7 @@
     },
     "SNode": {
       "additionalProperties": false,
-      "description": "S node implementation.",
+      "description": "Describe a variable's source-to-target context difference in a selection diagram.\n\nThe node records the context dimension, values and change magnitude, with\norigin, severity, optional causal-role or legal annotations, and optional\npaired source/target references. Its presence does not establish whether\nadjustment is valid or transport succeeds.",
       "properties": {
         "context_dimension": {
           "title": "Context Dimension",

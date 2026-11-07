@@ -42,6 +42,7 @@ from polisyos.ir.artifacts.contracts import (
 from polisyos.ir.artifacts.io import (
     _get_owned_json_artifact,
     _get_owned_json_artifact_with_bytes,
+    _OwnedArtifactProfileMismatchError,
     _put_owned_json_artifact,
     _put_owned_json_artifact_with_selected_view,
 )
@@ -574,6 +575,41 @@ def persist_ncm_spec(
     return NCMSpecRef.model_validate(ref)
 
 
+class NCMSourceProfileMismatchError(ValueError):
+    """An exact NCM manifest does not use the requested owner source codec."""
+
+
+def load_ncm_spec_default_view(
+    store: ArtifactStore,
+    ref: NCMSpecRef,
+) -> NCMSpec:
+    """Load an exact owner-default NCM view without discarding its selector.
+
+    The canonical profile is checked within the existing frozen owner read.
+    Declaration-sidecar views still require ``load_ncm_spec_selected_view`` and
+    its tenant, cell, and declaration context.
+
+    Args:
+        store: The selected-profile-capable artifact reader.
+        ref: The complete NCM reference, including its selected manifest.
+
+    Returns:
+        The owner-validated NCM model from the default source codec.
+
+    Raises:
+        NCMSourceProfileMismatchError: The exact source uses another NCM codec.
+    """
+    try:
+        return _get_owned_json_artifact_with_bytes(
+            store,
+            ref,
+            owner=_NCM_SPEC_OWNER,
+            expected_profile=_IRCanonInfo.from_spec(_NCM_DEFAULT_CANON_SPEC),
+        ).value
+    except _OwnedArtifactProfileMismatchError as exc:
+        raise NCMSourceProfileMismatchError("ncm_default_source_profile_not_established") from exc
+
+
 def load_ncm_spec(
     store: ArtifactStore,
     ref: NCMSpecRef,
@@ -584,11 +620,13 @@ def load_ncm_spec(
 
 __all__ = [
     "ExogenousSpec",
+    "NCMSourceProfileMismatchError",
     "NCMSpec",
     "PreparedNCMSpecSelectedValues",
     "StructuralEquation",
     "candidate_ncm_spec_from_declaration",
     "load_ncm_spec",
+    "load_ncm_spec_default_view",
     "load_ncm_spec_selected_view",
     "persist_ncm_spec",
     "persist_ncm_spec_selected_view",

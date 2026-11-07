@@ -33,9 +33,16 @@ class DecimalTransportNode:
         state_writes=[],
     )
 
-    def __init__(self, expected_budgets: dict[str, Decimal], attempts_path: str) -> None:
+    def __init__(
+        self,
+        expected_budgets: dict[str, Decimal],
+        attempts_path: str,
+        *,
+        unsupported_outcome: bool = False,
+    ) -> None:
         self._expected_budgets = expected_budgets
         self._attempts_path = Path(attempts_path)
+        self._unsupported_outcome = unsupported_outcome
 
     def execute(self, _ctx: Any, state: ExperimentState) -> NodeOutcome:
         for key, value in self._expected_budgets.items():
@@ -76,6 +83,14 @@ class DecimalTransportNode:
                 )
                 + "\n"
             )
+        if self._unsupported_outcome:
+            # Any accepts this runtime value, but the transport must refuse it.
+            # No branch mutation is needed to exercise post-compute encoding.
+            state = ExperimentState(
+                run_id=state.run_id,
+                budgets=state.budgets,
+                causal_method_params={"holder": {"unsupported": object()}},
+            )
         return NodeOutcome(status="ok", state=state, events=[], artifacts=[])
 
 
@@ -85,6 +100,7 @@ def execute_decimal_worker(
     expected_budgets: dict[str, Decimal],
     attempts_path: str,
     result_sender: Any,
+    unsupported_outcome: bool = False,
 ) -> None:
     """Run the production worker bridge from an importable fresh process."""
     registry_module = None
@@ -98,16 +114,20 @@ def execute_decimal_worker(
             wire._dumps = lambda obj: json.dumps(obj, separators=(",", ":")).encode()
             wire._loads = json.loads
         elif backend == "orjson":
-            if wire.orjson is None:
-                raise RuntimeError("orjson backend requested but unavailable in child")
-            wire._dumps = wire.orjson.dumps
-            wire._loads = wire.orjson.loads
+            import orjson
+
+            wire._dumps = orjson.dumps
+            wire._loads = orjson.loads
         else:
             raise ValueError(f"unsupported worker wire backend: {backend}")
         wire._WIRE_MODEL_TYPES = None
 
         def discover_probe_node(registry: Any, *_args: Any, **_kwargs: Any) -> Any:
-            return registry.register(DecimalTransportNode(expected_budgets, attempts_path))
+            return registry.register(
+                DecimalTransportNode(
+                    expected_budgets, attempts_path, unsupported_outcome=unsupported_outcome
+                )
+            )
 
         registry_module.discover_nodes = discover_probe_node
         from polisyos.scientist.orchestration.engine.runner._activity_worker import (

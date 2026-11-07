@@ -2,7 +2,7 @@
 
 **Status:** read-only queue design; no tests, CLI, server, numerical fit, or Git command was run here. Root supplied current source label `f1cc`; the supplemental JSON records that as parent-supplied and unpinned. Rebind tests and all source hashes against the final frozen tree before execution.
 
-The exact non-overlapping selectors, command argv, capture paths, environment and bounded interpretations are in the ignored [supplemental queue](../raw/composed-mac-current-source-replay-plan-20261010/supplemental-light-gap-checks.json). The base 19-command composed plan remains a plan, not a receipt. I inspected `CONTRIBUTING.md`, the failure/repair register, current `TASKS.json`, `DECISIONS.md`, `INPUTS.json`, the C05/C12/CAN/S1 and full-ID current-delta receipts, plus the relevant source/test definitions. Selector checks were static AST/name checks only; no tests were collected or imported.
+The exact non-overlapping selectors, command argv, capture paths, environment and bounded interpretations are in the ignored supplemental queue (`../raw/composed-mac-current-source-replay-plan-20261010/supplemental-light-gap-checks.json`; unavailable in this checkout). The base 19-command composed plan remains a plan, not a receipt. I inspected `CONTRIBUTING.md`, the failure/repair register, current `TASKS.json`, `DECISIONS.md`, `INPUTS.json`, the C05/C12/CAN/S1 and full-ID current-delta receipts, plus the relevant source/test definitions. Selector checks were static AST/name checks only; no tests were collected or imported.
 
 | Gap | Supplemental selection | Whole-property reach and current limit | P40 bucket |
 | --- | --- | --- | --- |

@@ -2422,6 +2422,10 @@ def _diagnostic_event_gates(
         for ref_key in QUALITY_REPORT_RUNTIME_REFS.values()
         if (runtime_ref := authority_refs.get(ref_key)) is not None
     }
+    known_runtime_ref_keys = {
+        *QUALITY_REPORT_RUNTIME_REFS.values(),
+        *POLICY_DESIGN_CASE_RUNTIME_REF_KEYS,
+    }
     runtime_authority_ref_values = set(authority_refs.unrejected_refs().values())
     event_ref_values: set[str] = set()
     named_runtime_event_ref_keys: set[str] = set()
@@ -2520,11 +2524,80 @@ def _diagnostic_event_gates(
                 "Replay drift diagnostic event is missing an explanation ref.",
             )
 
-        for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
-            if report_key not in event_name and ref_key not in event_name:
-                continue
+        named_role_ref_keys = {
+            ref_key
+            for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items()
+            if report_key in event_name or ref_key in event_name
+        }
+        named_role_ref_keys.update(
+            ref_key for ref_key in POLICY_DESIGN_CASE_RUNTIME_REF_KEYS if ref_key in event_name
+        )
+        raw_ref_key_hint = event.get("ref_key")
+        raw_report_key_hint = event.get("report_key")
+        ref_key_hint = (
+            raw_ref_key_hint
+            if isinstance(raw_ref_key_hint, str)
+            and _clean_text(raw_ref_key_hint) == raw_ref_key_hint
+            else None
+        )
+        report_key_hint = (
+            raw_report_key_hint
+            if isinstance(raw_report_key_hint, str)
+            and _clean_text(raw_report_key_hint) == raw_report_key_hint
+            else None
+        )
+        if raw_ref_key_hint is not None and ref_key_hint is None:
+            append_failure(
+                "diagnostic_event_ref_mismatch",
+                "Diagnostic event ref_key is malformed.",
+            )
+        if raw_report_key_hint is not None and report_key_hint is None:
+            append_failure(
+                "diagnostic_event_ref_mismatch",
+                "Diagnostic event report_key is malformed.",
+            )
+        if ref_key_hint is not None:
+            if ref_key_hint not in known_runtime_ref_keys:
+                append_failure(
+                    "diagnostic_event_ref_mismatch",
+                    "Diagnostic event names an unknown runtime quality ref role.",
+                )
+            else:
+                if named_role_ref_keys and ref_key_hint not in named_role_ref_keys:
+                    append_failure(
+                        "diagnostic_event_ref_mismatch",
+                        "Diagnostic event ref_key conflicts with its named runtime quality role.",
+                    )
+                named_role_ref_keys.add(ref_key_hint)
+        if report_key_hint is not None:
+            hinted_ref_key = QUALITY_REPORT_RUNTIME_REFS.get(report_key_hint)
+            if hinted_ref_key is None:
+                append_failure(
+                    "diagnostic_event_ref_mismatch",
+                    "Diagnostic event names an unknown runtime quality report role.",
+                )
+            else:
+                if named_role_ref_keys and hinted_ref_key not in named_role_ref_keys:
+                    append_failure(
+                        "diagnostic_event_ref_mismatch",
+                        "Diagnostic event report_key conflicts with its named "
+                        "runtime quality role.",
+                    )
+                named_role_ref_keys.add(hinted_ref_key)
+
+        if len(named_role_ref_keys) > 1:
+            append_failure(
+                "diagnostic_event_ref_mismatch",
+                "Diagnostic event ambiguously names multiple runtime quality roles.",
+            )
+
+        for ref_key in named_role_ref_keys:
             runtime_ref = authority_refs.get(ref_key)
             if runtime_ref is None:
+                append_failure(
+                    "authority_cas_missing",
+                    f"Named diagnostic event has no accepted runtime ref for {ref_key}.",
+                )
                 continue
             if runtime_ref in event_refs:
                 named_runtime_event_ref_keys.add(ref_key)

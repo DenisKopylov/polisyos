@@ -14,10 +14,11 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, ClassVar, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.core.canon.canon_json import CanonSpec
+from polisyos.core.contracts import IngestionExecutionContext
 from polisyos.fabric.connectors.base import (
     ConnectionConfig,
     ConnectionHandle,
@@ -67,6 +68,10 @@ _SOURCE_INTENT_KIND = "fabric.connector_cache.selected_source_intent"
 _SOURCE_INTENT_ROLE = "fabric.connector_cache.selected_source_intent"
 _SOURCE_INTENT_SCHEMA = "fabric.connector_cache.selected_source_intent"
 _SOURCE_INTENT_VERSION = "1.0"
+_SOURCE_INTENT_CONTEXT_VERSION = "2.0"
+_SOURCE_INTENT_CONTEXT_CONTRACT: Literal["fabric.connector_cache.selected_source_intent.v2"] = (
+    "fabric.connector_cache.selected_source_intent.v2"
+)
 _SOURCE_INTENT_CONTRACT: Literal["fabric.connector_cache.selected_source_intent.v1"] = (
     "fabric.connector_cache.selected_source_intent.v1"
 )
@@ -77,11 +82,25 @@ class CacheSourceIntent(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(frozen=True, extra="forbid", strict=True)
 
-    contract: Literal["fabric.connector_cache.selected_source_intent.v1"]
+    contract: Literal[
+        "fabric.connector_cache.selected_source_intent.v1",
+        "fabric.connector_cache.selected_source_intent.v2",
+    ]
     connector_id: str = Field(min_length=1)
     dataset_id: str = Field(min_length=1)
     request_key: str = Field(min_length=1)
     source_scope_fingerprint: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    execution_context: IngestionExecutionContext | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+
+    @model_validator(mode="after")
+    def _require_context_contract(self) -> CacheSourceIntent:
+        if (self.contract == _SOURCE_INTENT_CONTEXT_CONTRACT) != (
+            self.execution_context is not None
+        ):
+            raise ValueError("connector_cache_source_intent_context_contract_mismatch")
+        return self
 
 
 def capture_cache_source_intent(

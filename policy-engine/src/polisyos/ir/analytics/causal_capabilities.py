@@ -52,7 +52,13 @@ class CausalBackendCapability(BaseModel):
 
 
 class CausalCapabilityContract(BaseModel):
-    """Causal capability contract data model."""
+    """Record reported causal backend availability and supported identification families.
+
+    The contract includes the supplied dependency fingerprint, backend order,
+    explicit degradation policy, and disabled-family reasons used by causal
+    readiness and transport setup. Availability alone does not identify a query
+    or establish evidence authority.
+    """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 

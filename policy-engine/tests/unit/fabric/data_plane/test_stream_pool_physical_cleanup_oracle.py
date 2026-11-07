@@ -30,6 +30,11 @@ from polisyos.fabric.data_plane.streaming import (
     StreamRuntimeOptions,
     process_stream_dataset,
 )
+from polisyos.fabric.quality.processing_guarantees import (
+    IdempotencyDedupePolicy,
+    ProcessingGuarantee,
+    ProcessingGuaranteeContract,
+)
 
 pytestmark = pytest.mark.skipif(
     not hasattr(os, "pread"),
@@ -142,6 +147,17 @@ def _accept_rows(batch: Any, **kwargs: Any) -> tuple[list[dict[str, Any]], list[
     return [dict(row) for row in batch], [], 0
 
 
+def _lifecycle_options() -> StreamRuntimeOptions:
+    """Exercise physical cleanup without claiming a source-owned event contract."""
+    return StreamRuntimeOptions(
+        batch_size=1,
+        processing_contract=ProcessingGuaranteeContract(
+            guarantee=ProcessingGuarantee.AT_LEAST_ONCE,
+            idempotency=IdempotencyDedupePolicy(enabled=False),
+        ),
+    )
+
+
 @pytest.mark.asyncio
 async def test_pending_physical_file_is_retained_refused_and_closed_before_fresh_session(
     tmp_path: Path,
@@ -190,7 +206,7 @@ async def test_pending_physical_file_is_retained_refused_and_closed_before_fresh
                 store=FileSystemCAS(cas_root),
                 cursor_store=CursorStore(FileSystemCAS(cas_root)),
                 sanitize_rows=fail_sanitization,
-                runtime_options=StreamRuntimeOptions(batch_size=1),
+                runtime_options=_lifecycle_options(),
                 connection_config=old_config,
                 registry=registry,
             )
@@ -280,7 +296,7 @@ async def test_pending_physical_file_is_retained_refused_and_closed_before_fresh
             store=FileSystemCAS(cas_root),
             cursor_store=CursorStore(FileSystemCAS(cas_root)),
             sanitize_rows=_accept_rows,
-            runtime_options=StreamRuntimeOptions(batch_size=1),
+            runtime_options=_lifecycle_options(),
             connection_config=fresh_config,
             registry=registry,
         )
@@ -378,7 +394,7 @@ async def test_same_stream_key_refuses_second_private_pool_until_physical_close(
                 store=FileSystemCAS(tmp_path / "cas"),
                 cursor_store=CursorStore(FileSystemCAS(tmp_path / "cas")),
                 sanitize_rows=fail_sanitization,
-                runtime_options=StreamRuntimeOptions(batch_size=1),
+                runtime_options=_lifecycle_options(),
                 connection_config=config,
                 registry=registry,
             )
@@ -431,7 +447,7 @@ async def test_same_stream_key_refuses_second_private_pool_until_physical_close(
             store=FileSystemCAS(tmp_path / "cas"),
             cursor_store=CursorStore(FileSystemCAS(tmp_path / "cas")),
             sanitize_rows=_accept_rows,
-            runtime_options=StreamRuntimeOptions(batch_size=1),
+            runtime_options=_lifecycle_options(),
             connection_config=config,
             registry=registry,
         )
@@ -461,3 +477,21 @@ async def test_same_stream_key_refuses_second_private_pool_until_physical_close(
             await session.pool.close_all()
         await registry.shutdown_async()
         connector.emergency_fixture_cleanup()
+
+
+@pytest.mark.asyncio
+async def test_physical_cleanup_oracle_detects_removed_close_with_success_markers(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Counters and success events cannot substitute for the descriptor close."""
+    monkeypatch.setattr(
+        _FileDescriptorEventStream,
+        "_close_physical_file",
+        staticmethod(lambda _fd: None),
+    )
+    with pytest.raises(pytest.fail.Exception, match="DID NOT RAISE"):
+        await test_pending_physical_file_is_retained_refused_and_closed_before_fresh_session(
+            tmp_path,
+            monkeypatch,
+        )

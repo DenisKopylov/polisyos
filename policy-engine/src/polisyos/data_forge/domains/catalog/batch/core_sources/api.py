@@ -1120,6 +1120,7 @@ async def _run_core_sources_ingest_with_profile_snapshot(
         stats.completed_shards += ingest_stats.completed_shards
         stats.deferred_shards += ingest_stats.deferred_shards
         stats.failed_shards += ingest_stats.failed_shards
+        stats.empty_shards += ingest_stats.empty_shards
         stats._progress_metadata = ingest_stats._progress_metadata
     else:
         legacy_stats = await _legacy_ingest_observations(config.db_path)

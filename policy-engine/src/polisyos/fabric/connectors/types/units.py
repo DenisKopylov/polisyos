@@ -29,6 +29,8 @@ Example:
 from __future__ import annotations
 
 from polisyos.fabric.connectors.types._units_base import (
+    STANDARD_UNITS,
+    SUPERSCRIPT_MAP,
     BaseUnit,
     ConversionFactor,
 )
@@ -40,6 +42,7 @@ from polisyos.fabric.connectors.types._units_errors import (
     UnitParseError,
 )
 from polisyos.fabric.connectors.types._units_prefixes import (
+    PREFIX_FACTORS,
     MetricPrefix,
 )
 from polisyos.fabric.connectors.types._units_registry import (
@@ -49,6 +52,9 @@ from polisyos.fabric.connectors.types._units_registry import (
 )
 
 __all__ = [
+    "PREFIX_FACTORS",
+    "STANDARD_UNITS",
+    "SUPERSCRIPT_MAP",
     "BaseUnit",
     "ConversionFactor",
     "MetricPrefix",

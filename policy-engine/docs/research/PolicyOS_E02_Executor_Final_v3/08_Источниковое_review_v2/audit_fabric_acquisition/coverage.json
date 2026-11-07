@@ -1,0 +1,1063 @@
+{
+  "status": "COMPLETE",
+  "scope": "25 current E02 v2 packets LANE-07/08/09; all70 frozen criteria per packet; not full repository audit",
+  "repository_baseline_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "baseline_zip_sha256": "7f22b1737f67b20137ce57b95bc77b244c479d4c850e96aab3f3e518e68501ed",
+  "catalog": {
+    "path": "e02_source_based_review/catalog/criteria_catalog.json",
+    "sha256": "8c8c77e13d9151349b7410b441f97f0f94fbfb7d097150f32c9872fe35a3cb59",
+    "bytes": 437270,
+    "line_count": 5120,
+    "read_kind": "full",
+    "read_scope": "All70 normalized criterion records including source refs/trigger/corner-case/adequate evidence/scope; duplicate raw_criterion copies not counted as independent sources."
+  },
+  "freeze": {
+    "path": "e02_source_based_review/catalog/FREEZE.json",
+    "sha256": "5b0d6eabb89e587e6f862b9eae8a556988966b87b95aad2d18ef1d56eb0ccd41",
+    "bytes": 2427,
+    "line_count": 73,
+    "read_kind": "full",
+    "read_scope": "Full freeze descriptor; hash verified."
+  },
+  "protocols": [
+    {
+      "path": "e02_source_based_review/WORK_CONTRACT.md",
+      "sha256": "6d5ce045a17ce8d5a7bd63089414d11a9dc065c3bffcd5fc3999b7aaf5a0e06b",
+      "bytes": 4872,
+      "line_count": 26,
+      "read_kind": "full",
+      "read_scope": "Full trusted task/work contract."
+    },
+    {
+      "path": "e02_source_based_review/AUDIT_PROTOCOL.md",
+      "sha256": "b4776a26dc75bf190a371af8e17235e986103070e9bac8096c9d25378d0c9d76",
+      "bytes": 5410,
+      "line_count": 74,
+      "read_kind": "full",
+      "read_scope": "Full audit output/coverage/claim protocol."
+    }
+  ],
+  "assigned_packets": [
+    "UDF-01",
+    "OBS-01",
+    "UDF-02",
+    "OBS-02",
+    "UDF-04",
+    "UDF-05",
+    "FED-01",
+    "FED-02",
+    "CAL-01",
+    "DFK-02",
+    "DFI-01",
+    "DFI-02",
+    "EMB-01",
+    "EMB-02",
+    "EMB-03",
+    "DFI-03",
+    "ING-01",
+    "ING-02",
+    "ING-03",
+    "NET-01",
+    "NET-02",
+    "SCL-01",
+    "SCL-03",
+    "LLM-01",
+    "LLM-02"
+  ],
+  "packet_count": 25,
+  "requirement_count": 112,
+  "test_count": 115,
+  "criterion_count": 70,
+  "criterion_disposition_count": 1750,
+  "status_counts": {
+    "addressed": 631,
+    "bounded": 428,
+    "not_applicable": 683,
+    "gap": 8
+  },
+  "findings_count": 2,
+  "finding_criterion_link_counts": {
+    "FAC-01": 5,
+    "FAC-02": 3
+  },
+  "packet_inputs": [
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/UDF-01.md",
+      "sha256": "a3ca06bf7e61dc64d8b5f962d3a4cb7a7f7a2d55e98650acc17d5411e89c4d94",
+      "bytes": 12287,
+      "line_count": 93,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/UDF-01.json",
+      "sha256": "2cbb165026ddd53cbc518769715238f26087b0c4421295f306cf36b029d8bdbe",
+      "bytes": 13649,
+      "line_count": 285,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/OBS-01.md",
+      "sha256": "afadaf0e6180e7f75a52856a20be04598216ab775cc51be7dcbadb2c147b9b45",
+      "bytes": 11623,
+      "line_count": 93,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/OBS-01.json",
+      "sha256": "bbd350102dd5642bfacff9af1da6ad47efc8ade6813526e3277abea30b31d035",
+      "bytes": 13025,
+      "line_count": 291,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/UDF-02.md",
+      "sha256": "7681d85440cdf4cde3f86791d591808609785f1aa0bae63c63b002177986d12a",
+      "bytes": 12062,
+      "line_count": 95,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/UDF-02.json",
+      "sha256": "152a34aba81e1e3eecf39f16f9bd8c347ab6296c509c465a216f5fe4a457e67a",
+      "bytes": 13233,
+      "line_count": 289,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/OBS-02.md",
+      "sha256": "b0944005cb79c59f6a69ffb9fc1aa73af98cfabcd0a9eb756814d0f420f586ac",
+      "bytes": 12445,
+      "line_count": 94,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/OBS-02.json",
+      "sha256": "e626c26f3603824b93d2a6361e455c8c66d4f1b66afc906e352d9075350816f2",
+      "bytes": 12791,
+      "line_count": 261,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/UDF-04.md",
+      "sha256": "4e2d94f006a29013606b64217cc78e0dcb33d40319b3984af231893be47adbde",
+      "bytes": 13405,
+      "line_count": 104,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/UDF-04.json",
+      "sha256": "2e584a08d4e64809c8e0969616387058159ddc1a508c40df0685978b848b80ee",
+      "bytes": 14733,
+      "line_count": 304,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/UDF-05.md",
+      "sha256": "a8eea98a6047d03467982f59b7760a17f8f404ca413825fef6675f7755b80d40",
+      "bytes": 29974,
+      "line_count": 139,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/UDF-05.json",
+      "sha256": "655de8e77fe7bee789bacfc1eea942a9e8d6b54c9c615a3967a02dc4ed9facf6",
+      "bytes": 24140,
+      "line_count": 382,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/FED-01.md",
+      "sha256": "11a0343edb80a874d00ff8af5e5add848a69284b12ed6db3857959a889fc5b44",
+      "bytes": 18333,
+      "line_count": 112,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/FED-01.json",
+      "sha256": "cfa8c87f56fbc02e5637423d1ff2dd85d201ba1bcb65159b6b149573e9b0488d",
+      "bytes": 17529,
+      "line_count": 350,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/FED-02.md",
+      "sha256": "b8d419b4c2df2d6c1848c23d3ec66a439a4d1b7dace4eb34cee63be6b0520c4c",
+      "bytes": 14043,
+      "line_count": 102,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/FED-02.json",
+      "sha256": "9012c60cd1c36e2e0a1c922f04c7c3370c6bf7b62a0bfa49d2cd560ccdec5b22",
+      "bytes": 15200,
+      "line_count": 331,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAL-01.md",
+      "sha256": "060690ec965bf10fb053a1e83c8408add5419ae6a1bcc57603acb268b53a5d0a",
+      "bytes": 13842,
+      "line_count": 106,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CAL-01.json",
+      "sha256": "d20fa537db8903bdb706eecacd0a4aadb9bc7533f76f8393c56b93eedb4f76ac",
+      "bytes": 15316,
+      "line_count": 342,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/DFK-02.md",
+      "sha256": "b6c7c0e12d46ba144f15662c5904dae87e7f6bc8e30b1717684d8089a4aeea70",
+      "bytes": 11345,
+      "line_count": 97,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/DFK-02.json",
+      "sha256": "bde59586de52bf009097b21c3a7d77dd1d51c0f058d89b2341264234a17fcaab",
+      "bytes": 12785,
+      "line_count": 293,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/DFI-01.md",
+      "sha256": "8af9d92d29a9deea31ea3ce11d3b0038469962e3d8c2a057c11072e639251fa6",
+      "bytes": 10820,
+      "line_count": 93,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/DFI-01.json",
+      "sha256": "855a74a7006331f5fe9dc259a615515137bb883929289ff0689f5d154ddbc7ff",
+      "bytes": 11515,
+      "line_count": 267,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/DFI-02.md",
+      "sha256": "6bcaf9aa0be163ceed7452719e0914a6af48d7c2ee640b50a5f916963ccb2e0b",
+      "bytes": 11384,
+      "line_count": 97,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/DFI-02.json",
+      "sha256": "cf1305211011ced4a8c264047ca4dcda2163e6175aa3891f9cbd5088405b80f1",
+      "bytes": 12447,
+      "line_count": 304,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/EMB-01.md",
+      "sha256": "045f174e34103124110f41f5c6570d1bd64f42ac243f126df770bc2bd6617be6",
+      "bytes": 11897,
+      "line_count": 98,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/EMB-01.json",
+      "sha256": "08b54bfe0093fe5241485c83ba0284aa0b3935d3bc026de26e0e71784674bd26",
+      "bytes": 12124,
+      "line_count": 273,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/EMB-02.md",
+      "sha256": "799a907f4d98ba180cc0774f3025f27731997d20b6524bf00e3557838560a9e4",
+      "bytes": 12666,
+      "line_count": 99,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/EMB-02.json",
+      "sha256": "8e2592a09410f3691c841c6d3a356a132d47b27061a016cdcb7cbe5fa3e72e63",
+      "bytes": 12491,
+      "line_count": 282,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/EMB-03.md",
+      "sha256": "b7f78338c774d8a4bc48f73c803d6f2a39a35d254b44e5db5a5b9b0496f9d794",
+      "bytes": 15020,
+      "line_count": 98,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/EMB-03.json",
+      "sha256": "24b2f251644f6b7ea240edbd2e589537c5229a9b4954f99258f6b0bc5b900f6d",
+      "bytes": 14853,
+      "line_count": 291,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/DFI-03.md",
+      "sha256": "9b408e25c09447a1c0517e99724bb5f3d988584c4bc2fec68911c0d9d8b660dd",
+      "bytes": 13991,
+      "line_count": 98,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/DFI-03.json",
+      "sha256": "00302a2614b1f5c14e01489274dfdf93d31fddc9be15142ef02cda75ebdea4a5",
+      "bytes": 14628,
+      "line_count": 311,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/ING-01.md",
+      "sha256": "d8c65da830e1ffad0aef3a582dcea341f2589d705edaefb254bbac89e8b633f8",
+      "bytes": 12833,
+      "line_count": 98,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/ING-01.json",
+      "sha256": "d36378e03c0d0d8adcdaa31935f5c3fe7afca8aed42d0fe73405b82027ba0910",
+      "bytes": 13515,
+      "line_count": 314,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/ING-02.md",
+      "sha256": "4bfba826da6c7a8b4b42af589c5836ff91cbcc600ac94a93f37ef076cdf72f4f",
+      "bytes": 11277,
+      "line_count": 96,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/ING-02.json",
+      "sha256": "8e30be86073271bbd60d4a45946b2bd4a75078ca3a03a1e8e4806e563cce4a6c",
+      "bytes": 11875,
+      "line_count": 285,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/ING-03.md",
+      "sha256": "f60268f7e0ffa3cb30dc19bd34e8770196562b345bebd796f1220b2b920df76c",
+      "bytes": 12381,
+      "line_count": 97,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/ING-03.json",
+      "sha256": "fbb1abae47cb445e1bf6d0f0b04be11a977bfd8d362df7787247ddea6fb8db39",
+      "bytes": 13252,
+      "line_count": 313,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/NET-01.md",
+      "sha256": "cc5971ca783cedfa84e1ceb4f50c5d730a67eb6366f940988564f798180c0e62",
+      "bytes": 11744,
+      "line_count": 96,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/NET-01.json",
+      "sha256": "c543492ef7069a325850893aad41d5ddd389d685f254ff91555c933346c28090",
+      "bytes": 12635,
+      "line_count": 296,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/NET-02.md",
+      "sha256": "802add3e17efb87fa6a1e455c8795aea9cc5fa37add2c37de3821a9b9d5bb648",
+      "bytes": 11686,
+      "line_count": 96,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/NET-02.json",
+      "sha256": "a7642b00f2a820e0a5877253c6a32d51174a6338a84fc480e8ca9fb4b5ad70d3",
+      "bytes": 12302,
+      "line_count": 285,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/SCL-01.md",
+      "sha256": "152f0a1f227dede5819998613030b8efb73ab6b49831a03ff60eb71dc689a749",
+      "bytes": 18892,
+      "line_count": 123,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/SCL-01.json",
+      "sha256": "2bbb48397482c675e6d3e514ac24c0f5b630257826fd6c4e9a3d32ae50d36ae7",
+      "bytes": 17366,
+      "line_count": 339,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/SCL-03.md",
+      "sha256": "62aff5a8f116353efc60285c2cb29dc4c4961dc1b511db7a7c6d530a809c66ae",
+      "bytes": 15622,
+      "line_count": 111,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/SCL-03.json",
+      "sha256": "d83b24f04fe518bfd2cc5eccc7d97eb0526be18769a464ad519e855e49744044",
+      "bytes": 14300,
+      "line_count": 317,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/LLM-01.md",
+      "sha256": "acad62c4aa016e7df3688b1469c7f3d2a90911af0dd6ee7905b75bfde0bfe667",
+      "bytes": 18034,
+      "line_count": 129,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/LLM-01.json",
+      "sha256": "1726eccdda83d9bf2591576966e1f7fdf23e214b640073f144a6b9437d68b129",
+      "bytes": 16963,
+      "line_count": 347,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/LLM-02.md",
+      "sha256": "5ed23f57e9a0f1bf5d5bcde3cf5333a7c94fc4db6ffd93f407edd64c6f29ab72",
+      "bytes": 34215,
+      "line_count": 175,
+      "read_kind": "full",
+      "read_scope": "Full current root packet §§1–9, including all solution/tests, native profiles, exclusions and compatibility."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/LLM-02.json",
+      "sha256": "aad77544dc8a6673625b5587b0c15a7b4ef9838f95241baf46a981df815ad9ba",
+      "bytes": 26428,
+      "line_count": 427,
+      "read_kind": "semantic_fields_plus_unique_metadata",
+      "read_scope": "All semantic REQ/TEST fields compared against full MD; source/disposition/preservation/owners/shared metadata read; open_decisions, obligation_dispositions, preservation_bindings read separately; extra UDF-05 title read."
+    }
+  ],
+  "shared_inputs": [
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Правила_исполнения_и_приёмки.md",
+      "sha256": "8f83cd845cf172c02de1f87035af331cd2cbb6bd81c255ca3b2fa42a0842ac99",
+      "bytes": 18608,
+      "line_count": 68,
+      "read_kind": "full",
+      "read_scope": "Full file; selected atomic/common ownership, qualified decisions, freeze/discovery/resource rules and acceptance windows applied. Truncated registry tail/order output recovered."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Общие_владельцы_и_границы_изменений.md",
+      "sha256": "036a9db1db0158424fc6428a70130df05558b88e2a671188647c47eb6d20ee78",
+      "bytes": 7611,
+      "line_count": 27,
+      "read_kind": "full",
+      "read_scope": "Full file; selected atomic/common ownership, qualified decisions, freeze/discovery/resource rules and acceptance windows applied. Truncated registry tail/order output recovered."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Архитектурное_направление_и_отступления.md",
+      "sha256": "cfbabc5614a0d624940482536204aec687feb4c619f1892da09611d2c17d4317",
+      "bytes": 8287,
+      "line_count": 32,
+      "read_kind": "full",
+      "read_scope": "Full file; selected atomic/common ownership, qualified decisions, freeze/discovery/resource rules and acceptance windows applied. Truncated registry tail/order output recovered."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Защиты_и_направления.md",
+      "sha256": "a85e78652493ea259ab79ea2ba8fc7dc096400ee348ad3170b1c078f65a7b3e3",
+      "bytes": 23991,
+      "line_count": 92,
+      "read_kind": "full",
+      "read_scope": "Full file; selected atomic/common ownership, qualified decisions, freeze/discovery/resource rules and acceptance windows applied. Truncated registry tail/order output recovered."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Реестр_ограниченных_решений.md",
+      "sha256": "c7d7e9fb9c382f8a888746d2564e85f3141ecabe670275e819c64cc26b068ea0",
+      "bytes": 27005,
+      "line_count": 108,
+      "read_kind": "full",
+      "read_scope": "Full file; selected atomic/common ownership, qualified decisions, freeze/discovery/resource rules and acceptance windows applied. Truncated registry tail/order output recovered."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Порядок_и_окна_приёмки.md",
+      "sha256": "2cd026bcda5edc2a7e51c1f4d4cc3b7758f86d3d0ea2e91338ff668cf4b08a71",
+      "bytes": 8003,
+      "line_count": 113,
+      "read_kind": "full",
+      "read_scope": "Full file; selected atomic/common ownership, qualified decisions, freeze/discovery/resource rules and acceptance windows applied. Truncated registry tail/order output recovered."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/01_Лейны/LANE-07.md",
+      "sha256": "fa3267d0d6aa96035eb1b0e9bb8bad600876f4b57ad2152920c40f4bd3bf03dc",
+      "bytes": 5813,
+      "line_count": 40,
+      "read_kind": "full",
+      "read_scope": "Full lane overview."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/LANE-07.md",
+      "sha256": "7a49a7e65ba9311e3a31151df720a885e498ef3ceeb49efec2cb66a09bce8490",
+      "bytes": 12323,
+      "line_count": 78,
+      "read_kind": "full",
+      "read_scope": "Full shared solution/test contract and native/profile limits."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/01_Лейны/LANE-08.md",
+      "sha256": "ebf6df3390e33c39d15720a6da7247548b4a5dcee171ea7dcd37dfedda4a9b3c",
+      "bytes": 7137,
+      "line_count": 48,
+      "read_kind": "full",
+      "read_scope": "Full lane overview."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/LANE-08.md",
+      "sha256": "dbc3299f5ec0a7c9a4b1e23275c77ce0d3c1a69988346c066c82a5a2b09833b5",
+      "bytes": 15236,
+      "line_count": 81,
+      "read_kind": "full",
+      "read_scope": "Full shared solution/test contract and native/profile limits."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/01_Лейны/LANE-09.md",
+      "sha256": "04c1406e38fa04c333ebc32bc59fb40454de28a82259d45ee44fec5cbfa32d8f",
+      "bytes": 5022,
+      "line_count": 36,
+      "read_kind": "full",
+      "read_scope": "Full lane overview."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/LANE-09.md",
+      "sha256": "ec07ae4392bf3ce3314f8e83609723986192a3d0ff62f2e000047a5e9b2bc6d3",
+      "bytes": 10962,
+      "line_count": 66,
+      "read_kind": "full",
+      "read_scope": "Full shared solution/test contract and native/profile limits."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/Практическая_расширяемость.md",
+      "sha256": "82b5faca59c39f5ab9b61767fc2ceb702d7e224d2d93170d49b6eec7bf297147",
+      "bytes": 13004,
+      "line_count": 52,
+      "read_kind": "full",
+      "read_scope": "Full cross-lane stories and activation/claim limits."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/Сценарии.json",
+      "sha256": "e2db814faf6e1d824c93ace6682dd6058e8729941ccdeeb04f4b4cdfcb048616",
+      "bytes": 408264,
+      "line_count": 7750,
+      "read_kind": "selected_json_paths",
+      "read_scope": "Global rules/native profile fields; normative LANE-07/08/09 scenario objects and lane metadata. Historical existing_test_owners/original_packet_contracts source summaries not independently claimed fully read."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/Связь_требований_с_интеграцией.json",
+      "sha256": "60194c4970de884d13c7f1f9029f0d45ab43e439f91016f0939ff86f861cf4a8",
+      "bytes": 1323764,
+      "line_count": 22308,
+      "read_kind": "selected_json_paths",
+      "read_scope": "Global rules/counts; complete scenario mappings/bindings for E02-I07-A/B/C, E02-I08-A/B/C, E02-I09-A/B; relevant story bindings E02-X02-B03/B04 and E02-X03-B02/B04; additional_story_evidence and preserved_capability_gaps; local_only/membership metadata only relevant/structure, not all unrelated local entries."
+    },
+    {
+      "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAS-02.md",
+      "sha256": "1cb1efa58b9fde425e41728b5a662f3296c118d814eaf58c966f67c846b6fa09",
+      "bytes": 16636,
+      "line_count": 114,
+      "read_kind": "full",
+      "read_scope": "Full file read as shared atomic/ownership contract, especially REQ/TEST02. Not a separately assigned assessed packet."
+    }
+  ],
+  "repository_inspection": [
+    {
+      "path": "e02_repository/AGENTS.md",
+      "sha256": "919ae21b9ae3e6762dd72e5ab4ddef62b170917fc189de2700e09d978f63d638",
+      "bytes": 15015,
+      "line_count": 68,
+      "read_kind": "full",
+      "read_scope": {
+        "ranges": "full",
+        "purpose": "Applicable repository read instructions."
+      }
+    },
+    {
+      "path": "e02_repository/policy-engine/CONTRIBUTING.md",
+      "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f",
+      "bytes": 12253,
+      "line_count": 227,
+      "read_kind": "full",
+      "read_scope": {
+        "ranges": "full",
+        "purpose": "Applicable contribution/verification scope; no product execution."
+      }
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/io.py",
+      "sha256": "5f2bfe31a2ed8ee0cea4bdec800670dbe8df6749ea7a4d810ab5a88f38bc7686",
+      "bytes": 8933,
+      "line_count": 255,
+      "read_kind": "selected_lines",
+      "read_scope": {
+        "ranges": "1–240",
+        "purpose": "Actual legacy JSON formatter and atomic write bytes/text callers; native NPZ/Parquet routing."
+      }
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/kernel/io/atomic.py",
+      "sha256": "38cae9207be0d3d3d6ff810f62b79a433b13ff0dd0b9aac86a53d2fbb9598c41",
+      "bytes": 1975,
+      "line_count": 71,
+      "read_kind": "selected_lines",
+      "read_scope": {
+        "ranges": "1–71 (full)",
+        "purpose": "Actual file-fsync→replace→directory-fsync order, cleanup and error propagation; FAC-01."
+      }
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_udf_02.py",
+      "sha256": "a881994611813ad38820523045799eab1ba95454b0258188aae0575d1ce63853",
+      "bytes": 6076,
+      "line_count": 161,
+      "read_kind": "selected_lines",
+      "read_scope": {
+        "ranges": "110–155",
+        "purpose": "Existing immediate-raise atomic propagation test does not exercise post-replace fsync failure."
+      }
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+      "sha256": "ffd121f70aece50096ac6e96b10327f09a08692356074b07c85aed80334cc59e",
+      "bytes": 58741,
+      "line_count": 1450,
+      "read_kind": "selected_lines",
+      "read_scope": {
+        "ranges": "349–461; targeted publication docstring match185–189",
+        "purpose": "Bounded adjacent generation/selector/postcommit compatibility-copy semantics, no new finding."
+      }
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/calibration/preflight.py",
+      "sha256": "bd8dde0b985904a6d1a9af5da06885055adf78242933e8af48d559ec389cc8cf",
+      "bytes": 13163,
+      "line_count": 326,
+      "read_kind": "selected_lines",
+      "read_scope": {
+        "ranges": "1–145;230–330",
+        "purpose": "Actual target-query interpolation/ffill, report axis handling; FAC-02 predicate scope."
+      }
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/ir/analytics/calibration.py",
+      "sha256": "0fbfec3e929f2562c31a2b554c8d61e6dc2162a6312d8576984e2d7d5fcd2c79",
+      "bytes": 18962,
+      "line_count": 470,
+      "read_kind": "selected_lines",
+      "read_scope": {
+        "ranges": "410–470",
+        "purpose": "Actual CalibrationConfig target axis declaration; lack of validator not sole domain-validity proof."
+      }
+    }
+  ],
+  "peer_evidence": [
+    {
+      "agent": "audit_source_criteria_foundry_numeric",
+      "scope": "CAL02/CAL05 no blanket target uniqueness; Calibrator.py2431–2434,2467–2499 preserves declared order/shape; peer inspected actual preflight.",
+      "role": "Cross-check FAC-02 only; not claimed own full-file read or independent runtime witness."
+    },
+    {
+      "agent": "audit_source_criteria_lane_integration",
+      "scope": "Full current CAL01/general/I07-C-B01 predicate comparison, linked FAC-02 without duplicate finding.",
+      "role": "Shared integration cross-check; not independent product PASS."
+    },
+    {
+      "agent": "root",
+      "scope": "FAC-01 atomic fault-phase/shared rule validation; audit locator QA for LLM02 tests05/06.",
+      "role": "Contract clarification and navigation QA, not product execution."
+    }
+  ],
+  "source_consultation": {
+    "mode": "Frozen source-derived catalog used after completed primary-source research; this audit does not claim reopening all source pages.",
+    "all_criterion_ids": [
+      "DAT-01",
+      "DAT-02",
+      "DAT-03",
+      "DAT-04",
+      "DAT-05",
+      "DAT-06",
+      "DAT-07",
+      "DAT-08",
+      "DAT-09",
+      "DAT-10",
+      "DAT-11",
+      "DRT-01",
+      "DRT-02",
+      "DRT-03",
+      "DRT-04",
+      "DRT-05",
+      "DRT-06",
+      "DRT-07",
+      "DRT-08",
+      "DRT-09",
+      "DRT-10",
+      "DRT-11",
+      "DRT-12",
+      "DRT-13",
+      "DRT-14",
+      "DRT-15",
+      "DRT-16",
+      "DRT-17",
+      "DRT-18",
+      "DRT-19",
+      "DRT-20",
+      "DRT-21",
+      "DRT-22",
+      "DRT-23",
+      "DRT-24",
+      "RA-01",
+      "RA-02",
+      "RA-03",
+      "RA-04",
+      "RA-05",
+      "RA-06",
+      "RA-07",
+      "RA-08",
+      "RA-09",
+      "RA-10",
+      "RA-11",
+      "RA-12",
+      "RA-13",
+      "RA-14",
+      "RA-15",
+      "RA-16",
+      "RA-17",
+      "SR-01",
+      "SR-02",
+      "SR-03",
+      "SR-04",
+      "SR-05",
+      "SR-06",
+      "SR-07",
+      "SR-08",
+      "SR-09",
+      "SR-10",
+      "SR-11",
+      "SR-12",
+      "SR-13",
+      "SR-14",
+      "SR-15",
+      "SR-16",
+      "SR-17",
+      "SR-18"
+    ],
+    "source_ids_represented_in_catalog_criteria": [
+      "DAT-S01",
+      "DAT-S02",
+      "DAT-S03",
+      "DAT-S04",
+      "DAT-S05",
+      "DAT-S06",
+      "DAT-S07",
+      "DAT-S08",
+      "DAT-S09",
+      "DAT-S10",
+      "DAT-S11",
+      "DAT-S12",
+      "DAT-S13",
+      "DAT-S14",
+      "DAT-S15",
+      "DAT-S16",
+      "DAT-S17",
+      "DAT-S18",
+      "DAT-S19",
+      "DAT-S20",
+      "DRS-01",
+      "DRS-02",
+      "DRS-03",
+      "DRS-04",
+      "DRS-05",
+      "DRS-06",
+      "DRS-07",
+      "DRS-08",
+      "DRS-09",
+      "DRS-10",
+      "DRS-11",
+      "DRS-12",
+      "DRS-13",
+      "DRS-14",
+      "RA-S01",
+      "RA-S02",
+      "RA-S03",
+      "RA-S04",
+      "RA-S05",
+      "RA-S06",
+      "RA-S07",
+      "RA-S08",
+      "RA-S09",
+      "RA-S10",
+      "RA-S11",
+      "RA-S12",
+      "RA-S13",
+      "SR-S01",
+      "SR-S02",
+      "SR-S03",
+      "SR-S04",
+      "SR-S05",
+      "SR-S06",
+      "SR-S07",
+      "SR-S08",
+      "SR-S09",
+      "SR-S10",
+      "SR-S11",
+      "SR-S12",
+      "SR-S13",
+      "SR-S14",
+      "SR-S15",
+      "SR-S16",
+      "SR-S17",
+      "SR-S18",
+      "SR-S19",
+      "SR-S20"
+    ],
+    "finding_criterion_ids": [
+      "DRT-07",
+      "RA-03",
+      "RA-07",
+      "RA-09",
+      "RA-10",
+      "SR-13"
+    ],
+    "finding_source_records": [
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S01",
+        "title": "Systems Engineering Handbook, Appendix C: How to Write a Good Requirement",
+        "publisher": "NASA",
+        "url": "https://www.nasa.gov/reference/appendix-c-how-to-write-a-good-requirement/",
+        "document_date": "Web page updated 2023-07-26; handbook NASA/SP-2016-6105 Rev 2",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "guidance",
+        "locators": [
+          "C.1; C.2 Product Requirement; C.3 General Goodness Checklist; C.4 Clarity, Consistency, Traceability, Performance, Interfaces, Reliability, Verifiability/Testability, Data Usage"
+        ],
+        "access_and_applicability_limits": "Чеклист NASA, не обязательный стандарт для E02. Буквальные правила о shall, отрицательных формулировках и расположении разделов не переносить механически."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S03",
+        "title": "Systems Engineering Handbook, Appendix D: Requirements Verification Matrix",
+        "publisher": "NASA",
+        "url": "https://www.nasa.gov/reference/appendix-d-requirements-verification-matrix/",
+        "document_date": "Web page updated 2023-07-26",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "guidance",
+        "locators": [
+          "Body paragraphs before Table D-1: verification approach, unique identifier, definitive source"
+        ],
+        "access_and_applicability_limits": "Прочитано текстовое описание; содержимое таблицы D-1 в HTML не извлечено и не используется для утверждения полного набора колонок."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S05",
+        "title": "Systems Engineering Handbook, Appendix L: Interface Requirements Document Outline",
+        "publisher": "NASA",
+        "url": "https://www.nasa.gov/reference/appendix-l-interface-requirements-document-outline/",
+        "document_date": "NASA/SP-2016-6105 Rev 2; web edition accessed 2026-11-01",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "guidance",
+        "locators": [
+          "1.2 Precedence; 1.3 Responsibility and Change Authority; 2.1 Applicable Documents; 3.1.2 Interface Responsibilities; 3.2.6 Software and Data"
+        ],
+        "access_and_applicability_limits": "Релевантны ответственность, приоритет и software/data interfaces; physical/fluid/electrical/spacecraft требования исключены."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S06",
+        "title": "Systems Engineering Handbook, 6.3 Interface Management",
+        "publisher": "NASA",
+        "url": "https://www.nasa.gov/reference/6-3-interface-management/",
+        "document_date": "Web page updated 2023-07-26",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "guidance",
+        "locators": [
+          "6.3.1.2.2–6.3.1.2.5; 6.3.1.3 Outputs"
+        ],
+        "access_and_applicability_limits": "Не навязывает E02 создание формального NASA Interface Working Group; важны явные стороны, владельцы, версия, согласование изменения и влияние на проверки."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S08",
+        "title": "NPR 7150.2D Chapter 4: Software Engineering Life Cycle Requirements",
+        "publisher": "NASA Office of the Chief Engineer",
+        "url": "https://nodis3.gsfc.nasa.gov/displayDir.cfm?Internal_ID=N_PR_7150_002D_&page_name=Chapter4",
+        "document_date": "Effective 2022-03-08; page states expiration 2027-03-08",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "NASA_procedural_requirement",
+        "locators": [
+          "4.1.1–4.1.7; 4.2 Software Architecture; 4.3 Software Design"
+        ],
+        "access_and_applicability_limits": "Нормативно для NASA; в E02 — добровольный источник методов, не доказательство юридической обязанности или aerospace certification."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S09",
+        "title": "Guide to Writing Requirements v4 — Summary Sheet, INCOSE-TP-2010-006-04",
+        "publisher": "INCOSE Requirements Working Group",
+        "url": "https://www.incose.org/docs/default-source/working-groups/requirements-wg/guidetowritingrequirements/incose_rwg_gtwr_v4_summary_sheet.pdf",
+        "document_date": "June 2023",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "official_public_summary",
+        "locators": [
+          "Printed p.2: C2, C4, C5, C10–C15; p.3: R14–R15, R18, R23–R28, R30–R36, R40; p.7: attributes A1–A15, A32–A33"
+        ],
+        "access_and_applicability_limits": "Открыт официальный 7-страничный summary PDF через ссылку RWG. Полный платный Guide не прочитан; summary не передает все исключения/пояснения полного руководства. Правила не являются автоматическим grammar-lint verdict."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S13",
+        "title": "Integrability, CMU/SEI-2020-TR-001, Kazman/Bianco/Ivers/Klein",
+        "publisher": "Carnegie Mellon University Software Engineering Institute",
+        "url": "https://www.sei.cmu.edu/documents/1286/2020_005_001_637385.pdf",
+        "document_date": "February 2020",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "primary_technical_report",
+        "locators": [
+          "3 Evaluating Integrability, printed pp.6–7; 3.1 Measuring Integrability, printed pp.7–8 / PDF pp.13–14; 4 Integrability Scenarios, printed pp.11–16; 7.4 Derived Decisions and Special Cases, printed pp.42–44 / PDF pp.48–50"
+        ],
+        "access_and_applicability_limits": "Прочитан PDF-текст с первичного домена; screenshot отдельных страниц вернул Cache miss. Не утверждаем количественную стоимость интеграции E02 из общей формулы отчета."
+      },
+      {
+        "research_group": "research_distributed",
+        "accessed_at_utc": "2026-11-01",
+        "source_kind": "первичный официальный",
+        "access_status": "read_selected_sections",
+        "id": "DRS-10",
+        "title": "PostgreSQL 18, 28.4 Asynchronous Commit",
+        "organization": "PostgreSQL Global Development Group",
+        "url": "https://www.postgresql.org/docs/18/wal-async-commit.html",
+        "published_or_updated": "Версия документации 18; дата изменения страницы не показана.",
+        "sections": [
+          "28.4 Asynchronous Commit",
+          "Caution"
+        ],
+        "read_evidence": "Прочитан основной текст 20–38.",
+        "scope_limit": "Durability зависит от выбранного режима и модели отказа; async commit не тождествен fsync=off."
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S14",
+        "title": "AWS Builders’ Library — Ensuring rollback safety during deployments",
+        "url": "https://builder.aws.com/content/3F04j2yRAAMBuPSPs50xwXZqg01/ensuring-rollback-safety-during-deployments",
+        "version": "Авторская инженерная практика, Sandeep Pokkunuri",
+        "publication_or_revision_date": "2019-12-05",
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "Introduction",
+          "Standalone vs. distributed software deployments",
+          "Problems with protocol changes",
+          "Two-phase deployment technique"
+        ],
+        "source_insight": "Совместимость требуется во время переходов; prepare readers предшествует activation writers, а rollback после новых записей имеет другую нижнюю границу.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "AWS URL перенаправляет на официальный Builder Center, где указаны Published/Last modified Dec 5, 2019. Это практика, не универсальный обязательный deployment protocol.",
+        "other_verified_urls": [
+          "https://aws.amazon.com/builders-library/ensuring-rollback-safety-during-deployments/"
+        ]
+      },
+      {
+        "research_group": "research_security_release",
+        "id": "SR-S16",
+        "title": "Google SRE Book — Data Integrity: What You Read Is What You Wrote",
+        "url": "https://sre.google/sre-book/data-integrity/",
+        "version": "SRE Book, chapter 26",
+        "publication_or_revision_date": null,
+        "accessed_on": "2026-11-01",
+        "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+        "sections_read": [
+          "Backups Versus Archives",
+          "Delivering a Recovery System, Rather Than a Backup System",
+          "Second Layer / backup tiers",
+          "1T Versus 1E: Not Just a Bigger Backup",
+          "Third Layer: Early Detection",
+          "Gmail—February, 2011: Restore from GTape",
+          "Google Music recovery discussion"
+        ],
+        "source_insight": "Критерий восстановления — пригодные и доступные пользователю данные; архив, копия и replication не равнозначны восстановлению согласованных данных.",
+        "access_status": "READ_RELEVANT_SECTIONS",
+        "access_limits": "Это опыт Google, не основание копировать объёмы, 30–90-дневные retention или стоимость. Читались обозначенные разделы, не все главы книги.",
+        "other_verified_urls": []
+      }
+    ],
+    "access_limits": "Source-phase versions/locators/access limits retained; guidance is not mandatory E02 standard; PostgreSQL/AWS/etc examples do not impose technology or prove actual Python owner."
+  },
+  "checks": {
+    "md_json_semantic_consistency": "25/25 whitespace-normalized REQ.text and TEST.setup/action/oracle/doubles match full current MD; unique metadata separately reviewed.",
+    "complete_criterion_coverage": "25 × exactly70 unique criterion IDs; no omitted/duplicated IDs.",
+    "native_product_tests": "NOT_RUN",
+    "stdlib_execution": "Only audit-artifact assembly/hash/reference checks; no product imports. Numeric query example explanatory, not NumPy/JAX execution.",
+    "product_spec_edits": "NONE",
+    "installs": "NONE",
+    "external_mutations": "NONE"
+  },
+  "limitations": [
+    "No implementation/native/empirical PASS inferred from addressed disposition.",
+    "No source bughunting outside limited atomic/publication/calibration boundaries.",
+    "Finite compatibility/profile/DEC claims remain bounded; no all-platform, global exactly-once, arbitrary SLA, HSM/legal ledger or new framework imposed.",
+    "Source files not read wholly unless specifically labeled full; selected JSON read scopes explicit.",
+    "Source phase authoritative browsing already complete; source claims here inherited with exact frozen record provenance."
+  ],
+  "blocked_actions": [],
+  "pending_or_uncertain_actions": [],
+  "completed_at_utc": "2026-11-01T13:12:45.558444+00:00"
+}

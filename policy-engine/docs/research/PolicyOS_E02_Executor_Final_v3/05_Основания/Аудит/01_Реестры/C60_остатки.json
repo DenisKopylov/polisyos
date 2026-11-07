@@ -1,0 +1,47 @@
+{
+  "pass": "C60",
+  "bundle": "FIT-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C60-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B54",
+        "B56"
+      ],
+      "title": "Native outer admission, lifecycle и persisted consumers не переисполнены",
+      "evidence": [
+        "S04:478–524",
+        "S06:117–206",
+        "S09:377–747",
+        "native_pytest.log",
+        "native_import.log"
+      ],
+      "remaining": "В supported runtime выполнить уже существующие actual LocalWorkerPool tests при budget1/2, waiting queue, failure release, parent receipt и fresh CAS reader; сохранить source-bound output/trace. Не выдавать audit ThreadPoolExecutor за production pool и не строить второй scheduler.",
+      "limits": "Numerical owner реально обучает модели с package-initializer shells. Pytest отсутствует; public import блокируется Python3.14 syntax under3.12. Это environment qualification gap, не product defect."
+    },
+    {
+      "id": "C60-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B54",
+        "B56"
+      ],
+      "title": "Политика serial inner folds безопасна в проверенном профиле, но throughput и scientific authority не квалифицированы",
+      "evidence": [
+        "S01:244–259",
+        "S01:960–980",
+        "S01:1233–1386",
+        "S09:332–364",
+        "P05",
+        "P06"
+      ],
+      "remaining": "Для реальных workloads измерить throughput, пиковую память, ожидание и общий ресурс. Если нужен inner fan-out, расширять existing resource admission без циклического ожидания и без потери folds/seeds. Scientific coverage и разрешение policy use проверять отдельно от cache correctness.",
+      "limits": "Два actual fits сохраняют все12 folds, peak2 total/1 per fit и exact serial predictions. Это не benchmark и не native pool run. Никакого требования вернуть старый вложенный пул только ради sourceplan shape нет; отсутствие universal model inventor не дефект."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "Исходные cache/current-view и nested fan-out проблемы не воспроизвелись в bounded actual numerical profile. Useful repairs сохранены; native lifecycle/persistence и workload/scientific qualification открыты."
+}

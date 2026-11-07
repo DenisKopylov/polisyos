@@ -1,0 +1,17 @@
+{
+  "kind": "isolated_language_counterexample_not_product_test",
+  "checked_at_utc": "2026-11-01T11:17:09Z",
+  "expression": "Object.entries({\"__proto__\":\"payload\"}) versus Object.entries({[\"__proto__\"]:\"payload\"})",
+  "result": {
+    "literal": [],
+    "computed": [
+      [
+        "__proto__",
+        "payload"
+      ]
+    ],
+    "literalOwn": false,
+    "computedOwn": true
+  },
+  "limitation": "Executed installed node, not repository Node22 generated client. Confirms JS object literal semantics only."
+}

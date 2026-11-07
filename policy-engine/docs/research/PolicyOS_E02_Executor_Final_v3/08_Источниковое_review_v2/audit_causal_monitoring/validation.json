@@ -1,0 +1,23 @@
+{
+  "kind": "INDEPENDENT_STDLIB_DOCUMENT_CHECK_NOT_PRODUCT_EXECUTION",
+  "status": "PASS",
+  "checked_at": "2026-11-01T12:58:45.297831+00:00",
+  "catalog_sha256_matches_freeze": true,
+  "packets": 17,
+  "criteria_per_packet": 70,
+  "criterion_dispositions": 1190,
+  "status_counts": {
+    "addressed": 436,
+    "bounded": 210,
+    "not_applicable": 544
+  },
+  "requirements": 109,
+  "local_tests": 123,
+  "requirement_test_edges": 213,
+  "selected_requirement_and_local_only_rows_equal_companions": 130,
+  "selected_source_inventory_hashes_equal_actual_files": 17,
+  "all34_packet_hashes_match_assessments": true,
+  "findings_refs_valid": true,
+  "product_native_tests": "NOT_RUN",
+  "errors": []
+}

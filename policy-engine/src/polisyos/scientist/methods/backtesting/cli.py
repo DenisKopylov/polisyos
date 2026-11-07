@@ -46,17 +46,33 @@ def add_backtest_subparser(scientist_sub) -> None:
 
 def run_backtest_command(args) -> tuple[int, str]:
     """Run backtest command."""
+    from polisyos.scientist.governance.backtest_matrix import verify_backtest_trust_projection
+
     plans = _load_plans(args)
     orchestrator = BacktestOrchestrator(cas_root=args.cas_root)
     report = orchestrator.run(plans)
+    trust = verify_backtest_trust_projection(report)
+    payload = report.model_dump(mode="json")
+    payload.update(
+        trust_eligible=trust.eligible,
+        trust_score=trust.score,
+        trust_grade=trust.grade,
+        trust_score_status=trust.status,
+        trust_score_reason=trust.reason,
+        degraded=report.degraded or not trust.eligible,
+    )
+    if not trust.eligible:
+        reason = f"backtest_trust_unavailable:{trust.reason}"
+        if reason not in payload["degraded_reasons"]:
+            payload["degraded_reasons"].append(reason)
 
     output_format = "json" if bool(getattr(args, "json", False)) else args.format
     if output_format == "summary":
-        rendered = _render_summary(report.model_dump(mode="json"))
+        rendered = _render_summary(payload)
     elif output_format == "markdown":
-        rendered = _render_markdown(report.model_dump(mode="json"))
+        rendered = _render_markdown(payload)
     else:
-        rendered = report.model_dump_json(indent=2)
+        rendered = json.dumps(payload, indent=2)
 
     if args.output:
         Path(args.output).write_text(rendered, encoding="utf-8")
@@ -125,6 +141,7 @@ def _render_summary(payload: dict[str, Any]) -> str:
         f"overall_coverage_probability={payload.get('overall_coverage_probability')}",
         f"trust_score={payload.get('trust_score')}",
         f"trust_grade={payload.get('trust_grade')}",
+        f"trust_score_status={payload.get('trust_score_status')}",
         f"cas_artifact_id={payload.get('cas_artifact_id')}",
     ]
     return "\n".join(lines)
@@ -141,6 +158,7 @@ def _render_markdown(payload: dict[str, Any]) -> str:
         f"- MAPE: `{payload.get('overall_mape')}`",
         f"- coverage: `{payload.get('overall_coverage_probability')}`",
         f"- trust: `{payload.get('trust_score')}` (`{payload.get('trust_grade')}`)",
+        f"- trust status: `{payload.get('trust_score_status')}`",
         "",
         "## Scenarios",
     ]

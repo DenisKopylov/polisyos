@@ -19,6 +19,7 @@ from ._atomic_write import (
 from ._atomic_write import (
     AtomicFileWriter as _AtomicFileWriter,
 )
+from ._export_admission import ExportResourceError
 from ._integrity_ops import (
     ArtifactBoundedManifestRead,
     ArtifactBoundedManifestReadError,
@@ -30,8 +31,13 @@ from ._integrity_ops import (
     VerificationReport,
 )
 from ._manifest_lifecycle import ManifestLifecycle as ManifestLifecycle
-from ._profiled_ref import profile_bound_ref
-from ._transfer_ops import ExportReport, ImportReport
+from ._profiled_ref import legacy_default_artifact_id, profile_bound_ref
+from ._transfer_ops import (
+    ExportDurabilityError,
+    ExportReport,
+    ImportReport,
+    ImportSignatureVerificationError,
+)
 from .async_store import (
     AsyncArtifactStoreAdapter,
     AsyncFileSystemArtifactStore,
@@ -387,10 +393,13 @@ __all__ = [
     "Ed25519Signer",
     "Ed25519Verifier",
     "EnvInfo",
+    "ExportDurabilityError",
     "ExportReport",
+    "ExportResourceError",
     "FileSystemCAS",
     "GitInfo",
     "ImportReport",
+    "ImportSignatureVerificationError",
     "InputRef",
     "IntegrityInfo",
     "KeyPair",
@@ -430,6 +439,7 @@ __all__ = [
     "expected_artifact_manifest_for_write",
     "fsync_directory",
     "input_ref_from_artifact_ref",
+    "legacy_default_artifact_id",
     "load_core_json_artifact",
     "load_core_json_frame_records",
     "matches_artifact_store_protocol",

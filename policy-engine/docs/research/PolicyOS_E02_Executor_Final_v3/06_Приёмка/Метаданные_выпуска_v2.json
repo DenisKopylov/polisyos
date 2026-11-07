@@ -1,0 +1,22 @@
+{
+  "release": "PolicyOS E02 proposed executor specification v2 and final technical review",
+  "created_utc": "2026-11-01T12:15:56.787886+00:00",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "baseline_zip_sha256": "e08baa70c8acf92f8f2e5afd8ced38c94213355dea07c4b33b14a417aefdebf3",
+  "independent_qa_status": "FINAL_DOCUMENT_QA_PASS_NATIVE_NOT_RUN",
+  "qa_report_sha256": "a1d8af715ee5badbf422e9e6180c0d531b99567ef2923e5b5085482389ad6872",
+  "qa_checker_sha256": "cdd3d27e8d9673849f9d5fac3b2f75d89ac7ba28723e69180398beff5ef19f3f",
+  "pre_report_substitution_tree_manifest_sha256": "d1ea8b13c79b4c7b7d3974d9b0b9cd49878a5a84df2e6669e54e76d9904f07b8",
+  "post_qa_changes": [
+    {
+      "path": "06_Приёмка/Независимая_QA_v2.json",
+      "kind": "Replace actual prior partial QA report with final completed QA result",
+      "before_sha256": "976da63de21be4bdd8681a046eba796b8364c139a64f65223b0185326f67849a",
+      "after_sha256": "a1d8af715ee5badbf422e9e6180c0d531b99567ef2923e5b5085482389ad6872",
+      "normative_change": false
+    }
+  ],
+  "self_reference_boundary": "Final report and release metadata/manifest are added after content QA. Archive verification separately checks every released byte; the old tree hash is not represented as the final archive hash.",
+  "product_changes": "NONE",
+  "native_product_tests": "NOT_RUN"
+}

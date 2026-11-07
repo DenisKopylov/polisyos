@@ -41,12 +41,42 @@ def _vector(
         if n_agents is None or default is None:
             raise ValueError(f"{key} is required")
         return np.full((n_agents,), default, dtype=float)
-    arr = np.asarray(state[key], dtype=float)
+    try:
+        arr = np.asarray(state[key], dtype=float)
+    except (OverflowError, TypeError, ValueError) as error:
+        raise ValueError(f"{key} must be a numeric vector") from error
     if arr.ndim != 1:
         raise ValueError(f"{key} must be a 1D vector")
     if n_agents is not None and arr.shape != (n_agents,):
         raise ValueError(f"{key} must have shape ({n_agents},)")
+    if not np.all(np.isfinite(arr)):
+        raise ValueError(f"{key} must be finite")
     return arr
+
+
+def _coupled_policy_inputs(
+    state: Mapping[str, Any],
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Prepare the same required/default vector contract for preflight and run."""
+    income = _vector(state, "initial_income")
+    n_agents = int(income.shape[0])
+    savings = _vector(state, "initial_savings", n_agents=n_agents, default=0.0)
+    employed = _vector(state, "is_employed", n_agents=n_agents, default=0.0) > 0.5
+    risk = _vector(state, "risk_aversion", n_agents=n_agents, default=0.5)
+    return income, savings, employed, risk
+
+
+def validate_coupled_policy_inputs(state: Mapping[str, Any]) -> None:
+    """Validate coupled input vectors without importing or running JAX.
+
+    Args:
+        state: Actual coupled-state values selected for the candidate plan.
+
+    Raises:
+        ValueError: If required income is absent, a supplied vector is malformed
+            or nonfinite, or an optional vector has a different agent count.
+    """
+    _coupled_policy_inputs(state)
 
 
 def _metric_names(
@@ -58,7 +88,7 @@ def _metric_names(
     raw = params.get(parameter_name, default)
     if isinstance(raw, str):
         return tuple(item.strip() for item in raw.split(",") if item.strip())
-    return tuple(str(item) for item in raw)
+    return tuple(str(item).strip() for item in raw)
 
 
 def _run_coupled_policy(
@@ -69,6 +99,9 @@ def _run_coupled_policy(
     service_rate: float | None = None,
     benefit_amount: float | None = None,
 ) -> dict[str, Any]:
+    income, savings, employed, risk = _coupled_policy_inputs(state)
+    n_agents = int(income.shape[0])
+
     import jax
     import jax.numpy as jnp
 
@@ -81,12 +114,6 @@ def _run_coupled_policy(
         CoupledContractsExecutor,
         CoupledRuntimeState,
     )
-
-    income = _vector(state, "initial_income")
-    n_agents = int(income.shape[0])
-    savings = _vector(state, "initial_savings", n_agents=n_agents, default=0.0)
-    employed = _vector(state, "is_employed", n_agents=n_agents, default=0.0) > 0.5
-    risk = _vector(state, "risk_aversion", n_agents=n_agents, default=0.5)
 
     base_state = GlobalState.empty(n_agents=n_agents, n_firms=1)
     global_state = base_state.replace(
@@ -419,6 +446,10 @@ class CoupledSMMEstimator:
             ("completed_count", "final_queue_length"),
             parameter_name="moment_names",
         )
+        if not moment_names or any(not name for name in moment_names):
+            raise ValueError("moment_names must not be empty")
+        if len(set(moment_names)) != len(moment_names):
+            raise ValueError("moment_names must be unique")
         observed_values = _vector(state, "observed_moments")
         if observed_values.shape[0] != len(moment_names):
             raise ValueError("observed_moments length must match moment_names")
@@ -626,6 +657,7 @@ class CoupledPairedMonteCarloEstimator:
             seeds=seeds,
             metric_names=metric_names,
         )
+        result.validate()
         return {
             "result": {
                 "mean_effects": result.mean_effects,
@@ -643,4 +675,5 @@ __all__ = [
     "CoupledQueueMLEEstimator",
     "CoupledQueueParticleFilterEstimator",
     "CoupledSMMEstimator",
+    "validate_coupled_policy_inputs",
 ]

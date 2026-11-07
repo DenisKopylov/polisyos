@@ -1,0 +1,170 @@
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py:117-200
+  117     def set_state(self, state: StrategyState) -> None:
+  118         if state.strategy_name != self.__class__.__name__:
+  119             raise ValueError("Strategy checkpoint is incompatible: strategy identity changed")
+  120         if isinstance(state.iteration, bool) or not isinstance(state.iteration, int):
+  121             raise ValueError("Strategy iteration must be an integer")
+  122         if not isinstance(state.rng_state, Mapping):
+  123             raise ValueError("Strategy RNG state must be an object")
+  124         if not isinstance(state.metadata, Mapping):
+  125             raise ValueError("Strategy checkpoint metadata must be an object")
+  126         checkpoint_space = state.metadata.get("space")
+  127         if checkpoint_space is not None and checkpoint_space != (
+  128             self._space.sobol_space_fingerprint()
+  129         ):
+  130             raise ValueError("Strategy checkpoint is incompatible: search space changed")
+  131         checkpoint_seed = state.metadata.get("seed")
+  132         if checkpoint_seed is not None and (
+  133             isinstance(checkpoint_seed, bool) or not isinstance(checkpoint_seed, int)
+  134         ):
+  135             raise ValueError("Strategy checkpoint seed must be an integer")
+  136 
+  137         rng_state = state.rng_state.get("python")
+  138         if rng_state is None:
+  139             raise ValueError("Python random state is missing")
+  140         decoded_python = _decode_python_random_state(rng_state)
+  141 
+  142         sobol_state = state.rng_state.get("sobol")
+  143         if sobol_state is None:
+  144             decoded_sobol = None
+  145         else:
+  146             decoded_sobol = self._validated_sobol_state(sobol_state)
+  147         if (
+  148             checkpoint_seed is not None
+  149             and decoded_sobol is not None
+  150             and decoded_sobol[0] != checkpoint_seed
+  151         ):
+  152             raise ValueError("Strategy checkpoint is incompatible: seed metadata changed")
+  153 
+  154         # Validate the effective sampler before changing strategy state.  An
+  155         # importable backend may still fail at runtime and fall back, so a
+  156         # persisted availability label is not enough for checkpoint identity.
+  157         if decoded_sobol is not None and decoded_sobol[2]:
+  158             (
+  159                 seed,
+  160                 cursor,
+  161                 cache,
+  162                 sampler_identity,
+  163                 sampler_version,
+  164             ) = decoded_sobol
+  165             assert sampler_identity is not None
+  166             assert sampler_version is not None
+  167             self._space.validate_sobol_sampler(
+  168                 seed=seed,
+  169                 expected_identity=sampler_identity,
+  170                 expected_version=sampler_version,
+  171                 expected_prefix=cache,
+  172             )
+  173 
+  174         # All persisted fields and the effective sampler have now been
+  175         # validated.  The native RNG setter is the only remaining mutating
+  176         # validator and is expected to accept the strict codec above.
+  177         self._rng.setstate(decoded_python)
+  178         if checkpoint_seed is not None:
+  179             self._seed = checkpoint_seed
+  180         self._iteration = state.iteration
+  181         if decoded_sobol is None:
+  182             self._sobol_checkpoint_compatible = False
+  183             self._sobol_cache = []
+  184             self._sobol_cursor = 0
+  185             self._sobol_sampler_identity = None
+  186             self._sobol_sampler_version = None
+  187         else:
+  188             (
+  189                 seed,
+  190                 cursor,
+  191                 cache,
+  192                 sampler_identity,
+  193                 sampler_version,
+  194             ) = decoded_sobol
+  195             self._sobol_seed = seed
+  196             self._sobol_cursor = cursor
+  197             self._sobol_cache = cache
+  198             self._sobol_sampler_identity = sampler_identity
+  199             self._sobol_sampler_version = sampler_version
+  200             self._sobol_checkpoint_compatible = True
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py:438-460
+  438 def _validate_python_random_state(state: Any) -> tuple[int, tuple[int, ...], float | None]:
+  439     if not isinstance(state, tuple) or len(state) != 3:
+  440         raise ValueError("Python random state must be a three-item tuple")
+  441     version, internal_state, gauss_next = state
+  442     if isinstance(version, bool) or not isinstance(version, int):
+  443         raise ValueError("Python random state version is missing or invalid")
+  444     if version != _PYTHON_RANDOM_STATE_VERSION:
+  445         raise ValueError(
+  446             "Python random state version "
+  447             f"{version} is unsupported; expected {_PYTHON_RANDOM_STATE_VERSION}"
+  448         )
+  449     if not isinstance(internal_state, tuple) or len(internal_state) != _PYTHON_RANDOM_STATE_LENGTH:
+  450         raise ValueError("Python random state vector has an incompatible shape")
+  451     if any(
+  452         isinstance(item, bool) or not isinstance(item, int) or not 0 <= item < 2**32
+  453         for item in internal_state
+  454     ):
+  455         raise ValueError("Python random state vector contains an invalid value")
+  456     if gauss_next is not None and (
+  457         isinstance(gauss_next, bool) or not isinstance(gauss_next, (int, float))
+  458     ):
+  459         raise ValueError("Python random gaussian state must be numeric or null")
+  460     return version, internal_state, gauss_next
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py:256-286
+  256     def _sobol_state(self) -> dict[str, Any]:
+  257         identity = self._sobol_sampler_identity
+  258         version = self._sobol_sampler_version
+  259         if bool(self._sobol_cache) != (identity is not None):
+  260             raise ValueError("Sobol checkpoint is incompatible: sampler identity/cache mismatch")
+  261         if identity is None:
+  262             if version is not None:
+  263                 raise ValueError(
+  264                     "Sobol checkpoint is incompatible: sampler version without identity"
+  265                 )
+  266         else:
+  267             if identity not in _SOBOL_SAMPLER_IDENTITIES:
+  268                 raise ValueError("Sobol sampler did not report an effective identity")
+  269             if not isinstance(version, str) or not version or version.lower() == "unknown":
+  270                 raise ValueError("Sobol sampler did not report a verified implementation version")
+  271         fallback = identity == _SOBOL_FALLBACK_IDENTITY
+  272         return {
+  273             "algorithm": _SOBOL_ALGORITHM,
+  274             "algorithm_version": _SOBOL_ALGORITHM_VERSION,
+  275             "codec": _SOBOL_CODEC,
+  276             "codec_version": _SOBOL_CODEC_VERSION,
+  277             "seed": self._sobol_seed,
+  278             "dimension": self._space.dim,
+  279             "space": self._space.sobol_space_fingerprint(),
+  280             "sampler_identity": identity,
+  281             "sampler_version": version,
+  282             "fallback": fallback,
+  283             "scramble": (None if identity is None else not fallback),
+  284             "cursor": self._sobol_cursor,
+  285             "cache": [list(vector) for vector in self._sobol_cache],
+  286         }
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/frontier.py:175-198
+  175 def policy_candidate_hash(
+  176     candidate: dict[str, Any] | CandidateProposal,
+  177     *,
+  178     metadata_hash: str | None = None,
+  179     explicit_hash: str | None = None,
+  180 ) -> str:
+  181     """Recompute candidate identity from the validated executed subject."""
+  182     if isinstance(candidate, CandidateProposal):
+  183         materialize_candidate_proposal(candidate)
+  184         if candidate.strategy_context is not None:
+  185             actual = _strategy_subject_hash(candidate.strategy_context)
+  186         else:
+  187             actual = policy_candidate_hash(candidate.payload)
+  188     else:
+  189         _validate_json_subject(candidate)
+  190         actual = (
+  191             "sha256:" + hashlib.sha256(stable_json_dumps(candidate).encode("utf-8")).hexdigest()
+  192         )
+  193     for supplied in (metadata_hash, explicit_hash):
+  194         if supplied not in (None, "") and (
+  195             not isinstance(supplied, str) or supplied.strip() != actual
+  196         ):
+  197             raise ValueError("candidate_identity_supplied_hash_mismatch")
+  198     return actual

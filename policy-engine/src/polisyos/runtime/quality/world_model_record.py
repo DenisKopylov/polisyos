@@ -613,6 +613,7 @@ def build_world_model_record(
     substrate_registry_artifact_ref: ArtifactRef | str | None = None,
     registry_bundle_artifact_ref: ArtifactRef | None = None,
     _loaded_substrate_registry: SubstrateRegistry | None = None,
+    _selected_substrate_registry_ref: SubstrateRegistryRef | None = None,
     foundry_binding_rules: Sequence[FoundryInputBindingRule] | None = None,
     mechanism_refs: Sequence[str] = (),
     gcm_refs: Sequence[str] = (),
@@ -623,6 +624,7 @@ def build_world_model_record(
     limitations: WorldModelLimitations | None = None,
     candidate_only: bool = False,
     deployment_update_refs: DeploymentUpdateRefs | None = None,
+    return_selected_profile: bool = False,
 ) -> WorldModelBuildResult:
     """Build and persist one versioned world record from existing substrates.
 
@@ -656,6 +658,8 @@ def build_world_model_record(
             selected manifest metadata is retained in WMRv2.
         _loaded_substrate_registry: Internal S1 handoff that avoids rereading
             a registry already loaded and validated from this CAS.
+        _selected_substrate_registry_ref: Internal exact projection to preserve
+            from an existing WMR while continuing its world lineage.
         foundry_binding_rules: Optional explicit Foundry input binding rules.
         mechanism_refs: Existing mechanism refs to name; mechanisms remain
             owned by Foundry/IR registries.
@@ -671,6 +675,8 @@ def build_world_model_record(
             status is ``limited`` and requires at least one typed
             ``admissibility_blocker``; this does not confer authority.
         deployment_update_refs: Phase-6 forward hooks, not write-back logic.
+        return_selected_profile: Return the exact writer-selected WMR manifest
+            view. The default retains the historical profileless return.
 
     Raises:
         WorldModelRecordError: If any required substrate is missing or versions
@@ -681,6 +687,8 @@ def build_world_model_record(
         bound ``GlobalState`` emitted by Foundry input bindings.
     """
 
+    if type(return_selected_profile) is not bool:
+        raise TypeError("world_model_record_selected_profile_request_untyped")
     if not model_spec.registry_bundle_ref:
         raise WorldModelRecordError(
             "model_spec_registry_bundle_missing",
@@ -752,6 +760,7 @@ def build_world_model_record(
         required_families=required_substrate_families,
         registry_artifact_ref=substrate_registry_artifact_ref,
         loaded_registry=_loaded_substrate_registry,
+        selected_ref=_selected_substrate_registry_ref,
     )
     _assert_same_world_version(
         fabric_world_ref=resolved_fabric_world_ref,
@@ -962,11 +971,12 @@ def build_world_model_record(
             input_ref_from_artifact_ref(ref, role=f"input.ncm_refs.{index}")
             for index, ref in enumerate(artifact_views.ncm_refs)
         )
-    record_ref = persist_world_model_record(
-        store,
-        record,
-        inputs=record_inputs,
-    )
+    if return_selected_profile:
+        record_ref = persist_world_model_record(
+            store, record, inputs=record_inputs, return_selected_profile=True
+        )
+    else:
+        record_ref = persist_world_model_record(store, record, inputs=record_inputs)
     bound_state = load_state_snapshot(store, snapshot_ref=input_bindings.bound_state_snapshot_ref)
     return WorldModelBuildResult(
         record=record,
@@ -1071,6 +1081,7 @@ def persist_world_model_record(
     record: WorldModelRecord,
     *,
     inputs: Sequence[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
     """Persist a ``WorldModelRecord`` as a typed CAS artifact."""
 
@@ -1089,19 +1100,34 @@ def persist_world_model_record(
         if inputs is None
         else list(inputs)
     )
-    return store.put_json(
-        serialize_world_model_record_for_storage(validated),
-        PutOptions(
-            kind=WORLD_MODEL_RECORD_ARTIFACT_KIND,
-            media_type="application/json",
-            schema=SchemaInfo(
-                name=WORLD_MODEL_RECORD_SCHEMA_NAME,
-                version=validated.schema_version,
-            ),
-            inputs=manifest_inputs,
+    payload = serialize_world_model_record_for_storage(validated)
+    options = PutOptions(
+        kind=WORLD_MODEL_RECORD_ARTIFACT_KIND,
+        media_type="application/json",
+        schema=SchemaInfo(
+            name=WORLD_MODEL_RECORD_SCHEMA_NAME,
+            version=validated.schema_version,
         ),
-        canon_spec=CanonSpec(forbid_floats=False),
+        inputs=manifest_inputs,
     )
+    if type(return_selected_profile) is not bool:
+        raise TypeError("world_model_record_selected_profile_request_untyped")
+    if return_selected_profile:
+        written = store.put_json(
+            payload,
+            options,
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        if (
+            not isinstance(written, ArtifactRef)
+            or written.manifest_profile_sha256 is None
+            or written.kind != options.kind
+            or written.media_type != options.media_type
+        ):
+            raise WorldModelRecordError("world_model_record_writer_profile_not_established")
+        return written
+    return store.put_json(payload, options, canon_spec=CanonSpec(forbid_floats=False))
 
 
 def load_world_model_record(
@@ -1609,6 +1635,7 @@ def _resolve_substrate_registry_ref(
     required_families: Sequence[str],
     registry_artifact_ref: ArtifactRef | str | None,
     loaded_registry: SubstrateRegistry | None = None,
+    selected_ref: SubstrateRegistryRef | None = None,
 ) -> SubstrateRegistryRef:
     validated = SubstrateRegistry.model_validate(substrate_registry.model_dump(mode="json"))
     normalized_registry_ref: ArtifactRef | None = None
@@ -1629,6 +1656,64 @@ def _resolve_substrate_registry_ref(
                 "persisted registry does not match the supplied in-memory registry",
             )
         validated = persisted_registry
+    if selected_ref is not None:
+        if required_sources or required_families:
+            raise WorldModelRecordError("substrate_registry_exact_selection_conflicts_with_filters")
+        try:
+            selected = SubstrateRegistryRef.model_validate(selected_ref.model_dump(mode="python"))
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise WorldModelRecordError(
+                "substrate_registry_exact_selection_invalid", str(exc)
+            ) from exc
+        if (
+            selected.substrate_version_id != validated.substrate_version_id
+            or selected.content_hash != validated.content_hash
+        ):
+            raise WorldModelRecordError("substrate_registry_exact_selection_version_mismatch")
+        expected_legacy_locator = (
+            f"substrate-registry://{validated.substrate_version_id}/"
+            f"{validated.content_hash.removeprefix('sha256:')}"
+        )
+        allowed_locators = {None, expected_legacy_locator}
+        if normalized_registry_ref is not None:
+            allowed_locators.add(str(normalized_registry_ref.artifact_id))
+        if selected.registry_artifact_ref not in allowed_locators:
+            raise WorldModelRecordError("substrate_registry_exact_selection_artifact_mismatch")
+        selected_hashes = tuple(entry.entry_content_hash for entry in selected.resolved_entries)
+        if len(selected_hashes) != len(set(selected_hashes)):
+            raise WorldModelRecordError("substrate_registry_exact_selection_duplicate_entry")
+        entries_by_hash: dict[str, list[SubstrateRegistryEntry]] = {}
+        for entry in validated.entries:
+            entries_by_hash.setdefault(entry.entry_content_hash, []).append(entry)
+        requested: dict[str, SubstrateRegistryEntry] = {}
+        for selected_entry in selected.resolved_entries:
+            matches = entries_by_hash.get(selected_entry.entry_content_hash, [])
+            if not matches:
+                raise WorldModelRecordError("substrate_registry_exact_selection_entry_missing")
+            if len(matches) != 1:
+                raise WorldModelRecordError("substrate_registry_exact_selection_entry_ambiguous")
+            entry = matches[0]
+            if _resolved_substrate_entry_ref_from_registry_entry(entry) != selected_entry:
+                raise WorldModelRecordError(
+                    "substrate_registry_exact_selection_projection_mismatch"
+                )
+            requested[selected_entry.entry_content_hash] = entry
+        ordered = sorted(
+            requested.values(),
+            key=lambda item: (item.layer.value, item.source_id, item.family_id),
+        )
+        return SubstrateRegistryRef(
+            substrate_version_id=validated.substrate_version_id,
+            content_hash=validated.content_hash,
+            registry_artifact_ref=(
+                str(normalized_registry_ref.artifact_id)
+                if normalized_registry_ref is not None
+                else selected.registry_artifact_ref
+            ),
+            resolved_entries=tuple(
+                _resolved_substrate_entry_ref_from_registry_entry(entry) for entry in ordered
+            ),
+        )
     resolved: list[SubstrateRegistryEntry] = []
     try:
         for source_id in required_sources:

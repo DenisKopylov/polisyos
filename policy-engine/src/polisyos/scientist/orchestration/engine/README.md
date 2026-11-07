@@ -67,8 +67,8 @@ control removes only required-field admission inside the child process; the
 same consumer tests must then fail. These witnesses do not establish power-loss
 or multi-host filesystem guarantees.
 
-The ledger writer's current snapshot version is `1.6`; complete valid `1.0` through
-`1.5` snapshots remain readable. Unknown versions, contracts and coordination modes
+The ledger writer's current snapshot version is `1.8`; complete valid `1.0` through
+`1.7` snapshots remain readable. Unknown versions, contracts and coordination modes
 are rejected. Version `1.2` introduced producer settlement records; `1.3` added
 server-issued run binding, `1.4` added attempt attribution, and `1.5` adds an optional
 `BudgetLedgerCacheReuseAdmission`. Existing receipts keep their original accounting
@@ -92,6 +92,32 @@ an uncertain acknowledgement. A missing receipt means unknown settlement;
 filesystem failure raises `BudgetLedgerSettlementOutcomeUnknownError` rather
 than reporting zero spend. This contract acknowledges local ledger accounting;
 an external provider needs its own receipt or status/idempotency contract.
+
+For a returned receipt, producer intent, settled run list or current budget
+snapshot, a reader or exact retry confirms the parent-directory sync and the
+same strictly decoded snapshot under the stable exclusive ledger lock. A
+readable replacement alone does not prove durability. If confirmation fails,
+the outcome remains unknown: reconcile the same event rather than rerunning a
+possibly dispatched effect. Automatic retry classifies that unknown effect as
+fatal for redispatch; this does not mean that the charge or producer failed.
+
+The supported local profile assumes a cooperatively locked ledger in a
+pre-existing directory whose ancestor entries have already been made durable
+by the environment. The constructor's convenience directory creation does not
+establish ancestor durability. No power-loss or multi-host guarantee follows
+from the process-crash tests. Recovery of a damaged ledger is not currently
+implemented: an authentic older copy cannot prove currentness or the complete
+set of later confirmed receipts. Operators must stop writers and obtain an
+independently established current generation and its complete receipt history
+before any restore; without that source, restore and further spending remain
+blocked rather than resetting the budget.
+
+Continuation uses `FileBudgetLedger.load_existing(expected_owner_identity)` and
+`BudgetMiddleware(..., continuation_owner_identity=...)` to open the original
+ledger without bootstrap. The ledger ID, canonical contract and coordination
+profile must match; later loss of that file remains a refusal. Custom nonblank
+ledger IDs survive all writers. This is an existing-owner binding, not proof of
+physical resource identity, rollback resistance or a new deployment permit.
 
 The internal identified-compute reservation path stores a stable event and request
 digest under the same durable ledger lock. It converts the reservation and records
@@ -174,6 +200,24 @@ cancellation cannot authorize a later successful workflow publication.
 When no owner deadline is configured, shared-executor operations explicitly
 select an unbounded wait and do not inherit the helper's default timeout.
 
+Recovery retains the full trace/checkpoint scan and exact successful-reference
+memo; no tail optimization is selected. A measured 16-entry FileSystemCAS profile
+restores the same 16 numerical cache outcomes from both workloads:
+
+| Trace/checkpoint occurrences | Admission payload calls / bytes | Trace bytes | First verified cache result |
+| ---: | ---: | ---: | ---: |
+| 16 / 16 distinct refs | 16 / 31,142 | 7,312 | 40.011 ms |
+| 1,600 / 1,600 repeated refs | 16 / 31,142 | 731,200 | 52.965 ms |
+
+The first useful result is a verified `NodeResultCache.get` after both full scans;
+through that result each workload reads 17 payloads / 33,086 bytes. Each admission
+observes 80 nested `get_manifest` calls and 16 `verify` calls. Timing includes the
+instrumentation. Payload/trace byte totals exclude manifest bytes and
+verification-internal physical reads. OS-cache state was not controlled or
+separately measured; elapsed time includes the instrumented path.
+Fresh-process/residual-node latency and an SLA or speedup are not established. Reproduce with
+`tests/unit/remediation/test_res_01.py::test_full_scan_recovery_reports_duplicate_and_distinct_workloads`.
+
 `NodeResultCache` registers each provider-backed read, write, and recovery before
 it queues behind the serialized provider lane. Its live-operation registry holds
 only queued or active tokens and is cleaned in `finally`; `discard`, `clear`, and
@@ -216,6 +260,13 @@ state, including explicit same-value assignments, null and permitted deletions.
 Cache verification and replay retain the full `ArtifactRef`, including its selected
 manifest profile. Distinct views of the same blob receive independent custody
 checks; a verified default view cannot authorize another producer's view.
+
+The merge also compares the resulting membership of `inputs`, `artifacts_index`
+and `reports_index` with the current base after all detached staged writes. A
+whole-root replacement cannot silently remove evidence keys: it raises the same
+`StateReplayIncompatible` used by cache eviction/recomputation before publishing
+any result. Additions and permitted ref updates remain valid; the replay grammar
+and journal version do not change.
 
 The current journal algorithm is `1.2`. It records operations against the live
 finite JSON graph, including held references after list insertion, removal or
@@ -358,8 +409,8 @@ uv run pytest tests/unit/scientist/orchestration/engine/test_resume_artifact_req
 
 ## Retained SKG Operational Source Replay
 
-The existing untimed sequential `CacheInputPreparer` owner prepares and closes
-one real DuckDB read transaction. A successful bound SELECT/WITH can retain its
+Synchronous and asynchronous executors reuse the same untimed
+`CacheInputPreparer` owner for one real DuckDB read transaction. A successful bound SELECT/WITH can retain its
 exact stable database bytes as verified FileSystemCAS chunks and a
 `scientist.skg_source_snapshot` descriptor before cache publication. The cache
 origin records the full selected descriptor ref, its schema and the original
@@ -381,18 +432,28 @@ then binds the effective database under
 materialization of the selected CAS source, not authority supplied by a caller's
 previous path. Missing run path, non-FileSystemCAS store, missing or corrupt
 descriptor/chunks and corrupt materialization refuse this explicit request;
-they never delegate to a current live database. Untimed sequential prepared
-nodes use the canonical reader over this verified source and retain the same
+they never delegate to a current live database. Supported untimed prepared
+nodes in both executors use the canonical reader over this verified source and retain the same
 selected full ref rather than reconciling its old logical URI against the new
 physical path.
 
-The existing timed custom-invocation prepared/cache bypass remains. Timed and
-asynchronous explicit replay can read the verified materialized database path;
-this does not introduce an asynchronous prepared-reader ABI or retained
-cache-proof profile. Asynchronous materialization uses the original invocation
-deadline and cancellation owner: queued work is not admitted after loss of that
-owner, while already-entered filesystem work may finish with an unknown result.
-No physical rollback or uncooperative I/O preemption is promised.
+For an untimed synchronous node run by `AsyncWorkflowExecutor`, the same
+prepared object binds the actual source into the key, producer, fresh receipt
+and cache-origin validation. A live database change changes that key even when
+declared state is unchanged; explicit selected replay keeps its selected source.
+The reader stays pinned until physical producer/validator use ends. Cancellation
+before preparation acceptance closes a late result; cancellation during physical
+use defers closure until that use ends, once. Genuine async nodes and timed
+invocations keep their explicit prepared/cache bypass, while explicit replay may
+still read the verified materialized database path. No asynchronous prepared-reader
+ABI is introduced. A live generation change after lookup can safely refuse rather
+than rebind, and an incompatible cache merge can leave an unattached candidate
+receipt in CAS.
+
+Asynchronous materialization uses the original invocation deadline and
+cancellation owner: queued work is not admitted after loss of that owner, while
+already-entered filesystem work may finish with an unknown result. No physical
+rollback or uncooperative I/O preemption is promised.
 
 This is a bounded DuckDB operational replay contract. Source issuer
 authenticity, K_ref authority, external search-index reproduction, arbitrary
@@ -408,8 +469,9 @@ uv run pytest tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay
 ## Bounded Node Timeout Workers
 
 On macOS, a timed synchronous node uses a spawned process only when its node is
-the canonical `ResolveParametersNode` and its execution context can be encoded
-by the strict filesystem-CAS, run-owner-snapshot, AccessScope, and tenant wire
+a canonical `ResolveParametersNode` or the explicitly engine-bound
+`scientist.node_run_transportability@1.0.0`, and its execution context can be
+encoded by the strict filesystem-CAS, run-owner-snapshot, AccessScope, and tenant wire
 (profile v2). The producer and child both verify the selected owner snapshot in
 CAS and recompute its persisted scope digest; the child installs the admitted
 scope for node execution. Scope absence is encoded explicitly. The worker also
@@ -431,6 +493,19 @@ existing owned fork supervisor. Platforms without one of the supported process
 methods refuse bounded execution rather than claiming a thread is a killable
 worker. These profiles do not establish a generic timeout capability for all
 nodes or stores.
+
+For the owner-bound Linux fork profile, a real ControlWorker job/run/worker/attempt
+and the selected unfinished Core invocation basis must match. A private framed
+channel asks the parent to refresh its actual job and Core checks before physical
+node entry and before receipt admission; the SQL callback is not serialized into
+the child. Requests are nonce/sequence-bound, child exchanges are serialized, and
+async checks run outside the event loop with bounded acceptance. EOF, malformed
+frames, unavailable checks and stale bindings refuse; incomplete cleanup remains
+visible with unknown physical outcome and no blind replay. Unsupported contexts,
+including an active monetary view, retain their early refusal. These checks observe
+currentness: SQL control fencing, Core admission and an external effect are separate
+operations. An external effect still needs its owner's transactional fence or
+idempotent reconciliation; the transport does not make them atomic.
 
 ## Canonical node-cache mutation comparison
 
@@ -585,6 +660,50 @@ physical seed, and reuses role projections without additional work events. These
 work observations establish neither a USD price nor scientific producer
 authenticity. A serialized observation is an audit view, never a reusable permit.
 
+Snapshot `1.7` adds a physical-invocation journal under the same ledger lock.
+An owner-selected `BudgetInvocationQuotaPolicy` declares an allocation ID, total
+units and a protected portion shared by diagnostic/counterevidence work. The
+bound profile also names the actual server-issued run owner. Standard work
+cannot consume protected units. Every admitted physical attempt remains counted,
+including failed, reserved and unknown outcomes; replaying an operation does not
+create another allowance. The unit is `n5_physical_invocation` and its price is
+explicitly unknown. These counts neither reserve USD nor prove an invoice.
+
+An absent policy or zero protected portion reports `no_guarantee`; a calibration
+floor or priority label does not create protected capacity. The first physical
+admission atomically binds the run's configured or unconfigured mode, preventing
+an omitted/stale observer from escaping an existing cap and preventing later
+configuration from certifying earlier unmetered work. Historical pre-`1.7` runs
+need an established prior-work boundary before a new guarantee can apply.
+The original `1.6` and `1.7` continuation anchors are verified against their exact
+historical projections; the first actual `1.8` mutation establishes a new anchor.
+Old writers are not forward-compatible with the new snapshot. Upgrade all writers
+sharing a ledger before allowing `1.8` writes; never downgrade or rewrite its history.
+
+Snapshot `1.8` also binds a fresh acquisition reentry allowance to one durable
+action-scoped window. Its immutable baseline is the verified settled producer
+prefix before acquisition; retry reopens the same window instead of resetting
+spend. Admission uses the smaller of the original global cap and the baseline
+plus the fresh allowance. Pending or unknown costs refuse; later same-run spend
+counts conservatively. Action/lease custody is independently checked by the
+acquisition owner. This is a pre-call gate, not a USD reservation for an unknown
+call cost. A live `BudgetState` shares one reconciliation owner by object identity;
+preexisting nonzero spend without an established projection basis refuses rather
+than guessing whether it already includes producer costs.
+
+Capacity inspection is separate from a physical reservation. The canonical
+`producer_budget` owner exposes a current advisory observation and a narrower
+`BudgetInvocationExhaustionWitness` for standard capacity exhausted by immutable
+terminal invocation records. Historical verification takes the independently
+selected original run and policy, reads the existing ledger/lock without creating
+or configuring either, and checks those exact terminal records. It does not
+reconstruct an old protected balance or old snapshot anchor. Unknown, pending or
+missing evidence stays `not_established`; positive availability is not a permit.
+The recursive consumer must bind this witness to its actual completed prefix and
+stop. It must retain `physical_need_not_established` when the unstarted child's
+need for physical work has not been established; a cheaper action needs its own
+admission. The current ledger schema remains `1.8`.
+
 The observation also retains the existing Core producer request digest as
 `producer_request_ref`. The caller-input hash names another quantity and is not
 a claim to recompute Core's tenant/sanitizer/caching contract. The canonical Core
@@ -595,3 +714,41 @@ canonical N5 intake, covering both default and supplied canonical ports. A
 foreign or absent observer refuses before work; object type alone is not the
 run-owner binding. The same intake is rechecked at the run/generic-consumer path.
 Custom contract-testing ports retain their explicit non-canonical scope.
+
+Wire v2 counts semantic children rather than technical tag wrappers. Registered model
+payloads share their model depth; a RootModel root is one child. The semantic
+ceiling remains 128, while an actual JSON backend may refuse its raw wrapper
+depth before emitting bytes. Every accepted supported state/outcome/safe payload
+must decode with its declared types and normalizations: tuple to list,
+bytearray/memoryview to bytes, and datetime to UTC. Mutation journals are admitted
+through their exact guarded wire projection and the existing canonical journal
+profile before publication; unsupported reserved tags or foreign paths refuse.
+The transport digest establishes integrity, independently of CAS access/tenant
+admission. Native process controls distinguish a completed producer whose
+outcome cannot be serialized from a new physical attempt.
+
+State branching scopes a list index assignment to its concrete slot while
+structural list operations require the containing list. Merge compares declared
+paths using model fields, exact mapping keys and the current list shape,
+conservatively treating unresolved or shared mutable targets as overlapping.
+State reads consult declared Pydantic fields without evaluating unrelated properties.
+
+`execution_admission` persists and verifies selected original-workflow candidate
+continuity. The `trusted_local_candidate_source_v1` profile compares reconciled
+Python callables, passive bound/class/spec/config state, dispatch parameters and
+direct helper/dependency observations under a trusted interpreter/dependency
+boundary. Unsupported dynamic or opaque definitions remain explicitly not
+established. This is distinct from protected builtin identity, publication or
+external-effect authority. Core/workflow continuation consumers require their
+separate composed qualification; the helper alone does not complete that chain.
+
+Local continuation guards bind the actual ledger directory/lock identity and
+confirmed snapshot, and reject stale copies before further admission. Only an
+exact pending generation can resolve a lost write acknowledgment. The explicit
+`single_owner_local_v1` profile does not replace ordinary parallel accounting.
+The engine reserves the `scientist.engine-invocation:` event-ID namespace across
+all public mutation APIs; callers use another prefix. Reads still permit
+reconciliation of engine events. String subclasses and StrEnum use their actual
+Unicode value; bytes and ordinary Enum values are rejected by the annotated
+string API. This local guard does not establish authenticated latest-backup
+restoration, multi-host coordination or protection from hostile filesystem writers.

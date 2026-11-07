@@ -2,7 +2,7 @@
 
 Status: three test-only additions are ready for the parent’s combined test run. The three production modules were read and remain unchanged. No pytest command was run in this slice, as requested.
 
-The source/test byte hashes and complete Ruff/compile command records are in [`raw/dx0-native/fabric-foundry-mirrors/`](../raw/dx0-native/fabric-foundry-mirrors/). That directory is under the repository’s ignored research `raw/` path.
+The source/test byte hashes and complete Ruff/compile command records are in `raw/dx0-native/fabric-foundry-mirrors/` (`../raw/dx0-native/fabric-foundry-mirrors/`; unavailable in this checkout). That directory is under the repository’s ignored research `raw/` path.
 
 | Owner path | Behavioral property exercised |
 |---|---|

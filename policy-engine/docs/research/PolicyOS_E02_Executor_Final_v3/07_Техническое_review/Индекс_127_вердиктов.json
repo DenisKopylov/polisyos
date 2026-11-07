@@ -1,0 +1,1277 @@
+{
+  "kind": "complete_packet_review_navigation",
+  "count": 127,
+  "meaning": "Verdicts on specifications, not product runtime outcomes; full rationale in per-group reports.",
+  "packets": [
+    {
+      "packet_id": "CYC-01",
+      "lane": "LANE-01",
+      "source_order": 1,
+      "verdict": "bounded qualification",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Правильная точка ремонта — ordinary HTTP/job→postcompile leaf context→existing generation cycle/N5. Нельзя заполнять producer-required context caller constants или проходить только preconfigured test entry. Сохранять existing compiler/gateway, не вводить universal request engine.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "REQ-01",
+      "lane": "LANE-01",
+      "source_order": 2,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Общий normalizer вместо локальных alias tables — верно. Unknown domain сохраняется CUSTOM/raw, а не education_policy→fiscal default. Compiler-bound requirement set требует census top-level constructs и DEC, не произвольного счётчика user syntax.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CYC-03",
+      "lane": "LANE-01",
+      "source_order": 3,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Сильный contract: full semantic basis для numerical reuse, current cheap gates для каждого re-entry. Grammar hints — не semantic basis; current occurrence должен обновляться даже при worsening, immutable historical result остаётся доступным.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "ACQ-01",
+      "lane": "LANE-01",
+      "source_order": 4,
+      "verdict": "bounded qualification",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Actual requirement/planner refs→selected source reread/admission→DataForge/Fabric/Foundry WMR→N5 — правильная producer chain. Multirow source требует units/time/population/aggregation; брать первую строку или mean arbitrary vector недопустимо.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CYC-04",
+      "lane": "LANE-01",
+      "source_order": 5,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Правильно различены late candidate-local failure с bounded next viable candidate и global resource/authority failure. SIM01 alternate engine — иной уровень fallback, дублировать queue owner не надо. Value of information должен учитывать реальные cost/origin и declared reserve.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CYC-02",
+      "lane": "LANE-01",
+      "source_order": 6,
+      "verdict": "bounded qualification",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Legacy N5 v1–3 read и fresh conditional N8 view заслуживают отдельной acceptance, а не переписывания legacy serializer. Unsupported interaction marker и selected-view signature repair сохраняют честную ограниченность.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CYC-05",
+      "lane": "LANE-01",
+      "source_order": 7,
+      "verdict": "bounded qualification",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Child-denominator/cost/frontier stop contracts и actual build readiness issuer — правильное разделение. Authored compound требует joint SIM03, alternatives не compound. Existing confidence_ledger назначает evidence; self-manifest/PASS constant не issuer.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "SIM-01",
+      "lane": "LANE-01",
+      "source_order": 8,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Engine-owned required input validation до selection и exact supported plan identity — точный repair. Optional defaults должны оставаться optional; missing required vector нельзя прятать generated0 или exception broad fallback.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "SIM-02",
+      "lane": "LANE-01",
+      "source_order": 9,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Typed resolved path tokens устраняют смешение listindex и mappingkey. .0/.00/+0 aliases и negative list index нуждаются в canonical resolution, но dictionary string keys сохраняются. Temporal coordinates и aggregation law — input semantics, не scalar fallback.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "SIM-03",
+      "lane": "LANE-01",
+      "source_order": 10,
+      "verdict": "targeted revision",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Delivered finite paired endpoint/mean/SE boundaries, SMM uniqueness before dict, local physical cache и full joint residual — сильные решения. Детерминированный integer NCM independent oracle точен, но actual seed-sensitive numeric witness отсутствует в конкретном positive fixture (PS-F04). Дополнительно PS-F08: native NCM summary оценивает normal quantile100000 global draws на каждый call; заменить узко детерминированным inverse-normal и отдельно ограничить interval qualification.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "SEL-01",
+      "lane": "LANE-01",
+      "source_order": 11,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Lexical category/technical ID не должны становиться hard modality filter. Правильно объяснять первый реально различающий lexicographic rank key и сохранять full excluded denominator до topk.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CTL-01",
+      "lane": "LANE-02",
+      "source_order": 12,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Привязка к run/generation и финализация после error/cancel принадлежат существующему lifecycle owner. Уже полученная работа, её стоимость и исходная ошибка должны сохраняться. Ограниченное число пустых proposals означает остановку генератора, а не научную сходимость.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CTL-03",
+      "lane": "LANE-02",
+      "source_order": 13,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Разделение sentinel quota, stage-B denominator и обычных optimization iterations корректно. Общий work cap учитывает все исполненные оценки. Invalid typed assessment нельзя превращать в legacy missing и принимать удобный scalar.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "SRV-01",
+      "lane": "LANE-02",
+      "source_order": 14,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Переход pending→applying→completed с prepare/commit на одном owner устраняет double tell. Immutable delta готовится вне lock; проверка current state и commit выполняются вместе. Внешние callbacks под lock не нужны.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "SRV-03",
+      "lane": "LANE-02",
+      "source_order": 15,
+      "verdict": "bounded qualification",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Role metadata должна пройти codec→BenchmarkEvaluation→history. Actual SearchLoopRunner partial persistence/resume закрывает LA-015 содержательно, не новым именем DTO. Reserved semantic field удалять только по конкретному codec contract.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CTL-02",
+      "lane": "LANE-02",
+      "source_order": 16,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Raw subject identity не должна терять предметные date/timestamp поля под видом volatile metadata. Исключения принадлежат явному envelope contract. Staged RNG/Sobol/base-state validation до commit сохраняет живое состояние при отказе.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "STP-01",
+      "lane": "LANE-02",
+      "source_order": 17,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Атомарное принятие metric+embedding и численно устойчивые plateau/cosine проверки соответствуют root cause. Drafter использует current admitted observation; отвергнутый embedding не должен влиять на будущую остановку.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "OPT-01",
+      "lane": "LANE-02",
+      "source_order": 18,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Полная неизменяемая coordinate schema (metric/split/unit/direction) до dominance и реальный registry после round-trip — правильное решение. Исправленный strict skyline следует квалифицировать независимым slow oracle, не переписывать. Fiscal stock/flow DEC не должен объявлять разные quantities конфликтом.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "OPT-02",
+      "lane": "LANE-02",
+      "source_order": 19,
+      "verdict": "targeted revision",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Canonical actual params до training, typed fallback и source-bound MethodJob route корректны. Дополнить pending-only identity denominator и различить bounded proposal failure от доказанного finite-domain exhaustion (PS-F03).",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "OPT-03",
+      "lane": "LANE-02",
+      "source_order": 20,
+      "verdict": "retain with separate bounded redesign decision",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Исправление cap1/recent_n=0 и atomic GP staging точны. Уже существующая learned-state проверка сильна: настоящий RBF/ConstantMean, независимый NumPy Cholesky и removal mutations для model/transform. Conditioned-fit lineage/full-refit DEC необходим.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "OPT-04",
+      "lane": "LANE-02",
+      "source_order": 21,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Сравнение objective basis до incumbent number, настоящее измерение initial baseline и multiprocess stable flock + atomic pointer соответствуют проблеме. Permissive source stub не квалифицирует действительную оценку.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "FUN-01",
+      "lane": "LANE-02",
+      "source_order": 22,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Immutable numerical source cache и fresh gate каждого attempt разделены правильно. Изменение basis создаёт linked successor; terminal old attempt не открывается заново. Полная lineage предотвращает подмену истории.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "FUN-02",
+      "lane": "LANE-02",
+      "source_order": 23,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Изоляция маленьких config mappings без deepcopy services, реальные reduced/full executions и различение interval origin — разумное решение. Empty, partial и настоящий zero сохраняют разные значения; ratio устойчив к крайним масштабам.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "FUN-03",
+      "lane": "LANE-02",
+      "source_order": 24,
+      "verdict": "targeted revision",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Same-basis method source→current knowledge и appointed permit→protected writer архитектурно верны. Но calibration metric definitions/populations и explicit-zero carrier selection пропущены (PS-F01/07). Нужен единый versioned contract и согласованная migration.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "TRN-01",
+      "lane": "LANE-02",
+      "source_order": 25,
+      "verdict": "retain with separate bounded redesign decision",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Восстановление timestamp/strict boolean, отдельные diagnostic/admitted quotas и actual source bridge корректны. Неиспользуемый benchmark converter не нужно активировать ради coverage; raw objective/split/profile нельзя фабриковать.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "TRN-02",
+      "lane": "LANE-02",
+      "source_order": 26,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Bounded compatible ANN refill, exact-selected-ref cache custody и atomic native generation образуют разумную систему. Candidate generation строится до publish; external native graph loading по умолчанию закрыт.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "TRN-03",
+      "lane": "LANE-02",
+      "source_order": 27,
+      "verdict": "retain",
+      "review_path": "policy_search/review.md",
+      "source_report": "policy_search/coverage.json",
+      "reason": "Aware-UTC boundary, одинаковый effective grade в query/report и evidence age вместо access age — точный repair. Naive time нельзя угадывать как UTC; отсутствующее historical time остаётся unknown.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "EMP-01",
+      "lane": "LANE-03",
+      "source_order": 28,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Решение действительно устраняет unit-dependent admission и scope leakage; это не ещё один формат evidence.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "FRC-01",
+      "lane": "LANE-03",
+      "source_order": 29,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Counters и roles нужно исправлять от producer facts, а не заново интерпретировать badge.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "PCL-01",
+      "lane": "LANE-03",
+      "source_order": 30,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Один typed output contract до merge/telemetry — разумнее нескольких consumer эвристик.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "FRC-02",
+      "lane": "LANE-03",
+      "source_order": 31,
+      "verdict": "bounded qualification",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Решение адресует реальную predictive calibration capability, но её нельзя закрыть только source-role/counter repairs.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "BKT-01",
+      "lane": "LANE-03",
+      "source_order": 32,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Существенное улучшение: as-of correctness всей feature basis и реальные replicate coordinates вместо scalar convenience.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "BKT-02",
+      "lane": "LANE-03",
+      "source_order": 33,
+      "verdict": "targeted revision",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Основной план правилен, но extreme square policy лишает полезных representable comparisons — FN-BKT-RANGE.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "BKT-03",
+      "lane": "LANE-03",
+      "source_order": 34,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Общий signed-statistic helper и honest unknown p-value лучше локального знакового patch.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "BKT-04",
+      "lane": "LANE-03",
+      "source_order": 35,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Bounded lazy folds и generic statistic bootstrap — достаточное расширение existing API, не нужен новый experiment engine.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "FRY-01",
+      "lane": "LANE-04",
+      "source_order": 36,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Derived registry view, stable RNG law и separate mechanism-family certificates — правильное разделение owner-ов.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "FRY-03",
+      "lane": "LANE-04",
+      "source_order": 37,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Tax-base и precision law нужно сохранить при relocation; proposed distinction действительно предотвращает незаметную смену модели.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "ECO-01",
+      "lane": "LANE-04",
+      "source_order": 38,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Две economic semantics и clock должны оставаться различимыми; normalized budget loss — не policy welfare objective.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "PLG-01",
+      "lane": "LANE-04",
+      "source_order": 39,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Локальная factory-product validation внутри per-source exception boundary лучше глобального discovery failure.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "PLG-02",
+      "lane": "LANE-04",
+      "source_order": 40,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Producer role обязан быть explicit: legacy constructor defaults сейчас действительно могут ложно выглядеть как trained.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "PLG-03",
+      "lane": "LANE-04",
+      "source_order": 41,
+      "verdict": "targeted revision",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Positive native update/persisted policy нужен и хорошо задан; добавить independent PPO semantics и конкретный inactive-padding witness.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CMP-01",
+      "lane": "LANE-04",
+      "source_order": 42,
+      "verdict": "bounded qualification",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Persisted recipe→fresh reconstructed effective chain — реальная capability, которую in-memory DAG tests не доказывают.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CMP-02",
+      "lane": "LANE-04",
+      "source_order": 43,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Strict duplicate semantics и explicit merge лучше silent UUID-based ordering.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CMP-03",
+      "lane": "LANE-04",
+      "source_order": 44,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Global max-cardinality then lexicographic preference — правильная цель; implementation choice не надо превращать в dogma.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "JIT-01",
+      "lane": "LANE-04",
+      "source_order": 45,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Узкая get→claim race/default binding/shape-preparation правка у правильного owner; не надо заменять всё cache subsystem.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "RES-04",
+      "lane": "LANE-04",
+      "source_order": 46,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Commit-state distinction чинит повреждение данных после publication; storage replacement избыточен.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAL-05",
+      "lane": "LANE-04",
+      "source_order": 47,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Scalar lazy execution и explicit mapped refusal лучше eager where, если qualification включает реальные effects иAD.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "GRF-01",
+      "lane": "LANE-05",
+      "source_order": 48,
+      "verdict": "retain + bounded qualification",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "GRF-02",
+      "lane": "LANE-05",
+      "source_order": 49,
+      "verdict": "retain narrow repair + targeted profile qualification",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "GRF-03",
+      "lane": "LANE-05",
+      "source_order": 50,
+      "verdict": "retain + bounded temporal qualification",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "API-01",
+      "lane": "LANE-05",
+      "source_order": 51,
+      "verdict": "retain targeted census repair",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAU-01",
+      "lane": "LANE-05",
+      "source_order": 52,
+      "verdict": "retain targeted numeric repair",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAU-02",
+      "lane": "LANE-05",
+      "source_order": 53,
+      "verdict": "retain + bounded scientific qualification",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAU-03",
+      "lane": "LANE-05",
+      "source_order": 54,
+      "verdict": "targeted revision CS-001",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAU-04",
+      "lane": "LANE-05",
+      "source_order": 55,
+      "verdict": "targeted revision CS-002",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAU-05",
+      "lane": "LANE-05",
+      "source_order": 56,
+      "verdict": "retain lifecycle/shared owner",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "SCM-01",
+      "lane": "LANE-05",
+      "source_order": 57,
+      "verdict": "retain shared-plan repair",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "SCM-02",
+      "lane": "LANE-05",
+      "source_order": 58,
+      "verdict": "retain repair + targeted oracle CS-005",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "SCM-03",
+      "lane": "LANE-05",
+      "source_order": 59,
+      "verdict": "retain admission/law/stream repair",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "FIT-01",
+      "lane": "LANE-05",
+      "source_order": 60,
+      "verdict": "retain architecture + targeted revision CS-003",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "STA-01",
+      "lane": "LANE-06",
+      "source_order": 61,
+      "verdict": "retain",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "STA-02",
+      "lane": "LANE-06",
+      "source_order": 62,
+      "verdict": "targeted revision",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "EXE-01",
+      "lane": "LANE-06",
+      "source_order": 63,
+      "verdict": "targeted revision",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "EXE-02",
+      "lane": "LANE-06",
+      "source_order": 64,
+      "verdict": "retain",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "RES-01",
+      "lane": "LANE-06",
+      "source_order": 65,
+      "verdict": "bounded qualification",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "RES-02",
+      "lane": "LANE-06",
+      "source_order": 66,
+      "verdict": "retain",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "RES-03",
+      "lane": "LANE-06",
+      "source_order": 67,
+      "verdict": "bounded qualification",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "RUN-01",
+      "lane": "LANE-06",
+      "source_order": 68,
+      "verdict": "retain",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "RUN-02",
+      "lane": "LANE-06",
+      "source_order": 69,
+      "verdict": "bounded qualification",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "RUN-03",
+      "lane": "LANE-06",
+      "source_order": 70,
+      "verdict": "retain",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "DUR-01",
+      "lane": "LANE-06",
+      "source_order": 71,
+      "verdict": "retain",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "DUR-02",
+      "lane": "LANE-06",
+      "source_order": 72,
+      "verdict": "retain",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "WIRE-01",
+      "lane": "LANE-06",
+      "source_order": 73,
+      "verdict": "retain",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAS-01",
+      "lane": "LANE-06",
+      "source_order": 74,
+      "verdict": "bounded qualification",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAS-02",
+      "lane": "LANE-06",
+      "source_order": 75,
+      "verdict": "retain",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAS-03",
+      "lane": "LANE-06",
+      "source_order": 76,
+      "verdict": "retain",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "REP-01",
+      "lane": "LANE-06",
+      "source_order": 77,
+      "verdict": "bounded qualification",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAN-01",
+      "lane": "LANE-06",
+      "source_order": 78,
+      "verdict": "retain",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "MIG-01",
+      "lane": "LANE-06",
+      "source_order": 79,
+      "verdict": "retain",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "MIG-02",
+      "lane": "LANE-06",
+      "source_order": 80,
+      "verdict": "bounded qualification",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "MIG-04",
+      "lane": "LANE-06",
+      "source_order": 81,
+      "verdict": "retain",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "MIG-05",
+      "lane": "LANE-06",
+      "source_order": 82,
+      "verdict": "targeted revision",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "UDF-01",
+      "lane": "LANE-07",
+      "source_order": 83,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Lazy facade вместо очередного relocation — правильный локальный ремонт: contract-only import не должен активировать все stages. Dynamic activation должен возвращать canonical functions, а не copied wrappers. D4 exact deny bytes и первые5 positional полей StageBuildResult — реальные ABI, inputs extension не основание ломать callers.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "OBS-01",
+      "lane": "LANE-07",
+      "source_order": 84,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Calendar.monthrange и source-owned period parsing соответствуют календарной задаче; не заменять общим fuzzy date parser, способным угадывать missing дату. Inclusive bounds, coarse/fine precision и positional duplicate index semantics важнее pandas index labels.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "UDF-02",
+      "lane": "LANE-07",
+      "source_order": 85,
+      "verdict": "bounded qualification",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Existing IO/bindings extraction уже есть; повторная архитектурная перестройка не оправдана. Exact legacy JSON bytes, NPZ/Parquet semantic reader и D0–D3 prepared input bindings нужно квалифицировать на реальном producer/consumer.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "OBS-02",
+      "lane": "LANE-07",
+      "source_order": 86,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Disk-captured immutable read + bounded Arrow batch + prefix accounting соответствует replay при mutation/rebatch. Копия на диск дороже прямого parquet scan, но необходима для выбранного неизменного источника; mapper failures не должны провоцировать reader fallback и дублирование accepted prefix.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "UDF-04",
+      "lane": "LANE-07",
+      "source_order": 87,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Preflight unavailable до server guard разумен: absence checkout — structural capability, не попытка обойти запрещённый action. Workspace root и artifact root отдельны; callbacks принадлежат Ops. Installed C7 receipt требует real same-child collection/setup/call/teardown, не stdout passed.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "UDF-05",
+      "lane": "LANE-07",
+      "source_order": 88,
+      "verdict": "targeted revision",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Role-aware assembler выбран правильно: scalar/aggregate согласованность, equal legacy duplicate vs conflicting value, metadata preservation и reserved evidence last. Но exact index validator поставлен после before np.asarray — FA-01. Исправление должно захватить raw scalar identity.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "FED-01",
+      "lane": "LANE-07",
+      "source_order": 89,
+      "verdict": "targeted revision",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Numeric contract сильный: finite extremes/subnormal/cancellation, MEDIAN validation до singleton, distinction arithmetic point vs actual source selection. Предпочтительнее existing statistics.mean за common wrapper, чем новая arithmetic implementation (FA-04). Custom exact algorithm сам по себе не ошибочен.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "FED-02",
+      "lane": "LANE-07",
+      "source_order": 90,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Schema-first typed empty UNION и one bounded audit collector решают реальные дефекты без новой relational engine. Declared nullable schema-only column должна создаваться до pd.concat templates; no-sources отличается от lawful empty sources.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAL-01",
+      "lane": "LANE-07",
+      "source_order": 91,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Normalize paired source axis до inferred linspace и equal-length shortcut — правильное место; np.interp сам не валидирует domain invariants. Unit/interval compatibility всей selected series, не unit первого record. Не навязывать Pint/global conversion: upstream declared conversion owner достаточен.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "DFK-02",
+      "lane": "LANE-08",
+      "source_order": 92,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Catalog visibility не должна проходить executable connector projection. Исправить predicate через current selection owner, сохранив governed source config semantics; не отождествлять catalog-only с callable source.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "DFI-01",
+      "lane": "LANE-08",
+      "source_order": 93,
+      "verdict": "bounded qualification",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Existing finite binding/context extraction уже выполнен, поэтому retain owners и квалифицировать actual three leaf groups. ContextVar правильнее module global overrides; scope restoration в finally нужно проверять при exceptions/cancellation.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "DFI-02",
+      "lane": "LANE-08",
+      "source_order": 94,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Потерянный empty_shards counter протянуть через actual aggregate. Facade stale delegate решается small weak identity bookkeeping либо stable forwarding with current owner lookup; не broad monkeypatch broadcast и не дублирование API функций.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "EMB-01",
+      "lane": "LANE-08",
+      "source_order": 95,
+      "verdict": "bounded qualification",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Existing shared encode kernel хороший reuse: разные Academic/Catalog text projections остаются domain-owned, matrix/index normalization и dtype общие. Re-extract no need. Dimension from actual encoder4 vs fallback99 полезно отличает silent pad.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "EMB-02",
+      "lane": "LANE-08",
+      "source_order": 96,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Перед selector switch вызвать существующую semantic admission — оптимальный небольшой fix. Hashes не видят coherent but wrong index vectors; common staged validator нужен, selected flag forge не нужен. Postcommit projection error не rollback уже committed selector.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "EMB-03",
+      "lane": "LANE-08",
+      "source_order": 97,
+      "verdict": "bounded qualification",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Legal incremental per-record text/assets/tokenizer identity следует сохранить, а не менять на Academic full rebuild или ID-only cache. Owned runtime positive served query действительно добавляет способность; source-owned finite CPU1024/ST2.7 profile допустим старт, не вечный hardcoded universe.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "DFI-03",
+      "lane": "LANE-08",
+      "source_order": 98,
+      "verdict": "targeted revision",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Strict nonnegative integer counts (not bool/coercion) и content-bound resume правильны. §5 содержит неподдержанный sync helper; off-only alternative не покрывает smart direct admission. FA-02: existing async finite-stage route предпочтителен.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "ING-01",
+      "lane": "LANE-08",
+      "source_order": 99,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Finite pre-admitted request_hash→unique namespace map устраняет first namespace selection без filesystem guessing. Identical HTTP request across two sources действительно неоднозначен без request-scoped identity; bounded upfront unsupported честнее случайного routing.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "ING-02",
+      "lane": "LANE-08",
+      "source_order": 100,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Initial failure checkpoint должен иметь admitted source/clock/schema identities и empty operator state, а не mutated observed progress. Малый helper identity fields корректнее клонирования live accumulator. Actual committed frontier остаётся единственным resume basis.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "ING-03",
+      "lane": "LANE-08",
+      "source_order": 101,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Owned per-occurrence serialized byte accounting правильно заменяет repeated full sum; id(dict)-only memoization неверна при reuse/mutation. CATEGORY allowed_values is not None отличает empty allowed set от unconstrained; existing quarantine owner достаточен.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "NET-01",
+      "lane": "LANE-08",
+      "source_order": 102,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Terminal cleanup task cancelled нельзя shield-await forever: inspect done/cancelled and unified settlement retaining owner/permit until real close. Caller cancellation after success сначала settles physical result, then propagates. Design uses existing lifecycle, not new cancellation framework.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "NET-02",
+      "lane": "LANE-08",
+      "source_order": 103,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Successful result feeds AdaptiveRateLimiter once after actual provider completion. Plain RateLimiter protocol не расширять обязательным callback. Success feedback exception нельзя перехватить как provider RateLimitError и повторить physical call.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "SCL-01",
+      "lane": "LANE-09",
+      "source_order": 104,
+      "verdict": "targeted revision",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Current cached admission и per-attempt deadline — нужный ремонт, но offline ordering явно исправить FA-03. Общий raw transport сохраняет numeric destination/peer/hostname SNI; rewrite HTTP stack без причины не оправдан.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "SCL-03",
+      "lane": "LANE-09",
+      "source_order": 105,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Carry existing typed raw ArtifactRef through manual bytes normalization activates existing acquire recheck; второй CAS/SourceSpec type не нужен. Fetch profile must come from actual applied transport arguments on cache and no-cache routes, not populated test DTO.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "LLM-01",
+      "lane": "LANE-09",
+      "source_order": 106,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Optional metrics/traces не могут скрыть response/mandatory post_record. Нужен safe optional context boundary preserving body exception, не blanket suppress. Existing ledger/accounting owner retain; no new money subsystem.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "LLM-02",
+      "lane": "LANE-09",
+      "source_order": 107,
+      "verdict": "retain",
+      "review_path": "fabric_acquisition/review.md",
+      "source_report": "fabric_acquisition/packet_verdicts.json",
+      "reason": "Finite six-role translator closure — обоснованное новое общее contract extension; не regex whitelist и не universal NL semantics. Exact prepared request binding + current owner/epoch per hit and once bounded revision re-admission avoids needless physical duplicate. Existing coordinator sufficient.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAL-02",
+      "lane": "LANE-10",
+      "source_order": 108,
+      "verdict": "targeted revision",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Shared objective architecture сильная; late-mask arithmetic должна быть исправлена прежде native acceptance.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAL-03",
+      "lane": "LANE-10",
+      "source_order": 109,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Единый finite admission selection и различение raw/repaired Hessian устраняют логическую неоднозначность, не просто формат.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAL-04",
+      "lane": "LANE-10",
+      "source_order": 110,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Exact evaluated-state binding — необходимая и достаточно узкая правка optimizer/report mismatch.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAL-06",
+      "lane": "LANE-10",
+      "source_order": 111,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Scoped covariance block вместо all-or-nothing projection реально расширяет полезную capability без выдуманной certainty.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "UQS-01",
+      "lane": "LANE-10",
+      "source_order": 112,
+      "verdict": "targeted revision",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Statistical law/source semantics сильны; arithmetic implementation лучше упростить общей stdlib-backed boundary.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "UQP-01",
+      "lane": "LANE-10",
+      "source_order": 113,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Nominal point и delta derivative должны использовать полный invocation contract, а не отдельную упрощённую функцию.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "UQP-02",
+      "lane": "LANE-10",
+      "source_order": 114,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Point mass, empirical marginal и correlated joint law разделены правильно; это не excessive refusal.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "UQP-03",
+      "lane": "LANE-10",
+      "source_order": 115,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Разделение interval-width heuristic и MCSE, logical checkpoints и conditional failure measure предотвращает ложную точность.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "DOE-01",
+      "lane": "LANE-10",
+      "source_order": 116,
+      "verdict": "retain",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Bounded lazy design consumption и честный adaptive cost более важны, чем генерация большого числа trial labels.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "DOE-02",
+      "lane": "LANE-10",
+      "source_order": 117,
+      "verdict": "targeted revision",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Typed laws/source-matrix binding и local streams правильны; дописать stochastic preprocessing/PCA stage.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "DOE-03",
+      "lane": "LANE-10",
+      "source_order": 118,
+      "verdict": "targeted revision",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Failure/block/rank/units решения содержательно верны; tests добавить stochastic solver branch совместноDOE02.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "STR-01",
+      "lane": "LANE-10",
+      "source_order": 119,
+      "verdict": "bounded qualification",
+      "review_path": "foundry_numeric/review.md",
+      "source_report": "foundry_numeric/coverage.json",
+      "reason": "Независимый objective intent и полная denominator accounting обязательны; scorer self-validation недостаточна для stress capability.",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "BER-01",
+      "lane": "LANE-11",
+      "source_order": 120,
+      "verdict": "retain + nonlinear capability strengthening",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "DDM-01",
+      "lane": "LANE-11",
+      "source_order": 121,
+      "verdict": "retain + native qualification",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "DDM-02",
+      "lane": "LANE-11",
+      "source_order": 122,
+      "verdict": "retain policy repair + targeted revision CS-004",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "LEX-01",
+      "lane": "LANE-11",
+      "source_order": 123,
+      "verdict": "retain structural repair",
+      "review_path": "causal_statistics/review.md",
+      "source_report": "causal_statistics/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "DFK-01",
+      "lane": "LANE-12",
+      "source_order": 124,
+      "verdict": "bounded qualification",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "HYG-02",
+      "lane": "LANE-12",
+      "source_order": 125,
+      "verdict": "retain",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "HYG-04",
+      "lane": "LANE-12",
+      "source_order": 126,
+      "verdict": "bounded qualification",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    },
+    {
+      "packet_id": "CLI-01",
+      "lane": "LANE-12",
+      "source_order": 127,
+      "verdict": "targeted revision",
+      "review_path": "runtime_delivery/review.md",
+      "source_report": "runtime_delivery/coverage.json",
+      "reason": "Подробное обоснование в разделе пакета полного обзора",
+      "implementation": "NOT_RUN"
+    }
+  ]
+}

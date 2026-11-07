@@ -60,13 +60,16 @@ def _run_source_case(
     patch: pytest.MonkeyPatch,
     shared_store: FileSystemCAS,
     *,
+    problem: Any | None = None,
+    method_registry: Any | None = None,
+    method_registry_report: Any | None = None,
     measurement_unit: str,
     raw_unit: str,
     raw_scale: float,
     canonical_scale: float,
 ) -> dict[str, Any]:
     """Execute the real source/owner path on an isolated synthetic observation panel."""
-    problem = _avg_income_problem()
+    problem = _avg_income_problem() if problem is None else problem
     world = _world_record()
     candidate = replace(
         _avg_income_typed_atom_candidate(problem, unit_id=measurement_unit),
@@ -214,6 +217,8 @@ def _run_source_case(
             owner_gateway=gateway,
             requested_method_fqn=AIPWEstimator.signature.fqn,
             artifact_store=shared_store,
+            method_registry=method_registry,
+            method_registry_report=method_registry_report,
         )(candidate=candidate, simulation=simulation, problem=problem, cycle_index=0)
     assert observation.status == "value_blocked"
     assert observation.authority_blockers == ("candidate_fixture_value_run_not_authority",)
@@ -307,7 +312,14 @@ def _run_source_case(
                 estimand=estimand,
                 measurement_unit=measurement_unit,
             )
-        with catalog_serving_source_scope(catalog_source), pytest.raises(ValueError, match=reason):
+        # The changed candidate first invalidates its stored selection receipt.
+        # The source-atom predicate above proves the exact unit/subject reason;
+        # the fresh consumer proves that this altered context cannot reuse the
+        # successful candidate's receipt or output.
+        with (
+            catalog_serving_source_scope(catalog_source),
+            pytest.raises(ValueError, match="value_method_selection_context_hash_mismatch"),
+        ):
             actual_consumer(**{**consumer_kwargs, "candidate": wrong})
     return {
         "basis": basis,

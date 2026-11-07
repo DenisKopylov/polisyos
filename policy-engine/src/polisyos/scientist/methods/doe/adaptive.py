@@ -4,10 +4,20 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from time import monotonic
+from typing import TYPE_CHECKING
 
 import numpy as np
 
-from .designs import SensitivityMethod, SensitivityPlan, SensitivityResult
+from .designs import (
+    SensitivityMethod,
+    SensitivityPlan,
+    SensitivityResult,
+    _admit_sensitivity_analysis_plan,
+)
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactRef, ArtifactStore
 
 
 @dataclass(frozen=True)
@@ -51,6 +61,9 @@ class AdaptiveAttempt:
     planned_evaluations: int
     evaluator_completed: int | None
     error_type: str | None = None
+    generation_seconds: float = 0.0
+    evaluation_seconds: float | None = None
+    analysis_seconds: float | None = None
 
 
 @dataclass
@@ -63,6 +76,47 @@ class AdaptiveResult:
     total_evaluations: int = 0
     stop_reason: str | None = None
     attempts: list[AdaptiveAttempt] = field(default_factory=list)
+    final_plan: SensitivityPlan | None = None
+    final_samples: np.ndarray | None = field(default=None, repr=False)
+    final_outputs: np.ndarray | None = field(default=None, repr=False)
+    final_context: dict[str, int] | None = None
+    final_design_ref: ArtifactRef | None = None
+
+    def persist_final(self, store: ArtifactStore) -> ArtifactRef:
+        """Hand the exact completed design to the existing selected analysis reader.
+
+        Legacy bare results remain useful in memory but cannot invent a source
+        experiment. The existing fresh search consumer accepts the returned
+        selected reference; this method creates no new orchestration service.
+
+        Args:
+            store: Selected-profile CAS writer for the complete completed experiment.
+
+        Returns:
+            The selected analysis reference, also retained as ``final_design_ref``.
+
+        Raises:
+            ValueError: Source rows, replay seed, backend or round context are unavailable
+                or do not agree with the retained result.
+        """
+        from ._receipt import _persist_analysis
+
+        if (
+            self.final_plan is None
+            or self.final_samples is None
+            or self.final_outputs is None
+            or self.final_context is None
+        ):
+            raise ValueError("Final adaptive source design is not established")
+        self.final_design_ref = _persist_analysis(
+            store,
+            self.final_plan,
+            self.final_samples,
+            self.final_outputs,
+            self.final_result,
+            adaptive_context=self.final_context,
+        )
+        return self.final_design_ref
 
 
 class AdaptiveSampler:
@@ -91,6 +145,7 @@ class AdaptiveSampler:
         *evaluator* takes a 2-D sample array ``(n_samples, n_params)`` and
         returns a 1-D output array ``(n_samples,)``.
         """
+        effective_plan = _admit_sensitivity_analysis_plan(self._plan)
         from .analysis import analyze_sensitivity
         from .sampling import generate_sensitivity_samples
 
@@ -99,22 +154,26 @@ class AdaptiveSampler:
         prev_indices: dict[str, float] | None = None
         total_evals = 0
         last_result: SensitivityResult | None = None
+        last_plan: SensitivityPlan | None = None
+        last_samples: np.ndarray | None = None
+        last_outputs: np.ndarray | None = None
+        last_context: dict[str, int] | None = None
         stop_reason: str | None = None
         attempts: list[AdaptiveAttempt] = []
 
-        current_n = self._plan.n_trajectories
+        current_n = effective_plan.n_trajectories
 
         for round_num in range(1, self._conv.max_rounds + 1):
             # Create a plan copy with updated n_trajectories
-            plan_dict = self._plan.model_dump()
+            plan_dict = effective_plan.model_dump()
             plan_dict["n_trajectories"] = current_n
             # Preserve the caller's explicit permission.  Constructing the
             # round plan keeps the existing SensitivityPlan guardrail as the
             # single source of truth for estimated-run admission.
-            plan_dict["allow_large_run"] = self._plan.allow_large_run
+            plan_dict["allow_large_run"] = effective_plan.allow_large_run
             if (
-                not self._plan.allow_large_run
-                and self._plan.estimated_runs_for(current_n) > self._plan.max_estimated_runs
+                not effective_plan.allow_large_run
+                and effective_plan.estimated_runs_for(current_n) > effective_plan.max_estimated_runs
             ):
                 if last_result is None:
                     raise ValueError(
@@ -126,6 +185,7 @@ class AdaptiveSampler:
             round_plan = SensitivityPlan(**plan_dict)
 
             planned_evaluations = round_plan.estimated_runs
+            phase_started = monotonic()
             try:
                 samples = np.asarray(generate_sensitivity_samples(round_plan))
                 if samples.ndim != 2:
@@ -147,12 +207,15 @@ class AdaptiveSampler:
                         planned_evaluations,
                         0,
                         type(exc).__name__,
+                        generation_seconds=monotonic() - phase_started,
                     )
                 )
                 if last_result is None:
                     raise
                 stop_reason = f"adaptive_generation_failed:{type(exc).__name__}"
                 break
+            generation_seconds = monotonic() - phase_started
+            phase_started = monotonic()
             try:
                 outputs = np.asarray(evaluator(samples))
                 if outputs.ndim != 1:
@@ -174,13 +237,17 @@ class AdaptiveSampler:
                         sample_count,
                         None,
                         type(exc).__name__,
+                        generation_seconds=generation_seconds,
+                        evaluation_seconds=monotonic() - phase_started,
                     )
                 )
                 if last_result is None:
                     raise
                 stop_reason = f"adaptive_evaluation_failed:{type(exc).__name__}"
                 break
+            evaluation_seconds = monotonic() - phase_started
             total_evals += output_count
+            phase_started = monotonic()
             try:
                 result = analyze_sensitivity(round_plan, samples, outputs)
             except Exception as exc:
@@ -192,6 +259,9 @@ class AdaptiveSampler:
                         sample_count,
                         output_count,
                         type(exc).__name__,
+                        generation_seconds=generation_seconds,
+                        evaluation_seconds=evaluation_seconds,
+                        analysis_seconds=monotonic() - phase_started,
                     )
                 )
                 if last_result is None:
@@ -199,9 +269,28 @@ class AdaptiveSampler:
                 stop_reason = f"adaptive_analysis_failed:{type(exc).__name__}"
                 break
             attempts.append(
-                AdaptiveAttempt(round_num, current_n, "completed", sample_count, output_count)
+                AdaptiveAttempt(
+                    round_num,
+                    current_n,
+                    "completed",
+                    sample_count,
+                    output_count,
+                    generation_seconds=generation_seconds,
+                    evaluation_seconds=evaluation_seconds,
+                    analysis_seconds=monotonic() - phase_started,
+                )
             )
             last_result = result
+            # Retain only the accepted completed experiment. Later generation,
+            # evaluation or analysis failures cannot replace this handoff basis.
+            last_plan = round_plan
+            last_samples = samples.copy()
+            last_outputs = outputs.copy()
+            last_context = {
+                "completed_round": round_num,
+                "initial_n_trajectories": effective_plan.n_trajectories,
+                "trajectory_step": self._conv.trajectory_step,
+            }
 
             current_indices = self._extract_primary_indices(result)
             stability = self._compute_stability(
@@ -226,6 +315,10 @@ class AdaptiveSampler:
                     converged=True,
                     total_evaluations=total_evals,
                     attempts=attempts,
+                    final_plan=last_plan,
+                    final_samples=last_samples,
+                    final_outputs=last_outputs,
+                    final_context=last_context,
                 )
 
             prev_ranking = result.ranking
@@ -244,6 +337,10 @@ class AdaptiveSampler:
             total_evaluations=total_evals,
             stop_reason=stop_reason,
             attempts=attempts,
+            final_plan=last_plan,
+            final_samples=last_samples,
+            final_outputs=last_outputs,
+            final_context=last_context,
         )
 
     def _extract_primary_indices(self, result: SensitivityResult) -> dict[str, float]:

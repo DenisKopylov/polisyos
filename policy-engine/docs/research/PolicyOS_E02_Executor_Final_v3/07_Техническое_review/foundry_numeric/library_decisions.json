@@ -1,0 +1,420 @@
+{
+  "review_date": "2026-11-01",
+  "product_execution": "NOT_RUN",
+  "sources": [
+    {
+      "id": "PY-MEAN",
+      "url": "https://raw.githubusercontent.com/python/cpython/v3.14.0/Lib/statistics.py",
+      "checked_date": "2026-11-01",
+      "section": "mean:146–165; _sum:1322–1373",
+      "applicability": "Именно CPython3.14.0; source-level exact-ratio sum, деление до final float conversion. Native qualification установленного3.14 ещё требуется."
+    },
+    {
+      "id": "JAX-WHERE",
+      "url": "https://docs.jax.dev/en/latest/faq.html#gradients-contain-nan-where-using-where",
+      "checked_date": "2026-11-01",
+      "section": "Gradients contain NaN where using where",
+      "applicability": "Принцип AD safety; current docs не разрешают использовать новые API без проверки locked0.8.2."
+    },
+    {
+      "id": "JAX-COND",
+      "url": "https://docs.jax.dev/en/latest/_autosummary/jax.lax.cond.html",
+      "checked_date": "2026-11-01",
+      "section": "cond semantics and vmap",
+      "applicability": "Scalar conditional vs batched select; сохранять существующий narrow supported profile."
+    },
+    {
+      "id": "JAX-JIT",
+      "url": "https://docs.jax.dev/en/latest/201/jit.html",
+      "checked_date": "2026-11-01",
+      "section": "JIT caching, static arguments",
+      "applicability": "Ключи/identity и recompilation; не substitute owner-level defaults/single-flight."
+    },
+    {
+      "id": "JAX-CACHE",
+      "url": "https://docs.jax.dev/en/latest/persistent_compilation_cache.html",
+      "checked_date": "2026-11-01",
+      "section": "Cache key and security considerations",
+      "applicability": "Дополнение к wrapper cache, не новый authority owner; current guide, pinned0.8.2 qualification."
+    },
+    {
+      "id": "JAX-BENCH",
+      "url": "https://docs.jax.dev/en/latest/benchmarking.html",
+      "checked_date": "2026-11-01",
+      "section": "Benchmarking: compilation, asynchronous dispatch, dtype, device transfer",
+      "applicability": "Измерять завершённое вычисление и раздельные cold/warm/transfer этапы; не performance claim настоящего review."
+    },
+    {
+      "id": "JAX-DTYPE",
+      "url": "https://docs.jax.dev/en/latest/101/default_dtypes.html",
+      "checked_date": "2026-11-01",
+      "section": "Default32 and X64 flag",
+      "applicability": "Не менять процессный precision mode внутри доменного helper. Latest context-manager API не рекомендуется для locked0.8.2 без проверки."
+    },
+    {
+      "id": "PPO",
+      "url": "https://arxiv.org/pdf/1707.06347",
+      "checked_date": "2026-11-01",
+      "section": "Equations7,9,11,12; Algorithm1",
+      "applicability": "Первичный математический oracle policy surrogate/GAE, не доказательство пользы конкретной политики."
+    },
+    {
+      "id": "OPTAX",
+      "url": "https://optax.readthedocs.io/en/latest/getting_started.html",
+      "checked_date": "2026-11-01",
+      "section": "Basic usage; Applying updates",
+      "applicability": "update возвращает updates/state; apply_updates складывает. API already used by locked0.2.6; новых optimizer рекомендаций нет."
+    },
+    {
+      "id": "SALIB-LAWS",
+      "url": "https://raw.githubusercontent.com/SALib/SALib/v1.5.2/src/SALib/util/__init__.py",
+      "checked_date": "2026-11-01",
+      "section": "_nonuniform_scale_samples and scale_samples",
+      "applicability": "Pinned1.5.2 transformations via SciPy; SciPy comparison проверяет adapter, не независимую численную реализацию самого quantile."
+    },
+    {
+      "id": "SALIB-FAST-SAMPLE",
+      "url": "https://raw.githubusercontent.com/SALib/SALib/v1.5.2/src/SALib/sample/fast_sampler.py",
+      "checked_date": "2026-11-01",
+      "section": "sample:local rng/handle_seed, sample size constraint",
+      "applicability": "Pinned sampler уже local Generator; это не означает local RNG всей FAST pipeline."
+    },
+    {
+      "id": "SALIB-FAST-ANALYZE",
+      "url": "https://raw.githubusercontent.com/SALib/SALib/v1.5.2/src/SALib/analyze/fast.py",
+      "checked_date": "2026-11-01",
+      "section": "63–64 and bootstrap111–135",
+      "applicability": "Pinned analyzer использует np.random.seed/np.random.choice; current seeded FAST pending обоснован."
+    },
+    {
+      "id": "SK-PCA",
+      "url": "https://raw.githubusercontent.com/scikit-learn/scikit-learn/1.8.0/sklearn/decomposition/_pca.py",
+      "checked_date": "2026-11-01",
+      "section": "479–491 auto policy;661,682–693 randomized path",
+      "applicability": "Именно locked1.8.0;600×100, k=5 выбирает randomized."
+    },
+    {
+      "id": "SK-RNG",
+      "url": "https://raw.githubusercontent.com/scikit-learn/scikit-learn/1.8.0/sklearn/utils/validation.py",
+      "checked_date": "2026-11-01",
+      "section": "check_random_state1324–1351",
+      "applicability": "None возвращает global RandomState singleton; нужен explicit derived local seed."
+    },
+    {
+      "id": "SCIPY-T",
+      "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_1samp.html",
+      "checked_date": "2026-11-01",
+      "section": "Definition, assumptions, statistic and df",
+      "applicability": "Current docs; pinned1.16.3 API already used. Не заменяет declared sampling/near-zero policy."
+    },
+    {
+      "id": "SCIPY-BOOT",
+      "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bootstrap.html",
+      "checked_date": "2026-11-01",
+      "section": "method, paired, rng, batch",
+      "applicability": "DefaultBCa не эквивалентен existing percentile. Optional dependency boundary и exact profile должны сохраниться."
+    },
+    {
+      "id": "SCIPY-BOOT-PIN",
+      "url": "https://raw.githubusercontent.com/scipy/scipy/v1.16.3/scipy/stats/_resampling.py",
+      "checked_date": "2026-11-01",
+      "section": "Pinned source availability for API qualification",
+      "applicability": "Проверена доступность exact-version source; не полный audit реализации."
+    },
+    {
+      "id": "ARCH",
+      "url": "https://bashtage.github.io/arch/bootstrap/timeseries-bootstraps.html",
+      "checked_date": "2026-11-01",
+      "section": "MovingBlock/CircularBlock/StationaryBootstrap",
+      "applicability": "arch8.0.0 уже analytics option; другой estimand/dependence model, не drop-in iid замена."
+    },
+    {
+      "id": "SCIPY-ASSIGN",
+      "url": "https://raw.githubusercontent.com/scipy/scipy/v1.16.3/scipy/optimize/_lsap.c",
+      "checked_date": "2026-11-01",
+      "section": "45–46 NPY_DOUBLE; rectangular assignment contract",
+      "applicability": "Pinned1.16.3 converts costs to float64; exact mixed-radix lexicographic weights need range proof."
+    },
+    {
+      "id": "NX-MATCH",
+      "url": "https://raw.githubusercontent.com/networkx/networkx/networkx-3.6.1/networkx/algorithms/matching.py",
+      "checked_date": "2026-11-01",
+      "section": "max_weight_matching296–349",
+      "applicability": "Pinned3.6.1: cardinality first, integer arithmetic, cubic complexity. Lock presence alone not direct runtime admission."
+    },
+    {
+      "id": "SCIPY-SOBOL",
+      "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.qmc.Sobol.html",
+      "checked_date": "2026-11-01",
+      "section": "random_base2 vs random and balance warnings",
+      "applicability": "Existing backend may supply low-discrepancy design; arbitrary bounded prefix must not claim balanced Sobol net."
+    },
+    {
+      "id": "PY-OS",
+      "url": "https://docs.python.org/3.14/library/os.html",
+      "checked_date": "2026-11-01",
+      "section": "os.replace1798–1806; fsync689–694",
+      "applicability": "Atomic visibility is not durability. Filesystem/OS qualification explicit, no universal power-loss promise."
+    },
+    {
+      "id": "PY-ENTRY",
+      "url": "https://docs.python.org/3.14/library/importlib.metadata.html#entry-points",
+      "checked_date": "2026-11-01",
+      "section": "Entry points and distribution packages",
+      "applicability": "Existing stdlib discovery; module/distribution identities not interchangeable; no second plugin framework needed."
+    }
+  ],
+  "decisions": [
+    {
+      "id": "LIB-01",
+      "packets": [
+        "UQS-01",
+        "BKT-02"
+      ],
+      "decision": "Предпочесть thin common finite-binary64 statistics.mean wrapper; FED owner общий.",
+      "baseline": "CPython>=3.14<3.15; stdlib без новой зависимости.",
+      "alternatives": [
+        "Собственный exact integer accumulator",
+        "statistics.fmean/math.fsum затем /n",
+        "numpy.mean",
+        "Decimal/Fraction для production всего массива"
+      ],
+      "rationale": "Exact arithmetic уже в statistics.mean3.14; fmean/fsum может переполнить сумму, median even pair использует небезопасный midpoint. Собственный корректный accumulator не объявляется дефектным, но увеличивает surface сопровождения. Для scaled RMS mean недостаточен.",
+      "cost_and_maintenance": "ПроходO(n), exact integer/Fraction arithmetic; оценить цену на реальных bounded summary sizes, не переносить на traced device arrays.",
+      "qualification": "Native3.14 extremes/cancellation/subnormal/permutation against independently accumulated Fraction oracle and Decimal.from_float precision1200 bounded cross-check; resource envelope; finite validation и empty policy прежние.",
+      "sources": [
+        "PY-MEAN"
+      ]
+    },
+    {
+      "id": "LIB-02",
+      "packets": [
+        "CAL-02",
+        "CAL-03",
+        "CAL-04",
+        "CAL-05",
+        "CAL-06",
+        "UQP-01",
+        "PLG-03"
+      ],
+      "decision": "Сохранить JAX/Equinox/Optax и текущие owner closures, исправить support semantics до AD.",
+      "baseline": "jax/jaxlib0.8.2, equinox0.13.2, optax0.2.6; base dependencies.",
+      "alternatives": [
+        "SciPy finite differences как основной gradient",
+        "Новый PyTorch/RL stack",
+        "Глобальное включение x64",
+        "where над уже вычисленной invalid loss"
+      ],
+      "rationale": "Ни смена framework, ни dtype не исправляют неверный estimand/support. Existing autodiff даёт единый objective для fit/Hessian. Нейтрализация входов перед nonlinear operation обязательна; scalar cond не обещает lazy vmapped ветки.",
+      "cost_and_maintenance": "Compile upfront; dense HessianO(p²) storage, repeated forward cost; bounded tiny acceptance, не unlimited matrix obligation.",
+      "qualification": "Pinned native eager/JIT grad/Hessian, dtype explicit, no-forward mocks; actual updates и selected-state re-evaluation.",
+      "sources": [
+        "JAX-WHERE",
+        "JAX-COND",
+        "JAX-DTYPE",
+        "OPTAX"
+      ]
+    },
+    {
+      "id": "LIB-03",
+      "packets": [
+        "JIT-01",
+        "CMP-01"
+      ],
+      "decision": "Owner CompilationCache оставить; JAX compilation cache — только дополнение после измерения.",
+      "baseline": "Existing Python single-flight/default-binding owner + JAX0.8.2.",
+      "alternatives": [
+        "Только jax.jit cache",
+        "JAX persistent cache вместо owner",
+        "Новая distributed cache/Ray framework"
+      ],
+      "rationale": "JAX не владеет domain defaults, cancellation, generation/invalidation; гонка get→claim должна закрываться в текущем owner. Persistent cache решает другую стоимость и требует trusted storage.",
+      "cost_and_maintenance": "Не повторять tracing/compile по wrapper count. Раздельно cold compilation, preparation allocation, warm execution и transfer; sync completion.",
+      "qualification": "Actual backend compile instrumentation + shape/dtype/static arg matrix; gated race, cancellation/errors; no stale publication.",
+      "sources": [
+        "JAX-JIT",
+        "JAX-CACHE",
+        "JAX-BENCH"
+      ]
+    },
+    {
+      "id": "LIB-04",
+      "packets": [
+        "BKT-03",
+        "BKT-04"
+      ],
+      "decision": "Retain small shared signed-statistic/CV/bootstrap owner; SciPy применять по declared profile, не unconditional rewrite.",
+      "baseline": "SciPy1.16.3 optional analytics/sensitivity; NumPy2.3.5; existing scipy t-test path.",
+      "alternatives": [
+        "scipy.stats.bootstrap defaultBCa",
+        "arch block bootstrap",
+        "Собственный Student distribution implementation"
+      ],
+      "rationale": "Native t-test лучше собственного p-value приближения; unavailable scipy не p=0. Generic statistic callback и bounded lazy CV полезнее нового framework. BCa не percentile, time dependence не iid.",
+      "cost_and_maintenance": "BootstrapO(Bn), SciPy batch controls memory; callbacks isolation and cost caps; arch adds model choice not free correctness.",
+      "qualification": "Signed near-zero/constant/negative fixtures; independent hand statistics; exact seed/profile; dependent forecast intervals separate qualification.",
+      "sources": [
+        "SCIPY-T",
+        "SCIPY-BOOT",
+        "SCIPY-BOOT-PIN",
+        "ARCH"
+      ]
+    },
+    {
+      "id": "LIB-05",
+      "packets": [
+        "CMP-03"
+      ],
+      "decision": "Не требовать новую библиотеку автоматически; existing exact matching owner с независимым exhaustive oracle допустим.",
+      "baseline": "NetworkX3.6.1 есть lock, но не direct product runtime dependency; SciPy1.16.3 optional.",
+      "alternatives": [
+        "NetworkX integer max_weight_matching(maxcardinality=True)",
+        "SciPy linear_sum_assignment with dummies/range proof",
+        "Own exact bounded min-cost flow/augmenting paths",
+        "OR-Tools/CVXPY framework"
+      ],
+      "rationale": "NetworkX снимает algorithm maintenance после явного dependency admission; exact lexicographic encoding/tie contract всё равно owner. SciPy float64 conversion может потерять low lexicographic digits. Heavy solver неоправдан для текущей задачи.",
+      "cost_and_maintenance": "Existing small integer solver or NetworkXO(V³), bitwidth of lexicographic encoding учитывать. Exhaustive3×3 oracle только тестовый, production exponential search нельзя.",
+      "qualification": "729 labelled3×3 None/A/B contract cases (3^6), not all binary edge graphs, plus independent weight/tie variants, reorder invariance, actual composed chain; larger bounded cost smoke.",
+      "sources": [
+        "NX-MATCH",
+        "SCIPY-ASSIGN"
+      ]
+    },
+    {
+      "id": "LIB-06",
+      "packets": [
+        "DOE-02",
+        "DOE-03"
+      ],
+      "decision": "Retain SALib1.5.2 typed adapter; поддержанные laws расширять отдельно, не снимать pending по sampler alone.",
+      "baseline": "SALib1.5.2 sensitivity extra, SciPy1.16.3, NumPy2.3.5.",
+      "alternatives": [
+        "Uniform fallback",
+        "Unbounded lognorm вместо bounded law",
+        "Своя библиотека sensitivity analysis"
+      ],
+      "rationale": "FAST analyzer ambient RNG подтверждён; bounded LOGNORMAL не unbounded lognorm. SciPy PPF reference shares implementation with SALib, значит проверяет mapping, а independent analytic/CDF controls проверяют смысл.",
+      "cost_and_maintenance": "Canonical problem once per request; preserve input sample record (SALib transforms may mutate arrays/problem), local stage seeds; bounded trajectories.",
+      "qualification": "Native source matrix/axes/law/profile→fresh analyzer; AB/BA whole pipeline, analytic uniform/triangular and CDF inversion controls, no claim nominal coverage from tiny fixture.",
+      "sources": [
+        "SALIB-LAWS",
+        "SALIB-FAST-SAMPLE",
+        "SALIB-FAST-ANALYZE"
+      ]
+    },
+    {
+      "id": "LIB-07",
+      "packets": [
+        "DOE-02",
+        "DOE-03"
+      ],
+      "decision": "Explicit PCA solver/profile и domain-separated local RNG в existing MultiOutputAnalyzer.",
+      "baseline": "scikit-learn1.8.0 ml extra; NumPy SVD fallback.",
+      "alternatives": [
+        "PCA(auto,None) оставить",
+        "Always full SVD",
+        "Новая distributed PCA implementation"
+      ],
+      "rationale": "Auto переключается на randomized на поддержанных больших shapes; defaultNone использует global RNG. Full small + seeded randomized large сохраняют cost/meaning. Backend/solver должны быть записаны.",
+      "cost_and_maintenance": "600×100 float64 input480000bytes; workspace отдельно. FullSVD roughlyO(np*min(n,p)), randomized bounded rank cheaper. Не universal full-SVD.",
+      "qualification": "Actual600×100 rank cap5 crosses locked auto threshold; AB/BA/global-state guard; independent projector/residual, spectrum separation; persist metadata.",
+      "sources": [
+        "SK-PCA",
+        "SK-RNG"
+      ]
+    },
+    {
+      "id": "LIB-08",
+      "packets": [
+        "UQP-02",
+        "UQP-03",
+        "DOE-01"
+      ],
+      "decision": "Retain declared sampling laws/checkpoints; no arbitrary QMC upgrade or new probability framework.",
+      "baseline": "Existing JAX/NumPy/SciPy sampling owners.",
+      "alternatives": [
+        "SciPy Sobol QMC",
+        "Normal approximation for empirical law",
+        "Arbitrary precision rare-tail sampler",
+        "Replace interval-width heuristic by real MCSE"
+      ],
+      "rationale": "Sobol useful only distinct declared design; truncated/bounded law and singular joint rows not replaceable by clipped Gaussian. MCSE is a different estimator; rename heuristic now, qualify MCSE separately if needed.",
+      "cost_and_maintenance": "Bound attempts, success denominator, fixed logical checkpoint schedule independent of batch; no Cartesian grid materialization.",
+      "qualification": "Point mass, exact joint a−b=0, conditional failures, tail collapse vs rare positive interval; same request repartitioned into batches.",
+      "sources": [
+        "SCIPY-SOBOL",
+        "JAX-DTYPE"
+      ]
+    },
+    {
+      "id": "LIB-09",
+      "packets": [
+        "PLG-01",
+        "PLG-02"
+      ],
+      "decision": "Existing stdlib entry-point loader + typed producer role; no second plugin framework.",
+      "baseline": "Python3.14 importlib.metadata; existing discovery/error owner.",
+      "alternatives": [
+        "Pluggy-style new registration framework",
+        "Infer producer role from object shape",
+        "Catch only import errors"
+      ],
+      "rationale": "Factory product validation belongs in per-source exception boundary; public label cannot be inferred from legacy default status. Existing contracts can express this without new registry.",
+      "cost_and_maintenance": "Discovery enumeration bounded by installed entry points; diagnostics safe even malformed plugin metadata; optional imports remain optional.",
+      "qualification": "One valid plugin beside each broken factory; no producer mutation during read; API/CLI plot/publication branch controls.",
+      "sources": [
+        "PY-ENTRY"
+      ]
+    },
+    {
+      "id": "LIB-10",
+      "packets": [
+        "RES-04"
+      ],
+      "decision": "Retain existing atomic file owner, split publication and durability outcomes explicitly.",
+      "baseline": "Python3.14 os.replace/fsync; current checkpoint sidecars.",
+      "alternatives": [
+        "SQLite/new transactional storage",
+        "Unconditional cleanup after any failure",
+        "Universal power-loss guarantee"
+      ],
+      "rationale": "After replace, deleting referenced sidecars on later fsync error can destroy published checkpoint. Commit-state tracking fixes owner boundary; new storage would multiply migration scope.",
+      "cost_and_maintenance": "JSON+sidecar IO, same-filesystem temp, directory sync platform support; no blanket all-platform acceptance for this patch.",
+      "qualification": "Fault injection prewrite/prerename/postrename/dirsync; fresh reader and unrelated history survive; OS/filesystem evidence exact.",
+      "sources": [
+        "PY-OS"
+      ]
+    },
+    {
+      "id": "LIB-11",
+      "packets": [
+        "FRY-01",
+        "FRY-03",
+        "ECO-01",
+        "FRC-01",
+        "FRC-02",
+        "EMP-01",
+        "PCL-01",
+        "STR-01"
+      ],
+      "decision": "Existing domain registries, fiscal mechanisms, forecast owner и source-bound scorers предпочтительнее нового general engine.",
+      "baseline": "MethodRegistry/runtime view, current fiscal/plugin contracts, registered forecast adapter, existing observation/IR/CAS owners.",
+      "alternatives": [
+        "Новый универсальный mechanism/forecast/trust registry",
+        "Перенос float32 law в64 под видом refactor",
+        "Business heuristic по case ID"
+      ],
+      "rationale": "Library не решает taxbase, estimand, supported scope или независимость evidence. Сначала сохранить выбранный economic/statistical law и вывести новые cases через typed data/contracts. Новый semantic family законно требует общего кода и новой qualification.",
+      "cost_and_maintenance": "Shared integration fixture costs amortized только при precise claim mapping; unrelated product systems не подключать ради маленького patch.",
+      "qualification": "Second materially different contract-compatible case, novel identifiers/axes/units, source mutation, actual fresh consumer; no causal/permission leap.",
+      "sources": [
+        "JAX-DTYPE"
+      ]
+    }
+  ],
+  "notes": [
+    "Current docs inspected; locked versions take precedence. No dependency was installed or upgraded.",
+    "Package wheel availability/ABI and accelerator compatibility not empirically checked; lock presence is not deployment qualification."
+  ]
+}

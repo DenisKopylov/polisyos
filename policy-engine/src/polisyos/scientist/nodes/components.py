@@ -25,7 +25,14 @@ class ScientistNodeComponent:
     node_factory: Callable[[], Node]
 
     def create(self) -> Node:
-        """Instantiate the host-side node implementation."""
+        """Call this component's zero-argument node factory.
+
+        Component metadata remains separate from instance construction; this method
+        returns the value supplied by the configured factory without validating it.
+
+        Returns:
+            The node returned by ``node_factory``.
+        """
         return self.node_factory()
 
 

@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import asyncio
+import math
+import threading
+from collections.abc import Awaitable, Callable
 from types import SimpleNamespace
 from typing import Any
 
@@ -22,6 +25,7 @@ from polisyos.fabric.connectors.resilience import (
     RateLimiter,
     RateLimiterConfig,
     ResilienceConfig,
+    RetryPolicy,
     apply_resilience,
     with_circuit_breaker,
     with_rate_limit,
@@ -29,6 +33,8 @@ from polisyos.fabric.connectors.resilience import (
 from polisyos.fabric.connectors.resilience._bounded_registry import (
     BoundedResourceRegistry,
     BoundedResourceRegistryCapacityError,
+    InvalidRateLimitError,
+    RateLimiterFeedbackError,
 )
 from polisyos.fabric.connectors.types import RateLimitError
 
@@ -51,6 +57,39 @@ def _clock(monkeypatch: pytest.MonkeyPatch) -> _Clock:
     monkeypatch.setattr(breaker_module, "_monotonic", clock.monotonic)
     monkeypatch.setattr(asyncio, "sleep", clock.sleep)
     return clock
+
+
+def _rate_limited_provider(
+    provider: Callable[..., Awaitable[Any]],
+    *,
+    wrapper: str,
+    adaptive: bool,
+) -> tuple[Callable[..., Awaitable[Any]], BoundedResourceRegistry[RateLimiter]]:
+    if wrapper == "decorator":
+        wrapped = with_rate_limit(rate_limit_rps=1.0, adaptive=adaptive)(provider)
+        return wrapped, wrapped._rate_limiters  # type: ignore[attr-defined]
+    if wrapper == "apply_resilience":
+        wrapped = apply_resilience(
+            provider,
+            config=ResilienceConfig(rate_limit_rps=1.0, adaptive_rate_limit=adaptive),
+        )
+        return wrapped, wrapped._resilience_rate_limiters  # type: ignore[attr-defined]
+    raise AssertionError(f"unknown wrapper kind: {wrapper}")
+
+
+def _registered_limiter(
+    registry: BoundedResourceRegistry[RateLimiter], limiter_id: str
+) -> RateLimiter:
+    return next(
+        entry.value for entry in registry._items.values() if entry.value.limiter_id == limiter_id
+    )
+
+
+def _handle(connector_id: str) -> SimpleNamespace:
+    return SimpleNamespace(
+        connector_id=connector_id,
+        config=SimpleNamespace(url=f"https://{connector_id}.example/"),
+    )
 
 
 def test_valid_finite_adaptive_rate_does_not_overflow_before_clamp() -> None:
@@ -534,3 +573,355 @@ async def test_circuit_owner_pin_blocks_eviction_before_real_attempt(
             first.cancel()
             with pytest.raises(asyncio.CancelledError):
                 await first
+
+
+@pytest.mark.parametrize("wrapper", ["decorator", "apply_resilience"])
+@pytest.mark.asyncio
+async def test_adaptive_wrappers_recover_from_provider_successes(
+    monkeypatch: pytest.MonkeyPatch,
+    wrapper: str,
+) -> None:
+    """Real provider successes restore adaptive owners before registry lease release."""
+    clock = _clock(monkeypatch)
+
+    async def stable_sleep(delay: float) -> None:
+        if delay > 0:
+            clock.now = math.nextafter(clock.now + delay, math.inf)
+
+    monkeypatch.setattr(asyncio, "sleep", stable_sleep)
+    retry_after_error = RateLimitError(connector_id="primary", retry_after=4)
+    provider_results: list[object] = []
+    calls = 0
+
+    async def provider(handle: Any) -> object:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise retry_after_error
+        result = object()
+        provider_results.append(result)
+        return result
+
+    wrapped, registry = _rate_limited_provider(provider, wrapper=wrapper, adaptive=True)
+    registry._max_items = 1
+    with pytest.raises(RateLimitError) as raised:
+        await wrapped(_handle("primary"))
+    assert raised.value is retry_after_error
+
+    limiter = _registered_limiter(registry, "primary:primary.example")
+    assert isinstance(limiter, AdaptiveRateLimiter)
+    assert limiter.rate_limit_rps == pytest.approx(0.5)
+    assert limiter._success_count == 0
+
+    successful_feedback = 0
+    original_record_success = AdaptiveRateLimiter.record_success
+
+    def observe_success(owner: AdaptiveRateLimiter) -> None:
+        nonlocal successful_feedback
+        assert len(provider_results) == successful_feedback + 1
+        leased_entries = [entry for entry in registry._items.values() if entry.value is owner]
+        assert len(leased_entries) == 1
+        assert leased_entries[0].pins == 1
+        successful_feedback += 1
+        original_record_success(owner)
+
+    monkeypatch.setattr(AdaptiveRateLimiter, "record_success", observe_success)
+
+    for _ in range(99):
+        result = await wrapped(_handle("primary"))
+        assert result is provider_results[-1]
+    assert successful_feedback == 99
+    assert limiter.rate_limit_rps == pytest.approx(0.5)
+    assert limiter._success_count == 99
+
+    result = await wrapped(_handle("primary"))
+    assert result is provider_results[-1]
+    assert successful_feedback == 100
+    assert limiter.rate_limit_rps == pytest.approx(0.55)
+    assert limiter._success_count == 0
+
+    for _ in range(800):
+        result = await wrapped(_handle("primary"))
+        assert result is provider_results[-1]
+    assert successful_feedback == 900
+    assert limiter.rate_limit_rps == pytest.approx(1.0)
+    assert limiter._success_count == 0
+
+    # Full refill makes the recovered owner neutral; bounded pressure may admit
+    # another key without resetting or duplicating the original quota state.
+    clock.now += 1.0
+    result = await wrapped(_handle("secondary"))
+    assert result is provider_results[-1]
+    assert _registered_limiter(registry, "primary:primary.example") is limiter
+    secondary_limiter = _registered_limiter(registry, "secondary:secondary.example")
+    assert isinstance(secondary_limiter, AdaptiveRateLimiter)
+    assert successful_feedback == 901
+    assert secondary_limiter._success_count == 0
+    assert secondary_limiter.rate_limit_rps == pytest.approx(1.0)
+
+    clock.now += 1.0
+    result = await wrapped(_handle("tertiary"))
+    assert result is provider_results[-1]
+    assert successful_feedback == 902
+    assert "primary:primary.example:0x1.0000000000000p+0" not in registry._items
+    assert _registered_limiter(registry, "secondary:secondary.example") is secondary_limiter
+    tertiary_limiter = _registered_limiter(registry, "tertiary:tertiary.example")
+    assert isinstance(tertiary_limiter, AdaptiveRateLimiter)
+
+
+@pytest.mark.parametrize("wrapper", ["decorator", "apply_resilience"])
+@pytest.mark.asyncio
+async def test_adaptive_success_and_provider_429_feedback_are_atomic(
+    monkeypatch: pytest.MonkeyPatch,
+    wrapper: str,
+) -> None:
+    clock = _clock(monkeypatch)
+
+    async def stable_sleep(delay: float) -> None:
+        if delay > 0:
+            clock.now = math.nextafter(clock.now + delay, math.inf)
+
+    monkeypatch.setattr(asyncio, "sleep", stable_sleep)
+    initial_429 = RateLimitError(connector_id="primary")
+    concurrent_429 = RateLimitError(connector_id="primary", retry_after=20)
+    success_result = object()
+    provider_calls = 0
+    throttle_provider_entered = threading.Event()
+
+    async def provider(_handle: Any) -> object:
+        nonlocal provider_calls
+        if threading.current_thread().name == "net02-throttle":
+            throttle_provider_entered.set()
+            raise concurrent_429
+        provider_calls += 1
+        if provider_calls == 1:
+            raise initial_429
+        return success_result
+
+    wrapped, registry = _rate_limited_provider(provider, wrapper=wrapper, adaptive=True)
+    handle = _handle("primary")
+    with pytest.raises(RateLimitError) as raised:
+        await wrapped(handle)
+    assert raised.value is initial_429
+    for _ in range(99):
+        assert await wrapped(handle) is success_result
+
+    limiter = _registered_limiter(registry, "primary:primary.example")
+    assert isinstance(limiter, AdaptiveRateLimiter)
+    assert limiter.rate_limit_rps == pytest.approx(0.5)
+    assert limiter._success_count == 99
+
+    success_adjust_waiting = threading.Event()
+    release_success_adjust = threading.Event()
+    throttle_lock_attempted = threading.Event()
+    throttle_lock_contended = threading.Event()
+    original_lock = limiter._lock
+
+    class _ObservedLock:
+        def __enter__(self) -> _ObservedLock:
+            if threading.current_thread().name == "net02-throttle":
+                throttle_lock_attempted.set()
+                if not original_lock.acquire(blocking=False):
+                    throttle_lock_contended.set()
+                    original_lock.acquire()
+            else:
+                original_lock.acquire()
+            return self
+
+        def __exit__(self, exc_type: object, exc: object, tb: object) -> None:
+            del exc_type, exc, tb
+            original_lock.release()
+
+    limiter._lock = _ObservedLock()  # type: ignore[assignment]
+    original_adjust_rate = AdaptiveRateLimiter.adjust_rate
+
+    def gate_success_adjust(owner: AdaptiveRateLimiter, new_rate: float) -> None:
+        if owner is limiter and math.isclose(new_rate, 0.55):
+            success_adjust_waiting.set()
+            if not release_success_adjust.wait(timeout=10):
+                raise TimeoutError("success rate transition was not released")
+        original_adjust_rate(owner, new_rate)
+
+    monkeypatch.setattr(AdaptiveRateLimiter, "adjust_rate", gate_success_adjust)
+    outcomes: dict[str, object | BaseException] = {}
+
+    def invoke(label: str) -> None:
+        try:
+            outcomes[label] = asyncio.run(wrapped(handle))
+        except BaseException as error:
+            outcomes[label] = error
+
+    success_thread = threading.Thread(target=invoke, args=("success",), name="net02-success")
+    throttle_thread = threading.Thread(target=invoke, args=("throttle",), name="net02-throttle")
+    success_thread.start()
+    try:
+        assert success_adjust_waiting.wait(timeout=5)
+        throttle_thread.start()
+        assert throttle_lock_attempted.wait(timeout=5)
+        assert throttle_lock_contended.wait(timeout=1)
+        assert not throttle_provider_entered.is_set()
+    finally:
+        release_success_adjust.set()
+
+    success_thread.join(timeout=5)
+    throttle_thread.join(timeout=5)
+    assert not success_thread.is_alive()
+    assert not throttle_thread.is_alive()
+    assert outcomes["success"] is success_result
+    assert outcomes["throttle"] is concurrent_429
+    assert provider_calls == 101
+    assert limiter.rate_limit_rps == pytest.approx(0.275)
+    assert limiter._success_count == 0
+    assert limiter.get_stats()["blocked_until"] > clock.now
+
+
+@pytest.mark.parametrize("wrapper", ["decorator", "apply_resilience"])
+@pytest.mark.parametrize("outcome", ["provider_error", "cancellation"])
+@pytest.mark.asyncio
+async def test_adaptive_wrapper_does_not_feedback_provider_error_or_cancellation(
+    monkeypatch: pytest.MonkeyPatch,
+    wrapper: str,
+    outcome: str,
+) -> None:
+    _clock(monkeypatch)
+    failure: BaseException = (
+        asyncio.CancelledError("provider cancelled")
+        if outcome == "cancellation"
+        else ValueError("provider failed")
+    )
+
+    async def provider(_handle: Any) -> object:
+        raise failure
+
+    wrapped, registry = _rate_limited_provider(provider, wrapper=wrapper, adaptive=True)
+    with pytest.raises(type(failure)) as raised:
+        await wrapped(_handle("primary"))
+    assert raised.value is failure
+
+    limiter = _registered_limiter(registry, "primary:primary.example")
+    assert isinstance(limiter, AdaptiveRateLimiter)
+    assert limiter.rate_limit_rps == pytest.approx(1.0)
+    assert limiter._success_count == 0
+    assert limiter.get_stats()["blocked_until"] is None
+
+
+@pytest.mark.parametrize("wrapper", ["decorator", "apply_resilience"])
+@pytest.mark.asyncio
+async def test_plain_rate_limiter_wrapper_does_not_require_adaptive_callback(
+    wrapper: str,
+) -> None:
+    result_token = object()
+
+    async def provider(_handle: Any) -> object:
+        return result_token
+
+    wrapped, registry = _rate_limited_provider(provider, wrapper=wrapper, adaptive=False)
+    assert await wrapped(_handle("plain")) is result_token
+    assert isinstance(_registered_limiter(registry, "plain:plain.example"), RateLimiter)
+    assert not isinstance(_registered_limiter(registry, "plain:plain.example"), AdaptiveRateLimiter)
+
+
+@pytest.mark.parametrize("wrapper", ["decorator", "apply_resilience"])
+@pytest.mark.asyncio
+async def test_adaptive_success_callback_error_is_local_and_not_provider_feedback(
+    monkeypatch: pytest.MonkeyPatch,
+    wrapper: str,
+) -> None:
+    _clock(monkeypatch)
+    result_token = object()
+    callback_error = RateLimitError(connector_id="bookkeeping", retry_after=30)
+    provider_calls = 0
+    rate_limit_feedback: list[float | None] = []
+
+    async def provider(_handle: Any) -> object:
+        nonlocal provider_calls
+        provider_calls += 1
+        return result_token
+
+    breaker_registry = None
+    if wrapper == "apply_resilience":
+        wrapped = apply_resilience(
+            provider,
+            config=ResilienceConfig(
+                rate_limit_rps=1.0,
+                adaptive_rate_limit=True,
+                retry_policy=RetryPolicy(max_attempts=2, base_delay=0.0, jitter_max=0.0),
+                circuit_breaker=CircuitBreakerConfig(failure_threshold=1, min_throughput=1),
+            ),
+        )
+        registry = wrapped._resilience_rate_limiters  # type: ignore[attr-defined]
+        breaker_registry = wrapped._resilience_circuit_breakers  # type: ignore[attr-defined]
+    else:
+        wrapped, registry = _rate_limited_provider(provider, wrapper=wrapper, adaptive=True)
+
+    def fail_success(_owner: AdaptiveRateLimiter) -> None:
+        raise callback_error
+
+    original_record_rate_limit = AdaptiveRateLimiter.record_rate_limit
+
+    def observe_rate_limit(
+        owner: AdaptiveRateLimiter,
+        retry_after_seconds: float | None = None,
+    ) -> None:
+        rate_limit_feedback.append(retry_after_seconds)
+        original_record_rate_limit(owner, retry_after_seconds)
+
+    monkeypatch.setattr(AdaptiveRateLimiter, "record_success", fail_success)
+    monkeypatch.setattr(AdaptiveRateLimiter, "record_rate_limit", observe_rate_limit)
+
+    with pytest.raises(RateLimiterFeedbackError) as raised:
+        await wrapped(_handle("primary"))
+    assert raised.value.__cause__ is callback_error
+    assert provider_calls == 1
+    assert rate_limit_feedback == []
+
+    limiter = _registered_limiter(registry, "primary:primary.example")
+    assert isinstance(limiter, AdaptiveRateLimiter)
+    assert limiter.rate_limit_rps == pytest.approx(1.0)
+    assert limiter.get_stats()["blocked_until"] is None
+    if breaker_registry is not None:
+        breaker = next(iter(breaker_registry._items.values())).value
+        assert breaker.get_stats()["failure_count"] == 0
+        assert breaker.is_closed()
+
+
+@pytest.mark.asyncio
+async def test_invalid_adaptive_success_configuration_is_a_local_circuit_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _clock(monkeypatch)
+    provider_calls = 0
+
+    async def provider(_handle: Any) -> str:
+        nonlocal provider_calls
+        provider_calls += 1
+        return "ok"
+
+    wrapped = apply_resilience(
+        provider,
+        config=ResilienceConfig(
+            rate_limit_rps=1.0,
+            adaptive_rate_limit=True,
+            retry_policy=RetryPolicy(max_attempts=2, base_delay=0.0, jitter_max=0.0),
+            circuit_breaker=CircuitBreakerConfig(failure_threshold=1, min_throughput=1),
+        ),
+    )
+    handle = _handle("primary")
+    for _ in range(99):
+        assert await wrapped(handle) == "ok"
+
+    limiter = _registered_limiter(
+        wrapped._resilience_rate_limiters,  # type: ignore[attr-defined]
+        "primary:primary.example",
+    )
+    assert isinstance(limiter, AdaptiveRateLimiter)
+    limiter.config.max_rate_rps = float("nan")
+
+    with pytest.raises(InvalidRateLimitError):
+        await wrapped(handle)
+    assert provider_calls == 100
+    breaker = next(
+        iter(wrapped._resilience_circuit_breakers._items.values())  # type: ignore[attr-defined]
+    ).value
+    assert breaker.get_stats()["failure_count"] == 0
+    assert breaker.is_closed()

@@ -1,0 +1,46 @@
+{
+  "kind": "independent_stdlib_calculator_NOT_PRODUCT_TEST",
+  "host_python": "3.12.14",
+  "target_python_executed": false,
+  "cases": [
+    {
+      "input": [
+        "0x1.1ccf385ebc8a0p+1023",
+        "0x1.1ccf385ebc8a0p+1023"
+      ],
+      "statistics_mean": "0x1.1ccf385ebc8a0p+1023",
+      "independent_fraction_mean": "0x1.1ccf385ebc8a0p+1023"
+    },
+    {
+      "input": [
+        "0x0.0000000000001p-1022",
+        "0x0.0000000000002p-1022"
+      ],
+      "statistics_mean": "0x0.0000000000002p-1022",
+      "independent_fraction_mean": "0x0.0000000000002p-1022"
+    },
+    {
+      "input": [
+        "0x1.1ccf385ebc8a0p+1023",
+        "-0x1.1ccf385ebc8a0p+1023",
+        "0x0.0000000000003p-1022"
+      ],
+      "statistics_mean": "0x0.0000000000001p-1022",
+      "independent_fraction_mean": "0x0.0000000000001p-1022"
+    },
+    {
+      "input": [
+        "0x1.4000000000000p+3",
+        "0x1.c000000000000p+3"
+      ],
+      "statistics_mean": "0x1.8000000000000p+3",
+      "independent_fraction_mean": "0x1.8000000000000p+3"
+    }
+  ],
+  "integer_examples": {
+    "2**53+1": "9007199254740993",
+    "float_int_roundtrip": "9007199254740992",
+    "int64max": "9223372036854775807",
+    "float_int64max_roundtrip": "9223372036854775808"
+  }
+}

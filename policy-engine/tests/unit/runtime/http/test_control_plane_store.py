@@ -8,11 +8,13 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import AbstractContextManager, contextmanager
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any, cast
 
 import pytest
 
+import polisyos.runtime.http.services.control_plane_store as control_plane_store_module
 import polisyos.runtime.http.services.control_worker as control_worker_module
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -44,11 +46,13 @@ from polisyos.runtime.http.services.control.job_attempt_publication import (
 )
 from polisyos.runtime.http.services.control.run_lifecycle import HumanDecisionAuthoritySink
 from polisyos.runtime.http.services.control_plane_store import (
+    ControlJobExecutionAdmission,
     ControlJobExecutionAdmissionError,
     ControlJobLeaseLostError,
     ControlJobRecord,
     ControlPlaneStore,
     ControlPreAdmissionIdempotencyConflictError,
+    _PreparedAcquisitionActionHeadPublication,
 )
 from polisyos.runtime.http.services.control_worker import ControlWorker
 from polisyos.runtime.http.services.run_operation_idempotency import (
@@ -824,8 +828,23 @@ def test_human_decision_fence_reuses_store_transaction_for_durable_event(
         acquired_at=started_at + timedelta(seconds=1),
         expected_record_valid_until=valid_until,
     ) as fence:
-        event_log.append(event)
-        assert len(event_log.list_events(event_id=event.event_id)) == 1
+        event_log.append(
+            event,
+            payload={
+                "binding_sha256": binding_sha256,
+                "governed_action_key": governed_action_key,
+                "reservation_id": reserved.reservation.reservation_id,
+            },
+        )
+        persisted_events = event_log.list_events(event_id=event.event_id)
+        assert len(persisted_events) == 1
+        persisted_event = persisted_events[0]
+        assert persisted_event.payload_ref is not None
+        assert persisted_event.event.payload_ref == persisted_event.payload_ref
+        payload_bytes = artifact_store.get_bytes(persisted_event.payload_ref)
+        assert "sha256:" + hashlib.sha256(payload_bytes).hexdigest() == (
+            persisted_event.payload_ref
+        )
         committed = fence.commit(
             record_ref="sha256:" + "f" * 64,
             record_sha256="sha256:" + "f" * 64,
@@ -909,6 +928,142 @@ def test_acquisition_action_head_requires_exact_predecessor(tmp_path) -> None:
             job_id="job-acquisition",
             predecessor_receipt_ref="sha256:" + "d" * 64,
         )
+
+
+def _prepared_candidate_action_head(
+    *, job_id: str = "candidate-action-job", receipt_digit: str = "b"
+) -> _PreparedAcquisitionActionHeadPublication:
+    return _PreparedAcquisitionActionHeadPublication(
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        run_id="run-a",
+        source_job_id="source-job",
+        route_id="sha256:" + "a" * 64,
+        action_generation=1,
+        job_id=job_id,
+        action_kind="runtime.evidence.acquisition.candidate_experiment.execute",
+        request_json='{"idempotency_key":"candidate-1"}',
+        decision_ref="sha256:" + "c" * 64,
+        payload_ref="sha256:" + "d" * 64,
+        receipt_ref="sha256:" + receipt_digit * 64,
+        receipt_sha256="sha256:" + receipt_digit * 64,
+        receipt_manifest_profile_sha256="sha256:" + "e" * 64,
+        durable_event_id="evt-candidate-requested",
+        coarse_phase="requested",
+        receipt_phase="requested",
+        recovery_state="none",
+        predecessor_receipt_ref=None,
+    )
+
+
+def _create_candidate_action_job(
+    store: ControlPlaneStore,
+    publication: _PreparedAcquisitionActionHeadPublication,
+) -> ControlJobRecord:
+    return store.create_job(
+        job_id=publication.job_id,
+        kind="acquisition",
+        run_id=publication.run_id,
+        pipeline_id=None,
+        requested_execution_profile=None,
+        effective_execution_profile="dev",
+        policy_flags={},
+        capability_manifest_ref=None,
+        payload_ref=publication.payload_ref,
+        submitted_by="test-mechanics-only",
+        prepared_acquisition_action_head=publication,
+    )
+
+
+def test_candidate_action_job_and_requested_head_commit_before_worker_can_claim(
+    tmp_path, monkeypatch
+) -> None:
+    """Exercise SQL visibility only; the prepared record is not source/PA2 authority."""
+    store = _make_store(tmp_path)
+    observer = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control-plane.sqlite3")
+    publication = _prepared_candidate_action_head()
+    inserted = threading.Event()
+    allow_head = threading.Event()
+    original_advance = store.advance_acquisition_action_head
+
+    def pause_before_head(**kwargs):
+        inserted.set()
+        assert allow_head.wait(timeout=5)
+        return original_advance(**kwargs)
+
+    monkeypatch.setattr(store, "advance_acquisition_action_head", pause_before_head)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        creation = executor.submit(_create_candidate_action_job, store, publication)
+        assert inserted.wait(timeout=5)
+        assert observer.get_job(publication.job_id) is None
+        assert (
+            observer.get_acquisition_action_head(
+                tenant_id=publication.tenant_id,
+                cell_id=publication.cell_id,
+                run_id=publication.run_id,
+                source_job_id=publication.source_job_id,
+                route_id=publication.route_id,
+                action_generation=publication.action_generation,
+            )
+            is None
+        )
+        lease = executor.submit(observer.lease_next_job, worker_id="worker-a", lease_seconds=30)
+        assert not lease.done()
+        allow_head.set()
+        created = creation.result(timeout=5)
+        leased = lease.result(timeout=5)
+
+    head = observer.get_acquisition_action_head(
+        tenant_id=publication.tenant_id,
+        cell_id=publication.cell_id,
+        run_id=publication.run_id,
+        source_job_id=publication.source_job_id,
+        route_id=publication.route_id,
+        action_generation=publication.action_generation,
+    )
+    assert created.state == "pending"
+    assert leased is not None and leased.job_id == publication.job_id
+    assert head is not None
+    assert head.receipt_ref == publication.receipt_ref
+    assert head.receipt_manifest_profile_sha256 == publication.receipt_manifest_profile_sha256
+    assert head.head_generation == 1
+    assert head.receipt_phase == "requested"
+    lifecycle_events = store._fetchall(
+        "SELECT event_type FROM control_job_events WHERE job_id = ? ORDER BY event_id",
+        (publication.job_id,),
+    )
+    assert [row["event_type"] for row in lifecycle_events] == ["job_created", "job_running"]
+    observer.close()
+
+
+def test_candidate_action_publication_failure_rolls_back_job_head_and_outbox(
+    tmp_path, monkeypatch
+) -> None:
+    """A SQL publication failure leaves no worker-visible partial job state."""
+    store = _make_store(tmp_path)
+    publication = _prepared_candidate_action_head()
+
+    def fail_head(**_kwargs):
+        raise ValueError("controlled head conflict")
+
+    monkeypatch.setattr(store, "advance_acquisition_action_head", fail_head)
+    with pytest.raises(ValueError, match="controlled head conflict"):
+        _create_candidate_action_job(store, publication)
+
+    assert store.get_job(publication.job_id) is None
+    assert (
+        store.get_acquisition_action_head(
+            tenant_id=publication.tenant_id,
+            cell_id=publication.cell_id,
+            run_id=publication.run_id,
+            source_job_id=publication.source_job_id,
+            route_id=publication.route_id,
+            action_generation=publication.action_generation,
+        )
+        is None
+    )
+    assert store.list_outbox_events(state=None, limit=500) == []
+    assert store.lease_next_job(worker_id="worker-after-failure", lease_seconds=30) is None
 
 
 def test_control_plane_store_tracks_worker_leases_and_outbox(tmp_path) -> None:
@@ -1066,6 +1221,7 @@ def test_control_plane_store_dead_letters_terminal_failures(tmp_path) -> None:
     failed = store.get_job("job_fixture_failed")
     assert failed is not None
     assert failed.state == "failed"
+    assert store.lease_next_job(worker_id="worker-recovery") is None
 
     dead_letters = store.list_dead_letter_jobs()
     assert len(dead_letters) == 1
@@ -1905,6 +2061,63 @@ def _create_execution_admission_job(
         submitted_by="denis",
         creation_event_payload=_job_creation_event(execution_scope=execution_scope),
     )
+
+
+def _read_execution_admission_fixture(
+    sqlite_root: Path,
+    *,
+    job_id: str = "job-execution-identity",
+    run_id: str = "run-execution-identity",
+    execution_scope: dict[str, object] | None = None,
+    pipeline_id: str | None = None,
+    requested_profile: str | None = None,
+    effective_profile: str = "dev",
+    policy_flags: dict[str, Any] | None = None,
+    capability_manifest_ref: str | None = "sha256:manifest-admission",
+    payload_ref: str | None = "sha256:payload-b",
+    submitted_by: str | None = "denis",
+) -> ControlJobExecutionAdmission:
+    """Read one real SQLite-backed execution admission for identity tests."""
+    store = _make_store(sqlite_root)
+    selected_policy_flags = {"candidate": True} if policy_flags is None else policy_flags
+    creation_event = {
+        **_job_creation_event(execution_scope=execution_scope),
+        "job_id": job_id,
+        "run_id": run_id,
+        "pipeline_id": pipeline_id,
+        "requested_execution_profile": requested_profile,
+        "effective_execution_profile": effective_profile,
+        "policy_flags": selected_policy_flags,
+        "capability_manifest_ref": capability_manifest_ref,
+        "payload_ref": payload_ref,
+        "submitted_by": submitted_by,
+    }
+    job = store.create_job(
+        job_id=job_id,
+        kind="workflow_run",
+        run_id=run_id,
+        pipeline_id=pipeline_id,
+        requested_execution_profile=requested_profile,
+        effective_execution_profile=effective_profile,
+        policy_flags=selected_policy_flags,
+        capability_manifest_ref=capability_manifest_ref,
+        payload_ref=payload_ref,
+        submitted_by=submitted_by,
+        creation_event_payload=creation_event,
+    )
+    worker_id = f"worker-{job_id}"
+    leased = store.lease_next_job(worker_id=worker_id, lease_seconds=30)
+    if leased is None:
+        raise AssertionError("execution admission fixture could not lease its job")
+    try:
+        with store.job_execution_fence(
+            job_id=job_id,
+            worker_id=worker_id,
+            attempt=leased.attempt,
+        ):
+            return store.current_execution_job_admission()
+    finally:
+        store.close()
 
 
 def _fence_leased_execution(
@@ -2779,17 +2992,41 @@ def test_failed_terminal_record_refuses_foreign_or_replaced_attempt(
     tmp_path: Path,
     guarded: bool,
     mutation: str,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.runtime.http.services import control_plane_store as store_module
+
+    clock = [datetime.now(UTC).replace(microsecond=0)]
+    monkeypatch.setattr(store_module, "_utc_now", lambda: clock[0])
     raw = _make_store(tmp_path)
     admin = _make_store(tmp_path)
     store = guard_runtime_control_store(raw) if guarded else raw
     job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
     with _fence_leased_execution(store, job=job):
-        store.fail_job(
-            job_id=job.job_id,
-            error_message="controlled worker failure",
-            progress={"phase": "failed"},
-        )
+        if mutation == "restarted":
+            first = admin.get_job(job.job_id)
+            assert first is not None
+            assert first.state == "running"
+            assert first.lease_owner == "worker-execution-admission"
+            assert first.lease_expires_at is not None
+            clock[0] = first.lease_expires_at + timedelta(seconds=1)
+            replacement = admin.lease_next_job(worker_id="replacement-worker", lease_seconds=30)
+            assert replacement is not None
+            assert replacement.attempt == first.attempt + 1
+            assert replacement.lease_owner == "replacement-worker"
+
+            with pytest.raises(ControlJobLeaseLostError):
+                store.fail_job(
+                    job_id=job.job_id,
+                    error_message="controlled stale worker failure",
+                    progress={"phase": "failed"},
+                )
+        else:
+            store.fail_job(
+                job_id=job.job_id,
+                error_message="controlled worker failure",
+                progress={"phase": "failed"},
+            )
         if mutation == "foreign_owner":
             admin.append_event(
                 job_id=job.job_id,
@@ -2815,9 +3052,7 @@ def test_failed_terminal_record_refuses_foreign_or_replaced_attempt(
                 "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?",
                 (job.job_id,),
             )
-        elif mutation == "restarted":
-            admin.mark_running(job_id=job.job_id, worker_id="replacement-worker")
-        else:
+        elif mutation == "missing_event":
             admin._execute(
                 "DELETE FROM control_job_events WHERE job_id = ? AND event_type = ?",
                 (job.job_id, "job_failed"),
@@ -2825,6 +3060,12 @@ def test_failed_terminal_record_refuses_foreign_or_replaced_attempt(
 
         with pytest.raises(ControlJobLeaseLostError):
             store.current_execution_failed_job_record()
+        if mutation == "restarted":
+            current = raw.get_job(job.job_id)
+            assert current is not None
+            assert current.state == "running"
+            assert current.lease_owner == replacement.lease_owner
+            assert current.attempt == replacement.attempt
     admin.close()
     raw.close()
 
@@ -2921,69 +3162,101 @@ def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
     tmp_path: Path,
     guarded: bool,
     mutation: str,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.runtime.http.services import control_plane_store as store_module
+
+    clock = [datetime.now(UTC).replace(microsecond=0)]
+    monkeypatch.setattr(store_module, "_utc_now", lambda: clock[0])
     raw = _make_store(tmp_path)
     admin = _make_store(tmp_path)  # Independent unbound sibling/admin writer on the same DB.
     store = guard_runtime_control_store(raw) if guarded else raw
     job = _create_execution_admission_job(raw, execution_scope=_job_execution_scope())
     with _fence_leased_execution(store, job=job):
-        store.complete_job(
-            job_id=job.job_id,
-            progress={"phase": "completed", "search_exit_contract": {"verified": True}},
-        )
-        completed = store.current_execution_completed_job_record()
-        if mutation == "completion_owner":
-            admin.append_event(
-                job_id=job.job_id,
-                event_type="job_completed",
-                payload={
-                    "state": "completed",
-                    "lease_owner": "foreign-worker",
-                    "attempt": completed.attempt,
-                },
-            )
-        elif mutation == "attempt":
-            admin._execute(
-                "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?", (job.job_id,)
-            )
-        elif mutation == "restarted":
-            admin.mark_running(job_id=job.job_id, worker_id="replacement-worker")
-        elif mutation == "lease_owner":
-            admin._execute(
-                "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
-                ("foreign-worker", job.job_id),
-            )
-        elif mutation == "lease_expiry":
-            admin._execute(
-                "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
-                ((datetime.now(UTC) + timedelta(minutes=1)).isoformat(), job.job_id),
-            )
-        elif mutation == "proof_basis":
-            admin.upsert_progress(
-                job_id=job.job_id,
-                progress={**completed.progress, "search_exit_contract_ref": "replaced-source"},
-            )
-        elif mutation == "proof_basis_primitive_type":
-            admin.upsert_progress(
-                job_id=job.job_id,
-                progress={**completed.progress, "search_exit_contract": {"verified": 1}},
-            )
-        elif mutation == "proof_basis_key_presence":
-            admin.upsert_progress(
-                job_id=job.job_id,
-                progress={**completed.progress, "authority_path": None},
-            )
+        replacement = None
+        if mutation == "restarted":
+            first = admin.get_job(job.job_id)
+            assert first is not None
+            assert first.state == "running"
+            assert first.lease_owner == "worker-execution-admission"
+            assert first.lease_expires_at is not None
+            clock[0] = first.lease_expires_at + timedelta(seconds=1)
+            replacement = admin.lease_next_job(worker_id="replacement-worker", lease_seconds=30)
+            assert replacement is not None
+            assert replacement.attempt == first.attempt + 1
+            assert replacement.lease_owner == "replacement-worker"
+            before = raw.get_job(job.job_id)
+            assert before is not None
+            before_outbox = raw.list_outbox_events(state=None, limit=100)
+
+            with pytest.raises(ControlJobLeaseLostError):
+                store.complete_job(
+                    job_id=job.job_id,
+                    progress={"phase": "completed", "search_exit_contract": {"verified": True}},
+                )
+            after_stale_completion = raw.get_job(job.job_id)
+            assert after_stale_completion == before
+            assert raw.list_outbox_events(state=None, limit=100) == before_outbox
+            expected_progress = before.progress
         else:
-            admin.append_event(
-                job_id=job.job_id, event_type="job_progress", payload={"state": "pending"}
+            store.complete_job(
+                job_id=job.job_id,
+                progress={"phase": "completed", "search_exit_contract": {"verified": True}},
             )
-        before = raw.get_job(job.job_id)
-        assert before is not None
-        before_outbox = raw.list_outbox_events(state=None, limit=100)
+            completed = store.current_execution_completed_job_record()
+            if mutation == "completion_owner":
+                admin.append_event(
+                    job_id=job.job_id,
+                    event_type="job_completed",
+                    payload={
+                        "state": "completed",
+                        "lease_owner": "foreign-worker",
+                        "attempt": completed.attempt,
+                    },
+                )
+            elif mutation == "attempt":
+                admin._execute(
+                    "UPDATE control_jobs SET attempt = attempt + 1 WHERE job_id = ?",
+                    (job.job_id,),
+                )
+            elif mutation == "lease_owner":
+                admin._execute(
+                    "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                    ("foreign-worker", job.job_id),
+                )
+            elif mutation == "lease_expiry":
+                admin._execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ((datetime.now(UTC) + timedelta(minutes=1)).isoformat(), job.job_id),
+                )
+            elif mutation == "proof_basis":
+                admin.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract_ref": "replaced-source"},
+                )
+            elif mutation == "proof_basis_primitive_type":
+                admin.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "search_exit_contract": {"verified": 1}},
+                )
+            elif mutation == "proof_basis_key_presence":
+                admin.upsert_progress(
+                    job_id=job.job_id,
+                    progress={**completed.progress, "authority_path": None},
+                )
+            else:
+                admin.append_event(
+                    job_id=job.job_id, event_type="job_progress", payload={"state": "pending"}
+                )
+            before = raw.get_job(job.job_id)
+            assert before is not None
+            before_outbox = raw.list_outbox_events(state=None, limit=100)
+            expected_progress = completed.progress
+
         with pytest.raises(ControlJobLeaseLostError):
             store.publish_completed_job_proof(
                 job_id=job.job_id,
-                expected_progress=completed.progress,
+                expected_progress=expected_progress,
                 proof_payload={
                     "job_id": job.job_id,
                     "run_id": job.run_id,
@@ -2995,6 +3268,11 @@ def test_completed_proof_publication_refuses_foreign_or_replaced_attempt(
         after = raw.get_job(job.job_id)
         assert after is not None and after.progress == before.progress
         assert raw.list_outbox_events(state=None, limit=100) == before_outbox
+        if mutation == "restarted":
+            assert after.state == "running"
+            assert replacement is not None
+            assert after.lease_owner == replacement.lease_owner
+            assert after.attempt == replacement.attempt
 
 
 def test_append_event_preserves_utc_microseconds_without_rewriting_legacy_rows(
@@ -3267,6 +3545,228 @@ def test_control_job_execution_admission_uses_event_and_allows_fenced_pointer_re
 
     event = store.get_job_created_event_payload(job.job_id)
     assert event["capability_manifest_ref"] == "sha256:manifest-admission"
+
+
+def test_control_job_execution_admission_identity_survives_real_heartbeat_and_refresh(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A live heartbeat and pointer refresh preserve the admitted execution identity."""
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(
+        store,
+        execution_scope=_job_execution_scope(),
+    )
+    leased = store.lease_next_job(worker_id="worker-execution-admission", lease_seconds=30)
+    assert leased is not None
+
+    with store.job_execution_fence(
+        job_id=job.job_id,
+        worker_id="worker-execution-admission",
+        attempt=leased.attempt,
+    ):
+        before = store.current_execution_job_admission()
+        heartbeat_time = datetime.now(UTC).replace(microsecond=0) + timedelta(seconds=1)
+        monkeypatch.setattr(
+            control_plane_store_module,
+            "_utc_now",
+            lambda: heartbeat_time,
+        )
+        assert store.renew_job_lease(
+            job_id=job.job_id,
+            worker_id="worker-execution-admission",
+            lease_seconds=180,
+            expected_attempt=leased.attempt,
+        )
+        store.heartbeat_worker(
+            worker_id="worker-execution-admission",
+            state="running",
+            lease_seconds=180,
+            active_job_id=job.job_id,
+        )
+        store.upsert_progress(job_id=job.job_id, progress={"phase": "heartbeat_probe"})
+        renewed = store.current_execution_job_admission()
+
+        assert before.job.lease_expires_at != renewed.job.lease_expires_at
+        assert before.job.progress != renewed.job.progress
+        assert before != renewed
+        assert before.same_execution_identity(renewed)
+        assert renewed.matches_job_record(leased)
+
+        store.update_manifest_ref(
+            job_id=job.job_id,
+            capability_manifest_ref="sha256:manifest-refreshed",
+        )
+        refreshed = store.current_execution_job_admission()
+
+        assert refreshed.manifest_pointer_state == "refreshed_current"
+        assert refreshed.admission_capability_manifest_ref == before.admission_capability_manifest_ref
+        assert refreshed.same_execution_identity(before)
+        assert refreshed.matches_job_record(leased)
+
+
+def test_control_job_execution_admission_identity_rejects_changed_scope_and_inputs(
+    tmp_path: Path,
+) -> None:
+    """Live identity keeps full actor scope, run, manifest, profile, and job inputs bound."""
+    base_scope = _job_execution_scope()
+    baseline = _read_execution_admission_fixture(
+        tmp_path / "baseline",
+        execution_scope=base_scope,
+    )
+    changed_admissions = (
+        _read_execution_admission_fixture(
+            tmp_path / "run",
+            execution_scope=base_scope,
+            run_id="run-other",
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "profile",
+            execution_scope=base_scope,
+            effective_profile="production",
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "requested-profile",
+            execution_scope=base_scope,
+            requested_profile="research",
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "pipeline",
+            execution_scope=base_scope,
+            pipeline_id="pipeline-other",
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "policy",
+            execution_scope=base_scope,
+            policy_flags={"candidate": 1},
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "payload",
+            execution_scope=base_scope,
+            payload_ref="sha256:payload-other",
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "creation-manifest",
+            execution_scope=base_scope,
+            capability_manifest_ref="sha256:manifest-other",
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "tenant",
+            execution_scope={**base_scope, "tenant_id": "tenant-other"},
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "cell",
+            execution_scope={**base_scope, "cell_id": "cell-other"},
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "actor",
+            execution_scope={**base_scope, "actor_subject": "other-actor"},
+            submitted_by="other-actor",
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "roles",
+            execution_scope={**base_scope, "actor_roles": ["analyst"]},
+        ),
+        _read_execution_admission_fixture(
+            tmp_path / "unknown-scope",
+            execution_scope=None,
+        ),
+    )
+    assert all(not baseline.same_execution_identity(value) for value in changed_admissions)
+
+    changed_attempt = replace(
+        baseline,
+        job=replace(baseline.job, attempt=baseline.attempt + 1),
+        attempt=baseline.attempt + 1,
+    )
+    changed_owner = replace(
+        baseline,
+        job=replace(baseline.job, lease_owner="worker-other"),
+    )
+    changed_authenticated_scope = replace(
+        baseline.scope,
+        actor_authenticated=False,
+    )
+    changed_unknown_scope = replace(
+        baseline.scope,
+        status="not_established",
+        tenant_id=None,
+        cell_id=None,
+        actor_subject=None,
+        actor_authenticated=False,
+        actor_roles=(),
+    )
+    changed_diagnostic_record = replace(
+        baseline.job,
+        error_message="diagnostic-only",
+        progress={"phase": "telemetry-only"},
+    )
+    assert not baseline.same_execution_identity(changed_attempt)
+    assert not baseline.same_execution_identity(changed_owner)
+    assert not baseline.same_execution_identity(
+        replace(baseline, scope=changed_authenticated_scope)
+    )
+    assert not baseline.same_execution_identity(replace(baseline, scope=changed_unknown_scope))
+    assert baseline.job.same_execution_inputs(changed_diagnostic_record)
+    assert baseline.matches_job_record(changed_diagnostic_record)
+    assert not baseline.matches_job_record(replace(baseline.job, payload_ref="sha256:foreign"))
+    assert not baseline.matches_job_record(replace(baseline.job, submitted_by="foreign-actor"))
+
+
+def test_control_job_execution_admission_refuses_expired_and_reassigned_fences(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Semantic identity comparison never substitutes for a fresh persisted lease check."""
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(
+        store,
+        execution_scope=_job_execution_scope(),
+    )
+    store.mark_running(
+        job_id=job.job_id,
+        worker_id="worker-first",
+        lease_seconds=10,
+    )
+    first = store.get_job(job.job_id)
+    assert first is not None
+    assert first.attempt == 1 and first.lease_expires_at is not None
+    with store.job_execution_fence(
+        job_id=job.job_id,
+        worker_id="worker-first",
+        attempt=first.attempt,
+    ):
+        original_admission = store.current_execution_job_admission()
+        expired_at = first.lease_expires_at + timedelta(seconds=1)
+        monkeypatch.setattr(control_plane_store_module, "_utc_now", lambda: expired_at)
+        with pytest.raises(ControlJobLeaseLostError, match="lease is not current"):
+            store.current_execution_job_admission()
+
+    store.mark_running(
+        job_id=job.job_id,
+        worker_id="worker-reassigned",
+        lease_seconds=60,
+    )
+    reassigned = store.get_job(job.job_id)
+    assert reassigned is not None
+    assert reassigned.attempt == first.attempt + 1
+    with store.job_execution_fence(
+        job_id=job.job_id,
+        worker_id="worker-reassigned",
+        attempt=reassigned.attempt,
+    ):
+        current_admission = store.current_execution_job_admission()
+
+    assert not original_admission.same_execution_identity(current_admission)
+    with (
+        pytest.raises(ControlJobLeaseLostError, match="lease is not current"),
+        store.job_execution_fence(
+            job_id=job.job_id,
+            worker_id="worker-first",
+            attempt=first.attempt,
+        ),
+    ):
+        store.current_execution_job_admission()
 
 
 def test_control_job_execution_admission_keeps_scope_less_legacy_unknown(

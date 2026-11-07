@@ -37,7 +37,12 @@ __all__ = [
 
 @dataclass(frozen=True, slots=True)
 class ShapeSpec:
-    """Capture the concrete shape and dtype of one input slot for compile caching."""
+    """Capture an input shape and dtype for wrapper caching.
+
+    Propagated declared output shapes use ``dtype="unknown"`` because SlotSpec
+    does not declare a concrete dtype. This metadata never supplies array bytes
+    or replaces JAX's specialization on the actual runtime input.
+    """
 
     shape: tuple[int, ...]
     dtype: str

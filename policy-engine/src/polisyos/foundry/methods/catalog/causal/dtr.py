@@ -7,8 +7,9 @@ Implements four methods for estimating optimal dynamic treatment regimes:
   - OutcomeWeightedLearning: Outcome-weighted binary classification (Zhao et al. 2012)
   - DoublyRobustDTR:        Augmented IPW estimator for regime value (Zhang et al. 2013)
 
-All estimators return the optimal dynamic regime d*(H_t) and an estimate of its
-value E[Y^{d*}].
+Supported executable profiles return the learned dynamic regime d*(H_t) and an
+estimate of its value E[Y^{d*}]. OWL keeps its learning value candidate-only until
+a typed SVC decision-rule transport is available.
 
 References:
     Murphy, S.A. (2003). Optimal dynamic treatment regimes. JRSS-B, 65(2), 331-355.
@@ -177,11 +178,7 @@ def _estimate_value_ice(
     regime: DynamicTreatmentRegime,
 ) -> float:
     """Estimate E[Y^{d*}] using ICE g-formula with the optimal regime."""
-    regime_params = {
-        "regime": regime.rule.value,
-        "threshold_covariate_index": regime.threshold_covariate_index,
-        "threshold_value": regime.threshold_value,
-    }
+    regime_params = _regime_params_from_spec(regime)
     return _ice_estimate(Y, A_seq, L_seq, regime_params)
 
 
@@ -191,46 +188,38 @@ def _regime_from_q_models(
     A_seq: np.ndarray,
     n_cov: int = 0,
 ) -> DynamicTreatmentRegime:
-    """Derive a DynamicTreatmentRegime from fitted Q-function models.
+    """Retain the actual Q models and their selected per-stage feature layout.
 
-    We examine if the optimal rule is always-treat or never-treat;
-    otherwise approximate as a threshold rule on the first covariate.
+    Training-cohort action frequencies and treated-unit medians do not define
+    the learned rule. Keep both predictions so numerical ties also preserve the
+    producer's strict ``Q(1) > Q(0)`` action convention.
     """
     n_periods = len(q_models)
+    n_covariates = L_seq.shape[2]
+    if n_periods != L_seq.shape[1] or A_seq.shape != L_seq.shape[:2]:
+        raise ValueError("Q models, treatment and covariate stages must align")
+    if n_cov not in {0, n_covariates}:
+        raise ValueError("unsupported Q interaction feature layout")
+    if any(np.asarray(model.coef_).dtype != np.dtype("float64") for model in q_models):
+        raise ValueError("selected Q decision profiles require float64 fitted models")
     time_points = tuple(range(n_periods))
     treatment_vars = tuple(f"A_{t}" for t in range(n_periods))
     cov_vars = tuple(f"L_{t}" for t in range(n_periods))
 
-    # Check first stage: apply to all units
-    H0 = _build_history_matrix(A_seq, L_seq, 0)
-    optimal_a0 = _optimal_q_action(q_models[0], H0, n_cov)
-    frac_treated = float(np.mean(optimal_a0))
-
-    if frac_treated >= 0.95:
-        rule = RegimeRule.ALWAYS_TREAT
-        threshold_value = 0.0
-    elif frac_treated <= 0.05:
-        rule = RegimeRule.NEVER_TREAT
-        threshold_value = 0.0
-    else:
-        # Approximate threshold on first covariate
-        L0 = L_seq[:, 0, 0]
-        # Find median of L among treated units
-        threshold_value = float(np.median(L0[optimal_a0 == 1])) if frac_treated > 0 else 0.0
-        rule = RegimeRule.THRESHOLD
-
-    # Collect Q-function coefficients (first stage)
-    coefs = list(q_models[0].coef_) + [float(q_models[0].intercept_)]
-
     return DynamicTreatmentRegime(
+        schema_version="1.1",
         time_points=time_points,
         treatment_variables=treatment_vars,
         time_varying_covariates=cov_vars,
         outcome="Y",
-        rule=rule,
-        threshold_covariate_index=0,
-        threshold_value=threshold_value,
-        regime_coefficients=tuple(float(c) for c in coefs),
+        rule=RegimeRule.LINEAR_BLIP,
+        decision_rule_profile=(
+            "linear_q_current_interactions.v1" if n_cov else "linear_q_action.v1"
+        ),
+        n_covariates=n_covariates,
+        stage_coefficients=tuple(
+            tuple(float(value) for value in (*model.coef_, model.intercept_)) for model in q_models
+        ),
     )
 
 
@@ -776,15 +765,13 @@ class ALearningDTR:
         time_points = tuple(range(n_periods_blip))
         treatment_vars = tuple(f"A_{t}" for t in range(n_periods_blip))
         cov_vars = tuple(f"L_{t}" for t in range(n_periods_blip))
-        main_blip = float(blip_coefs[0][0]) if blip_coefs else 0.0
-        rule = RegimeRule.ALWAYS_TREAT if main_blip > 0 else RegimeRule.NEVER_TREAT
-
         optimal_regime = DynamicTreatmentRegime(
             time_points=time_points,
             treatment_variables=treatment_vars,
             time_varying_covariates=cov_vars,
             outcome="Y",
-            rule=rule,
+            rule=RegimeRule.EXPLICIT_SCHEDULE,
+            scheduled_actions=tuple(int(float(coef[0]) > 0) for coef in blip_coefs),
             regime_coefficients=tuple(float(c[0]) for c in blip_coefs),
         )
         stage_coefs = tuple(tuple(float(c) for c in coef) for coef in blip_coefs)
@@ -887,8 +874,9 @@ class OutcomeWeightedLearning:
         ),
         typical_min_obs=100,
         output_interpretation=(
-            "value_estimate = E[Y^{d*}] estimated via OWL weighted SVM. "
-            "May be slightly conservative due to SVM margin."
+            "The finite OWL learning value is candidate_value_estimate diagnostic metadata. "
+            "An assumption_failed report and absent dtr_result disclose that executable "
+            "SVC policy transport is not established."
         ),
     )
 
@@ -988,62 +976,32 @@ class OutcomeWeightedLearning:
             value = float(np.mean(pseudo_Y))
             return value, svm_models
 
-        point_value, svm_models = _run_owl(Y, A_seq, L_seq)
+        point_value, _svm_models = _run_owl(Y, A_seq, L_seq)
 
-        rng = np.random.default_rng(42)
-        boot_values = np.empty(n_boot)
-        for b in range(n_boot):
-            idx = rng.integers(0, n_units, size=n_units)
-            bv, _ = _run_owl(Y[idx], A_seq[idx], L_seq[idx])
-            boot_values[b] = bv
-        boot_values = boot_values[np.isfinite(boot_values)]
-        if len(boot_values) == 0:
-            boot_values = np.array([point_value])
-
-        ci = bootstrap_ci(boot_values, conf_level)
-        lo = min(float(ci[0]), point_value)
-        hi = max(float(ci[1]), point_value)
-
-        # Regime: derive from SVM decision on training data
-        H0 = _build_history_matrix(A_seq, L_seq, 0)
-        svm0 = svm_models[0] if svm_models else None
-        if svm0 is not None:
-            pred0 = svm0.predict(H0)
-            frac_treat = float(np.mean(pred0 > 0))
-        else:
-            frac_treat = 1.0
-        rule = RegimeRule.ALWAYS_TREAT if frac_treat > 0.5 else RegimeRule.NEVER_TREAT
-
-        time_points = tuple(range(n_periods))
-        treatment_vars = tuple(f"A_{t}" for t in range(n_periods))
-        cov_vars = tuple(f"L_{t}" for t in range(n_periods))
-        optimal_regime = DynamicTreatmentRegime(
-            time_points=time_points,
-            treatment_variables=treatment_vars,
-            time_varying_covariates=cov_vars,
-            outcome="Y",
-            rule=rule,
+        # No existing regime profile retains SVC's full history/kernel rule.
+        # A training-cohort majority is a different policy, even if its scalar
+        # estimate is finite. Keep that number candidate-only, not in a fabricated
+        # DTRResult which a temporal consumer could execute as a constant rule.
+        failure = build_failure_report(
+            method=CausalMethod.OUTCOME_WEIGHTED_LEARNING,
+            status=EstimationStatus.ASSUMPTION_FAILED,
+            reason="unsupported_owl_policy_projection: a typed SVC decision rule is unavailable",
+            estimand="E[Y^{d*}]",
+            sample_size=n_units,
+            n_treated=int(np.sum(A_seq[:, 0])),
+            n_control=n_units - int(np.sum(A_seq[:, 0])),
+            pre_periods=n_periods,
+            post_periods=0,
+            assumptions=dict(_ASSUMPTIONS),
+            metadata={
+                "candidate_value_estimate": point_value,
+                "policy_projection_status": "not_established",
+            },
         )
-        n_treated = int(np.sum(A_seq[:, 0]))
-
-        dtr_result = DTRResult(
-            method="owl",
-            optimal_regime=optimal_regime,
-            value_estimate=point_value,
-            value_ci=(lo, hi),
-            n_units=n_units,
-            n_stages=n_periods,
-            stage_coefficients=(),
-        )
-        return _build_dtr_output(
-            method_enum=CausalMethod.OUTCOME_WEIGHTED_LEARNING,
-            estimand_str="E[Y^{d*}] via outcome-weighted SVM",
-            dtr_result=dtr_result,
-            n_units=n_units,
-            n_periods=n_periods,
-            n_treated=n_treated,
-            warnings=["OWL value estimate uses IPW and may have high variance with small samples."],
-            params=params,
+        return wrap_causal_output(
+            failure,
+            warnings=["OWL's learned policy is not represented by an executable regime."],
+            extras={"dtr_result": None},
         )
 
 
@@ -1196,6 +1154,10 @@ class DoublyRobustDTR:
                     optimal_regime.rule.value,
                     optimal_regime.threshold_covariate_index,
                     optimal_regime.threshold_value,
+                    time_index=t,
+                    decision_rule_profile=optimal_regime.decision_rule_profile,
+                    n_covariates=optimal_regime.n_covariates,
+                    stage_coefficients=optimal_regime.stage_coefficients,
                 )
                 prob_regime = np.where(d_star_t == 1, pi_t, 1 - pi_t)
                 log_ratio += np.log(np.clip(prob_regime / prob_obs, 1e-8, None))

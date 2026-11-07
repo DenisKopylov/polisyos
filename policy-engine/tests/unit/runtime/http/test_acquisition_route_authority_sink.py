@@ -7,12 +7,15 @@ from pathlib import Path
 import pytest
 
 from polisyos.core import canon
+from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.runtime.http.services.control.run_lifecycle import (
     AcquisitionRouteLoopAuthoritySink,
 )
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+from polisyos.runtime.quality.acquisition_evaluation import AcquisitionSelectedEvaluation
 from polisyos.runtime.quality.acquisition_route_loop import (
+    AcquisitionCandidateRouteLoopReceipt,
     AcquisitionRouteLoopReceipt,
     AcquisitionRoutePhaseReceipt,
     AcquisitionRouteRecoveryRequired,
@@ -233,6 +236,124 @@ def _persist_generation(sink, *, generation, job_id, terminal_outcome=None):
     return sink.persist_terminal(terminal)
 
 
+def test_missing_candidate_frontier_owner_has_no_authority_side_effects(
+    generation_owner, monkeypatch
+):
+    """A removed owner cannot write a terminal even with an existing real action head."""
+    from polisyos.runtime.quality import acquisition_evaluation_dispatch as dispatch
+
+    sink, store, cas = generation_owner
+    head = _persist_generation(sink, generation=1, job_id="first-job")
+    phase = sink.verify_action_head(head).latest_receipt
+
+    def ref(kind: str, digit: str) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id=ArtifactID.model_validate("sha256:" + digit * 64),
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "f" * 64,
+        )
+
+    action = ref("runtime_quality.acquisition_candidate_action_receipt", "1")
+    decision = ref("runtime_quality.acquisition_evaluation_decision", "2")
+    basis = ref("runtime_quality.acquisition_evaluation_basis", "3")
+    execution = ref("runtime.quality.candidate_simulation_execution", "4")
+    selected = AcquisitionSelectedEvaluation(
+        candidate_id="candidate",
+        candidate_content_hash="sha256:" + "5" * 64,
+        design_problem_ref="sha256:" + "6" * 64,
+        world_model_record_hash="sha256:" + "7" * 64,
+        evaluation_job_id="source-job",
+        evaluation_run_id="source-run",
+        generation_run_id="generation-run",
+        cycle_index=0,
+        n4_source_ref=ref("runtime.quality.n4_candidate_scenario_source", "8"),
+        context_job_ref=ref("runtime.quality.cycle_substrate_context_job", "9"),
+        n5_input_ref=ref("runtime.quality.candidate_simulation_n5_input", "a"),
+        n5_execution_ref=execution,
+        n5_result_ref=ref("polisyos.runtime.joint_simulation_result", "b"),
+        basis_ref=basis,
+    )
+    terminal = AcquisitionCandidateRouteLoopReceipt(
+        **phase.model_dump(
+            exclude={
+                "schema_version",
+                "receipt_id",
+                "coarse_phase",
+                "receipt_phase",
+                "recovery_state",
+                "predecessor_receipt_ref",
+                "owner_receipt_refs",
+                "candidate_receipt_ref",
+            }
+        ),
+        receipt_id="candidate-retained-owner-removal",
+        terminal_outcome="candidate_evaluation_retained",
+        predecessor_receipt_ref=head.receipt_ref,
+        owner_receipt_refs=(str(action.artifact_id), str(decision.artifact_id)),
+        candidate_action_ref=action,
+        evaluation_decision_ref=decision,
+        selected_basis_ref=basis,
+        selected_evaluation_witness_ref=execution,
+        selected_evaluation=selected,
+        current_continuation_ref=ref(
+            "runtime_quality.candidate_acquisition_retained_continuation", "c"
+        ),
+    )
+
+    class TypedBasisRef(ArtifactRef):
+        pass
+
+    typed_basis = TypedBasisRef.model_validate(basis.model_dump())
+    fields = {name: getattr(terminal, name) for name in type(terminal).model_fields}
+    same_view = AcquisitionCandidateRouteLoopReceipt.model_validate(
+        {**fields, "selected_evaluation": selected.model_copy(update={"basis_ref": typed_basis})}
+    )
+    assert same_view.selected_evaluation is not None
+    foreign_view = typed_basis.model_copy(update={"manifest_profile_sha256": "sha256:" + "e" * 64})
+    with pytest.raises(ValueError, match="candidate_terminal_evaluation_binding_invalid"):
+        AcquisitionCandidateRouteLoopReceipt.model_validate(
+            {
+                **fields,
+                "selected_evaluation": selected.model_copy(update={"basis_ref": foreign_view}),
+            }
+        )
+
+    class ExtendedBasisRef(ArtifactRef):
+        extra_meaning: str = "unverified"
+
+    extended = ExtendedBasisRef.model_validate(basis.model_dump())
+    with pytest.raises(ValueError, match="candidate_terminal_ref_subtype_semantics_unsupported"):
+        AcquisitionCandidateRouteLoopReceipt.model_validate(
+            {**fields, "selected_evaluation": selected.model_copy(update={"basis_ref": extended})}
+        )
+    before_ids = {str(ref) for ref in cas.iter_artifact_ids()}
+    before_events = store.list_diagnostic_events(run_id="run-a", limit=500)
+    monkeypatch.delattr(dispatch, "candidate_terminal_frontier_cas", raising=False)
+    with pytest.raises(ValueError, match="acquisition_candidate_terminal_history_not_established"):
+        sink.persist_terminal(terminal)
+    assert {str(ref) for ref in cas.iter_artifact_ids()} == before_ids
+    assert store.list_diagnostic_events(run_id="run-a", limit=500) == before_events
+    assert sink.get_head(phase) == head
+
+
+def test_duplicate_executing_phase_is_refused_before_head_advances(generation_owner):
+    sink, _store, _cas = generation_owner
+    head = _persist_generation(sink, generation=1, job_id="first-job")
+    current = sink.verify_action_head(head).latest_receipt
+    duplicate = AcquisitionRoutePhaseReceipt.model_validate(
+        {
+            **current.model_dump(mode="python"),
+            "receipt_id": "forged-second-executing",
+            "predecessor_receipt_ref": head.receipt_ref,
+        }
+    )
+    with pytest.raises(ValueError, match="acquisition_action_phase_transition_invalid"):
+        sink.persist_phase(duplicate)
+    assert sink.get_head(duplicate) == head
+    assert sink.resolve_action_generation(**_generation_identity(), job_id="first-job") == 1
+
+
 def test_action_generation_preserves_quarantine_and_reuses_exact_job(generation_owner):
     sink, store, cas = generation_owner
     identity = _generation_identity()
@@ -364,7 +485,7 @@ def test_action_generation_requires_current_receipt_readback(generation_owner, m
     original = cas.get_bytes
 
     def unreadable(ref):
-        if ref == head.receipt_ref:
+        if str(ref) == head.receipt_ref:
             raise OSError("selected terminal receipt unreadable")
         return original(ref)
 

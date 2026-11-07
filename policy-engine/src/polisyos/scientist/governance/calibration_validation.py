@@ -67,12 +67,15 @@ from polisyos.scientist.governance.calibration import CalibrationGovernanceRepor
 from polisyos.scientist.governance.calibration_leaderboard import (
     CalibrationLeaderboard,
     CalibrationLeaderboardEntry,
+    _limit_loaded_leaderboard_entry,
 )
 from polisyos.scientist.governance.stress_scenarios import (
     StressScenarioKind,
     StressScenarioResult,
     StressScenarioRunner,
 )
+from polisyos.scientist.methods.backtesting.orchestrator import _plan_requests_native
+from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
 from polisyos.scientist.methods.discovery.utility_judge import DownstreamUtilityReport
 from polisyos.scientist.methods.search.registry_contracts import (
     LessonRecordLocalCallable,
@@ -583,6 +586,7 @@ class CalibrationValidationBundle(BaseModel):
     _fresh_backtest_report: BacktestReport | None = PrivateAttr(default=None)
     _fresh_backtest_report_status: FreshBacktestReportStatus = PrivateAttr(default="not_loaded")
     _fresh_backtest_report_reason: str | None = PrivateAttr(default=None)
+    _fresh_matrix_diagnostic_admitted: bool = PrivateAttr(default=False)
     _fresh_source_json_snapshot_binding_status: FreshSourceBindingStatus = PrivateAttr(
         default="not_established"
     )
@@ -686,9 +690,6 @@ class CalibrationValidationBundle(BaseModel):
             source_binding_status,
             self.source_json_snapshot_reads,
         )
-        source_profile_conformant = (
-            self.purpose == "promotion" and source_profile_status == "declared_bytes_conformant"
-        )
         if self.purpose == "candidate_diagnostic" and source_binding_status != "available":
             diagnostics = None
             diagnostics_status = "unavailable"
@@ -704,13 +705,8 @@ class CalibrationValidationBundle(BaseModel):
             trust_reason = source_binding_reason
             trust_score = None
             trust_grade = None
-        report_qualifies = bool(
-            report is not None
-            and report_status == "available"
-            and trust_projection is not None
-            and trust_projection.eligible
-            and diagnostics_status == "computed"
-            and source_profile_conformant
+        matrix_diagnostic_available = (
+            self._fresh_matrix_diagnostic_admitted and report_status == "available"
         )
         return {
             "status": self.status,
@@ -744,24 +740,28 @@ class CalibrationValidationBundle(BaseModel):
             "source_json_snapshot_profile_provenance": (
                 "recomputed" if source_binding_status == "available" else "not_established"
             ),
+            "backtest_source_reconciliation_status": "not_established",
             "source_json_snapshot_reads": {
                 contract: provenance.model_dump(mode="json")
                 for contract, provenance in self.source_json_snapshot_reads.items()
             },
-            "composite_score": None if metrics is None else metrics.composite_score,
-            "eligible_for_promotion": (
-                False
-                if (
-                    self.purpose == "candidate_diagnostic"
-                    or metrics is None
-                    or not report_qualifies
-                )
-                else metrics.eligible_for_promotion
+            "composite_score": (
+                metrics.composite_score
+                if metrics is not None and matrix_diagnostic_available
+                else None
             ),
+            "composite_score_purpose": (
+                entry.metadata.get("composite_score_purpose")
+                if entry is not None and matrix_diagnostic_available
+                else None
+            ),
+            "eligible_for_promotion": False,
             "worst_backtest_kind": (
                 None
-                if self.backtest_matrix is None or self.backtest_matrix.worst_kind is None
-                else self.backtest_matrix.worst_kind.value
+                if entry is None
+                or not matrix_diagnostic_available
+                or entry.worst_backtest_kind is None
+                else entry.worst_backtest_kind.value
             ),
             "worst_stress_scenario": (
                 None
@@ -837,7 +837,7 @@ class CalibrationValidationRunner:
         self._store = store
         self._backtest_runner = backtest_runner or BacktestMatrixRunner(store)
         self._stress_runner = stress_runner or StressScenarioRunner(store)
-        self._leaderboard = leaderboard or CalibrationLeaderboard()
+        self._leaderboard = leaderboard or CalibrationLeaderboard(store=store)
         self._lesson_publisher = lesson_publisher or CalibrationValidationLessonPublisher()
 
     def run(
@@ -883,6 +883,13 @@ class CalibrationValidationRunner:
             )
             fresh = load_calibration_validation_bundle(self._store, blocked_ref)
             return CalibrationValidationRunnerResult(bundle_ref=blocked_ref, bundle=fresh)
+
+        if any(
+            _plan_requests_native(HistoricalValidationPlan.model_validate(payload))
+            for plans in bundle.backtest_plan_bundles.values()
+            for payload in plans.plans
+        ):
+            raise ValueError("native_calibration_validation_not_supported")
 
         if bundle.purpose == "candidate_diagnostic":
             if any(selected_role is None for selected_role in selected_roles):
@@ -969,7 +976,9 @@ class CalibrationValidationRunner:
             strategic_summary=bundle.strategic_summary,
             metadata={"run_id": bundle.run_id},
         )
-        leaderboard_entry = self._leaderboard.rank([leaderboard_entry])[0]
+        leaderboard_entry = self._leaderboard.rank(
+            [leaderboard_entry], backtest_matrices={leaderboard_entry.entry_id: backtest_matrix}
+        )[0]
         validation_bundle = CalibrationValidationBundle(
             schema_version=_calibration_validation_schema_version(
                 bundle.source_json_snapshot_reads
@@ -1036,6 +1045,13 @@ class CalibrationValidationRunner:
                 validation_bundle.record_fresh_backtest_report(
                     None, "unavailable", "backtest_report_recompute_failed"
                 )
+        if validation_bundle.leaderboard_entry is not None:
+            validation_bundle._fresh_matrix_diagnostic_admitted = _limit_loaded_leaderboard_entry(
+                self._store,
+                validation_bundle.backtest_matrix,
+                validation_bundle.leaderboard_entry,
+                source_available=validation_bundle._fresh_backtest_report_status == "available",
+            )
         lesson_card_ref = self._lesson_publisher.publish(
             bundle, validation_bundle, record_local=record_local
         )
@@ -1141,23 +1157,44 @@ class CalibrationValidationLessonPublisher:
 
         summary = bundle.readout_summary()
         eligible_for_promotion = bool(summary["eligible_for_promotion"])
+        metrics = None if bundle.leaderboard_entry is None else bundle.leaderboard_entry.metrics
+        observed_failure = bool(
+            bundle.governance_verdict in {"reject", "needs_revision"}
+            or (metrics is not None and metrics.adversarial_passed is False)
+            or (bundle.stress_scenarios is not None and bundle.stress_scenarios.critical_count > 0)
+        )
+        kind = (
+            LessonKind.SUCCESS
+            if eligible_for_promotion
+            else LessonKind.FAILURE
+            if observed_failure
+            else LessonKind.OPPORTUNITY
+        )
         card = LessonCard(
-            kind=LessonKind.SUCCESS if eligible_for_promotion else LessonKind.FAILURE,
+            kind=kind,
             summary=(
-                f"Calibration validation finished with status '{bundle.status}' "
+                "Forecast and holdout source reconciliation is not established."
+                if kind is LessonKind.OPPORTUNITY
+                else f"Calibration validation finished with status '{bundle.status}' "
                 f"and composite score {summary['composite_score']}."
             ),
             failure_type=(
                 "calibration_validation_success"
                 if eligible_for_promotion
-                else "calibration_validation_review"
+                else "calibration_validation_observed_failure"
+                if observed_failure
+                else "calibration_validation_source_verification_missing"
             ),
             stage_name="calibration_validation",
             fidelity_level=0,
             candidate_hash=str(bundle_input.candidate_ref.artifact_id),
             source_run_id=bundle_input.run_id,
-            confidence=0.8,
-            trust_level=LessonTrustLevel.LOCAL,
+            confidence=0.5 if kind is LessonKind.OPPORTUNITY else 0.8,
+            trust_level=(
+                LessonTrustLevel.LOW_CONFIDENCE
+                if kind is LessonKind.OPPORTUNITY
+                else LessonTrustLevel.LOCAL
+            ),
             task_family="policy",
             domain="general",
             tags=[
@@ -1165,7 +1202,9 @@ class CalibrationValidationLessonPublisher:
                 for item in (bundle.backtest_matrix.kind_results if bundle.backtest_matrix else [])
             ],
             remediation_hint=(
-                None
+                "Reconcile the actual forecast and holdout sources before promotion."
+                if kind is LessonKind.OPPORTUNITY
+                else None
                 if not summary["gap_flags"]
                 else "Resolve missing C5b evidence channels before promotion."
             ),
@@ -1224,7 +1263,7 @@ def persist_calibration_validation_bundle(
     return CalibrationValidationBundleRef.model_validate(ref.model_dump())
 
 
-def load_calibration_validation_bundle(
+def _load_calibration_validation_bundle(
     store: FileSystemCAS,
     ref: ArtifactRef | CalibrationValidationBundleRef,
 ) -> CalibrationValidationBundle:
@@ -1315,6 +1354,22 @@ def load_calibration_validation_bundle(
         )
         return bundle
     bundle.record_fresh_backtest_report(report, "available", None)
+    return bundle
+
+
+def load_calibration_validation_bundle(
+    store: FileSystemCAS,
+    ref: ArtifactRef | CalibrationValidationBundleRef,
+) -> CalibrationValidationBundle:
+    """Load a bundle and limit its Matrix scores to the freshly resolved report."""
+    bundle = _load_calibration_validation_bundle(store, ref)
+    if bundle.leaderboard_entry is not None:
+        bundle._fresh_matrix_diagnostic_admitted = _limit_loaded_leaderboard_entry(
+            store,
+            bundle.backtest_matrix,
+            bundle.leaderboard_entry,
+            source_available=bundle._fresh_backtest_report_status == "available",
+        )
     return bundle
 
 

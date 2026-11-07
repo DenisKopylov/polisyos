@@ -286,6 +286,15 @@ def _collect_type_symbols(modules: tuple[Any, ...]) -> dict[str, type[Any]]:
                 continue
             if not obj.__module__.startswith(_IR_PACKAGE):
                 continue
+            generic_metadata = getattr(obj, "__pydantic_generic_metadata__", None)
+            if (
+                issubclass(obj, BaseModel)
+                and isinstance(generic_metadata, dict)
+                and generic_metadata.get("origin") is not None
+            ):
+                # Parametrized Pydantic models can appear in the origin module's globals at
+                # runtime; only the declared generic model belongs in the IR type catalog.
+                continue
             result[f"{obj.__module__}.{obj.__qualname__}"] = obj
     return result
 

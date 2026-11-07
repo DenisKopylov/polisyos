@@ -1,0 +1,87 @@
+{
+  "release": "v013",
+  "scope": "SRV-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "findings": [
+    {
+      "id": "C15-R01",
+      "source_id": "LA-015",
+      "status": "reproduced_bounded",
+      "severity": "medium_conditional_on_stock_sentinel_strict_mutation_profile",
+      "confidence": "high_local",
+      "title": "Stock SentinelInjector envelope reaches strict MutationArtifact codec and aborts before benchmark",
+      "locations": [
+        "autotune/runtime.py::SearchLoopRunner._evaluate_candidate prefix",
+        "autotune/models.py::MutationArtifact/PydanticMutationCodec",
+        "search/sentinels.py::SentinelInjector",
+        "search/lifecycle.py::_evaluate_candidate"
+      ],
+      "observations": [
+        "P16",
+        "P17"
+      ],
+      "controls": [
+        "P02",
+        "P04",
+        "P18",
+        "P19",
+        "P29",
+        "P30"
+      ],
+      "preserve": [
+        "strict unknown field refusal",
+        "sentinel outside ordinary history/best",
+        "single native driver",
+        "ordinary mutation numerical route"
+      ],
+      "remaining": "Bind control role separately from mutation through evaluator/registry/state; do not simply drop the marker or relax every schema. Execute real native negative promotion control.",
+      "limits": "No real CAS/registry/benchmark executed; no claim all codecs fail or historical controller introduced regression."
+    },
+    {
+      "id": "C15-G01",
+      "source_id": "LA-015",
+      "status": "actual_consumer_reachability_cross_reference",
+      "title": "Interrupted run has no detached partial return through reviewed runner",
+      "observations": [
+        "P23",
+        "P24"
+      ],
+      "related": [
+        "C12 interrupted-run finding"
+      ],
+      "remaining": "Keep source exception/cancellation while surfacing completed work and exact attempt refs through existing owner. Test actual recovery/readback.",
+      "limits": "Memory sink only; not evidence previously saved real CAS bytes disappear."
+    },
+    {
+      "id": "C15-T01",
+      "source_id": "LA-015",
+      "status": "static_test_contract_difference_with_bounded_owner_control",
+      "title": "Warm trace expects training count for source-unbound scalar",
+      "observations": [
+        "P28"
+      ],
+      "remaining": "Use properly source-bound warm evaluation or qualify history as nontraining. Do not relax source checks.",
+      "limits": "Repository pytest UNRUN; no claim other tests all pass."
+    },
+    {
+      "id": "C15-G02",
+      "source_id": "LA-015",
+      "status": "native_acceptance_unrun",
+      "title": "Actual complex consumer recovery, RNG and compatibility qualification not completed",
+      "remaining": "Run actual SearchLoopRunner warm/sentinel/empty/error/resume traces and retained-history installed readers; keep CTL-02/STP-01 obligations."
+    },
+    {
+      "id": "C15-G03",
+      "source_id": "LA-015",
+      "status": "observed_projection_contract_boundary",
+      "title": "Reserved semantic/strategy field projection differs from declared subject in custom schema",
+      "observations": [
+        "P20",
+        "P21",
+        "P22"
+      ],
+      "remaining": "Version and qualify reserved transport projection for actual producer/codec; reject unsupported subject instead of silently changing it.",
+      "limits": "No production alias model found; not counted as second confirmed-local defect."
+    }
+  ]
+}

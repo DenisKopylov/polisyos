@@ -1,0 +1,456 @@
+{
+  "packet_id": "TRN-02",
+  "lane": "LANE-02",
+  "title": "Полезное bounded discovery и целое поколение памяти",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B129",
+    "B133",
+    "B134"
+  ],
+  "audit_reports": [
+    "02_Пакеты/TRN-02.md"
+  ],
+  "audit_report_sha256": "81541101ac75170228069d4baae1d823984d73bde237ce3226edd10cf1e7c7f3",
+  "sourceplan_lines": [
+    3183,
+    3300
+  ],
+  "practical_goal": "Найти доступный совместимый опыт, прочитать exact snapshot и пережить ошибку native индекса без смешения vectors/metadata.",
+  "requirements": [
+    {
+      "id": "REQ-TRN-02-01",
+      "text": "Compatibility filtering выполняется до окончательной квоты discovery либо через bounded refill с явным exhaustion status.",
+      "source_ids": [
+        "B129",
+        "B133",
+        "B134"
+      ],
+      "audit_ids": [
+        "remaining:0218",
+        "preserve:0335",
+        "preserve:0336",
+        "audit-residual:C26_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-TRN-02-01"
+      ]
+    },
+    {
+      "id": "REQ-TRN-02-02",
+      "text": "Квалифицировать exact Core snapshot/cache custody и ресурсные пределы на настоящем store.",
+      "source_ids": [
+        "B129",
+        "B133",
+        "B134"
+      ],
+      "audit_ids": [
+        "remaining:0219",
+        "remaining:0226",
+        "remaining:0227",
+        "preserve:0335",
+        "preserve:0336",
+        "preserve:0342",
+        "preserve:0343",
+        "audit-residual:C26_остатки:1",
+        "audit-residual:C26_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-TRN-02-02"
+      ]
+    },
+    {
+      "id": "REQ-TRN-02-03",
+      "text": "Поддержанное native поколение index/metadata публикуется целиком и сохраняется после failed mutation/load.",
+      "source_ids": [
+        "B129",
+        "B133",
+        "B134"
+      ],
+      "audit_ids": [
+        "remaining:0226",
+        "remaining:0228",
+        "remaining:0229",
+        "preserve:0344",
+        "preserve:0345",
+        "preserve:0346",
+        "audit-residual:C26_остатки:1",
+        "audit-residual:C26_остатки:2"
+      ],
+      "test_ids": [
+        "TEST-TRN-02-03"
+      ]
+    },
+    {
+      "id": "REQ-TRN-02-04",
+      "text": "Замкнуть actual portable rows producer→selected artifact→runtime consumer и измерить native стоимость.",
+      "source_ids": [
+        "B129",
+        "B133",
+        "B134"
+      ],
+      "audit_ids": [
+        "remaining:0219",
+        "remaining:0226",
+        "remaining:0228",
+        "remaining:0229",
+        "preserve:0346",
+        "audit-residual:C26_остатки:1",
+        "audit-residual:C26_остатки:2"
+      ],
+      "test_ids": [
+        "TEST-TRN-02-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-TRN-02-01",
+      "requirement_ids": [
+        "REQ-TRN-02-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Ordered index: два incompatible ближайших, третий compatible; requested top_k1; малый и достаточный scan budgets; exact history ref.",
+      "action": "Actual discovery→binding filter→history read, проверить количество index calls и budget status.",
+      "oracle": "При достаточном bounded budget compatible третий возвращён; при меньшем честная неполнота, не ложное отсутствие; selected ref читается без второго ANN.",
+      "expected": "Нельзя снять tenant фильтр; не обещать exhaustive recall ANN; новая совместимая source запись работает без case-ID branch.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-TRN-02-02",
+      "requirement_ids": [
+        "REQ-TRN-02-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Old/new history same run с scores1/9, selected profile drift, cache corruption,129 small entries и oversized payload; actual authorised CAS.",
+      "action": "Warm/cold/fresh reads, caller mutation, eviction и access revocation; измерить payload reads отдельно от owner checks.",
+      "oracle": "Последовательность old/new/old/alias/fresh =1/9/1/9/9; cache hit не обходит current custody; oversized читается без caching; eviction не удаляет provenance.",
+      "expected": "32MiB — retained payload budget, не RSS ceiling; corruption ≠ empty; missing key не nearest fallback.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-TRN-02-03",
+      "requirement_ids": [
+        "REQ-TRN-02-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Десятки deterministic finite vectors, owned metadata, current generation digest; add/update/query/save concurrent barriers; candidate corrupt bundle.",
+      "action": "Actual add/load/query и fresh process read; failure injection после actual add, затем rollback failure variant.",
+      "oracle": "Old или new согласованный key/vector/meta набор; ни один reader не видит mixed generation; rollback восстанавливает прежние bytes/binding; failed rollback не выдаёт данные.",
+      "expected": "Capacity не снимается; metadata callbacks/cycles/reserved keys отвергнуты до mutation; обычный query не snapshot/rebuild.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-TRN-02-04",
+      "requirement_ids": [
+        "REQ-TRN-02-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Actual source history→portable rows artifact; fresh process без предварительно allocated index; malformed NPZ/profile/lineage и превышение лимитов.",
+      "action": "Producer persist→runtime selected ref load→candidate discovery→TRN-01 target consumer, записать time/peak memory/calls.",
+      "oracle": "Совместимый ресурс даёт полезный hit/readback; tamper не публикует candidate generation; normal reads не rebuild; actual стоимость/ограничения видимы.",
+      "expected": "Bytes cap не total memory; native graph admission не включать по умолчанию ради теста; fixture interface PASS не native stress.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C26_остатки:0",
+      "requirement_ids": [
+        "REQ-TRN-02-01"
+      ],
+      "rationale": "Bounded compatible discovery.",
+      "disposition": "fix",
+      "audit_id": "C26-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C26_остатки:1",
+      "requirement_ids": [
+        "REQ-TRN-02-02",
+        "REQ-TRN-02-03",
+        "REQ-TRN-02-04"
+      ],
+      "rationale": "Native source/portable actual producer.",
+      "disposition": "capability",
+      "audit_id": "C26-G01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C26_остатки:2",
+      "requirement_ids": [
+        "REQ-TRN-02-03",
+        "REQ-TRN-02-04"
+      ],
+      "rationale": "Native measured lifecycle cost.",
+      "disposition": "qualify",
+      "audit_id": "C26-G02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C26_остатки:3",
+      "requirement_ids": [
+        "REQ-TRN-02-02"
+      ],
+      "rationale": "Coverage assertion по реальной fixture schema.",
+      "disposition": "fix",
+      "audit_id": "C26-G03",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B129",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-TRN-02-01",
+        "REQ-TRN-02-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B133",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-TRN-02-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B134",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-TRN-02-03",
+        "REQ-TRN-02-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0218",
+      "requirement_ids": [
+        "REQ-TRN-02-01"
+      ],
+      "rationale": "Refill до final quota.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0219",
+      "requirement_ids": [
+        "REQ-TRN-02-02",
+        "REQ-TRN-02-04"
+      ],
+      "rationale": "Actual owner/source.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0226",
+      "requirement_ids": [
+        "REQ-TRN-02-02",
+        "REQ-TRN-02-03",
+        "REQ-TRN-02-04"
+      ],
+      "rationale": "Native custody/resources.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0227",
+      "requirement_ids": [
+        "REQ-TRN-02-02"
+      ],
+      "rationale": "Stale fixture assertion reconcile.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0228",
+      "requirement_ids": [
+        "REQ-TRN-02-03",
+        "REQ-TRN-02-04"
+      ],
+      "rationale": "HNSW/portable consumer chain.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0229",
+      "requirement_ids": [
+        "REQ-TRN-02-03",
+        "REQ-TRN-02-04"
+      ],
+      "rationale": "Snapshot/recovery cost.",
+      "disposition": "qualify"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0335",
+      "requirement_ids": [
+        "REQ-TRN-02-01",
+        "REQ-TRN-02-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Compatibility filtering выполняется до окончательной квоты discovery либо через bounded refill с явным exhaustion status.; Квалифицировать exact Core snapshot/cache custody и ресурсные пределы на настоящем store.",
+      "test_ids": [
+        "TEST-TRN-02-01",
+        "TEST-TRN-02-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0336",
+      "requirement_ids": [
+        "REQ-TRN-02-01",
+        "REQ-TRN-02-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Compatibility filtering выполняется до окончательной квоты discovery либо через bounded refill с явным exhaustion status.; Квалифицировать exact Core snapshot/cache custody и ресурсные пределы на настоящем store.",
+      "test_ids": [
+        "TEST-TRN-02-01",
+        "TEST-TRN-02-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0342",
+      "requirement_ids": [
+        "REQ-TRN-02-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Квалифицировать exact Core snapshot/cache custody и ресурсные пределы на настоящем store.",
+      "test_ids": [
+        "TEST-TRN-02-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0343",
+      "requirement_ids": [
+        "REQ-TRN-02-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Квалифицировать exact Core snapshot/cache custody и ресурсные пределы на настоящем store.",
+      "test_ids": [
+        "TEST-TRN-02-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0344",
+      "requirement_ids": [
+        "REQ-TRN-02-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Поддержанное native поколение index/metadata публикуется целиком и сохраняется после failed mutation/load.",
+      "test_ids": [
+        "TEST-TRN-02-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0345",
+      "requirement_ids": [
+        "REQ-TRN-02-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Поддержанное native поколение index/metadata публикуется целиком и сохраняется после failed mutation/load.",
+      "test_ids": [
+        "TEST-TRN-02-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0346",
+      "requirement_ids": [
+        "REQ-TRN-02-03",
+        "REQ-TRN-02-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Поддержанное native поколение index/metadata публикуется целиком и сохраняется после failed mutation/load.; Замкнуть actual portable rows producer→selected artifact→runtime consumer и измерить native стоимость.",
+      "test_ids": [
+        "TEST-TRN-02-03",
+        "TEST-TRN-02-04"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I02-D",
+    "E02-X03"
+  ],
+  "dependencies": [
+    "TRN-01 — численный admission и target reevaluation, не ANN similarity.",
+    "Existing Core/CAS owner сохраняет доступ/profile на cached read; не второй authority cache.",
+    "Тяжёлый tiny native job один coordinated slot, без одновременного GP job."
+  ],
+  "preservation": [
+    "Discovered selected profile preserved.",
+    "No second ANN; corruption distinct from empty.",
+    "Old/new snapshots and current alias distinct.",
+    "Fresh decode, repeated source check,128 entries/32MiB.",
+    "Lock across query/mutation/save capture.",
+    "Partial mutation restore, failed rollback unavailable.",
+    "Candidate load before publish; portable row and default native trust guard."
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    ""
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "symbol_or_anchor": "    def find_similar_runs(",
+      "lines": [
+        184,
+        216
+      ],
+      "sha256": "47cf5b8f4e1553aa6419ea54c09274e60375ef4e8e52fb91876e1d787c016102",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py#L184-L216"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "symbol_or_anchor": "    def _history_cache_key(",
+      "lines": [
+        465,
+        497
+      ],
+      "sha256": "47cf5b8f4e1553aa6419ea54c09274e60375ef4e8e52fb91876e1d787c016102",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py#L465-L497"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "symbol_or_anchor": "    def add(",
+      "lines": [
+        362,
+        394
+      ],
+      "sha256": "c51ec0fb39598b0ff98ad1de0ec576f2cc428be90e11028a9489738ec79dbf6e",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/agent/vector_memory.py#L362-L394"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "symbol_or_anchor": "    def from_portable_artifact(",
+      "lines": [
+        317,
+        349
+      ],
+      "sha256": "c51ec0fb39598b0ff98ad1de0ec576f2cc428be90e11028a9489738ec79dbf6e",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/agent/vector_memory.py#L317-L349"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-TRN-02-01",
+      "text": "find_similar_runs использовать existing index-owner filter, если он действительно поддерживает exact binding, либо повторный bounded расширяющий query с дедупом visited keys и лимитом scanned/results/work. Сохранять tenant/split/space predicates, не увеличивать fixed multiplier как доказательство полноты. Пустой bounded result маркируется budget_exhausted/no_compatible_in_scanned, не no_history_anywhere. Exact known ref не проходит ANN повторно."
+    },
+    {
+      "requirement_id": "REQ-TRN-02-02",
+      "text": "Сохранить full ref+fingerprint cache key, immutable bytes, fresh decode/revalidation, LRU128/32MiB. Actual read_core_json_artifact на hit повторяет selected profile/owner checks. Обновление run alias выбирает новый ref, старый replay остаётся старым. Исправить stale test coverage key только по actual producer schema, не добавлением fabricated coverage."
+    },
+    {
+      "requirement_id": "REQ-TRN-02-03",
+      "text": "Исполнить existing RLock/_Generation snapshot→poison→native add→publish/restore. Tiny hnswlib0.8.0 с capacity/shape negatives, controlled backend partial mutation failure и actual rollback load; при failed rollback все операции unavailable. Load полностью строит candidate index до switch. Не заменить native failure только preflight fixture; fault wrapper должен делегировать реальной мутации до сбоя."
+    },
+    {
+      "requirement_id": "REQ-TRN-02-04",
+      "text": "Existing save portable v3 создаёт bounded JSON+NPZ selected members/lineage из approved source rows; передать этот ref существующему candidate-only runtime loader, а не caller fabricated label. from_portable_artifact проверяет dtype/finite/count/dimension/work limits и rebuild. Default external native graph trust refusal сохранить; explicit native opt-in требует отдельного origin qualification. Измерить snapshot-per-add/recovery/rebuild на tiny native profile без выдуманного throughput SLA."
+    }
+  ]
+}

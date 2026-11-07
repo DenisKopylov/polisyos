@@ -4,11 +4,11 @@
 
 ## Bound artifact and verification
 
-The review is bound to HEAD `a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d`, tree `1355896e91789026d21396d2b087c63827ab251b`, and source frame [`root-author-source-frame-r1267-20261014.json`](../root-author-source-frame-r1267-20261014.json) SHA-256 `a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803`. The candidate is [`candidate.patch`](../raw/r1296-s1-owner-run-basis-and-graph-intake-composition-successor-20261014/candidate.patch) SHA-256 `31bb712b1db9f406ccb39bd617ddc8ee88345ed287351557ab3cfa3d92e7fab5`; its manifest is SHA-256 `84a815398ff35c2b4f1021dc060640710d762686fecb628372a8ea3e84368c88`.
+The review is bound to HEAD `a746e1b0b1fab1b9ae027c1c4b55eea67f95e02d`, tree `1355896e91789026d21396d2b087c63827ab251b`, and source frame [`root-author-source-frame-r1267-20261014.json`](../root-author-source-frame-r1267-20261014.json) SHA-256 `a5403a64bcbac9d3a3038396d828bc018fcd96f348060f2150e38a89f7405803`. The candidate is `candidate.patch` (`../raw/r1296-s1-owner-run-basis-and-graph-intake-composition-successor-20261014/candidate.patch`; unavailable in this checkout) SHA-256 `31bb712b1db9f406ccb39bd617ddc8ee88345ed287351557ab3cfa3d92e7fab5`; its manifest is SHA-256 `84a815398ff35c2b4f1021dc060640710d762686fecb628372a8ea3e84368c88`.
 
 I reconstructed the four postimages in memory from the frozen patch. Their byte sizes and SHA-256 values match the manifest, and all four parse with Python AST. All four preimages match the candidate base, and the six source bindings match current source. No source edits or runtime tests were performed. The checkout contains pre-existing untracked LOCAL artifacts; this review did not modify them.
 
-R1292 is the actual pre-candidate wave at [`full-nonpass-case-outputs.json`](../raw/s1-s2-s3-source35-first-corrected-batch-actual-r1292-20261014/full-nonpass-case-outputs.json) SHA-256 `2307ac73c1a62bdbf71c7d2fb881784bf347e12f087be536fbd118e13a2c1ba7`: 21 targets, 596 cases, 589 passed, 7 failed, 0 errors, 0 skipped, 6,588 source inputs, 34.332391 seconds. The seven old failures remain failures in that receipt; this review does not retroactively convert them into passes.
+R1292 is the actual pre-candidate wave at `full-nonpass-case-outputs.json` (`../raw/s1-s2-s3-source35-first-corrected-batch-actual-r1292-20261014/full-nonpass-case-outputs.json`; unavailable in this checkout) SHA-256 `2307ac73c1a62bdbf71c7d2fb881784bf347e12f087be536fbd118e13a2c1ba7`: 21 targets, 596 cases, 589 passed, 7 failed, 0 errors, 0 skipped, 6,588 source inputs, 34.332391 seconds. The seven old failures remain failures in that receipt; this review does not retroactively convert them into passes.
 
 ## Why the test corrections are sound
 

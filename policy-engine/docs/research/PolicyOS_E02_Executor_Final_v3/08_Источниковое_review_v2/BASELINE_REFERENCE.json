@@ -1,0 +1,9 @@
+{
+  "file": "PolicyOS_E02_Technical_Review_and_Executor_Specs_v2_2026-11-01.zip",
+  "library_file_id": "libfile_dcf2120fdfcc8191b432fb72412c85f8",
+  "file_id": "file_0000000098f881f5890811b1794fd6a7",
+  "sha256": "7f22b1737f67b20137ce57b95bc77b244c479d4c850e96aab3f3e518e68501ed",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "target": "baseline/PolicyOS_E02_Review_and_Specs_v2/00_\u041e\u0431\u0449\u0435\u0435,01_\u041b\u0435\u0439\u043d\u044b,02_\u041f\u0430\u043a\u0435\u0442\u044b,03_\u0418\u043d\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u044f,04_\u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043e\u0432\u043a\u0430",
+  "exclude_historical_target": "07_\u0422\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u043e\u0435_review/baseline is v1 historical evidence, not current audit target"
+}

@@ -1,0 +1,289 @@
+{
+  "packet_id": "DOE-01",
+  "title": "Квалификация bounded/adaptive DoE и передачи последнего дизайна",
+  "goal": "Возвращать реально завершённое исследование с его дизайном и наблюдаемой стоимостью без скрытых раундов.",
+  "work_type": "C116-G01 qualify; C116-G02 lifecycle/consumer binding; локальные B97–99 repaired",
+  "preservation": [
+    "Lazy exact GRID prefix и own bounded array.",
+    "Last completed result, explicit allow_large_run и phase-specific attempts.",
+    "Неизвестное количество строк после evaluator exception остаётся unknown, не0."
+  ],
+  "technical_solution": [
+    "Не менять исправленный islice/materialization и permission guard без regression. Существующие test_doe_01 расширить real SALib route.",
+    "Установить actual consumers AdaptiveResult: если existing trajectory artifact owner достаточен, добавить optional exact final-design ref/context к result/round, writer сохраняет source matrix и axes/seed/backend, reader сверяет. Если production caller не найден — документировать API handoff и интегрировать minimal existing scientific consumer, не invent orchestration service.",
+    "Использовать attempts и total_evaluations для наблюдаемой стоимости; global budget только через существующего owner, если найден. Независимая confirming replica — отдельный explicit round/seed, не служебный rerun."
+  ],
+  "owners": [
+    "src/polisyos/scientist/methods/doe/adaptive.py",
+    "src/polisyos/scientist/methods/doe/sampling.py",
+    "src/polisyos/scientist/methods/doe/designs.py",
+    "tests/unit/remediation/test_doe_01.py"
+  ],
+  "shared_scenarios": [
+    "E02-I10-C"
+  ],
+  "coordination": "DOE-02 владеет mapping/seed/design identity, DOE-03 retained trajectory consumer. CP3, не блокировать CAL CP4 whole lane.",
+  "compatibility": "Existing return semantics и explicit override сохраняются; additive ref/context по actual owner. Legacy bare result читается с not-established source scope, не переаттестуется.",
+  "design_alignment": [
+    "[North Star §5](../05_Основания/Архитектура/policy-design-causal-operating-system-north-star.md#5-data-acquisition-and-the-real-product) и [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md#d25-epistemic-regime-architecture): ограниченный поиск даёт полезный результат и следующий запрос данных, не ложную полноту. [Синтез §4](../05_Основания/Исследование/design_direction.md): развивать существующий общий механизм."
+  ],
+  "open_decisions": [
+    "DEC-DOE-01-01: finite caller/storage census, выбрать existing artifact handoff либо точный missing adapter. Выход — producer/consumer diagram и minimal acceptance fixture. Не считать отсутствие найденного caller универсальным system failure."
+  ],
+  "acceptance": "Native repaired mechanics плюс exact design handoff. Ranking stability не scientific convergence, три угла не robust-policy coverage.",
+  "lane": "LANE-10",
+  "source_ids": [
+    "B97",
+    "B98",
+    "B99"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/DOE-01.md"
+  ],
+  "requirements": [
+    {
+      "text": "GRID_EXTREME должен материализовать только разрешённый prefix и не удерживать полный product; ограниченность покрытия явно сохраняется.",
+      "source_ids": [
+        "B97"
+      ],
+      "audit_ids": [
+        "C116-G01"
+      ],
+      "id": "REQ-DOE-01-01",
+      "test_ids": [
+        "TEST-DOE-01-01"
+      ]
+    },
+    {
+      "text": "AdaptiveSampler должен возвращать последний completed round без hidden rerun; permission не повышается, ошибки последующей стадии не уничтожают прежний результат.",
+      "source_ids": [
+        "B98",
+        "B99"
+      ],
+      "audit_ids": [
+        "C116-G01"
+      ],
+      "id": "REQ-DOE-01-02",
+      "test_ids": [
+        "TEST-DOE-01-02"
+      ]
+    },
+    {
+      "text": "Передача final result должна связывать его с фактическим design/axes/seed/stream и completed round; при отсутствии production caller нужен bounded owner decision, не фиктивный source ref.",
+      "source_ids": [
+        "B98"
+      ],
+      "audit_ids": [
+        "C116-G02"
+      ],
+      "id": "REQ-DOE-01-03",
+      "test_ids": [
+        "TEST-DOE-01-03"
+      ]
+    },
+    {
+      "text": "Отчёт стоимости должен различать per-design cap, известные completed rows, неизвестную partial evaluation и sampling/analysis cost; это не новый global budget grant.",
+      "source_ids": [
+        "B99"
+      ],
+      "audit_ids": [
+        "C116-G02"
+      ],
+      "id": "REQ-DOE-01-04",
+      "test_ids": [
+        "TEST-DOE-01-02",
+        "TEST-DOE-01-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "generator property",
+      "setup": "12 bounded parameters, cap3.",
+      "action": "Count product iteration и inspect ndarray.base; compare exact old prefix generated only in tiny control.",
+      "oracle": "Ровно3 rows, shape3×12, float64 nbytes288, base=None; 10 constant axes отмечают limited coverage, не4096 corners.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DOE-01-01",
+      "requirement_ids": [
+        "REQ-DOE-01-01"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "adaptive real orchestration",
+      "setup": "2 params Morris; one/two rounds trajectories2/4; cap6 False/True; generation/evaluation/analysis faults.",
+      "action": "Actual AdaptiveSampler with bounded real SALib; phase faults injected only at declared boundary.",
+      "oracle": "Calls [6] или[6,12], не hidden third; False stops before12, True permits. Failed second analysis preserves first result6 и observed rows18; evaluator partial unknown не0.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DOE-01-02",
+      "requirement_ids": [
+        "REQ-DOE-01-02",
+        "REQ-DOE-01-04"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "E02-I10-C actual handoff",
+      "setup": "Finite census AdaptiveSampler callers and existing trajectory storage; selected actual small design.",
+      "action": "Bind last completed design through existing artifact/ref owner, fresh consumer reload; mutate seed/axes/round identity.",
+      "oracle": "Consumer воспроизводит именно final completed design; mismatch не выдаёт valid indices. Если caller отсутствует, явный adapter contract+bounded implementation path, no fabricated lifecycle PASS.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-DOE-01-03",
+      "requirement_ids": [
+        "REQ-DOE-01-03",
+        "REQ-DOE-01-04"
+      ],
+      "status": "NOT_RUN"
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "B97",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Lazy repair сохранить.",
+      "requirement_ids": [
+        "REQ-DOE-01-01"
+      ]
+    },
+    {
+      "audit_id": "B98",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Hidden rerun убран; result без exact sample ref требует consumer binding.",
+      "requirement_ids": [
+        "REQ-DOE-01-02",
+        "REQ-DOE-01-03"
+      ]
+    },
+    {
+      "audit_id": "B99",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Permission repaired; per-design не суммарный cap.",
+      "requirement_ids": [
+        "REQ-DOE-01-02",
+        "REQ-DOE-01-04"
+      ]
+    },
+    {
+      "audit_id": "C116-G01",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Нужны actual SALib/consumer, synthetic analyzer не научная квалификация.",
+      "requirement_ids": [
+        "REQ-DOE-01-01",
+        "REQ-DOE-01-02"
+      ],
+      "inventory_id": "audit-residual:C116_остатки:0"
+    },
+    {
+      "audit_id": "C116-G02",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Finite owner/caller census и exact design handoff, не новый registry.",
+      "requirement_ids": [
+        "REQ-DOE-01-03",
+        "REQ-DOE-01-04"
+      ],
+      "inventory_id": "audit-residual:C116_остатки:1"
+    }
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "SPECIFICATION_NOT_IMPLEMENTED",
+  "dependencies": [],
+  "protected_distinction_ids": [],
+  "original_source": "../05_Основания/Аудит/05_Источники/DOE-01_исходные_строки.txt",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0161",
+      "requirement_ids": [
+        "REQ-DOE-01-01",
+        "REQ-DOE-01-02"
+      ],
+      "disposition": "qualify",
+      "rationale": "Нужны actual SALib/consumer, synthetic analyzer не научная квалификация."
+    },
+    {
+      "inventory_id": "remaining:0162",
+      "requirement_ids": [
+        "REQ-DOE-01-03",
+        "REQ-DOE-01-04"
+      ],
+      "disposition": "lifecycle",
+      "rationale": "Finite owner/caller census и exact design handoff, не новый registry."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0261",
+      "requirement_ids": [
+        "REQ-DOE-01-01"
+      ],
+      "test_ids": [
+        "TEST-DOE-01-01"
+      ],
+      "rationale": "Lazy exact GRID prefix — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0262",
+      "requirement_ids": [
+        "REQ-DOE-01-01"
+      ],
+      "test_ids": [
+        "TEST-DOE-01-01"
+      ],
+      "rationale": "Own bounded array — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0263",
+      "requirement_ids": [
+        "REQ-DOE-01-02",
+        "REQ-DOE-01-03"
+      ],
+      "test_ids": [
+        "TEST-DOE-01-02",
+        "TEST-DOE-01-03"
+      ],
+      "rationale": "Last completed result — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0264",
+      "requirement_ids": [
+        "REQ-DOE-01-02"
+      ],
+      "test_ids": [
+        "TEST-DOE-01-02"
+      ],
+      "rationale": "Explicit permission preservation — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0265",
+      "requirement_ids": [
+        "REQ-DOE-01-04"
+      ],
+      "test_ids": [
+        "TEST-DOE-01-02",
+        "TEST-DOE-01-03"
+      ],
+      "rationale": "Phase-specific observed work — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0266",
+      "requirement_ids": [
+        "REQ-DOE-01-04"
+      ],
+      "test_ids": [
+        "TEST-DOE-01-02",
+        "TEST-DOE-01-03"
+      ],
+      "rationale": "Unknown evaluator work remains unknown — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    }
+  ]
+}

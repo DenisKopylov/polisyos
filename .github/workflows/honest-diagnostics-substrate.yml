@@ -41,7 +41,8 @@ jobs:
       - name: Install Python
         run: uv python install
       - name: Runtime quality contracts
-        run: uv run pytest tests/unit/runtime/quality -q
+        # The suite exercises credal-reference CP-SAT behavior from the declared solver extra.
+        run: uv run --extra solvers pytest tests/unit/runtime/quality -q
       - name: Registry and proof gates
         run: |
           uv run pytest tests/repo_quality/tools/test_production_invariant_registry.py -q

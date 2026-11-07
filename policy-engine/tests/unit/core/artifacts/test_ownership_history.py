@@ -130,6 +130,25 @@ def _write_signed_v2_index(
     return index, index_bytes, signature_bytes
 
 
+def _write_signed_v3_legacy_index(
+    root: Path,
+) -> tuple[ArtifactOwnershipIndex, bytes, bytes]:
+    index = ArtifactOwnershipIndex(root)
+    payload: dict[str, Any] = {
+        "schema_version": _V3_INDEX_SCHEMA,
+        "mode": _MODE,
+        "artifacts": {},
+        "blob_readers": {},
+        "public_read_closures": {},
+    }
+    index_bytes = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode()
+    signature = index._signature_payload(payload, digest=_canonical_sha256(payload))
+    signature_bytes = (json.dumps(signature, indent=2, sort_keys=True) + "\n").encode()
+    index.path.write_bytes(index_bytes)
+    index.signature_path.write_bytes(signature_bytes)
+    return index, index_bytes, signature_bytes
+
+
 def _write_signed_index_documents(
     root: Path,
     raw_payload: dict[str, Any],
@@ -432,6 +451,85 @@ def test_evidence_read_preserves_valid_v2_index_and_signature_bytes(
     assert "ownership_index_pointer_sha256" not in evidence
 
 
+@pytest.mark.parametrize("legacy_version", ["v1", "v2", "v3"])
+def test_current_generation_token_revalidates_legacy_signature_pair(
+    tmp_path: Path,
+    legacy_version: str,
+) -> None:
+    artifact_id = ArtifactID.from_sha256_hex("b" * 64)
+    if legacy_version == "v1":
+        index, _payload, _index_bytes, _signature_bytes = _write_signed_v1_index(
+            tmp_path,
+            artifact_id,
+        )
+    elif legacy_version == "v2":
+        index, _index_bytes, _signature_bytes = _write_signed_v2_index(
+            tmp_path,
+            {
+                "artifacts": {
+                    str(artifact_id): [
+                        {
+                            "tenant_id": "tenant-a",
+                            "claimed_at": "2024-01-01T00:00:00+00:00",
+                        }
+                    ]
+                },
+                "blob_readers": {},
+            },
+        )
+    else:
+        index, _index_bytes, _signature_bytes = _write_signed_v3_legacy_index(tmp_path)
+
+    token = index._current_generation_token()
+    evidence = index.evidence()
+    expected_material = (
+        f"{evidence['ownership_index_digest']}:{evidence['ownership_index_signature_digest']}"
+    )
+    assert token == "sha256:" + hashlib.sha256(expected_material.encode()).hexdigest()
+
+    signature_bytes = index.signature_path.read_bytes()
+    signature_stat = index.signature_path.stat()
+    signature = json.loads(signature_bytes)
+    original_signature = signature["signature"]
+    signature["signature"] = ("0" if original_signature[0] != "0" else "1") + (
+        original_signature[1:]
+    )
+    tampered_signature_bytes = (json.dumps(signature, indent=2, sort_keys=True) + "\n").encode()
+    assert len(tampered_signature_bytes) == len(signature_bytes)
+    index.signature_path.write_bytes(tampered_signature_bytes)
+    os.utime(
+        index.signature_path,
+        ns=(signature_stat.st_atime_ns, signature_stat.st_mtime_ns),
+    )
+
+    with pytest.raises(ValueError, match="ownership_index_signature_invalid"):
+        index._current_generation_token()
+
+
+def test_current_generation_token_distinguishes_ephemeral_empty_from_signed_empty(
+    tmp_path: Path,
+) -> None:
+    ephemeral = ArtifactOwnershipIndex(tmp_path / "ephemeral")
+    ephemeral_token = ephemeral._current_generation_token()
+    assert ephemeral_token == ephemeral._current_generation_token()
+    assert not ephemeral.path.exists()
+    assert not ephemeral.signature_path.exists()
+
+    signed_empty, _index_bytes, _signature_bytes = _write_signed_index_documents(
+        tmp_path / "signed-empty",
+        {},
+        {
+            "schema_version": _V1_INDEX_SCHEMA,
+            "mode": _MODE,
+            "artifacts": {},
+        },
+    )
+    signed_empty_token = signed_empty._current_generation_token()
+
+    assert signed_empty_token != ephemeral_token
+    assert signed_empty._current_generation_token() == signed_empty_token
+
+
 def test_ambiguous_duplicate_schema_fails_before_stale_legacy_fallback(
     tmp_path: Path,
 ) -> None:
@@ -472,6 +570,7 @@ def test_ambiguous_duplicate_schema_fails_before_stale_legacy_fallback(
 def test_explicit_blob_reader_admission_migrates_legacy_pair_to_exact_generation_history(
     tmp_path: Path,
     legacy_version: str,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     existing_id = ArtifactID.from_sha256_hex("2" * 64)
     reader_id = ArtifactID.from_sha256_hex("3" * 64)
@@ -567,6 +666,17 @@ def test_explicit_blob_reader_admission_migrates_legacy_pair_to_exact_generation
     assert index.signature_path.read_bytes() == legacy_signature_bytes
     assert index.has_any_tenant_claim(reader_id)
 
+    history_checks: list[str] = []
+    original_history_status = index._pre_v3_history_status
+
+    def observe_history_status(generation_sha256: str) -> str:
+        history_checks.append(generation_sha256)
+        return original_history_status(generation_sha256)
+
+    monkeypatch.setattr(index, "_pre_v3_history_status", observe_history_status)
+    assert index._current_generation_token() == pointer["generation_sha256"]
+    assert history_checks == []
+
     evidence = index.evidence(tenant_id="tenant-b", cell_id="cell-b")
     assert evidence["ownership_evidence_schema_version"] == _EVIDENCE_SCHEMA_V3
     assert evidence["ownership_index_format"] == _POINTER_GENERATION_FORMAT
@@ -588,6 +698,7 @@ def test_explicit_blob_reader_admission_migrates_legacy_pair_to_exact_generation
     assert evidence["ownership_index_pre_v3_history_status"] == (
         "current_pair_captured; earlier_overwritten_generations_unresolved"
     )
+    assert history_checks == [pointer["generation_sha256"]]
     assert set(evidence) == {
         "mode",
         "schema_version",
@@ -616,6 +727,7 @@ def test_explicit_blob_reader_admission_migrates_legacy_pair_to_exact_generation
     assert later_evidence["ownership_index_pre_v3_history_status"] == (
         "current_pair_captured; earlier_overwritten_generations_unresolved"
     )
+    assert history_checks[-1] == json.loads(index.path.read_bytes())["generation_sha256"]
 
 
 def test_public_read_closure_is_per_record_replayable_and_revocable(tmp_path: Path) -> None:
@@ -789,6 +901,7 @@ def test_generation_updates_are_immutable_and_link_to_prior_generation(
     index.record_owner(first_id, tenant_id="tenant-a")
 
     first_pointer = json.loads(index.path.read_bytes())
+    assert index._current_generation_token() == first_pointer["generation_sha256"]
     first_path = (
         index.directory
         / "generations"
@@ -802,6 +915,7 @@ def test_generation_updates_are_immutable_and_link_to_prior_generation(
     index.record_blob_reader(second_id, tenant_id="tenant-b")
 
     second_pointer = json.loads(index.path.read_bytes())
+    assert index._current_generation_token() == second_pointer["generation_sha256"]
     second_path = (
         index.directory
         / "generations"
@@ -982,6 +1096,7 @@ def test_generation_snapshot_cache_hash_checks_current_bytes_and_pointer(
     assert index.is_owned_by(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
 
     pointer = json.loads(index.path.read_bytes())
+    assert index._current_generation_token() == pointer["generation_sha256"]
     generation_path = index._generation_path(pointer["generation_sha256"])
     generation_bytes = generation_path.read_bytes()
     generation_stat = generation_path.stat()
@@ -994,6 +1109,8 @@ def test_generation_snapshot_cache_hash_checks_current_bytes_and_pointer(
         ns=(generation_stat.st_atime_ns, generation_stat.st_mtime_ns),
     )
     with pytest.raises(ValueError, match="ownership_index_generation_invalid"):
+        index._current_generation_token()
+    with pytest.raises(ValueError, match="ownership_index_generation_invalid"):
         index.is_owned_by(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
 
     generation_path.write_bytes(generation_bytes)
@@ -1001,6 +1118,7 @@ def test_generation_snapshot_cache_hash_checks_current_bytes_and_pointer(
         generation_path,
         ns=(generation_stat.st_atime_ns, generation_stat.st_mtime_ns),
     )
+    assert index._current_generation_token() == pointer["generation_sha256"]
     assert index.is_owned_by(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
 
     pointer["extra"] = "cached_pointer_must_not_hide_shape_failure"

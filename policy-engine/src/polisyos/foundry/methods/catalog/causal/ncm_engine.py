@@ -30,10 +30,12 @@ import math
 import time
 from collections import deque
 from collections.abc import Mapping, Sequence
+from statistics import NormalDist, pstdev
 from typing import Any, ClassVar, Literal
 
 import numpy as np
 
+from polisyos.common.numeric_reductions import finite_binary64_mean
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -66,6 +68,24 @@ from polisyos.ir.analytics.structural_causal_model import NodeMechanism
 def _append_warning(warnings: list[str], message: str) -> None:
     if message not in warnings:
         warnings.append(message)
+
+
+def _normal_reference_quantile(confidence_level: float) -> float | None:
+    """Return a deterministic representable lower-tail normal quantile.
+
+    This is an arithmetic reference for the descriptive simulated mean, not
+    evidence of calibrated coverage or independent Monte Carlo draws.
+    """
+    if not math.isfinite(confidence_level) or not 0.0 < confidence_level < 1.0:
+        raise ValueError("confidence_level must be finite and strictly between 0 and 1")
+    # The equivalent upper-tail probability can round to1 for a valid level.
+    tail = (1.0 - confidence_level) / 2.0
+    if tail == 0.5:
+        return None
+    quantile = -NormalDist().inv_cdf(tail)
+    if not math.isfinite(quantile) or quantile <= 0.0:
+        return None
+    return quantile
 
 
 def _equation_deterministic_term(
@@ -1041,8 +1061,9 @@ class NCMEngineMethod:
         ),
         typical_min_obs=500,
         output_interpretation=(
-            "counterfactual_result contains mean/std/CI for each query variable "
-            "in each specified intervention world."
+            "counterfactual_result schema2.0 preserves mean, descriptive population std and "
+            "draw count for each world. Nullable normal-reference mean bounds are explicitly "
+            "descriptive-unqualified, not calibrated sampling or causal confidence."
         ),
     )
 
@@ -1052,12 +1073,18 @@ class NCMEngineMethod:
 
         t0 = time.time()
         seed = params.get("__seed__")
-        rng = np.random.default_rng(seed)
 
         n_samples = int(params.get("n_samples", 2000))
         abduction_method = str(params.get("abduction_method", "exact"))
         root_selection_policy = str(params.get("root_selection_policy", "closest_to_prior"))
-        confidence_level = float(params.get("confidence_level", 0.95))
+        try:
+            confidence_level = float(params.get("confidence_level", 0.95))
+        except (OverflowError, TypeError, ValueError) as error:
+            raise ValueError(
+                "confidence_level must be finite and strictly between 0 and 1"
+            ) from error
+        quantile = _normal_reference_quantile(confidence_level)
+        rng = np.random.default_rng(seed)
 
         # Parse input
         raw = state.get("ncm_query_data", state)
@@ -1097,9 +1124,6 @@ class NCMEngineMethod:
         )
 
         # Summarise results per world per query variable
-        alpha = 1.0 - confidence_level
-        z = float(np.abs(np.percentile(np.random.standard_normal(100_000), alpha / 2 * 100)))
-
         world_summaries: list[dict[str, Any]] = []
         for w_idx, world_vals in enumerate(worlds):
             summary: dict[str, Any] = {"world_index": w_idx, "intervention": interventions[w_idx]}
@@ -1108,15 +1132,43 @@ class NCMEngineMethod:
                 arr = world_vals.get(var)
                 if arr is None or len(arr) == 0:
                     continue
-                mean = float(np.mean(arr))
-                std = float(np.std(arr))
-                se = std / math.sqrt(len(arr))
+                values = np.asarray(arr, dtype=np.float64)
+                if values.ndim != 1 or not np.all(np.isfinite(values)):
+                    raise ValueError(f"ncm world summary must contain finite scalar draws: {var}")
+                samples = values.tolist()
+                mean = finite_binary64_mean(samples)
+                # Preserve the old ddof0 descriptive spread, using the existing
+                # exact-sum owner to avoid intermediate squared-value overflow.
+                std = float(pstdev(samples))
+                if not math.isfinite(std):
+                    raise ValueError(f"ncm descriptive standard deviation must be finite: {var}")
+                limitations = [
+                    "monte_carlo_sampling_error_not_qualified",
+                    "coverage_not_established",
+                ]
+                lower = upper = None
+                interval_status = "not_estimated"
+                if len(samples) == 1:
+                    limitations.append("singleton_monte_carlo_mean")
+                elif quantile is None:
+                    limitations.append("normal_quantile_not_representable")
+                else:
+                    half_width = quantile * (std / math.sqrt(len(samples)))
+                    proposed_lower, proposed_upper = mean - half_width, mean + half_width
+                    if all(math.isfinite(value) for value in (proposed_lower, proposed_upper)):
+                        lower, upper = proposed_lower, proposed_upper
+                        interval_status = "descriptive_unqualified"
+                    else:
+                        limitations.append("normal_reference_bounds_not_representable")
                 summary[var] = {
                     "mean": mean,
                     "std": std,
-                    "ci_lower": mean - z * se,
-                    "ci_upper": mean + z * se,
+                    "ci_lower": lower,
+                    "ci_upper": upper,
                     "n_samples": len(arr),
+                    "interval_profile": "ncm_normal_reference_mean_ddof0.v1",
+                    "interval_status": interval_status,
+                    "interval_limitations": limitations,
                 }
             world_summaries.append(summary)
 
@@ -1124,7 +1176,7 @@ class NCMEngineMethod:
 
         return {
             "counterfactual_result": {
-                "schema_version": "1.0",
+                "schema_version": "2.0",
                 "world_summaries": world_summaries,
                 "n_worlds": len(worlds),
                 "n_samples": n_samples,

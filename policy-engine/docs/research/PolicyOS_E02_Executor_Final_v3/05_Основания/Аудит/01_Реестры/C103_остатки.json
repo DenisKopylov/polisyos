@@ -1,0 +1,52 @@
+{
+  "pass_id": "C103",
+  "bundle": "NET-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C103-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "source_ids": [
+        "B91",
+        "B93"
+      ],
+      "title": "Adaptive wrappers получают429 feedback, но не сообщают limiter об успешном provider result",
+      "evidence": [
+        "S01:404–433",
+        "S01:456–468",
+        "S01:520–542",
+        "S04:267–288",
+        "P03",
+        "adaptive_run02/observations.json"
+      ],
+      "remaining": "Связать успешный actual provider completion с existing AdaptiveRateLimiter.record_success в общей invocation boundary для обоих callers. Сохранить plain RateLimiter API, исходный result/error, cancellation/no-feedback и Retry-After. Не сбрасывать limiter, не ослаблять quiescent guard и не добавлять второй независимый owner.",
+      "limits": "Оба actual wrappers при adaptive=True: после429 rate1→0.5, затем100 успешных provider results оставляют0.5 и success_count0; interval2s по controlled clock. После истёкшего cooldown/full bucket owner не quiescent и registry cap1 отказывает новому ключу. Existing direct adaptive owner с feedback достигает0.55 за100 и1 за800 successes, затем neutral. Это finite fixture execution и source-proven missing edge, не production starvation prevalence; GenericREST default adaptive=False не объявлен затронутым."
+    },
+    {
+      "id": "C103-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B91",
+        "B92",
+        "B93"
+      ],
+      "title": "Native dependency graph, telemetry и конкретный внешний provider quota не квалифицированы",
+      "evidence": [
+        "commands.json",
+        "native_resilience.stdout",
+        "native_rest.stdout",
+        "run02.log",
+        "run03.log",
+        "P01–P04"
+      ],
+      "remaining": "В supported environment исполнить existing suite с настоящими telemetry dependencies и новый success-feedback regression через оба wrappers; отдельно подтвердить конкретный source quota scope/start burst/cooldown/live policy. Сохранять одного meaningful owner на согласованный key, не переносить scoped bounded evidence в глобальную distributed гарантию.",
+      "limits": "run01 harness syntax error;run02 missing opentelemetry;run03 54PASS/1FAIL из-за optional no-op metrics callback. Finalrun04 использует explicit trace/SLO seams и55PASS, не native telemetry repair. Python3.12.14/Pydantic2.13.4 не target baseline. Sliding history bounded по времени, не заявлена fixed-cardinality RSS гарантия при произвольном throughput. No installs/live/model calls."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C103-R01"
+  ],
+  "decision": "Fractional rate/generation/protected lifetime repairs confirmed in bounded actual chain; adaptive positive feedback remains disconnected."
+}

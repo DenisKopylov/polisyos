@@ -1,0 +1,1239 @@
+{
+  "status": "COMPLETE_ASSIGNED_PACKET_REVIEW_WITH_EXPLICIT_SOURCE_LIMITS",
+  "date": "2026-11-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "packet_count": 17,
+  "requirement_count": 109,
+  "test_count": 118,
+  "packets": [
+    {
+      "packet_id": "GRF-01",
+      "verdict": "retain + bounded qualification",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/GRF-01.md",
+        "sha256": "ad53ec63504b547b2bd616bdb672704a533307e303921200153805b7cb5f897a",
+        "lines": 187,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/GRF-01.json",
+        "sha256": "b93a0aa17c1d001c67ba605dfbe6d6fe8d44c2e7e5ee77700cfd53462edc2a4c",
+        "lines": 491,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-GRF-01-01",
+        "REQ-GRF-01-02",
+        "REQ-GRF-01-03",
+        "REQ-GRF-01-04",
+        "REQ-GRF-01-05",
+        "REQ-GRF-01-06"
+      ],
+      "test_ids": [
+        "TEST-GRF-01-01",
+        "TEST-GRF-01-02",
+        "TEST-GRF-01-03",
+        "TEST-GRF-01-04",
+        "TEST-GRF-01-05",
+        "TEST-GRF-01-06",
+        "TEST-GRF-01-07"
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "packet_id": "GRF-02",
+      "verdict": "retain narrow repair + targeted profile qualification",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/GRF-02.md",
+        "sha256": "b8710444348901f4777ff0a7a36168e17809fd619a757935d7fd12aa4deed5d1",
+        "lines": 184,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/GRF-02.json",
+        "sha256": "f374320705a0251f6a715c6ec5a34e10b8376c3b76cf5b24c9d81005368a536f",
+        "lines": 482,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-GRF-02-01",
+        "REQ-GRF-02-02",
+        "REQ-GRF-02-03",
+        "REQ-GRF-02-04",
+        "REQ-GRF-02-05",
+        "REQ-GRF-02-06"
+      ],
+      "test_ids": [
+        "TEST-GRF-02-01",
+        "TEST-GRF-02-02",
+        "TEST-GRF-02-03",
+        "TEST-GRF-02-04",
+        "TEST-GRF-02-05",
+        "TEST-GRF-02-06",
+        "TEST-GRF-02-07"
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "packet_id": "GRF-03",
+      "verdict": "retain + bounded temporal qualification",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/GRF-03.md",
+        "sha256": "4f3ea3f1afe47f4bf46a362b646a27381a380362c4be6906ff68599a31cec3b8",
+        "lines": 199,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/GRF-03.json",
+        "sha256": "4a6649df67ea0f4636254a1d3b22feac0d0af9f14d5d532627459c5a424121bd",
+        "lines": 522,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-GRF-03-01",
+        "REQ-GRF-03-02",
+        "REQ-GRF-03-03",
+        "REQ-GRF-03-04",
+        "REQ-GRF-03-05",
+        "REQ-GRF-03-06",
+        "REQ-GRF-03-07"
+      ],
+      "test_ids": [
+        "TEST-GRF-03-01",
+        "TEST-GRF-03-02",
+        "TEST-GRF-03-03",
+        "TEST-GRF-03-04",
+        "TEST-GRF-03-05",
+        "TEST-GRF-03-06",
+        "TEST-GRF-03-07",
+        "TEST-GRF-03-08"
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "packet_id": "API-01",
+      "verdict": "retain targeted census repair",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/API-01.md",
+        "sha256": "fc5d0d3f4ee1178d3ef966f9409a3ccfc90d9b6ee305d3644ab6a0bdc145afbf",
+        "lines": 166,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/API-01.json",
+        "sha256": "649a4e154d9e2f14a70eca691b712a57b8169f9a86d03ac537c6897d1d195306",
+        "lines": 412,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-API-01-01",
+        "REQ-API-01-02",
+        "REQ-API-01-03",
+        "REQ-API-01-04",
+        "REQ-API-01-05",
+        "REQ-API-01-06"
+      ],
+      "test_ids": [
+        "TEST-API-01-01",
+        "TEST-API-01-02",
+        "TEST-API-01-03",
+        "TEST-API-01-04",
+        "TEST-API-01-05",
+        "TEST-API-01-06"
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAU-01",
+      "verdict": "retain targeted numeric repair",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAU-01.md",
+        "sha256": "fa8cee1463f734a44e8a62ff36675d75515a34f46d79340ec0a57d04f0a9ef8b",
+        "lines": 217,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAU-01.json",
+        "sha256": "1202d237fd29e60e8319e1a018070002574f59c2fb1ba69211fdc31fb692f772",
+        "lines": 596,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-CAU-01-01",
+        "REQ-CAU-01-02",
+        "REQ-CAU-01-03",
+        "REQ-CAU-01-04",
+        "REQ-CAU-01-05",
+        "REQ-CAU-01-06",
+        "REQ-CAU-01-07",
+        "REQ-CAU-01-08",
+        "REQ-CAU-01-09"
+      ],
+      "test_ids": [
+        "TEST-CAU-01-01",
+        "TEST-CAU-01-02",
+        "TEST-CAU-01-03",
+        "TEST-CAU-01-04",
+        "TEST-CAU-01-05",
+        "TEST-CAU-01-06",
+        "TEST-CAU-01-07",
+        "TEST-CAU-01-08"
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAU-02",
+      "verdict": "retain + bounded scientific qualification",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAU-02.md",
+        "sha256": "cb94b6ff620aa4c1fb77baf568add5e894ba248f643f3da945eb4d8f43f2453b",
+        "lines": 182,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAU-02.json",
+        "sha256": "c58eacc2e152cfc0ec7e60911a33f1c7bfc58c136386ffe22e8176d07b2b5aba",
+        "lines": 502,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-CAU-02-01",
+        "REQ-CAU-02-02",
+        "REQ-CAU-02-03",
+        "REQ-CAU-02-04",
+        "REQ-CAU-02-05",
+        "REQ-CAU-02-06",
+        "REQ-CAU-02-07"
+      ],
+      "test_ids": [
+        "TEST-CAU-02-01",
+        "TEST-CAU-02-02",
+        "TEST-CAU-02-03",
+        "TEST-CAU-02-04",
+        "TEST-CAU-02-05",
+        "TEST-CAU-02-06",
+        "TEST-CAU-02-07"
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAU-03",
+      "verdict": "targeted revision CS-001",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAU-03.md",
+        "sha256": "42e0a6b3db86ebb7129a057893854355dd5fa83533ddc5a1ba37da25607a57b8",
+        "lines": 180,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAU-03.json",
+        "sha256": "78aab12423191f9ccafe68db916c2b0163295f7a4b9d188d2706c1211d301298",
+        "lines": 489,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-CAU-03-01",
+        "REQ-CAU-03-02",
+        "REQ-CAU-03-03",
+        "REQ-CAU-03-04",
+        "REQ-CAU-03-05",
+        "REQ-CAU-03-06"
+      ],
+      "test_ids": [
+        "TEST-CAU-03-01",
+        "TEST-CAU-03-02",
+        "TEST-CAU-03-03",
+        "TEST-CAU-03-04",
+        "TEST-CAU-03-05",
+        "TEST-CAU-03-06",
+        "TEST-CAU-03-07"
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAU-04",
+      "verdict": "targeted revision CS-002",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAU-04.md",
+        "sha256": "5c6e4fca86f1948f759b53f19caab0cf56a0f89f368d0b734a7919a7c0ff3f76",
+        "lines": 175,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAU-04.json",
+        "sha256": "5f2ee237428ce1d95e6823675a630583a8fa80ada9dfac79be60a1ae40f11b26",
+        "lines": 455,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-CAU-04-01",
+        "REQ-CAU-04-02",
+        "REQ-CAU-04-03",
+        "REQ-CAU-04-04",
+        "REQ-CAU-04-05",
+        "REQ-CAU-04-06"
+      ],
+      "test_ids": [
+        "TEST-CAU-04-01",
+        "TEST-CAU-04-02",
+        "TEST-CAU-04-03",
+        "TEST-CAU-04-04",
+        "TEST-CAU-04-05",
+        "TEST-CAU-04-06",
+        "TEST-CAU-04-07"
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "packet_id": "CAU-05",
+      "verdict": "retain lifecycle/shared owner",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAU-05.md",
+        "sha256": "b4d4f01c55d051af4ee21ea3e6b8cbf010571d5814ac8e7d761416702b02491e",
+        "lines": 185,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAU-05.json",
+        "sha256": "1b9996b3bac2a5528f5fb31c04ebaeda18acb3c6ef5a474627b3de8989ad6a8a",
+        "lines": 475,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-CAU-05-01",
+        "REQ-CAU-05-02",
+        "REQ-CAU-05-03",
+        "REQ-CAU-05-04",
+        "REQ-CAU-05-05",
+        "REQ-CAU-05-06"
+      ],
+      "test_ids": [
+        "TEST-CAU-05-01",
+        "TEST-CAU-05-02",
+        "TEST-CAU-05-03",
+        "TEST-CAU-05-04",
+        "TEST-CAU-05-05",
+        "TEST-CAU-05-06",
+        "TEST-CAU-05-07",
+        "TEST-CAU-05-08"
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "packet_id": "SCM-01",
+      "verdict": "retain shared-plan repair",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/SCM-01.md",
+        "sha256": "c5f91f6462e8c3f86295fb32b391567698e65ab45d80cef917d059bc65839dbe",
+        "lines": 186,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/SCM-01.json",
+        "sha256": "9a2307da46e79ba516884e0f40f0379ed39453c2bad4ec46f589e10062f38ef9",
+        "lines": 482,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-SCM-01-01",
+        "REQ-SCM-01-02",
+        "REQ-SCM-01-03",
+        "REQ-SCM-01-04",
+        "REQ-SCM-01-05",
+        "REQ-SCM-01-06"
+      ],
+      "test_ids": [
+        "TEST-SCM-01-01",
+        "TEST-SCM-01-02",
+        "TEST-SCM-01-03",
+        "TEST-SCM-01-04",
+        "TEST-SCM-01-05",
+        "TEST-SCM-01-06",
+        "TEST-SCM-01-07",
+        "TEST-SCM-01-08"
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "packet_id": "SCM-02",
+      "verdict": "retain repair + targeted oracle CS-005",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/SCM-02.md",
+        "sha256": "16de4d89d8a60c2bacb0cf9937978ce7133f0c9b423062ace07c952a5ba5c36e",
+        "lines": 202,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/SCM-02.json",
+        "sha256": "e0615d776113370ef91eef1109e64dde5d1635e8ae7d71d238aa8feccc017e9c",
+        "lines": 566,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-SCM-02-01",
+        "REQ-SCM-02-02",
+        "REQ-SCM-02-03",
+        "REQ-SCM-02-04",
+        "REQ-SCM-02-05",
+        "REQ-SCM-02-06",
+        "REQ-SCM-02-07",
+        "REQ-SCM-02-08"
+      ],
+      "test_ids": [
+        "TEST-SCM-02-01",
+        "TEST-SCM-02-02",
+        "TEST-SCM-02-03",
+        "TEST-SCM-02-04",
+        "TEST-SCM-02-05",
+        "TEST-SCM-02-06",
+        "TEST-SCM-02-07",
+        "TEST-SCM-02-08",
+        "TEST-SCM-02-09"
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "packet_id": "SCM-03",
+      "verdict": "retain admission/law/stream repair",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/SCM-03.md",
+        "sha256": "339ba91d986feb8bb8669993aa05def00d1e5519b0bbab3fbf3099db7de69e94",
+        "lines": 193,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/SCM-03.json",
+        "sha256": "4662e266f16156eea3c2a1e5c61b29993829bdf22639f668d1212b9707e72319",
+        "lines": 539,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-SCM-03-01",
+        "REQ-SCM-03-02",
+        "REQ-SCM-03-03",
+        "REQ-SCM-03-04",
+        "REQ-SCM-03-05",
+        "REQ-SCM-03-06",
+        "REQ-SCM-03-07"
+      ],
+      "test_ids": [
+        "TEST-SCM-03-01",
+        "TEST-SCM-03-02",
+        "TEST-SCM-03-03",
+        "TEST-SCM-03-04",
+        "TEST-SCM-03-05",
+        "TEST-SCM-03-06",
+        "TEST-SCM-03-07",
+        "TEST-SCM-03-08"
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "packet_id": "FIT-01",
+      "verdict": "retain architecture + targeted revision CS-003",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/FIT-01.md",
+        "sha256": "0b2d6d2ae529f0c7f9b77dea8d8b0ec15e3c2dd151401daec856574033c410dd",
+        "lines": 221,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/FIT-01.json",
+        "sha256": "faf83b3483f896f12959e6b44036a33a7537a201603b1b3a1245f64d5b9962ea",
+        "lines": 492,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-FIT-01-01",
+        "REQ-FIT-01-02",
+        "REQ-FIT-01-03",
+        "REQ-FIT-01-04",
+        "REQ-FIT-01-05",
+        "REQ-FIT-01-06",
+        "REQ-FIT-01-07",
+        "REQ-FIT-01-08"
+      ],
+      "test_ids": [
+        "TEST-FIT-01-01",
+        "TEST-FIT-01-02",
+        "TEST-FIT-01-03",
+        "TEST-FIT-01-04",
+        "TEST-FIT-01-05",
+        "TEST-FIT-01-06",
+        "TEST-FIT-01-07",
+        "TEST-FIT-01-08",
+        "TEST-FIT-01-09"
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "packet_id": "BER-01",
+      "verdict": "retain + nonlinear capability strengthening",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/BER-01.md",
+        "sha256": "b950e2cab8655f5e9dcac5bc02ed4b73facf72427f3865e9f6df4581c7d458f6",
+        "lines": 146,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/BER-01.json",
+        "sha256": "537868bb7969120118e0f1b209ec12fd53e2629b2d7aa29bb288269d494e7bfc",
+        "lines": 354,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-BER-01-01",
+        "REQ-BER-01-02",
+        "REQ-BER-01-03",
+        "REQ-BER-01-04",
+        "REQ-BER-01-05"
+      ],
+      "test_ids": [
+        "TEST-BER-01-01",
+        "TEST-BER-01-02",
+        "TEST-BER-01-03",
+        "TEST-BER-01-04"
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "packet_id": "DDM-01",
+      "verdict": "retain + native qualification",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/DDM-01.md",
+        "sha256": "34c6758a0462e1a4ed1fc619374b0b24b19335ec38b3d90ed523a0818cf752b4",
+        "lines": 143,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/DDM-01.json",
+        "sha256": "d5c26c9a77eba09977772c010c57f07985b93d8b7d679f31b7e3e8096f8f3278",
+        "lines": 309,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-DDM-01-01",
+        "REQ-DDM-01-02",
+        "REQ-DDM-01-03",
+        "REQ-DDM-01-04",
+        "REQ-DDM-01-05"
+      ],
+      "test_ids": [
+        "TEST-DDM-01-01",
+        "TEST-DDM-01-02",
+        "TEST-DDM-01-03",
+        "TEST-DDM-01-04"
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "packet_id": "DDM-02",
+      "verdict": "retain policy repair + targeted revision CS-004",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/DDM-02.md",
+        "sha256": "8ea6fdd3d48d89903a466409b722c7060d1812c775d23bfd167c8bfa9bd75f4a",
+        "lines": 202,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/DDM-02.json",
+        "sha256": "c4d549a2647029719133677cf95e311d49c0578a7ce98eaa5a4ca15d80facb2e",
+        "lines": 457,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-DDM-02-01",
+        "REQ-DDM-02-02",
+        "REQ-DDM-02-03",
+        "REQ-DDM-02-04",
+        "REQ-DDM-02-05",
+        "REQ-DDM-02-06",
+        "REQ-DDM-02-07"
+      ],
+      "test_ids": [
+        "TEST-DDM-02-01",
+        "TEST-DDM-02-02",
+        "TEST-DDM-02-03",
+        "TEST-DDM-02-04",
+        "TEST-DDM-02-05",
+        "TEST-DDM-02-06",
+        "TEST-DDM-02-07"
+      ],
+      "product_tests": "NOT_RUN"
+    },
+    {
+      "packet_id": "LEX-01",
+      "verdict": "retain structural repair",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/LEX-01.md",
+        "sha256": "d24417ec40be9d444f413b023e11e7df541f1e11ff6634fa77473538869e1b8a",
+        "lines": 143,
+        "read_scope": "FULL solution/requirements/tests/compatibility/decisions; initial truncations recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/LEX-01.json",
+        "sha256": "030c6bfae19f0f82bc35e20362ad6285e3e000ad1a740b764c74abdd72bb2584",
+        "lines": 301,
+        "read_scope": "FULL file parsed; all semantic long strings compared with read MD; nonmatching rationale text read separately; metadata not duplicated as proof"
+      },
+      "requirement_ids": [
+        "REQ-LEX-01-01",
+        "REQ-LEX-01-02",
+        "REQ-LEX-01-03",
+        "REQ-LEX-01-04"
+      ],
+      "test_ids": [
+        "TEST-LEX-01-01",
+        "TEST-LEX-01-02",
+        "TEST-LEX-01-03",
+        "TEST-LEX-01-04"
+      ],
+      "product_tests": "NOT_RUN"
+    }
+  ],
+  "documents": [
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-05.md",
+      "sha256": "c7a22698e3d83f6d0c93d3aecc4d2dc4fb3b9a30dc9a2a3338cf6debfc9be174",
+      "lines": 87,
+      "read_scope": "FULL assigned lane/integration contract"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-11.md",
+      "sha256": "f93c1e7d3dfa855d8bf4d7298baf5b4858ca2e1dcfbd3509e9f68bdd0494e587",
+      "lines": 34,
+      "read_scope": "FULL assigned lane/integration contract"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/03_Интеграция/LANE-05.md",
+      "sha256": "b850f636fb595fb015b8051e062b9935808d4c2c44dcd33b81d864b7ac57b0cc",
+      "lines": 78,
+      "read_scope": "FULL assigned lane/integration contract"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/03_Интеграция/LANE-11.md",
+      "sha256": "fdd7c24734cbb4cc2dd9ecd3088e468fc3318bd9223d602e6870481239150fad",
+      "lines": 75,
+      "read_scope": "FULL assigned lane/integration contract"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/Связь_требований_с_интеграцией.json",
+      "sha256": "9217638667c8c26a30e1b5f5ba20a7a3904268e233c67a0167f866864f18576c",
+      "lines": 22274,
+      "read_scope": "Rules and all21 assigned scenario bindings/25 local-only IDs; unrelated lanes not claimed reviewed"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/00_Общее/Общие_владельцы_и_границы_изменений.md",
+      "sha256": "036a9db1db0158424fc6428a70130df05558b88e2a671188647c47eb6d20ee78",
+      "lines": 27,
+      "read_scope": "Relevant shared execution/owner/design rules read"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/00_Общее/Правила_исполнения_и_приёмки.md",
+      "sha256": "d36682b96c32d58e3b5effe5ff7e14369d7000e6a32a0c20090ddebd6384f8b9",
+      "lines": 57,
+      "read_scope": "Relevant shared execution/owner/design rules read"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/00_Общее/Архитектурное_направление_и_отступления.md",
+      "sha256": "cfbabc5614a0d624940482536204aec687feb4c619f1892da09611d2c17d4317",
+      "lines": 32,
+      "read_scope": "Relevant shared execution/owner/design rules read"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/05_Основания/Архитектура/policy-design-causal-grounding-firewall.md",
+      "sha256": "2ec8b6d1351027ae7476e42a5c7d3443679a3c20f1ec39da790b2e4712ed03be",
+      "lines": 150,
+      "read_scope": "35–150; directional semantics/limits, not product proof"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/05_Основания/Аудит/02_Пакеты/CAU-03.md",
+      "sha256": "94800674f941de660bddc9da0249ba415b2b29423d3243cf36d7c836a88e3fa3",
+      "lines": 81,
+      "read_scope": "FULL contextual audit text; truncated portions recovered; historical PASS not reattested"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/05_Основания/Аудит/02_Пакеты/FIT-01.md",
+      "sha256": "cb0c7fea5b6869b142ec24f67bdfdac510aa60f26be5dde017673807ff0bab7e",
+      "lines": 65,
+      "read_scope": "FULL contextual audit text; truncated portions recovered; historical PASS not reattested"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/05_Основания/Аудит/02_Пакеты/DDM-02.md",
+      "sha256": "f448a40523d66f43624f055b946dfe151463b88f9f8e25ca2ea04f9a3e078ba1",
+      "lines": 50,
+      "read_scope": "FULL contextual audit text; truncated portions recovered; historical PASS not reattested"
+    }
+  ],
+  "source_ranges": [
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "sha256": "2facb531db2ea4bbb6361f9bd7ccf66c14a7f0213d7647b92620a879efa4db5a",
+      "lines": 1204,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          768,
+          870
+        ],
+        [
+          956,
+          1054
+        ],
+        [
+          1078,
+          1183
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "sha256": "27cdde2cdfe43631d4b087ab446c80f5b444200cc959a2913d2dd6b71c6d61ff",
+      "lines": 1420,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          135,
+          193
+        ],
+        [
+          418,
+          452
+        ],
+        [
+          699,
+          805
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/__init__.py",
+      "sha256": "bee3c5d4996e31f9d3808d489a6dbecf26cff686e06c5e42e9ff8a944c6a2feb",
+      "lines": 42,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          42
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/interference/__init__.py",
+      "sha256": "2fe2af3d15064c0aeb03b1a8d0f37e82ebf9aeb20b5e77f3dddc1490c1583f85",
+      "lines": 67,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          67
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+      "sha256": "8724287a101c321e88f3bc67f0d6154cdc96629574f38e4cbc3655c8c4b4ea8a",
+      "lines": 2499,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          2163,
+          2223
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+      "sha256": "eb2505f40b8a5ad464b5669f5432a8152859aa81ce98e9668787f7208ba8ba43",
+      "lines": 645,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          65,
+          177
+        ],
+        [
+          320,
+          430
+        ],
+        [
+          525,
+          585
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "sha256": "3a66ea7ed5ce149254beefbc355867696d51757b9e6832c36a7df91c919b8075",
+      "lines": 1288,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          155,
+          267
+        ],
+        [
+          526,
+          695
+        ],
+        [
+          716,
+          835
+        ],
+        [
+          909,
+          998
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "sha256": "dadf52ccc3feea534915521431c70a0adf5c5996339d6595e44834c25270d751",
+      "lines": 1901,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          788,
+          1069
+        ],
+        [
+          1069,
+          1238
+        ],
+        [
+          1371,
+          1492
+        ],
+        [
+          1492,
+          1507
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "sha256": "93e2e3d18b740d8d67c6e3e6e15850b804c9295b953f06b61f1f03c005428af0",
+      "lines": 827,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          300,
+          507
+        ],
+        [
+          610,
+          740
+        ],
+        [
+          770,
+          827
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+      "sha256": "1fc139c4f81799f801e53e1abaf6db9cbd7a7d0f2e290f42694d5bb4f9367aeb",
+      "lines": 635,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          425,
+          490
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/tmle_core.py",
+      "sha256": "cf8d32b9fd825fa2efdd169652de78164f714c7ad01f2d8fde387095111103a0",
+      "lines": 1478,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          110
+        ],
+        [
+          240,
+          351
+        ],
+        [
+          400,
+          490
+        ],
+        [
+          746,
+          819
+        ],
+        [
+          822,
+          1055
+        ],
+        [
+          632,
+          708
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/nuisance_layer.py",
+      "sha256": "2cc4b6a8686a967615acc4024247570b44581fbcbf4b3728610435ddd7e0c040",
+      "lines": 652,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          331,
+          359
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py",
+      "sha256": "0292ca10adebf681d70867ea7dbe322ee6dccac27f9d8c4d003a6edcb330b8ee",
+      "lines": 347,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          117,
+          207
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/workers/dowhy-014/worker.py",
+      "sha256": "1e5d09d5956fd2bff6e79efb38b53d065e91dbf6aa54c76fefc72576dc54a97d",
+      "lines": 276,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          60,
+          260
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/workers/dowhy-014/tests/test_worker.py",
+      "sha256": "4101ad1b27fe8c443de16b927f10bf9a14ce90acb263d6e4ead015eefa7dc2f0",
+      "lines": 328,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          180
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/ddm/calibration/calibrate.py",
+      "sha256": "eee9493030c961f89159d7d1f298b319377ff0656b0fe4555a443f3ac98409a8",
+      "lines": 475,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          290
+        ],
+        [
+          398,
+          446
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/ddm/calibration/audit.py",
+      "sha256": "b954fecb026acfac711d01c414492e0b46b0a18f03aa9815cd886076f5e6fbbe",
+      "lines": 269,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          200
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/ddm/integration/model_registry.py",
+      "sha256": "b6356224aa4a9c1a7cbefaa8cd3a50266dd716c0f96e2e9a7d9cc5c5d4553619",
+      "lines": 803,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          250
+        ],
+        [
+          318,
+          416
+        ],
+        [
+          718,
+          738
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/ddm/readiness/readiness_mapper.py",
+      "sha256": "040c993e244c868c897456429738e5140c9607eae4157cca33b70c849f9ca7d0",
+      "lines": 209,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          220
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/berl/adapters/shap_kernel.py",
+      "sha256": "1da84b6d2cc5caccf29c29df379c0b42f159122435e5a9a2acddd2d786c23d78",
+      "lines": 157,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          157
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/berl/adapters/shap_tree.py",
+      "sha256": "eec2042fb36bcde5fc150d053a1cd2e072366dc0b1c2f91077934b167a491781",
+      "lines": 63,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          63
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/berl/contracts/validation_rules.py",
+      "sha256": "b3619593fb6b649b9617c830185ce3985ff33c5722470fc2fa45f764c954ea0d",
+      "lines": 291,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          180
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/berl/persistence.py",
+      "sha256": "8383348da5cfc4e1e19be1e34e2d07e93f5469c19e01b008dd02670f0b57fcdc",
+      "lines": 214,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          200
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "sha256": "8252c8af680a77006a08fd187a10a287919c4f2d5e323822d27e1556b0ce31dc",
+      "lines": 721,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          160
+        ],
+        [
+          410,
+          510
+        ],
+        [
+          640,
+          708
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_latent_oracle.py",
+      "sha256": "4ea4c07555000dee55d3b1b4d7ed15b07862899b3776c8362485322a9e64a253",
+      "lines": 164,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          164
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py",
+      "sha256": "4c8398b42efa15eeba4b28c9900a18541269931322edb8122412443d081f1585",
+      "lines": 292,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          162
+        ],
+        [
+          198,
+          264
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "sha256": "716a15e0a93e0063a112effec1acb6f4578db2906da95f427011687bb170e761",
+      "lines": 527,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          480,
+          535
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+      "sha256": "0dd02251c4d7476761e5475fb6eea67a4c412e87c315b2087682291c57f71bf1",
+      "lines": 747,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          294,
+          376
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+      "sha256": "324133c606c6110ce765ad84937ece3e0190e7b4e8a2a17806de76e3e754f48f",
+      "lines": 380,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          167,
+          215
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/ddm/test_stationary_replay.py",
+      "sha256": "9f58711f6842d115e343506941b089f8b9a62a555d860c3901a7b84be084dead",
+      "lines": 219,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          105
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/berl/test_adapters.py",
+      "sha256": "437e411022e98c3068fe8c28312fc6055964147c2bf699c3788720da8704e9b4",
+      "lines": 86,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          110
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/berl/test_metrics.py",
+      "sha256": "436b937e4d73e611f8c46c8d65ee6c2dded0d0e9bee841f9105aef31516a77a6",
+      "lines": 87,
+      "read_scope": "SELECTED exact implementation/test ranges; no whole-module completeness claim",
+      "ranges": [
+        [
+          1,
+          115
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/ddm/calibration/observations.py",
+      "sha256": "69e0e169db3d3fe08a39b8ff26ddabb646fa7fea99d97303bfec5efa9a07cb22",
+      "lines": 205,
+      "ranges": [
+        [
+          119,
+          205
+        ]
+      ],
+      "read_scope": "SELECTED source ownership/finite-only guard/read source boundary"
+    }
+  ],
+  "technology": [
+    {
+      "path": "e02_repository/AGENTS.md",
+      "sha256": "919ae21b9ae3e6762dd72e5ab4ddef62b170917fc189de2700e09d978f63d638",
+      "lines": 68,
+      "read_scope": "FULL"
+    },
+    {
+      "path": "e02_repository/policy-engine/CONTRIBUTING.md",
+      "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f",
+      "lines": 227,
+      "read_scope": "FULL"
+    },
+    {
+      "path": "e02_repository/policy-engine/pyproject.toml",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "lines": 295,
+      "read_scope": "FULL"
+    },
+    {
+      "path": "e02_repository/policy-engine/uv.lock",
+      "sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+      "lines": 7226,
+      "read_scope": "FULL TOML parsed; relevant numerical/graph/schema versions and wheel entries inspected, not all transitive source packages"
+    },
+    {
+      "path": "e02_repository/policy-engine/workers/dowhy-014/pyproject.toml",
+      "sha256": "42a9b776bc0688624cc9b4dd31a19451da2e32a641a0891ad27b3a30ac0e1d0a",
+      "lines": 15,
+      "read_scope": "FULL"
+    },
+    {
+      "path": "e02_repository/policy-engine/workers/dowhy-014/uv.lock",
+      "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+      "lines": 836,
+      "read_scope": "FULL TOML parsed, selected worker dependencies inspected"
+    },
+    {
+      "path": "e02_repository/policy-engine/package.json",
+      "sha256": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f",
+      "lines": 17,
+      "read_scope": "FULL root engine/scripts"
+    },
+    {
+      "path": "e02_repository/policy-engine/pnpm-lock.yaml",
+      "sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+      "lines": 13671,
+      "read_scope": "Header/importer excerpt only; JS stack not numerical repair owner"
+    }
+  ],
+  "primary_research": "library_decisions.json contains14 decisions with checked_date, exactURL, section, compatibility; additional version-specific references in findings.json",
+  "independent_arithmetic": {
+    "path": "e02_final_technical_review/causal_statistics/independent_oracles.py",
+    "sha256": "2d31947c335f18994137a8eb4fff217646641da15140a31c333f6eedd566340e",
+    "lines": 30,
+    "read_scope": "Executed stdlib only; artifact arithmetic_counterexamples.json"
+  },
+  "execution_status": {
+    "product_tests": "NOT_RUN",
+    "product_imports": "NOT_RUN",
+    "dependency_install": "NOT_RUN",
+    "external_mutations": "NONE",
+    "repository_edits": "NONE",
+    "permissions_denied": "NONE",
+    "failed_reads": "A few guessed nonexistent file paths corrected via directory/rg; no permission bypass",
+    "web_limits": "Two initially guessed DoWhy docs URLs failed; exact official pages later discovered and read"
+  },
+  "limitations": [
+    "Not a full security/code audit of every repository file. Exact inspected source ranges listed; outside ranges not claimed covered.",
+    "Not all20 architecture documents or original full source plan re-read; targeted shared rules/design and packet-owned context used.",
+    "No native OS/wheel/runtime/backend execution or empirical validation. Locks identify artifacts and intended profiles, not installed capability.",
+    "Coverage source lists are conservative exact ranges; full packet solution/test review is distinct from full repository test-suite review."
+  ]
+}

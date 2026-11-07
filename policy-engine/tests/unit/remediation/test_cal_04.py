@@ -166,6 +166,9 @@ def test_hessian_reuse_requires_point_coordinates_weights_seed_and_numeric_polic
     )
 
     assert _hessian_reuse_key_matches(base, base)
+    assert not _hessian_reuse_key_matches(None, base)
+    assert not _hessian_reuse_key_matches(base, None)
+    assert not _hessian_reuse_key_matches(None, None)
     assert not _hessian_reuse_key_matches(
         base,
         base.__class__(**{**base.__dict__, "flat_theta": (0.5,)}),
@@ -260,7 +263,13 @@ def test_real_calibrator_final_forward_feeds_all_report_projections_once(
         counting_scan,
     )
 
+    def unexpected_hessian(*_args, **_kwargs):
+        pytest.fail("Disabled Hessian configuration must not compute curvature")
+
+    monkeypatch.setattr(calibrator_module, "compute_hessian", unexpected_hessian)
+
     report = calibrator.run()
+    assert report.uncertainties is None
 
     # One scan is the optimizer's pre-update objective; the second is the
     # evaluated final iterate whose snapshot feeds all report projections.
@@ -273,6 +282,99 @@ def test_real_calibrator_final_forward_feeds_all_report_projections_once(
     assert report.total_loss == pytest.approx(expected_loss)
     assert report.per_target_loss["objective"] == pytest.approx(expected_loss)
     assert report.total_loss < 1.0
+
+
+@pytest.mark.parametrize("seed_strategy", ["fixed", "step"])
+def test_stationary_checked_snapshot_has_no_identical_final_scan(
+    monkeypatch: pytest.MonkeyPatch, seed_strategy: str
+) -> None:
+    """A checked stationary point at replica0 feeds the final report directly."""
+    calls = 0
+
+    def scan(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        return _quadratic_scan(*args, **kwargs)
+
+    calibrator, _ = _make_fake_calibrator(
+        monkeypatch,
+        _calibrator_config(seed_strategy=seed_strategy),
+        scan,
+        target_value=0.0,
+    )
+    report = calibrator.run()
+    assert calls == 1
+    assert report.total_loss == 0.0
+    assert report.calibrated_params["synthetic.theta"] == 0.0
+    assert report.series_comparison["objective"].model == [0.0]
+    with monkeypatch.context() as removed:
+        removed.setattr(calibrator_module, "_state_values_equal", lambda *_args: False)
+        before = calls
+        redundant = calibrator.run()
+    assert calls - before == 2
+    assert redundant.calibrated_params == report.calibrated_params
+    assert redundant.series_comparison == report.series_comparison
+    assert redundant.total_loss == report.total_loss
+
+
+def test_different_points_with_equal_loss_keep_checked_point_and_trace(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A scalar tie cannot substitute candidate2's trace for checked baseline0."""
+    scans = 0
+    comparisons = []
+    actual_selection = calibrator_module._select_lower_loss_state
+
+    def scan(*args, **kwargs):
+        nonlocal scans
+        scans += 1
+        return _quadratic_scan(*args, **kwargs)
+
+    def record_selection(**kwargs):
+        comparisons.append(kwargs)
+        return actual_selection(**kwargs)
+
+    # This orchestration witness selects a real exact SGD step, 0→2, for
+    # (x−1)^2. Native Adam/Foundry execution is qualified separately.
+    calibrator, _ = _make_fake_calibrator(monkeypatch, _calibrator_config(learning_rate=1.0), scan)
+    monkeypatch.setattr(
+        calibrator_module.optax,
+        "adam",
+        lambda learning_rate: calibrator_module.optax.sgd(learning_rate),
+    )
+    monkeypatch.setattr(calibrator_module, "_select_lower_loss_state", record_selection)
+    report = calibrator.run()
+    assert scans == 2 and len(comparisons) == 1
+    assert float(comparisons[0]["previous_state"][0]) == 0.0
+    assert float(comparisons[0]["candidate_state"][0]) == 2.0
+    assert comparisons[0]["previous_loss"] == comparisons[0]["candidate_loss"] == 1.0
+    assert report.total_loss == 1.0
+    assert report.calibrated_params["synthetic.theta"] == 0.0
+    assert report.series_comparison["objective"].model == [0.0]
+
+
+def test_failed_final_comparison_keeps_actual_checked_snapshot(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Budget denial after the step preserves the checked point and original loss."""
+    calls = 0
+
+    def scan(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        if calls > 1:
+            raise RuntimeError("controlled forward budget exhausted")
+        return _quadratic_scan(*args, **kwargs)
+
+    calibrator, _ = _make_fake_calibrator(monkeypatch, _calibrator_config(learning_rate=0.5), scan)
+    report = calibrator.run()
+    assert calls == 2
+    assert report.calibrated_params["synthetic.theta"] == 0.0
+    assert report.total_loss == 1.0
+    assert report.per_target_loss["objective"] == 1.0
+    assert report.series_comparison["objective"].model == [0.0]
+    assert report.loss_history == [1.0]
+    assert any("Last iterate evaluation failed" in value for value in report.diagnostics)
 
 
 def test_real_jax_nonfinite_update_keeps_last_checked_state() -> None:
@@ -353,6 +455,14 @@ def test_step_seeded_finalist_comparison_uses_one_final_replica(
 ) -> None:
     """Step-varying training replicas are not mixed during final selection."""
     concrete_keys: list[tuple[int, ...]] = []
+    comparisons = []
+    actual_selection = calibrator_module._select_lower_loss_state
+
+    def observe_selection(**kwargs):
+        comparisons.append(kwargs)
+        return actual_selection(**kwargs)
+
+    monkeypatch.setattr(calibrator_module, "_select_lower_loss_state", observe_selection)
 
     def seeded_scan(base_state, *, steps, root_key, bundle, metric_paths, controls_seq):
         concrete_key = _concrete_key_tuple(root_key)
@@ -367,10 +477,42 @@ def test_step_seeded_finalist_comparison_uses_one_final_replica(
         seeded_scan,
     )
 
-    calibrator.run()
+    report = calibrator.run()
 
     assert len(concrete_keys) >= 2
-    assert concrete_keys[-1] == concrete_keys[-2]
+    assert len(comparisons) == 1
+    # The best checked point may already have an exact replica0 snapshot.
+    # Requiring two adjacent fresh scans would reject legitimate snapshot
+    # reuse. Check the actual values compared, independently, instead.
+    final_key = jax.random.fold_in(jax.random.PRNGKey(7), 0)
+    assert concrete_keys[-1] == _concrete_key_tuple(final_key)
+    assert any(key != concrete_keys[-1] for key in concrete_keys)
+    noise = float(jax.random.normal(final_key, shape=()))
+    comparison = comparisons[0]
+    wrong_key = jax.random.fold_in(jax.random.PRNGKey(7), 1)
+    wrong_noise = float(jax.random.normal(wrong_key, shape=()))
+    wrong_replica_distinguished = False
+    for state_name, loss_name in (
+        ("previous_state", "previous_loss"),
+        ("candidate_state", "candidate_loss"),
+    ):
+        theta = float(comparison[state_name][0])
+        residual = np.float32(theta + noise) - np.float32(1.0)
+        expected = float(np.float32(residual * residual))
+        assert comparison[loss_name] == pytest.approx(expected, rel=1e-6, abs=1e-6)
+        wrong_residual = np.float32(theta + wrong_noise) - np.float32(1.0)
+        wrong_loss = float(np.float32(wrong_residual * wrong_residual))
+        wrong_replica_distinguished |= not np.isclose(expected, wrong_loss, rtol=1e-6, atol=1e-6)
+    assert wrong_replica_distinguished
+    selected_theta = report.calibrated_params["synthetic.theta"]
+    assert report.series_comparison["objective"].model == pytest.approx(
+        [selected_theta + noise], rel=1e-6, abs=1e-6
+    )
+    assert report.total_loss == pytest.approx(
+        float(np.float32(np.float32(selected_theta + noise) - 1.0) ** 2),
+        rel=1e-6,
+        abs=1e-6,
+    )
 
 
 def test_fixed_seed_keeps_final_candidate_on_the_same_replica(
@@ -466,3 +608,63 @@ def test_multi_start_recomputes_hessian_after_identity_mismatch(
     assert hessian_calls == 3
     assert report.uncertainties is not None
     assert "Hessian reused from selected start" not in report.diagnostics
+
+
+@pytest.mark.parametrize("mismatched_final_point", [False, True])
+def test_actual_reuse_consumer_preserves_quartic_point_curvature(
+    monkeypatch: pytest.MonkeyPatch, mismatched_final_point: bool
+) -> None:
+    """A constant-Hessian fixture cannot stand in for exact-point reuse."""
+    real_compute = calibrator_module.compute_hessian
+    real_key = calibrator_module._make_hessian_reuse_key
+    calls = []
+    key_calls = 0
+
+    def quartic_scan(base_state, *, bundle, **_kwargs):
+        return base_state, {"objective": jnp.reshape(jnp.square(bundle.theta), (1,))}
+
+    def record_compute(function, point, names, **kwargs):
+        result = real_compute(function, point, names, **kwargs)
+        assert result.strategy == "exact" and result.fallback_cause is None
+        coordinate = float(np.asarray(point)[0])
+        np.testing.assert_allclose(
+            result.raw_eigenvalues, [12.0 * coordinate**2], rtol=1e-6, atol=1e-6
+        )
+        calls.append((coordinate, result))
+        return result
+
+    def point_key(*args, **kwargs):
+        nonlocal key_calls
+        key_calls += 1
+        key = real_key(*args, **kwargs)
+        if mismatched_final_point and key_calls == 3:
+            return replace(key, flat_theta=(key.flat_theta[0] + 0.25,))
+        return key
+
+    calibrator, _ = _make_fake_calibrator(
+        monkeypatch,
+        _calibrator_config(learning_rate=1e-10, hessian=True, multi_start=2),
+        quartic_scan,
+        target_value=0.0,
+    )
+    monkeypatch.setattr(
+        calibrator_module, "extract_trainable_values", lambda _bundle: [jnp.float32(0.25)]
+    )
+    monkeypatch.setattr(calibrator_module, "compute_hessian", record_compute)
+    monkeypatch.setattr(calibrator_module, "_make_hessian_reuse_key", point_key)
+    report = calibrator.run()
+    assert len(calls) == (3 if mismatched_final_point else 2)
+    assert not np.isclose(calls[0][0], calls[1][0], rtol=1e-6, atol=1e-6)
+    assert not np.isclose(
+        calls[0][1].raw_eigenvalues[0], calls[1][1].raw_eigenvalues[0], rtol=1e-6, atol=1e-6
+    )
+    selected = report.calibrated_params["synthetic.theta"]
+    expected_curvature = 12.0 * selected**2
+    expected_covariance = 1.0 / (expected_curvature + calibrator.inputs.config.hessian.damping)
+    assert report.uncertainties is not None
+    np.testing.assert_allclose(
+        report.uncertainties.covariance, [[expected_covariance]], rtol=1e-6, atol=1e-6
+    )
+    assert ("Hessian reused from selected start" in report.diagnostics) is (
+        not mismatched_final_point
+    )

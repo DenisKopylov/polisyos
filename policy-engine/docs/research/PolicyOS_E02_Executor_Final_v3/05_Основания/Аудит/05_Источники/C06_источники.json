@@ -1,0 +1,223 @@
+[
+  {
+    "id": "C06-S01",
+    "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+    "provider_reported_git_blob": "9761de868301e6fb90e69cd03aa3270b9a8187aa",
+    "ranges": [
+      [
+        448,
+        500
+      ],
+      [
+        1100,
+        1600
+      ],
+      [
+        1530,
+        1635
+      ]
+    ],
+    "subject": "Typed N5 observation, full result persistence, selected-manifest reader, integrity and expected binding checks",
+    "evidence": "source_read_only; selected C06-S03/S04 predicates and C06-S06 signature additionally characterized in an isolated harness",
+    "links": [
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L448-L500",
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L1100-L1600",
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L1530-L1635"
+    ],
+    "complete_source_blob_downloaded": false,
+    "native_execution": "UNRUN"
+  },
+  {
+    "id": "C06-S02",
+    "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+    "provider_reported_git_blob": "9761de868301e6fb90e69cd03aa3270b9a8187aa",
+    "ranges": [
+      [
+        3990,
+        4550
+      ]
+    ],
+    "subject": "Actual request/control invocation, state binding, persistence failure and observation refs",
+    "evidence": "source_read_only; selected C06-S03/S04 predicates and C06-S06 signature additionally characterized in an isolated harness",
+    "links": [
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L3990-L4550"
+    ],
+    "complete_source_blob_downloaded": false,
+    "native_execution": "UNRUN"
+  },
+  {
+    "id": "C06-S03",
+    "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+    "provider_reported_git_blob": "9761de868301e6fb90e69cd03aa3270b9a8187aa",
+    "ranges": [
+      [
+        1950,
+        2135
+      ]
+    ],
+    "subject": "ValuePortObservation: conditional shape versus owner-authority receipts",
+    "evidence": "source_read_only; selected C06-S03/S04 predicates and C06-S06 signature additionally characterized in an isolated harness",
+    "links": [
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L1950-L2135"
+    ],
+    "complete_source_blob_downloaded": false,
+    "native_execution": "UNRUN"
+  },
+  {
+    "id": "C06-S04",
+    "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+    "provider_reported_git_blob": "9761de868301e6fb90e69cd03aa3270b9a8187aa",
+    "ranges": [
+      [
+        6680,
+        7360
+      ],
+      [
+        7610,
+        7780
+      ]
+    ],
+    "subject": "Conditional N8 source read, persisted blockers, old/new interaction projection, default routing before Foundry",
+    "evidence": "source_read_only; selected C06-S03/S04 predicates and C06-S06 signature additionally characterized in an isolated harness",
+    "links": [
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L6680-L7360",
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L7610-L7780"
+    ],
+    "complete_source_blob_downloaded": false,
+    "native_execution": "UNRUN"
+  },
+  {
+    "id": "C06-S05",
+    "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+    "provider_reported_git_blob": "9761de868301e6fb90e69cd03aa3270b9a8187aa",
+    "ranges": [
+      [
+        6000,
+        6320
+      ],
+      [
+        6340,
+        6940
+      ]
+    ],
+    "subject": "Empirical/owner method branch and candidate-fixture output; exact distinction from conditional N8",
+    "evidence": "source_read_only; selected C06-S03/S04 predicates and C06-S06 signature additionally characterized in an isolated harness",
+    "links": [
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L6000-L6320",
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L6340-L6940"
+    ],
+    "complete_source_blob_downloaded": false,
+    "native_execution": "UNRUN"
+  },
+  {
+    "id": "C06-S06",
+    "path": "policy-engine/tests/unit/remediation/test_cyc_02.py",
+    "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+    "provider_reported_git_blob": "0fa8c5c82703ac3e1ec002063dc8a18f06c9440d",
+    "ranges": [
+      [
+        1,
+        350
+      ],
+      [
+        350,
+        700
+      ],
+      [
+        700,
+        1040
+      ],
+      [
+        1040,
+        1175
+      ]
+    ],
+    "subject": "Existing CYC-02 test design; real selected NCM numerical fixture, CAS faults, tenant refusal, recursive scope and incompatible store override",
+    "evidence": "source_read_only; selected C06-S03/S04 predicates and C06-S06 signature additionally characterized in an isolated harness",
+    "links": [
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cyc_02.py#L1-L350",
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cyc_02.py#L350-L700",
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cyc_02.py#L700-L1040",
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cyc_02.py#L1040-L1175"
+    ],
+    "complete_source_blob_downloaded": false,
+    "native_execution": "UNRUN"
+  },
+  {
+    "id": "C06-S07",
+    "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+    "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+    "provider_reported_git_blob": "2e3e5d5ec22f886eca00fcaa78265ab0db8d4f18",
+    "ranges": [
+      [
+        1,
+        220
+      ],
+      [
+        1350,
+        1600
+      ]
+    ],
+    "subject": "Versioned N5 result, state consumption and sampling validator; no legacy unsupported-marker injection in inspected validator",
+    "evidence": "source_read_only; selected C06-S03/S04 predicates and C06-S06 signature additionally characterized in an isolated harness",
+    "links": [
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L1-L220",
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L1350-L1600"
+    ],
+    "complete_source_blob_downloaded": false,
+    "native_execution": "UNRUN"
+  },
+  {
+    "id": "C06-S08",
+    "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+    "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+    "provider_reported_git_blob": "89ed30f691ccd34a30297bbd3f922656672358a0",
+    "ranges": [
+      [
+        1,
+        220
+      ],
+      [
+        520,
+        800
+      ],
+      [
+        1020,
+        1230
+      ]
+    ],
+    "subject": "Bounded read of existing current served two-child test; persisted compiled cycles and fresh projection, not a full test/helper review",
+    "evidence": "source_read_only; selected C06-S03/S04 predicates and C06-S06 signature additionally characterized in an isolated harness",
+    "links": [
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py#L1-L220",
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py#L520-L800",
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py#L1020-L1230"
+    ],
+    "complete_source_blob_downloaded": false,
+    "native_execution": "UNRUN"
+  },
+  {
+    "id": "C06-S09",
+    "path": "AGENTS.md",
+    "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+    "provider_reported_git_blob": "5f144a27e35130b60e2c3537d97f0c7bbcda57f5",
+    "ranges": [
+      [
+        1,
+        200
+      ]
+    ],
+    "subject": "Current project rules: candidate/authority distinction, existing owners, Python 3.14 baseline",
+    "evidence": "source_read_only; selected C06-S03/S04 predicates and C06-S06 signature additionally characterized in an isolated harness",
+    "links": [
+      "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/AGENTS.md#L1-L200"
+    ],
+    "complete_source_blob_downloaded": false,
+    "native_execution": "UNRUN"
+  }
+]

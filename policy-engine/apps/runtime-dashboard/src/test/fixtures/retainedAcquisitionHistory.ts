@@ -52,6 +52,7 @@ export function retainedAcquisitionHistoryFixture(): components["schemas"]["RunC
     },
     source_admission_status: "admitted",
     evaluation_disposition: "retained_prior",
+    evaluation_provenance: "retained_prior",
     currentness_status: "not_established",
     authority_purpose: "candidate_observation_only",
     publication_authority: false,

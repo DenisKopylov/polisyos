@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import json
+import sys
 import types
+from pathlib import Path
+from typing import ClassVar
 
 import duckdb
 import numpy as np
+import pytest
 
 from polisyos.data_forge.domains.legal.batch.embedder import build_local_embeddings_and_indexes
 from polisyos.data_forge.domains.legal.embedding_projection import (
@@ -515,3 +520,143 @@ def test_all_selected_legal_projections_reuse_changed_and_withdrawn_members(tmp_
         expected /= np.linalg.norm(expected)
         assert np.allclose(matrix[0], expected)
     assert encoder.batches == expected_batches
+
+
+def test_cli_publishes_three_native_projections_with_chunk_stats_and_typed_empty(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """The real CLI writes current generations and manifests, including withdrawal."""
+    import hnswlib
+
+    from polisyos.data_forge.domains.legal.batch import cli, embedder
+
+    class RecordingEncoder(_FakeSentenceTransformer):
+        instances: ClassVar[list[RecordingEncoder]] = []
+
+        def __init__(self, model_name: str, device: str | None = None) -> None:
+            super().__init__(model_name, device)
+            self.batches: list[tuple[str, ...]] = []
+            type(self).instances.append(self)
+
+        def encode(
+            self,
+            texts: list[str],
+            batch_size: int = 32,
+            show_progress_bar: bool = False,
+            normalize_embeddings: bool = True,
+        ) -> np.ndarray:
+            assert batch_size == 2
+            assert show_progress_bar is False
+            assert normalize_embeddings is True
+            self.batches.append(tuple(texts))
+            return super().encode(texts, batch_size, show_progress_bar, normalize_embeddings)
+
+    monkeypatch.setitem(
+        sys.modules,
+        "sentence_transformers",
+        types.SimpleNamespace(SentenceTransformer=RecordingEncoder),
+    )
+    db_path = tmp_path / "lex_knowledge_graph.duckdb"
+    _prepare_lex_db(db_path)
+    with duckdb.connect(str(db_path)) as con:
+        for query in (
+            "INSERT INTO lex_entities SELECT ?, * EXCLUDE (entity_id) FROM lex_entities WHERE entity_id = 'e1'",
+            "INSERT INTO lex_facts SELECT ?, * EXCLUDE (fact_id) FROM lex_facts WHERE fact_id = 'f1'",
+            "INSERT INTO lex_provisions SELECT ?, * EXCLUDE (provision_id) FROM lex_provisions WHERE provision_id = 'p1'",
+        ):
+            prefix = "e" if "lex_entities" in query else "f" if "lex_facts" in query else "p"
+            for suffix in ("2", "3"):
+                con.execute(query, [prefix + suffix])
+        con.execute("UPDATE lex_facts SET source_quote_uk = ? WHERE fact_id = 'f1'", ["q" * 401])
+        con.execute(
+            "UPDATE lex_provisions SET provision_text = ? WHERE provision_id = 'p1'", ["p" * 32001]
+        )
+        con.execute("CHECKPOINT")
+    pauses: list[float] = []
+    monkeypatch.setattr(embedder, "pause_between_batches", pauses.append)
+    args = cli._build_parser().parse_args(
+        [
+            "embed-local",
+            "--output-dir",
+            str(tmp_path),
+            "--db-path",
+            str(db_path),
+            "--model",
+            "fixture-model",
+            "--device",
+            "cpu",
+            "--batch-size",
+            "2",
+            "--chunk-size",
+            "2",
+            "--incremental",
+            "--thermal",
+        ]
+    )
+
+    def run() -> dict[str, object]:
+        cli._cmd_embed_local(args)
+        return json.loads((tmp_path / "manifests/embed_local.json").read_text(encoding="utf-8"))
+
+    manifest = run()
+    metrics = manifest["metrics"]
+    assert (metrics["entities"], metrics["facts"], metrics["provisions"]) == (3, 3, 3)
+    assert metrics["thermal"] is True and metrics["incremental"] is True
+    assert pauses == [0.5] * 6
+    batches = RecordingEncoder.instances[-1].batches
+    assert [len(batch) for batch in batches] == [2, 1, 2, 1, 2, 1]
+    encoded = [text for batch in batches for text in batch]
+    assert next(text for text in encoded if "quote_uk: q" in text).endswith(
+        "quote_uk: " + "q" * 400
+    )
+    assert "p" * 32000 in encoded and "p" * 32001 not in encoded
+    prior = []
+    for name, metadata in metrics["embedding_generations"].items():
+        generation = resolve_embedding_generation(tmp_path / ".legal_embedding_generations" / name)
+        assert generation is not None and generation.selected and generation.status == "complete"
+        assert generation.generation_id == metadata["generation_id"]
+        assert len(generation.ids) == 3 and generation.dimension == 4
+        assert generation.index_path is not None
+        native = hnswlib.Index(space="cosine", dim=4)
+        native.load_index(str(generation.index_path))
+        assert set(native.get_ids_list()) == {0, 1, 2}
+        with np.load(generation.embeddings_path, allow_pickle=True) as payload:
+            assert payload["vectors"].dtype == np.float32
+            np.testing.assert_allclose(native.get_items([0, 1, 2]), payload["vectors"], atol=1e-6)
+        assert any(
+            artifact["path"] == str(generation.inventory_path) for artifact in manifest["artifacts"]
+        )
+        prior.append(generation)
+    assert len(prior) == 3
+    pauses.clear()
+    unchanged = run()["metrics"]
+    assert (unchanged["entities"], unchanged["facts"], unchanged["provisions"]) == (0, 0, 0)
+    assert (
+        unchanged["entities_skipped"],
+        unchanged["facts_skipped"],
+        unchanged["provisions_skipped"],
+    ) == (3, 3, 3)
+    assert RecordingEncoder.instances[-1].batches == [] and pauses == []
+    with duckdb.connect(str(db_path)) as con:
+        con.execute("DELETE FROM lex_entities")
+        con.execute("DELETE FROM lex_facts")
+        con.execute("DELETE FROM lex_provisions")
+        con.execute("CHECKPOINT")
+    withdrawn = run()["metrics"]
+    assert (withdrawn["entities"], withdrawn["facts"], withdrawn["provisions"]) == (0, 0, 0)
+    assert (
+        withdrawn["entities_skipped"],
+        withdrawn["facts_skipped"],
+        withdrawn["provisions_skipped"],
+    ) == (0, 0, 0)
+    assert RecordingEncoder.instances[-1].batches == [] and pauses == []
+    for name, metadata in withdrawn["embedding_generations"].items():
+        generation = resolve_embedding_generation(tmp_path / ".legal_embedding_generations" / name)
+        assert (
+            generation is not None
+            and generation.selected
+            and generation.status == "empty_generation"
+        )
+        assert generation.index_path is None and generation.ids == ()
+        assert metadata["status"] == "empty_generation" and metadata["count"] == 0
+    assert all(generation.root_dir.exists() for generation in prior)

@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import json
 import os
-from collections.abc import Mapping
-from contextlib import contextmanager
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager, nullcontext
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 import pytest
 
@@ -47,6 +47,7 @@ from polisyos.runtime.quality.acquisition_planner import (
 from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
 from polisyos.runtime.quality.data_forge_binding import MeasurementRootExecutionBinding
 from polisyos.runtime.quality.design_problem import (
+    DESIGN_PROBLEM_V3_SCHEMA_VERSION,
     CandidateLever,
     CandidateLeverSpace,
     DesignObjective,
@@ -78,6 +79,18 @@ from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetSt
 REPO_ROOT = Path(os.environ.get("POLISYOS_TEST_REPO_ROOT", Path(__file__).resolve().parents[3]))
 _ACQ01_ROUTE_STORE_UNSPECIFIED = object()
 _ACQ01_ROUTE_VALUE_PORT_UNSPECIFIED = object()
+
+
+class _RecordingN5Controller(n5_horizon.JointSimulationHorizonController):
+    """Record requests while retaining the canonical N5 controller lifecycle."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.requests: list[Any] = []
+
+    def run(self, request: Any) -> Any:
+        self.requests.append(request)
+        return super().run(request)
 
 
 class _BaseOnlyArtifactStore:
@@ -164,6 +177,12 @@ def _assert_n7_has_no_grounding_result(
     receipt: Mapping[str, Any],
     *,
     cycle: Any,
+    expected_grounding_status: Literal["grounding_unavailable", "grounding_gap"] = (
+        "grounding_unavailable"
+    ),
+    expected_cycle_grounding_issue_codes: tuple[str, ...] = (
+        "generation_result_problem_scope_unestablished",
+    ),
 ) -> None:
     """Keep owner writes distinct from both receipt and re-entry grounding."""
 
@@ -171,8 +190,8 @@ def _assert_n7_has_no_grounding_result(
     rows = receipt["grounding_rederivations"]
     assert len(rows) == 1
     assert tuple(rows[0]["issue_codes"]) == ("generation_result_problem_scope_unestablished",)
-    assert cycle.grounding.status == "grounding_unavailable"
-    assert tuple(cycle.grounding.issue_codes) == ("generation_result_problem_scope_unestablished",)
+    assert cycle.grounding.status == expected_grounding_status
+    assert tuple(cycle.grounding.issue_codes) == expected_cycle_grounding_issue_codes
 
 
 def _problem(
@@ -518,8 +537,133 @@ class _FixtureAcquisitionGrounding:
         )
 
 
+class _Acq01MacroContextGrounding:
+    """Bind the candidate's missing macro-context route to its real test inputs."""
+
+    def __init__(self, *, case: Any, route: Any) -> None:
+        from polisyos.runtime.quality.acquisition_planner import (
+            grounding_coverage_requirement_gap,
+            persist_and_verify_data_requirement_compilation_report,
+        )
+
+        self._case = case
+        self._route = route
+        self._gap_builder = grounding_coverage_requirement_gap
+        self.issue_code = f"acquire_data:{case.data_spec.required_data_families[0]}"
+        self.compiler_report_binding = persist_and_verify_data_requirement_compilation_report(
+            route.store,
+            case.compiler_report,
+            expected_scenario_id=case.problem.design_problem_id,
+        )
+        self.report_ref: CASArtifactRef | None = None
+
+    def __call__(
+        self,
+        *,
+        candidate: Any,
+        problem: DesignProblem,
+        cycle_index: int,
+        generation_result: Any | None = None,
+    ) -> CandidateGroundingObservation:
+        del cycle_index
+        candidate_id = str(candidate.candidate_id)
+        candidate_hash = generation_cycle_module._candidate_content_hash(candidate)
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        generation_problem_ref = getattr(generation_result, "design_problem_ref", None)
+        candidate_problem_ref = getattr(candidate.atom, "problem_frame_ref", None)
+        if (
+            candidate_id != self._case.candidate.candidate_id
+            or candidate_hash
+            != generation_cycle_module._candidate_content_hash(self._case.candidate)
+            or problem_ref != gy_content_hash(self._case.problem.model_dump(mode="json"))
+            or generation_problem_ref != problem_ref
+            or candidate_problem_ref != problem_ref
+        ):
+            raise AssertionError("acq01_macro_context_grounding_subject_mismatch")
+
+        measurement_root_ref = self._route.evidence.measurement_root_ref
+        data_snapshot_ref = self._route.data_snapshot_ref
+        evidence_refs = (
+            f"cas://{measurement_root_ref.artifact_id}",
+            f"cas://{data_snapshot_ref.artifact_id}",
+        )
+        payload = {
+            "schema_version": "test.policyos.acq01.macro_context_grounding.v1",
+            "authority_purpose": "candidate_routing_only",
+            "authority_scope": "contract_testing",
+            "claim_evidence_use_allowed": False,
+            "candidate_binding": {
+                "candidate_id": candidate_id,
+                "candidate_content_hash": candidate_hash,
+            },
+            "design_problem_ref": problem_ref,
+            "grounding_status": "grounding_gap",
+            "issue_codes": [self.issue_code],
+            "required_macro_context": {
+                "construct_ref": "construct:economic.gdp",
+                "compiled_requirement_ref": self._case.data_spec.requirement_id,
+                "compiled_requirement_family": self._case.data_spec.required_data_families[0],
+                "compiler_report_schema_version": self._case.compiler_report.schema_version,
+                "compiler_input_content_hash": self._case.compiler_report.input_content_hash,
+                "compiler_report_ref": self.compiler_report_binding.compiler_report_ref.model_dump(
+                    mode="json"
+                ),
+                "compiler_report_digest": self.compiler_report_binding.compiler_report_digest,
+                "basis_source": self._case.compiler_report.requirement_basis.source,
+                "basis_grade": self._case.compiler_report.requirement_basis.basis_grade,
+            },
+            "observed_source_context": {
+                "measurement_root_ref": measurement_root_ref.model_dump(mode="json"),
+                "data_snapshot_ref": data_snapshot_ref.model_dump(mode="json"),
+                "source_requirement_ref": self._route.source_requirement.requirement_id,
+                "dataset_id": self._route.plan.dataset_id,
+            },
+            "evidence_refs": [
+                measurement_root_ref.model_dump(mode="json"),
+                data_snapshot_ref.model_dump(mode="json"),
+            ],
+            "causal_scope": {
+                "macro_context_is_employment_outcome": False,
+                "gdp_to_employment_causal_effect_claimed": False,
+            },
+            "source_authority_status": "not_established",
+            "source_currentness_status": "not_established",
+        }
+        report_ref = self._route.store.put_json(
+            payload,
+            ArtifactWriteOptions(
+                kind="test.policyos.acq01.macro_context_grounding_report",
+                media_type="application/json",
+            ),
+            return_selected_profile=True,
+        )
+        self.report_ref = report_ref
+        report_locator = f"cas://{report_ref.artifact_id}"
+        requirement = self._gap_builder(
+            candidate_id=candidate_id,
+            candidate_content_hash=candidate_hash,
+            design_problem_ref=problem_ref,
+            issue_codes=(self.issue_code,),
+            evidence_refs=evidence_refs,
+            authority_level=problem.authority_profile.requested_authority_level,
+            grounding_report_ref=report_locator,
+        )
+        return CandidateGroundingObservation(
+            candidate_id=candidate_id,
+            status="grounding_gap",
+            grounding_score=0.1,
+            issue_codes=(self.issue_code,),
+            evidence_refs=evidence_refs,
+            current_valid=False,
+            report_ref=report_locator,
+            acquisition_requirement=requirement,
+        )
+
+
 class _WorldBoundSimulation:
-    def __init__(self) -> None:
+    def __init__(self, *, pending_n5: bool = False) -> None:
+        self.pending_n5 = pending_n5
+        # These are WMR refs presented to the callback, not proof that N5 ran.
         self.world_refs: list[str] = []
 
     def __call__(
@@ -538,6 +682,13 @@ class _WorldBoundSimulation:
         assert isinstance(atom, InterventionAtomBinding)
         world_ref = str(atom.world_model_record_ref)
         self.world_refs.append(world_ref)
+        if self.pending_n5:
+            return SimulationPortObservation(
+                candidate_id=str(candidate.candidate_id),
+                status="simulation_pending_n5",
+                authority_blockers=("fixture_n5_not_executed",),
+                diagnostics={"reason": "preflight_does_not_execute_n5"},
+            )
         return SimulationPortObservation(
             candidate_id=str(candidate.candidate_id),
             status="joint_simulated",
@@ -626,14 +777,18 @@ def test_n7_reentry_candidate_is_accepted_by_real_n5_request_builder(
             "joint_simulation_horizon": {"start": 0, "end": 1, "step": 1},
         },
     )
-    registry = _fixture_world_registry()
+    registry = _fixture_world_registry(include_candidate_l2=True)
+    selected_l2_hashes = tuple(
+        entry.entry_content_hash for entry in registry.entries if entry.layer is SubstrateLayer.L2
+    )
+    assert len(selected_l2_hashes) == 1
     world = generation_cycle_module._build_boundary_world_model_record(
         repo_root=REPO_ROOT,
         problem=problem,
         outcome="firm_survival",
         policy_slot_ids=("fixture_panel",),
         substrate_registry=registry,
-        selected_registry_entry_hashes=(registry.entries[0].entry_content_hash,),
+        selected_registry_entry_hashes=selected_l2_hashes,
     )
     candidate = _fixture_candidate(problem, world_ref=world.world_model_record_id)
     port = JointSimulationPort(repo_root=REPO_ROOT)
@@ -730,13 +885,48 @@ def _fixture_registration(*, source_id: str, snapshot_id: str) -> SubstrateRegis
     )
 
 
-def _fixture_world_registry() -> Any:
+def _fixture_world_registry(*, include_candidate_l2: bool = False) -> Any:
     baseline = _fixture_registration(
         source_id="baseline.fixture_panel",
         snapshot_id="baseline:fixture_panel",
     )
+    entries = [build_substrate_registry_entry(baseline)]
+    if include_candidate_l2:
+        candidate_prior = SubstrateRegistration(
+            source_id="candidate.acq01.fixture_panel_l2",
+            family_id="fixture_panel_causal_prior_candidate",
+            layer=SubstrateLayer.L2,
+            coverage=SubstrateCoverage(
+                coverage_score=0.0,
+                coverage_kind="acq01.explicit_candidate_l2_prior",
+                coverage_rule_ref="test://coverage/acq-01/candidate-l2-not-authority",
+                dataset_count=0,
+                metric_binding_count=0,
+                observation_count=0,
+            ),
+            trust_tier=SubstrateTrustTier(
+                tier="candidate_only",
+                trust_cap=0.0,
+                trust_multiplier=0.0,
+                min_coverage=0.0,
+                max_coverage=1.0,
+                authority_ref="test://authority/acq-01/candidate-l2-not-authority",
+            ),
+            identification_mode="causal_prior_candidate",
+            schema_regime=SubstrateSchemaRegime(
+                schema_regime_id="acq01_candidate_l2_fixture_v1",
+                authority_ref="test://schema/acq-01/candidate-l2-not-authority",
+                source_version="fixture-v1",
+            ),
+            data_version="acq01-candidate-l2-fixture-v1",
+            snapshot_id="acq01-candidate-l2-fixture-v1",
+            source_snapshot_id="acq01-candidate-l2-fixture-v1",
+            provenance_refs=("test://acq-01/candidate-l2-prior",),
+            authority_refs=("test://acq-01/candidate-l2-not-authority",),
+        )
+        entries.append(build_substrate_registry_entry(candidate_prior))
     return build_substrate_registry(
-        (build_substrate_registry_entry(baseline),),
+        tuple(entries),
         producer_ref="tests.unit.remediation.test_acq_01",
         source_catalog_refs=("test://acq-01/fixture-catalog",),
     )
@@ -793,6 +983,264 @@ def _fixture_owner_artifact(
 
 
 @contextmanager
+def _published_worldbank_owner(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    artifact_store: ArtifactStore,
+    geography: str = "DE",
+    metric: str = "gdp_per_capita",
+    time_start: str = "2020",
+    time_end: str = "2020",
+) -> Iterator[Any]:
+    """Resolve and fetch one bounded publisher-fixture WDI source."""
+    from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+    from polisyos.data_forge.domains.catalog.batch import graph_builder
+    from polisyos.data_forge.domains.catalog.batch.normalizer import normalize_worldbank
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+    from polisyos.fabric.retrieval.service import RetrievalService
+    from tests.unit.fabric.test_retrieval_fetch_custody import (
+        _build_full_published_catalog_fixture,
+        build_worldbank_fetch_owner,
+    )
+
+    publisher_root = tmp_path / "published-catalog"
+    publisher_root.mkdir(parents=True, exist_ok=True)
+    actual_fetch = WorldBankConnector.fetch
+    # The existing connector cassette supplies a second, genuinely distinct
+    # WDI target for the same-problem requirement-ID collision control.
+    with build_worldbank_fetch_owner(
+        tmp_path / "alternate-recorded-source", artifact_store=artifact_store
+    ) as recorded:
+        alternate_record = recorded.catalog_record.model_copy(deep=True)
+        if metric == "gdp":
+            # The recorded owner has two genuine country rows. Bind this test's
+            # declared single-country request to that country in the catalog
+            # fixture rather than accepting an unfiltered US+DE payload.
+            alternate_record = alternate_record.model_copy(
+                update={
+                    "distributions": [
+                        distribution.model_copy(
+                            update={"default_filters": {"country": [geography]}}
+                        )
+                        for distribution in alternate_record.distributions
+                    ]
+                }
+            )
+        alternate_plan = recorded.plan.model_copy(deep=True)
+        alternate_rows = tuple(
+            row
+            for page in sorted(recorded.http_responses)
+            for row in recorded.http_responses[page][1]
+        )
+    with monkeypatch.context() as publisher_patch:
+        build_graph = graph_builder.build_graph
+
+        def build_graph_with_normalized_wdi(*, records: Any, **kwargs: Any) -> Any:
+            # The shared publisher fixture constructs graph rows directly. Preserve
+            # the license from its actual harvested WDI row through the canonical
+            # normalizer before the graph and currentness receipts are produced.
+            raw_path = publisher_root / "snapshot/datasets/raw/worldbank/snapshot/payload.jsonl"
+            raw_rows = [json.loads(line) for line in raw_path.read_text().splitlines()]
+            selected = [row for row in raw_rows if row.get("id") == "NY.GDP.PCAP.PP.CD"]
+            if len(selected) != 1:
+                raise AssertionError("published_wdi_harvest_not_unique")
+            normalized = normalize_worldbank(selected[0])
+            if not normalized.access.license:
+                raise AssertionError("normalized_wdi_license_missing")
+
+            def retain_normalized_source_facet() -> Iterator[Any]:
+                matched = 0
+                for record in records:
+                    if (
+                        record.source == normalized.source
+                        and record.source_dataset_id == normalized.source_dataset_id
+                    ):
+                        matched += 1
+                        record = record.model_copy(
+                            update={
+                                "license": normalized.license,
+                                "access": record.access.model_copy(
+                                    update={"license": normalized.access.license}
+                                ),
+                            }
+                        )
+                    yield record
+                if matched != 1:
+                    raise AssertionError("published_wdi_graph_record_not_unique")
+                yield alternate_record
+
+            return build_graph(records=retain_normalized_source_facet(), **kwargs)
+
+        publisher_patch.setattr(graph_builder, "build_graph", build_graph_with_normalized_wdi)
+        publisher = _build_full_published_catalog_fixture(publisher_root, publisher_patch)
+        try:
+            with monkeypatch.context() as fetch_patch:
+                # The publisher fixture controls its fetch edge while building.
+                # Reentry exercises the real connector with its own recorded edge.
+                fetch_patch.setattr(WorldBankConnector, "fetch", actual_fetch)
+                with build_worldbank_fetch_owner(
+                    tmp_path / "worldbank-transport", artifact_store=artifact_store
+                ) as transport:
+                    rows = publisher.producer_graph._store._con.execute(
+                        "SELECT DISTINCT country_code, year, value FROM ds_observations "
+                        "WHERE raw_variable = ? ORDER BY country_code, year",
+                        ["NY.GDP.PCAP.PP.CD"],
+                    ).fetchall()
+                    if metric == "gdp_per_capita" and not rows:
+                        raise AssertionError("published_wdi_observations_missing")
+                    old_request = WorldBankConnector._request_json
+
+                    async def request_json(
+                        session: Any, url: str, *, params: Any, connector_id: str
+                    ):
+                        indicator_id = url.split("/indicator/", 1)[-1]
+                        if indicator_id not in {
+                            "NY.GDP.PCAP.PP.CD",
+                            "NY.GDP.MKTP.CD",
+                        }:
+                            return await old_request(
+                                session, url, params=params, connector_id=connector_id
+                            )
+                        country_path = url.split("/country/", 1)[1].split("/indicator/", 1)[0]
+                        countries = set(country_path.upper().split(";"))
+                        if indicator_id == "NY.GDP.PCAP.PP.CD":
+                            selected_rows = [
+                                (country, year, value)
+                                for country, year, value in rows
+                                if "ALL" in countries or country in countries
+                            ]
+                        else:
+                            iso2_by_iso3 = {"USA": "US", "DEU": "DE"}
+                            iso2_to_iso3 = {value: key for key, value in iso2_by_iso3.items()}
+                            requested_iso3 = {
+                                iso2_to_iso3.get(country, country) for country in countries
+                            }
+                            selected_rows = [
+                                (
+                                    iso2_by_iso3[str(row["countryiso3code"])],
+                                    int(row["date"]),
+                                    float(row["value"]),
+                                )
+                                for row in alternate_rows
+                                if row.get("countryiso3code") in iso2_by_iso3
+                                and ("ALL" in countries or row["countryiso3code"] in requested_iso3)
+                            ]
+                        date_range = params.get("date")
+                        if date_range:
+                            start, _, end = str(date_range).partition(":")
+                            first, last = int(start), int(end or start)
+                            selected_rows = [
+                                row for row in selected_rows if first <= row[1] <= last
+                            ]
+                        page = int(params.get("page", "1"))
+                        per_page = int(params.get("per_page", "1000"))
+                        pages = max(1, (len(selected_rows) + per_page - 1) // per_page)
+                        page_rows = selected_rows[(page - 1) * per_page : page * per_page]
+                        iso3 = {
+                            "UA": "UKR",
+                            "DE": "DEU",
+                            "PL": "POL",
+                            "RO": "ROU",
+                            "MD": "MDA",
+                            "US": "USA",
+                        }
+                        indicator_name = (
+                            "GDP per capita, PPP (synthetic fixture)"
+                            if indicator_id == "NY.GDP.PCAP.PP.CD"
+                            else "GDP (current US$) (synthetic fixture)"
+                        )
+                        result = [
+                            {
+                                "indicator": {
+                                    "id": indicator_id,
+                                    "value": indicator_name,
+                                },
+                                "country": {"id": country, "value": country},
+                                "countryiso3code": iso3[country],
+                                "date": str(year),
+                                "value": value,
+                                "unit": "",
+                                "decimal": 0,
+                            }
+                            for country, year, value in page_rows
+                        ]
+                        body = [{"page": page, "pages": pages, "total": len(selected_rows)}, result]
+                        return body, {"ETag": '"published-fixture-1"'}, json.dumps(body).encode()
+
+                    fetch_patch.setattr(
+                        WorldBankConnector, "_request_json", staticmethod(request_json)
+                    )
+                    service = RetrievalService(
+                        curated_dir=tmp_path,
+                        artifact_store=artifact_store,
+                        dataset_catalog=publisher.producer_graph,
+                        providers=transport.providers,
+                    )
+                    need = DataNeed(
+                        metric=metric,
+                        geography=geography,
+                        time_start=time_start,
+                        time_end=time_end,
+                        granularity="annual",
+                        quality_min=0.7,
+                    )
+                    resolved = service.resolve(
+                        DataResolveRequest(
+                            data_needs=[need], mode="fastlane", allow_explore_fallback=False
+                        ),
+                        run_profile="prod_full",
+                    )
+                    if len(resolved.fetch_plans) != 1:
+                        raise AssertionError(f"published_wdi_plan_not_unique:{resolved.warnings}")
+                    plan = resolved.fetch_plans[0]
+                    expected_plan = (
+                        (
+                            "gdp_per_capita",
+                            "NY.GDP.PCAP.PP.CD",
+                            "worldbank.wdi",
+                            "worldbank_wdi",
+                        )
+                        if metric == "gdp_per_capita"
+                        else ("gdp", "NY.GDP.MKTP.CD", "worldbank.wdi", "worldbank_wdi")
+                    )
+                    if (
+                        plan.metric_id,
+                        plan.dataset_id,
+                        plan.connector_id,
+                        plan.profile_id,
+                    ) != expected_plan:
+                        raise AssertionError("published_wdi_plan_identity_mismatch")
+                    # The Catalog fallback returns an unfiltered plan. Submit the
+                    # need's explicit country to the actual connector and bind
+                    # that exact scoped tuple through the Catalog owner.
+                    default_countries = tuple(plan.filters.get("country", ()))
+                    if default_countries and need.geography not in default_countries:
+                        raise AssertionError("published_wdi_default_country_scope_mismatch")
+                    plan = plan.model_copy(update={"filters": {"country": [need.geography]}})
+                    publisher.producer_graph.bind_fetch_target(
+                        metric_id=plan.metric_id,
+                        connector_id=plan.connector_id,
+                        request_dataset_id=plan.dataset_id,
+                        profile_id=plan.profile_id,
+                        filters=plan.filters,
+                    )
+                    yield SimpleNamespace(
+                        service=service,
+                        graph=publisher.producer_graph,
+                        providers=transport.providers,
+                        store=artifact_store,
+                        plan=plan,
+                        alternate_plan=alternate_plan,
+                        data_need=need,
+                        observations=tuple(rows),
+                    )
+        finally:
+            publisher.producer_graph.close()
+            publisher.close()
+
+
+@contextmanager
 def _real_acq01_route(
     tmp_path: Path,
     problem: DesignProblem,
@@ -805,6 +1253,10 @@ def _real_acq01_route(
     execution_scope_binding: Any | None = None,
     prior_context: Any | None = None,
     selected_metric: str | None = None,
+    selected_owner: Any | None = None,
+    data_spec_override: DataRequirementSpec | None = None,
+    compiled_requirement_family: str | None = None,
+    world_model_scope: Mapping[str, str] | None = None,
 ) -> Any:
     """Build one recorded WorldBank route through the existing owners.
 
@@ -851,14 +1303,25 @@ def _real_acq01_route(
         build_worldbank_fetch_owner,
     )
 
-    family = selected_metric if selected_metric is not None else "metric.test"
-    data_spec = _fixture_data_requirement_spec().model_copy(
-        update={
-            "requirement_id": requirement_ref,
-            "claim_id": f"claim:{requirement_ref.removeprefix('data-requirement:')}",
-            "required_data_families": (family,),
-        }
+    family = compiled_requirement_family or (
+        selected_metric if selected_metric is not None else "metric.test"
     )
+    if data_spec_override is None:
+        data_spec = _fixture_data_requirement_spec().model_copy(
+            update={
+                "requirement_id": requirement_ref,
+                "claim_id": f"claim:{requirement_ref.removeprefix('data-requirement:')}",
+                "required_data_families": (family,),
+            }
+        )
+    else:
+        expected_compiled_family = compiled_requirement_family or family
+        if (
+            data_spec_override.requirement_id != requirement_ref
+            or data_spec_override.required_data_families != (expected_compiled_family,)
+        ):
+            raise ValueError("acq01_fixture_compiled_data_spec_binding_mismatch")
+        data_spec = data_spec_override.model_copy(deep=True)
     if prior_context is not None:
         from polisyos.runtime.quality.cycle_substrate import revalidate_cycle_substrate_context
 
@@ -868,19 +1331,35 @@ def _real_acq01_route(
             or prior_context.domain != problem.domain
         ):
             raise ValueError("acq01_fixture_prior_context_problem_mismatch")
+    tmp_path.mkdir(parents=True, exist_ok=True)
     capture_root = tmp_path / "capture"
-    with build_worldbank_fetch_owner(capture_root, artifact_store=artifact_store) as owner:
+    source_owner = (
+        nullcontext(selected_owner)
+        if selected_owner is not None
+        else build_worldbank_fetch_owner(capture_root, artifact_store=artifact_store)
+    )
+    with source_owner as owner:
+        if artifact_store is not None and owner.store is not artifact_store:
+            raise ValueError("acq01_fixture_selected_store_mismatch")
         if selected_metric is not None and selected_metric != owner.plan.metric_id:
             raise ValueError("acq01_fixture_selected_metric_mismatch")
         resolved = owner.service.resolve(
             DataResolveRequest(
-                data_needs=[DataNeed(metric=owner.plan.metric_id)],
+                data_needs=[getattr(owner, "data_need", DataNeed(metric=owner.plan.metric_id))],
                 mode="fastlane",
                 catalog_run_profile="prod_full",
             )
         )
+        plans = list(resolved.fetch_plans)
+        if selected_owner is not None:
+            if len(plans) != 1 or any(
+                getattr(plans[0], name) != getattr(owner.plan, name)
+                for name in ("metric_id", "connector_id", "dataset_id", "profile_id")
+            ):
+                raise ValueError("acq01_fixture_selected_plan_mismatch")
+            plans = [owner.plan]
         execution = owner.service.execute_fetch_plans(
-            list(resolved.fetch_plans),
+            plans,
             persist_payload=True,
             allow_fallback=False,
         )
@@ -1029,16 +1508,27 @@ def _real_acq01_route(
         )
         if not set(target_world_slots).issubset(policy_slots):
             raise ValueError("acq01_fixture_target_not_in_prior_world")
-        region = prior_world.region_or_jurisdiction if prior_world is not None else "UA-30"
+        scope_overrides = world_model_scope or {}
+        region = (
+            prior_world.region_or_jurisdiction
+            if prior_world is not None
+            else scope_overrides.get("region_or_jurisdiction", "UA-30")
+        )
         population = (
             prior_world.population_scope
             if prior_world is not None
-            else "recorded_file_tabular_fixture"
+            else scope_overrides.get("population_scope", "recorded_file_tabular_fixture")
         )
-        domain = prior_world.policy_domain if prior_world is not None else "fiscal_credit"
+        domain = (
+            prior_world.policy_domain
+            if prior_world is not None
+            else scope_overrides.get("policy_domain", "fiscal_credit")
+        )
         valid_time = (
             prior_world.valid_time_scope if prior_world is not None else "2026-09-22/2026-09-22"
         )
+        if prior_world is None:
+            valid_time = scope_overrides.get("valid_time_scope", valid_time)
         tx_time = (
             prior_world.tx_time_scope if prior_world is not None else "2026-09-22T00:00:00+00:00"
         )
@@ -1165,6 +1655,9 @@ def _real_acq01_route(
         )
         yield SimpleNamespace(
             data_spec=data_spec,
+            source_requirement=source_requirement,
+            plan=owner.plan,
+            data_need=getattr(owner, "data_need", None),
             owner_artifact=owner_artifact,
             store=store,
             measurement_root=measurement_root,
@@ -1180,21 +1673,391 @@ def _real_acq01_route(
         )
 
 
+def test_wdi_requirement_scope_checks_rows_and_complete_annual_denominator() -> None:
+    """Requested filters cannot stand in for actual metric, geography, and years."""
+    from polisyos.runtime.quality.data_forge_binding import (
+        FabricMeasurementRootBindingError,
+        _validate_wdi_requirement_rows,
+    )
+
+    requirement = _fixture_data_requirement_spec()
+    rows = [
+        {"country_code": "DEU", "indicator_id": "NY.GDP.PCAP.PP.CD", "year": year, "value": 1.0}
+        for year in (2020, 2021)
+    ]
+    arguments = {
+        "requirement": requirement,
+        "geography": "DE",
+        "start": "2020",
+        "end": "2021",
+        "dataset_id": "NY.GDP.PCAP.PP.CD",
+    }
+    _validate_wdi_requirement_rows(rows, **arguments)
+    _validate_wdi_requirement_rows(
+        rows, **{**arguments, "start": "2020-01-01", "end": "2021-12-31"}
+    )
+    for start, end, reason in (
+        ("2020-12-31", "2020-01-01", "time_order_invalid"),
+        ("2020-06-01", "2021-12-31", "partial_year_not_established"),
+        ("2020-01-01", "2021-06-30", "partial_year_not_established"),
+        ("0000", "2021", "time_unresolved"),
+    ):
+        with pytest.raises(FabricMeasurementRootBindingError, match=reason):
+            _validate_wdi_requirement_rows(rows, **{**arguments, "start": start, "end": end})
+    mutations = (
+        ([{**rows[0], "indicator_id": "other"}, rows[1]], "scope_mismatch"),
+        ([{**rows[0], "country_code": "POL"}, rows[1]], "scope_mismatch"),
+        ([rows[0], {**rows[1], "year": 2022}], "scope_mismatch"),
+        ([rows[0], rows[0]], "scope_mismatch"),
+        ([rows[0]], "coverage_incomplete"),
+        ([rows[0], {**rows[1], "value": float("nan")}], "coverage_incomplete"),
+        ([rows[0], {**rows[1], "value": 10**1000}], "coverage_incomplete"),
+    )
+    for altered, reason in mutations:
+        with pytest.raises(FabricMeasurementRootBindingError, match=reason):
+            _validate_wdi_requirement_rows(altered, **arguments)
+
+    # The connector can fill a missing raw indicator from the request. This
+    # bounded row check cannot turn that fallback into independent source truth.
+    from polisyos.fabric.connectors.sources.world_bank import normalize_worldbank_records
+
+    raw_rows = [
+        {"countryiso3code": "DEU", "date": str(year), "value": 1.0} for year in (2020, 2021)
+    ]
+    normalized = normalize_worldbank_records(raw_rows, "NY.GDP.PCAP.PP.CD")
+    assert all("indicator" not in row for row in raw_rows)
+    _validate_wdi_requirement_rows(normalized, **arguments)
+
+
+def test_acq01_published_wdi_fetch_produces_same_job_measurement_root(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Resolve current fixture data through Fabric and the fenced measurement owner."""
+    import asyncio
+
+    from polisyos.core import artifacts
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.contracts import DataSnapshot
+    from polisyos.core.contracts.control import NaturalLanguageRunRequest
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.data_requirement.compiler import DataRequirementCompiler
+    from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from polisyos.runtime.quality.data_forge_binding import (
+        FabricMeasurementRootBindingError,
+        MeasurementRootProducer,
+        _validate_compiled_fabric_measurement_binding,
+        bind_measurement_root_execution_scope,
+        build_fabric_measurement_requirement,
+        persist_measurement_root_data_snapshot,
+        resolve_measurement_root_evidence,
+    )
+    from tests._helpers.runtime_http import _build_control_service, _valid_intake_for_mode
+    from tests.unit.runtime.http.control_service_test_support import bound_nl_authorization_proof
+    from tests.unit.runtime.http.test_control_service_di import _fixture_claims
+
+    problem = _problem(
+        problem_id="acq01_published_wdi",
+        statement="Examine synthetic GDP per capita observations.",
+        domain="fiscal_credit",
+    )
+    problem = problem.model_copy(
+        update={
+            "jurisdiction_time": problem.jurisdiction_time.model_copy(
+                update={"region": "DE", "data_time": "2020"}
+            ),
+        }
+    )
+    tenant_id, cell_id = "tenant-fixture", "cell-fixture"
+    store = FileSystemCAS(tmp_path / "cas").for_tenant(tenant_id, cell_id)
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        service = _build_control_service(tmp_path / "control", artifact_store=store)
+    try:
+        request = NaturalLanguageRunRequest(
+            request=problem.nl_provenance.raw_request,
+            llm_model="simulated-qwen",
+            context={
+                "evaluation_safety_attempt": _valid_intake_for_mode("simulate_only").model_dump(
+                    mode="json"
+                )
+            },
+            max_iterations=1,
+        )
+        claims = _fixture_claims()
+        launch = asyncio.run(
+            service.launch_nl_run(
+                request,
+                principal=RuntimePrincipal.from_user_claims(claims),
+                authorization_proof=bound_nl_authorization_proof(claims, request),
+            )
+        )
+        lease = service._control_store.lease_next_job(
+            worker_id="acq01-measurement", lease_seconds=600
+        )
+        assert lease is not None and lease.job_id == launch.job_id
+        with service._control_store.job_execution_fence(
+            job_id=lease.job_id, worker_id=lease.lease_owner, attempt=lease.attempt
+        ):
+            admission = service._control_store.current_execution_job_admission()
+            with service._install_execution_scope(admission.scope):
+                binding = bind_measurement_root_execution_scope(
+                    admission=admission, job=admission.job, execution_scope=admission.scope
+                )
+                assert binding.authority_eligible
+                with _published_worldbank_owner(
+                    tmp_path / "selected-owner", monkeypatch, artifact_store=store
+                ) as owner:
+                    execution = owner.service.execute_fetch_plans(
+                        [owner.plan], persist_payload=True, allow_fallback=False
+                    )
+                    assert len(execution.previews) == 1
+                    preview = execution.previews[0]
+                    assert preview.fetch_receipt_ref is not None
+                    plan = owner.plan
+                    catalog_binding = owner.graph.bind_fetch_target(
+                        metric_id=plan.metric_id,
+                        connector_id=plan.connector_id,
+                        request_dataset_id=plan.dataset_id,
+                        profile_id=plan.profile_id,
+                        filters=plan.filters,
+                    )
+                    source_requirement = build_fabric_measurement_requirement(
+                        catalog=owner.graph,
+                        catalog_binding=catalog_binding,
+                        design_problem=problem,
+                    )
+                    producer = MeasurementRootProducer(
+                        artifact_store=store, execution_scope_binding=binding
+                    )
+                    measurement_root = producer.produce_from_fabric_fetch(
+                        fetch_receipt_ref=preview.fetch_receipt_ref,
+                        catalog=owner.graph,
+                        providers=owner.providers,
+                        design_problem=problem,
+                        source_requirement=source_requirement,
+                    )
+                    evidence = resolve_measurement_root_evidence(
+                        store=store,
+                        measurement_root=measurement_root,
+                        catalog=owner.graph,
+                        providers=owner.providers,
+                        execution_scope_binding=binding,
+                    )
+                    snapshot_ref = persist_measurement_root_data_snapshot(
+                        store=store, evidence=evidence, execution_scope_binding=binding
+                    )
+                    assert evidence.payload.design_problem == problem
+                    assert evidence.payload.observed_row_count == sum(
+                        country == "DE" and year == 2020
+                        for country, year, _value in owner.observations
+                    )
+                    snapshot = DataSnapshot.model_validate(
+                        load_core_json_artifact(store, snapshot_ref)
+                    )
+                    assert snapshot.data_ref == evidence.payload.payload_ref
+                    assert evidence.payload.source_requirement.required_data_families == (
+                        "worldbank",
+                    )
+                    root_manifest = store.get_manifest(evidence.measurement_root_ref)
+                    expected_input = artifacts.input_ref_from_artifact_ref(
+                        preview.fetch_receipt_ref, role="fabric_fetch"
+                    )
+                    assert expected_input.manifest_profile_sha256 is not None
+                    assert root_manifest.inputs == [expected_input]
+                    assert root_manifest.authority is not None
+                    authority_ref = artifacts.resolve_authority_envelope_ref(
+                        store, root_manifest.authority
+                    )
+                    assert store.get_manifest(authority_ref).inputs == [expected_input]
+
+                    def compile_requirement(
+                        *, family: str, geography: str, year: str, granularity: str = "annual"
+                    ) -> Any:
+                        report = DataRequirementCompiler().compile_for_scenario(
+                            {
+                                "scenario_id": problem.design_problem_id,
+                                "text": problem.problem_statement,
+                                "domain": problem.domain,
+                                "expected_evidence_contract": {
+                                    "admissible_data_source_families": [family]
+                                },
+                                "scenario_profile": {
+                                    "profile_id": "fixture-scope",
+                                    "jurisdiction": geography,
+                                    "time_window": {"start": year, "end": year},
+                                    "time_role": "observation_time",
+                                    "granularity": granularity,
+                                },
+                            }
+                        )
+                        assert len(report.specs) == 1
+                        return report.specs[0]
+
+                    requirement = compile_requirement(
+                        family="gdp_per_capita", geography="DE", year="2020"
+                    )
+                    assert (
+                        source_requirement.requirement_id not in requirement.source_requirement_refs
+                    )
+                    join_args = {
+                        "store": store,
+                        "evidence": evidence,
+                        "catalog": owner.graph,
+                        "providers": owner.providers,
+                        "execution_scope_binding": binding,
+                    }
+                    limitations = _validate_compiled_fabric_measurement_binding(
+                        requirement=requirement, **join_args
+                    )
+                    assert "catalog_resolution_is_candidate_only" in limitations
+                    assert "worldbank_indicator_id_may_be_request_fallback" in limitations
+                    year_frequency = compile_requirement(
+                        family="gdp_per_capita", geography="DE", year="2020", granularity="Y"
+                    )
+                    assert (
+                        _validate_compiled_fabric_measurement_binding(
+                            requirement=year_frequency, **join_args
+                        )
+                        == limitations
+                    )
+                    for family, geography, year, reason in (
+                        ("unemployment_rate", "DE", "2020", "metric_mismatch"),
+                        ("gdp_per_capita", "PL", "2020", "scope_mismatch"),
+                        ("gdp_per_capita", "DE", "2021", "scope_mismatch"),
+                    ):
+                        wrong = compile_requirement(family=family, geography=geography, year=year)
+                        with pytest.raises(FabricMeasurementRootBindingError, match=reason):
+                            _validate_compiled_fabric_measurement_binding(
+                                requirement=wrong, **join_args
+                            )
+
+                    alternate = owner.alternate_plan
+                    assert alternate.metric_id == "gdp"
+                    assert alternate.dataset_id != plan.dataset_id
+                    other_execution = owner.service.execute_fetch_plans(
+                        [alternate], persist_payload=True, allow_fallback=False
+                    )
+                    assert len(other_execution.previews) == 1
+                    other_receipt = other_execution.previews[0].fetch_receipt_ref
+                    assert other_receipt is not None
+                    other_binding = owner.graph.bind_fetch_target(
+                        metric_id=alternate.metric_id,
+                        connector_id=alternate.connector_id,
+                        request_dataset_id=alternate.dataset_id,
+                        profile_id=alternate.profile_id,
+                        filters=alternate.filters,
+                    )
+                    other_source_requirement = build_fabric_measurement_requirement(
+                        catalog=owner.graph,
+                        catalog_binding=other_binding,
+                        design_problem=problem,
+                    )
+                    assert (
+                        other_source_requirement.requirement_id == source_requirement.requirement_id
+                    )
+                    assert other_source_requirement != source_requirement
+                    other_root = producer.produce_from_fabric_fetch(
+                        fetch_receipt_ref=other_receipt,
+                        catalog=owner.graph,
+                        providers=owner.providers,
+                        design_problem=problem,
+                        source_requirement=other_source_requirement,
+                    )
+                    other_evidence = resolve_measurement_root_evidence(
+                        store=store,
+                        measurement_root=other_root,
+                        catalog=owner.graph,
+                        providers=owner.providers,
+                        execution_scope_binding=binding,
+                    )
+                    with pytest.raises(
+                        FabricMeasurementRootBindingError,
+                        match="measurement_requirement_metric_mismatch",
+                    ):
+                        _validate_compiled_fabric_measurement_binding(
+                            **{**join_args, "evidence": other_evidence},
+                            requirement=requirement,
+                        )
+
+                    altered = source_requirement.model_copy(
+                        update={"required_data_families": ("different-source",)}
+                    )
+                    with pytest.raises(
+                        FabricMeasurementRootBindingError,
+                        match="measurement_root_source_requirement_mismatch",
+                    ):
+                        producer.produce_from_fabric_fetch(
+                            fetch_receipt_ref=preview.fetch_receipt_ref,
+                            catalog=owner.graph,
+                            providers=owner.providers,
+                            design_problem=problem,
+                            source_requirement=altered,
+                        )
+    finally:
+        service.close()
+
+
 def _real_acq01_before_context(
     tmp_path: Path,
     problem: DesignProblem,
     *,
     artifact_store: Any | None = None,
+    additional_policy_slot_ids: tuple[str, ...] = (),
+    world_model_scope: Mapping[str, str] | None = None,
 ) -> Any:
     """Build the content-bound pre-acquisition context from existing owners."""
 
+    from polisyos.runtime.quality.world_model_record import build_world_model_record
     from tests._helpers.world_model_record import (
         _build_record,
+        _fabric_ref,
+        _skg_ref,
         _substrate_registry,
+        _write_data_forge_binding,
     )
 
-    _, world_build, _, _ = _build_record(tmp_path / "before", artifact_store=artifact_store)
+    owner_root = tmp_path / "before"
+    store, world_build, model_spec, registry_bundle_ref = _build_record(
+        owner_root,
+        artifact_store=artifact_store,
+    )
     registry = _substrate_registry()
+    if additional_policy_slot_ids or world_model_scope:
+        prior = world_build.record
+        scope = world_model_scope or {}
+        world_build = build_world_model_record(
+            store,
+            fabric_world_ref=_fabric_ref(owner_root),
+            data_forge_snapshot_binding_path=_write_data_forge_binding(owner_root),
+            data_snapshot_ref=world_build.data_snapshot_ref,
+            model_spec=model_spec,
+            skg_causal_prior_ref=_skg_ref(owner_root),
+            substrate_registry=registry,
+            region_or_jurisdiction=scope.get(
+                "region_or_jurisdiction", prior.region_or_jurisdiction
+            ),
+            population_scope=scope.get("population_scope", prior.population_scope),
+            policy_domain=scope.get("policy_domain", prior.policy_domain),
+            valid_time_scope=scope.get("valid_time_scope", prior.valid_time_scope),
+            tx_time_scope=prior.tx_time_scope,
+            resolution=prior.resolution,
+            branch_mode=prior.branch_mode,
+            policy_slot_ids=tuple(
+                dict.fromkeys(
+                    (
+                        *(binding.slot_id for binding in prior.policy_slot_map),
+                        *additional_policy_slot_ids,
+                    )
+                )
+            ),
+            producer_ref="tests.unit.remediation.test_acq_01.real_before_context",
+            required_substrate_families=tuple(
+                dict.fromkeys(entry.family_id for entry in registry.entries)
+            ),
+            substrate_registry_artifact_ref=prior.substrate_registry_ref.registry_artifact_ref,
+            registry_bundle_artifact_ref=registry_bundle_ref,
+            _loaded_substrate_registry=registry,
+        )
     selected_entry_hashes = tuple(entry.entry_content_hash for entry in registry.entries)
     return build_cycle_substrate_context(
         design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
@@ -1242,6 +2105,411 @@ def _real_acq01_inputs(
     )
 
 
+def _real_acq01_macro_context_case(
+    tmp_path: Path,
+    *,
+    problem_id: str = "acq_01_real_ports",
+    artifact_store: Any | None = None,
+) -> Any:
+    """Build the employment case with a compiler-grounded nominal-GDP context need."""
+
+    from polisyos.data_requirement import DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        intervention_atom_content_hash,
+    )
+
+    source_family = "wdi_nominal_gdp_annual"
+    runtime_hints = {
+        "joint_simulation_resource": "method_registry_estimator",
+        "joint_simulation_budget_ref": "budget://acq-01/real-ports",
+        "joint_simulation_horizon": {"start": 0, "end": 1, "step": 1},
+        "joint_simulation_baseline_state": {"employment_retention": 1.0},
+        "joint_simulation_variable_map": {"employment_retention": "stock:0"},
+        "n7_scope_profile": {
+            "profile_id": f"{problem_id}-macro-context-v1",
+            "jurisdiction": "US",
+            "population": "national_economy",
+            "entity_scope": "country",
+            "time_window": {"start": "2022-01-01", "end": "2022-12-31"},
+            "time_role": "observation_time",
+            "granularity": "annual",
+            "required_constructs": ["economic.gdp"],
+        },
+        "joint_simulation_engine_plan": {
+            "method_fqn": "simulation.system_dynamics.stock_flow@1.0.0",
+            "system_dynamics_state": {
+                "initial_stocks": [1.0, 0.0],
+                "flow_matrix": [[0.0, 0.1], [0.0, 0.0]],
+                "exogenous_inflows": [0.0, 0.0],
+            },
+            "system_dynamics_params": {"dt": 1.0},
+        },
+    }
+    problem = _problem(
+        problem_id=problem_id,
+        statement=(
+            "Assess a synthetic U.S. tax-relief candidate for employment retention. "
+            "Acquire 2022 U.S. nominal GDP as separate macro context; it is not the "
+            "employment outcome or a causal effect on jobs."
+        ),
+        domain="fiscal_credit",
+        runtime_hints=runtime_hints,
+    )
+    problem = problem.model_copy(
+        update={
+            "schema_version": DESIGN_PROBLEM_V3_SCHEMA_VERSION,
+            "jurisdiction_time": problem.jurisdiction_time.model_copy(
+                update={
+                    "region": "US",
+                    "valid_time": "2022",
+                    "as_of": "2022-12-31",
+                    "policy_time": "2022",
+                    "data_time": "2022",
+                }
+            ),
+            "objectives": (
+                DesignObjective(
+                    objective_id="employment_retention",
+                    description="Retain employment in the synthetic scenario.",
+                    metric_id="employment_retention",
+                ),
+            ),
+            "stakeholders": (
+                DesignStakeholder(
+                    stakeholder_id="us_residents",
+                    name="U.S. national economy",
+                    role="target_population",
+                ),
+            ),
+            "outcome_of_interest": OutcomeOfInterest(
+                target_variable="employment_retention",
+                metric_id="employment_retention",
+                estimand="average_treatment_effect",
+            ),
+            "candidate_lever_space": CandidateLeverSpace(
+                allowed_operator_kinds=["tax_relief_rate"],
+                candidate_levers=[
+                    CandidateLever(
+                        lever_id="tax_relief_rate",
+                        operator_kind="tax_relief_rate",
+                        instrument="Temporary tax relief",
+                        target_slot="global.tax_rate",
+                    )
+                ],
+            ),
+        }
+    )
+    problem = DesignProblem.model_validate(problem.model_dump(mode="python"))
+
+    resolver = RequirementToCapabilityResolver.governed_fixture(REPO_ROOT)
+    compiler_controller = GenerationCycleController(
+        capability_resolver=resolver,
+        repo_root=REPO_ROOT,
+    )
+    compiled_basis = compiler_controller._n7_data_requirement_basis_with_report(
+        problem,
+        acquisition_request={"driver": f"acquire_data:{source_family}"},
+    )
+    if (
+        compiled_basis.unbound_input_fields
+        or compiled_basis.compilation_report.schema_version
+        != DATA_REQUIREMENT_COMPILATION_SCHEMA_VERSION
+        or compiled_basis.compilation_report.requirement_basis.source
+        != "governed_capability_resolution"
+        or compiled_basis.compilation_report.requirement_basis.basis_grade != "recomputed"
+        or len(compiled_basis.specs) != 1
+        or len(compiled_basis.capability_resolutions) != 1
+    ):
+        raise AssertionError("acq01_macro_context_compiler_basis_not_governed")
+    data_spec = compiled_basis.specs[0]
+    resolution = compiled_basis.capability_resolutions[0]
+    if (
+        type(data_spec) is not DataRequirementSpec
+        or data_spec.required_data_families != (source_family,)
+        or data_spec.metadata.get("construct_ref") != "construct:economic.gdp"
+        or data_spec.metadata.get("capability_binding", {}).get("construct_ref")
+        != "construct:economic.gdp"
+        or resolution.query.construct != "economic.gdp"
+        or resolution.candidate_discovery is None
+        or resolution.candidate_discovery.satisfies_claim_evidence
+    ):
+        raise AssertionError("acq01_macro_context_compiler_denominator_mismatch")
+
+    before_context = _real_acq01_before_context(
+        tmp_path / "nominal-gdp-before",
+        problem,
+        artifact_store=artifact_store,
+        additional_policy_slot_ids=("global.tax_rate",),
+        world_model_scope={
+            "region_or_jurisdiction": "US",
+            "population_scope": "national_economy",
+            "policy_domain": "fiscal_credit",
+            "valid_time_scope": "2022",
+        },
+    )
+    candidate = _fixture_candidate(
+        problem,
+        world_ref=before_context.world_model_record.world_model_record_id,
+        target_world_slots=("global.tax_rate",),
+        candidate_id="candidate_us_tax_relief",
+    )
+    atom = candidate.atom
+    assignment = atom.causal_do_expr.assignments[0].model_copy(
+        update={"value": 1, "value_expr": None}
+    )
+    expression_payload = {
+        **atom.causal_do_expr.expression_payload,
+        "assignments": [assignment.model_dump(mode="json")],
+    }
+    causal_do_expr = atom.causal_do_expr.model_copy(
+        update={
+            "assignments": (assignment,),
+            "expression_payload": expression_payload,
+        }
+    )
+    direct_effect_bundle = atom.direct_effect_bundle.model_copy(
+        update={
+            "mechanism_config_overrides": {
+                **atom.direct_effect_bundle.mechanism_config_overrides,
+                "joint_simulation_engine_variable": "exogenous_inflows.0",
+            }
+        }
+    )
+    intended_downstream_estimand = atom.intended_downstream_estimand.model_copy(
+        update={"target_population": "US"}
+    )
+    atom = atom.model_copy(
+        update={
+            "causal_do_expr": causal_do_expr,
+            "direct_effect_bundle": direct_effect_bundle,
+            "intended_downstream_estimand": intended_downstream_estimand,
+        }
+    )
+    atom_content_hash = intervention_atom_content_hash(atom)
+    atom = atom.model_copy(
+        update={
+            "atom_id": f"atom_{atom_content_hash.removeprefix('sha256:')[:16]}",
+            "content_hash": atom_content_hash,
+        }
+    )
+    candidate.atom = atom
+    candidate.intervention_atoms = (atom,)
+    return SimpleNamespace(
+        problem=problem,
+        data_spec=data_spec,
+        compiler_report=compiled_basis.compilation_report,
+        capability_resolver=resolver,
+        before_context=before_context,
+        candidate=candidate,
+    )
+
+
+@contextmanager
+def _acq01_verified_job_execution(tmp_path: Path, problem: DesignProblem) -> Iterator[Any]:
+    """Hold one real simulate-only worker lease while exercising N7 context ownership."""
+
+    import asyncio
+
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.core.contracts.control import NaturalLanguageRunRequest
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
+    from polisyos.runtime.quality.data_forge_binding import bind_measurement_root_execution_scope
+    from tests._helpers.runtime_http import _build_control_service, _valid_intake_for_mode
+    from tests.unit.runtime.http.control_service_test_support import bound_nl_authorization_proof
+    from tests.unit.runtime.http.test_control_service_di import _fixture_claims
+
+    claims = _fixture_claims()
+    tenant_id, cell_id = claims.tenant_id, claims.cell_id
+    assert tenant_id is not None and cell_id is not None
+    store = FileSystemCAS(tmp_path / "verified-job-cas").for_tenant(tenant_id, cell_id)
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        service = _build_control_service(
+            tmp_path / "verified-job-service",
+            artifact_store=store,
+            repo_root=REPO_ROOT,
+        )
+    try:
+        assert service._artifact_store is store
+        request = NaturalLanguageRunRequest(
+            request=problem.nl_provenance.raw_request,
+            llm_model="simulated-qwen",
+            context={
+                "evaluation_safety_attempt": _valid_intake_for_mode("simulate_only").model_dump(
+                    mode="json"
+                )
+            },
+            max_iterations=1,
+        )
+        launch = asyncio.run(
+            service.launch_nl_run(
+                request,
+                principal=RuntimePrincipal.from_user_claims(claims),
+                authorization_proof=bound_nl_authorization_proof(claims, request),
+            )
+        )
+        lease = service._control_store.lease_next_job(
+            worker_id="acq01-context-owner", lease_seconds=600
+        )
+        assert lease is not None and lease.job_id == launch.job_id
+        with service._control_store.job_execution_fence(
+            job_id=lease.job_id,
+            worker_id=lease.lease_owner,
+            attempt=lease.attempt,
+        ):
+            admission = service._control_store.current_execution_job_admission()
+            assert admission.job.job_id == lease.job_id == launch.job_id
+            assert admission.job.run_id == launch.run_id
+            assert admission.job.state == "running"
+            assert admission.job.lease_owner == lease.lease_owner
+            assert admission.job.attempt == lease.attempt
+            assert (admission.scope.tenant_id, admission.scope.cell_id) == (tenant_id, cell_id)
+            with service._install_execution_scope(admission.scope):
+                payload = service._load_control_nl_job_payload(admission.job)
+                payload = service._payload_for_execution_scope(
+                    payload,
+                    job=admission.job,
+                    execution_scope=admission.scope,
+                )
+                manifest_ref, manifest = service._resolve_capability_manifest_for_execution(
+                    job=admission.job,
+                    admission=admission,
+                    execution_scope=admission.scope,
+                )
+                intent_binding = service._bind_control_job_execution_intent(
+                    job=admission.job,
+                    admission=admission,
+                    execution_scope=admission.scope,
+                    payload=payload,
+                    capability_manifest_ref=manifest_ref,
+                    capability_manifest=manifest,
+                )
+                assert intent_binding is not None
+                verified_scope = intent_binding["_verified_nl_job_scope"]
+                assert verified_scope._was_issued_by_verified_nl_execution_owner
+                assert (
+                    verified_scope.job_id,
+                    verified_scope.run_id,
+                    verified_scope.tenant_id,
+                    verified_scope.cell_id,
+                    verified_scope.worker_id,
+                    verified_scope.attempt,
+                ) == (
+                    lease.job_id,
+                    launch.run_id,
+                    tenant_id,
+                    cell_id,
+                    lease.lease_owner,
+                    lease.attempt,
+                )
+                request_snapshot = payload.get("nl_request_snapshot")
+                assert isinstance(request_snapshot, Mapping)
+                persisted_request = request_snapshot.get("request")
+                assert isinstance(persisted_request, Mapping)
+                assert NaturalLanguageRunRequest.model_validate(persisted_request) == request
+                persisted_intent = payload.get("execution_intent_binding")
+                assert isinstance(persisted_intent, Mapping)
+                assert persisted_intent.get("intent_digest") == intent_binding.get("intent_digest")
+                assert intent_binding.get("intent_band") == "simulate_only_attempt"
+                assert intent_binding.get("canonical_mode") == "simulate_only"
+                execution_scope_binding = bind_measurement_root_execution_scope(
+                    admission=admission,
+                    job=admission.job,
+                    execution_scope=admission.scope,
+                )
+                assert execution_scope_binding.authority_eligible
+                assert execution_scope_binding.admission is admission
+                context_owner = CycleSubstrateContextArtifactOwner(
+                    store=store,
+                    control_store=service._control_store,
+                )
+                assert context_owner._store is service._artifact_store is store
+                try:
+                    yield SimpleNamespace(
+                        store=store,
+                        service=service,
+                        context_owner=context_owner,
+                        verified_scope=verified_scope,
+                        execution_scope_binding=execution_scope_binding,
+                        lease=lease,
+                        job_id=lease.job_id,
+                    )
+                finally:
+                    service._control_store.complete_job(
+                        job_id=admission.job.job_id,
+                        run_id=admission.job.run_id,
+                    )
+    finally:
+        service.close()
+
+
+def test_acq01_verified_job_context_owner_reuses_selected_nl_job(
+    tmp_path: Path,
+) -> None:
+    """Persisted initial context carries the exact served job owner and request."""
+
+    problem = _problem(problem_id="acq01_verified_job_context", domain="fiscal_credit")
+    lever = problem.candidate_lever_space.candidate_levers[0].model_copy(
+        update={"target_slot": "agents.income"}
+    )
+    problem = problem.model_copy(
+        update={
+            "schema_version": DESIGN_PROBLEM_V3_SCHEMA_VERSION,
+            "jurisdiction_time": problem.jurisdiction_time.model_copy(update={"region": "UA-30"}),
+            "candidate_lever_space": problem.candidate_lever_space.model_copy(
+                update={"candidate_levers": [lever]}
+            ),
+        }
+    )
+    problem = DesignProblem.model_validate(problem.model_dump(mode="python"))
+    with _acq01_verified_job_execution(tmp_path, problem) as job:
+        context = _real_acq01_before_context(
+            tmp_path / "owner-bound-context",
+            problem,
+            artifact_store=job.store,
+        )
+        controller = GenerationCycleController(
+            authority_scope="contract_testing",
+            repo_root=REPO_ROOT,
+            artifact_store=job.store,
+            cycle_substrate_context=context,
+            candidate_cycle_context_artifact_owner=job.context_owner,
+            candidate_cycle_verified_nl_job_scope=job.verified_scope,
+            measurement_root_execution_binding=job.execution_scope_binding,
+        )
+        context_job_ref = controller._persist_resolve_and_bind_cycle_substrate_context(
+            context,
+            previous_problem=problem,
+            problem=problem,
+        )
+        assert controller._candidate_cycle_context_job_ref == context_job_ref
+        manifest = job.store.get_manifest(context_job_ref)
+        assert manifest.tenant_context is not None
+        assert (manifest.tenant_context.tenant_id, manifest.tenant_context.cell_id) == (
+            job.verified_scope.tenant_id,
+            job.verified_scope.cell_id,
+        )
+        selected = job.context_owner.resolve_for_current_job(
+            context_job_ref,
+            problem=problem,
+            repo_root=REPO_ROOT,
+            verified_nl_job_scope=job.verified_scope,
+        )
+        assert selected.job_id == job.lease.job_id == job.job_id
+        assert selected.run_id == job.verified_scope.run_id
+        assert selected.tenant_id == job.verified_scope.tenant_id
+        assert selected.cell_id == job.verified_scope.cell_id
+        assert selected.problem.model_dump(mode="json") == problem.model_dump(mode="json")
+        assert selected.context.model_dump(mode="json") == context.model_dump(mode="json")
+        current = job.service._control_store.current_execution_job_admission()
+        assert current.job.state == "running"
+        assert current.job.attempt == job.lease.attempt
+        assert current.scope.tenant_id == job.verified_scope.tenant_id
+        assert current.scope.cell_id == job.verified_scope.cell_id
+
+
 class _ContextRecordingSimulation:
     def __init__(self) -> None:
         self.controller: GenerationCycleController | None = None
@@ -1276,12 +2544,17 @@ def _build_acq01_real_route_controller(
     authority_scope: str = "contract_testing",
     artifact_store: object = _ACQ01_ROUTE_STORE_UNSPECIFIED,
     value_port: Any = _ACQ01_ROUTE_VALUE_PORT_UNSPECIFIED,
+    grounding_port: Any | None = None,
+    capability_resolver: Any | None = None,
+    context_owner: Any | None = None,
+    verified_scope: Any | None = None,
 ) -> GenerationCycleController:
     class _RouteGenerationPort:
         async def __call__(self, current: DesignProblem, *, cycle_index: int) -> Any:
-            del current, cycle_index
+            del cycle_index
             return SimpleNamespace(
                 status="generated",
+                design_problem_ref=gy_content_hash(current.model_dump(mode="json")),
                 candidates=(case.candidate,),
                 surrogate_rankings=(
                     SimpleNamespace(
@@ -1306,12 +2579,17 @@ def _build_acq01_real_route_controller(
     selected_value_port = (
         _PendingFixtureValue() if value_port is _ACQ01_ROUTE_VALUE_PORT_UNSPECIFIED else value_port
     )
+    if len(case.data_spec.required_data_families) != 1:
+        raise ValueError("acq01_fixture_data_family_must_be_unique")
+    family = case.data_spec.required_data_families[0]
     controller = GenerationCycleController(
         generation_port=_RouteGenerationPort(),
-        grounding_port=_FixtureAcquisitionGrounding(issue_code="acquire_data:metric.test"),
+        grounding_port=grounding_port
+        or _FixtureAcquisitionGrounding(issue_code=f"acquire_data:{family}"),
         simulation_port=simulation,
         value_port=selected_value_port,
         acquisition_owner_gateway=gateway,
+        capability_resolver=capability_resolver,
         artifact_store=(
             cast("ArtifactStore | None", selected_store)
             if authority_scope == "contract_testing"
@@ -1322,11 +2600,465 @@ def _build_acq01_real_route_controller(
         measurement_root_execution_binding=(
             route.execution_scope_binding if authority_scope == "contract_testing" else None
         ),
+        candidate_cycle_context_artifact_owner=context_owner,
+        candidate_cycle_verified_nl_job_scope=verified_scope,
         authority_scope=authority_scope,
     )
     if isinstance(simulation, _ContextRecordingSimulation):
         simulation.controller = controller
     return controller
+
+
+def _assert_acq01_compiler_planner_preflight(
+    *,
+    case: Any,
+    route: Any,
+    repo_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    context_owner: Any,
+    verified_scope: Any,
+) -> tuple[Any, Any, _Acq01MacroContextGrounding]:
+    """Prove compiler, owner custody, and re-entry without invoking physical N5."""
+
+    import asyncio
+
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.runtime.quality.acquisition_planner import (
+        data_requirement_compilation_report_digest,
+    )
+
+    grounding = _Acq01MacroContextGrounding(case=case, route=route)
+    simulation = _WorldBoundSimulation(pending_n5=True)
+    controller = _build_acq01_real_route_controller(
+        case=case,
+        route=route,
+        simulation=simulation,
+        repo_root=repo_root,
+        grounding_port=grounding,
+        capability_resolver=case.capability_resolver,
+        context_owner=context_owner,
+        verified_scope=verified_scope,
+    )
+    context_job_ref = controller._persist_resolve_and_bind_cycle_substrate_context(
+        case.before_context,
+        previous_problem=case.problem,
+        problem=case.problem,
+    )
+    assert controller._candidate_cycle_context_job_ref == context_job_ref
+    prior_context_readback = context_owner.resolve_for_current_job(
+        context_job_ref,
+        problem=case.problem,
+        repo_root=repo_root,
+        verified_nl_job_scope=verified_scope,
+    )
+    assert prior_context_readback.context.model_dump(mode="json") == (
+        case.before_context.model_dump(mode="json")
+    )
+    budget_state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))})
+    cycle, cycle_summaries = asyncio.run(
+        controller._run_cycle(
+            case.problem,
+            cycle_index=0,
+            budget_state=budget_state,
+            previous_cycle=None,
+            stable_design_problem_ref=gy_content_hash(case.problem.model_dump(mode="json")),
+        )
+    )
+    assert cycle.terminal_kind == "acquisition_required"
+    assert cycle.simulation.status == "simulation_pending_n5"
+    assert cycle.simulation.cycle_substrate_context_job_ref == context_job_ref
+    assert cycle.simulation.simulation_result_ref is None
+    assert cycle.simulation.world_model_record is None
+    assert cycle.simulation.k_world_ref_before is None
+    assert cycle.simulation.k_world_ref_after is None
+    assert len(simulation.world_refs) == 1
+    assert simulation.world_refs == [str(case.candidate.atom.world_model_record_ref)]
+    assert cycle.grounding.acquisition_requirement is not None
+    gap = cycle.grounding.acquisition_requirement
+    assert cycle.grounding.report_ref is not None
+    assert gap.metadata["source"] == "cgf_grounding_coverage"
+    assert gap.metadata["authority_purpose"] == "routing_only"
+    assert gap.metadata["satisfaction_status"] == "unsatisfied"
+    assert gap.metadata["candidate_binding"]["candidate_id"] == case.candidate.candidate_id
+    assert gap.metadata["candidate_binding"]["candidate_content_hash"] == (
+        generation_cycle_module._candidate_content_hash(case.candidate)
+    )
+    assert gap.metadata["candidate_binding"]["design_problem_ref"] == gy_content_hash(
+        case.problem.model_dump(mode="json")
+    )
+    assert gap.metadata["issue_codes"] == [grounding.issue_code]
+    assert set(gap.metadata["evidence_refs"]) == set(cycle.grounding.evidence_refs)
+    cov_report = load_core_json_artifact(route.store, grounding.report_ref)
+    assert cov_report["authority_scope"] == "contract_testing"
+    assert cov_report["claim_evidence_use_allowed"] is False
+    assert cov_report["candidate_binding"]["candidate_content_hash"] == (
+        generation_cycle_module._candidate_content_hash(case.candidate)
+    )
+    assert cov_report["design_problem_ref"] == gy_content_hash(case.problem.model_dump(mode="json"))
+    assert cov_report["required_macro_context"]["construct_ref"] == "construct:economic.gdp"
+    assert cov_report["required_macro_context"]["compiled_requirement_ref"] == (
+        case.data_spec.requirement_id
+    )
+    compiler_ref = cov_report["required_macro_context"]["compiler_report_ref"]
+    assert compiler_ref["artifact_id"] == str(
+        grounding.compiler_report_binding.compiler_report_ref.artifact_id
+    )
+    assert grounding.compiler_report_binding.compiler_report_digest == (
+        data_requirement_compilation_report_digest(case.compiler_report)
+    )
+    assert cov_report["causal_scope"] == {
+        "macro_context_is_employment_outcome": False,
+        "gdp_to_employment_causal_effect_claimed": False,
+    }
+    assert cov_report["source_authority_status"] == "not_established"
+    assert cov_report["source_currentness_status"] == "not_established"
+
+    planned = controller._plan_n7_requirement_gap_if_requested(case.problem, cycle=cycle)
+    assert planned is not None
+    assert planned.basis.unbound_input_fields == ()
+    assert planned.basis.routing_limitation_code is None
+    assert planned.basis.routed_source_gap == gap
+    assert planned.basis.compilation_report.schema_version == (case.compiler_report.schema_version)
+    assert planned.basis.compilation_report.input_content_hash == (
+        case.compiler_report.input_content_hash
+    )
+    assert planned.basis.compilation_report.requirement_basis.source == (
+        "governed_capability_resolution"
+    )
+    assert planned.basis.compilation_report.requirement_basis.basis_grade == "recomputed"
+    assert planned.basis.specs == (case.data_spec,)
+    assert len(planned.basis.capability_resolutions) == 1
+    resolution = planned.basis.capability_resolutions[0]
+    assert resolution.query.construct == "economic.gdp"
+    assert resolution.candidate_discovery is not None
+    assert resolution.candidate_discovery.satisfies_claim_evidence is False
+    route_records = tuple(
+        record
+        for record in planned.report.acquisition_records
+        if gap.requirement_gap_id in record.scenario_requirement_refs
+    )
+    assert len(route_records) == 1
+    assert route_records[0].compiled_requirement_ref == case.data_spec.requirement_id
+    assert planned.report.requirement_basis_binding.compiler_report_ref == (
+        grounding.compiler_report_binding.compiler_report_ref
+    )
+
+    # A caller-provided spec is never added to, or substituted for, the actual
+    # compiler denominator. The planner persists a refusal with no owner route.
+    raw_request = dict(cycle.revision_request.strategy_payload["acquisition_request"])
+    raw_request["data_requirement_specs"] = [case.data_spec.model_dump(mode="json")]
+    strategy_payload = dict(cycle.revision_request.strategy_payload)
+    strategy_payload["acquisition_request"] = raw_request
+    raw_revision = cycle.revision_request.model_copy(update={"strategy_payload": strategy_payload})
+    raw_cycle = cycle.model_copy(update={"revision_request": raw_revision})
+    refused = controller._plan_n7_requirement_gap_if_requested(case.problem, cycle=raw_cycle)
+    assert refused is not None
+    assert refused.basis.unbound_input_fields == ("acquisition_request.data_requirement_specs",)
+    assert refused.basis.specs == (case.data_spec,)
+    assert refused.report.status == "blocked"
+    assert refused.report.basis_limitation_code == "unbound_requirement_input_refused"
+    assert refused.report.acquisition_records == ()
+    assert refused.cost_basis is None
+
+    # Without the explicit supported construct, the same family driver is only
+    # a consumer-asserted selector; it cannot create a governed source mapping.
+    raw_hints = dict(case.problem.runtime_hints)
+    raw_hints.pop("n7_scope_profile")
+    no_construct_problem = case.problem.model_copy(update={"runtime_hints": raw_hints})
+    issue_only = GenerationCycleController(
+        capability_resolver=case.capability_resolver,
+        repo_root=repo_root,
+    )._n7_data_requirement_basis_with_report(
+        no_construct_problem,
+        acquisition_request={"driver": grounding.issue_code},
+    )
+    assert issue_only.compilation_report.schema_version == case.compiler_report.schema_version
+    assert issue_only.compilation_report.requirement_basis.source == (
+        "explicit_scenario_family_declaration"
+    )
+    assert issue_only.compilation_report.requirement_basis.basis_grade == "consumer_asserted"
+    assert issue_only.capability_resolutions == ()
+    assert issue_only.specs
+    assert all(
+        spec.metadata.get("construct_ref") is None
+        for spec in issue_only.specs
+        if isinstance(spec, DataRequirementSpec)
+    )
+
+    assert type(controller._simulation_port) is _WorldBoundSimulation
+    receipt = controller._run_n7_acquisition_if_requested(
+        case.problem,
+        cycle=cycle,
+        planned_route=planned,
+    )
+    assert receipt is not None
+
+    from polisyos import fabric as fabric_module
+    from polisyos.runtime.quality import data_forge_binding as binding_module
+
+    actual_projection = fabric_module.project_data_requirement_to_catalog_needs
+    projection_observations: list[dict[str, Any]] = []
+
+    def selected_fields(value: object, fields: tuple[str, ...]) -> dict[str, object] | None:
+        if not isinstance(value, Mapping):
+            return None
+        return {field: value.get(field) for field in fields}
+
+    def observe_projection(*, compiled_requirement_spec: object) -> Any:
+        needs, report = actual_projection(compiled_requirement_spec=compiled_requirement_spec)
+        payload = (
+            compiled_requirement_spec if isinstance(compiled_requirement_spec, Mapping) else {}
+        )
+        spec_scope = payload.get("scope")
+        metadata = payload.get("metadata")
+        metadata = metadata if isinstance(metadata, Mapping) else {}
+        profile = metadata.get("scope_profile")
+        raw_resolutions = payload.get("capability_requirement_resolutions", ())
+        if not isinstance(raw_resolutions, (list, tuple)):
+            raw_resolutions = ()
+        projection_observations.append(
+            {
+                "requirement_id": payload.get("requirement_id"),
+                "scope": selected_fields(
+                    spec_scope,
+                    ("population", "geography", "time", "time_role", "jurisdiction"),
+                ),
+                "scope_profile": selected_fields(
+                    profile,
+                    (
+                        "profile_id",
+                        "jurisdiction",
+                        "time_window",
+                        "time_role",
+                        "granularity",
+                        "population",
+                        "entity_scope",
+                        "required_constructs",
+                    ),
+                ),
+                "resolution_queries": tuple(
+                    {
+                        "profile_id": row.get("scope_profile_id"),
+                        "query": selected_fields(
+                            row.get("query"),
+                            (
+                                "construct",
+                                "source_family_alias",
+                                "geography",
+                                "time_window",
+                            ),
+                        ),
+                        "candidates": tuple(
+                            {
+                                "capability_ref": candidate.get("capability_ref"),
+                                "construct_ref": candidate.get("construct_ref"),
+                                "content_digest": candidate.get("content_digest"),
+                                "source_asset_count": (
+                                    len(candidate["source_assets"])
+                                    if isinstance(candidate.get("source_assets"), (list, tuple))
+                                    else None
+                                ),
+                                "fetch_bindings": tuple(
+                                    selected_fields(
+                                        binding,
+                                        ("connector_id", "dataset_id", "metric_id", "profile_id"),
+                                    )
+                                    for binding in (
+                                        candidate.get("fetch_bindings")
+                                        if isinstance(
+                                            candidate.get("fetch_bindings"), (list, tuple)
+                                        )
+                                        else ()
+                                    )
+                                ),
+                            }
+                            for candidate in (
+                                row.get("candidates")
+                                if isinstance(row.get("candidates"), (list, tuple))
+                                else ()
+                            )
+                            if isinstance(candidate, Mapping)
+                        ),
+                    }
+                    for row in raw_resolutions
+                    if isinstance(row, Mapping)
+                ),
+                "needs": tuple(
+                    {
+                        "metric": need.metric,
+                        "geography": need.geography,
+                        "time_start": need.time_start,
+                        "time_end": need.time_end,
+                        "granularity": need.granularity,
+                    }
+                    for need in needs
+                ),
+                "disposition": report.get("disposition"),
+                "reason_codes": report.get("reason_codes"),
+            }
+        )
+        return needs, report
+
+    original_rows_validator = binding_module._validate_wdi_requirement_rows
+    row_validation_observations: list[dict[str, Any]] = []
+
+    def observe_wdi_rows(
+        data: object,
+        *,
+        requirement: DataRequirementSpec,
+        geography: str,
+        start: str,
+        end: str,
+        dataset_id: str,
+    ) -> None:
+        if hasattr(data, "to_dict"):
+            rows = data.to_dict(orient="records")
+        elif hasattr(data, "to_pylist"):
+            rows = data.to_pylist()
+        elif isinstance(data, (list, tuple)):
+            rows = list(data)
+        else:
+            rows = None
+        country = binding_module.read_api.catalog.normalize_country_code(geography)
+        scope = requirement.scope.model_dump(mode="json")
+        scope_profile = requirement.metadata.get("scope_profile")
+        row_validation_observations.append(
+            {
+                "requirement_id": requirement.requirement_id,
+                "requirement_scope": selected_fields(
+                    scope,
+                    ("population", "geography", "time", "time_role", "jurisdiction"),
+                ),
+                "scope_profile": selected_fields(
+                    scope_profile,
+                    (
+                        "profile_id",
+                        "jurisdiction",
+                        "time_window",
+                        "time_role",
+                        "granularity",
+                        "population",
+                        "entity_scope",
+                        "required_constructs",
+                    ),
+                ),
+                "geography_argument": geography,
+                "normalized_country": country,
+                "time_window": {"start": start, "end": end},
+                "dataset_id": dataset_id,
+                "data_type": f"{type(data).__module__}.{type(data).__qualname__}",
+                "row_count": None if rows is None else len(rows),
+                "row_types": (
+                    tuple(type(row).__name__ for row in rows[:3]) if rows is not None else None
+                ),
+                "row_summaries": tuple(
+                    {
+                        key: row.get(key)
+                        for key in (
+                            "country_code",
+                            "countryiso3code",
+                            "indicator_id",
+                            "year",
+                            "date",
+                            "value",
+                        )
+                        if isinstance(row, Mapping) and key in row
+                    }
+                    for row in (rows[:3] if rows is not None else ())
+                ),
+            }
+        )
+        return original_rows_validator(
+            data,
+            requirement=requirement,
+            geography=geography,
+            start=start,
+            end=end,
+            dataset_id=dataset_id,
+        )
+
+    monkeypatch.setattr(
+        fabric_module,
+        "project_data_requirement_to_catalog_needs",
+        observe_projection,
+    )
+    monkeypatch.setattr(
+        binding_module,
+        "_validate_wdi_requirement_rows",
+        observe_wdi_rows,
+    )
+    try:
+        reentered, _reentered_summaries = controller._reenter_cycle_after_n7_acquisition(
+            case.problem,
+            cycle=cycle,
+            cycle_summaries=cycle_summaries,
+            acquisition_receipt=receipt,
+            budget_state=budget_state,
+            stable_design_problem_ref=gy_content_hash(case.problem.model_dump(mode="json")),
+        )
+    except generation_cycle_module.GenerationCycleError as exc:
+        cause_chain: list[dict[str, str | None]] = []
+        cause: BaseException | None = exc
+        for _ in range(3):
+            if cause is None:
+                break
+            cause_chain.append(
+                {
+                    "type": type(cause).__name__,
+                    "code": getattr(cause, "code", None),
+                    "message": str(cause)[:240],
+                }
+            )
+            cause = cause.__cause__
+        pytest.fail(
+            "ACQ-01 post-custody re-entry preflight failed: "
+            f"causes={cause_chain!r}, projections={projection_observations!r}, "
+            f"row_validation={row_validation_observations!r}",
+            pytrace=False,
+        )
+
+    expected_need = {
+        "metric": "gdp",
+        "geography": "US",
+        "time_start": "2022-01-01",
+        "time_end": "2022-12-31",
+        "granularity": "annual",
+    }
+    assert any(
+        observation["disposition"] == "candidate_only"
+        and isinstance(observation["scope_profile"], Mapping)
+        and observation["scope_profile"].get("profile_id") == "acq_01_real_ports-macro-context-v1"
+        and observation["needs"] == (expected_need,)
+        for observation in projection_observations
+    )
+    assert row_validation_observations
+    validated_rows = row_validation_observations[-1]
+    assert validated_rows["requirement_scope"]["jurisdiction"] == "US"
+    assert validated_rows["scope_profile"]["profile_id"] == ("acq_01_real_ports-macro-context-v1")
+    assert validated_rows["geography_argument"] == "US"
+    assert validated_rows["normalized_country"] == "US"
+    assert validated_rows["time_window"] == {"start": "2022-01-01", "end": "2022-12-31"}
+    assert validated_rows["dataset_id"] == "NY.GDP.MKTP.CD"
+    assert validated_rows["row_count"] == 1
+    assert len(validated_rows["row_summaries"]) == 1
+    assert validated_rows["row_summaries"][0]["country_code"] == "USA"
+    assert validated_rows["row_summaries"][0]["indicator_id"] == "NY.GDP.MKTP.CD"
+    assert validated_rows["row_summaries"][0]["year"] == 2022
+
+    receipt_wire = receipt.model_dump(mode="json")
+    _assert_n7_has_no_grounding_result(receipt_wire, cycle=reentered)
+    assert len(simulation.world_refs) == 2
+    assert simulation.world_refs[0] == str(case.candidate.atom.world_model_record_ref)
+    assert simulation.world_refs[1] == str(route.world_build.record.world_model_record_id)
+    assert simulation.world_refs[1] != simulation.world_refs[0]
+    assert reentered.simulation.status == "simulation_pending_n5"
+    assert reentered.simulation.simulation_result_ref is None
+    assert reentered.simulation.world_model_record is None
+    assert reentered.simulation.k_world_ref_before is None
+    assert reentered.simulation.k_world_ref_after is None
+    assert reentered.grounding.status == "grounding_unavailable"
+    assert reentered.grounding.issue_codes == ("generation_result_problem_scope_unestablished",)
+    return cycle, planned, grounding
 
 
 def _receipt_with_route_measurement_profile(
@@ -1844,204 +3576,267 @@ async def test_n7_acq01_reentry_rebuilds_fresh_context_before_n5_and_n7(
         assert run.cycles[0].simulation.k_world_ref_before == after[1]
 
 
-@pytest.mark.asyncio
-async def test_n7_acq01_reentry_rebinds_real_n5_and_default_n8(
+def test_acq01_macro_context_compiler_to_planner_preflight(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The actual N7 planner binds the compiler denominator before any physical N5."""
+
+    initial_case = _real_acq01_macro_context_case(tmp_path / "initial-problem")
+    with _acq01_verified_job_execution(tmp_path, initial_case.problem) as job:
+        case = _real_acq01_macro_context_case(
+            tmp_path / "job-scoped-case",
+            artifact_store=job.store,
+        )
+        assert case.problem.model_dump(mode="json") == initial_case.problem.model_dump(mode="json")
+        with (
+            _published_worldbank_owner(
+                tmp_path / "preflight-worldbank-owner",
+                monkeypatch,
+                artifact_store=job.store,
+                geography="US",
+                metric="gdp",
+                time_start="2022",
+                time_end="2022",
+            ) as selected_owner,
+            _real_acq01_route(
+                tmp_path,
+                case.problem,
+                candidate_content_hash=case.candidate.atom.content_hash,
+                candidate_id=case.candidate.candidate_id,
+                target_world_slots=("global.tax_rate",),
+                requirement_ref=case.data_spec.requirement_id,
+                artifact_store=job.store,
+                execution_scope_binding=job.execution_scope_binding,
+                selected_metric="gdp",
+                selected_owner=selected_owner,
+                data_spec_override=case.data_spec,
+                compiled_requirement_family="wdi_nominal_gdp_annual",
+                world_model_scope={
+                    "region_or_jurisdiction": "US",
+                    "population_scope": "national_economy",
+                    "policy_domain": "fiscal_credit",
+                    "valid_time_scope": "2022",
+                },
+            ) as route,
+        ):
+            _assert_acq01_compiler_planner_preflight(
+                case=case,
+                route=route,
+                repo_root=REPO_ROOT,
+                monkeypatch=monkeypatch,
+                context_owner=job.context_owner,
+                verified_scope=job.verified_scope,
+            )
+
+
+def test_acq01_raw_n5_without_profile_handoff_refuses_before_n7_reentry(
     tmp_path: Path,
 ) -> None:
-    """The accepted route reaches the real JointSimulationPort and default N8."""
+    """A real raw N5 result cannot join a job-owned context without a profile handoff."""
 
-    from polisyos.runtime.quality.intervention_atom_binding import (
-        intervention_atom_content_hash,
-    )
+    class _CapturingRawN5Port(JointSimulationPort):
+        def __init__(self, **kwargs: Any) -> None:
+            super().__init__(**kwargs)
+            self.observations: list[SimulationPortObservation] = []
 
-    case = _real_acq01_inputs(
-        tmp_path,
-        problem_id="acq_01_real_ports",
-        extra_runtime_hints={
-            "joint_simulation_resource": "method_registry_estimator",
-            "joint_simulation_budget_ref": "budget://acq-01/real-ports",
-            "joint_simulation_horizon": {"start": 0, "end": 1, "step": 1},
-            "joint_simulation_baseline_state": {"firm_survival": 1.0},
-            "joint_simulation_variable_map": {"firm_survival": "stock:0"},
-            "joint_simulation_engine_plan": {
-                "method_fqn": "simulation.system_dynamics.stock_flow@1.0.0",
-                "system_dynamics_state": {
-                    "initial_stocks": [1.0, 0.0],
-                    "flow_matrix": [[0.0, 0.1], [0.0, 0.0]],
-                    "exogenous_inflows": [0.0, 0.0],
-                },
-                "system_dynamics_params": {"dt": 1.0},
-            },
-        },
-    )
-    atom = case.candidate.atom
-    assignment = atom.causal_do_expr.assignments[0].model_copy(
-        update={"value": 1, "value_expr": None}
-    )
-    expression_payload = {
-        **atom.causal_do_expr.expression_payload,
-        "assignments": [assignment.model_dump(mode="json")],
-    }
-    causal_do_expr = atom.causal_do_expr.model_copy(
-        update={
-            "assignments": (assignment,),
-            "expression_payload": expression_payload,
-        }
-    )
-    direct_effect_bundle = atom.direct_effect_bundle.model_copy(
-        update={
-            "mechanism_config_overrides": {
-                **atom.direct_effect_bundle.mechanism_config_overrides,
-                "joint_simulation_engine_variable": "exogenous_inflows.0",
-            }
-        }
-    )
-    atom = atom.model_copy(
-        update={
-            "causal_do_expr": causal_do_expr,
-            "direct_effect_bundle": direct_effect_bundle,
-        }
-    )
-    atom_content_hash = intervention_atom_content_hash(atom)
-    atom = atom.model_copy(
-        update={
-            "atom_id": f"atom_{atom_content_hash.removeprefix('sha256:')[:16]}",
-            "content_hash": atom_content_hash,
-        }
-    )
-    case.candidate.atom = atom
-    case.candidate.intervention_atoms = (atom,)
-    with _real_acq01_route(
-        tmp_path,
-        case.problem,
-        candidate_content_hash=case.candidate.atom.content_hash,
-    ) as route:
+        def __call__(self, **kwargs: Any) -> SimulationPortObservation:
+            observation = super().__call__(**kwargs)
+            self.observations.append(observation)
+            return observation
 
-        class _RecordingN5Controller:
-            def __init__(self) -> None:
-                self.requests: list[Any] = []
-                self._delegate = generation_cycle_module.JointSimulationHorizonController()
+    class _N8CallProbe:
+        def __init__(self) -> None:
+            self.calls: list[str] = []
 
-            def run(self, request: Any) -> Any:
-                self.requests.append(request)
-                return self._delegate.run(request)
+        def __call__(
+            self,
+            *,
+            candidate: Any,
+            simulation: SimulationPortObservation,
+            problem: DesignProblem,
+            cycle_index: int,
+        ) -> ValuePortObservation:
+            del simulation, problem, cycle_index
+            self.calls.append(str(candidate.candidate_id))
+            return ValuePortObservation(
+                status="value_pending_n8",
+                candidate_id=str(candidate.candidate_id),
+                reason="negative control must stop before N8",
+            )
+
+    initial_case = _real_acq01_macro_context_case(tmp_path / "initial-problem")
+    with _acq01_verified_job_execution(tmp_path, initial_case.problem) as job:
+        case = _real_acq01_macro_context_case(
+            tmp_path / "job-scoped-case",
+            artifact_store=job.store,
+        )
+        assert case.problem.model_dump(mode="json") == initial_case.problem.model_dump(mode="json")
 
         n5 = _RecordingN5Controller()
-        runtime_store = route.store
-        controller = _build_acq01_real_route_controller(
-            case=case,
-            route=route,
-            simulation=JointSimulationPort(
-                controller=n5,
-                repo_root=tmp_path,
-                cycle_substrate_context=case.before_context,
-                artifact_store=runtime_store,
-            ),
+        raw_n5 = _CapturingRawN5Port(
+            controller=n5,
             repo_root=tmp_path,
+            cycle_substrate_context=case.before_context,
+            artifact_store=job.store,
+        )
+        n8 = _N8CallProbe()
+        controller = GenerationCycleController(
+            simulation_port=raw_n5,
+            value_port=n8,
+            repo_root=tmp_path,
+            artifact_store=job.store,
+            cycle_substrate_context=case.before_context,
+            candidate_cycle_context_artifact_owner=job.context_owner,
+            candidate_cycle_verified_nl_job_scope=job.verified_scope,
+            measurement_root_execution_binding=job.execution_scope_binding,
             authority_scope="contract_testing",
-            artifact_store=runtime_store,
-            value_port=None,
+        )
+        context_job_ref = controller._persist_resolve_and_bind_cycle_substrate_context(
+            case.before_context,
+            previous_problem=case.problem,
+            problem=case.problem,
+        )
+        assert controller._candidate_cycle_context_job_ref == context_job_ref
+        assert raw_n5._candidate_simulation_handoff is None
+        assert raw_n5._generic_cycle_simulation_handoff is None
+
+        selected_job = job.context_owner.resolve_for_current_job(
+            context_job_ref,
+            problem=case.problem,
+            repo_root=tmp_path,
+            verified_nl_job_scope=job.verified_scope,
+        )
+        assert selected_job.job_id == job.lease.job_id == job.job_id
+        assert selected_job.run_id == job.verified_scope.run_id
+        assert selected_job.tenant_id == job.verified_scope.tenant_id
+        assert selected_job.cell_id == job.verified_scope.cell_id
+        assert selected_job.context.model_dump(mode="json") == (
+            case.before_context.model_dump(mode="json")
         )
 
-        run = await controller.run(
-            case.problem,
-            budget_state=BudgetState(
+        state = {
+            "selected_candidate": case.candidate,
+            "problem": case.problem,
+            "cycle_index": 0,
+            "budget_state": BudgetState(
                 limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
             ),
-            max_cycles=1,
-        )
+            "rankings": {case.candidate.candidate_id: (0.2, 0.2)},
+        }
+        with pytest.raises(generation_cycle_module.GenerationCycleError) as refusal:
+            controller._joint_value_node_impl(state)
 
-        assert run.synthetic is True
-        assert len(n5.requests) == 2
-        before_request, after_request = n5.requests
-        assert before_request.world_model_record == case.before_context.world_model_record
-        _assert_n7_world_model_record_semantics(
-            after_request.world_model_record,
-            route.world_build.record,
-        )
+        assert refusal.value.code == "generation_cycle_context_job_ref_n5_handoff_missing"
+        assert len(n5.requests) == 1
+        assert len(raw_n5.observations) == 1
+        assert n8.calls == []
+        simulation = raw_n5.observations[0]
+        assert simulation.status == "joint_simulated"
+        assert simulation.simulation_result_ref is not None
+        assert simulation.world_model_record is not None
         assert (
-            after_request.world_model_record_ref == route.world_build.record.world_model_record_id
+            simulation.world_model_record.content_hash
+            == case.before_context.world_model_record_content_hash
         )
-        assert isinstance(
-            controller._value_port,
-            generation_cycle_module._DefaultSimulationBoundFoundryValuePort,
+        assert simulation.candidate_simulation_context_job_ref is None
+        assert simulation.generic_context_job_ref is None
+        assert simulation.cycle_substrate_context_job_ref is None
+        assert "n5_execution_request_provenance_not_established" in simulation.authority_blockers
+
+        request = n5.requests[0]
+        assert request.world_model_record == case.before_context.world_model_record
+        assert request.world_model_record_ref == (
+            case.before_context.world_model_record.world_model_record_id
         )
-        assert controller._value_port.cycle_substrate_context is controller._cycle_substrate_context
-        assert controller._cycle_substrate_context is not case.before_context
-        _assert_n7_world_model_record_semantics(
-            controller._cycle_substrate_context.world_model_record,
-            route.world_build.record,
-        )
-        cycle = run.cycles[0]
-        assert cycle.simulation.status == "joint_simulated"
-        assert cycle.simulation.simulation_result_ref is not None
+        assert request.selected_outcomes == ("employment_retention",)
+        assert request.engine_plan[0].method_fqn == "simulation.system_dynamics.stock_flow@1.0.0"
+        assert request.engine_plan[0].variable_map["global.tax_rate"] == "exogenous_inflows.0"
+        assert request.engine_plan[0].variable_map["employment_retention"] == "stock:0"
+        assert request.baseline_state["employment_retention"] == 1.0
+        assert request.seed == 0 and request.replications == 1
+
+        manifest = job.store.get_manifest(simulation.simulation_result_ref)
+        assert manifest.kind == "polisyos.runtime.joint_simulation_result"
         persisted_n5 = generation_cycle_module.load_joint_simulation_result(
-            cycle.simulation.simulation_result_ref,
-            store=runtime_store,
-            expected_world_model_record_content_hash=route.world_build.record.content_hash,
-            expected_atom_ids=tuple(
-                item.intervention_id for item in after_request.intervention_atoms
+            simulation.simulation_result_ref,
+            store=job.store,
+            expected_world_model_record_content_hash=(
+                case.before_context.world_model_record_content_hash
+            ),
+            expected_atom_ids=tuple(atom.intervention_id for atom in request.intervention_atoms),
+        )
+        assert persisted_n5.schema_version == (
+            n5_horizon.JOINT_SIMULATION_HORIZON_NUMERIC_TOLERANCE_SCHEMA_VERSION
+        )
+        assert persisted_n5.diagnostics["requested_replications"] == 1
+        assert persisted_n5.diagnostics["replication_seeds"] == [0]
+
+        engine_input = case.problem.runtime_hints["joint_simulation_engine_plan"]
+        engine_state = engine_input["system_dynamics_state"]
+        engine_params = engine_input["system_dynamics_params"]
+        initial_stocks = tuple(float(value) for value in engine_state["initial_stocks"])
+        flow_matrix = tuple(
+            tuple(float(value) for value in row) for row in engine_state["flow_matrix"]
+        )
+        exogenous_inflows = tuple(float(value) for value in engine_state["exogenous_inflows"])
+        dt = float(engine_params["dt"])
+        intervention_inflow = float(case.candidate.atom.causal_do_expr.assignments[0].value)
+        baseline_transition = (
+            max(
+                0.0,
+                initial_stocks[0]
+                + dt * flow_matrix[1][0] * initial_stocks[1]
+                - dt * flow_matrix[0][1] * initial_stocks[0],
+            ),
+            max(
+                0.0,
+                initial_stocks[1]
+                + dt * flow_matrix[0][1] * initial_stocks[0]
+                - dt * flow_matrix[1][0] * initial_stocks[1]
+                + dt * exogenous_inflows[1],
             ),
         )
-        persisted_blockers = tuple(persisted_n5.promotion_ready_value_packet["authority_blockers"])
-        assert cycle.simulation.authority_blockers == persisted_blockers
-        point_sampling_records = tuple(
-            point.replication_sampling
-            for trajectory in persisted_n5.trajectories
-            for point in trajectory.points
+        intervention_transition = (
+            max(
+                0.0,
+                initial_stocks[0]
+                + dt * flow_matrix[1][0] * initial_stocks[1]
+                - dt * flow_matrix[0][1] * initial_stocks[0]
+                + dt * intervention_inflow,
+            ),
+            baseline_transition[1],
         )
-        assert point_sampling_records
-        assert all(record is not None for record in point_sampling_records)
-        point_sampling_statuses = {
-            record.status for record in point_sampling_records if record is not None
+        assert initial_stocks == (1.0, 0.0)
+        assert flow_matrix == ((0.0, 0.1), (0.0, 0.0))
+        assert exogenous_inflows == (0.0, 0.0)
+        assert dt == 1.0
+        assert intervention_inflow == 1.0
+        assert baseline_transition == pytest.approx((0.9, 0.1), rel=1e-12, abs=1e-12)
+        assert intervention_transition == pytest.approx((1.9, 0.1), rel=1e-12, abs=1e-12)
+        assert {trajectory.run_level for trajectory in persisted_n5.trajectories} == {
+            "individual",
+            "joint",
         }
-        assert point_sampling_statuses == {"standard_error_not_estimated"}
-        assert "standard_error_not_estimated" in persisted_blockers
-        assert {
-            "simulation_only_k_sim_not_world_evidence",
-            "simulation_effect_basis_not_established",
-        }.issubset(persisted_blockers)
-
-        current_n5_schema = (
-            n5_horizon.JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
-        )
-        assert persisted_n5.schema_version == current_n5_schema
-        feedback = persisted_n5.feedback_classification
-        foundry_limitations: set[str] = set()
-        if "standard_error_not_estimated" in point_sampling_statuses:
-            foundry_limitations.add("standard_error_not_estimated")
-        if feedback.interaction_sampling_status == "not_established":
-            foundry_limitations.add("interaction_sampling_not_established")
-        elif feedback.interaction_sampling_status == "standard_error_not_estimated":
-            foundry_limitations.update(
-                {"interaction_sampling_not_established", "standard_error_not_estimated"}
+        for trajectory in persisted_n5.trajectories:
+            assert trajectory.method_fqn == "simulation.system_dynamics.stock_flow@1.0.0"
+            point = next(item for item in trajectory.points if item.step == 1)
+            actual_stocks = tuple(float(value) for value in point.engine_state["stock_values"])
+            assert actual_stocks == pytest.approx(
+                intervention_transition,
+                rel=1e-12,
+                abs=1e-12,
             )
-        if feedback.numeric_interaction == "unsupported":
-            foundry_limitations.add("interaction_numeric_classification_unsupported")
-        if "interaction_sampling_variation_observed" in feedback.limitations:
-            foundry_limitations.add("interaction_sampling_variation_observed")
-        expected_value_blockers = (
-            set(cycle.simulation.authority_blockers) | set(persisted_blockers) | foundry_limitations
-        )
-
-        assert cycle.value_port.status == "value_conditional"
-        assert cycle.value_port.candidate_id == cycle.selected_candidate_ref
-        assert cycle.value_port.evaluation_mode == "simulate_only"
-        assert cycle.value_port.decision_grade == "low"
-        assert cycle.value_port.value_ref == str(cycle.simulation.simulation_result_ref.artifact_id)
-        assert cycle.value_port.n5_interaction_schema_version == persisted_n5.schema_version
-        assert cycle.value_port.numeric_interaction == feedback.numeric_interaction
-        assert cycle.value_port.numeric_interaction_basis == feedback.numeric_interaction_basis
-        assert cycle.value_port.interaction_sampling_status == feedback.interaction_sampling_status
-        actual_value_blockers = tuple(cycle.value_port.authority_blockers)
-        assert len(actual_value_blockers) == len(set(actual_value_blockers))
-        assert set(actual_value_blockers) == expected_value_blockers
-        assert cycle.value_port.value_receipt is None
-        assert cycle.value_port.method_selection_receipt is None
-        assert (
-            cycle.value_port.world_model_record_content_hash
-            == route.world_build.record.content_hash
-        )
+            assert point.outcomes["employment_retention"] == pytest.approx(
+                intervention_transition[0],
+                rel=1e-12,
+                abs=1e-12,
+            )
+            assert point.effect["employment_retention"] == pytest.approx(
+                intervention_transition[0] - request.baseline_state["employment_retention"],
+                rel=1e-12,
+                abs=1e-12,
+            )
 
 
 @pytest.mark.asyncio
@@ -2520,31 +4315,39 @@ async def test_n7_reentry_does_not_run_n5_from_registry_only_world_ref(
 ) -> None:
     """A registry URI cannot substitute for a content-bound WMR/context."""
 
-    data_spec = _fixture_data_requirement_spec()
-    registry = _fixture_world_registry()
+    from polisyos.runtime.quality.acquisition_planner import (
+        grounding_coverage_requirement_gap,
+    )
+
     problem = _problem(
         problem_id="acq_01_registry_only_reentry",
         runtime_hints={
-            "n7_data_requirement_specs": (data_spec,),
             "joint_simulation_resource": "method_registry_estimator",
             "joint_simulation_budget_ref": "budget://acq-01/registry-only-reentry",
             "joint_simulation_horizon": {"start": 0, "end": 1, "step": 1},
         },
     )
+    data_spec = _compiled_data_requirement_spec(problem, family="fixture_panel")
+    assert data_spec.required_data_families == ("fixture_panel",)
+    registry = _fixture_world_registry(include_candidate_l2=True)
+    selected_l2_hashes = tuple(
+        entry.entry_content_hash for entry in registry.entries if entry.layer is SubstrateLayer.L2
+    )
+    assert len(selected_l2_hashes) == 1
     world = generation_cycle_module._build_boundary_world_model_record(
         repo_root=REPO_ROOT,
         problem=problem,
         outcome="firm_survival",
         policy_slot_ids=("fixture_panel",),
         substrate_registry=registry,
-        selected_registry_entry_hashes=(registry.entries[0].entry_content_hash,),
+        selected_registry_entry_hashes=selected_l2_hashes,
     )
     problem_ref = gy_content_hash(problem.model_dump(mode="json"))
     context = build_cycle_substrate_context(
         design_problem_ref=problem_ref,
         domain=problem.domain,
         substrate_registry=registry,
-        selected_registry_entry_hashes=(registry.entries[0].entry_content_hash,),
+        selected_registry_entry_hashes=selected_l2_hashes,
         world_model_record=world,
         intervention_substrate=None,
         candidate_levers=(),
@@ -2578,25 +4381,46 @@ async def test_n7_reentry_does_not_run_n5_from_registry_only_world_ref(
                 grounding_dispositions=(),
             )
 
-    class _RecordingN5Controller:
-        def __init__(self) -> None:
-            self.requests: list[object] = []
-            self._delegate = generation_cycle_module.JointSimulationHorizonController()
-
-        def run(self, request: object) -> Any:
-            self.requests.append(request)
-            return self._delegate.run(request)
+    class _CandidateBoundFixtureGrounding:
+        def __call__(
+            self,
+            *,
+            candidate: Any,
+            problem: DesignProblem,
+            cycle_index: int,
+            generation_result: Any | None = None,
+        ) -> CandidateGroundingObservation:
+            del generation_result
+            observation = _FixtureAcquisitionGrounding(issue_code="acquire_data:fixture_panel")(
+                candidate=candidate,
+                problem=problem,
+                cycle_index=cycle_index,
+            )
+            report_ref = f"test://acq-01/{problem.design_problem_id}/grounding-report"
+            requirement = grounding_coverage_requirement_gap(
+                candidate_id=str(candidate.candidate_id),
+                candidate_content_hash=generation_cycle_module._candidate_content_hash(candidate),
+                design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+                issue_codes=observation.issue_codes,
+                evidence_refs=observation.evidence_refs,
+                authority_level=problem.authority_profile.requested_authority_level,
+                grounding_report_ref=report_ref,
+            )
+            return observation.model_copy(
+                update={"report_ref": report_ref, "acquisition_requirement": requirement}
+            )
 
     n5 = _RecordingN5Controller()
+    simulation_port = JointSimulationPort(
+        controller=n5,
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+        artifact_store=FileSystemCAS(tmp_path / "n5-result-store"),
+    )
     controller = GenerationCycleController(
         generation_port=_BoundFixtureGenerationPort(),
-        grounding_port=_FixtureAcquisitionGrounding(),
-        simulation_port=JointSimulationPort(
-            controller=n5,
-            repo_root=tmp_path,
-            cycle_substrate_context=context,
-            artifact_store=FileSystemCAS(tmp_path / "n5-result-store"),
-        ),
+        grounding_port=_CandidateBoundFixtureGrounding(),
+        simulation_port=simulation_port,
         value_port=_PendingFixtureValue(),
         acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
             artifacts_by_requirement={
@@ -2625,19 +4449,60 @@ async def test_n7_reentry_does_not_run_n5_from_registry_only_world_ref(
     cycle = run.cycles[0]
     receipt = cycle.acquisition_receipt
     assert receipt is not None
-    _assert_n7_has_no_grounding_result(receipt, cycle=cycle)
+    _assert_n7_has_no_grounding_result(
+        receipt,
+        cycle=cycle,
+        expected_grounding_status="grounding_gap",
+        expected_cycle_grounding_issue_codes=("acquire_data:fixture_panel",),
+    )
+    selected_gap = cycle.grounding.acquisition_requirement
+    assert selected_gap is not None
+    receipt_specs = tuple(
+        DataRequirementSpec.model_validate(spec) for spec in receipt["compiled_requirement_specs"]
+    )
+    assert receipt_specs == (data_spec,)
+    routed_records = receipt["planner_report"]["acquisition_records"]
+    assert len(routed_records) == 1
+    routed_record = routed_records[0]
+    assert routed_record["requirement_family"] == "data_requirement"
+    assert routed_record["compiled_requirement_ref"] == data_spec.requirement_id
+    assert selected_gap.requirement_gap_id in routed_record["scenario_requirement_refs"]
+    assert data_spec.requirement_id in routed_record["scenario_requirement_refs"]
+    assert "fixture_panel" in routed_record["scenario_requirement_refs"]
+    candidate_binding = selected_gap.metadata["candidate_binding"]
+    assert candidate_binding["candidate_id"] == cycle.selected_candidate_ref
+    assert candidate_binding["candidate_content_hash"] == cycle.selected_candidate_content_hash
+    assert candidate_binding["design_problem_ref"] == cycle.design_problem_ref
     grown_world_ref = receipt["grown_world_after_ref"]
     assert grown_world_ref.startswith("s0://substrate-registry/")
     assert grown_world_ref != context.world_model_record_content_hash
     assert grown_world_ref != context.world_model_record.world_model_record_id
-    # The initial N5 request has the selected content-bound context. The
-    # post-write registry URI is refused before the numerical controller.
+    # The initial N5 request uses the selected before-context WMR. Its current
+    # engine-plan limitation is independent of the post-acquisition refusal.
     assert len(n5.requests) == 1
     assert n5.requests[0].world_model_record_ref == context.world_model_record.world_model_record_id
     assert n5.requests[0].world_model_record.content_hash == context.world_model_record.content_hash
     assert cycle.simulation.status == "simulation_blocked"
-    assert "world_identity_unresolved" in cycle.simulation.authority_blockers
-    assert cycle.simulation.simulation_ref is None
+    assert "method_registry_fqn_missing" in cycle.simulation.authority_blockers
+    # A blocked initial N5 call may still persist a result receipt. The
+    # registry-only reentry below is the no-side-effect case: it must be
+    # rejected before another N5 request or result is produced.
+
+    registry_only_candidate = _fixture_candidate(
+        problem,
+        world_ref=grown_world_ref,
+        candidate_id=str(cycle.selected_candidate_ref),
+    )
+    reentry_observation = simulation_port(
+        candidate=registry_only_candidate,
+        problem=problem,
+        cycle_index=cycle.cycle_index,
+    )
+    assert reentry_observation.status == "simulation_blocked"
+    assert reentry_observation.authority_blockers == ("world_identity_unresolved",)
+    assert reentry_observation.diagnostics["reason"] == "world_identity_unresolved"
+    assert reentry_observation.simulation_ref is None
+    assert len(n5.requests) == 1
 
 
 @pytest.mark.asyncio

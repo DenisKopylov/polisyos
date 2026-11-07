@@ -1,0 +1,527 @@
+{
+  "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "source_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "generated_at_utc": "2026-11-02",
+  "generated_today": true,
+  "retained_production_provenance": false,
+  "qualification": "Exact old-source compiler and public executor generated a bounded synthetic software fixture today using the current supported native backend. This is not an archived production case or an old dependency-environment qualification.",
+  "old_backend": {
+    "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+    "versions": {
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "optax": "0.2.6"
+    },
+    "jax_backend": "cpu",
+    "x64": false
+  },
+  "old_first_party_modules": 934,
+  "all_first_party_origins_old_selected_source": true,
+  "critical_sources": {
+    "src/polisyos/foundry/compile/trinity_compiler.py": {
+      "git_blob": "a434ec4bc4de47450b97ad53096610a0446dc18e",
+      "sha256": "0e981b7a3322720123538cac21f723d22a3fe3c6e8672cc6a6139ce051cf286b"
+    },
+    "src/polisyos/foundry/compile/randomization.py": {
+      "git_blob": "a4f68938a7e585c9a0aa7e6ba1c62222ecd2bd94",
+      "sha256": "bf403f4fb67ca45085b9792cc0942e084cf4fdf5892cf3d45b93b732260d311a"
+    },
+    "src/polisyos/foundry/execute/_internal/graph/__init__.py": {
+      "git_blob": "1bf76ede684fbcd65434d3930bfa8cae7be5d58d",
+      "sha256": "beac46a425509e47d8f0ba364e06b9b105ee056e19b859d3d2c2d20c5bdb51c5"
+    },
+    "src/polisyos/foundry/agent_sim/agents.py": {
+      "git_blob": "31c21dc05ad0b48d8f8d0a999ebd05f73b61b9b7",
+      "sha256": "f4b2219972ca00d7be5a8622726ddf4c08f83dfe753ece2d81a7f328a6c07dde"
+    },
+    "src/polisyos/core/contracts/foundry.py": {
+      "git_blob": "bf726135da4552663c8e15e5be9fe341c85cf539",
+      "sha256": "02a038f9e8272fe168f5c5a3d9ea46919e1f4309fa308693bb8fe63d08c0438d"
+    },
+    "src/polisyos/core/artifacts/store.py": {
+      "git_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324"
+    }
+  },
+  "archive": {
+    "name": "unmarked_1980768_cpu.tar.gz",
+    "sha256": "d70123c0f9390a8a000c1ace0bd65ac4b31af7bdd45c3087a8991b1199035607",
+    "bytes": 53249,
+    "uncompressed_file_count": 252,
+    "uncompressed_bytes": 291105,
+    "excluded": "Zero-byte runtime lock files only; exact generated blob/default/view manifest bytes preserved."
+  },
+  "generator": {
+    "name": "generate.py",
+    "sha256": "73449bf1b4f6c25c67b0b6dff28e3e124d9ca29c78d744fd807d0e579928278c"
+  },
+  "cases": [
+    {
+      "seed": 0,
+      "refs": {
+        "registry_bundle": {
+          "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+          "kind": "core.registry_bundle",
+          "media_type": "application/json"
+        },
+        "source": {
+          "artifact_id": "sha256:f300d6da2605001284154ce2e522100afb1ad09d79573a6de01a885a6e5405d2",
+          "kind": "ir.trinity_bundle",
+          "media_type": "application/json"
+        },
+        "compile_report": {
+          "artifact_id": "sha256:be2661cf8c53650aa758914392be203e63fd285f6f06309fa0e5b0982e9a923c",
+          "kind": "compiler.compile_report",
+          "media_type": "application/json"
+        },
+        "program_graph": {
+          "artifact_id": "sha256:3a079d1200358981719742be32c364afb547eabe1654bf28c87a446101837d73",
+          "kind": "foundry.program_graph",
+          "media_type": "application/json"
+        },
+        "exec_plan": {
+          "artifact_id": "sha256:b8a064bff270fce826760a8331db7764a44dbe2afd7ca4e5c2c484f89e8b3973",
+          "kind": "foundry.exec_plan",
+          "media_type": "application/json"
+        },
+        "treasury_plan": {
+          "artifact_id": "sha256:498774b2dff95679549723fa1123f9a2085d3abbc47ed5318e1a637e9ae8b97d",
+          "kind": "foundry.treasury_plan",
+          "media_type": "application/json"
+        },
+        "slot_layout": {
+          "artifact_id": "sha256:b2b8567b85ee1980927a8fb1bb0b46fdd69ce3f2fa19b6ab505d8d9f659bb89c",
+          "kind": "foundry.slot_layout",
+          "media_type": "application/json"
+        },
+        "simulation_result": {
+          "artifact_id": "sha256:46880f013c59263293358da447d5b6c36e1d7d8e0f7128eb2f540db641c28b4e",
+          "kind": "foundry.simulation_result",
+          "media_type": "application/json"
+        }
+      },
+      "expected_state": {
+        "agents.income": [
+          0.2874394655227661,
+          0.29150721430778503,
+          0.31391945481300354,
+          0.3083285093307495,
+          0.3042442798614502,
+          0.30007851123809814,
+          0.3003818094730377,
+          0.31483566761016846,
+          0.2987586557865143,
+          0.3331660330295563,
+          0.3099682927131653,
+          0.321504145860672,
+          0.2988530099391937,
+          0.30437707901000977,
+          0.3081340491771698,
+          0.3162919282913208,
+          0.29996103048324585,
+          0.3111714720726013,
+          0.3023034334182739,
+          0.29227638244628906,
+          0.300804078578949,
+          0.30864396691322327,
+          0.32516732811927795,
+          0.31998637318611145,
+          0.3002757728099823,
+          0.3064315915107727,
+          0.31994232535362244,
+          0.3284100592136383,
+          0.30777090787887573,
+          0.3124029040336609,
+          0.3053801357746124,
+          0.2941880524158478
+        ],
+        "agents.reported_income": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "agents.active": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "government.balance": 0.0
+      },
+      "old_plan_notes": [
+        "synthetic_mechanism_binding_from_kind:stochastic_action",
+        "trinity_coverage_audit:ok"
+      ],
+      "old_program_schema": "0.2"
+    },
+    {
+      "seed": 17,
+      "refs": {
+        "registry_bundle": {
+          "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+          "kind": "core.registry_bundle",
+          "media_type": "application/json"
+        },
+        "source": {
+          "artifact_id": "sha256:f300d6da2605001284154ce2e522100afb1ad09d79573a6de01a885a6e5405d2",
+          "kind": "ir.trinity_bundle",
+          "media_type": "application/json"
+        },
+        "compile_report": {
+          "artifact_id": "sha256:58cc7e499085a16c211e9fd4e746eaa188a1de5b837775f0f6e5f274798b07fe",
+          "kind": "compiler.compile_report",
+          "media_type": "application/json"
+        },
+        "program_graph": {
+          "artifact_id": "sha256:3a079d1200358981719742be32c364afb547eabe1654bf28c87a446101837d73",
+          "kind": "foundry.program_graph",
+          "media_type": "application/json"
+        },
+        "exec_plan": {
+          "artifact_id": "sha256:43e3a63a53aae3bded35e9b45b9da1ca9b04096ab884908c3e88706b16fb7128",
+          "kind": "foundry.exec_plan",
+          "media_type": "application/json"
+        },
+        "treasury_plan": {
+          "artifact_id": "sha256:498774b2dff95679549723fa1123f9a2085d3abbc47ed5318e1a637e9ae8b97d",
+          "kind": "foundry.treasury_plan",
+          "media_type": "application/json"
+        },
+        "slot_layout": {
+          "artifact_id": "sha256:b2b8567b85ee1980927a8fb1bb0b46fdd69ce3f2fa19b6ab505d8d9f659bb89c",
+          "kind": "foundry.slot_layout",
+          "media_type": "application/json"
+        },
+        "simulation_result": {
+          "artifact_id": "sha256:4b95351b5bbfa150a055891405f6327547123303eacf5ee3ddf912864aa7ea6d",
+          "kind": "foundry.simulation_result",
+          "media_type": "application/json"
+        }
+      },
+      "expected_state": {
+        "agents.income": [
+          0.3118518888950348,
+          0.3125550150871277,
+          0.287396639585495,
+          0.3062627613544464,
+          0.3110787868499756,
+          0.32285407185554504,
+          0.30094626545906067,
+          0.3004547953605652,
+          0.30749255418777466,
+          0.305247038602829,
+          0.2975689172744751,
+          0.31685200333595276,
+          0.30997011065483093,
+          0.32259464263916016,
+          0.31566324830055237,
+          0.3226398229598999,
+          0.29502540826797485,
+          0.2982175350189209,
+          0.315772145986557,
+          0.3159123659133911,
+          0.30841344594955444,
+          0.3354125916957855,
+          0.29936137795448303,
+          0.3076878786087036,
+          0.30800050497055054,
+          0.32181882858276367,
+          0.30050742626190186,
+          0.309571772813797,
+          0.30957892537117004,
+          0.3258330523967743,
+          0.31747734546661377,
+          0.3199117183685303
+        ],
+        "agents.reported_income": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "agents.active": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "government.balance": 0.0
+      },
+      "old_plan_notes": [
+        "synthetic_mechanism_binding_from_kind:stochastic_action",
+        "trinity_coverage_audit:ok"
+      ],
+      "old_program_schema": "0.2"
+    },
+    {
+      "seed": -3,
+      "refs": {
+        "registry_bundle": {
+          "artifact_id": "sha256:b03692a0cc9e8cac878b699417e7094be527a5b8460a0798accc43dffd9bed20",
+          "kind": "core.registry_bundle",
+          "media_type": "application/json"
+        },
+        "source": {
+          "artifact_id": "sha256:f300d6da2605001284154ce2e522100afb1ad09d79573a6de01a885a6e5405d2",
+          "kind": "ir.trinity_bundle",
+          "media_type": "application/json"
+        },
+        "compile_report": {
+          "artifact_id": "sha256:16dc0460b57a966d2e87bf4c0af31977748da14d3c43bdb59d1717828f86a77e",
+          "kind": "compiler.compile_report",
+          "media_type": "application/json"
+        },
+        "program_graph": {
+          "artifact_id": "sha256:3a079d1200358981719742be32c364afb547eabe1654bf28c87a446101837d73",
+          "kind": "foundry.program_graph",
+          "media_type": "application/json"
+        },
+        "exec_plan": {
+          "artifact_id": "sha256:0e95acd3875a3c5fbda9b239ae3379ea82795695f00407abe37e5a5724c12557",
+          "kind": "foundry.exec_plan",
+          "media_type": "application/json"
+        },
+        "treasury_plan": {
+          "artifact_id": "sha256:498774b2dff95679549723fa1123f9a2085d3abbc47ed5318e1a637e9ae8b97d",
+          "kind": "foundry.treasury_plan",
+          "media_type": "application/json"
+        },
+        "slot_layout": {
+          "artifact_id": "sha256:b2b8567b85ee1980927a8fb1bb0b46fdd69ce3f2fa19b6ab505d8d9f659bb89c",
+          "kind": "foundry.slot_layout",
+          "media_type": "application/json"
+        },
+        "simulation_result": {
+          "artifact_id": "sha256:8f74016571df523ab31321fe26647dee820f8969824dd1e149e631e443caa7ea",
+          "kind": "foundry.simulation_result",
+          "media_type": "application/json"
+        }
+      },
+      "expected_state": {
+        "agents.income": [
+          0.3151901662349701,
+          0.3140147030353546,
+          0.31911134719848633,
+          0.32314974069595337,
+          0.31521719694137573,
+          0.29461216926574707,
+          0.30873367190361023,
+          0.28685352206230164,
+          0.30367037653923035,
+          0.3111048936843872,
+          0.32153046131134033,
+          0.3151561915874481,
+          0.29566454887390137,
+          0.3323301374912262,
+          0.3109568655490875,
+          0.30418524146080017,
+          0.3219839036464691,
+          0.30880361795425415,
+          0.3275478780269623,
+          0.31195810437202454,
+          0.2988818287849426,
+          0.3184705078601837,
+          0.31162118911743164,
+          0.30796167254447937,
+          0.2822873294353485,
+          0.311049222946167,
+          0.29485204815864563,
+          0.305979460477829,
+          0.2963368594646454,
+          0.30472755432128906,
+          0.3133522868156433,
+          0.3230520784854889
+        ],
+        "agents.reported_income": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "agents.active": [
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true,
+          true
+        ],
+        "government.balance": 0.0
+      },
+      "old_plan_notes": [
+        "synthetic_mechanism_binding_from_kind:stochastic_action",
+        "trinity_coverage_audit:ok"
+      ],
+      "old_program_schema": "0.2"
+    }
+  ]
+}

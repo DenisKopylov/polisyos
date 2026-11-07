@@ -1,0 +1,68 @@
+{
+  "pass_id": "C126",
+  "bundle": "HYG-04",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C126-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Три benchmark aliases ещё не получили конечного retirement решения",
+      "evidence": [
+        "P02",
+        "P05",
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S30"
+      ],
+      "remaining": "Завершить конечный caller/config/job/package census для точных трёх адресов; мигрировать подтверждённые потребители к root benchmarks, затем снять aliases либо явно обосновать узкий переходный срок. Сохранить suite IDs, CLI exit/output и самостоятельные research tools.",
+      "limits": "Identity и CLI forwarding доказаны bounded execution. Lexical census не заменяет имеющийся advanced dynamic census test. DEFAULT_SHIM_SUNSET в helper не относится автоматически к wrappers, которые warning helper не вызывают. Native wheel/sdist не собраны."
+    },
+    {
+      "id": "C126-G02",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Удалённые bootstrap entrypoints требуют supported-native и внешней compatibility квалификации",
+      "evidence": [
+        "P01",
+        "P02",
+        "P03",
+        "S05",
+        "S06",
+        "S07",
+        "S08",
+        "S26",
+        "S29"
+      ],
+      "remaining": "В supported Python3.14 профиле выполнить public tools CLI recording bootstrap и early-order cases, сверить точные внешние setup/notebook/CI obligations и решение удаления прежних notices. Полную работоспособность demos принимать отдельно от early import-order.",
+      "limits": "install.sh/jax_bootstrap.py отсутствуют; canonical command profiles записаны без installs.16 bounded guarded children подтверждают early defaults/overrides, но guard намеренно не проверяет последующий Foundry/JAX workload. Source later demo still mentions retired foundry.domain.state; reachability/full demo not executed. Missing runtime not product defect."
+    },
+    {
+      "id": "C126-G03",
+      "kind": "qualification_gap",
+      "severity": "low",
+      "title": "Frontend address retirement не равен проверке всех links/builds/distribution",
+      "evidence": [
+        "P04",
+        "P05",
+        "S13",
+        "S14",
+        "S15",
+        "S16",
+        "S17",
+        "S18",
+        "S19",
+        "S20",
+        "S21",
+        "S24"
+      ],
+      "remaining": "В общем CP6/native окне проверить полный docs lifecycle/link validation и актуальные workspace build/package artifacts; при необходимости решить внешний redirect URL. Не создавать новый frontend и не удалять protected apps/packages.",
+      "limits": "Frontend README отсутствует; actual config/package boundary test PASS. Selected lifecycle test проверяет120-day lifetime безADR, а не сравнение текущей даты. Runtime shell helper прочитан, но API availability/UI production completeness не доказаны."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "LA011/013 address retirement bounded подтверждено; LA012 wrappers сохраняются с доказанным forwarding. Новых R нет; G01–G03 остаются."
+}

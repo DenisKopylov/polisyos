@@ -1,0 +1,101 @@
+{
+  "pass": "C46",
+  "bundle": "RES-04",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C46-R01",
+      "kind": "confirmed_local_defect",
+      "source_ids": [
+        "B76"
+      ],
+      "title": "Cleanup после manifest rename удаляет уже опубликованные sidecars при ошибке directory fsync",
+      "evidence": [
+        "S01:227–244",
+        "S01:1072–1079",
+        "P13",
+        "P14"
+      ],
+      "remaining": "В существующем save/atomic helper различать до- и после-publication состояния. После switch manifest не удалять данные, на которые он уже ссылается; обеспечить доступный полный old либо new snapshot даже при неопределённой durability. Сохранить действующие generation/lock/fsync primitives.",
+      "limits": "Контролируемый OSError внедрён только в audit process после реального JSON rename; active manifest становится новым, cleanup удаляет его sidecar и fresh load отказывает. Не утверждается, что такая ошибка реально случалась в production. Pre-publication failure control сохраняет old snapshot."
+    },
+    {
+      "id": "C46-R02",
+      "kind": "confirmed_local_defect",
+      "source_ids": [
+        "B76"
+      ],
+      "title": "Отдельная сериализация state и history делит одно sidecar namespace",
+      "evidence": [
+        "S01:196–211",
+        "S01:945–990",
+        "P18"
+      ],
+      "remaining": "Разделить корневые пространства state/history или сериализовать единое envelope через существующий encoder; не допускать sidecars.update с конфликтующими именами. Проверить first generation и повторное сохранение того же path.",
+      "limits": "Typed MethodResult snapshot и согласованный completed/history count=1. Supported state key node_results создаёт одинаковый encoded path с history. Второй save возвращает success, fresh load отказывает по content mismatch. Это availability/integrity defect producer, не silent подмена принятого массива: content guard работает."
+    },
+    {
+      "id": "C46-R03",
+      "kind": "confirmed_local_defect",
+      "source_ids": [
+        "B75"
+      ],
+      "title": "restricted_invocation текущего MethodResult теряется в истории с history_complete=True",
+      "evidence": [
+        "S13:176–230",
+        "S01:762–801",
+        "S01:804–849",
+        "S10:158–195",
+        "S18:1018–1029",
+        "P20"
+      ],
+      "remaining": "Расширить существующий result snapshot/restore для текущего typed invocation evidence либо явно обозначать неполную историю, если поле не переносимо. Сохранить status/limitation и provenance, не пересоздавать observation как новое исполнение.",
+      "limits": "Actual DTO witness содержит status=unavailable и явную audit fixture limitation; после fresh persisted resume поле None. Native restricted method execution и потеря реального verified receipt не воспроизведены; authority promotion не заявляется."
+    },
+    {
+      "id": "C46-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B74",
+        "B75",
+        "B76"
+      ],
+      "title": "Native registry/dispatcher/backend и полный replay provenance ещё не квалифицированы",
+      "evidence": [
+        "native_attempt.log",
+        "P01",
+        "P02",
+        "P10",
+        "P20"
+      ],
+      "remaining": "На поддержанном Python 3.14/dependency profile выполнить focused native tests и один actual backend result→checkpoint→fresh resume маршрут, включая current restricted evidence policy при допустимости этого пути.",
+      "limits": "21 итоговый bounded MATCH. DTOs теперь actual, но их runtime values synthetic; registry/dispatcher, neutral name-semantic lookup, aggregate reproducibility builder/hash/import seams явные. Native pytest отсутствует, full Core CAS не исполнялся."
+    },
+    {
+      "id": "C46-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B74",
+        "B75"
+      ],
+      "title": "Строгая совместимость checkpoint не равна частичному научному reuse и долговременной custody",
+      "evidence": [
+        "S01:633–729",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P09"
+      ],
+      "remaining": "Сохранять полезный exact-request resume и честный отказ legacy/incomplete history. Частичный пересчёт незатронутых предков, immutable input refs и portable plan при необходимости обосновывать отдельным actual consumer scope, а не заявлять по наличию digest.",
+      "limits": "Changed request отклоняется целиком; selective ancestor reuse и standalone reconstructed execution не проверялись. Это не автоматический defect или требование нового subsystem. Сохранённый synthetic output не independent empirical observation и не научное доказательство."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C46-R01",
+    "C46-R02",
+    "C46-R03"
+  ],
+  "decision": "Effective request/prefix/history и исходные sidecar repairs существуют; after-publication cleanup, state/history namespace и current result-field transport имеют конкретные остатки."
+}

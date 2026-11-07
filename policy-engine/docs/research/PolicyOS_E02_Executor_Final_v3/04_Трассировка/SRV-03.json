@@ -1,0 +1,380 @@
+{
+  "packet_id": "SRV-03",
+  "lane": "LANE-02",
+  "title": "Реальный autotune consumer и завершённый search cutover",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "LA-015"
+  ],
+  "audit_reports": [
+    "02_Пакеты/SRV-03.md"
+  ],
+  "audit_report_sha256": "8e64f635c03855ce1213b6f7286ef16dcbe50afbf6a001f452b82adddaf52e08",
+  "sourceplan_lines": [
+    1945,
+    2044
+  ],
+  "practical_goal": "Обычный кандидат и контрольный sentinel реально проходят codec/benchmark/reader, partial run переживает сбой; LA-015 принимается по реальному consumer, не новому имени класса.",
+  "requirements": [
+    {
+      "id": "REQ-SRV-03-01",
+      "text": "Sentinel role должна оставаться организационной metadata до benchmark/registry/history, не входить как неизвестное поле mutation и не исчезать перед promotion.",
+      "source_ids": [
+        "LA-015"
+      ],
+      "audit_ids": [
+        "remaining:0382",
+        "preserve:0619",
+        "audit-residual:C15_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-SRV-03-01"
+      ]
+    },
+    {
+      "id": "REQ-SRV-03-02",
+      "text": "Interrupted actual runner должен предоставлять сохранённый partial run/ref и явное разрешённое продолжение без повторения уже завершённого work и без нового run-affinity обхода.",
+      "source_ids": [
+        "LA-015"
+      ],
+      "audit_ids": [
+        "remaining:0383",
+        "preserve:0620",
+        "audit-residual:C15_остатки:1"
+      ],
+      "test_ids": [
+        "TEST-SRV-03-02"
+      ]
+    },
+    {
+      "id": "REQ-SRV-03-03",
+      "text": "Warm history и reserved semantic/strategy fields должны иметь явный source-qualified contract; тест не требует training credit от unbound scalar.",
+      "source_ids": [
+        "LA-015"
+      ],
+      "audit_ids": [
+        "preserve:0621",
+        "audit-residual:C15_остатки:2",
+        "audit-residual:C15_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-SRV-03-03"
+      ]
+    },
+    {
+      "id": "REQ-SRV-03-04",
+      "text": "LA-015 closure требует native actual runner traces, корректных RNG/stopping/counters и конечного совместимого retirement census; working facade не удаляется без основания.",
+      "source_ids": [
+        "LA-015"
+      ],
+      "audit_ids": [
+        "remaining:0384",
+        "remaining:0385",
+        "remaining:0386",
+        "preserve:0618",
+        "preserve:0619",
+        "preserve:0620",
+        "preserve:0621",
+        "audit-residual:C15_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-SRV-03-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-SRV-03-01",
+      "requirement_ids": [
+        "REQ-SRV-03-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Штатный SentinelInjector + строгий MutationArtifact subclass(value), actual Pydantic codec, benchmark, CAS/ChampionRegistry; ordinary same payload и malformed unknown field.",
+      "action": "Пройти actual SearchLoopRunner, inject sentinel после двух ordinary; fresh reader результата/registry.",
+      "oracle": "Sentinel benchmark реально вызван, numerical контроль доступен, sentinel count/resource учтены; ordinary history/best/champion от него не улучшаются; ordinary positive проходит.",
+      "expected": "Удаление роли до lifecycle или одним pop перед codec недостаточно; неизвестный предметный key всё ещё rejected.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SRV-03-02",
+      "requirement_ids": [
+        "REQ-SRV-03-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Actual runner good benchmark→exception/cancel after settlement; temporary store/registry и strategy checkpoint; fresh-process reader.",
+      "action": "Прервать, открыть partial, затем explicit resume с теми же accepted refs; изменённый source/run/strategy negative.",
+      "oracle": "Предыдущий useful output доступен, расходы/attempts не исчезли, completed work не повторяется вслепую, continuation сохраняет subject и run ownership.",
+      "expected": "Не заявлять erased CAS из отсутствия SearchResult; не возвращать обычный success вместо ошибки и не запускать paid retry автоматически.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SRV-03-03",
+      "requirement_ids": [
+        "REQ-SRV-03-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Existing test_srv_03 warm trace, source-bound/unbound rows, contextual warm_start_for_context, custom schema с явным semantic и reserved alias.",
+      "action": "Пройти actual codec/materialization/benchmark и проверить actual training consumer/subject hash.",
+      "oracle": "Правомерная warm информация реально используется своим consumer; unbound не train; decoded subject соответствует persisted identity; не исчезают substantive поля.",
+      "expected": "Не объявлять все custom schemas сломаны по fixture; не ослаблять source guards ради старого training count 1.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SRV-03-04",
+      "requirement_ids": [
+        "REQ-SRV-03-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Existing test_srv_03/test_srv_01/test_contracts; actual MethodJob route shared OPT-02, conditional tiny evaluator, supported Python3.14.",
+      "action": "Обычный и complex consumer trace, new-process readback, compare final/history/frontier/effective subject/costs/RNG; legacy addresses отдельно.",
+      "oracle": "Один state owner, no old full-loop construction; изменены только намеренные bugs, не требовать parity с ошибкой. Каждый supported caller/reader disposition записан.",
+      "expected": "NOT_RUN остаётся NOT_RUN; нет blanket rm methods/search; snapshot reopen same process не independent restart.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C15_остатки:0",
+      "requirement_ids": [
+        "REQ-SRV-03-01"
+      ],
+      "rationale": "Typed role bridge, не просто pop.",
+      "disposition": "fix",
+      "audit_id": "C15-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C15_остатки:1",
+      "requirement_ids": [
+        "REQ-SRV-03-02"
+      ],
+      "rationale": "Один CTL-01 interruption mechanism, actual runner delivery здесь.",
+      "disposition": "shared",
+      "audit_id": "C15-G01",
+      "shared_owner": "CTL-01"
+    },
+    {
+      "inventory_id": "audit-residual:C15_остатки:2",
+      "requirement_ids": [
+        "REQ-SRV-03-03"
+      ],
+      "rationale": "Source-qualified warm fixture.",
+      "disposition": "fix",
+      "audit_id": "C15-T01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C15_остатки:3",
+      "requirement_ids": [
+        "REQ-SRV-03-04"
+      ],
+      "rationale": "Actual complex consumer/RNGcompatibility.",
+      "disposition": "qualify",
+      "audit_id": "C15-G02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C15_остатки:4",
+      "requirement_ids": [
+        "REQ-SRV-03-03"
+      ],
+      "rationale": "Конечный reserved field contract и реальные схемы.",
+      "disposition": "lifecycle",
+      "audit_id": "C15-G03",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "LA-015",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SRV-03-01",
+        "REQ-SRV-03-02",
+        "REQ-SRV-03-03",
+        "REQ-SRV-03-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0382",
+      "requirement_ids": [
+        "REQ-SRV-03-01"
+      ],
+      "rationale": "Control role до actual benchmark/registry.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0383",
+      "requirement_ids": [
+        "REQ-SRV-03-02"
+      ],
+      "rationale": "CTL-01 owns finalization, SRV-03 actual persist/recoveryconsumer.",
+      "disposition": "shared",
+      "shared_owner": "CTL-01"
+    },
+    {
+      "inventory_id": "remaining:0384",
+      "requirement_ids": [
+        "REQ-SRV-03-04"
+      ],
+      "rationale": "CTL-03 counters и SRV-01 atomic/runaffinity reused.",
+      "disposition": "shared",
+      "shared_owner": "SRV-01"
+    },
+    {
+      "inventory_id": "remaining:0385",
+      "requirement_ids": [
+        "REQ-SRV-03-04"
+      ],
+      "rationale": "Nativeconsumer/census/history.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0386",
+      "requirement_ids": [
+        "REQ-SRV-03-04"
+      ],
+      "rationale": "Фраза companions not reviewed историческая: CTL-02/STP-01 audit/spec готовы, их приёмка по-прежнему обязательна.",
+      "disposition": "superseded"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0618",
+      "requirement_ids": [
+        "REQ-SRV-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: LA-015 closure требует native actual runner traces, корректных RNG/stopping/counters и конечного совместимого retirement census; working facade не удаляется без основания.",
+      "test_ids": [
+        "TEST-SRV-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0619",
+      "requirement_ids": [
+        "REQ-SRV-03-01",
+        "REQ-SRV-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Sentinel role должна оставаться организационной metadata до benchmark/registry/history, не входить как неизвестное поле mutation и не исчезать перед promotion.; LA-015 closure требует native actual runner traces, корректных RNG/stopping/counters и конечного совместимого retirement census; working facade не удаляется без основания.",
+      "test_ids": [
+        "TEST-SRV-03-01",
+        "TEST-SRV-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0620",
+      "requirement_ids": [
+        "REQ-SRV-03-02",
+        "REQ-SRV-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Interrupted actual runner должен предоставлять сохранённый partial run/ref и явное разрешённое продолжение без повторения уже завершённого work и без нового run-affinity обхода.; LA-015 closure требует native actual runner traces, корректных RNG/stopping/counters и конечного совместимого retirement census; working facade не удаляется без основания.",
+      "test_ids": [
+        "TEST-SRV-03-02",
+        "TEST-SRV-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0621",
+      "requirement_ids": [
+        "REQ-SRV-03-03",
+        "REQ-SRV-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Warm history и reserved semantic/strategy fields должны иметь явный source-qualified contract; тест не требует training credit от unbound scalar.; LA-015 closure требует native actual runner traces, корректных RNG/stopping/counters и конечного совместимого retirement census; working facade не удаляется без основания.",
+      "test_ids": [
+        "TEST-SRV-03-03",
+        "TEST-SRV-03-04"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I02-A",
+    "E02-I02-B"
+  ],
+  "dependencies": [
+    "CTL01run/partial; CTL03counts/cost; SRV01acceptance; CTL02RNG; STP01stop — обязательные общие contracts.",
+    "SRV-03 accountable LA-015 closure; CTL-01 phase 1 не закрывает целое. OPT-02 owns MethodJob binding; OPT-04 promotion atomicity, здесь sentinel role consumer."
+  ],
+  "preservation": [
+    "single native driver/lifecycle/state owner",
+    "actual runner direct construction, typed codecs, source/promotion boundaries",
+    "independent run snapshots, bounded empty, source-budget binding scope",
+    "supported compatibility addresses and historical semantics"
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    "Содержательная контрольная проверка должна реально выполняться, а не быть запрещена строгим codec или превращена в лучшего обычного кандидата. Настоящий partialresume повышает полезность без нового framework."
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "symbol_or_anchor": "class SearchLoopRunner",
+      "lines": [
+        1796,
+        1828
+      ],
+      "sha256": "143ecb1eac1e33f916656a0b6dbb15dabc77c8c949bd453544dd4f2f87426dec",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py#L1796-L1828"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "symbol_or_anchor": "def _evaluate_candidate",
+      "lines": [
+        1938,
+        1970
+      ],
+      "sha256": "143ecb1eac1e33f916656a0b6dbb15dabc77c8c949bd453544dd4f2f87426dec",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py#L1938-L1970"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "symbol_or_anchor": "class PydanticMutationCodec",
+      "lines": [
+        728,
+        760
+      ],
+      "sha256": "a83f8ee607349126395658143040510f4a5c4245155f8e1481f47f532e79a2ae",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/models.py#L728-L760"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sentinels.py",
+      "symbol_or_anchor": "def _decorated_sentinel",
+      "lines": [
+        219,
+        244
+      ],
+      "sha256": "a2fa7bf353e3d432b4cdd2ba4cc60446cd0365f86adc36fc4a812a0df17cabff",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/sentinels.py#L219-L244"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-SRV-03-01",
+      "text": "В SearchLoopRunner evaluation bridge использовать existing typed CandidateProposal/service envelope: отделить именно известную __sentinel__ роль от subject до PydanticMutationCodec, передать роль evaluator/registry policy и lifecycle transition. Сохранять строгий extra=forbid для неизвестных subject keys; не pop всех underscore. ChampionRegistry не рассматривает sentinel как обычное promotion независимо от callback порядка. Предмет decode должен совпасть с source identity, role записывается отдельно."
+    },
+    {
+      "requirement_id": "REQ-SRV-03-02",
+      "text": "Потребить CTL-01 failure-finalization contract в SearchLoopRunner: persist completed candidates/evaluations уже существующим store, связать run snapshot/error и budget/strategy checkpoint. Resume принимает exact run/basis и совместимый CTL-02 state, не просто имя candidate=resumed; late tells через SRV-01 admission. Original exception/cancel remains; lock/binding scope release гарантирован."
+    },
+    {
+      "requirement_id": "REQ-SRV-03-03",
+      "text": "Исправить stale warm trace fixture: либо actual compatible source-results/assessment→AVAILABLE, либо ожидать diagnostic historical row/training0. Warm-start delivery generator не lifecycle initial_evaluations и не proof GP conditioning (OPT/TRN). Finite census custom mutation schemas/aliases для semantic/_strategy_metadata: поддержанный subject field сохранять; зарезервированную transport роль декларировать в envelope/version и отвергать conflicting meaning, не молча default subject."
+    },
+    {
+      "requirement_id": "REQ-SRV-03-04",
+      "text": "Сохранить прямое создание _SearchLifecycleOwner/_NativeSearchServiceDriver — cutover уже есть. Использовать test_current_autotune_runner_characterizes_real_cas_consumer_path с запретом SearchController ctor/run, actual CAS/registry; добавить complex actual runner warm→sentinel→empty→exception→persisted resume, не REJECT переименованный error. CTL-02/STP-01 являются current spec dependencies, старое «нерассмотрены» superseded. Census python/import/string/serialized readers конечный; alias retirement только при migrating all supported callers."
+    }
+  ]
+}

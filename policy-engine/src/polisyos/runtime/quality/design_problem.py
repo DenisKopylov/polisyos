@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import re
 from datetime import UTC, datetime
-from typing import Any, ClassVar, Literal
+from typing import Annotated, Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -184,6 +184,46 @@ class OutcomeOfInterest(_StrictModel):
     metric_id: str = Field(..., pattern=r"^[a-z][a-z0-9_]*$")
     estimand: str = Field(..., min_length=1)
     direction: Literal["maximize", "minimize", "maintain_range"] = "maximize"
+    conditioning_variables: tuple[Annotated[str, Field(pattern=SLOT_ID_PATTERN)], ...] = Field(
+        default_factory=tuple,
+        exclude_if=lambda value: not value,
+        description="Explicit candidate query conditioning, not an identified adjustment set.",
+    )
+    measurement_unit: str | None = Field(
+        default=None,
+        min_length=1,
+        strict=True,
+        exclude_if=lambda value: value is None,
+        description="Declared outcome unit; an atom binds it only to the exact world-slot owner.",
+    )
+
+    query_coordinate_status: Literal["candidate_proposed_unverified"] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        description="Proposed query coordinates do not establish agreement with user intent.",
+    )
+
+    @model_validator(mode="after")
+    def _mark_proposed_query_coordinates(self) -> OutcomeOfInterest:
+        if self.conditioning_variables or self.measurement_unit is not None:
+            object.__setattr__(self, "query_coordinate_status", "candidate_proposed_unverified")
+        elif self.query_coordinate_status is not None:
+            raise ValueError("outcome_query_coordinate_status_without_coordinates")
+        return self
+
+    @field_validator("conditioning_variables")
+    @classmethod
+    def _unique_conditioning_variables(cls, values: tuple[str, ...]) -> tuple[str, ...]:
+        if len(values) != len(set(values)):
+            raise ValueError("outcome_conditioning_variables_not_unique")
+        return values
+
+    @field_validator("measurement_unit")
+    @classmethod
+    def _canonical_measurement_unit(cls, value: str | None) -> str | None:
+        if value is not None and value != value.strip():
+            raise ValueError("outcome_measurement_unit_not_canonical")
+        return value
 
 
 class _QualifiedOutcomeOfInterestV3(OutcomeOfInterest):
@@ -314,6 +354,11 @@ class DesignProblem(_StrictModel):
     def validate_admissibility(self) -> DesignProblem:
         """Validate structural admissibility fields without granting authority."""
 
+        if (
+            self.outcome_of_interest.query_coordinate_status is not None
+            and self.schema_version != DESIGN_PROBLEM_V3_SCHEMA_VERSION
+        ):
+            raise ValueError("outcome_query_coordinates_require_current_schema")
         if not self.objectives:
             raise ValueError("design_problem_objectives_empty")
         if not self.stakeholders:

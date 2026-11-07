@@ -1,0 +1,99 @@
+{
+  "release": "v011",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "CTL-03",
+  "findings": [
+    {
+      "id": "C13-R01",
+      "source_id": "B121",
+      "severity": "medium",
+      "confidence": "high_local",
+      "status": "reproduced_bounded",
+      "title": "Stage A rejected sentinel is subtracted from ordinary Stage B count",
+      "locations": [
+        "run_state.py::scientific_evaluations",
+        "run_state.py::apply_evaluation_transition",
+        "run_state.py::apply_tell_transition"
+      ],
+      "observations": [
+        "P23",
+        "P24"
+      ],
+      "preserve": [
+        "sentinel exclusion from training/best",
+        "actual stage counters",
+        "single state owner"
+      ],
+      "remaining": "Keep sentinel StageB subset distinct from all sentinel transitions; qualify full/tell with real DTO.",
+      "limits": "No downstream quota/UI/billing effect executed."
+    },
+    {
+      "id": "C13-R02",
+      "source_id": "B121",
+      "severity": "medium_conditional",
+      "confidence": "high_local",
+      "status": "reproduced_bounded",
+      "title": "Generated sentinel-only work is not bounded by ordinary hard limit",
+      "locations": [
+        "service.py::_run_locked",
+        "service.py::_evaluate_batch",
+        "run_state.py::apply_evaluation_transition"
+      ],
+      "observations": [
+        "P25",
+        "P26",
+        "P40"
+      ],
+      "preserve": [
+        "ordinary iteration semantics",
+        "normal injector interleaving",
+        "separate resource stopping"
+      ],
+      "remaining": "Declare and enforce finite actual-work/sentinel cap or independent finite resource cap in admitted generic profile.",
+      "limits": "Normal injector interleaves ordinary work; production frequency not measured; finite watchdog used."
+    },
+    {
+      "id": "C13-R03",
+      "source_id": "B120",
+      "severity": "medium_local_config",
+      "confidence": "high_local",
+      "status": "reproduced_bounded",
+      "title": "NaN monetary limit accepted by CostBudgetStopping",
+      "locations": [
+        "stopping.py::CostBudgetStopping.__init__",
+        "stopping.py::CostBudgetStopping.check"
+      ],
+      "observations": [
+        "P19",
+        "P39"
+      ],
+      "preserve": [
+        "valid zero spend",
+        "unknown cost is not zero",
+        "independent durable-owner guard"
+      ],
+      "remaining": "Validate selected numeric limit as finite positive at existing config boundary.",
+      "limits": "No protected owner bypass or live money loss established."
+    },
+    {
+      "id": "C13-G01",
+      "source_id": "B120",
+      "status": "native_acceptance_unrun",
+      "title": "Owner snapshot does not automatically authorize arbitrary evaluator cost",
+      "remaining": "Native provider/ledger/cache/failed-call/reservation and actual evaluator admission test; no new ledger."
+    },
+    {
+      "id": "C13-G02",
+      "source_id": "B123",
+      "status": "consumer_qualification_unrun",
+      "title": "Run/tell retain different scalar diagnostics while blocking malformed policy best",
+      "observations": [
+        "P35",
+        "P36"
+      ],
+      "remaining": "Verify real ObjectiveStack, source owner and downstream users never treat retained scalar AVAILABLE as policy acceptance.",
+      "limits": "No successful scalar-best bypass in bounded current branches."
+    }
+  ],
+  "source_closure": "not_claimed"
+}

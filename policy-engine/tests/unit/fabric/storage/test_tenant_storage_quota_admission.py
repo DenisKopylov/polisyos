@@ -471,3 +471,34 @@ def test_sign_on_put_sidecar_is_included_in_the_prepublication_plan(
 
     assert blocked.iter_artifact_ids() == []
     assert _materialized_bytes(blocked.root) == 0
+
+
+def test_tenant_import_consumes_required_signature_policy_before_storage(
+    tmp_path: Path,
+) -> None:
+    """Tenant quota wrapping cannot drop the configured current trust policy."""
+    from polisyos.core.artifacts import ImportSignatureVerificationError
+    from polisyos.core.artifacts.signing import (
+        Ed25519Signer,
+        Ed25519Verifier,
+        KeyPair,
+        SignatureVerificationStatus,
+    )
+
+    source = FileSystemCAS(tmp_path / "source", tenant_id=TENANT)
+    ref = source.put_bytes(b"tenant-signature-policy", _options())
+    key = KeyPair.generate()
+    source.sign_artifact(ref.artifact_id, Ed25519Signer.from_pem(key.private_pem()))
+    verifier = Ed25519Verifier()
+    verifier.add_trusted_key(key.public_key, key_id=key.key_id)
+    export = source.export_subgraph([ref.artifact_id], tmp_path / "export")
+    target = TenantScopedCAS(tmp_path / "target", tenant_id=TENANT)
+    verifier.add_revoked_key_id(key.key_id)
+    with pytest.raises(ImportSignatureVerificationError) as refusal:
+        target.import_subgraph(export.output_path, signature_verifier=verifier)
+    assert refusal.value.result.status == SignatureVerificationStatus.REVOKED
+    assert target.iter_artifact_ids() == []
+    assert _materialized_bytes(target.root) == 0
+    accepted = target.import_subgraph(export.output_path)
+    assert accepted.signature_verification_requested is False
+    assert target.get_bytes(ref) == b"tenant-signature-policy"

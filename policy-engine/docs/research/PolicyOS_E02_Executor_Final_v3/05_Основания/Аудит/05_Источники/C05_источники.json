@@ -1,0 +1,197 @@
+{
+  "kind": "pinned_source_read_index",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "note": "Blob SHA is supplied by GitHub; no full repository download or local Git-blob recomputation. Empty ranges means full returned file or indicated search-only scope. Only declared excerpt methods executed.",
+  "sources": [
+    {
+      "id": "C05-S01",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "blob": "9761de868301e6fb90e69cd03aa3270b9a8187aa",
+      "ranges": [
+        [
+          7860,
+          8220
+        ],
+        [
+          9340,
+          9480
+        ],
+        [
+          13000,
+          13200
+        ],
+        [
+          13300,
+          13800
+        ],
+        [
+          18800,
+          19230
+        ],
+        [
+          18965,
+          19040
+        ]
+      ],
+      "role": "N6 generation type guard, provisional selection, post-grounding reselection, one selected N5/N8, scheduler, configured ROI exception",
+      "evidence": "pinned source read; selected transcribed bodies executed with explicit fixtures; not full-module import",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "range_urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L7860-L8220",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L9340-L9480",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L13000-L13200",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L13300-L13800",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L18800-L19230",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L18965-L19040"
+      ],
+      "full_blob_locally_verified": false
+    },
+    {
+      "id": "C05-S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+      "blob": "38c91ff8ce119d1a5f073cba586f436948eb2e76",
+      "ranges": [
+        [
+          1,
+          350
+        ],
+        [
+          500,
+          1020
+        ],
+        [
+          910,
+          1110
+        ],
+        [
+          877,
+          951
+        ]
+      ],
+      "role": "SimpleVOIScheduler priority versus action, information override, resource controls, Predictive class existence",
+      "evidence": "pinned source read; selected Simple decision methods executed; predictive training UNRUN",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py",
+      "range_urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py#L1-L350",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py#L500-L1020",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py#L910-L1110",
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py#L877-L951"
+      ],
+      "full_blob_locally_verified": false
+    },
+    {
+      "id": "C05-S03",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+      "blob": "1a2fbb73bb87d60674d168791a214f882e79347f",
+      "ranges": [
+        [
+          1,
+          330
+        ]
+      ],
+      "role": "BudgetState remaining, spent and reserved; no limit is None",
+      "evidence": "full source read; selected class fields/methods transcribed and executed with real Pydantic",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+      "range_urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/budget.py#L1-L330"
+      ],
+      "full_blob_locally_verified": false
+    },
+    {
+      "id": "C05-S04",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/producer_budget.py",
+      "blob": "32a41f7c333e32ebbaf96ad845f23a3c07130bba",
+      "ranges": [
+        [
+          1,
+          350
+        ]
+      ],
+      "role": "Fresh producer owner reconciliation, exact run binding, unknown-cost refusal, N5 price limitations",
+      "evidence": "source read only; ledger/middleware/admit UNRUN",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/producer_budget.py",
+      "range_urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/producer_budget.py#L1-L350"
+      ],
+      "full_blob_locally_verified": false
+    },
+    {
+      "id": "C05-S05",
+      "path": "policy-engine/tests/unit/remediation/test_cyc_04.py",
+      "blob": "558ea42db49c76b3c079c2671c08586ec3eccd14",
+      "ranges": [],
+      "role": "Existing selector/history/info/budget tests; object() fixture now conflicts with DesignProblem guard",
+      "evidence": "full test source read, native pytest UNRUN; guard conflict characterized separately",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cyc_04.py",
+      "range_urls": [],
+      "full_blob_locally_verified": false
+    },
+    {
+      "id": "C05-S06",
+      "path": "policy-engine/tests/unit/runtime/quality/test_c49_n6_budget_binding.py",
+      "blob": "d959ca98ba0b347721fb488f46978386941cbf74",
+      "ranges": [
+        [
+          1,
+          360
+        ]
+      ],
+      "role": "Canonical owner binding and actual NCM interruption between seeds after producer spend",
+      "evidence": "full test source read; no fresh result receipt and no native execution",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/runtime/quality/test_c49_n6_budget_binding.py",
+      "range_urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/runtime/quality/test_c49_n6_budget_binding.py#L1-L360"
+      ],
+      "full_blob_locally_verified": false
+    },
+    {
+      "id": "C05-S07",
+      "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+      "blob": "dc6f279428cd148e855b14643465f40afe878b26",
+      "ranges": [
+        [
+          1,
+          330
+        ]
+      ],
+      "role": "Insufficient budget, dominance, unassessed/legacy frontiers, timeout test design",
+      "evidence": "bounded test-source read; native pytest UNRUN",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+      "range_urls": [
+        "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/test_voi_scheduler.py#L1-L330"
+      ],
+      "full_blob_locally_verified": false
+    },
+    {
+      "id": "C05-S08",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/LEDGER_DELTA_AUDIT_D58.md",
+      "blob": null,
+      "ranges": [],
+      "role": "Historical warning not to conflate B10/B11 with R11 blocked-disposition class",
+      "evidence": "document read; historical audit, not current behavior evidence",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/LEDGER_DELTA_AUDIT_D58.md",
+      "range_urls": [],
+      "full_blob_locally_verified": false
+    },
+    {
+      "id": "C05-S09",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/task-status-detailed-20261027/tasks.json",
+      "blob": null,
+      "ranges": [],
+      "role": "R3-2 requests actual selector discriminator and original-selection mutation control",
+      "evidence": "search excerpt only; not complete task or closure receipt",
+      "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/task-status-detailed-20261027/tasks.json",
+      "range_urls": [],
+      "full_blob_locally_verified": false
+    }
+  ]
+}

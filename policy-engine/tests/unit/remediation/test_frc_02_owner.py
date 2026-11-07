@@ -765,17 +765,13 @@ def test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view(
                 "causal_effect_claim",
             }.issubset(default_projection["may_not_use_for"])
 
-            first_scenario = default_projection["scenarios"][0]
-            second_scenario = explicit_projection["scenarios"][0]
-            assert (
-                first_scenario["interval_evaluated_count"] == owner_results[0].coverage_denominator
-            )
-            assert first_scenario["interval_hit_count"] == owner_results[0].coverage_numerator
-            assert (
-                second_scenario["interval_evaluated_count"] == owner_results[1].coverage_denominator
-            )
-            assert second_scenario["interval_hit_count"] == owner_results[1].coverage_numerator
-            assert first_scenario["observed_hit_rate"] != second_scenario["observed_hit_rate"]
+            # The distinct real owner computations above are retained as
+            # diagnostics, but this bounded reader does not reconcile each row
+            # with selected forecast/holdout values. Do not label them observations.
+            for projection in (default_projection, explicit_projection):
+                assert projection["measurement_status"] == "not_measured"
+                assert projection["reason_code"] == "unsupported_report_scope"
+                assert projection["scenarios"] == []
             assert owner_results[0].empirical_suitability == "supported"
             assert owner_results[1].empirical_suitability == "limited"
 
@@ -1075,7 +1071,9 @@ def test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view(
                         selected_profile=selected_profile,
                     )
                     assert integrity_response.status_code == 409
-                    assert integrity_response.json()["code"] == "artifact_integrity_failed"
+                    # Appending a byte is refused at the Core member-size gate
+                    # before the bounded diagnostic reader can publish a preview.
+                    assert integrity_response.json()["code"] == "cas_member_size_mismatch"
                 finally:
                     blob_path.write_bytes(original_blob)
 
@@ -1088,10 +1086,10 @@ def test_real_forecast_report_is_limited_in_fresh_diagnostic_http_view(
                         selected_profile=selected_profile,
                     )
                     assert unavailable_profile_response.status_code == 404
-                    assert (
-                        unavailable_profile_response.json()["code"]
-                        == "artifact_manifest_profile_not_found"
-                    )
+                    # A physically missing owned view is an absent CAS member
+                    # for either selector. The unknown-profile control above
+                    # separately requires artifact_manifest_profile_not_found.
+                    assert unavailable_profile_response.json()["code"] == "artifact_not_found"
             finally:
                 selected_manifest_path.write_bytes(unavailable_profile_bytes)
 
@@ -1152,13 +1150,16 @@ def test_real_ets_report_carries_method_rule_binding_without_inventing_bridge_ev
 
     # A matching shape and version cannot establish an evaluation owner, its
     # credible-evaluation evidence, or a calibrated S10 purpose.  The canonical
-    # consumer still recomputes useful observations from the actual report.
+    # consumer still recomputes useful row arithmetic from the actual report.
     evidence = produce_empirical_calibration_evidence(store, result.backtest_report_ref)
     assert evidence.recomputed_numerator == result.numerator
     assert evidence.recomputed_denominator == result.denominator
     assert evidence.recomputed_pass_rate == pytest.approx(result.empirical_coverage)
-    assert evidence.empirical_observations_available is True
-    assert evidence.failure_codes == ("explicit_context_missing",)
+    assert evidence.empirical_observations_available is False
+    assert evidence.failure_codes == (
+        "backtest_source_not_established",
+        "explicit_context_missing",
+    )
     assert evidence.context_bound is False
     assert evidence.usable_for_calibration is False
     assert evidence.floor_passed is False

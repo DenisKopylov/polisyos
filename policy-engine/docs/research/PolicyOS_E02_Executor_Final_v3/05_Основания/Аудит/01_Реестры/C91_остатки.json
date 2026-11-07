@@ -1,0 +1,91 @@
+{
+  "pass_id": "C91",
+  "bundle": "CAL-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C91-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high",
+      "source_ids": [
+        "B177"
+      ],
+      "title": "Raw temporal intake не разрешает duplicate timestamp и nonfinite координаты до интерполяции",
+      "evidence": [
+        "S01:63–110",
+        "S03:204–236",
+        "S03:426–433",
+        "P02"
+      ],
+      "remaining": "На existing preflight boundary один раз проверять finite source/target axis и явную duplicate policy; неоднозначную дату отвергать или принимать только уже объявленное преобразование владельца. Сохранить positional mode и разрешённый endpoint-fill. Проверить linear/ffill, permuted duplicate pairs и NaN/inf обеих осей.",
+      "limits": "Реальные NumPy interpolation/searchsorted kernels, actual config class validators; jnp materialization NumPy fixture. [10,20,30] при t=[0,0,1] даёт20 в t0, перестановка первых двух даёт10. NaN source/config axis выдаёт NaN target. Downstream loss finite guard существует: ложный успешный fit не заявлен."
+    },
+    {
+      "id": "C91-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high",
+      "source_ids": [
+        "B177"
+      ],
+      "title": "Неявная resampling grid строится по первым/последним несортированным координатам",
+      "evidence": [
+        "S01:281–305",
+        "S01:96–103",
+        "S08:2487–2494",
+        "P03"
+      ],
+      "remaining": "Разрешать admissible source axis и paired order до выбора inferred target grid; применять ту же каноническую временную семантику в equal-length и resampling cases. Проверить permutations при steps≠source length и без config.time_axis, сохранив явную ось.",
+      "limits": "Те же пары (0,0),(1,10),(2,20) при steps2 дают grid[0,2]/values[0,20]; permutation (2,20),(0,0),(1,10) даёт grid[2,1]/values[20,10]. Explicit grid[.5,1.5] positive обе permutations [5,15]. Это отдельный путь построения grid, не отсутствие sort внутри np.interp."
+    },
+    {
+      "id": "C91-R03",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high",
+      "source_ids": [
+        "B176"
+      ],
+      "title": "Разные объявленные единицы в разных периодах допускаются в один target без conversion/unit contract",
+      "evidence": [
+        "S02:193–204",
+        "S02:248–324",
+        "S04:154–243",
+        "S08:2503–2569",
+        "P04"
+      ],
+      "remaining": "В existing compiler/upstream transform проверять совместимость declared unit и интервала для всей target series, не только multiplicity target–period. Несогласованные units сохранять для repair/refuse либо преобразовывать по явному контракту с lineage; не угадывать conversion по имени metric и не строить универсальный автоматический интерпретатор.",
+      "limits": "Actual validated records .5/share за январь и50/percent за февраль компилируются в [.5,50], без unit в target spec, с положительными quality weights. Observation IDs сохранены; полная source lineage не объявлена утраченной. Проверен compiler+quality adapter, не полный optimizer/real upstream resolver. Корректный upstream normalization может исключить вход в конкретном маршруте."
+    },
+    {
+      "id": "C91-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B176",
+        "B177",
+        "B178"
+      ],
+      "title": "Native JAX optimizer, Fabric/selected report chain и scientific time/unit qualification остаются открыты",
+      "evidence": [
+        "S08",
+        "S09",
+        "S10",
+        "S11",
+        "S12",
+        "S13",
+        "P01",
+        "P05"
+      ],
+      "remaining": "В supported environment выполнить native existing corpus и один lane-level source→observations→target→optimizer/report consumer witness с actual masks/units/calendar и missing-support controls; не дублировать дорогое e2e на каждый CAL package. Отдельно установить domain admissibility observations, physical time/frequency/units и lawful transformations.",
+      "limits": "Native imports BLOCKED на Python3.14 except syntax в uncertainty.py при Python3.12, pytest/JAX отсутствуют. NumPy kernel execution и actual supported measurement fallback не доказывают JAX gradients, full fit, persisted report или эмпирическую авторитетность. LK01 distinct roles сохранены."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C91-R01",
+    "C91-R02",
+    "C91-R03"
+  ],
+  "decision": "Основные B176 same-period, B177 explicit-axis/missing-column, B178 dtype/empty repairs подтверждены. Temporal admission/inferred-grid и cross-period units остаются ограниченными defects; native/scientific closure отсутствует."
+}

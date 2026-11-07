@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 import pytest
+from pydantic import BaseModel
 
 from polisyos.common.async_tools import run_coro_sync
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
 from polisyos.core.artifacts.manifest import CanonInfo, SchemaInfo
@@ -22,9 +25,12 @@ from polisyos.scientist.orchestration.engine.checkpoint import (
     CheckpointHistory,
     CheckpointHistoryEntry,
     CheckpointMetadataConflictError,
+    CheckpointPublicationBudget,
+    CheckpointResumeRequest,
     CheckpointScopeMismatchError,
     CheckpointStatusNotEstablishedError,
     RunLockError,
+    _state_value_artifacts_available,
     acquire_run_lock,
     compute_workflow_fingerprint,
     create_checkpoint,
@@ -53,6 +59,25 @@ def _workflow(node_id: str = "scientist.node_noop@1.0.0") -> WorkflowSpec:
         required_binds=["run_id"],
         nodes=[NodeInvocation(alias="start", node_id=node_id)],
     )
+
+
+def test_required_model_value_verifies_nested_selected_artifact(tmp_path: Path) -> None:
+    class Payload(BaseModel):
+        nested: ArtifactRef
+
+        @property
+        def must_not_be_evaluated(self) -> str:
+            raise AssertionError("properties are not declared state")
+
+    store = FileSystemCAS(tmp_path)
+    ref = store.put_json(
+        {"value": 1},
+        PutOptions(kind="test.payload", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    assert _state_value_artifacts_available(Payload(nested=ref), store)
+    missing = ref.model_copy(update={"artifact_id": "sha256:" + "f" * 64})
+    assert not _state_value_artifacts_available(Payload(nested=missing), store)
 
 
 def test_compute_workflow_fingerprint_changes_on_spec_change() -> None:
@@ -837,6 +862,240 @@ def test_resume_allows_valid_state_without_cache_refs(tmp_path: Path) -> None:
 
     assert resumed.report.status == "ok"
     assert resumed.report.nodes == []
+    assert not (tmp_path / "runs" / run_id / "trace.jsonl").exists()
+
+
+def test_resume_selected_workflow_ref_verifies_profile_and_fingerprint(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_selected_workflow_input"
+    workflow = _workflow("scientist.node_cached_counter@1.0.0")
+    workflow.nodes[0] = NodeInvocation.model_validate(
+        {**workflow.nodes[0].model_dump(mode="python"), "params": {"weight": 0.25}}
+    )
+    state = ExperimentState(run_id=run_id)
+    created = create_checkpoint(
+        store,
+        run_id=run_id,
+        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+        sequence_number=0,
+        completed_node_alias="start",
+        completed_node_id="scientist.node_cached_counter@1.0.0",
+        completed_nodes=["start"],
+        completed_node_status_contract=COMPLETED_NODE_STATUS_CONTRACT,
+        workflow_id=workflow.workflow_id,
+        workflow_fingerprint=compute_workflow_fingerprint(workflow),
+        fsm_phase="EXECUTE",
+        cache_entry_refs=[],
+    )
+    update_checkpoint_head(
+        tmp_path / "runs" / run_id,
+        run_id=run_id,
+        checkpoint_ref=created.checkpoint_ref,
+        sequence_number=0,
+        node_alias="start",
+        writer_pid=123,
+        writer_hostname="localhost",
+    )
+    options = PutOptions(
+        kind="scientist.workflow_spec",
+        media_type="application/json",
+        schema=SchemaInfo(
+            name="polisyos.scientist.orchestration.engine.WorkflowSpec", version="1.0"
+        ),
+    )
+    selected = store.put_json(
+        workflow.model_dump(mode="python"),
+        options,
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert selected.manifest_profile_sha256 is not None
+    fresh = FileSystemCAS(tmp_path)
+    result = resume_from_checkpoint(fresh, run_id, workflow_ref=selected)
+    assert result.report.status == "ok" and result.report.nodes == []
+
+    bare = selected.model_copy(update={"manifest_profile_sha256": None})
+    wrong_profile = selected.model_copy(update={"manifest_profile_sha256": "sha256:" + "f" * 64})
+    with pytest.raises((CheckpointError, ValueError)):
+        resume_from_checkpoint(fresh, run_id, workflow_ref=bare)
+    with pytest.raises((CheckpointError, ValueError)):
+        resume_from_checkpoint(fresh, run_id, workflow_ref=wrong_profile)
+    with pytest.raises((CheckpointError, ValueError)):
+        resume_from_checkpoint(fresh, run_id, workflow=workflow, workflow_ref=selected)
+    changed = workflow.model_copy(update={"workflow_id": "changed_functional_workflow"})
+    changed_ref = store.put_json(
+        changed.model_dump(mode="python"),
+        options,
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(CheckpointError, match="fingerprint"):
+        resume_from_checkpoint(fresh, run_id, workflow_ref=changed_ref)
+
+
+def test_resume_request_preserves_legacy_positional_order() -> None:
+    workflow = _workflow()
+    registry = object()
+    request = CheckpointResumeRequest("R_positional", workflow, registry)  # type: ignore[arg-type]
+    assert request.workflow is workflow
+    assert request.registry is registry
+    assert request.workflow_ref is None
+    assert request.require_reconciled_attempts is False
+
+
+@pytest.mark.parametrize("input_case", ["valid", "missing", "corrupt"])
+def test_resume_checks_actual_link_consumer_external_inputs_before_dispatch(
+    tmp_path: Path, input_case: str
+) -> None:
+    import logging
+
+    from polisyos.core.artifacts import ArtifactRef, ensure_ir_artifact_store
+    from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.run.context import RunContext
+    from polisyos.ir.governance.policy_spec import PolicySpec
+    from polisyos.ir.governance.problem_frame import ProblemFrame
+    from polisyos.ir.model_layer.model_spec import ModelSpec
+    from polisyos.ir.trinity import TrinityBundle
+    from polisyos.ir.trinity.loaders import persist_trinity_bundle_artifact
+    from polisyos.scientist.nodes.builtins.compile.link_trinity import LinkTrinityNode
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
+    from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
+    from polisyos.scientist.orchestration.engine.registry import NodeRegistry
+
+    class StopAfterPrior(BaseException):
+        pass
+
+    class StopHook(CASCheckpointHook):
+        def on_node_complete(self, **kwargs: Any) -> Any:
+            result = super().on_node_complete(**kwargs)
+            if kwargs["alias"] == "prior":
+                raise StopAfterPrior
+            return result
+
+    class Prior:
+        spec = NodeSpec(
+            metadata=ComponentMetadata(
+                component_id=ComponentId.parse("scientist.res01_prior@1.0.0"),
+                kind=ComponentKind.SCIENTIST_NODE,
+                abi_targets={"world_abi": "1.x"},
+                display_name="Prior",
+                description="Successful prior for native resume input test",
+                capabilities=Capability.SCIENTIST_NODE,
+            ),
+            state_reads=[],
+            state_writes=["params.prior"],
+        )
+
+        def execute(self, _ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+            state.params["prior"] = True
+            return NodeOutcome(status="ok", state=state)
+
+    class ObservedLink:
+        def __init__(self) -> None:
+            self.node = LinkTrinityNode(strict=False)
+            self.spec = self.node.spec
+            self.calls = 0
+
+        def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+            self.calls += 1
+            return self.node.execute(ctx, state)
+
+    store = FileSystemCAS(tmp_path / "cas")
+    bundle = build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
+    run_id = f"R_external_required_{input_case}"
+    run = RunContext.start(store, bundle, run_id=run_id)
+    context = ExecutionContext(store=store, run=run, logger=logging.getLogger("res01.external"))
+    trinity = TrinityBundle(
+        problem_frame=ProblemFrame(problem_id="link_test", domain="social"),
+        policy_spec=PolicySpec(policy_id="link_test"),
+        model_spec=ModelSpec(model_id="link_test", data_snapshot_ref="sha256:" + "c" * 64),
+    )
+    trinity_ref = ArtifactRef.model_validate(
+        persist_trinity_bundle_artifact(ensure_ir_artifact_store(store), trinity).model_dump(
+            mode="python"
+        )
+    )
+    inputs = {"registry_bundle_ref": bundle}
+    if input_case != "missing":
+        inputs["trinity_bundle_ref"] = trinity_ref
+    state = ExperimentState(run_id=run_id, inputs=inputs)
+    link = ObservedLink()
+    registry = NodeRegistry()
+    registry.register(Prior())
+    registry.register(link)
+    workflow = WorkflowSpec(
+        workflow_id="res01_external_required",
+        nodes=[
+            NodeInvocation(alias="prior", node_id=Prior.spec.metadata.component_id),
+            NodeInvocation(
+                alias="link", node_id=link.spec.metadata.component_id, depends_on=["prior"]
+            ),
+        ],
+    )
+    with pytest.raises(StopAfterPrior):
+        WorkflowExecutor(
+            context,
+            registry,
+            checkpoint_hook=StopHook(store=store, run_dir=tmp_path / "cas" / "runs" / run_id),
+        ).execute(workflow, state)
+    run.suspend_for_resume()
+    assert link.calls == 0
+    if input_case == "corrupt":
+        blob, _manifest = store._paths(trinity_ref.artifact_id)
+        blob.write_bytes(b"corrupted external input")
+    if input_case == "valid":
+        result = resume_from_checkpoint(
+            FileSystemCAS(store.root),
+            run_id,
+            workflow=workflow,
+            registry=registry,
+            registry_bundle_ref=bundle,
+        )
+        assert result.report.status == "ok"
+        assert link.calls == 1
+        assert "link_report_ref" in result.state.reports_index
+    else:
+        with pytest.raises(CheckpointCorruptedError, match="trinity_bundle_ref"):
+            resume_from_checkpoint(
+                FileSystemCAS(store.root),
+                run_id,
+                workflow=workflow,
+                registry=registry,
+                registry_bundle_ref=bundle,
+            )
+        assert link.calls == 0
+
+
+def test_checkpoint_hook_persists_original_execution_budget(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_execution_budget"
+    state = ExperimentState(run_id=run_id)
+    deadline = datetime.now(UTC) + timedelta(minutes=10)
+    budget = CheckpointPublicationBudget(
+        deadline_monotonic=None,
+        owner_is_current=lambda: True,
+        caller_cancelled=lambda: False,
+        execution_budget_contract="admitted_workflow_budget_v1",
+        execution_deadline_at=deadline,
+    )
+    hook = CASCheckpointHook(store=store, run_dir=tmp_path / "runs" / run_id)
+    run_coro_sync(
+        hook.on_node_complete_with_budget_async(
+            publication_budget=budget,
+            state=state,
+            alias="start",
+            node_id="scientist.node_noop@1.0.0",
+            completed_nodes=["start"],
+            workflow_id="wf_checkpoint",
+            workflow_fingerprint="a" * 64,
+            cache_entry_ref=None,
+        )
+    )
+    _, checkpoint = resolve_latest_checkpoint(FileSystemCAS(tmp_path), run_id)
+    assert checkpoint.metadata.execution_budget_contract == "admitted_workflow_budget_v1"
+    assert checkpoint.metadata.execution_deadline_at == deadline
 
 
 @pytest.mark.parametrize("async_writer", [False, True], ids=["sync", "async"])

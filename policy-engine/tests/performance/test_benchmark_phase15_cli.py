@@ -418,6 +418,165 @@ def test_temporal_gold_cli_smoke_emits_publication_payload(tmp_path: Path):
     assert payload["regression_guard"]
 
 
+def test_temporal_gold_removed_engine_route_refuses_publication(monkeypatch, tmp_path: Path):
+    benchmarks_pkg = importlib.import_module("benchmarks")
+    monkeypatch.setattr(benchmarks_pkg, "__path__", [str(REPO_ROOT / "benchmarks")])
+    importlib.invalidate_caches()
+
+    from benchmarks.temporal.temporal_gold_benchmark import main
+    from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+
+    def removed_route(*args, **kwargs):
+        raise RuntimeError("temporal_engine_route_removed")
+
+    monkeypatch.setattr(CausalEngine, "temporal_causal_effect", removed_route)
+    out = tmp_path / "removed_engine.json"
+    assert main(["--mode", "smoke", "--quiet", "--json", str(out)]) == 1
+    payload = json.loads(out.read_text(encoding="utf-8"))
+    assert payload["overall_status"] == "error"
+    assert payload["n_errors"] == payload["n_total"] == 5
+    assert payload["public_claim_eligible"] is False
+    assert payload["blockers"] == ["temporal_gold_scorecard_not_met"]
+    assert all("temporal_engine_route_removed" in case["error_msg"] for case in payload["cases"])
+    scorecard = payload["aggregate_metrics"]["temporal_scorecard"]
+    assert scorecard["engine_route_coverage_rate"] == 0.0
+    assert scorecard["checks"]["all_registered_cases_evaluated"] is False
+    assert scorecard["passes_all"] is False
+
+
+def test_temporal_gold_missing_route_check_stays_in_scorecard_denominator(monkeypatch):
+    from dataclasses import replace
+
+    benchmarks_pkg = importlib.import_module("benchmarks")
+    monkeypatch.setattr(benchmarks_pkg, "__path__", [str(REPO_ROOT / "benchmarks")])
+    importlib.invalidate_caches()
+
+    from benchmarks.temporal.common import build_gold_scorecard
+    from benchmarks.temporal.fixtures import _gold_panel_delayed_effect
+
+    result = _gold_panel_delayed_effect()
+    assert result.passes
+    missing_route = dict(result.acceptance_checks)
+    del missing_route["engine_route_used"]
+    scorecard = build_gold_scorecard([result, replace(result, acceptance_checks=missing_route)])
+    assert scorecard["engine_route_coverage_rate"] == 0.5
+    assert scorecard["passes_all"] is False
+
+
+def test_temporal_hidden_reload_metric_preserves_nonpersisted_case_applicability(monkeypatch):
+    from dataclasses import replace
+
+    benchmarks_pkg = importlib.import_module("benchmarks")
+    monkeypatch.setattr(benchmarks_pkg, "__path__", [str(REPO_ROOT / "benchmarks")])
+    importlib.invalidate_caches()
+
+    from benchmarks.temporal.common import build_hidden_summary
+    from benchmarks.temporal.fixtures import _gold_panel_delayed_effect
+
+    result = _gold_panel_delayed_effect()
+    assert result.passes
+    failed_reload = {**result.acceptance_checks, "artifact_loadability": False}
+    nonpersisted = dict(result.acceptance_checks)
+    del nonpersisted["artifact_loadability"]
+    summary = build_hidden_summary(
+        [
+            replace(result, acceptance_checks=failed_reload),
+            replace(result, acceptance_checks=nonpersisted),
+        ]
+    )
+    assert summary["artifact_reload_failure_rate"] == 1.0
+
+
+def test_temporal_dtr_expected_state_curve_follows_the_known_fixture_law(monkeypatch):
+    benchmarks_pkg = importlib.import_module("benchmarks")
+    monkeypatch.setattr(benchmarks_pkg, "__path__", [str(REPO_ROOT / "benchmarks")])
+    importlib.invalidate_caches()
+
+    from benchmarks.temporal.fixtures import _dynamic_dtr_data, _known_dtr_optimal_state_effect
+
+    expected_path = _known_dtr_optimal_state_effect(_dynamic_dtr_data())
+    # Independently integrated known-law values for the fixed seed-77 population.
+    assert expected_path == pytest.approx((0.0, 0.20596153846153845, 0.3599910751347), abs=1e-12)
+    # Even treating every positive state cannot give the former hand-set 0.35 at t=1.
+    assert expected_path[1] < 0.35
+
+
+@pytest.mark.parametrize("removal", ["constant", "old_threshold", "last_stage"])
+def test_temporal_adaptive_replay_checks_actions_not_profile_markers(
+    monkeypatch, tmp_path: Path, removal: str
+):
+    import numpy as np
+
+    benchmarks_pkg = importlib.import_module("benchmarks")
+    monkeypatch.setattr(benchmarks_pkg, "__path__", [str(REPO_ROOT / "benchmarks")])
+    importlib.invalidate_caches()
+
+    from benchmarks.temporal import fixtures
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.foundry.methods.catalog.causal import g_computation
+    from polisyos.ir.analytics.dynamic_regime import (
+        DynamicTreatmentRegime,
+        RegimeRule,
+        load_dynamic_treatment_regime,
+        persist_dynamic_treatment_regime,
+    )
+
+    data = fixtures._dynamic_dtr_data()
+    coefficients = []
+    for stage, interaction in enumerate((2.0, -2.0, 1.0)):
+        weights = [0.0] * (2 * stage + 4)
+        weights[-3] = 0.2  # Action effect changes sign with the current state.
+        weights[-2] = interaction
+        coefficients.append(tuple(weights))
+    regime = DynamicTreatmentRegime(
+        schema_version="1.1",
+        time_points=(0, 1, 2),
+        treatment_variables=("A_0", "A_1", "A_2"),
+        time_varying_covariates=("state",),
+        outcome="Y",
+        rule=RegimeRule.LINEAR_BLIP,
+        decision_rule_profile="linear_q_current_interactions.v1",
+        n_covariates=1,
+        stage_coefficients=tuple(coefficients),
+    )
+    root = tmp_path / "cas"
+    ref = persist_dynamic_treatment_regime(ensure_ir_artifact_store(FileSystemCAS(root)), regime)
+    restored = load_dynamic_treatment_regime(ensure_ir_artifact_store(FileSystemCAS(root)), ref)
+    assert restored == regime
+    assert fixtures._adaptive_policy_replay_check(restored, data)
+    original_apply = g_computation._apply_regime
+
+    def removed_adaptiveness(history, current, *args, **kwargs):
+        if removal == "old_threshold":
+            return (current[:, 0] > 0.6).astype(float)
+        if removal == "last_stage" and kwargs["time_index"] != 2:
+            return original_apply(history, current, *args, **kwargs)
+        return np.ones(len(current))
+
+    monkeypatch.setattr(g_computation, "_apply_regime", removed_adaptiveness)
+    assert not fixtures._adaptive_policy_replay_check(restored, data)
+    # Artifact bytes/profile/rule survive while only their consumed behavior changes.
+    assert (
+        load_dynamic_treatment_regime(ensure_ir_artifact_store(FileSystemCAS(root)), ref) == regime
+    )
+
+
+def test_temporal_hidden_adaptive_case_uses_the_known_state_law(monkeypatch):
+    benchmarks_pkg = importlib.import_module("benchmarks")
+    monkeypatch.setattr(benchmarks_pkg, "__path__", [str(REPO_ROOT / "benchmarks")])
+    importlib.invalidate_caches()
+
+    from benchmarks.temporal.fixtures import _hidden_adaptive_policy_lineage_case
+
+    result = _hidden_adaptive_policy_lineage_case()
+    assert result.passes
+    assert result.acceptance_checks["adaptive_policy_rule"]
+    assert result.thresholds["max_path_rmse"] == 0.40
+    assert result.thresholds["max_integral_effect_abs_error"] == 0.40
+    assert result.thresholds["min_band_coverage"] == 0.70
+
+
 def test_temporal_hidden_cli_smoke_emits_hidden_summary(tmp_path: Path):
     out = tmp_path / "temporal_hidden.json"
     result = _run(

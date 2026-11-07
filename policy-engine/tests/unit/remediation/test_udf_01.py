@@ -6,6 +6,8 @@ import hashlib
 import json
 from pathlib import Path
 
+import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,
@@ -17,10 +19,15 @@ from polisyos.data_forge.domains.ukraine.models import (
     build_default_pipeline_config,
 )
 from polisyos.data_forge.read_api.ukraine import (
+    UkraineStageArtifactVerificationError,
     load_verified_stage_artifacts,
+    load_verified_stage_json_output,
     load_verified_stage_output_bytes,
 )
-from polisyos.scientist.governance.blueprint_release import _load_d4_governance_request
+from polisyos.scientist.governance.blueprint_release import (
+    UkraineD4GovernanceRequest,
+    _load_d4_governance_request,
+)
 
 D4_OUTPUT = "d4_governance_request.json"
 EXPECTED_D4_PAYLOAD = {
@@ -162,3 +169,41 @@ def test_d4_handoff_reaches_existing_read_api_and_scientist_consumer(
     assert receipt.outputs[D4_OUTPUT].sha256 == result.outputs[D4_OUTPUT].sha256
     assert request.model_dump(mode="json") == EXPECTED_D4_PAYLOAD
     assert "governance_admissibility" in request.may_not_use_for
+    selected = load_verified_stage_json_output(
+        FileSystemCAS(tmp_path / "cas"),
+        receipt,
+        D4_OUTPUT,
+        model_type=UkraineD4GovernanceRequest,
+        consumer_contract="scientist.d4.governance_request",
+    )
+    assert _load_d4_governance_request(selected.value_for_candidate()) == request
+    with pytest.raises(UkraineStageArtifactVerificationError, match="stage"):
+        load_verified_stage_artifacts(
+            manifest_path,
+            store=store,
+            allowed_root=config.build_root.root,
+            expected_stage=StageId.D3.value,
+            required_outputs=(D4_OUTPUT,),
+        )
+    with pytest.raises(UkraineStageArtifactVerificationError):
+        load_verified_stage_artifacts(
+            manifest_path,
+            store=store,
+            allowed_root=config.build_root.root,
+            expected_stage=StageId.D4.value,
+            required_outputs=("missing_request.json",),
+        )
+    output_path.write_bytes(b'{"governance_verdict": "admissible"}')
+    with pytest.raises(UkraineStageArtifactVerificationError):
+        load_verified_stage_artifacts(
+            manifest_path,
+            store=store,
+            allowed_root=config.build_root.root,
+            expected_stage=StageId.D4.value,
+            required_outputs=(D4_OUTPUT,),
+        )
+    assert (
+        load_verified_stage_output_bytes(FileSystemCAS(tmp_path / "cas"), receipt, D4_OUTPUT)
+        == admitted_bytes
+    )
+    assert selected.value_for_candidate().model_dump(mode="json") == EXPECTED_D4_PAYLOAD

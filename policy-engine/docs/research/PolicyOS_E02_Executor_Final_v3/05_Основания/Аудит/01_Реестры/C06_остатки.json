@@ -1,0 +1,78 @@
+[
+  {
+    "id": "C06-R1",
+    "source_ids": [
+      "B04",
+      "B05",
+      "B08"
+    ],
+    "kind": "reproduced_local_contract_mismatch",
+    "owner": "runtime/quality/generation_cycle.py conditional N8 qualification and ValuePortObservation",
+    "finding": "Pre-v4 numeric_interaction=unsupported does not derive the marker required by its conditional DTO validator.",
+    "preserve": [
+      "Historical content-bound bytes",
+      "K_sim and legacy unknowns",
+      "No owner receipts and low conditional grade"
+    ],
+    "remaining": "Actual historical DTO/CAS reproduction and minimal current-projection fix; no blanket blocker removal.",
+    "native_status": "UNRUN",
+    "report": "02_Пакеты/CYC-02.md"
+  },
+  {
+    "id": "C06-R2",
+    "source_ids": [
+      "B04"
+    ],
+    "kind": "test_fixture_api_mismatch",
+    "owner": "tests/unit/remediation/test_cyc_02.py::_GenericDefaultN5Store.put_json",
+    "finding": "The override rejects return_selected_profile=True before method entry.",
+    "preserve": [
+      "Production selected-profile writer",
+      "Multiview corruption controls"
+    ],
+    "remaining": "Forward supported keyword and verify actual CAS test.",
+    "native_status": "UNRUN",
+    "report": "02_Пакеты/CYC-02.md"
+  },
+  {
+    "id": "C06-V1",
+    "source_ids": [
+      "B04",
+      "B05",
+      "B08"
+    ],
+    "kind": "missing_current_execution_evidence",
+    "owner": "Existing N5 producer, CAS reader and default conditional N8",
+    "finding": "Source and test design read; qualified real new-process producer/consumer execution not run.",
+    "remaining": "Tiny numerical/CAS/fresh-process chain including corruption and authority-negative controls.",
+    "native_status": "UNRUN",
+    "report": "02_Пакеты/CYC-02.md"
+  },
+  {
+    "id": "C06-V2",
+    "source_ids": [
+      "B04",
+      "B05",
+      "B08"
+    ],
+    "kind": "retained_original_activation_condition",
+    "owner": "SIM-01/SIM-02/SIM-03 and current N5 runner",
+    "finding": "Persistence integrity is not numerical validity.",
+    "remaining": "Selected-profile missing/zero, comparator, actual replications, coverage and numeric oracle.",
+    "native_status": "UNRUN",
+    "report": "02_Пакеты/CYC-02.md"
+  },
+  {
+    "id": "C06-V3",
+    "source_ids": [
+      "B04",
+      "B08"
+    ],
+    "kind": "bounded_consumer_verification",
+    "owner": "Existing served API/Atlas numeric projection",
+    "finding": "Complete downstream consumer inventory not qualified.",
+    "remaining": "Verify required selected-reference and model/limits/numeric readback; do not infer unsupported universal consumers.",
+    "native_status": "UNRUN",
+    "report": "02_Пакеты/CYC-02.md"
+  }
+]

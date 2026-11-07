@@ -175,6 +175,81 @@ def test_multi_output_drop_failed_propagates_selection_limit_before_uncertainty(
         assert component.uncertainty is None
 
 
+@pytest.mark.parametrize("multi_output", [False, True])
+def test_imputed_observations_preserve_points_without_ordinary_morris_ci(
+    multi_output: bool,
+) -> None:
+    """Median-filled outcomes are not observations for an ordinary bootstrap CI."""
+    plan = _morris_plan(
+        policy=RunFailurePolicy.IMPUTE_BASELINE,
+        n_trajectories=16,
+        uncertainty=SensitivityUncertaintyConfig(
+            enabled=True,
+            method="percentile",
+            n_resamples=20,
+            random_seed=7,
+        ),
+    )
+    samples = generate_sensitivity_samples(plan)
+    observed = samples[:, 0] + 2.0 * samples[:, 1]
+    outputs = np.column_stack((observed, samples[:, 0] ** 2)) if multi_output else observed
+    complete = (
+        MultiOutputAnalyzer().analyze(plan, samples, outputs)
+        if multi_output
+        else analyze_sensitivity(plan, samples, outputs)
+    )
+    complete_components = complete.per_component if multi_output else [complete]
+    assert all(
+        component.metadata["uncertainty_status"] == "ok" for component in complete_components
+    )
+    damaged = outputs.copy()
+    damaged[1] = np.nan
+    result = (
+        MultiOutputAnalyzer().analyze(plan, samples, damaged)
+        if multi_output
+        else analyze_sensitivity(plan, samples, damaged)
+    )
+    components = result.per_component if multi_output else [result]
+    for component in components:
+        assert component.ranking
+        assert component.total_runs == 48
+        assert component.successful_runs == 47
+        assert component.failed_runs == 1
+        assert component.metadata["failed_row_indices"] == [1]
+        assert component.metadata["uncertainty_status"] == "unavailable"
+        assert component.uncertainty is None
+        assert component.metadata["imputed_row_indices"] == [1]
+        assert component.metadata["imputation_method"] == "observed_median"
+        assert component.metadata["imputation_model_status"] == "not_established"
+        assert any(
+            "imputation_model_not_established" in warning
+            for warning in component.metadata["warnings"]
+        )
+
+
+def test_sobol_imputation_sibling_cannot_promote_ordinary_ci() -> None:
+    """The shared preparation limit also reaches paired Sobol uncertainty."""
+    plan = _morris_plan(
+        policy=RunFailurePolicy.IMPUTE_BASELINE,
+        n_trajectories=16,
+        uncertainty=SensitivityUncertaintyConfig(enabled=True, n_resamples=20, random_seed=7),
+    ).model_copy(update={"method": SensitivityMethod.SOBOL, "input_law": "independent"})
+    samples = generate_sensitivity_samples(plan)
+    outputs = samples[:, 0] + 2 * samples[:, 1]
+    complete = analyze_sensitivity(plan, samples, outputs)
+    assert complete.metadata["uncertainty_status"] == "ok"
+    outputs[1] = np.nan
+    result = analyze_sensitivity(plan, samples, outputs)
+    assert result.ranking
+    assert result.failed_runs == 1
+    assert result.metadata["uncertainty_status"] == "unavailable"
+    assert result.uncertainty is None
+    assert (
+        "sobol_uncertainty_unavailable:imputation_model_not_established"
+        in result.metadata["warnings"]
+    )
+
+
 def test_pca_caps_components_to_centered_rank_for_wide_small_matrix() -> None:
     """A 3x5 matrix is algebraically limited to rank two after centering."""
     outputs = np.array(
@@ -192,6 +267,7 @@ def test_pca_caps_components_to_centered_rank_for_wide_small_matrix() -> None:
     assert len(variance_ratio) == 2
     assert sum(variance_ratio) == pytest.approx(1.0)
     assert all(np.all(np.isfinite(component)) for component in components)
+    _assert_complete_rank_two_pca_oracle(outputs, components, variance_ratio)
 
 
 def test_numpy_pca_fallback_matches_centered_rank(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -217,6 +293,20 @@ def test_numpy_pca_fallback_matches_centered_rank(monkeypatch: pytest.MonkeyPatc
     assert len(components) == 2
     assert len(variance_ratio) == 2
     assert sum(variance_ratio) == pytest.approx(1.0)
+    _assert_complete_rank_two_pca_oracle(outputs, components, variance_ratio)
+
+
+def _assert_complete_rank_two_pca_oracle(outputs, components, variance_ratio):
+    """Compare the entire separated retained subspace, without sign conventions."""
+    np.testing.assert_allclose(variance_ratio, [90 / 91, 1 / 91], rtol=1e-8, atol=1e-8)
+    centered = outputs - outputs.mean(axis=0)
+    scores = np.column_stack(components)
+    loadings, _, _, _ = np.linalg.lstsq(scores, centered, rcond=None)
+    expected = np.zeros((5, 5))
+    vector = np.array([1, 2, 3, 4], dtype=float)
+    expected[:4, :4] = np.outer(vector, vector) / 30
+    expected[4, 4] = 1.0
+    np.testing.assert_allclose(loadings.T @ loadings, expected, rtol=1e-8, atol=1e-8)
 
 
 def test_pca_reports_unmet_variance_threshold_when_component_cap_is_binding() -> None:
@@ -240,6 +330,7 @@ def test_pca_reports_unmet_variance_threshold_when_component_cap_is_binding() ->
 
     assert result.n_components_used == 1
     assert result.total_variance_explained < 0.95
+    assert result.total_variance_explained == pytest.approx(6 / 25)
     assert result.pca_variance_threshold == pytest.approx(0.95)
     assert result.pca_variance_threshold_status == "unmet_limited"
     assert result.per_component[0].metadata["pca_variance_threshold_status"] == ("unmet_limited")

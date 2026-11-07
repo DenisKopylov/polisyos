@@ -1,0 +1,346 @@
+{
+  "packet_id": "UQP-03",
+  "title": "Однозначная остановка MC и честный conditional result",
+  "goal": "Остановить работу по объявленному критерию и доставить полезную известную часть, не скрывая непокрытую область.",
+  "work_type": "C115-G01 semantic lifecycle decision; C115-G02 native/source qualification; confirmed runtime R нет",
+  "preservation": [
+    "Checkpoint-aligned batches и hard budget cap.",
+    "Useful conditional samples, failed/unattempted counts, per-draw hashes и typed outcomes.",
+    "Physical attempts отдельно от logical draws; bounded same-input retry, global error precedence; read-side authority guard."
+  ],
+  "technical_solution": [
+    "Сначала caller/config census ci_half_width_target. Рекомендуется сохранить existing full-width algorithm как named width_decision_heuristic; legacy alias принимает прежнее numeric meaning с deprecation/explicit metadata, новые поля называют relative_full_width_target. Log converged заменить reached_width_target в этом profile. Не менять формулу на половину под тем же config.",
+    "Если реальный caller требует MC error functional, ограниченное отдельное решение: выбрать mean/quantile/CDF, estimator и valid stopping plan, затем отдельный typed profile/tests; отсутствие такого caller не повод строить universal sequential library.",
+    "_adaptive_batch_size, failure classifier и ledger уже repaired — product diff только по reproduced mismatch. Native bridge использовать существующий; если source verifier отсутствует, предъявить exact missing producer predicate и план расширения, не disable blanket safety caps."
+  ],
+  "owners": [
+    "src/polisyos/foundry/uncertainty/config.py",
+    "src/polisyos/foundry/uncertainty/monte_carlo.py",
+    "src/polisyos/foundry/uncertainty/evaluation_failures.py",
+    "src/polisyos/ir/analytics/uncertainty.py",
+    "tests/unit/remediation/test_uqp_03.py",
+    "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py"
+  ],
+  "shared_scenarios": [
+    "E02-I10-B"
+  ],
+  "coordination": "UQP-02 shared sampling; UQP-01 invocation; existing Science bridge owner, не новый реестр. Одна native lane wave.",
+  "compatibility": "Legacy field сохраняет full-width meaning явно, не silently reinterpret divide2. Historical adaptive/partial results остаются candidate-only; current reader не повышает authority при readback.",
+  "design_alignment": [
+    "[Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md#d25-epistemic-regime-architecture) и [синтез §4](../05_Основания/Исследование/design_direction.md): uncertainty/conditional outputs полезны без незаслуженной authority; новый совместимый law использует общий механизм, не доменную ветку."
+  ],
+  "open_decisions": [
+    "DEC-UQP-03-01: finite consumer census выбирает width-only profile или дополнительный требуемый functional precision profile. Выход — version/alias table, exact stopping object, tests и отдельная statistical validation scope; precision claim без выбранного плана запрещён."
+  ],
+  "acceptance": "Batch/ledger repair qualification отдельно от semantic stopping decision и отдельно от предметной missingness/coverage validation. Native complete fixture gate=true не external permit.",
+  "lane": "LANE-10",
+  "source_ids": [
+    "B193",
+    "B194"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/UQP-03.md"
+  ],
+  "requirements": [
+    {
+      "text": "Configured stopping profile должен однозначно называть full relative output width heuristic либо отдельный functional precision contract; historical half_width name не должен обещать half-width/MCSE.",
+      "source_ids": [
+        "B193"
+      ],
+      "audit_ids": [
+        "C115-G01"
+      ],
+      "id": "REQ-UQP-03-01",
+      "test_ids": [
+        "TEST-UQP-03-01"
+      ]
+    },
+    {
+      "text": "Batches должны достигать checkpoint независимо от batch size, не превышать budget и сохранять unattempted count при early stop.",
+      "source_ids": [
+        "B193"
+      ],
+      "audit_ids": [
+        "C115-G01"
+      ],
+      "id": "REQ-UQP-03-02",
+      "test_ids": [
+        "TEST-UQP-03-02"
+      ]
+    },
+    {
+      "text": "Input-dependent failures должны сохранять успешные draws как conditional result с полной failure/unattempted ledger и non-gating limitation; отсутствующая половина не заменяется нулями.",
+      "source_ids": [
+        "B194"
+      ],
+      "audit_ids": [
+        "C115-G02"
+      ],
+      "id": "REQ-UQP-03-03",
+      "test_ids": [
+        "TEST-UQP-03-03",
+        "TEST-UQP-03-05"
+      ]
+    },
+    {
+      "text": "Transient retry должен повторять ту же invocation не более existing двух physical attempts; известная global cause приоритетна и не поглощается per-draw failure.",
+      "source_ids": [
+        "B194"
+      ],
+      "audit_ids": [
+        "C115-G02"
+      ],
+      "id": "REQ-UQP-03-04",
+      "test_ids": [
+        "TEST-UQP-03-04"
+      ]
+    },
+    {
+      "text": "Fresh persisted Science/normative consumer должен проверять exact selected source/draw evidence и сохранять ограничения; complete producer counts сами не дают verified served-source authority.",
+      "source_ids": [
+        "B194"
+      ],
+      "audit_ids": [
+        "C115-G02"
+      ],
+      "id": "REQ-UQP-03-05",
+      "test_ids": [
+        "TEST-UQP-03-05"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "stopping semantics",
+      "setup": "Repeated 99/101 distribution n200 и10000; threshold.015; constant100.",
+      "action": "Actual _check_adaptive_stop и serialized config/result label.",
+      "oracle": "Full relative width .02 (atol=1e-12) не проходит .015 при любом n; constant проходит. Label width_heuristic, не precision convergence; output interval не sigma/sqrt(n).",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-UQP-03-01",
+      "requirement_ids": [
+        "REQ-UQP-03-01"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "native checkpoint loops",
+      "setup": "budget240,min50,checkpoint100,batch50/60; constant output.",
+      "action": "Random и real Sobol native routes; boundary60 control.",
+      "oracle": "Оба stop100, unattempted140; logical draws100. Boundary60 не пропускается batch50; physical nominal call учитывается отдельно.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-UQP-03-02",
+      "requirement_ids": [
+        "REQ-UQP-03-02"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "conditional actual result",
+      "setup": "x=linspace(-1,1,100), y=x, failure if x<0; missing/nonfinite variants и all-success/all-failed.",
+      "action": "Actual result builder, DTO roundtrip.",
+      "oracle": "50 useful values, mean50/99 (atol=1e-12), failure indices0..49, output coverage incomplete, gate false. Unconditional mean0 не заявлен; all-failed не valid numeric result.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-UQP-03-03",
+      "requirement_ids": [
+        "REQ-UQP-03-03"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "exception graph and retry",
+      "setup": "Typed transient at x=−.25; same with PermissionError cause; cyclic cause control.",
+      "action": "Actual evaluator classifier/loop; count logical/physical attempts.",
+      "oracle": "Transient exactly2 identical inputs/hash, one logical draw; global cause one attempt then escapes; cycle unknown, no unbounded retry.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-UQP-03-04",
+      "requirement_ids": [
+        "REQ-UQP-03-04"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "E02-I10-B persisted bridge",
+      "setup": "Actual native producer→store→fresh Science/normative selected intake, partial and complete controls.",
+      "action": "Resolve exact profile/source/draw ledger; tamper source digest/coverage/selected profile.",
+      "oracle": "Useful conditional carrier accessible with limitations; missing verifier/source remains typed not-established. Existing admitted positive profile if available proves only its scope, not institutional authorization or missingness theorem.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-UQP-03-05",
+      "requirement_ids": [
+        "REQ-UQP-03-03",
+        "REQ-UQP-03-05"
+      ],
+      "status": "NOT_RUN"
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "B193",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Boundary repaired; purpose/name stopping требуют явного contract.",
+      "requirement_ids": [
+        "REQ-UQP-03-01",
+        "REQ-UQP-03-02"
+      ]
+    },
+    {
+      "audit_id": "B194",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Conditional ledger/retry repaired; source/native intake проверить.",
+      "requirement_ids": [
+        "REQ-UQP-03-03",
+        "REQ-UQP-03-04",
+        "REQ-UQP-03-05"
+      ]
+    },
+    {
+      "audit_id": "C115-G01",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Не объявлять отсутствующий MCSE runtime bug; выбрать смысл и compatibility.",
+      "requirement_ids": [
+        "REQ-UQP-03-01",
+        "REQ-UQP-03-02"
+      ],
+      "inventory_id": "audit-residual:C115_остатки:0"
+    },
+    {
+      "audit_id": "C115-G02",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Generic reader limits не снимать ради green fixture.",
+      "requirement_ids": [
+        "REQ-UQP-03-03",
+        "REQ-UQP-03-04",
+        "REQ-UQP-03-05"
+      ],
+      "inventory_id": "audit-residual:C115_остатки:1"
+    }
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "SPECIFICATION_NOT_IMPLEMENTED",
+  "dependencies": [
+    "UQP-02"
+  ],
+  "protected_distinction_ids": [],
+  "original_source": "../05_Основания/Аудит/05_Источники/UQP-03_исходные_строки.txt",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0316",
+      "requirement_ids": [
+        "REQ-UQP-03-01",
+        "REQ-UQP-03-02"
+      ],
+      "disposition": "lifecycle",
+      "rationale": "Не объявлять отсутствующий MCSE runtime bug; выбрать смысл и compatibility."
+    },
+    {
+      "inventory_id": "remaining:0317",
+      "requirement_ids": [
+        "REQ-UQP-03-03",
+        "REQ-UQP-03-04",
+        "REQ-UQP-03-05"
+      ],
+      "disposition": "qualify",
+      "rationale": "Generic reader limits не снимать ради green fixture."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0497",
+      "requirement_ids": [
+        "REQ-UQP-03-02"
+      ],
+      "test_ids": [
+        "TEST-UQP-03-02"
+      ],
+      "rationale": "Checkpoint-aligned batches — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0498",
+      "requirement_ids": [
+        "REQ-UQP-03-03"
+      ],
+      "test_ids": [
+        "TEST-UQP-03-03",
+        "TEST-UQP-03-05"
+      ],
+      "rationale": "Useful conditional samples — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0499",
+      "requirement_ids": [
+        "REQ-UQP-03-03"
+      ],
+      "test_ids": [
+        "TEST-UQP-03-03",
+        "TEST-UQP-03-05"
+      ],
+      "rationale": "Per-draw typed outcomes/hash — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0500",
+      "requirement_ids": [
+        "REQ-UQP-03-04"
+      ],
+      "test_ids": [
+        "TEST-UQP-03-04"
+      ],
+      "rationale": "Separate physical attempts/logical draws — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0501",
+      "requirement_ids": [
+        "REQ-UQP-03-04"
+      ],
+      "test_ids": [
+        "TEST-UQP-03-04"
+      ],
+      "rationale": "Bounded same-input transient retry — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0502",
+      "requirement_ids": [
+        "REQ-UQP-03-04"
+      ],
+      "test_ids": [
+        "TEST-UQP-03-04"
+      ],
+      "rationale": "Global-error precedence — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0503",
+      "requirement_ids": [
+        "REQ-UQP-03-01",
+        "REQ-UQP-03-03"
+      ],
+      "test_ids": [
+        "TEST-UQP-03-01",
+        "TEST-UQP-03-03",
+        "TEST-UQP-03-05"
+      ],
+      "rationale": "Non-gating incomplete/adaptive result — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0504",
+      "requirement_ids": [
+        "REQ-UQP-03-05"
+      ],
+      "test_ids": [
+        "TEST-UQP-03-05"
+      ],
+      "rationale": "Read-side authority refusal — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    }
+  ]
+}

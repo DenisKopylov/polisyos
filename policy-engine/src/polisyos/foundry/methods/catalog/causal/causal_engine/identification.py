@@ -4,16 +4,16 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import polisyos.foundry.methods.catalog.causal.causal_engine.artifacts as _artifacts
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
     UnsupportedStaticADMGProfileError,
     canonical_scalar_query_graph,
 )
 
-from . import artifacts as _artifacts
-
 # Keep the historical runtime namespace while declaring every consumed binding to Ruff.
 if TYPE_CHECKING:
+    from polisyos.ir import CausalGraphModelRef
     from polisyos.ir.analytics.mgraph import MGraphMetadata
 
     from .._causal_engine_contracts import _CausalEngineStaticHelpers as CausalEngine
@@ -861,7 +861,9 @@ class CausalEngineIdentificationMixin:
         result: IdentificationResult,
         query: InterventionQuery,
     ) -> IdentificationResult:
-        from polisyos.foundry.methods.catalog.causal.id_engine import _internal_proof_step_to_ir
+        from polisyos.foundry.methods.catalog.causal.id_engine.core import (
+            _internal_proof_step_to_ir,
+        )
 
         fallback = (
             InterventionFallback(
@@ -2160,12 +2162,112 @@ class CausalEngineIdentificationMixin:
         )
         return self._decorate_identification_result_with_intervention_query(result, query)
 
+    @staticmethod
+    def _identification_result_fingerprint(result: Any) -> str:
+        """Fingerprint every actual result field, including nested mutable payloads."""
+        from pydantic import TypeAdapter
+
+        payload = TypeAdapter(Any).dump_python(result, mode="json", warnings="error")
+        raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+        return hashlib.sha256(raw).hexdigest()
+
+    def _remember_identification_source(
+        self, result: Any, graph_binding: str, selection: tuple[str, str] | None
+    ) -> Any:
+        """Retain only a bounded weak producer identity and its immutable admission."""
+        import weakref
+
+        if selection is None:
+            return result  # No selected context or new promotion for plain legacy calls.
+        try:
+            fingerprint = self._identification_result_fingerprint(result)
+        except (TypeError, ValueError):
+            if selection is not None:
+                raise ValueError("identification_selected_result_unserializable") from None
+            return result  # Historical unselected inspection is not newly promoted.
+        contexts = self._selected_identification_context
+        key = id(result)
+        if key not in contexts and len(contexts) >= 128:
+            raise ValueError("identification_selected_producer_context_capacity")
+
+        def forget(observed: Any) -> None:
+            retained = contexts.get(key)
+            if retained is not None and retained[0] is observed:
+                contexts.pop(key, None)
+
+        contexts[key] = (weakref.ref(result, forget), graph_binding, selection, fingerprint)
+        return result
+
+    def _require_identification_source(self, result: Any, graph_binding: str) -> bool:
+        """Reconcile selected output with its actual producer, never caller-copied fields."""
+        selection = (
+            result.source_graph_selection
+            if isinstance(result, IdentificationResult)
+            else result.quantitative_diagnostics.get("source_graph_selection")
+            if isinstance(result, NegativeCertificate)
+            else None
+        )
+        if selection is None:
+            return False  # Missing/cleared selection never acquires a graph profile at audit.
+        retained = self._selected_identification_context.get(id(result))
+        if retained is None or retained[0]() is not result:
+            if selection is not None:
+                raise ValueError("identification_selected_producer_context_unavailable")
+            return False
+        if retained[1] != graph_binding or retained[2] != (
+            tuple(selection) if selection is not None else None
+        ):
+            raise ValueError("identification_selected_producer_binding_mismatch")
+        if retained[3] != self._identification_result_fingerprint(result):
+            raise ValueError("identification_producer_result_changed")
+        return True
+
+    def _bind_identification_graph(
+        self,
+        result: Any,
+        graph: CausalGraphModel,
+        selection: tuple[str, str] | None = None,
+    ) -> Any:
+        """Bind the actual admitted producer graph before an audit can select another one."""
+        from dataclasses import replace
+
+        source_graph_ref = self._graph_artifact_ref(graph)
+        if isinstance(result, IdentificationResult):
+            bound = replace(
+                result, source_graph_ref=source_graph_ref, source_graph_selection=selection
+            )
+            return self._remember_identification_source(bound, source_graph_ref, selection)
+        if isinstance(result, NegativeCertificate):
+            bound = result.model_copy(
+                update={
+                    "quantitative_diagnostics": {
+                        **result.quantitative_diagnostics,
+                        "source_graph_ref": source_graph_ref,
+                        "source_graph_selection": selection,
+                    }
+                }
+            )
+            return self._remember_identification_source(bound, source_graph_ref, selection)
+        if isinstance(result, ProximalIdentificationCertificate):
+            if selection is not None:
+                raise ValueError("identification_selected_profile_route_unsupported")
+            return result
+        if isinstance(result, dict):
+            if selection is not None:
+                raise ValueError("identification_selected_profile_route_unsupported")
+            return {
+                name: self._bind_identification_graph(value, graph, selection)
+                for name, value in result.items()
+            }
+        return result
+
     def identify(
         self,
         treatment: str | frozenset[str],
         outcome: str | frozenset[str],
         graph: CausalGraphModel,
         *,
+        graph_ref: CausalGraphModelRef | None = None,
         source_domains: list[Any] | None = None,
         s_nodes: list[Any] | None = None,
         z_interventions: frozenset[str] | None = None,
@@ -2193,6 +2295,13 @@ class CausalEngineIdentificationMixin:
     ):
         """Run identification and return IdentificationResult or NegativeCertificate.
 
+        ``graph_ref`` opts into the bounded static ID/IDC selected-profile route.
+        Its unchanged result must reach ``audit`` on this same engine; a copied,
+        mutated or foreign-engine selected result is refused. At most128 live
+        selected results can retain weak producer contexts per engine; excess
+        selected requests fail explicitly. Plain calls remain inspection-only
+        at persistence and do not consume these contexts or gain selected scope.
+
         Routing logic (in priority order):
         - intervention_query → typed proof-kernel intervention dispatch
         - distribution_query → proof-only distribution law reduction via ID/IDC
@@ -2212,6 +2321,42 @@ class CausalEngineIdentificationMixin:
         - else → id_with_oracle_fallback, then optional proximal fallback on hedge
         """
         _sync_public_algorithm_overrides()
+        source_graph_selection = None
+        if graph_ref is not None:
+            from polisyos.ir import load_causal_graph_model
+
+            if (
+                source_domains
+                or s_nodes
+                or z_interventions
+                or oracle != "none"
+                or dataset_ref is not None
+                or mgraph_meta is not None
+                or counterfactual_query is not None
+                or distribution_query is not None
+                or intervention_query is not None
+                or policy is not None
+                or condition_vars
+                or treatment_sequence
+                or time_points
+                or outcomes
+                or proxy_map
+                or measurement_model != "unknown"
+                or proximal_annotation is not None
+                or graph.graph_type
+                not in {GraphType.DAG, GraphType.ADMG, GraphType.PAG, GraphType.CPDAG}
+            ):
+                raise ValueError("identification_selected_profile_route_unsupported")
+
+            if self._artifact_store is None or graph_ref.manifest_profile_sha256 is None:
+                raise ValueError("identification_selected_graph_profile_required")
+            selected_graph = load_causal_graph_model(
+                _ensure_ir_artifact_store(self._artifact_store), graph_ref
+            )
+            if self._graph_artifact_ref(selected_graph) != self._graph_artifact_ref(graph):
+                raise ValueError("identification_selected_graph_content_mismatch")
+            graph = selected_graph
+            source_graph_selection = (str(graph_ref.artifact_id), graph_ref.manifest_profile_sha256)
         effective_intervention_query = (
             InterventionQuery.model_validate(intervention_query)
             if intervention_query is not None
@@ -2291,11 +2436,13 @@ class CausalEngineIdentificationMixin:
                     proximal_annotation=proximal_annotation,
                 )
                 if isinstance(result, NegativeCertificate):
-                    return result
+                    return self._bind_identification_graph(result, graph, source_graph_selection)
                 if isinstance(result, IdentificationResult) and counterfactual_query is not None:
                     if result.status == IdentificationStatus.HEDGE_FOUND:
-                        return self._hedge_to_negative_cert(result)
-                    return result
+                        return self._bind_identification_graph(
+                            self._hedge_to_negative_cert(result), graph, source_graph_selection
+                        )
+                    return self._bind_identification_graph(result, graph, source_graph_selection)
         except UnsupportedStaticADMGProfileError as exc:
             result = IdentificationResult(
                 status=IdentificationStatus.ORACLE_NEEDED,
@@ -2313,15 +2460,19 @@ class CausalEngineIdentificationMixin:
                 )
         except Exception as exc:
             # Convert unexpected errors to NegativeCertificate
-            return NegativeCertificate(
-                blocking_type=BlockingType.MISSING_DISTRIBUTION,
-                blocking_description=f"Identification failed with exception: {exc}",
-                technical_detail=str(exc),
-                quantitative_diagnostics={
-                    "identification_status": "exception",
-                    "algorithm_version": "id_exception_wrapper",
-                },
-                constructive_message="Check that graph nodes/edges are valid.",
+            return self._bind_identification_graph(
+                NegativeCertificate(
+                    blocking_type=BlockingType.MISSING_DISTRIBUTION,
+                    blocking_description=f"Identification failed with exception: {exc}",
+                    technical_detail=str(exc),
+                    quantitative_diagnostics={
+                        "identification_status": "exception",
+                        "algorithm_version": "id_exception_wrapper",
+                    },
+                    constructive_message="Check that graph nodes/edges are valid.",
+                ),
+                graph,
+                source_graph_selection,
             )
 
         if effective_intervention_query is None and isinstance(result, IdentificationResult):
@@ -2346,49 +2497,59 @@ class CausalEngineIdentificationMixin:
                 )
 
         if isinstance(result, ProximalIdentificationCertificate):
-            return result
+            return self._bind_identification_graph(result, graph, source_graph_selection)
         if isinstance(result, NegativeCertificate):
-            return result
+            return self._bind_identification_graph(result, graph, source_graph_selection)
         if isinstance(result, dict):
-            return result
+            return self._bind_identification_graph(result, graph, source_graph_selection)
 
         # Convert NOT_RECOVERABLE (M-graph Stage 1 failure) to NegativeCertificate
         if result.status == IdentificationStatus.NOT_RECOVERABLE:
-            return NegativeCertificate(
-                blocking_type=BlockingType.MISSINGNESS_NOT_RECOVERABLE,
-                blocking_description=(
-                    "M-graph recoverability check failed: the full-data distribution "
-                    "P(V) cannot be recovered from incomplete data. "
-                    "Check for MNAR variables with self-affecting missingness paths."
-                ),
-                technical_detail="; ".join(result.trace[-3:] if result.trace else []),
-                quantitative_diagnostics={
-                    "identification_status": result.status.value,
-                    "algorithm_version": str(getattr(result, "algorithm_version", "") or ""),
-                    "proof_trace": list(result.trace or []),
-                    "recoverability": dict(getattr(result, "metadata", {}) or {}).get(
-                        "recoverability_certificate"
+            return self._bind_identification_graph(
+                NegativeCertificate(
+                    blocking_type=BlockingType.MISSINGNESS_NOT_RECOVERABLE,
+                    blocking_description=(
+                        "M-graph recoverability check failed: the full-data distribution "
+                        "P(V) cannot be recovered from incomplete data. "
+                        "Check for MNAR variables with self-affecting missingness paths."
                     ),
-                },
-                constructive_message=(
-                    "Inspect blocking_r_nodes in the proof trace. "
-                    "Consider collecting auxiliary data to break the MNAR path, "
-                    "or use sensitivity analysis for bounds under MNAR."
+                    technical_detail="; ".join(result.trace[-3:] if result.trace else []),
+                    quantitative_diagnostics={
+                        "identification_status": result.status.value,
+                        "algorithm_version": str(getattr(result, "algorithm_version", "") or ""),
+                        "proof_trace": list(result.trace or []),
+                        "recoverability": dict(getattr(result, "metadata", {}) or {}).get(
+                            "recoverability_certificate"
+                        ),
+                    },
+                    constructive_message=(
+                        "Inspect blocking_r_nodes in the proof trace. "
+                        "Consider collecting auxiliary data to break the MNAR path, "
+                        "or use sensitivity analysis for bounds under MNAR."
+                    ),
                 ),
+                graph,
+                source_graph_selection,
             )
 
         # Convert HEDGE_FOUND to NegativeCertificate
         if result.status == IdentificationStatus.HEDGE_FOUND:
             # For mz-ID failures, use the richer from_mz_id_failure constructor
             if source_domains and len(source_domains) > 1:
-                return self._mz_id_failure_to_negative_cert(
-                    result=result,
-                    tx=tx,
-                    oy=oy,
-                    source_domains=source_domains,
-                    s_nodes=s_nodes,
+                return self._bind_identification_graph(
+                    self._mz_id_failure_to_negative_cert(
+                        result=result,
+                        tx=tx,
+                        oy=oy,
+                        source_domains=source_domains,
+                        s_nodes=s_nodes,
+                    ),
+                    graph,
+                    source_graph_selection,
                 )
-            return self._hedge_to_negative_cert(result)
+            return self._bind_identification_graph(
+                self._hedge_to_negative_cert(result), graph, source_graph_selection
+            )
 
         # Convert mz-ID ORACLE_NEEDED + S-nodes to NegativeCertificate
         if (
@@ -2396,15 +2557,19 @@ class CausalEngineIdentificationMixin:
             and result.metadata.get("limitation_code") != "unsupported_static_admg_profile"
             and ((source_domains and len(source_domains) > 1) or (s_nodes and z_int))
         ):
-            return self._mz_id_failure_to_negative_cert(
-                result=result,
-                tx=tx,
-                oy=oy,
-                source_domains=source_domains,
-                s_nodes=s_nodes,
+            return self._bind_identification_graph(
+                self._mz_id_failure_to_negative_cert(
+                    result=result,
+                    tx=tx,
+                    oy=oy,
+                    source_domains=source_domains,
+                    s_nodes=s_nodes,
+                ),
+                graph,
+                source_graph_selection,
             )
 
-        return result
+        return self._bind_identification_graph(result, graph, source_graph_selection)
 
     def identify_joint(
         self,

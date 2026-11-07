@@ -15,6 +15,7 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.scientist.nodes.builtins import builtin_nodes as scientist_builtin_nodes
 from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
@@ -31,8 +32,14 @@ from polisyos.scientist.orchestration.engine.idempotency import (
     NodeResultCache,
     _build_journal_proof,
     compute_idempotency_key,
+    compute_idempotency_payload,
 )
-from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
+from polisyos.scientist.orchestration.engine.protocol import (
+    InputAwareNodeSpec,
+    NodeInputRule,
+    NodeOutcome,
+    NodeSpec,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
@@ -48,6 +55,99 @@ def _outcome(run_id: str = "R_test") -> NodeOutcome:
 
 def _plain_outcome(run_id: str = "R_test") -> NodeOutcome:
     return NodeOutcome(status="ok", state=ExperimentState(run_id=run_id))
+
+
+def _read_contract_spec(*rules: NodeInputRule) -> InputAwareNodeSpec:
+    return InputAwareNodeSpec(
+        metadata=ComponentMetadata(
+            component_id=ComponentId.parse("scientist.input_contract_cache@1.0.0"),
+            kind=ComponentKind.SCIENTIST_NODE,
+            abi_targets={"world_abi": "1.x"},
+            display_name="Input contract cache",
+            description="Cache admission for declared state inputs",
+            capabilities=Capability.SCIENTIST_NODE,
+        ),
+        state_reads=[rule.path for rule in rules],
+        input_rules=rules,
+    )
+
+
+def test_legacy_spec_idempotency_payload_has_no_new_contract_marker() -> None:
+    aware = _read_contract_spec(NodeInputRule(path="params.value"))
+    ordinary = NodeSpec(metadata=aware.metadata, state_reads=["params.value"])
+    state = ExperimentState(run_id="R_input_key", params={"value": 0})
+    assert compute_idempotency_payload(ordinary, state) == {
+        "contract_version": "2.0",
+        "scope": "run",
+        "run_id": "R_input_key",
+        "node_id": "scientist.input_contract_cache@1.0.0",
+        "state_reads_snapshot": {"params.value": {"presence": "present", "value": 0}},
+        "bind_params": {},
+    }
+
+
+def test_equivalent_input_rules_have_one_order_independent_cache_identity() -> None:
+    rules = (
+        NodeInputRule(path="params.value"),
+        NodeInputRule(path="params.flag", availability="optional", allow_null=True),
+    )
+    state = ExperimentState(run_id="R_input_key", params={"value": 0, "flag": False})
+    assert compute_idempotency_key(_read_contract_spec(*rules), state) == compute_idempotency_key(
+        _read_contract_spec(*reversed(rules)), state
+    )
+
+
+def test_input_aware_list_read_binds_actual_indexed_values_without_stale_reuse(tmp_path) -> None:
+    spec = _read_contract_spec(NodeInputRule(path="params.rows.0.value"))
+    states = [
+        ExperimentState(run_id="R_indexed_input", params=params)
+        for params in [
+            {},
+            {"rows": [{"value": None}]},
+            {"rows": [{"value": 0}]},
+            {"rows": [{"value": False}]},
+            {"rows": [{"value": []}]},
+        ]
+    ]
+    keys = [compute_idempotency_key(spec, state) for state in states]
+    assert len(set(keys)) == len(keys)
+    expected_zero = states[2]
+    cache = NodeResultCache(FileSystemCAS(tmp_path / "cas"), run_id=expected_zero.run_id)
+    cache.put(
+        keys[2],
+        node_id=str(spec.metadata.component_id),
+        outcome=NodeOutcome(status="ok", state=branch_state(expected_zero, write_paths=()).state),
+    )
+    assert cache.get(keys[2]) is not None
+    assert cache.get(keys[3]) is None
+    payload = compute_idempotency_payload(spec, expected_zero)
+    assert payload["state_reads_snapshot"]["params.rows.0.value"] == {
+        "presence": "present",
+        "value": 0,
+    }
+
+
+@pytest.mark.parametrize("change", ["availability", "allow_null"])
+def test_changed_input_rule_cannot_borrow_an_accepted_real_cache_entry(
+    tmp_path, change: str
+) -> None:
+    state = ExperimentState(run_id="R_input_cache", params={"value": None})
+    optional_null = NodeInputRule(path="params.value", availability="optional", allow_null=True)
+    changes = {"availability": "required"} if change == "availability" else {"allow_null": False}
+    changed = NodeInputRule.model_validate(optional_null.model_dump() | changes)
+    permissive_key = compute_idempotency_key(_read_contract_spec(optional_null), state)
+    strict_key = compute_idempotency_key(_read_contract_spec(changed), state)
+    assert strict_key != permissive_key
+    store = FileSystemCAS(tmp_path / "cas")
+    cache = NodeResultCache(store, run_id=state.run_id)
+    outcome = NodeOutcome(status="ok", state=branch_state(state, write_paths=()).state)
+    cache.put(
+        permissive_key,
+        node_id="scientist.input_contract_cache@1.0.0",
+        outcome=outcome,
+    )
+    assert cache.get(permissive_key) is not None
+    assert cache.get(strict_key) is None
 
 
 def _with_journal(outcome: NodeOutcome) -> NodeOutcome:

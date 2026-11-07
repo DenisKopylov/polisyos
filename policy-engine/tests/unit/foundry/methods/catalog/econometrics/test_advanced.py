@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 
+from polisyos.calibration import load_continuous_evaluation, to_validation_report
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+from polisyos.foundry.methods.catalog.econometrics.advanced import _summarize_interval_diagnostics
 from polisyos.foundry.methods.econometrics import (
     PanelData,
     TimeSeriesData,
@@ -104,6 +109,48 @@ def _make_nonstationary_panel_data() -> PanelData:
         feature_names=["stress_window", "reserve_pressure"],
         metadata={"group_labels": group_labels, "target_id": "fx_policy_risk"},
     )
+
+
+@pytest.mark.parametrize("covered", [95, 0])
+def test_interval_summary_persists_actual_pairs_for_fresh_reader(
+    covered: int, tmp_path: Path
+) -> None:
+    outcomes = [float(index) for index in range(100)]
+    intervals = [(value - 0.25, value + 0.25) for value in outcomes[:covered]]
+    intervals += [(-2.0, -1.0)] * (100 - covered)
+    store = FileSystemCAS(tmp_path / "calibration")
+
+    summary = _summarize_interval_diagnostics(
+        y_values=outcomes,
+        intervals_by_level={0.95: intervals},
+        all_levels=(0.95,),
+        nominal_coverage=0.95,
+        calibration_store=store,
+    )
+    report = load_continuous_evaluation(FileSystemCAS(store.root), summary["calibration_ref"])
+    expected_hits = sum(
+        lower <= value <= upper for value, (lower, upper) in zip(outcomes, intervals, strict=True)
+    )
+
+    assert expected_hits == covered
+    assert summary["empirical_coverage"] == expected_hits / len(outcomes)
+    assert report.curves["interval_coverage"][0].mean_observed == expected_hits / len(outcomes)
+    assert report.model_dump() == summary["report"].model_dump()
+    assert report.to_truthfulness_receipt().runtime_truthfulness_tier == "unverified"
+    assert to_validation_report(diagnostics=report).verdict in {"blocked", "fail"}
+
+
+def test_interval_summary_without_store_preserves_candidate_result() -> None:
+    summary = _summarize_interval_diagnostics(
+        y_values=[0.0, 1.0],
+        intervals_by_level={0.95: [(-0.1, 0.1), (0.8, 1.2)]},
+        all_levels=(0.95,),
+        nominal_coverage=0.95,
+    )
+
+    assert "calibration_ref" not in summary
+    assert summary["empirical_coverage"] == 1.0
+    assert summary["report"].to_truthfulness_receipt().runtime_truthfulness_tier == "unverified"
 
 
 @pytest.mark.parametrize(

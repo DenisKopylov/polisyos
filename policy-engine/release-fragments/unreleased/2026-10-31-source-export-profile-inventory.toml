@@ -1,0 +1,11 @@
+id = "2026-10-31-source-export-profile-inventory"
+title = "Describe finite source export profiles without claiming backend availability"
+type = "fixed"
+component = "tools"
+owner = "team-polisyos"
+summary = "Keep probe timing outside protected source, reconcile actual optional-name binding and expose source-derived conditional export profiles."
+evidence = ["tests/repo_quality/architecture/test_conditional_exports.py", "tests/repo_quality/architecture/test_public_surface_export_resolution.py", "tests/repo_quality/tools/test_architecture_phase3.py"]
+compatibility = "Fabric World retains its actual 41/59 export sets and causal exports retain the exact ordered 229 names. Existing scalar fields stay nullable for conditional profiles; explicit profile conditions and unresolved runtime availability accompany the inventory."
+migration = "Consumers needing a scalar total must select an established profile rather than treating a nullable universal total as zero or as a backend failure. The reviewed current deep-import census replaces stale exact entries without relaxing package directions or future-creep detection."
+limitations = "Source inventory establishes binding in the represented source profiles, not backend installation, runtime availability, callable adequacy, authority or E02 closure."
+surface_classification = "internal"

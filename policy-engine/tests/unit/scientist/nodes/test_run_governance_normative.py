@@ -186,14 +186,14 @@ def test_run_governance_uses_branch_state_for_params_and_report(tmp_path) -> Non
         outcome = RunGovernanceNode().execute(ctx, state)
 
     assert outcome.status == "ok"
-    assert observed["write_paths"] == (
-        "params",
+    assert observed["write_paths"] == tuple(RunGovernanceNode().spec.state_writes)
+    assert {
         "params.validation_trace",
-        "params.human_review_request",
+        "params.gate_decision_ref",
         "params.human_review_request_ref",
         "artifacts_index.claims_ref",
         "reports_index.governance_report_ref",
-    )
+    }.issubset(observed["write_paths"])
     assert REPORT_GOVERNANCE_REPORT_REF not in state.reports_index
     assert state.params["nested"] == {"baseline": True}
     assert REPORT_GOVERNANCE_REPORT_REF in outcome.state.reports_index

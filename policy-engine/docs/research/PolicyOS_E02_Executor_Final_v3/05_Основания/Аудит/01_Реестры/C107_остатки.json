@@ -1,0 +1,69 @@
+{
+  "pass_id": "C107",
+  "bundle": "LLM-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C107-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "source_ids": [
+        "B68"
+      ],
+      "title": "Publication между admission и claim превращает допустимый hit в лишний physical call",
+      "evidence": [
+        "P07",
+        "S01:806–868",
+        "S01:1110–1183"
+      ],
+      "remaining": "Сохранить revision/current-owner guard, но при изменившемся head рассмотреть ограниченный повтор actual admission/lookup вместо немедленного physical fallback, когда тот же request и актуальный owner допускают уже опубликованный ответ. Не использовать stale admission, не ослаблять proof/tenant/epoch checks и не вводить distributed lock.",
+      "limits": "Два actual wrappers и два event loops, одна cache/identity/current grant. Первый consumer paused после действительного miss admission; второй публикует response, отдельный sequential control успешно читает его без provider. После release первый делает второй physical call. Корректность ответа/permission не нарушена, automatic retry/production frequency не измерены; узкая недостающая экономия."
+    },
+    {
+      "id": "C107-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B67"
+      ],
+      "title": "Узкий frozen reuse работает, но strict runtime-style URL путь остаётся консервативным",
+      "evidence": [
+        "P03",
+        "P04",
+        "S01:1271–1336",
+        "S02:348–360",
+        "S13:224–293",
+        "S14:222–296"
+      ],
+      "remaining": "Квалифицировать, каким existing trusted owner/descriptor подтверждается, что все freshness-sensitive inputs в strict runtime call действительно зафиксированы и разрешены. Только затем расширять existing admission route; не удалять URLs/uncertainty_notes, не считать metadata cacheable или fixture decision production permission. Сохранить отказ для живых источников и независимых seeded повторений.",
+      "limits": "Non-strict route с current file-backed fixture owner действительно reuse-ит frozen URL и перечитывает grant/bytes. Strict require_reuse_authorization=True отказывает по lexical guard до authorizer даже с тем же context; plain strict control reuse-ится. Это safe capability limitation, не permission bypass и не основание автоматически ослабить guard. Native CAS/current runtime owner не исполнялся."
+    },
+    {
+      "id": "C107-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B67",
+        "B68"
+      ],
+      "title": "Native suite, missing-OTel fallback и stale test expectations требуют согласования",
+      "evidence": [
+        "P01",
+        "P02",
+        "P08",
+        "commands.json",
+        "S09",
+        "S10",
+        "S11",
+        "S12",
+        "S16",
+        "S17"
+      ],
+      "remaining": "В поддерживаемой среде выполнить native cache/owner/CAS/factory integration suite. Отдельно согласовать no-OTel fallback signature с public tracer contract, если fallback поддерживается. Обновлять устаревший NaN expectation лишь согласно explicit opaque-Python versus Gateway-wire contract; сохранить отказ reuse. Проверить актуальный witness для CAS flight cleanup без привязки к старому shielded task.",
+      "limits": "Run01 54PASS26FAIL сохранён; 25 pre-target default-tracer failures в неполной среде не объявлены25productdefectами. Run02 79 PASS / 1 FAIL с явным tracer fixture, не native PASS. P08 подтверждает2 physical calls/no cache для opaque NaN и Gateway refusal before transport; existingFAIL не переписан. CAS/HTTP tests только прочитаны, production services не запускались."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C107-R01"
+  ],
+  "decision": "Owner-bound reuse/single-flight и lifecycle полезно реализованы. Узкая revision race теряет экономию; strict frozen URL availability и native full stack требуют квалификации без снятия guard."
+}

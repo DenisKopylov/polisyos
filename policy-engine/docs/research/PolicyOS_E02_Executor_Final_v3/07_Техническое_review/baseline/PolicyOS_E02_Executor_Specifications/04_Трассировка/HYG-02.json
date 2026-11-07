@@ -1,0 +1,338 @@
+{
+  "packet_id": "HYG-02",
+  "title": "Миграция actual governance consumers и точный evidence helper lifecycle",
+  "goal": "Убрать лишние адреса без потери Scientist passes, evidence и Fabric read path.",
+  "work_type": "C125-G01/G02 lifecycle implementation; C125-G03 native reader qualification",
+  "preservation": [
+    "Core class identity и действующие Scientist passes/evidence.",
+    "Fabric world reader; retired evidence_sources/provenance/claims и lex.factlog не восстанавливаются.",
+    "LK17 public OPA facade и LK18 cross-producer root evidence не входят в удаление."
+  ],
+  "technical_solution": [
+    "Мигрировать scientist/governance/passes/__init__.py LegalPass/SafetyPass branches на existing Core imports; canonical builtin factories уже correct. После конкретного compatibility решения заменить только obsolete alias identity expectations negative controls, сохранив public facade identity.",
+    "_shim.py retirement independently scoped. Не применять дату PHASE44 evidence manifest к governance aliases. При unresolved external consumer оставить named temporary forwarding и exit predicate, не arbitrary sunset.",
+    "LA-018 не повторное удаление: native reader tests на реальном Parquet/locks/context. Не менять missing segment semantics из-за alias migration без отдельного demonstrated requirement."
+  ],
+  "owners": [
+    "src/polisyos/scientist/evidence/_shim.py",
+    "src/polisyos/scientist/evidence/compatibility.py",
+    "src/polisyos/scientist/governance/passes/__init__.py",
+    "src/polisyos/scientist/governance/pass_entrypoints.py",
+    "src/polisyos/lex/normpack/select_sources.py",
+    "src/polisyos/fabric/world/store/segments.py",
+    "tests/unit/scientist/governance/test_shared_shims.py",
+    "tests/unit/scientist/methods/test_import_shims.py",
+    "tests/unit/lex/normpack/test_fabric_world_reader.py",
+    "tests/unit/scientist/evidence/test_phase44_taxonomy.py"
+  ],
+  "shared_scenarios": [
+    "E02-I12-A"
+  ],
+  "coordination": "LANE-12 производит actual build/distribution/census evidence с artifact binding. CYC-05 владеет positive build/deployment→N6 readiness bridge в existing confidence_ledger и runtime currentness; здесь не создавать второй issuer/registry. CP6 — одно общее окно Q2/package qualification, не build на каждый alias. DFK-01 shared census, no duplicate installed oracle.",
+  "compatibility": "Do not rewrite historical facts. Actual external facade obligations recorded before removal; forwarding identity preserved while needed. Public OPA facade not candidate retirement.",
+  "design_alignment": [
+    "[North Star §2](../05_Основания/Архитектура/policy-design-causal-operating-system-north-star.md#2-everything-reduces-to-data--but-the-causal-structure-is-not-data) и [синтез §4](../05_Основания/Исследование/design_direction.md): общий действующий owner сохраняется, удаление исторического адреса не заменяет способность; новые compatible resources подключаются через существующий механизм."
+  ],
+  "open_decisions": [
+    "DEC-HYG-02-01: helper finite census and exact external obligations; DEC-HYG-02-02: governance supported window after actual facade/config migration. Outputs include changed consumers and negative-test activation criteria; no historical date guessed."
+  ],
+  "acceptance": "Lifecycle migration substantive, не просто rerun tests. Reader repair acceptance не authenticity/currentness/legal source proof.",
+  "lane": "LANE-12",
+  "source_ids": [
+    "LA-008",
+    "LA-009",
+    "LA-018"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/HYG-02.md"
+  ],
+  "requirements": [
+    {
+      "text": "Точный _shim.py и install_module_shim/shim_getattr/shim_dir получают finite lifecycle decision; при отсутствии необходимого caller удаляется только helper, не evidence logic.",
+      "source_ids": [
+        "LA-008"
+      ],
+      "audit_ids": [
+        "C125-G01"
+      ],
+      "id": "REQ-HYG-02-01",
+      "test_ids": [
+        "TEST-HYG-02-01"
+      ]
+    },
+    {
+      "text": "Подтверждённые Scientist facade Legal/Safety imports должны обращаться к canonical Core; alias retirement следует после config/plugin/monkeypatch consumers и supported window, сохраняя identity.",
+      "source_ids": [
+        "LA-009"
+      ],
+      "audit_ids": [
+        "C125-G02"
+      ],
+      "id": "REQ-HYG-02-02",
+      "test_ids": [
+        "TEST-HYG-02-02"
+      ]
+    },
+    {
+      "text": "Lex должен продолжать читать через actual Fabric owner с прежними result/access/provenance semantics; отсутствие старого alias не меняет historical fact bytes.",
+      "source_ids": [
+        "LA-018"
+      ],
+      "audit_ids": [
+        "C125-G03"
+      ],
+      "id": "REQ-HYG-02-03",
+      "test_ids": [
+        "TEST-HYG-02-03"
+      ]
+    },
+    {
+      "text": "Negative retired roots и protected live owners должны сохраняться в source/installed package; cleanup не расширяется на OPA/root evidence/другие Scientist passes.",
+      "source_ids": [
+        "LA-008",
+        "LA-009",
+        "LA-018"
+      ],
+      "audit_ids": [
+        "C125-G01",
+        "C125-G02",
+        "C125-G03"
+      ],
+      "id": "REQ-HYG-02-04",
+      "test_ids": [
+        "TEST-HYG-02-01",
+        "TEST-HYG-02-02",
+        "TEST-HYG-02-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "census/public roots",
+      "setup": "Three helper symbols/full path across src/tools/config/generated references; unsupported list.",
+      "action": "Finite census then chosen lifecycle delta; public Scientist/evidence imports and retired negative tests.",
+      "oracle": "No necessary caller: helper removed and no restored roots. Necessary caller: minimal forwarding with owner/exit evidence; no new shim framework. Root polisyos.evidence remains.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-HYG-02-01",
+      "requirement_ids": [
+        "REQ-HYG-02-01",
+        "REQ-HYG-02-04"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "actual facade/config/plugin",
+      "setup": "LegalPass/SafetyPass/Base Core objects; existing facade2relative imports and shared-shim3test imports.",
+      "action": "Switch actual facade, instantiate registry/config/plugin; monkeypatch contract test; retire aliases only after decision.",
+      "oracle": "Public facade is same canonical object, actual validators work, duplicate pass_id guard preserved. Negative old paths only after window closure; other Scientist passes remain.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-HYG-02-02",
+      "requirement_ids": [
+        "REQ-HYG-02-02",
+        "REQ-HYG-02-04"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "E02-I12-A native Fabric→Lex",
+      "setup": "Real small Parquet segments, actual typed manifest, requested columns/provenance; missing file and malformed index; supported historical manifest if available.",
+      "action": "Actual Fabric load_world_facts→Lex select_sources in fresh process.",
+      "oracle": "Correct selected data/columns, shaped empty for no data; current readable-segment skip semantics retained; malformed index fails not empty. Access/provenance controls tested at real owner, mere provenance column not authority.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-HYG-02-03",
+      "requirement_ids": [
+        "REQ-HYG-02-03"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "installed protection census",
+      "setup": "Shared Q2 artifact binding from DFK-01.",
+      "action": "Inspect retired FQNs and protected exports in wheel/rebuilt installed prefix.",
+      "oracle": "lex.factlog and retired Scientist roots absent; Core/Fabric/root evidence/OPA and actual passes present. Missing origin receipt not PASS.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-HYG-02-04",
+      "requirement_ids": [
+        "REQ-HYG-02-04"
+      ],
+      "status": "NOT_RUN"
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "LA-008",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Helper ещё есть; no static caller не universal proof.",
+      "requirement_ids": [
+        "REQ-HYG-02-01",
+        "REQ-HYG-02-04"
+      ]
+    },
+    {
+      "audit_id": "LA-009",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Конкретные2facade/3test imports требуют migration, не ещё один engine.",
+      "requirement_ids": [
+        "REQ-HYG-02-02",
+        "REQ-HYG-02-04"
+      ]
+    },
+    {
+      "audit_id": "LA-018",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Alias already absent; actual reader qualified separately.",
+      "requirement_ids": [
+        "REQ-HYG-02-03",
+        "REQ-HYG-02-04"
+      ]
+    },
+    {
+      "audit_id": "C125-G01",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Finite helper decision includes computed/package obligations.",
+      "requirement_ids": [
+        "REQ-HYG-02-01"
+      ],
+      "inventory_id": "audit-residual:C125_остатки:0"
+    },
+    {
+      "audit_id": "C125-G02",
+      "disposition": "lifecycle",
+      "shared_owner": null,
+      "rationale": "Update actual facade first, tests/negative after accepted exit.",
+      "requirement_ids": [
+        "REQ-HYG-02-02"
+      ],
+      "inventory_id": "audit-residual:C125_остатки:1"
+    },
+    {
+      "audit_id": "C125-G03",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Real Parquet/native context, не DataFrame adapter.",
+      "requirement_ids": [
+        "REQ-HYG-02-03",
+        "REQ-HYG-02-04"
+      ],
+      "inventory_id": "audit-residual:C125_остатки:2"
+    }
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "SPECIFICATION_NOT_IMPLEMENTED",
+  "dependencies": [],
+  "protected_distinction_ids": [
+    "LK17",
+    "LK18"
+  ],
+  "original_source": "../05_Основания/Аудит/05_Источники/HYG-02_исходные_строки.txt",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0368",
+      "requirement_ids": [
+        "REQ-HYG-02-01"
+      ],
+      "disposition": "lifecycle",
+      "rationale": "Finite helper decision includes computed/package obligations."
+    },
+    {
+      "inventory_id": "remaining:0369",
+      "requirement_ids": [
+        "REQ-HYG-02-02"
+      ],
+      "disposition": "lifecycle",
+      "rationale": "Update actual facade first, tests/negative after accepted exit."
+    },
+    {
+      "inventory_id": "remaining:0370",
+      "requirement_ids": [
+        "REQ-HYG-02-03",
+        "REQ-HYG-02-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Real Parquet/native context, не DataFrame adapter."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0596",
+      "requirement_ids": [
+        "REQ-HYG-02-02"
+      ],
+      "test_ids": [
+        "TEST-HYG-02-02"
+      ],
+      "rationale": "Canonical Core identity — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0597",
+      "requirement_ids": [
+        "REQ-HYG-02-02",
+        "REQ-HYG-02-04"
+      ],
+      "test_ids": [
+        "TEST-HYG-02-01",
+        "TEST-HYG-02-02",
+        "TEST-HYG-02-04"
+      ],
+      "rationale": "Actual Scientist passes/evidence — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0598",
+      "requirement_ids": [
+        "REQ-HYG-02-03"
+      ],
+      "test_ids": [
+        "TEST-HYG-02-03"
+      ],
+      "rationale": "Fabric world reader — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0599",
+      "requirement_ids": [
+        "REQ-HYG-02-04"
+      ],
+      "test_ids": [
+        "TEST-HYG-02-01",
+        "TEST-HYG-02-02",
+        "TEST-HYG-02-04"
+      ],
+      "rationale": "Negative retired roots — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0600",
+      "requirement_ids": [
+        "REQ-HYG-02-04"
+      ],
+      "test_ids": [
+        "TEST-HYG-02-01",
+        "TEST-HYG-02-02",
+        "TEST-HYG-02-04"
+      ],
+      "rationale": "Cross-producer root evidence — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0601",
+      "requirement_ids": [
+        "REQ-HYG-02-04"
+      ],
+      "test_ids": [
+        "TEST-HYG-02-01",
+        "TEST-HYG-02-02",
+        "TEST-HYG-02-04"
+      ],
+      "rationale": "Public OPA facade — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    }
+  ]
+}

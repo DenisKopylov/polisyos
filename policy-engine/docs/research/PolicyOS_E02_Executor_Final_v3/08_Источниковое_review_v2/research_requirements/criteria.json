@@ -1,0 +1,506 @@
+{
+  "schema_version": 1,
+  "scope": "source research only; criteria to apply later, not audit findings",
+  "baseline_declared_by_parent": {
+    "path": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2",
+    "repository": "20d9009",
+    "packet_count": 127,
+    "lanes": 12,
+    "scenarios": "38+4",
+    "inspection_status": "not_inspected"
+  },
+  "criterion_count": 17,
+  "criteria": [
+    {
+      "id": "RA-01",
+      "title": "Неопределенная нормативность и непроверяемое составное обещание",
+      "review_scope": [
+        "packet"
+      ],
+      "applicability_trigger": "Есть обязательства продукта, смешанные с целями, пояснением, рекомендацией или несколькими независимыми результатами.",
+      "source_principle": "NASA различает обязательство/цель и проверяет ясность; единице требования нужен определимый результат.",
+      "concrete_counterexample": "«Обработать запись корректно, быстро сохранить и при необходимости уведомить» допускает разные обязательства и частичное успешное выполнение.",
+      "adequate_spec": "Указаны исполнитель/компонент, условие, обязательный результат; независимо проверяемые обязательства имеют отдельные ссылки либо явные подпункты.",
+      "required_evidence": [
+        "Точная нормативная фраза и соглашение о must/shall/должен.",
+        "Набор проверяемых исходов, включая частичный отказ."
+      ],
+      "false_positive_guard": "Не требовать английского shall; не делить единую атомарную транзакцию только из-за союза «и».",
+      "source_refs": [
+        {
+          "source_id": "RA-S01",
+          "locator": "C.1; C.4 Clarity, Verifiability/Testability"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    },
+    {
+      "id": "RA-02",
+      "title": "Скрытые условия, логика AND/OR и неполная область применимости",
+      "review_scope": [
+        "packet",
+        "scenario"
+      ],
+      "applicability_trigger": "Поведение зависит от флага, режима, роли, нескольких предикатов или унаследованного заголовка.",
+      "source_principle": "INCOSE требует явно выраженных условий и логики их сочетания; полнота отдельной фразы отличается от полноты набора.",
+      "concrete_counterexample": "«Если запись проверена и одобрена или администратор подтвердил, публиковать» не определяет скобки; непонятно, сохраняется ли правило при восстановлении.",
+      "adequate_spec": "Условия сгруппированы, режим указан; для значимых комбинаций определены действие, отказ или мотивированная неприменимость.",
+      "required_evidence": [
+        "Таблица решений/эквивалентные предикаты.",
+        "Два различающихся граничных набора входов и ожидаемые исходы."
+      ],
+      "false_positive_guard": "Таблица решений не обязательна как формат; ссылка на однозначную каноническую функцию допустима. Не изобретать запрещенный продуктом режим.",
+      "source_refs": [
+        {
+          "source_id": "RA-S09",
+          "locator": "p.3 R14–R15, R24–R28"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    },
+    {
+      "id": "RA-03",
+      "title": "Синтаксически хорошие пакеты, но противоречивый или невыполнимый набор",
+      "review_scope": [
+        "cross_packet",
+        "lane",
+        "portfolio"
+      ],
+      "applicability_trigger": "Несколько пакетов одновременно определяют один объект, ограничение или общий ресурс.",
+      "source_principle": "INCOSE выделяет отдельные характеристики набора: полноту, непротиворечивость, выполнимость и валидируемость.",
+      "concrete_counterexample": "Один пакет разрешает изменение после финализации, другой требует неизменяемости; каждый локальный тест проходит.",
+      "adequate_spec": "Совместимые обязательства проверены вместе на общем состоянии и версии; обнаруженный конфликт имеет явное разрешение.",
+      "required_evidence": [
+        "Сопоставление всех релевантных норм по общему объекту.",
+        "Контрпример одновременного применения или доказательство совместимости."
+      ],
+      "false_positive_guard": "Разные условия/версии могут объяснять разницу; противоречие нельзя объявлять по совпадению слов.",
+      "source_refs": [
+        {
+          "source_id": "RA-S09",
+          "locator": "p.2 C10–C15"
+        },
+        {
+          "source_id": "RA-S08",
+          "locator": "4.1.2 note"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    },
+    {
+      "id": "RA-04",
+      "title": "Предположение или TBD превратилось в скрытую гарантию",
+      "review_scope": [
+        "packet",
+        "cross_packet"
+      ],
+      "applicability_trigger": "Решение опирается на внешнюю возможность, лимит, точность, доступность данных или нерешенный выбор.",
+      "source_principle": "NASA требует фиксировать и подтверждать предположения; unresolved values нуждаются в плане разрешения.",
+      "concrete_counterexample": "«Внешний каталог всегда содержит уникальный ключ» не подтверждено; исполнитель делает ключ первичным и теряет неоднозначные записи.",
+      "adequate_spec": "Предположение отделено от гарантии; имеется подтверждение либо ограниченный fallback, владелец и условие снятия неопределенности.",
+      "required_evidence": [
+        "Реестр assumptions/TBD/TBR со ссылками на затронутые пакеты.",
+        "Источник подтверждения или точное незакрытое решение и его влияние на готовность."
+      ],
+      "false_positive_guard": "Не всякое предположение дефект. Контролируемая явно отсроченная деталь допустима, если не блокирует заявленный этап.",
+      "source_refs": [
+        {
+          "source_id": "RA-S01",
+          "locator": "C.3; C.4 Correctness"
+        },
+        {
+          "source_id": "RA-S02",
+          "locator": "4.2.1.2.3 Rationale"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    },
+    {
+      "id": "RA-05",
+      "title": "Смешаны потребность, архитектурное решение и инструкция исполнителю",
+      "review_scope": [
+        "packet"
+      ],
+      "applicability_trigger": "ТЗ содержит конкретные библиотеки, структуры, схемы, алгоритмы, пути файлов или этапы разработки.",
+      "source_principle": "INCOSE различает design-input и build-to/code-to outputs; NASA допускает обоснованные ограничения способа реализации.",
+      "concrete_counterexample": "«Использовать очередь X» выдается за доказательство надежной доставки; либо ревью удаляет согласованный transaction boundary как недопустимое «как».",
+      "adequate_spec": "Явно разделены наблюдаемое обязательство, обязательное архитектурное ограничение с rationale и рекомендательная реализация; связь между ними сохранена.",
+      "required_evidence": [
+        "Классификация спорного положения и его нормативный статус.",
+        "Ссылка на исходную потребность/решение и основание ограничения свободы реализации."
+      ],
+      "false_positive_guard": "Implementation-ready пакет вправе быть подробным. Техническая конкретика сама по себе не дефект, а удаление ее без полномочий недопустимо.",
+      "source_refs": [
+        {
+          "source_id": "RA-S10",
+          "locator": "slides 28, 30, 33–34"
+        },
+        {
+          "source_id": "RA-S02",
+          "locator": "4.2.1.2.3 Rationale: Document Design Constraints"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    },
+    {
+      "id": "RA-06",
+      "title": "Трассировка на документы вместо трассировки смысла и потребности",
+      "review_scope": [
+        "packet",
+        "portfolio"
+      ],
+      "applicability_trigger": "Есть ссылки/ID, но неясно, какое пользовательское или системное обязательство они обеспечивают.",
+      "source_principle": "NASA связывает требования с исходными ожиданиями; validation план использует ConOps и stakeholder goals, а не только внутренние тесты.",
+      "concrete_counterexample": "Все пакеты ссылаются на один эпик, но ни один не обеспечивает отмену действия пользователем; число ссылок создает ложное покрытие.",
+      "adequate_spec": "Прослеживается цепочка потребность → конкретное обязательство → компонент/стык → приемочный исход; существенные цели не остаются без реализации.",
+      "required_evidence": [
+        "Содержательная двунаправленная матрица с конкретными ID/локаторами.",
+        "Обоснование derived requirements и список непокрытых/исключенных нужд."
+      ],
+      "false_positive_guard": "Новая обоснованная derived requirement не обязана иметь искусственного родителя; допустим rationale и источник ограничения.",
+      "source_refs": [
+        {
+          "source_id": "RA-S02",
+          "locator": "4.2.1.2.4"
+        },
+        {
+          "source_id": "RA-S04",
+          "locator": "sources for validation plan"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    },
+    {
+      "id": "RA-07",
+      "title": "«Есть тест» без наблюдаемого критерия и правильного уровня проверки",
+      "review_scope": [
+        "packet",
+        "lane",
+        "scenario"
+      ],
+      "applicability_trigger": "Утверждается testable/covered/verified либо задан acceptance check.",
+      "source_principle": "NASA рекомендует заранее определить verification approach и уникальный источник требования; verification должно быть возможно на заявленном уровне.",
+      "concrete_counterexample": "Пакет обещает целостность всей операции, но критерий приемки — HTTP 200 или существование файла; удаленный побочный эффект не наблюдается.",
+      "adequate_spec": "Указаны начальное состояние, стимул, наблюдаемое состояние/выход, pass/fail, метод и уровень; oracle проверяет обещанную семантику.",
+      "required_evidence": [
+        "Requirement ID → метод/критерий/уровень → проверка.",
+        "Перечень доказуемых и недоказуемых этой проверкой утверждений."
+      ],
+      "false_positive_guard": "На стадии ТЗ нужен исполнимый план проверки, не выдуманный протокол еще не выполненного теста. Inspection/analysis могут быть корректнее runtime test.",
+      "source_refs": [
+        {
+          "source_id": "RA-S03",
+          "locator": "Body: verification approach and unique source"
+        },
+        {
+          "source_id": "RA-S01",
+          "locator": "C.4 Verifiability/Testability"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    },
+    {
+      "id": "RA-08",
+      "title": "Verification подменяет validation в реальной среде",
+      "review_scope": [
+        "scenario",
+        "portfolio"
+      ],
+      "applicability_trigger": "Приемка строится только на соответствии внутреннему контракту или mocks.",
+      "source_principle": "NASA SWE-055/NPR различают выполнение спецификации и пригодность для потребности в предполагаемой среде.",
+      "concrete_counterexample": "Синтетический fixture проходит все поля, но реальный пользовательский поток требует работу с неполными исходными данными, не допускаемыми fixture.",
+      "adequate_spec": "Выбраны реальные цели, роли, рабочая среда и ограничения; определены способ проверки пригодности и допустимые отличия модели от среды.",
+      "required_evidence": [
+        "Связь сценария с потребностью/ConOps.",
+        "Описание среды, ограничений mock/симулятора и ожидаемого пользовательского результата."
+      ],
+      "false_positive_guard": "Не требовать production-доступ или полетный стенд для документарного ревью. Достаточно корректно задать будущую validation и честно обозначить непроверенное.",
+      "source_refs": [
+        {
+          "source_id": "RA-S07",
+          "locator": "3.2, 3.3, 3.6"
+        },
+        {
+          "source_id": "RA-S08",
+          "locator": "4.1.7"
+        },
+        {
+          "source_id": "RA-S04",
+          "locator": "validation products"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    },
+    {
+      "id": "RA-09",
+      "title": "API-совместимость без семантической, временной и ресурсной совместимости",
+      "review_scope": [
+        "cross_packet",
+        "lane"
+      ],
+      "applicability_trigger": "Пакеты обмениваются событиями/данными или используют общую инфраструктуру.",
+      "source_principle": "SEI рассматривает интерфейс шире API: смысл данных, взаимодействие, время и общие ресурсы могут связывать компоненты неявно.",
+      "concrete_counterexample": "Обе стороны принимают integer timeout, но одна считает секунды, другая миллисекунды; две стороны ждут, что другая инициирует синхронизацию.",
+      "adequate_spec": "Для стыка согласованы единицы/смысл, инициатор, порядок/время, состояние и ресурсные предпосылки наряду со схемой.",
+      "required_evidence": [
+        "Producer/consumer contract comparison на одной версии.",
+        "Контрпримеры одинаковой схемы с различной интерпретацией; ожидаемые результаты."
+      ],
+      "false_positive_guard": "Не навязывать все измерения каждому стыку; отметить неприменимые с причиной. Типовой transport не доказывает бизнес-семантику.",
+      "source_refs": [
+        {
+          "source_id": "RA-S13",
+          "locator": "§3 and §3.1, printed pp.6–8"
+        },
+        {
+          "source_id": "RA-S05",
+          "locator": "§3.2.6"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    },
+    {
+      "id": "RA-10",
+      "title": "У интерфейса нет единой версии, приоритета и владельца изменения",
+      "review_scope": [
+        "cross_packet",
+        "lane",
+        "portfolio"
+      ],
+      "applicability_trigger": "Одно правило продублировано в нескольких ТЗ, registry, schema, diagrams или lane checks.",
+      "source_principle": "NASA IRD задает precedence и change authority; interface changes должны учитывать обе стороны и verification inputs.",
+      "concrete_counterexample": "Пакет использует v2 enum, lane fixture — v1, а обе копии названы каноническими; изменение принято только producer-командой.",
+      "adequate_spec": "Назван источник истины, точная версия и приоритет; перечислены затронутые потребители и обновляемые проверки.",
+      "required_evidence": [
+        "Реестр интерфейсов: стороны/владелец/каноническая версия.",
+        "Согласованная change-impact цепочка от схемы до lane checks."
+      ],
+      "false_positive_guard": "Не требовать формального совета NASA. Копия допустима как явно помеченный производный snapshot, проверяемый против канона.",
+      "source_refs": [
+        {
+          "source_id": "RA-S05",
+          "locator": "§§1.2–1.3, 2.1"
+        },
+        {
+          "source_id": "RA-S06",
+          "locator": "§6.3.1.2.3 and §6.3.1.3"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    },
+    {
+      "id": "RA-11",
+      "title": "Качественное свойство без сценария и измерительной рамки",
+      "review_scope": [
+        "packet",
+        "lane",
+        "scenario"
+      ],
+      "applicability_trigger": "Заявлены latency, availability, scalability, auditability, modifiability, reliability или «быстро/надежно».",
+      "source_principle": "QAW уточняет источник стимула, стимул, среду, объект, ответ и меру ответа.",
+      "concrete_counterexample": "«Ответ за 200 мс» не указывает, включена ли очередь, какова нагрузка и измеряется ли медленный хвост; оба исполнителя считают себя правыми.",
+      "adequate_spec": "Указаны контекст, измерительные границы и критерий; разные режимы нормальной/пиковой нагрузки не смешаны.",
+      "required_evidence": [
+        "Шесть смысловых частей quality-attribute scenario.",
+        "Нагрузка/данные/метрика/порог/границы измерения и приемочный oracle."
+      ],
+      "false_positive_guard": "200 мс — пример, не предлагаемое требование E02. Не навязывать percentile там, где задан hard deadline или другая подходящая мера.",
+      "source_refs": [
+        {
+          "source_id": "RA-S11",
+          "locator": "§3.8, printed p.11; Appendix A"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    },
+    {
+      "id": "RA-12",
+      "title": "Локальные лимиты не складываются в end-to-end гарантию",
+      "review_scope": [
+        "cross_packet",
+        "lane",
+        "scenario"
+      ],
+      "applicability_trigger": "Несколько компонентов делят latency/memory/throughput/storage budget или имеют общий SLO.",
+      "source_principle": "INCOSE отделяет выполнимость набора от отдельного требования и учитывает allocation/budgeting; SEI выявляет ресурсные/временные зависимости.",
+      "concrete_counterexample": "Четыре последовательных шага каждый укладываются в 300 мс, но lane обещает 500 мс; все локальные checks зеленые.",
+      "adequate_spec": "Есть композиционная модель границ и бюджета с общими ресурсами, очередями и требуемым запасом; общий критерий проверяется на lane.",
+      "required_evidence": [
+        "Расчет или объяснимая модель сквозного бюджета.",
+        "Сценарий совместной нагрузки и точки измерения, не только по-компонентные максимумы."
+      ],
+      "false_positive_guard": "Не складывать механически p99 или параллельные времена. Модель должна соответствовать topology и выбранной статистике.",
+      "source_refs": [
+        {
+          "source_id": "RA-S09",
+          "locator": "p.2 C12; p.7 A5"
+        },
+        {
+          "source_id": "RA-S13",
+          "locator": "§3.1, temporal/resource distance"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    },
+    {
+      "id": "RA-13",
+      "title": "Архитектурный паттерн объявлен доказательством без конкретных решений",
+      "review_scope": [
+        "packet",
+        "cross_packet"
+      ],
+      "applicability_trigger": "Есть слова event-driven, queue, cache, microservice, immutable, transactional, adapter вместо полного механизма.",
+      "source_principle": "SEI требует проследить механизм до его конкретизации, производных решений и особых случаев.",
+      "concrete_counterexample": "«Кэш ускоряет чтение» не определяет инвалидирование при изменении правила; обязательство свежести теряется в детали.",
+      "adequate_spec": "Определены значимые параметры механизма, применимость, исключения, размещение ответственности и связь с требуемым исходом.",
+      "required_evidence": [
+        "Связь архитектурного решения с конкретными компонентами/стыками.",
+        "Реестр производных решений; разобранный особый случай."
+      ],
+      "false_positive_guard": "Не требовать детализации внутреннего кода, не влияющей на контракт. Дефект — открытый выбор, меняющий наблюдаемую гарантию.",
+      "source_refs": [
+        {
+          "source_id": "RA-S13",
+          "locator": "§7.4, printed pp.42–44"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    },
+    {
+      "id": "RA-14",
+      "title": "Невидимые компромиссы и устаревшие основания статуса «не риск»",
+      "review_scope": [
+        "cross_packet",
+        "lane",
+        "portfolio"
+      ],
+      "applicability_trigger": "Одно решение влияет на несколько качеств или ранее принятое решение зависит от меняющегося параметра.",
+      "source_principle": "ATAM фиксирует sensitivity/tradeoff points, обоснования и предпосылки рисков/non-risks; изменение предпосылки требует переоценки.",
+      "concrete_counterexample": "Увеличение retention для аудита увеличивает стоимость/время удаления; былое доказательство производительности основано на вдесятеро меньшей нагрузке.",
+      "adequate_spec": "Указаны конкурирующие цели, принятое решение, границы применимости и событие, запускающее переоценку.",
+      "required_evidence": [
+        "Decision/rationale → затронутые качества → анализ.",
+        "Зафиксированные assumptions и trigger для пересмотра."
+      ],
+      "false_positive_guard": "Компромисс не обязательно дефект: приемлемый явно согласованный tradeoff отмечается как scoped non-risk, а не автоматически FAIL.",
+      "source_refs": [
+        {
+          "source_id": "RA-S12",
+          "locator": "§§7.1–7.3"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    },
+    {
+      "id": "RA-15",
+      "title": "Номинальный путь есть, запрещенные и аварийные исходы не заданы",
+      "review_scope": [
+        "packet",
+        "lane",
+        "scenario"
+      ],
+      "applicability_trigger": "Поток имеет сбои зависимостей, неверный вход, прерывание, повторный запуск или переход режима.",
+      "source_principle": "NASA validation охватывает ожидаемое, запрещенное и adverse поведение; reliability checklist включает recovery и ошибки последовательности.",
+      "concrete_counterexample": "Публикация прерывается между сохранением и уведомлением; ТЗ описывает только полный успех, а восстановление запускает повторный эффект.",
+      "adequate_spec": "Для существенных off-nominal веток заданы допустимое состояние, видимый исход, граница ответственности и восстановление.",
+      "required_evidence": [
+        "State/transition описание или эквивалентный контракт.",
+        "Прерывание в значимых точках; запрещенный результат и способ его обнаружить."
+      ],
+      "false_positive_guard": "Не требовать невозможного перечисления всех отказов; выбирать по последствиям и архитектуре. «Не должно» допустимо для инварианта безопасности.",
+      "source_refs": [
+        {
+          "source_id": "RA-S07",
+          "locator": "§3.4"
+        },
+        {
+          "source_id": "RA-S01",
+          "locator": "C.4 Reliability"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    },
+    {
+      "id": "RA-16",
+      "title": "Сценарии не покрывают драйверы, изменение и стресс",
+      "review_scope": [
+        "scenario",
+        "portfolio"
+      ],
+      "applicability_trigger": "Есть финальный список интеграционных сценариев или заявка на полное покрытие.",
+      "source_principle": "QAW связывает сценарии с архитектурными драйверами и различает use, growth и exploratory сценарии.",
+      "concrete_counterexample": "42 сценария повторяют CRUD happy paths, но нет проверки роста данных, новой версии компонента или изменения критического правила.",
+      "adequate_spec": "Список сопоставлен с важными драйверами; сценарии изменения/стресса включены по риску, отсутствующие классы объяснены.",
+      "required_evidence": [
+        "Driver → scenario coverage map и приоритет.",
+        "Контрпример, который проходит существующие checks, но нарушает драйвер, либо аргумент отсутствия такого пробела в заданной области."
+      ],
+      "false_positive_guard": "Число 42 — иллюстрация возможного ложного ощущения покрытия, не вывод об E02. Не объявлять любой ненужный growth scenario обязательным.",
+      "source_refs": [
+        {
+          "source_id": "RA-S11",
+          "locator": "§3.5, printed pp.9–10; §3.8"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    },
+    {
+      "id": "RA-17",
+      "title": "Изменилось требование, но приемка/модель остались старыми",
+      "review_scope": [
+        "packet",
+        "lane",
+        "scenario",
+        "portfolio"
+      ],
+      "applicability_trigger": "Есть v2, исправленный контракт, перенос ответственности или новый canonical reference.",
+      "source_principle": "NASA связывает изменение интерфейса с тестовыми целями; requirements validation выполняется на протяжении жизненного цикла.",
+      "concrete_counterexample": "После исправления error enum ТЗ обновлено, а lane-check принимает старую ошибку; формальная ссылка на ID не менялась.",
+      "adequate_spec": "Review фиксирует конкретный baseline; изменение распространяется на зависимые нормы, схемы, сценарии, fixtures и oracle либо явно исключено с rationale.",
+      "required_evidence": [
+        "Baseline/version/hash и список проверенных зависимых артефактов.",
+        "Diff impact map; доказательство, что старый oracle не продолжает выдавать ложный PASS."
+      ],
+      "false_positive_guard": "Не требовать прогона несуществующей реализации; проверять актуальность плана и не выдавать textual review за выполненные integration tests.",
+      "source_refs": [
+        {
+          "source_id": "RA-S06",
+          "locator": "§6.3.1.2.3; §6.3.1.3"
+        },
+        {
+          "source_id": "RA-S07",
+          "locator": "§3.2"
+        }
+      ],
+      "interpretation_status": "Source-grounded review adaptation; examples and evidence checklist are reviewer-authored, not quotations or E02 findings",
+      "baseline_status": "not_audited"
+    }
+  ],
+  "review_rules": [
+    "Сначала установить применимость и нормативный уровень; отсутствие trigger означает N/A с причиной, не PASS.",
+    "Ни один контрпример ниже не является найденным дефектом E02; все числа иллюстративные.",
+    "Finding требует точных локаторов, цепочки нормы/стыка/сценария, минимального контрпримера и проверяемого последствия.",
+    "Проверять локальный пакет вместе с каноническими импортами; отсутствие текста в одном пакете не является пробелом при корректной разрешимой ссылке.",
+    "Для ТЗ отделять достаточность спецификации/плана проверки от выполнения runtime tests; не фабриковать execution evidence.",
+    "Не удалять обоснованные design constraints и build-to/code-to details; при необходимости классифицировать и связать с потребностью.",
+    "Градации для последующего ревью: evidenced defect, unresolved risk/question, scoped pass, N/A, blocked; не смешивать неизвестность с доказанным отказом.",
+    "Текстовый/структурный lint на ID, заголовки и стоп-слова не заменяет семантическое cross-packet и end-to-end ревью.",
+    "NASA/INCOSE/SEI используются как методы и первичные источники. Это не аудит соответствия aerospace, ISO или закрытому полному INCOSE Guide."
+  ]
+}

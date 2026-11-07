@@ -836,10 +836,13 @@ from .external_audit import (
     validate_public_audit_archive_record,
 )
 from .generation_cycle import (
+    CandidateSourceCurrentOccurrence,
+    CandidateSourceCurrentProjection,
     RealValueOwnerGateway,
     ValueOwnerSourceProjectionRequestV1,
     ValueOwnerSourceVariableProjectionV1,
     ValueTransportRunReceiptV1,
+    project_candidate_source_current_occurrences,
 )
 from .graded_outcomes import (
     S1_GRADED_OUTCOME_SCHEMA_VERSION,
@@ -1399,6 +1402,8 @@ __all__ = [
     "CandidateFirewallError",
     "CandidateLever",
     "CandidateLeverSpace",
+    "CandidateSourceCurrentOccurrence",
+    "CandidateSourceCurrentProjection",
     "CanonicalDesignRecord",
     "CapabilityAuthorityError",
     "CapabilityAuthorityFactor",
@@ -2002,6 +2007,7 @@ __all__ = [
     "policy_design_pass1b_hardening_scorecard_gates",
     "producer_spine_read_context_for",
     "project_cae_defeaters_to_s14_skeptic_records",
+    "project_candidate_source_current_occurrences",
     "project_value_tradeoff_disclosure",
     "public_rule_evolution_annotation",
     "ratchet_templates",

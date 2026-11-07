@@ -38,6 +38,7 @@ from polisyos.ir.analytics.cross_graph import (
     load_cross_graph_evidence_profile,
 )
 from polisyos.ir.analytics.parameters import (
+    ContextAdaptiveParameterBundle,
     ContextAdaptiveParameterBundleV11,
     ContextAdaptiveParameterBundleV12,
     ParameterApplicability,
@@ -250,7 +251,11 @@ class ResolveParametersNode:
                 cross_graph_profile_ref=cross_graph_profile_ref,
             )
         ):
-            return NodeOutcome(status="ok", state=state)
+            bundle = load_context_adaptive_parameter_bundle(
+                _ensure_ir_artifact_store(ctx.store), existing_bundle_ref
+            )
+            new_state = _materialize_runtime_from_bundle(state, bundle, existing_bundle_ref)
+            return NodeOutcome(status="ok", state=new_state)
 
         if target_context is None:
             return _skip(
@@ -416,31 +421,7 @@ class ResolveParametersNode:
             inputs=input_refs,
         )
         bundle_ref = ArtifactRef.model_validate(ir_bundle_ref.model_dump(mode="json"))
-        bridge_payload = ParameterTransfer.pure_step(
-            ParameterTransferData(parameter_bundle=bundle),
-            params={
-                "runtime_backend": state.params.get("phase15_runtime_backend", "auto"),
-                "runtime_draws": state.params.get("phase15_runtime_draws", 256),
-                "runtime_seed": state.params.get("phase15_runtime_seed", 0),
-            },
-        )
-
-        new_state = branch_state(state, write_paths=_SPEC.state_writes).state
-        new_state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = bundle_ref
-        new_state.params["literature_priors"] = bridge_payload.get("literature_priors", {})
-        new_state.params["parameter_uncertainty_multipliers"] = bridge_payload.get(
-            "uncertainty_multipliers",
-            {},
-        )
-        new_state.params["phase15_runtime_backend_used"] = bridge_payload.get(
-            "runtime_backend_used",
-            "numpy",
-        )
-        new_state.params["phase15_runtime_parameter_intervals"] = bridge_payload.get(
-            "runtime_parameter_intervals",
-            {},
-        )
-        new_state.params["phase15_runtime_ready"] = bool(bridge_payload.get("runtime_ready", False))
+        new_state = _materialize_runtime_from_bundle(state, bundle, bundle_ref)
 
         events = []
         if unsupported:
@@ -460,6 +441,36 @@ class ResolveParametersNode:
             artifacts=[bundle_ref, source_binding.descriptor_ref],
             events=events,
         )
+
+
+def _materialize_runtime_from_bundle(
+    state: ExperimentState,
+    bundle: ContextAdaptiveParameterBundle,
+    bundle_ref: ArtifactRef,
+) -> ExperimentState:
+    """Recompute derived fields for the current request before publishing a branch."""
+    bridge_payload = ParameterTransfer.pure_step(
+        ParameterTransferData(parameter_bundle=bundle),
+        params={
+            "runtime_backend": state.params.get("phase15_runtime_backend", "auto"),
+            "runtime_draws": state.params.get("phase15_runtime_draws", 256),
+            "runtime_seed": state.params.get("phase15_runtime_seed", 0),
+        },
+    )
+    new_state = branch_state(state, write_paths=_SPEC.state_writes).state
+    new_state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = bundle_ref
+    new_state.params["literature_priors"] = bridge_payload.get("literature_priors", {})
+    new_state.params["parameter_uncertainty_multipliers"] = bridge_payload.get(
+        "uncertainty_multipliers", {}
+    )
+    new_state.params["phase15_runtime_backend_used"] = bridge_payload.get(
+        "runtime_backend_used", "numpy"
+    )
+    new_state.params["phase15_runtime_parameter_intervals"] = bridge_payload.get(
+        "runtime_parameter_intervals", {}
+    )
+    new_state.params["phase15_runtime_ready"] = bool(bridge_payload.get("runtime_ready", False))
+    return new_state
 
 
 def _resolve_target_context(state: ExperimentState) -> ContextProfile | None:

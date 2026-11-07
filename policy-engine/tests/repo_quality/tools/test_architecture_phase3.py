@@ -222,6 +222,101 @@ def test_supported_future_feature_grammar_is_passive_and_does_not_execute_facade
     assert not edges
 
 
+@pytest.mark.parametrize("fallback", ["Exported = None", "class Exported:\n    pass"])
+@pytest.mark.parametrize("type_checking_split", [False, True])
+def test_optional_facade_inventory_counts_total_bindings_without_claiming_backend_availability(
+    fallback: str, type_checking_split: bool
+) -> None:
+    """Grouped imports and real fallback values still bind the declared name."""
+    runtime = (
+        "try:\n"
+        "    from optional_owner import Exported, Other\n"
+        "except (ImportError, ModuleNotFoundError):\n" + textwrap.indent(fallback, "    ") + "\n"
+    )
+    source = runtime
+    if type_checking_split:
+        source = (
+            "from typing import TYPE_CHECKING\n"
+            "if TYPE_CHECKING:\n"
+            "    from optional_owner import Exported, Other\n"
+            "else:\n" + textwrap.indent(runtime, "    ")
+        )
+    source += "__all__ = ['Exported']\n"
+
+    assert guardrails._extract_exports(ast.parse(source)) == ("Exported",)
+
+
+@pytest.mark.parametrize(
+    ("fallback", "prefix", "suffix"),
+    [
+        ("pass", "", ""),
+        ("if backend_selected:\n    Exported = None", "", ""),
+        ("Exported = None\ndel Exported", "", ""),
+        ("Exported = unknown_alias", "", ""),
+        ("Exported = None", "ImportError = RuntimeError\n", ""),
+        ("Exported = None", "", "finally:\n    del Exported\n"),
+    ],
+)
+def test_optional_facade_inventory_refuses_missing_conditional_or_mutated_fallback(
+    fallback: str, prefix: str, suffix: str
+) -> None:
+    source = (
+        prefix
+        + "try:\n"
+        + "    from optional_owner import Exported, Other\n"
+        + "except ImportError:\n"
+        + textwrap.indent(fallback, "    ")
+        + "\n"
+        + suffix
+        + "__all__ = ['Exported']\n"
+    )
+
+    with pytest.raises(guardrails._UnresolvedExportDeclarationError):
+        guardrails._extract_exports(ast.parse(source))
+
+
+def test_optional_facade_inventory_does_not_unwrap_rebound_type_checking() -> None:
+    source = """\
+from typing import TYPE_CHECKING
+TYPE_CHECKING = True
+if TYPE_CHECKING:
+    pass
+else:
+    try:
+        from optional_owner import Exported
+    except ImportError:
+        Exported = None
+__all__ = ['Exported']
+"""
+
+    with pytest.raises(guardrails._UnresolvedExportDeclarationError):
+        guardrails._extract_exports(ast.parse(source))
+
+
+@pytest.mark.parametrize(
+    "module",
+    [
+        "polisyos.core.observability",
+        "polisyos.foundry.calibration",
+        "polisyos.foundry.uncertainty",
+    ],
+)
+def test_actual_optional_facade_inventory_resolves_the_complete_literal_exports(
+    module: str,
+) -> None:
+    """Read actual optional facades without executing or assuming their backends."""
+    path = guardrails._facade_source_for(module)
+    tree = ast.parse(path.read_bytes())
+    declarations = [
+        ast.literal_eval(node.value)
+        for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "__all__" for target in node.targets)
+    ]
+    assert len(declarations) == 1
+    assert guardrails._extract_exports(tree, path) == tuple(declarations[0])
+
+
 def test_supported_future_import_alias_is_a_binding_but_unknown_feature_is_not(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -2995,6 +3090,59 @@ def test_isolated_probe_ignores_stale_bytecode_in_the_copied_source_basis(
         check=True,
     )
     assert marker_only.stdout.strip() == "old"
+
+
+@pytest.mark.parametrize("inherited_host_sink", [False, True])
+def test_isolated_probe_keeps_actual_cli_timing_writes_outside_source_and_host(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    inherited_host_sink: bool,
+) -> None:
+    """Retain real timing/lock bytes without changing either protected tree."""
+    from tools.lib import timing
+
+    source = tmp_path / "probe" / "isolated-source"
+    source.mkdir(parents=True)
+    host_sink = tmp_path / "host" / "timing.jsonl"
+    host_sink.parent.mkdir()
+    host_sink.write_text("retained-host-evidence\n", encoding="utf-8")
+    if inherited_host_sink:
+        monkeypatch.setenv("POLISYOS_TOOLS_TIMING_LOG", str(host_sink))
+    else:
+        monkeypatch.delenv("POLISYOS_TOOLS_TIMING_LOG", raising=False)
+    monkeypatch.delenv("POLISYOS_GOVERNED_ARTIFACT_ROOT", raising=False)
+    # An isolated CLI imports this default from its copied tools module.
+    monkeypatch.setattr(
+        timing, "DEFAULT_TIMING_LOG_PATH", source / ".polisyos-tools" / "timing.jsonl"
+    )
+    source_before = guardrails._snapshot_filesystem_tree(source)
+    environment = guardrails._isolated_probe_environment(source)
+    if "POLISYOS_TOOLS_TIMING_LOG" in environment:
+        monkeypatch.setenv("POLISYOS_TOOLS_TIMING_LOG", environment["POLISYOS_TOOLS_TIMING_LOG"])
+    sink = timing.timing_log_from_env()
+    assert sink is not None
+    timing.append_timing_record(
+        sink,
+        timing.ToolRunRecord(
+            tool="foundry.generate-stubs",
+            category="foundry",
+            output_format="text",
+            status="ok",
+            preflight_status="ok",
+            started_at="2026-10-31T00:00:00+00:00",
+            duration_ms=1.0,
+            exit_code=0,
+        ),
+    )
+
+    assert guardrails._snapshot_filesystem_tree(source) == source_before
+    assert host_sink.read_text(encoding="utf-8") == "retained-host-evidence\n"
+    assert sink == source.parent / "diagnostics" / "timing.jsonl"
+    assert sink.with_name(".timing.jsonl.lock").is_file()
+    records = timing.read_timing_records(sink)
+    assert len(records) == 1
+    assert records[0].tool == "foundry.generate-stubs"
+    assert records[0].exit_code == 0
 
 
 def test_unadmitted_governed_artifact_root_is_refused_before_environment_preparation(

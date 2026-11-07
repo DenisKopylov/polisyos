@@ -59,7 +59,13 @@ def test_evaluator_invalid_governance_report_emits_warning(
     outcome = RunEvaluatorNode().execute(execution_context, state)
 
     assert outcome.status == "ok"
-    assert any(event.code == "EVALUATOR_GOVERNANCE_REPORT_INVALID" for event in outcome.events)
+    warning = next(
+        event for event in outcome.events if event.code == "EVALUATOR_GOVERNANCE_REPORT_NOT_CURRENT"
+    )
+    assert warning.level == "warn"
+    assert warning.attrs["status"] == "invalid"
+    assert warning.attrs["reason"] == "governance_report_owner_profile_invalid"
+    assert outcome.state.params["evaluator_verdict"] != "APPROVE"
 
 
 def test_evaluator_transition_assertion_is_not_swallowed(

@@ -1065,13 +1065,42 @@ def _build_parser() -> argparse.ArgumentParser:
         "--confidence-level",
         type=float,
         default=0.95,
-        help="Confidence level for ci_bounded reports",
+        help="Finite confidence metadata in (0, 1); not a calibrated statistical interval",
+    )
+    cmd_replay.add_argument(
+        "--require-bundle-signatures",
+        action="store_true",
+        help="Require trusted current Ed25519 signatures for every imported view before publication",
+    )
+    cmd_replay.add_argument("--bundle-trust-dir", default=str(DEFAULT_TRUST_DIR))
+    cmd_replay.add_argument("--bundle-revoked-dir", default=str(DEFAULT_REVOKED_DIR))
+    cmd_replay.add_argument("--bundle-identities", default=str(DEFAULT_IDENTITIES_PATH))
+    cmd_replay.add_argument("--bundle-strict-identity", action="store_true")
+    cmd_replay.add_argument(
+        "--export-max-retained-generations",
+        type=int,
+        default=None,
+        help="Finite reserved sibling limit for --export (default: 8)",
+    )
+    cmd_replay.add_argument(
+        "--export-max-retained-bytes",
+        type=int,
+        default=None,
+        help="Finite retained/stage logical-byte limit for --export (default: 1073741824)",
     )
     cmd_replay.add_argument("--json", action="store_true")
 
     cmd_resume = components.add_parser("resume")
     cmd_resume.add_argument("run_id", help="Run ID to resume (e.g. R_abc123)")
     cmd_resume.add_argument("--cas-root", default=".polisyos/cas", help="CAS root directory")
+    cmd_resume.add_argument(
+        "--workflow-ref",
+        help="Original workflow CAS ID; requires --workflow-profile and matching checkpoint fingerprint",
+    )
+    cmd_resume.add_argument(
+        "--workflow-profile",
+        help="Exact selected workflow manifest profile (sha256:<64 lowercase hex>)",
+    )
     cmd_resume.add_argument(
         "--checkpoint-policy",
         choices=["off", "strict", "best_effort"],

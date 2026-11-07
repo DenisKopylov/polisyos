@@ -1,0 +1,266 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/common/async_tools/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/async_tools/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          978
+        ]
+      ],
+      "evidence_level": "Полный текущий owner прочитан; whole unchanged module импортирован и исполнен на Python 3.12. Никакой generic syntax translation или executor stub. Доказательство совместимости этого модуля, не всего поддерживаемого продукта.",
+      "git_blob": "fe5c9d96021c98dbb41a005e625d66bc7f832f62",
+      "sha256": "f986fb79507b7c81d8d680f61abcf8e94115db13fb90e7706bca83fcd1a634ec",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          245,
+          270
+        ],
+        [
+          467,
+          844
+        ],
+        [
+          1310,
+          1332
+        ],
+        [
+          1509,
+          1610
+        ],
+        [
+          1690,
+          1715
+        ],
+        [
+          1815,
+          1829
+        ],
+        [
+          2074,
+          2504
+        ],
+        [
+          3717,
+          3767
+        ],
+        [
+          3927,
+          4244
+        ]
+      ],
+      "evidence_level": "Deadline/attempt/authority/context/thread и полные sync/async retry wrappers прочитаны. Selected exact ranges исполнены; context façade/spend/reporting fixtures и forced thread route явные. Полный module import blocked на258, process worker не исполнялся.",
+      "git_blob": "557140e6651bd1a5a4bbd717bf4b7ca50bf58920",
+      "sha256": "274bae76b807ef08df74143439eba9a28fa0a3b00689cfc478909e6d3800d2af",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/tests/unit/common/test_async_tools.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/common/test_async_tools.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          25,
+          48
+        ],
+        [
+          234,
+          304
+        ],
+        [
+          904,
+          976
+        ],
+        [
+          1224,
+          1240
+        ]
+      ],
+      "evidence_level": "Все12 выбранных complete test bodies прочитаны и исполнены unchanged с raises/monkeypatch/capacity fixtures; algorithm owner настоящий. Остальные tests не объявлены исполнявшимися.",
+      "git_blob": "1498e71db007a26186386369100c1d3956a7cd15",
+      "sha256": "9dc06da55a0e63206c5d69bd5bc4b54c523eba9da2203ab06de3350504730325",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          83,
+          145
+        ],
+        [
+          1322,
+          1460
+        ],
+        [
+          1566,
+          1711
+        ]
+      ],
+      "evidence_level": "Controlled deadline fixture, native late-write/context test и unbounded delegation test прочитаны. Native bodies UNRUN; probe не выдаёт fixture authority call за actual CAS/claim owner.",
+      "git_blob": "892853590329afa2aae1b1b858f04353a4bbcb0d",
+      "sha256": "daa4d0553c49976c7c18370188c9446256c685723b683c69e72ba839cba7f4ba",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          133,
+          197
+        ],
+        [
+          429,
+          490
+        ],
+        [
+          550,
+          577
+        ],
+        [
+          650,
+          710
+        ]
+      ],
+      "evidence_level": "Actual async backend и sync caller/inner blocking/snapshot boundaries прочитаны. Полный ingestion pipeline не исполнялся; наличие обоих мостов не объявлено production deadlock.",
+      "git_blob": "5aaccb46eff2baae8ad3e1f10837875bc962aec6",
+      "sha256": "cf1c2d449b35a447676e4868ff24a4ca01c8c7b71c03029a3b374d9304b48d9b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          2085,
+          2135
+        ]
+      ],
+      "evidence_level": "Actual invocation binder передаёт existing cache_deadline в retry и проверяет workflow admission после результата; native workflow UNRUN. Остальные deadline owners сохранены C63 same blob.",
+      "git_blob": "57045f2d5233655fea35d8029c8ac565807a1622",
+      "sha256": "1a09deae5b3876b53199dc5901e1af51850d4a0d050124d1a928dbfcb7be903f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/common/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          55
+        ]
+      ],
+      "evidence_level": "Полный lazy facade прочитан и imported; поддерживает async_tools, а не incidental T.",
+      "git_blob": "87e824dc815e060ee5cbb3e8fb1757c8b96a353b",
+      "sha256": "7366be1858e35622c6ca211d9d344d4c3897dc065212450584fc772ebeb0536b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/errors.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/errors.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          75
+        ]
+      ],
+      "evidence_level": "Полный typed timeout/error owner прочитан и imported. NodeTimeoutError details не заменены строковым DTO.",
+      "git_blob": "fd35b1b532df61801ce6e4d334e968d720dac7bb",
+      "sha256": "41736e82315c56cad6dcbda2b5289300e495e57a7df7215e46c42e0dd97c168f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          81
+        ]
+      ],
+      "evidence_level": "Полный state owner прочитан в C65 same blob; actual module imported снова, реальные model_copy и params используются. Новая полная human-review аттестация не заявлена.",
+      "git_blob": "3724db92babaa2e2da1d1e35f8467159d3afe980",
+      "sha256": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          229
+        ]
+      ],
+      "evidence_level": "Полный typed NodeOutcome owner прочитан в C65 same blob и снова imported; actual typed result checks.",
+      "git_blob": "9beb3b3c46c72ac46f333a1028e453288d3d6011",
+      "sha256": "335125a09166458c151d749ca1f8a8548df356f349d288db584c63f2a9000e0f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          30
+        ]
+      ],
+      "evidence_level": "Закреплённый Python 3.14 / Pydantic диапазон против actual environment. Common отдельно импортируется без blocked runtime.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      7957,
+      8151
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "Свежий C68 после внешнего сохранения C67. Current Common moved to package; full native module, bounded retry definitions, no source edits. Старые потерянные evidence не переаттестованы."
+}

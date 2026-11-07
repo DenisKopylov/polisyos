@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import asyncio
+import json
+import time
+import tracemalloc
+from collections.abc import Callable
 from datetime import UTC, date, datetime
 from decimal import Decimal
 from enum import Enum, StrEnum
@@ -272,6 +277,119 @@ def test_branch_state_deeply_isolates_nested_elements_of_declared_leaf() -> None
     assert base_state.params["config"]["rows"] == [{"value": "base"}]
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("stop", ["failure", "cancellation"])
+async def test_failed_or_cancelled_nested_branch_keeps_base_sibling_and_aliases(stop: str) -> None:
+    """An actual interrupted task owns its copies, including aliases inside them."""
+    base = ExperimentState(run_id="R_nested_interruption")
+    rows = [{"value": "base"}]
+    base.params["config"] = {"left": rows, "right": rows}
+    failed = branch_state(base, write_paths=("params.config",), enforce_write_scope=True).state
+    sibling = branch_state(base, write_paths=("params.config",), enforce_write_scope=True).state
+    reached = asyncio.Event()
+    release = asyncio.Event()
+
+    async def mutate_then_stop() -> None:
+        failed.params["config"]["left"][0]["value"] = "uncommitted"
+        reached.set()
+        await release.wait()
+        raise RuntimeError("actual branch failure")
+
+    task = asyncio.create_task(mutate_then_stop())
+    try:
+        await asyncio.wait_for(reached.wait(), 1)
+        assert failed.params["config"]["left"] is failed.params["config"]["right"]
+        assert failed.params["config"]["right"][0]["value"] == "uncommitted"
+        assert base.params["config"]["left"] is base.params["config"]["right"]
+        assert sibling.params["config"]["left"] is sibling.params["config"]["right"]
+        if stop == "cancellation":
+            task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await task
+        else:
+            release.set()
+            with pytest.raises(RuntimeError, match="actual branch failure"):
+                await task
+    finally:
+        if not task.done():
+            task.cancel()
+        await asyncio.gather(task, return_exceptions=True)
+    assert base.params["config"]["left"] == [{"value": "base"}]
+    assert sibling.params["config"]["left"] == [{"value": "base"}]
+    assert base.params["config"]["left"] is not sibling.params["config"]["left"]
+
+
+@pytest.mark.parametrize("payload_bytes", [1024, 65536])
+def test_declared_subtree_workload_reports_bytes_time_and_python_peak(
+    payload_bytes: int,
+    record_testsuite_property: Callable[[str, object], None],
+) -> None:
+    """Characterize finite copying, without asserting a speedup or an RSS SLA."""
+    base = ExperimentState(
+        run_id="R_finite_branch_cost",
+        params={"config": {"rows": [{"value": 0}]}, "unrelated": "x" * payload_bytes},
+    )
+    encoded = base.model_dump_json().encode()
+    was_tracing = tracemalloc.is_tracing()
+    if not was_tracing:
+        tracemalloc.start()
+    baseline_current, baseline_peak = tracemalloc.get_traced_memory()
+    started = time.monotonic_ns()
+    try:
+        for value in range(10):
+            current = branch_state(base, write_paths=("params.config",), enforce_write_scope=True)
+            current.state.params["config"]["rows"][0]["value"] = value
+            assert base.params["config"]["rows"][0]["value"] == 0
+        elapsed = time.monotonic_ns() - started
+        _, peak = tracemalloc.get_traced_memory()
+    finally:
+        if not was_tracing:
+            tracemalloc.stop()
+    report = {
+        "workload": "10 admitted branches; one nested row write; unrelated string retained",
+        "serialized_state_bytes": len(encoded),
+        "unrelated_payload_bytes": payload_bytes,
+        "branch_calls": 10,
+        "elapsed_ns": elapsed,
+        "python_traced_peak_bytes": peak if not was_tracing else None,
+        "process_traced_peak_bytes": peak,
+        "baseline_traced_current_bytes": baseline_current,
+        "baseline_traced_peak_bytes": baseline_peak,
+        "preexisting_tracing": was_tracing,
+        "unresolved_by_construction": [
+            "Native allocations and whole-process RSS (external supervisor measures RSS)",
+            "Production graph representativeness, arbitrary Python graphs and speedup",
+        ],
+        "measurement_overhead": "Includes finite admission, assertions and tracemalloc",
+        "peak_scope": "Process tracing interval; may include earlier work if already enabled",
+        "preexisting_trace_qualification": (
+            "Earlier process peak is not a per-workload sample" if was_tracing else "fresh interval"
+        ),
+    }
+    assert elapsed > 0 and peak > 0
+    record_testsuite_property(f"sta01_subtree_costs_{payload_bytes}", json.dumps(report))
+
+
+def test_parallel_parent_delete_child_write_conflict_keeps_complete_base() -> None:
+    base = ExperimentState(run_id="R_parent_child_conflict", params={"cfg": {"x": 1}, "keep": 2})
+    deletion = branch_state(base, write_paths=("params",), enforce_write_scope=True).state
+    child = branch_state(base, write_paths=("params.cfg",), enforce_write_scope=True).state
+    del deletion.params["cfg"]
+    child.params["cfg"]["x"] = 3
+    merged = merge_parallel_outcomes(
+        base,
+        {
+            "delete": NodeOutcome(status="ok", state=deletion),
+            "child": NodeOutcome(status="ok", state=child),
+        },
+        {"delete": ["params"], "child": ["params.cfg"]},
+    )
+    assert merged.applied is False
+    assert merged.conflict_details
+    assert merged.state is base
+    assert base.params == {"cfg": {"x": 1}, "keep": 2}
+
+
 # Production mutation caught: declared top-level scalar/ref writes must be
 # installed as journaled setters instead of being silently unobservable.
 def test_branch_state_records_top_level_scalar_ref_assignment() -> None:
@@ -300,6 +418,80 @@ def test_snapshot_state_deep_clones_mutable_state_surfaces() -> None:
 
     assert base_state.params["nested"]["items"] == ["base"]
     assert base_state.causal_method_params["method"]["thresholds"] == [0.1]
+
+
+def test_snapshot_state_isolates_refs_and_preserves_cross_field_aliases() -> None:
+    reference = _artifact_ref()
+    base_state = ExperimentState(run_id="R_snapshot_ref", execution_plan_ref=reference)
+    base_state.inputs["shared"] = reference
+    base_state.artifacts_index["shared"] = reference
+    fields_set = set(base_state.model_fields_set)
+
+    snapshot = snapshot_state(base_state)
+    copied = snapshot.execution_plan_ref
+    assert copied is not None
+    assert type(copied) is ArtifactRef
+    assert copied is snapshot.inputs["shared"] is snapshot.artifacts_index["shared"]
+    assert copied is not reference
+    assert snapshot.model_fields_set == fields_set
+    assert copied.model_fields_set == reference.model_fields_set
+    copied.artifact_id.root = f"sha256:{'b' * 64}"
+    copied.manifest_profile_sha256 = f"sha256:{'c' * 64}"
+
+    assert reference.artifact_id.root == f"sha256:{'a' * 64}"
+    assert reference.manifest_profile_sha256 is None
+
+
+def test_snapshot_state_root_detachment_removal_exposes_ref_mutation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reference = _artifact_ref()
+    base_state = ExperimentState(run_id="R_snapshot_removal", execution_plan_ref=reference)
+    base_state.inputs["shared"] = reference
+    original_deepcopy = snapshot_state.__globals__["deepcopy"]
+
+    def remove_root_detachment(value: Any, memo: dict[int, Any]) -> Any:
+        if value is base_state.__dict__:
+            return value.copy()
+        return original_deepcopy(value, memo)
+
+    monkeypatch.setitem(snapshot_state.__globals__, "deepcopy", remove_root_detachment)
+    snapshot = snapshot_state(base_state)
+    assert snapshot.execution_plan_ref is reference
+    assert snapshot.execution_plan_ref is snapshot.inputs["shared"]
+    snapshot.execution_plan_ref.artifact_id.root = f"sha256:{'b' * 64}"
+    assert reference.artifact_id.root == f"sha256:{'b' * 64}"
+
+
+def test_snapshot_state_retains_guarded_producer_tracking() -> None:
+    source = branch_state(
+        ExperimentState(run_id="R_snapshot_guard", params={"items": ["base"]}),
+        write_paths=("params.items",),
+        enforce_write_scope=True,
+    )
+    snapshot = snapshot_state(source.state)
+    assert mutation_journal_for_state(snapshot) is source.journal
+    snapshot.params["items"].append("snapshot")
+    assert source.state.params["items"] == ["base"]
+    assert source.journal.operations[-1].path == "params.items"
+    with pytest.raises(ValueError, match="undeclared state_writes"):
+        snapshot.run_id = "not-allowed"
+
+
+def test_snapshot_state_copies_private_runtime_state_with_shared_alias() -> None:
+    class StateWithPrivate(ExperimentState):
+        _private: Any = PrivateAttr()
+
+    base_state = StateWithPrivate(run_id="R_snapshot_private")
+    shared = ["base"]
+    base_state.params["shared"] = shared
+    base_state._private = shared
+    snapshot = snapshot_state(base_state)
+
+    assert isinstance(snapshot, StateWithPrivate)
+    assert snapshot._private is snapshot.params["shared"]
+    snapshot._private.append("snapshot")
+    assert shared == ["base"]
 
 
 def test_producer_admission_rejects_nested_custom_leaf_before_deepcopy() -> None:

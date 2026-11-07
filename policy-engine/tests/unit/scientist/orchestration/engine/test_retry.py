@@ -67,6 +67,156 @@ def _fail_outcome(state, code="node.exception"):
     )
 
 
+@pytest.mark.asyncio
+async def test_thread_attempt_completed_before_wrap_does_not_stall_saturated_loop(
+    ctx,
+    state,
+    monkeypatch,
+) -> None:
+    """The real async retry bridge must deliver completed work without a spare worker."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=0)
+    monkeypatch.setattr(retry_module, "get_shared_executor", lambda: executor)
+    original_submit = retry_module._submit_thread_attempt
+    started = threading.Event()
+    release = threading.Event()
+    heartbeat = threading.Event()
+    forced_release = threading.Event()
+    calls: list[str] = []
+    blocker_future = None
+
+    class Node:
+        def execute(self, attempt_ctx, attempt_state):
+            del attempt_ctx
+            calls.append("work")
+            return _ok_outcome(attempt_state)
+
+    def block() -> None:
+        started.set()
+        assert release.wait(timeout=3)
+
+    def completed_before_return(node, selected_ctx, selected_state, deadline):
+        nonlocal blocker_future
+        future, authority, completed = original_submit(node, selected_ctx, selected_state, deadline)
+        assert future.result(timeout=2).status == "ok"
+        with executor._capacity_changed:
+            assert executor._capacity_changed.wait_for(lambda: executor._outstanding_jobs == 0, 2)
+        blocker_future = executor.submit(block)
+        assert started.wait(timeout=2)
+        return future, authority, completed
+
+    def watchdog() -> None:
+        if not heartbeat.wait(timeout=0.5):
+            forced_release.set()
+            release.set()
+
+    monkeypatch.setattr(retry_module, "_submit_thread_attempt", completed_before_return)
+    watcher = threading.Thread(target=watchdog)
+    watcher.start()
+    asyncio.get_running_loop().call_soon(heartbeat.set)
+    try:
+        result = await retry_module._execute_with_timeout_thread_async(
+            Node(), ctx, state, timeout_s=2
+        )
+        assert result.status == "ok" and result.state.run_id == state.run_id
+        assert heartbeat.is_set() and not forced_release.is_set()
+        assert not release.is_set() and calls == ["work"]
+        with executor._admission_lock:
+            assert executor._physical_workers == 1 and executor._outstanding_jobs == 1
+    finally:
+        release.set()
+        watcher.join(timeout=2)
+        if blocker_future is not None:
+            blocker_future.result(timeout=2)
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mode", ["cancel", "timeout"])
+async def test_thread_attempt_queued_cancellation_never_waits_for_user_callbacks(
+    ctx,
+    state,
+    monkeypatch,
+    mode: str,
+) -> None:
+    """Async retry preserves a queued no-start outcome without blocking its loop."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=1)
+    monkeypatch.setattr(retry_module, "get_shared_executor", lambda: executor)
+    original_submit = retry_module._submit_thread_attempt
+    started = threading.Event()
+    release = threading.Event()
+    heartbeat = threading.Event()
+    forced_release = threading.Event()
+    callback_finished = threading.Event()
+    calls: list[str] = []
+    sources = []
+
+    class Node:
+        def execute(self, attempt_ctx, attempt_state):
+            del attempt_ctx
+            calls.append("must-not-run")
+            return _ok_outcome(attempt_state)
+
+    def block() -> None:
+        started.set()
+        assert release.wait(timeout=3)
+
+    def callback(_future) -> None:
+        calls.append("callback")
+        callback_finished.set()
+
+    def attach_callback(node, selected_ctx, selected_state, deadline):
+        future, authority, completed = original_submit(node, selected_ctx, selected_state, deadline)
+        future.add_done_callback(callback)
+        sources.append(future)
+        return future, authority, completed
+
+    def watchdog() -> None:
+        if not heartbeat.wait(timeout=0.5):
+            forced_release.set()
+            release.set()
+
+    running = executor.submit(block)
+    assert started.wait(timeout=2)
+    monkeypatch.setattr(retry_module, "_submit_thread_attempt", attach_callback)
+    task = asyncio.create_task(
+        retry_module._execute_with_timeout_thread_async(
+            Node(), ctx, state, timeout_s=0.03 if mode == "timeout" else 2
+        )
+    )
+    await asyncio.sleep(0)
+    assert len(sources) == 1 and not sources[0].done()
+    watcher = threading.Thread(target=watchdog)
+    watcher.start()
+    try:
+        if mode == "timeout":
+            asyncio.get_running_loop().call_later(0.08, heartbeat.set)
+            with pytest.raises(NodeTimeoutError) as captured:
+                await task
+            assert captured.value.details["execution_state"] == "not_started"
+        else:
+            task.cancel()
+            asyncio.get_running_loop().call_soon(heartbeat.set)
+            with pytest.raises(asyncio.CancelledError):
+                await task
+        await asyncio.sleep(0.1)
+        assert heartbeat.is_set() and not forced_release.is_set()
+        assert not release.is_set() and calls == []
+        with executor._admission_lock:
+            assert executor._physical_workers == 1 and executor._outstanding_jobs == 2
+    finally:
+        release.set()
+        watcher.join(timeout=2)
+        running.result(timeout=2)
+        assert callback_finished.wait(timeout=2)
+        executor.shutdown(wait=True, cancel_futures=True)
+    assert sources[0].cancelled() and calls == ["callback"]
+    assert executor._outstanding_jobs == 0
+
+
 def _select_timeout_test_route(monkeypatch, route: str) -> None:
     """Select a route that this platform actually admits for the tested input."""
     if route.endswith("-fork"):
@@ -1791,6 +1941,61 @@ class TestRetryTimeoutWorker:
         result_queue.put.assert_not_called()
 
 
+@pytest.mark.parametrize("preparation", ["context", "execute_lookup"])
+@pytest.mark.parametrize("expired", [False, True], ids=["on-time", "expired"])
+def test_worker_preparation_cannot_enter_body_after_absolute_deadline(
+    tmp_path, ctx, state, monkeypatch, preparation, expired
+):
+    """The final body guard includes context projection and callable lookup."""
+    from types import SimpleNamespace
+
+    effects = tmp_path / "physical-body"
+    clock = [0.0]
+    monkeypatch.setattr(retry_module, "time", SimpleNamespace(monotonic=lambda: clock[0]))
+    project_context = retry_module._node_facing_context
+
+    def prepare_context(worker_ctx):
+        node_ctx = project_context(worker_ctx)
+        if preparation == "context":
+            clock[0] = 2.0 if expired else 0.5
+        return node_ctx
+
+    class Node:
+        @property
+        def execute(self):
+            if preparation == "execute_lookup":
+                clock[0] = 2.0 if expired else 0.5
+            return self._execute
+
+        def _execute(self, passed_ctx, passed_state):
+            effects.write_text("body")
+            return _ok_outcome(passed_state)
+
+    monkeypatch.setattr(retry_module, "_node_facing_context", prepare_context)
+    result_queue = MagicMock()
+
+    def invoke():
+        _node_execute_worker(Node(), ctx, state, result_queue, compute_deadline=1.0)
+
+    if expired:
+        invoke()
+        result_queue.put.assert_called_once()
+        status, payload = result_queue.put.call_args.args[0]
+        assert status == "error"
+        error = retry_module._worker_node_error(payload, expected_run_id=state.run_id)
+        assert error.code == "node.worker_outcome_unknown"
+        assert error.category == "fatal"
+        assert error.deadline_execution_state == "not_started"
+        assert not retry_module._should_retry_exception(
+            error, RetryPolicy(max_retries=2, retry_on=[error.code])
+        )
+        assert not effects.exists()
+    else:
+        invoke()
+        assert effects.read_text() == "body"
+        assert result_queue.put.call_args.args[0][0] == "ok"
+
+
 class _PayloadTransportNode:
     """Return a deterministic result large enough to exercise Queue backpressure."""
 
@@ -2195,11 +2400,12 @@ class _ImmediateResultQueue:
 
 
 @pytest.mark.parametrize("mode", ["sync", "async"])
-def test_late_worker_completion_is_not_delivery_success(mode) -> None:
+@pytest.mark.parametrize("expired", [False, True], ids=["early-exit", "expired"])
+def test_late_worker_completion_is_not_delivery_success(mode, expired) -> None:
     """A dead worker alone cannot prove computation met its deadline."""
     process = _ExitedWorker()
     result_queue = _ImmediateResultQueue()
-    compute_deadline = _time.monotonic() - 1.0
+    compute_deadline = _time.monotonic() + (-1.0 if expired else 1.0)
 
     def invoke():
         if mode == "sync":
@@ -2219,6 +2425,181 @@ def test_late_worker_completion_is_not_delivery_success(mode) -> None:
 
     with pytest.raises(retry_module._WorkerProcessExited):
         invoke()
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize(
+    ("completed", "exited", "elapsed", "expected"),
+    [
+        (False, False, False, "transport"),
+        (False, True, False, "exit"),
+        (False, True, True, "exit"),
+        (False, False, True, "compute"),
+        (True, True, True, "delivery"),
+    ],
+)
+def test_eof_is_classified_from_fresh_worker_state(mode, completed, exited, elapsed, expected):
+    """EOF consults the completion mark, exit status and budget in that order."""
+    started = _time.monotonic()
+    deadline = started + 0.2
+    completion = type("Completion", (), {"value": 0.0})()
+
+    class Process:
+        alive = True
+        exitcode = None
+
+        def is_alive(self):
+            return self.alive
+
+    process = Process()
+
+    class EofChannel:
+        def get(self, *, timeout):
+            assert timeout > 0
+            if completed:
+                completion.value = started + 0.001
+            if exited:
+                process.alive = False
+                process.exitcode = 23
+            if elapsed:
+                _time.sleep(0.21)
+            raise EOFError
+
+        def get_nowait(self):
+            return self.get(timeout=1.0)
+
+    errors = {
+        "transport": RuntimeError,
+        "exit": retry_module._WorkerProcessExited,
+        "compute": retry_module._WorkerComputeTimeout,
+        "delivery": retry_module._WorkerDeliveryTimeout,
+    }
+
+    def invoke():
+        if mode == "sync":
+            retry_module._drain_result_sync(
+                process, EofChannel(), compute_deadline=deadline, completion_time=completion
+            )
+        else:
+            asyncio.run(
+                retry_module._drain_result_async(
+                    process, EofChannel(), compute_deadline=deadline, completion_time=completion
+                )
+            )
+
+    with pytest.raises(errors[expected]) as raised:
+        invoke()
+    if expected == "exit":
+        assert raised.value.exitcode == 23
+    if expected == "transport":
+        assert "exitcode=None" in str(raised.value)
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_real_pipe_eof_before_child_exit_is_transport_failure(mode):
+    """A live native child closing its result pipe is not a compute timeout."""
+    channel = retry_module._WorkerResultChannel(mp.get_context("spawn"))
+    writer_fd = channel._writer.fileno()
+    child = subprocess.Popen(
+        [
+            sys.executable,
+            "-c",
+            "import os, sys, time; os.close(int(sys.argv[1])); time.sleep(5)",
+            str(writer_fd),
+        ],
+        pass_fds=(writer_fd,),
+    )
+    channel.close_writer()
+
+    class Child:
+        def is_alive(self):
+            return child.poll() is None
+
+        @property
+        def exitcode(self):
+            return child.poll()
+
+    def invoke():
+        deadline = _time.monotonic() + 2.0
+        if mode == "sync":
+            retry_module._drain_result_sync(Child(), channel, compute_deadline=deadline)
+        else:
+            asyncio.run(
+                retry_module._drain_result_async(Child(), channel, compute_deadline=deadline)
+            )
+
+    try:
+        with pytest.raises(retry_module._WorkerTransportError, match="exitcode=None"):
+            invoke()
+        assert child.poll() is None
+    finally:
+        if child.poll() is None:
+            child.terminate()
+        child.wait(timeout=3)
+        channel.close_reader()
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("reason", ["transport", "exit", "delivery"])
+@pytest.mark.parametrize("route", ["direct", "ipc"])
+def test_uncertain_process_failure_does_not_retry_automatically(
+    ctx, state, monkeypatch, mode, reason, route
+):
+    """The public retry consumer must not replay an unresolved process outcome."""
+    calls = []
+
+    def failure():
+        calls.append(1)
+        if reason == "exit":
+            exc = retry_module._WorkerProcessExited(23)
+        elif reason == "delivery":
+            exc = retry_module._WorkerDeliveryError("delivery exceeded bounded grace")
+        else:
+            exc = retry_module._WorkerTransportError("channel closed; exitcode=None")
+        if route == "ipc":
+            exc = retry_module._worker_node_error(retry_module._worker_error_payload(exc))
+        raise exc
+
+    def sync_attempt(*args, **kwargs):
+        return failure()
+
+    async def async_attempt(*args, **kwargs):
+        return failure()
+
+    monkeypatch.setattr(retry_module, "_execute_with_timeout_sync", sync_attempt)
+    monkeypatch.setattr(retry_module, "_execute_with_timeout_async", async_attempt)
+    monkeypatch.setattr(retry_module, "_execute_with_timeout_process_async", async_attempt)
+    kwargs = {
+        "retry_policy": RetryPolicy(max_retries=1, backoff_base_s=0.1, jitter="none"),
+        "timeout_s": 10.0,
+        "alias": "unknown-process-outcome",
+    }
+
+    def invoke():
+        if mode == "sync":
+            execute_with_retry_sync(_PayloadTransportNode(64), ctx, state, **kwargs)
+        else:
+            asyncio.run(execute_with_retry_async(_PayloadTransportNode(64), ctx, state, **kwargs))
+
+    with pytest.raises(RetryExhaustedError) as raised:
+        invoke()
+    assert len(calls) == 1
+    expected = {
+        "exit": retry_module._WorkerProcessExited,
+        "transport": retry_module._WorkerTransportError,
+        "delivery": retry_module._WorkerDeliveryError,
+    }
+    if route == "ipc":
+        assert isinstance(raised.value.__cause__, retry_module._WorkerNodeError)
+        assert raised.value.__cause__.category == "fatal"
+        assert raised.value.__cause__.code == "node.worker_outcome_unknown"
+    else:
+        assert isinstance(raised.value.__cause__, expected[reason])
+
+
+def test_unclassified_runtime_error_keeps_existing_retry_contract():
+    policy = RetryPolicy(max_retries=1)
+    assert retry_module._should_retry_exception(RuntimeError("ordinary error"), policy)
 
 
 class _DescendantProcessNode:
@@ -2295,7 +2676,7 @@ def test_cleanup_kills_descendant_after_worker_exit(tmp_path, ctx, state) -> Non
     descendant_pid: int | None = None
 
     try:
-        with pytest.raises(NodeTimeoutError):
+        with pytest.raises((retry_module._WorkerProcessExited, retry_module._WorkerTransportError)):
             retry_module._execute_with_timeout_process(
                 node,
                 ctx,
@@ -2499,13 +2880,20 @@ def test_owned_supervisor_reaps_tree_on_async_caller_cancellation(owned_tree_dir
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux owned-process-tree supervisor")
+@pytest.mark.parametrize("cut", ["before_body", "after_body", "before_receipt", "healthy"])
+@pytest.mark.parametrize("mode", ["sync", "async"])
 def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
-    owned_tree_dir, ctx, state, runtime_api_env, monkeypatch
+    owned_tree_dir, ctx, state, runtime_api_env, monkeypatch, cut, mode
 ):
     """Real route permission and worker lease loss stop the owned process tree."""
+    from uuid import uuid4
+
     from polisyos.core.artifacts.manifest import SchemaInfo
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+    from polisyos.core.registry import build_default_registry_bundle
     from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
     from polisyos.runtime.http import deployment_security
     from polisyos.runtime.http.services.control_plane_store import (
@@ -2513,6 +2901,12 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
         ControlJobLeaseLostError,
     )
     from polisyos.runtime.http.services.control_worker import ControlWorker
+    from polisyos.scientist.orchestration.engine.context import (
+        ExecutionContext,
+        _EngineInvocationBinding,
+    )
+    from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
     from tests._helpers.runtime_http import deployment_security_config_mapping
     from tests.unit.runtime.http.test_control_plane_store import (
         _job_creation_event,
@@ -2525,11 +2919,15 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
         _install_authorization_audit_capture,
     )
 
+    fixture_config = runtime_api_env["app"].state.runtime_container.config
+    assert fixture_config.catalog_source_selection is not None
     client, cell, provider = _build_secure_client(
         runtime_api_env,
         opa_client=_AllowOPA(),
         claims_by_token={},
         raise_server_exceptions=False,
+        repo_root=fixture_config.repo_root,
+        catalog_source_selection=fixture_config.catalog_source_selection,
     )
     tenant = runtime_api_env["tenant_a"]
     bearer = _fixture_bearer("cancellation-authorized")
@@ -2646,19 +3044,161 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
             creation_event_payload=creation,
         )
 
-        def handler(_job):
-            execute_with_retry_sync(
-                _OwnedProcessTreeNode(owned_tree_dir, finish=False),
-                ctx,
-                state,
-                retry_policy=RetryPolicy(),
-                timeout_s=30,
-                alias="authenticated-cancellation",
+        class BoundTreeNode(_OwnedProcessTreeNode):
+            spec = NodeSpec(
+                metadata=ComponentMetadata(
+                    component_id=ComponentId.parse("scientist.test.control_owned_tree@1.0.0"),
+                    kind=ComponentKind.SCIENTIST_NODE,
+                    abi_targets={"world_abi": "1.x"},
+                    capabilities=Capability.SCIENTIST_NODE,
+                    display_name="Control-owned process tree",
+                    description="Exercises owned cleanup under an active Control job.",
+                )
             )
+
+        active_runs = []
+
+        def handler(active_job):
+            bundle = build_default_registry_bundle(cas, return_selected_profile=True)
+            run = RunContext.start(
+                store=cas, registry_bundle=bundle.bundle_ref, run_id=active_job.run_id
+            )
+            run.update_manifest(control_job_id=active_job.job_id, execution_profile="dev")
+            active_runs.append(run)
+            execution_state = ExperimentState(run_id=active_job.run_id)
+            node_id = str(BoundTreeNode.spec.metadata.component_id)
+            params = {"fixture": "owned-tree"}
+            workflow = WorkflowSpec(
+                workflow_id="control_owned_tree",
+                nodes=[
+                    NodeInvocation(
+                        alias="authenticated_cancellation",
+                        node_id=node_id,
+                        params=params,
+                        timeout_s=30,
+                    )
+                ],
+            )
+            workflow_ref = cas.put_json(
+                workflow.model_dump(mode="json"),
+                ArtifactWriteOptions(
+                    kind="scientist.workflow_spec",
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name="polisyos.scientist.orchestration.engine.WorkflowSpec", version="1.0"
+                    ),
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+            state_ref = cas.put_json(
+                execution_state.model_dump(mode="json"),
+                ArtifactWriteOptions(
+                    kind="scientist.experiment_state",
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name="polisyos.scientist.orchestration.engine.ExperimentState",
+                        version=execution_state.schema_version,
+                    ),
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+            attempt_id = str(uuid4())
+            basis_ref = run._record_runtime_invocation_started(
+                attempt_id=attempt_id,
+                attempt_number=1,
+                workflow_spec_ref=workflow_ref,
+                node_alias="authenticated_cancellation",
+                component_id=node_id,
+                input_state_ref=state_ref,
+            )
+            execution_context = ExecutionContext(
+                store=cas,
+                run=run,
+                logger=MagicMock(),
+                _engine_invocation=_EngineInvocationBinding(
+                    run_id=active_job.run_id, attempt_id=attempt_id, basis_ref=basis_ref
+                ),
+            )
+            node = BoundTreeNode(owned_tree_dir, finish=cut in {"before_receipt", "healthy"})
+            options = {
+                "retry_policy": RetryPolicy(),
+                "timeout_s": 30,
+                "alias": "authenticated_cancellation",
+                "dispatch_params": {"fixture": "owned-tree"},
+            }
+            if mode == "sync":
+                result = execute_with_retry_sync(
+                    node, execution_context, execution_state, **options
+                )
+            else:
+                result = asyncio.run(
+                    execute_with_retry_async(node, execution_context, execution_state, **options)
+                )
+            if cut == "healthy":
+                assert result.status == "ok"
+                store.complete_job(
+                    job_id=active_job.job_id,
+                    expected_lease_owner="cancel-test-worker",
+                    expected_attempt=active_job.attempt,
+                )
+                return
             pytest.fail("interrupted owned computation returned a result")
 
         worker = ControlWorker(
             store=store, handler=handler, worker_id="cancel-test-worker", lease_seconds=2
+        )
+        request_waiting = threading.Event()
+        permit_owner_check = threading.Event()
+        owned_groups = []
+        original_service = retry_module._ForkOwnerHandoff.service
+        original_service_async = retry_module._ForkOwnerHandoff.service_async
+        original_group_id = retry_module._owned_process_group_id
+        original_revalidate = retry_module._require_current_fork_engine_attempt
+        revalidation_count = []
+
+        def controlled_service(handoff, completion_time=None, attempt_check=None):
+            if cut == "before_body" and not request_waiting.is_set() and handoff.parent.poll(0):
+                request_waiting.set()
+                if not permit_owner_check.wait(20):
+                    raise RuntimeError("test_owner_check_gate_timeout")
+            return original_service(handoff, completion_time, attempt_check)
+
+        async def controlled_service_async(handoff, completion_time=None, attempt_check=None):
+            if cut == "before_body" and not request_waiting.is_set() and handoff.parent.poll(0):
+                request_waiting.set()
+                deadline = _time.monotonic() + 20
+                while not permit_owner_check.is_set():
+                    if _time.monotonic() >= deadline:
+                        raise RuntimeError("test_owner_check_gate_timeout")
+                    await asyncio.sleep(0.01)
+            return await original_service_async(handoff, completion_time, attempt_check)
+
+        def controlled_revalidate(*args, **kwargs):
+            revalidation_count.append(1)
+            if cut == "before_receipt" and len(revalidation_count) == 2:
+                request_waiting.set()
+                if not permit_owner_check.wait(20):
+                    raise RuntimeError("test_receipt_admission_gate_timeout")
+            return original_revalidate(*args, **kwargs)
+
+        def observe_owned_group(*args, **kwargs):
+            group_id = original_group_id(*args, **kwargs)
+            if group_id is not None:
+                owned_groups.append(group_id)
+            return group_id
+
+        monkeypatch.setattr(retry_module._ForkOwnerHandoff, "service", controlled_service)
+        monkeypatch.setattr(
+            retry_module._ForkOwnerHandoff, "service_async", controlled_service_async
+        )
+        monkeypatch.setattr(
+            retry_module, "_require_current_fork_engine_attempt", controlled_revalidate
+        )
+        monkeypatch.setattr(retry_module, "_owned_process_group_id", observe_owned_group)
+        foreign = subprocess.Popen(
+            [sys.executable, "-c", "import time; time.sleep(60)"], start_new_session=True
         )
         errors = []
 
@@ -2672,10 +3212,29 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
         thread.start()
         try:
             effects = owned_tree_dir / "grandchild-effects.txt"
+            if cut == "healthy":
+                thread.join(timeout=35)
+                assert not thread.is_alive() and not errors, errors
+                assert store.get_job(job.job_id).state == "completed"
+                assert len(active_runs) == 1 and active_runs[0].trace_path is not None
+                assert "WORKER_INVOCATION_COMPLETED" in active_runs[0].trace_path.read_text()
+                _assert_real_tree_reaped(owned_tree_dir)
+                assert foreign.poll() is None
+                return
             deadline = _time.monotonic() + 30
-            while not effects.exists() or not effects.stat().st_size:
-                assert thread.is_alive() and _time.monotonic() < deadline
+            while not (
+                request_waiting.is_set()
+                if cut in {"before_body", "before_receipt"}
+                else effects.exists() and effects.stat().st_size
+            ):
+                assert thread.is_alive() and _time.monotonic() < deadline, (
+                    f"dispatch stopped before selected cut; errors={errors!r}; "
+                    f"job={store.get_job(job.job_id)!r}"
+                )
                 _time.sleep(0.01)
+            assert owned_groups
+            if cut == "before_body":
+                assert not effects.exists()
             running = store.get_job(job.job_id)
             assert running is not None and running.state == "running"
             assert (
@@ -2738,6 +3297,7 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
             )
             assert response.status_code == 200, response.text
             assert response.json()["state"] == "cancelled"
+            permit_owner_check.set()
             repeated = client.post(
                 f"/api/v1/control/jobs/{job.job_id}/cancel",
                 headers=headers,
@@ -2754,7 +3314,16 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
                 )
             thread.join(timeout=10)
             assert not thread.is_alive() and not errors
-            _assert_real_tree_reaped(owned_tree_dir)
+            if cut in {"after_body", "before_receipt"}:
+                _assert_real_tree_reaped(owned_tree_dir)
+            else:
+                assert not effects.exists()
+                with pytest.raises(ProcessLookupError):
+                    os.killpg(owned_groups[0], 0)
+            assert foreign.poll() is None
+            assert len(active_runs) == 1 and active_runs[0].trace_path is not None
+            trace_text = active_runs[0].trace_path.read_text()
+            assert "WORKER_INVOCATION_COMPLETED" not in trace_text
             fresh = client.get(f"/api/v1/control/jobs/{job.job_id}", headers=headers)
             assert fresh.status_code == 200
             assert fresh.json()["state"] == "cancelled"
@@ -2768,9 +3337,44 @@ def test_authenticated_cancel_reaps_owned_child_and_fences_fresh_job(
                 )
             with pytest.raises(ControlJobLeaseLostError):
                 store.upsert_progress(job_id=job.job_id, progress={"state": "running"})
+
+            fresh_creation = dict(creation)
+            fresh_creation.update(job_id="job_fresh_after_cancel", run_id="run_fresh_after_cancel")
+            fresh_job = store.create_job(
+                job_id="job_fresh_after_cancel",
+                kind="workflow_run",
+                run_id="run_fresh_after_cancel",
+                pipeline_id=None,
+                requested_execution_profile=None,
+                effective_execution_profile="dev",
+                policy_flags={"candidate": True},
+                capability_manifest_ref=manifest_id,
+                payload_ref="sha256:payload-b",
+                submitted_by="denis",
+                creation_event_payload=fresh_creation,
+            )
+            fresh_calls = []
+
+            def fresh_handler(current_job):
+                fresh_calls.append(current_job.job_id)
+                store.complete_job(
+                    job_id=current_job.job_id,
+                    expected_lease_owner="fresh-worker",
+                    expected_attempt=current_job.attempt,
+                )
+
+            fresh_worker = ControlWorker(
+                store=store, handler=fresh_handler, worker_id="fresh-worker", lease_seconds=2
+            )
+            assert fresh_worker.dispatch_once()
+            assert fresh_calls == [fresh_job.job_id]
+            assert store.get_job(fresh_job.job_id).state == "completed"
         finally:
+            permit_owner_check.set()
             worker.stop()
             thread.join(timeout=3)
+            foreign.terminate()
+            foreign.wait(timeout=5)
 
 
 def test_framed_result_reader_never_blocks_on_an_actual_partial_pipe():
@@ -3054,6 +3658,106 @@ def test_absolute_deadline_refuses_admission_after_expiry(tmp_path, ctx, state, 
     assert not effects.exists()
 
 
+@pytest.mark.skipif(
+    retry_module._timeout_worker_start_method() != "fork",
+    reason="native Linux fork process admission required",
+)
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_process_setup_cannot_admit_worker_after_absolute_deadline(
+    tmp_path, ctx, state, monkeypatch, mode
+):
+    """A constructor delay must not admit even the supervisor after expiry."""
+    effects = tmp_path / "physical-body"
+    starts = []
+    process_factory = retry_module._process_factory
+
+    def delayed_factory(context):
+        original = process_factory(context)
+
+        def construct(**kwargs):
+            process = original(**kwargs)
+            start = process.start
+
+            def observed_start():
+                starts.append(process)
+                start()
+
+            process.start = observed_start
+            _time.sleep(0.03)
+            return process
+
+        return construct
+
+    class Node:
+        def execute(self, passed_ctx, passed_state):
+            effects.write_text("body")
+            return _ok_outcome(passed_state)
+
+    monkeypatch.setattr(retry_module, "_process_factory", delayed_factory)
+    execute = (
+        retry_module._execute_with_timeout_process
+        if mode == "sync"
+        else retry_module._execute_with_timeout_process_async
+    )
+
+    def invoke():
+        result = execute(Node(), ctx, state, timeout_s=0.01)
+        if mode == "async":
+            return asyncio.run(result)
+        return result
+
+    with pytest.raises(NodeTimeoutError) as expired:
+        invoke()
+    assert expired.value.details["execution_state"] == "not_started"
+    assert starts == []
+    assert not effects.exists()
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="native Linux owned-process supervisor")
+def test_supervisor_scheduled_after_deadline_never_enters_node(tmp_path, ctx, state):
+    """An admitted supervisor cannot admit node code after scheduling delay."""
+    effects = tmp_path / "physical-body"
+
+    class Node:
+        def execute(self, passed_ctx, passed_state):
+            effects.write_text("body")
+            return _ok_outcome(passed_state)
+
+    context = mp.get_context("fork")
+    channel = retry_module._WorkerResultChannel(context)
+    ready = context.Event()
+    completed_at = context.Value("d", 0.0)
+    cleanup_complete = context.Value("b", False)
+    process = context.Process(
+        target=retry_module._node_execute_supervisor,
+        args=(
+            Node(),
+            ctx,
+            state,
+            channel,
+            ready,
+            completed_at,
+            _time.monotonic() - 0.01,
+            cleanup_complete,
+        ),
+    )
+    try:
+        process.start()
+        channel.close_writer()
+        process.join(timeout=2)
+        assert not process.is_alive()
+        assert process.exitcode == 0
+        assert ready.is_set()
+        assert cleanup_complete.value
+        assert not effects.exists()
+    finally:
+        if process.is_alive():
+            process.terminate()
+            process.join(timeout=2)
+        process.close()
+        channel.close()
+
+
 @pytest.mark.parametrize("termination", ["deadline", "cancellation"])
 @pytest.mark.asyncio
 async def test_queued_async_thread_attempt_never_enters_body_after_termination(
@@ -3118,31 +3822,45 @@ async def test_queued_async_thread_attempt_never_enters_body_after_termination(
     retry_module._timeout_worker_start_method() != "fork",
     reason="control-exception transport is verified on the native Linux fork route",
 )
+@pytest.mark.parametrize("late", [False, True], ids=["before-deadline", "after-deadline"])
 @pytest.mark.parametrize("control", ["SystemExit", "KeyboardInterrupt", "SystemExitUnsupported"])
 @pytest.mark.parametrize("mode", ["sync", "async"])
-def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control):
+def test_real_process_preserves_control_exception_without_retry(tmp_path, mode, control, late):
     effects = tmp_path / "attempts"
-    script = """import asyncio,json,multiprocessing,sys
+    script = """import asyncio,json,multiprocessing,os,sys,time
 from pathlib import Path
 from unittest.mock import MagicMock
+from polisyos.core.errors import PolicyOSError
+from polisyos.scientist.orchestration.engine import retry as retry_module
 from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_sync, execute_with_retry_async
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-path=Path(sys.argv[1]); mode, control=sys.argv[2:]
+path=Path(sys.argv[1]); mode, control, late=sys.argv[2:]
 class Node:
  def execute(self,ctx,state):
-  with path.open('a') as stream:stream.write('attempt\\n')
+  with path.open('a') as stream:stream.write(json.dumps(dict(pid=os.getpid(),entered_at=time.monotonic()))+'\\n')
+  if late=='yes':time.sleep(.75)
   if control=='SystemExit':raise SystemExit(17)
   if control=='SystemExitUnsupported':raise SystemExit(object())
   raise KeyboardInterrupt()
+# This witness is about control propagation from a running worker. Resolve the
+# actual cold parent/worker context imports before the unchanged .5s deadline.
+# Cold admission expiry and late worker admission have separate negative tests.
+ctx=MagicMock(); state=ExperimentState(run_id='R_control')
+preflight=time.monotonic()
+retry_module._build_fork_worker_receipt_binding(Node(),ctx,state,alias='actual-control',timeout_s=.5,dispatch_params=None)
+retry_module._node_facing_context(ctx)
+preflight_s=time.monotonic()-preflight
 kwargs=dict(retry_policy=RetryPolicy(max_retries=2),timeout_s=.5,alias='actual-control')
+invoked_at=time.monotonic()
 try:
- if mode=='sync':execute_with_retry_sync(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs)
- else:asyncio.run(execute_with_retry_async(Node(),MagicMock(),ExperimentState(run_id='R_control'),**kwargs))
+ if mode=='sync':execute_with_retry_sync(Node(),ctx,state,**kwargs)
+ else:asyncio.run(execute_with_retry_async(Node(),ctx,state,**kwargs))
 except BaseException as exc:
- print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),attempts=len(path.read_text().splitlines()),live_children=[p.pid for p in multiprocessing.active_children()])))
+ attempts=[json.loads(line) for line in path.read_text().splitlines()] if path.exists() else []
+ print(json.dumps(dict(type=type(exc).__name__,code=getattr(exc,'code',None),cause_code=getattr(exc.__cause__,'code',None),cause_category=getattr(exc.__cause__,'category',None),details=exc.to_dict()['details'] if isinstance(exc,PolicyOSError) else {},attempts=attempts,parent_pid=os.getpid(),invoked_at=invoked_at,preflight_s=preflight_s,live_children=[p.pid for p in multiprocessing.active_children()])))
 """
     completed = subprocess.run(
-        [sys.executable, "-c", script, str(effects), mode, control],
+        [sys.executable, "-c", script, str(effects), mode, control, "yes" if late else "no"],
         capture_output=True,
         text=True,
         check=False,
@@ -3150,14 +3868,20 @@ except BaseException as exc:
     )
     assert completed.returncode == 0, completed.stderr
     observed = json.loads(completed.stdout)
-    if control == "SystemExitUnsupported":
+    if late:
+        assert observed["type"] == "NodeTimeoutError", observed
+        assert observed["details"]["cleanup_complete"] is True, observed
+    elif control == "SystemExitUnsupported":
         assert observed["type"] == "RetryExhaustedError", observed
         assert observed["cause_code"] == "node.control_unsupported", observed
         assert observed["cause_category"] == "fatal", observed
     else:
         assert observed["type"] == control, observed
         assert observed["code"] == (17 if control == "SystemExit" else None), observed
-    assert observed["attempts"] == 1
+    assert len(observed["attempts"]) == 1, observed
+    attempt = observed["attempts"][0]
+    assert attempt["pid"] != observed["parent_pid"], observed
+    assert 0 <= attempt["entered_at"] - observed["invoked_at"] < 0.5, observed
     assert observed["live_children"] == []
 
 
@@ -3851,3 +4575,684 @@ def test_engine_node_run_view_exposes_only_artifact_tenant_context_reader() -> N
     assert calls == ["read"]
     with pytest.raises(AttributeError):
         _ = view._owner_snapshot_ref
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("completion_error", [False, True])
+def test_child_outcome_unknown_preserves_locator_and_never_redispatches(
+    tmp_path, ctx, mode, completion_error, monkeypatch
+):
+    """A child uncertainty is terminal even if attempt persistence also fails."""
+    from decimal import Decimal
+
+    from polisyos.core.run.context import ChildOutcomeUnknownError
+
+    baseline = ExperimentState(run_id="R_child_unknown", budgets={"run_spent_usd": Decimal("5")})
+    unknown = ChildOutcomeUnknownError("child_outcome_unknown", run_id="child-1", run_dir=tmp_path)
+    completed = []
+
+    class Producer:
+        def __init__(self):
+            self.calls = 0
+
+        def execute(self, _ctx, state):
+            self.calls += 1
+            if self.calls == 1:
+                state.budgets["run_spent_usd"] += Decimal("2")
+                return _fail_outcome(state)
+            raise unknown
+
+        async def execute_async(self, ctx, state):
+            return self.execute(ctx, state)
+
+    def started(attempt, _state):
+        return f"attempt-{attempt}"
+
+    def finished(attempt, outcome):
+        completed.append((attempt, outcome))
+        if attempt == "attempt-2" and completion_error:
+            raise OSError("cannot persist attempt completion")
+
+    async def async_started(attempt, state):
+        return started(attempt, state)
+
+    async def async_finished(attempt, outcome):
+        finished(attempt, outcome)
+
+    async def no_delay(_delay, _deadline):
+        return None
+
+    monkeypatch.setattr(retry_module, "_retry_delay_async", no_delay)
+    monkeypatch.setattr(retry_module.time, "sleep", lambda _seconds: None)
+    node = Producer()
+    kwargs = {
+        "retry_policy": RetryPolicy(max_retries=2, backoff_base_s=0.1, jitter="none"),
+        "timeout_s": None,
+        "alias": "child-unknown",
+    }
+
+    def invoke():
+        if mode == "sync":
+            execute_with_retry_sync(
+                node, ctx, baseline, attempt_started=started, attempt_completed=finished, **kwargs
+            )
+        else:
+            asyncio.run(
+                execute_with_retry_async(
+                    node,
+                    ctx,
+                    baseline,
+                    attempt_started=async_started,
+                    attempt_completed=async_finished,
+                    **kwargs,
+                )
+            )
+
+    with pytest.raises(ChildOutcomeUnknownError) as raised:
+        invoke()
+    assert raised.value is unknown
+    assert raised.value.run_id == "child-1"
+    assert raised.value.run_dir == tmp_path
+    assert node.calls == 2
+    assert baseline.budgets["run_spent_usd"] == Decimal("7")
+    assert [(attempt, outcome is None) for attempt, outcome in completed] == [
+        ("attempt-1", False),
+        ("attempt-2", True),
+    ]
+    if completion_error:
+        assert raised.value.__cause__ is not None
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_zero_retry_child_unknown_discards_unknown_current_cost(tmp_path, ctx, mode):
+    from decimal import Decimal
+
+    from polisyos.core.run.context import ChildOutcomeUnknownError
+
+    state = ExperimentState(run_id="R_child_zero", budgets={"run_spent_usd": Decimal("5")})
+    unknown = ChildOutcomeUnknownError("unknown", run_id="child-1", run_dir=tmp_path)
+
+    class Producer:
+        def execute(self, _ctx, attempt_state):
+            attempt_state.budgets["run_spent_usd"] += Decimal("100")
+            raise unknown
+
+        async def execute_async(self, ctx, attempt_state):
+            return self.execute(ctx, attempt_state)
+
+    def invoke():
+        kwargs = {"retry_policy": RetryPolicy(max_retries=0), "timeout_s": None, "alias": "child"}
+        if mode == "sync":
+            execute_with_retry_sync(Producer(), ctx, state, **kwargs)
+        else:
+            asyncio.run(execute_with_retry_async(Producer(), ctx, state, **kwargs))
+
+    with pytest.raises(ChildOutcomeUnknownError) as raised:
+        invoke()
+    assert raised.value is unknown
+    assert state.budgets["run_spent_usd"] == Decimal("5")
+
+
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_owned_timeout_process_refuses_untransportable_live_owner(ctx, state, mode):
+    """A native child cannot silently lose the worker's fresh SQL owner check."""
+    from threading import Event
+
+    from polisyos.common.job_execution_interrupt import (
+        JobExecutionInterrupt,
+        job_execution_interrupt_scope,
+    )
+
+    calls = []
+    signal = JobExecutionInterrupt(
+        "job", "owner", 1, Event(), current_owner_check=lambda: calls.append("check")
+    )
+    node = MagicMock()
+
+    def invoke():
+        if mode == "sync":
+            retry_module._execute_with_timeout_process(node, ctx, state, timeout_s=1.0)
+        else:
+            asyncio.run(
+                retry_module._execute_with_timeout_process_async(node, ctx, state, timeout_s=1.0)
+            )
+
+    with (
+        job_execution_interrupt_scope(signal),
+        pytest.raises(NodeTimeoutError, match="live_owner_check_not_transportable"),
+    ):
+        invoke()
+    node.execute.assert_not_called()
+    assert calls == []
+    assert not signal.lost.is_set()
+
+
+def test_fork_owner_handoff_checks_parent_for_each_child_request():
+    """The worker never inherits the parent's SQL callback as its checker."""
+    from polisyos.common.job_execution_interrupt import (
+        JobExecutionInterrupt,
+        job_execution_interrupt_scope,
+        raise_if_job_execution_interrupted,
+    )
+
+    parent, child = mp.Pipe(duplex=True)
+    lost = threading.Event()
+    checks = []
+    errors = []
+    os.set_blocking(parent.fileno(), False)
+    handoff = retry_module._ForkOwnerHandoff(
+        parent,
+        child,
+        lost,
+        ("job", "worker", 2, "run"),
+        "nonce",
+        ("run", "invocation", "digest", "attempt", "basis"),
+        _time.monotonic() + 3,
+    )
+    signal = JobExecutionInterrupt(
+        "job",
+        "worker",
+        2,
+        threading.Event(),
+        run_id="run",
+        current_owner_check=lambda: checks.append("sql"),
+    )
+
+    def body():
+        try:
+            with retry_module._fork_child_interrupt_scope(
+                child, lost, handoff.identity, handoff.nonce, handoff.binding, _time.monotonic() + 3
+            ):
+                raise_if_job_execution_interrupted(check_current_owner=True)
+                raise_if_job_execution_interrupted(check_current_owner=True)
+        except BaseException as exc:
+            errors.append(exc)
+
+    thread = threading.Thread(target=body)
+    try:
+        with job_execution_interrupt_scope(signal):
+            thread.start()
+            deadline = _time.monotonic() + 3
+            while thread.is_alive() and _time.monotonic() < deadline:
+                handoff.service()
+                _time.sleep(0.001)
+            thread.join(timeout=1)
+        assert not thread.is_alive()
+        assert errors == []
+        assert checks == ["sql", "sql", "sql", "sql"]
+    finally:
+        handoff.close()
+        thread.join(timeout=1)
+
+
+@pytest.mark.parametrize("alteration", ["nonce", "job", "worker", "attempt", "sequence", "bool"])
+def test_fork_owner_handoff_rejects_wrong_bound_request(alteration):
+    from polisyos.common.job_execution_interrupt import (
+        JobExecutionInterrupt,
+        job_execution_interrupt_scope,
+    )
+
+    parent, child = mp.Pipe(duplex=True)
+    lost = threading.Event()
+    os.set_blocking(parent.fileno(), False)
+    handoff = retry_module._ForkOwnerHandoff(
+        parent,
+        child,
+        lost,
+        ("job", "worker", 2, "run"),
+        "nonce",
+        ("run", "invocation", "digest", "attempt", "basis"),
+        _time.monotonic() + 3,
+    )
+    request = [
+        "nonce",
+        "job",
+        "worker",
+        2,
+        "run",
+        0,
+        "run",
+        "invocation",
+        "digest",
+        "attempt",
+        "basis",
+    ]
+    index = {"nonce": 0, "job": 1, "worker": 2, "attempt": 3, "sequence": 5, "bool": 3}[alteration]
+    request[index] = True if alteration == "bool" else "wrong"
+    signal = JobExecutionInterrupt(
+        "job", "worker", 2, threading.Event(), run_id="run", current_owner_check=lambda: None
+    )
+    try:
+        child.send_bytes(json.dumps(request).encode())
+        with (
+            job_execution_interrupt_scope(signal),
+            pytest.raises(retry_module._WorkerTransportError),
+        ):
+            handoff.service()
+        assert lost.is_set()
+    finally:
+        handoff.close()
+
+
+def test_fork_owner_handoff_distinguishes_early_and_completed_eof():
+    """A closed owner channel is normal only after a timely completion mark."""
+    from types import SimpleNamespace
+
+    for completed in (False, True):
+        parent, child = mp.Pipe(duplex=True)
+        os.set_blocking(parent.fileno(), False)
+        deadline = _time.monotonic() + 5
+        handoff = retry_module._ForkOwnerHandoff(
+            parent,
+            child,
+            threading.Event(),
+            ("job", "worker", 2, "run"),
+            "nonce",
+            ("run", "invocation", "digest", "attempt", "basis"),
+            deadline,
+        )
+        try:
+            child.close()
+            completion = SimpleNamespace(value=_time.monotonic() if completed else 0.0)
+            if completed:
+                handoff.service(completion)
+                assert handoff.eof and not handoff.lost.is_set()
+            else:
+                with pytest.raises(
+                    retry_module._WorkerTransportError, match="eof_before_completion"
+                ):
+                    handoff.service(completion)
+                assert handoff.lost.is_set()
+        finally:
+            handoff.close()
+
+
+@pytest.mark.asyncio
+async def test_async_fork_owner_check_cancel_does_not_deliver_late_grant():
+    """A blocked live SQL check cannot block cancellation or grant afterward."""
+    from polisyos.common.job_execution_interrupt import (
+        JobExecutionInterrupt,
+        job_execution_interrupt_scope,
+    )
+
+    parent, child = mp.Pipe(duplex=True)
+    os.set_blocking(parent.fileno(), False)
+    started = threading.Event()
+    finish = threading.Event()
+    lost = threading.Event()
+    handoff = retry_module._ForkOwnerHandoff(
+        parent,
+        child,
+        lost,
+        ("job", "worker", 2, "run"),
+        "nonce",
+        ("run", "invocation", "digest", "attempt", "basis"),
+        _time.monotonic() + 5,
+    )
+
+    def check():
+        started.set()
+        assert finish.wait(5)
+
+    signal = JobExecutionInterrupt(
+        "job", "worker", 2, threading.Event(), run_id="run", current_owner_check=check
+    )
+    request = [
+        "nonce",
+        "job",
+        "worker",
+        2,
+        "run",
+        0,
+        "run",
+        "invocation",
+        "digest",
+        "attempt",
+        "basis",
+    ]
+    try:
+        with job_execution_interrupt_scope(signal):
+            child.send_bytes(json.dumps(request).encode())
+            task = asyncio.create_task(handoff.service_async())
+            for _ in range(500):
+                if started.is_set():
+                    break
+                await asyncio.sleep(0.001)
+            assert started.is_set()
+            task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await asyncio.wait_for(task, 1)
+            assert lost.is_set()
+            finish.set()
+            await asyncio.sleep(0.03)
+            assert not child.poll(0)
+    finally:
+        finish.set()
+        handoff.close()
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("deadline_execution_state", True),
+        ("deadline_execution_state", "finished"),
+        ("code", "node.exception"),
+        ("category", "transient"),
+    ],
+)
+def test_worker_deadline_marker_rejects_wrong_type_or_error_binding(field, value):
+    """The body-entry hint is accepted only with the fixed unknown error profile."""
+    payload = {
+        "message": "worker deadline",
+        "code": "node.worker_outcome_unknown",
+        "category": "fatal",
+        "deadline_execution_state": "not_started",
+    }
+    decoded = retry_module._worker_node_error(payload)
+    assert decoded.deadline_execution_state == "not_started"
+    assert not retry_module._should_retry_exception(
+        decoded, RetryPolicy(max_retries=1, retry_on=[decoded.code])
+    )
+    payload[field] = value
+    with pytest.raises(ValueError, match="invalid worker deadline state"):
+        retry_module._worker_node_error(payload)
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="actual Linux owner-bound fork only")
+@pytest.mark.parametrize("binding_case", ["missing", "wrong", "finished"])
+@pytest.mark.parametrize("mode", ["sync", "async"])
+def test_linux_owner_bound_fork_refuses_noncurrent_core_attempt_before_body(
+    tmp_path, binding_case, mode
+):
+    """A live job signal cannot replace an actual unfinished selected Core attempt."""
+    from uuid import uuid4
+
+    from polisyos.common.job_execution_interrupt import (
+        JobExecutionInterrupt,
+        job_execution_interrupt_scope,
+    )
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.scientist.orchestration.engine.context import (
+        ExecutionContext,
+        _EngineInvocationBinding,
+    )
+    from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
+
+    store = FileSystemCAS(tmp_path / "cas")
+    bundle = build_default_registry_bundle(store, return_selected_profile=True)
+    run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id="owner_bound_run")
+    run.update_manifest(control_job_id="owner_bound_job", execution_profile="dev")
+    state = ExperimentState(run_id="owner_bound_run")
+    node_id = "scientist.test.owner_bound@1.0.0"
+    params = {"fixture": "owner-bound"}
+    workflow = WorkflowSpec(
+        workflow_id="owner_bound",
+        nodes=[NodeInvocation(alias="owner_bound", node_id=node_id, params=params, timeout_s=10)],
+    )
+    workflow_ref = store.put_json(
+        workflow.model_dump(mode="json"),
+        PutOptions(
+            kind="scientist.workflow_spec",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.orchestration.engine.WorkflowSpec", version="1.0"
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    state_ref = store.put_json(
+        state.model_dump(mode="json"),
+        PutOptions(
+            kind="scientist.experiment_state",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.orchestration.engine.ExperimentState",
+                version=state.schema_version,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    attempt_id = str(uuid4())
+    basis_ref = run._record_runtime_invocation_started(
+        attempt_id=attempt_id,
+        attempt_number=1,
+        workflow_spec_ref=workflow_ref,
+        node_alias="owner_bound",
+        component_id=node_id,
+        input_state_ref=state_ref,
+    )
+    if binding_case == "finished":
+        run._record_runtime_invocation_completed(
+            attempt_id=attempt_id,
+            attempt_number=1,
+            basis_ref=basis_ref,
+            status="unknown",
+            outcome_state_ref=None,
+            output_refs=[],
+        )
+    binding = (
+        None
+        if binding_case == "missing"
+        else _EngineInvocationBinding(
+            run_id=state.run_id,
+            attempt_id=attempt_id,
+            basis_ref=workflow_ref if binding_case == "wrong" else basis_ref,
+        )
+    )
+    context = ExecutionContext(store=store, run=run, logger=MagicMock(), _engine_invocation=binding)
+    body_path = tmp_path / "body-entered"
+
+    class Node:
+        spec = NodeSpec(
+            metadata=ComponentMetadata(
+                component_id=ComponentId.parse(node_id),
+                kind=ComponentKind.SCIENTIST_NODE,
+                abi_targets={"world_abi": "1.x"},
+                capabilities=Capability.SCIENTIST_NODE,
+                display_name="owner-bound",
+                description="Owner binding negative control.",
+            )
+        )
+
+        def execute(self, _ctx, passed_state):
+            body_path.write_text("entered")
+            return _ok_outcome(passed_state)
+
+    signal = JobExecutionInterrupt(
+        "owner_bound_job",
+        "owner",
+        1,
+        threading.Event(),
+        run_id=state.run_id,
+        current_owner_check=lambda: None,
+    )
+
+    def invoke():
+        options = {"timeout_s": 10, "alias": "owner_bound", "dispatch_params": params}
+        if mode == "sync":
+            retry_module._execute_with_timeout_process(Node(), context, state, **options)
+        else:
+            asyncio.run(
+                retry_module._execute_with_timeout_process_async(Node(), context, state, **options)
+            )
+
+    try:
+        with job_execution_interrupt_scope(signal), pytest.raises(NodeTimeoutError) as refused:
+            invoke()
+        assert refused.value.details["reason"] == "live_owner_engine_attempt_not_established"
+        assert not body_path.exists()
+    finally:
+        run.suspend_for_resume()
+
+
+def test_worker_receipt_owner_refresh_occurs_after_decode_before_core_merge(tmp_path):
+    """A takeover after receipt decoding refuses before the parent trace is merged."""
+    from polisyos.common.job_execution_interrupt import (
+        JobExecutionInterrupt,
+        JobExecutionInterrupted,
+        job_execution_interrupt_scope,
+    )
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.runner.serialization import (
+        serialize_outcome,
+        serialize_worker_execution_receipt,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    bundle = build_default_registry_bundle(store, return_selected_profile=True)
+    run = RunContext.start(
+        store=store, registry_bundle=bundle.bundle_ref, run_id="receipt_owner_run"
+    )
+    context = ExecutionContext(store=store, run=run, logger=MagicMock())
+    capability = run._worker_lifecycle_capability()
+    binding = capability.bind_dispatch(invocation_id="a" * 64, dispatch_sha256="b" * 64)
+    payload = serialize_worker_execution_receipt(
+        outcome_bytes=serialize_outcome(_ok_outcome(ExperimentState(run_id="receipt_owner_run"))),
+        invocation_id=binding.invocation_id,
+        dispatch_sha256=binding.dispatch_sha256,
+        owner_snapshot_ref=binding.owner_snapshot_ref,
+        records=[],
+    )
+    decoded = retry_module._decode_worker_execution_receipt(
+        payload, binding=binding, expected_run_id="receipt_owner_run"
+    )
+    trace_path = run.trace_path
+    assert trace_path is not None
+    before = trace_path.read_bytes()
+    checks = []
+
+    def rejected_owner():
+        checks.append("checked")
+        raise JobExecutionInterrupted("owner_taken_over")
+
+    rejected = JobExecutionInterrupt(
+        "job",
+        "old",
+        1,
+        threading.Event(),
+        run_id="receipt_owner_run",
+        current_owner_check=rejected_owner,
+    )
+    try:
+        with job_execution_interrupt_scope(rejected), pytest.raises(JobExecutionInterrupted):
+            retry_module._commit_worker_execution_receipt(
+                context, capability=capability, binding=binding, decoded=decoded
+            )
+        assert checks == ["checked"]
+        assert trace_path.read_bytes() == before
+        accepted = JobExecutionInterrupt(
+            "job",
+            "old",
+            1,
+            threading.Event(),
+            run_id="receipt_owner_run",
+            current_owner_check=lambda: checks.append("fresh"),
+        )
+        with job_execution_interrupt_scope(accepted):
+            outcome = retry_module._commit_worker_execution_receipt(
+                context, capability=capability, binding=binding, decoded=decoded
+            )
+        assert outcome.status == "ok"
+        assert checks == ["checked", "fresh"]
+        assert trace_path.read_bytes() != before
+    finally:
+        run.suspend_for_resume()
+
+
+def test_fork_owner_does_not_grant_finished_core_attempt():
+    """A matching live job alone cannot grant an already-finished Core attempt."""
+    from polisyos.common.job_execution_interrupt import (
+        JobExecutionInterrupt,
+        job_execution_interrupt_scope,
+    )
+
+    parent, child = mp.Pipe(duplex=True)
+    os.set_blocking(parent.fileno(), False)
+    lost = threading.Event()
+    handoff = retry_module._ForkOwnerHandoff(
+        parent,
+        child,
+        lost,
+        ("job", "worker", 2, "run"),
+        "nonce",
+        ("run", "invocation", "digest", "attempt", "basis"),
+        _time.monotonic() + 3,
+    )
+    checks = []
+    signal = JobExecutionInterrupt(
+        "job",
+        "worker",
+        2,
+        threading.Event(),
+        run_id="run",
+        current_owner_check=lambda: checks.append("sql"),
+    )
+    try:
+        child.send_bytes(
+            json.dumps(
+                [
+                    "nonce",
+                    "job",
+                    "worker",
+                    2,
+                    "run",
+                    0,
+                    "run",
+                    "invocation",
+                    "digest",
+                    "attempt",
+                    "basis",
+                ]
+            ).encode()
+        )
+
+        def finished_attempt():
+            raise RuntimeError("finished")
+
+        with (
+            job_execution_interrupt_scope(signal),
+            pytest.raises(retry_module._WorkerTransportError, match="engine_attempt_not_current"),
+        ):
+            handoff.service(attempt_check=finished_attempt)
+        assert checks == ["sql"]
+        assert lost.is_set()
+        assert not child.poll(0)
+    finally:
+        handoff.close()
+
+
+@pytest.mark.parametrize("kind", ["interruption", "cancel", "unknown", "ordinary", "none"])
+def test_owned_cleanup_incomplete_keeps_primary_and_forbids_replay(kind, caplog):
+    """A cleanup failure remains visible without turning unknown work retryable."""
+    from polisyos.common.job_execution_interrupt import JobExecutionInterrupted
+
+    errors = {
+        "interruption": JobExecutionInterrupted("lost"),
+        "cancel": asyncio.CancelledError(),
+        "unknown": retry_module._WorkerTransportError("channel"),
+        "ordinary": RuntimeError("channel"),
+        "none": None,
+    }
+    primary = errors[kind]
+    if kind in {"ordinary", "none"}:
+        with pytest.raises(
+            retry_module._WorkerDeliveryError, match="cleanup_incomplete"
+        ) as failure:
+            retry_module._report_owned_cleanup_incomplete(primary)
+        assert failure.value.__cause__ is primary
+        assert not retry_module._should_retry_exception(
+            failure.value, RetryPolicy(max_retries=2, retry_on=["node.exception"])
+        )
+    else:
+        retry_module._report_owned_cleanup_incomplete(primary)
+        assert "timeout_worker_owned_cleanup_incomplete" in primary.__notes__
+    assert "cleanup did not establish physical stop" in caplog.text

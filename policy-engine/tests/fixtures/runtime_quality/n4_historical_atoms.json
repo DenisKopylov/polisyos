@@ -1,0 +1,322 @@
+[
+  {
+    "atom_id": "atom_dac05c2da80ca21f",
+    "causal_do_expr": {
+      "assignments": [
+        {
+          "value": null,
+          "value_expr": "do(global.tax_rate) via tax_relief_rate params_ref=35906da3cf278c9a",
+          "variable": "global.tax_rate"
+        }
+      ],
+      "context": {
+        "assumptions": [
+          "llm_candidate_shadow_only",
+          "target_selector_content_bound",
+          "grounding_relation_certificate_id:cg1_cert_8ce062a94c0fb31a",
+          "grounding_relation_content_hash:sha256:8ce062a94c0fb31a6922ab2bba330b186a89db0daaca01b63a16a1f458f3a795",
+          "grounding_decision_certificate_id:cg2_cert_4fa241d9c53550f0",
+          "grounding_decision_content_hash:sha256:4fa241d9c53550f0b33be7bb5c8da5d0004de239bb64f08e8d404fb87b924182",
+          "identified_cg0_atom:cg0_atom_49ebedb62a306a73"
+        ],
+        "available_data_refs": [],
+        "interaction_complex_ref": null,
+        "interference_certificate_ref": null,
+        "selection_diagram_ref": "sha256:2bda57a084fa51fd26167312a2baa98bbb9ac357a97e7f26c7235670486334ce",
+        "source_domain": "gy_n4_cgf_decisive_capture_1_20260704_092222_049411:observed",
+        "target_domain": "UA"
+      },
+      "expression_payload": {
+        "assignments": [
+          {
+            "value": null,
+            "value_expr": "do(global.tax_rate) via tax_relief_rate params_ref=35906da3cf278c9a",
+            "variable": "global.tax_rate"
+          }
+        ],
+        "intervention_type": "node"
+      },
+      "intervention_type": "node",
+      "selection_context_ref": "sha256:2bda57a084fa51fd26167312a2baa98bbb9ac357a97e7f26c7235670486334ce",
+      "write_variables": [
+        "global.tax_rate"
+      ]
+    },
+    "causal_path_or_identification_plan_ref": {
+      "backend": "id_algorithm",
+      "conditions": [
+        {
+          "description": "Observed support must cover the intervention target values.",
+          "kind": "positivity",
+          "required": true,
+          "variables": [
+            "global.tax_rate"
+          ]
+        }
+      ],
+      "intervention_type": "node",
+      "notes": [],
+      "plan_ref": "sha256:e3f84ae1bce16e391ce965f78b5a0eddd067b7be94f78eaf415377fb1e8bbe28",
+      "reductions": [],
+      "status": "identified",
+      "theorem_family": "Shpitser-Pearl-ID"
+    },
+    "content_hash": "sha256:dac05c2da80ca21f6ee12d0b674ebc5cb2c3623b4c698d637ee4146eccccb835",
+    "direct_effect_bundle": {
+      "coerce_refs": [],
+      "enabled": true,
+      "identification_mode": null,
+      "lex_provision_ref": null,
+      "mechanism_config_overrides": {},
+      "mechanism_id": "tax_relief_rate",
+      "notes": [
+        "Temporary statutory relief targeting industrial MSMEs",
+        "cg1_certificate:cg1_cert_8ce062a94c0fb31a",
+        "cg1_hash:sha256:8ce062a94c0fb31a6922ab2bba330b186a89db0daaca01b63a16a1f458f3a795",
+        "cg2_certificate:cg2_cert_4fa241d9c53550f0",
+        "cg2_hash:sha256:4fa241d9c53550f0b33be7bb5c8da5d0004de239bb64f08e8d404fb87b924182",
+        "identified_atom:cg0_atom_49ebedb62a306a73"
+      ],
+      "params": {
+        "effect_path": [
+          "global.tax_rate",
+          "government.balance",
+          "tax_relief_rate"
+        ],
+        "estimand": "average_treatment_effect",
+        "outcome_slots": [
+          "government.balance"
+        ],
+        "rate": "0.25",
+        "sign": "decrease",
+        "target_world_slot": "global.tax_rate"
+      },
+      "priority": null,
+      "schedule": {
+        "duration_steps": 6,
+        "end_step": null,
+        "start_step": 0
+      },
+      "strategic_response_expected": false,
+      "transform_refs": [],
+      "transmission_channels": []
+    },
+    "intended_downstream_estimand": {
+      "conditioning_set": [],
+      "functional": "average_treatment_effect",
+      "metric_id": "employment_retention",
+      "outcome_variables": [
+        "employment_retention"
+      ],
+      "source_population": "gy_n4_cgf_decisive_capture_1_20260704_092222_049411:observed",
+      "target_kind": "expectation",
+      "target_population": "UA",
+      "unit_id": null
+    },
+    "intervention_id": "industrial_retention_tax_credit",
+    "measurement_expectations": {},
+    "measurement_expectations_authority": "supporting_metadata",
+    "normalized_from": null,
+    "operator_kind": {
+      "proof_kernel_type": "node",
+      "trinity_kind": "tax_relief_rate"
+    },
+    "policy_spec_ref": "sha256:f3bb1bab70bf348c4f54d11e6814d568385a83381f4b637316c12b4e848f6684",
+    "problem_frame_ref": "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac",
+    "producer_ref": "polisyos.runtime.quality.design_generation.generate_design_candidates_under_a",
+    "provenance_refs": [
+      "sha256:74de27375512024f29009d0da80f2cc87b480ea7a2a35a73769658d9b47812aa",
+      "sha256:3dd1032c5fa783d6438308f6dde72f921467f61fee2937c56f53e10c6f9e3344",
+      "sha256:22f8551917687c64c7a03c85964b5459922754fc7271a7277d4efd907b080792",
+      "sha256:ba6e07b9048680560581eb81eb083549623382808a1488402e19bedb50710b1a",
+      "sha256:ba6e07b9048680560581eb81eb083549623382808a1488402e19bedb50710b1a",
+      "sha256:870e9a4e15e65c24b5ba983affb7ad48196ad9012342b590ea21290c22f57c45",
+      "sha256:ae1da6561992e5c94b9281e278154fd1bc6bf127737ebbff4c4d095420103cc3",
+      "sha256:033be2d564e5607b1bd541a0ef79335479fe2fe0af667e02419111781783a8a8",
+      "sha256:dfe41c0f54374664f3eb64d72d183edde4b7085cd277a0e1916d17e316059f33",
+      "sha256:7fea5ce8291c845eee80974aea9ef81ec44f9a1e63bb046ff03f16d29db279a6",
+      "sha256:59120ed8ca5e57d1f0df337db0cff6411ca51ebf405fc97fd99afc4120d59eba",
+      "sha256:8ce062a94c0fb31a6922ab2bba330b186a89db0daaca01b63a16a1f458f3a795",
+      "sha256:4fa241d9c53550f0b33be7bb5c8da5d0004de239bb64f08e8d404fb87b924182"
+    ],
+    "read_slots": [],
+    "schema_version": "policyos.runtime.intervention_atom_binding.v1",
+    "status": "candidate_unverified",
+    "target_selector": {
+      "selector_content_ref": "sha256:2bda57a084fa51fd26167312a2baa98bbb9ac357a97e7f26c7235670486334ce",
+      "target_population_type": null,
+      "target_region_ids": [],
+      "target_sector_ids": [],
+      "trinity_target": {
+        "field": "id",
+        "kind": "predicate",
+        "operator": "==",
+        "value": "all"
+      }
+    },
+    "target_world_slots": [
+      "global.tax_rate"
+    ],
+    "world_model_record_ref": "world_model_record_a258fda4b7ceffd0"
+  },
+  {
+    "atom_id": "atom_a68cdc7f5c9b1e1c",
+    "causal_do_expr": {
+      "assignments": [
+        {
+          "value": null,
+          "value_expr": "do(cells.distress_score) via procurement_shock_intensity params_ref=1708927d5ed4ecaf",
+          "variable": "cells.distress_score"
+        }
+      ],
+      "context": {
+        "assumptions": [
+          "llm_candidate_shadow_only",
+          "target_selector_content_bound",
+          "grounding_relation_certificate_id:cg1_cert_43086664b364e518",
+          "grounding_relation_content_hash:sha256:43086664b364e518ac7c7f740d34a73bdf6b5146bf31162480580273c140d72c",
+          "grounding_decision_certificate_id:cg2_cert_0419b271490af136",
+          "grounding_decision_content_hash:sha256:0419b271490af136b80c2c31bef227aeea643740fd7466893138054156dcac56",
+          "identified_cg0_atom:cg0_atom_f82e3d10b2450b34"
+        ],
+        "available_data_refs": [],
+        "interaction_complex_ref": null,
+        "interference_certificate_ref": null,
+        "selection_diagram_ref": "sha256:2bda57a084fa51fd26167312a2baa98bbb9ac357a97e7f26c7235670486334ce",
+        "source_domain": "gy_n4_cgf_decisive_capture_1_20260704_092222_049411:observed",
+        "target_domain": "UA"
+      },
+      "expression_payload": {
+        "assignments": [
+          {
+            "value": null,
+            "value_expr": "do(cells.distress_score) via procurement_shock_intensity params_ref=1708927d5ed4ecaf",
+            "variable": "cells.distress_score"
+          }
+        ],
+        "intervention_type": "node"
+      },
+      "intervention_type": "node",
+      "selection_context_ref": "sha256:2bda57a084fa51fd26167312a2baa98bbb9ac357a97e7f26c7235670486334ce",
+      "write_variables": [
+        "cells.distress_score"
+      ]
+    },
+    "causal_path_or_identification_plan_ref": {
+      "backend": "id_algorithm",
+      "conditions": [
+        {
+          "description": "Observed support must cover the intervention target values.",
+          "kind": "positivity",
+          "required": true,
+          "variables": [
+            "cells.distress_score"
+          ]
+        }
+      ],
+      "intervention_type": "node",
+      "notes": [],
+      "plan_ref": "sha256:5f6e5013d9a450b78653095ca4ab4fb3e5f22a40bdaae913ef8c10d0e9e47555",
+      "reductions": [],
+      "status": "identified",
+      "theorem_family": "Shpitser-Pearl-ID"
+    },
+    "content_hash": "sha256:a68cdc7f5c9b1e1c5691ee4df4bbcc97b0b5da4afc1c0a19b578eb7dd26a1178",
+    "direct_effect_bundle": {
+      "coerce_refs": [],
+      "enabled": true,
+      "identification_mode": null,
+      "lex_provision_ref": null,
+      "mechanism_config_overrides": {},
+      "mechanism_id": "procurement_shock_intensity",
+      "notes": [
+        "Targets distressed industrial production cells",
+        "cg1_certificate:cg1_cert_43086664b364e518",
+        "cg1_hash:sha256:43086664b364e518ac7c7f740d34a73bdf6b5146bf31162480580273c140d72c",
+        "cg2_certificate:cg2_cert_0419b271490af136",
+        "cg2_hash:sha256:0419b271490af136b80c2c31bef227aeea643740fd7466893138054156dcac56",
+        "identified_atom:cg0_atom_f82e3d10b2450b34"
+      ],
+      "params": {
+        "effect_path": [
+          "cells.distress_score",
+          "cells.output",
+          "procurement_shock_intensity"
+        ],
+        "estimand": "average_treatment_effect",
+        "intensity": "0.3",
+        "outcome_slots": [
+          "cells.output"
+        ],
+        "sign": "decrease",
+        "target_world_slot": "cells.distress_score"
+      },
+      "priority": null,
+      "schedule": {
+        "duration_steps": 6,
+        "end_step": null,
+        "start_step": 0
+      },
+      "strategic_response_expected": false,
+      "transform_refs": [],
+      "transmission_channels": []
+    },
+    "intended_downstream_estimand": {
+      "conditioning_set": [],
+      "functional": "average_treatment_effect",
+      "metric_id": "employment_retention",
+      "outcome_variables": [
+        "employment_retention"
+      ],
+      "source_population": "gy_n4_cgf_decisive_capture_1_20260704_092222_049411:observed",
+      "target_kind": "expectation",
+      "target_population": "UA",
+      "unit_id": null
+    },
+    "intervention_id": "procurement_distress_backstop",
+    "measurement_expectations": {},
+    "measurement_expectations_authority": "supporting_metadata",
+    "normalized_from": null,
+    "operator_kind": {
+      "proof_kernel_type": "node",
+      "trinity_kind": "procurement_shock_intensity"
+    },
+    "policy_spec_ref": "sha256:f3bb1bab70bf348c4f54d11e6814d568385a83381f4b637316c12b4e848f6684",
+    "problem_frame_ref": "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac",
+    "producer_ref": "polisyos.runtime.quality.design_generation.generate_design_candidates_under_a",
+    "provenance_refs": [
+      "sha256:74de27375512024f29009d0da80f2cc87b480ea7a2a35a73769658d9b47812aa",
+      "sha256:3dd1032c5fa783d6438308f6dde72f921467f61fee2937c56f53e10c6f9e3344",
+      "sha256:22f8551917687c64c7a03c85964b5459922754fc7271a7277d4efd907b080792",
+      "sha256:ba6e07b9048680560581eb81eb083549623382808a1488402e19bedb50710b1a",
+      "sha256:ba6e07b9048680560581eb81eb083549623382808a1488402e19bedb50710b1a",
+      "sha256:870e9a4e15e65c24b5ba983affb7ad48196ad9012342b590ea21290c22f57c45",
+      "sha256:ae1da6561992e5c94b9281e278154fd1bc6bf127737ebbff4c4d095420103cc3",
+      "sha256:033be2d564e5607b1bd541a0ef79335479fe2fe0af667e02419111781783a8a8",
+      "sha256:dfe41c0f54374664f3eb64d72d183edde4b7085cd277a0e1916d17e316059f33",
+      "sha256:7fea5ce8291c845eee80974aea9ef81ec44f9a1e63bb046ff03f16d29db279a6",
+      "sha256:59120ed8ca5e57d1f0df337db0cff6411ca51ebf405fc97fd99afc4120d59eba",
+      "sha256:43086664b364e518ac7c7f740d34a73bdf6b5146bf31162480580273c140d72c",
+      "sha256:0419b271490af136b80c2c31bef227aeea643740fd7466893138054156dcac56"
+    ],
+    "read_slots": [],
+    "schema_version": "policyos.runtime.intervention_atom_binding.v1",
+    "status": "candidate_unverified",
+    "target_selector": {
+      "selector_content_ref": "sha256:2bda57a084fa51fd26167312a2baa98bbb9ac357a97e7f26c7235670486334ce",
+      "target_population_type": null,
+      "target_region_ids": [],
+      "target_sector_ids": [],
+      "trinity_target": {
+        "field": "id",
+        "kind": "predicate",
+        "operator": "==",
+        "value": "all"
+      }
+    },
+    "target_world_slots": [
+      "cells.distress_score"
+    ],
+    "world_model_record_ref": "world_model_record_a258fda4b7ceffd0"
+  }
+]

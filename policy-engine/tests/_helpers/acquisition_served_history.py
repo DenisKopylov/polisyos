@@ -15,6 +15,7 @@ from decimal import Decimal
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Thread
+from typing import TYPE_CHECKING, Literal
 
 import jwt
 import pytest
@@ -22,6 +23,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi.testclient import TestClient
 
 from polisyos.core import artifacts, canon
+from polisyos.core.contracts.control import RunBudgetScope
 from polisyos.core.run.context import RunContext
 from polisyos.core.security.identity import PolicyOSRole
 from polisyos.core.security.tenant_context import tenant_scope
@@ -33,6 +35,18 @@ from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.quality import agent_action_authority as authority
 from polisyos.runtime.quality import substrate_registry
 from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceipt
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioSetToRule,
+        CandidateSimulationScenarioProfile,
+        CandidateSimulationSyntheticModelDeclarationV1,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
+    from tests._helpers.controlled_candidate_profile import SyntheticCandidateProviderProfile
 from polisyos.runtime.quality.agent_action_authority import (
     ACQUISITION_ACTION_KIND,
     AGENT_ACTION_AUTHORITY_RULE_VERSION,
@@ -248,6 +262,11 @@ def _served_wdi_candidate_profile(
     problem,
     source_owner_root: Path | None = None,
     prepared_substrate_registry: substrate_registry.SubstrateRegistry | None = None,
+    country_code: str | None = None,
+    data_year: int | None = None,
+    population_scope: str = "served_controlled_candidate_fixture",
+    invocation_quota_policy: BudgetInvocationQuotaPolicy | None = None,
+    candidate_rule: CandidateScenarioSetToRule | None = None,
 ):
     """Build one typed synthetic N5 profile over a real owner-built base WMR."""
     tmp_path.mkdir(parents=True, exist_ok=True)
@@ -297,10 +316,36 @@ def _served_wdi_candidate_profile(
     source_owner_root = (
         Path(source_owner_root).resolve(strict=True) if source_owner_root is not None else None
     )
+    scoped_country_year = country_code is not None or data_year is not None
+    if scoped_country_year and (
+        country_code is None
+        or data_year is None
+        or country_code != problem.jurisdiction_time.region
+        or str(data_year) != problem.jurisdiction_time.data_time
+    ):
+        raise ValueError("served_candidate_profile_problem_scope_mismatch")
+    if candidate_rule is not None and type(candidate_rule) is not CandidateScenarioSetToRule:
+        raise TypeError("served_candidate_profile_rule_untyped")
+    outcome_variable = problem.outcome_of_interest.target_variable
+    target_world_slot = (
+        candidate_rule.target_world_slot if candidate_rule is not None else "government.balance"
+    )
+    policy_slots = tuple(dict.fromkeys((target_world_slot, outcome_variable)))
+    family_id = "macro_state" if scoped_country_year else "firm_fundamentals"
     snapshot_id = "served-wdi-controlled-candidate-base"
     base_data_snapshot_ref = wmr_fixture._data_snapshot_ref(store, snapshot_id=snapshot_id)
     if prepared_substrate_registry is None:
-        substrate_registry = wmr_fixture._substrate_registry()
+        substrate_registry = (
+            wmr_fixture._substrate_registry(
+                source_id="controlled_country_year_measurement_fixture",
+                family_id=family_id,
+                trust_tier="weak_anchor",
+                trust_cap=0.25,
+                identification_mode="bounds_only",
+            )
+            if scoped_country_year
+            else wmr_fixture._substrate_registry()
+        )
     else:
         source = current_catalog_serving_source()
         if (
@@ -315,12 +360,39 @@ def _served_wdi_candidate_profile(
         )
         require_catalog_source_registry_binding(source_owner_root, substrate_registry, source)
     substrate_registry_ref = persist_substrate_registry(store, substrate_registry)
-    registry_bundle = build_default_registry_bundle(store)
+    registry_bundle = (
+        build_default_registry_bundle(store, return_selected_profile=True)
+        if scoped_country_year
+        else build_default_registry_bundle(store)
+    )
     model_spec = wmr_fixture._model_spec(
         base_data_snapshot_ref,
         registry_bundle.bundle_ref,
     )
-    wmr_fixture._write_fabric_world_snapshot(tmp_path, snapshot_id=snapshot_id)
+    if scoped_country_year:
+        from polisyos.ir.kernel.time_semantics import TimeSemantics
+        from polisyos.ir.model_layer.model_spec import ModelSpec
+        from polisyos.ir.model_layer.types import TimeFrequency
+
+        model_spec = ModelSpec.model_validate(
+            {
+                **model_spec.model_dump(mode="json"),
+                "model_id": "controlled_country_year_candidate_model",
+                "calibrated": False,
+                "calibration_ref": None,
+                "time_semantics": TimeSemantics(
+                    frequency=TimeFrequency.YEAR,
+                    start_date=f"{data_year}-01-01",
+                    step_count=1,
+                ),
+                "notes": ["test_owned_unvalidated_country_year_model"],
+            }
+        )
+    wmr_fixture._write_fabric_world_snapshot(
+        tmp_path,
+        snapshot_id=snapshot_id,
+        **({"fact_valid_time": f"{data_year}-01-01T00:00:00Z"} if scoped_country_year else {}),
+    )
     # Use the canonical batch producer, then validate the exact selected source
     # through the prepared reader consumed by the real credal-reference path.
     selected_skg_root = (source_owner_root or tmp_path) / "controlled-candidate-source"
@@ -335,12 +407,12 @@ def _served_wdi_candidate_profile(
             EstimateCandidate(
                 value=0.0,
                 pattern_name="controlled_candidate_fixture",
-                variable_hint="government.balance",
+                variable_hint=target_world_slot,
             ),
             EstimateCandidate(
                 value=0.0,
                 pattern_name="controlled_candidate_fixture",
-                variable_hint="global.tax_rate",
+                variable_hint=outcome_variable,
             ),
         ],
         metadata={"synthetic": True, "fixture_scope": "served_candidate_only"},
@@ -358,7 +430,7 @@ def _served_wdi_candidate_profile(
         selected_skg_version_id = int(selected_skg_rows.version_id)
         selected_skg_snapshot_ref = prepared_skg.source_snapshot_ref
         selected_variables = {row.canonical_name for row in selected_skg_rows.variables}
-        if not {"government.balance", "global.tax_rate"}.issubset(selected_variables):
+        if not set(policy_slots).issubset(selected_variables):
             raise AssertionError("served_controlled_skg_producer_variables_missing")
         if selected_skg_rows.causal_edges:
             raise AssertionError("served_controlled_candidate_fixture_claimed_causal_edges")
@@ -380,24 +452,45 @@ def _served_wdi_candidate_profile(
         skg_causal_prior_ref=skg_causal_prior_ref,
         substrate_registry=substrate_registry,
         region_or_jurisdiction=problem.jurisdiction_time.region,
-        population_scope="served_controlled_candidate_fixture",
+        population_scope=population_scope,
         policy_domain=problem.domain,
-        valid_time_scope="controlled_fixture_baseline_only",
+        valid_time_scope=(
+            f"{data_year}-01-01/{data_year}-12-31"
+            if scoped_country_year
+            else "controlled_fixture_baseline_only"
+        ),
         tx_time_scope="2026-05-24T12:00:00+00:00",
         resolution="country_year",
-        branch_mode=BranchMode.OBSERVED,
-        policy_slot_ids=("government.balance", "global.tax_rate"),
+        branch_mode=BranchMode.SCENARIO if scoped_country_year else BranchMode.OBSERVED,
+        policy_slot_ids=policy_slots,
         producer_ref="test.served_wdi_candidate_profile",
-        required_substrate_families=("firm_fundamentals",),
+        required_substrate_families=(family_id,),
         limitations=WorldModelLimitations(
             admissibility_blockers=ACQUIRED_DATA_STATE_LIMITATION_CODES,
         ),
         candidate_only=True,
         substrate_registry_artifact_ref=substrate_registry_ref,
+        **(
+            {"registry_bundle_artifact_ref": registry_bundle.bundle_ref}
+            if scoped_country_year
+            else {}
+        ),
     )
     slot_units = {binding.slot_id: binding.unit for binding in base_world.record.policy_slot_map}
-    target_baseline = float(base_world.bound_global_state.government_balance)
-    outcome_baseline = float(base_world.bound_global_state.tax_rate)
+    target_binding = base_world.record.slot_binding(target_world_slot)
+    if target_binding is None or not target_binding.state_path:
+        raise AssertionError("served_candidate_profile_target_binding_missing")
+    target_state = base_world.bound_global_state
+    for segment in target_binding.state_path.split("."):
+        target_state = getattr(target_state, segment)
+    target_baseline = float(target_state)
+    outcome_binding = base_world.record.slot_binding(outcome_variable)
+    if outcome_binding is None:
+        raise AssertionError("served_candidate_profile_outcome_binding_missing")
+    outcome_state = base_world.bound_global_state
+    for segment in outcome_binding.state_path.split("."):
+        outcome_state = getattr(outcome_state, segment)
+    outcome_baseline = float(outcome_state)
     # Inventory admission and model selection have distinct owners. Keep the
     # complete registry; use only entries actually resolved by the WMR builder.
     selected_hashes = tuple(
@@ -437,7 +530,7 @@ def _served_wdi_candidate_profile(
         source_pack_content_hash=context.source_pack_content_hash,
         substrate_input_content_hash=context.substrate_input_content_hash,
     )
-    rule = CandidateScenarioSetToRule(
+    rule = candidate_rule or CandidateScenarioSetToRule(
         operator_kind="budget_allocation_multiplier",
         parameter_id="multiplier",
         target_world_slot="government.balance",
@@ -445,15 +538,22 @@ def _served_wdi_candidate_profile(
         minimum=1,
         maximum=2,
     )
+    if rule.unit_id != slot_units[rule.target_world_slot]:
+        raise ValueError("served_candidate_profile_rule_unit_mismatch")
     n5 = CandidateScenarioN5Config(
         budget_ref="budget://e02r2/b09-controlled-acquisition-candidate",
         horizon=HorizonSpec(start=0, end=0, step=1),
         baseline_state={
-            "government.balance": target_baseline,
+            rule.target_world_slot: target_baseline,
             problem.outcome_of_interest.target_variable: outcome_baseline,
         },
         seed=17,
         replications=2,
+        **(
+            {"invocation_quota_policy": invocation_quota_policy, "invocation_purpose": "standard"}
+            if invocation_quota_policy is not None
+            else {}
+        ),
     )
     profile_fields = {
         "schema_version": "policyos.runtime.candidate_simulation_profile.v2",
@@ -483,7 +583,6 @@ def _served_wdi_candidate_profile(
             ),
         }
     )
-    outcome_variable = problem.outcome_of_interest.target_variable
     declaration_fields = {
         "schema_version": ("policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"),
         "profile_config_ref": candidate_simulation_profile_ref(profile),
@@ -776,6 +875,22 @@ def _produce_served_acquisition_history(
     sequential_oracle=None,
     provider_mode: str = "recorded_capture",
     seed_only_observer: Callable[..., None] | None = None,
+    seed_only_context_observer: Callable[..., None] | None = None,
+    run_budget_usd: float | None = None,
+    run_budget_scope: RunBudgetScope | None = None,
+    candidate_acquisition_intent: Literal["bounded_experiment_voi_unknown"] | None = None,
+    invocation_quota_policy: BudgetInvocationQuotaPolicy | None = None,
+    labor_seed: bool = False,
+    seed_problem: DesignProblem | None = None,
+    candidate_profile_builder: Callable[
+        ...,
+        tuple[CandidateSimulationScenarioProfile, CandidateSimulationSyntheticModelDeclarationV1],
+    ]
+    | None = None,
+    candidate_provider_builder: Callable[
+        ..., tuple[dict[str, Any], SyntheticCandidateProviderProfile]
+    ]
+    | None = None,
     prepared_catalog: tuple[
         substrate_registry.CatalogServingSourceSelection,
         substrate_registry.CatalogServingSourcePaths,
@@ -803,6 +918,7 @@ def _produce_served_acquisition_history(
         CandidateSimulationN5InputV5,
     )
     from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
+    from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.generation_cycle import (
         AcquisitionOverlayReentryReceipt,
     )
@@ -834,11 +950,24 @@ def _produce_served_acquisition_history(
 
     if provider_mode not in {"recorded_capture", "synthetic_settled_candidate"}:
         raise ValueError("served_acquisition_provider_mode_unknown")
+    if seed_problem is not None:
+        if type(seed_problem) is not DesignProblem:
+            raise TypeError("served_candidate_seed_problem_untyped")
+        if labor_seed or provider_mode != "synthetic_settled_candidate":
+            raise ValueError("served_candidate_seed_profile_ambiguous")
+        if candidate_profile_builder is None or candidate_provider_builder is None:
+            raise ValueError("served_candidate_seed_producers_missing")
+        if seed_only_observer is None and seed_only_context_observer is None:
+            raise ValueError("served_candidate_seed_observer_missing")
+    elif candidate_profile_builder is not None or candidate_provider_builder is not None:
+        raise ValueError("served_candidate_seed_problem_missing")
     served_n4_recording = acquisition_chain.load_served_wdi_generation_recording()
     served_n4_model_id = str(served_n4_recording["model_id"])
     fiscal_nl_request = acquisition_chain.SERVED_WDI_FISCAL_REQUEST
     fiscal_scope_source = acquisition_chain.SERVED_WDI_FISCAL_SCOPE_SOURCE
     candidate_only_source = acquisition_chain.SERVED_WDI_CANDIDATE_ONLY_SOURCE
+    if labor_seed and seed_only_observer is None and seed_only_context_observer is None:
+        raise ValueError("served_labor_fixture_requires_seed_observer")
 
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
@@ -932,7 +1061,36 @@ def _produce_served_acquisition_history(
     )
     removal_probe_n5_baselines: list[dict[str, float]] = []
 
+    def set_candidate_model_declaration(declaration: object | None) -> None:
+        """Configure the next served app through its ordinary model-owner input."""
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationSyntheticModelDeclarationV1,
+        )
+
+        if declaration is not None and type(declaration) is not (
+            CandidateSimulationSyntheticModelDeclarationV1
+        ):
+            raise TypeError("served_candidate_model_declaration_untyped")
+        candidate_model_declarations[:] = [] if declaration is None else [declaration]
+
     def app():
+        container_overrides = None
+        if labor_seed or seed_problem is not None:
+            from polisyos.runtime.http.container import RuntimeContainerOverrides
+            from polisyos.runtime.http.services.control_registry_providers import (
+                resolve_control_registry_providers,
+            )
+            from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+            container_overrides = RuntimeContainerOverrides(
+                control_registry_providers=resolve_control_registry_providers(
+                    capability_resolver=RequirementToCapabilityResolver.governed_fixture(REPO_ROOT),
+                    catalog_source_selection=catalog_selection,
+                    catalog_run_profile=(
+                        catalog_selection.catalog_run_profile if catalog_selection else None
+                    ),
+                )
+            )
         return create_runtime_api_app(
             cas_root=cas_root,
             core_runs_root=cas_root / "runs",
@@ -941,6 +1099,7 @@ def _produce_served_acquisition_history(
             ),
             enable_security_middlewares=True,
             enable_csrf_protection=False,
+            container_overrides=container_overrides,
             candidate_simulation_profiles=tuple(candidate_profiles),
             candidate_simulation_model_declarations=tuple(candidate_model_declarations),
             repo_root=selected_source_root,
@@ -958,41 +1117,88 @@ def _produce_served_acquisition_history(
     recorded_problem = acquisition_chain.controlled_served_wdi_problem(
         base_compiler_problem, raw_request=fiscal_nl_request
     )
-    controlled_recording = acquisition_chain.controlled_served_wdi_generation_recording(
-        served_n4_recording,
-        outcome_variable=recorded_problem.outcome_of_interest.target_variable,
-    )
-    provider_profile = (
-        acquisition_chain.synthetic_served_wdi_provider_profile(
-            served_n4_recording,
-            problem=recorded_problem,
-            evidence_root=tmp_path / "synthetic-provider-exchanges",
+    if labor_seed:
+        from tests._helpers.lane01_candidate_problem import (
+            LABOR_SCOPE_SOURCE,
+            served_labor_candidate_problem,
         )
-        if provider_mode == "synthetic_settled_candidate"
-        else None
-    )
-    served_recorded_candidate_gateway.set_fixture(
-        controlled_recording, problem=recorded_problem, provider_profile=provider_profile
-    )
+
+        fiscal_nl_request = f"{LABOR_SCOPE_SOURCE} {candidate_only_source}"
+        recorded_problem = served_labor_candidate_problem(
+            recorded_problem, raw_request=fiscal_nl_request
+        )
+    if seed_problem is not None:
+        recorded_problem = DesignProblem.model_validate(seed_problem.model_dump(mode="json"))
+        fiscal_nl_request = recorded_problem.nl_provenance.raw_request
+        if candidate_only_source not in fiscal_nl_request:
+            raise ValueError("served_candidate_seed_limitation_missing")
+    else:
+        controlled_recording = acquisition_chain.controlled_served_wdi_generation_recording(
+            served_n4_recording,
+            outcome_variable=recorded_problem.outcome_of_interest.target_variable,
+            labor_problem=recorded_problem if labor_seed else None,
+        )
+        provider_profile = (
+            acquisition_chain.synthetic_served_wdi_provider_profile(
+                served_n4_recording,
+                problem=recorded_problem,
+                evidence_root=tmp_path / "synthetic-provider-exchanges",
+                labor_scope=labor_seed,
+            )
+            if provider_mode == "synthetic_settled_candidate"
+            else None
+        )
+        served_recorded_candidate_gateway.set_fixture(
+            controlled_recording, problem=recorded_problem, provider_profile=provider_profile
+        )
+    profile_builder = candidate_profile_builder or _served_wdi_candidate_profile
     if catalog_serving_source is None:
         profile, model_declaration = _within_fixture_owner(
-            _served_wdi_candidate_profile,
+            profile_builder,
             tmp_path=tmp_path / "served-candidate-profile",
             store=artifacts.FileSystemCAS(cas_root, ownership_enforced=True),
             problem=recorded_problem,
             source_owner_root=selected_source_root,
             prepared_substrate_registry=prepared_substrate_registry,
+            invocation_quota_policy=invocation_quota_policy,
+            **(
+                {"country_code": "USA", "data_year": 2024, "population_scope": "total_labor_force"}
+                if labor_seed
+                else {}
+            ),
         )
     else:
         with substrate_registry.catalog_serving_source_scope(catalog_serving_source):
             profile, model_declaration = _within_fixture_owner(
-                _served_wdi_candidate_profile,
+                profile_builder,
                 tmp_path=tmp_path / "served-candidate-profile",
                 store=artifacts.FileSystemCAS(cas_root, ownership_enforced=True),
                 problem=recorded_problem,
                 source_owner_root=selected_source_root,
                 prepared_substrate_registry=prepared_substrate_registry,
+                invocation_quota_policy=invocation_quota_policy,
+                **(
+                    {
+                        "country_code": "USA",
+                        "data_year": 2024,
+                        "population_scope": "total_labor_force",
+                    }
+                    if labor_seed
+                    else {}
+                ),
             )
+    if seed_problem is not None:
+        controlled_recording, provider_profile = _within_fixture_owner(
+            candidate_provider_builder,
+            served_n4_recording,
+            problem=recorded_problem,
+            profile=profile,
+            store=artifacts.FileSystemCAS(cas_root, ownership_enforced=True),
+            evidence_root=tmp_path / "synthetic-provider-exchanges",
+        )
+        served_recorded_candidate_gateway.set_fixture(
+            controlled_recording, problem=recorded_problem, provider_profile=provider_profile
+        )
     source_root_witness_json = None
     actual_kref_witnesses = []
     if selected_source_root is not None:
@@ -1181,7 +1387,12 @@ def _produce_served_acquisition_history(
             )
         )
     assert mismatched_request.value.code == "design_problem_admissibility_unverified"
-    assert "fiscal_request_scope:source_span_unbound:request_text" in str(mismatched_request.value)
+    expected_scope_id = (
+        recorded_problem.constraints[0].constraint_id
+        if seed_problem is not None
+        else ("labor_request_scope" if labor_seed else "fiscal_request_scope")
+    )
+    assert f"{expected_scope_id}:source_span_unbound:request_text" in str(mismatched_request.value)
     assert cycle_job_profile_selection_ref(recorded_problem) == profile.profile_selection_ref
 
     def appoint_mandate(control, request, resource_digest):
@@ -1340,6 +1551,17 @@ def _produce_served_acquisition_history(
                         ).model_dump(mode="json")
                     },
                     "execution_profile": "dev",
+                    **({"run_budget_usd": run_budget_usd} if run_budget_usd is not None else {}),
+                    **(
+                        {"run_budget_scope": run_budget_scope}
+                        if run_budget_scope is not None
+                        else {}
+                    ),
+                    **(
+                        {"candidate_acquisition_intent": candidate_acquisition_intent}
+                        if candidate_acquisition_intent is not None
+                        else {}
+                    ),
                 },
                 headers={
                     **(
@@ -1371,43 +1593,72 @@ def _produce_served_acquisition_history(
             for compiled in compiled_problems:
                 assert compiled.nl_provenance.raw_request == fiscal_nl_request
                 assert compiled.nl_provenance.source_surface == "runtime.control.nl_request"
-                assert compiled.domain == "fiscal"
-                assert compiled.jurisdiction_time.region == "UKR"
-                assert compiled.jurisdiction_time.valid_time == "2024"
-                assert compiled.jurisdiction_time.as_of == "2024-12-31"
-                assert compiled.jurisdiction_time.policy_time == "2024"
-                assert compiled.jurisdiction_time.data_time == "2024"
-                assert compiled.objectives[0].metric_id == "tax_rate"
-                assert compiled.outcome_of_interest.target_variable == "global.tax_rate"
-                assert compiled.outcome_of_interest.metric_id == "tax_rate"
-                assert compiled.candidate_lever_space.allowed_operator_kinds == [
-                    "budget_allocation_multiplier"
-                ]
-                assert compiled.candidate_lever_space.candidate_levers[0].target_slot == (
-                    "government.balance"
-                )
                 constraint_sources = {
                     constraint.constraint_id: constraint.source_text
                     for constraint in compiled.constraints
                 }
-                assert constraint_sources["fiscal_request_scope"] == fiscal_scope_source
+                if seed_problem is not None:
+                    assert compiled.domain == recorded_problem.domain
+                    assert compiled.jurisdiction_time == recorded_problem.jurisdiction_time
+                    assert compiled.objectives == recorded_problem.objectives
+                    assert compiled.outcome_of_interest == recorded_problem.outcome_of_interest
+                    assert compiled.candidate_lever_space == recorded_problem.candidate_lever_space
+                    assert constraint_sources == {
+                        constraint.constraint_id: constraint.source_text
+                        for constraint in recorded_problem.constraints
+                    }
+                else:
+                    assert compiled.domain == ("social" if labor_seed else "fiscal")
+                    assert compiled.jurisdiction_time.region == ("USA" if labor_seed else "UKR")
+                    assert compiled.jurisdiction_time.valid_time == "2024"
+                    assert compiled.jurisdiction_time.as_of == "2024-12-31"
+                    assert compiled.jurisdiction_time.policy_time == "2024"
+                    assert compiled.jurisdiction_time.data_time == "2024"
+                    expected_metric = "unemployment_rate" if labor_seed else "tax_rate"
+                    assert compiled.objectives[0].metric_id == expected_metric
+                    assert (
+                        compiled.outcome_of_interest.target_variable == f"global.{expected_metric}"
+                    )
+                    assert compiled.outcome_of_interest.metric_id == expected_metric
+                    assert compiled.candidate_lever_space.allowed_operator_kinds == [
+                        "budget_allocation_multiplier"
+                    ]
+                    assert compiled.candidate_lever_space.candidate_levers[0].target_slot == (
+                        "government.balance"
+                    )
+                    if labor_seed:
+                        assert constraint_sources["labor_request_scope"] == LABOR_SCOPE_SOURCE
+                    else:
+                        assert constraint_sources["fiscal_request_scope"] == fiscal_scope_source
                 assert constraint_sources["no_authority_without_a"] == candidate_only_source
                 assert cycle_job_profile_selection_ref(compiled) == profile.profile_selection_ref
             persisted_job_payload = canon.from_canonical_bytes(
                 _within_fixture_owner(control._artifact_store.get_bytes, job.payload_ref)
             )
             assert persisted_job_payload["llm_models"] == [served_n4_model_id]
-            if seed_only_observer is not None:
+            if seed_only_observer is not None or seed_only_context_observer is not None:
                 # This explicit test hook observes the real completed NL/N5
                 # producer before the existing WDI-only route continuation.
-                _within_fixture_owner(
-                    seed_only_observer,
-                    control=control,
-                    job=job,
-                    run_id=run_id,
-                    cas_root=cas_root,
-                    profile_selection_ref=profile.profile_selection_ref,
-                )
+                observer_values = {
+                    "control": control,
+                    "action_service": client.app.state.runtime_container.acquisition_action_service,
+                    "job": job,
+                    "run_id": run_id,
+                    "cas_root": cas_root,
+                    "profile_selection_ref": profile.profile_selection_ref,
+                }
+                if seed_only_observer is not None:
+                    _within_fixture_owner(seed_only_observer, **observer_values)
+                if seed_only_context_observer is not None:
+                    _within_fixture_owner(
+                        seed_only_context_observer,
+                        **observer_values,
+                        client=client,
+                        trust=trust,
+                        signers=signers,
+                        identities=identities,
+                        key_root=tmp_path,
+                    )
                 return {"run_id": run_id, "job_id": seed_job_id}
             closure, request = _within_fixture_owner(
                 resolve_completed_wdi_route,
@@ -2453,6 +2704,8 @@ def _produce_served_acquisition_history(
                     seed_input=seed_n5_input,
                     evaluated_input=n5_input,
                     target_world_slot=model_declaration.target_world_slot,
+                    candidate_model_declaration=model_declaration,
+                    set_candidate_model_declaration=set_candidate_model_declaration,
                     cases=cases,
                     approve_request=approve_request,
                     appoint_mandate=appoint_mandate,

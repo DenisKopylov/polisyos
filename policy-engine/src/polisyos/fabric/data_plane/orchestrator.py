@@ -52,7 +52,12 @@ if TYPE_CHECKING:
     from datetime import datetime
     from types import ModuleType
 
-    from polisyos.core.artifacts.protocol import AsyncArtifactStore, CoreJSONArtifactStore
+    from polisyos.core.artifacts.protocol import (
+        AsyncArtifactStore,
+        CoreJSONArtifactStore,
+        VerifiableArtifactReader,
+    )
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
     from polisyos.fabric.connectors import RawHTTPResponseObserver
     from polisyos.fabric.connectors.base import ConnectionConfig
     from polisyos.fabric.ingestion import (
@@ -83,6 +88,8 @@ class IngestionResult:
     warnings: list[str] = field(default_factory=list)
     cursor_ref: str | None = None
     mode_effective: str | None = None
+    record_session_ref: str | None = None
+    record_session_selected_ref: ArtifactRef | None = None
     status: Literal["completed", "partial", "failed"] = "completed"
 
 
@@ -694,6 +701,161 @@ def run_orchestrated_ingestion(
     )
 
 
+def _ingestion_snapshot_write_options(snapshot: DataSnapshot) -> ArtifactWriteOptions:
+    """Return the manifest options owned by the ingestion snapshot writer."""
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+
+    if snapshot.evidence_ref is None or snapshot.quality_report_ref is None:
+        raise ValueError("ingestion_snapshot_required_refs_missing")
+    return ArtifactWriteOptions(
+        kind="fabric.data_snapshot",
+        media_type="application/json",
+        schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+        inputs=[
+            input_ref_from_artifact_ref(snapshot.evidence_ref, role="evidence_ref"),
+            input_ref_from_artifact_ref(snapshot.data_ref, role="data_ref"),
+            input_ref_from_artifact_ref(snapshot.quality_report_ref, role="quality_report_ref"),
+        ],
+    )
+
+
+def _retrieval_summary_write_options() -> ArtifactWriteOptions:
+    """Return the manifest options owned by the retrieval summary writer."""
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+
+    return ArtifactWriteOptions(
+        kind=RetrievalSummary.ARTIFACT_KIND,
+        media_type=RetrievalSummary.ARTIFACT_MEDIA_TYPE,
+        schema=SchemaInfo(
+            name=RetrievalSummary.ARTIFACT_SCHEMA_NAME,
+            version=RetrievalSummary.ARTIFACT_SCHEMA_VERSION,
+        ),
+    )
+
+
+def verify_live_ingestion_snapshot_profile(
+    store: VerifiableArtifactReader,
+    ref: ArtifactRef,
+    snapshot: DataSnapshot,
+) -> None:
+    """Verify the exact selected manifest produced by the live snapshot writer.
+
+    Args:
+        store: Read-only CAS with selected-view integrity verification.
+        ref: Selected snapshot reference to reopen.
+        snapshot: Decoded snapshot expected to match the stored canonical bytes.
+
+    Raises:
+        ValueError: If a required selected view is absent or its bytes and full
+            manifest do not match the ingestion writer's contract.
+
+    This checks the snapshot and retrieval-summary writer profiles and the
+    selected direct inputs' integrity. It does not establish the bundle/data
+    owner profiles, source authority, quality assessment, or currentness.
+    """
+    from dataclasses import replace
+
+    from polisyos.core.artifacts import (
+        artifact_manifest_profile_projection,
+        artifact_manifest_profile_sha256,
+        expected_artifact_manifest_for_write,
+    )
+    from polisyos.core.artifacts.manifest import CanonInfo
+    from polisyos.core.canon import from_canonical_bytes, to_canonical_bytes
+
+    if not isinstance(ref, ArtifactRef) or ref.manifest_profile_sha256 is None:
+        raise ValueError("live_snapshot_profile_required")
+    try:
+        selected = ArtifactRef.model_validate(ref.model_dump(mode="python"))
+        validated = DataSnapshot.model_validate(snapshot.model_dump(mode="python"))
+        required_refs = (
+            validated.data_ref,
+            validated.evidence_ref,
+            validated.quality_report_ref,
+        )
+        if any(item is None or item.manifest_profile_sha256 is None for item in required_refs):
+            raise ValueError("live_snapshot_profile_required")
+        # Reconstruct the fields populated by the owner; any additional
+        # non-default field is not an ingestion snapshot from this writer.
+        writer_snapshot = DataSnapshot(
+            data_ref=validated.data_ref,
+            evidence_ref=validated.evidence_ref,
+            quality_report_ref=validated.quality_report_ref,
+            stats=validated.stats,
+            notes=validated.notes,
+        )
+        if writer_snapshot != validated:
+            raise ValueError("live_snapshot_profile_drift")
+        if not store.has(selected) or not store.verify(selected).ok:
+            raise ValueError("live_snapshot_profile_drift")
+        for item in required_refs:
+            if item is None or not store.has(item) or not store.verify(item).ok:
+                raise ValueError("live_snapshot_profile_drift")
+        manifest = store.get_manifest(selected)
+        payload = store.get_bytes(selected)
+        canon_spec = CanonSpec(forbid_floats=False)
+        if payload != to_canonical_bytes(validated, canon_spec):
+            raise ValueError("live_snapshot_profile_drift")
+        expected = expected_artifact_manifest_for_write(
+            artifact_id=selected.artifact_id,
+            data=payload,
+            opts=replace(
+                _ingestion_snapshot_write_options(validated),
+                canon=CanonInfo.from_spec(canon_spec),
+            ),
+            created_at=manifest.created_at,
+        )
+        if (
+            selected.kind != "fabric.data_snapshot"
+            or selected.media_type != "application/json"
+            or artifact_manifest_profile_sha256(manifest) != selected.manifest_profile_sha256
+            or artifact_manifest_profile_projection(manifest)
+            != artifact_manifest_profile_projection(expected)
+            or manifest != expected
+        ):
+            raise ValueError("live_snapshot_profile_drift")
+        evidence_ref = validated.evidence_ref
+        quality_ref = validated.quality_report_ref
+        if evidence_ref is None or quality_ref is None:
+            raise ValueError("live_snapshot_profile_required")
+        bundle = EvidenceBundle.model_validate(from_canonical_bytes(store.get_bytes(evidence_ref)))
+        quality_manifest = store.get_manifest(quality_ref)
+        quality_bytes = store.get_bytes(quality_ref)
+        summary = RetrievalSummary.model_validate(from_canonical_bytes(quality_bytes))
+        expected_quality = expected_artifact_manifest_for_write(
+            artifact_id=quality_ref.artifact_id,
+            data=quality_bytes,
+            opts=replace(
+                _retrieval_summary_write_options(),
+                canon=CanonInfo.from_spec(canon_spec),
+            ),
+            created_at=quality_manifest.created_at,
+        )
+        datasets_fetched = validated.stats.get("datasets_fetched")
+        if (
+            quality_ref.kind != RetrievalSummary.ARTIFACT_KIND
+            or quality_ref.media_type != RetrievalSummary.ARTIFACT_MEDIA_TYPE
+            or artifact_manifest_profile_sha256(quality_manifest)
+            != quality_ref.manifest_profile_sha256
+            or artifact_manifest_profile_projection(quality_manifest)
+            != artifact_manifest_profile_projection(expected_quality)
+            or quality_manifest != expected_quality
+            or quality_bytes != to_canonical_bytes(summary, canon_spec)
+            or summary.assessment_status != "not_assessed"
+            or type(datasets_fetched) is not int
+            or summary.observed_counts != {"datasets_fetched": datasets_fetched}
+            or summary.source != validated.stats.get("source")
+            or summary.source_refs != [validated.data_ref]
+            or summary.source_refs != bundle.sources
+            or summary.notes != bundle.notes
+        ):
+            raise ValueError("live_snapshot_profile_drift")
+    except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        if isinstance(exc, ValueError) and str(exc) == "live_snapshot_profile_required":
+            raise
+        raise ValueError("live_snapshot_profile_drift") from exc
+
+
 async def _build_snapshot_from_evidence_async(
     *,
     store: AsyncArtifactStore,
@@ -704,7 +866,6 @@ async def _build_snapshot_from_evidence_async(
 ) -> DataSnapshotRef | None:
     """Build a DataSnapshot from evidence bundle artifacts in CAS."""
     from polisyos.core.artifacts import aload_core_json_artifact
-    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 
     evidence_payload = await aload_core_json_artifact(store, evidence_ref)
     evidence_bundle = EvidenceBundle.model_validate(evidence_payload)
@@ -742,23 +903,10 @@ async def _build_snapshot_from_evidence_async(
     )
     quality_ref = await store.put_json(
         quality_payload,
-        ArtifactWriteOptions(
-            kind=RetrievalSummary.ARTIFACT_KIND,
-            media_type="application/json",
-            schema=SchemaInfo(
-                name=RetrievalSummary.ARTIFACT_SCHEMA_NAME,
-                version=RetrievalSummary.ARTIFACT_SCHEMA_VERSION,
-            ),
-        ),
+        _retrieval_summary_write_options(),
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
-
-    snapshot_inputs = [
-        input_ref_from_artifact_ref(evidence_ref, role="evidence_ref"),
-        input_ref_from_artifact_ref(data_ref, role="data_ref"),
-        input_ref_from_artifact_ref(quality_ref, role="quality_report_ref"),
-    ]
 
     snapshot = DataSnapshot(
         data_ref=data_ref,
@@ -776,12 +924,7 @@ async def _build_snapshot_from_evidence_async(
 
     snapshot_art_ref = await store.put_json(
         snapshot,
-        ArtifactWriteOptions(
-            kind="fabric.data_snapshot",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
-            inputs=snapshot_inputs,
-        ),
+        _ingestion_snapshot_write_options(snapshot),
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )

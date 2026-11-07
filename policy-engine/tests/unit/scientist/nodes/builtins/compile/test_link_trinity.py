@@ -22,9 +22,21 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_LINK_REPORT_REF,
 )
+from polisyos.scientist.orchestration.engine.protocol import InputAwareNodeSpec
 from polisyos.scientist.orchestration.engine.state_branching import (
     branch_state as real_branch_state,
 )
+
+
+def test_link_contract_requires_both_real_external_read_ports() -> None:
+    spec = LinkTrinityNode().spec
+    assert isinstance(spec, InputAwareNodeSpec)
+    assert {rule.path for rule in spec.input_rules} == set(spec.state_reads)
+    assert {rule.path for rule in spec.input_rules} == {
+        "inputs.trinity_bundle_ref",
+        "inputs.registry_bundle_ref",
+    }
+    assert all(rule.availability == "required" and not rule.allow_null for rule in spec.input_rules)
 
 
 def test_link_success(execution_context, minimal_state, artifact_ref_factory):

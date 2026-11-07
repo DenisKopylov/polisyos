@@ -1,0 +1,448 @@
+{
+  "metadata": {
+    "title": "Исследование security / trust / release / operations для последующей source-based проверки E02",
+    "language": "ru",
+    "phase": "RESEARCH_ONLY",
+    "created_on": "2026-11-01",
+    "future_target": "e02_source_based_review/baseline/PolicyOS_E02_Review_and_Specs_v2",
+    "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+    "expected_future_audit_inventory": {
+      "packets": 127,
+      "lanes": 12,
+      "scenarios_main": 38,
+      "scenarios_additional": 4
+    },
+    "applied_to_specs": false,
+    "product_or_spec_changes": false,
+    "tests_or_exploits_executed": false,
+    "method": "Источники дают основание; формулировки критериев и синтетические контрпримеры — аналитический вывод для будущего review, не цитаты и не findings.",
+    "finding_threshold": "Сначала установить applicability; затем найти точное место в текущей спеке и противоречие/omission. Не превращать отсутствие источника или теста в доказанную runtime уязвимость."
+  },
+  "sources": [
+    {
+      "id": "SR-S01",
+      "title": "NIST SP 800-218 — SSDF",
+      "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf",
+      "version": "1.1, Final",
+      "publication_or_revision_date": "2022-02",
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "§2, печ. с. 3 (PDF page 12): risk-based tailoring",
+        "PO.4.1–PO.4.2, печ. с. 8 (PDF page 17)",
+        "PS.2.1, PS.3.1–PS.3.2, печ. с. 10 (PDF page 19)",
+        "PW.8.1–PW.8.2, печ. с. 15 (PDF page 24)"
+      ],
+      "source_insight": "Критерии security checks и их свидетельства задаются заранее; тесты имеют scope и результаты; целостность и архив релиза — отдельные задачи. SSDF прямо не является универсальным checklist.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Прочитаны релевантные страницы через извлечение PDF-текста; документ целиком не проверялся. Notional examples не превращены в обязательные способы реализации.",
+      "other_verified_urls": [
+        "https://csrc.nist.gov/pubs/sp/800/218/final"
+      ]
+    },
+    {
+      "id": "SR-S02",
+      "title": "OWASP ASVS — V8 Authorization",
+      "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x17-V8-Authorization.md",
+      "version": "5.0.0, tag v5.0.0",
+      "publication_or_revision_date": "2025-05",
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "8.1.1–8.1.4",
+        "8.2.1–8.2.4",
+        "8.3.1–8.3.3",
+        "8.4.1"
+      ],
+      "source_insight": "Функция, объект, поле, исходный субъект и tenant являются разными границами доступа. Компенсация после отзыва прав не устраняет уже совершённое раскрытие данных.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Версия закреплена tag; месяц выпуска подтверждён страницей проекта. Конкретный ASVS level для E02 не установлен; требования L2/L3 не объявляются глобально обязательными.",
+      "other_verified_urls": [
+        "https://github.com/OWASP/ASVS",
+        "https://github.com/OWASP/ASVS/blob/v5.0.0/5.0/en/0x17-V8-Authorization.md"
+      ]
+    },
+    {
+      "id": "SR-S03",
+      "title": "SLSA — Build: Verifying artifacts",
+      "url": "https://slsa.dev/spec/v1.2/verifying-artifacts",
+      "version": "1.2, Approved",
+      "publication_or_revision_date": null,
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "How to verify",
+        "Step 1: Check SLSA Build level",
+        "Step 2: Check expectations",
+        "Forming Expectations",
+        "Architecture options"
+      ],
+      "source_insight": "Подпись provenance, digest subject и заранее доверенные builder/repository/build parameters проверяются раздельно. Проверка только в registry не покрывает последующую подмену у потребителя.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Страница versioned и Approved; календарная дата публикации на прочитанной странице не указана. Build L3 не гарантирует честность самой build platform и не доказывает отсутствие дефектов.",
+      "other_verified_urls": [
+        "https://slsa.dev/spec/v1.2/"
+      ]
+    },
+    {
+      "id": "SR-S04",
+      "title": "The Update Framework Specification",
+      "url": "https://theupdateframework.github.io/specification/v1.0.36/",
+      "version": "1.0.36",
+      "publication_or_revision_date": "2026-08-05",
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "§1.1 Scope; §1.4 Non-goals",
+        "§5.1 fixed update start time",
+        "§5.3 root rotation",
+        "§5.4 timestamp rollback/freeze checks",
+        "§5.5 snapshot binding",
+        "§5.7 Fetch target",
+        "§6.1 key management"
+      ],
+      "source_insight": "Действительная подпись сама по себе не исключает replay старых metadata или mix-and-match; target связан с проверенными metadata и digest.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Стандарт именно для update systems; перенос на approvals/policies — ограниченная аналогия, не требование внедрить TUF. Freshness зависит от модели доверенного времени и доступности metadata.",
+      "other_verified_urls": []
+    },
+    {
+      "id": "SR-S05",
+      "title": "OWASP ASVS — V1 Encoding and Sanitization",
+      "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x10-V1-Encoding-and-Sanitization.md",
+      "version": "5.0.0",
+      "publication_or_revision_date": "2025-05",
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "1.1.1–1.1.2",
+        "1.2.1–1.2.5",
+        "1.3.6",
+        "1.5.1–1.5.3"
+      ],
+      "source_insight": "Декодирование, проверка, интерпретация и контекстное экранирование имеют порядок; разные parsers одного типа данных должны давать совместимую семантику.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Выбраны релевантные interpreter/parser границы; не утверждается наличие XML/SQL/OS sinks в E02.",
+      "other_verified_urls": []
+    },
+    {
+      "id": "SR-S06",
+      "title": "OWASP ASVS — V2 Validation and Business Logic",
+      "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x11-V2-Validation-and-Business-Logic.md",
+      "version": "5.0.0",
+      "publication_or_revision_date": "2025-05",
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "2.1.1–2.1.3",
+        "2.2.1–2.2.3",
+        "2.3.1–2.3.4",
+        "2.4.1"
+      ],
+      "source_insight": "Структурная валидность не заменяет согласованность связанных полей, бизнес-пределы и допустимый порядок операций.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Schema validation названа возможным, а не единственным способом. Конкретные quotas, транзакционные технологии и anti-automation меры не навязываются.",
+      "other_verified_urls": []
+    },
+    {
+      "id": "SR-S07",
+      "title": "OWASP ASVS — V13 Configuration",
+      "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x22-V13-Configuration.md",
+      "version": "5.0.0",
+      "publication_or_revision_date": "2025-05",
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "13.1.1–13.1.4",
+        "13.2.2–13.2.6",
+        "13.3.1"
+      ],
+      "source_insight": "Зависимости требуют явного resource/failure contract; секреты не должны попадать в исходники и build artifacts.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Key vault/HSM из уровня ASVS не превращаются в безусловное требование для исследуемого проекта; анализируется достижение требуемой границы.",
+      "other_verified_urls": []
+    },
+    {
+      "id": "SR-S08",
+      "title": "OWASP ASVS — V14 Data Protection",
+      "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x23-V14-Data-Protection.md",
+      "version": "5.0.0",
+      "publication_or_revision_date": "2025-05",
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "14.1.1–14.1.2",
+        "14.2.1–14.2.4",
+        "14.2.6–14.2.7",
+        "14.3.1–14.3.3"
+      ],
+      "source_insight": "Требования зависят от классификации данных и охватывают кэш, логи, передачу и retention; Base64 не делает данные несекретными.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Не даётся правовое заключение и не вводятся произвольные сроки хранения. Browser-контроли применимы только при наличии такого потребителя.",
+      "other_verified_urls": []
+    },
+    {
+      "id": "SR-S09",
+      "title": "OWASP ASVS — V16 Security Logging and Error Handling",
+      "url": "https://raw.githubusercontent.com/OWASP/ASVS/v5.0.0/5.0/en/0x25-V16-Security-Logging-and-Error-Handling.md",
+      "version": "5.0.0",
+      "publication_or_revision_date": "2025-05",
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "16.1.1",
+        "16.2.1–16.2.5",
+        "16.3.1–16.3.4",
+        "16.4.1–16.4.3",
+        "16.5.1–16.5.4"
+      ],
+      "source_insight": "Security events должны быть сопоставимы и защищены; ошибки проверки не должны превращаться в allow.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Сам источник исключает SIEM correlation/alerting infrastructure из scope ASVS. Полноценная SIEM, отдельный сервис журналирования и лог всех событий не объявлены обязательными.",
+      "other_verified_urls": []
+    },
+    {
+      "id": "SR-S10",
+      "title": "OWASP WSTG — Testing for Bypassing Authorization Schema",
+      "url": "https://wstg.owasp.org/v4.2/4-Web_Application_Security_Testing/05-Authorization_Testing/02-Testing_for_Bypassing_Authorization_Schema/",
+      "version": "4.2, WSTG-ATHZ-02",
+      "publication_or_revision_date": null,
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "Summary",
+        "Test Objectives",
+        "Testing for Horizontal Bypassing Authorization Schema"
+      ],
+      "source_insight": "Тесты различают анонимного, вышедшего из сессии, равнопривилегированного другого пользователя и другого по роли субъекта.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Versioned URL; дата на странице отсутствует. Это методика авторизованного тестирования, не разрешение на реальную эксплуатацию.",
+      "other_verified_urls": [
+        "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/05-Authorization_Testing/02-Testing_for_Bypassing_Authorization_Schema"
+      ]
+    },
+    {
+      "id": "SR-S11",
+      "title": "OWASP WSTG — Testing for Insecure Direct Object References",
+      "url": "https://wstg.owasp.org/v4.2/4-Web_Application_Security_Testing/05-Authorization_Testing/04-Testing_for_Insecure_Direct_Object_References/",
+      "version": "4.2, WSTG-ATHZ-04",
+      "publication_or_revision_date": null,
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "Summary",
+        "Test Objectives",
+        "How to Test"
+      ],
+      "source_insight": "Object-reference tests нуждаются минимум в двух известных наборах прав/объектов, иначе отказ на несуществующий ID не проверяет IDOR.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Прочитаны вводные методические разделы; exploit-процедуры не исполнялись. Применимость к не-web API — аналитический перенос.",
+      "other_verified_urls": []
+    },
+    {
+      "id": "SR-S12",
+      "title": "MITRE CWE-367 — Time-of-check Time-of-use Race Condition",
+      "url": "https://cwe.mitre.org/data/definitions/367.html",
+      "version": "CWE site reports 5.0",
+      "publication_or_revision_date": null,
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "Description",
+        "Common Consequences",
+        "Potential Mitigations"
+      ],
+      "source_insight": "Состояние/идентичность ресурса может измениться между проверкой и использованием; сокращение окна не устраняет race.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Живая страница; номер версии сайта виден, фиксированная дата revision не установлена. CWE классифицирует слабость, не задаёт полный concurrency protocol.",
+      "other_verified_urls": []
+    },
+    {
+      "id": "SR-S13",
+      "title": "IETF RFC 8259 — JSON Data Interchange Format",
+      "url": "https://www.rfc-editor.org/rfc/rfc8259",
+      "version": "RFC 8259 / STD 90",
+      "publication_or_revision_date": "2017-12",
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "§4 Objects",
+        "§6 Numbers",
+        "§8.1 Character Encoding",
+        "§9 Parsers"
+      ],
+      "source_insight": "Повторённые имена JSON имеют неодинаковую обработку у parsers; допустимые parser limits и числовые представления требуют явного контракта.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "URL перенаправляет на info/rfc8259 с полным текстом; RFC говорит SHOULD о уникальности имён, а не universal MUST reject. Errata отдельно не анализировались.",
+      "other_verified_urls": [
+        "https://www.rfc-editor.org/info/rfc8259/"
+      ]
+    },
+    {
+      "id": "SR-S14",
+      "title": "AWS Builders’ Library — Ensuring rollback safety during deployments",
+      "url": "https://builder.aws.com/content/3F04j2yRAAMBuPSPs50xwXZqg01/ensuring-rollback-safety-during-deployments",
+      "version": "Авторская инженерная практика, Sandeep Pokkunuri",
+      "publication_or_revision_date": "2019-12-05",
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "Introduction",
+        "Standalone vs. distributed software deployments",
+        "Problems with protocol changes",
+        "Two-phase deployment technique"
+      ],
+      "source_insight": "Совместимость требуется во время переходов; prepare readers предшествует activation writers, а rollback после новых записей имеет другую нижнюю границу.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "AWS URL перенаправляет на официальный Builder Center, где указаны Published/Last modified Dec 5, 2019. Это практика, не универсальный обязательный deployment protocol.",
+      "other_verified_urls": [
+        "https://aws.amazon.com/builders-library/ensuring-rollback-safety-during-deployments/"
+      ]
+    },
+    {
+      "id": "SR-S15",
+      "title": "Google SRE Workbook — Canarying Releases",
+      "url": "https://sre.google/workbook/canarying-releases/",
+      "version": "SRE Workbook, chapter 16",
+      "publication_or_revision_date": null,
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "Requirements of a Canary Process",
+        "A Roll Forward Deployment Versus a Simple Canary Deployment",
+        "Choosing a Canary Population and Duration"
+      ],
+      "source_insight": "Canary должен иметь различимый контроль, оценку и влияние на rollout; малая нехарактерная выборка и общий metric скрывают ошибки.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "На странице нет календарной версии; пример App Engine и упрощённые error-budget модели не являются готовыми thresholds для E02.",
+      "other_verified_urls": []
+    },
+    {
+      "id": "SR-S16",
+      "title": "Google SRE Book — Data Integrity: What You Read Is What You Wrote",
+      "url": "https://sre.google/sre-book/data-integrity/",
+      "version": "SRE Book, chapter 26",
+      "publication_or_revision_date": null,
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "Backups Versus Archives",
+        "Delivering a Recovery System, Rather Than a Backup System",
+        "Second Layer / backup tiers",
+        "1T Versus 1E: Not Just a Bigger Backup",
+        "Third Layer: Early Detection",
+        "Gmail—February, 2011: Restore from GTape",
+        "Google Music recovery discussion"
+      ],
+      "source_insight": "Критерий восстановления — пригодные и доступные пользователю данные; архив, копия и replication не равнозначны восстановлению согласованных данных.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Это опыт Google, не основание копировать объёмы, 30–90-дневные retention или стоимость. Читались обозначенные разделы, не все главы книги.",
+      "other_verified_urls": []
+    },
+    {
+      "id": "SR-S17",
+      "title": "NIST SP 800-34 Rev. 1 — Contingency Planning Guide",
+      "url": "https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-34r1.pdf",
+      "version": "Rev. 1, updated 2010-11-11",
+      "publication_or_revision_date": "2010-11-11",
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "§3.2.1 recovery priorities / RTO / RPO, печ. с. 17 (PDF page 31)",
+        "§3.5 TT&E, печ. с. 27–31",
+        "§4.4 Reconstitution, печ. с. 41"
+      ],
+      "source_insight": "Допустимый простой и потеря данных различаются; восстановление завершается проверкой работоспособности и данных, а не окончанием команды копирования.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Федеральный контекст США не переносится в обязанность E02; используются определения и инженерная схема. Извлечение релевантного PDF-текста; устаревшие technology examples не используются.",
+      "other_verified_urls": [
+        "https://csrc.nist.gov/pubs/sp/800/34/r1/upd1/final"
+      ]
+    },
+    {
+      "id": "SR-S18",
+      "title": "OWASP Authorization Cheat Sheet",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html",
+      "version": "Living document, snapshot 2026-11-01",
+      "publication_or_revision_date": null,
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "Introduction",
+        "Enforce Least Privileges",
+        "Deny by Default",
+        "Create Unit and Integration Test Cases for Authorization Logic"
+      ],
+      "source_insight": "Authentication не означает authorization; положительные и отрицательные unit/integration tests проверяют разные исходы и не являются полным доказательством security.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Нет опубликованного version/date в прочитанном тексте. Не переносим recommendations ABAC/RBAC или SIEM в архитектурный mandate.",
+      "other_verified_urls": []
+    },
+    {
+      "id": "SR-S19",
+      "title": "OWASP Multi-Tenant Application Security Cheat Sheet",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html",
+      "version": "Living document, snapshot 2026-11-01",
+      "publication_or_revision_date": null,
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "§1 Tenant Identification & Context Management",
+        "§2 Database Isolation Strategies: trade-offs",
+        "§4 Cache & Session Isolation",
+        "§5 Tenant-Aware Asynchronous Work",
+        "§6 File Storage & Blob Isolation",
+        "§7 Tenant Backup Restore"
+      ],
+      "source_insight": "Tenant selectors не являются правами; cache/jobs/storage требуют согласованного контекста; restore не должен воскресить старые membership/retention.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Живой неприкреплённый к commit текст; образцы кода не запускались и не считаются production implementation. Источник прямо допускает глобальные данные и разные уровни изоляции.",
+      "other_verified_urls": []
+    },
+    {
+      "id": "SR-S20",
+      "title": "AWS Builders’ Library — Making retries safe with idempotent APIs",
+      "url": "https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/",
+      "version": "Авторская инженерная практика, Malcolm Featonby",
+      "publication_or_revision_date": null,
+      "accessed_on": "2026-11-01",
+      "authority": "Первичный источник: издатель стандарта/автор инженерной практики",
+      "sections_read": [
+        "Retrying and side effects",
+        "Reducing client complexity",
+        "Retries and semantic equivalence",
+        "Late arriving requests",
+        "Same client request ID, different intent"
+      ],
+      "source_insight": "Timeout не доказывает неисполнение; повтор требует intent identity, согласованного учёта эффекта и решения для задержанных/изменённых запросов.",
+      "access_status": "READ_RELEVANT_SECTIONS",
+      "access_limits": "Календарная дата на прочитанной странице не указана. API/CLI примеры не запускались. Idempotency не даёт новых прав и не означает exactly-once всего распределённого workflow.",
+      "other_verified_urls": []
+    }
+  ],
+  "access_limitations": [
+    {
+      "url": "https://github.com/OWASP/ASVS/releases/tag/v5.0.0",
+      "action": "web.open",
+      "outcome": "HTTP_404_NOT_FOUND",
+      "reason": "Release page по этому URL не получена; versioned raw tag доступен. Дата дня выпуска не утверждается, используется подтверждённый месяц.",
+      "dependent_work": "NONE; source content read at tag",
+      "retry_performed": false
+    },
+    {
+      "url": "https://wstg.owasp.org/v4.2/3-The_OWASP_Testing_Framework/0-The_OWASP_Testing_Framework/",
+      "action": "web.open",
+      "outcome": "TOOL_URL_NOT_ACCESSIBLE",
+      "reason": "Текст этого необязательного framework URL не доступен инструменту; не используется как основание.",
+      "dependent_work": "NONE; versioned WSTG-ATHZ-02/04 read",
+      "retry_performed": false
+    },
+    {
+      "url": "NIST PDF sources",
+      "action": "web.open/find; screenshot request",
+      "outcome": "RELEVANT_TEXT_READ",
+      "reason": "Критерии основаны на читаемом извлечённом тексте; screenshots не использованы как независимое визуальное доказательство.",
+      "dependent_work": "NONE"
+    }
+  ]
+}

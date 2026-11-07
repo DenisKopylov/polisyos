@@ -1,0 +1,68 @@
+{
+  "pass_id": "C101",
+  "bundle": "ING-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C101-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "source_ids": [
+        "B84"
+      ],
+      "title": "Buffered-byte accounting всё ещё повторно сериализует растущий pending buffer",
+      "evidence": [
+        "S01:1030–1054",
+        "S01:1254–1270",
+        "S01:2608–2618",
+        "P03",
+        "run02/byte_accounting_cost.json"
+      ],
+      "remaining": "Снизить повторную стоимость exact owned byte accounting на existing accumulator boundary, сохраняя те же admission/retention/window semantics и корректность при восстановлении/освобождении. Не отключать guards и не выдавать приблизительный RSS за exact row serialization size. Проверить счётчиками и отдельным profile, а не OOM.",
+      "limits": "Actual process с session20/40 строк без закрытия до EOF:590/2380 повторных сериализаций удерживаемых строк через buffered_bytes (loop+preview+actual append); дополнительных row estimates80/160 отдельно. Это source-level operation count, не измерение CPU доли/latency/RSS. Accepted window содержит все20/40 исходных строк."
+    },
+    {
+      "id": "C101-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "source_ids": [
+        "B86"
+      ],
+      "title": "Stream schema membership не применяет объявленный CATEGORY allowed_values",
+      "evidence": [
+        "S14:235–246",
+        "S05:23–40,82–126",
+        "S16:185–188",
+        "P05",
+        "category_run01/category_membership.json"
+      ],
+      "remaining": "Подключить existing FieldSpec allowed_values к actual row-local stream validation с тем же явным контрактом и quarantine. Сохранить batch-independent membership/optional/null/finite guards; не возвращать batch-majority inference и не заменять source semantics guessed enum.",
+      "limits": "Actual bound stream при batch1/3 принимает category=outside рядом с allowed, сохраняет schema_binding, quarantine0; actual sibling DataFrame validator same schema возвращает invalid values, positive allowed проходит. Только CATEGORY allowlist boundary доказана; full semantic equivalence всех schema consumers/production prevalence не заявлена. CAS persistence fixture."
+    },
+    {
+      "id": "C101-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B83",
+        "B84",
+        "B86"
+      ],
+      "title": "Native runtime, physical-process horizon и production resource/source semantics не квалифицированы",
+      "evidence": [
+        "S07:2362–2583",
+        "S09",
+        "P01–P05",
+        "native_streaming.stdout",
+        "native_modes.stdout"
+      ],
+      "remaining": "В supported environment выполнить существующий OS-process UTC worker/native tests и actual CAS/quarantine/mode consumer; дополнить same-contract allowed_values regression и estimator cost oracle. Ресурсный профиль отдельно измеряет source allocation, retained state и bytes-accounting. Конкретный live source требует independently admitted event/version owner, а не имён полей.",
+      "limits": "SPILL_TO_DISK здесь честно отказывает без reader и не заявлен реализованным disk spill; это допустимый bounded scope, не само по себе defect. Fresh-store same-process P02 не заменяет native separate PID evidence. Synthetic/replay_only не production currentness/rights и не научная истинность; C100-R01 остаётся отдельно без повторного подсчёта."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C101-R01",
+    "C101-R02"
+  ],
+  "decision": "Dedupe UTC/cap/owner и честные capacity guards связаны и полезны; batch-majority sanitizer устранён. Сохраняются quadratic byte accounting и неполный CATEGORY membership. Native/global capability не закрыта."
+}

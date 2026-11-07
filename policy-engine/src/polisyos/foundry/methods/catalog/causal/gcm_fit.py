@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import math
 from collections.abc import Mapping
 from typing import Any, ClassVar, Literal
 
@@ -22,12 +24,23 @@ from polisyos.foundry.methods.base import (
 )
 from polisyos.foundry.methods.catalog.causal._graph_projection import pag_to_dag_projection
 from polisyos.foundry.methods.catalog.causal.protocols import SCMFitData
+from polisyos.ir import (
+    ArtifactRefModel,
+    ArtifactStore,
+    CausalGraphModelRef,
+    InputRef,
+    StructuralCausalModelSpecRef,
+    get_json_artifact_with_bytes,
+)
 from polisyos.ir.analytics.causal_graph import (
     CausalGraphModel,
     GraphProjectionStatus,
     GraphType,
+    expand_temporal_graph,
     graph_content_sha256,
     graph_projection_disposition,
+    load_causal_graph_model,
+    persist_causal_graph_model,
 )
 from polisyos.ir.analytics.structural_causal_model import (
     MechanismFamily,
@@ -36,6 +49,8 @@ from polisyos.ir.analytics.structural_causal_model import (
     SCMFitProvenance,
     SCMTrainingRows,
     StructuralCausalModelSpec,
+    load_structural_causal_model_spec,
+    persist_structural_causal_model_spec,
 )
 
 
@@ -44,6 +59,284 @@ class _SelectedGCMGraphRefusal(ValueError):
 
     reason_code: ClassVar[Literal["graph_not_declared_static_dag"]] = (
         "graph_not_declared_static_dag"
+    )
+
+
+def _manifest_input_identities(manifest: object) -> list[tuple[str, str, str | None]]:
+    """Read selected lineage from typed or mapping-compatible store manifests."""
+    inputs = (
+        manifest.get("inputs")
+        if isinstance(manifest, Mapping)
+        else getattr(manifest, "inputs", None)
+    )
+    if not isinstance(inputs, (list, tuple)):
+        raise ValueError("selected artifact manifest has invalid input lineage")
+    identities: list[tuple[str, str, str | None]] = []
+    for item in inputs:
+        if isinstance(item, Mapping):
+            role = item.get("role")
+            artifact_id = item.get("artifact_id")
+            profile = item.get("manifest_profile_sha256")
+        else:
+            role = getattr(item, "role", None)
+            artifact_id = getattr(item, "artifact_id", None)
+            profile = getattr(item, "manifest_profile_sha256", None)
+        if (
+            not isinstance(role, str)
+            or artifact_id is None
+            or not (profile is None or isinstance(profile, str))
+        ):
+            raise ValueError("selected artifact manifest has invalid input identity")
+        identities.append((role, str(artifact_id), profile))
+    return identities
+
+
+def temporal_fit_data_from_observations(
+    store: ArtifactStore,
+    *,
+    expanded_graph_ref: CausalGraphModelRef,
+    observations_ref: ArtifactRefModel,
+) -> SCMFitData:
+    """Align a selected temporal observation corpus to a finite expanded DAG.
+
+    The JSON corpus declares ``schema_version='1.0'``, ``source_graph_ref``,
+    ``time_unit``, and ``rows`` containing ``trajectory_id``, ``variable``,
+    integer ``step`` and finite ``value``.  Each trajectory is one fit row;
+    every selected graph coordinate must be explicitly observed.  The time and
+    graph claims remain declared model inputs, not established causal authority.
+
+    Args:
+        store: IR artifact store for exact selected graph and observation reads.
+        expanded_graph_ref: Selected finite expanded graph artifact.
+        observations_ref: Selected JSON observation artifact.
+
+    Returns:
+        Existing SCM fit input with an aligned matrix and persisted graph binding.
+
+    Raises:
+        ValueError: Input source, unit, mapping, rows, or boundary is inconsistent.
+    """
+    return _temporal_fit_data_from_observations(
+        store,
+        expanded_graph_ref=expanded_graph_ref,
+        observations_ref=observations_ref,
+        selected_bound_ref=None,
+    )
+
+
+def _temporal_fit_data_from_observations(
+    store: ArtifactStore,
+    *,
+    expanded_graph_ref: CausalGraphModelRef,
+    observations_ref: ArtifactRefModel,
+    selected_bound_ref: CausalGraphModelRef | None,
+) -> SCMFitData:
+    """Prepare or verify an exact graph/data binding without extra writes on read."""
+    graph_ref = CausalGraphModelRef.from_selected_write(dict(expanded_graph_ref))
+    data_ref = ArtifactRefModel.from_selected_write(dict(observations_ref))
+    if data_ref.media_type != "application/json":
+        raise ValueError("temporal observations require a selected JSON artifact")
+    graph = load_causal_graph_model(store, graph_ref)
+    expansion = graph.metadata.get("temporal_expansion")
+    if (
+        not isinstance(expansion, Mapping)
+        or expansion.get("profile") != "finite_directed_temporal_v1"
+    ):
+        raise ValueError("temporal fit requires a selected finite expansion")
+    try:
+        source_ref = CausalGraphModelRef.from_selected_write(dict(expansion["source_graph_ref"]))
+        expected = expand_temporal_graph(
+            store,
+            source_ref,
+            query_coordinates=expansion["query_coordinates"],
+            start_step=expansion["start_step"],
+            end_step=expansion["end_step"],
+            boundary_coordinates=expansion["boundary_coordinates"],
+            lag_unit=expansion["lag_unit"],
+            time_unit=expansion["time_unit"],
+        )
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError("temporal expansion binding is invalid") from exc
+    if graph_content_sha256(graph) != graph_content_sha256(expected):
+        raise ValueError("temporal expansion differs from its selected source and mapping")
+
+    # This owner resolves the selected manifest, verifies its content and
+    # canonical profile, and decodes tagged finite numeric values.
+    payload, payload_bytes = get_json_artifact_with_bytes(store, data_ref)
+    if (
+        not isinstance(payload, dict)
+        or set(payload) != {"schema_version", "source_graph_ref", "time_unit", "rows"}
+        or payload["schema_version"] != "1.0"
+    ):
+        raise ValueError("temporal observation corpus has an unsupported shape or version")
+    try:
+        declared_source = CausalGraphModelRef.from_selected_write(dict(payload["source_graph_ref"]))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("temporal observations require their selected source graph") from exc
+    if declared_source != source_ref:
+        raise ValueError("temporal observations bind a different source graph")
+    if payload["time_unit"] != expansion["time_unit"]:
+        raise ValueError("temporal observations and expansion use different time units")
+    rows = payload["rows"]
+    if not isinstance(rows, list):
+        raise ValueError("temporal observations require a list of rows")
+    coordinates = expansion["coordinates"]
+    coordinate_nodes = {(entry["variable"], entry["step"]): entry["node"] for entry in coordinates}
+    required = set(coordinate_nodes)
+    observed: dict[tuple[str, str, int], float] = {}
+    trajectory_ids: set[str] = set()
+    for row in rows:
+        if not isinstance(row, dict) or set(row) != {"trajectory_id", "variable", "step", "value"}:
+            raise ValueError("temporal observation row has an unsupported shape")
+        trajectory, variable, step, value = (
+            row["trajectory_id"],
+            row["variable"],
+            row["step"],
+            row["value"],
+        )
+        if (
+            type(trajectory) is not str
+            or not trajectory.strip()
+            or type(variable) is not str
+            or not variable.strip()
+            or type(step) is not int
+            or type(value) not in (int, float)
+            or not math.isfinite(value)
+        ):
+            raise ValueError("temporal observation row has invalid identity, step, or value")
+        key = (trajectory, variable, step)
+        if key in observed:
+            raise ValueError("temporal observations contain a duplicate trajectory coordinate")
+        observed[key] = float(value)
+        if (variable, step) in required:
+            trajectory_ids.add(trajectory)
+    ordered_trajectories = sorted(trajectory_ids)
+    if len(ordered_trajectories) < 2:
+        raise ValueError("temporal fit requires at least two complete trajectories")
+    ordered_coordinates = [(entry["variable"], entry["step"]) for entry in coordinates]
+    matrix: list[list[float]] = []
+    for trajectory in ordered_trajectories:
+        try:
+            matrix.append(
+                [observed[(trajectory, variable, step)] for variable, step in ordered_coordinates]
+            )
+        except KeyError as exc:
+            raise ValueError(
+                f"temporal trajectory is missing a required coordinate: {exc.args[0]}"
+            ) from exc
+
+    observation_binding = {
+        "profile": "aligned_discrete_trajectories_v1",
+        "expanded_graph_ref": graph_ref.model_dump(mode="json"),
+        "observations_ref": data_ref.model_dump(mode="json"),
+        "observations_sha256": hashlib.sha256(payload_bytes).hexdigest(),
+        "time_unit": payload["time_unit"],
+        "time_basis": "source_declared_discrete_steps",
+        "trajectory_ids": ordered_trajectories,
+    }
+    metadata = {**dict(graph.metadata), "temporal_observation_binding": observation_binding}
+    bound_graph = CausalGraphModel.model_validate(
+        {**graph.model_dump(mode="python"), "metadata": metadata}
+    )
+    if selected_bound_ref is None:
+        bound_ref = persist_causal_graph_model(
+            store,
+            bound_graph,
+            inputs=[
+                InputRef(
+                    artifact_id=graph_ref.artifact_id,
+                    role="temporal_expansion",
+                    manifest_profile_sha256=graph_ref.manifest_profile_sha256,
+                ),
+                InputRef(
+                    artifact_id=data_ref.artifact_id,
+                    role="temporal_observations",
+                    manifest_profile_sha256=data_ref.manifest_profile_sha256,
+                ),
+            ],
+            return_selected_profile=True,
+        )
+    else:
+        bound_ref = CausalGraphModelRef.from_selected_write(dict(selected_bound_ref))
+        existing = load_causal_graph_model(store, bound_ref)
+        if graph_content_sha256(existing) != graph_content_sha256(bound_graph):
+            raise ValueError("selected temporal graph differs from its observation binding")
+        actual = _manifest_input_identities(store.get_manifest(bound_ref))
+        actual_inputs = set(actual)
+        expected_inputs = {
+            ("temporal_expansion", str(graph_ref.artifact_id), graph_ref.manifest_profile_sha256),
+            ("temporal_observations", str(data_ref.artifact_id), data_ref.manifest_profile_sha256),
+        }
+        if len(actual) != len(expected_inputs) or actual_inputs != expected_inputs:
+            raise ValueError("selected temporal graph manifest has foreign or missing inputs")
+    return SCMFitData(
+        data=np.asarray(matrix, dtype=float),
+        column_names=[entry["node"] for entry in coordinates],
+        graph=bound_graph,
+        graph_ref=str(bound_ref.artifact_id),
+        metadata={
+            "temporal_observation_binding": observation_binding,
+            "temporal_bound_graph_ref": bound_ref.model_dump(mode="json"),
+        },
+    )
+
+
+def persist_temporal_scm_fit(
+    store: ArtifactStore,
+    *,
+    fit_data: SCMFitData,
+    scm_spec: StructuralCausalModelSpec,
+) -> StructuralCausalModelSpecRef:
+    """Persist the native temporal fit with exact selected graph/data lineage.
+
+    Args:
+        store: Artifact store holding the selected input graph and data.
+        fit_data: The temporal adapter's aligned fit input.
+        scm_spec: The native hybrid SCM produced from that input.
+
+    Returns:
+        A selected SCM reference whose manifest names the bound graph profile.
+
+    Raises:
+        ValueError: The selected source, data or fitted model is inconsistent.
+    """
+    try:
+        bound_ref = CausalGraphModelRef.from_selected_write(
+            dict(fit_data.metadata["temporal_bound_graph_ref"])
+        )
+        binding = fit_data.metadata["temporal_observation_binding"]
+        reconstructed = _temporal_fit_data_from_observations(
+            store,
+            expanded_graph_ref=CausalGraphModelRef.from_selected_write(
+                dict(binding["expanded_graph_ref"])
+            ),
+            observations_ref=ArtifactRefModel.from_selected_write(
+                dict(binding["observations_ref"])
+            ),
+            selected_bound_ref=bound_ref,
+        )
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError("temporal fit input has an invalid selected source binding") from exc
+    if (
+        fit_data.graph != reconstructed.graph
+        or fit_data.column_names != reconstructed.column_names
+        or fit_data.graph_ref != reconstructed.graph_ref
+        or not np.array_equal(fit_data.data, reconstructed.data)
+    ):
+        raise ValueError("temporal fit input differs from its selected observation rows")
+    expected = HybridSCMFit.pure_step(reconstructed, {"fit_backend": "native_hybrid"})["scm_spec"]
+    if expected.model_dump(mode="json") != scm_spec.model_dump(mode="json"):
+        raise ValueError("temporal SCM differs from its selected source-row native fit")
+    return persist_structural_causal_model_spec(
+        store,
+        scm_spec,
+        inputs=[
+            InputRef(
+                artifact_id=bound_ref.artifact_id,
+                role="temporal_bound_graph",
+                manifest_profile_sha256=bound_ref.manifest_profile_sha256,
+            )
+        ],
     )
 
 
@@ -67,7 +360,11 @@ def _parents_by_node(graph: CausalGraphModel) -> dict[str, list[str]]:
     for edge in graph.edges:
         if edge.lag not in (None, 0):
             continue
-        parents.setdefault(edge.dst, []).append(edge.src)
+        parent_list = parents.setdefault(edge.dst, [])
+        # Parallel graph occurrences carry separate provenance, but an SCM
+        # mechanism has one coefficient and one data column per variable.
+        if edge.src not in parent_list:
+            parent_list.append(edge.src)
     return parents
 
 
@@ -506,13 +803,68 @@ def _fit_gcm_specs(
     return base, refits
 
 
-def validate_persisted_gcm_spec(scm_spec: StructuralCausalModelSpec, store: Any) -> None:
+def validate_persisted_gcm_spec(
+    scm_spec: StructuralCausalModelSpec,
+    store: Any,
+    *,
+    scm_ref: StructuralCausalModelSpecRef | None = None,
+) -> None:
     """Resolve source custody and reconcile the actual persisted GCM consumer.
 
     Args:
         scm_spec: The model freshly decoded from its CAS artifact.
         store: The enclosing Scientist job's existing authorized artifact store.
+        scm_ref: Exact selected model reference, required for temporal bindings.
     """
+    source_metadata = scm_spec.source_graph.metadata if scm_spec.source_graph is not None else {}
+    if "temporal_expansion" in source_metadata or "temporal_observation_binding" in source_metadata:
+        if scm_ref is None:
+            raise ValueError("temporal SCM requires its selected manifest reference")
+        if scm_spec.fit_method != "native_hybrid":
+            raise ValueError("temporal source binding supports the native hybrid profile only")
+        from polisyos.core.artifacts import ensure_ir_artifact_store
+
+        reader = ensure_ir_artifact_store(store)
+        selected_scm = StructuralCausalModelSpecRef.from_selected_write(dict(scm_ref))
+        restored = load_structural_causal_model_spec(reader, selected_scm)
+        if restored.model_dump(mode="json") != scm_spec.model_dump(mode="json"):
+            raise ValueError("temporal SCM differs from its selected persisted model")
+        links = [
+            item
+            for item in _manifest_input_identities(reader.get_manifest(selected_scm))
+            if item[0] == "temporal_bound_graph"
+        ]
+        if len(links) != 1 or links[0][2] is None:
+            raise ValueError("temporal SCM requires one selected bound graph lineage input")
+        bound_ref = CausalGraphModelRef.from_selected_write(
+            {
+                "artifact_id": links[0][1],
+                "kind": "ir.causal_graph_model",
+                "media_type": "application/json",
+                "manifest_profile_sha256": links[0][2],
+            }
+        )
+        binding = source_metadata.get("temporal_observation_binding")
+        if not isinstance(binding, Mapping):
+            raise ValueError("temporal SCM is missing its observation binding")
+        try:
+            reconstructed = _temporal_fit_data_from_observations(
+                reader,
+                expanded_graph_ref=CausalGraphModelRef.from_selected_write(
+                    dict(binding["expanded_graph_ref"])
+                ),
+                observations_ref=ArtifactRefModel.from_selected_write(
+                    dict(binding["observations_ref"])
+                ),
+                selected_bound_ref=bound_ref,
+            )
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("temporal SCM source binding failed revalidation") from exc
+        expected = HybridSCMFit.pure_step(reconstructed, {"fit_backend": "native_hybrid"})[
+            "scm_spec"
+        ]
+        if expected.model_dump(mode="json") != scm_spec.model_dump(mode="json"):
+            raise ValueError("temporal SCM differs from its selected source-row native fit")
     if scm_spec.schema_version not in {"1.1", "1.2"} or scm_spec.fit_method != "gcm":
         return  # Historical/manual research models make no new backend assertion.
     from polisyos.core import artifacts
@@ -824,4 +1176,6 @@ class HybridSCMFit:
 __all__ = [
     "HybridSCMFit",
     "_pag_to_dag_projection",
+    "persist_temporal_scm_fit",
+    "temporal_fit_data_from_observations",
 ]

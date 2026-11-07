@@ -1,0 +1,412 @@
+{
+  "packet_id": "API-01",
+  "lane": "LANE-05",
+  "status": "AUTHORED_PENDING_FINAL_QA",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "test_status": "NOT_RUN",
+  "audit_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source_ids": [
+    "LA-020"
+  ],
+  "audit_reports": [
+    "05_Основания/Аудит/02_Пакеты/API-01.md"
+  ],
+  "source_plan_lines": [
+    6221,
+    6323
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C51_остатки:0",
+      "audit_id": "C51-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-API-01-01",
+        "REQ-API-01-02",
+        "REQ-API-01-03",
+        "REQ-API-01-05",
+        "REQ-API-01-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Actual native leaves/installed/docs/FQN/dispatch вместо synthetic identity witness.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C51_остатки.json",
+        "sha256": "cb1a6d546a76beb1a0a5f8a582a3c0b1ce5d7715f57f05d9e729244f9e87b693",
+        "json_pointer": "/findings/0"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C51_остатки:1",
+      "audit_id": "C51-G02",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-API-01-02",
+        "REQ-API-01-04",
+        "REQ-API-01-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Конкретный census test repair плюс отдельное supported client window, не runtime regression claim.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C51_остатки.json",
+        "sha256": "cb1a6d546a76beb1a0a5f8a582a3c0b1ce5d7715f57f05d9e729244f9e87b693",
+        "json_pointer": "/findings/1"
+      }
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0393",
+      "requirement_ids": [
+        "REQ-API-01-01",
+        "REQ-API-01-02",
+        "REQ-API-01-03",
+        "REQ-API-01-05",
+        "REQ-API-01-06"
+      ],
+      "disposition": "qualify",
+      "rationale": "Supported native/installed consumer chain.",
+      "source_ids": [
+        "LA-020"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0394",
+      "requirement_ids": [
+        "REQ-API-01-02",
+        "REQ-API-01-04",
+        "REQ-API-01-05"
+      ],
+      "disposition": "fix",
+      "rationale": "Test census path-aware/exhaustive parsing и конечное lifecycle решение; product runtime defect не утверждается.",
+      "source_ids": [
+        "LA-020"
+      ]
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0633",
+      "requirement_ids": [
+        "REQ-API-01-02",
+        "REQ-API-01-06"
+      ],
+      "test_ids": [
+        "TEST-API-01-02",
+        "TEST-API-01-05"
+      ],
+      "rationale": "Реальные causal_engine/interference packages и leaf owners"
+    },
+    {
+      "inventory_id": "preserve:0634",
+      "requirement_ids": [
+        "REQ-API-01-01"
+      ],
+      "test_ids": [
+        "TEST-API-01-01",
+        "TEST-API-01-02"
+      ],
+      "rationale": "Public manifests 2/9 и direct-only compatibility 5/3"
+    },
+    {
+      "inventory_id": "preserve:0635",
+      "requirement_ids": [
+        "REQ-API-01-01"
+      ],
+      "test_ids": [
+        "TEST-API-01-01",
+        "TEST-API-01-05"
+      ],
+      "rationale": "Identity-preserving aliases"
+    },
+    {
+      "inventory_id": "preserve:0636",
+      "requirement_ids": [
+        "REQ-API-01-03"
+      ],
+      "test_ids": [
+        "TEST-API-01-03"
+      ],
+      "rationale": "Потребление четырёх supported monkeypatch bindings с restoration"
+    },
+    {
+      "inventory_id": "preserve:0637",
+      "requirement_ids": [
+        "REQ-API-01-02"
+      ],
+      "test_ids": [
+        "TEST-API-01-01",
+        "TEST-API-01-02"
+      ],
+      "rationale": "Отказ unknown names и cleanup stale globals при reload"
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Сохранить explicit supported manifests: causal_engine CausalEngine/DataReadinessBlockedError; interference четыре estimator classes, три identification functions и два public contracts. Восемь declared direct-only compatibility bindings доступны в установленном окне, но не расширяют star import. Все bindings сохраняют actual leaf object identity без wrappers.",
+      "source_ids": [
+        "LA-020"
+      ],
+      "audit_ids": [
+        "C51-G01"
+      ],
+      "id": "REQ-API-01-01",
+      "test_ids": [
+        "TEST-API-01-01",
+        "TEST-API-01-02"
+      ]
+    },
+    {
+      "text": "Incidental import в leaf не расширяет package surface; reload удаляет stale injected names, unknown name не получает permissive fallback. Настоящие packages/leaf algorithms сохраняются независимо от retired sibling.py. Не удалять underscore symbols по одному grep и не переносить все helpers в api.py.",
+      "source_ids": [
+        "LA-020"
+      ],
+      "audit_ids": [
+        "C51-G01",
+        "C51-G02"
+      ],
+      "id": "REQ-API-01-02",
+      "test_ids": [
+        "TEST-API-01-01",
+        "TEST-API-01-02"
+      ]
+    },
+    {
+      "text": "Четыре supported package monkeypatch bindings реально достигают actual identify/static dispatch и после restoration перестают действовать. Проверка class identity/__all__ без consumer call недостаточна; no-op sync removal control должен различающе проваливаться.",
+      "source_ids": [
+        "LA-020"
+      ],
+      "audit_ids": [
+        "C51-G01"
+      ],
+      "id": "REQ-API-01-03",
+      "test_ids": [
+        "TEST-API-01-03"
+      ]
+    },
+    {
+      "text": "Literal consumer census рассматривает все tracked Python files в named denominator либо безопасный content-or-package-path prefilter с корректным relative resolution. Relative from . import artifacts/discovery/identification внутри package не пропускается из-за отсутствия его имени в тексте. Parse/encoding/unsupported syntax gaps считаются явно, actual imports выполняются в поддержанном runtime.",
+      "source_ids": [
+        "LA-020"
+      ],
+      "audit_ids": [
+        "C51-G02"
+      ],
+      "id": "REQ-API-01-04",
+      "test_ids": [
+        "TEST-API-01-04"
+      ]
+    },
+    {
+      "text": "Installed wheel/sdist, actual public imports, real FQN/доверенные historical serialization fixtures и docs generation квалифицируются в поддержанном dependency profile. Computed/configuration/external consumer window перечисляется отдельно от AST census; unknown external usage не объявляется нулём. Retain/retire любого compatibility binding требует конкретного owner решения и migration path.",
+      "source_ids": [
+        "LA-020"
+      ],
+      "audit_ids": [
+        "C51-G01",
+        "C51-G02"
+      ],
+      "id": "REQ-API-01-05",
+      "test_ids": [
+        "TEST-API-01-05",
+        "TEST-API-01-06"
+      ]
+    },
+    {
+      "text": "Public causal/interference positive или явно limited result достигает actual consumer с прежними DTO/exceptions/semantic scope. Facade success не выдаётся за empirical causal validity; synthetic leaf/fake algorithm tests только local binding controls, не native acceptance. Existing algorithms не меняются ради surface cleanup.",
+      "source_ids": [
+        "LA-020"
+      ],
+      "audit_ids": [
+        "C51-G01"
+      ],
+      "id": "REQ-API-01-06",
+      "test_ids": [
+        "TEST-API-01-03",
+        "TEST-API-01-05"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "native manifest/identity/import matrix",
+      "setup": "Actual heavy leaves и два package initializers в supported environment; explicit manifest public2/9 и compatibility5/3.",
+      "action": "Direct import, star import, getattr supported/unknown и identity comparisons с leaf owners.",
+      "oracle": "Exact public sets, direct-only names excluded fromstar, objects is canonical leaf objects, unknown ImportError/AttributeError. Реальные exception/DTO class identity сохранены. Никакие synthetic leaves в native evidence.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_api_01.py; tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-API-01-01",
+      "requirement_ids": [
+        "REQ-API-01-01",
+        "REQ-API-01-02"
+      ]
+    },
+    {
+      "level": "native incidental/reload controls",
+      "setup": "Actual packages; controlled extra incidental leaf import и stale facade name; canonical objects saved.",
+      "action": "Reload actual initializer, compare manifests/identity; restore test mutations.",
+      "oracle": "Incidental name не exported, stale name removed, supported direct/public objects retained. Само наличие globals cleanup loop не считается reflection-copy regression. Retired sibling filenames не требуются package resolution.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_api_01.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-API-01-02",
+      "requirement_ids": [
+        "REQ-API-01-01",
+        "REQ-API-01-02"
+      ]
+    },
+    {
+      "level": "native facade→identify→dispatch restoration",
+      "setup": "Supported names id_star_algorithm,id_with_oracle_fallback,idc_star_algorithm,mz_id_algorithm; actual CausalEngine/graph/query. Delegating spies вокруг actual algorithms где возможно.",
+      "action": "Patch facade binding, invoke соответствующий actual public identify route; restore and repeat; controlled no-op sync negative.",
+      "oracle": "Каждый выбранный branch действительно вызывает установленный binding один раз либо documented actual count; после restore исходный algorithm снова используется. No-op sync теряет patch consumption и regression падает при unchanged manifest/class identity. Result сохраняет valid/limited DTO semantics, не success-shaped fixture-only native claim.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "causal_engine/identification.py::_sync_public_algorithm_overrides; tests/unit/foundry/methods/catalog/causal/test_facade_consumer_continuation.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-API-01-03",
+      "requirement_ids": [
+        "REQ-API-01-03",
+        "REQ-API-01-06"
+      ]
+    },
+    {
+      "level": "native exhaustive literal census regression",
+      "setup": "Pinned git ls-files *.py inventory, explicit path→package mapping; fixture files с relative imports без target words и absolute imports/aliases.",
+      "action": "Сначала AST parse всего finite denominator (предпочтительно); resolve relative import level; execute actual import semantics incl submodule fallback. Classify executable/history отдельно.",
+      "oracle": "Пять известных relative sites из C51 включены на baseline; old content-only filter removal control теряет их. Counts recomputed на actual commit, не hardcoded71/8231 для вечности. Parse/encoding gaps0 либо explicit BLOCKED; AST inventory не выдаётся за computed/external census.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py::test_repository_literal_facade_imports_resolve",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-API-01-04",
+      "requirement_ids": [
+        "REQ-API-01-04"
+      ]
+    },
+    {
+      "level": "native installed consumer/FQN/docs E02-I05-A",
+      "setup": "Coordinated wheel/sdist и clean import environment, actual real classes/functions, только доверенные retained serialization fixtures; docs build profile.",
+      "action": "Import outside checkout, resolve genuine FQN, roundtrip trusted fixtures, run representative CausalEngine/interference consumer и docs surface.",
+      "oracle": "Origins установленного artifact; no wrapper-induced FQN/class drift; expected useful/limited result и exceptions сохранены. Public docs не получают incidental names. Отсутствие genuine historical fixture помечается gap, fresh synthetic pickle не считается history replay.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/foundry/methods/catalog/causal/test_installed_facade_contract.py; test_facade_consumers.py",
+      "allowed_doubles_and_prohibitions": "Нельзя загружать недоверенный pickle. Existing installed fixture создаёт disposable Git copy/commit: сначала inspect и согласовать controlled packaging job; исходный checkout/refs не изменяются этим документом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-API-01-05",
+      "requirement_ids": [
+        "REQ-API-01-05",
+        "REQ-API-01-06"
+      ]
+    },
+    {
+      "level": "finite lifecycle decision",
+      "setup": "Actual literal census, dynamic-string/config/generated/docs known clients и доступные external support declarations; internal tests using compatibility symbols.",
+      "action": "Классифицировать public/test-facing/incidental; выбрать retain window либо конкретный authorized retirement, перевести только соответствующие internal callers к leaf owners.",
+      "oracle": "Default supported eight bindings остаются. Retirement имеет named caller migration и installed/FQN/monkeypatch negative+canonical positive evidence; unknown external window не превращается в blind deletion. Никакой новый mega-facade или alias chain.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "Existing public-surface contract и causal facade documentation owners",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-API-01-06",
+      "requirement_ids": [
+        "REQ-API-01-05"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I05-A"
+  ],
+  "dependencies": [
+    {
+      "packet": "GRF-01",
+      "relation": "Native packages и installed evidence разделяются; точечное sibling retirement не facade rewrite."
+    },
+    {
+      "packet": "LANE-12",
+      "relation": "Общий packaging/docs/public-surface job, не отдельная сборка на каждый alias."
+    }
+  ],
+  "preservation": [
+    "Реальные causal_engine/interference packages и leaf owners",
+    "Public manifests 2/9 и direct-only compatibility 5/3",
+    "Identity-preserving aliases",
+    "Потребление четырёх supported monkeypatch bindings с restoration",
+    "Отказ unknown names и cleanup stale globals при reload"
+  ],
+  "protected_distinction_ids": [
+    "LK05",
+    "LK13"
+  ],
+  "design_alignment": [
+    {
+      "source": "policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "section": "D0: explicit reusable capability surfaces",
+      "application": "Новая внутренняя зависимость не расширяет публичный contract случайно; реальная extensibility находится у leaf owners, не mega-facade."
+    },
+    {
+      "source": "policy-engine/docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
+      "section": "Identity and compatibility boundaries",
+      "application": "Object/FQN identity и supported API lifetime проверяются явно; package import не подтверждает scientific authority result."
+    }
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-API-01-WINDOW",
+      "question": "Какие compatibility bindings допускается снять и когда?",
+      "owner": "Public API/release owner",
+      "bounded_action": "TEST06 named finite census+actual support declaration; выбрать retain либо точечный retirement с caller/FQN/docs/monkeypatch acceptance. Недоступные external сведения честно ограничивают решение.",
+      "default": "Восемь declared direct-only bindings сохраняются, public2/9 неизменны."
+    }
+  ],
+  "technical_solution": "Product initializers уже explicit: сохранить их bindings и reload cleanup. Native tests должны импортировать реальные leaf modules, не class-shaped shells. Sync helper имеет11 потенциальных algorithms, но facade поддерживает только4 direct algorithm names; не расширять public API до11 по длине helper list. Actual consumer test проходит public identify→sync→branch, restoration и no-op control; one __all__ assertion недостаточен.\n\n**Конкретная правка теста:** current `test_repository_literal_facade_imports_resolve` делает content-only prefilter до AST parse. Предпочтительно parse все tracked Python files: denominator конечен, существующий test уже repository census. Если стоимость требует filter, учитывать target package path и relative package address плюс absolute content, проверить его полноту на exhaustive reference. `ast.ImportFrom(level,module)` разрешается относительно фактического package (initializer и normal module различены), затем выполняется настоящее from-import с submodule fallback. Сохранить path/line/name/counts и parse gaps. Не добавить пять hardcoded exceptions: новая совместимая relative import должна обнаруживаться общим правилом.\n\n**Compatibility:** fixed manifest не означает законченного external retirement. Сопоставить actual dynamic strings/config/generated/docs/доверенные FQN fixtures и объявленное release window. Defaultretain всех8 supported direct-only bindings; internal callers при обосновании переходят к leaf owner. Удаление конкретного binding — отдельный маленький lifecycle delta с positive canonical API и negative retired route, не новый центральный фасад. Packaging fixture с disposable Git commit не запускать без inspection/согласования; это будущая controlled acceptance, не разрешение менять наш audit checkout.",
+  "compatibility_and_rollback": "Без нового product change explicit aliases сохраняют identity, FQN и intended monkeypatch semantics. Census enhancement только расширяет qualification denominator. Нельзя объявить случайно раскрытые исторические imports вечным API или удалить их без window evidence. Rollback test/census не должен возвращать reflection-copy; uncertain compatibility retains named explicit binding до решения, не namespace wholesale export.",
+  "source_locators": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/__init__.py",
+      "first_line": 1,
+      "last_line": 42,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/__init__.py#L1-L42"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/interference/__init__.py",
+      "first_line": 1,
+      "last_line": 67,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/interference/__init__.py#L1-L67"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+      "first_line": 94,
+      "last_line": 115,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py#L94-L115"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py",
+      "first_line": 2163,
+      "last_line": 2223,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/causal_engine/identification.py#L2163-L2223"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py",
+      "first_line": 167,
+      "last_line": 212,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/catalog/causal/test_facade_consumers.py#L167-L212"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_api_01.py",
+      "first_line": 1,
+      "last_line": 237,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_api_01.py#L1-L237"
+    }
+  ]
+}

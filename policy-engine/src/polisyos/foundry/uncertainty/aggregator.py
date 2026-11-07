@@ -10,6 +10,7 @@ from enum import Enum
 from statistics import NormalDist
 from typing import Any, Literal
 
+from polisyos.common.numeric_reductions import finite_binary64_mean
 from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.ir.analytics.uncertainty import (
     CertificateKind,
@@ -231,7 +232,7 @@ def _widest(
     context: _AggregationContext,
     force_fail_closed: bool = False,
 ) -> UncertaintyEnvelope:
-    point = sum(env.point_estimate for env in envelopes) / len(envelopes)
+    point = finite_binary64_mean(env.point_estimate for env in envelopes)
     lo = min(env.confidence_interval[0] for env in envelopes)
     hi = max(env.confidence_interval[1] for env in envelopes)
 
@@ -272,8 +273,6 @@ def _widest(
         )
         level = None
         gate_eligible = False
-
-    point = min(max(point, lo), hi)
 
     return UncertaintyEnvelope(
         numeric_policy=context.numeric_policy,

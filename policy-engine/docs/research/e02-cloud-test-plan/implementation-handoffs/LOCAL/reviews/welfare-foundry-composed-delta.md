@@ -2,7 +2,7 @@
 
 ## Scope and source identity
 
-Read-only review of the shared candidate at `HEAD 4699fdf8419dd2c89609f68a3edf5f3bfb7c851a` (tree `741784521d909f775d50863a29deec63cde300cd`), with slice base `9e02a9f49c8b01026327a9f7c7e18711b13a96f2`. The reviewed source was dirty and shared with other authorized writers, so the identity is the source-hash census rather than the commit alone. The census records every Welfare helper, the facade, shared classifier, generic Monte Carlo implementation, companion tests/docs/release fragments, same-process module origins, and unchanged public signatures: [`source-api-origin-census.txt`](raw/welfare-foundry-composed-delta/source-api-origin-census.txt) @ `f6a97d853f8e28bc939fe03ceaf69c81784ab3db7f296b131c77bb16c17ed558`.
+Read-only review of the shared candidate at `HEAD 4699fdf8419dd2c89609f68a3edf5f3bfb7c851a` (tree `741784521d909f775d50863a29deec63cde300cd`), with slice base `9e02a9f49c8b01026327a9f7c7e18711b13a96f2`. The reviewed source was dirty and shared with other authorized writers, so the identity is the source-hash census rather than the commit alone. The census records every Welfare helper, the facade, shared classifier, generic Monte Carlo implementation, companion tests/docs/release fragments, same-process module origins, and unchanged public signatures: `source-api-origin-census.txt` (`raw/welfare-foundry-composed-delta/source-api-origin-census.txt`; unavailable in this checkout) @ `f6a97d853f8e28bc939fe03ceaf69c81784ab3db7f296b131c77bb16c17ed558`.
 
 No product source, tests, package README, or release fragment were changed during this review. Evidence written by this reviewer is limited to this note and the ignored `raw/welfare-foundry-composed-delta/` directory.
 

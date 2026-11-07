@@ -1,0 +1,59 @@
+{
+  "pass": "C34",
+  "bundle": "BKT-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C34-R01",
+      "type": "producer_reader_signed_mean_cancellation_mismatch",
+      "severity": "bounded_loss_of_valid_descriptive_report",
+      "source_ids": [
+        "B172"
+      ],
+      "location": "orchestrator.py:1557–1560,1637–1660;ir/analytics/backtest.py:591–606;backtest_matrix.py:250–254",
+      "evidence": [
+        "P21",
+        "P22"
+      ],
+      "mechanism": "Producer uses np.mean([1e16,1,-1e16])=0 and omits nonzero bias card, while actual IR reconciliation uses math.fsum/n=1/3 and rejects report. Reordering identical residual multiset to[1e16,-1e16,1] produces1/3 and succeeds. All scenario rows and error statistics are finite.",
+      "preserve": "Strict source reconciliation prevents false neutral report; retain truthful method identity and descriptive magnitude instead of loosening guards.",
+      "remaining": "Align stable signed-residual reduction at existing producer/IR/fresh-consumer owner and test cancellation/permutation. Preserve useful finite scenario metrics with explicit diagnostic limitation if statistical backend cannot reproduce that supported numeric range.",
+      "limits": "Actual NumPy/SciPy/Pydantic definitions on synthetic finite mixed-scale values; no production prevalence or false trust admission. Distinct from C33 square overflow: this case has finite squares and cancellation of signed means."
+    },
+    {
+      "id": "C34-G01",
+      "type": "native_source_binding_and_packet_delivery_qualification",
+      "source_ids": [
+        "B172",
+        "B173"
+      ],
+      "evidence": [
+        "P13",
+        "P23",
+        "P24",
+        "S09:4066–4622"
+      ],
+      "remaining": "Run found native regression and selected full CAS→C5b→packet tests in supported environment. Isolated exact packet section uses fixture selected-report loader, not native artifact/manifest identity or full delivery.",
+      "limits": "24 bounded MATCH. Python pytest missing before collection; repository tests UNRUN. Real SciPy called, controlled denial/corruption branches are fixtures."
+    },
+    {
+      "id": "C34-G02",
+      "type": "statistical_scope_orientation_and_numerical_floor",
+      "source_ids": [
+        "B172",
+        "B173"
+      ],
+      "evidence": [
+        "P01",
+        "P02",
+        "P04",
+        "P11",
+        "P20",
+        "S01:1615–1630,1674–1682"
+      ],
+      "remaining": "Qualify residual independence, effective n, multiplicity, population scope and metric orientation with selected method/data. Current absolute std floor1e-12 is a numerical policy, not mathematical proof of zero variance; define its supported unit/scale domain before scientific interpretation.",
+      "limits": "Current DTO explicitly preserves unresolved assumptions and direction_status. Exact-zero point fit and a computed t-test do not establish causal/population validity or predictive calibration. No requirement for universal deterministic model invention."
+    }
+  ]
+}

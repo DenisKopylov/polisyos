@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import replace
 from statistics import NormalDist
 
@@ -10,6 +11,7 @@ import pytest
 from statsmodels.api import OLS
 from statsmodels.stats.sandwich_covariance import cov_cluster
 
+from polisyos.foundry.methods.catalog.causal import did as did_module
 from polisyos.foundry.methods.catalog.causal.did import (
     DifferenceInDifferences,
     StandardDifferenceInDifferences,
@@ -372,3 +374,258 @@ def test_cau_01_statsmodels_cluster_reference() -> None:
     )
 
     assert report.standard_error == pytest.approx(float(np.sqrt(covariance[3, 3])), rel=1e-10)
+
+
+@pytest.mark.parametrize("source", ["unit_ids", "unit_labels", "observation_labels"])
+@pytest.mark.parametrize(
+    "invalid", [float("nan"), float("inf"), -float("inf"), None, np.datetime64("NaT")]
+)
+def test_cau_01_missing_cluster_identity_is_rejected_before_covariance(
+    monkeypatch: pytest.MonkeyPatch, source: str, invalid: object
+) -> None:
+    """Every row needs a reflexive finite cluster identity before score accumulation."""
+
+    data = _panel()
+    labels = np.array([invalid, 1, 2, 3], dtype=object)
+    params = {"cov_type": "cluster"}
+    if source == "unit_ids":
+        data = data.model_copy(update={"unit_ids": labels})
+    else:
+        params["cluster_var"] = (
+            labels if source == "unit_labels" else np.repeat(labels, data.n_periods)
+        )
+
+    def covariance_must_not_run(*args: object) -> None:
+        raise AssertionError("invalid cluster identities reached covariance")
+
+    monkeypatch.setattr(did_module, "_ols_cluster_cr0", covariance_must_not_run)
+    report = _report(StandardDifferenceInDifferences.pure_step(data, params))
+    assert report.status is EstimationStatus.INPUT_INVALID
+    assert "cluster labels must be finite numbers or strings" in report.status_reason
+    assert report.point_estimate is report.standard_error is report.confidence_interval is None
+
+
+@pytest.mark.parametrize("labels", [["a", "b", "c", "d"], [0, 1, 2, 3], [0.0, 0.5, 1.5, 2.5]])
+@pytest.mark.parametrize("repeat", [1, 2, 10])
+@pytest.mark.parametrize("source", ["unit_ids", "unit_labels", "observation_labels"])
+def test_cau_01_unit_partition_matches_independent_changes_oracle(labels, repeat, source) -> None:
+    """Dense integer group codes preserve every unit, row and even a zero group score."""
+
+    data = _panel()
+    changes = data.outcome[:, 2:].mean(axis=1) - data.outcome[:, :2].mean(axis=1)
+    treated, control = changes[:2], changes[2:]
+    point = treated.mean() - control.mean()
+    variance = sum(
+        (values - values.mean()) @ (values - values.mean()) / values.size**2
+        for values in (treated, control)
+    )
+    order = np.array([3, 0, 2, 1])
+    data = PanelObservationalData(
+        outcome=np.repeat(data.outcome[order], repeat, axis=1),
+        treatment=data.treatment[order],
+        time_treatment=2 * repeat,
+        unit_ids=np.asarray(labels)[order],
+    )
+    params = {"cov_type": "cluster"}
+    if source != "unit_ids":
+        params["cluster_var"] = (
+            data.unit_ids if source == "unit_labels" else np.repeat(data.unit_ids, data.n_periods)
+        )
+    actual = did_module._unit_cluster_ids(data, params)
+    assert actual.dtype.kind in "iu"
+    assert np.array_equal(np.bincount(actual), np.full(4, 4 * repeat))
+    report = _report(StandardDifferenceInDifferences.pure_step(data, params))
+    assert report.status is EstimationStatus.SUCCESS
+    assert report.point_estimate == pytest.approx(point, abs=1e-10, rel=1e-10)
+    assert report.standard_error == pytest.approx(math.sqrt(variance), abs=1e-10, rel=1e-10)
+    assert report.method_params["n_clusters"] == 4
+    assert report.method_params["inference_scope"] == "large_independent_units"
+    assert report.method_params["finite_cluster_guarantee"] is False
+
+
+def test_cau_01_missing_identity_does_not_restrict_declared_hc1() -> None:
+    """Cluster-only validation must leave the useful row-wise computational profile intact."""
+
+    data = _panel().model_copy(update={"unit_ids": np.array([np.nan, 1, 2, 3])})
+    report = _report(StandardDifferenceInDifferences.pure_step(data, {"cov_type": "HC1"}))
+    assert report.status is EstimationStatus.SUCCESS
+    assert report.point_estimate == pytest.approx(3.125)
+    assert report.standard_error == pytest.approx(0.9042722672588, abs=1e-10)
+
+
+def test_cau_01_mixed_cluster_identities_are_not_coerced_to_strings() -> None:
+    """Mixed scalar identity classes have no declared unit-cluster contract."""
+
+    report = _report(
+        StandardDifferenceInDifferences.pure_step(
+            _panel(), {"cov_type": "cluster", "cluster_var": [1, "2", 3, 4]}
+        )
+    )
+    assert report.status is EstimationStatus.INPUT_INVALID
+    assert "cluster labels must be homogeneous" in report.status_reason
+
+
+@pytest.mark.parametrize("scalar_type", [float, int, str, np.float64, np.int64, np.str_])
+def test_cau_01_custom_scalar_equality_cannot_invent_unique_units(
+    monkeypatch: pytest.MonkeyPatch, scalar_type
+) -> None:
+    """Object-array scalar subclasses cannot turn duplicate values into four units."""
+
+    class NonreflexiveScalar(scalar_type):
+        def __eq__(self, other: object) -> bool:
+            return False
+
+        def __ne__(self, other: object) -> bool:
+            return True
+
+    value = "same" if scalar_type in (str, np.str_) else 1
+    labels = np.array([NonreflexiveScalar(value) for _ in range(4)], dtype=object)
+    data = _panel()
+    data = PanelObservationalData(
+        outcome=data.outcome,
+        treatment=data.treatment,
+        time_treatment=data.time_treatment,
+        unit_ids=labels,
+    )
+    original = did_module._ols_cluster_cr0
+    calls = []
+
+    def observed_covariance(*args):
+        calls.append(1)
+        return original(*args)
+
+    monkeypatch.setattr(did_module, "_ols_cluster_cr0", observed_covariance)
+    report = _report(StandardDifferenceInDifferences.pure_step(data, {"cov_type": "cluster"}))
+    assert report.status is EstimationStatus.INPUT_INVALID
+    assert report.point_estimate is report.standard_error is report.confidence_interval is None
+    assert calls == []
+
+
+@pytest.mark.parametrize(
+    "scalar_type", [float, int, str, np.float64, np.float32, np.int64, np.int16, np.str_]
+)
+def test_cau_01_standard_object_array_scalars_keep_numeric_identity(scalar_type) -> None:
+    """Ordinary Python/NumPy scalar identities remain supported after boundary hardening."""
+
+    labels = np.array([scalar_type(value) for value in range(4)], dtype=object)
+    report = _report(
+        StandardDifferenceInDifferences.pure_step(
+            _panel(), {"cov_type": "cluster", "cluster_var": labels}
+        )
+    )
+    assert report.status is EstimationStatus.SUCCESS
+    assert report.point_estimate == pytest.approx(3.125, abs=1e-10)
+    assert report.standard_error == pytest.approx(0.5659615711336, abs=1e-10)
+    assert report.method_params["n_clusters"] == 4
+
+
+def test_cau_01_large_integer_identity_is_not_float_coerced() -> None:
+    """Distinct exact integer identities need no binary64 numeric coercion."""
+
+    labels = np.array([10**100 + index for index in range(4)], dtype=object)
+    report = _report(
+        StandardDifferenceInDifferences.pure_step(
+            _panel(), {"cov_type": "cluster", "cluster_var": labels}
+        )
+    )
+    assert report.status is EstimationStatus.SUCCESS
+    assert report.point_estimate == pytest.approx(3.125, abs=1e-10)
+    assert report.standard_error == pytest.approx(0.5659615711336, abs=1e-10)
+    assert report.method_params["n_clusters"] == 4
+
+
+def test_cau_01_zero_score_units_remain_in_the_partition() -> None:
+    """A zero score contributes zero covariance without disappearing as a group."""
+
+    data = PanelObservationalData(
+        outcome=np.array(
+            [[1.0, 1.0, 4.0, 4.0], [2.0, 2.0, 5.0, 5.0], [1.0, 1.0, 2.0, 2.0], [1.0, 1.0, 3.0, 3.0]]
+        ),
+        treatment=np.array([1, 1, 0, 0]),
+        time_treatment=2,
+        unit_ids=np.array(["a", "b", "c", "d"]),
+    )
+    report = _report(StandardDifferenceInDifferences.pure_step(data, {"cov_type": "cluster"}))
+    assert report.status is EstimationStatus.SUCCESS
+    assert report.point_estimate == pytest.approx(1.5, abs=1e-10)
+    assert report.standard_error == pytest.approx(math.sqrt(0.125), abs=1e-10)
+    assert report.method_params["n_clusters"] == 4
+    assert np.array_equal(np.bincount(did_module._unit_cluster_ids(data, {})), np.full(4, 4))
+
+
+@pytest.mark.parametrize(
+    "codes",
+    [
+        np.array([0, 0, 1]),
+        np.array([0, -1, 1, 1]),
+        np.array([0, 0, 2, 2]),
+        np.array([0.0, 0.0, 1.0, 1.0]),
+        np.array(["a", "a", "b", "b"]),
+    ],
+)
+def test_cau_01_private_covariance_refuses_unvalidated_group_codes(codes) -> None:
+    """Direct helper calls cannot recover the old missing-label score-drop path."""
+
+    with pytest.raises(ValueError, match="cluster codes"):
+        did_module._ols_cluster_cr0(
+            np.column_stack([np.ones(4), np.arange(4)]), np.arange(4.0), codes
+        )
+
+
+def test_cau_01_normal_interval_nonfinite_range_is_a_named_refusal() -> None:
+    """Finite inputs whose estimated endpoints cannot be represented do not serialize success."""
+
+    data = _panel().model_copy(update={"outcome": _panel().outcome * 1e307})
+    with np.errstate(over="ignore", invalid="ignore"):
+        report = _report(StandardDifferenceInDifferences.pure_step(data, {}))
+    assert report.status is EstimationStatus.INPUT_INVALID
+    assert "normal interval" in report.status_reason and "numerical range" in report.status_reason
+    assert report.point_estimate is report.confidence_interval is report.standard_error is None
+
+
+@pytest.mark.parametrize("method", ["did", "rdd"])
+def test_cau_01_extreme_valid_level_uses_lower_normal_tail(method: str) -> None:
+    """The highest binary64 confidence below one has finite positive normal endpoints."""
+
+    level = math.nextafter(1.0, 0.0)
+    if method == "did":
+        report = _report(
+            StandardDifferenceInDifferences.pure_step(_panel(), {"confidence_level": level})
+        )
+    else:
+        report = _report(
+            RegressionDiscontinuity.pure_step(
+                _rdd(), {"bandwidth": 0.8, "kernel": "triangular", "confidence_level": level}
+            )
+        )
+    q = -NormalDist().inv_cdf((1.0 - level) / 2.0)
+    assert report.status is EstimationStatus.SUCCESS
+    assert q > 0 and math.isfinite(q)
+    assert report.confidence_interval == pytest.approx(
+        (
+            report.point_estimate - q * report.standard_error,
+            report.point_estimate + q * report.standard_error,
+        ),
+        abs=1e-10,
+        rel=1e-10,
+    )
+
+
+@pytest.mark.parametrize("method", ["did", "rdd"])
+def test_cau_01_unrepresentable_positive_normal_level_is_a_named_refusal(method: str) -> None:
+    """A positive request whose tail rounds to one half cannot become a zero-width success."""
+
+    level = math.nextafter(0.0, 1.0)
+    if method == "did":
+        report = _report(
+            StandardDifferenceInDifferences.pure_step(_panel(), {"confidence_level": level})
+        )
+    else:
+        report = _report(
+            RegressionDiscontinuity.pure_step(
+                _rdd(), {"bandwidth": 0.8, "kernel": "triangular", "confidence_level": level}
+            )
+        )
+    assert report.status is EstimationStatus.INPUT_INVALID
+    assert "numerical range" in report.status_reason
+    assert report.point_estimate is report.confidence_interval is report.standard_error is None

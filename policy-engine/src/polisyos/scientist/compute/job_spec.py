@@ -13,7 +13,28 @@ from polisyos.ir.analytics import PosteriorPointRole, PosteriorSummaryRef
 
 
 class JobSpec(BaseModel):
-    """Job spec data model."""
+    """Describe a legacy-program or method-based compute job.
+
+    The specification carries the job kind, seed, execution mode, requested metrics,
+    optional program and execution-plan references, state snapshot, and method inputs.
+    A non-null ``method_fqn`` also classifies the job as method-based. For legacy jobs,
+    ``JobKey.from_spec`` omits the method identity, parameters, inputs, and explicit
+    job kind when deriving the content key.
+
+    Attributes:
+        job_kind: Declared job kind, either ``legacy_program`` or ``method``.
+        program_ref: Optional artifact reference for the legacy program.
+        exec_plan_ref: Optional artifact reference for the execution plan.
+        state_snapshot_ref: Optional artifact reference for the initial state snapshot.
+        seed: Seed carried with the job specification.
+        mode: Execution mode label.
+        required_metrics: Metric identifiers requested for the job.
+        notes: Notes carried with the specification.
+        method_fqn: Optional fully qualified method name.
+        method_version: Optional version of the selected method.
+        method_params: Parameters supplied to the selected method.
+        input_refs: Named artifact references supplied as method inputs.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
@@ -105,7 +126,33 @@ class MethodExecutionCaptureProvenance(BaseModel):
 
 
 class JobResult(BaseModel):
-    """Job result data model."""
+    """Bind a compute job key to output references and execution diagnostics.
+
+    The result can reference state, metrics, environment, simulation, and method
+    outputs, and can carry posterior summaries, a final state, issues, and warnings.
+    ``method_execution_capture`` reports whether its capture references are present
+    and requires limitations when that capture is partial or unavailable; it does not
+    resolve or verify the referenced artifacts. The field is omitted from serialized
+    output when absent. This model has no success status, so its presence alone does
+    not establish that execution succeeded.
+
+    Attributes:
+        job_key: Content-derived key identifying the compute job.
+        state_delta_ref: Optional reference to the persisted state delta.
+        metrics_ref: Optional reference to persisted job metrics.
+        environment_ref: Optional reference to the recorded environment.
+        environment_fingerprint: Optional environment fingerprint string.
+        state_snapshot_ref: Optional reference to the persisted state snapshot.
+        simulation_results_ref: Optional reference to simulation results.
+        method_result_ref: Optional reference to the method result artifact.
+        method_evidence_ref: Optional reference to method evidence.
+        method_execution_capture: Availability and limitations reported for method
+            execution-capture references, when present.
+        posterior_summary_refs: Posterior summaries keyed by point role.
+        final_state: Optional final state value.
+        issues: Structured issue records associated with the result.
+        warnings: Warning messages associated with the result.
+    """
 
     model_config = ConfigDict(extra="forbid")
 

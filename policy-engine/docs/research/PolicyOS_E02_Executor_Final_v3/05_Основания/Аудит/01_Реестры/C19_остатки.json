@@ -1,0 +1,93 @@
+{
+  "pass": "C19",
+  "bundle": "OPT-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C19-R01",
+      "type": "confirmed_local_defect",
+      "severity": "medium_conditional",
+      "confidence": "high_local",
+      "source_ids": [
+        "B127"
+      ],
+      "mechanism": "Не все ветви предложения используют effective-action duplicate guard; конечное пространство не выдаёт exhaustion.",
+      "location": "bayesian.py:896–997,1601–1647",
+      "evidence": [
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P10",
+        "P11",
+        "P12",
+        "S07",
+        "S08"
+      ],
+      "preserve": "Существующий integer/category guard, различие continuous и самостоятельных реплик.",
+      "remaining": "Применить существующий guard на cold/batch; накапливать pending; явно различать исчерпание и разрешённую реплику.",
+      "limits": "Точные AST-тела с header/corpus fixtures; не native product и не частота production."
+    },
+    {
+      "id": "C19-R02",
+      "type": "confirmed_local_contract_defect",
+      "severity": "medium_conditional",
+      "confidence": "high_local",
+      "source_ids": [
+        "B112"
+      ],
+      "mechanism": "Внешний fallback возвращает прежний best/history/context без причины и reuse-семантики.",
+      "location": "bayesian_generator.py:318–385,858–869",
+      "evidence": [
+        "P14",
+        "P15",
+        "S04"
+      ],
+      "preserve": "Разрешённое повторное представление best и действительно работающие Sobol/random fallback стратегии.",
+      "remaining": "Провести причину/режим через существующий generator contract; не выдавать context за новое действие.",
+      "limits": "UI и полный сервисный маршрут не исполнялись."
+    },
+    {
+      "id": "C19-G01",
+      "type": "native_execution_coordinate_qualification",
+      "source_ids": [
+        "B127"
+      ],
+      "evidence": [
+        "P09",
+        "P13",
+        "S01",
+        "S05"
+      ],
+      "remaining": "Связать прямой Evaluation input с normalize(actual params); autotune history уже канонизирует этот путь. Настоящий score/source admission не исполнен."
+    },
+    {
+      "id": "C19-G02",
+      "type": "standalone_converter_input_qualification",
+      "source_ids": [
+        "B113"
+      ],
+      "evidence": [
+        "P18",
+        "S01",
+        "S02"
+      ],
+      "remaining": "Различающий test отсутствующих/out-of-range параметров standalone benchmark converter; история уже проверяет required names. Полный converter не исполнялся."
+    },
+    {
+      "id": "C19-G03",
+      "type": "replicate_and_source_qualification",
+      "source_ids": [
+        "B113",
+        "B127"
+      ],
+      "evidence": [
+        "P19",
+        "S05",
+        "S06"
+      ],
+      "remaining": "Проверить реальную отдельность provenance/replicate и consumer допуск; один metadata evaluation_id не разделяет низкоуровневые observations."
+    }
+  ]
+}

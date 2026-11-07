@@ -143,7 +143,7 @@ facade_mode = "lazy_facade"
 owner = "team-polisyos"
 readme = "src/polisyos/common/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.common", "polisyos.common.text", "polisyos.common.config", "polisyos.common.canonical", "polisyos.common.canonical_profile", "polisyos.common.producer_request", "polisyos.common.hashing", "polisyos.common.migrations"]
+supported_entrypoints = ["polisyos.common", "polisyos.common.text", "polisyos.common.config", "polisyos.common.canonical", "polisyos.common.canonical_profile", "polisyos.common.producer_request", "polisyos.common.hashing", "polisyos.common.migrations", "polisyos.common.numeric_reductions"]
 major_subsystem = false
 notes = "Shared helper boundary for config, logging, serialization, and migrations."
 
@@ -275,11 +275,13 @@ supported_entrypoints = [
   "polisyos.foundry",
   "polisyos.foundry.api",
   "polisyos.foundry.compile",
+  "polisyos.foundry.coupling",
   "polisyos.foundry.analysis",
   "polisyos.foundry.calibration",
   "polisyos.foundry.data_plane",
   "polisyos.foundry.execute",
   "polisyos.foundry.methods",
+  "polisyos.foundry.methods.artifacts",
   "polisyos.foundry.methods.backends",
   "polisyos.foundry.methods.causal",
   "polisyos.foundry.uncertainty",
@@ -400,7 +402,7 @@ notes = "Active Bounded Explanation Reliability Layer facade for Scientist valid
 [[package]]
 module = "polisyos.calibration"
 classification = "public_experimental"
-facade_mode = "eager_exports"
+facade_mode = "lazy_facade"
 owner = "team-scientist"
 readme = "src/polisyos/calibration/README.md"
 reference_doc = "docs/reference/public-surface.md"

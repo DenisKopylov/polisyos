@@ -42,6 +42,7 @@ from polisyos.runtime.http.routes.acquisitions import _MUTATION_AUTHZ
 from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionRouteMutationRequest,
     AcquisitionRouteReplayPins,
+    CandidateExperimentRouteMutationRequest,
 )
 from polisyos.runtime.http.services.acquisition_admission_bundle import (
     AcquisitionAdmissionBundleBlocked,
@@ -52,6 +53,7 @@ from polisyos.runtime.http.services.control.artifacts import write_runtime_autho
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality.agent_action_authority import (
     ACQUISITION_ACTION_KIND,
+    CANDIDATE_EXPERIMENT_ACTION_KIND,
     DELEGATION_CONTRACT_ARTIFACT_KIND,
     AgentActionAuthorityGateway,
     AgentActionAuthorityRefused,
@@ -200,6 +202,8 @@ def _proof(
     resource_digest: str = RESOURCE_DIGEST,
     requirement: RouteAuthorizationRequirement = ACQUISITION_ROUTE_REQUIREMENT,
     canonical_selectors: tuple[tuple[str, str], ...] = ACQUISITION_SELECTORS,
+    body_sha256: str = REQUEST_BODY_SHA256,
+    query_sha256: str = EMPTY_QUERY_SHA256,
 ) -> BoundActionPermissionVerification:
     verification = ActionPermissionVerification(
         requirement=requirement,
@@ -213,18 +217,68 @@ def _proof(
     resource = BoundAuthorizationResource(
         requirement=requirement,
         tenant_id=None,
-        resource_kind="runtime.evidence.acquisition.request_bound",
+        resource_kind=f"{requirement.resource_binding.resource_kind}.request_bound",
         resource_id=f"urn:polisyos:runtime-authorization-resource:v1:{resource_digest}",
         resource_digest=resource_digest,
         authority=BindingAuthority.REQUEST_BOUND,
-        body_sha256=REQUEST_BODY_SHA256,
-        query_sha256=EMPTY_QUERY_SHA256,
+        body_sha256=body_sha256,
+        query_sha256=query_sha256,
         canonical_selectors=canonical_selectors,
     )
     return BoundActionPermissionVerification(
         verification=verification,
         bound_resource=resource,
         _seal=_BOUND_ACTION_PERMISSION_SEAL,
+    )
+
+
+def _candidate_proof(
+    request: CandidateExperimentRouteMutationRequest,
+) -> BoundActionPermissionVerification:
+    """Build the exact candidate DTO proof shape for PA2 boundary tests."""
+    fields = tuple(CandidateExperimentRouteMutationRequest.model_fields)
+    requirement = RouteAuthorizationRequirement(
+        permission=RuntimePermission.EVIDENCE_ACQUIRE,
+        resource_binding=ResourceBindingSpec(
+            source=ResourceBindingSource.REQUEST_COMPOSITE,
+            resource_kind="runtime.evidence.acquisition.candidate_experiment",
+            selector_fields=fields,
+            required_selector_fields=tuple(
+                name
+                for name, field in CandidateExperimentRouteMutationRequest.model_fields.items()
+                if field.is_required()
+            ),
+        ),
+    )
+    body = request.model_dump(mode="json")
+    selectors = tuple(
+        sorted(
+            (
+                field,
+                '{"present":false}' if body[field] is None else _canonical_selector(body[field]),
+            )
+            for field in fields
+        )
+    )
+    body_sha = f"sha256:{sha256(request.model_dump_json().encode()).hexdigest()}"
+    digest_payload = {
+        "binding_version": "runtime.authorization.resource.v1",
+        "permission": RuntimePermission.EVIDENCE_ACQUIRE.value,
+        "resource_kind": requirement.resource_binding.resource_kind,
+        "authority": BindingAuthority.REQUEST_BOUND.value,
+        "tenant_id": None,
+        "body_sha256": body_sha,
+        "query_sha256": EMPTY_QUERY_SHA256,
+        "selectors": selectors,
+        "resolved_context_sha256": None,
+    }
+    digest = "sha256:" + sha256(_canonical_selector(digest_payload).encode()).hexdigest()
+    return _proof(
+        resource_digest=digest,
+        requirement=requirement,
+        canonical_selectors=selectors,
+        body_sha256=body_sha,
+        query_sha256=EMPTY_QUERY_SHA256,
     )
 
 
@@ -782,3 +836,117 @@ def test_untrusted_signed_bundle_is_refused_without_effect(tmp_path: Path) -> No
 
     assert exc_info.value.code == "acquisition_admission_signer_untrusted"
     assert effects == []
+
+
+def test_candidate_experiment_admission_binding_is_exact_and_disjoint() -> None:
+    """Synthetic tuple tests request binding only, not candidate source custody."""
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        AcquisitionActionService,
+    )
+    from polisyos.runtime.http.services.acquisition_admission_bundle import (
+        _recompute_resource_digest,
+    )
+    from tests.unit.runtime.http.services.test_acquisition_action_service import (
+        _candidate_experiment_action_fixture,
+    )
+
+    origin, request = _candidate_experiment_action_fixture(
+        tenant_id=TENANT_ID, cell_id=CELL_ID, run_id=RUN_ID
+    )
+    operation, invocation, intent = AcquisitionActionService._candidate_experiment_action_tuple(
+        origin, request
+    )
+    selector_fields = tuple(CandidateExperimentRouteMutationRequest.model_fields)
+    requirement = RouteAuthorizationRequirement(
+        permission=RuntimePermission.EVIDENCE_ACQUIRE,
+        resource_binding=ResourceBindingSpec(
+            source=ResourceBindingSource.REQUEST_COMPOSITE,
+            resource_kind="runtime.evidence.acquisition.candidate_experiment",
+            selector_fields=selector_fields,
+            required_selector_fields=tuple(
+                name
+                for name, field in CandidateExperimentRouteMutationRequest.model_fields.items()
+                if field.is_required()
+            ),
+        ),
+    )
+    body = request.model_dump(mode="json")
+    selectors = tuple(
+        sorted(
+            (
+                field,
+                '{"present":false}' if body[field] is None else _canonical_selector(body[field]),
+            )
+            for field in selector_fields
+        )
+    )
+    body_hash = f"sha256:{sha256(request.model_dump_json().encode()).hexdigest()}"
+    digest = (
+        "sha256:"
+        + sha256(
+            _canonical_selector(
+                {
+                    "binding_version": "runtime.authorization.resource.v1",
+                    "permission": RuntimePermission.EVIDENCE_ACQUIRE.value,
+                    "resource_kind": "runtime.evidence.acquisition.candidate_experiment",
+                    "authority": BindingAuthority.REQUEST_BOUND.value,
+                    "tenant_id": None,
+                    "body_sha256": body_hash,
+                    "query_sha256": EMPTY_QUERY_SHA256,
+                    "selectors": selectors,
+                    "resolved_context_sha256": None,
+                }
+            ).encode()
+        ).hexdigest()
+    )
+    proof = _proof(
+        resource_digest=digest,
+        requirement=requirement,
+        canonical_selectors=selectors,
+        body_sha256=body_hash,
+    )
+    producer = object.__new__(AcquisitionAdmissionBundleProducer)
+    producer._require_acquisition_tuple(operation=operation, invocation=invocation, intent=intent)
+    assert (
+        _recompute_resource_digest(
+            proof, action_kind=CANDIDATE_EXPERIMENT_ACTION_KIND, request=request
+        )
+        == digest
+    )
+    with pytest.raises(AcquisitionAdmissionBundleBlocked) as cross_kind:
+        _recompute_resource_digest(
+            proof, action_kind=ACQUISITION_ACTION_KIND, request=ACQUISITION_REQUEST
+        )
+    assert cross_kind.value.code == "acquisition_resource_binding_invalid"
+
+    legacy_operation = operation.model_copy(update={"operation_id": ACQUISITION_ACTION_KIND})
+    with pytest.raises(AcquisitionAdmissionBundleBlocked) as cross_tuple:
+        producer._require_acquisition_tuple(
+            operation=legacy_operation, invocation=invocation, intent=intent
+        )
+    assert cross_tuple.value.code == "acquisition_action_tuple_invalid"
+
+    altered_human_ref = request.model_copy(
+        update={"human_decision_record_ref": "sha256:" + "e" * 64}
+    )
+    with pytest.raises(AcquisitionAdmissionBundleBlocked) as wrong_body:
+        _recompute_resource_digest(
+            proof,
+            action_kind=CANDIDATE_EXPERIMENT_ACTION_KIND,
+            request=altered_human_ref,
+        )
+    assert wrong_body.value.code == "acquisition_resource_binding_invalid"
+    wrong_query_proof = _proof(
+        resource_digest=digest,
+        requirement=requirement,
+        canonical_selectors=selectors,
+        body_sha256=body_hash,
+        query_sha256="sha256:" + "0" * 64,
+    )
+    with pytest.raises(AcquisitionAdmissionBundleBlocked) as wrong_query:
+        _recompute_resource_digest(
+            wrong_query_proof,
+            action_kind=CANDIDATE_EXPERIMENT_ACTION_KIND,
+            request=request,
+        )
+    assert wrong_query.value.code == "acquisition_resource_binding_invalid"

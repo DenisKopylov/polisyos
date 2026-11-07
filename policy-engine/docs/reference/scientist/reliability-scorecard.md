@@ -29,7 +29,7 @@ builder is `build_scientist_reliability_scorecard_from_evidence(...)`.
 | --------------------------------- | ----------------------------------------------------------------------------------- |
 | `happy_path`                      | `test_linear_scientist_workflow_happy_path`                                         |
 | `tool_failure_with_retry`         | `test_linear_scientist_workflow_tool_failure_retries_and_succeeds`                  |
-| `checkpoint_resume`               | `test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes`            |
+| `checkpoint_resume`               | `test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes[incomplete]`            |
 | `governance_rejection`            | `test_linear_scientist_workflow_governance_rejection_stops_decision_publication`    |
 | `fairness_calibration_regression` | `test_linear_scientist_workflow_post_deploy_regression_triggers_alerts_and_reissue` |
 

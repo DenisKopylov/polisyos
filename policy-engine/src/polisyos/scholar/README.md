@@ -74,6 +74,36 @@ environment bypass is supported when urllib recognizes the supplied `hostname:po
 `hostname:port` value passed to urllib, so those legitimate bypasses fail closed. This compatibility
 limitation requires owner/G rollout review; the runtime does not infer a trusted proxy contract.
 
+## Saved Fetch Policy and Snapshot Handoff
+
+Cache reuse is a saved-content admission, not a new connection. Before returning a
+page, `fetch_open_page` checks the current offline URL/domain/literal-IP policy for
+the initial URL, every redirect and final URL, MIME, actual raw byte size and known
+acquisition profile. An eligible saved page requires no DNS or socket access. A
+missing historical fact or newly denied policy returns a cache-ineligible result;
+refresh is explicit, never a hidden fallback. Live misses retain numeric destination,
+peer, redirect, proxy and hostname SNI checks at the shared transport owner.
+
+Actual successful acquisition records versioned `fetch_profile`1.0: normalized
+constraints, applied raw maximum, timeout, user agent and transport interpretation.
+These are acquisition facts, not licensing or institutional permission. The selected
+raw `ArtifactRef` survives bytes normalization into the actual acquisition recheck.
+A current cache entry cannot supply missing provenance for another selected snapshot
+or acquisition, even when the URL or document bytes match.
+
+| Contract | Producer and consumer compatibility | Decision |
+| --- | --- | --- |
+| WebEvidenceBundle1.0 | Historical reader; absent attempt detail remains unknown | Preserve historical bytes and reads |
+| WebEvidenceBundle1.1 | Current candidate attempt-trace producer and reader | Keep candidate; G ratification remains separate |
+| Saved fetch_profile1.0 | Actual fetch producer, cache reload, SourceMetadata and API seed | Forward facts only; historical empty profile stays unknown |
+| Direct HTTP/TLS on Python3.14 | Both seed and search adapters use numeric peer/hostname SNI guards | Supported controlled local qualification; no live retrieval-quality claim |
+| Ambient non-bypassed proxy | Cannot establish target destination binding | Refuse; retain the documented macOS NO_PROXY limitation |
+
+Search failover receives one absolute monotonic deadline. Each physical attempt is
+bounded by the remaining wall budget; an unstarted provider is not recorded as an
+empty search. A final-batch cutoff remains partial and does not mean global knowledge
+exhaustion. Provider exceptions and caller cancellation keep their distinct semantics.
+
 ## Current State
 
 - Last updated: 2026-10-19

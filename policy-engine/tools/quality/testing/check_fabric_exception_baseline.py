@@ -10,8 +10,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-EXPECTED_MATCH_COUNT = 199
-EXPECTED_OUTPUT_SHA256 = "8f96bc5692780655ad20a637b07f478686617f54a9e7d7d2d70ee38598499e7e"
+EXPECTED_MATCH_COUNT = 206
+EXPECTED_OUTPUT_SHA256 = "5eab0283e59c38c8dea982c7e4e5358b3738f8ed7c55884bca9f715a9619e173"
 MEASUREMENT_SCOPE = (
     "Partial coverage: normalized literal 'except Exception' text in rg-visible files "
     "under src/polisyos/fabric (all file types; rg ignore rules apply). Unmeasured: "

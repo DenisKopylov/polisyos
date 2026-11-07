@@ -1,7 +1,6 @@
-"""Virtual candidate-only admission owner for a generic controlled N5 profile.
+"""Candidate-only admission owner for server-selected generic N5 profiles.
 
-This file is an un-applied implementation draft. It introduces a separate
-server-selected profile; it does not reuse candidate-scenario offer semantics
+The separate data-only profiles do not reuse candidate-scenario offer semantics
 or establish currentness, causal truth, N9, S8, or publication authority.
 """
 
@@ -28,6 +27,10 @@ from polisyos.core.artifacts import (
 )
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.candidate_simulation import (
+    CandidateScenarioDecimalSetToRuleV2,
+    CandidateScenarioMaterializationV1,
+    CandidateScenarioNumericMaterializationV1,
+    CandidateScenarioSetToRule,
     CandidateSimulationContextInputs,
 )
 from polisyos.runtime.quality.cycle_substrate import (
@@ -44,15 +47,19 @@ from polisyos.runtime.quality.cycle_substrate import (
 )
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.joint_simulation_horizon import (
+    EnginePlan,
     HorizonSpec,
     JointSimulationRequest,
+    NCMConditionalComparatorProfile,
 )
 from polisyos.runtime.quality.substrate_registry import load_substrate_registry
 from polisyos.runtime.quality.world_model_record import (
     WORLD_MODEL_RECORD_SCHEMA_V2_VERSION,
+    WorldModelRecord,
     load_world_model_record,
     world_model_artifact_views,
 )
+from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -101,6 +108,15 @@ class GenericCycleN5RequestProfileV1(_StrictModel):
     comparator_refs: tuple[str, ...] = ()
     seed: int = Field(default=0, strict=True)
     replications: int = Field(default=1, ge=1, strict=True)
+    evidence_state: dict[str, float] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    comparator_profile: NCMConditionalComparatorProfile | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    engine_variable_map: dict[str, str] = Field(
+        default_factory=dict, exclude_if=lambda value: not value
+    )
 
     @field_validator("baseline_state")
     @classmethod
@@ -109,12 +125,105 @@ class GenericCycleN5RequestProfileV1(_StrictModel):
             raise ValueError("generic_cycle_n5_baseline_non_finite")
         return values
 
+    @field_validator("evidence_state")
+    @classmethod
+    def _finite_evidence_state(cls, values: dict[str, float] | None) -> dict[str, float] | None:
+        if values is not None and any(not math.isfinite(value) for value in values.values()):
+            raise ValueError("generic_cycle_n5_evidence_non_finite")
+        return values
+
+    @field_validator("engine_variable_map", mode="before")
+    @classmethod
+    def _strict_engine_variable_map(cls, values: object) -> object:
+        if not isinstance(values, dict) or any(
+            type(key) is not str or type(value) is not str for key, value in values.items()
+        ):
+            raise ValueError("generic_cycle_n5_engine_variable_map_invalid")
+        return values
+
+    @field_validator("engine_variable_map")
+    @classmethod
+    def _nonblank_engine_variable_map(cls, values: dict[str, str]) -> dict[str, str]:
+        if any(not key.strip() or not value.strip() for key, value in values.items()):
+            raise ValueError("generic_cycle_n5_engine_variable_map_invalid")
+        return values
+
     @field_validator("comparator_refs")
     @classmethod
     def _unique_comparators(cls, values: tuple[str, ...]) -> tuple[str, ...]:
         if any(not value.strip() for value in values) or len(values) != len(set(values)):
             raise ValueError("generic_cycle_n5_comparator_ref_invalid")
         return values
+
+    @model_validator(mode="after")
+    def _comparator_requires_explicit_evidence(self) -> GenericCycleN5RequestProfileV1:
+        if self.comparator_profile is not None and self.evidence_state is None:
+            raise ValueError("generic_cycle_n5_comparator_evidence_state_required")
+        return self
+
+
+class GenericCycleN5RequestProfileV2(GenericCycleN5RequestProfileV1):
+    """Finite ordered NCM choices over one shared candidate request basis.
+
+    Every ref is an exact server-selected WMR view, not a callable plan or a
+    claim of automatic model discovery. Horizon performs normal eligibility
+    against every actual model in this order. V1's bytes remain unchanged.
+    """
+
+    schema_version: Literal["policyos.runtime.generic_cycle_n5_request_profile.v2"] = (
+        "policyos.runtime.generic_cycle_n5_request_profile.v2"
+    )
+    ncm_plan_refs: tuple[ArtifactRef, ...] = Field(min_length=1)
+
+    @field_validator("ncm_plan_refs")
+    @classmethod
+    def _exact_unique_ncm_views(cls, refs: tuple[ArtifactRef, ...]) -> tuple[ArtifactRef, ...]:
+        if any(
+            type(ref) is not ArtifactRef
+            or ref.kind != "ir.ncm_spec"
+            or ref.media_type != "application/json"
+            or not ref.manifest_profile_sha256
+            for ref in refs
+        ):
+            raise ValueError("generic_cycle_n5_plan_ref_kind_or_selector_invalid")
+        identities = tuple(artifact_ref_identity_key(ref) for ref in refs)
+        if len(set(identities)) != len(identities):
+            raise ValueError("generic_cycle_n5_plan_ref_duplicate")
+        return refs
+
+
+class GenericCycleN5RequestProfileV3(GenericCycleN5RequestProfileV2):
+    """Selected finite models plus explicit source-parameter state-edit rules."""
+
+    schema_version: Literal["policyos.runtime.generic_cycle_n5_request_profile.v3"] = (
+        "policyos.runtime.generic_cycle_n5_request_profile.v3"
+    )
+    component_rules: tuple[
+        CandidateScenarioSetToRule | CandidateScenarioDecimalSetToRuleV2, ...
+    ] = Field(min_length=1)
+
+    invocation_quota_policy: BudgetInvocationQuotaPolicy | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    invocation_purpose: Literal["standard", "diagnostic", "counterevidence"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+
+    @model_validator(mode="after")
+    def _complete_invocation_profile(self) -> GenericCycleN5RequestProfileV3:
+        if (self.invocation_quota_policy is None) != (self.invocation_purpose is None):
+            raise ValueError("generic_cycle_n5_invocation_profile_incomplete")
+        return self
+
+    @field_validator("component_rules")
+    @classmethod
+    def _unambiguous_components(
+        cls, rules: tuple[CandidateScenarioSetToRule | CandidateScenarioDecimalSetToRuleV2, ...]
+    ) -> tuple[CandidateScenarioSetToRule | CandidateScenarioDecimalSetToRuleV2, ...]:
+        keys = tuple((rule.operator_kind, rule.target_world_slot) for rule in rules)
+        if len(keys) != len(set(keys)):
+            raise ValueError("generic_cycle_n5_component_rule_ambiguous")
+        return rules
 
 
 class GenericCycleSimulationProfileV1(_StrictModel):
@@ -131,8 +240,15 @@ class GenericCycleSimulationProfileV1(_StrictModel):
     world_model_record_ref: ArtifactRef
     substrate_registry_ref: ArtifactRef
     selected_ncm_ref: ArtifactRef
+    candidate_value_source_request_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     context_inputs: CandidateSimulationContextInputs
-    n5: GenericCycleN5RequestProfileV1
+    n5: (
+        GenericCycleN5RequestProfileV1
+        | GenericCycleN5RequestProfileV2
+        | GenericCycleN5RequestProfileV3
+    )
     limitations: tuple[
         Literal[
             "controlled_inputs_only",
@@ -161,10 +277,34 @@ class GenericCycleSimulationProfileV1(_StrictModel):
             for ref, kind in typed_refs
         ):
             raise ValueError("generic_cycle_simulation_profile_ref_kind_invalid")
-        # This initial controlled profile supports the one WMR-default NCM view.
-        # A selected-view NCM requires its own declaration owner and is refused.
-        if self.selected_ncm_ref.manifest_profile_sha256 is not None:
-            raise ValueError("generic_cycle_simulation_ncm_view_source_not_established")
+        if isinstance(self.n5, GenericCycleN5RequestProfileV2) and (
+            artifact_ref_identity_key(self.selected_ncm_ref)
+            not in {artifact_ref_identity_key(ref) for ref in self.n5.ncm_plan_refs}
+        ):
+            raise ValueError("generic_cycle_simulation_selected_ncm_not_in_plans")
+        if isinstance(self.n5, GenericCycleN5RequestProfileV3):
+            slots = {
+                slot.slot_id: slot
+                for slot in self.context_inputs.world_model_record.policy_slot_map
+            }
+            if any(
+                rule.target_world_slot not in slots
+                or slots[rule.target_world_slot].unit != rule.unit_id
+                or rule.target_world_slot not in self.n5.baseline_state
+                for rule in self.n5.component_rules
+            ):
+                raise ValueError("generic_cycle_simulation_component_rule_world_mismatch")
+        request_ref = self.candidate_value_source_request_ref
+        if request_ref is not None and (
+            type(request_ref) is not ArtifactRef
+            or request_ref.kind != "runtime.value_owner_source_projection_request"
+            or request_ref.media_type != "application/json"
+            or request_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("generic_cycle_candidate_value_source_request_ref_invalid")
+        # An exact manifest selector is an address, not a source-codec claim.
+        # The admission owner verifies the actual default NCM codec on read;
+        # declaration-sidecar codecs still require their separate owner context.
         if len(self.limitations) != len(set(self.limitations)) or not _PROFILE_LIMITATIONS.issubset(
             self.limitations
         ):
@@ -178,6 +318,24 @@ class GenericCycleSimulationProfileV1(_StrictModel):
         if self.content_hash != expected:
             raise ValueError("generic_cycle_simulation_profile_content_hash_mismatch")
         return self
+
+
+def _profile_ncm_plan_refs(profile: GenericCycleSimulationProfileV1) -> tuple[ArtifactRef, ...]:
+    """Return the complete ordered model denominator without changing V1."""
+    if isinstance(profile.n5, GenericCycleN5RequestProfileV2):
+        return profile.n5.ncm_plan_refs
+    return (profile.selected_ncm_ref,)
+
+
+def _profile_ncm_views_match_world(
+    profile: GenericCycleSimulationProfileV1, world: WorldModelRecord
+) -> bool:
+    """Compare all exact selected views; no alternative is silently omitted."""
+    actual = world_model_artifact_views(world).ncm_refs
+    expected = _profile_ncm_plan_refs(profile)
+    return tuple(artifact_ref_identity_key(ref) for ref in actual) == tuple(
+        artifact_ref_identity_key(ref) for ref in expected
+    )
 
 
 class GenericCycleSimulationChildProfileMemberV1(_StrictModel):
@@ -523,7 +681,14 @@ class GenericCycleSimulationN5InputV1(_StrictModel):
     candidate_id: str = Field(min_length=1, strict=True)
     candidate_atom_hash: str = Field(pattern=_HASH_PATTERN, strict=True)
     outcome_variable: str = Field(min_length=1, strict=True)
-    n5: GenericCycleN5RequestProfileV1
+    n5: (
+        GenericCycleN5RequestProfileV1
+        | GenericCycleN5RequestProfileV2
+        | GenericCycleN5RequestProfileV3
+    )
+    component_materializations: tuple[
+        CandidateScenarioMaterializationV1 | CandidateScenarioNumericMaterializationV1, ...
+    ] = Field(default=(), exclude_if=lambda value: not value)
     content_hash: str = Field(pattern=_HASH_PATTERN, strict=True)
 
     @model_validator(mode="after")
@@ -553,6 +718,21 @@ class GenericCycleSimulationN5InputV1(_StrictModel):
             raise ValueError("generic_cycle_simulation_n5_child_set_ref_invalid")
         if self.n5 != self.profile.n5:
             raise ValueError("generic_cycle_simulation_n5_profile_mismatch")
+        materialized_profile = isinstance(self.n5, GenericCycleN5RequestProfileV3)
+        if materialized_profile != bool(self.component_materializations):
+            raise ValueError("generic_cycle_simulation_n5_materialization_missing_or_unexpected")
+        if any(
+            item.profile_hash != self.profile.content_hash
+            or item.problem_ref != self.design_problem_ref
+            or item.context_job_ref != str(self.context_job_ref.artifact_id)
+            or item.source_handoff_ref != str(self.n4_source_ref.artifact_id)
+            or item.world_model_record_hash
+            != self.profile.context_inputs.world_model_record.content_hash
+            or item.candidate_id != self.candidate_id
+            or item.original_atom_hash != self.candidate_atom_hash
+            for item in self.component_materializations
+        ):
+            raise ValueError("generic_cycle_simulation_n5_materialization_binding_mismatch")
         if self.profile.profile_selection_kind == "n4_candidate_child" and (
             self.n4_child_profile_family_ref is None
             or self.n4_child_profile_set_ref is None
@@ -1150,9 +1330,7 @@ class GenericCycleSimulationAdmissionOwner:
             views.substrate_registry_ref is None
             or artifact_ref_identity_key(views.substrate_registry_ref)
             != artifact_ref_identity_key(profile.substrate_registry_ref)
-            or len(views.ncm_refs) != 1
-            or artifact_ref_identity_key(views.ncm_refs[0])
-            != artifact_ref_identity_key(profile.selected_ncm_ref)
+            or not _profile_ncm_views_match_world(profile, context.world_model_record)
         ):
             return False
         if context.source_profile is None:
@@ -1315,9 +1493,7 @@ class GenericCycleSimulationAdmissionOwner:
                 or views.substrate_registry_ref is None
                 or artifact_ref_identity_key(views.substrate_registry_ref)
                 != artifact_ref_identity_key(profile.substrate_registry_ref)
-                or len(views.ncm_refs) != 1
-                or artifact_ref_identity_key(views.ncm_refs[0])
-                != artifact_ref_identity_key(profile.selected_ncm_ref)
+                or not _profile_ncm_views_match_world(profile, world)
             ):
                 raise ValueError("generic_cycle_simulation_source_binding_mismatch")
             self._verify_json_artifact(
@@ -1327,8 +1503,9 @@ class GenericCycleSimulationAdmissionOwner:
             registry = load_substrate_registry(self._store, profile.substrate_registry_ref)
             if registry != profile.context_inputs.substrate_registry:
                 raise ValueError("generic_cycle_simulation_registry_content_mismatch")
-            self._verify_json_artifact(profile.selected_ncm_ref, expected_kind="ir.ncm_spec")
-            self._verify_default_ncm(profile.selected_ncm_ref)
+            for ncm_ref in _profile_ncm_plan_refs(profile):
+                self._verify_json_artifact(ncm_ref, expected_kind="ir.ncm_spec")
+                self._verify_default_ncm(ncm_ref)
         except (OSError, TypeError, ValueError) as exc:
             raise CycleSubstrateContextOwnerError(
                 "generic_cycle_simulation_source_not_established", str(exc)
@@ -1407,7 +1584,12 @@ class GenericCycleSimulationAdmissionOwner:
             problem=problem,
             repo_root=repo_root,
             verified_nl_job_scope=verified_nl_job_scope,
+            return_selected_profile=True,
         )
+        if context_ref.manifest_profile_sha256 is None:
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_simulation_context_selected_profile_not_returned"
+            )
         resolved = context_owner.resolve_for_current_job(
             context_ref,
             problem=problem,
@@ -2057,8 +2239,15 @@ class GenericCycleSimulationAdmissionOwner:
         family = GenericCycleSimulationChildProfileFamilyV1.model_validate(family_body)
         options = self._child_profile_family_write_options(family)
         ref = self._store.put_json(
-            family.model_dump(mode="json"), options, canon_spec=_PROFILE_CANON
+            family.model_dump(mode="json"),
+            options,
+            canon_spec=_PROFILE_CANON,
+            return_selected_profile=True,
         )
+        if ref.manifest_profile_sha256 is None:
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_simulation_child_family_selected_profile_not_returned"
+            )
         self._verify_json_artifact(ref, expected_kind=_CHILD_PROFILE_FAMILY_KIND)
         persisted = GenericCycleSimulationChildProfileFamilyV1.model_validate(
             load_core_json_artifact(self._store, ref)
@@ -2130,6 +2319,16 @@ class GenericCycleSimulationAdmissionOwner:
             raise CycleSubstrateContextOwnerError(
                 "generic_cycle_simulation_parent_input_has_child_set"
             )
+        component_materializations = (
+            self.materialize_source_atoms(
+                handoff=handoff,
+                source_ref=source_ref,
+                source_run_id=source_run_id,
+                candidate_ids=(candidate_id,),
+            )
+            if isinstance(handoff.profile.n5, GenericCycleN5RequestProfileV3)
+            else ()
+        )
         payload = {
             "schema_version": _N5_INPUT_SCHEMA,
             "authority_purpose": "cycle_input_candidate_only",
@@ -2151,6 +2350,7 @@ class GenericCycleSimulationAdmissionOwner:
             "candidate_atom_hash": candidate_atom_hash,
             "outcome_variable": outcome_variable,
             "n5": handoff.profile.n5,
+            "component_materializations": component_materializations,
         }
         normalized = GenericCycleSimulationN5InputV1.model_construct(
             **payload,
@@ -2792,9 +2992,7 @@ class GenericCycleSimulationAdmissionOwner:
             or views.substrate_registry_ref is None
             or artifact_ref_identity_key(views.substrate_registry_ref)
             != artifact_ref_identity_key(profile.substrate_registry_ref)
-            or len(views.ncm_refs) != 1
-            or artifact_ref_identity_key(views.ncm_refs[0])
-            != artifact_ref_identity_key(profile.selected_ncm_ref)
+            or not _profile_ncm_views_match_world(profile, world)
         ):
             raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_wmr_profile_mismatch"
@@ -2808,8 +3006,9 @@ class GenericCycleSimulationAdmissionOwner:
             raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_registry_profile_mismatch"
             )
-        self._verify_json_artifact(profile.selected_ncm_ref, expected_kind="ir.ncm_spec")
-        self._verify_default_ncm(profile.selected_ncm_ref)
+        for ncm_ref in _profile_ncm_plan_refs(profile):
+            self._verify_json_artifact(ncm_ref, expected_kind="ir.ncm_spec")
+            self._verify_default_ncm(ncm_ref)
 
         port = JointSimulationPort(
             cycle_substrate_context=expected_context,
@@ -2831,6 +3030,207 @@ class GenericCycleSimulationAdmissionOwner:
         )
         return source, candidate, expected_context, port
 
+    def materialize_source_atoms(
+        self,
+        *,
+        handoff: GenericCycleSimulationContextHandoffV1,
+        source_ref: ArtifactRef,
+        source_run_id: str,
+        candidate_ids: tuple[str, ...],
+    ) -> tuple[CandidateScenarioMaterializationV1 | CandidateScenarioNumericMaterializationV1, ...]:
+        """Reopen exact N4 members and derive their configured literal state edits.
+
+        This is also the replay oracle for persisted materializations. It never
+        evaluates a descriptive expression or substitutes a fixture number.
+        The same operation serves a single generic leaf or an explicitly
+        authored parent component tuple; source order is supplied explicitly.
+        """
+        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+        from polisyos.runtime.quality.intervention_substrate import (
+            _link_candidate_scenario_intervention,
+            materialize_configured_candidate_state_edit,
+        )
+
+        if type(handoff) is not GenericCycleSimulationContextHandoffV1:
+            raise CycleSubstrateContextOwnerError("generic_component_handoff_untyped")
+        profile = handoff.profile
+        if not isinstance(profile.n5, GenericCycleN5RequestProfileV3):
+            raise CycleSubstrateContextOwnerError("generic_component_rules_not_configured")
+        if not candidate_ids or len(candidate_ids) != len(set(candidate_ids)):
+            raise CycleSubstrateContextOwnerError("generic_component_candidate_denominator_invalid")
+        # This operation establishes immutable derivation, not currentness.
+        # Production callers separately resolve their current configured input
+        # and live lease; historical readers may own no configured profile set.
+        self.resolve_profile_historical(
+            handoff.profile_ref,
+            expected_profile=profile,
+            job_id=handoff.job_id,
+            run_id=handoff.run_id,
+            tenant_id=handoff.tenant_id,
+            cell_id=handoff.cell_id,
+        )
+        source = GenerationSourceRepository(self._store).load(
+            source_ref,
+            run_id=source_run_id,
+            expected_run_id=handoff.run_id,
+            expected_job_id=handoff.job_id,
+            expected_tenant_id=handoff.tenant_id,
+            expected_cell_id=handoff.cell_id,
+            context_job_ref=handoff.context_job_ref,
+            profile_ref=handoff.profile_ref,
+            n4_child_profile_family_ref=handoff.n4_child_profile_family_ref,
+        )
+        if source.cycle_substrate_context != handoff.context or not self.context_matches_profile(
+            handoff.context, profile, source.problem
+        ):
+            raise CycleSubstrateContextOwnerError("generic_component_context_binding_mismatch")
+        bundle = handoff.context.intervention_substrate
+        if bundle is None:
+            raise CycleSubstrateContextOwnerError("generic_component_l6_missing")
+        by_id = {
+            candidate.candidate_id: candidate for candidate in source.generation_result.candidates
+        }
+        result = []
+        for candidate_id in candidate_ids:
+            candidate = by_id.get(candidate_id)
+            if candidate is None:
+                raise CycleSubstrateContextOwnerError("generic_component_candidate_not_in_source")
+            rules = tuple(
+                rule
+                for rule in profile.n5.component_rules
+                if rule.operator_kind == candidate.atom.operator_kind.trinity_kind
+                and candidate.atom.target_world_slots == (rule.target_world_slot,)
+            )
+            if len(rules) != 1:
+                raise CycleSubstrateContextOwnerError("generic_component_rule_not_unique")
+            sources = tuple(
+                item
+                for item in source.candidate_sources
+                if item.candidate_id == candidate_id
+                and item.intervention_id == candidate.atom.intervention_id
+            )
+            if len(sources) != 1:
+                raise CycleSubstrateContextOwnerError(
+                    "generic_component_source_occurrence_not_unique"
+                )
+            original_bundle = source.trinity_bundle
+            if original_bundle is None:
+                raise CycleSubstrateContextOwnerError("generic_component_source_bundle_missing")
+            interventions = tuple(
+                item
+                for item in original_bundle.policy_spec.interventions
+                if item.intervention_id == candidate.atom.intervention_id
+            )
+            if len(interventions) != 1:
+                raise CycleSubstrateContextOwnerError("generic_component_intervention_not_unique")
+            linked, _ = _link_candidate_scenario_intervention(
+                original_bundle,
+                intervention_id=candidate.atom.intervention_id,
+                substrate_bundle=bundle,
+            )
+            result.append(
+                materialize_configured_candidate_state_edit(
+                    bundle,
+                    profile_hash=profile.content_hash,
+                    rule=rules[0],
+                    candidate=candidate,
+                    intervention=interventions[0],
+                    linked_intervention=linked,
+                    problem=source.problem,
+                    context=handoff.context,
+                    context_job_ref=str(handoff.context_job_ref.artifact_id),
+                    source_handoff_ref=str(source_ref.artifact_id),
+                    source_handoff=source,
+                )
+            )
+        return tuple(result)
+
+    def build_engine_plans(
+        self,
+        *,
+        profile: GenericCycleSimulationProfileV1,
+        world_record: WorldModelRecord,
+        outcome: str,
+        variable_map: Mapping[str, str],
+    ) -> tuple[EnginePlan, ...]:
+        """Reopen the full selected NCM tuple for one shared request basis.
+
+        This does not preselect an eligible model. The normal Horizon consumer
+        receives every plan and owns rejection, fallback and physical execution.
+        All alternatives share the exact WMR, requested outcome, variable map,
+        request horizon, baseline, comparator and budget from the same profile.
+        """
+        from polisyos.core.artifacts import ensure_ir_artifact_store
+        from polisyos.ir import NCMSpecRef, load_ncm_spec_default_view
+
+        if (
+            type(profile) is not GenericCycleSimulationProfileV1
+            or type(world_record) is not WorldModelRecord
+            or world_record != profile.context_inputs.world_model_record
+            or not _profile_ncm_views_match_world(profile, world_record)
+            or outcome not in profile.n5.baseline_state
+            or not isinstance(variable_map, Mapping)
+            or not variable_map
+            or any(
+                not isinstance(key, str)
+                or not key.strip()
+                or not isinstance(value, str)
+                or not value.strip()
+                for key, value in variable_map.items()
+            )
+        ):
+            raise CycleSubstrateContextOwnerError("generic_cycle_simulation_n5_plan_basis_mismatch")
+        merged_variable_map = dict(variable_map)
+        profile_variable_map = profile.n5.engine_variable_map
+        profile_axes_opted_in = (
+            profile.n5.evidence_state is not None
+            or profile.n5.comparator_profile is not None
+            or bool(profile_variable_map)
+        )
+        if profile_variable_map:
+            world_slots = {slot.slot_id for slot in world_record.policy_slot_map}
+            if any(key not in world_slots for key in profile_variable_map):
+                raise CycleSubstrateContextOwnerError(
+                    "generic_cycle_simulation_n5_plan_basis_mismatch"
+                )
+            for key, alias in profile_variable_map.items():
+                incoming = merged_variable_map.get(key)
+                if incoming is not None and incoming != key and incoming != alias:
+                    raise CycleSubstrateContextOwnerError(
+                        "generic_cycle_simulation_n5_plan_basis_mismatch"
+                    )
+                merged_variable_map[key] = alias
+        if profile_axes_opted_in and len(set(merged_variable_map.values())) != len(
+            merged_variable_map
+        ):
+            raise CycleSubstrateContextOwnerError("generic_cycle_simulation_n5_plan_basis_mismatch")
+        plans: list[EnginePlan] = []
+        required_variables = set(merged_variable_map.values()) | {
+            merged_variable_map.get(outcome, outcome)
+        }
+        ir_store = ensure_ir_artifact_store(self._store)
+        for ref in _profile_ncm_plan_refs(profile):
+            self._verify_json_artifact(ref, expected_kind="ir.ncm_spec")
+            ncm = load_ncm_spec_default_view(
+                ir_store, NCMSpecRef.model_validate(ref.model_dump(mode="python"))
+            )
+            if (
+                isinstance(profile.n5, GenericCycleN5RequestProfileV2) or profile_axes_opted_in
+            ) and not (required_variables <= set(ncm.endogenous_vars)):
+                raise CycleSubstrateContextOwnerError(
+                    "generic_cycle_simulation_n5_plan_estimand_mismatch"
+                )
+            plans.append(
+                EnginePlan(
+                    engine_kind=profile.n5.resource,
+                    objective_ref=f"objective://{outcome}",
+                    eligibility_conditions=("acyclic", "counterfactual_do_worlds"),
+                    ncm_spec=ncm,
+                    variable_map=dict(merged_variable_map),
+                )
+            )
+        return tuple(plans)
+
     def _recompute_n5_request(
         self,
         *,
@@ -2849,7 +3249,6 @@ class GenericCycleSimulationAdmissionOwner:
         from polisyos.runtime.quality.intervention_atom_binding import (
             InterventionAtomBinding,
         )
-        from polisyos.runtime.quality.joint_simulation_horizon import EnginePlan
 
         if (
             type(port) is not JointSimulationPort
@@ -2865,6 +3264,18 @@ class GenericCycleSimulationAdmissionOwner:
             raise CycleSubstrateContextOwnerError(
                 "generic_cycle_simulation_n5_request_atoms_untyped"
             )
+        if isinstance(input_record.n5, GenericCycleN5RequestProfileV3):
+            materializations = self.materialize_source_atoms(
+                handoff=port._generic_cycle_simulation_handoff,
+                source_ref=input_record.n4_source_ref,
+                source_run_id=input_record.source_run_id,
+                candidate_ids=(input_record.candidate_id,),
+            )
+            if materializations != input_record.component_materializations:
+                raise _GenericN5VerifiedMismatchError(
+                    "generic_cycle_simulation_n5_materialization_replay_mismatch"
+                )
+            atoms = tuple(item.derived_n5_atom for item in materializations)
         outcome = _value_outcome_variable(source_candidate, source.problem)
         if (
             outcome != input_record.outcome_variable
@@ -2886,9 +3297,11 @@ class GenericCycleSimulationAdmissionOwner:
         variable_map = port._joint_simulation_variable_map(
             atoms=atoms, outcome=outcome, raw_hint=None
         )
-        ncm_spec = port._resolve_joint_simulation_ncm(
-            problem=source.problem,
+        plans = self.build_engine_plans(
+            profile=input_record.profile,
             world_record=world_record,
+            outcome=outcome,
+            variable_map=variable_map,
         )
         expected = JointSimulationRequest(
             world_model_record_ref=world_record.world_model_record_id,
@@ -2896,17 +3309,19 @@ class GenericCycleSimulationAdmissionOwner:
             intervention_atoms=atoms,
             selected_outcomes=(outcome,),
             horizon=input_record.n5.horizon,
-            engine_plan=(
-                EnginePlan(
-                    engine_kind=input_record.n5.resource,
-                    objective_ref=f"objective://{outcome}",
-                    eligibility_conditions=("acyclic", "counterfactual_do_worlds"),
-                    ncm_spec=ncm_spec,
-                    variable_map=variable_map,
-                ),
-            ),
+            engine_plan=plans,
             baseline_state=dict(input_record.n5.baseline_state),
+            evidence_state=(
+                dict(input_record.n5.evidence_state)
+                if input_record.n5.evidence_state is not None
+                else None
+            ),
             comparator_refs=input_record.n5.comparator_refs,
+            comparator_profile=(
+                input_record.n5.comparator_profile.model_copy(deep=True)
+                if input_record.n5.comparator_profile is not None
+                else None
+            ),
             budget_ref=input_record.n5.budget_ref,
             seed=input_record.n5.seed,
             replications=input_record.n5.replications,
@@ -3071,10 +3486,10 @@ class GenericCycleSimulationAdmissionOwner:
     def _verify_default_ncm(self, ref: ArtifactRef) -> None:
         """Load only the WMR-default NCM view through the public Core→IR adapter."""
         from polisyos.core.artifacts import ensure_ir_artifact_store
-        from polisyos.ir import NCMSpecRef, load_ncm_spec
+        from polisyos.ir import NCMSpecRef, load_ncm_spec_default_view
 
         typed = NCMSpecRef.model_validate(ref.model_dump(mode="python"))
-        load_ncm_spec(ensure_ir_artifact_store(self._store), typed)
+        load_ncm_spec_default_view(ensure_ir_artifact_store(self._store), typed)
 
     def _profile_write_options(
         self,
@@ -3090,6 +3505,18 @@ class GenericCycleSimulationAdmissionOwner:
             input_ref_from_artifact_ref(profile.substrate_registry_ref, role="substrate_registry"),
             input_ref_from_artifact_ref(profile.selected_ncm_ref, role="selected_ncm"),
         ]
+        if profile.candidate_value_source_request_ref is not None:
+            input_refs.append(
+                input_ref_from_artifact_ref(
+                    profile.candidate_value_source_request_ref,
+                    role="candidate_value_source_request",
+                )
+            )
+        if isinstance(profile.n5, GenericCycleN5RequestProfileV2):
+            input_refs.extend(
+                input_ref_from_artifact_ref(ref, role=f"ncm_plan:{index}")
+                for index, ref in enumerate(profile.n5.ncm_plan_refs)
+            )
         return artifacts.ArtifactWriteOptions(
             kind=_PROFILE_KIND,
             media_type="application/json",
@@ -3232,7 +3659,12 @@ class GenericCycleSimulationAdmissionOwner:
             profile.model_dump(mode="json"),
             options,
             canon_spec=_PROFILE_CANON,
+            return_selected_profile=True,
         )
+        if ref.manifest_profile_sha256 is None:
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_simulation_profile_selected_profile_not_returned"
+            )
         self.resolve_profile(
             ref,
             expected_profile=profile,

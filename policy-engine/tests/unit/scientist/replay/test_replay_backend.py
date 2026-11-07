@@ -35,7 +35,11 @@ from polisyos.scientist.replay.backend import (
     replay_dead_letter,
     replay_packet,
 )
-from polisyos.scientist.replay.deterministic import VerificationConfig, VerificationMode
+from polisyos.scientist.replay.deterministic import (
+    ReplayStrategy,
+    VerificationConfig,
+    VerificationMode,
+)
 
 
 class _ArtifactStoreProxy:
@@ -155,7 +159,9 @@ def test_replay_backend_foundry_strategy_with_bit_exact(monkeypatch, tmp_path) -
     store = FileSystemCAS(tmp_path)
     packet_ref, simulation_result_ref = _build_packet(store)
 
-    def _fake_execute_foundry_replay(*, store, payload, seed):
+    def _fake_execute_foundry_replay(*, store, request):
+        assert request.exec_plan_ref.artifact_id is not None
+        assert request.return_selected_profile is False
         return simulation_result_ref.artifact_id
 
     monkeypatch.setattr(
@@ -174,6 +180,71 @@ def test_replay_backend_foundry_strategy_with_bit_exact(monkeypatch, tmp_path) -
     assert result.strategy.value == "foundry"
     assert result.verification is not None
     assert result.verification.passed
+
+
+@pytest.mark.parametrize(
+    ("status", "with_output", "expected_success"),
+    [
+        ("ok", True, True),
+        ("fail", True, False),
+        ("historical_unknown", True, False),
+        ("ok", False, False),
+    ],
+)
+def test_scientist_replay_preserves_terminal_execution_status_and_existing_outputs(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    status: str,
+    with_output: bool,
+    expected_success: bool,
+) -> None:
+    """Typed executor-result projection is distinct from native domain qualification."""
+    from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_SIMULATION_RESULT_REF
+    from polisyos.scientist.orchestration.engine.executor import (
+        WorkflowExecutionResult,
+        WorkflowReport,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    packet_ref, produced_result = _build_packet(store)
+
+    def selected_workflow_result(state, **_kwargs) -> WorkflowExecutionResult:
+        projected = state.model_copy(deep=True)
+        if with_output:
+            projected.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF] = produced_result
+        return WorkflowExecutionResult(
+            state=projected,
+            report=WorkflowReport(
+                workflow_id="typed_projection_control",
+                run_id=state.run_id,
+                error_policy="fail_fast",
+                status=status,
+            ),
+        )
+
+    monkeypatch.setattr(
+        "polisyos.scientist.replay.backend.run_selected_workflow", selected_workflow_result
+    )
+    result = replay_packet(
+        store,
+        packet_ref.artifact_id,
+        verification_config=VerificationConfig(mode=VerificationMode.SKIP),
+        force_strategy=ReplayStrategy.SCIENTIST,
+    )
+
+    assert result.success is expected_success
+    if with_output:
+        assert result.replay_simulation_result_ref == str(produced_result.artifact_id)
+        assert result.replay_artifact_refs["simulation_result"] == produced_result
+        assert store.get_bytes(result.replay_artifact_refs["simulation_result"])
+    else:
+        assert result.replay_simulation_result_ref is None
+    if expected_success:
+        assert result.errors == []
+        assert result.verification is not None and result.verification.skipped
+    else:
+        assert result.verification is None
+        assert any(error.startswith("replay_scientist_") for error in result.errors)
 
 
 def test_list_dead_letters_filters_by_run_and_alias(tmp_path) -> None:
@@ -411,12 +482,18 @@ async def test_retry_producer_binds_and_replays_exact_dispatch_source(tmp_path) 
 
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
 
-        def _copy_with_basis(basis_ref: ArtifactRef | None, status: str) -> ArtifactRef:
+        def _copy_with_basis(
+            basis_ref: ArtifactRef | None,
+            status: str,
+            *,
+            lineage_ref: ArtifactRef | None = None,
+        ) -> ArtifactRef:
             payload = load_core_json_artifact(store, record.artifact_ref.artifact_id)
             payload["dispatch_basis_status"] = status
             payload["dispatch_basis_ref"] = (
                 basis_ref.model_dump(mode="json") if basis_ref is not None else None
             )
+            actual_input = lineage_ref or basis_ref
             return store.put_json(
                 payload,
                 PutOptions(
@@ -427,8 +504,8 @@ async def test_retry_producer_binds_and_replays_exact_dispatch_source(tmp_path) 
                         version="2.0",
                     ),
                     inputs=(
-                        [input_ref_from_artifact_ref(basis_ref, role="dispatch_basis")]
-                        if basis_ref is not None
+                        [input_ref_from_artifact_ref(actual_input, role="dispatch_basis")]
+                        if actual_input is not None
                         else []
                     ),
                 ),
@@ -454,8 +531,14 @@ async def test_retry_producer_binds_and_replays_exact_dispatch_source(tmp_path) 
         changed_profile = selected_attempt.basis_ref.model_copy(
             update={"manifest_profile_sha256": "sha256:" + "0" * 64}
         )
-        changed_ref = _copy_with_basis(changed_profile, "selected")
-        with pytest.raises(DeadLetterError, match="dead_letter_dispatch_basis_not_established"):
+        with pytest.raises(ArtifactOwnershipError):
+            _copy_with_basis(changed_profile, "selected")
+        # Retain the genuine owned edge to reach the consumer's independent
+        # payload/lineage check; never bypass the CAS ownership writer.
+        changed_ref = _copy_with_basis(
+            changed_profile, "selected", lineage_ref=selected_attempt.basis_ref
+        )
+        with pytest.raises(DeadLetterError, match="dispatch basis lineage does not match"):
             await replay_dead_letter(
                 store,
                 changed_ref.artifact_id,

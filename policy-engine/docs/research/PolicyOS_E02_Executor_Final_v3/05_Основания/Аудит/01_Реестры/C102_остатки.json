@@ -1,0 +1,66 @@
+{
+  "pass_id": "C102",
+  "bundle": "NET-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C102-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "source_ids": [
+        "B89",
+        "B87",
+        "B90"
+      ],
+      "title": "Завершившаяся отменой cleanup-задача зацикливает shield и блокирует event loop",
+      "evidence": [
+        "S01:867–900",
+        "S01:1037–1070",
+        "P04",
+        "cancelled_cleanup/child.stdout",
+        "cancelled_cleanup/child.stderr"
+      ],
+      "remaining": "Различать отмену ожидающего caller и терминально cancelled cleanup_task в существующем ownership/settlement loop. Терминальный исход должен оставить точного retryable владельца и корректно распространить отказ/отмену, не вращаясь на done future. Не освобождать физическую ёмкость без подтверждённого close и не убирать shielding активной очистки.",
+      "limits": "Controlled actual public acquire→release с connector.disconnect, который сам выбрасывает CancelledError. 10000 итераций shield(done=True,cancelled=True), heartbeat через200ms не исполняется; child остановлен external timeout3s, exit-9. Ни реальная production частота, ни descriptor leak/overcommit не измерены. Обычная caller cancellation при продолжающемся close проверена отдельно existing PASS."
+    },
+    {
+      "id": "C102-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B87",
+        "B89",
+        "B90"
+      ],
+      "title": "Полная native и live-транспортная квалификация остаётся открытой",
+      "evidence": [
+        "native_pool.stdout",
+        "native_streaming.stdout",
+        "native_pytest.stderr",
+        "P01–P07"
+      ],
+      "remaining": "В supported environment исполнить существующие pool admission/physical stream cleanup tests и новый terminal-cancel regression с внешним watchdog; проверить actual selected transport cleanup ownership и честное deadline поведение. Не превращать deadline admission в обещание остановки физически некооперативного connector за тот же срок.",
+      "limits": "Python3.12.14/Pydantic2.13.4 отличаются supported baseline; dependency installs не выполнялись. Реальные local OS FDs проверены, но network drivers, cross-loop весь integration corpus, native CAS/currentness/authority не заверены."
+    },
+    {
+      "id": "C102-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B87"
+      ],
+      "title": "Три существующих finalizer tests больше не достигают своего injected failure при default source admission",
+      "evidence": [
+        "S10:349–509",
+        "run01/cases.json",
+        "P03",
+        "P05"
+      ],
+      "remaining": "Привести intended cleanup fixtures к явному актуальному контракту: source-owned dedupe там, где проверяется source semantics, либо честно disabled dedupe/at_least_once для lifecycle-only tests. Сохранить original error identity, cleanup notes и physical retirement assertions.",
+      "limits": "3 actual isolated existing cases FAIL на source-owned event/version contract unavailable до lookup/rewind/poll. Отдельный current-profile adapter подтверждает эти finalizer ветви, но не переименовывает старые FAIL в native/unchanged PASS и не разрешает убрать source-owner guard."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C102-R01"
+  ],
+  "decision": "Useful lifecycle/permit/deadline repairs confirmed within bounded scope; terminal cancelled cleanup task still hangs the loop. Native and stale-test qualification remain open."
+}

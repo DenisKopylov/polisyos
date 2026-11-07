@@ -68,6 +68,18 @@ export const workflowLaunchDraftSchema = workflowLaunchFieldsSchema
   .strict()
   .superRefine(validateWorkflowProfileSelection);
 
+/** Whether the limited scope lacks a usable explicit USD amount. */
+export function hasInvalidLimitedRunBudget(
+  scope: string | undefined,
+  amount: string | undefined,
+): boolean {
+  const budget = (amount ?? "").trim();
+  return (
+    scope === "metered_paid_producers_and_bounded_candidate" &&
+    (budget === "" || !Number.isFinite(Number(budget)) || Number(budget) < 0)
+  );
+}
+
 export const naturalLanguageLaunchSchema = z
   .object({
     nlRequest: z.string().trim().min(1),
@@ -76,6 +88,14 @@ export const naturalLanguageLaunchSchema = z
     selectedLlmModels: z.array(z.string().trim().min(1)).min(1),
     maxParallelModels: z.number().int().min(1),
     runBudgetUsd: z.string(),
+    runBudgetScope: z
+      .enum([
+        "",
+        "hard_total_usd",
+        "metered_paid_producers_and_bounded_candidate",
+      ])
+      .default(""),
+    boundedCandidateExperiment: z.boolean().default(false),
     perModelBudgetUsd: z.string(),
     maxIterations: z.number().int().min(1),
     checkpointPolicy: checkpointPolicySchema,
@@ -94,6 +114,25 @@ export const naturalLanguageLaunchSchema = z
     governanceConstraints: z.array(governanceConstraintSchema).min(1),
   })
   .superRefine((values, context) => {
+    if (
+      values.boundedCandidateExperiment &&
+      values.runBudgetScope !== "metered_paid_producers_and_bounded_candidate"
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "pages.composer.candidateExperiment.requirements",
+        path: ["boundedCandidateExperiment"],
+      });
+    }
+    if (
+      hasInvalidLimitedRunBudget(values.runBudgetScope, values.runBudgetUsd)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "pages.composer.runBudgetScope.limitedBudgetRequired",
+        path: ["runBudgetUsd"],
+      });
+    }
     const predictiveFields = [
       "nlDataSourceProfileSha256",
       "valueDataProfileArtifactId",
@@ -260,6 +299,13 @@ export function buildNaturalLanguageLaunchRequest(
     maxIterationsConstraint: number;
   },
 ): NaturalLanguageRunRequest {
+  if (
+    values.boundedCandidateExperiment &&
+    (values.runBudgetScope !== "metered_paid_producers_and_bounded_candidate" ||
+      hasInvalidLimitedRunBudget(values.runBudgetScope, values.runBudgetUsd))
+  ) {
+    throw new Error("candidate_experiment_budget_scope_or_amount_invalid");
+  }
   const models = Array.from(
     new Set(
       values.selectedLlmModels
@@ -315,6 +361,13 @@ export function buildNaturalLanguageLaunchRequest(
       dynamic_text_policy: "source_text_only",
     },
   };
+
+  if (values.runBudgetScope !== "") {
+    body.run_budget_scope = values.runBudgetScope;
+  }
+  if (values.boundedCandidateExperiment) {
+    body.candidate_acquisition_intent = "bounded_experiment_voi_unknown";
+  }
 
   if (values.nlDataSourceRef.trim()) {
     body.data_source = {

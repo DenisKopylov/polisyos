@@ -6,6 +6,7 @@ import json
 import os
 import subprocess
 import sys
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -3339,10 +3340,38 @@ def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """A unit-valid profile lets method selection reach the missing-assignment gate."""
+    import polisyos.foundry.methods as foundry_methods
+    from polisyos.foundry.extensions.discovery import ENTRY_POINT_GROUP
+    from polisyos.foundry.extensions.registry import UnboundFoundryDiscoveryInputError
+
     world = _world_record()
     problem = _avg_income_problem()
     candidate = _avg_income_candidate()
     profile = _controlled_avg_income_owner_profile()
+    discovery_attempts: list[dict[str, Any]] = []
+    original_bootstrap = foundry_methods.bootstrap_foundry_method_registry
+
+    def capture_bootstrap(registry: object, **kwargs: Any) -> Any:
+        attempt = {
+            "registry": registry,
+            "options": dict(kwargs),
+            "report": None,
+            "error": None,
+        }
+        discovery_attempts.append(attempt)
+        try:
+            report = original_bootstrap(registry, **kwargs)
+        except Exception as exc:
+            attempt["error"] = exc
+            raise
+        attempt["report"] = report
+        return report
+
+    monkeypatch.setattr(
+        foundry_methods,
+        "bootstrap_foundry_method_registry",
+        capture_bootstrap,
+    )
 
     def load_controlled_profile(
         _gateway: RealValueOwnerGateway,
@@ -3391,10 +3420,47 @@ def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition(
     assert observation.acquisition_requirement is not None
     assert observation.acquisition_requirement.metadata["requirement"]["operator"] == "any_of"
     assert observation.acquisition_requirement.metadata["satisfaction_status"] == "unsatisfied"
+    assert len(discovery_attempts) == 2
+    full_discovery, builtin_fallback = discovery_attempts
+    assert full_discovery["options"] == {
+        "include_builtins": True,
+        "include_entry_points": True,
+        "include_dev_scan": False,
+        "require_bound_discovery_manifest": True,
+    }
+    assert isinstance(full_discovery["error"], UnboundFoundryDiscoveryInputError)
+    registry_report = builtin_fallback["report"]
+    assert builtin_fallback["options"] == {
+        "include_builtins": True,
+        "include_entry_points": False,
+        "include_dev_scan": False,
+        "require_bound_discovery_manifest": True,
+    }
+    assert builtin_fallback["registry"] is not full_discovery["registry"]
+    assert registry_report is not None
+    assert registry_report.success and registry_report.preexisting_method_fqns == ()
+    assert registry_report.discovery_manifest is not None
+    assert registry_report.discovery_manifest.is_bound
+    assert ENTRY_POINT_GROUP not in registry_report.discovery_manifest.entry_point_groups
+    assert observation.method_selection_receipt is not None
+    assert observation.method_selection_receipt.discovery_scope == "bound_discovery"
+    assert set(observation.method_selection_receipt.denominator) <= set(
+        registry_report.registry_fqns
+    )
+    assert (
+        "Installed entrypoint discovery was not bound; selection used the builtins-only scope."
+        in observation.reason
+    )
+    assert observation.status == "value_blocked"
+    assert observation.value_ref is None and observation.value_receipt is None
 
 
 def test_value_port_preserves_typed_method_run_owner_refusal() -> None:
     """A typed owner refusal keeps its blocker and provenance at the port boundary."""
+    from polisyos.foundry.extensions.registry import (
+        controlled_builtin_foundry_method_registry_scope,
+    )
+
     profile = _controlled_avg_income_owner_profile()
     world = _world_record()
     problem = _avg_income_problem()
@@ -3414,19 +3480,30 @@ def test_value_port_preserves_typed_method_run_owner_refusal() -> None:
                 raise selected_failure
 
         simulation = _simulation(world, candidate_id=candidate.candidate_id)
-        return FoundryValuePort(
-            evaluation_context=_simulation_execution_context(
+        with controlled_builtin_foundry_method_registry_scope() as (registry, report):
+            assert report.discovery_manifest is not None
+            assert report.discovery_manifest.is_bound
+            port = FoundryValuePort(
+                evaluation_context=_simulation_execution_context(
+                    candidate=candidate,
+                    simulation=simulation,
+                    problem=problem,
+                ),
+                owner_gateway=Gateway(),
+                method_registry=registry,
+                method_registry_report=report,
+            )
+            observation = port(
                 candidate=candidate,
                 simulation=simulation,
                 problem=problem,
-            ),
-            owner_gateway=Gateway(),
-        )(
-            candidate=candidate,
-            simulation=simulation,
-            problem=problem,
-            cycle_index=0,
-        )
+                cycle_index=0,
+            )
+            receipt = observation.method_selection_receipt
+            assert receipt is not None
+            assert receipt.discovery_scope == "bound_discovery"
+            assert set(receipt.denominator) <= set(report.registry_fqns)
+            return observation
 
     observation = observe_failure(failure)
 
@@ -3437,8 +3514,10 @@ def test_value_port_preserves_typed_method_run_owner_refusal() -> None:
     assert observation.selected_method_fqn is not None
     assert observation.method_selection_receipt is not None
     assert observation.value_data_profile_content_hash == profile.content_hash
-    assert "owner condition_json is malformed" in str(observation.reason)
-    assert "owner://source#measurement-unit-binding" in str(observation.reason)
+    assert observation.reason == (
+        "owner condition_json is malformed; supply a valid declared unit "
+        "owner_access_ref=owner://source#measurement-unit-binding"
+    )
 
     plain_error = ValueError(failure.code)
     plain_observation = observe_failure(plain_error)
@@ -3601,48 +3680,90 @@ def test_n8_value_port_accepts_recomputed_foundry_receipt_context(
 def test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.foundry.extensions.registry import (
+        controlled_builtin_foundry_method_registry_scope,
+    )
     from polisyos.runtime.quality import generation_cycle
 
     problem = _avg_income_problem()
-    wrong_problem = {
-        "design_problem_id": problem.design_problem_id,
-        "problem_statement": problem.problem_statement,
-        "domain": problem.domain,
-        "outcome_of_interest": problem.outcome_of_interest.model_dump(mode="json"),
-        "runtime_hints": {
-            "value_required_data_modalities": ("tabular",),
-            "value_data_characteristics": {
-                "n_obs": 64,
-                "n_units": 16,
-                "n_periods": 4,
-                "is_panel": True,
-                "treatment_is_binary": None,
-                "outcome_is_continuous": None,
-            },
-            "value_data_profile_content_hash": _hash("f"),
-        },
-    }
-    replayed = select_value_method_for_problem(
-        candidate=_avg_income_candidate(),
-        problem=wrong_problem,
-    )
-    monkeypatch.setattr(generation_cycle, "_select_value_method", lambda **_kwargs: replayed)
-
     candidate = _avg_income_candidate()
-    simulation = _simulation(_world_record(), candidate_id="candidate_avg_income_real")
-    observation = FoundryValuePort(
-        evaluation_context=_simulation_execution_context(
+    profile = _controlled_avg_income_owner_profile()
+    selector_problem = generation_cycle._selector_problem_for_value_profile(problem, profile)
+    wrong_problem = selector_problem.model_copy(
+        update={
+            "runtime_hints": {
+                **selector_problem.runtime_hints,
+                "value_data_profile_content_hash": _hash("f"),
+            }
+        }
+    )
+    assert wrong_problem.runtime_hints["value_data_profile_content_hash"] != profile.content_hash
+
+    class Gateway:
+        def load_value_data_profile(
+            self,
+            *,
+            candidate: object,
+            problem: DesignProblem,
+            world_record: object,
+        ) -> ValueDataProfile:
+            assert candidate is candidate_arg
+            assert problem is problem_arg
+            assert world_record is world_arg
+            return profile
+
+        def load_value_method_run_intent(self, **_kwargs: Any) -> None:
+            raise AssertionError("foreign-profile receipt must fail before owner method execution")
+
+    candidate_arg = candidate
+    problem_arg = problem
+    world_arg = _world_record()
+    simulation = _simulation(world_arg, candidate_id=candidate.candidate_id)
+    with controlled_builtin_foundry_method_registry_scope() as (registry, registry_report):
+        replayed = select_value_method_for_problem(
+            candidate=candidate,
+            problem=wrong_problem,
+            registry=registry,
+            registry_report=registry_report,
+            require_bound_discovery=True,
+        )
+        assert replayed["status"] == "selected"
+        replayed_receipt = MethodSelectionReceipt.model_validate(replayed["selection_receipt"])
+        current_selection = select_value_method_for_problem(
+            candidate=candidate,
+            problem=selector_problem,
+            registry=registry,
+            registry_report=registry_report,
+            require_bound_discovery=True,
+        )
+        assert current_selection["status"] == "selected"
+        current_receipt = MethodSelectionReceipt.model_validate(
+            current_selection["selection_receipt"]
+        )
+        assert (
+            replayed_receipt.discovery_scope == current_receipt.discovery_scope == "bound_discovery"
+        )
+        assert replayed_receipt.selection_context_hash != current_receipt.selection_context_hash
+        monkeypatch.setattr(
+            generation_cycle,
+            "_select_value_method",
+            lambda **_kwargs: replayed,
+        )
+        observation = FoundryValuePort(
+            evaluation_context=_simulation_execution_context(
+                candidate=candidate,
+                simulation=simulation,
+                problem=problem,
+            ),
+            owner_gateway=Gateway(),
+            method_registry=registry,
+            method_registry_report=registry_report,
+        )(
             candidate=candidate,
             simulation=simulation,
             problem=problem,
-        ),
-        repo_root=Path.cwd(),
-    )(
-        candidate=candidate,
-        simulation=simulation,
-        problem=problem,
-        cycle_index=0,
-    )
+            cycle_index=0,
+        )
 
     assert observation.status == "value_blocked"
     assert observation.authority_blockers == ("value_method_selection_context_hash_mismatch",)
@@ -3717,7 +3838,31 @@ def test_value_port_rejects_unowned_method_selection_receipt(
 
     problem = _avg_income_problem()
     candidate = _avg_income_candidate()
-    simulation = _simulation(_world_record(), candidate_id="candidate_avg_income_real")
+    world = _world_record()
+    profile = _controlled_avg_income_owner_profile()
+
+    def load_controlled_profile(
+        _gateway: RealValueOwnerGateway,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: object,
+    ) -> ValueDataProfile:
+        assert candidate is candidate_arg
+        assert problem is problem_arg
+        assert world_record is world_arg
+        return profile
+
+    candidate_arg = candidate
+    problem_arg = problem
+    world_arg = world
+    monkeypatch.setattr(
+        RealValueOwnerGateway,
+        "load_value_data_profile",
+        load_controlled_profile,
+    )
+
+    simulation = _simulation(world, candidate_id="candidate_avg_income_real")
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
             candidate=candidate,
@@ -3733,8 +3878,10 @@ def test_value_port_rejects_unowned_method_selection_receipt(
     )
 
     assert observation.status == "value_blocked"
+    assert observation.value_data_profile_content_hash == profile.content_hash
     assert observation.authority_blockers == ("value_method_selection_authority_unresolved",)
     assert observation.value_receipt is None
+    assert observation.acquisition_requirement is None
 
 
 def test_real_education_owner_shape_selects_before_unbound_estimand_refusal() -> None:
@@ -6597,14 +6744,19 @@ def test_source_flip_output_root_rejects_paths_outside_local_raw(
 def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    request: pytest.FixtureRequest,
 ) -> None:
     """Canonical active admissions reach the real method, CAS, and fresh reader."""
+    from contextlib import ExitStack
     from copy import deepcopy
     from dataclasses import replace
 
     from polisyos.core.artifacts import artifact_ref_for_manifest, ensure_ir_artifact_store
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         ActivatedAcquisitionObservationProjection,
+    )
+    from polisyos.foundry.extensions.registry import (
+        controlled_builtin_foundry_method_registry_scope,
     )
     from polisyos.foundry.methods.catalog.causal.treatment_effects import (
         AIPWEstimator,
@@ -6623,11 +6775,20 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         ValueOwnerSourceVariableProjectionV1,
     )
     from polisyos.runtime.quality import generation_cycle as gc
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        intervention_atom_content_hash,
+    )
     from polisyos.runtime.quality.substrate_registry import (
         catalog_serving_source_scope,
         default_substrate_catalog_paths,
     )
     from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
+
+    method_scope = ExitStack()
+    request.addfinalizer(method_scope.close)
+    method_registry, method_registry_report = method_scope.enter_context(
+        controlled_builtin_foundry_method_registry_scope()
+    )
 
     method_fqn = AIPWEstimator.signature.fqn
     problem, world = _avg_income_problem(), _world_record()
@@ -6701,7 +6862,7 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         ("treatment", "agents.income"),
         ("covariate", "income_covariate"),
     )
-    request = ValueOwnerSourceProjectionRequestV1(
+    source_projection_request = ValueOwnerSourceProjectionRequestV1(
         selected_method_fqn=method_fqn,
         estimand_spec_json=estimand_spec,
         variable_projections=tuple(
@@ -6733,12 +6894,14 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         catalog_serving_source=catalog_source,
         artifact_store=core_store,
         activated_observation_projection=projections["avg_income"],
-        source_projection_request=request,
+        source_projection_request=source_projection_request,
     )
     basis_refs: list[Any] = []
+    producer_arguments: list[dict[str, Any]] = []
     original_producer = gc._produce_value_owner_method_run_basis
 
     def capture_producer(**kwargs: Any) -> Any:
+        producer_arguments.append(dict(kwargs))
         ref = original_producer(**kwargs)
         basis_refs.append(ref)
         return ref
@@ -6753,8 +6916,28 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         outer_sets.append(result)
         return result
 
+    selector_contexts: list[tuple[object, Mapping[str, Any]]] = []
+    original_selector_problem = gc._selector_problem_for_value_profile
+
+    def capture_selector_problem(
+        selected_problem: DesignProblem,
+        profile: gc.ValueDataProfile,
+    ) -> Mapping[str, object]:
+        selector_problem = original_selector_problem(selected_problem, profile)
+        selector_contexts.append((selector_problem, {"profile_content_hash": profile.content_hash}))
+        return selector_problem
+
+    selection_arguments: list[dict[str, Any]] = []
+    original_selector = gc._select_value_method
+
+    def capture_selector(**kwargs: Any) -> dict[str, Any]:
+        selection_arguments.append(dict(kwargs))
+        return original_selector(**kwargs)
+
     monkeypatch.setattr(gc, "_produce_value_owner_method_run_basis", capture_producer)
     monkeypatch.setattr(gc, "_value_outer_set_from_owner_method_run_basis", capture_consumer)
+    monkeypatch.setattr(gc, "_selector_problem_for_value_profile", capture_selector_problem)
+    monkeypatch.setattr(gc, "_select_value_method", capture_selector)
     simulation = _simulation(world, candidate_id=candidate.candidate_id)
 
     def run(
@@ -6762,20 +6945,26 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         *,
         candidate_override: Any | None = None,
         selected_method_fqn: str | None = None,
+        problem_override: DesignProblem | None = None,
     ) -> ValuePortObservation:
         selected_candidate = candidate if candidate_override is None else candidate_override
+        selected_problem = problem if problem_override is None else problem_override
         with catalog_serving_source_scope(catalog_source):
             return FoundryValuePort(
                 evaluation_context=_simulation_execution_context(
-                    candidate=selected_candidate, simulation=simulation, problem=problem
+                    candidate=selected_candidate,
+                    simulation=simulation,
+                    problem=selected_problem,
                 ),
                 owner_gateway=selected_gateway,
                 requested_method_fqn=selected_method_fqn or method_fqn,
                 artifact_store=core_store,
+                method_registry=method_registry,
+                method_registry_report=method_registry_report,
             )(
                 candidate=selected_candidate,
                 simulation=simulation,
-                problem=problem,
+                problem=selected_problem,
                 cycle_index=0,
             )
 
@@ -6804,6 +6993,157 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     )
     assert observation.value_ref is not None and observation.selected_method_fqn == method_fqn
     assert len(basis_refs) == len(outer_sets) == 1
+    assert selector_contexts and selection_arguments
+    assert producer_arguments[0]["registry"] is method_registry
+    assert consumer_arguments[0]["registry"] is method_registry
+    assert consumer_arguments[0]["registry_report"] is method_registry_report
+    selector_problem, captured_profile = selector_contexts[0]
+    assert captured_profile["profile_content_hash"] == observation.value_data_profile_content_hash
+    selection_inputs = selection_arguments[0]["inputs"]
+    route_constraint = gc._value_method_route_constraint(
+        candidate=candidate,
+        problem=selector_problem,
+        inputs=selection_inputs,
+    )
+    from polisyos.foundry.methods.selection import verify_value_method_selection_receipt
+
+    selection_receipt = observation.method_selection_receipt
+    assert selection_receipt is not None
+    selected_method_fqn = selection_receipt.selected_method_fqn
+    assert selected_method_fqn == method_fqn
+    assert producer_arguments[0]["selected_method_fqn"] == selected_method_fqn
+    assert producer_arguments[0]["selection_receipt"] == selection_receipt
+    assert producer_arguments[0]["selection_inputs"] == selection_inputs
+    assert consumer_arguments[0]["selection_inputs"] == selection_inputs
+    assert (
+        verify_value_method_selection_receipt(
+            selection_receipt,
+            candidate=candidate,
+            problem=selector_problem,
+            registry=method_registry,
+            registry_report=method_registry_report,
+            requested_method_fqn=selected_method_fqn,
+            observation_to_contract_manifest=None,
+            runtime_budget_ms=None,
+            route_constraint=route_constraint,
+        )
+        == selection_receipt
+    )
+
+    # A complete in-scope receipt remains distinguishable from a changed owner
+    # profile and from the same receipt checked against an unrelated bound scope.
+    assert isinstance(selector_problem, DesignProblem)
+    altered_selector_problem = selector_problem.model_copy(
+        update={
+            "runtime_hints": {
+                **selector_problem.runtime_hints,
+                "value_data_profile_content_hash": _hash("f"),
+            }
+        }
+    )
+    with pytest.raises(ValueError, match="value_method_selection_context_hash_mismatch"):
+        verify_value_method_selection_receipt(
+            selection_receipt,
+            candidate=candidate,
+            problem=altered_selector_problem,
+            registry=method_registry,
+            registry_report=method_registry_report,
+            requested_method_fqn=selected_method_fqn,
+            observation_to_contract_manifest=None,
+            runtime_budget_ms=None,
+            route_constraint=route_constraint,
+        )
+
+    from polisyos.core.components import DeclaredBuiltinLoader
+    from polisyos.foundry.extensions import discovery as foundry_discovery
+    from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
+    from polisyos.foundry.methods.selection.registry import registry_scope
+
+    with monkeypatch.context() as unrelated_scope_patch:
+        unrelated_scope_patch.setattr(
+            foundry_discovery,
+            "BUILTIN_LOADER",
+            DeclaredBuiltinLoader(
+                target="tests._helpers.value_selection_fixture:singleton_value_components",
+                group=foundry_discovery.ENTRY_POINT_GROUP,
+            ),
+        )
+        with registry_scope() as unrelated_registry:
+            unrelated_report = bootstrap_foundry_method_registry(
+                unrelated_registry,
+                include_builtins=True,
+                include_entry_points=False,
+                include_dev_scan=False,
+                require_bound_discovery_manifest=True,
+            )
+            assert unrelated_report.success
+            assert unrelated_report.discovery_manifest is not None
+            assert unrelated_report.discovery_manifest.is_bound
+            with pytest.raises(
+                ValueError,
+                match="value_method_selection_context_hash_mismatch",
+            ):
+                verify_value_method_selection_receipt(
+                    selection_receipt,
+                    candidate=candidate,
+                    problem=selector_problem,
+                    registry=unrelated_registry,
+                    registry_report=unrelated_report,
+                    requested_method_fqn=selected_method_fqn,
+                    observation_to_contract_manifest=None,
+                    runtime_budget_ms=None,
+                    route_constraint=route_constraint,
+                )
+
+    # Rehashing a receipt after shortening its value-owner denominator cannot
+    # turn that subset into the actual bound population at the N8 consumer.
+    truncated_payload = selection_receipt.model_dump(mode="json")
+    assert len(selection_receipt.denominator) > 1
+    truncated_payload["denominator"] = [selection_receipt.selected_method_fqn]
+    truncated_payload["member_dispositions"] = [
+        row
+        for row in truncated_payload["member_dispositions"]
+        if row["method_fqn"] == selection_receipt.selected_method_fqn
+    ]
+    truncated_payload.pop("content_hash")
+    from polisyos.foundry.methods.selection import advisor as selection_advisor
+
+    truncated_payload["content_hash"] = selection_advisor._method_selection_receipt_content_hash(
+        truncated_payload
+    )
+    truncated_receipt = MethodSelectionReceipt.model_validate(truncated_payload)
+    with pytest.raises(ValueError, match="value_method_selection_denominator_mismatch"):
+        verify_value_method_selection_receipt(
+            truncated_receipt,
+            candidate=candidate,
+            problem=selector_problem,
+            registry=method_registry,
+            registry_report=method_registry_report,
+            requested_method_fqn=selected_method_fqn,
+            observation_to_contract_manifest=None,
+            runtime_budget_ms=None,
+            route_constraint=route_constraint,
+        )
+    baseline_producer_counts = (len(basis_refs), len(outer_sets))
+    with monkeypatch.context() as shortened_receipt_control:
+        shortened_receipt_control.setattr(
+            gc,
+            "_select_value_method",
+            lambda **_kwargs: {
+                "status": "selected",
+                "selected_method_fqn": truncated_receipt.selected_method_fqn,
+                "selection_source": "requested_registry_method",
+                "selection_receipt": truncated_receipt.model_dump(mode="json"),
+                "blockers": (),
+            },
+        )
+        shortened_observation = run(gateway)
+    assert shortened_observation.status == "value_blocked"
+    assert shortened_observation.authority_blockers == (
+        "value_method_selection_denominator_mismatch",
+    )
+    assert shortened_observation.value_ref is None
+    assert (len(basis_refs), len(outer_sets)) == baseline_producer_counts
     basis = gc.ValueOwnerMethodRunBasisV2.model_validate(
         gc._value_load_ref_payload(ir_store, basis_refs[0])
     )
@@ -6983,10 +7323,135 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         with catalog_serving_source_scope(catalog_source):
             return original_consumer(**consumer_kwargs)
 
+    runner_request_ref = basis.runner_request_ref
+    assert runner_request_ref.manifest_profile_sha256 is not None
+    original_request_manifest_lookup = core_store.get_manifest_by_profile
+    runner_request_manifest = ir_store.get_manifest_by_profile(
+        runner_request_ref.artifact_id,
+        runner_request_ref.manifest_profile_sha256,
+    )
+    selection_receipt_edges = tuple(
+        edge for edge in runner_request_manifest.inputs if edge.role == "method_selection_receipt"
+    )
+    assert len(selection_receipt_edges) == 1
+    assert selection_receipt_edges[0].manifest_profile_sha256 is not None
+    selection_receipt_ref = gc.ValueArtifactBindingRefV1(
+        artifact_id=str(selection_receipt_edges[0].artifact_id),
+        kind="runtime.value_owner_method_selection_receipt",
+        manifest_profile_sha256=selection_receipt_edges[0].manifest_profile_sha256,
+    )
+    selection_receipt_manifest = ir_store.get_manifest_by_profile(
+        selection_receipt_edges[0].artifact_id,
+        selection_receipt_edges[0].manifest_profile_sha256,
+    )
+    assert selection_receipt_manifest.kind == "runtime.value_owner_method_selection_receipt"
+    assert selection_receipt_manifest.artifact_schema is not None
+    assert selection_receipt_manifest.artifact_schema.name == (
+        "runtime.value_owner_method_selection_receipt.v1"
+    )
+    selection_input_payload = gc._value_load_ref_payload(ir_store, selection_receipt_ref)
+    assert isinstance(selection_input_payload, dict)
+    assert selection_input_payload["selection_receipt"] == selection_receipt.model_dump(mode="json")
+    assert selection_input_payload["selection_inputs"] == selection_inputs
+    assert gc._value_manifest_has_exact_inputs(
+        ir_store,
+        selection_receipt_ref,
+        ((basis.profile_ref, "selected_owner_profile"),),
+    )
+    legacy_basis = gc.ValueOwnerMethodRunBasisV2.model_validate(
+        gc._value_load_ref_payload(ir_store, basis_refs[0])
+    )
+    legacy_runner_request = gc.ValueOwnerMethodRunnerRequestV1.model_validate(
+        gc._value_load_ref_payload(ir_store, legacy_basis.runner_request_ref)
+    )
+    assert legacy_basis.selected_method_fqn == method_fqn
+    assert legacy_runner_request.selected_method_fqn == method_fqn
+
+    # The old typed basis/request bytes remain readable, while a legacy request
+    # manifest without the new receipt edge cannot pass current authority replay.
+    for remove_selection_edge in (True, False):
+        with monkeypatch.context() as missing_selection_receipt_control:
+
+            def alter_selection_receipt_edge(
+                artifact_id: Any,
+                profile_sha256: str,
+                *,
+                remove_edge: bool = remove_selection_edge,
+            ) -> Any:
+                manifest = original_request_manifest_lookup(artifact_id, profile_sha256)
+                if (
+                    str(artifact_id) != runner_request_ref.artifact_id
+                    or profile_sha256 != runner_request_ref.manifest_profile_sha256
+                ):
+                    return manifest
+                inputs = []
+                for edge in manifest.inputs:
+                    if edge.role != "method_selection_receipt":
+                        inputs.append(edge)
+                    elif not remove_edge:
+                        inputs.append(edge.model_copy(update={"manifest_profile_sha256": None}))
+                return manifest.model_copy(update={"inputs": inputs})
+
+            missing_selection_receipt_control.setattr(
+                core_store,
+                "get_manifest_by_profile",
+                alter_selection_receipt_edge,
+            )
+            with pytest.raises(
+                ValueError,
+                match="value_owner_method_selection_receipt_unavailable",
+            ):
+                replay_candidate_consumer()
+
+    with monkeypatch.context() as missing_receipt_profile_control:
+
+        def omit_selection_receipt_profile_input(
+            artifact_id: Any,
+            profile_sha256: str,
+        ) -> Any:
+            manifest = original_request_manifest_lookup(artifact_id, profile_sha256)
+            if (
+                str(artifact_id) != selection_receipt_ref.artifact_id
+                or profile_sha256 != selection_receipt_ref.manifest_profile_sha256
+            ):
+                return manifest
+            return manifest.model_copy(
+                update={
+                    "inputs": [
+                        edge for edge in manifest.inputs if edge.role != "selected_owner_profile"
+                    ]
+                }
+            )
+
+        missing_receipt_profile_control.setattr(
+            core_store,
+            "get_manifest_by_profile",
+            omit_selection_receipt_profile_input,
+        )
+        with pytest.raises(
+            ValueError,
+            match="value_owner_method_selection_receipt_binding_mismatch",
+        ):
+            replay_candidate_consumer()
+
     foreign_problem = problem.model_copy(update={"design_problem_id": "foreign_b31_problem"})
+    foreign_subject_candidate = _avg_income_typed_atom_candidate(foreign_problem)
+    # Preserve the receipt's selection signal while changing only the source
+    # atom's frame; its recomputed hash lets the downstream subject gate decide.
+    wrong_source_subject_atom = candidate.atom.model_copy(
+        update={"problem_frame_ref": foreign_subject_candidate.atom.problem_frame_ref}
+    )
+    wrong_source_subject_atom = wrong_source_subject_atom.model_copy(
+        update={"content_hash": intervention_atom_content_hash(wrong_source_subject_atom)}
+    )
+    wrong_source_subject_candidate = replace(candidate, atom=wrong_source_subject_atom)
     wrong_join_candidates = (
         (
-            _avg_income_typed_atom_candidate(foreign_problem),
+            foreign_subject_candidate,
+            "value_method_selection_context_hash_mismatch",
+        ),
+        (
+            wrong_source_subject_candidate,
             "value_owner_source_atom_subject_mismatch",
         ),
         (
@@ -7086,7 +7551,7 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
 
     # A store view missing one selected-profile edge is refused with the ref and
     # candidate markers intact; the actual consumer resolver remains in use.
-    original_manifest_lookup = core_store.get_manifest_by_profile
+    original_manifest_lookup = original_request_manifest_lookup
     with monkeypatch.context() as missing_edge_control:
 
         def omit_bounds_input_edge(artifact_id: Any, profile_sha256: str) -> Any:
@@ -7110,17 +7575,54 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         with pytest.raises(ValueError, match="value_owner_source_bounds_lineage_mismatch"):
             replay_candidate_consumer()
 
-    panel_candidate = replace(
+    technical_rename_candidate = replace(
         candidate,
         diversity_key=("grant", "country", "avg_income", "real_panel"),
     )
+    assert technical_rename_candidate.candidate_id == candidate.candidate_id
+    assert technical_rename_candidate.atom == candidate.atom
+    assert technical_rename_candidate.diversity_key != candidate.diversity_key
+    renamed_basis_count, renamed_outer_count = len(basis_refs), len(outer_sets)
+    renamed_observation = run(gateway, candidate_override=technical_rename_candidate)
+    assert renamed_observation.status == observation.status
+    assert renamed_observation.authority_blockers == observation.authority_blockers
+    assert renamed_observation.selected_method_fqn == observation.selected_method_fqn == method_fqn
+    assert renamed_observation.method_selection_receipt is not None
+    assert observation.method_selection_receipt is not None
+    renamed_selected = next(
+        row
+        for row in renamed_observation.method_selection_receipt.ranked_alternatives
+        if row.selected
+    )
+    original_selected = next(
+        row for row in observation.method_selection_receipt.ranked_alternatives if row.selected
+    )
+    assert (renamed_selected.method_fqn, renamed_selected.data_modalities) == (
+        original_selected.method_fqn,
+        original_selected.data_modalities,
+    )
+    assert renamed_observation.value_ref is not None
+    assert len(basis_refs) == renamed_basis_count + 1
+    assert len(outer_sets) == renamed_outer_count + 1
+
+    panel_required_problem = problem.model_copy(
+        update={
+            "runtime_hints": {
+                **problem.runtime_hints,
+                "value_required_data_modalities": ("panel",),
+            }
+        }
+    )
     panel_basis_count, panel_outer_count = len(basis_refs), len(outer_sets)
-    panel_observation = run(gateway, candidate_override=panel_candidate)
+    panel_observation = run(gateway, problem_override=panel_required_problem)
     assert panel_observation.status == "value_blocked"
     assert panel_observation.authority_blockers == (
         "value_method_required_data_modality_unavailable",
     )
     assert panel_observation.value_ref is None
+    assert selection_arguments[-1]["problem"].runtime_hints["value_required_data_modalities"] == (
+        "panel",
+    )
     assert len(basis_refs) == panel_basis_count
     assert len(outer_sets) == panel_outer_count
 
@@ -7136,13 +7638,13 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         admission_content_sha256=_hash("e"),
         observations=tuple(row.observation for row in genuine.observations),
     )
-    forged_request = request.model_copy(
+    forged_request = source_projection_request.model_copy(
         update={
             "variable_projections": tuple(
                 item.model_copy(update={"projection_payload": forged.model_dump(mode="json")})
                 if item.variable_id == "agents.income"
                 else item
-                for item in request.variable_projections
+                for item in source_projection_request.variable_projections
             )
         }
     )
@@ -7238,7 +7740,9 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     # A second native method changes provenance only. The same atom and typed
     # estimand remain one coordinate in both persisted bases and fresh outputs.
     second_method_fqn = TMLEEstimator.signature.fqn
-    second_request = request.model_copy(update={"selected_method_fqn": second_method_fqn})
+    second_request = source_projection_request.model_copy(
+        update={"selected_method_fqn": second_method_fqn}
+    )
     second_observation = run(
         replace(gateway, source_projection_request=second_request),
         selected_method_fqn=second_method_fqn,

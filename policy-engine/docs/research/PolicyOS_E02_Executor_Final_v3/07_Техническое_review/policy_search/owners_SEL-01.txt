@@ -1,0 +1,210 @@
+
+### e02_repository/policy-engine/src/polisyos/foundry/methods/selection/advisor.py:1753-1777
+ 1753 def _required_modalities(*, candidate: object, problem: object) -> tuple[str, ...]:
+ 1754     raw_hints = _object_get(problem, "runtime_hints")
+ 1755     if raw_hints is not None and not isinstance(raw_hints, Mapping):
+ 1756         raise ValueError("value_method_runtime_hints_projection_required")
+ 1757     hints = raw_hints if isinstance(raw_hints, Mapping) else {}
+ 1758     hint_modalities: tuple[str, ...] = ()
+ 1759     if "value_required_data_modalities" in hints:
+ 1760         raw = hints["value_required_data_modalities"]
+ 1761         if isinstance(raw, str):
+ 1762             normalized = raw.strip()
+ 1763             if not normalized:
+ 1764                 raise ValueError("value_method_required_data_modalities_invalid")
+ 1765             hint_modalities = (normalized,)
+ 1766         elif isinstance(raw, Sequence) and not isinstance(raw, str | bytes | bytearray):
+ 1767             values: list[str] = []
+ 1768             for item in raw:
+ 1769                 if not isinstance(item, str) or not item.strip():
+ 1770                     raise ValueError("value_method_required_data_modalities_invalid")
+ 1771                 values.append(item.strip())
+ 1772             hint_modalities = tuple(dict.fromkeys(values))
+ 1773         else:
+ 1774             raise ValueError("value_method_required_data_modalities_invalid")
+ 1775     signal = _candidate_selection_signal(candidate).casefold()
+ 1776     candidate_modalities = ("panel",) if "panel" in signal else ()
+ 1777     return tuple(dict.fromkeys((*hint_modalities, *candidate_modalities)))
+
+### e02_repository/policy-engine/src/polisyos/foundry/methods/selection/advisor.py:1519-1590
+ 1519 def _build_value_method_selection_receipt(
+ 1520     *,
+ 1521     catalog: MethodCatalogSnapshot,
+ 1522     registry: MethodRegistry,
+ 1523     advisor_result: MethodAdvisorResult,
+ 1524     selection_context_hash: str,
+ 1525 ) -> MethodSelectionReceipt:
+ 1526     """Build a strict receipt from the real advisor result and registry catalog."""
+ 1527 
+ 1528     value_entries = tuple(
+ 1529         entry
+ 1530         for entry in catalog.entries
+ 1531         if _catalog_entry_is_value_method(entry, registry=registry)
+ 1532     )
+ 1533     denominator = tuple(sorted({entry.fqn for entry in value_entries}))
+ 1534     entry_by_fqn = {entry.fqn: entry for entry in value_entries}
+ 1535     value_score_trace = tuple(
+ 1536         item for item in advisor_result.score_trace if item.fqn in entry_by_fqn
+ 1537     )
+ 1538     runnable_recommended = tuple(
+ 1539         entry
+ 1540         for entry in advisor_result.recommended
+ 1541         if entry.fqn in entry_by_fqn and entry.runnable
+ 1542     )
+ 1543     if not runnable_recommended:
+ 1544         raise ValueError("value_method_selection_no_runnable_method")
+ 1545     selected = runnable_recommended[0]
+ 1546     selected_trace = next(
+ 1547         (item for item in value_score_trace if item.fqn == selected.fqn),
+ 1548         None,
+ 1549     )
+ 1550     if selected_trace is None:
+ 1551         raise ValueError("value_method_selection_selected_trace_missing")
+ 1552     alternatives = tuple(
+ 1553         MethodSelectionAlternative(
+ 1554             rank=rank,
+ 1555             method_fqn=item.fqn,
+ 1556             method_family=item.family,
+ 1557             data_modalities=tuple(entry_by_fqn[item.fqn].data_modalities),
+ 1558             advisor_score=float(item.advisor_score),
+ 1559             selected=item.fqn == selected.fqn,
+ 1560             loss_reasons=(
+ 1561                 ()
+ 1562                 if item.fqn == selected.fqn
+ 1563                 else (
+ 1564                     "advisor_tie_broken_by_rank_on_owner_data_shape"
+ 1565                     if math.isclose(
+ 1566                         float(item.advisor_score),
+ 1567                         float(selected_trace.advisor_score),
+ 1568                         rel_tol=0.0,
+ 1569                         abs_tol=1.0e-12,
+ 1570                     )
+ 1571                     else "advisor_score_below_selected_on_owner_data_shape",
+ 1572                 )
+ 1573             ),
+ 1574         )
+ 1575         for rank, item in enumerate(value_score_trace, start=1)
+ 1576     )
+ 1577     payload = {
+ 1578         "schema_version": "policyos.foundry.method_selection_receipt.v2",
+ 1579         "selection_authority": "foundry_registry_advisor",
+ 1580         "selected_method_fqn": selected.fqn,
+ 1581         "ranked_alternatives": tuple(row.model_dump(mode="json") for row in alternatives),
+ 1582         "denominator": denominator,
+ 1583         "selection_context_hash": selection_context_hash,
+ 1584     }
+ 1585     return MethodSelectionReceipt.model_validate(
+ 1586         {
+ 1587             **payload,
+ 1588             "content_hash": _method_selection_receipt_content_hash(payload),
+ 1589         }
+ 1590     )
+
+### e02_repository/policy-engine/src/polisyos/foundry/methods/selection/advisor.py:1952-1998
+ 1952 def _rank_entries_with_scores(
+ 1953     entries: Iterable[MethodCatalogEntry],
+ 1954     criteria: MethodSelectionCriteria,
+ 1955     *,
+ 1956     data: DataCharacteristics | None = None,
+ 1957     history: SelectionHistoryStore | None = None,
+ 1958     runtime_predictor: RuntimePredictor | None = None,
+ 1959     runtime_budget_ms: float | None = None,
+ 1960 ) -> list[tuple[MethodCatalogEntry, float]]:
+ 1961     """Score and sort catalog entries, preserving score trace for diagnostics."""
+ 1962     history, runtime_predictor = _resolve_evidence_sources(history, runtime_predictor)
+ 1963 
+ 1964     use_evidence = history is not None or (
+ 1965         runtime_predictor is not None and runtime_budget_ms is not None
+ 1966     )
+ 1967     scored: list[tuple[MethodRankKey, MethodCatalogEntry]] = []
+ 1968     for raw_entry in entries:
+ 1969         entry = _apply_truthfulness_overlay(raw_entry, history)
+ 1970         if not _method_entry_meets_hard_selection_criteria(entry, criteria):
+ 1971             continue
+ 1972         if use_evidence:
+ 1973             score = _score_entry_v2(
+ 1974                 entry,
+ 1975                 criteria,
+ 1976                 history=history,
+ 1977                 runtime_predictor=runtime_predictor,
+ 1978                 runtime_budget_ms=runtime_budget_ms,
+ 1979                 data=data,
+ 1980             )
+ 1981         else:
+ 1982             score = _score_entry(entry, criteria)
+ 1983         if data is not None:
+ 1984             score += _score_data_characteristics(entry, data)
+ 1985         if score > float("-inf"):
+ 1986             scored.append(
+ 1987                 (
+ 1988                     MethodRankKey(
+ 1989                         truthfulness_depth=_truthfulness_depth_score(entry.truthfulness_tier),
+ 1990                         score_rest=score,
+ 1991                         fqn=entry.fqn,
+ 1992                     ),
+ 1993                     entry,
+ 1994                 )
+ 1995             )
+ 1996 
+ 1997     scored.sort(key=lambda item: (-item[0].truthfulness_depth, -item[0].score_rest, item[0].fqn))
+ 1998     return [(entry, rank_key.score_rest) for rank_key, entry in scored]
+
+### e02_repository/policy-engine/src/polisyos/foundry/methods/selection/receipt.py:32-89
+   32 class MethodSelectionReceipt(BaseModel):
+   33     """Content-bound proof emitted from the canonical Foundry selection owner."""
+   34 
+   35     model_config = ConfigDict(extra="forbid", frozen=True)
+   36 
+   37     schema_version: Literal["policyos.foundry.method_selection_receipt.v2"] = (
+   38         "policyos.foundry.method_selection_receipt.v2"
+   39     )
+   40     selection_authority: Literal[
+   41         "foundry_registry_advisor",
+   42         "requested_registry_method",
+   43     ]
+   44     selected_method_fqn: str = Field(min_length=1)
+   45     ranked_alternatives: tuple[MethodSelectionAlternative, ...] = Field(min_length=1)
+   46     denominator: tuple[str, ...] = Field(min_length=1)
+   47     selection_context_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+   48     content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+   49 
+   50     @model_validator(mode="after")
+   51     def _verify_selection_trace(self) -> MethodSelectionReceipt:
+   52         canonical_denominator = tuple(sorted(set(self.denominator)))
+   53         if self.denominator != canonical_denominator:
+   54             raise ValueError("value_method_selection_denominator_not_canonical")
+   55         if self.selected_method_fqn not in self.denominator:
+   56             raise ValueError("value_method_selection_outside_registry_denominator")
+   57         selected_trace_fqns = {row.method_fqn for row in self.ranked_alternatives}
+   58         content_hash_matches = self.content_hash == _method_selection_receipt_content_hash(
+   59             serialization.artifact_self_identity_projection(self)
+   60         )
+   61         if (
+   62             self.selection_authority == "foundry_registry_advisor"
+   63             and not content_hash_matches
+   64             and self.selected_method_fqn in selected_trace_fqns
+   65             and any(row.method_fqn not in self.denominator for row in self.ranked_alternatives)
+   66         ):
+   67             raise ValueError("value_method_selection_fixed_default")
+   68         if any(row.method_fqn not in self.denominator for row in self.ranked_alternatives):
+   69             raise ValueError("value_method_selection_trace_outside_denominator")
+   70         selected_rows = tuple(row for row in self.ranked_alternatives if row.selected)
+   71         if len(selected_rows) != 1 or selected_rows[0].method_fqn != self.selected_method_fqn:
+   72             raise ValueError("value_method_selection_receipt_incoherent")
+   73         methods = tuple(row.method_fqn for row in self.ranked_alternatives)
+   74         if len(methods) != len(set(methods)):
+   75             raise ValueError("value_method_selection_trace_duplicate_method")
+   76         expected_ranks = tuple(range(1, len(self.ranked_alternatives) + 1))
+   77         if tuple(row.rank for row in self.ranked_alternatives) != expected_ranks:
+   78             raise ValueError("value_method_selection_trace_rank_drift")
+   79         if self.selection_authority == "foundry_registry_advisor" and any(
+   80             row.advisor_score is None for row in self.ranked_alternatives
+   81         ):
+   82             raise ValueError("value_method_selection_trace_score_missing")
+   83         if any(
+   84             row.advisor_score is not None and not math.isfinite(row.advisor_score)
+   85             for row in self.ranked_alternatives
+   86         ):
+   87             raise ValueError("value_method_selection_trace_non_finite_score")
+   88         payload = serialization.artifact_self_identity_projection(self)
+   89         if self.content_hash != _method_selection_receipt_content_hash(payload):

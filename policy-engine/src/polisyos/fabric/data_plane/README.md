@@ -88,6 +88,72 @@ contract, including connectors which synthesize it from offsets.
 Declared stream-schema membership is checked per row against `FieldSpec` before
 quarantine or publication, independently of neighboring rows and batch size.
 
+Use `streaming.read_stream_window(store, selected_ref)` to consume a persisted
+window. The reader requires its exact selected manifest, all selected contributor
+views and an intact transitive CAS basis before returning rows. A missing,
+corrupt or unbound contributor raises `StreamWindowBasisUnavailableError`; another
+valid contributor cannot substitute for it. Windowed mode uses this same reader
+before including windows in evidence or a snapshot. Fresh reads revalidate the
+basis, so removing a contributor withholds its dependent windows while unrelated
+windows remain available. Legacy ID-only contributor references remain
+inspectable but cannot establish this selected-basis contract. This check proves
+CAS availability and integrity at the read boundary; it does not establish
+external currentness, rights or scientific authority.
+
+Record/replay binds each HTTP request to the actual selected connector and
+dataset throughout acquisition, health checks, fetch and release. New
+`RecordSession` artifacts declare format 2.0 and retain the canonical method,
+URL and request-body identity. The reader explicitly accepts formats 1.0 and
+2.0 without rewriting retained bytes. Replay validates those fields before
+dispatch and refuses cross-source response reuse. Legacy bodyless fixtures are
+readable when their canonical identity can be reconstructed; a legacy body
+without sufficient identity or a multi-source recording that labelled every
+fixture as its first source requires a new source-bound recording. Replay never
+falls through to a live or ordinary ingestion path.
+
+Captured ingestion carries a strict execution context through cache source
+intent, provenance activity and `EvidenceBundle` format 2.0. Record context names
+the capture session; the completed session manifest consumes its produced
+evidence. Replay context binds the exact selected session manifest, and emitted
+payload, provenance and evidence manifests retain that dependency. Cache indexes
+are isolated by execution purpose and session, so replay cannot read or replace
+ordinary cached source results, including before a later fixture failure.
+
+Record results expose `record_session_selected_ref`; the served response exposes
+the same typed reference. Supply it as `replay_selected_ref` to the ingestion API,
+or pass the `ArtifactRef` to `run_replay_mode`. Legacy `record_ref`/ID-only replay
+selects only the default manifest. A record ID is returned only when that default
+is the produced view; otherwise it is absent and the selected reference remains
+available. Formats 1.0 and 2.0 may share payload bytes with distinct manifest
+profiles. This execution provenance does not establish external currentness,
+rights or scientific authority.
+
+New ordinary ingestion also emits evidence format 2.0 with the producer-selected
+provenance graph and payload dependencies. Incremental promotion, retained cursor
+admission, source-collection construction and its fresh consumer share one source
+evidence reader. It checks the selected evidence's actual kind, media type,
+supported schema and CAS bytes, then requires its selected provenance graph.
+Generic historical inspection remains supported. An unprofiled historical graph
+cannot authorize retained incremental progress or a complete-source binding;
+obtain a new source-bound capture instead of guessing its earlier manifest view.
+Unavailable or invalid produced evidence is withheld from partial audit output,
+without advancing its cursor or publishing a snapshot. Ownership failures retain
+their authorization error.
+
+Served evidence and snapshots similarly expose `evidence_bundle_selected_ref`
+and `data_snapshot_selected_ref`. Their legacy ID fields are absent when the
+default manifest differs from the produced view; partial ingestion continues to
+withhold its snapshot. Fixture materialization admits the complete layout beneath
+the owned fixture root before writing. Absolute paths, traversal escapes and
+symlink escapes are refused; nested dataset identifiers within that root remain
+supported.
+
+`benchmark_stream_processing()` forwards the host-configured
+`source_progress_readers` to the same runtime admission path. Benchmarks must
+supply the actual source-owned input contract when dedupe is enabled; the helper
+does not infer keys or manufacture versions. Finite JSONL benchmark results
+retain the runtime's `replay_only` guarantee, including checkpoint recovery.
+
 ## Common Commands
 
 Run from the repository root (`policy-engine/`).
@@ -199,6 +265,17 @@ wrong partitions, inactive owners, missing keys and hidden actual keys cannot
 activate dedupe. Finite processing is explicitly `replay_only`. Its retained
 witness, limitations and selected input edge survive chunk/window/CDC artifacts,
 the aggregate manifest/evidence and snapshot.
+
+An error before the first committed chunk, or a successfully compensated first
+local-pair write, keeps an explicitly empty frontier with the actual source
+witness, ingestion clock profile and schema binding. It advances neither cursor
+nor dedupe keys. A fresh reader can replay it under the same bindings; a changed
+clock or schema still refuses. An unresolved source commit or failed compensation
+remains unresolved. The empty frontier is built when its actual witness is
+available, after input capacity admission, rather than persisting a guessed
+source binding before effects. The streaming runtime tests use explicit versioned
+JSONL inputs and independently frozen finite-owner files; cleanup faults wrap
+real acquired sessions, and window lineage includes the selected source witness.
 
 The horizon stores UTC first-acceptance times for 86,400 seconds and refuses live
 key overflow before eviction. Two OS processes with an explicit injected UTC

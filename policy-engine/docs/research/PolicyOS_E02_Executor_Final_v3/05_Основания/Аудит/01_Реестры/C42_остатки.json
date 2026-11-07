@@ -1,0 +1,68 @@
+{
+  "pass": "C42",
+  "bundle": "CMP-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C42-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B42",
+        "B43",
+        "B44"
+      ],
+      "title": "Native package imports и actual dispatcher/runner chain не аттестованы",
+      "evidence": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P10",
+        "P11",
+        "native_attempt.log",
+        "import_chain_first.log",
+        "import_async_first.log"
+      ],
+      "remaining": "На поддержанном Python 3.14 с существующими test/runtime dependencies исполнить прочитанные fresh-process import-order и native build→freeze→execute tests.",
+      "limits": "pytest отсутствует; оба свежих import процесса останавливаются в uncertainty.py:287 из-за несовместимого с Python 3.12 синтаксиса. Это tooling outcome, не повторное доказательство B42. Bounded actual composer/asyncio исполнены с registry/dispatcher/materializer/result seams, не native application."
+    },
+    {
+      "id": "C42-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B43"
+      ],
+      "title": "Persisted recipe не приравнен к восстановленному executable effective plan",
+      "evidence": [
+        "P08",
+        "P09",
+        "P21",
+        "S13:94–176",
+        "S13:245–263"
+      ],
+      "remaining": "Проверить существующий artifact/reference path до fresh consumer: сохранить или независимо восстановить requires-only adjacency, occurrence identity, validation mode и уровни; meaningful edge-removal control обязателен. Расширять существующий owner, не вводить второй executor.",
+      "limits": "In-memory frozen plan и replay gate реально существуют. ChainArtifact содержит method refs, nodes, dataflow bindings и execution_order; его собственный payload не содержит effective adjacency. Это не доказательство потери constraints всем persisted graph и не утверждение отсутствия всех loaders. Fixture method artifacts/JSON не native CAS; chain/topology hash collision не заявлена."
+    },
+    {
+      "id": "C42-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B44"
+      ],
+      "title": "Эквивалентность всех optional execution profiles не выведена из одного payload test",
+      "evidence": [
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "S10:206–226"
+      ],
+      "remaining": "Сохранять рабочий sequential профиль; отдельно квалифицировать Ray/fused JAX/heterogeneous materialization по их actual activation. Ray сейчас вручную повторяет тот же merge порядок; при развитии предпочтителен shared builder.",
+      "limits": "Копирование эквивалентного merge само по себе не объявлено bug. Native Ray, FX/shape/slot adapters, backend fallback и полный state shape parity не исполнены. Numeric 60 witness — synthetic pure method, не empirical model authority."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "Исторические B42/B43/B44 repair mechanisms присутствуют; bounded checks подтверждают их узкую работоспособность, новых product defects в этом scope не установлено."
+}

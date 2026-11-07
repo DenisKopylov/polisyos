@@ -20,6 +20,7 @@ from polisyos.data_forge import read_api
 from polisyos.data_forge.read_api import OfficialSnapshotAnswer
 from polisyos.data_forge.read_api.surfaces import available_surfaces, surface_module
 from polisyos.data_requirement import (
+    CapabilityRequirementResolution,
     DataQualityMinimums,
     DataRequirementScope,
     DataRequirementSpec,
@@ -1588,8 +1589,8 @@ def resolve_fabric_measurement_root(
         expected_canon=manifest.canon,
         expected_inputs=contracts.epoch._ExactManifestInputClosure(
             (
-                artifacts.InputRef(
-                    artifact_id=payload.fetch_receipt_ref.artifact_id,
+                artifacts.input_ref_from_artifact_ref(
+                    payload.fetch_receipt_ref,
                     role="fabric_fetch",
                 ),
             )
@@ -2246,6 +2247,202 @@ def resolve_measurement_root_evidence(
             catalog_binding_ref=payload.catalog_binding_ref,
         ),
     )
+
+
+def _validate_compiled_fabric_measurement_binding(
+    *,
+    store: artifacts.ArtifactStore,
+    evidence: ResolvedMeasurementRootEvidence,
+    requirement: DataRequirementSpec,
+    capability_resolutions: Sequence[CapabilityRequirementResolution] | None = None,
+    catalog: read_api.catalog.DatasetCatalogGraph,
+    providers: RetrievalProviders,
+    execution_scope_binding: MeasurementRootExecutionBinding,
+) -> tuple[str, ...]:
+    """Recompute a bounded candidate join to one replayed WDI measurement.
+
+    The compiler-to-Catalog projection is only a query. This check additionally
+    binds its metric and complete country/year slice to the selected Catalog
+    target and returned observations. It does not establish source truth,
+    population/construct adequacy, grounding, or publication authority.
+    Other connector schemas fail closed until their row semantics have an owner.
+    """
+    from polisyos.fabric import project_data_requirement_to_catalog_needs
+    from polisyos.fabric.connectors.registry import ConnectorRegistry
+    from polisyos.fabric.retrieval.custody import resolve_persisted_fetch
+    from polisyos.ir import TimeFrequency
+
+    if type(requirement) is not DataRequirementSpec:
+        raise FabricMeasurementRootBindingError("measurement_requirement_not_established")
+    _validate_resolved_measurement_root_evidence(
+        evidence, store=store, execution_scope_binding=execution_scope_binding
+    )
+    projection_input = requirement.model_dump(mode="json")
+    if capability_resolutions is not None:
+        projection_input["capability_requirement_resolutions"] = [
+            resolution.model_dump(mode="json") for resolution in capability_resolutions
+        ]
+    needs, projection = project_data_requirement_to_catalog_needs(
+        compiled_requirement_spec=projection_input
+    )
+    if projection.get("disposition") != "candidate_only" or len(needs) != 1:
+        raise FabricMeasurementRootBindingError("measurement_requirement_projection_unresolved")
+    need = needs[0]
+    if (
+        not need.geography
+        or not need.time_start
+        or not need.time_end
+        or need.granularity not in {"annual", TimeFrequency.YEAR.value}
+    ):
+        raise FabricMeasurementRootBindingError("measurement_requirement_scope_unresolved")
+    if not isinstance(providers.registry, ConnectorRegistry):
+        raise FabricMeasurementRootBindingError("measurement_requirement_contract_unresolved")
+    resolved = resolve_persisted_fetch(
+        store=store,
+        fetch_receipt_ref=evidence.fetch_receipt_ref,
+        catalog=catalog,
+        providers=providers,
+    )
+    payload = evidence.payload
+    if (
+        resolved.fetch_receipt_ref != payload.fetch_receipt_ref
+        or resolved.payload_ref != payload.payload_ref
+        or resolved.catalog_binding_ref != payload.catalog_binding_ref
+        or resolved.used_plan.metric_id != need.metric
+        or resolved.catalog_binding.metric_id != need.metric
+        or resolved.used_plan.dataset_id != resolved.catalog_binding.target.request_dataset_id
+        or resolved.source_agreement != "recomputed"
+    ):
+        raise FabricMeasurementRootBindingError("measurement_requirement_metric_mismatch")
+    selected_distributions = tuple(
+        item
+        for item in catalog.get_distributions(resolved.catalog_binding.target.catalog_dataset_id)
+        if item.id == resolved.catalog_binding.target.distribution_id
+    )
+    if (
+        len(selected_distributions) != 1
+        or not math.isfinite(selected_distributions[0].quality_score)
+        or not 0.0 <= selected_distributions[0].quality_score <= 1.0
+        or selected_distributions[0].quality_score < need.quality_min
+    ):
+        raise FabricMeasurementRootBindingError("measurement_requirement_quality_unresolved")
+    contract, revision = providers.registry.resolve_schema_contract(
+        connector_id=resolved.used_plan.connector_id,
+        dataset_id=resolved.used_plan.dataset_id,
+    )
+    if (
+        contract is None
+        or contract.contract_id != "worldbank.wdi.generic"
+        or contract.contract_id != payload.connector_contract_id
+        or contract.content_hash != payload.connector_contract_content_hash
+        or str(contract.schema_version) != payload.connector_contract_version
+        or contract.connector_schema.geo_dimension != "country_code"
+        or contract.connector_schema.time_dimension != "year"
+        or contract.connector_schema.time_granularity != "annual"
+    ):
+        raise FabricMeasurementRootBindingError("measurement_requirement_contract_unresolved")
+    _validate_wdi_requirement_rows(
+        resolved.result.data,
+        requirement=requirement,
+        geography=need.geography,
+        start=need.time_start,
+        end=need.time_end,
+        dataset_id=resolved.used_plan.dataset_id,
+    )
+    current_contract, current_revision = providers.registry.resolve_schema_contract(
+        connector_id=resolved.used_plan.connector_id,
+        dataset_id=resolved.used_plan.dataset_id,
+    )
+    if current_revision != revision or current_contract != contract:
+        raise FabricMeasurementRootBindingError("measurement_requirement_contract_changed")
+    if catalog.verify_fetch_binding(resolved.catalog_binding) != resolved.catalog_binding:
+        raise FabricMeasurementRootBindingError("measurement_requirement_catalog_changed")
+    limitations = projection.get("limitations")
+    if not isinstance(limitations, list) or any(not isinstance(item, str) for item in limitations):
+        raise FabricMeasurementRootBindingError("measurement_requirement_projection_unresolved")
+    return (
+        *limitations,
+        "catalog_quality_score_is_source_asserted",
+        "worldbank_indicator_id_may_be_request_fallback",
+    )
+
+
+def _validate_wdi_requirement_rows(
+    data: object,
+    *,
+    requirement: DataRequirementSpec,
+    geography: str,
+    start: str,
+    end: str,
+    dataset_id: str,
+) -> None:
+    """Check actual normalized WDI rows, including an annual coverage denominator."""
+    import pandas as pd
+    import pyarrow as pa
+
+    if isinstance(data, pd.DataFrame):
+        rows = data.to_dict(orient="records")
+    elif isinstance(data, pa.Table):
+        rows = data.to_pylist()
+    elif isinstance(data, (list, tuple)):
+        rows = list(data)
+    else:
+        raise FabricMeasurementRootBindingError("measurement_requirement_rows_unresolved")
+    country = read_api.catalog.normalize_country_code(geography)
+
+    def boundary_for(value: str, *, start_boundary: bool) -> date:
+        try:
+            if len(value) == 4 and value.isdigit():
+                return date(int(value), 1, 1) if start_boundary else date(int(value), 12, 31)
+            return date.fromisoformat(value)
+        except (TypeError, ValueError) as exc:
+            raise FabricMeasurementRootBindingError(
+                "measurement_requirement_time_unresolved"
+            ) from exc
+
+    start_date = boundary_for(start, start_boundary=True)
+    end_date = boundary_for(end, start_boundary=False)
+    if start_date > end_date:
+        raise FabricMeasurementRootBindingError("measurement_requirement_time_order_invalid")
+    if (start_date.month, start_date.day) != (1, 1) or (end_date.month, end_date.day) != (12, 31):
+        raise FabricMeasurementRootBindingError(
+            "measurement_requirement_partial_year_not_established"
+        )
+    first, last = start_date.year, end_date.year
+    if not country or not rows or any(not isinstance(row, Mapping) for row in rows):
+        raise FabricMeasurementRootBindingError("measurement_requirement_scope_unresolved")
+    values_by_year: dict[int, bool] = {}
+    for row in rows:
+        value_year = row.get("year")
+        if isinstance(value_year, bool):
+            raise FabricMeasurementRootBindingError("measurement_requirement_scope_mismatch")
+        try:
+            year = int(str(value_year))
+        except (TypeError, ValueError) as exc:
+            raise FabricMeasurementRootBindingError(
+                "measurement_requirement_scope_mismatch"
+            ) from exc
+        if (
+            row.get("indicator_id") != dataset_id
+            or read_api.catalog.normalize_country_code(row.get("country_code")) != country
+            or not first <= year <= last
+            or year in values_by_year
+        ):
+            raise FabricMeasurementRootBindingError("measurement_requirement_scope_mismatch")
+        value = row.get("value")
+        try:
+            valid_value = not isinstance(value, bool) and math.isfinite(float(value))
+        except (TypeError, ValueError, OverflowError):
+            valid_value = False
+        values_by_year[year] = valid_value
+    required_years = last - first + 1
+    present = sum(values_by_year.values())
+    completeness = present / required_years
+    if (
+        completeness < requirement.quality_minima.min_completeness
+        or 1.0 - completeness > requirement.missingness_tolerance
+    ):
+        raise FabricMeasurementRootBindingError("measurement_requirement_coverage_incomplete")
 
 
 def admit_measurement_root_to_substrate_registry(

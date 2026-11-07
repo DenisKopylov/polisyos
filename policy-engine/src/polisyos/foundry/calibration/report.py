@@ -179,7 +179,7 @@ class CalibrationReport(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: Literal["1.0", "2.0", "2.1"] = "2.0"
+    schema_version: Literal["1.0", "2.0", "2.1", "2.2", "2.3"] = "2.0"
     ordered_batch_execution: CalibrationOrderedBatchReport | None = Field(
         default=None,
         exclude_if=lambda value: value is None,
@@ -187,7 +187,7 @@ class CalibrationReport(BaseModel):
 
     @model_validator(mode="after")
     def validate_ordered_scope(self) -> CalibrationReport:
-        if (self.schema_version == "2.1") != (self.ordered_batch_execution is not None):
+        if (self.schema_version in {"2.1", "2.3"}) != (self.ordered_batch_execution is not None):
             raise ValueError("report_v2_1_requires_typed_ordered_objective_scope")
         return self
 
@@ -206,6 +206,14 @@ class CalibrationReport(BaseModel):
     coordinate_projection: CalibrationCoordinateProjection | None = Field(
         default=None,
         description="Versioned map from Hessian optimizer coordinates to calibrated fields.",
+    )
+    uncertainty_field_scope: tuple[str, ...] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        description=(
+            "For scoped reports2.2/2.3, exact ordered fields whose uncertainty "
+            "projection is complete; other calibrated fields remain point-only."
+        ),
     )
     coordinate_projection_status: (
         Literal["complete", "incomplete", "unsupported", "not_established"] | None
@@ -236,6 +244,22 @@ class CalibrationReport(BaseModel):
 
     @model_validator(mode="after")
     def validate_coordinate_projection_contract(self) -> CalibrationReport:
+        scoped = self.schema_version in {"2.2", "2.3"}
+        scope = self.uncertainty_field_scope
+        if scoped:
+            if (
+                not scope
+                or len(scope) != len(set(scope))
+                or any(not name.strip() for name in scope)
+                or not set(scope).issubset(self.calibrated_params)
+            ):
+                raise ValueError("scoped uncertainty fields must be a unique nonempty point subset")
+            if self.coordinate_projection is None or self.uncertainties is None:
+                raise ValueError("scoped uncertainty requires a complete projection and covariance")
+            if self.coordinate_projection.field_order != scope:
+                raise ValueError("coordinate projection must match exact ordered uncertainty scope")
+        elif scope is not None:
+            raise ValueError("legacy report versions do not declare an uncertainty field scope")
         if self.schema_version == "1.0":
             return self
 
@@ -250,7 +274,7 @@ class CalibrationReport(BaseModel):
 
         if status not in (None, "complete"):
             raise ValueError("only a complete coordinate projection may be persisted")
-        if set(projection.field_order) != set(self.calibrated_params):
+        if not scoped and set(projection.field_order) != set(self.calibrated_params):
             raise ValueError("coordinate projection must cover every calibrated parameter field")
         if (
             self.uncertainties is not None
@@ -271,7 +295,11 @@ def serialize_calibration_report_v1(report: CalibrationReport) -> bytes:
         raise ValueError("ordered_batch_report_cannot_be_projected_as_legacy_v1")
     payload = report.model_dump(
         mode="json",
-        exclude={"coordinate_projection", "coordinate_projection_status"},
+        exclude={
+            "coordinate_projection",
+            "coordinate_projection_status",
+            "uncertainty_field_scope",
+        },
     )
     payload["schema_version"] = "1.0"
     return to_canonical_bytes(payload, CanonSpec(forbid_floats=False))
@@ -331,7 +359,7 @@ def put_calibration_report(
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
     """Persist a `CalibrationReport` artifact for downstream governance/replay."""
-    if report.schema_version == "2.0" and not any(
+    if report.schema_version in {"2.0", "2.2"} and not any(
         input_ref.role == "calibration_config" for input_ref in inputs or ()
     ):
         raise ValueError("versioned calibration reports require their calibration_config input")

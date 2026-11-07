@@ -14,6 +14,7 @@ import hashlib
 import importlib.machinery
 import inspect
 import json
+import re
 import sys
 import threading
 import types
@@ -38,6 +39,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationRequest,
         JointSimulationResult,
+        PreparedJointSimulationConfiguration,
     )
 
 
@@ -59,13 +61,11 @@ def _exact_native_content(value: object) -> object:
     if isinstance(value, (date, datetime)):
         return {type(value).__name__: value.isoformat()}
     if isinstance(value, BaseModel):
-        if set(vars(value)) != set(type(value).model_fields) or value.__pydantic_extra__:
-            raise ValueError("n5_native_model_field_denominator_not_established")
+        model_field_names = exact_n5_model_field_names(value)
         return {
             "model": f"{type(value).__module__}.{type(value).__qualname__}",
             "fields": {
-                name: _exact_native_content(getattr(value, name))
-                for name in type(value).model_fields
+                name: _exact_native_content(getattr(value, name)) for name in model_field_names
             },
         }
     if is_dataclass(value) and not isinstance(value, type):
@@ -117,6 +117,74 @@ _DIAGNOSTIC_KEY = "n5_execution_implementation_witness"
 _ACTIVE_INPUT: ContextVar[_VerifiedExecutionInput | None] = ContextVar(
     "policyos_candidate_n5_implementation_input", default=None
 )
+
+
+def exact_n5_model_field_names(value: BaseModel) -> frozenset[str]:
+    """Return the exact persisted model fields, allowing one typed read diagnostic.
+
+    Pydantic's declared field set remains the serialization denominator. A
+    GenerationSourceRepository may attach one typed, non-persisted read witness
+    to its returned declaration; that witness is diagnostic and is excluded
+    from native content only after its exact owner type is established.
+    """
+
+    if not isinstance(value, BaseModel):
+        raise TypeError("n5_native_model_field_denominator_not_established")
+    field_names = frozenset(type(value).model_fields)
+    instance_values = vars(value)
+    if type(instance_values) is not dict or value.__pydantic_extra__:
+        raise ValueError("n5_native_model_field_denominator_not_established")
+    instance_names = frozenset(instance_values)
+    if instance_names == field_names:
+        return field_names
+    diagnostic_name = "_generation_source_read_provenance"
+    if instance_names != field_names | {diagnostic_name}:
+        raise ValueError("n5_native_model_field_denominator_not_established")
+    from polisyos.runtime.quality.generation_source import (
+        _GenerationSourceReadProvenance,
+    )
+
+    if type(instance_values[diagnostic_name]) is not _GenerationSourceReadProvenance:
+        raise ValueError("n5_native_model_field_denominator_not_established")
+    return field_names
+
+
+def _implementation_failure_reasons(exc: Exception) -> tuple[str, ...]:
+    """Retain bounded source locators without persisting free-form error detail."""
+    from polisyos.runtime.quality.confidence_ledger import ConfidenceLedgerError
+
+    reason = str(getattr(exc, "code", None) or exc)
+    reasons = [reason]
+    if type(exc) is not ConfidenceLedgerError:
+        return tuple(reasons)
+    # These are diagnostics only. The original refusal remains load-bearing;
+    # neither a traceback locator nor an error's target establishes a binding.
+    traceback = exc.__traceback__
+    site = None
+    while traceback is not None:
+        code = traceback.tb_frame.f_code
+        module = traceback.tb_frame.f_globals.get("__name__")
+        if (
+            type(module) is str
+            and len(module) <= 256
+            and re.fullmatch(r"polisyos(?:\.[A-Za-z_][A-Za-z_0-9]*)+", module)
+            and len(code.co_qualname) <= 256
+            and re.fullmatch(
+                r"[A-Za-z_][A-Za-z_0-9]*(?:\.[A-Za-z_][A-Za-z_0-9]*)*", code.co_qualname
+            )
+        ):
+            site = (
+                f"n5_implementation_failure_site:{module}.{code.co_qualname}:{traceback.tb_lineno}"
+            )
+        traceback = traceback.tb_next
+    if site is not None:
+        reasons.append(site)
+    detail = exc.detail
+    if type(detail) is str and len(detail) <= 512:
+        _, separator, target = detail.rpartition(": ")
+        if separator and re.fullmatch(r"polisyos(?:\.[A-Za-z_][A-Za-z_0-9]*)+", target):
+            reasons.append(f"n5_implementation_failure_target:{target}")
+    return tuple(reasons)
 
 
 @dataclass(frozen=True)
@@ -608,7 +676,7 @@ class N5ImplementationCapture:
             self._observer.suspended = True
             self._initial = self._current_implementation()
         except (OSError, TypeError, ValueError, RuntimeError) as exc:
-            self._reasons.append(str(getattr(exc, "code", None) or exc))
+            self._reasons.extend(_implementation_failure_reasons(exc))
         finally:
             self._observer.suspended = False
         return self
@@ -946,7 +1014,7 @@ class N5ImplementationCapture:
                     if implementation[key] != self._initial[key]:
                         reasons.append("n5_implementation_changed_during_execution")
         except (OSError, TypeError, ValueError, RuntimeError) as exc:
-            reasons.append(str(getattr(exc, "code", None) or exc))
+            reasons.extend(_implementation_failure_reasons(exc))
         consumed_configuration = None
         try:
             from polisyos.runtime.quality.joint_simulation_horizon import (
@@ -1085,3 +1153,74 @@ def read_n5_execution_implementation_witness(
     if exact_n5_content_hash(trajectories) != witness.trajectory_hash:
         raise ValueError("n5_execution_witness_trajectories_mismatch")
     return witness
+
+
+def _candidate_n5_historical_configuration_matches(
+    witness: N5ExecutionImplementationWitness,
+    prepared_configuration: PreparedJointSimulationConfiguration,
+) -> bool:
+    """Compare the historical configuration snapshot with its prepared descriptor.
+
+    The selected result must already be resolved through its owner and the witness
+    obtained through ``read_n5_execution_implementation_witness``. Snapshot equality
+    does not establish configuration use throughout engine selection or coupling.
+    """
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        PreparedJointSimulationConfiguration,
+    )
+
+    if (
+        type(witness) is not N5ExecutionImplementationWitness
+        or type(prepared_configuration) is not PreparedJointSimulationConfiguration
+        or type(witness.consumed_configuration_values) is not dict
+    ):
+        return False
+    try:
+        observed = exact_n5_content_bytes(witness.consumed_configuration_values)
+        expected = exact_n5_content_bytes(_exact_native_content(prepared_configuration))
+    except (TypeError, ValueError):
+        return False
+    return observed == expected
+
+
+def _candidate_n5_failure_diagnostic_is_bounded(reason: str) -> bool:
+    """Recognize only the bounded source locators emitted by this witness owner."""
+    target_prefix = "n5_implementation_failure_target:"
+    site_prefix = "n5_implementation_failure_site:"
+    module_pattern = r"polisyos(?:\.[A-Za-z_][A-Za-z_0-9]*)+"
+    if reason.startswith(target_prefix):
+        target = reason.removeprefix(target_prefix)
+        return len(target) <= 256 and re.fullmatch(module_pattern, target) is not None
+    return (
+        len(reason) <= 560
+        and re.fullmatch(
+            rf"{site_prefix}polisyos(?:\.[A-Za-z_][A-Za-z_0-9]*){{2,}}:[1-9][0-9]{{0,7}}",
+            reason,
+        )
+        is not None
+    )
+
+
+def _candidate_n5_experiment_observation_supported(
+    witness: N5ExecutionImplementationWitness,
+    prepared_configuration: PreparedJointSimulationConfiguration,
+) -> bool:
+    """Gate candidate output on completed-result integrity and limited source refusal.
+
+    A source binding refusal can leave a candidate result available when the
+    physical observer completed and the request, trajectories and configuration
+    snapshots agree. The caller keeps configuration use and implementation
+    provenance ``not_established``. This predicate grants no scientific reuse.
+    """
+    if not _candidate_n5_historical_configuration_matches(witness, prepared_configuration):
+        return False
+    if witness.predicate_provenance == "recomputed":
+        return True
+    if witness.predicate_provenance != "not_established":
+        return False
+    reasons = witness.reason_codes
+    return "canonical_loaded_runtime_mismatch" in reasons and all(
+        reason == "canonical_loaded_runtime_mismatch"
+        or _candidate_n5_failure_diagnostic_is_bounded(reason)
+        for reason in reasons
+    )

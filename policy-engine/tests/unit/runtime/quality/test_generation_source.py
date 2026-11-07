@@ -102,6 +102,7 @@ async def test_default_n4_port_preserves_actual_organ_bundle(monkeypatch):
     async def produce(_problem, **kwargs):
         assert _problem is problem
         assert kwargs["cycle_substrate_context"] is incoming_context
+        assert kwargs["min_diverse_candidates"] == 3
         return organ
 
     monkeypatch.setattr(n4, "generate_design_candidate_bundle_under_a", produce)
@@ -111,6 +112,38 @@ async def test_default_n4_port_preserves_actual_organ_bundle(monkeypatch):
 
     assert observed is organ
     assert observed.trinity_bundle is organ.trinity_bundle
+
+
+@pytest.mark.asyncio
+async def test_n4_port_forwards_selected_diversity_floor(monkeypatch):
+    """The verified child port's selected floor reaches the canonical N4 owner."""
+    problem = _test_design_problem()
+    incoming_context = object()
+    captured: dict[str, object] = {}
+
+    async def produce(_problem, **kwargs):
+        assert _problem is problem
+        captured.update(kwargs)
+        return object()
+
+    monkeypatch.setattr(n4, "generate_design_candidate_bundle_under_a", produce)
+    port = N4GenerationPort(
+        model_id="synthetic-c2",
+        cycle_substrate_context=incoming_context,
+        min_diverse_candidates=1,
+    )
+
+    observed = await port(problem, cycle_index=0)
+
+    assert type(observed) is object
+    assert captured["min_diverse_candidates"] == 1
+    assert captured["cycle_substrate_context"] is incoming_context
+
+
+@pytest.mark.parametrize("value", [0, -1, True, 1.0])
+def test_n4_port_rejects_non_positive_or_non_integer_diversity_floor(value):
+    with pytest.raises(ValueError, match="n4_min_diverse_candidates_invalid"):
+        N4GenerationPort(model_id="synthetic-c2", min_diverse_candidates=value)
 
 
 def test_n4_source_canonical_identity_reaches_terminal_consumer(tmp_path):
@@ -2215,8 +2248,15 @@ def test_actual_retained_source_drives_effect_writer_and_marks_bridge(actual_n4_
         value=source_record,
         kind=current._EFFECT_OBLIGATION_SOURCE_KIND,
         inputs=(
-            artifacts.InputRef(
-                artifact_id=bridge_owner._verifier_provenance_ref.artifact_id,
+            artifacts.input_ref_from_artifact_ref(
+                artifacts.ArtifactRef(
+                    artifact_id=artifacts.ArtifactID(bridge_record.verifier_provenance_ref),
+                    kind=current._PROMOTION_EVIDENCE_VERIFIER_KIND,
+                    media_type="text/plain",
+                    manifest_profile_sha256=(
+                        bridge_record.verifier_provenance_manifest_profile_sha256
+                    ),
+                ),
                 role="unowned_source_input",
             ),
         ),
@@ -3765,3 +3805,118 @@ def test_candidate_model_declaration_writer_returns_selected_profile(tmp_path):
     expected_profile = artifact_manifest_profile_sha256(repository.store.get_manifest(ref))
     assert ref.manifest_profile_sha256 == expected_profile
     assert ref.manifest_profile_sha256 is not None
+
+
+@pytest.mark.asyncio
+async def test_selected_source_readers_retain_each_captured_job_scope(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The real source readers use each write's scope, not the latest job's scope."""
+    from dataclasses import replace
+
+    from polisyos.core.artifacts import artifact_ref_identity_key
+    from polisyos.runtime.quality.generation_source import _GenerationSourceReadExpectations
+    from tests.unit.runtime.quality.test_cycle_substrate import _authenticated_tenant_scope
+    from tests.unit.runtime.quality.test_generic_n5_v3_binding import (
+        _prepare_generic_facade_owner_case,
+    )
+
+    # Reuse the bounded real N4 organ, not the production-world default fixture.
+    # These source-only writes exercise custody scope, not worker admission.
+    case = await _prepare_generic_facade_owner_case(tmp_path, monkeypatch)
+    problem, organ = case["problem"], case["organ"]
+    repository = GenerationSourceRepository(case["store"])
+    with _authenticated_tenant_scope(tenant_id=case["tenant_id"], cell_id=case["cell_id"]):
+        source_run_id = "synthetic-retained-source-run"
+        outer_run_id = "synthetic-retained-outer-run"
+        refs = tuple(
+            repository.persist_ref(
+                run_id=source_run_id,
+                cycle_index=index,
+                problem=problem,
+                organ=organ,
+                execution_scope="contract_testing",
+                job_id=job_id,
+                expected_run_id=outer_run_id,
+                tenant_id=case["tenant_id"],
+                cell_id=case["cell_id"],
+            )
+            for index, job_id in enumerate(("source-job-a", "source-job-b"))
+        )
+        assert refs[0] != refs[1]
+        expectations = {
+            artifact_ref_identity_key(ref): _GenerationSourceReadExpectations(
+                expected_run_id=outer_run_id,
+                expected_job_id=job_id,
+                expected_tenant_id=case["tenant_id"],
+                expected_cell_id=case["cell_id"],
+            )
+            for ref, job_id in zip(refs, ("source-job-a", "source-job-b"), strict=True)
+        }
+        expected = tuple(
+            (organ.result.design_problem_ref, candidate.candidate_id, candidate.atom.content_hash)
+            for candidate in organ.result.candidates
+        )
+
+        def require_complete_source_scope() -> None:
+            for index in range(2):
+                observed = repository.resolve(
+                    refs=refs,
+                    run_id=source_run_id,
+                    summary=_source_summary(organ, cycle=index),
+                    problem=problem,
+                    read_expectations_by_ref=expectations,
+                )
+                assert observed.status == "resolved", observed.code
+                assert observed.source_ref == str(refs[index].artifact_id)
+            receipt = repository.preservation_receipt(
+                refs=refs,
+                run_id=source_run_id,
+                expected=expected,
+                read_expectations_by_ref=expectations,
+            )
+            assert receipt.status == "strangled", receipt.issues
+            assert receipt.source_refs == tuple(str(ref.artifact_id) for ref in refs)
+            assert receipt.retained_identity_digest == receipt.expected_identity_digest
+
+        require_complete_source_scope()
+        missing = repository.resolve(
+            refs=refs,
+            run_id=source_run_id,
+            summary=_source_summary(organ),
+            problem=problem,
+            read_expectations_by_ref={
+                artifact_ref_identity_key(refs[1]): expectations[artifact_ref_identity_key(refs[1])]
+            },
+        )
+        assert missing.status == "not_established"
+        assert missing.code == "generation_source_read_scope_not_established"
+        for changed in (
+            {"expected_job_id": "source-job-b"},
+            {"expected_run_id": "another-outer-run"},
+            {"expected_tenant_id": "another-tenant"},
+            {"expected_cell_id": "another-cell"},
+        ):
+            wrong_expectations = dict(expectations)
+            wrong_expectations[artifact_ref_identity_key(refs[0])] = replace(
+                expectations[artifact_ref_identity_key(refs[0])], **changed
+            )
+            denied = repository.resolve(
+                refs=refs,
+                run_id=source_run_id,
+                summary=_source_summary(organ),
+                problem=problem,
+                read_expectations_by_ref=wrong_expectations,
+            )
+            assert denied.status == "not_established"
+            assert denied.code == "source_replay_failed"
+
+        with monkeypatch.context() as removed:
+
+            def lose_captured_scope(ref, *, run_id, read_expectations_by_ref):
+                return repository.load(ref, run_id=run_id)
+
+            removed.setattr(repository, "_load_retained_source", lose_captured_scope)
+            with pytest.raises(AssertionError, match="source_replay_failed"):
+                require_complete_source_scope()
+        require_complete_source_scope()

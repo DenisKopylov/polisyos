@@ -176,6 +176,15 @@ def _build_parser() -> argparse.ArgumentParser:
         default=REPO_ROOT,
         help="Repository root containing docs/, architecture/, and examples/.",
     )
+    parser.add_argument(
+        "--reference-scope",
+        choices=("exhaustive", "live-authored"),
+        default="exhaustive",
+        help=(
+            "Reference claim: exhaustive retains unknown payloads as UNRUN; live-authored "
+            "checks the declared maintained-text grammar and all tracked removed paths."
+        ),
+    )
     return parser
 
 
@@ -553,12 +562,15 @@ def _opaque_reference_format(payload: bytes) -> str | None:
 
 def _reference_scan_selection(
     repo_root: Path,
+    *,
+    reference_scope: str = "exhaustive",
 ) -> tuple[tuple[Path, ...], tuple[Path, ...], dict[str, tuple[Path, ...]]]:
     return _docs_lifecycle_reference_scan._reference_scan_selection(
         repo_root,
         iter_repository_files=_iter_repository_files,
         excluded_dirs=REFERENCE_SCAN_EXCLUDED_DIRS,
         excluded_filenames=REFERENCE_SCAN_EXCLUDED_FILENAMES,
+        reference_scope=reference_scope,
     )
 
 
@@ -574,9 +586,15 @@ def _reference_scan_text(relative: Path, text: str) -> str:
     )
 
 
-def _reference_scan_dependencies() -> _ReferenceScanDependencies[LifecycleFinding]:
+def _reference_scan_dependencies(
+    *, reference_scope: str = "exhaustive"
+) -> _ReferenceScanDependencies[LifecycleFinding]:
     return _ReferenceScanDependencies(
-        selection=_reference_scan_selection,
+        selection=(
+            _reference_scan_selection
+            if reference_scope == "exhaustive"
+            else lambda root: _reference_scan_selection(root, reference_scope=reference_scope)
+        ),
         repo_path=_repo_path,
         measure_file_reads=measure_file_reads,
         measured_read_bytes=measured_read_bytes,
@@ -586,6 +604,7 @@ def _reference_scan_dependencies() -> _ReferenceScanDependencies[LifecycleFindin
         finding_factory=LifecycleFinding,
         removed_redirect_stubs=MappingProxyType(dict(REMOVED_REDIRECT_STUBS)),
         stale_direct_reference_targets=MappingProxyType(dict(STALE_DIRECT_REFERENCE_TARGETS)),
+        reference_scope=reference_scope,
     )
 
 
@@ -593,9 +612,12 @@ def check_removed_stub_references(
     repo_root: Path,
     *,
     receipt: dict[str, object] | None = None,
+    reference_scope: str = "exhaustive",
 ) -> list[LifecycleFinding]:
     return _docs_lifecycle_reference_scan._check_removed_stub_references(
-        repo_root, dependencies=_reference_scan_dependencies(), receipt=receipt
+        repo_root,
+        dependencies=_reference_scan_dependencies(reference_scope=reference_scope),
+        receipt=receipt,
     )
 
 
@@ -723,6 +745,7 @@ def run_checks(
     repo_root: Path,
     *,
     reference_scan_receipt: dict[str, object] | None = None,
+    reference_scope: str = "exhaustive",
 ) -> list[LifecycleFinding]:
     checks = (
         check_adr_index,
@@ -743,6 +766,7 @@ def run_checks(
                     check_removed_stub_references(
                         repo_root,
                         receipt=reference_scan_receipt,
+                        reference_scope=reference_scope,
                     )
                 )
             else:
@@ -781,9 +805,26 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     repo_root = args.repo_root.resolve()
     reference_scan_receipt: dict[str, object] = {}
-    findings = run_checks(repo_root, reference_scan_receipt=reference_scan_receipt)
+    findings = run_checks(
+        repo_root,
+        reference_scan_receipt=reference_scan_receipt,
+        reference_scope=args.reference_scope,
+    )
     print("Docs lifecycle reference-scan receipt:")
-    print(json.dumps(reference_scan_receipt, indent=2, sort_keys=True))
+    printed_receipt = reference_scan_receipt
+    if args.reference_scope == "live-authored":
+        printed_receipt = dict(reference_scan_receipt)
+        printed_receipt.pop("excluded_inputs", None)
+        read_evidence = printed_receipt.get("read_evidence")
+        if isinstance(read_evidence, dict):
+            printed_receipt["read_evidence"] = {
+                key: value for key, value in read_evidence.items() if key != "operations"
+            }
+        printed_receipt["output_detail"] = (
+            "Compact CLI summary; full path/operation arrays are available to Python callers. "
+            "Counts, selectors and input/operation digests are retained; no payload copy."
+        )
+    print(json.dumps(printed_receipt, indent=2, sort_keys=True))
     if reference_scan_receipt.get("reference_scan_status") != "complete":
         reference_checks = {
             "removed_stub_path",

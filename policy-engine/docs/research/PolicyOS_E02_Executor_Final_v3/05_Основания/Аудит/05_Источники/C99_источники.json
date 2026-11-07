@@ -1,0 +1,479 @@
+{
+  "pass_id": "C99",
+  "bundle": "ING-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/data_plane/modes.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          214
+        ],
+        [
+          291,
+          1211
+        ],
+        [
+          1849,
+          1896
+        ]
+      ],
+      "evidence_level": "Полные batch/cursor/replay owners, record sibling и shared manifest intake прочитаны. AST-selected unchanged batch/replay/proxy/admission functions исполнены; dependency resolution/ingestion orchestration fixtures. Record mode source-only, live network не запускался. Stream bodies вне этой области будут рассмотрены далее.",
+      "git_blob": "cecfb85f24ae6ff85c46a8b22161af403f915abb",
+      "sha256": "05c9e4c5f058945eb2d7c4b4cd8d9b06e62d98bba0684026912af9b4d9ce1fbc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/data_plane/cursor_store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          174
+        ],
+        [
+          393,
+          453
+        ],
+        [
+          646,
+          720
+        ],
+        [
+          752,
+          790
+        ]
+      ],
+      "evidence_level": "Полные batch cursor save/CAS-before-index/conditional predecessor/read paths и index helpers прочитаны. Whole actual module загружен под package shells, selected batch methods реально пишут/перечитывают index с actual file locks. CAS/profile fixture; прочие stream/partition methods не квалифицированы.",
+      "git_blob": "f51131ed761ffaacaef6c4dc76cc2bc4c243a9eb",
+      "sha256": "5b6bf7b89d077bcb84a01160c5108ca8dd8abcaeaa44634f646ebe6af23fe812",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/fabric/ingestion/source_progress.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/ingestion/source_progress.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          904
+        ]
+      ],
+      "evidence_level": "Полный actual finite owner reader прочитан и whole module исполнен. Actual contract revalidation, whole file/history, physical transport, delta reconciliation, retained witness/cursor admission и partial evidence projection. CAS selected-profile semantics fixture; live-source authority прямо не установлена.",
+      "git_blob": "0bd9559f3090807ec487c906481667baeeb6f54f",
+      "sha256": "750528baf5ceaa56901ba702fa6ccf4eee1904c168be35d3474f8dc15f534b3d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          72,
+          98
+        ],
+        [
+          573,
+          696
+        ]
+      ],
+      "evidence_level": "Actual result/completeness contract и полный run_orchestrated_ingestion прочитаны. Dataclass исполнен, orchestration body source-only; bounded probe использует explicit producer/persistence delegate fixture.",
+      "git_blob": "5aaccb46eff2baae8ad3e1f10837875bc962aec6",
+      "sha256": "cf1c2d449b35a447676e4868ff24a4ca01c8c7b71c03029a3b374d9304b48d9b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/fabric/ingestion/ingestion.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/ingestion/ingestion.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          108,
+          343
+        ],
+        [
+          885,
+          913
+        ],
+        [
+          1044,
+          1521
+        ]
+      ],
+      "evidence_level": "Full selected manifest parsing/cache-byte verification и полный run_connectors_ingestion прочитаны. AST-selected parsing/byte-check helpers исполнены; whole producer request_transform/raw/persisted sinks прослежены source-only. Native transform/PII/cache/tenant cascade не исполнялась.",
+      "git_blob": "f991bb8b73d0e6ebc05ee3cc3695d8726ba76958",
+      "sha256": "0a6a62bc02ee57acc81430ab3d4c58383f174bfe80fb379f870d254435babf6e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/replay_store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/data_plane/replay_store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          162
+        ]
+      ],
+      "evidence_level": "Полный actual RecordSession/ReplayStore прочитан и исполнен с filesystem CAS fixture. Реально materializes per-connector/dataset fixture paths; native ownership/profile verifier не подменяется этим доказательством.",
+      "git_blob": "c5d547fbf3afef3026e2bebaac42662deca0bfb8",
+      "sha256": "c5fca153d83a6d5ebdf921b29f8bf2def578c95698c7a632233d50f34e24d41d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/fabric/connectors/testing/simulator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/testing/simulator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          546
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан; actual REPLAY context/lookup/fixture decoder и aiohttp interception исполнены. RECORD/SYNTHETIC не запускались. Missing/corrupt fixture ни разу не вызывает guarded native transport.",
+      "git_blob": "e03008aff9f5d102cc913d2b0ce13d6396ef23bf",
+      "sha256": "5ca358b59a014a48a45d0a99425dfc0b5c1eee50ef9b85327d7812945b25fd97",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/fabric/connectors/contracts/source_contract.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/contracts/source_contract.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          85
+        ],
+        [
+          380,
+          741
+        ]
+      ],
+      "evidence_level": "SourceContract owner validation/hash/migration constructor и полный SourceProgressContract прочитаны. Actual whole contract module используется, не fixture models. Остальные field models85–379 не объявлены полностью содержательно проверенными.",
+      "git_blob": "a881af5a779b9f7d680ca92270149eedf302f334",
+      "sha256": "c67673d3f4b3e2b313dbeb19ae9ad5f4c5913f7d4522229f70d0a9831e3a4e4d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/schema_rows.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/data_plane/schema_rows.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          126
+        ]
+      ],
+      "evidence_level": "Полный row-local type/schema validator прочитан и actual key checks исполнены; no statistical inference.",
+      "git_blob": "b6e5cc8bd854c7a3769c4fdeb8cd255b625f225f",
+      "sha256": "646d8939fa39ac73dc0f6ea95e2039689e6f11a4afe54553003ce60a9051d8d6",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/fabric/quality/processing_guarantees.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/quality/processing_guarantees.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          287
+        ]
+      ],
+      "evidence_level": "Полный соседний contract прочитан/импортирован. Source distinguishes finite replay scope and artifact-bound batch atomicity; global exactly-once claim не сделан.",
+      "git_blob": "9b735015bb3b2d82b6d601a3f943873c7b303f32",
+      "sha256": "e605650290698d7efc7da670a15f99c792e947a93c47ec63d8331361df019973",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_source_progress.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/fabric/data_plane/test_source_progress.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          160
+        ],
+        [
+          249,
+          260
+        ]
+      ],
+      "evidence_level": "6 existing bodies / 8 cases прочитаны и исполнены unchanged; CAS store name supplied fixture. Остальные source tests не заявлены выполненными.",
+      "git_blob": "865982a41631647842cbbbf144a4d235c6772deb",
+      "sha256": "641ecd58370c075ebac312c3922c798c3a54776344e1dfe11ef99e5e79cd2bc6",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/tests/_helpers/source_progress.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/_helpers/source_progress.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          147
+        ]
+      ],
+      "evidence_level": "Полный existing helper прочитан и unchanged исполнен. Он создаёт реальные ограниченные source-owned files с synthetic trust; не подменяет runtime expected row list.",
+      "git_blob": "95f47b82e58d7e8456bf37f009083bef615e768d",
+      "sha256": "0cb6a040c4d370b12a2bad85d0755e4d65377c6d9e1fa8fc728ad2f89fdb0083",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_incremental.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/fabric/data_plane/test_incremental.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          313
+        ]
+      ],
+      "evidence_level": "Existing aggregate-success/legacy/partial tests прочитаны, UNRUN. Название advances_only_confirmed теперь проверяет отсутствие продвижения обоих без evidence binding; отдельный fresh P02 добавляет настоящий finite-owner positive под storage/ingestion fixtures.",
+      "git_blob": "fea4578a35131271f05fb1173417766192d0d64b",
+      "sha256": "11d42d3b9b2227f877072c2711514efd4e3321ecff39e8f97cdd639f095b0ec8",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_modes.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/fabric/data_plane/test_modes.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          682,
+          911
+        ]
+      ],
+      "evidence_level": "Existing real replay helper/egress guard и missing/corrupt/success bodies прочитаны, native UNRUN. Fresh P03 использует actual simulator/aiohttp, но не приписывает этим native test bodies PASS.",
+      "git_blob": "9cb5a69c15d97628cbd81367d35e09692c426fa1",
+      "sha256": "182bd52dbe68b2c75756468720c9d6d14c9cf481af3567cfd91ef1862615e33d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_record_replay.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/fabric/data_plane/test_record_replay.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          175
+        ]
+      ],
+      "evidence_level": "ReplayStore existing tests прочитаны, UNRUN; layout test mocks SimulatorFixture, поэтому новый multi-namespace witness не заменён этим mock-only assertion.",
+      "git_blob": "cfa1b26f9e642a9940534180fa9c595f63fe576a",
+      "sha256": "f4a5bb5732d5836eb2b2f748d15f3d2532ff479ccb5f1113d4d12b23ecc39b3a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_cursor_source_admission.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/fabric/data_plane/test_cursor_source_admission.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          25
+        ]
+      ],
+      "evidence_level": "Полный legacy ETAG/revision negative test прочитан, UNRUN. Fresh P02 проверяет refusal actual frame без proof для всех WatermarkType отдельно.",
+      "git_blob": "5371e04848e3ea22aebece50cb58c82c1b77d4b3",
+      "sha256": "4b17070a34da942e3a1ec8b6505484e977f6db34edff214b01c6505b7e165355",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/src/polisyos/ir/connectors/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/connectors/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          269
+        ],
+        [
+          460,
+          612
+        ],
+        [
+          1043,
+          1076
+        ]
+      ],
+      "evidence_level": "Actual DataVersion/FetchRequest/FetchResult/helper contracts прочитаны и исполнены. Whole native IR import PASS; complete1131-line module не объявлен целиком исследованным. Hash/request semantics реальные.",
+      "git_blob": "addccf798538210ce326d8a0b9a17de74d1fadb8",
+      "sha256": "23c98454aa822dabb903e68de82372fce3aeb57b3cf195d9100cf3d8abc8a5d4",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S18",
+      "path": "policy-engine/src/polisyos/fabric/connectors/cache/_store_serialization.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/cache/_store_serialization.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          175
+        ]
+      ],
+      "evidence_level": "Полный serializer прочитан; actual canonical JSON envelope/list payload roundtrip исполнен. Parquet и pickle не запускались; fixture CAS хранит actual bytes этого serializer.",
+      "git_blob": "d205bc5896eec8383e31aeff80692299e14571a2",
+      "sha256": "573cd024546110236fe9cba85eca621f8fbd5bcaa78ad2926f1ebc215f6639b0",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S19",
+      "path": "policy-engine/src/polisyos/fabric/io/atomic.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/io/atomic.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          123
+        ]
+      ],
+      "evidence_level": "Полный actual file lock/atomic writer прочитан и исполняется для cursor index и replay fixtures. Не power-loss/multiprocess qualification.",
+      "git_blob": "c54ac4413b4f17b7dbc1d771a1120f8e3f88f915",
+      "sha256": "c72b206669b9447f200b9cf90bcbbf8201f2d8ec5d1f10e40074f6c756794997",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S20",
+      "path": "policy-engine/src/polisyos/ir/kernel/units.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/kernel/units.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          45
+        ]
+      ],
+      "evidence_level": "Exact TypeVar default blocker inspected. One-file import changed only from typing.TypeVar to installed typing_extensions.TypeVar вне checkout. Hashes recorded; это compatibility adaptation, не native3.14 proof.",
+      "git_blob": "b6cdaf4c59d5e952a2afb4eccd7d89203988516f",
+      "sha256": "f060c028e64ba4320c5f78f3899bacd0971b3aa49c285dcb1b89218c52c1ea47",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S21",
+      "path": "policy-engine/src/polisyos/core/contracts/cursor.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/contracts/cursor.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          110
+        ]
+      ],
+      "evidence_level": "Actual cursor DTO fields/WatermarkType прочитаны. Whole native module import PASS; actual CursorState validation используется.",
+      "git_blob": "0e5e772008545beab99ef5ea9c489d0febed406e",
+      "sha256": "7c635464b897b73fd2e5b462d0a49acddf1581dca4994d285b1da5a9c47c6b16",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S22",
+      "path": "policy-engine/src/polisyos/fabric/ingestion/_source_evidence_schema.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/ingestion/_source_evidence_schema.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          26
+        ]
+      ],
+      "evidence_level": "Полный typed artifact_schema helper прочитан и actual partial projection исполняется. Fixture manifest initially missed artifact_schema: retained run02 error, no product finding.",
+      "git_blob": "5add2455f7b262570971de9bbfb8233c7e4bef17",
+      "sha256": "2862065265caa74485c12ec15514165ed8b4ac6275542e0d476f1b2ba224b7e8",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S23",
+      "path": "policy-engine/src/polisyos/core/contracts/provenance.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/contracts/provenance.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          14,
+          114
+        ],
+        [
+          138,
+          226
+        ],
+        [
+          374,
+          549
+        ],
+        [
+          550,
+          575
+        ]
+      ],
+      "evidence_level": "Actual PROV entities/activities/edge, stable hash, serialization/reload прочитаны и исполняются. Graph bytes созданы explicit orchestration fixture; native pipeline graph producer не qualified этим replay.",
+      "git_blob": "0ba019cf91636ea4be93ccc2afb880a2d5aed1fb",
+      "sha256": "7ddd190110f8226643d902d5c8a278e1141550ca35ee2f02df1fbd167e184ad7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S24",
+      "path": "policy-engine/src/polisyos/common/async_tools/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/async_tools/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          696,
+          724
+        ],
+        [
+          812,
+          853
+        ]
+      ],
+      "evidence_level": "Current public sync/async bridge entrypoints прочитаны; actual shared worker bridge использован replay. Same complete mechanism previously assessed C63/C68; current package не переаттестует all scheduling/cancellation cases.",
+      "git_blob": "fe5c9d96021c98dbb41a005e625d66bc7f832f62",
+      "sha256": "f986fb79507b7c81d8d680f61abcf8e94115db13fb90e7706bca83fcd1a634ec",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

@@ -1,0 +1,320 @@
+{
+  "packet_id": "STR-01",
+  "title": "Раздельные occurrence counts и независимый selected intent",
+  "goal": "Полезный stress worst-case и фактическая доля проверенного множества не зависят от top-k и не присваивают себе право выбора objective.",
+  "work_type": "C119-R01 count fix; C119-G01 selected-intent capability; C119-G02 native qualification",
+  "preservation": [
+    "Typed direction до sampling; единый badness, raw adaptive history.",
+    "Occurrence counts до dedupe/top-k; empty/partial не robust.",
+    "Unbound score refusal и exact source/selected-profile guards; diagnostics полезны без authority."
+  ],
+  "technical_solution": [
+    "В adversarial.py report metadata считать valid=total_evaluated−invalid−unavailable либо increment explicit valid at admitted finite outcome; предпочтительно derive from mutually exclusive outcome status ledger и assert conservation. Не менять score guard.",
+    "Census current request/run-state objective selection and source profiles, передать exact existing selected-intent reference в stress evidence; fresh stress_report resolver independently resolves и сравнивает direction/threshold/subject/plan. Если producer отсутствует, конкретный typed binding proposal, не producer available=true.",
+    "Сохранить badness owner stress_report.py и actual main loop; retired NegatedCompositeObjective не исправлять как будто он current owner. Existing direction/adversarial tests расширить, нового optimizer не создавать."
+  ],
+  "owners": [
+    "src/polisyos/scientist/methods/search/adversarial.py",
+    "src/polisyos/scientist/methods/doe/stress_report.py",
+    "src/polisyos/scientist/methods/search/objective.py",
+    "tests/unit/scientist/search/test_adversarial_direction_c49.py",
+    "tests/unit/scientist/search/test_adversarial.py"
+  ],
+  "shared_scenarios": [
+    "E02-I10-C"
+  ],
+  "coordination": "DOE-01 generator finite plan; objective/run-state owner binding не дублирует search engine. Native profile CP3.",
+  "compatibility": "Metadata valid count intentionally corrected; unavailable remains separate status. Existing historical reports readable, current protected score requires fresh binding; rollback не включает self-issued authority.",
+  "design_alignment": [
+    "[North Star §5](../05_Основания/Архитектура/policy-design-causal-operating-system-north-star.md#5-data-acquisition-and-the-real-product) и [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md#d25-epistemic-regime-architecture): ограниченный поиск даёт полезный результат и следующий запрос данных, не ложную полноту. [Синтез §4](../05_Основания/Исследование/design_direction.md): развивать существующий общий механизм."
+  ],
+  "open_decisions": [
+    "DEC-STR-01-01: finite selected-intent producer census; выбрать existing reference and validation predicate. Выход minimal positive source→fresh score path либо exact missing contract; не заявлять создание authority через один replay."
+  ],
+  "acceptance": "Narrow count repaired плюс native direction/positive selected-intent path отдельно. Отсутствие intent не повод удалить useful stress diagnostics.",
+  "lane": "LANE-10",
+  "source_ids": [
+    "B106",
+    "B107"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/STR-01.md"
+  ],
+  "requirements": [
+    {
+      "text": "Valid count должен исключать unavailable и invalid occurrences, сохраняя attempted и разные причины без переименования unknown в numerical invalid.",
+      "source_ids": [
+        "B106"
+      ],
+      "audit_ids": [
+        "C119-R01"
+      ],
+      "id": "REQ-STR-01-01",
+      "test_ids": [
+        "TEST-STR-01-01"
+      ]
+    },
+    {
+      "text": "Search/worst/threshold/stopping должны использовать одну typed direction и raw value; presentation cap/dedup не меняют occurrence counters.",
+      "source_ids": [
+        "B106",
+        "B107"
+      ],
+      "audit_ids": [
+        "C119-G02"
+      ],
+      "id": "REQ-STR-01-02",
+      "test_ids": [
+        "TEST-STR-01-02",
+        "TEST-STR-01-03"
+      ]
+    },
+    {
+      "text": "Protected finite score должен связываться с independently selected request/run-state objective intent, exact candidate/plan/outcome profiles; self-carried rule не основание.",
+      "source_ids": [
+        "B106",
+        "B107"
+      ],
+      "audit_ids": [
+        "C119-G01"
+      ],
+      "id": "REQ-STR-01-03",
+      "test_ids": [
+        "TEST-STR-01-04"
+      ]
+    },
+    {
+      "text": "Native CompositeObjective/StrategyAdapter/persisted fresh consumer должны сохранять useful diagnostics и unbound refusal при отсутствии intent; finite inspected fraction не population probability.",
+      "source_ids": [
+        "B106",
+        "B107"
+      ],
+      "audit_ids": [
+        "C119-G02"
+      ],
+      "id": "REQ-STR-01-04",
+      "test_ids": [
+        "TEST-STR-01-03",
+        "TEST-STR-01-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "actual stress report",
+      "setup": "Один unavailable; один invalid; один valid; mixed3.",
+      "action": "Actual run_stress_test→metadata, top-k1/10.",
+      "oracle": "Single unavailable attempted1/unavailable1/invalid0/valid0; mixed valid1. Partition counts sum attempted; robustness None для incomplete, причины preserved.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-STR-01-01",
+      "requirement_ids": [
+        "REQ-STR-01-01"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "direction table",
+      "setup": "Utility values10/−5 threshold0; cost−5/10; typed invalid direction.",
+      "action": "Run direct/adaptive routes.",
+      "oracle": "Worst utility−5/cost10; severity/stopping consistent; invalid direction before sampling. Raw history8/−4 остаётся raw, не universal negation.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-STR-01-02",
+      "requirement_ids": [
+        "REQ-STR-01-02"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "native occurrence and strategy",
+      "setup": "Ten repeated violations, top-k1/10, real CompositeObjective and StrategyAdapter; empty control.",
+      "action": "Actual search/report; inspect counts/selected examples.",
+      "oracle": "Observed/high10, unique1, examples capped; no count change with top-k. Empty no robust score; native objective cost direction correct.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-STR-01-03",
+      "requirement_ids": [
+        "REQ-STR-01-02",
+        "REQ-STR-01-04"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "E02-I10-C fresh selected intent",
+      "setup": "Existing request/run-state selected objective captured before outcomes, actual artifact store and fresh Level5 consumer.",
+      "action": "Bind intent→candidate/plan→complete ordered occurrence rows; mutate direction/threshold/source/profile; absent-intent control.",
+      "oracle": "Matched independently selected intent permits only declared finite-set score when all existing guards hold; mismatch/unavailable/zero denominator refuses. Without adequate owner G01 remains gap, raw diagnostics available.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-STR-01-04",
+      "requirement_ids": [
+        "REQ-STR-01-03",
+        "REQ-STR-01-04"
+      ],
+      "status": "NOT_RUN"
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "B106",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Pre-top-k fixed, unavailable valid count remaining и source-intent positive gap.",
+      "requirement_ids": [
+        "REQ-STR-01-01",
+        "REQ-STR-01-02",
+        "REQ-STR-01-03"
+      ]
+    },
+    {
+      "audit_id": "B107",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Actual direction fixed; native CompositeObjective route проверить.",
+      "requirement_ids": [
+        "REQ-STR-01-02",
+        "REQ-STR-01-04"
+      ]
+    },
+    {
+      "audit_id": "C119-R01",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "total-invalid считает unavailable valid.",
+      "requirement_ids": [
+        "REQ-STR-01-01"
+      ],
+      "inventory_id": "audit-residual:C119_остатки:0"
+    },
+    {
+      "audit_id": "C119-G01",
+      "disposition": "capability",
+      "shared_owner": null,
+      "rationale": "Нужна actual selected request/run-state связь, не снятие отказа.",
+      "requirement_ids": [
+        "REQ-STR-01-03"
+      ],
+      "inventory_id": "audit-residual:C119_остатки:1"
+    },
+    {
+      "audit_id": "C119-G02",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Native strategy/CAS/Level5 отдельно от fixture.",
+      "requirement_ids": [
+        "REQ-STR-01-02",
+        "REQ-STR-01-04"
+      ],
+      "inventory_id": "audit-residual:C119_остатки:2"
+    }
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "SPECIFICATION_NOT_IMPLEMENTED",
+  "dependencies": [],
+  "protected_distinction_ids": [],
+  "original_source": "../05_Основания/Аудит/05_Источники/STR-01_исходные_строки.txt",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0168",
+      "requirement_ids": [
+        "REQ-STR-01-01"
+      ],
+      "disposition": "fix",
+      "rationale": "total-invalid считает unavailable valid."
+    },
+    {
+      "inventory_id": "remaining:0169",
+      "requirement_ids": [
+        "REQ-STR-01-03"
+      ],
+      "disposition": "capability",
+      "rationale": "Нужна actual selected request/run-state связь, не снятие отказа."
+    },
+    {
+      "inventory_id": "remaining:0170",
+      "requirement_ids": [
+        "REQ-STR-01-02",
+        "REQ-STR-01-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native strategy/CAS/Level5 отдельно от fixture."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0280",
+      "requirement_ids": [
+        "REQ-STR-01-02"
+      ],
+      "test_ids": [
+        "TEST-STR-01-02",
+        "TEST-STR-01-03"
+      ],
+      "rationale": "Typed pre-work direction intake — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0281",
+      "requirement_ids": [
+        "REQ-STR-01-02"
+      ],
+      "test_ids": [
+        "TEST-STR-01-02",
+        "TEST-STR-01-03"
+      ],
+      "rationale": "Single badness convention — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0282",
+      "requirement_ids": [
+        "REQ-STR-01-02"
+      ],
+      "test_ids": [
+        "TEST-STR-01-02",
+        "TEST-STR-01-03"
+      ],
+      "rationale": "Raw adaptive history — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0283",
+      "requirement_ids": [
+        "REQ-STR-01-01",
+        "REQ-STR-01-02"
+      ],
+      "test_ids": [
+        "TEST-STR-01-01",
+        "TEST-STR-01-02",
+        "TEST-STR-01-03"
+      ],
+      "rationale": "Occurrence counts before dedupe/top-k — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0284",
+      "requirement_ids": [
+        "REQ-STR-01-03",
+        "REQ-STR-01-04"
+      ],
+      "test_ids": [
+        "TEST-STR-01-03",
+        "TEST-STR-01-04"
+      ],
+      "rationale": "Unbound score refusal — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0285",
+      "requirement_ids": [
+        "REQ-STR-01-03",
+        "REQ-STR-01-04"
+      ],
+      "test_ids": [
+        "TEST-STR-01-03",
+        "TEST-STR-01-04"
+      ],
+      "rationale": "Exact source/selected-profile guards — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    }
+  ]
+}

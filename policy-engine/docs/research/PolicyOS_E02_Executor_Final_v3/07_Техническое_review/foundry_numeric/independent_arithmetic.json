@@ -1,0 +1,82 @@
+{
+  "execution_kind": "independent stdlib arithmetic only; no repository imports, no product tests",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "mean_cases": [
+    {
+      "input_hex": [
+        "0x1.fffffffffffffp+1023",
+        "0x1.fffffffffffffp+1023"
+      ],
+      "statistics_mean_hex": "0x1.fffffffffffffp+1023",
+      "fraction_oracle_hex": "0x1.fffffffffffffp+1023",
+      "equal": true,
+      "decimal_precision": 1200,
+      "decimal_oracle_hex": "0x1.fffffffffffffp+1023",
+      "decimal_equal": true
+    },
+    {
+      "input_hex": [
+        "0x1.fffffffffffffp+1023",
+        "-0x1.fffffffffffffp+1023",
+        "0x0.0000000000003p-1022"
+      ],
+      "statistics_mean_hex": "0x0.0000000000001p-1022",
+      "fraction_oracle_hex": "0x0.0000000000001p-1022",
+      "equal": true,
+      "decimal_precision": 1200,
+      "decimal_oracle_hex": "0x0.0000000000001p-1022",
+      "decimal_equal": true
+    },
+    {
+      "input_hex": [
+        "0x0.0000000000001p-1022",
+        "0x0.0000000000002p-1022"
+      ],
+      "statistics_mean_hex": "0x0.0000000000002p-1022",
+      "fraction_oracle_hex": "0x0.0000000000002p-1022",
+      "equal": true,
+      "decimal_precision": 1200,
+      "decimal_oracle_hex": "0x0.0000000000002p-1022",
+      "decimal_equal": true
+    },
+    {
+      "input_hex": [
+        "-0x1.fffffffffffffp+1023",
+        "0x1.fffffffffffffp+1023"
+      ],
+      "statistics_mean_hex": "0x0.0p+0",
+      "fraction_oracle_hex": "0x0.0p+0",
+      "equal": true,
+      "decimal_precision": 1200,
+      "decimal_oracle_hex": "0x0.0p+0",
+      "decimal_equal": true
+    },
+    {
+      "input_hex": [
+        "0x1.1ccf385ebc8a0p+1023",
+        "0x1.1ccf385ebc8a0p+1023"
+      ],
+      "statistics_mean_hex": "0x1.1ccf385ebc8a0p+1023",
+      "fraction_oracle_hex": "0x1.1ccf385ebc8a0p+1023",
+      "equal": true,
+      "decimal_precision": 1200,
+      "decimal_oracle_hex": "0x1.1ccf385ebc8a0p+1023",
+      "decimal_equal": true
+    }
+  ],
+  "cal_mask_math": {
+    "selected_dtype": "float32",
+    "finite_holdout": 3.0000000054977558e+38,
+    "normalized_residual_f32": -3.000000106909804e+37,
+    "square_computed_in_host_float64": 9.000000641458834e+74,
+    "float32_square_status": "nonfinite +inf after independent struct rounding",
+    "float64_square_finite": true,
+    "float32_square_finite": false
+  },
+  "bkt_math": {
+    "residual": 1e+308,
+    "one_row_rmse_mae": 1e+308,
+    "square_not_representable_binary64": true
+  },
+  "oracle_independence": "Fraction sum avoids product helper, but statistics.mean uses Fraction internally; Decimal.from_float precision1200 is additional independent arithmetic cross-check for these bounded fixtures only."
+}

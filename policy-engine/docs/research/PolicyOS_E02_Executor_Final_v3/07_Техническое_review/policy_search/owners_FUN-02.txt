@@ -1,0 +1,248 @@
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/funnel/types.py:191-297
+  191 def statistical_uncertainty_from_ci_width(
+  192     simulation_results: dict[str, Any],
+  193     *,
+  194     source: str,
+  195     quantification_method: str,
+  196     recommended_action: str | None = None,
+  197 ) -> UncertaintyEstimate:
+  198     """Build a statistical estimate without laundering missing CI data.
+  199 
+  200     A missing, malformed, non-finite, or negative confidence-interval width is
+  201     unassessed uncertainty.  A finite zero width remains a measured zero-width
+  202     interval, including when the effect itself is zero.
+  203     """
+  204 
+  205     bootstrap = simulation_results.get("bootstrap")
+  206     if not isinstance(bootstrap, Mapping) or "ci_width" not in bootstrap:
+  207         return UncertaintyEstimate(
+  208             level=1.0,
+  209             source=f"{source}; confidence-interval width missing",
+  210             quantification_method="ci_width_missing",
+  211             is_reducible=True,
+  212             recommended_action=recommended_action,
+  213         )
+  214 
+  215     raw_width = bootstrap.get("ci_width")
+  216     if raw_width is None:
+  217         return UncertaintyEstimate(
+  218             level=1.0,
+  219             source=f"{source}; confidence-interval width missing",
+  220             quantification_method="ci_width_missing",
+  221             is_reducible=True,
+  222             recommended_action=recommended_action,
+  223         )
+  224     if isinstance(raw_width, bool):
+  225         return UncertaintyEstimate(
+  226             level=1.0,
+  227             source=f"{source}; confidence-interval width invalid",
+  228             quantification_method="ci_width_invalid",
+  229             is_reducible=True,
+  230             recommended_action=recommended_action,
+  231         )
+  232     try:
+  233         ci_width = float(raw_width)
+  234     except (TypeError, ValueError, OverflowError):
+  235         return UncertaintyEstimate(
+  236             level=1.0,
+  237             source=f"{source}; confidence-interval width invalid",
+  238             quantification_method="ci_width_invalid",
+  239             is_reducible=True,
+  240             recommended_action=recommended_action,
+  241         )
+  242     if not isfinite(ci_width) or ci_width < 0.0:
+  243         return UncertaintyEstimate(
+  244             level=1.0,
+  245             source=f"{source}; confidence-interval width invalid",
+  246             quantification_method="ci_width_invalid",
+  247             is_reducible=True,
+  248             recommended_action=recommended_action,
+  249         )
+  250 
+  251     if "ate" not in simulation_results:
+  252         return UncertaintyEstimate(
+  253             level=1.0,
+  254             source=f"{source}; effect scale invalid",
+  255             quantification_method="effect_invalid",
+  256             is_reducible=True,
+  257             recommended_action=recommended_action,
+  258         )
+  259     raw_effect = simulation_results["ate"]
+  260     if raw_effect is None or isinstance(raw_effect, bool):
+  261         return UncertaintyEstimate(
+  262             level=1.0,
+  263             source=f"{source}; effect scale invalid",
+  264             quantification_method="effect_invalid",
+  265             is_reducible=True,
+  266             recommended_action=recommended_action,
+  267         )
+  268     try:
+  269         effect = abs(float(raw_effect))
+  270     except (TypeError, ValueError, OverflowError):
+  271         return UncertaintyEstimate(
+  272             level=1.0,
+  273             source=f"{source}; effect scale invalid",
+  274             quantification_method="effect_invalid",
+  275             is_reducible=True,
+  276             recommended_action=recommended_action,
+  277         )
+  278     if not isfinite(effect):
+  279         return UncertaintyEstimate(
+  280             level=1.0,
+  281             source=f"{source}; effect scale invalid",
+  282             quantification_method="effect_invalid",
+  283             is_reducible=True,
+  284             recommended_action=recommended_action,
+  285         )
+  286 
+  287     if effect == 0.0:
+  288         level = 0.0 if ci_width == 0.0 else 1.0
+  289     else:
+  290         level = min(1.0, ci_width / (2.0 * effect))
+  291     return UncertaintyEstimate(
+  292         level=level,
+  293         source=source,
+  294         quantification_method=quantification_method,
+  295         is_reducible=True,
+  296         recommended_action=recommended_action,
+  297     )
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py:250-295
+  250     def _build_reduced_state(
+  251         self,
+  252         candidate: dict[str, Any],
+  253         context: dict[str, Any],
+  254     ) -> dict[str, Any]:
+  255         """Build initial_state with reduced-fidelity config overrides."""
+  256         state: dict[str, Any] = {
+  257             "ir": candidate,
+  258             "user_request": context.get("user_request", ""),
+  259             "optimize": True,
+  260         }
+  261 
+  262         # Propagate non-reserved context keys.
+  263         for k, v in context.items():
+  264             if k not in ("ir", "user_request") and not k.startswith("_funnel_"):
+  265                 state[k] = v
+  266 
+  267         # Copy only the small configuration mappings that this stage overlays.
+  268         # Dataset/model/CAS handles and future full-fidelity config remain shared
+  269         # references; the caller-owned mapping itself is never mutated.
+  270         for config_key in _REDUCED_CONFIG_KEYS:
+  271             config = context.get(config_key)
+  272             if config is None:
+  273                 state[config_key] = {}
+  274             elif isinstance(config, Mapping):
+  275                 state[config_key] = dict(config)
+  276             else:
+  277                 raise TypeError(f"{config_key} must be a mapping when provided")
+  278 
+  279         # Inject reduced-fidelity configuration.
+  280         state["data_config"]["subsample_fraction"] = self._subsample_fraction
+  281         state["data_config"]["stratified"] = True
+  282 
+  283         state["estimation_config"]["estimator"] = self._estimator_tier
+  284         state["estimation_config"]["n_bootstrap"] = self._bootstrap_draws
+  285 
+  286         state["scenario_config"]["grid"] = self._scenario_set
+  287 
+  288         state["subgroup_config"]["top_k"] = self._top_k_subgroups
+  289 
+  290         state["model_config"]["scm_complexity"] = "reduced"
+  291 
+  292         # Flag that this is a medium-fidelity evaluation.
+  293         state["_fidelity_level"] = self.fidelity_level
+  294 
+  295         return state
+
+### e02_repository/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_metrics.py:450-538
+  450 def _build_policy_simulation_results_impl(
+  451     evaluation: PolicyEvaluationVector,
+  452     *,
+  453     fidelity: str,
+  454     uncertainty: UncertaintyEnvelope | None,
+  455     base_metrics: dict[str, float] | None = None,
+  456     provenance: PolicyRuntimeProvenance | None = None,
+  457     ambiguity_certificate: AmbiguityCertificate | dict[str, Any] | None = None,
+  458     runtime_execution: Mapping[str, Any] | None = None,
+  459 ) -> dict[str, Any]:
+  460     """Build policy simulation results."""
+  461     metrics = dict(base_metrics or {})
+  462     policy_value = float(
+  463         metrics.get("policy_value", _channel_higher_is_better(evaluation, "policy_value"))
+  464     )
+  465     employment = float(
+  466         metrics.get("employment", _channel_higher_is_better(evaluation, "employment"))
+  467     )
+  468     welfare = float(
+  469         metrics.get(
+  470             "welfare",
+  471             _channel_higher_is_better(evaluation, "welfare", fallback=policy_value),
+  472         )
+  473     )
+  474     fiscal_measurement = _budget_deficit_measurement(metrics)
+  475     execution = dict(runtime_execution or _policy_runtime_execution_metadata())
+  476     ate = float(metrics.get("ate", policy_value))
+  477     statistical = (
+  478         uncertainty.uncertainties.get(UncertaintyType.STATISTICAL)
+  479         if isinstance(uncertainty, UncertaintyEnvelope)
+  480         else None
+  481     )
+  482     ci_width = 0.12 if fidelity == "selection" else 0.1
+  483     if statistical is not None:
+  484         ci_width = max(
+  485             ci_width,
+  486             float(statistical.level) * (0.22 if fidelity == "full" else 0.34),
+  487         )
+  488     if not evaluation.feasible:
+  489         ci_width = max(ci_width, 0.35)
+  490     ambiguity_payload = _ambiguity_certificate_payload(ambiguity_certificate)
+  491     result = {
+  492         "policy_value": policy_value,
+  493         "employment": employment,
+  494         "welfare": welfare,
+  495         "net_social_welfare": float(metrics.get("net_social_welfare", welfare)),
+  496         "gdp_change": float(metrics.get("gdp_change", welfare)),
+  497         "budget_deficit_objective_usable": fiscal_measurement["usable"],
+  498         "budget_deficit_objective_value": fiscal_measurement["normalized_value"],
+  499         "ate": ate,
+  500         "bootstrap": {
+  501             "ci_width": ci_width,
+  502             "evaluation_attempt_id": execution.get("evaluation_attempt_id"),
+  503             "requested_draw_count": execution.get("requested_draw_count"),
+  504             "requested_draw_source": execution.get("requested_draw_source", "unavailable"),
+  505             "effective_estimation_config_sha256": execution.get(
+  506                 "effective_estimation_config_sha256"
+  507             ),
+  508             "draw_execution_status": "not_instrumented",
+  509             "attempted_draw_count": None,
+  510             "successful_draw_count": None,
+  511             "failed_draw_count": None,
+  512             "unattempted_draw_count": None,
+  513             "fidelity": fidelity,
+  514         },
+  515         "objective_channels": {
+  516             name: channel.value for name, channel in evaluation.all_channels().items()
+  517         },
+  518         # The current policy runtime does not carry source-owned unit metadata.
+  519         # Empty is explicit: downstream score admission must remain unscored.
+  520         "metric_units": {},
+  521         "feasible": evaluation.feasible,
+  522         "blocking_reasons": list(evaluation.blocking_reasons),
+  523         "fidelity": fidelity,
+  524         "evaluation_backend_kind": provenance.backend_kind if provenance is not None else "unknown",
+  525         "promotable_source": provenance.promotable_source if provenance is not None else None,
+  526         "evaluation_degradation_mode": (
+  527             provenance.degradation_mode if provenance is not None else None
+  528         ),
+  529         "evaluation_source_components": list(provenance.source_components)
+  530         if provenance is not None
+  531         else [],
+  532         "ambiguity_certificate": ambiguity_payload,
+  533         "ambiguity_certificate_status": (
+  534             ambiguity_payload.get("overall_status") if isinstance(ambiguity_payload, dict) else None
+  535         ),
+  536     }
+  537     result.update(fiscal_measurement["source_values"])
+  538     return result

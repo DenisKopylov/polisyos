@@ -1,0 +1,95 @@
+{
+  "pass": "C17",
+  "bundle": "STP-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "findings": [
+    {
+      "id": "C17-R01",
+      "source_ids": [
+        "B41"
+      ],
+      "status": "confirmed_local",
+      "severity": "medium_conditional",
+      "confidence": "high_local",
+      "title": "Отвергнутая метрика оставляет embedding для следующей итерации",
+      "location": "convergence.py:354-393,452-462,588-615",
+      "evidence": [
+        "P12",
+        "P13",
+        "P14",
+        "P15"
+      ],
+      "positive_controls": [
+        "P01",
+        "P02",
+        "P03",
+        "P16",
+        "P17"
+      ],
+      "consequence": "Следующий вызов без текущего embedding получает heuristic_stability/current_compatible; scientific_converged остаётся False.",
+      "direction": "Проверить metric до embedding/state mutation либо атомарно принять весь measurement. Сохранить возможность recovery и отсутствие автоматического authority.",
+      "boundary": "Actual check_with_text production consumer not established; actual drafter uses different typed method; no published wrong policy claim."
+    },
+    {
+      "id": "C17-R02",
+      "source_ids": [
+        "B122"
+      ],
+      "status": "confirmed_local",
+      "severity": "low_extreme_numeric_profile",
+      "confidence": "high_local",
+      "title": "Конечные входы дают inf<=inf и ложное плато",
+      "location": "stopping.py:204-234",
+      "evidence": [
+        "P25",
+        "P26"
+      ],
+      "positive_controls": [
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22"
+      ],
+      "consequence": "Положительное масштабирование допустимых чисел меняет continue на stop при переполнении gain и threshold.",
+      "direction": "Устойчивое сравнение в том же declared profile либо арифметическая недоступность; не менять tolerances и не clip inputs молча.",
+      "boundary": "Контрпример ±1e308, rel_tol1.8; частота/достижимость реальных метрик не измерены; ниже приоритет R01."
+    },
+    {
+      "id": "C17-G01",
+      "source_ids": [
+        "B41"
+      ],
+      "status": "numeric_profile_boundary",
+      "severity": "low",
+      "title": "Диапазон cosine и нечисловой raw diagnostic",
+      "evidence": [
+        "P28"
+      ],
+      "remaining": "Конечные параллельные 1e200-векторы дают NaN, не положительную остановку. Actual DTO JSON превращает NaN в null. Квалифицировать диапазон или стабильную норму у текущего helper; реальный encoder не запускался."
+    },
+    {
+      "id": "C17-G02",
+      "source_ids": [
+        "B122"
+      ],
+      "status": "explicit_policy_boundary",
+      "title": "Одна невалидная ранняя запись ограничивает всё plateau-основание",
+      "evidence": [
+        "P27"
+      ],
+      "remaining": "Не объявлять дефектом без договора window/basis. Текущий код намеренно проверяет всю историю; не отбрасывать плохие строки молча."
+    },
+    {
+      "id": "C17-G03",
+      "source_ids": [
+        "B41",
+        "B122"
+      ],
+      "status": "deferred_native",
+      "title": "Поддержанный runtime и фактические consumers",
+      "remaining": "Полный search/LLM caller, producer/ledger/CAS/UI и Python3.14 не исполнены. Существующий lifecycle-test прочитан. Полного закрытия нет."
+    }
+  ],
+  "no_production_edits": true
+}

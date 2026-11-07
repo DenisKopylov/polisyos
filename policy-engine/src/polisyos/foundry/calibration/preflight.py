@@ -60,6 +60,55 @@ def _align_by_length(values: np.ndarray, steps: int, fill_value: float | None) -
     return np.concatenate([values.astype(result_dtype, copy=False), padding], axis=0)
 
 
+def _admit_source_axis(
+    values: np.ndarray, time: np.ndarray | None
+) -> tuple[np.ndarray, np.ndarray | None]:
+    """Admit one-dimensional source pairs before choosing any alignment branch."""
+    values = np.asarray(values)
+    if values.ndim != 1:
+        raise ValueError("Observed target values must be one-dimensional")
+    if time is None:
+        return values, None
+    if np.iscomplexobj(time):
+        raise ValueError("Observed source time coordinates must be real-valued")
+    if np.asarray(time).dtype.kind in {"m", "M"}:
+        raise ValueError("Observed source time requires an explicit temporal conversion")
+    try:
+        source_time = np.asarray(time, dtype=float)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("Observed source time coordinates must be finite numeric values") from exc
+    if source_time.ndim != 1:
+        raise ValueError("Observed source time coordinates must be one-dimensional")
+    if source_time.shape[0] != values.shape[0]:
+        raise ValueError("Observed values and time coordinates must have equal lengths")
+    if not np.all(np.isfinite(source_time)):
+        raise ValueError("Observed source time coordinates must be finite")
+    order = np.argsort(source_time, kind="stable")
+    source_time = source_time[order]
+    if np.any(source_time[1:] == source_time[:-1]):
+        raise ValueError("Observed source time coordinates contain duplicate timestamps")
+    return values[order], source_time
+
+
+def _admit_target_axis(time: np.ndarray | None) -> np.ndarray | None:
+    """Validate requested coordinates without changing their requested order."""
+    if time is None:
+        return None
+    if np.iscomplexobj(time):
+        raise ValueError("Target time coordinates must be real-valued")
+    if np.asarray(time).dtype.kind in {"m", "M"}:
+        raise ValueError("Target time requires an explicit temporal conversion")
+    try:
+        target_time = np.asarray(time, dtype=float)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("Target time coordinates must be finite numeric values") from exc
+    if target_time.ndim != 1:
+        raise ValueError("Target time coordinates must be one-dimensional")
+    if not np.all(np.isfinite(target_time)):
+        raise ValueError("Target time coordinates must be finite")
+    return target_time
+
+
 def _resample_series(
     values: np.ndarray,
     time: np.ndarray | None,
@@ -69,12 +118,27 @@ def _resample_series(
     method: str,
     fill_value: float | None,
 ) -> np.ndarray:
-    if time is not None:
-        time_array = np.asarray(time)
-        if time_array.ndim == 0:
-            time_array = time_array.reshape(1)
-        if time_array.shape[0] != values.shape[0]:
-            raise ValueError("Observed values and time coordinates must have equal lengths")
+    values, time = _admit_source_axis(values, time)
+    return _resample_admitted_series(
+        values,
+        time,
+        target_time=_admit_target_axis(target_time),
+        steps=steps,
+        method=method,
+        fill_value=fill_value,
+    )
+
+
+def _resample_admitted_series(
+    values: np.ndarray,
+    time: np.ndarray | None,
+    *,
+    target_time: np.ndarray | None,
+    steps: int | None,
+    method: str,
+    fill_value: float | None,
+) -> np.ndarray:
+    """Resample source pairs already admitted by the canonical preflight owner."""
     if values.size == 0:
         if target_time is None and (steps is None or steps == values.shape[0]):
             return values
@@ -83,17 +147,8 @@ def _resample_series(
         return values
     if target_time is None:
         return _align_by_length(values, steps=steps or values.shape[0], fill_value=fill_value)
-    src_time = (
-        np.asarray(time_array, dtype=float)
-        if time is not None
-        else np.arange(values.shape[0], dtype=float)
-    )
-    tgt_time = np.asarray(target_time, dtype=float)
-    if src_time.shape[0] != values.shape[0]:
-        raise ValueError("Observed values and time coordinates must have equal lengths")
-    order = np.argsort(src_time, kind="stable")
-    src_time = src_time[order]
-    values = values[order]
+    src_time = time if time is not None else np.arange(values.shape[0], dtype=float)
+    tgt_time = target_time
     if method == "linear":
         left = fill_value if fill_value is not None else float(values[0])
         right = fill_value if fill_value is not None else float(values[-1])
@@ -252,11 +307,14 @@ def prepare_targets(
 
     Raises:
         ValueError: If a target-specific `align.steps` conflicts with the
-            explicit `time_axis` length.
+            explicit `time_axis` length, or a declared temporal axis is
+            nonfinite, multidimensional, duplicated at the source, or does not
+            pair with the observed values.
     """
     aligned: dict[str, jnp.ndarray] = {}
     scales: dict[str, float] = {}
     time_axes: dict[str, list[float]] = {}
+    admitted_target_axis = _admit_target_axis(time_axis)
 
     targets_by_id: dict[str, CalibrationTarget] = {t.target_id: t for t in config.targets}
     for target_id, raw in raw_targets.items():
@@ -269,15 +327,16 @@ def prepare_targets(
                 f"Configured alignment time column '{target_cfg.align.time_column}' "
                 f"is missing for target '{target_id}'"
             )
-        if time is not None and time.shape[0] != values.shape[0]:
-            raise ValueError("Observed values and time coordinates must have equal lengths")
-        if time_axis is not None:
-            if target_cfg.align.steps is not None and target_cfg.align.steps != len(time_axis):
+        values, time = _admit_source_axis(values, time)
+        if admitted_target_axis is not None:
+            if target_cfg.align.steps is not None and target_cfg.align.steps != len(
+                admitted_target_axis
+            ):
                 raise ValueError(
                     f"Target '{target_id}' align.steps conflicts with config.time_axis"
                 )
-            target_steps = len(time_axis)
-            target_time_axis = np.asarray(time_axis, dtype=float)
+            target_steps = len(admitted_target_axis)
+            target_time_axis = admitted_target_axis
             report_time_axis = target_time_axis
         else:
             target_steps = target_cfg.align.steps or steps
@@ -293,7 +352,7 @@ def prepare_targets(
                     target_time_axis = report_time_axis
             else:
                 report_time_axis = np.arange(target_steps, dtype=float)
-        resampled = _resample_series(
+        resampled = _resample_admitted_series(
             values,
             time,
             target_time=target_time_axis,

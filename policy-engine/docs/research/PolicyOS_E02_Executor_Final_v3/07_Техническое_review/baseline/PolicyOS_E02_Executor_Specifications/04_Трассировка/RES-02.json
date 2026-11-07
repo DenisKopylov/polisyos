@@ -1,0 +1,236 @@
+{
+  "packet_id": "RES-02",
+  "lane": "LANE-06",
+  "source_ids": [
+    "B72",
+    "B73"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/RES-02.md",
+    "../05_Основания/Аудит/01_Реестры/C66_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C66-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-RES-02-01",
+        "REQ-RES-02-02",
+        "REQ-RES-02-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Atomic payload доказан ограниченно, требуется actual durable crash/reopen и outputs.",
+      "inventory_id": "audit-residual:C66_остатки:0"
+    },
+    {
+      "audit_id": "C66-G02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-RES-02-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Existing persistence test fixtures обновить по selected-profile ABI, не удалять product checks.",
+      "inventory_id": "audit-residual:C66_остатки:1"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-RES-02-01",
+      "text": "Добавление независимого соседа не меняет skip на successful completed. Только native ok включается в frontier; fail/skip не удостоверяют произведённый required output. Dependent node использует настоящий skip-blocker/output contract, не простое not-fail.",
+      "source_ids": [
+        "B72"
+      ],
+      "audit_ids": [
+        "C66-G01"
+      ],
+      "test_ids": [
+        "TEST-RES-02-01"
+      ]
+    },
+    {
+      "id": "REQ-RES-02-02",
+      "text": "Для A/B accepted tier первая доступная durable publication содержит одновременно merged state, всех accepted aliases и соответствующие cache refs. Crash после неё не вызывает второй increment B. Fail_fast rollback не публикует новый successful tier; continue фиксирует только successes. Returned state/head/compensation соответствуют этому решению.",
+      "source_ids": [
+        "B73"
+      ],
+      "audit_ids": [
+        "C66-G01"
+      ],
+      "test_ids": [
+        "TEST-RES-02-02"
+      ]
+    },
+    {
+      "id": "REQ-RES-02-03",
+      "text": "Record/output refs успешного вычисления остаются читаемыми после rollback state, но не включаются автоматически в selected outputs/authority. Status-blind historical completed metadata отказывается как неустановленная; node-only hook допустим serial, parallel отказывает до producer.",
+      "source_ids": [
+        "B72",
+        "B73"
+      ],
+      "audit_ids": [
+        "C66-G01"
+      ],
+      "test_ids": [
+        "TEST-RES-02-03"
+      ]
+    },
+    {
+      "id": "REQ-RES-02-04",
+      "text": "Все existing remediation persistence helpers соответствуют current return_selected_profile argument и result shape, сохраняя selected-profile checks; native bodies выполняются без обхода ownership или замены skip на ok.",
+      "source_ids": [
+        "B72",
+        "B73"
+      ],
+      "audit_ids": [
+        "C66-G02"
+      ],
+      "test_ids": [
+        "TEST-RES-02-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-RES-02-01",
+      "requirement_ids": [
+        "REQ-RES-02-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Один typed skip→optional consumer; добавить independent ok; controls native ok/fail.",
+      "action": "Run widths1/2 и resume.",
+      "oracle": "Skip ни в одном completed/head; ok в обоих; fail не включён. Реальный required-output consumer blocked если output отсутствует, optional продолжает по объявленному контракту.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RES-02-02",
+      "requirement_ids": [
+        "REQ-RES-02-02"
+      ],
+      "level": "native process persistence",
+      "setup": "A writes a; B increments n0→1; реальные tmp CAS/head/history; stop barriers.",
+      "action": "Kill own process после первой publication и reopen; prior+left-ok/right-fail под обеими policies.",
+      "oracle": "First head state n1/frontier[a,b]; resume n1 не2. Fail-fast state/head prior-only и compensation completed_before=[prior]; continue prior+left; no half-tier.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RES-02-03",
+      "requirement_ids": [
+        "REQ-RES-02-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Real output bytes left до rollback; selected finalizer; historical unestablished status; hooks serial/parallel.",
+      "action": "Read fresh outputs и final selected results; attempt resume/hook admission.",
+      "oracle": "Left bytes exact-readable, selected list не повышена; status-unestablished typed refusal; parallel node-only hook calls producer0, serial hook/no-hook positive сохранены.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RES-02-04",
+      "requirement_ids": [
+        "REQ-RES-02-04"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Existing test_res_02 current fixture ABI и supported native runner.",
+      "action": "Run all current local bodies и actual selected-owner integration.",
+      "oracle": "Нет fixture TypeError; ownership profile сохраняется; полные semantics tests не ослаблены для green.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-B"
+  ],
+  "dependencies": [
+    "STA-01"
+  ],
+  "preservation": [
+    "Ok-only completed_set независимо от ширины.",
+    "Commit/rollback до одной atomic tier publication.",
+    "Compensation frontier содержит только prior accepted aliases.",
+    "Output existence отдельно от selected state/authority; native status contract у checkpoints."
+  ],
+  "design_alignment": [
+    "policy-design-custody-time-model.md §2–5: snapshot фиксация и существование артефакта разные temporal facts.",
+    "design_direction.md §2.6, §4.7–8: независимый useful result переживает локальный отказ; publication не повышает authority."
+  ],
+  "open_decisions": [],
+  "source_obligations": [
+    "B72 → REQ-RES-02-01: single/parallel metamorphic skip/ok/fail и реальный dependent consumer.",
+    "B73 → REQ-RES-02-02/-03: crash first publication, no double increment, согласованные return/head/compensation и сохранённые output bytes."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py: _execute_tiers, _run_parallel_tier, _handle_tier_checkpoint",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py: CASCheckpointHook.on_tier_complete, completed_node_status_contract",
+    "policy-engine/tests/unit/remediation/test_res_02.py: persistence helpers"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_res_02.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_checkpoint.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0136",
+      "requirement_ids": [
+        "REQ-RES-02-01",
+        "REQ-RES-02-02",
+        "REQ-RES-02-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Atomic payload доказан ограниченно, требуется actual durable crash/reopen и outputs."
+    },
+    {
+      "inventory_id": "remaining:0137",
+      "requirement_ids": [
+        "REQ-RES-02-04"
+      ],
+      "disposition": "fix",
+      "rationale": "Existing persistence test fixtures обновить по selected-profile ABI, не удалять product checks."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0200",
+      "requirement_ids": [
+        "REQ-RES-02-01"
+      ],
+      "test_ids": [
+        "TEST-RES-02-01"
+      ],
+      "rationale": "Ok-only successful completed set independent of width — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0201",
+      "requirement_ids": [
+        "REQ-RES-02-02"
+      ],
+      "test_ids": [
+        "TEST-RES-02-02"
+      ],
+      "rationale": "Commit/rollback decision before one atomic tier publication — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0202",
+      "requirement_ids": [
+        "REQ-RES-02-02"
+      ],
+      "test_ids": [
+        "TEST-RES-02-02"
+      ],
+      "rationale": "Prior-only compensation frontier — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0203",
+      "requirement_ids": [
+        "REQ-RES-02-03"
+      ],
+      "test_ids": [
+        "TEST-RES-02-03"
+      ],
+      "rationale": "Output existence distinguished from selected state and authority — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

@@ -106,6 +106,7 @@ class HumanGateProtocol:
                 schema=SchemaInfo(name="polisyos.ir.GateRequest", version=request.schema_version),
                 producer=ProducerInfo(component="ir.gate_protocol", version="1.0.0"),
             ),
+            return_selected_profile=True,
         )
 
         event = GateEvent(
@@ -164,6 +165,7 @@ class HumanGateProtocol:
                 producer=ProducerInfo(component="ir.gate_protocol", version="1.0.0"),
                 inputs=inputs,
             ),
+            return_selected_profile=True,
         )
 
         event = GateEvent(

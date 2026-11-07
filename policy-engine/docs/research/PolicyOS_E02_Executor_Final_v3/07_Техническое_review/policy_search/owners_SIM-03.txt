@@ -1,0 +1,172 @@
+
+### e02_repository/policy-engine/src/polisyos/foundry/coupling/estimation.py:438-488
+  438 def paired_monte_carlo_effect(
+  439     baseline_runner: PolicyRunner,
+  440     policy_runner: PolicyRunner,
+  441     *,
+  442     seeds: Sequence[int],
+  443     metric_names: Sequence[str],
+  444 ) -> PairedMonteCarloResult:
+  445     """Estimate policy effects with common random numbers."""
+  446     if not seeds:
+  447         raise ValueError("seeds must not be empty")
+  448     if not metric_names:
+  449         raise ValueError("metric_names must not be empty")
+  450     normalized_seeds = tuple(int(seed) for seed in seeds)
+  451     if len(set(normalized_seeds)) != len(normalized_seeds):
+  452         raise ValueError("seeds must be unique")
+  453     normalized_metrics = tuple(str(name) for name in metric_names)
+  454     if len(set(normalized_metrics)) != len(normalized_metrics):
+  455         raise ValueError("metric_names must be unique")
+  456     diffs: list[dict[str, float]] = []
+  457     for seed in normalized_seeds:
+  458         baseline = baseline_runner(seed)
+  459         policy = policy_runner(seed)
+  460         diffs.append(
+  461             {
+  462                 name: float(policy[name]) - float(baseline[name])
+  463                 for name in normalized_metrics
+  464                 if name in policy and name in baseline
+  465             }
+  466         )
+  467     if any(set(diff) != set(normalized_metrics) for diff in diffs):
+  468         raise ValueError("runner outputs are missing requested metric_names")
+  469 
+  470     mean_effects: dict[str, float] = {}
+  471     standard_errors: dict[str, float | None] = {}
+  472     standard_error_status: dict[str, Literal["estimated", "standard_error_not_estimated"]] = {}
+  473     for name in normalized_metrics:
+  474         values = np.asarray([diff[name] for diff in diffs], dtype=np.float64)
+  475         mean_effects[name] = float(np.mean(values))
+  476         if values.size <= 1:
+  477             standard_errors[name] = None
+  478             standard_error_status[name] = "standard_error_not_estimated"
+  479         else:
+  480             standard_errors[name] = float(np.std(values, ddof=1) / sqrt(values.size))
+  481             standard_error_status[name] = "estimated"
+  482     return PairedMonteCarloResult(
+  483         mean_effects=mean_effects,
+  484         standard_errors=standard_errors,
+  485         standard_error_status=standard_error_status,
+  486         paired_differences=tuple(diffs),
+  487         n_replications=len(seeds),
+  488     )
+
+### e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py:353-410
+  353 class CoupledSMMEstimator:
+  354     """Grid-search SMM adapter for coupled DES/ABM summaries."""
+  355 
+  356     method_kind: ClassVar[MethodKind] = MethodKind.SIMULATION
+  357     determinism_tier: ClassVar[DeterminismTier] = DeterminismTier.STRICT_CPU
+  358     runtime_stack: ClassVar[tuple[str, ...]] = ("jax", "numpy")
+  359     method_family: ClassVar[str] = "simulation.coupled_policy"
+  360 
+  361     signature: ClassVar[MethodSignature] = MethodSignature(
+  362         name="smm",
+  363         namespace="",
+  364         version="0.0.0",
+  365         input_slots=CoupledPolicySimulationEstimator.signature.input_slots
+  366         | frozenset(
+  367             {
+  368                 SlotSpec(
+  369                     "observed_moments",
+  370                     SlotType.VECTOR,
+  371                     Unit("moment", "value"),
+  372                     shape=("n_moments",),
+  373                 ),
+  374             }
+  375         ),
+  376         output_slots=_result_slot(),
+  377         parameters=(
+  378             ParameterSpec(
+  379                 name="moment_names",
+  380                 default=("completed_count", "final_queue_length"),
+  381                 is_static=True,
+  382             ),
+  383             ParameterSpec(name="service_rate_grid", default=(0.5, 1.0, 2.0), is_static=True),
+  384             ParameterSpec(name="benefit_amount_grid", default=(0.0,), is_static=True),
+  385             ParameterSpec(name="seeds", default=(0,), is_static=True),
+  386             ParameterSpec(name="n_steps", default=12, is_static=True),
+  387             ParameterSpec(name="capacity", default=None),
+  388             ParameterSpec(name="delta_a_max", default=1.0),
+  389         ),
+  390         fidelity=FidelityLevel.HIGH,
+  391         complexity=ComplexityClass.O_N2,
+  392         backend=ComputeBackend.JAX,
+  393         supports_jit=False,
+  394         supports_vmap=False,
+  395         supports_grad=False,
+  396     )
+  397 
+  398     metadata: ClassVar[MethodMetadata] = MethodMetadata(
+  399         description="Summary-based SMM/indirect-inference adapter for coupled DES+ABM outputs.",
+  400         tags=frozenset({"simulation", "inference", "smm", "structural", "coupled"}),
+  401         when_to_use="Behavioral and operational channels are jointly calibrated from moments.",
+  402         citations=(
+  403             "McFadden, D. (1989). A method of simulated moments for estimation of discrete response models without numerical integration. Econometrica.",
+  404             "Gourieroux, C., Monfort, A., and Renault, E. (1993). Indirect inference. Journal of Applied Econometrics.",
+  405         ),
+  406         output_interpretation=(
+  407             "Best comparable grid point, fitted moments with repeat denominators, required-set "
+  408             "loss, and the evaluated surface; non-required moments are diagnostic-only, and "
+  409             "no-comparable candidates are blocked rather than selecting the first point."
+  410         ),
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py:4438-4484
+ 4438 def _higher_order_residuals_from_fields(
+ 4439     *,
+ 4440     atom_ids: Sequence[str],
+ 4441     selected_outcomes: Sequence[str],
+ 4442     coverage: _InteractionCoverage,
+ 4443 ) -> dict[str, dict[int, float]]:
+ 4444     """Compute aggregate order-three-plus residual means from selected scopes."""
+ 4445 
+ 4446     normalized_atoms = tuple(atom_ids)
+ 4447     if len(normalized_atoms) < 3 or coverage.issues:
+ 4448         return {}
+ 4449     individual = {
+ 4450         atom_id: coverage.by_scope.get(("individual", (atom_id,))) for atom_id in normalized_atoms
+ 4451     }
+ 4452     pairs = tuple(itertools.combinations(normalized_atoms, 2))
+ 4453     pairwise = {pair: coverage.by_scope.get(("pairwise", pair)) for pair in pairs}
+ 4454     joint = coverage.by_scope.get(("joint", normalized_atoms))
+ 4455     if joint is None or any(item is None for item in (*individual.values(), *pairwise.values())):
+ 4456         return {}
+ 4457     joint_points = {point.step: point for point in joint.points}
+ 4458     individual_points = {
+ 4459         atom_id: {point.step: point for point in trajectory.points}
+ 4460         for atom_id, trajectory in individual.items()
+ 4461         if trajectory is not None
+ 4462     }
+ 4463     pairwise_points = {
+ 4464         pair: {point.step: point for point in trajectory.points}
+ 4465         for pair, trajectory in pairwise.items()
+ 4466         if trajectory is not None
+ 4467     }
+ 4468     residuals: dict[str, dict[int, float]] = {}
+ 4469     for outcome in selected_outcomes:
+ 4470         by_step: dict[int, float] = {}
+ 4471         for step in coverage.expected_steps:
+ 4472             individual_sum = sum(
+ 4473                 individual_points[atom_id][step].effect[outcome] for atom_id in normalized_atoms
+ 4474             )
+ 4475             pair_interaction_sum = sum(
+ 4476                 pairwise_points[pair][step].effect[outcome]
+ 4477                 - sum(individual_points[atom_id][step].effect[outcome] for atom_id in pair)
+ 4478                 for pair in pairs
+ 4479             )
+ 4480             by_step[step] = float(
+ 4481                 joint_points[step].effect[outcome] - individual_sum - pair_interaction_sum
+ 4482             )
+ 4483         residuals[outcome] = by_step
+ 4484     return residuals
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py:908-915
+  908 def _effective_evidence_state(
+  909     request: JointSimulationRequest,
+  910 ) -> tuple[dict[str, float], Literal["explicit_evidence_state", "legacy_baseline_state_compat"]]:
+  911     """Resolve the exact NCM input and preserve whether compatibility fallback applied."""
+  912 
+  913     if request.evidence_state is None:
+  914         return request.baseline_state, "legacy_baseline_state_compat"
+  915     return request.evidence_state, "explicit_evidence_state"

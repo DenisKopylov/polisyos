@@ -18,7 +18,7 @@ from pydantic import (
     model_validator,
 )
 
-from polisyos.core.artifacts._profiled_ref import profile_bound_ref
+from polisyos.core.artifacts import profile_bound_ref
 from polisyos.core.artifacts.canonical_profile import (
     read_core_manifest_profile,
     validate_core_model_json_artifact,
@@ -52,7 +52,7 @@ class _ValidatedUncertaintySourceRead:
     simulation_result_ref: ArtifactRefModel
     simulation_result: SimulationResult
     propagation_report_ref: ArtifactRefModel
-    propagation_report: PropagationReportV11 | PropagationReportV12
+    propagation_report: PropagationReportV11 | PropagationReportV12 | PropagationReportV13
 
 
 class _ReportMetricDiagnostic(BaseModel):
@@ -258,14 +258,37 @@ class _ReportDrawOutputOutcome(BaseModel):
     error_type: StrictStr | None = None
 
 
-class _ReportDrawFailure(BaseModel):
-    """Match one draw-level failure row persisted by Monte Carlo."""
+class _ReportDrawFailureFields(BaseModel):
+    """Match the common identity of one persisted draw-level failure."""
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
     draw_index: StrictInt = Field(ge=0)
     sampled_input_sha256: StrictStr = Field(pattern=r"^[0-9a-f]{64}$")
+
+
+class _ReportDrawFailure(_ReportDrawFailureFields):
+    """Match a historical draw failure with the historical outcome grammar."""
+
     output_outcomes: list[_ReportDrawOutputOutcome] = Field(min_length=1)
+
+
+class _ReportNumericResolutionOutcome(BaseModel):
+    """Match loss of nonzero support in the admitted float32 output profile."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    output_metric_id: StrictStr = Field(min_length=1)
+    outcome_code: Literal["numeric_resolution_lost"]
+    error_type: Literal["float32_projection_underflow"]
+
+
+class _ReportDrawFailureV13(_ReportDrawFailureFields):
+    """Match one numeric-profile-aware draw failure."""
+
+    output_outcomes: list[_ReportDrawOutputOutcome | _ReportNumericResolutionOutcome] = Field(
+        min_length=1
+    )
 
 
 class _ReportDrawOutcomeFields(BaseModel):
@@ -283,7 +306,6 @@ class _ReportDrawOutcomeFields(BaseModel):
     input_identity_status: Literal["content_hashed", "not_established"]
     implementation_identity_status: Literal["not_established"]
     draw_identity_basis: Literal["sampling_recipe+draw_index+sampled_input_sha256"]
-    failure_records: list[_ReportDrawFailure]
 
 
 class _ReportDrawOutcomeProvenance(_ReportDrawOutcomeFields):
@@ -291,6 +313,7 @@ class _ReportDrawOutcomeProvenance(_ReportDrawOutcomeFields):
 
     schema_version: Literal["1.0"]
     sampling_recipe: _ReportSamplingRecipe
+    failure_records: list[_ReportDrawFailure]
 
 
 class _ReportDrawOutcomeProvenanceV12(_ReportDrawOutcomeFields):
@@ -298,12 +321,46 @@ class _ReportDrawOutcomeProvenanceV12(_ReportDrawOutcomeFields):
 
     schema_version: Literal["1.1"]
     sampling_recipe: _ReportSamplingRecipeV12
+    failure_records: list[_ReportDrawFailure]
 
     @model_validator(mode="after")
     def validate_batch_denominator(self) -> _ReportDrawOutcomeProvenanceV12:
         """Require the batch trace to cover exactly the attempted draw ledger."""
         if (
             sum(
+                batch.draw_count
+                for batch in self.sampling_recipe.gaussian_numeric_profile.draw_batches
+            )
+            != self.attempted_draw_count
+        ):
+            raise ValueError("Gaussian batch trace does not cover attempted draws")
+        return self
+
+
+class _ReportDrawOutcomeProvenanceV13(_ReportDrawOutcomeFields):
+    """Match a float32-resolution-aware ledger without changing old grammars."""
+
+    schema_version: Literal["1.2"]
+    sampling_recipe: _ReportSamplingRecipeV12 | _ReportSamplingRecipe
+    failure_records: list[_ReportDrawFailureV13]
+    output_numeric_profile: Literal["float32_finite_support_v1"]
+
+    @model_validator(mode="after")
+    def validate_numeric_profile(self) -> _ReportDrawOutcomeProvenanceV13:
+        """Require an actual resolution loss and any Gaussian batch denominator."""
+        if not any(
+            outcome.outcome_code == "numeric_resolution_lost"
+            or (
+                outcome.outcome_code == "non_finite_output"
+                and outcome.error_type == "float32_projection_overflow"
+            )
+            for record in self.failure_records
+            for outcome in record.output_outcomes
+        ):
+            raise ValueError("float32 numeric profile requires an output resolution loss")
+        if (
+            isinstance(self.sampling_recipe, _ReportSamplingRecipeV12)
+            and sum(
                 batch.draw_count
                 for batch in self.sampling_recipe.gaussian_numeric_profile.draw_batches
             )
@@ -356,6 +413,14 @@ class PropagationReportV12(_PropagationReportFields):
     draw_outcome_provenance: _ReportDrawOutcomeProvenanceV12
 
 
+class PropagationReportV13(_PropagationReportFields):
+    """Science-owned DTO for output-resolution-aware propagation reports."""
+
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.3"
+    schema_version: Literal["1.3"]
+    draw_outcome_provenance: _ReportDrawOutcomeProvenanceV13
+
+
 def _simulation_result_ref(selector: object) -> SimulationResultRef:
     """Normalize a caller selector to the Core-owned typed SimulationResult ref."""
     if isinstance(selector, (str, ArtifactID)):
@@ -406,7 +471,7 @@ def _load_validated_uncertainty_source_read(
     report_version = (
         None if report_manifest.artifact_schema is None else report_manifest.artifact_schema.version
     )
-    report: PropagationReportV11 | PropagationReportV12
+    report: PropagationReportV11 | PropagationReportV12 | PropagationReportV13
     if report_version == "1.1":
         report = validate_core_model_json_artifact(
             PropagationReportV11,
@@ -417,6 +482,13 @@ def _load_validated_uncertainty_source_read(
     elif report_version == "1.2":
         report = validate_core_model_json_artifact(
             PropagationReportV12,
+            store,
+            selected_report_ref,
+            manifest_profile_sha256=selected_report_ref.manifest_profile_sha256,
+        )
+    elif report_version == "1.3":
+        report = validate_core_model_json_artifact(
+            PropagationReportV13,
             store,
             selected_report_ref,
             manifest_profile_sha256=selected_report_ref.manifest_profile_sha256,
@@ -507,6 +579,7 @@ def load_science_simulation_result_subject_uncertainty_projection(
 __all__ = [
     "PropagationReportV11",
     "PropagationReportV12",
+    "PropagationReportV13",
     "load_science_simulation_result_subject_uncertainty_projection",
     "load_science_simulation_result_uncertainty_admission",
 ]

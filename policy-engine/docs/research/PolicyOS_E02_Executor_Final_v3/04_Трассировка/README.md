@@ -1,0 +1,9 @@
+# E02 requirement and test traceability
+
+This directory contains the packet trace records and shared traceability registers. The packet records connect each requirement and local test to its criterion source, implementation owner, relevant shared bindings, and preservation or residual obligations. Use the exact JSON Pointer recorded for a criterion; do not replace repeated occurrences with a deduplicated count.
+
+The canonical index records 127 packets, 606 requirements, 613 local tests, and 282 source IDs. The shared integration map covers 42 scenarios and 159 bindings; it distinguishes shared requirements from local-only requirements and records explicit membership exceptions. These are different denominators and must not be added together or treated as completed work.
+
+Use the [integration map](Связь_требований_с_интеграцией.json) with the [shared scenario descriptions](../03_Интеграция/Сценарии.json) to follow cross-packet producer and consumer obligations. [`Требования_и_проверки.json`](Требования_и_проверки.json) is the requirements and test register; [`Карта_исходных_ID.json`](Карта_исходных_ID.json) maps source IDs; [`Остатки_и_сохранение.json`](Остатки_и_сохранение.json) records residual and preservation bindings; and [`Реестр_ограниченных_решений.json`](Реестр_ограниченных_решений.json) holds bounded decisions. The [127-packet index](Индекс.json) records the package and traceability denominators.
+
+For execution order, ownership and current status, use the [lane plan](../09_Исполнение/План_исполнения.md) and its single [working-state register](../09_Исполнение/Состояние_исполнения.json). This trace corpus preserves the commissioned criteria and relationships; progress belongs in the working-state register, with evidence tied to the actual source and run that produced it.

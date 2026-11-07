@@ -396,7 +396,7 @@ class GatewayLLMClient:
                 successful[-1] if successful else b"",
             )
 
-        return PreparedLLMRequest(identity, execute)
+        return PreparedLLMRequest(identity, execute, wire_payload=payload_bytes)
 
     def cache_request_identity(self, **kwargs: Any) -> dict[str, Any]:
         """Expose the same detached model request descriptor used by preparation."""

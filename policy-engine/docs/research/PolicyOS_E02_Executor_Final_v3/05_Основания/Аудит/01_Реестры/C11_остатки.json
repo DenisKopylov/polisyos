@@ -1,0 +1,93 @@
+{
+  "pass_id": "C11_SEL01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "items": [
+    {
+      "id": "C11-R01",
+      "source_ids": [
+        "B36"
+      ],
+      "type": "bounded_implementation_defect",
+      "severity": "medium",
+      "confidence": "high_for_source_body; native_reach_and_frequency_unverified",
+      "owner": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py::_candidate_selection_signal → _required_modalities → select_value_method_for_problem",
+      "finding": "Opaque candidate/atom IDs contribute substring panel to compulsory modality, changing applicability of unchanged input",
+      "probes": [
+        "P17",
+        "P18",
+        "P19",
+        "P20"
+      ],
+      "preserve": [
+        "explicit hard modalities",
+        "same explicit-request eligibility",
+        "no catalog intersection"
+      ],
+      "repair_direction": "Separate IDs and advisory lexical proposals from typed mandatory requirements using existing owner channels",
+      "acceptance": "Neutral/keyword ID rename leaves applicability unchanged; actual required panel remains enforced; compatible native method consumed"
+    },
+    {
+      "id": "C11-R02",
+      "source_ids": [
+        "B35"
+      ],
+      "type": "bounded_diagnostic_defect",
+      "severity": "low_for_selection_medium_for_repair_feedback",
+      "confidence": "high_for_rank_and_receipt_bodies; real_score_distribution_unmeasured",
+      "owner": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py::_rank_entries_with_scores / _build_value_method_selection_receipt",
+      "finding": "Scalar-below explanation can be false when truthfulness depth determines lexicographic rank",
+      "probes": [
+        "P29",
+        "P30"
+      ],
+      "preserve": [
+        "existing lexicographic order",
+        "actual scores",
+        "content-bound receipt"
+      ],
+      "repair_direction": "Derive reason from actual distinguishing rank key without changing policy",
+      "acceptance": "Higher scalar but lower first-key loser reports first-key reason; same-tier scalar/tie reasons remain correct"
+    },
+    {
+      "id": "C11-G01",
+      "source_ids": [
+        "B34"
+      ],
+      "type": "provenance_acceptance_boundary_not_exploit",
+      "probes": [
+        "P26"
+      ],
+      "finding": "Self-consistent receipt and context equality alone do not establish complete external denominator",
+      "preserve": [
+        "existing report-bound catalog intake",
+        "candidate-only availability",
+        "genuine singleton",
+        "historical reader"
+      ],
+      "repair_direction": "Qualify actual scoped catalog intake and real consumer; test coherently hidden member at owner boundary, not only stale hash",
+      "authority_bypass_established": false
+    },
+    {
+      "id": "C11-G02",
+      "source_ids": [
+        "B35"
+      ],
+      "type": "partial_diagnostic_contract",
+      "probes": [
+        "P31"
+      ],
+      "finding": "Hard-excluded member remains in denominator but has no per-entry rejection reason in returned value trace",
+      "repair_direction": "Carry actual existing eligibility decisions and reasons, without fake rank/score or second selector"
+    },
+    {
+      "id": "C11-G03",
+      "source_ids": [
+        "B36"
+      ],
+      "type": "adapter_scope_boundary",
+      "finding": "Adjacent type/shape/unit adapter plans do not establish arbitrary modality conversion; no necessary new converter identified",
+      "repair_direction": "Only qualify an actual supported conversion when the concrete task requires it; preserve input/output semantics"
+    }
+  ],
+  "no_product_changes": true
+}

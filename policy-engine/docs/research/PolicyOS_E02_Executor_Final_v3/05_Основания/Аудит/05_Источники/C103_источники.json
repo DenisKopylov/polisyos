@@ -1,0 +1,223 @@
+{
+  "pass_id": "C103",
+  "bundle": "NET-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/resilience/rate_limiter.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          572
+        ]
+      ],
+      "evidence_level": "Полный модуль прочитан/исполнен unchanged: finite admission, unit capacity/refill, cooldown, adaptive owner, common invocation helper и decorator. Trace dependency fixture явно отделена.",
+      "git_blob": "f3c4784ee5dd9d2f589e9da91fd43abc0504503a",
+      "sha256": "72ce19cb0939f73d703571ea8e733e3a95f025bb5cd1ff595d019f685acc1ca1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/resilience/circuit_breaker.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          733
+        ]
+      ],
+      "evidence_level": "Полный модуль прочитан/исполнен unchanged: issued lease/generation/active owner/finalization, stale completion, local-admission distinction, actual decorator. No live provider.",
+      "git_blob": "23a47e6e5c618ddffc60838063bda8c12c21dc7a",
+      "sha256": "7cc6d9cd0be0b029f9fea946e9ee48dbba1d9d6fe405968be816a75d37b074cd",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/resilience/_bounded_registry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          152
+        ]
+      ],
+      "evidence_level": "Полный registry прочитан/исполнен unchanged. Actual lock+pin+quiescent predicate+capacity refusal; bounded defaults не повышались в production. Малые test caps1/2 explicitly controlled.",
+      "git_blob": "ca883c7209e56b9f208483c675a9a7ab805a2e89",
+      "sha256": "4f95f1e9afe48891facf177e1ca0de9f728bb46d407b604aab099f8c9b02f11d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/fabric/connectors/resilience/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/resilience/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          384
+        ]
+      ],
+      "evidence_level": "Полный resolver/apply wrapper прочитан. Actual rate→retry→circuit invocation и wrapper-owned registry исполняются; fallback consumers отдельно не квалифицированы.",
+      "git_blob": "d114813e9d0a869ac4dd2014b72773b9573ebb4f",
+      "sha256": "f35f84b08f937d5e4cdb6dce92468ceb2622232415e9343edace934f30e947ef",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/fabric/connectors/reference/rest_json.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/reference/rest_json.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          781
+        ]
+      ],
+      "evidence_level": "Полный REST connector прочитан. Actual connect/fetch/pagination/version/wrapper lifecycle выполняется через existing _RecordingREST с in-memory _get_session/_request_page_raw. aiohttp external HTTP не исполняется.",
+      "git_blob": "6242e66af00dbdcc2545f925977cf9178595aed0",
+      "sha256": "a861d2f55f95f76df011d23e62e9b93ab1e0612ad206eb31eb0fbfd8c912331a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/fabric/connectors/test_resilience.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          110
+        ],
+        [
+          257,
+          445
+        ],
+        [
+          612,
+          990
+        ]
+      ],
+      "evidence_level": "17 unchanged bodies/27 cases выполнены из311–445 и612–990. Telemetry-specific257–310 прочитаны source-only. Остальной1048-line corpus не объявлен полностью прочитанным или исполненным.",
+      "git_blob": "c6f1afe1366cb79cf9db7e55faddc212f7f1e972",
+      "sha256": "c422584a8db82f72f86091b276b082397b9dac38ab8cbce7fa7773e786f52ded",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/tests/unit/fabric/connectors/test_regulator_lifetime_e02.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/fabric/connectors/test_regulator_lifetime_e02.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          536
+        ]
+      ],
+      "evidence_level": "Полный existing suite прочитан.18 unchanged test bodies/28 cases PASS в final bounded run04; actual REST pagination и registry-installed wrapper, provider seam/clock/no-op telemetry fixtures.",
+      "git_blob": "7bf9bf078d505c3625082d3fd2321e6322c4424f",
+      "sha256": "b15773b2fb88c8d237c84e5cc2e5e3b9574df40b7fec9739d36f2c223591b03a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          85
+        ],
+        [
+          1006,
+          1110
+        ]
+      ],
+      "evidence_level": "Полные relevant SLO/resilience install wrappers прочитаны. Actual invalid rate достигает owner до provider; optional no-op telemetry callback mismatch вrun03 сохранён, finalrun04 использует явно обозначенный SLO callback fixture.",
+      "git_blob": "4b779aef2c3ae17ec98d979e27800621916773d5",
+      "sha256": "91ad2b9c34f1895cd7ed2feded64e2fe373156f0fb2505f4383cf54fd74a9de1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/core/resilience/retry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/resilience/retry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          435
+        ]
+      ],
+      "evidence_level": "Полный shared retry прочитан. Existing REST consumer использует actual decorator/policy и cancellation propagation; synthetic ValueError не retryable. Live Retry-After HTTP и все fallback semantics не заверены.",
+      "git_blob": "b25efd5c6222449fdfba5058e08f8db7d6e51321",
+      "sha256": "08b2d4db030005b8f582af2adc85d8b0516f54d14dc70372cb1bc449275997f3",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/core/observability/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/observability/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          130
+        ]
+      ],
+      "evidence_level": "Прочитан optional-dependency fallback и MetricsRegistry.__getattr__. Runtime no-op metric object не callable как record_slo_connector_request; это dependency-specific qualification observation, не утверждение о supported full telemetry.",
+      "git_blob": "b128741cb6e4a0efc6b815e1ecd674fb974d95a4",
+      "sha256": "b0dfb0934dc4d335ee1b68e1e593a853a8a368676ed2174053cc792b229f84cf",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/fabric/connectors/types/connector_types.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/types/connector_types.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          158
+        ]
+      ],
+      "evidence_level": "Полные ConnectorError/ConfigurationError/ConnectionError/RateLimitError прочитаны; actual typed provider cooldown связывается с тем же limiter. Остальные connector models не квалифицированы этим range.",
+      "git_blob": "7b34c8127021b06818121c598bd4737052f2d925",
+      "sha256": "7a01a0e4f9f051e8f9cff21e4f081f44b84d805787b03b7d26a6d639c1a8096e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/connectors/pool.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1301
+        ]
+      ],
+      "evidence_level": "Соседний owner полностью прочитан/исполнен C102 на том же blob. C103 не повторяет его test pass и не закрывает C102-R01; regulator/pool ownership различены.",
+      "git_blob": "82cdc4857832cf0954e14addb2a1a9624bf2d2cb",
+      "sha256": "f70fd628b4f99f26483e59965533e4d75b88b1d6fba1a58125d6cec6a95986b5",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

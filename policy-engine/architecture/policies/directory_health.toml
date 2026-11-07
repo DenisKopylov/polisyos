@@ -66,6 +66,7 @@ allowed_root_loose_files = [
   "hatch.toml",
   "pytest.ini",
   "ruff.toml",
+  "ruff.generated.toml",
   "uv.lock",
   "uv.toml",
 ]
@@ -86,6 +87,8 @@ registered_frontend_fixture_roots = [
   "apps/runtime-dashboard/src/test/contracts/fixtures",
   "apps/runtime-dashboard/src/test/fixtures",
   "apps/runtime-dashboard/src/features/trust/components/__fixtures__",
+  "apps/runtime-dashboard/src/api/__fixtures__",
+  "apps/runtime-dashboard/src/api/hooks/__fixtures__",
 ]
 ignored_empty_directory_roots = [
   ".git",

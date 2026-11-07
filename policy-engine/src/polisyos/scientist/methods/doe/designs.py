@@ -124,6 +124,7 @@ class ParameterSpec(BaseModel):
     distribution_spec: DistributionSpecV1 | None = None
     baseline: float | None = None
     description: str = ""
+    unit: str = Field(default="unspecified", min_length=1)
     num_levels: int = Field(default=4, ge=2)
 
     @model_validator(mode="after")
@@ -164,6 +165,10 @@ class SensitivityPlan(BaseModel):
     n_trajectories: int = Field(default=10, ge=1)
     confidence_level: float = Field(default=0.95, gt=0.0, lt=1.0)
     seed: int | None = None
+    replica_id: int = Field(default=0, ge=0, strict=True)
+    """Independent request replica; zero preserves the original seed streams."""
+    input_law: Literal["unknown", "independent", "dependent"] = "unknown"
+    """Declared experimental law, never evidence of a population law."""
 
     # Guardrails for expensive batches.
     max_estimated_runs: int = Field(default=1000, ge=1)
@@ -224,6 +229,46 @@ class SensitivityPlan(BaseModel):
         return self
 
 
+def _admit_sensitivity_plan(
+    plan: SensitivityPlan,
+    *,
+    actual_run_count: int | None = None,
+) -> SensitivityPlan:
+    """Revalidate a detached complete request before work or backend materialization.
+
+    Existing construction-time bounds also apply after assignment, nested model
+    mutation or ``model_copy``.  Failed-run filtering cannot hide a larger
+    original Morris experiment than the declared trajectory count.
+    """
+    admitted = SensitivityPlan.model_validate(plan.model_dump(mode="python"))
+    if (
+        admitted.method == SensitivityMethod.MORRIS
+        and actual_run_count is not None
+        and actual_run_count > admitted.estimated_runs
+    ):
+        raise ValueError(
+            "actual Morris analysis rows exceed admitted plan "
+            f"({actual_run_count} > {admitted.estimated_runs}); "
+            "declare the actual trajectory count in SensitivityPlan"
+        )
+    return admitted
+
+
+def _admit_sensitivity_analysis_plan(
+    plan: SensitivityPlan,
+    *,
+    actual_run_count: int | None = None,
+) -> SensitivityPlan:
+    """Admit both the request and known analyzer compatibility before external work."""
+    admitted = _admit_sensitivity_plan(plan, actual_run_count=actual_run_count)
+    if admitted.method == SensitivityMethod.FAST and admitted.seed is not None:
+        raise ValueError(
+            "FAST analysis is compatibility_pending for seeded plans: "
+            "SALib 1.5.2 mutates process-global NumPy RNG"
+        )
+    return admitted
+
+
 def _derive_backend_seed(seed: int | None, stream: str) -> int | None:
     """Derive a stable backend seed for one logical DOE stream.
 
@@ -236,6 +281,40 @@ def _derive_backend_seed(seed: int | None, stream: str) -> int | None:
     payload = f"polisyos-doe-seed-v1:{seed}:{stream}".encode()
     digest = hashlib.blake2b(payload, digest_size=8).digest()
     return int.from_bytes(digest, byteorder="little") % (2**32)
+
+
+def _derive_plan_seed(plan: SensitivityPlan, stream: str) -> int | None:
+    """Derive a local stage seed after binding the explicit request replica."""
+    seed = plan.seed
+    if plan.replica_id:
+        seed = _derive_backend_seed(seed, f"replica:{plan.replica_id}")
+    return _derive_backend_seed(seed, stream)
+
+
+def _uncertainty_seed(plan: SensitivityPlan) -> int | None:
+    """Preserve an explicit uncertainty seed while separating new replicas."""
+    seed = plan.uncertainty.random_seed
+    if seed is None:
+        return _derive_plan_seed(plan, "uncertainty")
+    if plan.replica_id:
+        return _derive_backend_seed(seed, f"replica:{plan.replica_id}:uncertainty")
+    return seed
+
+
+def _request_rng_streams(plan: SensitivityPlan) -> dict[str, int | None]:
+    """Describe local stream inputs, without attesting an external evaluator."""
+    request_seed = plan.seed
+    if plan.replica_id:
+        request_seed = _derive_backend_seed(request_seed, f"replica:{plan.replica_id}")
+    return {
+        "request_seed": request_seed,
+        "replica_id": plan.replica_id,
+        "sampling": _derive_plan_seed(plan, f"sampling:{plan.method.value}"),
+        "analysis": _derive_plan_seed(plan, f"analysis:{plan.method.value}"),
+        "preprocess:pca:doe-pca-v1": _derive_plan_seed(plan, "preprocess:pca:doe-pca-v1"),
+        "model": _derive_plan_seed(plan, "model"),
+        "uncertainty": _uncertainty_seed(plan),
+    }
 
 
 _DOE_DISTRIBUTION_SCHEMA_VERSION = "doe-distribution-v1"
@@ -289,6 +368,7 @@ def _salib_parameter_mapping(
 
 def _build_salib_problem(plan: SensitivityPlan) -> tuple[dict[str, object], str]:
     """Build the canonical bounded SALib problem and its mapping fingerprint."""
+    plan = _admit_sensitivity_plan(plan)
     names = [item.name for item in plan.parameter_specs]
     bounds: list[list[float]] = []
     dists: list[str] = []

@@ -313,6 +313,7 @@ def test_served_actual_v5_n5_witness_reconciles_owner_quantities(
             served_recorded_candidate_gateway,
             source_owner_root=source.root,
             sequential_oracle=oracle,
+            provider_mode="synthetic_settled_candidate",
         )
     assert produced is not None and produced["run_id"] and produced["candidate_id"]
     assert len(checked) == 1, "no genuine served B result reached the witness oracle"

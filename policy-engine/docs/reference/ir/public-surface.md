@@ -20,7 +20,7 @@ Source plan phase: D1-L4 Phase 3 public surface cleanup and hot-path import opti
 
 | Facade | Symbol count | Import policy |
 | --- | --- | --- |
-| `polisyos.ir.analytics` | 320 | curated lazy facade |
+| `polisyos.ir.analytics` | 321 | curated lazy facade |
 | `polisyos.ir.kernel` | 81 | full lazy facade |
 | `polisyos.ir.loading` | 12 | owner-curated lazy facade |
 | `polisyos.ir.model_layer` | 6 | owner-curated lazy facade |

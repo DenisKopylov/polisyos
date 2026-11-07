@@ -1,0 +1,267 @@
+{
+  "packet_id": "CMP-02",
+  "lane": "LANE-04",
+  "source_ids": [
+    "B45",
+    "B46"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/CMP-02.md",
+    "../05_Основания/Аудит/01_Реестры/C43_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C43-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CMP-02-01",
+        "REQ-CMP-02-02",
+        "REQ-CMP-02-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Bounded actual-body observations не заменяют native registry/dispatcher/checkpoint на P-CORE.",
+      "inventory_id": "audit-residual:C43_остатки:0"
+    },
+    {
+      "audit_id": "C43-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CMP-02-02"
+      ],
+      "shared_owner": null,
+      "rationale": "WARN намеренно допускает ограниченный кандидат; проверить сохранение limitation в downstream, не объявлять сам tolerant profile дефектом.",
+      "inventory_id": "audit-residual:C43_остатки:1"
+    },
+    {
+      "audit_id": "C43-G03",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CMP-02-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Occurrence checker сохраняется; clean tag-rule report не доказывает методологическую состоятельность.",
+      "inventory_id": "audit-residual:C43_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-CMP-02-01",
+      "text": "На реальном MethodComposer→SlotLinker→sequential/async STRICT (либо linker allow_partial_links=False) отвергает повторное подключение одного concrete target slot до dispatch; ошибочные endpoints также отвергаются. Explicit merge с раздельными left/right принимает оба источника и возвращает один результат60 при перестановке UUID. Корневые external inputs и повторные FQN разных occurrences не объявляются collision.",
+      "source_ids": [
+        "B45",
+        "B46"
+      ],
+      "audit_ids": [
+        "C43-G01"
+      ],
+      "test_ids": [
+        "TEST-CMP-02-01"
+      ]
+    },
+    {
+      "id": "REQ-CMP-02-02",
+      "text": "WARN candidate сохраняет исходные collision warnings и compiler-owned validation_context до result и checkpoint fresh reader; потребитель, требующий однозначности, выбирает STRICT либо explicit merge, не трактует WARN как доказанное объединение. Исходно допустимые WARN результаты20/10 при UUID-порядке остаются явно ограниченными. Stripped/altered diagnostics, mode, effective request или incomplete prefix/history вызывают существующий отказ checkpoint/reconciliation до нового dispatch. Same request с полным checkpoint восстанавливает3 node results и выполняет0 новых dispatch.",
+      "source_ids": [
+        "B45",
+        "B46"
+      ],
+      "audit_ids": [
+        "C43-G01",
+        "C43-G02"
+      ],
+      "test_ids": [
+        "TEST-CMP-02-02"
+      ]
+    },
+    {
+      "id": "REQ-CMP-02-03",
+      "text": "SemanticValidator проверяет каждый dependent occurrence: наличие хотя бы одного prerequisite строго раньше данного index; self-tag не удовлетворяет себе, поздний prerequisite не исправляет раннее нарушение. Issues сохраняют node UUID/index и severity выбранного режима. Неизвестные/нейтральные tags могут дать чистый report, но не scientific attestation; установленные зависимости задаются existing signature/explicit edges.",
+      "source_ids": [
+        "B45",
+        "B46"
+      ],
+      "audit_ids": [
+        "C43-G01",
+        "C43-G03"
+      ],
+      "test_ids": [
+        "TEST-CMP-02-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-CMP-02-01",
+      "requirement_ids": [
+        "REQ-CMP-02-01"
+      ],
+      "level": "native compiler + executors",
+      "setup": "Native signatures/registry: A→10, B→20; direct both→same target slot; separate merge(left,right)→sum→times2; fixed UUID swaps и repeated-FQN independent targets.",
+      "action": "Build+execute STRICT и partial-disabled; execute explicit merge sequential/async; mutate endpoint node IDs.",
+      "oracle": "Collision/endpoint cases fail before dispatcher count increases; merge60 for both UUID assignments/backend; valid repeated occurrences and root external input succeed.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-CMP-02-02",
+      "requirement_ids": [
+        "REQ-CMP-02-02"
+      ],
+      "level": "native persistence + fresh consumer",
+      "setup": "Same two producers into one WARN slot, two UUID assignments; real checkpoint JSON/sidecar lifecycle, supplied same live chain, fresh reader and dispatch counter.",
+      "action": "Execute WARN, save/read/resume; strip warnings, alter mode/context/input/seed/prefix/history one at a time; inspect actual downstream result consumer role.",
+      "oracle": "Baseline limited20/10 retains warning/mode; complete checkpoint returns3 prior node results,0 dispatch; each altered binding refuses before dispatch. Consumer requiring deterministic merge uses strict/explicit merge; no new authority registry. Checkpoint test is not standalone recipe reconstruction (CMP-01).",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-CMP-02-03",
+      "requirement_ids": [
+        "REQ-CMP-02-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Real SemanticValidator with signatures tagged estimate/sensitivity: estimate1→sensitivity→estimate2; sensitivity1→estimate→sensitivity2; sensitivity1→sensitivity2→estimate; self both-tags; neutral tags.",
+      "action": "Validate STRICT and WARN; repeat dependent FQN with distinct UUIDs; inspect full issues.",
+      "oracle": "First chain no ordering issue; second only index0; third indices0,1; self at0 fails; UUID/index exact; STRICT error versus WARN warning. Neutral clean report is recorded only as heuristic result, not empirical validity.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I04-A",
+    "E02-I04-B"
+  ],
+  "dependencies": [
+    "CMP-01"
+  ],
+  "preservation": [
+    "Единый SlotLinker.validate_chain проверяет concrete source/target node IDs и duplicate target slot на границе composer.",
+    "Explicit merge получает отдельные left/right slots и даёт UUID-invariant результат60; roots продолжают получать внешние inputs.",
+    "WARN сохраняет collision diagnostics и validation_context в исполнении, результате и checkpoint; OFF не стирает slot collision warning.",
+    "Checkpoint связывает effective request, prefix, history и validation context; fresh readback с живой chain сохраняет ограничения.",
+    "Ordering диагностика содержит конкретные node_id/index; ранний prerequisite достаточен и поздний повтор его не отменяет; STRICT/WARN различаются severity."
+  ],
+  "design_alignment": [
+    "Полезный conditional candidate допускается при сохранении ограничений; authoritative/однозначный потребитель не должен забывать их.",
+    "Occurrence identity и custody diagnostics связаны с результатом; эвристическая проверка не подменяет эмпирическое основание."
+  ],
+  "open_decisions": [],
+  "source_obligations": [
+    "B45: duplicate producers в один concrete input — STRICT reject; для детерминированного объединения explicit merge, не last-write-wins. WARN допустим только как явно ограниченный кандидат (REQ01–02).",
+    "B46: prerequisite ordering по occurrence, а не последнему FQN; исходные эвристические tags не расширяются до универсального научного закона (REQ03)."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/foundry/methods/components/composer.py: MethodComposer.validate, reconcile_validation_context",
+    "policy-engine/src/polisyos/foundry/methods/components/linker.py: SlotLinker.validate_chain",
+    "policy-engine/src/polisyos/foundry/methods/components/semantic_validator.py: SemanticValidator._check_ordering_rules",
+    "policy-engine/src/polisyos/foundry/methods/backends/checkpointing.py: CheckpointingExecutor, _validation_context_payload"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_cmp_02.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0106",
+      "requirement_ids": [
+        "REQ-CMP-02-01",
+        "REQ-CMP-02-02",
+        "REQ-CMP-02-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Bounded actual-body observations не заменяют native registry/dispatcher/checkpoint на P-CORE."
+    },
+    {
+      "inventory_id": "remaining:0107",
+      "requirement_ids": [
+        "REQ-CMP-02-02"
+      ],
+      "disposition": "qualify",
+      "rationale": "WARN намеренно допускает ограниченный кандидат; проверить сохранение limitation в downstream, не объявлять сам tolerant profile дефектом."
+    },
+    {
+      "inventory_id": "remaining:0108",
+      "requirement_ids": [
+        "REQ-CMP-02-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Occurrence checker сохраняется; clean tag-rule report не доказывает методологическую состоятельность."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0138",
+      "requirement_ids": [
+        "REQ-CMP-02-01"
+      ],
+      "test_ids": [
+        "TEST-CMP-02-01"
+      ],
+      "rationale": "Shared occurrence checker — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0139",
+      "requirement_ids": [
+        "REQ-CMP-02-01"
+      ],
+      "test_ids": [
+        "TEST-CMP-02-01"
+      ],
+      "rationale": "Explicit merge nodes — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0140",
+      "requirement_ids": [
+        "REQ-CMP-02-02"
+      ],
+      "test_ids": [
+        "TEST-CMP-02-02"
+      ],
+      "rationale": "WARN diagnostics and validation_context — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0141",
+      "requirement_ids": [
+        "REQ-CMP-02-02"
+      ],
+      "test_ids": [
+        "TEST-CMP-02-02"
+      ],
+      "rationale": "Checkpoint binding and replay guards — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0142",
+      "requirement_ids": [
+        "REQ-CMP-02-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-02-03"
+      ],
+      "rationale": "Per-occurrence target node/index diagnostics — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0143",
+      "requirement_ids": [
+        "REQ-CMP-02-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-02-03"
+      ],
+      "rationale": "Early prerequisite semantics — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0144",
+      "requirement_ids": [
+        "REQ-CMP-02-02",
+        "REQ-CMP-02-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-02-02",
+        "TEST-CMP-02-03"
+      ],
+      "rationale": "Separate strict/warning modes — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}
+

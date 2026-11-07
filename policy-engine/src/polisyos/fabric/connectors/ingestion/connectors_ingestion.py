@@ -29,7 +29,22 @@ def run(
     license_name: str,
     cas_root: Path | None = Path(".polisyos/cas"),
 ) -> EvidenceBundleRef | None:
-    """Run helper."""
+    """Run connector ingestion and return its evidence-bundle reference.
+
+    This public entrypoint forwards the manifest and source metadata to the
+    canonical Fabric ingestion implementation.
+
+    Args:
+        connector_manifest: Manifest mapping, filesystem path, path string, or
+            parsed :class:`ConnectorManifestSpec`.
+        source: Source label recorded for the ingested data.
+        license_name: License label recorded for the ingested data.
+        cas_root: Optional local CAS root forwarded to the implementation.
+
+    Returns:
+        The evidence-bundle reference produced by ingestion, or ``None`` when
+        the canonical implementation returns no bundle.
+    """
     return run_connectors_ingestion(
         connector_manifest=connector_manifest,
         source=source,

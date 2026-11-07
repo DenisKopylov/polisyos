@@ -354,7 +354,11 @@ def test_https_connection_keeps_origin_hostname_for_sni(monkeypatch):
 
 
 @pytest.mark.integration
-def test_real_local_tls_keeps_hostname_and_verifies_connected_peer(monkeypatch, tmp_path):
+@pytest.mark.asyncio
+@pytest.mark.parametrize("adapter", ["transport", "seed", "search"])
+async def test_real_local_tls_keeps_hostname_and_verifies_connected_peer(
+    monkeypatch, tmp_path, adapter
+):
     host = "tls.example.test"
     body = b"verified local TLS"
     received: list[tuple[str | None, str, str]] = []
@@ -434,23 +438,47 @@ def test_real_local_tls_keeps_hostname_and_verifies_connected_peer(monkeypatch, 
     port = server.server_port
     url = f"https://{host}:{port}/verified"
     try:
-        result = transport.fetch_raw(
-            url,
-            constraints=SearchConstraints(
-                allowed_domains=[host],
-                allow_private_networks=True,
-            ),
-            timeout_s=3,
-            user_agent="la024-tls-test",
-            max_bytes=1000,
-        )
+        constraints = SearchConstraints(allowed_domains=[host], allow_private_networks=True)
+        if adapter == "transport":
+            result = transport.fetch_raw(
+                url,
+                constraints=constraints,
+                timeout_s=3,
+                user_agent="la024-tls-test",
+                max_bytes=1000,
+            )
+            assert result.raw_bytes == body
+            assert result.final_url == url
+        elif adapter == "seed":
+            source = SourceSpec(kind="url", canonical_url=url, url=url, license="fixture-only")
+            result = fetch_seed_url(
+                source,
+                constraints=constraints,
+                timeout_s=3,
+                user_agent="la024-tls-test",
+                max_bytes=1000,
+            )
+            assert result.raw_bytes == body
+            assert result.source_identity == url
+            assert result.mime == "text/plain"
+        else:
+            result = await fetch_open_page(
+                url,
+                constraints=constraints,
+                timeout_s=3,
+                user_agent="la024-tls-test",
+                max_bytes=1000,
+            )
+            assert result.status == "ok"
+            assert result.text == body.decode()
+            assert result.content_sha256 == hashlib.sha256(body).hexdigest()
+            assert result.byte_size == len(body)
+            assert result.final_url == url
     finally:
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
 
-    assert result.raw_bytes == body
-    assert result.final_url == url
     assert received == [(f"{host}:{port}", "/verified", "127.0.0.1")]
     assert connected_peers == [("127.0.0.1", port)]
     assert server_names == [host]
@@ -458,6 +486,7 @@ def test_real_local_tls_keeps_hostname_and_verifies_connected_peer(monkeypatch, 
         "OBSERVED_TLS "
         + json.dumps(
             {
+                "adapter": adapter,
                 "sni": server_names,
                 "origin_hostname": host,
                 "host_header": received[0][0],
@@ -466,7 +495,7 @@ def test_real_local_tls_keeps_hostname_and_verifies_connected_peer(monkeypatch, 
                 "certificate_san_hostname": host,
                 "certificate_verification": "passed",
                 "certificate_pem_sha256": hashlib.sha256(certificate_pem).hexdigest(),
-                "final_url": result.final_url,
+                "final_url": url,
             },
             sort_keys=True,
         )

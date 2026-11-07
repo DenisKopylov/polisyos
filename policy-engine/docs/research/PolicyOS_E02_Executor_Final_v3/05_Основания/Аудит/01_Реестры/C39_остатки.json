@@ -1,0 +1,75 @@
+{
+  "pass": "C39",
+  "bundle": "PLG-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C39-R01",
+      "type": "invalid_factory_result_aborts_registration",
+      "severity": "medium",
+      "source_ids": [
+        "LA-022"
+      ],
+      "evidence": [
+        "P13",
+        "P14",
+        "S01:104–110,146–149,185–193",
+        "S02:196–206"
+      ],
+      "remaining": "На существующей domain admission границе валидировать результат create_plugin/Plugin до включения в список и изолировать диагностируемую ошибку источника. Не допускать, чтобы malformed candidate прекращал регистрацию следующих корректных plugins; сохранить DomainPlugin ABI, deterministic winner и полезные source errors.",
+      "limits": "Actual Core file loader и domain registry/auto_register исполнены на tiny audit-owned files: object() result вызывает AttributeError, later-good не зарегистрирован. Prefix fixture None даёт тот же класс отказа. Это bounded startup/availability дефект, не доказанная production exploitation или security sandbox bypass."
+    },
+    {
+      "id": "C39-G01",
+      "type": "native_builtin_distribution_and_consumer_qualification",
+      "source_ids": [
+        "LA-022"
+      ],
+      "evidence": [
+        "P01",
+        "P02",
+        "P05",
+        "P11",
+        "S14",
+        "S15"
+      ],
+      "remaining": "В поддерживаемой среде выполнить found focused tests, настоящий builtin Economics state/consumer и установленный declared entrypoint. Shared file loader реально исполнен, но metadata enumeration/native package side effects и JAX state остаются отдельно непроверенными.",
+      "limits": "18 MATCH, 0 ERROR; MATCH включает R01. pytest отсутствует до collection. Existing repository tests не исполнены; реальных packages не устанавливали и всё окружение не импортировали."
+    },
+    {
+      "id": "C39-G02",
+      "type": "legacy_prefix_retirement_and_dependency_order",
+      "source_ids": [
+        "LA-022"
+      ],
+      "evidence": [
+        "P08",
+        "P09",
+        "P15",
+        "S01:91–112,174–195"
+      ],
+      "remaining": "Завершать retirement prefix scanning только после явных declarations известных consumers. Текущий scanner остаётся включённым и auto_register делает один проход, не topological dependency planning. Поддержанный порядок/source declarations должны учитывать это; при необходимости расширять существующий adapter, не переписывать все registries.",
+      "limits": "Missing dependency guard и lazy hooks намеренно сохранены. P15 child-before-parent предупреждён и не пересмотрен после регистрации parent; это явно показанная operational граница, не требование автоматически загружать dependency hooks или менять прежний lifecycle."
+    },
+    {
+      "id": "C39-G03",
+      "type": "discovery_is_not_component_or_authority_bridge",
+      "source_ids": [
+        "LA-022"
+      ],
+      "evidence": [
+        "P05",
+        "P06",
+        "P09",
+        "S07",
+        "S08:58–97"
+      ],
+      "remaining": "Сохранить polisyos.plugins и Domain state/reward/objective/lifecycle ABI. Core helpers использовать как общую механику, не как обещание sandbox/security/empirical authority. Если потребуется Components integration, нужен конкретный уже поддержанный kind/bridge; текущий bootstrap не объявлять готовым Domain bridge.",
+      "limits": "Components legacy group — polisyos.components, method group — polisyos.foundry_methods. Ни совпадение names, ни импортирование trusted plugin не подтверждают научную пригодность его модели."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C39-R01"
+  ]
+}

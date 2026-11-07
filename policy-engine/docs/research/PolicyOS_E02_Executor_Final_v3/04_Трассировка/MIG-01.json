@@ -1,0 +1,267 @@
+{
+  "packet_id": "MIG-01",
+  "lane": "LANE-06",
+  "source_ids": [
+    "LA-010",
+    "LA-049"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/MIG-01.md",
+    "../05_Основания/Аудит/01_Реестры/C79_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C79-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-MIG-01-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Сохранить temp pathname сразу после успешного создания, до write/flush/fsync; cleanup всех failure paths у tools.lib.fs owner.",
+      "inventory_id": "audit-residual:C79_остатки:0"
+    },
+    {
+      "audit_id": "C79-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-MIG-01-01",
+        "REQ-MIG-01-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Реальный registered/installed CLI, preflight и active secure output, а не unchanged extracted main.",
+      "inventory_id": "audit-residual:C79_остатки:1"
+    },
+    {
+      "audit_id": "C79-G02",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-MIG-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Current retirement и helper ABI сохраняются до explicit support decision; exact parser error types не нормализовать молча.",
+      "inventory_id": "audit-residual:C79_остатки:2"
+    },
+    {
+      "audit_id": "C79-G03",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-MIG-01-02",
+        "REQ-MIG-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Native model validation только structural; future true transition требует versioned converter/corpus, не fake no-op report.",
+      "inventory_id": "audit-residual:C79_остатки:3"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-MIG-01-01",
+      "text": "atomic_write_text фиксирует Path(handle.name) немедленно после входа в NamedTemporaryFile context, до рискованных write/flush/fsync. Любой exception после создания и до replace очищает только свой temp при сохранении исходного input и old output, передаёт исходную ошибку/явный cleanup failure без false success. Active SecureOutputRoot продолжает получать вызов; common text fix не обходит scoped owner. Парный atomic_write_bytes исследовать на тот же порядок и исправить в этом owner только при воспроизведённом таком же дефекте.",
+      "source_ids": [
+        "LA-010"
+      ],
+      "audit_ids": [
+        "C79-R01",
+        "C79-G01"
+      ],
+      "test_ids": [
+        "TEST-MIG-01-01"
+      ]
+    },
+    {
+      "id": "REQ-MIG-01-02",
+      "text": "Registered CLI→canonical main→IR same-version boundary вызывает настоящий nested Trinity validator, сохраняет mapping identity no-op и не пишет output при incomplete/invalid/current legacy markers/unsupported major/non-object input. Full JSON/YAML valid input проходит и публикуется атомарно. Missing operational contract отказывает до output. Generic self-edge не вводится; result означает validated unchanged, не converted/semantically admitted.",
+      "source_ids": [
+        "LA-010",
+        "LA-049"
+      ],
+      "audit_ids": [
+        "C79-G01",
+        "C79-G03"
+      ],
+      "test_ids": [
+        "TEST-MIG-01-02"
+      ]
+    },
+    {
+      "id": "REQ-MIG-01-03",
+      "text": "Поддержать current helper contract matrix: готовая model identity, migrate_policy_ir mapping identity, identity helper normalized dump/defaults, loader tuple(model,None), auto_migrate error text и actual JSONDecodeError/YAML ParserError/PolicyLoadError distinctions. Старый root path не восстанавливать; внешние command consumers и helper lifecycle квалифицировать с finite census/support window. Никакой historical output не становится validated задним числом.",
+      "source_ids": [
+        "LA-010",
+        "LA-049"
+      ],
+      "audit_ids": [
+        "C79-G02",
+        "C79-G03"
+      ],
+      "test_ids": [
+        "TEST-MIG-01-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-MIG-01-01",
+      "requirement_ids": [
+        "REQ-MIG-01-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Собственные input/old output; actual atomic_write_text, parameterized write/flush/fsync/replace faults; отдельный active SecureOutputRoot.",
+      "action": "Fault до каждого publication boundary, compare paths/bytes; success JSON/YAML; bytes sibling characterization при необходимости.",
+      "oracle": "До replace old output/input byte-identical, собственных temp0 после controllable failures; original exception виден, no success. При запрете удаления temp честный cleanup diagnostic, не ложный guarantee. SecureOutputRoot не bypass, outside root denied. Successful replace new bytes exactly expected.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-MIG-01-02",
+      "requirement_ids": [
+        "REQ-MIG-01-02"
+      ],
+      "level": "registered native command + installed entry",
+      "setup": "Full Trinity fixture с real validators, JSON/YAML variants, incomplete schema_version-only, invalid nested, legacy2.*, semantic marker, major request; actual contracts tree.",
+      "action": "Вызвать найденный registered entry и canonical main, default/explicit current; удалить required contract directory в test-owned copy.",
+      "oracle": "Valid output native loader принимает, UTF8/newline/format ожидаемы; validator вызван на no-op. Invalid/binding failure nonzero/no output replacement. Root duplicate absent; unchanged vs converted report не выдуман.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-MIG-01-03",
+      "requirement_ids": [
+        "REQ-MIG-01-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Existing test_trinity_migration helper corpus + supported caller/FQN/docs census.",
+      "action": "Mapping/model/JSON/YAML/UTF8 invalid input через каждый public helper; inspect identity/tuple/errors/defaults; fresh shape-valid2.0 loader отдельно от migration refusal.",
+      "oracle": "Exact distinct return/exception contracts сохранены; shape-valid не назван migration admission. Census фиксирует неизвестные external callers, adapters не удалены без окна. Исторические данные неизменны.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-E"
+  ],
+  "dependencies": [],
+  "preservation": [
+    "Один tools.ops_runners.migrations.migrate runner; JSON/YAML, default/explicit target и actual operational binding.",
+    "Current-version migrate_policy_ir вызывает настоящий TrinityBundle.model_validate и возвращает исходный mapping; self-edge отсутствует.",
+    "Готовая model identity, split/model-dump/tuple/auto_migrate и actual error ABI различены; shape loader не exact-version authority.",
+    "Atomic replace и scoped SecureOutputRoot сохраняются; old output/input не меняются при prepublication error."
+  ],
+  "design_alignment": [
+    "Validation, conversion и authority разные boundaries; повторное использование current owner дешевле параллельного runner.",
+    "Механика atomic publication общая, форматные правила остаются в IR/Runtime/Fabric."
+  ],
+  "open_decisions": [
+    "Если cleanup сам запрещён OS, выбрать приоритет diagnostic/exception chaining без сокрытия исходного отказа; document residual path.",
+    "Retirement error/tuple/auto_migrate только отдельным compatibility решением; в этом пакете default — сохранить."
+  ],
+  "source_obligations": [
+    "LA-010/AM01: исходный root parser уже retired; историческое поручение сначала делегировать superseded текущим отсутствием duplicate. Не возвращать POLICY_IR_CURRENT_VERSION в Common.",
+    "LA-049/LK26: validation находится на public current boundary; no-op не version conversion, tuple report None честен; не заставлять generic engine выполнять self-loops.",
+    "LK27: operational binding/containment необходимы, но не release/admission evidence."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/tools/lib/fs.py: atomic_write_text, atomic_write_bytes, active_secure_output_root",
+    "policy-engine/tools/ops_runners/migrations/migrate.py: main, _load, _dump",
+    "policy-engine/src/polisyos/ir/migrations/__init__.py: migrate_policy_ir",
+    "policy-engine/src/polisyos/ir/migrations/policy_ir.py: migrate_policy_ir_identity",
+    "policy-engine/src/polisyos/ir/loading/loaders.py: load_trinity_bundle, load_policy",
+    "policy-engine/ops/migrations/migration-contracts.toml"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_mig_01.py",
+    "policy-engine/tests/contract/test_trinity_migration.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0371",
+      "requirement_ids": [
+        "REQ-MIG-01-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Сохранить temp pathname сразу после успешного создания, до write/flush/fsync; cleanup всех failure paths у tools.lib.fs owner."
+    },
+    {
+      "inventory_id": "remaining:0372",
+      "requirement_ids": [
+        "REQ-MIG-01-01",
+        "REQ-MIG-01-02"
+      ],
+      "disposition": "qualify",
+      "rationale": "Реальный registered/installed CLI, preflight и active secure output, а не unchanged extracted main."
+    },
+    {
+      "inventory_id": "remaining:0373",
+      "requirement_ids": [
+        "REQ-MIG-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Current retirement и helper ABI сохраняются до explicit support decision; exact parser error types не нормализовать молча."
+    },
+    {
+      "inventory_id": "remaining:0374",
+      "requirement_ids": [
+        "REQ-MIG-01-02",
+        "REQ-MIG-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native model validation только structural; future true transition требует versioned converter/corpus, не fake no-op report."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0602",
+      "requirement_ids": [
+        "REQ-MIG-01-02"
+      ],
+      "test_ids": [
+        "TEST-MIG-01-02"
+      ],
+      "rationale": "Один canonical runner — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0603",
+      "requirement_ids": [
+        "REQ-MIG-01-02"
+      ],
+      "test_ids": [
+        "TEST-MIG-01-02"
+      ],
+      "rationale": "Actual validator на current boundary — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0604",
+      "requirement_ids": [
+        "REQ-MIG-01-02"
+      ],
+      "test_ids": [
+        "TEST-MIG-01-02"
+      ],
+      "rationale": "Отсутствие self-edge — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0605",
+      "requirement_ids": [
+        "REQ-MIG-01-03"
+      ],
+      "test_ids": [
+        "TEST-MIG-01-03"
+      ],
+      "rationale": "Identity/tuple/error compatibility — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0606",
+      "requirement_ids": [
+        "REQ-MIG-01-01",
+        "REQ-MIG-01-02"
+      ],
+      "test_ids": [
+        "TEST-MIG-01-01",
+        "TEST-MIG-01-02"
+      ],
+      "rationale": "Atomic replace и operational guard — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

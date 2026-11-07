@@ -1,0 +1,2518 @@
+{
+  "review_date": "2026-11-01",
+  "repo_head": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "baseline_zip_sha256": "e08baa70c8acf92f8f2e5afd8ced38c94213355dea07c4b33b14a417aefdebf3",
+  "status": "COMPLETE_FOR_ASSIGNED_PACKET_REVIEW_NOT_PRODUCT_ACCEPTANCE",
+  "packet_count": 32,
+  "requirement_count": 158,
+  "test_count": 151,
+  "verdict_counts": {
+    "retain": 23,
+    "bounded qualification": 3,
+    "targeted revision": 6
+  },
+  "packets": [
+    {
+      "packet": "EMP-01",
+      "verdict": "retain",
+      "reason": "Решение действительно устраняет unit-dependent admission и scope leakage; это не ещё один формат evidence.",
+      "technical_assessment": "Убрать rounding как numeric admission, проверять derived width до persistence, историческую width interpretation версионировать. Важнее второго знака после запятой — actual query entity/time/unit/regime и selected graph, а не region-only label. Current row grouping country/period недостаточен для promised measurement scope.",
+      "library_decision": "LIB-11: использовать существующий ObservationRecord/value_outer_set и owner query; новая causal inference библиотека не исправит неверно выбранные rows.",
+      "cost_compatibility": "Filter/pagination должны применяться до cap. Нельзя получить20001 строк чужой scope, отфильтровать и объявить свои данные отсутствующими. Unit normalization не должна менять raw source bytes/checksum.",
+      "test_validity": "Полезны unit-rescaling и overflow controls, selected-graph counterexample. Wrong implementation: достоверно подписать metadata нового scope, но читать старый region-only query. Нужны соседние entities с одинаковым временем, другие units/regime и проверка exact source IDs fresh reader; changing identifier without numeric changes alone недостаточно.",
+      "capability_free_grow": "Positive scope-compatible данные дают useful outer set; неподдержанный режим — адресное limitation. Второй entity/единица через контракт, без branch по testID; это ограниченная наблюдательная опора, не causal permission.",
+      "source_ranges": [
+        "core/contracts/value_outer_set.py:49–82,237–289,342–391",
+        "runtime/quality/generation_cycle.py:5999–6076,16154–16410,16538–16635,16970–17055",
+        "ir/observation/contracts.py:131–209"
+      ],
+      "findings": [],
+      "lane": "LANE-03",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/EMP-01.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/EMP-01.json",
+      "md_sha256": "2a00ba0285fdbc90ae36791f088f47e8583d1d87b44e1247a70521b17e6e1fca",
+      "json_sha256": "7a8658cdb6b21976d81dd9376a5cb4079bb92a0ea9a54ced3ade0d402e5fb0f9",
+      "md_lines": 209,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-EMP-01-01",
+        "REQ-EMP-01-02",
+        "REQ-EMP-01-03",
+        "REQ-EMP-01-04",
+        "REQ-EMP-01-05",
+        "REQ-EMP-01-06",
+        "REQ-EMP-01-07",
+        "REQ-EMP-01-08"
+      ],
+      "test_ids": [
+        "TEST-EMP-01-01",
+        "TEST-EMP-01-02",
+        "TEST-EMP-01-03",
+        "TEST-EMP-01-04",
+        "TEST-EMP-01-05",
+        "TEST-EMP-01-06",
+        "TEST-EMP-01-07",
+        "TEST-EMP-01-08"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "FRC-01",
+      "verdict": "retain",
+      "reason": "Counters и roles нужно исправлять от producer facts, а не заново интерпретировать badge.",
+      "technical_assessment": "95/100 может быть passed по producer threshold,10/10 — failed по другой обязательной проверке. Нельзя свести status к numerator==denominator. Шесть source-defined roles и optional reference должны сохраняться от actual diagnostic; unknown не становится measured только из-за числа.",
+      "library_decision": "LIB-11: existing forecast bridge/continuous diagnostic; не новый forecast framework ради counters.",
+      "cost_compatibility": "Нормализация один раз на boundary. Historical aliases — конечный census/retirement, не вечное угадывание dict shapes; отсутствие optional ref не повод fabricated timestamps.",
+      "test_validity": "Правильны разнонаправленные95/100 pass и10/10 fail, missing-ref и zero-denominator cases. Wrong implementation: hardcode один percent rule, оставаясь numeric-correct. Test должен сравнивать actual upstream diagnostic reason/threshold/role и downstream receipt, не ожидаемый label test fixture.",
+      "capability_free_grow": "Пропускает новый producer того же output contract без endpoint-specific logic. Корректный receipt ещё не доказывает forecasting skill; это основание следующего FRC-02.",
+      "source_ranges": [
+        "calibration/forecast_bridge.py:1347–1478,1852–1859",
+        "calibration/diagnostics/continuous.py:25–100",
+        "runtime/quality/design_axes/outcome_prediction.py:590–649"
+      ],
+      "findings": [],
+      "lane": "LANE-03",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/FRC-01.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/FRC-01.json",
+      "md_sha256": "b76acab5ba2149469bee56bbad68d73a75032b345589ec2dbfc18beec9138132",
+      "json_sha256": "71ae69c6389e7f7be45b6cf8d77e24a9f348a7a16ceb5229a6ba951004e50834",
+      "md_lines": 183,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-FRC-01-01",
+        "REQ-FRC-01-02",
+        "REQ-FRC-01-03",
+        "REQ-FRC-01-04",
+        "REQ-FRC-01-05",
+        "REQ-FRC-01-06",
+        "REQ-FRC-01-07"
+      ],
+      "test_ids": [
+        "TEST-FRC-01-01",
+        "TEST-FRC-01-02",
+        "TEST-FRC-01-03",
+        "TEST-FRC-01-04",
+        "TEST-FRC-01-05",
+        "TEST-FRC-01-06"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "PCL-01",
+      "verdict": "retain",
+      "reason": "Один typed output contract до merge/telemetry — разумнее нескольких consumer эвристик.",
+      "technical_assessment": "Backend dispatch сейчас получает broad output; следовательно output kind должен быть установлен owner-ом до receipt construction. Scalar/vector/structured роли не следует угадывать по первым ключам JSON. Compatibility aliases нормализуются один раз, не по всем consumers.",
+      "library_decision": "LIB-11: current contracts/dispatch owner; не добавлять IR→Foundry import или вторую normalization registry.",
+      "cost_compatibility": "O(payload) normalization и bounded alias census, без копирования больших trace arrays ради label. Legacy data readable с truthful limited role, не silent upgrade.",
+      "test_validity": "Wrong implementation: receipt правильный, telemetry всё ещё считает serialized vector одним scalar success. Проверять actual returned payload, merged receipts и emitted telemetry для нескольких contracts; invalid output отказывает до positive publication. Exact numeric fixture alone не ловит semantic role.",
+      "capability_free_grow": "Новый backend того же typed output protocol подключается без case-name fork; новый output semantic kind требует общего contract extension, что не нарушает free-grow.",
+      "source_ranges": [
+        "foundry/methods/backends/dispatch.py:274–415"
+      ],
+      "findings": [],
+      "lane": "LANE-03",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/PCL-01.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/PCL-01.json",
+      "md_sha256": "f34f60ce4f651455a833414fecc55fddb4ac632b4229e189f6108961122ec3bc",
+      "json_sha256": "241e96e7e66b229096bccdb8ae009fa2a56a626be73512f81e531236dfda939a",
+      "md_lines": 194,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-PCL-01-01",
+        "REQ-PCL-01-02",
+        "REQ-PCL-01-03",
+        "REQ-PCL-01-04",
+        "REQ-PCL-01-05",
+        "REQ-PCL-01-06",
+        "REQ-PCL-01-07"
+      ],
+      "test_ids": [
+        "TEST-PCL-01-01",
+        "TEST-PCL-01-02",
+        "TEST-PCL-01-03",
+        "TEST-PCL-01-04",
+        "TEST-PCL-01-05",
+        "TEST-PCL-01-06",
+        "TEST-PCL-01-07"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "FRC-02",
+      "verdict": "bounded qualification",
+      "reason": "Решение адресует реальную predictive calibration capability, но её нельзя закрыть только source-role/counter repairs.",
+      "technical_assessment": "Нужен actual observed prediction→outcome relation N4, новый observation record и source-bound model update, не copying same forecast into a new envelope. Existing predictive_calibration прямо оставляет relation not established; это конкретный gap, а не повод весь путь считать реализованным.",
+      "library_decision": "LIB-11: existing registered forecast/ETS owner, observation contracts и diagnostic bridge; замена forecast library до установления task/evaluation basis не обоснована.",
+      "cost_compatibility": "Маленький bounded train/holdout horizon, два source updates и exact artifact refs. History/replay отдельно; не перезапускать бесконтрольно ради нужного positive status.",
+      "test_validity": "Wrong implementation: новый ref с прежними cached values выдаётся как recomputation. Добавить mutation actual observation и negative stale-source replay, current profile fingerprint, train cutoff controls; второй materially different series через тот же registry. Actual predictive error оценивается отдельно от relation presence.",
+      "capability_free_grow": "Useful scoped forecast+diagnostic+receipt должен пройти fresh consumer. Synthetic linear/seasonal fixture квалифицирует plumbing/model profile, но не population transport, real policy usefulness или permission.",
+      "source_ranges": [
+        "scientist/methods/backtesting/forecast_owner.py:647–810",
+        "runtime/http/services/predictive_calibration.py:595–630,961–980",
+        "runtime/quality/generation_cycle.py:17173–17217"
+      ],
+      "findings": [],
+      "lane": "LANE-03",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/FRC-02.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/FRC-02.json",
+      "md_sha256": "11262b6fe5e732e8f8065185bd8a4ef11f38994c6f5c8d764536b8c3e92b35d4",
+      "json_sha256": "9075e96923dfc9fc4c215e745ea34027aa91e13d917c72b98e5303d8946a5f95",
+      "md_lines": 213,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-FRC-02-01",
+        "REQ-FRC-02-02",
+        "REQ-FRC-02-03",
+        "REQ-FRC-02-04",
+        "REQ-FRC-02-05",
+        "REQ-FRC-02-06",
+        "REQ-FRC-02-07",
+        "REQ-FRC-02-08"
+      ],
+      "test_ids": [
+        "TEST-FRC-02-01",
+        "TEST-FRC-02-02",
+        "TEST-FRC-02-03",
+        "TEST-FRC-02-04",
+        "TEST-FRC-02-05",
+        "TEST-FRC-02-06",
+        "TEST-FRC-02-07",
+        "TEST-FRC-02-08"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "BKT-01",
+      "verdict": "retain",
+      "reason": "Существенное улучшение: as-of correctness всей feature basis и реальные replicate coordinates вместо scalar convenience.",
+      "technical_assessment": "Future target masking недостаточно, если derived feature рассчитана по full series. Cutoff применяется ко всем dependency features до model fit. Реальные n=1/n=7 replicas должны иметь declared coordinates и aggregate mean, не повторение готового single result. Current orchestrator содержит scalar/cohort fallback, который tests обязаны пересечь.",
+      "library_decision": "LIB-04/11: existing prefix mask/forecast registry; sklearn CV abstraction не знает domain as-of availability и не является drop-in.",
+      "cost_compatibility": "Bound folds×replicas×horizon заранее; реальные costs не source-count proxy. Derived feature prefix recomputation дороже naive mask, но необходима semantic correctness.",
+      "test_validity": "Wrong implementation: правильно скрывает target, сохраняет full-series moving average. Holdout value perturbation и independently recomputed prefix feature oracle должны оставить train result неизменным. Negative scalar fallback must fail n7 coordinate test; не принимать fake replica supplier.",
+      "capability_free_grow": "Вторая series/feature law через registry подтверждает transfer; supported partial cohorts useful with counts. As-of simulation не равна реальному out-of-sample skill.",
+      "source_ranges": [
+        "scientist/methods/backtesting/masking.py:1–161",
+        "scientist/methods/backtesting/orchestrator.py:661–780,925–1024"
+      ],
+      "findings": [],
+      "lane": "LANE-03",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/BKT-01.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/BKT-01.json",
+      "md_sha256": "5734c65d88fc1dd763481eb1892ac5e053bc2b415118c96871362d24ead6fc68",
+      "json_sha256": "43b4a6949db000494caca2c335a0b82441b1e2b79c884dfff8d7d71ca8d78e3a",
+      "md_lines": 227,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-BKT-01-01",
+        "REQ-BKT-01-02",
+        "REQ-BKT-01-03",
+        "REQ-BKT-01-04",
+        "REQ-BKT-01-05",
+        "REQ-BKT-01-06",
+        "REQ-BKT-01-07",
+        "REQ-BKT-01-08",
+        "REQ-BKT-01-09"
+      ],
+      "test_ids": [
+        "TEST-BKT-01-01",
+        "TEST-BKT-01-02",
+        "TEST-BKT-01-03",
+        "TEST-BKT-01-04",
+        "TEST-BKT-01-05",
+        "TEST-BKT-01-06",
+        "TEST-BKT-01-07",
+        "TEST-BKT-01-08",
+        "TEST-BKT-01-09"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "BKT-02",
+      "verdict": "targeted revision",
+      "reason": "Основной план правилен, но extreme square policy лишает полезных representable comparisons — FN-BKT-RANGE.",
+      "technical_assessment": "Различение requested/comparable/invalid cells, CI availability/conditional hits и micro/macro — сильная часть ТЗ. Reconciliation из actual rows важнее stored badge. Уточнить, что unavailable SSE не делает representable residual row invalid и не запрещает scaled RMSE.",
+      "library_decision": "LIB-01/04: общий finite mean если нужен, scaled RMS в existing evaluator; не generic WeightedScorer rewrite и не arbitrary precision всего pipeline.",
+      "cost_compatibility": "Row reconciliationO(n); signed/absolute units нельзя pooling без quantity contract. Legacy finite rows полезны без automatic trust. Version optional unavailable statistic вместо JSONinf.",
+      "test_validity": "Новые controls FN-BKT-RANGE дополняют strong technical-sharding invariance и forged-summary tests. Wrong implementation: arithmetic mean per-scenario RMSE выглядит корректным на одинаковых n; unequal shard sizes/known residuals различают. Старые lambda_state stale envelopes не возвращать.",
+      "capability_free_grow": "Useful exact/partial point forecasts должны доходить до fresh decision packet с limitation, а always-refuse не проходит positive path. Exact fit не empirical coverage.",
+      "source_ranges": [
+        "scientist/methods/backtesting/evaluator.py:1–209",
+        "scientist/methods/backtesting/orchestrator.py:1366–1435",
+        "tests/unit/remediation/test_bkt_02.py:331–398"
+      ],
+      "findings": [
+        "FN-BKT-RANGE"
+      ],
+      "lane": "LANE-03",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/BKT-02.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/BKT-02.json",
+      "md_sha256": "e76887b6fe05ce03d8745d03019333cef6655ade90e8f201f4d25c20644d9eb4",
+      "json_sha256": "2ff7d5978d45936c6518e5c5e826e64b56bd327d0c221b4f768299aac0d1f9b7",
+      "md_lines": 211,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-BKT-02-01",
+        "REQ-BKT-02-02",
+        "REQ-BKT-02-03",
+        "REQ-BKT-02-04",
+        "REQ-BKT-02-05",
+        "REQ-BKT-02-06",
+        "REQ-BKT-02-07",
+        "REQ-BKT-02-08"
+      ],
+      "test_ids": [
+        "TEST-BKT-02-01",
+        "TEST-BKT-02-02",
+        "TEST-BKT-02-03",
+        "TEST-BKT-02-04",
+        "TEST-BKT-02-05",
+        "TEST-BKT-02-06",
+        "TEST-BKT-02-07",
+        "TEST-BKT-02-08"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "BKT-03",
+      "verdict": "retain",
+      "reason": "Общий signed-statistic helper и honest unknown p-value лучше локального знакового patch.",
+      "technical_assessment": "Bias — signed mean, не absolute error; near-zero/constant controls должны отделять finite arithmetic от разрешённости t inference. Native SciPy или explicit unavailable; отсутствие/degeneracy не p=0. Absolute variance floor требует unit/domain justification, а не magic default.",
+      "library_decision": "LIB-04: SciPy ttest_1samp уже доступен в appropriate extra; не писать собственную tCDF. Несколько forecast horizons зависимы, поэтому arithmetic t-stat qualification не снимает independence/multiple-comparison limitations.",
+      "cost_compatibility": "Linear pass plus SciPy call; exact finite mean может shared FED. Optional-backend missing path не ломает useful descriptive bias.",
+      "test_validity": "Wrong implementation: abs(mean) проходит positive fixture и теряет direction. Negative symmetric/negative nearzero/constant cases и independent sample variance formula нужны. Контроль optional import failure даёт unknown, не significance. Fresh summary сохраняет n/units/method.",
+      "capability_free_grow": "Второй scale/unit с преобразованием всего residual basis проверяет отсутствие hidden fixture floor. Результат limited, если sampling assumptions не установлены; не blanket invalid всех rows.",
+      "source_ranges": [
+        "scientist/methods/backtesting/orchestrator.py:1542–1725"
+      ],
+      "findings": [],
+      "lane": "LANE-03",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/BKT-03.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/BKT-03.json",
+      "md_sha256": "9f05a0b5e6ee98568ec666e14e28a39c50e28367fed348e96e2a5f8a3a957baf",
+      "json_sha256": "43ef5eabe30541a0297a6054b030a02be84c83c1ae27092661b7e1113b2ce1d0",
+      "md_lines": 191,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-BKT-03-01",
+        "REQ-BKT-03-02",
+        "REQ-BKT-03-03",
+        "REQ-BKT-03-04",
+        "REQ-BKT-03-05",
+        "REQ-BKT-03-06",
+        "REQ-BKT-03-07"
+      ],
+      "test_ids": [
+        "TEST-BKT-03-01",
+        "TEST-BKT-03-02",
+        "TEST-BKT-03-03",
+        "TEST-BKT-03-04",
+        "TEST-BKT-03-05",
+        "TEST-BKT-03-06",
+        "TEST-BKT-03-07"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "BKT-04",
+      "verdict": "retain",
+      "reason": "Bounded lazy folds и generic statistic bootstrap — достаточное расширение existing API, не нужен новый experiment engine.",
+      "technical_assessment": "Не менять activation default скрытно. Выбор subsets до их materialization, callback inputs изолированы, statistic identifier связан с реальным callable. “Bootstrap RMSE” не может всегда возвращать mean только с другим label.",
+      "library_decision": "LIB-04: SciPy bootstrap полезен лишь при совпадающем percentile/paired/RNG profile; BCa default не silent replacement. arch block bootstrap — отдельный dependence law, не обязательный scope patch.",
+      "cost_compatibility": "Ограничение folds и B×n до вычисления; batching ограничивает memory. Copies нужны на callback boundary, не всего Cartesian universe. Seed локальный и disclosed.",
+      "test_validity": "Wrong implementation: enumerate huge combinations then slice passes small fixture; sentinel iterator/large combinatorial input проверяет bounded consumption. Callback mutation не влияет на later folds/original source. Non-mean statistic oracle и deterministic percentile controls различают fake genericity.",
+      "capability_free_grow": "Новый statistic через callable contract, не named branches. Dependent time-series intervals не называются iid calibrated только потому, что bootstrap code запускается.",
+      "source_ranges": [
+        "scientist/methods/backtesting/cv.py:1–160",
+        "scientist/methods/backtesting/bootstrap.py:90–246"
+      ],
+      "findings": [],
+      "lane": "LANE-03",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/BKT-04.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/BKT-04.json",
+      "md_sha256": "43380f18d18f15bb37862472b3584dc3e4eb2af73832ef0c823cd1e9a7615369",
+      "json_sha256": "6c89202f412e36154ff841293ed674f7f6d0598c5d50921296dc8b6fd60a868d",
+      "md_lines": 190,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-BKT-04-01",
+        "REQ-BKT-04-02",
+        "REQ-BKT-04-03",
+        "REQ-BKT-04-04",
+        "REQ-BKT-04-05",
+        "REQ-BKT-04-06",
+        "REQ-BKT-04-07"
+      ],
+      "test_ids": [
+        "TEST-BKT-04-01",
+        "TEST-BKT-04-02",
+        "TEST-BKT-04-03",
+        "TEST-BKT-04-04",
+        "TEST-BKT-04-05",
+        "TEST-BKT-04-06",
+        "TEST-BKT-04-07"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "FRY-01",
+      "verdict": "retain",
+      "reason": "Derived registry view, stable RNG law и separate mechanism-family certificates — правильное разделение owner-ов.",
+      "technical_assessment": "Runtime view выводится из MethodRegistry, не новый authority catalog. Treasury legacy PRNG root behavior сохраняется; если нужен новый law, он versioned. IC/IR/budget mathematical properties относятся к family assumptions, не к наличию Python callable.",
+      "library_decision": "LIB-11: existing JAX keys/runtime_registry/families; никакой general mechanism-design engine для четырёх семей не нужен.",
+      "cost_compatibility": "View rebuild/cache invalidation по registry generation; bounded metadata enumeration. Не повторять deep mutable registry copies per execution.",
+      "test_validity": "Wrong implementation: copied constant registry passes four known names, misses new registration. Register novel compatible method после initial read и проверить updated derived view/fresh compile. Family certificate oracle отдельно от catalog flags; aliases retirement finite and explicit.",
+      "capability_free_grow": "Новая compatible family member проходит как data/registration; fundamentally new economic property требует нового доказательства/semantics, а не automatic certificate.",
+      "source_ranges": [
+        "foundry/methods/catalog/mechanism/runtime_registry.py:1–337",
+        "foundry/methods/catalog/mechanism/families.py:1–98",
+        "foundry/compile/randomization.py:1–61"
+      ],
+      "findings": [],
+      "lane": "LANE-04",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/FRY-01.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/FRY-01.json",
+      "md_sha256": "8af98e49820ebab59ff40dd756c6d4f01649f5be5926e26099b9142c669ab96c",
+      "json_sha256": "3d5915bd949f15485f6cf5694406f50f9705649686a778ab67b052221c078e9b",
+      "md_lines": 134,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-FRY-01-01",
+        "REQ-FRY-01-02",
+        "REQ-FRY-01-03",
+        "REQ-FRY-01-04"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-01",
+        "TEST-FRY-01-02",
+        "TEST-FRY-01-03",
+        "TEST-FRY-01-04"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "FRY-03",
+      "verdict": "retain",
+      "reason": "Tax-base и precision law нужно сохранить при relocation; proposed distinction действительно предотвращает незаметную смену модели.",
+      "technical_assessment": "Native fiscal law использует reported income как base, меняет income/government; plugin wealth-tax law другой. Сходные имена не оправдывают объединение. Conservation проверяется на declared active population и taxbase, а не просто total changed.",
+      "library_decision": "LIB-11/02: current JAX fiscal primitives; x64 migration не часть mechanical relocation. Нет причины переносить их в сторонний finance package.",
+      "cost_compatibility": "Linear per-agent arrays, dtype explicit. Aliases сохраняют exact historical route; hidden casts могут изменить rounding/model.",
+      "test_validity": "Wrong implementation: tax actual income вместо reported, проходит fixture где они равны. Нужны deliberately different reported/actual/wealth, inactive rows, zeros и cross-precision policy. Независимый ledger oracle по каждому changed field, не только sum.",
+      "capability_free_grow": "Произвольные valid rates/populations того же law проходят без fixture branch. Новая налоговая база требует named new law, что честнее fake universal mechanism.",
+      "source_ranges": [
+        "foundry/execute/mechanisms/fiscal.py:1–149",
+        "foundry/plugins/economics/mechanisms.py:12–78"
+      ],
+      "findings": [],
+      "lane": "LANE-04",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/FRY-03.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/FRY-03.json",
+      "md_sha256": "f039551ec29a3995f447f3fc0e6ddfe7ff547233a2768fa0c36c45e45d6a7fd1",
+      "json_sha256": "8ad47924ccec7c28fc7241a905921d6607ceb091330c2f505119c4574bb55951",
+      "md_lines": 117,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-FRY-03-01",
+        "REQ-FRY-03-02",
+        "REQ-FRY-03-03"
+      ],
+      "test_ids": [
+        "TEST-FRY-03-01",
+        "TEST-FRY-03-02",
+        "TEST-FRY-03-03"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "ECO-01",
+      "verdict": "retain",
+      "reason": "Две economic semantics и clock должны оставаться различимыми; normalized budget loss — не policy welfare objective.",
+      "technical_assessment": "Нельзя “исправить” normalized-income−1 только потому, что value отрицателен. Это named baseline с positive scaling invariance; его перенос не повод заменить полноценной utility function. Income-tax vs wealth-tax, tax/transfer order и time boundary явно квалифицируются.",
+      "library_decision": "LIB-11: current domain mechanisms/baselines, не новый agent framework.",
+      "cost_compatibility": "Linear agent updates; dtype и clock versioned. Existing compatibility alias не должен менять state law.",
+      "test_validity": "Wrong implementation: один generic taxation function используется в обоих owners и совпадает на специально равных balances. Distinct wealth/income fixture, tax-before-transfer ledger и multiple time steps различают. Scale invariance test не заменяет welfare validation.",
+      "capability_free_grow": "Useful deterministic economic execution сохраняется. Для новой welfare definition — отдельный named contract/resource и scientific evaluation, не скрытая оптимизация loss ради позитивного score.",
+      "source_ranges": [
+        "foundry/plugins/economics/mechanisms.py:12–78",
+        "foundry/plugins/economics/baselines.py:1–42"
+      ],
+      "findings": [],
+      "lane": "LANE-04",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/ECO-01.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/ECO-01.json",
+      "md_sha256": "dc7fd8a9939059b0fd3949798a701a0da48cab58e3f37ca02383ba2903cce1fe",
+      "json_sha256": "1493d2c22015ad72c7c7d0407dff6d55c9661bad662951fd2bdd4a696b233a8b",
+      "md_lines": 117,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-ECO-01-01",
+        "REQ-ECO-01-02",
+        "REQ-ECO-01-03"
+      ],
+      "test_ids": [
+        "TEST-ECO-01-01",
+        "TEST-ECO-01-02",
+        "TEST-ECO-01-03"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "PLG-01",
+      "verdict": "retain",
+      "reason": "Локальная factory-product validation внутри per-source exception boundary лучше глобального discovery failure.",
+      "technical_assessment": "Ошибка может возникнуть после successful entry-point load: callable возвращает wrong object или metadata property сама throws. Diagnostic generation не должна повторно обращаться к небезопасному object и свалить discovery.",
+      "library_decision": "LIB-09: stdlib importlib.metadata и current loader достаточны; второй plugin framework повышает compatibility cost без нужной capability.",
+      "cost_compatibility": "Installed-source census конечный, optional imports remain optional. Ограничить side effects loader только существующим declared contract, не добавлять live installation/discovery.",
+      "test_validity": "Wrong implementation: catch import error, но не factory/validation error; один bad plugin блокирует good sibling. Matrix malformed metadata/wrong type/factory raises plus one genuine valid plugin; реальные entry source identities preserved. Exception text не источник producer authority.",
+      "capability_free_grow": "Новый совместимый plugin подключается через entrypoint, не список известных имен. Broken one не превращает весь процесс в refusal machine.",
+      "source_ranges": [
+        "foundry/plugins/discovery.py:1–238"
+      ],
+      "findings": [],
+      "lane": "LANE-04",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/PLG-01.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/PLG-01.json",
+      "md_sha256": "2d1f163afa7e0c2b3fcf0c5f3afc66031a7efc9be65243c081974b442428233c",
+      "json_sha256": "5bde0bce7e43114f6e891a8246f269b390111ab534f855c3badf75b95ed7a731",
+      "md_lines": 115,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-PLG-01-01",
+        "REQ-PLG-01-02",
+        "REQ-PLG-01-03"
+      ],
+      "test_ids": [
+        "TEST-PLG-01-01",
+        "TEST-PLG-01-02",
+        "TEST-PLG-01-03"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "PLG-02",
+      "verdict": "retain",
+      "reason": "Producer role обязан быть explicit: legacy constructor defaults сейчас действительно могут ложно выглядеть как trained.",
+      "technical_assessment": "TrainingResult three positional fields со status default trained — опасная compatibility ambiguity. Не infer PPO по list loss_history/artifact presence. Genuine in-memory training допустим без CAS, legacy evaluation не должен запускать training plot/publication.",
+      "library_decision": "LIB-09: narrow typed producer predicate/result role, не новый class hierarchy framework.",
+      "cost_compatibility": "Сохранять three-positional legacy calls readable; negative branch должен иметь zero writes/plots. No-artifact genuine positive не отклонять только из-за optional storage.",
+      "test_validity": "Wrong implementation: require artifact to call trained — always-refuse genuine in-memory; alternatively default status trains legacy. Нужны обе разнонаправленные cases на public API→CLI, не лишь helper boolean test.",
+      "capability_free_grow": "Публичный смысл результата переносится вместе с source-defined role, а не угадывается downstream. Это полезная extensibility без подмены старого поведения.",
+      "source_ranges": [
+        "foundry/plugins/api.py:395–418",
+        "foundry/plugins/training_adapter.py:686–813"
+      ],
+      "findings": [],
+      "lane": "LANE-04",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/PLG-02.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/PLG-02.json",
+      "md_sha256": "1bc43565908f0bd751188acb010e65a2f7def12a49f5fed1bfef55950993173b",
+      "json_sha256": "f71f5398ca67735db69cf8beef408ce32d6166f13ec678da4467b2962b650d1c",
+      "md_lines": 113,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-PLG-02-01",
+        "REQ-PLG-02-02",
+        "REQ-PLG-02-03"
+      ],
+      "test_ids": [
+        "TEST-PLG-02-01",
+        "TEST-PLG-02-02",
+        "TEST-PLG-02-03"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "PLG-03",
+      "verdict": "targeted revision",
+      "reason": "Positive native update/persisted policy нужен и хорошо задан; добавить independent PPO semantics и конкретный inactive-padding witness.",
+      "technical_assessment": "HARD collector sampling против mean execution — настоящая law mismatch. Временный адресный HARD-train refusal корректен только вместе с работающим fluid/relaxed native path и release note о narrowing. Не вечный запрет: future shared action/likelihood contract может расширить профиль.",
+      "library_decision": "LIB-02: JAX/Equinox/Optax already optimal fit; сторонний PPO framework не устраняет adapter law. FN-PLG-ORACLE/FN-PLG-INACTIVE дополняют, не заменяют actual native run.",
+      "cost_compatibility": "1–2updates, tiny one-domain population; gradients/Hessians не требуются в масштабе neural net. Обязательны precise seed, reset/continue и previous-state preservation.",
+      "test_validity": "Action delta alone допускает sign-flipped objective. Inactive NaN acceptance нуждается в paired same-shape actual collector→Optax, а не только assess/Gini. Tamper/missing weights/profile mismatch fresh strict loader и zero-store eval остаются обязательными.",
+      "capability_free_grow": "Узкая capability — реально обучить и восстановить policy, влияющую на action. Ни welfare gain, ни causal improvement из этого не следуют. Второй valid population/seed должен проходить без profile-ID hardcode.",
+      "source_ranges": [
+        "foundry/agent_sim/rl.py:1–168",
+        "foundry/agent_sim/jit_training.py:243–333,409–453",
+        "foundry/agent_sim/temporal_mechanisms.py:1–127",
+        "foundry/plugins/training_adapter.py:550–601,686–813"
+      ],
+      "findings": [
+        "FN-PLG-ORACLE",
+        "FN-PLG-INACTIVE"
+      ],
+      "lane": "LANE-04",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/PLG-03.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/PLG-03.json",
+      "md_sha256": "65fec3195ed2d5c283150af9688a9672feb155f4677c42f4755b706cbdbe77fa",
+      "json_sha256": "ac0b4ef66f718548011ba4627aac30be7a5270f4fe563f60e1b66ef6713bf217",
+      "md_lines": 130,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-PLG-03-01",
+        "REQ-PLG-03-02",
+        "REQ-PLG-03-03",
+        "REQ-PLG-03-04"
+      ],
+      "test_ids": [
+        "TEST-PLG-03-01",
+        "TEST-PLG-03-02",
+        "TEST-PLG-03-03",
+        "TEST-PLG-03-04"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "CMP-01",
+      "verdict": "bounded qualification",
+      "reason": "Persisted recipe→fresh reconstructed effective chain — реальная capability, которую in-memory DAG tests не доказывают.",
+      "technical_assessment": "Authored node identity/parameter overrides и requires-only dependencies должны пережить persistence. Current composer добавляет requirement edges, compiler строит chain и dynamic payload отдельно; каждый этап должен использовать один frozen recipe basis.",
+      "library_decision": "LIB-03/05: current composer/compiler/registry; новый workflow engine не нужен. General graph library не владеет scoped parameter/default semantics.",
+      "cost_compatibility": "BuildO(nodes+edges) для DAG validation; actual compile cost separate. Static vs dynamic args отражаются в cache key без inappropriate recompilation.",
+      "test_validity": "Wrong implementation: сохраняет original descriptor, а выполняет in-memory patched graph; fresh reader теряет requires-only edge или per-occurrence override. Тест40/60/120 должен заново получить recipe, registry и compiler в clean owner view; explicit consumer runtime values, не только graph ordering.",
+      "capability_free_grow": "Новый compatible authored chain через data contract, без ручного Python composition. Две разные dependency topologies/overrides подтверждают transfer; arbitrary code execution не обещается.",
+      "source_ranges": [
+        "foundry/methods/components/composer.py:618–794",
+        "foundry/methods/compiler/__init__.py:847–918,1055–1111"
+      ],
+      "findings": [],
+      "lane": "LANE-04",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CMP-01.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CMP-01.json",
+      "md_sha256": "1eeb8581f1c62e77b6f3d4c0ec65cd584c25ac305684208f9412b6e489359aca",
+      "json_sha256": "b00eca793453f155aec22637c50898e286d03880fdedc25db032379ffafc3750",
+      "md_lines": 118,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-CMP-01-01",
+        "REQ-CMP-01-02",
+        "REQ-CMP-01-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-01-01",
+        "TEST-CMP-01-02",
+        "TEST-CMP-01-03"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "CMP-02",
+      "verdict": "retain",
+      "reason": "Strict duplicate semantics и explicit merge лучше silent UUID-based ordering.",
+      "technical_assessment": "Duplicate outputs нельзя молча sum/overwrite; registered merge создаёт intended60, WARN остаётся limited с20/10, не притворяется merged semantics. Requires dependency относится к любой подходящей более ранней occurrence, не только непосредственно предыдущей.",
+      "library_decision": "LIB-05: существующий graph/merge owner, external DAG scheduler не заменяет domain conflict law.",
+      "cost_compatibility": "Conflict indexing linear-ish по slots вместо repeated allpairs где можно; stable occurrence identity сохраняется при persistence. No hidden UUID tie meaning.",
+      "test_validity": "Wrong implementation: проверяет лишь соседнюю occurrence или last-writer wins, проходит линейную simple chain. Разнести requirement supplier и consumer дополнительной compatible node; reorder duplicate writers и явно отличить strict/WARN/merge outcomes. Test actual values, not just absence of exception.",
+      "capability_free_grow": "Сложные compatible recipes добавляются данными; неоднозначные compositions честно требуют explicit merge resource, не silent business choice.",
+      "source_ranges": [
+        "foundry/methods/components/composer.py:618–794",
+        "foundry/methods/components/linker.py:317–450"
+      ],
+      "findings": [],
+      "lane": "LANE-04",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CMP-02.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CMP-02.json",
+      "md_sha256": "bfb019e433f2c38a61692c54ac4a36a87d3992066aaaac0ab3dd6c718fcd894b",
+      "json_sha256": "10f6fa149cb1f13f1ce3af1dc8d4394c5fb9940510003a728579099c7e576a3c",
+      "md_lines": 117,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-CMP-02-01",
+        "REQ-CMP-02-02",
+        "REQ-CMP-02-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-02-01",
+        "TEST-CMP-02-02",
+        "TEST-CMP-02-03"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "CMP-03",
+      "verdict": "retain",
+      "reason": "Global max-cardinality then lexicographic preference — правильная цель; implementation choice не надо превращать в dogma.",
+      "technical_assessment": "Локальный augmenting path matching может обеспечить cardinality, но не заявленный total preference. Пять компонент и deterministic tie-break должны сравниваться глобально. Замена алгоритма обоснована; embedded stale source-name diagnostic отдельно сохраняет адресность.",
+      "library_decision": "LIB-05: NetworkX exact integer matching реальный вариант, но lock не direct dependency. Existing bounded exact owner тоже допустим. SciPy float assignment требует доказательства mixed-radix range; heavy solver не нужен.",
+      "cost_compatibility": "Нужен polynomial production solver, не exhaustive permutations. Exhaustive7293×3 None/A/B label cases (3^6) — малый independent test oracle, не все произвольные binary edge graphs; дополнительно bounded larger cost case.",
+      "test_validity": "Wrong implementation: greedily берёт самый хороший edge и теряет лучшую сумму/кардинальность. Exhaustive oracle плюс weight/tie permutations и actual1020 composed execution различают. Не вычислять expected matching тем же production helper; graph-level успех не доказывает domain compatibility predicates.",
+      "capability_free_grow": "Новые slots и candidates через metadata получают matching без case-specific priorities. Сама matching preference не научное доказательство причинной совместимости.",
+      "source_ranges": [
+        "foundry/methods/components/linker.py:317–450,603–693"
+      ],
+      "findings": [],
+      "lane": "LANE-04",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CMP-03.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CMP-03.json",
+      "md_sha256": "a58f6ab3cbbbfbeb82c73a0429a990c51d076ebfea6f9fcae1185ed03297b37c",
+      "json_sha256": "2f54f3d45793d4bb5c9576547d1c6589529675bb30b6d5ff636a207db299aef0",
+      "md_lines": 115,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-CMP-03-01",
+        "REQ-CMP-03-02",
+        "REQ-CMP-03-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-03-01",
+        "TEST-CMP-03-02",
+        "TEST-CMP-03-03"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "JIT-01",
+      "verdict": "retain",
+      "reason": "Узкая get→claim race/default binding/shape-preparation правка у правильного owner; не надо заменять всё cache subsystem.",
+      "technical_assessment": "После leadership claim нужен повторный cache check и обязательное завершение flight даже при early hit. Immutable per-handle defaults отделить от shared compiled kernel. Shape preparation не должна делать huge np.empty или исполнять pure step для inference.",
+      "library_decision": "LIB-03: jax.jit/persistent cache дополняют, но не решают cancellation/generation/defaults. Latest JAX APIs нельзя blindly переносить в0.8.2.",
+      "cost_compatibility": "Разделить Python wrapper construction, tracing/XLA compile, host shape preparation, device execution. Actual .block_until_ready, cold/warm/transfer measurements, matched dtype; без fabricated speedups.",
+      "test_validity": "Existing native test139–172 проверяет20/30, но сам по себе не счёт compile. Packet уже требует различить эти claims — сохранить. Race gate must target exact post-get/pre-claim window, failures/cancel/invalidation release all waiters, no double publication.",
+      "capability_free_grow": "Новый shape/dtype/static argument получает новую valid kernel, dynamic default — правильный handle без stale capture. Это system capability reusable execution, не benchmark-only optimization.",
+      "source_ranges": [
+        "foundry/methods/compiler/__init__.py:580–758,945–1019",
+        "tests/unit/remediation/test_jit_01.py:139–259"
+      ],
+      "findings": [],
+      "lane": "LANE-04",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/JIT-01.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/JIT-01.json",
+      "md_sha256": "d5bd4384aa458bc9cb86819c3231d2ae3bc448f7682b09d94f3a384cddbdf5d5",
+      "json_sha256": "5c2ea6ddec1a6da2e30f635aeafcdd8ed0ca58eda40fff9e3f5e5daf66c4fbf9",
+      "md_lines": 117,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-JIT-01-01",
+        "REQ-JIT-01-02",
+        "REQ-JIT-01-03"
+      ],
+      "test_ids": [
+        "TEST-JIT-01-01",
+        "TEST-JIT-01-02",
+        "TEST-JIT-01-03"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "RES-04",
+      "verdict": "retain",
+      "reason": "Commit-state distinction чинит повреждение данных после publication; storage replacement избыточен.",
+      "technical_assessment": "os.replace успешен, затем directory fsync падает: опубликованный JSON может уже ссылаться на sidecars. Общий except cleanup не должен удалять их как будто commit не состоялся. Publication и durability outcomes разные; history namespace/typed request restore не смешиваются с active state.",
+      "library_decision": "LIB-10: current atomic file owner+stdlib. SQLite/new store только при отдельной потребности transaction model, не ради этого race.",
+      "cost_compatibility": "Same-filesystem temp и platform support фиксируются. Нет честного универсального обещания power-loss durability без filesystem qualification; best-effort unsupported sync не false success.",
+      "test_validity": "Wrong implementation: test только pre-rename write failure, post-rename cleanup остаётся destructive. Failure injection на каждом commit phase, затем fresh reader actual published path; предыдущий checkpoint/history и unrelated files остаются. Typed restore не unrestricted deserialization.",
+      "capability_free_grow": "Возобновление compatible run из real persisted state, а не in-memory copy. Новый request profile требует supported restore schema, unknown не должен исполняться.",
+      "source_ranges": [
+        "foundry/methods/backends/checkpointing.py:189–244,1062–1095"
+      ],
+      "findings": [],
+      "lane": "LANE-04",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/RES-04.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/RES-04.json",
+      "md_sha256": "febf6cdedcb3acac1fe8f8a2d1599106bc9d56eccf9f052c88de2ec9f54ae291",
+      "json_sha256": "9a6be67c5a96ddf3e41bc705fcaabde691143d20b83834e20f3c449c8cf64452",
+      "md_lines": 131,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-RES-04-01",
+        "REQ-RES-04-02",
+        "REQ-RES-04-03",
+        "REQ-RES-04-04"
+      ],
+      "test_ids": [
+        "TEST-RES-04-01",
+        "TEST-RES-04-02",
+        "TEST-RES-04-03",
+        "TEST-RES-04-04"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "CAL-05",
+      "verdict": "retain",
+      "reason": "Scalar lazy execution и explicit mapped refusal лучше eager where, если qualification включает реальные effects иAD.",
+      "technical_assessment": "Во время JAX tracing обе ветки могут быть traced; это не значит обе исполняются. Scalar cond поддерживает нужный schedule; batched predicate может стать select, поэтому refusal/policy для mapped case честен. Neutral patch должен соответствовать каждому actual emitted field, не generic guessed zero.",
+      "library_decision": "LIB-02: existing lax.cond/custom batching boundary; не universal scheduler layer. Backend semantics проверять locked0.8.2.",
+      "cost_compatibility": "Не считать tracing callbacks runtime side effects. Для cost/perf дождаться effects/device completion; bounded actual emission census прежде generic patch.",
+      "test_validity": "Wrong implementation: считает Python calls during tracing и доказывает false laziness, либо zero result скрывает executed effect. Runtime counters/emitted resources, inactive model poison control и actual grad/Hessian должны различать; supported active sibling работает.",
+      "capability_free_grow": "Новая compatible schedule через data/contract; new emission kind требует explicit neutral semantics. Ограниченный scalar profile не выдаётся за universal vectorized lazy engine.",
+      "source_ranges": [
+        "foundry/calibration/pure_executor.py:537–743"
+      ],
+      "findings": [],
+      "lane": "LANE-04",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAL-05.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAL-05.json",
+      "md_sha256": "5c53b92f2318d7afa3822a55da15458ae21b6481412f56dc391b4f1d97358c63",
+      "json_sha256": "b2349eaf133cbd94aa54cb1bd4b7cf5ca08a9444b1d09810fded99ef9edc6711",
+      "md_lines": 115,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-CAL-05-01",
+        "REQ-CAL-05-02",
+        "REQ-CAL-05-03"
+      ],
+      "test_ids": [
+        "TEST-CAL-05-01",
+        "TEST-CAL-05-02",
+        "TEST-CAL-05-03"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "CAL-02",
+      "verdict": "targeted revision",
+      "reason": "Shared objective architecture сильная; late-mask arithmetic должна быть исправлена прежде native acceptance.",
+      "technical_assessment": "Frozen train-only scale, exact shape checks, one base-vector для fit/GradNorm/Hessians/final report — правильный root-cause fix. Но multiply fit mask после pointwise loss не исключает extreme holdout, FN-CAL-MASK. Preserve explicit nonfinite model rule отдельно от eligible observations.",
+      "library_decision": "LIB-02: JAX current owner, scaled finite reduction вместо global x64 toggle. Mean/std scale oracle вычислять по actually representable float32 inputs в более точном reference.",
+      "cost_compatibility": "Linear observation reduction; dense Hessian только bounded parameter profile. Один shared closure снижает duplication, но не повторять fullforward ради каждого report field без actual dependency need.",
+      "test_validity": "Quadratic fixture с physical vs optimizer-u gradients и penalties хорошо различает semantic mistakes, не подгонка. Дополнить extreme heldout3e38 и actual native derivatives/update; ordinary10→30 недостаточно. Не заменять actual compiler/ConstraintRegistry/forward готовым lossvector.",
+      "capability_free_grow": "Новый compatible target и placeholder dates не меняют старую training support; evaluation-only observations не проникают в fit. Реальная calibration capability остаётся model/measurement-scoped, не causal validity.",
+      "source_ranges": [
+        "foundry/calibration/calibrator.py:716–762,2380–2668,2749–2960,2977–3046",
+        "foundry/calibration/loss.py:1–156"
+      ],
+      "findings": [
+        "FN-CAL-MASK"
+      ],
+      "lane": "LANE-10",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAL-02.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAL-02.json",
+      "md_sha256": "2e55f17413f00e64da116c7731c3282f65637d305b2ccef940a873a271cb2c91",
+      "json_sha256": "8f6ea468564bf8a12e4542f2efab1feae0afaf84104ed382bc63f16330853995",
+      "md_lines": 186,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-CAL-02-01",
+        "REQ-CAL-02-02",
+        "REQ-CAL-02-03",
+        "REQ-CAL-02-04",
+        "REQ-CAL-02-05",
+        "REQ-CAL-02-06",
+        "REQ-CAL-02-07"
+      ],
+      "test_ids": [
+        "TEST-CAL-02-01",
+        "TEST-CAL-02-02",
+        "TEST-CAL-02-03",
+        "TEST-CAL-02-04",
+        "TEST-CAL-02-05",
+        "TEST-CAL-02-06"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "CAL-03",
+      "verdict": "retain",
+      "reason": "Единый finite admission selection и различение raw/repaired Hessian устраняют логическую неоднозначность, не просто формат.",
+      "technical_assessment": "Single-start должен пройти ту же selection policy, не обходить её через config branch. Finite ill-conditioned candidate может оставаться useful limited; repaired condition нельзя выдавать за raw evidence. OTel test должен видеть actual emitted attributes, не fake tracer dictionary.",
+      "library_decision": "LIB-02: existing selector/Hessian owner, не новый optimizer. FD fallback может дать limited estimate, не равен native Hessian confirmation.",
+      "cost_compatibility": "Dense HessianO(p²) memory; multistart attempts bounded. Не вычислять raw Hessian заново многократно ради badge, но selected state identity сохранить.",
+      "test_validity": "Wrong implementation: all finite candidates accept, regardless infeasible/ill-conditioned roles; либо all badcondition refuse, уничтожая useful limited. Матрица single/multi, finite/nonfinite, raw/repaired, actual telemetry различает. Source inspection не заменяет native optional backend.",
+      "capability_free_grow": "Новый parameter vector того же model/profile проходит declared admission; uncertainty scope остаётся honestly limited. Не путать optimizer success с scientific adequacy.",
+      "source_ranges": [
+        "foundry/calibration/multi_start.py:1–171",
+        "foundry/calibration/hessian.py:1–173",
+        "foundry/calibration/calibrator.py:3240–3305,3450–3610",
+        "tests/unit/remediation/test_cal_03.py:1–211"
+      ],
+      "findings": [],
+      "lane": "LANE-10",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAL-03.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAL-03.json",
+      "md_sha256": "522f555e4898a2663c1e3ace3e80a7bf54fe49c68f4d5630fee3daae2b7525e9",
+      "json_sha256": "f228b2f633068744d9238f3bcff0de6ba4ce0514b9d4c7ab320bba0cc4d530e4",
+      "md_lines": 140,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-CAL-03-01",
+        "REQ-CAL-03-02",
+        "REQ-CAL-03-03",
+        "REQ-CAL-03-04"
+      ],
+      "test_ids": [
+        "TEST-CAL-03-01",
+        "TEST-CAL-03-02",
+        "TEST-CAL-03-03",
+        "TEST-CAL-03-04"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "CAL-04",
+      "verdict": "retain",
+      "reason": "Exact evaluated-state binding — необходимая и достаточно узкая правка optimizer/report mismatch.",
+      "technical_assessment": "Нельзя reuse objective только по численному равенству loss: разные parameters/weights/support могут иметь одно значение. Last optimizer update должен реально оцениваться до выбора/report; old auxiliary data от предыдущего state не переносится. Candidate selection identity включает actual objective basis.",
+      "library_decision": "LIB-02: existing JAX/Optax loop, без нового optimizer/state tracker framework.",
+      "cost_compatibility": "Одно дополнительное finalforward оправдано, если новый state ещё не evaluated; если exact state/objective already evaluated, reuse допустим. Не blanket двойной forward every step.",
+      "test_validity": "Wrong implementation: caches by loss scalar и возвращает stale gradients/Hessian. Test равных loss в разных points, final update vs last preupdate и changed weights/support. Existing tests содержат monkeypatch/jit=False routes: packet правильно требует actual native final state witness, его не убирать.",
+      "capability_free_grow": "Корректный persisted parameter/report pair пригоден fresh UQ consumer. На новом compatible objective reuse остаётся по identity, не fixture coincidence.",
+      "source_ranges": [
+        "foundry/calibration/calibrator.py:3047–3240,3300–3455",
+        "tests/unit/remediation/test_cal_04.py:1–468"
+      ],
+      "findings": [],
+      "lane": "LANE-10",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAL-04.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAL-04.json",
+      "md_sha256": "1a17a60286528a92e509aa0018451650fc50f4b75f6ca7111c38c7e3b0dc6263",
+      "json_sha256": "a70e708018f64e1b98faed5bb21548aa224c347eb13f5c8514f0f63ff06e845b",
+      "md_lines": 140,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-CAL-04-01",
+        "REQ-CAL-04-02",
+        "REQ-CAL-04-03",
+        "REQ-CAL-04-04",
+        "REQ-CAL-04-05"
+      ],
+      "test_ids": [
+        "TEST-CAL-04-01",
+        "TEST-CAL-04-02",
+        "TEST-CAL-04-03",
+        "TEST-CAL-04-04"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "CAL-06",
+      "verdict": "retain",
+      "reason": "Scoped covariance block вместо all-or-nothing projection реально расширяет полезную capability без выдуманной certainty.",
+      "technical_assessment": "Известные uncertain A/B и point-only C должны сохранять свои роли. JΣJᵀ зависит от именованного parameter basis и correlation; tiedA=B не independent marginals. Legacy complete projection читается по versioned contract, unknown missing block не zero variance.",
+      "library_decision": "LIB-02: existing JAX derivative/covariance owner. NumPyro/ArviZ уже вlock не повод заменять локальный Gaussian/delta contract probabilistic programming framework.",
+      "cost_compatibility": "CovarianceO(p²), projectionO(mp²) для dense case; projected subset может уменьшить cost. PSD singular допускается, fake jitter нельзя молча менять law.",
+      "test_validity": "Wrong implementation: fills omitted C with covariance0 и получает ложную точность; либо rejects whole report из-за C. A=B test через actual joint source, row/column reorder, unknown block mutation и fresh CAS propagation различают. JSON equality alone не доказывает uncertainty propagation.",
+      "capability_free_grow": "Новый compatible named parameter subset работает через contract без special-case names; limits переносятся downstream. Partial uncertainty не scientific fullcoverage.",
+      "source_ranges": [
+        "foundry/calibration/report.py:230–376",
+        "foundry/calibration/calibrator.py:3450–3610",
+        "foundry/uncertainty/covariance.py:105–228",
+        "tests/unit/remediation/test_cal_06.py:1–143"
+      ],
+      "findings": [],
+      "lane": "LANE-10",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAL-06.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAL-06.json",
+      "md_sha256": "66e7adf5c0288aa6e6bc6baa8f7c93b80853e830f4d2799b110a552e564b042e",
+      "json_sha256": "7585cf0415f3c96105507d18dee6ff30ab40077577a18bf36673b9b3ea0557be",
+      "md_lines": 146,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-CAL-06-01",
+        "REQ-CAL-06-02",
+        "REQ-CAL-06-03",
+        "REQ-CAL-06-04",
+        "REQ-CAL-06-05"
+      ],
+      "test_ids": [
+        "TEST-CAL-06-01",
+        "TEST-CAL-06-02",
+        "TEST-CAL-06-03",
+        "TEST-CAL-06-04"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "UQS-01",
+      "verdict": "targeted revision",
+      "reason": "Statistical law/source semantics сильны; arithmetic implementation лучше упростить общей stdlib-backed boundary.",
+      "technical_assessment": "Caller-only decomposition не повышает authority primary result. Duplicated selected view не independent information; precision fusion требует одного estimand и justified independence/dependence. Mean вне equal-tail interval возможен, clamp меняет estimand. Raw joint draw corpus сохраняется.",
+      "library_decision": "LIB-01: FN-UQS-STDLIB, thin shared FED helper предпочтительнее mandatory custom exact accumulator. Это optimization, не дефект корректного exact algorithm; fusion decision остаётся domain-owned.",
+      "cost_compatibility": "Exact mean на bounded scalar lists, не traced arrays. Dedup/source-unit identity до fusion; нельзя дешевизну conservative hull выдавать за отсутствующий producer→consumer capability.",
+      "test_validity": "Wrong implementation: каждый duplicate source уменьшает variance, raw rows переставляются independently peraxis, либо meanclamp выглядит “inside CI”. Duplicate/permutation/skewed mean-outside-interval controls и actual source-bound fresh read различают. Positive posterior propagation обязателен, не только отказ от fusion.",
+      "capability_free_grow": "Новые source-compatible views агрегируются без caseID; unknown dependence остаётся useful conservative result, не fake independent precision. Source-bound propagation gap не закрыть mere summary.",
+      "source_ranges": [
+        "foundry/uncertainty/aggregator.py:227–389",
+        "foundry/uncertainty/covariance.py:105–228"
+      ],
+      "findings": [
+        "FN-UQS-STDLIB"
+      ],
+      "lane": "LANE-10",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/UQS-01.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/UQS-01.json",
+      "md_sha256": "fa7e245b15c1d1575a6d25bad69def6a21741791e8e76d820e8cc36121b7b5c0",
+      "json_sha256": "17dc4cc4fe5397287af7389979fa05ef0c0e796e0d27beb051bb02dc60b6a11f",
+      "md_lines": 156,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-UQS-01-01",
+        "REQ-UQS-01-02",
+        "REQ-UQS-01-03",
+        "REQ-UQS-01-04",
+        "REQ-UQS-01-05"
+      ],
+      "test_ids": [
+        "TEST-UQS-01-01",
+        "TEST-UQS-01-02",
+        "TEST-UQS-01-03",
+        "TEST-UQS-01-04",
+        "TEST-UQS-01-05"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "UQP-01",
+      "verdict": "retain",
+      "reason": "Nominal point и delta derivative должны использовать полный invocation contract, а не отдельную упрощённую функцию.",
+      "technical_assessment": "Frozen constants/defaults и dtype coercion влияют на derivative; model2x должен дать point20, variance4 при declared source. Parameter nominal vector не весь callable contract. Derived source response basis нельзя подменять result scalar без parameters/axes.",
+      "library_decision": "LIB-02: existing JAX jacfwd/delta dispatcher; finite differences лишь qualified fallback. Не process-wide x64 mutation внутри helper.",
+      "cost_compatibility": "JacobianO(outputs×parameters) storage и forward/autodiff cost; tiny test не unlimited dense derivative guarantee. Static inputs frozen, mutable caller data не alias.",
+      "test_validity": "Wrong implementation: differentiate f(theta) без constants/defaults, потом attach correct nominal label. Nonlinear/affine second fixture с nondefault constants, caller mutation after binding и named axis reorder различают. Compare actual forward and analytic derivative, not same helper for expected.",
+      "capability_free_grow": "Новый compatible model invocation проходит existing adapter, no special linear dispatch. Delta — local approximation, не global uncertainty truth или validated coverage.",
+      "source_ranges": [
+        "foundry/uncertainty/delta.py:1–160",
+        "foundry/uncertainty/dispatcher.py:120–260"
+      ],
+      "findings": [],
+      "lane": "LANE-10",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/UQP-01.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/UQP-01.json",
+      "md_sha256": "0383faefa3e653d0ba2911cd64eef6c418485523cfe683672ac46c44d30b7dfc",
+      "json_sha256": "4549fd5e674fb9ecd7565970ae48a5bb537c2e15a58a9270c27d8140b512a0be",
+      "md_lines": 158,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-UQP-01-01",
+        "REQ-UQP-01-02",
+        "REQ-UQP-01-03",
+        "REQ-UQP-01-04",
+        "REQ-UQP-01-05"
+      ],
+      "test_ids": [
+        "TEST-UQP-01-01",
+        "TEST-UQP-01-02",
+        "TEST-UQP-01-03",
+        "TEST-UQP-01-04",
+        "TEST-UQP-01-05"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "UQP-02",
+      "verdict": "retain",
+      "reason": "Point mass, empirical marginal и correlated joint law разделены правильно; это не excessive refusal.",
+      "technical_assessment": "Zero std означает deterministic point, не sigma1e-12. Empirical draws нельзя превращать в Gaussian с clipping; bounded law не clipped unbounded law. Singular covariance valid на lower-dimensional support. Collapsed finite CDF interval и positive but rare1e-12 probability — разные случаи.",
+      "library_decision": "LIB-08: existing SciPy/JAX transforms and named draw corpus; new arbitrary-precision sampler не обязателен. Unsupported numerical tail имеет reason, не silent law substitution.",
+      "cost_compatibility": "Bound rejection/attempts и full-row joint sampling; не независимая сортировка каждой marginal. Point-mass axes дешевле не sampling. Dtype profile обязателен.",
+      "test_validity": "Wrong implementation: jitter singular covariance или independently resample a,b и получает plausible marginals, но a−b≠0. Exact joint constraint, empirical support, point mass and tail controls различают. Наблюдение нуля rare events не доказательство нулевой вероятности.",
+      "capability_free_grow": "Добавление compatible empirical/degenerate source через typed law без special fixture. Honest unsupported tails не уничтожают остальные valid outputs и не называются total capability.",
+      "source_ranges": [
+        "foundry/uncertainty/monte_carlo.py:788–796,2572–2682",
+        "foundry/uncertainty/covariance.py:105–228"
+      ],
+      "findings": [],
+      "lane": "LANE-10",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/UQP-02.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/UQP-02.json",
+      "md_sha256": "7244e9ce19a8694dc65d90a24a7ec71ab4c79f9a795f0eef22ea5a54997c7446",
+      "json_sha256": "96ddf992e4ea2bafaee979d122bb99848c7ceffce5ccd74fe982dd10785c2c27",
+      "md_lines": 144,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-UQP-02-01",
+        "REQ-UQP-02-02",
+        "REQ-UQP-02-03",
+        "REQ-UQP-02-04",
+        "REQ-UQP-02-05"
+      ],
+      "test_ids": [
+        "TEST-UQP-02-01",
+        "TEST-UQP-02-02",
+        "TEST-UQP-02-03",
+        "TEST-UQP-02-04"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "UQP-03",
+      "verdict": "retain",
+      "reason": "Разделение interval-width heuristic и MCSE, logical checkpoints и conditional failure measure предотвращает ложную точность.",
+      "technical_assessment": "Ширина outcome interval не standard error estimator. Переименование честнее подмены более сложным MCSE без модели. Stopping checkpoint100 не должен зависеть от batch50/60 при budget240; failed draws меняют observed conditional law и denominator, не превращаются вzero outputs.",
+      "library_decision": "LIB-08: retain bounded owner, proper MCSE как отдельное future profile. QMC не автоматическая замена iid/heuristic.",
+      "cost_compatibility": "Attempts budget отдельно successful outputs; retries bounded and same-input, cost source exact. Batch controls memory only, not statistical stopping identity.",
+      "test_validity": "Wrong implementation: check stop only endbatch; для50 и60 разное sample count/result, smallbudget hides issue. checkpoint schedule independent ofbatch и conditional mean50/99 controls нужны. Retry2 uses same input not new random draw, otherwise scientific selection changes.",
+      "capability_free_grow": "Новые compatible distributions сохраняют declared measure и exact attempt accounting. Useful conditional result отдаётся limited; heuristic convergence не заявляется calibrated accuracy.",
+      "source_ranges": [
+        "foundry/uncertainty/monte_carlo.py:1978–2004"
+      ],
+      "findings": [],
+      "lane": "LANE-10",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/UQP-03.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/UQP-03.json",
+      "md_sha256": "451124f91b49449e79159788d2e23ed8f95838910ee7a6aef20056bc303c7919",
+      "json_sha256": "85ae999d139836768f75fa4277a50daae7908dc1a6ed5f3bff12aa7ae6a0456c",
+      "md_lines": 155,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-UQP-03-01",
+        "REQ-UQP-03-02",
+        "REQ-UQP-03-03",
+        "REQ-UQP-03-04",
+        "REQ-UQP-03-05"
+      ],
+      "test_ids": [
+        "TEST-UQP-03-01",
+        "TEST-UQP-03-02",
+        "TEST-UQP-03-03",
+        "TEST-UQP-03-04",
+        "TEST-UQP-03-05"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "DOE-01",
+      "verdict": "retain",
+      "reason": "Bounded lazy design consumption и честный adaptive cost более важны, чем генерация большого числа trial labels.",
+      "technical_assessment": "itertools.islice prefix ограничивает materialization, но grid prefix не uniform coverage. Constant axes canonicalized; adaptive uses actual previous result, no hidden rerun. Unknown cost нельзя считатьzero и оптимизировать budget по нему.",
+      "library_decision": "LIB-08: existing iterator/design owner; SciPy Sobol может стать отдельным declared design, не способ переименовать biased grid prefix.",
+      "cost_compatibility": "12dimensions×3values дают531441grid points; first10 consumption bounded. Plan maxruns/attempts проверяется до costly execution, output artifacts current owner.",
+      "test_validity": "Wrong implementation: list(product(...))[:10] проходит smallfixture и взрывает memory; sentinel iterator/counters различают. Adaptive spy на actual source attempt count и changed previous result ловит stale cached decision. Unknown-cost branch must stay useful limited or bounded by explicit cap, не fictional savings.",
+      "capability_free_grow": "Новый dimensionality/constant axis через plancontract без кода. First10grid не считается global sensitivity coverage; declared downstream usefulness отдельна.",
+      "source_ranges": [
+        "scientist/methods/doe/sampling.py:1–109",
+        "scientist/methods/doe/adaptive.py:85–247"
+      ],
+      "findings": [],
+      "lane": "LANE-10",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/DOE-01.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/DOE-01.json",
+      "md_sha256": "37e4e30672f69d4fb3ad4ee3a4fc80c785204bd1d125dfc794049bfc31b84e97",
+      "json_sha256": "f2878f05020dea8425cc2508bb3f2d46ad06dee96029bad1f5a19a6347c4208d",
+      "md_lines": 126,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-DOE-01-01",
+        "REQ-DOE-01-02",
+        "REQ-DOE-01-03",
+        "REQ-DOE-01-04"
+      ],
+      "test_ids": [
+        "TEST-DOE-01-01",
+        "TEST-DOE-01-02",
+        "TEST-DOE-01-03"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "DOE-02",
+      "verdict": "targeted revision",
+      "reason": "Typed laws/source-matrix binding и local streams правильны; дописать stochastic preprocessing/PCA stage.",
+      "technical_assessment": "Canonical SALib problem один для sampling/analysis, physical bounds и declared distribution. Current-plan hash не доказывает происхождение already generated samples. Native source record должен связывать actual matrix/axes/backend/seed/replica. FN-DOE-PCA-RNG закрывает omitted stage.",
+      "library_decision": "LIB-06/07: SALib1.5.2 оставить; seeded FAST pending подтверждён именно analyzer global RNG, boundedLOGNORMAL не заменять unbounded. SciPy PPF reference — adapter comparison, не независимая реализация quantile.",
+      "cost_compatibility": "Local seeds по stage, profile version-bound; input copy если backend mutates. Bounded runs; only one PCA seed owner shared03. Нет blanket backend upgrade.",
+      "test_validity": "AB/BA whole pipeline, external RNG state unchanged и original uniform design+normal plan swap хорошие controls. Добавить large-shape actual PCA path и analytic uniform/triangular/CDF profile checks. Small sampler-only repeat легко проходит с stochastic unseeded downstream.",
+      "capability_free_grow": "Новые compatible typed laws/replicas возможны данными; неподдержанный law адресно pending. Receipt не переносится на другую backendversion безqualification.",
+      "source_ranges": [
+        "scientist/methods/doe/designs.py:1–401",
+        "scientist/methods/doe/sampling.py:1–109",
+        "scientist/methods/doe/analysis.py:1–290",
+        "scientist/methods/doe/multi_output.py:175–215",
+        "tests/unit/remediation/test_doe_02.py:1–367"
+      ],
+      "findings": [
+        "FN-DOE-PCA-RNG"
+      ],
+      "lane": "LANE-10",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/DOE-02.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/DOE-02.json",
+      "md_sha256": "51d9f360198d0acde34a7183367bb961ae63584014d3ead2e650a172e8612f19",
+      "json_sha256": "de9e9d40467cf3ec227b68d87f262e00715846a41dff55ac6eeb7afdf63cc60d",
+      "md_lines": 126,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-DOE-02-01",
+        "REQ-DOE-02-02",
+        "REQ-DOE-02-03",
+        "REQ-DOE-02-04"
+      ],
+      "test_ids": [
+        "TEST-DOE-02-01",
+        "TEST-DOE-02-02",
+        "TEST-DOE-02-03"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "DOE-03",
+      "verdict": "targeted revision",
+      "reason": "Failure/block/rank/units решения содержательно верны; tests добавить stochastic solver branch совместноDOE02.",
+      "technical_assessment": "Imputation не ordinary calibrated CI; whole Morris trajectories нельзя склеить из surviving rows. Centeredrank≤n−1 до solver selection; unmet variance threshold — useful limited, не scientific sufficiency. Normalized effect20 для y2x on[0,10] сохраняется при смене x units.",
+      "library_decision": "LIB-06/07: actual sklearn/NumPy/SALib reuse, not new PCA. Small analytical fullprojector oracle сильный; tied rank1 cap rightly avoids forced same vector. FN-DOE-PCA-RNG о другом shape/profile boundary.",
+      "cost_compatibility": "Failure filtering precedes PCA и retains original denominator. Dense output matrix budget, randomized solver explicit. Component count/variance threshold не достаточность empirical sensitivity.",
+      "test_validity": "Wrong implementation: impute then drops failedcount, constructs plausible CI; or reorders retained trajectory rows. Persist original/retained IDs and source geometry, actual uncertainty owner verifies. Existing small3×5/6×5 tests do not exercise ambient RNG; new600×100 needed.",
+      "capability_free_grow": "Partial-output exploratory point useful with limitations; complete positive path still genuine. Novel outputbasis units through same pipeline, no hardcoded eigenvector/sign.",
+      "source_ranges": [
+        "scientist/methods/doe/analysis.py:197–290",
+        "scientist/methods/doe/multi_output.py:40–239",
+        "tests/unit/remediation/test_doe_03.py:178–245"
+      ],
+      "findings": [
+        "FN-DOE-PCA-RNG"
+      ],
+      "lane": "LANE-10",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/DOE-03.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/DOE-03.json",
+      "md_sha256": "f9c3bf1217d515137e098afe09b794968b4036b62491f94ef49198cce26279d5",
+      "json_sha256": "7c1132864d8761e0a48623002b11e099f9683649d840683f0b547b11c45da4d5",
+      "md_lines": 156,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-DOE-03-01",
+        "REQ-DOE-03-02",
+        "REQ-DOE-03-03",
+        "REQ-DOE-03-04",
+        "REQ-DOE-03-05"
+      ],
+      "test_ids": [
+        "TEST-DOE-03-01",
+        "TEST-DOE-03-02",
+        "TEST-DOE-03-03",
+        "TEST-DOE-03-04",
+        "TEST-DOE-03-05"
+      ],
+      "product_test_status": "NOT_RUN"
+    },
+    {
+      "packet": "STR-01",
+      "verdict": "bounded qualification",
+      "reason": "Независимый objective intent и полная denominator accounting обязательны; scorer self-validation недостаточна для stress capability.",
+      "technical_assessment": "Utility/cost directions должны задаваться source objective один раз, а не вычисляться из удобного already-signed score. Topk/dedup не меняет original inspected set valid+invalid+unavailable. Finite sampled stress corpus не population risk estimate.",
+      "library_decision": "LIB-11: existing objective/scorer/report owner; новая multiobjective optimization framework не решает provenance/intent.",
+      "cost_compatibility": "Bound evaluated candidates и retained topk отдельно, no hidden full search. Count original attempts/unique scenarios/available outcomes по declared roles; source fresh reader re-evaluates required summary.",
+      "test_validity": "Wrong implementation: product score используется как собственный oracle и подтверждает reversed cost sign. Hand objective intent fixture, duplicate invalid candidates, alternate ordering, fresh independent scorer и original denominators различают. Для second objective family semantics должны быть declared, не lookup bycaseID.",
+      "capability_free_grow": "Useful stress ranking для inspected scope; реальные policy resilience/population failure probabilities требуют независимых scenarios/distribution/evaluation, не принятия одного artifact.",
+      "source_ranges": [
+        "scientist/methods/doe/stress_report.py:111–184,636–725"
+      ],
+      "findings": [],
+      "lane": "LANE-10",
+      "md_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/STR-01.md",
+      "json_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/STR-01.json",
+      "md_sha256": "be849c0c2aa2af2a17792b70ba2ccd33ba73e93298939d4b04090db7b440ee13",
+      "json_sha256": "14b4850479c723c69135e77de4b2135f110bbf0b0597ab3c9cbdc6c0f326d131",
+      "md_lines": 140,
+      "read_status": "full packet solution and tests read; JSON semantic content compared with MD and unique supplements fully inspected",
+      "requirement_ids": [
+        "REQ-STR-01-01",
+        "REQ-STR-01-02",
+        "REQ-STR-01-03",
+        "REQ-STR-01-04"
+      ],
+      "test_ids": [
+        "TEST-STR-01-01",
+        "TEST-STR-01-02",
+        "TEST-STR-01-03",
+        "TEST-STR-01-04"
+      ],
+      "product_test_status": "NOT_RUN"
+    }
+  ],
+  "lanes": [
+    {
+      "lane": "LANE-03",
+      "claim": "Получить предметно ограниченное empirical/forecast/backtest evidence из реально выбранных наблюдений, сохранить его происхождение и численные ограничения, передать свежему consumer без повышения силы утверждения.",
+      "assessment": "Интеграционные контракты содержательно сильнее набора unit smoke tests: они требуют actual forecast/backtest producer и fresh receipt/decision reader. Однако исправленные counters, exact hashes и positive roundtrip не доказывают predictive skill, N4 update relation или переносимость population. Главный новый численный gap — FN-BKT-RANGE; положительную FRC-02 capability нельзя закрыть только FRC-01/PCL-01 repairs.",
+      "prerequisites": [
+        "Scoped ObservationRecord/compiler/query owner; actual entity/time/unit/regime contract, selected graph.",
+        "Current source-bound ForecastOwner/ETS registered backend; реальные training/holdout roles и diagnostic producer.",
+        "Current physical request/workflow/selected SimulationResult/PropagationReport/IR store, не stale lambda_state envelopes.",
+        "Optional SciPy profile explicit; missing backend не positive significance.",
+        "FRC-02 producer relation/N4 update binding must exist or remain named gap; integration runner не фабрикует его."
+      ],
+      "scenarios": [
+        {
+          "id": "E02-I03-A",
+          "positive": "Два entity/time/unit scope, реальный selected empirical producer→current ref→summary. Один scope даёт finite useful interval/conditional prediction; point-ID и nonzero width различимы; source limitations сохраняются.",
+          "adversarial": "Соседний entity с теми же датами, другой regime, unit-rescale, overflow derived width; query cap до чужого scope не должен обрезать нужную опору. Stored positive badge при failed source floor не восстанавливает PASS.",
+          "persistence": "Записать exact selected rows/query contract/graph/profile в existing owner; новая reader instance без исходного object. Изменение source bytes/units/binding инвалидирует только затронутый claim.",
+          "oracle": "Независимый перечень source row IDs + analytic unit conversion/width, не та же SQL/helper; equality summary bytes лишь transport evidence.",
+          "transfer": "Второй entity и новое metric/units combination поддержанного contract, новые IDs, иные времена/graph topology; no source-file edits.",
+          "cost": "Небольшой synthetic scope fixture + отдельный bounded cap witness; счёт реально прочитанных/отфильтрованных rows, не требование huge dataset."
+        },
+        {
+          "id": "E02-I03-B",
+          "positive": "Actual ETS train-prefix→holdout predictions→numeric diagnostic→report/receipt→fresh S10. По declared producer thresholds95/100 passed и10/10 failed могут сохраняться; real interval roles и optional selected refs.",
+          "adversarial": "Holdout labels в training не попадают; nominal95% не превращается в observed95 hits; wrongkind/foreign/tampered evidence, fractional counts/future temporal role и no-reference paths. Report-only nominal/rule mutation invalid; genuine new selected rule пересчитывает suitability.",
+          "persistence": "Actual report/ref/profile persisted, fresh receipt consumer и S10 inspect exactly bound source. Cross-story E02-X04/FRC-02 отдельно: actual new observed outcome→N4 relation→fresh predictive update, old cached forecast with new ref запрещён.",
+          "oracle": "Ручной hit/count на фиксированных heldout observations и independent role table; для model path analytical simple series плюс реально computed ETS, не model mock. Accuracy на fixture не population validation.",
+          "transfer": "Новая series с другим pattern/horizon в том же registered backend; temporal holdout не используется при tuning. Для empirical claim нужен отдельно замороженный реальный dataset/task.",
+          "cost": "Bound trainlength/horizon/model fits;2small series, по одному actual update. Фиксировать backend/import/version, no live provider."
+        },
+        {
+          "id": "E02-I03-C",
+          "positive": "Actual prefix feature ref→native n1/n7 forecast replicas→evaluator→micro summary→current persisted decision packet. Partial rows useful с full requested denominator; finite extreme row retained со separate unavailable SSE.",
+          "adversarial": "Future-value mutation, derived moving feature leakage, missing coordinate/selector typo, subtraction overflow, missing interval, constant signed residual, unavailable SciPy, cancelled work, forged aggregate. Unequal technical shards не меняют micro; scientific strata remain separate.",
+          "persistence": "Fresh IR recomputes metrics/counts/interval availability from actual source rows and current physical request; invalid stale compute hash/candidate diagnostic не trusted.",
+          "oracle": "Independent residual list/scaled RMS/signed mean; exact simple point prediction, analytic CI hits; CV/bootstrap expected from отдельно выписанных indices/statistic. Product scorer не oracle самого себя.",
+          "transfer": "Второй quantity/units stratum, новые cohort coordinates и иной split arrangement; declare pooling before observation. Callback statistic не только mean.",
+          "cost": "Fold/replica/bootstrap caps before materialization; report expected model-call counts and source IO. Большой combinatorial bound тестировать iterator witness, не запуском exponential work."
+        }
+      ],
+      "qualification_boundary": "Repair acceptance подтверждает правильную численную и provenance механику. Scoped capability требует весь positive producer→fresh consumer path и transfer. Forecast skill/coverage/transport требуют independent empirical evaluation; ни один результат не permission или causal certification."
+    },
+    {
+      "lane": "LANE-04",
+      "claim": "Из авторского typed recipe получить reproducible effective execution, сохранить state/policy и восстановить их новым consumer; limited learning меняет настоящую policy при сохранении экономического и stochastic law.",
+      "assessment": "Хорошо разделены authored graph, runtime registry, compiler cache, checkpoint и training role. Не требуется замена всей платформы. CMP-01 всё ещё нужно подтвердить через persisted fresh reconstruction. PLG-03 positive update witness важен, но без FN-PLG-ORACLE допускает wrong-direction learning; inactive payload safety остаётся native hypothesis. HARD refusal допустим как временный профиль, не окончательное доказательство universal learning.",
+      "prerequisites": [
+        "MethodRegistry/runtime views и merge/link compatibility owner; recipe persistence уже существует или его отсутствие адресно признано.",
+        "Actual JAX0.8.2/Equinox0.13.2/Optax0.2.6 backend и declared dtype/device; build tools не подменены doubles.",
+        "Tenant-owned CAS/policy strict loader; no default-view substitution.",
+        "Checkpoint filesystem profile и restricted invocation/schema explicit.",
+        "Existing economic law profiles/clock/RNG/CRRA active-population admission; supported training one-domain only."
+      ],
+      "scenarios": [
+        {
+          "id": "E02-I04-A",
+          "positive": "Авторовать recipe с nondefault static/dynamic params, requires-only edge, повторной occurrence и sibling; сохранить, закрыть owner view, fresh reconstruct/compile и actual sequential/async execute. Explicit merge даёт60; expected40/60/120 bindings проверяются по конкретному fixture.",
+          "adversarial": "Cycle и unresolved duplicate producer отклоняются до run; WARN limited сохраняет20/10, не merge. Rename/reorder IDs не меняют meaningful semantics. Global matching cardinality/lex preference проверяется отдельно.",
+          "persistence": "Exact recipe/ref/schema и frozen effective graph; fresh registry/compiler не получают in-memory patched objects. Mutating args/recipe generation инвалидирует нужный cached execution.",
+          "oracle": "Independent hand calculation actual chain outputs + exhaustive tiny matching enumeration, не same solver. DAG topology и actual numeric outcomes оба нужны.",
+          "transfer": "Вторая compatible topology с dependency не на ближайшую occurrence, novel slot names и иным dynamic parameter; отсутствие caseID веток inspectable.",
+          "cost": "Small graphs; polynomial solver requirement, bounded larger smoke. Не exponential production matching. Cold/warm compile overhead отдельно."
+        },
+        {
+          "id": "E02-I04-B",
+          "positive": "Cold/warm handles с разными dynamic defaults дают20/30 по текущему request; exact race window one compile/publication; saved checkpoint restores node outputs/seed/restricted request свежим reader.",
+          "adversarial": "get→claim race, invalidation-before-delivery, leader error, cancelled/deadline follower; все flights завершаются. Failure prewrite/prerename/postrename/dirsync не удаляет referenced committed sidecars/history. Changed params/input не reuse old checkpoint.",
+          "persistence": "New cache/compiler/store instance; current namespace и generation, actual published manifest. Политика durability явно не обещает successful powerloss recovery на всехOS.",
+          "oracle": "Exact output equations плюс event-order assertions/fresh on-disk reader; wrapper counter отдельно от actual XLA compile instrumentation. Platform failure injected at owner boundary, native serialization остаётся.",
+          "transfer": "Иной shape/dtype/static arg требует new valid compilation; unchanged dynamic shape не stale bindings. Second checkpoint namespace/history collision control.",
+          "cost": "block_until_ready и effects barrier where relevant; separate preparation/cold/warm/device transfer, actual bytes allocated/written. Small bounded threads/timeouts, no throughput claim по одному sample."
+        },
+        {
+          "id": "E02-I04-C",
+          "positive": "Actual fiscal/plugin economic laws с distinct reported-income/income/wealth→supported fluid/relaxed collector→1–2 real updates→policy artifact→fresh strict loader→next action. Обычный run и HARD evaluation сохраняются.",
+          "adversarial": "HARD train refuses before work/output при текущем boundedprofile; malformed plugin не блокирует valid sibling. Wrongsign PPO mutation fails analytic oracle. Same-shape inactive NaN pair проверяется native; active bad/intermediate terminal failure stops before optimizer/store, даже если final recovered.",
+          "persistence": "Exact selected tenant refs/weights/optimizer metrics/schema1.1 profile; fresh skeleton/store loads action-equivalent policy. Tamper/missing/profile mismatch rejects; legacy1.0 readable без invented metadata; genuine in-memory positive безCAS permitted.",
+          "oracle": "Independent economic ledger/action-law probability и analytic PPO clip/GAE gradients, original Optax delegation, same-seed no-update control. Next-action difference не welfare gain.",
+          "transfer": "Второй valid population/config/seed в том же one-domain profile, fixed active indices/keyassignment для padding metamorphism. Newdomain training не заявляется без нового contract.",
+          "cost": "Tiny actors/population/horizon1–2updates; no full training campaign. Gradient effect threshold заранее, backend/version exact; record actual store writes0/2 по outcome contract."
+        },
+        {
+          "id": "E02-I04-D",
+          "positive": "Real scalar scheduled mechanism through calibration pure executor, inactive branch produces neutral field-correct patch без runtime forward/emission; active scalar branch produces expected value and derivative.",
+          "adversarial": "Inactive poisonous computation/effect не выполняется; tracing counts не runtime calls. Unsupported mapped predicate gets precise refusal, active supported sibling не запрещается. New emission field без neutral contract не silently zeroed.",
+          "persistence": "Schedule/recipe/profile binding сохраняется в calibration invocation/report; fresh consumer не переинтерпретирует scalar evidence как universal vectorized capability.",
+          "oracle": "Actual runtime emissions/forward counters after effects completion, analytic simple value/gradient/Hessian. Traced Python callcount не oracle laziness.",
+          "transfer": "Второе расписание/compatible emission contract через ресурсы, active/inactive transitions в другом timestep; no special known method names.",
+          "cost": "Bound steps/branches; measure no unwanted numerical work, not merely returned zeros. Full backend matrix не обязательна, заявленный supported device обязателен."
+        }
+      ],
+      "qualification_boundary": "Compile/restore correctness не доказывает корректность экономической модели. Tiny optimizer proof — настоящая ограниченная learning capability, но не scientific policy improvement. Permission boundary не повышается от successful execution/persisted artifact."
+    },
+    {
+      "lane": "LANE-10",
+      "claim": "Воспроизводимо подобрать параметры на declared training support, получить source-bound частичную/полную uncertainty правильного estimand и использовать сохранённый design для sensitivity/stress с честными единицами и потерями.",
+      "assessment": "Большинство решений хорошо предпочитают useful limited result абсолютному отказу: partial covariance, failed-start sibling, exploratory imputation point, explicit rare-tail limitation. Два важных пропуска — CAL-02 masking до nonlinear AD и DOE whole pipeline PCA RNG. Нельзя считать small analytic fixtures статистической квалификацией CI/MCSE/causal impact.",
+      "prerequisites": [
+        "CAL-01/current ObservationRecord compiler/ConstraintRegistry/bijectors совместимы с shared training base-vector.",
+        "Actual JAX/Optax forward, optional sklearn/SALib/SciPy versions pinned; fallback profiles записаны.",
+        "Current CalibrationReport/PropagationReport source record and tenant/ref ownership, fresh IR consumer.",
+        "Typed joint law/row identity/parameter basis; DOE actual design matrix and retained trajectory provenance.",
+        "Scientific quantity/units/objective directions declared before inspecting result."
+      ],
+      "scenarios": [
+        {
+          "id": "E02-I10-A",
+          "positive": "Actual one-agent income_tax parameter r=.5, θ=r−.5, two targets1/9 and constant constraint penalty6. Weights9:1/1:9 yield96/736; physical derivatives−36/−164,H20; optimizer-u derivatives follow actual sigmoid,−9/−41,H1.25. Real one update, final chosen state/report and scoped covariance.",
+          "adversarial": "Heldout10→3e38 infloat32 does not poison fit; active train change does. Shape mismatch/no-effective support/nonfinite prediction guards; lastupdate/stale equal-loss point; one failed start plus useful finite sibling; unknownC covariance not guessedzero.",
+          "persistence": "Store actual selected state/report/objective basis/weights/support/scale/parameter names; fresh propagation consumer checks exact selected ref. Changed basis/weights/source invalidates curvature reuse.",
+          "oracle": "Independent analytic quadratic incl penalty and physical/u coordinate transformation; separate actual-forward finite difference with predeclared step. No mocked forward/gradient/Hessian/Optax. Scoped covariance tiedA=B verified algebraically.",
+          "transfer": "Second supported target/state/model parameter name and different split/placeholder axis; same objective owner, no caseID dispatch. Heldout labels never tune optimizer settings.",
+          "cost": "Bound one/two parameters and steps for native acceptance; Hessian memoryO(p²) declared. Microfixture demonstrates semantics, не realdata convergence/general calibration."
+        },
+        {
+          "id": "E02-I10-B",
+          "positive": "Actual named correlated input law + frozen constant→delta/MC→summary→persisted propagation→fresh consumer. Known linear2x example point20, variance4; singular a=b yields a−b=0. Empirical atoms/joint rows retained; duplicate selectedview не extra precision.",
+          "adversarial": "Zeroσ pointmass, asymmetric mean outsideequal-tailinterval, dependence duplication, absent output, filtered failures conditional mean50/99, retries2sameinput, collapsed CDF vs positive raretail. Same logical100checkpoint acrossbatch50/60budget240. Changed basis no stale curvature.",
+          "persistence": "Persist source law/method/version/row IDs/seed/attemptcounts/limitations. Fresh reader recomputes required summary from preserved corpus and verifies exact source/profile; no default-view laundering.",
+          "oracle": "Analytic affine mean/covariance and exactjointconstraint; independent finite mean/Fraction extremes. For stochastic marginals, predeclared distributional tolerance/multiple-run design if claiming empirical accuracy, not cherry-picked seed.",
+          "transfer": "Second affine/nonlinear compatible model, row reorder preserving joint identity, different requested output subset. Nonlinear delta result explicitly approximation; no universal coverage claim.",
+          "cost": "Bound attempts and successful rows separately; batch memory cap and no hidden newdraw retries. Exact summary arithmeticcost measured separately; no arbitrary-precision MC engine required."
+        },
+        {
+          "id": "E02-I10-C",
+          "positive": "Actual typed source-bound design→bounded model evaluations→sensitivity+stress→artifact→fresh analyzer/scorer. Uniform/normal/triangular law mapping; y=2x effect20 on[0,10] and unit transforms; complete Morris CI path plus exploratory imputed point.",
+          "adversarial": "Uniform source relabelled normal by currentplan rejected; source axes/units/replica/backend tamper. Failed wholeblocks retained/dropped correctly, originaldenominator survives.600×100PCA randomized stage explicit local seed/global state invariant. Reversed costdirection/top-k/dedup cannot improve false score.",
+          "persistence": "Actual design matrix/block identities/seed law/backend/PCAprofile and retained outputs persisted in existing source owner. Fresh reader verifies originals, not currentplan fingerprint alone; missingowner remains precisegap.",
+          "oracle": "Independent analytic effects/scaling, small exact PCA projector and larger reference residual/subspace with separated spectrum; hand objectiveintent not productscore. SciPy PPF is adapterreference only; analytic uniform/triangular or CDFerf controls add independence.",
+          "transfer": "Newaxes, reordered compatible outputs, unitrescale and different-law request; AB/BA two whole pipelines and newreplica.6×5tiedrank1case checksratio/status not arbitrary projector equality.",
+          "cost": "Gridprefix max10 of12D×3 withoutmaterialization; bounded adaptivecalls;200two-paramMorris trajectories (num_levels=8)600rows×100outputs≈480KBinput plus reported workspace. Small PCA fixtures retained for cheap regression; one large-shapeprofilequalification, not every unit test."
+        }
+      ],
+      "qualification_boundary": "Repair and scoped algorithm qualification не доказательство empirical CI coverage, MCSE, missingness model, sensitivity transport or population stress risk. Эти claims требуют замороженного independent data/model/evaluation protocol; successful saved report не operational permission."
+    }
+  ],
+  "source_code_reads": [
+    {
+      "path": "src/polisyos/foundry/calibration/calibrator.py",
+      "sha256": "f23b724aa07a447fbf10effad60c28f7e286ff137e2805e4e4a195adc28ac6a1",
+      "total_lines": 3682,
+      "ranges": [
+        [
+          716,
+          762
+        ],
+        [
+          2380,
+          2668
+        ],
+        [
+          2740,
+          2960
+        ],
+        [
+          2977,
+          3610
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/calibration/hessian.py",
+      "sha256": "f136b9d4195ae6b66a0261c271c6f00f6a58b3ac93692e4d65f997956c3d9361",
+      "total_lines": 173,
+      "ranges": [
+        [
+          1,
+          173
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/calibration/loss.py",
+      "sha256": "a3c7dcf6b118d88b7b3f1b0bc60f8ec390cd2229232f75e8f7ff0b6c022f9e58",
+      "total_lines": 156,
+      "ranges": [
+        [
+          1,
+          156
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/execute/_internal/numeric/__init__.py",
+      "sha256": "8f00616c33fc197a357aad04d301bdf5ad88fe6955c1ae6c44af337ebf35a9f9",
+      "total_lines": 232,
+      "ranges": [
+        [
+          161,
+          165
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "tests/unit/remediation/test_cal_02.py",
+      "sha256": "8b06fb3d9c3a350ea71e21adbabb80f25b9fd9a6eada705297959ab1ff199644",
+      "total_lines": 152,
+      "ranges": [
+        [
+          1,
+          152
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "tests/unit/remediation/test_cal_03.py",
+      "sha256": "189adf915ccdf055e44dad8ab3fb9717ca90a05ecece454630bcff134a73ef62",
+      "total_lines": 211,
+      "ranges": [
+        [
+          1,
+          211
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/calibration/multi_start.py",
+      "sha256": "b3988d200da684ba6cf323381e6021de357be594f1a56c22f39cb5ff5c29c260",
+      "total_lines": 171,
+      "ranges": [
+        [
+          1,
+          171
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "tests/unit/remediation/test_cal_04.py",
+      "sha256": "31b7b6afb4e3e8587865c168ad8953ba0138271737185633df3400a351ebe4f7",
+      "total_lines": 468,
+      "ranges": [
+        [
+          1,
+          468
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "tests/unit/remediation/test_cal_06.py",
+      "sha256": "c9afbd837ae8b3b6defed9a588492e67fb1d084c493ad6ffa8ee43a77c85aa13",
+      "total_lines": 143,
+      "ranges": [
+        [
+          1,
+          143
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/calibration/report.py",
+      "sha256": "9e063a7b96c4bc6c0e68a20641410f81701d535d7cad9470c1c17a7c68638587",
+      "total_lines": 376,
+      "ranges": [
+        [
+          230,
+          376
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/scientist/methods/doe/sampling.py",
+      "sha256": "8cd056fde7b64825baa33c440ec0f05e96b2b12313355a4228e00279ce36e596",
+      "total_lines": 109,
+      "ranges": [
+        [
+          1,
+          109
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/scientist/methods/doe/designs.py",
+      "sha256": "b8420f14abb36aa0e1e4423c8215aec836f637e69060992308ef47b12ffe9a8f",
+      "total_lines": 401,
+      "ranges": [
+        [
+          1,
+          401
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/scientist/methods/doe/analysis.py",
+      "sha256": "7b58b2f9c8e1f94a1fff30e5d9aae8b8408960cf583aa28e12d06f3ee1145239",
+      "total_lines": 393,
+      "ranges": [
+        [
+          1,
+          290
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "tests/unit/remediation/test_doe_02.py",
+      "sha256": "cce40927263a910511d0acb2f1eec461539d9900e5a6c6df26982edff26ef03f",
+      "total_lines": 367,
+      "ranges": [
+        [
+          1,
+          367
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/scientist/methods/backtesting/evaluator.py",
+      "sha256": "d60ea4b569b28e64187842bb191c9541d64cf83d548f5fd2008c69d68ced66be",
+      "total_lines": 209,
+      "ranges": [
+        [
+          1,
+          209
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c",
+      "total_lines": 1762,
+      "ranges": [
+        [
+          661,
+          780
+        ],
+        [
+          925,
+          1024
+        ],
+        [
+          1366,
+          1435
+        ],
+        [
+          1542,
+          1725
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/scientist/methods/backtesting/cv.py",
+      "sha256": "8b4e347c71bd53ee2d3929ae3e3e890cf05d31e5eba65731ab78d86a0585a910",
+      "total_lines": 160,
+      "ranges": [
+        [
+          1,
+          160
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/scientist/methods/backtesting/bootstrap.py",
+      "sha256": "eb8ae5af0f32881b41a5fd229666050c81ad9790ff6f3deea28ebb407b25c47f",
+      "total_lines": 246,
+      "ranges": [
+        [
+          90,
+          246
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/scientist/methods/backtesting/masking.py",
+      "sha256": "2a39f65b41ccb9bc818b3f77bc3aa7304dfdcce9a678a5ad651f47e4275e891a",
+      "total_lines": 161,
+      "ranges": [
+        [
+          1,
+          161
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/core/contracts/value_outer_set.py",
+      "sha256": "35d9fb3880239d6cc2d7c7829c5be62f65d73cc79c3ff6b5577b8f49489580ec",
+      "total_lines": 548,
+      "ranges": [
+        [
+          49,
+          82
+        ],
+        [
+          237,
+          289
+        ],
+        [
+          342,
+          391
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "sha256": "e246e670e007e0d9da0438fb7ec65dc4398d2b409131fac6de52b3f10de36587",
+      "total_lines": 1299,
+      "ranges": [
+        [
+          647,
+          810
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/calibration/forecast_bridge.py",
+      "sha256": "953abaf6021ebc35629f03c4c132851515903eb96aba53a242ec450d855ca750",
+      "total_lines": 1882,
+      "ranges": [
+        [
+          1347,
+          1478
+        ],
+        [
+          1852,
+          1859
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/calibration/diagnostics/continuous.py",
+      "sha256": "c7202a9d529919d1231fe8ce301700251705b3e742f31074ff66ba5a5036093b",
+      "total_lines": 403,
+      "ranges": [
+        [
+          25,
+          100
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/plugins/discovery.py",
+      "sha256": "c0761cc98bb5b90a8e83e7d671e95d182ec9e7a4ef3b46da2d991f4044680f86",
+      "total_lines": 238,
+      "ranges": [
+        [
+          1,
+          238
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/agent_sim/jit_training.py",
+      "sha256": "6730c202d77ba15d2107b79d88b0a9a31149effa7eb25b3da8c9835cd0c30927",
+      "total_lines": 1063,
+      "ranges": [
+        [
+          243,
+          333
+        ],
+        [
+          409,
+          453
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/agent_sim/rl.py",
+      "sha256": "7497f31a3d89011d34cdb908013749e9e9a6cb16090463c202260c9950a4b9cb",
+      "total_lines": 168,
+      "ranges": [
+        [
+          1,
+          168
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/plugins/training_adapter.py",
+      "sha256": "36aed5a1740a2075f3a7728e251b7e04b5eaf5f565a4da38b9cb7bb6b9f8cbb2",
+      "total_lines": 913,
+      "ranges": [
+        [
+          177,
+          228
+        ],
+        [
+          550,
+          601
+        ],
+        [
+          686,
+          813
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/agent_sim/temporal_mechanisms.py",
+      "sha256": "5081a3ceff2ec556b97d5503c0194903292b049ed9ce3358abd8074e2f1c8f4c",
+      "total_lines": 127,
+      "ranges": [
+        [
+          1,
+          127
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/plugins/economics/baselines.py",
+      "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3",
+      "total_lines": 42,
+      "ranges": [
+        [
+          1,
+          42
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/agent_sim/temporal.py",
+      "sha256": "ec16ec9d69197be6ee71aad32f5f91ad8e0204ea38a444ea35456bb0f2e585db",
+      "total_lines": 94,
+      "ranges": [
+        [
+          26,
+          83
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "tests/unit/remediation/test_plg_03.py",
+      "sha256": "8cb458316a40efad54c1890ad229ea1ff8b959c620b816012ef0dbcc701c97a5",
+      "total_lines": 1812,
+      "ranges": [
+        [
+          973,
+          1007
+        ],
+        [
+          1193,
+          1221
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/agent_sim/actor_critic.py",
+      "sha256": "09163b55ebfcd24cbf3c42062e192c82b3e3a02fc94dc99f0b9618b7c7b2d40f",
+      "total_lines": 273,
+      "ranges": [
+        [
+          172,
+          232
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/methods/components/linker.py",
+      "sha256": "2a45b57d05b7d124cd737cddfcfffa75ee456fec8d6af31088630155028aaccc",
+      "total_lines": 693,
+      "ranges": [
+        [
+          317,
+          450
+        ],
+        [
+          603,
+          693
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/methods/compiler/__init__.py",
+      "sha256": "5bf3d05a9a926e95d95b229f483d93f30aa53cd5ca81b1354eb03e0e0f889787",
+      "total_lines": 1147,
+      "ranges": [
+        [
+          580,
+          758
+        ],
+        [
+          847,
+          918
+        ],
+        [
+          945,
+          1019
+        ],
+        [
+          1055,
+          1111
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/methods/backends/checkpointing.py",
+      "sha256": "cdaff3ec3ff6fb8ea80919b3a7086b2cbb22718d2385c3293ecef8832cf85d31",
+      "total_lines": 1095,
+      "ranges": [
+        [
+          189,
+          244
+        ],
+        [
+          1062,
+          1095
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/calibration/pure_executor.py",
+      "sha256": "ced0591134d9213404219e53038742cc6aa944ae8f100b061cd516a023c0acc6",
+      "total_lines": 991,
+      "ranges": [
+        [
+          537,
+          743
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/uncertainty/delta.py",
+      "sha256": "73df40a046d6a94e480c0e14a79385f40ac2a4233a4d03a35dd36b67419468f6",
+      "total_lines": 262,
+      "ranges": [
+        [
+          1,
+          160
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/uncertainty/dispatcher.py",
+      "sha256": "782c1743c82f9b948e25521a9df087615949140da3fb1768080a282496e98049",
+      "total_lines": 381,
+      "ranges": [
+        [
+          120,
+          260
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "sha256": "23a3893fdecade9ac108ab01aa3b03218b1fc3d57fa2f803fe022c58cf9488e2",
+      "total_lines": 2771,
+      "ranges": [
+        [
+          788,
+          796
+        ],
+        [
+          1978,
+          2004
+        ],
+        [
+          2572,
+          2682
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/uncertainty/aggregator.py",
+      "sha256": "a1342fac260fa1906a94d66859f245455608d58ad8baa9906ebe0af3b2436801",
+      "total_lines": 717,
+      "ranges": [
+        [
+          227,
+          389
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/uncertainty/covariance.py",
+      "sha256": "26c5dbfcd60dd773ce77f5ad8dbf45c118a47832c19705e11e88af0342883236",
+      "total_lines": 298,
+      "ranges": [
+        [
+          105,
+          228
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/scientist/methods/doe/multi_output.py",
+      "sha256": "2363477e97c4c98bba93e8453322eeb546e789eb2efc743272140293af6b299a",
+      "total_lines": 239,
+      "ranges": [
+        [
+          40,
+          239
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/scientist/methods/doe/adaptive.py",
+      "sha256": "37535ed7077b17575a96dc9cf7cd54ef0b58f154ff39f276a198ec79d9a60314",
+      "total_lines": 306,
+      "ranges": [
+        [
+          85,
+          247
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/scientist/methods/doe/stress_report.py",
+      "sha256": "2626703c3906b338d6cedb428b4fe53bbc511c6c68a0f3f082759fd9fa30a5c7",
+      "total_lines": 1491,
+      "ranges": [
+        [
+          111,
+          184
+        ],
+        [
+          636,
+          725
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/execute/mechanisms/fiscal.py",
+      "sha256": "0e048675e3a559a625e0f2fb0431926749b9ae7eabb6353e93f57148d8c6c7f5",
+      "total_lines": 149,
+      "ranges": [
+        [
+          1,
+          149
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/compile/randomization.py",
+      "sha256": "7e1709d8916daf7d7706354b00127cc498c80db5190696bf1b8e7601f0216681",
+      "total_lines": 61,
+      "ranges": [
+        [
+          1,
+          61
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/methods/catalog/mechanism/runtime_registry.py",
+      "sha256": "979b7e6e52f9276b65dc5def2ea29c476d8a1b32aadbbc68fa0d6237ff017da6",
+      "total_lines": 337,
+      "ranges": [
+        [
+          1,
+          337
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/plugins/economics/mechanisms.py",
+      "sha256": "fee306f84dd909ea4542d4f25296257c9b8941d8f98004f22c0c4456883ff7c1",
+      "total_lines": 185,
+      "ranges": [
+        [
+          12,
+          78
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/plugins/api.py",
+      "sha256": "9148f082534ba061d0703987f317b80332bf9567ff8f0a3c7b218b3536c270a2",
+      "total_lines": 418,
+      "ranges": [
+        [
+          1,
+          110
+        ],
+        [
+          395,
+          418
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/methods/components/composer.py",
+      "sha256": "9e2cfd63c0347f9d1db91ef9e47a3d084c11c3a72ad02632d54b6eb253c7ef53",
+      "total_lines": 979,
+      "ranges": [
+        [
+          618,
+          794
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/methods/backends/dispatch.py",
+      "sha256": "222c73c76919254e23cfa9ca50db1faec5694c0845630809cc4e0d4d17b6c3bc",
+      "total_lines": 1158,
+      "ranges": [
+        [
+          274,
+          415
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/foundry/methods/catalog/mechanism/families.py",
+      "sha256": "e00b68b1e5dc5405df6013aa01e8000d9e24c973142b035b2b2a7482f9f73957",
+      "total_lines": 98,
+      "ranges": [
+        [
+          1,
+          98
+        ]
+      ],
+      "read_extent": "full_file",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+      "sha256": "a223585ff8ddc5e0d183753885d1c1f016490441279e9c0235005c012d6db877",
+      "total_lines": 939,
+      "ranges": [
+        [
+          590,
+          649
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/runtime/http/services/predictive_calibration.py",
+      "sha256": "c93d9322231521d77b3da7c3bd1d63c0ac8d1d84b9fac1fac127a31d2f94dd71",
+      "total_lines": 2317,
+      "ranges": [
+        [
+          595,
+          630
+        ],
+        [
+          961,
+          980
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/runtime/quality/generation_cycle.py",
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "total_lines": 22574,
+      "ranges": [
+        [
+          5999,
+          6076
+        ],
+        [
+          16154,
+          16410
+        ],
+        [
+          16538,
+          16635
+        ],
+        [
+          16970,
+          17055
+        ],
+        [
+          17173,
+          17217
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "src/polisyos/ir/observation/contracts.py",
+      "sha256": "efbe3ca78107dc47158d01c30b03cca4f16074b2ad37f3573fb581e423fdf2d4",
+      "total_lines": 254,
+      "ranges": [
+        [
+          131,
+          209
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "tests/unit/remediation/test_bkt_02.py",
+      "sha256": "d4f9ebc58199ab0cd4e3f8fc3f312b8fc5e20baac1539e2adc2e0f950d480afb",
+      "total_lines": 495,
+      "ranges": [
+        [
+          331,
+          398
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "tests/unit/remediation/test_jit_01.py",
+      "sha256": "ee7158540e9fb686b295e71d7981f1476f3d1b66e868b0963fb4135c0f3d0a69",
+      "total_lines": 656,
+      "ranges": [
+        [
+          139,
+          259
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    },
+    {
+      "path": "tests/unit/remediation/test_doe_03.py",
+      "sha256": "13f6d8549d933b03b22f0b33ef632583e695aab9bcb6608fe94d0df8a2cd71ca",
+      "total_lines": 391,
+      "ranges": [
+        [
+          178,
+          245
+        ]
+      ],
+      "read_extent": "selected_owner_and_test_ranges",
+      "note": "Ranges requested and inspected during review; major truncated outputs recovered in subsequent narrower reads. Not a claim that all repository files or all tests were read."
+    }
+  ],
+  "additional_inputs": [
+    {
+      "path": "e02_final_technical_review/REVIEW_CONTRACT.md",
+      "sha256": "7d7ef8537b1f869c87d60e924d7fea7a856652441f08fd4a97b37db0c2ecdb66",
+      "lines": 29,
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/AGENTS.md",
+      "sha256": "919ae21b9ae3e6762dd72e5ab4ddef62b170917fc189de2700e09d978f63d638",
+      "lines": 68,
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/CONTRIBUTING.md",
+      "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f",
+      "lines": 227,
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/pyproject.toml",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "lines": 295,
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/package.json",
+      "sha256": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f",
+      "lines": 17,
+      "read_status": "full"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-03.md",
+      "sha256": "83af9b92ff6b88a471815d7097706ee2774d8f9caf65276b6f6d5cbcf12f4f1c",
+      "lines": 67,
+      "read_status": "full"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-04.md",
+      "sha256": "dbd39769b3df55cff6208fec87bb47d8ab7a9a960aacd596d78bf9f5266e610e",
+      "lines": 62,
+      "read_status": "full"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-10.md",
+      "sha256": "d35a5b532edcfb6b27a17b56b92a0d4ac795607972be000d881fb8cb87c795b1",
+      "lines": 43,
+      "read_status": "full"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/03_Интеграция/LANE-03.md",
+      "sha256": "2d619d7c692e4edbd109dc26324e3e7e4912ed46a2f7a4344455298dc2be8252",
+      "lines": 77,
+      "read_status": "full"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/03_Интеграция/LANE-04.md",
+      "sha256": "162da287a8cb07f00e156b0e2ae51344607f141a0bd2510a45387d8aa21d440c",
+      "lines": 88,
+      "read_status": "full"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/03_Интеграция/LANE-10.md",
+      "sha256": "a354af076a0064d99ee3c2d3b365163bfc55344d13652556c9bc4839cb0d1c58",
+      "lines": 82,
+      "read_status": "full"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/03_Интеграция/Практическая_расширяемость.md",
+      "sha256": "573eae084f0517baca3a97048b7c5c714ee16d4b60625dc6fc74cc84a9fdd7ba",
+      "lines": 49,
+      "read_status": "full"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/00_Общее/Правила_исполнения_и_приёмки.md",
+      "sha256": "d36682b96c32d58e3b5effe5ff7e14369d7000e6a32a0c20090ddebd6384f8b9",
+      "lines": 57,
+      "read_status": "full"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/00_Общее/Общие_владельцы_и_границы_изменений.md",
+      "sha256": "036a9db1db0158424fc6428a70130df05558b88e2a671188647c47eb6d20ee78",
+      "lines": 27,
+      "read_status": "full"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/05_Основания/Архитектура/policy-design-causal-grounding-firewall.md",
+      "sha256": "2ec8b6d1351027ae7476e42a5c7d3443679a3c20f1ec39da790b2e4712ed03be",
+      "lines": 150,
+      "read_status": "full"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/05_Основания/Архитектура/policy-design-execution-topology.md",
+      "sha256": "686ed2ced9c0db4f5fc5efd31f08370e5c76fc300b163d85420cca4fdd0e97e3",
+      "lines": 241,
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/uv.lock",
+      "sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+      "read_status": "stdlib parsed package versions/groups; relevant package records inspected, not full line-by-line"
+    },
+    {
+      "path": "e02_repository/policy-engine/pnpm-lock.yaml",
+      "sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+      "read_status": "lines1–90 inspected; not full lock"
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/Связь_требований_с_интеграцией.json",
+      "sha256": "9217638667c8c26a30e1b5f5ba20a7a3904268e233c67a0167f866864f18576c",
+      "read_status": "all assigned binding obligations/acceptance roles/REQ IDs and local-only requirements read; rest outside group scope"
+    }
+  ],
+  "external_primary_sources": [
+    {
+      "id": "PY-MEAN",
+      "url": "https://raw.githubusercontent.com/python/cpython/v3.14.0/Lib/statistics.py",
+      "checked_date": "2026-11-01",
+      "section": "mean:146–165; _sum:1322–1373",
+      "applicability": "Именно CPython3.14.0; source-level exact-ratio sum, деление до final float conversion. Native qualification установленного3.14 ещё требуется."
+    },
+    {
+      "id": "JAX-WHERE",
+      "url": "https://docs.jax.dev/en/latest/faq.html#gradients-contain-nan-where-using-where",
+      "checked_date": "2026-11-01",
+      "section": "Gradients contain NaN where using where",
+      "applicability": "Принцип AD safety; current docs не разрешают использовать новые API без проверки locked0.8.2."
+    },
+    {
+      "id": "JAX-COND",
+      "url": "https://docs.jax.dev/en/latest/_autosummary/jax.lax.cond.html",
+      "checked_date": "2026-11-01",
+      "section": "cond semantics and vmap",
+      "applicability": "Scalar conditional vs batched select; сохранять существующий narrow supported profile."
+    },
+    {
+      "id": "JAX-JIT",
+      "url": "https://docs.jax.dev/en/latest/201/jit.html",
+      "checked_date": "2026-11-01",
+      "section": "JIT caching, static arguments",
+      "applicability": "Ключи/identity и recompilation; не substitute owner-level defaults/single-flight."
+    },
+    {
+      "id": "JAX-CACHE",
+      "url": "https://docs.jax.dev/en/latest/persistent_compilation_cache.html",
+      "checked_date": "2026-11-01",
+      "section": "Cache key and security considerations",
+      "applicability": "Дополнение к wrapper cache, не новый authority owner; current guide, pinned0.8.2 qualification."
+    },
+    {
+      "id": "JAX-BENCH",
+      "url": "https://docs.jax.dev/en/latest/benchmarking.html",
+      "checked_date": "2026-11-01",
+      "section": "Benchmarking: compilation, asynchronous dispatch, dtype, device transfer",
+      "applicability": "Измерять завершённое вычисление и раздельные cold/warm/transfer этапы; не performance claim настоящего review."
+    },
+    {
+      "id": "JAX-DTYPE",
+      "url": "https://docs.jax.dev/en/latest/101/default_dtypes.html",
+      "checked_date": "2026-11-01",
+      "section": "Default32 and X64 flag",
+      "applicability": "Не менять процессный precision mode внутри доменного helper. Latest context-manager API не рекомендуется для locked0.8.2 без проверки."
+    },
+    {
+      "id": "PPO",
+      "url": "https://arxiv.org/pdf/1707.06347",
+      "checked_date": "2026-11-01",
+      "section": "Equations7,9,11,12; Algorithm1",
+      "applicability": "Первичный математический oracle policy surrogate/GAE, не доказательство пользы конкретной политики."
+    },
+    {
+      "id": "OPTAX",
+      "url": "https://optax.readthedocs.io/en/latest/getting_started.html",
+      "checked_date": "2026-11-01",
+      "section": "Basic usage; Applying updates",
+      "applicability": "update возвращает updates/state; apply_updates складывает. API already used by locked0.2.6; новых optimizer рекомендаций нет."
+    },
+    {
+      "id": "SALIB-LAWS",
+      "url": "https://raw.githubusercontent.com/SALib/SALib/v1.5.2/src/SALib/util/__init__.py",
+      "checked_date": "2026-11-01",
+      "section": "_nonuniform_scale_samples and scale_samples",
+      "applicability": "Pinned1.5.2 transformations via SciPy; SciPy comparison проверяет adapter, не независимую численную реализацию самого quantile."
+    },
+    {
+      "id": "SALIB-FAST-SAMPLE",
+      "url": "https://raw.githubusercontent.com/SALib/SALib/v1.5.2/src/SALib/sample/fast_sampler.py",
+      "checked_date": "2026-11-01",
+      "section": "sample:local rng/handle_seed, sample size constraint",
+      "applicability": "Pinned sampler уже local Generator; это не означает local RNG всей FAST pipeline."
+    },
+    {
+      "id": "SALIB-FAST-ANALYZE",
+      "url": "https://raw.githubusercontent.com/SALib/SALib/v1.5.2/src/SALib/analyze/fast.py",
+      "checked_date": "2026-11-01",
+      "section": "63–64 and bootstrap111–135",
+      "applicability": "Pinned analyzer использует np.random.seed/np.random.choice; current seeded FAST pending обоснован."
+    },
+    {
+      "id": "SK-PCA",
+      "url": "https://raw.githubusercontent.com/scikit-learn/scikit-learn/1.8.0/sklearn/decomposition/_pca.py",
+      "checked_date": "2026-11-01",
+      "section": "479–491 auto policy;661,682–693 randomized path",
+      "applicability": "Именно locked1.8.0;600×100, k=5 выбирает randomized."
+    },
+    {
+      "id": "SK-RNG",
+      "url": "https://raw.githubusercontent.com/scikit-learn/scikit-learn/1.8.0/sklearn/utils/validation.py",
+      "checked_date": "2026-11-01",
+      "section": "check_random_state1324–1351",
+      "applicability": "None возвращает global RandomState singleton; нужен explicit derived local seed."
+    },
+    {
+      "id": "SCIPY-T",
+      "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_1samp.html",
+      "checked_date": "2026-11-01",
+      "section": "Definition, assumptions, statistic and df",
+      "applicability": "Current docs; pinned1.16.3 API already used. Не заменяет declared sampling/near-zero policy."
+    },
+    {
+      "id": "SCIPY-BOOT",
+      "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.bootstrap.html",
+      "checked_date": "2026-11-01",
+      "section": "method, paired, rng, batch",
+      "applicability": "DefaultBCa не эквивалентен existing percentile. Optional dependency boundary и exact profile должны сохраниться."
+    },
+    {
+      "id": "SCIPY-BOOT-PIN",
+      "url": "https://raw.githubusercontent.com/scipy/scipy/v1.16.3/scipy/stats/_resampling.py",
+      "checked_date": "2026-11-01",
+      "section": "Pinned source availability for API qualification",
+      "applicability": "Проверена доступность exact-version source; не полный audit реализации."
+    },
+    {
+      "id": "ARCH",
+      "url": "https://bashtage.github.io/arch/bootstrap/timeseries-bootstraps.html",
+      "checked_date": "2026-11-01",
+      "section": "MovingBlock/CircularBlock/StationaryBootstrap",
+      "applicability": "arch8.0.0 уже analytics option; другой estimand/dependence model, не drop-in iid замена."
+    },
+    {
+      "id": "SCIPY-ASSIGN",
+      "url": "https://raw.githubusercontent.com/scipy/scipy/v1.16.3/scipy/optimize/_lsap.c",
+      "checked_date": "2026-11-01",
+      "section": "45–46 NPY_DOUBLE; rectangular assignment contract",
+      "applicability": "Pinned1.16.3 converts costs to float64; exact mixed-radix lexicographic weights need range proof."
+    },
+    {
+      "id": "NX-MATCH",
+      "url": "https://raw.githubusercontent.com/networkx/networkx/networkx-3.6.1/networkx/algorithms/matching.py",
+      "checked_date": "2026-11-01",
+      "section": "max_weight_matching296–349",
+      "applicability": "Pinned3.6.1: cardinality first, integer arithmetic, cubic complexity. Lock presence alone not direct runtime admission."
+    },
+    {
+      "id": "SCIPY-SOBOL",
+      "url": "https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.qmc.Sobol.html",
+      "checked_date": "2026-11-01",
+      "section": "random_base2 vs random and balance warnings",
+      "applicability": "Existing backend may supply low-discrepancy design; arbitrary bounded prefix must not claim balanced Sobol net."
+    },
+    {
+      "id": "PY-OS",
+      "url": "https://docs.python.org/3.14/library/os.html",
+      "checked_date": "2026-11-01",
+      "section": "os.replace1798–1806; fsync689–694",
+      "applicability": "Atomic visibility is not durability. Filesystem/OS qualification explicit, no universal power-loss promise."
+    },
+    {
+      "id": "PY-ENTRY",
+      "url": "https://docs.python.org/3.14/library/importlib.metadata.html#entry-points",
+      "checked_date": "2026-11-01",
+      "section": "Entry points and distribution packages",
+      "applicability": "Existing stdlib discovery; module/distribution identities not interchangeable; no second plugin framework needed."
+    }
+  ],
+  "independent_arithmetic": "independent_arithmetic.json; host CPython3.12.14 only, Fraction+Decimal1200 comparisons; no product imports",
+  "product_tests": "NOT_RUN: prohibited by review contract; native0.8.2/Python3.14/backend/platform qualification not performed",
+  "remaining_review_work": [],
+  "not_claimed": [
+    "No full audit of remaining95 packets.",
+    "Only2 relevant architecture documents fully reread;18 architecture documents indexed, not fully read in this group.",
+    "Original plan/audit/residuals used through assigned packet mappings and prior context, not independently fully reread.",
+    "Repository code coverage is selected exact ranges, not full repository. Every assigned specification solution/test was read.",
+    "No installed-wheel/ABI/accelerator validation; dependency lock is not proof of runtime availability.",
+    "No empirically confirmed policy usefulness, CI coverage, transport, general learning or deployment permission."
+  ],
+  "blockers": [],
+  "required_future_execution": [
+    "Native CAL-02 extreme split/gradient/Hessian witness.",
+    "Native full PLG-03 update semantics and inactive-padding pair.",
+    "Pinned sklearn1.8.0 PCA-stage RNG/source-record qualification.",
+    "Native CPython3.14 finite mean+Decimal cross-check/cost.",
+    "Scenario-specific persisted fresh-reader lanes and platform/profile tests from improved plans."
+  ]
+}

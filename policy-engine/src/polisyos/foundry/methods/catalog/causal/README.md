@@ -11,6 +11,19 @@ catalog family, not a public subsystem facade: stable access flows through
 method registration, the exported causal names in `__init__.py`, and the
 broader `polisyos.foundry.methods` facade.
 
+Temporal `CausalEngine` results retain the legacy `effect_bundle_artifact_id` and
+also carry `effect_bundle_artifact_ref`, the exact selected profile returned by
+the producer's bundle write. Fresh consumers should use that full reference and
+preserve the selected profiles of its child references. This is persistence and
+replay evidence, not proof that the estimated trajectory is causally valid.
+Temporal benchmarks use the existing Core-to-IR store adapter and withhold public
+claim eligibility when any registered case or required acceptance check fails;
+smoke mode does not turn an execution error or numerical failure into a pass.
+Scientist's causal-contract compiler keeps the DTR estimator and temporal backend
+selections separate, resolves the producer-selected bundle before aggregate
+publication, and retains selected profiles in the execution entry and aggregate
+lineage. An ID-only legacy producer result cannot establish that trajectory link.
+
 ## Role in System
 
 - **Depends on:** `polisyos.foundry.methods`, `polisyos.ir.analytics.causal`
@@ -205,6 +218,12 @@ These adapter behaviors do not establish causal identification, external
 validity, scientific qualification, calibration, or publication authority.
 
 ### HTE observational input admission
+
+`polisyos.foundry.methods.catalog.causal.build_hte_data` delegates to the
+existing typed HTE observational adapter, preserving its input validation and
+array conversions. It constructs method inputs and confers no source,
+causal-identification, or publication authority.
+
 
 `polisyos.foundry.data_plane.prepare_hte_observational_input` is the Foundry
 owner for two explicit source protocols: a selected-profile
@@ -427,12 +446,76 @@ This native bounded profile does not imply parity with every option of
 `rdrobust`, validity for data-dependent bandwidth selection, or a universal
 finite-sample coverage guarantee.
 
-Local WLS uses vector weighting and a small Gram matrix rather than materializing
-an observation-sized diagonal matrix. This preserves the existing residual
-covariance convention and point/standard-error semantics while keeping the
-fixed-order fit linear in the number of observations. Synthetic finite-design
+Local WLS uses dimensionless coordinates `(x-cutoff)/bandwidth` and one economy
+SVD for rank, coefficients and equivalent weights, without an observation-sized
+diagonal matrix. The original `regression_discontinuity@1.0.0` retains its
+weighted-residual covariance as a legacy computational profile. The explicit
+`regression_discontinuity_kernel_hc0@1.1.0` requires fixed bandwidth and uses
+the localization-kernel HC0 sandwich; it does not change resolution of the old
+method name. A positive standard error whose interval cannot be represented
+retains a limited point/error rather than fabricating a zero-width CI.
+Synthetic finite-design
 regression evidence for the corrected profile must not be generalized to other
 laws, populations, selectors, kernels, orders, variance estimators, or designs.
+
+### Selected numerical reports and fit reuse
+
+Standard DiD unit-cluster covariance admits a complete, unambiguous partition
+before numerical execution; missing identities are not silently dropped.
+Normal intervals use the stable lower-tail critical value. Staggered inference
+retains its separate finite-B inversion and anticipation contract. Dedicated
+standard/staggered methods own their metadata and planning identities. The old
+`DifferenceInDifferences` class remains a direct-import adapter for explicit old
+slots and boolean modes; no historical persisted-plan migration or generic
+registry alias is promised. Existing plan bytes are not rewritten. Migrate an
+unsupported plan explicitly to a dedicated method and recompute its outputs.
+
+Current Scientist DiD/RDD admission resolves the selected source, dispatches the
+effective method/version/parameters/seed, and reconciles the whole report and
+derived envelope. Peer projections and matching marker hashes alone do not
+establish that computation. Native report projection selects the existing exact
+numeric policy when default rounding would change its point, interval or open
+confidence level; recorded older envelope policies retain their read semantics.
+Neither a numerical SUCCESS nor a source-bound report establishes identification.
+
+Pooled SCM member draws describe a fixed-model outcome range. Their ensemble
+projection preserves the median and percentiles as a non-gating heuristic range
+with unknown distribution family and no CI confidence level. Structural pooling
+weights, abduction markers and fixed-model draws do not establish bootstrap
+estimator uncertainty; actual member-envelope limitations survive persistence.
+
+The shared TMLE nuisance core fits outcome preprocessing inside each fold's
+admitted fit rows and retains that scaler/split basis for replay. Its aggregate
+scaler is a targeting reference, not the nuisance fit basis. Diagnostic-only
+requests get a fresh view over the controlled immutable fit core; an offered
+bundle cannot substitute consumer-modified arrays or metadata. Maintained
+DR/RLearner consumers use that same resolver, including its refusals, rather
+than falling back to an alternate fit engine. Inner folds remain serial and
+complete; requested parallelism does not shorten the scientific roster.
+
+### Explicit finite temporal fit
+
+`polisyos.ir.analytics.causal_graph.expand_temporal_graph` expands a selected
+compact directed graph into a finite ancestor DAG with explicit integer steps,
+time unit, horizon and initial boundary. The public experimental
+`gcm_fit.temporal_fit_data_from_observations` consumes that graph and selected
+canonical JSON observations: schema version, selected `source_graph_ref`,
+`time_unit`, and rows containing `trajectory_id`, `variable`, integer `step`
+and finite `value`. It constructs aligned `SCMFitData` through the existing owner.
+Run the registered `HybridSCMFit` with `fit_backend="native_hybrid"`, then
+`persist_temporal_scm_fit` to retain the exact graph/data profile lineage.
+Selected Scientist query/ensemble readers reconcile those inputs, query arms,
+persisted output and offered aliases.
+
+Missing or duplicate coordinates, foreign source profiles, unit mismatch and
+absent boundary observations refuse. Shared empirical roots condition one
+compatible row corpus; supported Gaussian posterior draws retain nonzero
+covariance in normalized coordinates. Active query scope includes required
+factual/joint-law dependencies; hard replacement does not execute the replaced
+natural mechanism. This is an explicit callable chain, not an automatic temporal
+workflow or a general PAG adapter. Graph/time assumptions remain declared
+candidates. Native-hybrid qualification does not qualify the separate locked
+Linux DoWhy worker or empirical causal validity.
 
 ## Current State
 
@@ -574,3 +657,20 @@ This is candidate sensitivity over the explicitly selected finite member family.
 does not turn a PAG or CPDAG into a direct scalar graph, assign probabilities to members,
 or promote candidate outcomes into transport authority. A caller verifies selected-profile
 CAS references and persists admitted members before invoking the helper.
+
+### Learned dynamic policy preservation
+
+Q-learning and DR-DTR retain every fitted float64 Q model in the existing
+`DynamicTreatmentRegime` 1.1 artifact. The selected `linear_q_action.v1` or
+`linear_q_current_interactions.v1` profile specifies the history/action feature
+order. G-computation replays both full predictions and selects action one only
+when `Q(1) > Q(0)`, including the producer's floating-point tie behavior. A
+treated-cohort median or majority is not a substitute for that policy.
+
+A-learning retains each stage's actual constant action as an explicit schedule.
+OWL currently has no typed SVC policy representation: its finite learning value
+remains a candidate diagnostic, while its report is `assumption_failed` and has
+no executable `DTRResult`. Historical unbound `linear_blip`, unknown profiles,
+missing stages and incompatible dimensions refuse execution. These checks
+preserve the learned rule; they do not establish optimality, causal identification
+or the adequacy of fitted state-transition models.

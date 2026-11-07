@@ -34,10 +34,18 @@ def test_gate_protocol_persists_request_and_decision(tmp_path) -> None:
         request_ref=request_ref,
     )
 
-    request_manifest = store.get_manifest(request_ref.artifact_id)
-    decision_manifest = store.get_manifest(decision_ref.artifact_id)
+    assert request_ref.manifest_profile_sha256 is not None
+    assert decision_ref.manifest_profile_sha256 is not None
+    request_manifest = store.get_manifest(request_ref)
+    decision_manifest = store.get_manifest(decision_ref)
     assert request_manifest.kind == "ir.gate_request"
     assert decision_manifest.kind == "ir.gate_decision"
+    assert len(decision_manifest.inputs) == 1
+    assert decision_manifest.inputs[0].role == "gate_request"
+    assert decision_manifest.inputs[0].artifact_id == request_ref.artifact_id
+    assert (
+        decision_manifest.inputs[0].manifest_profile_sha256 == request_ref.manifest_profile_sha256
+    )
     assert decision.request_id == request.request_id
 
     trace_path = tmp_path / "runs" / "R_gate" / "trace.jsonl"

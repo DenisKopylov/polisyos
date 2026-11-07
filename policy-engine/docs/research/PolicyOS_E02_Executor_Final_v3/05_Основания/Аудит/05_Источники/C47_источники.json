@@ -1,0 +1,244 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/pure_executor.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          991
+        ]
+      ],
+      "evidence_level": "Полный owner прочитан; extracted exact compile/schedule/selector/eager execution/neutral patches/merge/dependency helpers исполнены. JAX cond/scan/map намеренно недоступны в probe.",
+      "git_blob": "c25cbb65ca09ce6e7dbf50b02168a7be72e4faa8",
+      "sha256": "ced0591134d9213404219e53038742cc6aa944ae8f100b061cd516a023c0acc6",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/merge_engine.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/components/merge_engine.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          461
+        ]
+      ],
+      "evidence_level": "Полный owner прочитан. Exact JAXMergeEngine bodies исполняются с NumPy algebra; ERROR eqx.error_if заменён явным eager refusal seam.",
+      "git_blob": "8d043633e368829e46658cf1c7955238d7fb36ba",
+      "sha256": "6c9ffa9526072153f61fda47ff27caf069224ab602de70d8d49b21f8173f9e1b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          250,
+          333
+        ],
+        [
+          1920,
+          1998
+        ],
+        [
+          2710,
+          2795
+        ]
+      ],
+      "evidence_level": "Прочитаны complete ordered objective, _build_bundle и nested _execute_forward, плюс соседние boundaries. Native Calibrator/optimizer/report persistence не исполнялись; не заявляется full-file review.",
+      "git_blob": "dd435dced710805345da768fb14341b98671dac6",
+      "sha256": "f23b724aa07a447fbf10effad60c28f7e286ff137e2805e4e4a195adc28ac6a1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/foundry/execute/_internal/numeric/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/execute/_internal/numeric/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          232
+        ]
+      ],
+      "evidence_level": "Полный numeric helper прочитан; actual is_jax_tracer исполняется с явным Tracer class seam, не JAX tracing.",
+      "git_blob": "505d43b68c00227f9278caec9fd2cc87ab479bba",
+      "sha256": "8f00616c33fc197a357aad04d301bdf5ad88fe6955c1ae6c44af337ebf35a9f9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1074
+        ]
+      ],
+      "evidence_level": "Полный existing test прочитан, включая callback-based runtime distinction, gradient/Hessian, mapped refusal, lax.map, real tax/selector/dependency controls. Native pytest BLOCKED до collection.",
+      "git_blob": "e9fdb55e32b48b814b1ab34288727d5e83feeb4c",
+      "sha256": "39220fe5e8e1a1ed823a87d54f0b04b9ec96b12956c1976afc8e2b3ff3b263fe",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/ir/governance/schedule.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/governance/schedule.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          41
+        ]
+      ],
+      "evidence_level": "Полный schedule прочитан и actual ScheduleSpec/schedule_range исполнены через Pydantic.",
+      "git_blob": "53e7dc792aea5548318ad64b7ea8a9b6accdc6d7",
+      "sha256": "694a2c9d3f5dffc47b8d17d7991500044d681c14f58c5f40163f48d1f2a9d18b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/ir/kernel/base.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/kernel/base.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          64
+        ]
+      ],
+      "evidence_level": "Полный base прочитан; actual frozen extra-forbid KernelModel использован в schedule.",
+      "git_blob": "072f559e1d7afc0dc7aee766d206a340a094b386",
+      "sha256": "d4e5fbef8307da207af5c103a98082e678d027f25637655315efb3aa0596cbff",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/ir/kernel/merge_rules.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/kernel/merge_rules.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          16,
+          42
+        ]
+      ],
+      "evidence_level": "Прочитаны enum и соседний algebra declaration; actual MergeRuleKind исполнен, registry objects fixtures.",
+      "git_blob": "eb57c06a2e71dc5cebf5f21980ec59e3200dda90",
+      "sha256": "fef35567949c6389a8f0992efbbc35f3a2a0a10c3c89547116057e23054149b0",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/ir/kernel/slots.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/kernel/slots.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          23,
+          39
+        ]
+      ],
+      "evidence_level": "Прочитан enum SlotScope и соседнее начало value type; actual SlotScope исполнен.",
+      "git_blob": "a58e5e462c6b12373553a31d494170a5c3e2b702",
+      "sha256": "ffa784ed37f5e506e7e700eb260856807ee99925bf496e5aa115acc6210dbfd0",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/ir/model_layer/types.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/model_layer/types.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          42,
+          61
+        ]
+      ],
+      "evidence_level": "Прочитан complete SelectorOperator и соседнее начало модели; actual enum исполнен.",
+      "git_blob": "945a65aae60dbd19d05c708b4d62742e1245e00e",
+      "sha256": "159f224597ffdeb24b55f13886badbc095e4d4ffafbb932e184b37049794aabf",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/ir/governance/selector_expr.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/governance/selector_expr.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          130
+        ]
+      ],
+      "evidence_level": "Прочитаны typed selector DTO/predicate validator boundaries. В probe selector objects — явные prebuilt dataclass fixtures, TypeAdapter parsing не квалифицируется.",
+      "git_blob": "eedb22c01a44b5f044abb11356abb40df3f1aab1",
+      "sha256": "52249d7233db6337d0fef827f5b22a0e75e8abbf0acd26f6512985d5e22f7013",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          149
+        ]
+      ],
+      "evidence_level": "Полный canonical fiscal owner прочитан повторно; actual IncomeTax, compute_tax, mask/rate guards исполняются через eager NumPy/state/base-class seams. Не native Equinox object.",
+      "git_blob": "3e310064e1301fc6d773514c665c6df540134766",
+      "sha256": "0e048675e3a559a625e0f2fb0431926749b9ae7eabb6353e93f57148d8c6c7f5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime_registry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime_registry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          70
+        ]
+      ],
+      "evidence_level": "Прочитано начало descriptor/canonical catalog registry. Compile factory в probe синтетический; installed registry resolution здесь не подтверждено.",
+      "git_blob": "bfd20b0158e1e5f04cc81f6fae479efd36a49157",
+      "sha256": "979b7e6e52f9276b65dc5def2ea29c476d8a1b32aadbbc68fa0d6237ff017da6",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      5772,
+      5839
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "Последовательный CAL-05: eager owner path + source review native transform tests; native JAX квалификация отдельно BLOCKED"
+}

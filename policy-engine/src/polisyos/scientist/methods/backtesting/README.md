@@ -28,16 +28,97 @@ The standard workflow enforces a strict check: `ModelSpec.data_snapshot_ref` mus
 point to this slice before Foundry inputs are bound. At the execution boundary,
 the backtest rechecks the complete selected ref from `foundry.input_bindings`.
 
-`n_simulation_runs=K` launches K separate workflows with unique `run_id` values
+For the legacy Scientist replay, `n_simulation_runs=K` launches K separate workflows with unique `run_id` values
 and seeds in the actual `ExecuteRequest.exec_config`. The
 `scientist.backtest.replica_cohort` artifact stores the source request, runtime
 seed source, references to `SimulationResult`/metrics, and the
 `requested/started/completed/failed` denominator; the final backtest report
-references this artifact. A single successful replica can pass its trajectory to
+references this artifact. Its `foundry_execute_count` counts replicas that reached
+Foundry, not individual step calls. A single successful replica can pass its trajectory to
 the existing evaluator. For K > 1, results are stored per replica, and the
 backtest explicitly records that no supported multi-run projection exists and
 uses a naive diagnostic fallback; it does not average replicas into a scalar or
 replicate one scalar across the horizon.
+
+The opt-in `params.backtest_native_forecast` path supports ordered model
+trajectories. It requires selected source, candidate, Trinity and registry
+views, explicit prefix-only binding rules, registered target slots and units, and
+matching source coordinates. Supplied outcomes must equal the withheld target
+values in that selected source. It derives a Trinity bound to the historical
+prefix and executes each future step through the configured Foundry port. The
+trajectory and report link the selected execution inputs, results and state
+snapshots, and the report records the distinct number of native step calls.
+`load_native_forecast` recomputes the prefix, initial materialization,
+selected execution basis, delta application, predecessor states and slot values; the opt-in
+`load_native_backtest_report` also verifies report predictions and withheld values.
+The public `load_backtest_report_for_consumption` admits legacy reports through
+the IR owner and routes native reports through this verification. The low-level
+IR report loader refuses a native report; its explicitly named candidate reader
+only admits the typed bytes for subsequent verification. The decision-packet
+reader uses the guarded loader. Calibration validation refuses native plans
+before its scoring pipeline, and Runtime predictive calibration continues to
+refuse native reports at the IR boundary. Native calibration and interval
+evidence are outside this replay's supported scope.
+The backtest matrix retains the same selected native trajectory and cohort
+edges as the ordinary producer. A native-containing kind remains a calibration
+gap: neither the matrix nor the leaderboard supplies a composite promotion
+score. The leaderboard resolves the selected report through its configured CAS
+and reconciles the kind census, scores and gaps before using a Matrix result.
+An absent store, unselected or unreadable report, or inconsistent Matrix result
+cannot supply a composite or promotion eligibility. A resolved, consistent
+legacy Matrix retains its arithmetic as candidate diagnostic only. Its report
+rows are not independently reconciled to a persisted forecast and holdout
+source; Matrix and leaderboard carry `backtest_matrix_source_not_established`,
+and C5b cannot promote until that producer and reconciliation path exists.
+The shared trust projection withholds eligibility, score and grade as
+`not_established` even when the report's exact-zero arithmetic reconciles;
+that internal calculation does not establish source authority. New Matrix
+reports and fresh reads of historical Matrix reports withhold trust markers;
+the explicit raw candidate reader can still expose the stored historical bytes.
+The backtest CLI projects the same limited trust status rather than printing
+stored report-internal trust scores.
+C5b records missing source verification as a low-confidence opportunity,
+while an observed governance, adversarial or critical stress failure remains
+a failure lesson.
+Unbound leaderboard ranking cannot retain an input composite; callers may pass
+the corresponding Matrix by entry ID for a fresh diagnostic recomputation.
+Every Scientist cohort produced by the Matrix receives an exact selected profile, including
+legacy cohorts; the ordinary legacy-only backtest producer keeps its existing
+profile behavior and withholds trust without a reconciled source. Historical
+raw candidate bytes may retain report-internal trust markers; those markers do
+not establish the original forecast/holdout source binding.
+The bounded coverage inspector marks reports as not measured when their rows
+cannot be reconciled to selected forecast and holdout sources. It also does not
+verify cohort semantics; the raw report remains available for technical inspection.
+For multiple native replicas, the selected historical plan fixes the requested
+cohort size, and each replica has a separate run and seed. Only a complete
+cohort projects a pointwise arithmetic mean; the reader reopens every selected
+request, trajectory, workflow and shared input basis before recomputing it.
+This is an average of the retained simulations, not a prediction interval or
+an assertion of independent draws. A failed multi-replica cohort remains
+unavailable with its full denominator and retained trajectories; survivors are
+not averaged. A failed selected native execution is unavailable rather than a
+substituted forecast. If the
+simulation node succeeds but the surrounding workflow later fails, the report
+retains its verified values as `scientist_candidate`, records the actual failed
+workflow and replica count, and stays degraded and ineligible for trust. The
+native report reader reopens the workflow and cohort before accepting that status.
+The selected run manifest links the engine's finalization and run-specific
+workflow specification to the report; the reader checks the complete node
+census and terminal status against that selected specification.
+For an unavailable request, the requested and started replica counts remain
+marked `not_established`: even where a selected plan is retained, the original
+producer input and attempted-start facts are not independently established.
+
+These are predictive model outputs with no inferred intervals or trust authority.
+Each step reinitializes Foundry with the same seed; the temporal stochastic law
+and continuity of random state are not established by this route.
+The source/model provenance, producer authenticity, external time meaning, observation independence,
+calibration and causal validity remain unestablished by replay. In particular,
+the supplied source and model may themselves contain information obtained after
+the declared cutoff. The request and report carry these limitations explicitly.
+A synthetic fixture demonstrates program behavior, not
+production provenance or empirical calibration.
 
 ## Selected artifact profiles
 

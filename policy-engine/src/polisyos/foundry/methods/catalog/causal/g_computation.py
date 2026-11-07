@@ -104,27 +104,89 @@ def _apply_regime(
     *,
     time_index: int | None = None,
     scheduled_actions: Sequence[float] | None = None,
+    decision_rule_profile: str = "legacy_rule",
+    n_covariates: int | None = None,
+    stage_coefficients: Sequence[Sequence[float]] | None = None,
 ) -> np.ndarray:
     """Map history H_t → action A_t under the specified regime.
 
     Returns binary array of shape (n_units,).
     """
     n_units = H_t.shape[0]
+    if rule != RegimeRule.LINEAR_BLIP.value and (
+        decision_rule_profile != "legacy_rule"
+        or n_covariates is not None
+        or stage_coefficients is not None
+    ):
+        raise ValueError("selected learned profile conflicts with the regime rule")
     if rule == RegimeRule.ALWAYS_TREAT.value:
         return np.ones(n_units, dtype=float)
     if rule == RegimeRule.NEVER_TREAT.value:
         return np.zeros(n_units, dtype=float)
     if rule == RegimeRule.THRESHOLD.value:
         # treat if L_t[threshold_cov_idx] > threshold_value
-        cov_idx = min(threshold_cov_idx, L_t.shape[1] - 1)
-        return (L_t[:, cov_idx] > threshold_value).astype(float)
+        if not 0 <= threshold_cov_idx < L_t.shape[1] or not np.isfinite(threshold_value):
+            raise ValueError("threshold rule requires a finite threshold and an existing channel")
+        return (L_t[:, threshold_cov_idx] > threshold_value).astype(float)
     if rule == RegimeRule.EXPLICIT_SCHEDULE.value:
         if scheduled_actions is None or time_index is None:
             raise ValueError("explicit_schedule regimes require time_index and scheduled_actions")
-        action = float(scheduled_actions[min(int(time_index), len(scheduled_actions) - 1)])
+        if not 0 <= time_index < len(scheduled_actions):
+            raise ValueError("explicit schedule has no action for the selected stage")
+        action = float(scheduled_actions[time_index])
+        if action not in {0.0, 1.0}:
+            raise ValueError("explicit schedule actions must be binary")
         return np.full(n_units, action, dtype=float)
-    # Default: always treat
-    return np.ones(n_units, dtype=float)
+    if rule == RegimeRule.LINEAR_BLIP.value:
+        if decision_rule_profile not in {
+            "linear_q_action.v1",
+            "linear_q_current_interactions.v1",
+        }:
+            raise ValueError("linear_blip has no supported selected decision profile")
+        if (
+            n_covariates is None
+            or n_covariates < 1
+            or L_t.ndim != 2
+            or L_t.shape != (n_units, n_covariates)
+            or time_index is None
+            or stage_coefficients is None
+            or not 0 <= time_index < len(stage_coefficients)
+        ):
+            raise ValueError("learned regime dimensions and selected stage are required")
+        history_width = (time_index + 1) * n_covariates + time_index
+        if H_t.shape != (n_units, history_width):
+            raise ValueError("history does not match the selected decision feature order")
+        interactions = decision_rule_profile == "linear_q_current_interactions.v1"
+        coefficients = np.asarray(stage_coefficients[time_index], dtype=float)
+        expected_width = history_width + 2 + (n_covariates if interactions else 0)
+        if coefficients.shape != (expected_width,) or not np.isfinite(coefficients).all():
+            raise ValueError("learned regime has invalid Q coefficients")
+        if not np.isfinite(H_t).all() or not np.isfinite(L_t).all():
+            raise ValueError("learned regime requires finite history and current covariates")
+        if not np.array_equal(H_t[:, -n_covariates:], L_t):
+            raise ValueError("current covariates disagree with their selected history positions")
+        predictions = []
+        for action in (0.0, 1.0):
+            action_column = np.full((n_units, 1), action)
+            blocks = [H_t, action_column]
+            if interactions:
+                blocks.append(action_column * L_t)
+            features = np.hstack(blocks)
+            prediction = features @ coefficients[:-1] + coefficients[-1]
+            if not np.isfinite(prediction).all():
+                raise ValueError("learned regime Q prediction is not finite")
+            predictions.append(prediction)
+        return (predictions[1] > predictions[0]).astype(float)
+    raise ValueError(f"unsupported dynamic treatment regime rule: {rule}")
+
+
+def _decision_profile_params(params: Mapping[str, Any]) -> dict[str, Any]:
+    """Retain the selected learned-rule fields at each g-formula entry point."""
+    return {
+        "decision_rule_profile": params.get("decision_rule_profile", "legacy_rule"),
+        "n_covariates": params.get("n_covariates"),
+        "stage_coefficients": params.get("stage_coefficients"),
+    }
 
 
 def _fit_outcome_model(X: np.ndarray, y: np.ndarray) -> LinearRegression:
@@ -193,6 +255,7 @@ def _ice_estimate(
             thr_val,
             time_index=t,
             scheduled_actions=scheduled_actions,
+            **_decision_profile_params(regime_params),
         )
 
         # Predict Q_{t+1}(H_{t+1}, d*(H_{t+1})) using current pseudo_Y model
@@ -207,6 +270,7 @@ def _ice_estimate(
             thr_val,
             time_index=t + 1,
             scheduled_actions=scheduled_actions,
+            **_decision_profile_params(regime_params),
         )
         X_next_regime = np.hstack([H_next, a_next.reshape(-1, 1)])
         pseudo_Y = q_model.predict(X_next_regime)
@@ -226,6 +290,7 @@ def _ice_estimate(
         thr_val,
         time_index=0,
         scheduled_actions=scheduled_actions,
+        **_decision_profile_params(regime_params),
     )
     X0_regime = np.hstack([H0, a0.reshape(-1, 1)])
     final_pseudo = q_model.predict(X0_regime)
@@ -295,6 +360,7 @@ def _parametric_mc_estimate(
             thr_val,
             time_index=t,
             scheduled_actions=scheduled_actions,
+            **_decision_profile_params(regime_params),
         )
         A_sim[:, t] = a_t
 
@@ -420,6 +486,9 @@ def _regime_params_from_spec(
         "regime": regime.rule.value,
         "threshold_covariate_index": int(regime.threshold_covariate_index),
         "threshold_value": float(regime.threshold_value),
+        "decision_rule_profile": regime.decision_rule_profile,
+        "n_covariates": regime.n_covariates,
+        "stage_coefficients": regime.stage_coefficients,
         "scheduled_actions": (
             None
             if regime.scheduled_actions is None
@@ -550,6 +619,7 @@ def _compat_schedule_from_dynamic_regime(
                 float(params["threshold_value"]),
                 time_index=t,
                 scheduled_actions=params.get("scheduled_actions"),
+                **_decision_profile_params(params),
             )
             schedule.append(int(float(np.mean(actions)) >= 0.5))
         return tuple(schedule)
@@ -638,6 +708,7 @@ def _simulate_regime_trajectory_ensemble(
                 thr_val,
                 time_index=t,
                 scheduled_actions=scheduled_actions,
+                **_decision_profile_params(regime_params),
             )
             A_sim[0, t] = float(action[0])
             if t >= n_periods - 1:
@@ -944,6 +1015,8 @@ class ParametricGFormula:
                 "threshold_value": type("_", (), {"default": 0.0})(),
             }.items()
         }
+        regime_params.update(_decision_profile_params(params))
+        regime_params["scheduled_actions"] = params.get("scheduled_actions")
         regime_params["regime"] = regime
         regime_params["threshold_covariate_index"] = int(params.get("threshold_covariate_index", 0))
         regime_params["threshold_value"] = float(params.get("threshold_value", 0.0))
@@ -1117,6 +1190,8 @@ class ICEGFormula:
             "regime": regime,
             "threshold_covariate_index": thr_cov,
             "threshold_value": thr_val,
+            "scheduled_actions": params.get("scheduled_actions"),
+            **_decision_profile_params(params),
         }
 
         point = _ice_estimate(Y, A_seq, L_seq, regime_params)
@@ -1288,6 +1363,8 @@ class LTMLEEstimator:
             "regime": regime,
             "threshold_covariate_index": thr_cov,
             "threshold_value": thr_val,
+            "scheduled_actions": params.get("scheduled_actions"),
+            **_decision_profile_params(params),
         }
         warnings: list[str] = []
 
@@ -1318,7 +1395,16 @@ class LTMLEEstimator:
                 H_t = _build_history_matrix(A_b, L_b, t)
                 pi_t = _predict_proba_safe(propensity_models[t], H_t)
                 L_t = L_b[:, t, :]
-                a_regime = _apply_regime(H_t, L_t, regime, thr_cov, thr_val)
+                a_regime = _apply_regime(
+                    H_t,
+                    L_t,
+                    regime,
+                    thr_cov,
+                    thr_val,
+                    time_index=t,
+                    scheduled_actions=regime_params.get("scheduled_actions"),
+                    **_decision_profile_params(regime_params),
+                )
                 # Weight contribution from period t
                 # P(A_t = a_regime_t | H_t)
                 prob_regime = np.where(a_regime == 1, pi_t, 1 - pi_t)

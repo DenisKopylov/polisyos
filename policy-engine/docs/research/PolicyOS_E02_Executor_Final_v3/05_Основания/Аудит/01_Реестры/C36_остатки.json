@@ -1,0 +1,62 @@
+{
+  "pass": "C36",
+  "bundle": "FRY-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C36-G01",
+      "type": "native_chain_and_distribution_qualification",
+      "source_ids": [
+        "LA-001",
+        "LA-002",
+        "LA-037"
+      ],
+      "evidence": [
+        "P01",
+        "P07",
+        "P18",
+        "P23",
+        "S29–S36"
+      ],
+      "remaining": "В поддерживаемой среде выполнить найденные native compiler/CAS/JAX, IC consumer, layout/default registry и package/import tests. Отдельно проверить установленный пакет и docs build; fixture manifests и fold observer не заменяют эту цепочку.",
+      "limits": "24 bounded MATCH, 0 ERROR. pytest отсутствует до collection; JAX и native package imports не исполнены. Обычный JSON roundtrip не объявлен Core canonical bytes/CAS equality."
+    },
+    {
+      "id": "C36-G02",
+      "type": "versioned_randomization_compatibility_qualification",
+      "source_ids": [
+        "LA-001"
+      ],
+      "evidence": [
+        "P01–P06",
+        "P18–P23",
+        "S16",
+        "S17",
+        "S26",
+        "S33"
+      ],
+      "remaining": "Сохранить разграничение equivalent path move и намеренного versioned RNG расширения. Непомеченный исторический план сохраняет прежний execution path; новая компиляция создаёт treasury_salts_v1 и может менять digest/draws. Проверить оба native пути, seed override, permutation и persisted historical artifacts, не требуя ложной byte-equivalence между версиями.",
+      "limits": "Формула builder и admission подтверждены ограниченно; настоящий JAX и старые production artifacts не запускались. Обнаруженное versioned изменение не классифицировано как случайная регрессия."
+    },
+    {
+      "id": "C36-G03",
+      "type": "family_meaning_and_compatibility_lifecycle",
+      "source_ids": [
+        "LA-002",
+        "LA-037"
+      ],
+      "evidence": [
+        "P08–P17",
+        "P24",
+        "S18",
+        "S24",
+        "S27",
+        "S34"
+      ],
+      "remaining": "Сохранять различие family declaration, IR certificate и executable registered method. Native IC sidecar readback и runtime dispatch квалифицировать найденными tests; применимость assumptions и сеточного сертификата к предметной задаче не следует из catalog membership. Удаление старых адресов возможно только после проверки известных consumers и собственного lifecycle решения, не ради сокращения числа файлов.",
+      "limits": "Четыре family IDs не объявлены четырьмя исполняемыми kernels. Два оставшихся layout адреса напрямую связываются с IR и не образуют обязательную цепочку двух wrappers. Полный downstream/FQN census не выполнен."
+    }
+  ],
+  "confirmed_local_defects": []
+}

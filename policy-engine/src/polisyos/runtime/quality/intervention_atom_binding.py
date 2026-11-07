@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import math
 import re
 from collections.abc import Mapping, Sequence
+from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, field_validator, model_validator
@@ -122,8 +124,17 @@ class CausalAssignmentProjection(_StrictModel):
     """Project one proof-kernel node assignment."""
 
     variable: str = Field(..., min_length=1)
-    value: str | int | bool | None = None
+    value: str | int | float | bool | None = None
     value_expr: str | None = None
+
+    @field_validator("value")
+    @classmethod
+    def _finite_float_assignment(
+        cls, value: str | int | float | bool | None
+    ) -> str | int | float | bool | None:
+        if isinstance(value, float) and not math.isfinite(value):
+            raise ValueError("causal_assignment_non_finite")
+        return value
 
 
 class CausalDoExpression(_StrictModel):
@@ -346,6 +357,40 @@ def derive_candidate_scenario_atom(
 
     if type(value) is not int:
         raise InterventionAtomBindingError("candidate_scenario_value_not_strict_integer")
+    return _derive_candidate_scenario_atom(atom, target_world_slot=target_world_slot, value=value)
+
+
+def derive_candidate_scenario_numeric_atom(
+    atom: InterventionAtomBinding,
+    *,
+    target_world_slot: str,
+    value: int | float | Decimal,
+) -> InterventionAtomBinding:
+    """Derive a finite candidate scalar without silently rounding an exact decimal.
+
+    Decimal values are retained as exact decimal strings in the proof-kernel's
+    existing scalar union. A numeric backend must account for its conversion;
+    this projection does not establish units or authority.
+    """
+    projected: str | int | float
+    if type(value) is int or (type(value) is float and math.isfinite(value)):
+        projected = value
+    elif isinstance(value, Decimal) and value.is_finite():
+        projected = str(value)
+    else:
+        raise InterventionAtomBindingError("candidate_scenario_value_not_finite_numeric")
+    return _derive_candidate_scenario_atom(
+        atom, target_world_slot=target_world_slot, value=projected
+    )
+
+
+def _derive_candidate_scenario_atom(
+    atom: InterventionAtomBinding,
+    *,
+    target_world_slot: str,
+    value: str | int | float,
+) -> InterventionAtomBinding:
+    """Use the same content-bound construction for every admitted scalar profile."""
     if not _SLOT_ID_RE.fullmatch(target_world_slot):
         raise InterventionAtomBindingError("candidate_scenario_target_slot_malformed")
     if atom.status != "candidate_unverified":

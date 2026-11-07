@@ -1,0 +1,68 @@
+{
+  "pass_id": "C98",
+  "bundle": "DFI-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C98-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "source_ids": [
+        "LA-041"
+      ],
+      "title": "Malformed numeric harvest receipt прерывает resume вместо адресного cache miss",
+      "evidence": [
+        "S02:492–566",
+        "S02:596–659",
+        "P03",
+        "run03/harvest_receipt_fault.json"
+      ],
+      "remaining": "В existing receipt reconciliation валидировать numeric count поля и переводить недоказанный receipt в None/cache miss с причиной. Сохранить checksum, path confinement и full selected-source checks; не ловить все ошибки вокруг whole pipeline.",
+      "limits": "Контролируемая замена count на строку not-an-integer в receipt после actual producer даёт ValueError. Это availability/recovery issue, не принятие ложного результата и не свидетельство частоты повреждения в production."
+    },
+    {
+      "id": "C98-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "source_ids": [
+        "LA-041"
+      ],
+      "title": "Standalone harvest CLI игнорирует resume_mode off при включённом resume",
+      "evidence": [
+        "S08:52–122",
+        "S08:157–260",
+        "S06:1241–1283",
+        "S02:596–659",
+        "S02:1388–1407",
+        "S04:310–324",
+        "P04",
+        "run03/CLI_resume_mode_trace.json"
+      ],
+      "remaining": "Свести direct CLI harvest к existing selected orchestration/policy или явно передавать uncached config при off. Не отключать полезный smart resume; различить transport cache и content-bound stage receipt, сохранить public flags.",
+      "limits": "Actual parser/dispatcher и selected harvester выполнялись с fixture config constructor и transport. Прямой harvest сохранил старые payload bytes без fetch, full run сделал один fetch. Actual constructor source не нормализует resume=False. Не утверждаются final admission bypass, native HTTP effects или все CLI branches."
+    },
+    {
+      "id": "C98-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-041"
+      ],
+      "title": "Native all-stage resume и стоимость повторного hashing не квалифицированы",
+      "evidence": [
+        "S02–S09",
+        "native_pipeline.stdout",
+        "native_cli.stdout",
+        "P01–P05",
+        "trusted_input_callers.stdout"
+      ],
+      "remaining": "В supported environment объединить small native DB/HNSW embed-resume corpus с C95–C97; добавить real normalize producer, actual config/material/profile capture и direct/full CLI distinctions. Измерить стоимость selected DB/inventory hashing и использовать immutable receipt только при реально доказанной immutability. Не создавать второй resume registry.",
+      "limits": "Actual selected predicate/recovery исполняется, но config/profile/SQL seams исключают native end-to-end proof. trusted_inputs callback не найден в current tracked source callers; наличие helper само по себе не означает используемую optimization или активный обход. Core/QC намеренно не skip; broad publish/closeout не аттестован."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C98-R01",
+    "C98-R02"
+  ],
+  "decision": "Content-bound selected resume реально реализован; сохранить строгий input/output denominator. Два узких recovery/direct-CLI остатка и native qualification не закрыты."
+}

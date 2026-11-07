@@ -49,15 +49,37 @@ def __getattr__(name: str) -> Any:
         "load_registry_bundle_content",
         "load_registry_bundle_payload",
     }:
-        from . import loader as _loader
+        from .loader import (
+            RegistryBundleContent,
+            load_registry_bundle,
+            load_registry_bundle_content,
+            load_registry_bundle_payload,
+        )
 
-        return getattr(_loader, name)
+        providers = {
+            "RegistryBundleContent": RegistryBundleContent,
+            "load_registry_bundle": load_registry_bundle,
+            "load_registry_bundle_content": load_registry_bundle_content,
+            "load_registry_bundle_payload": load_registry_bundle_payload,
+        }
+        return providers[name]
     if name in {"build_default_registry_bundle", "build_registry_bundle"}:
-        from . import builder as _builder
+        from .builder import build_default_registry_bundle, build_registry_bundle
 
-        return getattr(_builder, name)
+        providers = {
+            "build_default_registry_bundle": build_default_registry_bundle,
+            "build_registry_bundle": build_registry_bundle,
+        }
+        return providers[name]
     if name in {"FragmentPrecedencePolicy", "build_registry_bundle_from_components"}:
-        from . import builder_from_fragments as _fragments
+        from .builder_from_fragments import (
+            FragmentPrecedencePolicy,
+            build_registry_bundle_from_components,
+        )
 
-        return getattr(_fragments, name)
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+        providers = {
+            "FragmentPrecedencePolicy": FragmentPrecedencePolicy,
+            "build_registry_bundle_from_components": build_registry_bundle_from_components,
+        }
+        return providers[name]
+    raise AttributeError(f"module 'polisyos.core.registry' has no attribute {name!r}")

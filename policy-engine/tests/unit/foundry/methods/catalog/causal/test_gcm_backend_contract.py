@@ -109,14 +109,77 @@ from polisyos.foundry.methods.catalog.causal.gcm_query import (
 )
 from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
 from polisyos.ir.analytics.causal_queries import CausalQuery, load_causal_query_result
-from polisyos.ir.analytics.structural_causal_model import persist_structural_causal_model_spec
-from polisyos.ir.registry.refs import CausalQueryResultRef
+from polisyos.ir.analytics.structural_causal_model import (
+    SCMTrainingRows,
+    persist_structural_causal_model_spec,
+)
+from polisyos.ir.registry.refs import ArtifactRefModel, CausalQueryResultRef
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
 from polisyos.scientist.nodes.builtins.causal.run_causal_queries import RunCausalQueriesNode
 from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_CAUSAL_QUERY_RESULT_REF
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+
+def test_training_rows_hash_original_numeric_primitives_without_rounding_them() -> None:
+    """Integers survive exact source hashing; unrepresentable values are refused."""
+
+    def digest(value: object) -> str:
+        return hashlib.sha256(
+            json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+        ).hexdigest()
+
+    source = ArtifactRefModel(
+        artifact_id="sha256:" + "1" * 64, kind="tests.scm_fit_data", media_type="application/json"
+    )
+    raw = [[1, -0.0], [2, 4]]
+    columns = ["X", "Y"]
+    ids = [f"{source.artifact_id}:{index}" for index in range(len(raw))]
+    graph = {"nodes": columns, "edges": [["X", "Y"]]}
+    payload = {
+        "rows": raw,
+        "columns": columns,
+        "row_ids": ids,
+        "source_ref": source,
+        "source_sha256": "2" * 64,
+        "data_sha256": digest({"columns": columns, "rows": raw}),
+        "row_sha256": digest(ids),
+        "graph_sha256": digest(graph),
+        "graph_payload": graph,
+        "fit_input": {"data": raw, "column_names": columns},
+    }
+    admitted = SCMTrainingRows.model_validate(payload)
+    assert admitted.rows == [[1.0, -0.0], [2.0, 4.0]]
+    assert admitted.data_sha256 != digest({"columns": columns, "rows": admitted.rows})
+
+    wrong_hash = dict(payload, data_sha256=digest({"columns": columns, "rows": admitted.rows}))
+    with pytest.raises(ValueError, match="training matrix content hash mismatch"):
+        SCMTrainingRows.model_validate(wrong_hash)
+
+    wrong_zero_sign = dict(payload, rows=[[1, 0.0], [2, 4]])
+    with pytest.raises(ValueError, match="exact training matrix"):
+        SCMTrainingRows.model_validate(wrong_zero_sign)
+
+    integer_zero = [[1, 0], [2, 4]]
+    negative_projection = dict(
+        payload,
+        rows=[[1, -0.0], [2, 4]],
+        fit_input={"data": integer_zero, "column_names": columns},
+        data_sha256=digest({"columns": columns, "rows": integer_zero}),
+    )
+    with pytest.raises(ValueError, match="exact training matrix"):
+        SCMTrainingRows.model_validate(negative_projection)
+
+    too_large = [[2**53 + 1, 0], [2, 4]]
+    changed = dict(
+        payload,
+        rows=too_large,
+        fit_input={"data": too_large, "column_names": columns},
+        data_sha256=digest({"columns": columns, "rows": too_large}),
+    )
+    with pytest.raises(ValueError, match="exact training matrix"):
+        SCMTrainingRows.model_validate(changed)
 
 
 def _dgp(n: int) -> SCMFitData:
@@ -133,8 +196,8 @@ def _dgp(n: int) -> SCMFitData:
     )
 
 
-def _fit_real(tmp_path: Path, n: int):
-    data = _dgp(n)
+def _fit_real(tmp_path: Path, n: int, *, data_override: SCMFitData | None = None):
+    data = _dgp(n) if data_override is None else data_override
     store = FileSystemCAS(tmp_path)
     source = store.put_json(
         data.model_dump(mode="json"),
@@ -171,7 +234,10 @@ def _fit_real(tmp_path: Path, n: int):
 
 @pytest.fixture
 def selected_worker(monkeypatch):
-    interpreter = bridge._worker_directory() / ".venv/bin/python"
+    configured = os.environ.get("E02_TEST_DOWHY_WORKER_PYTHON")
+    interpreter = (
+        Path(configured) if configured else bridge._worker_directory() / ".venv/bin/python"
+    )
     assert interpreter.is_file(), (
         "Install selected genuine locked worker before running; backend absence is not PASS"
     )
@@ -194,9 +260,53 @@ def _contrast() -> CausalQuery:
     )
 
 
+def test_actual_integer_gcm_fit_and_fresh_reader_keep_exact_source(tmp_path, selected_worker):
+    """The real worker accepts exact integer rows and retains their source digest."""
+    values = np.asarray([[-2, -3], [-1, -1], [0, 1], [1, 3], [2, 5]], dtype=np.int64)
+    data = SCMFitData(
+        data=values,
+        column_names=["X", "Y"],
+        graph=CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=["X", "Y"],
+            edges=[CausalEdge(src="X", dst="Y")],
+        ),
+        metadata={"sampling_unit": "iid_observation_row", "input_scope": "known_synthetic_dgp"},
+    )
+    store, _source, _data, model, _job = _fit_real(tmp_path / "integer-cas", 5, data_override=data)
+    assert model.training_rows.fit_input["data"] == values.tolist()
+    raw_hash = hashlib.sha256(
+        json.dumps(
+            {"columns": ["X", "Y"], "rows": values.tolist()},
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode()
+    ).hexdigest()
+    assert model.training_rows.data_sha256 == raw_hash
+    ref = persist_structural_causal_model_spec(_ensure_ir_artifact_store(store), model)
+    from polisyos.ir.analytics.structural_causal_model import load_structural_causal_model_spec
+
+    fresh_store = FileSystemCAS(store.root)
+    restored = load_structural_causal_model_spec(_ensure_ir_artifact_store(fresh_store), ref)
+    validate_persisted_gcm_spec(restored, fresh_store)
+    query = CausalQuery(
+        query_type="interventional",
+        treatment_variable="X",
+        treatment_value=3.0,
+        outcome_variable="Y",
+        n_samples=16,
+    )
+    result = GCMQuery.pure_step(
+        SCMQueryData(scm_spec=restored, query=query),
+        {"__seed__": 7, "enable_dowhy_comparison": False},
+    )["query_result"]
+    assert result.result_mean == pytest.approx(7.0, abs=1e-10, rel=0)
+
+
 def test_actual_gcm_job_persisted_fresh_reader_and_scientist_consumer(tmp_path, selected_worker):
     store, source, data, model, result = _fit_real(tmp_path / "cas", 400)
-    assert model.fit_method == "gcm" and model.schema_version == "1.1"
+    assert model.fit_method == "gcm" and model.schema_version == "1.2"
     assert model.fit_provenance.versions["dowhy"] == "0.14"
     assert model.training_rows.source_sha256 == hashlib.sha256(store.get_bytes(source)).hexdigest()
     from polisyos import foundry as methods
@@ -525,3 +635,298 @@ def test_true_refit_sampling_interval_shrinks_predictive_distribution_does_not(
     )
     assert 0.45 < widths[1] / widths[0] < 0.95
     assert 0.8 < spans[1] / spans[0] < 1.2
+
+
+@pytest.mark.parametrize("kind", ["interventional", "attribution", "reverse_attribution"])
+def test_selected_refit_replica_targets_against_independent_scalar_ols(
+    tmp_path, selected_worker, kind
+):
+    """Audit all actual 80 row refits and linear quantiles independently."""
+    x = list(range(-3, 5))
+    residuals = [1, -1, 0, 1, -1, 0, 1, -1]
+    y = [1 + 2 * value + residual for value, residual in zip(x, residuals, strict=True)]
+    data = SCMFitData(
+        data=np.column_stack([x, y]),
+        column_names=["X", "Y"],
+        graph=CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=["X", "Y"],
+            edges=[CausalEdge(src="X", dst="Y")],
+        ),
+        metadata={"sampling_unit": "iid_observation_row", "input_scope": "known_synthetic_dgp"},
+    )
+    store, _source, _data, model, _job = _fit_real(tmp_path / kind, 8, data_override=data)
+    ref = persist_structural_causal_model_spec(_ensure_ir_artifact_store(store), model)
+    target, comparator = (2.0, -1.0) if kind != "reverse_attribution" else (-1.0, 2.0)
+    query_payload = {
+        "query_type": "interventional" if kind == "interventional" else "attribution",
+        "treatment_variable": "X",
+        "outcome_variable": "Y",
+        "n_samples": 64,
+    }
+    if kind == "interventional":
+        query_payload["treatment_value"] = target
+    else:
+        query_payload["contrast"] = {
+            "target": {"type": "atomic", "value": target},
+            "comparator": {
+                "kind": "interventional",
+                "intervention": {"type": "atomic", "value": comparator},
+            },
+        }
+    query = CausalQuery.model_validate(query_payload)
+    bundle = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=bundle, run_id=f"linear-refit-{kind}")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("linear-refit"))
+    state = ExperimentState(
+        run_id=f"linear-refit-{kind}",
+        params={
+            "random_seed": 45,
+            "structural_causal_model_ref": ref.model_dump(mode="json"),
+            "causal_query": query.model_dump(mode="json"),
+            "causal_estimator_bootstrap_replicates": 80,
+        },
+    )
+    outcome = RunCausalQueriesNode().execute(ctx, state)
+    assert outcome.status == "ok", outcome.error
+    fresh_store = FileSystemCAS(store.root)
+    persisted = load_causal_query_result(
+        _ensure_ir_artifact_store(fresh_store),
+        CausalQueryResultRef.model_validate(
+            outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_RESULT_REF].model_dump(mode="json")
+        ),
+    )
+    interval = persisted.estimator_interval
+    assert interval is not None and interval.replicate_count == 80
+    validate_persisted_estimator_interval(interval, model, persisted.query, fresh_store)
+    response = interval.refit_worker_response
+    indices = response["parent_observed"]["request_binding"]["payload"]["bootstrap_indices"]
+    replicas = response["result"]["bootstrap_models"]
+    assert len(indices) == len(replicas) == len(interval.replicate_estimates) == 80
+    row_ids = model.training_rows.row_ids
+
+    def scalar_ols(index: list[int], *, wrong_pairing: bool = False) -> tuple[float, float]:
+        a = [float(x[i]) for i in index]
+        paired = index[1:] + index[:1] if wrong_pairing else index
+        b = [float(y[i]) for i in paired]
+        mean_a, mean_b = sum(a) / len(a), sum(b) / len(b)
+        denominator = sum((value - mean_a) ** 2 for value in a)
+        assert denominator > 0.0, "all requested replicas must remain in the denominator"
+        slope = sum((u - mean_a) * (v - mean_b) for u, v in zip(a, b, strict=True)) / denominator
+        return mean_b - slope * mean_a, slope
+
+    def target_value(index: list[int], *, wrong_pairing: bool = False) -> float:
+        intercept, slope = scalar_ols(index, wrong_pairing=wrong_pairing)
+        return (
+            intercept + target * slope
+            if kind == "interventional"
+            else (target - comparator) * slope
+        )
+
+    expected = [target_value(row) for row in indices]
+    assert interval.point_estimate == pytest.approx(target_value(list(range(8))), abs=1e-11, rel=0)
+    assert list(interval.replicate_estimates) == pytest.approx(expected, abs=1e-11, rel=0)
+    for index, model_output in zip(indices, replicas, strict=True):
+        assert model_output["row_ids"] == [row_ids[i] for i in index]
+
+    def linear_quantile(values: list[float], q: float) -> float:
+        ordered = sorted(values)
+        position = (len(ordered) - 1) * q
+        lower = int(position)
+        upper = min(lower + 1, len(ordered) - 1)
+        return ordered[lower] + (position - lower) * (ordered[upper] - ordered[lower])
+
+    expected_bounds = [linear_quantile(expected, 0.025), linear_quantile(expected, 0.975)]
+    assert interval.interval == pytest.approx(expected_bounds, abs=1e-11, rel=0)
+    assert any(
+        abs(target_value(row, wrong_pairing=True) - value) > 1e-6
+        for row, value in zip(indices, expected, strict=True)
+    )
+    assert any(
+        abs((value + 1.0) - reference) > 1e-6
+        for value, reference in zip(interval.replicate_estimates, expected, strict=True)
+    )
+    assert any(
+        abs((value * 2.0) - reference) > 1e-6
+        for value, reference in zip(interval.replicate_estimates, expected, strict=True)
+    )
+    wrong_bounds = [sorted(expected)[int((len(expected) - 1) * q)] for q in (0.025, 0.975)]
+    assert wrong_bounds != pytest.approx(expected_bounds, abs=1e-6, rel=0)
+
+
+def test_refit_fresh_reader_rejects_tampering_and_unsupported_requests(
+    tmp_path, selected_worker, monkeypatch
+):
+    """The selected refit keeps its source, sampled rows, mechanism, and target."""
+    from polisyos.foundry.methods.catalog.causal import gcm_fit
+    from polisyos.ir.analytics.causal_queries import (
+        CausalQueryResult,
+        persist_causal_query_result,
+    )
+    from polisyos.ir.analytics.structural_causal_model import StructuralCausalModelSpec
+
+    x = np.arange(-3, 5)
+    residuals = np.array([1, -1, 0, 1, -1, 0, 1, -1])
+    data = SCMFitData(
+        data=np.column_stack([x, 1 + 2 * x + residuals]),
+        column_names=["X", "Y"],
+        graph=CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=["X", "Y"],
+            edges=[CausalEdge(src="X", dst="Y")],
+        ),
+        metadata={"sampling_unit": "iid_observation_row", "input_scope": "known_synthetic_dgp"},
+    )
+    store, source, _data, model, _job = _fit_real(tmp_path / "selected", 8, data_override=data)
+    query = CausalQuery(
+        query_type="interventional",
+        treatment_variable="X",
+        treatment_value=2,
+        outcome_variable="Y",
+        n_samples=64,
+    )
+    with bridge.worker_execution_context(store=store, source_ref=source):
+        output = GCMQuery.pure_step(
+            SCMQueryData(scm_spec=model, query=query),
+            {"__seed__": 45, "bootstrap_replicates": 20, "enable_dowhy_comparison": False},
+        )
+    result = output["query_result"]
+    ir_store = _ensure_ir_artifact_store(store)
+    ref = persist_causal_query_result(ir_store, result)
+    fresh_store = FileSystemCAS(store.root)
+    fresh = load_causal_query_result(_ensure_ir_artifact_store(fresh_store), ref)
+    validate_persisted_estimator_interval(fresh.estimator_interval, model, fresh.query, fresh_store)
+
+    # Write each mutation as a real new CAS object before the fresh reader and
+    # semantic validator encounter it; this is more than an in-memory checksum test.
+    for corruption in ("source", "indices", "mechanism", "target"):
+        payload = result.model_dump(mode="json")
+        interval = payload["estimator_interval"]
+        if corruption == "source":
+            interval["source_sha256"] = "f" * 64
+        elif corruption == "indices":
+            row = interval["refit_worker_response"]["parent_observed"]["request_binding"][
+                "payload"
+            ]["bootstrap_indices"][0]
+            row[0] = (row[0] + 1) % len(x)
+        elif corruption == "mechanism":
+            fitted = interval["refit_worker_response"]["result"]["bootstrap_models"][0]
+            fitted["mechanisms"]["Y"]["coefficients"]["X"] += 0.5
+        else:
+            payload["query"]["treatment_value"] = 3.0
+        changed = CausalQueryResult.model_validate(payload)
+        changed_ref = persist_causal_query_result(ir_store, changed)
+        assert changed_ref.artifact_id != ref.artifact_id
+        reopened = load_causal_query_result(_ensure_ir_artifact_store(fresh_store), changed_ref)
+        expected_error = {
+            "source": "persisted estimator interval differs from source-bound refitted estimates",
+            "indices": "worker response source/request/content binding mismatch",
+            "mechanism": "GCM exported linear fit differs from source-row oracle",
+            "target": "persisted estimator interval differs from source-bound refitted estimates",
+        }[corruption]
+        with pytest.raises((ValueError, bridge.WorkerBindingError), match=expected_error):
+            validate_persisted_estimator_interval(
+                reopened.estimator_interval, model, reopened.query, fresh_store
+            )
+
+    # A guard on the actual selected-refit entry proves unsupported inputs do not
+    # launch another worker, rather than merely checking their final error text.
+    def forbidden_refit(*args, **kwargs):
+        pytest.fail("unsupported refit reached the selected worker")
+
+    monkeypatch.setattr(gcm_fit, "_fit_gcm_specs", forbidden_refit)
+    no_iid = model.model_copy(deep=True)
+    no_iid.training_rows.fit_input["metadata"]["sampling_unit"] = "panel_row"
+    manual_payload = model.model_dump(mode="python")
+    manual_payload.update(fit_method="manual", training_rows=None, fit_provenance=None)
+    manual = StructuralCausalModelSpec.model_validate(manual_payload)
+    native_payload = dict(manual_payload, fit_method="native_hybrid")
+    native = StructuralCausalModelSpec.model_validate(native_payload)
+    conditional = query.model_copy(update={"condition": {"X": float(x[0])}})
+    cases = [
+        (model, conditional, 20, "conditional individual"),
+        (no_iid, query, 20, "iid observation-row"),
+        (manual, query, 20, "source-bound selected"),
+        (native, query, 20, "source-bound selected"),
+        (model, query, 19, "between20 and500"),
+        (model, query, 501, "between20 and500"),
+    ]
+    for invalid_model, invalid_query, count, message in cases:
+        with pytest.raises(ValueError, match=message):
+            GCMQuery.pure_step(
+                SCMQueryData(scm_spec=invalid_model, query=invalid_query),
+                {"__seed__": 45, "bootstrap_replicates": count, "enable_dowhy_comparison": False},
+            )
+
+
+def test_selected_fit_stochastic_contrast_reaches_fresh_scientist_reader(
+    tmp_path, selected_worker, monkeypatch
+):
+    """A real selected fit retains its requested stochastic law and rejects substitution."""
+    import polisyos.scientist.nodes.builtins.causal.run_causal_queries as owner
+    from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+    from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_CAUSAL_QUERY_ENVELOPE_REF
+
+    store, _source, _data, model, _job = _fit_real(tmp_path / "cas", 100)
+    ref = persist_structural_causal_model_spec(_ensure_ir_artifact_store(store), model)
+    registry = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry, run_id="stochastic-law-custody")
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("stochastic-law-custody"))
+    query = CausalQuery.model_validate(
+        {
+            "query_type": "attribution",
+            "treatment_variable": "X",
+            "outcome_variable": "Y",
+            "n_samples": 512,
+            "contrast": {
+                "target": {"type": "stochastic", "distribution": "uniform(1,2)"},
+                "comparator": {
+                    "kind": "interventional",
+                    "intervention": {"type": "atomic", "value": 0},
+                },
+            },
+        }
+    )
+    state = ExperimentState(
+        run_id="stochastic-law-custody",
+        params={
+            "random_seed": 23,
+            "structural_causal_model_ref": ref.model_dump(mode="json"),
+            "causal_query": query.model_dump(mode="json"),
+        },
+    )
+    outcome = owner.RunCausalQueriesNode().execute(ctx, state)
+    assert outcome.status == "ok", outcome.error
+    fresh = FileSystemCAS(store.root)
+    result_ref = CausalQueryResultRef.model_validate(
+        outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_RESULT_REF].model_dump(mode="json")
+    )
+    result = load_causal_query_result(_ensure_ir_artifact_store(fresh), result_ref)
+    assert result.query.model_dump(mode="json") == query.model_dump(mode="json")
+    coefficient = next(m for m in model.mechanisms if m.variable == "Y").family_params[
+        "coefficients"
+    ]["X"]
+    assert result.result_mean == pytest.approx(1.5 * coefficient, abs=0.2, rel=0)
+    assert result.estimator_interval is None
+    envelope_ref = outcome.state.artifacts_index[ARTIFACT_CAUSAL_QUERY_ENVELOPE_REF]
+    envelope = load_uncertainty_envelope(_ensure_ir_artifact_store(fresh), envelope_ref)
+    assert envelope.gate_eligible is False
+
+    genuine_job = owner.run_job
+
+    def actual_job_with_foreign_law(spec, **kwargs):
+        original = kwargs["method_state"]
+        altered = original.query.model_dump(mode="json")
+        altered["contrast"]["target"]["distribution"] = "uniform(2,3)"
+        kwargs["method_state"] = original.model_copy(
+            update={"query": CausalQuery.model_validate(altered)}
+        )
+        job = genuine_job(spec, **kwargs)
+        assert not job.issues and job.method_result_ref is not None
+        return job
+
+    monkeypatch.setattr(owner, "run_job", actual_job_with_foreign_law)
+    refused = owner.RunCausalQueriesNode().execute(ctx, state)
+    assert refused.status == "fail" and refused.error is not None
+    assert "does not match original requested query" in refused.error.message
+    assert ARTIFACT_CAUSAL_QUERY_RESULT_REF not in refused.state.artifacts_index

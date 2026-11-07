@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import copy
+import functools
 import hashlib
 import json
+import math
 import os
 import shutil
 import uuid
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from dataclasses import replace
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +22,7 @@ from tests._helpers.generic_n4_served_replay import (
     _ORIGINAL_SECOND_CAPTURE_RECORDING_ID,
     _assert_original_second_capture_child_semantic_join,
     _assert_original_second_capture_generation_result,
+    _hashed_model,
     _original_second_capture_child_group,
     _seed_controlled_selected_skg_source,
     prepare_generic_n4_served_replay,
@@ -27,6 +31,43 @@ from tests._helpers.generic_n4_served_replay import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+def _assert_conditioned_fiscal_affine_effects(
+    *,
+    samples: Sequence[float],
+    joint_effect: float,
+    expected_effect: float,
+) -> None:
+    """Check the declared binary64 affine fixture, not general stochastic output.
+
+    The coefficient 0.5 scales exactly in binary64. Common factual noise is
+    conditioned on outcome 100, and subtraction near that value is exact by
+    Sterbenz's lemma. Three scale-100 additions contribute at most roughly
+    1.5 ulp; eight ulp conservatively covers this fixture's arithmetic.
+    """
+    tolerance = 8 * math.ulp(100.0)
+    assert tuple(samples) == pytest.approx((expected_effect,) * len(samples), rel=0, abs=tolerance)
+    assert joint_effect == pytest.approx(expected_effect, rel=0, abs=tolerance)
+
+
+@pytest.mark.parametrize("changed_role", ["samples", "joint"])
+def test_conditioned_fiscal_affine_oracle_rejects_halved_coefficient(
+    changed_role: str,
+) -> None:
+    """The old tolerance admits the wrong slope; the actual new oracle refuses it."""
+    delta = Decimal("0.25") - Decimal("0.3")
+    expected_effect = float(Decimal("0.5") * delta)
+    wrong_effect = float(Decimal("0.25") * delta)
+    assert wrong_effect == pytest.approx(expected_effect, abs=0.02)
+    samples = [wrong_effect if changed_role == "samples" else expected_effect] * 2
+    joint_effect = wrong_effect if changed_role == "joint" else expected_effect
+    with pytest.raises(AssertionError):
+        _assert_conditioned_fiscal_affine_effects(
+            samples=samples,
+            joint_effect=joint_effect,
+            expected_effect=expected_effect,
+        )
 
 
 def test_candidate_kref_builder_root_guard_rejects_wrong_actual_root_before_builder(
@@ -1698,13 +1739,13 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
         assert result_body["artifact_schema_name"] == (
             "policyos.runtime.n5.joint_simulation_result"
         )
-        assert result_body["artifact_schema_version"] == "4.0.0"
+        assert result_body["artifact_schema_version"] == "5.0.0"
         assert (
             result_body["selected_manifest_profile_sha256"]
             == (successful["simulation_result_ref"]["manifest_profile_sha256"])
         )
         assert result_body["result_schema_version"] == (
-            "policyos.runtime.joint_simulation_horizon.v4"
+            "policyos.runtime.joint_simulation_horizon.v5"
         )
         assert result_body["atom_ids"] == successful["atom_ids"]
         assert result_body["selected_outcomes"] == successful["selected_outcomes"]
@@ -3581,3 +3622,1152 @@ async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_fail
     assert len(matching_budget_summaries) == 1
     assert matching_budget_summaries[0]["status"] == budget_first_run["status"]
     assert matching_budget_summaries[0]["run_terminality"] == "terminal"
+
+
+async def _prepare_res03_bounded_generic_replay(
+    *,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+    served_worker_phase_probe: Any,
+) -> tuple[Any, list[dict[str, Any]]]:
+    """Prepare real source owners and the unchanged three-proposal N4 recording."""
+    from polisyos.runtime.http.security import build_fixture_identity_claims
+    from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
+    from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+        _DeterministicSpanSupportClient,
+    )
+
+    claims = build_fixture_identity_claims()
+    assert claims.cell_id is not None
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
+
+    # Use the existing source owners over a declared finite fixture, rather
+    # than loading production-sized reference graphs for a retention property.
+    source_inputs = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "res03-bounded-source-root",
+        include_owner_slot_manifest=True,
+        # These are deterministic candidate inputs over the tracked owner
+        # mechanisms and parameter domains, without a law/permission mapping.
+        owner_knob_dictionary={
+            "tax_relief_rate": {
+                "default": 0.1,
+                "type": "float",
+                "min": 0.0,
+                "max": 0.5,
+                "mechanism_id": "tax_relief_rate",
+                "param_path": "params.rate",
+            },
+            "procurement_shock_intensity": {
+                "default": 0.1,
+                "type": "float",
+                "min": -1.0,
+                "max": 1.0,
+                "mechanism_id": "procurement_shock_intensity",
+                "param_path": "params.intensity",
+            },
+        },
+    )
+    # Keep all three original proposals for the unchanged min-three diversity
+    # gate. The two declared owner knobs must bind exactly two child designs;
+    # the unsupported guarantee remains a real blocked disposition.
+    prepared = await prepare_generic_n4_served_replay(
+        tmp_path=tmp_path,
+        controlled_candidate_gateway=controlled_candidate_gateway,
+        monkeypatch=monkeypatch,
+        tenant_id=claims.tenant_id,
+        cell_id=claims.cell_id,
+        recording_mode="original_second_capture",
+        child_count=2,
+        phase_callback=served_worker_phase_probe,
+        source_root=source_inputs.root,
+    )
+    lever_slice = prepared.organ_run.result.lever_space_prompt_slice
+    assert lever_slice.status == "derived"
+    assert {entry.operator_kind for entry in lever_slice.entries} == {
+        "tax_relief_rate",
+        "procurement_shock_intensity",
+    }
+    assert all(entry.binding_status == "world_bound" for entry in lever_slice.entries)
+    assert prepared.source_root == source_inputs.root
+    assert prepared.app_kwargs["repo_root"] == source_inputs.root
+    source_witness = prepared.source_root_witness
+    assert source_witness["actual_kref_build_repo_roots"]
+    assert set(source_witness["actual_kref_build_repo_roots"]) == {str(source_inputs.root)}
+    assert max(source_witness["selected_l3_row_counts"].values(), default=0) < 1000
+    original_compiler = generation_cycle_service.build_design_problem_from_nl_request
+
+    async def run_real_compiler(**kwargs: Any) -> Any:
+        kwargs["span_support_client"] = _DeterministicSpanSupportClient()
+        return await original_compiler(**kwargs)
+
+    monkeypatch.setattr(
+        generation_cycle_service, "build_design_problem_from_nl_request", run_real_compiler
+    )
+    provider_observations: list[dict[str, Any]] = []
+    return prepared, provider_observations
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_native_n4_child_profile_set_canonical_roundtrip_controls(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+    served_worker_phase_probe: Any,
+    record_property: Any,
+) -> None:
+    """The real set writer/readback keeps its exact codec and refuses substitutions."""
+    from dataclasses import replace
+
+    from fastapi.testclient import TestClient
+
+    from polisyos.core.artifacts import ArtifactID, CanonInfo
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.quality import generation_source, recursive_generation_cycle
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RecursiveGenerationCycleError,
+        RecursiveLeafContextOwner,
+    )
+    from tests._helpers.control_worker import dispatch_one_control_job
+
+    prepared, _provider_observations = await _prepare_res03_bounded_generic_replay(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+        controlled_candidate_gateway=controlled_candidate_gateway,
+        served_worker_phase_probe=served_worker_phase_probe,
+    )
+    load = RecursiveLeafContextOwner.load_n4_child_profile_set
+    options_for = RecursiveLeafContextOwner._n4_child_profile_set_write_options
+    observed: dict[str, Any] = {}
+
+    class _SetControlsCompleteError(RuntimeError):
+        """Stop before N5 after the actual producer/readback property is checked."""
+
+    def check_actual_set(self: Any, ref: Any, **kwargs: Any) -> Any:
+        family = load(self, ref, **kwargs)
+        original_wire = self._store.get_bytes(ref)
+        options = options_for(family)
+        assert options.canon is not None
+        manifest = self._store.get_manifest(ref)
+        assert manifest.canon == options.canon
+        assert generation_source._has_owner_profile(manifest, options)
+
+        # A real second CAS profile of the same bytes has a valid codec, but
+        # not this owner's exact codec. The full ref must not downgrade to A.
+        wrong_canon = replace(recursive_generation_cycle._N4_CHILD_PROFILE_SET_CANON, max_depth=129)
+        sibling_ref = self._store.put_json(
+            family.model_dump(mode="json"),
+            replace(options, canon=CanonInfo.from_spec(wrong_canon)),
+            canon_spec=wrong_canon,
+            return_selected_profile=True,
+        )
+        assert sibling_ref.artifact_id == ref.artifact_id
+        assert sibling_ref.manifest_profile_sha256 is not None
+        assert self._store.get_bytes(sibling_ref) == original_wire
+
+        def sibling_is_refused() -> bool:
+            try:
+                load(self, sibling_ref, **kwargs)
+            except RecursiveGenerationCycleError as exc:
+                if exc.code != "recursive_n4_child_profile_set_manifest_mismatch":
+                    raise
+                return True
+            return False
+
+        assert sibling_is_refused()
+        with monkeypatch.context() as removed:
+            removed.setattr(generation_source, "_has_owner_profile", lambda *_args: True)
+            assert not sibling_is_refused(), (
+                "removing the actual profile gate must defeat the oracle"
+            )
+        assert sibling_is_refused()
+
+        # Actual missing/corrupt bytes must fail at the real reader, while
+        # restoring this exact temporary fixture blob restores the same family.
+        blob_path, _manifest_path = self._store._paths(ArtifactID.model_validate(ref.artifact_id))
+        assert blob_path.resolve(strict=True).is_relative_to(tmp_path.resolve(strict=True))
+        try:
+            for control in ("corrupt", "missing"):
+                if control == "corrupt":
+                    blob_path.write_bytes(b"res03-corrupt-child-profile-set")
+                else:
+                    blob_path.unlink()
+                with pytest.raises(RecursiveGenerationCycleError):
+                    load(self, ref, **kwargs)
+                blob_path.write_bytes(original_wire)
+                assert load(self, ref, **kwargs) == family
+        finally:
+            blob_path.write_bytes(original_wire)
+        assert self._store.get_bytes(ref) == original_wire
+        observed.update(
+            set_ref=ref.model_dump(mode="json"),
+            same_payload_wrong_codec_ref=sibling_ref.model_dump(mode="json"),
+            payload_sha256=hashlib.sha256(original_wire).hexdigest(),
+            payload_bytes=len(original_wire),
+            child_count=len(family.children),
+            controls=("wrong_codec", "profile_gate_removal", "corrupt", "missing", "restored"),
+        )
+        raise _SetControlsCompleteError(
+            "res03_actual_child_profile_set_controls_complete_before_n5"
+        )
+
+    monkeypatch.setattr(RecursiveLeafContextOwner, "load_n4_child_profile_set", check_actual_set)
+    with TestClient(create_runtime_api_app(**prepared.app_kwargs)) as client:
+        response = client.post(
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": uuid.uuid4().hex},
+            json={**prepared.request_json, "max_iterations": 1},
+        )
+        assert response.status_code == 200, response.text
+        accepted = response.json()
+        assert accepted["status"] == "accepted"
+        service = client.app.state._control_service
+        assert (
+            dispatch_one_control_job(
+                store=service._control_store,
+                handler=service._process_control_job,
+                expected_job_id=accepted["job_id"],
+            )
+            == accepted["job_id"]
+        )
+        job = service._control_store.get_job(accepted["job_id"])
+        assert job is not None
+        assert observed, job.error_message
+        assert "res03_actual_child_profile_set_controls_complete_before_n5" in str(
+            job.error_message
+        )
+    record_property("res03_child_profile_set_owner_controls", json.dumps(observed, sort_keys=True))
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("recording_mode", "child_count"),
+    [("original_second_capture", 2), ("served_tax_global_scalar", 1)],
+    ids=["employment-two-targets", "fiscal-one-target"],
+)
+async def test_generic_v3_preparation_binds_actual_source_domains_and_joint_model(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+    served_worker_phase_probe: Any,
+    recording_mode: str,
+    child_count: int,
+) -> None:
+    """Prepare real N4/CAS inputs before paying for a full served numerical run."""
+    from decimal import Decimal
+
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.ir.analytics.ncm import NCMSpecRef, load_ncm_spec_default_view
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5RequestProfileV3,
+    )
+
+    prepared = await prepare_generic_n4_served_replay(
+        tmp_path=tmp_path,
+        controlled_candidate_gateway=controlled_candidate_gateway,
+        monkeypatch=monkeypatch,
+        tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        cell_id="generic-v3-preparation",
+        recording_mode=recording_mode,
+        child_count=child_count,
+        materialize_source_parameters=True,
+        synthetic_settled_provider=True,
+        phase_callback=served_worker_phase_probe,
+    )
+    assert prepared.source_root is not None
+    assert prepared.source_root.is_relative_to(tmp_path)
+    assert prepared.app_kwargs["repo_root"] == prepared.source_root
+    assert len(prepared.children) == len(prepared.generic_child_profiles) == child_count
+    controlled_candidate_gateway.admit_compiled_problem(prepared.recorded_problem)
+    controlled_candidate_gateway.admit_actual_child_family(
+        parent_problem=prepared.recorded_problem,
+        root_result=prepared.organ_run.result,
+        children=prepared.children,
+    )
+    with pytest.raises(ValueError, match="synthetic_provider_child_derivation_mismatch"):
+        controlled_candidate_gateway.admit_actual_child_family(
+            parent_problem=prepared.recorded_problem,
+            root_result=prepared.organ_run.result,
+            children=prepared.children[:-1],
+        )
+    controlled_candidate_gateway.configure_child_profile_selections(("sha256:" + "f" * 64,))
+    with pytest.raises(ValueError, match="synthetic_provider_child_profile_family_mismatch"):
+        controlled_candidate_gateway.admit_actual_child_family(
+            parent_problem=prepared.recorded_problem,
+            root_result=prepared.organ_run.result,
+            children=prepared.children,
+        )
+    controlled_candidate_gateway.configure_child_profile_selections(prepared.child_keys)
+    assert isinstance(prepared.root_profile.n5, GenericCycleN5RequestProfileV3)
+    bundle = prepared.organ_run.trinity_bundle
+    assert bundle is not None
+    rules = tuple(
+        rule for profile in prepared.generic_child_profiles for rule in profile.n5.component_rules
+    )
+    assert prepared.root_profile.n5.component_rules == rules
+    assert len({rule.target_world_slot for rule in rules}) == child_count
+    for child, profile in zip(prepared.children, prepared.generic_child_profiles, strict=True):
+        assert isinstance(profile.n5, GenericCycleN5RequestProfileV3)
+        (rule,) = profile.n5.component_rules
+        candidates = [
+            row
+            for row in prepared.organ_run.result.candidates
+            if row.atom.content_hash in child.source_atom_refs
+        ]
+        assert len(candidates) == 1
+        intervention_id = candidates[0].atom.intervention_id
+        (parameter,) = [
+            row for row in bundle.policy_spec.parameters if row.intervention_id == intervention_id
+        ]
+        (intervention,) = [
+            row
+            for row in bundle.policy_spec.interventions
+            if row.intervention_id == intervention_id
+        ]
+        assert rule.parameter_id == parameter.param_path.removeprefix("params.")
+        assert rule.minimum == Decimal(str(parameter.min_value))
+        assert rule.maximum == Decimal(str(parameter.max_value))
+        if recording_mode == "served_tax_global_scalar":
+            assert Decimal("0") <= rule.minimum <= rule.maximum <= Decimal("0.5")
+            assert rule.target_world_slot == "global.tax_rate" and rule.unit_id == "ratio"
+        assert rule.parameter_context == {
+            key: value for key, value in intervention.params.items() if key != rule.parameter_id
+        }
+        assert (
+            rule.target_world_slot
+            == child.problem.candidate_lever_space.candidate_levers[0].target_slot
+        )
+        assert profile.selected_ncm_ref.manifest_profile_sha256 is not None
+    with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
+        root_ncm = load_ncm_spec_default_view(
+            ensure_ir_artifact_store(prepared.runtime_api_context.store),
+            NCMSpecRef.model_validate(
+                prepared.root_profile.selected_ncm_ref.model_dump(mode="python")
+            ),
+        )
+    targets = {rule.target_world_slot for rule in rules}
+    assert targets < set(root_ncm.endogenous_vars)
+    outcome_equations = [
+        row for row in root_ncm.structural_equations if set(row.parents) == targets
+    ]
+    assert len(outcome_equations) == 1
+    assert outcome_equations[0].equation_params["coefficients"] == dict.fromkeys(targets, 0.5)
+    if child_count > 1:
+        assert root_ncm.fit_method == "declared_additive_joint_candidate_fixture_not_empirical"
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_actual_child_provider_refuses_stale_subject_after_same_root_readmission(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+) -> None:
+    """Use the actual handler and stock client to distinguish stale child admission."""
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.design_generation import RecordingLLMClient
+    from polisyos.scientist.orchestration.llm import factory
+    from polisyos.scientist.orchestration.llm._n4_request import _request_args
+
+    prepared = await prepare_generic_n4_served_replay(
+        tmp_path=tmp_path,
+        controlled_candidate_gateway=controlled_candidate_gateway,
+        monkeypatch=monkeypatch,
+        tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        cell_id="generic-child-source-reentry",
+        recording_mode="served_tax_global_scalar",
+        child_count=1,
+        materialize_source_parameters=True,
+        synthetic_settled_provider=True,
+    )
+    gateway = controlled_candidate_gateway
+    gateway.admit_compiled_problem(prepared.recorded_problem)
+
+    def bind_family() -> None:
+        gateway.admit_actual_child_family(
+            parent_problem=prepared.recorded_problem,
+            root_result=prepared.organ_run.result,
+            children=prepared.children,
+        )
+
+    bind_family()
+    child_ref = gy_content_hash(prepared.children[0].problem.model_dump(mode="json"))
+    client = factory.create_traced_gateway_client(
+        model_name=prepared.model_id,
+        config=factory.GatewayLLMConfig(
+            base_url=gateway.base_url,
+            api_key="local-synthetic-provider-key",
+            timeout_s=5,
+            max_retries=0,
+        ),
+    )
+    assert client is not None
+    recorder = RecordingLLMClient(
+        client, model_id=prepared.model_id, producer_problem_ref=child_ref
+    )
+
+    async def actual_child_call() -> Any:
+        # A fresh real source-issued occurrence is essential: replaying a used
+        # request could fail earlier and mask the stale-family predicate.
+        request = _request_args(
+            recorder, stage="draft", user="Candidate source-child admission control."
+        )
+        return await recorder.generate(**request)
+
+    try:
+        assert (await actual_child_call()).content
+        gateway.admit_compiled_problem(prepared.recorded_problem)
+        with pytest.raises(RuntimeError) as refused:
+            await actual_child_call()
+        chain = []
+        exception: BaseException | None = refused.value
+        while exception is not None:
+            chain.append(str(exception) + str(getattr(exception, "error_body", "")))
+            exception = exception.__cause__ or exception.__context__
+        assert "synthetic_provider_compiled_problem_not_bound" in " ".join(chain)
+        assert recorder.calls[-1].status == "error"
+        assert recorder.calls[-1].error_status == 409
+        bind_family()
+        assert (await actual_child_call()).content
+        assert [row.status for row in recorder.calls] == ["success", "error", "success"]
+    finally:
+        await client.aclose()
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("recording_mode", "child_count", "ordered_alternatives"),
+    [
+        ("original_second_capture", 2, False),
+        ("served_tax_global_scalar", 1, False),
+        ("served_tax_global_scalar", 1, True),
+    ],
+    ids=["employment-singleton", "fiscal-singleton", "fiscal-ordered-models"],
+)
+async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choices(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+    served_worker_phase_probe: Any,
+    record_property: Any,
+    recording_mode: str,
+    child_count: int,
+    ordered_alternatives: bool,
+) -> None:
+    """Same actual owner serves two declared questions and ordered CAS alternatives.
+
+    User input supplies the question and explicit simulate-only intent. The
+    server-selected profile supplies NCM resource, single-point horizon, empty
+    comparator set, budget ref, synthetic model/units, seed and replications.
+    Neither synthetic question establishes empirical grounding or currentness.
+    """
+    from fastapi.testclient import TestClient
+
+    from polisyos.core import canon
+    from polisyos.core.artifacts import (
+        ArtifactID,
+        ArtifactRef,
+        input_ref_from_artifact_ref,
+        read_core_json_artifact,
+    )
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.http.dependencies import build_runtime_api_context
+    from polisyos.runtime.http.security import build_fixture_identity_claims
+    from polisyos.runtime.http.services.control import (
+        generation_cycle as service_owner,
+    )
+    from polisyos.runtime.http.services.control import (
+        run_lifecycle,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        cycle_job_design_problem_ref,
+        generic_n4_child_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleError,
+        load_joint_simulation_result,
+        resolve_generic_n5_historical_cycle_join,
+    )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5RequestProfileV2,
+        GenericCycleN5RequestProfileV3,
+        GenericCycleSimulationN5InputV1,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+    )
+    from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleNode
+    from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetInvocationQuotaPolicy,
+    )
+    from tests._helpers.control_worker import dispatch_one_control_job
+    from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+        _DeterministicSpanSupportClient,
+    )
+
+    claims = build_fixture_identity_claims()
+    assert claims.cell_id is not None
+    tenant_id, cell_id = claims.tenant_id, claims.cell_id
+    prepared = await prepare_generic_n4_served_replay(
+        tmp_path=tmp_path,
+        controlled_candidate_gateway=controlled_candidate_gateway,
+        monkeypatch=monkeypatch,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        recording_mode=recording_mode,
+        child_count=child_count,
+        phase_callback=served_worker_phase_probe,
+        include_cyclic_ncm_alternative=ordered_alternatives,
+        materialize_source_parameters=True,
+        synthetic_settled_provider=True,
+        condition_synthetic_provider_on_child_sources=(recording_mode == "original_second_capture"),
+    )
+    quota_policy: BudgetInvocationQuotaPolicy | None = None
+    expected_standard_units = 0
+    expected_protected_units = 0
+    configured_profiles: tuple[Any, ...] | None = None
+    if recording_mode == "original_second_capture":
+        assert child_count == 2 and not ordered_alternatives
+        assert all(
+            type(profile.n5) is GenericCycleN5RequestProfileV3
+            for profile in prepared.generic_profiles
+        )
+        child_replications = tuple(
+            profile.n5.replications for profile in prepared.generic_child_profiles
+        )
+        assert child_replications == (2, 2)
+        assert all(child.source_atom_refs for child in prepared.children)
+        assert len({child.semantic_ref for child in prepared.children}) == 2
+        expected_standard_units = sum(child_replications)
+        # Reserve one physical-call unit for protected work; this fixture runs
+        # standard child calls only, so the reserve must remain unused.
+        expected_protected_units = 1
+        quota_policy = BudgetInvocationQuotaPolicy(
+            allocation_id=f"cyc05-complete-two-child-{uuid.uuid4().hex}",
+            total_units=expected_standard_units + expected_protected_units,
+            protected_units=expected_protected_units,
+        )
+        assert quota_policy.work_unit == "n5_physical_invocation"
+        assert quota_policy.price_origin == "unknown"
+        selected_profiles: list[Any] = []
+        for profile in prepared.generic_profiles:
+            n5_fields = profile.n5.model_dump(mode="python")
+            n5_fields.update(
+                invocation_quota_policy=quota_policy,
+                invocation_purpose="standard",
+            )
+            selected_n5 = GenericCycleN5RequestProfileV3.model_validate(n5_fields)
+            profile_fields = profile.model_dump(mode="python", exclude={"content_hash"})
+            profile_fields["n5"] = selected_n5
+            selected_profiles.append(
+                _hashed_model(type(profile), profile_fields, hash_fn=gy_content_hash)
+            )
+        configured_profiles = tuple(selected_profiles)
+        assert all(
+            configured.content_hash != source.content_hash
+            for configured, source in zip(
+                configured_profiles,
+                prepared.generic_profiles,
+                strict=True,
+            )
+        )
+        assert tuple(profile.profile_selection_ref for profile in configured_profiles) == tuple(
+            profile.profile_selection_ref for profile in prepared.generic_profiles
+        )
+        assert all(
+            profile.n5.invocation_quota_policy == quota_policy
+            and profile.n5.invocation_purpose == "standard"
+            for profile in configured_profiles
+        )
+        assert (
+            sum(
+                profile.n5.replications
+                for profile in configured_profiles
+                if profile.profile_selection_kind == "n4_candidate_child"
+            )
+            == expected_standard_units
+        )
+        prepared.app_kwargs["generic_cycle_simulation_profiles"] = configured_profiles
+    original_compiler = service_owner.build_design_problem_from_nl_request
+
+    async def run_real_compiler(**kwargs: Any) -> Any:
+        kwargs["span_support_client"] = _DeterministicSpanSupportClient()
+        return await original_compiler(**kwargs)
+
+    monkeypatch.setattr(service_owner, "build_design_problem_from_nl_request", run_real_compiler)
+    actual_requests: list[Any] = []
+    original_run = JointSimulationHorizonController.run
+
+    def observe_actual_run(controller: Any, request: Any) -> Any:
+        actual_requests.append(request)
+        return original_run(controller, request)
+
+    monkeypatch.setattr(JointSimulationHorizonController, "run", observe_actual_run)
+    observed_budget_owners: list[Any] = []
+    if quota_policy is not None:
+        original_budget_owner_builder = run_lifecycle._build_control_nl_producer_budget_reconciler
+
+        def capture_budget_owner(**kwargs: Any) -> Any:
+            observer = original_budget_owner_builder(**kwargs)
+            observed_budget_owners.append(observer)
+            return observer
+
+        monkeypatch.setattr(
+            run_lifecycle,
+            "_build_control_nl_producer_budget_reconciler",
+            capture_budget_owner,
+        )
+    app = create_runtime_api_app(**prepared.app_kwargs)
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "ordinary-question-native"},
+            json={**prepared.request_json, "max_iterations": 1},
+        )
+        assert response.status_code == 200, response.text
+        accepted = response.json()
+        service = app.state._control_service
+        assert (
+            dispatch_one_control_job(
+                store=service._control_store,
+                handler=service._process_control_job,
+                expected_job_id=accepted["job_id"],
+            )
+            == accepted["job_id"]
+        )
+        job = service._control_store.get_job(accepted["job_id"])
+        assert job is not None
+        assert job.state == "completed", {"state": job.state, "error": job.error_message}
+        assert job.progress["execution_intent_band"] == "simulate_only_attempt"
+        run_id = job.progress["core_run_id"]
+    # Recreate the actual reader/store/index, not only the app around the
+    # producing in-memory API context. This remains a same-process witness.
+    reader_context = build_runtime_api_context(
+        cas_root=prepared.cas_root,
+        core_runs_root=prepared.runtime_api_context.core_runs_root,
+    )
+    assert reader_context is not prepared.runtime_api_context
+    assert reader_context.store is not prepared.runtime_api_context.store
+    assert reader_context.run_index is not prepared.runtime_api_context.run_index
+    reader_kwargs = {
+        **prepared.app_kwargs,
+        "container_overrides": RuntimeContainerOverrides(runtime_api_context=reader_context),
+        # Historical replay must use the persisted selected profile, not the
+        # producer's configured Python profile objects or a current selection.
+        "generic_cycle_simulation_profiles": (),
+        "generic_cycle_simulation_root_profile_id": None,
+    }
+    with TestClient(create_runtime_api_app(**reader_kwargs)) as reader:
+        response = reader.get(f"/api/v1/runs/{run_id}")
+        assert response.status_code == 200, response.text
+        projection = response.json()["run"]["generic_cycle_simulation"]
+        assert projection["artifact_status"] == "resolved"
+        assert projection["publication_authority"] is False
+        assert projection["currentness_status"] == "not_established"
+        assert {
+            row["profile_selection_ref"] for row in projection["child_profile_bindings"]
+        } == set(prepared.child_keys)
+        observations = [
+            row for row in projection["n5_observations"] if row["status"] == "joint_simulated"
+        ]
+        assert len(observations) == child_count
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            compiled = service_owner.CompiledRecursiveGenerationCycleRun.model_validate(
+                read_core_json_artifact(
+                    reader_context.store, ArtifactRef.model_validate(projection["source_ref"])
+                ).value
+            )
+        assert compiled.generic_cycle_simulation_handoff is not None
+        assert compiled.n4_child_profile_set_ref is not None
+        assert compiled.n4_recursive_source_ref is not None
+        parent_handoff = compiled.generic_cycle_simulation_handoff
+        served_source_run_id = compiled.n4_recursive_source_run_id
+        assert served_source_run_id is not None
+        assert served_source_run_id == parent_handoff.run_id
+        assert compiled.n4_recursive_source_job_id == accepted["job_id"]
+        assert compiled.n4_recursive_source_tenant_id == tenant_id
+        assert compiled.n4_recursive_source_cell_id == cell_id
+        assert compiled.n4_recursive_source_context_job_ref == parent_handoff.context_job_ref
+        assert parent_handoff.n4_child_profile_family_ref is not None
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            served_n4_source = GenerationSourceRepository(reader_context.store).load(
+                compiled.n4_recursive_source_ref,
+                run_id=served_source_run_id,
+                expected_run_id=parent_handoff.run_id,
+                expected_job_id=accepted["job_id"],
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+                context_job_ref=compiled.n4_recursive_source_context_job_ref,
+                profile_ref=parent_handoff.profile_ref,
+                n4_child_profile_family_ref=parent_handoff.n4_child_profile_family_ref,
+            )
+        assert served_n4_source.run_id == served_source_run_id
+        assert served_n4_source.problem == compiled.design_problem
+        served_children = derive_n4_candidate_child_problems(
+            served_n4_source.problem,
+            served_n4_source.generation_result,
+            model_id=served_n4_source.generation_result.model_id,
+        )
+        assert len(served_children) == child_count
+        served_parent_problem_ref = cycle_job_design_problem_ref(served_n4_source.problem)
+        served_source_result_ref = gy_content_hash(
+            served_n4_source.generation_result.model_dump(mode="json")
+        )
+        served_children_by_selection_ref: dict[str, Any] = {}
+        served_source_atom_refs = {
+            str(candidate.atom.content_hash)
+            for candidate in served_n4_source.generation_result.candidates
+        }
+        for child in served_children:
+            child_atom_refs = tuple(sorted(str(ref) for ref in child.source_atom_refs))
+            assert child.source_result_ref == served_source_result_ref
+            assert set(child_atom_refs) <= served_source_atom_refs
+            assert len(child_atom_refs) == 1
+            selection_ref = generic_n4_child_profile_selection_ref(
+                child.problem,
+                parent_problem_ref=served_parent_problem_ref,
+                source_result_ref=child.source_result_ref,
+                source_atom_refs=child_atom_refs,
+                semantic_ref=child.semantic_ref,
+            )
+            assert selection_ref not in served_children_by_selection_ref
+            served_children_by_selection_ref[selection_ref] = child
+        assert {
+            str(ref) for child in served_children for ref in child.source_atom_refs
+        } == served_source_atom_refs
+        assert len(served_source_atom_refs) == child_count
+        assert len({child.semantic_ref for child in served_children}) == child_count
+        assert set(served_children_by_selection_ref) == {
+            profile.profile_selection_ref
+            for profile in (
+                configured_profiles
+                if configured_profiles is not None
+                else prepared.generic_child_profiles
+            )
+            if profile.profile_selection_kind == "n4_candidate_child"
+        }
+        assert {_original_second_capture_child_group(child) for child in served_children} == {
+            _original_second_capture_child_group(child) for child in prepared.children
+        }
+        if configured_profiles is not None:
+            assert compiled.generic_cycle_simulation_handoff.profile == configured_profiles[0]
+            selected_child_profiles = tuple(
+                profile
+                for profile in configured_profiles
+                if profile.profile_selection_kind == "n4_candidate_child"
+            )
+        else:
+            assert compiled.generic_cycle_simulation_handoff.profile == prepared.root_profile
+            selected_child_profiles = prepared.generic_child_profiles
+        profiles_by_id = {profile.profile_id: profile for profile in selected_child_profiles}
+        profiles_by_selection_ref = {
+            profile.profile_selection_ref: profile for profile in selected_child_profiles
+        }
+        assert len(profiles_by_id) == child_count
+        assert len(profiles_by_selection_ref) == child_count
+        assert set(profiles_by_selection_ref) == set(served_children_by_selection_ref)
+        observed_profiles: set[str] = set()
+        observed_source_atom_refs: set[str] = set()
+        observed_child_semantics: set[str] = set()
+        observed_quota_operation_ids: set[str] = set()
+        numerical_witnesses: list[dict[str, Any]] = []
+        for observation in observations:
+            with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+                input_record = GenericCycleSimulationN5InputV1.model_validate(
+                    canon.from_canonical_bytes(
+                        reader_context.store.get_bytes(
+                            ArtifactRef.model_validate(observation["n5_input_ref"])
+                        )
+                    )
+                )
+                result = load_joint_simulation_result(
+                    ArtifactRef.model_validate(observation["simulation_result_ref"]),
+                    store=reader_context.store,
+                )
+                nodes = tuple(
+                    node
+                    for node in compiled.recursive_run.nodes
+                    if isinstance(node, RecursiveCycleNode)
+                    and node.cycle_run is not None
+                    and any(
+                        row.cycle_index == input_record.cycle_index
+                        and row.simulation.generic_n5_input_ref
+                        == ArtifactRef.model_validate(observation["n5_input_ref"])
+                        for row in node.cycle_run.cycles
+                    )
+                )
+                assert len(nodes) == 1
+                (selected_node,) = nodes
+                assert selected_node.leaf_context_ref is not None
+                join_arguments = {
+                    "artifact_store": reader_context.store,
+                    "cycle_run": selected_node.cycle_run,
+                    "cycle_index": input_record.cycle_index,
+                    "node_ref": selected_node.node_ref,
+                    "leaf_context_ref": selected_node.leaf_context_ref,
+                    "child_profile_set_ref": compiled.n4_child_profile_set_ref,
+                    "expected_parent_handoff": compiled.generic_cycle_simulation_handoff,
+                    "expected_parent_problem": compiled.design_problem,
+                    "expected_parent_n4_source_ref": compiled.n4_recursive_source_ref,
+                    "expected_job_id": input_record.job_id,
+                    "expected_run_id": input_record.run_id,
+                    "expected_tenant_id": tenant_id,
+                    "expected_cell_id": cell_id,
+                }
+
+                replay_historical_join = functools.partial(
+                    resolve_generic_n5_historical_cycle_join, **join_arguments
+                )
+
+                joined = replay_historical_join()
+                assert joined.status == "resolved"
+                assert joined.authority_purpose == "cycle_input_candidate_only"
+                assert joined.input_record == input_record
+                assert joined.execution is not None
+                assert joined.execution.input_ref == ArtifactRef.model_validate(
+                    observation["n5_input_ref"]
+                )
+                assert joined.execution.result_ref == ArtifactRef.model_validate(
+                    observation["simulation_result_ref"]
+                )
+                assert joined.input_record.profile == input_record.profile
+                assert (
+                    joined.input_record.profile.n5.invocation_quota_policy
+                    == input_record.n5.invocation_quota_policy
+                )
+                parent_handoff = compiled.generic_cycle_simulation_handoff
+                for source_ref, context_ref, profile_ref, family_ref in (
+                    (
+                        compiled.n4_recursive_source_ref,
+                        parent_handoff.context_job_ref,
+                        parent_handoff.profile_ref,
+                        parent_handoff.n4_child_profile_family_ref,
+                    ),
+                    (
+                        input_record.n4_source_ref,
+                        input_record.context_job_ref,
+                        input_record.profile_ref,
+                        input_record.n4_child_profile_family_ref,
+                    ),
+                ):
+                    assert family_ref is not None
+                    assert family_ref.manifest_profile_sha256 is not None
+                    source_manifest = reader_context.store.get_manifest(source_ref)
+                    assert tuple(source_manifest.inputs) == (
+                        input_ref_from_artifact_ref(
+                            context_ref, role="cycle_substrate_context_job"
+                        ),
+                        input_ref_from_artifact_ref(
+                            profile_ref, role="generic_cycle_simulation_profile"
+                        ),
+                        input_ref_from_artifact_ref(family_ref, role="n4_child_profile_family"),
+                    )
+                # A legacy profileless reference must remain unavailable even
+                # when its identical blob and current default manifest exist.
+                profileless_capsule = selected_node.leaf_context_ref.model_copy(
+                    update={"manifest_profile_sha256": None}
+                )
+                with pytest.raises(
+                    GenerationCycleError,
+                    match="generic_n5_historical_selected_view_not_established",
+                ):
+                    replay_historical_join(leaf_context_ref=profileless_capsule)
+                for field in ("expected_job_id", "expected_cell_id"):
+                    with pytest.raises(ValueError, match=r"scope|binding|job"):
+                        replay_historical_join(**{field: join_arguments[field] + "-foreign"})
+                foreign_capsule = selected_node.leaf_context_ref.model_copy(
+                    update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+                )
+                with pytest.raises((OSError, ValueError), match=r"capsule|profile|manifest"):
+                    replay_historical_join(leaf_context_ref=foreign_capsule)
+                capsule_manifest = reader_context.store._manifest_path_for_ref(
+                    ArtifactID.model_validate(selected_node.leaf_context_ref.artifact_id),
+                    selected_node.leaf_context_ref.manifest_profile_sha256,
+                )
+                assert not capsule_manifest.is_symlink()
+                assert capsule_manifest.resolve(strict=True).is_relative_to(
+                    prepared.cas_root.resolve(strict=True)
+                )
+                original_manifest = capsule_manifest.read_bytes()
+                held_manifest = capsule_manifest.with_name(capsule_manifest.name + ".held")
+                assert not held_manifest.exists()
+                capsule_manifest.rename(held_manifest)
+                try:
+                    with pytest.raises((OSError, ValueError), match=r"capsule|profile|manifest"):
+                        replay_historical_join()
+                finally:
+                    held_manifest.rename(capsule_manifest)
+                assert capsule_manifest.read_bytes() == original_manifest
+                assert replay_historical_join().status == "resolved"
+            profile = profiles_by_id[input_record.profile.profile_id]
+            assert profile == input_record.profile
+            child_selection = input_record.child_selection
+            assert child_selection is not None
+            assert child_selection.node_ref == selected_node.node_ref
+            assert child_selection.profile_selection_ref == profile.profile_selection_ref
+            assert child_selection.n4_source_ref == compiled.n4_recursive_source_ref
+            assert child_selection.parent_problem_ref == served_parent_problem_ref
+            expected_child = served_children_by_selection_ref[child_selection.profile_selection_ref]
+            assert child_selection.problem == expected_child.problem
+            assert child_selection.full_child_problem_ref == cycle_job_design_problem_ref(
+                expected_child.problem
+            )
+            assert child_selection.source_result_ref == expected_child.source_result_ref
+            assert child_selection.source_result_ref == served_source_result_ref
+            assert child_selection.semantic_ref == expected_child.semantic_ref
+            child_atom_refs = tuple(sorted(str(ref) for ref in expected_child.source_atom_refs))
+            assert child_selection.source_atom_refs == child_atom_refs
+            assert not (observed_source_atom_refs & set(child_atom_refs))
+            observed_source_atom_refs.update(child_atom_refs)
+            observed_child_semantics.add(child_selection.semantic_ref)
+            observed_profiles.add(profile.profile_id)
+            requests = tuple(
+                request
+                for request in actual_requests
+                if request.world_model_record.content_hash
+                == profile.context_inputs.world_model_record.content_hash
+                and request.selected_outcomes == (input_record.outcome_variable,)
+                and tuple(atom.content_hash for atom in request.intervention_atoms)
+                == tuple(
+                    row.derived_n5_atom.content_hash
+                    for row in input_record.component_materializations
+                )
+            )
+            assert len(requests) == 1
+            (request,) = requests
+            assert request.horizon == profile.n5.horizon
+            assert request.horizon.start == request.horizon.end == 0
+            assert request.horizon.step == 1
+            assert request.comparator_refs == profile.n5.comparator_refs == ()
+            assert request.budget_ref == profile.n5.budget_ref
+            assert request.baseline_state == profile.n5.baseline_state
+            assert request.seed == profile.n5.seed == 11
+            assert request.replications == profile.n5.replications == 2
+            units = {
+                slot.slot_id: slot.unit
+                for slot in profile.context_inputs.world_model_record.policy_slot_map
+            }
+            outcome = input_record.outcome_variable
+            assert units[outcome]
+            assignments = tuple(
+                assignment
+                for atom in request.intervention_atoms
+                for assignment in atom.causal_do_expr.assignments
+            )
+            assert len(assignments) == 1
+            assignment = assignments[0]
+            assert assignment.value_expr is None
+            assert units[assignment.variable]
+            expected_effect = 0.5 * (
+                float(assignment.value) - profile.n5.baseline_state[assignment.variable]
+            )
+            # Individual/joint scopes are not independent replications. Read the
+            # actual per-seed samples from the selected joint trajectory instead.
+            joint_trajectories = [
+                trajectory for trajectory in result.trajectories if trajectory.run_level == "joint"
+            ]
+            assert len(joint_trajectories) == 1
+            (joint_point,) = joint_trajectories[0].points
+            sampling = joint_point.replication_sampling
+            assert sampling is not None
+            expected_seeds = tuple(
+                range(profile.n5.seed, profile.n5.seed + profile.n5.replications)
+            )
+            assert sampling.replicate_count == profile.n5.replications
+            assert sampling.seeds == expected_seeds
+            assert tuple(sample.seed for sample in sampling.samples) == expected_seeds
+            if quota_policy is not None:
+                physical_work = tuple(result.physical_work_observations)
+                assert len(physical_work) == profile.n5.replications
+                assert tuple(item.effective_seed for item in physical_work) == expected_seeds
+                assert all(
+                    item.status == "completed"
+                    and item.invocation_quota_status == "completed"
+                    and item.invocation_quota_purpose == "standard"
+                    and item.invocation_quota_profile_digest is not None
+                    and item.invocation_quota_operation_id is not None
+                    and item.invocation_quota_request_digest is not None
+                    for item in physical_work
+                )
+                operation_ids = {item.invocation_quota_operation_id for item in physical_work}
+                assert len(operation_ids) == profile.n5.replications
+                assert not (observed_quota_operation_ids & operation_ids)
+                observed_quota_operation_ids.update(operation_ids)
+            effects = [sample.effects[outcome] for sample in sampling.samples]
+            assert len(effects) == profile.n5.replications
+            if recording_mode == "served_tax_global_scalar":
+                assert profile.n5.baseline_state[outcome] == 100.0
+                _assert_conditioned_fiscal_affine_effects(
+                    samples=effects,
+                    joint_effect=joint_point.effect[outcome],
+                    expected_effect=expected_effect,
+                )
+            else:
+                assert effects == pytest.approx(
+                    [expected_effect] * profile.n5.replications, abs=0.02
+                )
+                assert joint_point.effect[outcome] == pytest.approx(expected_effect, abs=0.02)
+            assert result.uncertainty_kind == "K_sim"
+            assert result.world_credal_state_before == result.world_credal_state_after
+            if ordered_alternatives:
+                assert isinstance(profile.n5, GenericCycleN5RequestProfileV2)
+                assert len(request.engine_plan) == len(profile.n5.ncm_plan_refs) == 2
+                assert request.engine_plan[0].ncm_spec.is_acyclic is False
+                assert request.engine_plan[1].ncm_spec.is_acyclic is True
+                assert result.engine_decisions[0].decision == "unsupported"
+                assert "cyclic_ncm_rejected" in result.engine_decisions[0].blockers
+                assert result.engine_decisions[1].decision == "selected"
+            else:
+                assert len(request.engine_plan) == 1
+                assert result.engine_decisions[0].decision == "selected"
+            numerical_witnesses.append(
+                {
+                    "profile_id": profile.profile_id,
+                    "profile_content_hash": profile.content_hash,
+                    "problem_ref": input_record.design_problem_ref,
+                    "input_ref": observation["n5_input_ref"],
+                    "result_ref": observation["simulation_result_ref"],
+                    "model_refs": [
+                        ref.model_dump(mode="json")
+                        for ref in (
+                            profile.n5.ncm_plan_refs
+                            if ordered_alternatives
+                            else (profile.selected_ncm_ref,)
+                        )
+                    ],
+                    "outcome": outcome,
+                    "outcome_unit": units[outcome],
+                    "target": assignment.variable,
+                    "target_unit": units[assignment.variable],
+                    "target_value": assignment.value,
+                    "expected_effect": expected_effect,
+                    "observed_effects": effects,
+                    "historical_join": {
+                        "status": joined.status,
+                        "leaf_context_ref": selected_node.leaf_context_ref.model_dump(mode="json"),
+                        "controls": [
+                            "parent_and_child_source_selected_family_inputs",
+                            "legacy_profileless_capsule_unavailable",
+                            "wrong_job",
+                            "wrong_cell",
+                            "foreign_selected_capsule_view",
+                            "removed_selected_capsule_manifest",
+                            "exact_manifest_restored",
+                        ],
+                    },
+                    "numeric_oracle": (
+                        {
+                            "scope": "conditioned_affine_binary64_outcome_baseline_100",
+                            "relative_tolerance": 0,
+                            "absolute_tolerance": 8 * math.ulp(100.0),
+                        }
+                        if recording_mode == "served_tax_global_scalar"
+                        else {"scope": "existing_generic_fixture", "absolute_tolerance": 0.02}
+                    ),
+                    "replication_seeds": list(sampling.seeds),
+                    "scope_roles": [trajectory.run_level for trajectory in result.trajectories],
+                    "physical_work_event_ids": list(
+                        joint_trajectories[0].diagnostics["physical_work_event_ids"]
+                    ),
+                    "horizon": request.horizon.model_dump(mode="json"),
+                    "comparator_refs": list(request.comparator_refs),
+                    "budget_ref": request.budget_ref,
+                    "engine_decisions": [
+                        decision.model_dump(mode="json") for decision in result.engine_decisions
+                    ],
+                    "limitations": list(profile.limitations),
+                }
+            )
+        assert observed_profiles == set(profiles_by_id)
+        if recording_mode == "original_second_capture":
+            assert observed_child_semantics == {child.semantic_ref for child in served_children}
+            assert observed_source_atom_refs == {
+                str(ref) for child in served_children for ref in child.source_atom_refs
+            }
+            assert len(observed_child_semantics) == 2
+    if recording_mode == "served_tax_global_scalar":
+        assert prepared.recorded_problem.domain == "fiscal"
+        assert prepared.recorded_problem.outcome_of_interest.target_variable == "government.balance"
+        assert units["government.balance"] == "usd"
+        assert units["global.tax_rate"] == "ratio"
+    if quota_policy is not None:
+        assert len(observed_budget_owners) == 1
+        budget_owner = observed_budget_owners[0]
+        bound_quota = budget_owner.invocation_quota_profile
+        assert bound_quota is not None
+        assert bound_quota.model_dump(mode="python", exclude={"run_binding"}) == (
+            quota_policy.model_dump(mode="python")
+        )
+        assert budget_owner.invocation_purpose == "standard"
+        assert budget_owner.invocation_guarantee == "protected_invocations"
+        capacity = budget_owner.observe_standard_invocation_capacity()
+        assert capacity.status == "exhausted"
+        assert capacity.predicate_basis == "independently_reconciled"
+        assert capacity.standard_limit_units == expected_standard_units
+        assert capacity.standard_remaining_units == 0
+        assert capacity.protected_limit_units == expected_protected_units
+        assert capacity.protected_remaining_units == expected_protected_units
+        assert len(capacity.terminal_witnesses) == expected_standard_units
+        assert len(observed_quota_operation_ids) == expected_standard_units
+        assert observed_quota_operation_ids == {
+            operation_id for operation_id, _ in capacity.terminal_witnesses
+        }
+        probe_identity = uuid.uuid4().hex.encode("ascii")
+        with (
+            budget_owner.invocation_purpose_scope_from_selected_owner(
+                quota_policy,
+                purpose="standard",
+            ),
+            pytest.raises(
+                BudgetExhaustedError,
+                match="configured N5 invocation allocation exhausted",
+            ),
+        ):
+            budget_owner.reserve_invocation(
+                hashlib.sha256(b"cyc05-standard-capacity-probe:" + probe_identity).hexdigest(),
+                hashlib.sha256(b"cyc05-standard-capacity-request:" + probe_identity).hexdigest(),
+            )
+        capacity_after_probe = budget_owner.observe_standard_invocation_capacity()
+        assert capacity_after_probe.standard_remaining_units == 0
+        assert capacity_after_probe.protected_remaining_units == expected_protected_units
+        assert capacity_after_probe.terminal_witnesses == capacity.terminal_witnesses
+    record_property(
+        "ordinary_generic_question_witness",
+        json.dumps(
+            {
+                "fixture_mode": recording_mode,
+                "source_recording_id": prepared.source_recording_id,
+                "source_recording_content_hash": prepared.source_recording_content_hash,
+                "question_statement": prepared.recorded_problem.problem_statement,
+                "preparation": {
+                    "user": ["question", "explicit_simulate_only_intent"],
+                    "server_profile": [
+                        "ncm_resource",
+                        "single_point_horizon",
+                        "empty_comparator_set",
+                        "budget_ref",
+                        "candidate_scm_and_units",
+                        "seed_and_replications",
+                    ],
+                    "route_qualified": "ncm_parallel_worlds",
+                    "other_engine_labels": "unqualified_by_this_witness",
+                    "reader": "new_store_and_index_empty_config_selected_cas_same_process",
+                    "boundary": "declared_synthetic_not_empirically_grounded",
+                },
+                "observations": numerical_witnesses,
+            },
+            sort_keys=True,
+        ),
+    )

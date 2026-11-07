@@ -947,8 +947,21 @@ def _read_calibration_response_intake(
     assert report_manifest is not None
     if report.ordered_batch_execution is not None:
         raise _InvalidResponseBasis("ordered_batch_response_basis_not_supported")
-    if report.schema_version != "2.0":
+    if report.schema_version not in {"2.0", "2.2"}:
         raise _InvalidResponseBasis("execute response requires a scalar v2 calibration report")
+    if report.schema_version == "2.2":
+        scope = report.uncertainty_field_scope
+        projection = report.coordinate_projection
+        if (
+            not scope
+            or projection is None
+            or tuple(scope) != projection.field_order
+            or not set(scope) <= set(report.calibrated_params)
+        ):
+            raise _InvalidResponseBasis(
+                "scoped calibration report and coordinate projection disagree",
+                source_status="mismatch",
+            )
 
     basis_source = read_calibration_execution_input_basis_source(
         ctx.store, inputs=report_manifest.inputs
@@ -1817,9 +1830,16 @@ def _persist_report(
         and ledger.get("schema_version") == "1.1"
         for item in results
     )
-    if has_gaussian_ledger and shared_provenance is None:
-        raise ValueError("Gaussian joint report requires one shared draw ledger")
-    report_version = "1.2" if has_gaussian_ledger else "1.1"
+    has_numeric_resolution_ledger = any(
+        isinstance(ledger := item.diagnostics.get("draw_outcome_provenance"), Mapping)
+        and ledger.get("schema_version") == "1.2"
+        for item in results
+    )
+    if (has_gaussian_ledger or has_numeric_resolution_ledger) and shared_provenance is None:
+        raise ValueError("versioned propagation report requires one shared draw ledger")
+    report_version = (
+        "1.3" if has_numeric_resolution_ledger else "1.2" if has_gaussian_ledger else "1.1"
+    )
 
     diagnostics: list[dict[str, Any]] = []
     for item in results:

@@ -33,7 +33,7 @@ The recorded lightweight command ran the seven admission proof-binding checks
 under CPython 3.14.0 on Darwin 27.0.0/arm64. Its exact argv, cwd, outputs,
 hashes, import origins, candidate-bound backend manifest, and all control
 results are in
-[`oracle-summary.json`](../raw/q0_actual_git_raw_oracle/20261010T013210654324Z-ea5e7292/oracle-summary.json)
+`oracle-summary.json` (`../raw/q0_actual_git_raw_oracle/20261010T013210654324Z-ea5e7292/oracle-summary.json`; unavailable in this checkout)
 and sibling raw files. The test command exited 0 and wrote
 `7 admission proof-binding checks passed` (stdout SHA-256
 `477530e8dc0f1ddae059b589a7448a7983bc5fdb3bc09a3b98c23c22e2f30cb1`; empty

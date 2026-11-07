@@ -5,12 +5,16 @@ from __future__ import annotations
 import asyncio
 import copy
 import json
+import socket
+from types import SimpleNamespace
 
 import httpx
 import pytest
 from pydantic import ValidationError
 
 import polisyos.scholar.search.jobs as jobs_module
+import polisyos.scholar.search.providers as provider_module
+import polisyos.scholar.search.service as service_module
 from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
@@ -276,6 +280,13 @@ async def test_deep_search_consumes_scholar_requirement_spec(monkeypatch, tmp_pa
 
 @pytest.mark.asyncio
 async def test_scholar_search_tool_registry_executes_tools(monkeypatch, tmp_path):
+    # Transport is controlled below; keep its real preflight deterministic as well.
+    monkeypatch.setattr(
+        "polisyos.scholar.search.security.socket.getaddrinfo",
+        lambda *_args, **_kwargs: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("8.8.8.8", 443))
+        ],
+    )
     monkeypatch.setattr(
         "polisyos.scholar.search.service.fetch_open_page",
         _fake_fetch_open_page,
@@ -1058,3 +1069,171 @@ async def test_legacy_v1_bundle_resume_projects_errors_without_rewriting_old_cas
     )
     artifacts_after = {str(item) for item in reopened_cas.iter_artifact_ids()}
     assert artifacts_after == artifacts_before
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("elapsed", [0.25, 1.0, 2.0])
+async def test_deep_search_final_batch_preserves_deadline_and_allowed_failover(
+    monkeypatch,
+    elapsed,
+):
+    now = [100.0]
+    calls: list[tuple[str, float]] = []
+    fetch_calls: list[str] = []
+
+    class _First:
+        name = "first"
+
+        async def search(self, query, *, constraints, max_results, timeout_s):
+            calls.append((self.name, timeout_s))
+            now[0] += elapsed
+            return []
+
+    class _Second(_StaticProvider):
+        async def search(self, query, *, constraints, max_results, timeout_s):
+            calls.append((self.name, timeout_s))
+            return await super().search(
+                query, constraints=constraints, max_results=max_results, timeout_s=timeout_s
+            )
+
+    async def _fetch(*args, **kwargs):
+        fetch_calls.append(args[0])
+        return await _fake_fetch_open_page(*args, **kwargs)
+
+    monkeypatch.setattr(service_module, "time", SimpleNamespace(monotonic=lambda: now[0]))
+    monkeypatch.setattr(provider_module, "monotonic", lambda: now[0], raising=False)
+    monkeypatch.setattr(service_module, "fetch_open_page", _fetch)
+    service = ScholarDeepSearchService(
+        provider_policy=ProviderFailoverPolicy([_First(), _Second()])
+    )
+    bundle = await service.deep_search(
+        question="minimum wage",
+        query_graph=QueryGraph(
+            brief=ResearchBrief(question="minimum wage"),
+            nodes=[
+                QueryNode(
+                    node_id="q1",
+                    query="minimum wage",
+                    perspective="supporting",
+                    depth=0,
+                )
+            ],
+        ),
+        budgets=SearchBudgetControls(
+            max_search_queries=1,
+            max_parallel_queries=1,
+            max_depth=0,
+            max_wall_time_s=1,
+        ),
+    )
+    assert len(bundle.query_traces) == 1
+    if elapsed < 1.0:
+        assert calls == [("first", 1.0), ("static", 0.75)]
+        assert len(fetch_calls) == 2
+        assert len(bundle.sources) == 2
+        assert not bundle.partial
+        assert "stopped:max_wall_time_s" not in bundle.uncertainty_notes
+        assert [item.provider for item in bundle.query_traces[0].provider_attempts] == [
+            "first",
+            "static",
+        ]
+    else:
+        assert calls == [("first", 1.0)]
+        assert fetch_calls == []
+        assert bundle.sources == []
+        assert bundle.partial
+        assert bundle.uncertainty_notes == ["stopped:max_wall_time_s"]
+        assert [item.provider for item in bundle.query_traces[0].provider_attempts] == ["first"]
+        assert bundle.query_traces[0].error is None
+        assert bundle.no_hit_frontier[0].reason == "provider_returned_no_hits"
+
+
+@pytest.mark.asyncio
+async def test_deep_search_deadline_after_only_provider_is_still_partial(monkeypatch):
+    now = [100.0]
+    calls = []
+
+    class _FinalEmpty:
+        name = "only"
+
+        async def search(self, query, *, constraints, max_results, timeout_s):
+            calls.append(timeout_s)
+            now[0] = 101.0
+            return []
+
+    monkeypatch.setattr(service_module, "time", SimpleNamespace(monotonic=lambda: now[0]))
+    monkeypatch.setattr(provider_module, "monotonic", lambda: now[0], raising=False)
+    service = ScholarDeepSearchService(provider_policy=ProviderFailoverPolicy([_FinalEmpty()]))
+    bundle = await service.deep_search(
+        question="minimum wage",
+        query_graph=QueryGraph(
+            brief=ResearchBrief(question="minimum wage"),
+            nodes=[
+                QueryNode(
+                    node_id="q1",
+                    query="minimum wage",
+                    perspective="supporting",
+                    depth=0,
+                )
+            ],
+        ),
+        budgets=SearchBudgetControls(max_search_queries=1, max_depth=0, max_wall_time_s=1),
+    )
+    assert calls == [1.0]
+    assert bundle.partial
+    assert bundle.uncertainty_notes == ["stopped:max_wall_time_s"]
+    assert bundle.query_traces[0].provider_attempts[0].provider == "only"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("expires_during_planning", [False, True])
+async def test_deep_search_unstarted_queries_remain_pending_without_false_no_hit(
+    monkeypatch,
+    expires_during_planning,
+):
+    now = [100.0]
+    calls: list[str] = []
+
+    class _ExpiringEmpty:
+        name = "empty"
+
+        async def search(self, query, *, constraints, max_results, timeout_s):
+            calls.append(query)
+            now[0] = 101.0
+            return []
+
+    async def _progress(event, bundle):
+        if expires_during_planning and event.phase == "planning":
+            now[0] = 101.0
+
+    monkeypatch.setattr(service_module, "time", SimpleNamespace(monotonic=lambda: now[0]))
+    monkeypatch.setattr(provider_module, "monotonic", lambda: now[0])
+    service = ScholarDeepSearchService(provider_policy=ProviderFailoverPolicy([_ExpiringEmpty()]))
+    bundle = await service.deep_search(
+        question="minimum wage",
+        progress_callback=_progress,
+        query_graph=QueryGraph(
+            brief=ResearchBrief(question="minimum wage"),
+            nodes=[
+                QueryNode(node_id="q1", query="first", perspective="supporting"),
+                QueryNode(node_id="q2", query="second", perspective="opposing"),
+            ],
+        ),
+        budgets=SearchBudgetControls(
+            max_search_queries=2,
+            max_parallel_queries=2,
+            max_depth=0,
+            max_wall_time_s=1,
+        ),
+    )
+    assert bundle.partial
+    assert bundle.uncertainty_notes == ["stopped:max_wall_time_s"]
+    assert calls == ([] if expires_during_planning else ["first"])
+    assert len(bundle.query_traces) == (0 if expires_during_planning else 1)
+    assert len(bundle.no_hit_frontier) == len(bundle.query_traces)
+    assert bundle.query_graph.nodes[1].status == "pending"
+    if expires_during_planning:
+        assert bundle.query_graph.nodes[0].status == "pending"
+    else:
+        assert bundle.query_traces[0].provider == "empty"
+        assert bundle.query_traces[0].provider_attempts[0].returned_hit_count == 0

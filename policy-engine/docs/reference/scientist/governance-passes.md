@@ -5,7 +5,7 @@ Related explanation: [Governance Model](../../explanation/governance-model.md).
 Owner: `@scientist-owners`
 Source of truth: `src/polisyos/scientist/governance/pass_registry.py`, `src/polisyos/scientist/governance/pass_entrypoints.py`, `src/polisyos/scientist/governance/pipeline.py`, `src/polisyos/scientist/nodes/builtins/governance/run_governance.py`, `src/polisyos/scientist/nodes/builtins/decide/run_policy_funnel_level5.py`, `src/polisyos/scientist/nodes/builtins/decide/decision_packet/validation.py`, `src/polisyos/scientist/nodes/builtins/planning/run_evaluator.py`, `pyproject.toml` entry points for `polisyos.scientist_governance_passes`, and `tests/unit/scientist/governance/**`
 Source pin: `codex/docs-refresh-e02-20261014` at `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`.
-Evidence level: source and test paths below were inspected, not run for this documentation update.
+Evidence level: the registry map and background reflect the inspected source pin. Human-gate behavior is covered by `tests/unit/scientist/orchestration/workflows/test_governance_evaluator_currentness.py`.
 
 All registry-loaded governance validators implement
 `validate(ctx: PassContext) -> list[ComplianceIssue]`. The registry loads installed entry points
@@ -30,8 +30,9 @@ severities. Unless an earlier `reject` or `human_gate` verdict takes precedence,
 `RunGovernanceNode` report `reject`; a warning by itself does not become a universal
 `review_required` state. Human review is a separate typed path: under `STRICT`,
 `HumanReviewRequiredPass` emits an `info` issue with code
-`HUMAN_REVIEW_REQUESTED`, and the node uses that code to create a gate request and set `human_gate`
-when no typed gate decision is present.
+`HUMAN_REVIEW_REQUESTED`, and the node creates a separate review request and sets `human_gate`
+unless the verdict is already `reject`. A typed decision for the governance gate does not resolve
+the separate review request or establish reviewer authority.
 
 The node persists a `GovernanceReport` and returns `NodeOutcome(status="ok")` even when the report
 verdict is `reject` or `human_gate`. The node outcome describes successful execution and report

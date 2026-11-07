@@ -1,0 +1,213 @@
+{
+  "packet_id": "RES-03",
+  "lane": "LANE-06",
+  "source_ids": [
+    "B13"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/RES-03.md",
+    "../05_Основания/Аудит/01_Реестры/C67_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C67-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-RES-03-01",
+        "REQ-RES-03-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Actual N5→CAS→compiled partial→scoped public reader и invalidation/reuse.",
+      "inventory_id": "audit-residual:C67_остатки:0"
+    },
+    {
+      "audit_id": "C67-G02",
+      "disposition": "capability",
+      "requirement_ids": [
+        "REQ-RES-03-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Завершённый sibling не закрывает same-leaf partial representation; bounded trace/implementation decision с обязательным положительным результатом.",
+      "inventory_id": "audit-residual:C67_остатки:1"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-RES-03-01",
+      "text": "Если A/предыдущие уровни завершены, B падает, AsyncChainExecutionError сохраняет exact completed numerical results/scope и исходную ошибку B; failed B не node_result, зависимые будущие nodes не запускаются. В all-success control все результаты остаются доступны.",
+      "source_ids": [
+        "B13"
+      ],
+      "audit_ids": [
+        "C67-G01"
+      ],
+      "test_ids": [
+        "TEST-RES-03-01"
+      ]
+    },
+    {
+      "id": "REQ-RES-03-02",
+      "text": "После реального owner-bound N5 и sibling failure свежий scoped public reader возвращает exact simulation bytes/numbers, completed/pending/failure projection без terminal success. При изменении общего основания зависимая authority теряет current applicability, но независимый candidate artifact остаётся исторически доступным; normative partial publication отказана.",
+      "source_ids": [
+        "B13"
+      ],
+      "audit_ids": [
+        "C67-G01"
+      ],
+      "test_ids": [
+        "TEST-RES-03-02"
+      ]
+    },
+    {
+      "id": "REQ-RES-03-03",
+      "text": "Если actual N5 того же leaf уже завершён/сохранён, поздний независимый value/revision failure не делает его невидимым пользователю: existing source/checkpoint/reader предоставляет numerical result, declared scope, dependency refs и exact error. Если current native route уже это делает — сохранить; иначе расширить этот owner и его typed partial representation, не подменяя полный cycle completion и не повышая authority.",
+      "source_ids": [
+        "B13"
+      ],
+      "audit_ids": [
+        "C67-G02"
+      ],
+      "test_ids": [
+        "TEST-RES-03-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-RES-03-01",
+      "requirement_ids": [
+        "REQ-RES-03-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Compiled actual small chain A numerical producer, B exact exception, C dependent; prior level; all-success control.",
+      "action": "Execute native dispatcher и inspect partial.",
+      "oracle": "Exact A output/scope и prior retained; same B cause/code/text, B absent from successes, C calls0/blocked; all-success all outputs.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RES-03-02",
+      "requirement_ids": [
+        "REQ-RES-03-02"
+      ],
+      "level": "native end-to-end scoped persistence",
+      "setup": "Existing real-leaf route with actual selected CAS/profile and N5; controlled sibling failure.",
+      "action": "Persist→fresh process/read API; mutate shared epoch/dependency; normative consume.",
+      "oracle": "Exact simulation WMR/atoms/outcomes retained; completed A, failed B, pending C/root; no promotion receipts. Changed basis only dependent authority invalid, candidate history retained; wrong tenant/profile refused.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RES-03-03",
+      "requirement_ids": [
+        "REQ-RES-03-03"
+      ],
+      "level": "bounded investigation + mandatory native positive witness",
+      "setup": "One actual leaf N5 commits output; fault at subsequent value/revision before full cycle record.",
+      "action": "Read result through existing reader, then implement minimal missing link if necessary and repeat; normal success counterpart.",
+      "oracle": "Числа/bytes/scope/ref и точная поздняя ошибка доступны fresh reader; terminal remains failed/partial, no completed-cycle forgery. Independent error не удаляет result; common-basis invalidation limits exactly dependent claim.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-B"
+  ],
+  "dependencies": [
+    "CYC-02",
+    "CMP-01"
+  ],
+  "preservation": [
+    "Async successes merge перед AsyncChainExecutionError, exact errors и blocked future nodes.",
+    "Recursive V3 content-bound partial: completed/pending/failed topology, root terminal=None.",
+    "Public partial projection существует; нормативный consumer отказывает partial compiled run.",
+    "Независимые N4/CAS записи не объявлять потерянными; не новый журнал или scheduler."
+  ],
+  "design_alignment": [
+    "policy-design-execution-topology.md §3–6: continuation after failed step использует actual artifacts, не success marker.",
+    "policyos-identity-and-custody-boundary.md §3–6 и design_direction.md §2.1/§2.6: useful conditional output допустим без нормативного повышения."
+  ],
+  "open_decisions": [
+    "DEC-RES-03-01: после одной real same-leaf trace выбрать no-code existing reader, projection wiring или typed partial extension у existing cycle owner. Выход обязателен: exact ref→fresh public result/error; отсутствие supported N5 environment означает NOT_RUN именно этого witness, не закрытие G02."
+  ],
+  "source_obligations": [
+    "B13 → REQ-RES-03-01…-03: sibling partial уже имеет механизм; same-leaf late-stage граница требует конкретного positive witness и при отсутствии wiring — расширения existing owner."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py: execute, AsyncChainExecutionError",
+    "policy-engine/src/polisyos/scientist/orchestration/workflows/engine_simple.py: SimpleLoopEngine.run_async",
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py: _run_cycle, _joint_value_node_impl",
+    "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py: V3 partial builder/predicates",
+    "policy-engine/src/polisyos/runtime/http/routes/runs.py: partial checkpoint projection",
+    "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py: _normative_generation_sources"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_res_03.py",
+    "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0033",
+      "requirement_ids": [
+        "REQ-RES-03-01",
+        "REQ-RES-03-02"
+      ],
+      "disposition": "qualify",
+      "rationale": "Actual N5→CAS→compiled partial→scoped public reader и invalidation/reuse."
+    },
+    {
+      "inventory_id": "remaining:0034",
+      "requirement_ids": [
+        "REQ-RES-03-03"
+      ],
+      "disposition": "capability",
+      "rationale": "Завершённый sibling не закрывает same-leaf partial representation; bounded trace/implementation decision с обязательным положительным результатом."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0036",
+      "requirement_ids": [
+        "REQ-RES-03-01"
+      ],
+      "test_ids": [
+        "TEST-RES-03-01"
+      ],
+      "rationale": "Successful async results merged before terminal exception — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0037",
+      "requirement_ids": [
+        "REQ-RES-03-01"
+      ],
+      "test_ids": [
+        "TEST-RES-03-01"
+      ],
+      "rationale": "Exact errors, blocked dependent nodes and prior results retained — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0038",
+      "requirement_ids": [
+        "REQ-RES-03-02"
+      ],
+      "test_ids": [
+        "TEST-RES-03-02"
+      ],
+      "rationale": "Content-bound recursive partial with pending root and exact failure — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0039",
+      "requirement_ids": [
+        "REQ-RES-03-02",
+        "REQ-RES-03-03"
+      ],
+      "test_ids": [
+        "TEST-RES-03-02",
+        "TEST-RES-03-03"
+      ],
+      "rationale": "Public partial projection and normative refusal — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

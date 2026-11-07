@@ -1,0 +1,596 @@
+{
+  "packet_id": "CAU-01",
+  "lane": "LANE-05",
+  "status": "AUTHORING_REVIEW_APPROVED",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "test_status": "NOT_RUN",
+  "audit_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source_ids": [
+    "B204",
+    "B205",
+    "B206",
+    "LA-016"
+  ],
+  "audit_reports": [
+    "05_Основания/Аудит/02_Пакеты/CAU-01.md"
+  ],
+  "source_plan_lines": [
+    6324,
+    6487
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C52_остатки:0",
+      "audit_id": "C52-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CAU-01-01",
+        "REQ-CAU-01-02",
+        "REQ-CAU-01-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Исправляется потеря кластерного score, а не вся covariance заново.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C52_остатки.json",
+        "sha256": "fdedba978b37a489ffa339a6ca5eac3e582cc691f909f4ce20b1cb233fb6009e",
+        "json_pointer": "/findings/0"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C52_остатки:1",
+      "audit_id": "C52-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CAU-01-03",
+        "REQ-CAU-01-04",
+        "REQ-CAU-01-05",
+        "REQ-CAU-01-06",
+        "REQ-CAU-01-07",
+        "REQ-CAU-01-08"
+      ],
+      "shared_owner": null,
+      "rationale": "Настоящие поддержанные imports/numeric references/registry/CAS и consumers.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C52_остатки.json",
+        "sha256": "fdedba978b37a489ffa339a6ca5eac3e582cc691f909f4ce20b1cb233fb6009e",
+        "json_pointer": "/findings/1"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C52_остатки:2",
+      "audit_id": "C52-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CAU-01-04",
+        "REQ-CAU-01-05",
+        "REQ-CAU-01-09"
+      ],
+      "shared_owner": null,
+      "rationale": "Разделены численная корректность, применимость asymptotics и causal authority; никакой новой гарантии из малого fixture.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C52_остатки.json",
+        "sha256": "fdedba978b37a489ffa339a6ca5eac3e582cc691f909f4ce20b1cb233fb6009e",
+        "json_pointer": "/findings/2"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C52_остатки:3",
+      "audit_id": "C52-G03",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-CAU-01-07"
+      ],
+      "shared_owner": "CAU-05",
+      "rationale": "Metadata сохранена; staggered проверяет CAU-02, final planning/FQN lifecycle — CAU-05.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C52_остатки.json",
+        "sha256": "fdedba978b37a489ffa339a6ca5eac3e582cc691f909f4ce20b1cb233fb6009e",
+        "json_pointer": "/findings/3"
+      }
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0323",
+      "requirement_ids": [
+        "REQ-CAU-01-01",
+        "REQ-CAU-01-02",
+        "REQ-CAU-01-05"
+      ],
+      "disposition": "fix",
+      "rationale": "Исправляется потеря кластерного score, а не вся covariance заново.",
+      "source_ids": [
+        "B204",
+        "B205",
+        "B206",
+        "LA-016"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0324",
+      "requirement_ids": [
+        "REQ-CAU-01-03",
+        "REQ-CAU-01-04",
+        "REQ-CAU-01-05",
+        "REQ-CAU-01-06",
+        "REQ-CAU-01-07",
+        "REQ-CAU-01-08"
+      ],
+      "disposition": "qualify",
+      "rationale": "Настоящие поддержанные imports/numeric references/registry/CAS и consumers.",
+      "source_ids": [
+        "B204",
+        "B205",
+        "B206",
+        "LA-016"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0325",
+      "requirement_ids": [
+        "REQ-CAU-01-04",
+        "REQ-CAU-01-05",
+        "REQ-CAU-01-09"
+      ],
+      "disposition": "qualify",
+      "rationale": "Разделены численная корректность, применимость asymptotics и causal authority; никакой новой гарантии из малого fixture.",
+      "source_ids": [
+        "B204",
+        "B205",
+        "B206",
+        "LA-016"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0326",
+      "requirement_ids": [
+        "REQ-CAU-01-07"
+      ],
+      "disposition": "shared",
+      "rationale": "Metadata сохранена; staggered проверяет CAU-02, final planning/FQN lifecycle — CAU-05.",
+      "source_ids": [
+        "B204",
+        "B205",
+        "B206",
+        "LA-016"
+      ]
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0519",
+      "requirement_ids": [
+        "REQ-CAU-01-03"
+      ],
+      "test_ids": [
+        "TEST-CAU-01-03"
+      ],
+      "rationale": "Общий panel допускает t0=0, standard boundary отказывает"
+    },
+    {
+      "inventory_id": "preserve:0520",
+      "requirement_ids": [
+        "REQ-CAU-01-02",
+        "REQ-CAU-01-05"
+      ],
+      "test_ids": [
+        "TEST-CAU-01-02",
+        "TEST-CAU-01-03"
+      ],
+      "rationale": "Known ATT и actual uncorrected unit-cluster CR0"
+    },
+    {
+      "inventory_id": "preserve:0521",
+      "requirement_ids": [
+        "REQ-CAU-01-02",
+        "REQ-CAU-01-05"
+      ],
+      "test_ids": [
+        "TEST-CAU-01-02"
+      ],
+      "rationale": "Unit permutation/technical repetition invariance для корректных labels"
+    },
+    {
+      "inventory_id": "preserve:0522",
+      "requirement_ids": [
+        "REQ-CAU-01-06"
+      ],
+      "test_ids": [
+        "TEST-CAU-01-04"
+      ],
+      "rationale": "Normal critical value по confidence_level в DiD и RDD"
+    },
+    {
+      "inventory_id": "preserve:0523",
+      "requirement_ids": [
+        "REQ-CAU-01-07"
+      ],
+      "test_ids": [
+        "TEST-CAU-01-05"
+      ],
+      "rationale": "Independent metadata constants/copies и old-slot adapter"
+    },
+    {
+      "inventory_id": "preserve:0524",
+      "requirement_ids": [
+        "REQ-CAU-01-04",
+        "REQ-CAU-01-08",
+        "REQ-CAU-01-09"
+      ],
+      "test_ids": [
+        "TEST-CAU-01-03",
+        "TEST-CAU-01-06",
+        "TEST-CAU-01-08"
+      ],
+      "rationale": "Non-authoritative pretrend diagnostics и non-gating report projection"
+    }
+  ],
+  "requirements": [
+    {
+      "text": "При unit-cluster covariance идентификатор отсутствующего или нерефлексивного значения (NaN, None/эквивалент missing, NaT) должен отклоняться на границе кластеризации до расчёта covariance. Публичный StandardDifferenceInDifferences возвращает INPUT_INVALID, точную причину и не выдаёт point/SE/CI; общий PanelObservationalData и допустимый HC1 не ужесточаются этим правилом. Нормальные конечные числовые и строковые labels остаются допустимыми.",
+      "source_ids": [
+        "B205"
+      ],
+      "audit_ids": [
+        "C52-R01"
+      ],
+      "id": "REQ-CAU-01-01",
+      "test_ids": [
+        "TEST-CAU-01-01"
+      ]
+    },
+    {
+      "text": "Для каждого принятого unit-cluster запроса все n_units×n_periods observations должны иметь ровно одну группу, постоянную внутри единицы; фактически использованное число групп равно n_units и reported n_clusters. Score каждой группы участвует ровно один раз, включая нулевой score. Не допускаются пропуск rows, dedupe единиц или переименование HC1 в CR0.",
+      "source_ids": [
+        "B205"
+      ],
+      "audit_ids": [
+        "C52-R01"
+      ],
+      "id": "REQ-CAU-01-02",
+      "test_ids": [
+        "TEST-CAU-01-01",
+        "TEST-CAU-01-02"
+      ]
+    },
+    {
+      "text": "Standard DiD при t0=0 либо отсутствии treated/control должен возвращать существующий адресный INPUT_INVALID без эффекта; корректная панель с pre/post и обоими режимами должна сохранять оценимый ATT. Общая модель панели продолжает представлять t0=0 для иных методов.",
+      "source_ids": [
+        "B204"
+      ],
+      "audit_ids": [
+        "C52-G01"
+      ],
+      "id": "REQ-CAU-01-03",
+      "test_ids": [
+        "TEST-CAU-01-03"
+      ]
+    },
+    {
+      "text": "Предтрендовая диагностика должна сохранять разные not_testable, no_detected_pretrend и evidence_of_violation; недостаточные pre-periods и неотвержение не дают identifying authority. Report/envelope после сохранения сохраняют parallel_trends_identified=False и non-gating роль, даже при численном SUCCESS.",
+      "source_ids": [
+        "B204",
+        "B205",
+        "B206"
+      ],
+      "audit_ids": [
+        "C52-G02",
+        "C52-G01"
+      ],
+      "id": "REQ-CAU-01-04",
+      "test_ids": [
+        "TEST-CAU-01-03",
+        "TEST-CAU-01-07",
+        "TEST-CAU-01-08"
+      ]
+    },
+    {
+      "text": "Выбранный HC1 или unit-cluster CR0 должен реально определять covariance и effective method_params. Для CR0 техническое повторение периодов и перестановка единиц не меняют SE/ATT в пределах заранее заданной численной погрешности; неизвестные covariance/cluster specifications дают точный отказ. CR0 остаётся объявленно uncorrected, с large_independent_units и finite_cluster_guarantee=False.",
+      "source_ids": [
+        "B205"
+      ],
+      "audit_ids": [
+        "C52-R01",
+        "C52-G01",
+        "C52-G02"
+      ],
+      "id": "REQ-CAU-01-05",
+      "test_ids": [
+        "TEST-CAU-01-02",
+        "TEST-CAU-01-07"
+      ]
+    },
+    {
+      "text": "В standard DiD и conventional RDD при неизменных point и положительном SE границы двухстороннего normal CI должны равняться point ± q×SE для уровня 0<level<1 при конечном положительном q. Верхний квантиль вычислять устойчиво через нижний tail, например q=−NormalDist.inv_cdf((1−level)/2), а не округляемую к1 сумму (1+level)/2. Если выбранная арифметика не представляет положительный q/конечные endpoints, выдавать адресный numerical-range отказ, не нулевой CI. Уровни 0.80/0.95/0.99 изменяют ширину в правильном порядке; nonfinite/внеинтервальные уровни отклоняются до дорогой оценки. Это не заменяет covariance или RBC.",
+      "source_ids": [
+        "B206"
+      ],
+      "audit_ids": [
+        "C52-G01"
+      ],
+      "id": "REQ-CAU-01-06",
+      "test_ids": [
+        "TEST-CAU-01-04"
+      ]
+    },
+    {
+      "text": "Независимые module metadata и dedicated classes сохраняются. На одинаковом standard effective request old-slot adapter и dedicated route дают равные полные reports/warnings после ремонта; изменение metadata deprecated wrapper не меняет dedicated metadata. CAU-01 не снимает legacy FQN, не удаляет did.py и не объявляет закрытие LA-016 без результатов CAU-02/CAU-05.",
+      "source_ids": [
+        "LA-016"
+      ],
+      "audit_ids": [
+        "C52-G03"
+      ],
+      "id": "REQ-CAU-01-07",
+      "test_ids": [
+        "TEST-CAU-01-05"
+      ]
+    },
+    {
+      "text": "Через зарегистрированный standard method, actual dispatcher/Scientist job и CAS корректный report должен дойти до свежего reader с сохранёнными числом, covariance/level и диагностическим основанием. Подмена diagnostic window/result или согласованная подмена report+markers должна быть отвергнута реальным consumer относительно исходных входов.",
+      "source_ids": [
+        "B204",
+        "B205",
+        "B206",
+        "LA-016"
+      ],
+      "audit_ids": [
+        "C52-G01"
+      ],
+      "id": "REQ-CAU-01-08",
+      "test_ids": [
+        "TEST-CAU-01-06"
+      ]
+    },
+    {
+      "text": "Перед заявлением пригодности inference для конкретного реального дизайна исполнитель должен представить отдельное заключение о единице независимости, parallel trends/anticipation и области normal/cluster приближения. При недостаточном основании сохраняется доступный кандидатный численный результат с ограничением, но finite-cluster/population coverage и causal identification не заявляются. Если нужен иной finite-cluster профиль, он оформляется как отдельное решение текущего estimator owner, а не скрытая замена CR0.",
+      "source_ids": [
+        "B204",
+        "B205",
+        "B206"
+      ],
+      "audit_ids": [
+        "C52-G02"
+      ],
+      "id": "REQ-CAU-01-09",
+      "test_ids": [
+        "TEST-CAU-01-07",
+        "TEST-CAU-01-08"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "native unit/public method",
+      "setup": "Взять _panel из tests/unit/remediation/test_cau_01.py: четыре единицы×четыре периода, treatment=[1,1,0,0], t0=2. Параметризовать unit_ids и explicit per-unit/per-observation cluster_var: [NaN,1,2,3], missing/NaT и нормальные строки/int; отдельные duplicate и внутриединичный конфликт.",
+      "action": "Вызвать StandardDifferenceInDifferences.pure_step с cov_type=cluster; сохранить typed report и счётчик вызовов _ols_cluster_cr0.",
+      "oracle": "Недопустимая identity: INPUT_INVALID, point/SE/CI отсутствуют, covariance helper не вызван. Допустимая: SUCCESS, 4 непустые группы покрывают 16 rows без повторов. На старом NaN дефекте данный отказ не выполняется; наблюдался ложный SUCCESS с SE≈0.5077524002897.",
+      "expected": "Отрицательный/граничный; положительный тот же panel с допустимыми labels.",
+      "existing_owner": "tests/unit/remediation/test_cau_01.py",
+      "allowed_doubles_and_prohibitions": "Разрешена инструментирующая обёртка, сохраняющая настоящий расчёт. Запрещены success-shaped report, подмена estimator и fixture CAS для native приёмки.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, точный профиль и входы/seed, команда и полный решающий вывод, фактические значения oracle, positive/negative исходы, перечень doubles.",
+      "id": "TEST-CAU-01-01",
+      "requirement_ids": [
+        "REQ-CAU-01-01",
+        "REQ-CAU-01-02"
+      ]
+    },
+    {
+      "level": "native numerical + independent reference",
+      "setup": "Та же панель с допустимыми labels; NormalDist не используется для covariance. Независимый oracle строит unit pre/post changes, не вызывает _ols_cluster_cr0 и не копирует его masks. Дополнительно statsmodels OLS/cov_cluster(use_correction=False).",
+      "action": "Сравнить HC1 и CR0, переставить units, повторить каждый период 2 и 10 раз с соответственно изменённым t0; проверить явные per-unit/per-observation labels.",
+      "oracle": "ATT=3.125; CR0-SE≈0.5659615711336; HC1-SE≈0.9042722672588 для исходной панели. Сравнение float64: atol=1e-10, rtol=1e-10 для этого конечного fixture. CR0-SE инвариантен повторению. Подстановка HC1 вместо CR0 должна провалить oracle.",
+      "expected": "Положительный, метаморфный и различающий removal-контроль.",
+      "existing_owner": "tests/unit/remediation/test_cau_01.py",
+      "allowed_doubles_and_prohibitions": "Разрешена инструментирующая обёртка, сохраняющая настоящий расчёт. Запрещены success-shaped report, подмена estimator и fixture CAS для native приёмки.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, точный профиль и входы/seed, команда и полный решающий вывод, фактические значения oracle, positive/negative исходы, перечень doubles.",
+      "id": "TEST-CAU-01-02",
+      "requirement_ids": [
+        "REQ-CAU-01-02",
+        "REQ-CAU-01-05"
+      ]
+    },
+    {
+      "level": "native unit/registered method",
+      "setup": "Существующий known-ATT=3 panel из test_did.py и нулевой-pre вариант; fixtures диагностик с 1–2 pre-periods, нулевым и ненулевым детерминированным differential trend.",
+      "action": "Вызвать существующий DTO и standard method; отдельно построить diagnostic report каждого профиля.",
+      "oracle": "DTO с t0=0 создаётся, standard report точечно отказывает без point; valid known ATT=3 достигает SUCCESS. Для 1–2 pre periods not_testable и passed=False; остальные diagnostic statuses различаются; identification_authority=False во всех случаях.",
+      "expected": "Положительный и отрицательный; не доказательство parallel trends реального мира.",
+      "existing_owner": "tests/unit/foundry/methods/catalog/causal/test_did.py; tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py",
+      "allowed_doubles_and_prohibitions": "Разрешена инструментирующая обёртка, сохраняющая настоящий расчёт. Запрещены success-shaped report, подмена estimator и fixture CAS для native приёмки.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, точный профиль и входы/seed, команда и полный решающий вывод, фактические значения oracle, positive/negative исходы, перечень doubles.",
+      "id": "TEST-CAU-01-03",
+      "requirement_ids": [
+        "REQ-CAU-01-03",
+        "REQ-CAU-01-04"
+      ]
+    },
+    {
+      "level": "native numerical two callers",
+      "setup": "Существующие _panel и _rdd из test_cau_01.py; positive SE; levels 0.80/0.95/0.99, math.nextafter(1.0,0.0), tiny positive math.nextafter(0.0,1.0) и [0,1,-0.1,1.1,NaN,±infinity].",
+      "action": "Запустить standard DiD и conventional sharp RDD с одинаковыми остальными параметрами на каждом уровне.",
+      "oracle": "Point/SE неизменны; каждый endpoint соответствует независимому NormalDist oracle (atol/rtol=1e-10 на малых fixtures); width80<width95<width99. Nextafter(1,0) даёт конечный положительный q/CI по independent lower-tail oracle; tiny positive level при округлении tail к.5 и q к0 получает numerical-range отказ, не zero-width SUCCESS. Invalid level не даёт SUCCESS. Нельзя заменить conventional RDD на RBC для этого требования.",
+      "expected": "Положительный и граничный; 95% сохраняет действующую normal процедуру.",
+      "existing_owner": "tests/unit/remediation/test_cau_01.py",
+      "allowed_doubles_and_prohibitions": "Разрешена инструментирующая обёртка, сохраняющая настоящий расчёт. Запрещены success-shaped report, подмена estimator и fixture CAS для native приёмки.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, точный профиль и входы/seed, команда и полный решающий вывод, фактические значения oracle, positive/negative исходы, перечень doubles.",
+      "id": "TEST-CAU-01-04",
+      "requirement_ids": [
+        "REQ-CAU-01-06"
+      ]
+    },
+    {
+      "level": "native API/compatibility",
+      "setup": "Один standard effective request в старых и новых slot names; независимые копии metadata.",
+      "action": "Вызвать old adapter и StandardDifferenceInDifferences, затем изменить только старую metadata в изолированном test context и повторить dedicated call.",
+      "oracle": "Полные reports/warnings эквивалентны; dedicated assumptions/equations/citations не изменились. Старый generic route не регистрируется заново ради этого локального теста.",
+      "expected": "Положительная совместимость; отрицательная metadata coupling. Staggered и historical FQN replay — соседние владельцы.",
+      "existing_owner": "tests/unit/remediation/test_cau_01.py; tests/unit/foundry/methods/catalog/causal/test_did_diagnostics_ownership.py",
+      "allowed_doubles_and_prohibitions": "Разрешена инструментирующая обёртка, сохраняющая настоящий расчёт. Запрещены success-shaped report, подмена estimator и fixture CAS для native приёмки.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, точный профиль и входы/seed, команда и полный решающий вывод, фактические значения oracle, positive/negative исходы, перечень doubles.",
+      "id": "TEST-CAU-01-05",
+      "requirement_ids": [
+        "REQ-CAU-01-07"
+      ]
+    },
+    {
+      "level": "native integration E02-I05-B",
+      "setup": "Расширить actual consumer suite test_did_diagnostic_consumer.py standard-вариантом с корректными cluster labels; real source artifact, MethodRegistry/JobSpec, _run_primary_causal_job, FileSystemCAS и новый процесс reader.",
+      "action": "Получить и сохранить report через job; прочитать новым процессом; повторить window/result/coherent-forgery substitutions относительно исходного source.",
+      "oracle": "Корректные ATT/SE/CI/effective profile и complete diagnostics совпадают с TEST-02/04; actual verifier принимает неизменённый результат и отказывает каждой подмене. Target/marker equality одна не достаточна. Невалидный NaN запрос не получает успешный report по тому же dispatch route.",
+      "expected": "Положительный producer→consumer и различающие negative controls.",
+      "existing_owner": "tests/unit/scientist/nodes/builtins/simulate/test_did_diagnostic_consumer.py",
+      "allowed_doubles_and_prohibitions": "Тестовый panel и контролируемые входы допустимы. Запрещено подменять registry, job, CAS, report validator или final consumer готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, точный профиль и входы/seed, команда и полный решающий вывод, фактические значения oracle, positive/negative исходы, перечень doubles.",
+      "id": "TEST-CAU-01-06",
+      "requirement_ids": [
+        "REQ-CAU-01-08"
+      ]
+    },
+    {
+      "level": "bounded scientific/profile review",
+      "setup": "Зафиксированный реально предлагаемый unit/row dependence profile; если реальных данных нет — явно известный synthetic panel и отдельный перечень непроверенных empirical assumptions.",
+      "action": "Проследить effective covariance и report limitations; проверить, не используется ли техническое повторение rows как рост independent sample. Сравнить политику unsupported/small-cluster профилей с declared scope.",
+      "oracle": "Заключение перечисляет независимую единицу, предпосылки и границы; CR0/normal результат не назван finite-cluster guarantee. Неизвестность не стирается положительным p-value. Отсутствие реального дизайна явно оставляет empirical qualification NOT_ESTABLISHED, не блокируя локальный numerical repair.",
+      "expected": "Документированная область/ограничение; не новая выдуманная граница числа clusters.",
+      "existing_owner": "did.py::_run_standard_did; ir/analytics/causal.py::CausalEffectReport",
+      "allowed_doubles_and_prohibitions": "Разрешена инструментирующая обёртка, сохраняющая настоящий расчёт. Запрещены success-shaped report, подмена estimator и fixture CAS для native приёмки.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, точный профиль и входы/seed, команда и полный решающий вывод, фактические значения oracle, positive/negative исходы, перечень doubles.",
+      "id": "TEST-CAU-01-07",
+      "requirement_ids": [
+        "REQ-CAU-01-04",
+        "REQ-CAU-01-05",
+        "REQ-CAU-01-09"
+      ]
+    },
+    {
+      "level": "native report projection",
+      "setup": "Численный SUCCESS с корректным исходным основанием и диагностический отказ/недостаточность.",
+      "action": "Провести оба результата через actual CausalEffectReport.to_uncertainty_envelope и затронутый consumer.",
+      "oracle": "Число сохраняется там, где оно допустимо; gate_eligible не становится True только от SUCCESS, количества clusters или metadata. Никакой институциональный/эмпирический акт не фабрикуется.",
+      "expected": "Положительный условный результат + отрицательный authority control.",
+      "existing_owner": "src/polisyos/ir/analytics/causal.py::CausalEffectReport.to_uncertainty_envelope",
+      "allowed_doubles_and_prohibitions": "Разрешена инструментирующая обёртка, сохраняющая настоящий расчёт. Запрещены success-shaped report, подмена estimator и fixture CAS для native приёмки.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, точный профиль и входы/seed, команда и полный решающий вывод, фактические значения oracle, positive/negative исходы, перечень doubles.",
+      "id": "TEST-CAU-01-08",
+      "requirement_ids": [
+        "REQ-CAU-01-04",
+        "REQ-CAU-01-09"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I05-B"
+  ],
+  "dependencies": [
+    {
+      "packet": "CAU-02",
+      "relation": "Общий did.py и staggered phase LA-016; не независимая копия common inference."
+    },
+    {
+      "packet": "CAU-03",
+      "relation": "RDD consumer confidence-level общего B206; RBC/численная устойчивость остаются у CAU-03."
+    },
+    {
+      "packet": "CAU-05",
+      "relation": "Accountable LA-016 closure и historical FQN lifecycle; не блокирует локальный partition repair."
+    },
+    {
+      "packet": "LANE-06",
+      "relation": "Повторное использование действительных CAS/worker contracts без нового store."
+    }
+  ],
+  "preservation": [
+    "Общий panel допускает t0=0, standard boundary отказывает",
+    "Known ATT и actual uncorrected unit-cluster CR0",
+    "Unit permutation/technical repetition invariance для корректных labels",
+    "Normal critical value по confidence_level в DiD и RDD",
+    "Independent metadata constants/copies и old-slot adapter",
+    "Non-authoritative pretrend diagnostics и non-gating report projection"
+  ],
+  "protected_distinction_ids": [
+    "LK05"
+  ],
+  "design_alignment": [
+    {
+      "source": "policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "section": "D0 Operational Definition Of Universality, lines559–617",
+      "preserved_meaning": "Общность механизма и честная область; не абсолютное отсутствие нового кода.",
+      "application": "Общий unit-cluster admission работает для разных labels/panels без ветки по имени предметной области."
+    },
+    {
+      "source": "policy-engine/docs/system-design-decisions/policy-design-execution-topology.md",
+      "section": "lines143–159: deterministic applicability versus semantic judgment",
+      "preserved_meaning": "Механически проверяемая применимость не доказывает оптимальность метода или эмпирические предпосылки.",
+      "application": "Разбиение rows/CI проверяется численно; parallel trends и область covariance требуют отдельного основания."
+    }
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-CAU-01-LABEL",
+      "question": "Есть ли заявленные callers с mixed/custom scalar labels за пределами normal string/int?",
+      "owner": "Исполнитель CAU-01 и reviewer публичного input contract",
+      "bounded_action": "Проверить actual callers/tests и сериализуемый тип unit_ids/cluster_var; перечислить поддерживаемые классы. Если нужен новый scalar тип, предложить общее правило identity и различающий тест. Не принимать arbitrary object equality молча.",
+      "default": "Missing/non-reflexive labels отклоняются; нормальные string/int сохраняются; выбор не блокирует ремонт NaN."
+    },
+    {
+      "id": "DEC-CAU-01-INFERENCE",
+      "question": "Требуется ли finite-cluster процедура конкретному реальному дизайну?",
+      "owner": "Владелец научного профиля/технический reviewer, без выдуманного имени",
+      "bounded_action": "Предъявить независимую единицу, предпосылки и требуемый estimand; выбрать существующую поддержанную процедуру либо явно ограничить normal CR0. Новый метод — отдельный обоснованный scope.",
+      "default": "Существующий large-unit normal CR0 остаётся кандидатом с limitation, без finite-cluster guarantee."
+    }
+  ],
+  "technical_solution": "1. **Canonical owner — `did.py::_unit_cluster_ids` и `_ols_cluster_cr0`.** До `np.unique` явно проверить допустимость scalar labels. Предлагаемый узкий контракт: finite числовые и обычные строковые labels; missing/non-reflexive labels — `ValueError` с причиной, перехватываемый существующим `_run_standard_did`. Не преобразовывать все значения в строки: это склеит, например, `1` и `\"1\"` и изменит identity. Не добавлять глобальный запрет в `PanelObservationalData`.\n2. После проверки уникальности units преобразовать labels в плотные integer group codes; сохранить порядок rows и unit membership. В helper на фактических codes проверить диапазон, длину и отсутствие отрицательного/missing кода; использовать `np.add.at`/эквивалентное накопление `X*residual[:,None]` по группам, затем `scores.T @ scores`. Это избегает `label == NaN` и не создаёт N×N матрицу. Можно сохранить цикл по группам, если он работает на проверенных integer codes и соблюдает тот же oracle. Общее число групп получить из **того же** нормализованного разбиения, не из отдельного перечня старых labels. Не удалять нулевые score-группы.\n3. Нормализацию выполнить один раз на canonical boundary; private helper получает проверенные codes либо проверяет свой direct-call контракт. Полнота задаётся конструкцией inverse-index и проверкой count/shape, а не дорогой N×G матрицей membership. На supported homogeneous string/int labels должна сохраниться семантика. Смешанные/custom-object labels, для которых нет надёжного равенства/порядка, адресно отвергнуть; не вводить новую универсальную систему identity.\n4. **Не переписывать рабочие ремонты.** `_run_standard_did`, `_normal_critical_value`, `_DID_*` constants и metadata copies уже существуют. Изменять их только при выявленном нарушении REQ; B206 имеет одного владельца CAU-01, а не второй код у RDD. `_common.py`/IR не требуют нового framework для этой правки.\n5. Полная цепочка: `PanelObservationalData` → dedicated registered method → covariance/report helpers → `_wrap_did_output` → actual method job/CAS → fresh `_verify_selected_did_diagnostics` и report/envelope. Локальный reject не заменяет положительную цепочку. Не выдавать исправленный SE за доказательство parallel trends.",
+  "compatibility_and_rollback": "Это намеренное изменение ранее ошибочно принимаемого missing-label входа; корректные string/int inputs и schema report остаются совместимы. Записать ошибку/ограничение в существующей release-поверхности, не менять старые сохранённые reports. Для исторического NaN-report можно квалифицировать его как старый результат с неверной covariance, но нельзя переписать его bytes под прежней identity. Rollback должен откатить код целостно; нельзя вернуть silent score loss как «совместимость». При регрессии ограничить только затронутый cluster профиль, сохранив явно допустимый HC1/кандидатный путь; миграция old FQN — CAU-05.",
+  "source_locators": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "first_line": 197,
+      "last_line": 265,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py#L197-L265"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "first_line": 322,
+      "last_line": 523,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py#L322-L523"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "first_line": 1014,
+      "last_line": 1288,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py#L1014-L1288"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "first_line": 45,
+      "last_line": 144,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py#L45-L144"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+      "first_line": 453,
+      "last_line": 645,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py#L453-L645"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "first_line": 541,
+      "last_line": 705,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/causal.py#L541-L705"
+    }
+  ]
+}

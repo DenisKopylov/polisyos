@@ -145,6 +145,28 @@ LessonCard advances to schema 2.0, LessonIndexSnapshot to 3.0, ParetoRegistrySna
 
 A live request AccessScope is reconciled with every supplied tenant hash at producer and fresh-consumer boundaries. A routed tenant without AccessScope, and an omitted tenant, remain unknown. Only an explicit tenant_scope_status=declared_unscoped declaration represents an unscoped source. Unknown-to-unknown matches remain candidate-only and carry the unknown status on both the source row and returned artifact; unknown cannot join an authenticated or declared-unscoped source, and cannot authorize cross-tenant opt-in. A lesson card's origin_tenant_hash is data, not owner proof: writers bind records to the explicit source TransferContext or active caller context.
 
+## Lesson evidence-time admission and partial answers
+
+`LessonQuery.as_of` binds one timezone-aware evidence cutoff for local,
+aggregated and transfer reads. An explicit target `TransferContext.timestamp`
+must agree with it; an omitted target timestamp is only a fallback. A conflict
+is refused before materialization. A selected
+card or index occurrence later than that cutoff supplies no historical evidence.
+A current persisted version is not reconstructed from an older card reference.
+Freshness uses the same cutoff and policy on both routes. Daily access sidecars
+record the actual read time for retention only; they cannot refresh confidence
+or make future evidence available.
+
+A partial local answer is filled only with distinct original evidence. Route,
+access and transfer projections do not consume another result slot or rewrite
+an already returned occurrence. Source content, evidence timestamp and tenant
+scope remain part of the identity, so genuinely newer or differently scoped
+evidence is not collapsed. Existing source-domain selectors and scope refusals
+remain in force; `target_context` selects the destination, not a new permission.
+New CAS index writes preserve the required nullable tenant scope field, so an
+unscoped snapshot remains readable under the same strict 3.0 schema. These are
+software retrieval guarantees, not production source/issuer authority.
+
 ## Transfer schema and request-scope admission
 
 New LessonCard writes use payload and manifest schema 2.0; exact historical 1.0 cards remain readable, and a later write emits 2.0. LessonIndexSnapshot writes use schema 3.0; ParetoRegistrySnapshot writes use schema 3.1 and candidate identity rule `candidate_subject_v2`. The Pareto parser recognizes historical 1.0, 2.0, 2.1, and 3.0 forms plus current 3.1; an unknown version is a typed invalid-source refusal. A nonempty historical Pareto snapshot lacks a verified evaluation-to-subject binding and the active reader refuses it: its bytes remain unchanged for a separately verified migration or re-evaluation. Recognition does not establish source identity: active get_snapshot reads refuse unbound historical snapshots with SOURCE_BINDING_MISSING, and catalog transfer withholds them before returning seeds. LessonIndex 1.0 is also schema-recognized, but its active reader refuses a snapshot without source_scope. No reader infers source identity from a locator or unbound body. CAS lesson readers resolve the selected manifest profile, then require its kind, media type, schema name, and version to match the typed payload. A declaration/body mismatch is refused before transfer use.
@@ -510,6 +532,65 @@ and bounded examples remain distinct. The current selected-objective-intent
 limitation stays explicit until an independent selected input owner is joined;
 changing a presentation cap or adding a direction label cannot establish it.
 
+Stress counts come from the complete emitted occurrence ledger: `passed`/`failed`
+are valid, malformed/nonfinite returned objectives are `invalid`, and an evaluator
+invocation exception remains `unknown`, with its original cause and exception type.
+Unavailable and not-established objective inputs retain separate reason counts;
+neither becomes numerical invalidity. Status and reason counts precede
+deduplication and the example cap. A
+score resolver that refuses before replaying rows cannot replace those observed
+counts with its default zero summary. Persisted adaptive diagnostics therefore
+remain explicitly producer-reported (`evaluation_counts_basis`), with their
+fresh predicate `not_established`; they do not qualify a finite robustness score.
+
+### Independent selected stress intent
+
+The maintained stress producer takes an in-memory objective, then persists its
+rule and source assessment per occurrence. Its only non-test wrapper,
+`ScenarioAdversaryWorker.execute`, supplies that same objective. The selected
+candidate and plan do not themselves establish which objective/threshold the
+current request selected. Fresh Level5 and promotion readers preserve
+`selected_objective_intent_not_independently_established` after source replay.
+
+The bounded source census found adjacent reusable vocabulary, not an unchanged
+intent producer: IR `ProblemFrame.ObjectiveSpec` has metric/direction/target/weight;
+`OptimizerObjectiveSpec` is an in-memory search projection; Runtime method-metric
+observations describe output values; MethodJob run profiles bind benchmark
+metrics; Bayesian state has no selected-profile request reference. None binds the
+current stress rule, vulnerability threshold and adversarial plan independently
+of the stress result. Mapping an IR target or KPI success threshold to a stress
+threshold would require a separate semantic decision, so this owner does not
+invent it. The protected positive path remains `producer_missing` and
+`bridge_missing`; source-bound candidate diagnostics remain useful.
+
+The smallest future extension is an explicit selected current-request/run-state
+input, using existing selected CAS profiles and intake rather than a new search
+engine. It must bind the selected candidate/subject and finite plan, exact
+configured rule/name/unit/raw direction and explicitly supplied stress threshold.
+The request owner must select it before outcomes exist; the stress producer must
+consume that selection, never mint it from its own result or declaration. Fresh
+readers must independently resolve the selected bytes/schema/profile and lineage,
+reconcile those fields with candidate/plan/occurrence evidence, and keep missing,
+conflicting or unavailable selection unbound. The minimal falsifier holds outcome
+bytes fixed while changing the selected rule/threshold/plan or selected manifest
+profile: the score must refuse. Conversely, changing a self-carried rule while
+the independent input stays fixed must also refuse. A versioned optional input
+on a future outcome basis can preserve old immutable records as unbound; the
+current wrapper and fresh Level5/promotion consumers need the same explicit
+selection port. Such a software binding would prove only the declared finite-set
+score, not population probability, empirical adequacy or institutional authority.
+
 ## Lesson evidence age on transfer (B137)
 
 Local lesson reads and transfer materialization apply the same evidence-age confidence cap before effective-quality filtering. The source CAS record remains unchanged; a stale lesson within the transfer TTL window may remain available at reduced weight. Read or transfer activity does not establish a new evidence verification. An authorized scientific revalidation producer and production authority remain unestablished.
+
+### Persisted sensitivity priors
+
+`SensitivityAwareCandidateGenerator.from_artifact` reopens a fully selected DOE
+experiment and reproduces its numerical result before adding `_sensitivity`
+metadata. The metadata includes the exact CAS selector and design/analysis
+identities; this is an exploratory prior, not a ranking or promotion grant.
+Unselected profiles, changed plan/data/results or unreconciled native numerical
+sources refuse before adapter construction. This is a replayed snapshot, not
+an ongoing source-currentness certification. Direct in-process construction
+remains a legacy candidate-only route. See the [DOE owner](../doe/README.md#selected-experiment-replay).

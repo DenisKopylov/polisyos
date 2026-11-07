@@ -1,0 +1,538 @@
+{
+  "status": "ACCEPT_PROPOSED_COMMON_SPEC_AT_RECORDED_HASHES_NATIVE_NOT_RUN",
+  "timestamp_utc": "2026-11-01T12:12:30.059248+00:00",
+  "reviewer": "runtime_delivery independent common review",
+  "product_tests": "NOT_RUN",
+  "native_tests": "NOT_RUN",
+  "scope": {
+    "common_files": 17,
+    "full_changed_normative_common_md_clauses_read": true,
+    "read_not_claimed": "No claim to reread 1.3MB duplicated generated JSON as independent new semantics; machine-diff every leaf, substantive read every changed clause and binding, and exact MD rendering checks separately.",
+    "changed_bindings": 37,
+    "canonical_scenarios": 42,
+    "binding_ids": 159,
+    "reviewed_claims": "accepted findings and current local packet requirements/test setups/actions/oracles; source as needed",
+    "metadata_scope": "authoring/packaging hashes and final freeze are separate from semantic blockers"
+  },
+  "files": [
+    {
+      "relative_path": "03_Интеграция/LANE-01.md",
+      "baseline_sha256": "6342479bbcbb468aaf3a0fedcdaa85ae02dce17f7edbf58a514bb8a72704ce78",
+      "proposed_sha256": "40a131e60019c96479c02ded203227f51594c471b4edfb5614d78ae61a06e257",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    },
+    {
+      "relative_path": "03_Интеграция/LANE-02.md",
+      "baseline_sha256": "71d8fa5dcd7ba4845ef0d22c3d90883e24db84792de1fd1a92533814c77be9f2",
+      "proposed_sha256": "275b08e80ce3b6f1e55d8fa364662ef76508d2b9f8bac08b3e73b368746f94f2",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    },
+    {
+      "relative_path": "03_Интеграция/LANE-03.md",
+      "baseline_sha256": "2d619d7c692e4edbd109dc26324e3e7e4912ed46a2f7a4344455298dc2be8252",
+      "proposed_sha256": "0fadddeb8453386e76250a91bc1ecc84ea322e0f91444170fcf1ef4d6c4cd037",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    },
+    {
+      "relative_path": "03_Интеграция/LANE-04.md",
+      "baseline_sha256": "162da287a8cb07f00e156b0e2ae51344607f141a0bd2510a45387d8aa21d440c",
+      "proposed_sha256": "dfed6f9d8906421e07edb9dc425ad344817aaea4fa28797a9ebbebcb10bfb5d0",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    },
+    {
+      "relative_path": "03_Интеграция/LANE-05.md",
+      "baseline_sha256": "b850f636fb595fb015b8051e062b9935808d4c2c44dcd33b81d864b7ac57b0cc",
+      "proposed_sha256": "f77bdf2f705ec227ba37b8c05215cefd335fdf42d6482dfe1ffa76fcc2464162",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    },
+    {
+      "relative_path": "03_Интеграция/LANE-06.md",
+      "baseline_sha256": "9dfab7c14179cb055e063c02eaf411d0afd26cdbfec8a2f05b0278d6a4f60237",
+      "proposed_sha256": "058ebfcd5333ac71e3ab5d11dfebb470982812e693e172ccc1a4b43c6a892586",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    },
+    {
+      "relative_path": "03_Интеграция/LANE-07.md",
+      "baseline_sha256": "1235b482afb89d5dd5bacbdcf1ecf0089a375f12439e1590ec00278794691676",
+      "proposed_sha256": "7a49a7e65ba9311e3a31151df720a885e498ef3ceeb49efec2cb66a09bce8490",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    },
+    {
+      "relative_path": "03_Интеграция/LANE-08.md",
+      "baseline_sha256": "d86604bf5af89b653d9d32d4ff902f1dadbf3c3ea85141aabefced4bd9aceec9",
+      "proposed_sha256": "dbc3299f5ec0a7c9a4b1e23275c77ce0d3c1a69988346c066c82a5a2b09833b5",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    },
+    {
+      "relative_path": "03_Интеграция/LANE-09.md",
+      "baseline_sha256": "45d6cbbd580be48331baf11a808535d3a3ebb5362279fbea8b5b131281cc1d76",
+      "proposed_sha256": "ec07ae4392bf3ce3314f8e83609723986192a3d0ff62f2e000047a5e9b2bc6d3",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    },
+    {
+      "relative_path": "03_Интеграция/LANE-10.md",
+      "baseline_sha256": "a354af076a0064d99ee3c2d3b365163bfc55344d13652556c9bc4839cb0d1c58",
+      "proposed_sha256": "fe59f16d408b341b9a68a94c22f0d2d401d07b04f2e58e68f37cf760aa484d55",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    },
+    {
+      "relative_path": "03_Интеграция/LANE-11.md",
+      "baseline_sha256": "fdd7c24734cbb4cc2dd9ecd3088e468fc3318bd9223d602e6870481239150fad",
+      "proposed_sha256": "2e0d7d6a2e51bd47859bb8990a0c8c5a1305bd5310112a2f9129084e60e39cd6",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    },
+    {
+      "relative_path": "03_Интеграция/LANE-12.md",
+      "baseline_sha256": "6ac4fffd75a510ebed7badaae0cf9a5415a93ef78c81f99f514c222e3a8dc077",
+      "proposed_sha256": "65fb552746c4baf89e39a485a74924c46c2f15dded0f0250e4b9af8695ffe90d",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    },
+    {
+      "relative_path": "03_Интеграция/Сценарии.json",
+      "baseline_sha256": "f7552f668833345365551f54e71b010faa3976d4710d04915fd572c6db0c50a1",
+      "proposed_sha256": "e2db814faf6e1d824c93ace6682dd6058e8729941ccdeeb04f4b4cdfcb048616",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    },
+    {
+      "relative_path": "03_Интеграция/Практическая_расширяемость.md",
+      "baseline_sha256": "573eae084f0517baca3a97048b7c5c714ee16d4b60625dc6fc74cc84a9fdd7ba",
+      "proposed_sha256": "82b5faca59c39f5ab9b61767fc2ceb702d7e224d2d93170d49b6eec7bf297147",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    },
+    {
+      "relative_path": "00_Общее/Правила_исполнения_и_приёмки.md",
+      "baseline_sha256": "d36682b96c32d58e3b5effe5ff7e14369d7000e6a32a0c20090ddebd6384f8b9",
+      "proposed_sha256": "8f83cd845cf172c02de1f87035af331cd2cbb6bd81c255ca3b2fa42a0842ac99",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    },
+    {
+      "relative_path": "04_Трассировка/Связь_требований_с_интеграцией.json",
+      "baseline_sha256": "9217638667c8c26a30e1b5f5ba20a7a3904268e233c67a0167f866864f18576c",
+      "proposed_sha256": "60194c4970de884d13c7f1f9029f0d45ab43e439f91016f0939ff86f861cf4a8",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    },
+    {
+      "relative_path": "04_Трассировка/Связь_требований_с_интеграцией.md",
+      "baseline_sha256": "fc23a7cf21dda080f528305a58883b9ca8d69fcfdf15695329779a3a34cb9fb8",
+      "proposed_sha256": "165ec557929da4724615ea49a74c356b68f67a107266054cbccfe2fa32c36c90",
+      "manifest_old_matches": true,
+      "manifest_new_matches": true
+    }
+  ],
+  "changed_bindings": [
+    {
+      "binding_id": "E02-I01-A-B04",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I02-A-B02",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I02-B-B02",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I02-C-B03",
+      "changed_fields": [
+        "concrete_obligation",
+        "limits"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I02-D-B01",
+      "changed_fields": [
+        "concrete_obligation",
+        "limits"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I03-C-B02",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I04-C-B03",
+      "changed_fields": [
+        "concrete_obligation",
+        "limits"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I05-A-B02",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I05-B-B03",
+      "changed_fields": [
+        "concrete_obligation",
+        "limits",
+        "requirement_ids",
+        "local_test_ids",
+        "requirement_test_edges"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I05-B-B04",
+      "changed_fields": [
+        "concrete_obligation",
+        "limits",
+        "requirement_ids",
+        "local_test_ids",
+        "requirement_test_edges"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I05-C-B02",
+      "changed_fields": [
+        "concrete_obligation",
+        "limits",
+        "requirement_ids",
+        "local_test_ids",
+        "requirement_test_edges"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I05-C-B04",
+      "changed_fields": [
+        "concrete_obligation",
+        "limits",
+        "local_test_ids",
+        "requirement_test_edges"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I06-A-B02",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I06-A-B03",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I06-C-B02",
+      "changed_fields": [
+        "concrete_obligation",
+        "limits"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I06-E-B05",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I07-B-B01",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I07-B-B02",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I08-A-B03",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I08-B-B01",
+      "changed_fields": [
+        "concrete_obligation",
+        "limits"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I08-B-B02",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I08-B-B03",
+      "changed_fields": [
+        "concrete_obligation",
+        "limits"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I09-A-B02",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I10-A-B01",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I10-B-B01",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I10-C-B02",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I10-C-B03",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I11-B-B04",
+      "changed_fields": [
+        "concrete_obligation",
+        "limits",
+        "local_test_ids",
+        "requirement_test_edges"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I12-B-B01",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-I12-B-B02",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-X03-B01",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-X03-B02",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-X03-B03",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-X03-B04",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-X03-B05",
+      "changed_fields": [
+        "concrete_obligation"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-X04-B01",
+      "changed_fields": [
+        "concrete_obligation",
+        "limits"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    },
+    {
+      "binding_id": "E02-X04-B05",
+      "changed_fields": [
+        "concrete_obligation",
+        "limits"
+      ],
+      "old_req_retained": true,
+      "old_test_retained": true
+    }
+  ],
+  "binding_md_json_checks": {
+    "checks": 795,
+    "failures": []
+  },
+  "precision_comments": {
+    "DDM_exact_windows": true,
+    "STA_absent_CI": true
+  },
+  "substantive_review": [
+    {
+      "topic": "FUN metrics / search / simulation",
+      "verdict": "Принимаю bounded confusion-matrix qualification: TP/FP/FN/TN, denominator/cohort и missing labels фиксированы; observed zero не population bound. FUN fixture FOR1% и FNR100% различает прежнюю двусмысленность; пять независимых zero-event observations дают one-sided95% upper≈45.07%, не2%. OPT pending/completed effective-action dedup и exhaustion/census различаются; optional measured-only transfer не ослабляет fitted guard. SIM stochastic y=u+(2+u)*a с evidence{} проверяет actual paired effect2+u; integer comparator отдельно. Late PS-F08 переносит real NCM CI quantile из100000 ambient normal draws в deterministic qualified inverse-normal, но не выдаёт это за empirical coverage."
+    },
+    {
+      "topic": "RDD / DoWhy / FIT / SCM / DDM",
+      "verdict": "Conventional HC0 B Xᵀdiag(w²e²)X B и known-noise variance B XᵀWΣWX B не смешаны с legacy inverse-Gram proxy и unchanged RBC. Actual DoWhy/Statsmodels parity и independent analytic oracle оба нужны; Linux Python3.12 worker — отдельный route, не все зависимости каждого repair. Selected FIT fold не зависит от heldout Y; это не обещание invariant final ATE/EIF. SCM bootstrap строит target каждого refit, interval width не coverage. DDM statistical unit —100 independent Bernoulli windows по4values, не400 independent outcomes. Подробная независимая Fraction/t5/algebra проверка уже в review_causal_v2.json; native NOT_RUN."
+    },
+    {
+      "topic": "PPO / calibration / sensitivity / numeric reuse",
+      "verdict": "PPO policy clipping/sign/GAE unit не заменяет actual gradient→Optax→fresh artifact/action. Найденный мною пропуск nonzero value/entropy controls исправлен в TEST-PLG-03-02, см. COMMON-V2-01 и independent algebra. Native inactive-padding сравнивает same shape/key/active rows, не обещает append-padding RNG invariance. CAL mask-before-nonlinear-AD сохраняет active nonfinite guards и fixed train scaling; allcorpus no-fit отличён от masked target valid sibling. DOE full request управляет local-derived RNG/solver profile; 600×100,k5 provokes randomized PCA path, Morris2002×8 needs rank>15. Rank/gap preflight фиксирован до PCA; no retune after result; projectors/reconstruction instead of arbitrary signs/tied vectors. FED/UQS используют один existing CPython3.14 statistics.mean owner, independent Fraction/precision1200 Decimal oracle; no new rounded subgroup averaging. Finite overflow bucket rows не теряют denominators/trust; nonrepresentable residual отдельно."
+    },
+    {
+      "topic": "Runtime / registration / client",
+      "verdict": "All three shared-Future async paths сохраняют private adapter, actual physical capacity ownership и external watchdog; no premature cancellation release. STA prior mapping value2,std_error.2, CI absent,multiplier3→μ2σ.6 before sampling; sampling mean не exact prior oracle. Warm-parent JAX/fork qualification не объявлена proven hang/forced spawn rewrite. MIG registration snapshot не arbitrary live closure freeze и не препятствует narrow rollback-exception fix; observer-family compatibility preserved. CLI Python actual HTTP response→generated decoder and generated request→actual service require one bidirectional bridge, не unrelated fake-JS/Python checks. Prototype-key fixtures need actual own key and optional absence guard, without unnecessary TSlib upgrade."
+    },
+    {
+      "topic": "Fabric / acquisition / index / legality",
+      "verdict": "Off/smart miss does not permit inner resume, while policy-approved HTTP cache remains allowed. Async harvest finite stages={harvest} reuses current admission; smart route network0 and same-name changed config/source invalidation retained. Scalar UDF validates pre-coercion Python scalar so int>2**53 not rounded away, but cannot recover already-rounded floats. P-INDEX needs native >=3 non-tied vectors, k<N, independent cosine ground truth; not universal ANN quality. P-LEGAL-OWNED uses owned prequalified local model assets and actual encoder, no silent download/fake encoder. Heldout utility pre-adjudication is bounded evidence, not publisher repair; graph backend profile separate. Offline SCL policy validation may be DNS-free using retained facts; live fetch retains DNS pin/peer/redirect SSRF checks. Unknown required facts cannot become admission."
+    },
+    {
+      "topic": "Generalization / joint capacity / persisted invalidation",
+      "verdict": "Freeze relevant generic code and selection/criterion before independent compatible transfer. Existing model/policy IR is configuration; arbitrary Python callback embedded in data is new code. New general semantics allowed, but begin fresh freeze/holdout; explicit constructors do not prove autonomous discovery. Cost table records real manual work/cardinality/construction/cold-warm IO/RSS, no invented SLA or mandatory index/framework. Conditional X04 requires actual existing resource owner+joint program+persisted consumer: demands4/4/4,capacity10 makes all pairs feasible/triple infeasible;12 makes triple feasible;8 subsets independent oracle. Max-benefit5/4/3 optimumAB9 only if owner really promises optimization. Missing owner is a capability gap, not mandatory new allocator. Source-change uses real persisted S→P,Q→R plus independentD and late old callbacks; standalone graph toy cannot prove system invalidation. Scientific monitoring does not silently update causal mechanism or grant permission."
+    },
+    {
+      "topic": "Binding preservation and evidence scope",
+      "verdict": "Original38 lane scenarios+4stories and159 binding IDs retained. Five new analytic-test links cover precisely numerical/preprocessing/bootstrap/window qualification, not every requirement or scientific validity. Four REQs move from local-only to shared-plus-local without removing any local acceptance. Same-backend parity, analytic unit success, native integration, empirical coverage and authority are explicitly different claims. All future tests stay NOT_RUN. Source metadata readiness is checked separately from these semantic verdicts; after packet changes the source inventory must be regenerated before release."
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "COMMON-V2-01",
+      "classification": "verified proposed acceptance-test scope gap; not proven product runtime bug",
+      "scope": [
+        "E02-I04-C",
+        "E02-I04-C-B03",
+        "REQ-PLG-03-02",
+        "TEST-PLG-03-02"
+      ],
+      "before": "Shared claim covered value/entropy coefficients, but the only analytic PPO fixture set both coefficients to zero. Dropped/misweighted value/entropy terms could pass.",
+      "status": "RESOLVED_AT_PROPOSED_SPEC_LEVEL",
+      "correction": "Six actual-actor nonzero coefficient controls with fixed advantages0 and returns[1,3], actual critic bias nu and action_log_std ell; test raw components,total,eager/JIT gradients independently. Original policy/GAE/native cases retained.",
+      "reviewed_files": [
+        {
+          "relative_path": "02_Пакеты/PLG-03.md",
+          "sha256": "e2ba11032528f972a7374e1a0d535b33a2dbf64d610cdf56ef021abac2844e43"
+        },
+        {
+          "relative_path": "04_Трассировка/PLG-03.json",
+          "sha256": "4557a131465925894ae03296d17f98cf33d0395a5a76fd94722e9e1c8e599a94"
+        }
+      ],
+      "algebra_evidence": "common_v2_independent_algebra.json",
+      "native_tests": "NOT_RUN"
+    }
+  ],
+  "open_semantic_blockers": [],
+  "pending": [
+    "Final global document QA awaits parent release freeze; common semantic snapshot accepted at recorded hashes."
+  ],
+  "precision_readback": "Both agreed edits independently read in final MD/JSON: I06-A explicit confidence_interval absent; I11-B retained smoke100windows×4values gives100window-level Bernoulli trials, not400. Source inventory reflects corrected PLG JSON4557a131…; no unrelated semantic edits observed.",
+  "release_editorial_ledger_sha256": "08fd3640c0d69430da1a28ca725216dc92f7b606bde0fa136df2d9284da43201",
+  "input_sha256": {
+    "common_manifest": "9d538759856e20737cbaa5f4cecfcca3436e7db0b33f6ee83155dbcd93153cfc",
+    "peer_delta_01": "0945f4752c7325782f5f657b5ef841e4e3499d495ca5d31497f8beb2baf9629d",
+    "common_algebra": "ec86f8e0acda1b048fc8984b8441d63ecf3c3184920447ba8695da50aad875ef"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "pass_id": "C124",
+  "bundle": "DFK-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C124-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Три конкретные surfaces остаются compatibility_pending",
+      "evidence": [
+        "S01",
+        "S03",
+        "S04",
+        "P03",
+        "P05"
+      ],
+      "remaining": "Для foundry.domain.schema, kernel.schemas.codegen и kernel.pipeline.schemas отдельно завершить finite consumer/lifecycle decision: supported historical inputs, external contract/window и canonical address migration. Удалять только при достаточном основании; не переносить ненужные DTO и не создавать generator ради placeholder.",
+      "limits": "Source не удалён и runtime role не доказана простым наличием. Local FQN/bare-symbol census не доказывает нулевой external caller set. Не блокирует отдельное подтверждённое отсутствие mechanisms tombstone."
+    },
+    {
+      "id": "C124-G02",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Полнота supported native census и installed wheel/sdist не установлена",
+      "evidence": [
+        "P03",
+        "P04",
+        "S16",
+        "S21",
+        "S22",
+        "S23",
+        "commands.json"
+      ],
+      "remaining": "В supported runtime повторить existing native/public tool CLI и task-owned installed oracle через Q2; проверить rebuilt wheel/sdist membership и отсутствие retired mechanisms. Сохранить exact bytes/read receipts, partial/unavailable status и v3 contract; не считать ACTIVE discovery lifecycle approval.",
+      "limits": "Current full census partial из-за actual unsupported inputs/syntax. Extracted fs definitions не native tools package. Игнорируемые/binary/external/computed loaders вне доказательства. Installed proposal не actual installed PASS."
+    },
+    {
+      "id": "C124-G03",
+      "kind": "qualification_gap",
+      "severity": "low",
+      "title": "Canonical preservation доказано ограниченно, не всей универсальной schema algebra",
+      "evidence": [
+        "P01",
+        "P02",
+        "P06",
+        "S08",
+        "S09",
+        "S12",
+        "S13"
+      ],
+      "remaining": "Сохранить existing canonical schema identity, migrations/evolution, materialization contracts и ABI reference table. Квалифицировать исторические inputs и supported JAX consumer в общем lane profile, не переписывая данные из-за смены Python address.",
+      "limits": "Synthetic DTO roundtrip не реальный historical archive; migration shallow copy/no auto-stamping — явный contract. Evolution checker ограничен declared top-level field-change families, не полным JSON Schema inclusion theorem. Не новый подтверждённый defect."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "LA-006 bounded retirement подтверждён; LA-005/026/027 compatibility_pending, canonical useful owners сохранены. Новых R не установлено."
+}

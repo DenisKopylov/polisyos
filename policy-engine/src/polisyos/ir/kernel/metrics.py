@@ -475,6 +475,11 @@ DEFAULT_METRIC_REGISTRY = MetricRegistry(
     metrics={
         "avg_income": MetricSpec(metric_id="avg_income", description="Average agent income"),
         "gdp": MetricSpec(metric_id="gdp", description="Gross Domestic Product"),
+        "consumer_price_index": MetricSpec(
+            metric_id="consumer_price_index",
+            unit_id="index",
+            description="Annual consumer price index level (2010=100)",
+        ),
         "unemployment_rate": MetricSpec(
             metric_id="unemployment_rate", description="Unemployment rate"
         ),

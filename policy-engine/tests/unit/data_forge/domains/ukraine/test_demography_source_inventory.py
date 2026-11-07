@@ -140,12 +140,14 @@ def _make_candidate(
     tmp_path: Path,
     monkeypatch: MonkeyPatch,
     *,
+    state_ids: list[str] | None = None,
     materialized_state_ids: list[str] | None = None,
     donor_disposition: Literal["present", "intentionally_absent", "not_established"] = "present",
     member_overrides: dict[str, dict[str, object]] | None = None,
     include_entrant_totals: bool = True,
+    source_claims: SourceSemanticClaims | None = None,
 ) -> tuple[Path, Path, FileSystemCAS]:
-    state_ids = ["state:a", "state:b"]
+    state_ids = state_ids or ["state:a", "state:b"]
     materialized_state_ids = materialized_state_ids or state_ids
     member_overrides = member_overrides or {}
     if set(member_overrides).difference({"targets", "priors", "donor"}):
@@ -208,26 +210,18 @@ def _make_candidate(
             "priors": priors_path.name,
             **({"donor": donor_path.name} if donor_disposition == "present" else {}),
         },
-        source_claims=_claims(
-            state_ids,
-            donor_disposition=donor_disposition,
-        ),
+        source_claims=source_claims
+        if source_claims is not None
+        else _claims(state_ids, donor_disposition=donor_disposition),
     )
     request_path = tmp_path / "inventory-request.json"
     request_path.write_text(recipe.model_dump_json(indent=2), encoding="utf-8")
     config = build_default_pipeline_config(root=build_root)
     config.demography_inventory_request_path = request_path
-    monkeypatch.setattr(
-        "polisyos.data_forge.domains.ukraine.orchestrator.assert_server_execution_allowed",
-        lambda _server: None,
-    )
+    config.server.require_server_for_build = False
     orchestrator = UkraineDataOrchestrator(config=config, workspace_root=tmp_path)
+    # Part-A qualification is independent of this candidate-only producer fixture.
     monkeypatch.setattr(orchestrator, "_ensure_part_a_gate", lambda: None)
-    monkeypatch.setattr(
-        orchestrator,
-        "_ensure_previous_stage_manifests",
-        lambda _stage_id: None,
-    )
     summary = orchestrator.build_stage(StageId.DEMOGRAPHY_SOURCE_INVENTORY)
     assert summary.status == "completed"
     store = FileSystemCAS(config.build_root.resolved_cas_root)
@@ -599,9 +593,9 @@ def test_inventory_refresh_reopens_current_snapshot_and_preserves_old_receipt(
     )
 
     config.demography_inventory_request_path = tmp_path / "inventory-request.json"
+    config.server.require_server_for_build = False
     orchestrator = UkraineDataOrchestrator(config=config, workspace_root=tmp_path)
     monkeypatch.setattr(orchestrator, "_ensure_part_a_gate", lambda: None)
-    monkeypatch.setattr(orchestrator, "_ensure_previous_stage_manifests", lambda _stage: None)
     refreshed_run = orchestrator.build_stage(StageId.DEMOGRAPHY_SOURCE_INVENTORY, resume=False)
     assert refreshed_run.status == "completed"
 

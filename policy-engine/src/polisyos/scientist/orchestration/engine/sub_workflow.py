@@ -9,9 +9,8 @@ From the executor's perspective this is just another ``Node``.
 
 from __future__ import annotations
 
-import logging
 from copy import deepcopy
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -20,15 +19,23 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.errors import EngineError
 from polisyos.scientist.orchestration.engine.protocol import (
+    InputAwareNodeSpec,
     NodeError,
     NodeEvent,
+    NodeInputRule,
     NodeOutcome,
     NodeSpec,
 )
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.engine.state_merge import _MISSING, _get_path
 from polisyos.scientist.orchestration.engine.workflow_spec import ErrorPolicy, WorkflowSpec
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from polisyos.scientist.orchestration.engine.executor import WorkflowExecutionResult
 
 logger = get_logger(__name__)
 
@@ -66,16 +73,8 @@ class SubWorkflowConfig(BaseModel):
 
 
 def _resolve_path(state: ExperimentState, path: str) -> Any:
-    parts = path.split(".")
-    current: Any = state
-    for part in parts:
-        if isinstance(current, BaseModel):
-            current = getattr(current, part, None)
-        elif isinstance(current, dict):
-            current = current.get(part)
-        else:
-            return None
-    return current
+    value = _get_path(state, tuple(path.split(".")))
+    return None if value is _MISSING else value
 
 
 def _set_nested(target: dict[str, Any], path_parts: list[str], value: Any) -> None:
@@ -150,7 +149,8 @@ class SubWorkflowNode:
 
     @property
     def spec(self) -> NodeSpec:
-        return NodeSpec(
+        source_paths = tuple(dict.fromkeys(m.source_path for m in self._config.input_mappings))
+        return InputAwareNodeSpec(
             metadata=ComponentMetadata(
                 component_id=ComponentId.parse("scientist.node_sub_workflow@1.0.0"),
                 kind=ComponentKind.SCIENTIST_NODE,
@@ -160,12 +160,53 @@ class SubWorkflowNode:
                 tags=["builtin", "sub_workflow"],
                 capabilities=Capability.SCIENTIST_NODE,
             ),
-            state_reads=[m.source_path for m in self._config.input_mappings],
+            state_reads=list(source_paths),
+            input_rules=tuple(
+                NodeInputRule(path=path, availability="optional", allow_null=True)
+                for path in source_paths
+            ),
             state_writes=[m.target_path for m in self._config.output_mappings],
             produces=["sub_workflow_report"],
         )
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        """Refuse unadmitted child execution while retaining input validation."""
+        return SubWorkflowNode._execute_with_child(self, ctx, state, None)
+
+    def _execute_admitted(
+        self,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+        execute_child: Callable[
+            [WorkflowSpec, ExperimentState, NodeRegistry, str], WorkflowExecutionResult
+        ],
+    ) -> NodeOutcome:
+        """Execute through the enclosing engine's child-run owner."""
+        return SubWorkflowNode._execute_with_child(self, ctx, state, execute_child)
+
+    def _prepare_child_input(self, state: ExperimentState) -> tuple[WorkflowSpec, ExperimentState]:
+        """Apply the selected input mappings without dispatching a producer."""
+        child_state = ExperimentState(run_id=f"{state.run_id}__sub_{self._alias}")
+        for mapping in self._config.input_mappings:
+            value = _resolve_path(state, mapping.source_path)
+            if value is not None:
+                _write_to_state(child_state, mapping.target_path, value)
+        child_workflow = self._config.workflow
+        if self._config.error_policy_override is not None:
+            child_workflow = child_workflow.model_copy(
+                update={"error_policy": self._config.error_policy_override},
+            )
+        return child_workflow, child_state
+
+    def _execute_with_child(
+        self,
+        ctx: ExecutionContext,
+        state: ExperimentState,
+        execute_child: Callable[
+            [WorkflowSpec, ExperimentState, NodeRegistry, str], WorkflowExecutionResult
+        ]
+        | None,
+    ) -> NodeOutcome:
         if ctx.depth < 0:
             return NodeOutcome(
                 status="fail",
@@ -192,36 +233,20 @@ class SubWorkflowNode:
                 ),
             )
 
-        # Build child state with mapped inputs
-        child_state = ExperimentState(
-            run_id=f"{state.run_id}__sub_{self._alias}",
-        )
-        for mapping in self._config.input_mappings:
-            value = _resolve_path(state, mapping.source_path)
-            if value is not None:
-                _write_to_state(child_state, mapping.target_path, value)
-
-        # Build child context with incremented depth
-        import dataclasses
-
-        child_ctx = dataclasses.replace(
-            ctx,
-            depth=ctx.depth + 1,
-            logger=logging.getLogger(f"{ctx.logger.name}.sub_{self._alias}"),
-        )
-
-        # Execute child workflow
-        from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
-
-        child_workflow = self._config.workflow
-        if self._config.error_policy_override is not None:
-            child_workflow = child_workflow.model_copy(
-                update={"error_policy": self._config.error_policy_override},
+        if execute_child is None:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code="sub_workflow.owner_not_established",
+                    message="Sub-workflow requires an engine-owned child run",
+                ),
             )
 
-        executor = WorkflowExecutor(child_ctx, self._registry)
+        child_workflow, child_state = SubWorkflowNode._prepare_child_input(self, state)
+
         try:
-            result = executor.execute(child_workflow, child_state)
+            result = execute_child(child_workflow, child_state, self._registry, self._alias)
         except EngineError as exc:
             return NodeOutcome(
                 status="fail",
@@ -235,6 +260,8 @@ class SubWorkflowNode:
 
         # Collect child artifacts
         child_artifacts = []
+        if result.run_ref is not None:
+            child_artifacts.append(result.run_ref)
         for node_record in result.report.nodes:
             if hasattr(node_record, "artifacts"):
                 child_artifacts.extend(node_record.artifacts)
@@ -244,6 +271,7 @@ class SubWorkflowNode:
             return NodeOutcome(
                 status="fail",
                 state=state,
+                artifacts=child_artifacts,
                 error=NodeError(
                     code="sub_workflow.child_failed",
                     message=f"Child workflow completed with status: {child_status}",
@@ -269,6 +297,7 @@ class SubWorkflowNode:
                 return NodeOutcome(
                     status="fail",
                     state=state,
+                    artifacts=child_artifacts,
                     error=NodeError(
                         code="sub_workflow.invalid_output_mapping",
                         message=path_error,
@@ -284,6 +313,7 @@ class SubWorkflowNode:
                     return NodeOutcome(
                         status="fail",
                         state=state,
+                        artifacts=child_artifacts,
                         error=NodeError(
                             code="sub_workflow.output_conflict",
                             message=(

@@ -1,0 +1,184 @@
+{
+  "pass_id": "C110",
+  "bundle": "CAL-04",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          459,
+          554
+        ],
+        [
+          2640,
+          2685
+        ],
+        [
+          2745,
+          3055
+        ],
+        [
+          3050,
+          3326
+        ],
+        [
+          3385,
+          3450
+        ]
+      ],
+      "evidence_level": "Actual owner/producer/consumer blocks прочитаны. Selected finalization/report-loss/key/local-Hessian/reuse statements исполнены без изменения AST; optimizer и JAX differentiation не исполнялись. Shared objective read C108 явно унаследован на том же blob.",
+      "git_blob": "dd435dced710805345da768fb14341b98671dac6",
+      "sha256": "f23b724aa07a447fbf10effad60c28f7e286ff137e2805e4e4a195adc28ac6a1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/foundry/calibration/hessian.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/hessian.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          173
+        ]
+      ],
+      "evidence_level": "Полный read C109 на том же blob унаследован. Actual finite-difference/repair/condition bodies C110 с NumPy и explicit derivative-unavailable seam; не native JAX.",
+      "git_blob": "68919a62665fd24652bf077c3c9ad39521cc77e5",
+      "sha256": "f136b9d4195ae6b66a0261c271c6f00f6a58b3ac93692e4d65f997956c3d9361",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/foundry/calibration/loss.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/loss.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          156
+        ]
+      ],
+      "evidence_level": "Полный read C108 унаследован. Shared base-vector linkage прослежен source-only C110; самостоятельный loss suite не переисполнен.",
+      "git_blob": "6bc8e542a8ed4a3cf9f85b218397ee0d7e601dde",
+      "sha256": "a3c7dcf6b118d88b7b3f1b0bc60f8ec390cd2229232f75e8f7ff0b6c022f9e58",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/foundry/calibration/multi_start.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/multi_start.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          171
+        ]
+      ],
+      "evidence_level": "Полный read C109 унаследован; actual module imported в setup. Finite-selection доказательства C109 не переаттестованы этим пакетом.",
+      "git_blob": "aee5061dae662bffb6e157faaf8a2a91bb949afe",
+      "sha256": "b3988d200da684ba6cf323381e6021de357be594f1a56c22f39cb5ff5c29c260",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          149
+        ]
+      ],
+      "evidence_level": "Read C109 унаследован, actual selected DTO/diagnose body используется в Hessian orchestration fixture. Scientific identifiability не доказана.",
+      "git_blob": "7229089c88c9692a27c660787e6fb151a90f870d",
+      "sha256": "1027d1b6efebfacf836b8d0a81896e6b6886995833a527736ff08de28ca47a5b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/ir/analytics/calibration.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/calibration.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          204,
+          470
+        ]
+      ],
+      "evidence_level": "Read C108 унаследован; selected unchanged config DTO bodies, numerical/fidelity/seed policy в actual key.",
+      "git_blob": "8b88c6610d875997e4a0b9feecfe6620344e21ae",
+      "sha256": "0fbfec3e929f2562c31a2b554c8d61e6dc2162a6312d8576984e2d7d5fcd2c79",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/tests/unit/remediation/test_cal_04.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cal_04.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          468
+        ]
+      ],
+      "evidence_level": "Полный read. Три pure unchanged bodies исполнены; остальные JAX/full Calibrator witnesses source-only, не заменены fake autodiff.",
+      "git_blob": "b2280b5bed56b68a5e677d375752defe0229cd83",
+      "sha256": "31b7b6afb4e3e8587865c168ad8953ba0138271737185633df3400a351ebe4f7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/ir/observation/bundles.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/observation/bundles.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          100
+        ],
+        [
+          109,
+          115
+        ],
+        [
+          285,
+          301
+        ]
+      ],
+      "evidence_level": "Read C91 унаследован; selected DTO setup dependency, не новое содержательное доказательство.",
+      "git_blob": "e1c61a894b2c0a923d42312bad1f75e5d7003046",
+      "sha256": "34f689a2b3feb3f265cf9a006029f84cb80c57f64858ee8ec58056c1a1bad167",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/ir/observation/contracts.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/observation/contracts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          254
+        ]
+      ],
+      "evidence_level": "Read C91 унаследован на том же blob; setup native import.",
+      "git_blob": "0e0aa931227d023ce5691b17ef26562a0dbc9117",
+      "sha256": "efbe3ca78107dc47158d01c30b03cca4f16074b2ad37f3573fb581e423fdf2d4",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

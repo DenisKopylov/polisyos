@@ -148,7 +148,22 @@ def test_selected_registry_reconciles_actual_value_owner_and_code_epoch(tmp_path
         )
         gap = observation.acquisition_requirement
         assert gap is not None
-        assert gap.metadata["availability"] == availability.model_dump(mode="json")
+        availability_payload = availability.model_dump(mode="json")
+        expected_availability_hash = (
+            "sha256:"
+            + hashlib.sha256(
+                json.dumps(
+                    availability_payload,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    default=str,
+                ).encode("utf-8")
+            ).hexdigest()
+        )
+        assert gap.metadata["availability"] == {
+            **availability_payload,
+            "availability_content_hash": expected_availability_hash,
+        }
         assert gap.metadata["candidate_binding"]["design_problem_ref"] == gy_content_hash(
             problem.model_dump(mode="json")
         )

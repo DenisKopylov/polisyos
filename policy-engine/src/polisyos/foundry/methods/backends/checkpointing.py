@@ -57,9 +57,9 @@ import json
 import logging
 import os
 import time
-from collections.abc import Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -72,12 +72,14 @@ from polisyos.foundry.methods.backends.chain_executor import (
     ChainExecutionResult,
     _build_chain_reproducibility_contract,
     _collect_node_inputs,
+    _validate_compiled_execution_plan,
 )
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.backends.protocol import (
     MethodResult,
     MethodTiming,
     ReproducibilityInfo,
+    RestrictedMethodInvocationEvidence,
     SolverStatus,
 )
 from polisyos.foundry.methods.backends.validated import (
@@ -102,6 +104,9 @@ __all__ = [
 
 _logger = logging.getLogger("foundry.methods.checkpointing")
 _MAX_CHECKPOINT_ISSUES = 64
+_INCOMPLETE_HISTORY_WARNINGS = frozenset(
+    {"history_incomplete", "restricted_invocation_history_missing"}
+)
 
 
 # ---------------------------------------------------------------------------
@@ -191,56 +196,98 @@ class ChainCheckpoint:
         path.parent.mkdir(parents=True, exist_ok=True)
         tmp_paths: list[Path] = []
         published_sidecars: list[Path] = []
+        manifest_published = False
+        manifest_write_attempted = False
+
+        def note_manifest_publication() -> None:
+            nonlocal manifest_published
+            manifest_published = True
+
         try:
             with _checkpoint_write_lock(path):
-                generation = _checkpoint_generation(path, self.intermediate_state)
-                stem = path.stem if generation is None else f"{path.stem}.gen-{generation}"
-                force_encoded = generation is not None
-                payload, sidecars = _serialise_state(
-                    self.intermediate_state,
-                    stem,
-                    force_encoded=force_encoded,
-                )
-                history_payload: dict[str, Any] | None = None
-                if self.history_complete:
-                    history_payload, history_sidecars = _serialise_state(
-                        {"node_results": self.node_results},
-                        stem,
-                        force_encoded=True,
+                try:
+                    generation = _checkpoint_generation(path, self.intermediate_state)
+                    stem = path.stem if generation is None else f"{path.stem}.gen-{generation}"
+                    history_payload: dict[str, Any] | None = None
+                    history_complete = self.history_complete
+                    history: list[dict[str, Any]] = []
+                    for original in self.node_results:
+                        _validate_result_history_version(original)
+                        snapshot = dict(original)
+                        warnings = list(snapshot.get("warnings", ()))
+                        if "restricted_invocation" not in snapshot:
+                            history_complete = False
+                            snapshot["restricted_invocation"] = None
+                            if "restricted_invocation_history_missing" not in warnings:
+                                warnings.append("restricted_invocation_history_missing")
+                            snapshot["warnings"] = warnings
+                        elif _INCOMPLETE_HISTORY_WARNINGS.intersection(warnings):
+                            history_complete = False
+                        _restore_restricted_invocation(snapshot["restricted_invocation"])
+                        history.append(snapshot)
+                    if history_complete or history:
+                        # One encoded envelope makes state and history paths
+                        # disjoint before any sidecar map is constructed.
+                        envelope, sidecars = _serialise_state(
+                            {
+                                "intermediate_state": self.intermediate_state,
+                                "node_results": history,
+                            },
+                            stem,
+                            force_encoded=True,
+                        )
+                        payload = envelope["intermediate_state"]
+                        history_payload = envelope
+                    else:
+                        payload, sidecars = _serialise_state(
+                            self.intermediate_state,
+                            stem,
+                            force_encoded=generation is not None,
+                        )
+                    data = {
+                        "chain_digest": self.chain_digest,
+                        "completed_fqns": self.completed_fqns,
+                        "completed_node_ids": self.completed_node_ids,
+                        "intermediate_state": payload,
+                        "node_timing_ms": self.node_timing_ms,
+                        "created_at": self.created_at,
+                        "execution_digest": self.execution_digest,
+                        "history_complete": history_complete,
+                        "validation_context": self.validation_context,
+                        "composition_warnings": self.composition_warnings,
+                    }
+                    if history_payload is not None:
+                        data["node_results"] = history_payload["node_results"]
+
+                    for sidecar_name, arr in sidecars.items():
+                        sidecar_path = path.parent / sidecar_name
+                        published_sidecars.append(sidecar_path)
+                        tmp_sidecar = _tmp_path_for(sidecar_path)
+                        tmp_paths.append(tmp_sidecar)
+                        _atomic_save_numpy(tmp_sidecar, sidecar_path, arr)
+                        tmp_paths.remove(tmp_sidecar)
+
+                    json_bytes = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
+                    tmp_json = _tmp_path_for(path)
+                    tmp_paths.append(tmp_json)
+                    manifest_write_attempted = True
+                    _atomic_write_bytes(
+                        tmp_json, path, json_bytes, on_publish=note_manifest_publication
                     )
-                    sidecars.update(history_sidecars)
-                data = {
-                    "chain_digest": self.chain_digest,
-                    "completed_fqns": self.completed_fqns,
-                    "completed_node_ids": self.completed_node_ids,
-                    "intermediate_state": payload,
-                    "node_timing_ms": self.node_timing_ms,
-                    "created_at": self.created_at,
-                    "execution_digest": self.execution_digest,
-                    "history_complete": self.history_complete,
-                    "validation_context": self.validation_context,
-                    "composition_warnings": self.composition_warnings,
-                }
-                if history_payload is not None:
-                    data["node_results"] = history_payload["node_results"]
-
-                for sidecar_name, arr in sidecars.items():
-                    sidecar_path = path.parent / sidecar_name
-                    published_sidecars.append(sidecar_path)
-                    tmp_sidecar = _tmp_path_for(sidecar_path)
-                    tmp_paths.append(tmp_sidecar)
-                    _atomic_save_numpy(tmp_sidecar, sidecar_path, arr)
-                    tmp_paths.remove(tmp_sidecar)
-
-                json_bytes = json.dumps(data, indent=2, sort_keys=True).encode("utf-8")
-                tmp_json = _tmp_path_for(path)
-                tmp_paths.append(tmp_json)
-                _atomic_write_bytes(tmp_json, path, json_bytes)
-                tmp_paths.remove(tmp_json)
-                self.checkpoint_path = path
+                    tmp_paths.remove(tmp_json)
+                    self.checkpoint_path = path
+                except (OSError, TypeError, ValueError, CheckpointSerializationError):
+                    _cleanup_paths(tmp_paths)
+                    # A failed directory fsync is a durability failure, not a
+                    # rollback of a manifest that readers can already observe.
+                    # An uncertain replace is reconciled under the writer lock.
+                    if not manifest_published and (
+                        not manifest_write_attempted
+                        or not _manifest_may_reference_sidecars(path, published_sidecars)
+                    ):
+                        _cleanup_paths(published_sidecars)
+                    raise
         except (OSError, TypeError, ValueError, CheckpointSerializationError) as exc:
-            _cleanup_paths(tmp_paths)
-            _cleanup_paths(published_sidecars)
             raise CheckpointSaveError(f"Failed to save checkpoint at {path}: {exc}") from exc
 
     @classmethod
@@ -256,6 +303,13 @@ class ChainCheckpoint:
                     path.parent,
                 )
                 node_results = node_results_payload["node_results"]
+            restricted_history_complete = True
+            for snapshot in node_results:
+                _validate_result_history_version(snapshot)
+                if not _history_snapshot_complete(snapshot):
+                    restricted_history_complete = False
+                if "restricted_invocation" in snapshot:
+                    _restore_restricted_invocation(snapshot["restricted_invocation"])
             return cls(
                 chain_digest=data["chain_digest"],
                 completed_fqns=data["completed_fqns"],
@@ -265,7 +319,9 @@ class ChainCheckpoint:
                 created_at=data.get("created_at", 0.0),
                 execution_digest=data.get("execution_digest"),
                 node_results=node_results,
-                history_complete=bool(data.get("history_complete", False)),
+                history_complete=(
+                    bool(data.get("history_complete", False)) and restricted_history_complete
+                ),
                 validation_context=data.get("validation_context"),
                 composition_warnings=list(data.get("composition_warnings", [])),
                 checkpoint_path=path,
@@ -363,8 +419,14 @@ class CheckpointingChainExecutor:
         -------
         ChainExecutionResult
         """
-        _validation_context_payload(chain)
         reg = self._registry if self._registry is not None else get_registry()
+        try:
+            _validate_compiled_execution_plan(chain, registry=reg)
+        except (ValueError, TypeError, KeyError, FoundryMethodError) as exc:
+            raise CheckpointDigestMismatchError(
+                f"Compiled validation context cannot be reconciled: {exc}"
+            ) from exc
+        _validation_context_payload(chain)
         disp = self._dispatcher or MethodDispatcher.get_instance()
         params_per_node = params_per_node or {}
 
@@ -425,6 +487,10 @@ class CheckpointingChainExecutor:
                         "per-node result count does not match completed prefix."
                     )
                 for index, snapshot in enumerate(checkpoint.node_results):
+                    if not _history_snapshot_complete(snapshot):
+                        raise CheckpointLoadError(
+                            "Checkpoint lacks restricted invocation evidence history."
+                        )
                     restored = _restore_node_result(snapshot, checkpoint)
                     expected_node_id = execution_order[index]
                     expected_fqn = chain.get_node(expected_node_id).method_fqn
@@ -547,7 +613,8 @@ class CheckpointingChainExecutor:
         completed_fqns = [chain.get_node(nid).method_fqn for nid, _ in all_node_results]
         timing_ms = [r.timing.wall_time_ms for _, r in all_node_results]
         history_complete = all(
-            isinstance(result, MethodResult) and "history_incomplete" not in result.warnings
+            isinstance(result, MethodResult)
+            and not _INCOMPLETE_HISTORY_WARNINGS.intersection(result.warnings)
             for _, result in all_node_results
         )
         node_results = (
@@ -767,6 +834,7 @@ def _snapshot_node_result(
     """Capture the persisted fields needed to reconstruct one real result."""
     reproducibility = result.reproducibility
     return {
+        "result_schema_version": 1,
         "node_id": str(node_id),
         "method_fqn": method_fqn,
         "output": result.output,
@@ -798,6 +866,9 @@ def _snapshot_node_result(
         "validated_bound": (
             None if result.validated_bound is None else result.validated_bound.as_dict()
         ),
+        "restricted_invocation": (
+            None if result.restricted_invocation is None else asdict(result.restricted_invocation)
+        ),
     }
 
 
@@ -807,6 +878,7 @@ def _restore_node_result(
 ) -> tuple[UUID, MethodResult]:
     """Restore one result from a complete checkpoint history snapshot."""
     try:
+        _validate_result_history_version(snapshot)
         node_id = UUID(str(snapshot["node_id"]))
         timing_data = snapshot["timing"]
         reproducibility_data = snapshot["reproducibility"]
@@ -840,13 +912,56 @@ def _restore_node_result(
             artifacts=dict(snapshot.get("artifacts", {})),
             warnings=tuple(snapshot.get("warnings", ())),
             validated_bound=_restore_validated_bound(snapshot.get("validated_bound")),
+            restricted_invocation=_restore_restricted_invocation(
+                snapshot.get("restricted_invocation")
+            ),
         )
+        if "restricted_invocation" not in snapshot:
+            from dataclasses import replace
+
+            result = replace(
+                result, warnings=(*result.warnings, "restricted_invocation_history_missing")
+            )
         return node_id, result
     except (KeyError, TypeError, ValueError) as exc:
         path = checkpoint.checkpoint_path or Path("<checkpoint>")
         raise CheckpointLoadError(
             f"Failed to restore per-node result history from {path}: {exc}"
         ) from exc
+
+
+def _validate_result_history_version(snapshot: Mapping[str, Any]) -> None:
+    if not isinstance(snapshot, Mapping):
+        raise TypeError("checkpoint node result must be a mapping")
+    version = snapshot.get("result_schema_version")
+    if "result_schema_version" in snapshot and (type(version) is not int or version != 1):
+        raise ValueError("unsupported checkpoint node result schema version")
+
+
+def _history_snapshot_complete(snapshot: Mapping[str, Any]) -> bool:
+    """Reconcile completeness from retained fields and explicit limitations."""
+    return "restricted_invocation" in snapshot and not _INCOMPLETE_HISTORY_WARNINGS.intersection(
+        snapshot.get("warnings", ())
+    )
+
+
+def _restore_restricted_invocation(payload: Any) -> RestrictedMethodInvocationEvidence | None:
+    """Restore declared historical evidence without making a new observation."""
+    if payload is None:
+        return None
+    expected = {item.name for item in fields(RestrictedMethodInvocationEvidence)}
+    if not isinstance(payload, Mapping) or set(payload) != expected:
+        raise ValueError("restricted invocation history fields do not match its typed schema")
+    from pydantic import TypeAdapter, ValidationError
+
+    try:
+        # JSON strict validation preserves tuple fields while refusing coercion
+        # of strings, Literal discriminators, read paths and None-only fields.
+        return TypeAdapter(RestrictedMethodInvocationEvidence).validate_json(
+            json.dumps(dict(payload)), strict=True
+        )
+    except (TypeError, ValueError, ValidationError) as exc:
+        raise ValueError(f"restricted invocation history is malformed: {exc}") from exc
 
 
 def _restore_validated_bound(payload: Any) -> ValidatedBound | None:
@@ -1069,14 +1184,45 @@ def _atomic_save_numpy(tmp_path: Path, final_path: Path, arr: np.ndarray) -> Non
     _fsync_dir(final_path.parent)
 
 
-def _atomic_write_bytes(tmp_path: Path, final_path: Path, data: bytes) -> None:
+def _atomic_write_bytes(
+    tmp_path: Path,
+    final_path: Path,
+    data: bytes,
+    *,
+    on_publish: Callable[[], None] | None = None,
+) -> None:
     tmp_path.parent.mkdir(parents=True, exist_ok=True)
     with tmp_path.open("wb") as fh:
         fh.write(data)
         fh.flush()
         os.fsync(fh.fileno())
     tmp_path.replace(final_path)
+    if on_publish is not None:
+        on_publish()
     _fsync_dir(final_path.parent)
+
+
+def _manifest_may_reference_sidecars(path: Path, sidecars: list[Path]) -> bool:
+    """Conservatively retain a generation after an uncertain manifest replace."""
+    try:
+        payload = json.loads(path.read_bytes())
+    except FileNotFoundError:
+        return False
+    except (OSError, ValueError):
+        return True
+    names = {sidecar.name for sidecar in sidecars}
+
+    def references(value: Any) -> bool:
+        if isinstance(value, dict):
+            reference = value.get("__npy_ref__")
+            if reference is not None and not isinstance(reference, str):
+                return True
+            return reference in names or any(references(child) for child in value.values())
+        if isinstance(value, list):
+            return any(references(child) for child in value)
+        return False
+
+    return references(payload)
 
 
 def _fsync_dir(path: Path) -> None:

@@ -10,7 +10,15 @@ from typing import Any, ClassVar
 
 import numpy as np
 
-from polisyos.calibration import evaluate_continuous
+from polisyos.calibration import (
+    evaluate_continuous,
+    load_continuous_evaluation,
+    persist_continuous_evaluation,
+)
+from polisyos.core.artifacts import (
+    ArtifactStore,
+    CoreJSONArtifactBoundedMemberReader,
+)
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -542,7 +550,12 @@ def _summarize_interval_diagnostics(
     intervals_by_level: Mapping[float, list[tuple[float, float]]],
     all_levels: tuple[float, ...],
     nominal_coverage: float,
+    calibration_store: ArtifactStore | None = None,
 ) -> dict[str, Any]:
+    if calibration_store is not None and not isinstance(
+        calibration_store, CoreJSONArtifactBoundedMemberReader
+    ):
+        raise TypeError("continuous summary persistence requires a bounded Core reader")
     y_true = np.asarray(y_values, dtype=float)
     primary_intervals = intervals_by_level[nominal_coverage]
     lower = np.asarray([item[0] for item in primary_intervals], dtype=float)
@@ -552,19 +565,30 @@ def _summarize_interval_diagnostics(
         covered,
         alpha=1.0 - nominal_coverage,
     )
-    report = evaluate_continuous(
-        y_true=y_true.tolist(),
-        intervals={level: intervals_by_level[level] for level in all_levels},
-        levels=list(all_levels),
-        strict=True,
-    )
+    calibration_ref = None
+    if calibration_store is None:
+        report = evaluate_continuous(
+            y_true=y_true.tolist(),
+            intervals={level: intervals_by_level[level] for level in all_levels},
+            levels=list(all_levels),
+            strict=True,
+        )
+    else:
+        calibration_ref = persist_continuous_evaluation(
+            calibration_store,
+            y_true=y_true.tolist(),
+            intervals={level: intervals_by_level[level] for level in all_levels},
+            levels=all_levels,
+            strict=True,
+        )
+        report = load_continuous_evaluation(calibration_store, calibration_ref)
     wis = _weighted_interval_score(
         y_true,
         lower,
         upper,
         alpha=1.0 - nominal_coverage,
     )
-    return {
+    summary = {
         "y_true": y_true,
         "lower": lower,
         "upper": upper,
@@ -576,6 +600,9 @@ def _summarize_interval_diagnostics(
         "mean_interval_width": float(np.mean(upper - lower)),
         "wis": wis,
     }
+    if calibration_ref is not None:
+        summary["calibration_ref"] = calibration_ref
+    return summary
 
 
 def _select_group_breaks_by_bic(

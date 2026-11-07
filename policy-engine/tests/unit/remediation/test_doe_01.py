@@ -89,6 +89,9 @@ def test_grid_extreme_materializes_only_the_declared_prefix(
     assert samples.shape == (3, 12)
     assert yielded == 3
     assert samples.base is None
+    assert samples.dtype == np.dtype("float64")
+    assert samples.nbytes == 288
+    assert np.flatnonzero(np.ptp(samples, axis=0) == 0).tolist() == list(range(10))
 
 
 def _adaptive_plan(

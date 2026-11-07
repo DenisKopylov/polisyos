@@ -82,6 +82,9 @@ def test_explicit_float32_parameter_keeps_its_given_precision_on_float64_income(
         state = make_state(jnp.float64)
         cls = IncomeTax if kind == "income_tax" else TaxSubsidy
         mech = cls(rate=jnp.asarray(0.1, dtype=jnp.float32), n_agents=10)
+        # Persisting an already quantized parameter cannot recover its original
+        # higher-precision source. These are test-owned bytes, not a production corpus.
+        mech = pickle.loads(pickle.dumps(mech))  # noqa: S301 -- Local test-owned bytes.
         patch, _ = mech.emit_patches(state, jax.random.PRNGKey(0))
         assert mech.rate.dtype == jnp.float32
         assert (

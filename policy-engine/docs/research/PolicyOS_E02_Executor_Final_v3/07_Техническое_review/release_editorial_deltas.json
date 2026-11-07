@@ -1,0 +1,72 @@
+{
+  "status": "ROOT_READBACK_COMPLETE",
+  "reason": "Independent peer acceptance completed; remove stale awaiting/not-delivered sentence while retaining PROPOSED and NOT_RUN. Original author manifests and peer hashes retained.",
+  "allowed_transformations": [
+    {
+      "relative_path": "02_Пакеты/CAL-02.md",
+      "kind": "release_status_sentence_only",
+      "before_sha256": "cd27f454534069d22fd1e845a0edc9422b1605645f7c0f47faf0005068f71a78",
+      "after_sha256": "7b59039bc80dddf5dd98398235545750b0fe375d96b576cfe92d0d87f199b712",
+      "old_text": "Ожидает независимого peer review; не утверждена и не доставлена.",
+      "new_text": "Содержательное review изменений выполнено; принятие проектом и реализация остаются отдельными шагами.",
+      "occurrences": 1,
+      "normative_change": false,
+      "reverse_transform_reproduces_reviewed_bytes": true
+    },
+    {
+      "relative_path": "02_Пакеты/BKT-02.md",
+      "kind": "release_status_sentence_only",
+      "before_sha256": "41d1fd71a0cccaa32d80421b8ce47631eeced83daaaa115d226b5179dffdd89e",
+      "after_sha256": "1034bcae6837e9538a95f44a086eb289fcfaa8d6903a74d744a2cfdad430644e",
+      "old_text": "Ожидает независимого peer review; не утверждена и не доставлена.",
+      "new_text": "Содержательное review изменений выполнено; принятие проектом и реализация остаются отдельными шагами.",
+      "occurrences": 1,
+      "normative_change": false,
+      "reverse_transform_reproduces_reviewed_bytes": true
+    },
+    {
+      "relative_path": "02_Пакеты/UQS-01.md",
+      "kind": "release_status_sentence_only",
+      "before_sha256": "1ee06a7ef5eb68251355235c59f31e5615cae247c9a1058672e832f70b2a1558",
+      "after_sha256": "4900c5287957f9a33bd7f7e5174ce2b980868d3655ca66bbf53282fe61112b99",
+      "old_text": "Ожидает независимого peer review; не утверждена и не доставлена.",
+      "new_text": "Содержательное review изменений выполнено; принятие проектом и реализация остаются отдельными шагами.",
+      "occurrences": 1,
+      "normative_change": false,
+      "reverse_transform_reproduces_reviewed_bytes": true
+    },
+    {
+      "relative_path": "02_Пакеты/PLG-03.md",
+      "kind": "release_status_sentence_only",
+      "before_sha256": "bdc3c93d663e3038593797b35e1c3718cf9f31cfc662915c205084a8fe6ef79c",
+      "after_sha256": "e2ba11032528f972a7374e1a0d535b33a2dbf64d610cdf56ef021abac2844e43",
+      "old_text": "Ожидает независимого peer review; не утверждена и не доставлена.",
+      "new_text": "Содержательное review изменений выполнено; принятие проектом и реализация остаются отдельными шагами.",
+      "occurrences": 1,
+      "normative_change": false,
+      "reverse_transform_reproduces_reviewed_bytes": true
+    },
+    {
+      "relative_path": "02_Пакеты/DOE-02.md",
+      "kind": "release_status_sentence_only",
+      "before_sha256": "621f91863f89176c8cb6bcbcac1a088a672639d54486b70310195730be2e07ed",
+      "after_sha256": "b93d0e9218d057b38402f25cdc1e30c4a6a6ca5205389de9bd66452649b65b5a",
+      "old_text": "Ожидает независимого peer review; не утверждена и не доставлена.",
+      "new_text": "Содержательное review изменений выполнено; принятие проектом и реализация остаются отдельными шагами.",
+      "occurrences": 1,
+      "normative_change": false,
+      "reverse_transform_reproduces_reviewed_bytes": true
+    },
+    {
+      "relative_path": "02_Пакеты/DOE-03.md",
+      "kind": "release_status_sentence_only",
+      "before_sha256": "5c7e497f6d9c9edcf401c8dc7332c595e74399cd6c31a95bf52339c9ec6bf12a",
+      "after_sha256": "df62c40d8e02f445ecf20d82728849598c39e6dfc435c69793187d010f1933a8",
+      "old_text": "Ожидает независимого peer review; не утверждена и не доставлена.",
+      "new_text": "Содержательное review изменений выполнено; принятие проектом и реализация остаются отдельными шагами.",
+      "occurrences": 1,
+      "normative_change": false,
+      "reverse_transform_reproduces_reviewed_bytes": true
+    }
+  ]
+}

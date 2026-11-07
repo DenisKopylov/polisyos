@@ -6,7 +6,12 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from .designs import SensitivityMethod, SensitivityPlan, _build_salib_problem
+from .designs import (
+    SensitivityMethod,
+    SensitivityPlan,
+    _admit_sensitivity_analysis_plan,
+    _build_salib_problem,
+)
 from .morris_geometry import _validate_morris_plan_samples
 
 
@@ -42,6 +47,7 @@ class RankingStabilityChecker:
         Returns a ``StabilityReport`` with a score in [0, 1] where 1
         means perfectly stable rankings across all bootstrap samples.
         """
+        plan = _admit_sensitivity_analysis_plan(plan)
         from .analysis import _prepare_analysis_inputs, analyze_sensitivity
 
         if samples.shape[0] < 10:

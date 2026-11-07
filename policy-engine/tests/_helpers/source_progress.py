@@ -19,6 +19,7 @@ from polisyos.fabric.connectors.contracts.source_contract import (
     SourceProgressContract,
 )
 from polisyos.fabric.ingestion.source_progress import FiniteSourceProgressReader
+from polisyos.ir.connectors import VersionStrategy
 
 SOURCE_TIME = datetime(2026, 1, 1, tzinfo=UTC)
 
@@ -34,6 +35,8 @@ def finite_source_reader(
     version_fields: tuple[str, ...] = ("source_version",),
     transport_path: Path | None = None,
     partition_key: str = "default",
+    version_strategy: VersionStrategy = VersionStrategy.ETAG,
+    source_time: datetime = SOURCE_TIME,
 ) -> FiniteSourceProgressReader:
     """Create an actual complete source fixture before any connector executes.
 
@@ -108,7 +111,7 @@ def finite_source_reader(
         dataset_id=dataset_id,
         event_fields=event_fields,
         version_fields=version_fields,
-        version_strategy="etag",
+        version_strategy=version_strategy.value,
         transport_kind="jsonl_file" if transport_path is not None else "finite_history_file",
         transport_fixture_ref=transport_path.resolve().relative_to(root.resolve()).as_posix()
         if transport_path is not None
@@ -116,15 +119,21 @@ def finite_source_reader(
         partition_key=partition_key,
     )
     reader = FiniteSourceProgressReader(root, source, extension)
-    write_source_history(reader, snapshots)
+    write_source_history(reader, snapshots, source_time=source_time)
     return reader
 
 
 def write_source_history(
     reader: FiniteSourceProgressReader,
     snapshots: list[tuple[str, list[dict[str, Any]]]],
+    *,
+    source_time: datetime = SOURCE_TIME,
 ) -> None:
-    """Append an independently authored source state to the finite owner file."""
+    """Write owner history, preserving each timestamp version's own source time.
+
+    Opaque versions retain the supplied source time. Timestamp versions name
+    their own instant so an append never changes a previously owned snapshot.
+    """
     payload = {
         "schema_version": "fabric.finite_source_history.v1",
         "connector_id": reader.extension.connector_id,
@@ -133,9 +142,13 @@ def write_source_history(
         "snapshots": [
             {
                 "version": {
-                    "strategy": "etag",
+                    "strategy": reader.extension.version_strategy,
                     "value": version,
-                    "timestamp": SOURCE_TIME.isoformat(),
+                    "timestamp": (
+                        datetime.fromisoformat(version).isoformat()
+                        if reader.extension.version_strategy == VersionStrategy.TIMESTAMP.value
+                        else source_time.isoformat()
+                    ),
                 },
                 "rows": rows,
             }

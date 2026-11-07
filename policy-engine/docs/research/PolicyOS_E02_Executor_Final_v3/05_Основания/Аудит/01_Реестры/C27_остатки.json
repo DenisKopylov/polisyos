@@ -1,0 +1,73 @@
+{
+  "pass": "C27",
+  "bundle": "TRN-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C27-R01",
+      "type": "historical_grade_without_effective_age_in_pattern_report_projection",
+      "severity": "low_diagnostic_semantics",
+      "source_ids": [
+        "B137"
+      ],
+      "location": "lessons.py:872–907; calibration_report.py:252–281",
+      "evidence": [
+        "P17",
+        "P21"
+      ],
+      "mechanism": "Same old evidence has query .5/low_confidence but top_patterns/calibration snapshot projection .9/local.",
+      "preserve": "Historical grade and source ref; primary lifecycle query path preserves limited trust.",
+      "remaining": "Separate historical/current grade or use existing effective-age projection; no need to erase original record.",
+      "limits": "No promotion authority or main search numerical contamination claimed."
+    },
+    {
+      "id": "C27-R02",
+      "type": "naive_datetime_admitted_to_aware_age_computation",
+      "severity": "low_external_input_availability",
+      "source_ids": [
+        "B135",
+        "B137"
+      ],
+      "location": "transfer_context.py:55–71,310–346,414–419",
+      "evidence": [
+        "P23"
+      ],
+      "mechanism": "Typed resolver accepts naive datetime; otherwise compatible compute_provenance_weight subtracts aware target and raises TypeError.",
+      "preserve": "Normal producers use aware UTC.",
+      "remaining": "One explicit timestamp contract with typed refusal or justified documented normalization.",
+      "limits": "No access-control bypass; all sibling datetime paths not exhaustively tested."
+    },
+    {
+      "id": "C27-G01",
+      "type": "aggregate_source_evidence_anchor_handoff_incomplete",
+      "source_ids": [
+        "B137"
+      ],
+      "evidence": [
+        "P18",
+        "S03:1698–1748"
+      ],
+      "remaining": "Immediate .9/transferred becomes .5/low_confidence for same result after target reopen because source aggregate newer anchor is not carried. Existing test deliberately preserves conservative readback; do not restore .9 without source-bound evidence. Make initial projection conservative or bind actual evidence anchor through existing refs."
+    },
+    {
+      "id": "C27-G02",
+      "type": "native_owner_and_empirical_revalidation_qualification",
+      "source_ids": [
+        "B135",
+        "B136",
+        "B137"
+      ],
+      "evidence": [
+        "P05",
+        "P06",
+        "P19",
+        "P21",
+        "S02",
+        "S04",
+        "S07"
+      ],
+      "remaining": "Native CAS/profile/access and complete funnel→persisted lesson→search chain unrun. Producer confidence/TTL/internal provenance weights not empirical probability; new timestamp/ref alone not genuine reverification."
+    }
+  ]
+}

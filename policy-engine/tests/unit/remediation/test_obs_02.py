@@ -416,16 +416,18 @@ def test_source_mutation_during_snapshot_capture_is_rejected_before_yield(
         next(iter(sources._iter_observation_metric_frames(config)))
 
 
+@pytest.mark.parametrize("disk_budget", [1 / 1024**3, 0.0, -1.0, float("nan"), float("inf")])
 def test_snapshot_refuses_insufficient_disk_budget_before_copy(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    disk_budget: float,
 ) -> None:
     """A large member cannot start an unadmitted temporary copy."""
     pytest.importorskip("pyarrow")
     from polisyos.data_forge.domains.ukraine.builders import sources
 
     config, _, _ = _config(tmp_path)
-    config.stages[StageId.D2.value].resource_budget.disk_gib = 1 / 1024**3
+    config.stages[StageId.D2.value].resource_budget.disk_gib = disk_budget
 
     def forbidden_snapshot(*args: Any, **kwargs: Any) -> None:
         raise AssertionError("temporary copy started before disk admission")
@@ -456,10 +458,11 @@ def test_snapshot_refuses_when_temporary_filesystem_lacks_capacity(
         next(iter(sources._iter_observation_metric_frames(config)))
 
 
+@pytest.mark.parametrize("mutation", ["grow", "shrink"])
 def test_snapshot_capture_rejects_source_growth_and_closes_temporary_file(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mutation: str
 ) -> None:
-    """Growth after admission cannot increase the temporary file beyond its bound."""
+    """A changed size refuses before yield and never exceeds the admitted copy."""
     pytest.importorskip("pyarrow")
     from polisyos.data_forge.domains.ukraine.builders import sources
 
@@ -487,17 +490,22 @@ def test_snapshot_capture_rejects_source_growth_and_closes_temporary_file(
             bytes_written += len(data)
             return self.handle.write(data)
 
-    def hash_then_grow(path: Path, **kwargs: Any) -> str:
+    def hash_then_resize(path: Path, **kwargs: Any) -> str:
         digest = real_hash(path, **kwargs)
-        with artifact.open("ab") as handle:
-            handle.write(b"more data")
+        if mutation == "grow":
+            with artifact.open("ab") as handle:
+                handle.write(b"more data")
+        else:
+            with artifact.open("r+b") as handle:
+                handle.truncate(original_size - 1)
         return digest
 
-    monkeypatch.setattr(sources, "sha256_file", hash_then_grow)
+    monkeypatch.setattr(sources, "sha256_file", hash_then_resize)
     monkeypatch.setattr(tempfile, "TemporaryFile", lambda **_kwargs: TrackedSnapshot())
-    with pytest.raises(RuntimeError, match="snapshot source grew"):
+    reason = "grew" if mutation == "grow" else "shrank"
+    with pytest.raises(RuntimeError, match=f"snapshot source {reason}"):
         next(iter(sources._iter_observation_metric_frames(config)))
-    assert bytes_written == original_size
+    assert bytes_written == original_size - (mutation == "shrink")
     assert len(snapshots) == 1 and snapshots[0].closed
 
 

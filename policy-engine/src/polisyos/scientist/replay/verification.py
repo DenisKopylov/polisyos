@@ -211,7 +211,26 @@ def persist_replay_verification_report(
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
-    """Persist replay verification report helper."""
+    """Recompute and persist a report for the supplied replay-verification payload.
+
+    Resolves the replay bundle's current run context, recomputes the verifier result,
+    and rejects payload decision fields that differ from that result. If ``inputs`` is
+    supplied, its role bindings must match the resolved replay lineage. The report is
+    written as a selected-profile artifact; persistence records the verifier result
+    but does not grant policy authority.
+
+    Args:
+        store: Artifact store containing the replay bundle and its evidence.
+        payload: Report payload to compare with the recomputed verifier result.
+        inputs: Optional lineage projection to validate against resolved replay inputs.
+
+    Returns:
+        The selected-profile reference to the persisted verification report.
+
+    Raises:
+        ValueError: If the schema version is unsupported, the payload differs from the
+            recomputed result, or supplied lineage does not match the replay context.
+    """
     if payload.schema_version != REPLAY_VERIFICATION_REPORT_SCHEMA_VERSION:
         raise ValueError("replay_verification_report_schema_version_unsupported")
     measured, expected_inputs = _recompute_replay_context(
@@ -577,7 +596,30 @@ def verify_and_persist_replay_bundle(
     evaluation_ref: ArtifactRef | None = None,
     registry: ReplayRegistry | None = None,
 ) -> ArtifactRef:
-    """Verify and persist replay bundle helper."""
+    """Recompute a replay bundle's verification report and persist the result.
+
+    The report is bound to the supplied run and replay-bundle references. If either
+    candidate or evaluation context is supplied, both are required and must match the
+    selected references in the bundle. When a registry and both context references are
+    supplied, the persisted report binding is also recorded in that registry; this
+    records replay evidence without promoting the candidate.
+
+    Args:
+        store: Artifact store containing the replay bundle and its evidence.
+        run_id: Run identifier that the replay bundle must match.
+        replay_bundle_ref: Selected artifact reference to the replayable audit bundle.
+        candidate_ref: Optional current candidate reference to bind to the bundle.
+        evaluation_ref: Optional current evaluation reference to bind to the bundle.
+        registry: Optional registry for recording the completed replay-verification
+            binding when both candidate and evaluation references are supplied.
+
+    Returns:
+        The selected-profile reference to the persisted verification report.
+
+    Raises:
+        ValueError: If the run, bundle, or supplied candidate/evaluation context cannot
+            be reconciled with the resolved replay evidence.
+    """
     report, inputs = _recompute_replay_context(
         store,
         run_id=run_id,

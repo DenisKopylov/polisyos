@@ -26,13 +26,16 @@ from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo, artifact_r
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.core.contracts.fabric import EvidenceBundle, EvidenceBundleRef
-from polisyos.core.contracts.provenance import ProvenanceCoreGraph, RelationType
+from polisyos.core.contracts.provenance import RelationType
 from polisyos.fabric.connectors.contracts.source_contract import (
     SourceContract,
     SourceProgressContract,
 )
 from polisyos.fabric.connectors.types import FetchError
-from polisyos.fabric.ingestion._source_evidence_schema import require_source_evidence_schema
+from polisyos.fabric.ingestion._source_evidence_schema import (
+    load_source_evidence_bundle,
+    require_source_evidence_schema,
+)
 from polisyos.ir.connectors import DataVersion, FetchRequest, FetchResult, VersionStrategy
 
 if TYPE_CHECKING:
@@ -522,7 +525,9 @@ class ReconciledSourceFrame:
                 or actual_request.cache_key != proof.get("actual_request_key")
             ):
                 return None
-            bundle = EvidenceBundle.model_validate(load_core_json_artifact(store, evidence_ref))
+            bundle, _manifest = load_source_evidence_bundle(
+                store, evidence_ref, require_selected_profile=True
+            )
             if (
                 not any(
                     artifact_ref_identity_key(ref) == artifact_ref_identity_key(payload_ref)
@@ -531,7 +536,6 @@ class ReconciledSourceFrame:
                 or bundle.provenance_ref is None
             ):
                 return None
-            from polisyos.core.artifacts.ids import ArtifactID
             from polisyos.fabric.connectors.cache._store_serialization import ResultSerializer
 
             persisted = ResultSerializer.deserialize(store.get_bytes(payload_ref))
@@ -540,12 +544,15 @@ class ReconciledSourceFrame:
             if not _cache_payload_ref_matches_result(store, payload_ref, persisted):
                 return None
             self.verify_materialization(persisted, version=cursor.watermark_value)
-            graph = ProvenanceCoreGraph.from_dict(
-                load_core_json_artifact(
-                    store, ArtifactID.model_validate(bundle.provenance_ref.artifact_id)
-                )
-            )
             graph_ref = bundle.provenance_ref
+            from polisyos.core.contracts.provenance import ProvenanceCoreRef
+            from polisyos.fabric.evidence import load_provenance_graph
+
+            graph = load_provenance_graph(
+                store,
+                ProvenanceCoreRef.from_dict(graph_ref.model_dump()),
+                require_selected_profile=True,
+            )
             entity_id = f"dataset.{cursor.connector_id}.{cursor.dataset_id}"
             entity = graph.entities.get(entity_id)
             if (
@@ -570,6 +577,8 @@ class ReconciledSourceFrame:
             self.assert_current()
             self.assert_transport_current()
             return version
+        except PermissionError:
+            raise
         except (KeyError, LookupError, OSError, TypeError, ValueError):
             return None
 
@@ -844,8 +853,7 @@ def project_partial_source_scope(
     from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
     from polisyos.core.contracts.fabric import EvidenceStep
 
-    evidence = EvidenceBundle.model_validate(load_core_json_artifact(store, evidence_ref))
-    manifest = store.get_manifest(evidence_ref)
+    evidence, manifest = load_source_evidence_bundle(store, evidence_ref)
     evidence_schema = require_source_evidence_schema(manifest)
     inputs = [input_ref_from_artifact_ref(evidence_ref, role="source_evidence")]
     steps = list(evidence.transforms)

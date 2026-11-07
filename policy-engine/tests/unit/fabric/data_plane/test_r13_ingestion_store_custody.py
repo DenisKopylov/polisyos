@@ -8,8 +8,15 @@ from typing import Any
 
 import pytest
 
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.connectors.registry import ConnectorRegistry
+from polisyos.fabric.data_plane.replay_store import (
+    RecordSession,
+)
+from polisyos.fabric.data_plane.replay_store import (
+    ReplayStore as _ReplayStoreOwner,
+)
 from polisyos.fabric.ingestion.ingestion_providers import resolve_ingestion_dependencies
 from polisyos.ir.connectors import DataVersion, VersionStrategy
 
@@ -34,18 +41,22 @@ class _ReplayStoreStub:
 
     def __init__(self, store: object) -> None:
         self._store = store
+        self._owner = _ReplayStoreOwner(store)
         self.seen_stores.append(store)
 
-    def save_record_session(self, session: object) -> SimpleNamespace:
-        del session
-        return SimpleNamespace(artifact_id=SimpleNamespace(hex="record-ref"))
+    def save_record_session(
+        self, session: RecordSession, *, evidence_ref: ArtifactRef | None = None
+    ) -> ArtifactRef:
+        return self._owner.save_record_session(session, evidence_ref=evidence_ref)
 
-    def load_record_session(self, artifact_id: object) -> object:
-        del artifact_id
-        return {"session": "replay"}
+    def resolve_record_session_ref(self, selector: ArtifactRef | str) -> ArtifactRef:
+        return self._owner.resolve_record_session_ref(selector)
 
-    def build_replay_fixture_dir(self, session: object, fixture_dir: object) -> None:
-        del session, fixture_dir
+    def load_record_session(self, artifact_id: ArtifactRef | str) -> RecordSession:
+        return self._owner.load_record_session(artifact_id)
+
+    def build_replay_fixture_dir(self, session: RecordSession, fixture_dir: Path) -> Path:
+        return self._owner.build_replay_fixture_dir(session, fixture_dir)
 
 
 def _ingestion_bundle(base_root: Path):
@@ -144,11 +155,15 @@ def test_all_mode_paths_forward_the_supplied_dependencies_and_store(
     monkeypatch.setattr(simulator_module, "APISimulator", _NoopSimulator)
     _inline_blocking_call(monkeypatch, modes_module)
 
-    def capture_connectors(**kwargs: Any) -> SimpleNamespace:
+    def capture_connectors(**kwargs: Any) -> ArtifactRef:
         assert kwargs["dependencies"] is dependencies
         assert kwargs["sidecar_scope"] is scope
         connector_dependencies.append(kwargs["dependencies"])
-        return SimpleNamespace(artifact_id=SimpleNamespace(hex="evidence-ref"))
+        return evidence_module.persist_evidence_bundle(
+            store,
+            evidence_module.build_evidence_bundle(execution_context=kwargs["execution_context"]),
+            return_selected_profile=True,
+        )
 
     monkeypatch.setattr(ingestion_module, "run_connectors_ingestion", capture_connectors)
 
@@ -161,7 +176,7 @@ def test_all_mode_paths_forward_the_supplied_dependencies_and_store(
         ingestion_dependencies=dependencies,
         sidecar_scope=scope,
     )
-    modes_module.run_record_mode(
+    record_result, _record_ref = modes_module.run_record_mode(
         connector_manifest=_manifest(),
         source="test",
         license_name="MIT",
@@ -174,7 +189,7 @@ def test_all_mode_paths_forward_the_supplied_dependencies_and_store(
         source="test",
         license_name="MIT",
         cas_root=base_root,
-        replay_ref="sha256:" + "0" * 64,
+        replay_ref=record_result.record_session_selected_ref,
         ingestion_dependencies=dependencies,
         sidecar_scope=scope,
     )
@@ -192,6 +207,7 @@ def test_all_mode_paths_forward_the_supplied_dependencies_and_store(
             rows_emitted=1,
             quarantined_rows=0,
             final_cursor_ref=None,
+            source_progress_scope=None,
         )
 
     async def capture_stream_manifest(**kwargs: Any) -> object:
@@ -260,6 +276,7 @@ def test_cursor_registry_adaptation_preserves_other_providers(
                 timestamp=datetime(2026, 9, 28, tzinfo=UTC),
             )
         },
+        {},
     )
 
     assert adapted is not dependencies
@@ -374,6 +391,9 @@ def test_streaming_snapshot_uses_owner_tenant_store_for_the_full_artifact_chain(
     from polisyos.fabric.ingestion.ingestion_providers import resolve_ingestion_dependencies
     from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
     from polisyos.runtime.http.resilience import guard_runtime_cas
+    from tests.unit.fabric.data_plane.test_modes import _use_lifecycle_stream_profile
+
+    _use_lifecycle_stream_profile(monkeypatch)
 
     tenant_a = _TENANT_A
     tenant_b = "00000000-0000-0000-0000-00000000000b"
@@ -400,9 +420,18 @@ def test_streaming_snapshot_uses_owner_tenant_store_for_the_full_artifact_chain(
         payload: object,
         opts: Any,
         canon_spec: Any = None,
+        *,
+        return_selected_profile: bool = False,
+        **kwargs: Any,
     ) -> Any:
         write_tenant = get_current_tenant_id_or_none()
-        ref = original_put_json(payload, opts, canon_spec=canon_spec)
+        ref = original_put_json(
+            payload,
+            opts,
+            canon_spec=canon_spec,
+            return_selected_profile=return_selected_profile,
+            **kwargs,
+        )
         writes.append((str(opts.kind), write_tenant, ref))
         return ref
 

@@ -84,6 +84,85 @@ class _ResolverKind(StrEnum):
     LINEAGE = "lineage"
 
 
+@dataclass(frozen=True, slots=True)
+class _OwnedRunBinding:
+    """Server-resolved relationship between a Control run alias and its Core owner."""
+
+    control_run_id: str
+    core_run_id: str
+    control_job_id: str
+    tenant_id: str
+    cell_id: str
+    core_manifest_ref: Mapping[str, Any]
+
+    def as_context(self) -> dict[str, object]:
+        """Return the canonical JSON-safe facts sealed into the authorization context."""
+        return {
+            "control_run_id": self.control_run_id,
+            "core_run_id": self.core_run_id,
+            "control_job_id": self.control_job_id,
+            "tenant_id": self.tenant_id,
+            "cell_id": self.cell_id,
+            "core_manifest_ref": dict(self.core_manifest_ref),
+        }
+
+
+def _validate_owned_run_binding_context(
+    value: object,
+    *,
+    expected_control_run_id: str,
+) -> _OwnedRunBinding:
+    """Validate the exact server-authored Control-to-Core owner snapshot."""
+    fields = {
+        "control_run_id",
+        "core_run_id",
+        "control_job_id",
+        "tenant_id",
+        "cell_id",
+        "core_manifest_ref",
+    }
+    if not isinstance(value, Mapping) or set(value) != fields:
+        raise forbidden(
+            "The human-decision Control run owner is invalid",
+            code="authorization_binding_context_invalid",
+        )
+    identifiers = {
+        name: value.get(name)
+        for name in ("control_run_id", "core_run_id", "control_job_id", "tenant_id", "cell_id")
+    }
+    if any(type(item) is not str or not item.strip() for item in identifiers.values()):
+        raise forbidden(
+            "The human-decision Control run owner is incomplete",
+            code="authorization_binding_context_invalid",
+        )
+    if identifiers["control_run_id"] != expected_control_run_id:
+        raise forbidden(
+            "The human-decision Control run owner changed",
+            code="authorization_binding_context_mismatch",
+        )
+    manifest_ref = value.get("core_manifest_ref")
+    if not isinstance(manifest_ref, Mapping):
+        raise forbidden(
+            "The human-decision Core manifest owner is invalid",
+            code="authorization_binding_context_invalid",
+        )
+    try:
+        parsed_manifest_ref = artifacts.ArtifactRef.model_validate(dict(manifest_ref))
+    except (TypeError, ValueError) as exc:
+        raise forbidden(
+            "The human-decision Core manifest owner is invalid",
+            code="authorization_binding_context_invalid",
+        ) from exc
+    return _OwnedRunBinding(
+        control_run_id=cast("str", identifiers["control_run_id"]),
+        core_run_id=cast("str", identifiers["core_run_id"]),
+        control_job_id=cast("str", identifiers["control_job_id"]),
+        tenant_id=cast("str", identifiers["tenant_id"]),
+        cell_id=cast("str", identifiers["cell_id"]),
+        core_manifest_ref=parsed_manifest_ref.model_dump(mode="json"),
+    )
+
+
 _OWNED_PATH_RESOLVERS = {
     ("runtime.control_job.cancel", "job_id"): _ResolverKind.JOB,
     ("runtime.run.normative_evidence", "run_id"): _ResolverKind.RUN,
@@ -358,6 +437,11 @@ def human_decision_create_from_bound_resource(
     if (
         not isinstance(context, Mapping)
         or context.get("context_version") != _HUMAN_DECISION_CREATE_CONTEXT_KIND
+        or set(context)
+        not in (
+            {"context_version", "body", "exposure_session_ref"},
+            {"context_version", "body", "exposure_session_ref", "owned_run_binding"},
+        )
     ):
         raise forbidden(
             "The human-decision authorization context has an unsupported version",
@@ -380,6 +464,12 @@ def human_decision_create_from_bound_resource(
             "The human-decision selectors differ from the sealed mutation context",
             code="authorization_binding_context_mismatch",
         )
+    owned_run_binding = context.get("owned_run_binding")
+    if owned_run_binding is not None:
+        _validate_owned_run_binding_context(
+            owned_run_binding,
+            expected_control_run_id=run_id,
+        )
     return context
 
 
@@ -389,6 +479,91 @@ def human_decision_create_from_bound_request(request: Request) -> Mapping[str, A
     return human_decision_create_from_bound_resource(
         bound, run_id=_path_identifier(request, "run_id")
     )
+
+
+def human_decision_create_owner_from_bound_request(
+    request: Request,
+    *,
+    ctx: RuntimeApiContext,
+    run_id: str,
+) -> tuple[Mapping[str, Any], IndexedRunRecord | None]:
+    """Return the sealed mutation context and reopen its Core owner if aliased."""
+    context = human_decision_create_from_bound_request(request)
+    scope = _require_access_scope(request)
+    return context, _human_decision_create_control_alias_run_from_context(
+        context,
+        request=request,
+        ctx=ctx,
+        scope=scope,
+        run_id=run_id,
+    )
+
+
+def _human_decision_create_control_alias_run_from_context(
+    context: Mapping[str, Any],
+    *,
+    request: Request,
+    ctx: RuntimeApiContext,
+    scope: AccessScope,
+    run_id: str,
+) -> IndexedRunRecord | None:
+    """Reopen a sealed Control alias's exact Core run after authorization."""
+    raw_binding = context.get("owned_run_binding")
+    if raw_binding is None:
+        return None
+    binding = _validate_owned_run_binding_context(
+        raw_binding,
+        expected_control_run_id=run_id,
+    )
+    if binding.tenant_id != scope.tenant_id or binding.cell_id != scope.cell_id:
+        raise forbidden(
+            "The human-decision Control run scope changed after authorization",
+            code="authorization_binding_context_mismatch",
+        )
+    try:
+        current_run_id, current_tenant_id, current_binding = _resolve_owned_run_for_binding(
+            request,
+            ctx,
+            scope,
+            run_id,
+        )
+    except Exception as exc:
+        raise forbidden(
+            "The human-decision Control run owner changed after authorization",
+            code="authorization_binding_context_mismatch",
+        ) from exc
+    if (
+        current_run_id != binding.control_run_id
+        or current_tenant_id != binding.tenant_id
+        or current_binding != binding
+    ):
+        raise forbidden(
+            "The human-decision Control run owner changed after authorization",
+            code="authorization_binding_context_mismatch",
+        )
+    try:
+        ctx.run_index.refresh(force=True)
+        indexed = ctx.run_index.get_run(binding.core_run_id)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise forbidden(
+            "The human-decision Core owner changed after authorization",
+            code="authorization_binding_context_mismatch",
+        ) from exc
+    details = indexed.details
+    manifest_ref = details.manifest_ref
+    if (
+        indexed.run_id != binding.core_run_id
+        or details.tenant_id != binding.tenant_id
+        or details.cell_id != binding.cell_id
+        or details.control_job_id != binding.control_job_id
+        or manifest_ref is None
+        or manifest_ref.model_dump(mode="json") != dict(binding.core_manifest_ref)
+    ):
+        raise forbidden(
+            "The human-decision Core owner changed after authorization",
+            code="authorization_binding_context_mismatch",
+        )
+    return indexed
 
 
 def lineage_batch_from_bound_request(
@@ -893,6 +1068,7 @@ def _bind_owned_existing_path(
     value = _path_identifier(request, parameter)
     ctx = _require_runtime_context(request)
     resolver_kind = _OWNED_PATH_RESOLVERS.get((spec.resource_kind, parameter))
+    owned_run_binding: _OwnedRunBinding | None = None
     if resolver_kind is _ResolverKind.ARTIFACT:
         resource_id, tenant_id = _resolve_owned_artifact(ctx, scope, value)
         selector_name = "artifact_id"
@@ -904,6 +1080,13 @@ def _bind_owned_existing_path(
             indexed_run = _resolve_method_execution_indexed_run(ctx, request, scope, value)
             resource_id = indexed_run.run_id
             tenant_id = indexed_run.details.tenant_id
+        elif spec.resource_kind == "runtime.run.human_decision":
+            resource_id, tenant_id, owned_run_binding = _resolve_owned_run_for_binding(
+                request,
+                ctx,
+                scope,
+                value,
+            )
         else:
             resource_id, tenant_id = _resolve_owned_run(ctx, scope, value)
         selector_name = "run_id"
@@ -1060,6 +1243,11 @@ def _bind_owned_existing_path(
                 "context_version": _HUMAN_DECISION_CREATE_CONTEXT_KIND,
                 "body": dict(body),
                 "exposure_session_ref": exposure_session_ref,
+                **(
+                    {"owned_run_binding": owned_run_binding.as_context()}
+                    if owned_run_binding is not None
+                    else {}
+                ),
             },
             _RESOLVED_CONTEXT_CANON,
         )
@@ -2012,6 +2200,126 @@ def _resolve_owned_run(
     return run.run_id, tenant_id
 
 
+def _resolve_owned_run_for_binding(
+    request: Request,
+    ctx: RuntimeApiContext,
+    scope: AccessScope,
+    value: str,
+) -> tuple[str, str, _OwnedRunBinding | None]:
+    """Resolve a Core run or one completed NL control alias for DS9 creation."""
+    run_id = _required_string(value, field_name="run_id")
+    try:
+        run = ctx.run_index.get_run(run_id)
+    except (KeyError, TypeError, ValueError):
+        try:
+            ctx.run_index.refresh(force=True)
+            run = ctx.run_index.get_run(run_id)
+        except (KeyError, TypeError, ValueError):
+            return _resolve_completed_nl_control_alias(
+                request,
+                ctx,
+                scope,
+                control_run_id=run_id,
+            )
+    tenant_id = run.details.tenant_id
+    if not isinstance(tenant_id, str) or not tenant_id:
+        raise forbidden(
+            "Run resource has no verified tenant ownership",
+            code="authorization_binding_run_unscoped",
+        )
+    if tenant_id != scope.tenant_id:
+        raise forbidden(
+            "Run resource belongs to a different tenant",
+            code="authorization_binding_run_tenant_mismatch",
+        )
+    return run.run_id, tenant_id, None
+
+
+def _resolve_completed_nl_control_alias(
+    request: Request,
+    ctx: RuntimeApiContext,
+    scope: AccessScope,
+    *,
+    control_run_id: str,
+) -> tuple[str, str, _OwnedRunBinding]:
+    """Bind a DS9 source alias to its unique authenticated completed NL owner."""
+    if not scope.cell_id:
+        raise forbidden(
+            "Run resource ownership is not established for this cell",
+            code="authorization_binding_run_unscoped",
+        )
+    control = resolve_control_service(request)
+    if control is None:
+        raise forbidden(
+            "Run resource could not be resolved",
+            code="authorization_binding_run_unresolved",
+        )
+    try:
+        job = control._control_store.get_unique_completed_job_by_run_and_kind(
+            run_id=control_run_id,
+            kind="natural_language_run",
+        )
+        if (
+            job is None
+            or job.kind != "natural_language_run"
+            or job.state != "completed"
+            or job.run_id != control_run_id
+        ):
+            raise ValueError("completed_nl_control_run_not_established")
+        owner_scope = control._control_store.historical_completed_job_execution_scope(
+            job_id=job.job_id,
+            expected_run_id=control_run_id,
+        )
+        if (
+            owner_scope.status != "established"
+            or owner_scope.actor_authenticated is not True
+            or owner_scope.tenant_id != scope.tenant_id
+            or owner_scope.cell_id != scope.cell_id
+        ):
+            raise ValueError("completed_nl_control_run_scope_not_established")
+        from polisyos.core.security.tenant_context import tenant_scope
+
+        with tenant_scope(None, tenant_id=scope.tenant_id, cell_id=scope.cell_id):
+            terminal = control.resolve_completed_control_job_core_run_source(
+                job,
+                expected_control_run_id=control_run_id,
+                tenant_id=scope.tenant_id,
+                cell_id=scope.cell_id,
+            )
+            ctx.run_index.refresh(force=True)
+            indexed = ctx.run_index.get_run(terminal.run_id)
+        details = indexed.details
+        indexed_manifest = details.manifest_ref
+        if (
+            terminal.run_id != indexed.run_id
+            or terminal.tenant_id != scope.tenant_id
+            or terminal.cell_id != scope.cell_id
+            or terminal.manifest.run_id != terminal.run_id
+            or terminal.manifest.control_job_id != job.job_id
+            or details.tenant_id != scope.tenant_id
+            or details.cell_id != scope.cell_id
+            or details.control_job_id != job.job_id
+            or indexed_manifest is None
+            or indexed_manifest.model_dump(mode="json")
+            != terminal.manifest_ref.model_dump(mode="json")
+        ):
+            raise ValueError("completed_nl_control_run_core_index_mismatch")
+        binding = _OwnedRunBinding(
+            control_run_id=control_run_id,
+            core_run_id=terminal.run_id,
+            control_job_id=job.job_id,
+            tenant_id=scope.tenant_id,
+            cell_id=scope.cell_id,
+            core_manifest_ref=terminal.manifest_ref.model_dump(mode="json"),
+        )
+    except Exception as exc:
+        raise forbidden(
+            "Run resource could not be resolved",
+            code="authorization_binding_run_unresolved",
+        ) from exc
+    return control_run_id, scope.tenant_id, binding
+
+
 def _resolve_owned_artifact(
     ctx: RuntimeApiContext,
     scope: AccessScope,
@@ -2429,6 +2737,7 @@ __all__ = [
     "get_bound_resource_context",
     "human_decision_create_from_bound_request",
     "human_decision_create_from_bound_resource",
+    "human_decision_create_owner_from_bound_request",
     "lineage_batch_from_bound_request",
     "production_approval_inputs_from_bound_request",
     "production_approval_scorecard_from_bound_request",

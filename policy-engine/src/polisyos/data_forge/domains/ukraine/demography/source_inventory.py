@@ -413,7 +413,7 @@ class DemographyRoleProjection(Mapping[str, object]):
     ) -> None:
         """Bind evidence to a private snapshot of the supplied JSON payload."""
         object.__setattr__(self, "role", role)
-        object.__setattr__(self, "evidence", evidence)
+        object.__setattr__(self, "_evidence_snapshot", evidence.model_copy(deep=True))
         object.__setattr__(self, "_payload_snapshot", _snapshot_json_object(payload))
 
     def __getattribute__(self, name: str) -> object:
@@ -421,6 +421,9 @@ class DemographyRoleProjection(Mapping[str, object]):
         if name == "payload":
             snapshot = object.__getattribute__(self, "_payload_snapshot")
             return _snapshot_json_object(snapshot)
+        if name == "evidence":
+            evidence = object.__getattribute__(self, "_evidence_snapshot")
+            return evidence.model_copy(deep=True)
         return object.__getattribute__(self, name)
 
     def _stored_payload(self) -> dict[str, object]:

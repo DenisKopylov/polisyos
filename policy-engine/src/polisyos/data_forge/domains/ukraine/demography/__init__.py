@@ -37,6 +37,25 @@ def _to_numpy(value: object, *, dtype: npt.DTypeLike = float) -> np.ndarray:
     return np.asarray(value, dtype=dtype)
 
 
+def _exact_int64_indices(value: object) -> np.ndarray:
+    """Admit original scalar identities before any inferred float representation."""
+    source = np.asarray(value, dtype=object)
+    admitted: list[int] = []
+    for scalar in source.flat:
+        if isinstance(scalar, (int, np.integer)):
+            integer = int(scalar)
+        elif isinstance(scalar, (float, np.floating)):
+            if not np.isfinite(scalar) or scalar != np.trunc(scalar):
+                raise ValueError("donor indices must be finite exact integers")
+            integer = int(scalar)
+        else:
+            raise ValueError("donor indices must be finite exact integers")
+        if not -(2**63) <= integer <= 2**63 - 1:
+            raise ValueError("donor indices must be representable as int64")
+        admitted.append(integer)
+    return np.asarray(admitted, dtype=np.int64).reshape(source.shape)
+
+
 _DemographyLayout = Literal["new", "legacy"]
 _LAYOUT_PATHS: dict[_DemographyLayout, dict[str, str]] = {
     "new": {
@@ -200,8 +219,6 @@ class UkraineDemographyArtifacts(BaseModel):
         "transition_prior_matrix",
         "allowed_transition_mask",
         "donor_weights",
-        "donor_state_index",
-        "donor_record_index",
         mode="before",
     )
     @classmethod
@@ -209,6 +226,13 @@ class UkraineDemographyArtifacts(BaseModel):
         if value is None:
             return None
         return np.asarray(value)
+
+    @field_validator("donor_state_index", "donor_record_index", mode="before")
+    @classmethod
+    def _coerce_exact_indices(cls, value: object) -> object:
+        if value is None:
+            return None
+        return _exact_int64_indices(value)
 
     @field_serializer(
         "target_state_totals",
@@ -295,15 +319,64 @@ def _resolve_reader_source(
     )
 
 
+_COMPUTATIONAL_ROLE_OWNERS = {
+    "state_ids": "targets",
+    "target_state_totals": "targets",
+    "entrant_state_totals": "targets",
+    "transition_prior_matrix": "priors",
+    "allowed_transition_mask": "priors",
+    "donor_weights": "donor",
+    "donor_state_index": "donor",
+    "donor_record_index": "donor",
+}
+
+
+def _assemble_demography_roles(roles: dict[str, dict[str, object]]) -> dict[str, object]:
+    """Merge role-owned fields without borrowing or overwriting another owner."""
+    payload: dict[str, object] = {}
+    metadata: dict[str, object] = {}
+    role_metadata: dict[str, dict[str, object]] = {}
+    for role, values in roles.items():
+        for field, value in values.items():
+            owner = _COMPUTATIONAL_ROLE_OWNERS.get(field)
+            if owner is not None and owner != role:
+                owner_values = roles.get(owner, {})
+                if field not in owner_values or value != owner_values[field]:
+                    raise SourceResolutionRefusalError(
+                        "demography_role_conflict",
+                        f"{role}.{field} conflicts with its computational owner {owner}",
+                    )
+                # Equal historical repetitions do not replace the owner's value.
+                continue
+            if field != "metadata":
+                # Unknown fields still reach the DTO's existing extra-forbid check.
+                payload[field] = value
+        if "metadata" not in values:
+            continue
+        member_metadata = values["metadata"]
+        if not isinstance(member_metadata, dict):
+            raise SourceResolutionRefusalError(
+                "member_metadata_malformed", f"{role} metadata must be a JSON object"
+            )
+        role_metadata[role] = member_metadata
+        metadata.update(member_metadata)
+    if role_metadata:
+        # Preserve the flat API and retain every role's colliding metadata losslessly.
+        metadata["demography_role_metadata"] = role_metadata
+    payload["metadata"] = metadata
+    return payload
+
+
 def _artifacts_from_resolved_source(
     resolved: ResolvedDemographySource,
     *,
     allow_unknown_optional_donor: bool = False,
 ) -> UkraineDemographyArtifacts:
     """Validate every present member in one resolved snapshot as a typed bundle."""
-    targets = read_demography_role(resolved, "targets").payload
-    priors = read_demography_role(resolved, "priors").payload
-    payload = {**targets, **priors}
+    roles = {
+        "targets": read_demography_role(resolved, "targets").payload,
+        "priors": read_demography_role(resolved, "priors").payload,
+    }
     unknown_optional_donor_absent = (
         allow_unknown_optional_donor
         and resolved.status == "candidate_only"
@@ -312,7 +385,8 @@ def _artifacts_from_resolved_source(
         and "donor.json" not in resolved.member_bytes
     )
     if not unknown_optional_donor_absent:
-        payload.update(read_demography_role(resolved, "donor").payload)
+        roles["donor"] = read_demography_role(resolved, "donor").payload
+    payload = _assemble_demography_roles(roles)
     legacy_entrant_omission = "entrant_state_totals" not in payload
     if legacy_entrant_omission:
         if resolved.status != "legacy_limited":

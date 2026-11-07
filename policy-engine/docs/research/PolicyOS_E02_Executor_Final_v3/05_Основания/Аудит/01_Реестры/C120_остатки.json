@@ -1,0 +1,57 @@
+{
+  "pass_id": "C120",
+  "bundle": "BER-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C120-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "title": "Public persisted semantic validator принимает construction-only version/default/coercion",
+      "evidence": [
+        "P03",
+        "P04",
+        "S10:105–130",
+        "S20:1222–1247",
+        "S11:181–199"
+      ],
+      "remaining": "Согласовать intake public persisted helper с existing wire profile до semantic eligibility, либо явно разделить construction diagnostics и persisted validator API. Переиспользовать нынешние required/version/strict-JSON owners; не дублировать schema model и не ужесточать удобный construction input.",
+      "limits": "На otherwise valid marginal fixture неизвестная9.9.9, отсутствующая schema_version и raw_score=\"8.0\" проходят helper с passed=true, но не generated persisted schema. Actual Phase5 wrapper проецирует passed/analyst_display для9.9.9. Selected CAS loader отдельно отказывает; protected runtime admission/production exploit не доказаны."
+    },
+    {
+      "id": "C120-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Native supported runtime, selected persistence и historical consumer compatibility",
+      "evidence": [
+        "commands.json",
+        "runtime_references.json",
+        "S11",
+        "S19",
+        "P01",
+        "P02"
+      ],
+      "remaining": "На supported3.14/toolchain выполнить native existing tests, tree-first fallback/cache order, fresh selected CAS wire corpus и downstream identity projection/old-record compatibility. Сохранить observed3.12failure как environment limit; не переписывать backend ради старого interpreter.",
+      "limits": "21 selected bodies PASS,1 environment FAIL. Kernel-first cached tree identity работает actual code; это не прямое выполнение tree backend и не реальная TreeSHAP exactness. Full persisted UI/release consumers, historical corpus и scientific coverage UNRUN."
+    },
+    {
+      "id": "C120-G02",
+      "kind": "qualification_gap",
+      "severity": "low",
+      "title": "Conservative alias-only display policy требует явного согласования",
+      "evidence": [
+        "P05",
+        "S03",
+        "S10:76–77",
+        "S18:1092–1139"
+      ],
+      "remaining": "Уточнить нужен ли disagreement report при двух requested names одного effective estimator; сохранить отсутствие ложного независимого сравнения и confidence-budget law. Не создавать искусственный identical-alias disagreement для прохождения gate.",
+      "limits": "Даже при обоих bounds<.05 actual gate сохраняет missing_disagreement_report из len(methods)>1. Это консервативная policy boundary, не false acceptance и не автоматически defect: исходная карточка запрещает менять confidence law из deduplication."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C120-R01"
+  ],
+  "decision": "Основные generated profile и requested/effective dedup repairs подтверждены bounded. Public persisted-helper intake остаётся low R01; native/runtime и alias-only eligibility qualification G."
+}

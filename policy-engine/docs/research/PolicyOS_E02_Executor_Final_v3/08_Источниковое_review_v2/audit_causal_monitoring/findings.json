@@ -1,0 +1,99 @@
+{
+  "schema": "source_based_findings_v1",
+  "status": "COMPLETE",
+  "required_new_gaps": 0,
+  "optional_clarifications": 1,
+  "findings": [
+    {
+      "id": "CM-001",
+      "title": "Уточнить краткую coordination map SCM, не менять согласованный подробный acceptance contract",
+      "status": "OPTIONAL_NON_BLOCKING_CLARIFICATION",
+      "severity": "low",
+      "mandatory": false,
+      "classification": "ambiguous_or_stale_coordination_mapping",
+      "criterion_ids": [
+        "RA-10"
+      ],
+      "disposition": "bounded",
+      "affected_packets": [
+        "SCM-01",
+        "SCM-02",
+        "SCM-03"
+      ],
+      "affected_lanes": [
+        "LANE-05"
+      ],
+      "affected_scenarios": [
+        "E02-I05-C"
+      ],
+      "source_refs": [
+        {
+          "source_id": "RA-S05",
+          "url": "https://www.nasa.gov/reference/appendix-l-interface-requirements-document-outline/",
+          "locator": "§§1.2–1.3,2.1",
+          "application": "Версия, приоритет и change authority у интерфейса должны быть понятны; guidance не доказывает product defect."
+        },
+        {
+          "source_id": "RA-S06",
+          "url": "https://www.nasa.gov/reference/6-3-interface-management/",
+          "locator": "§6.3.1.2.3; §6.3.1.3",
+          "application": "Изменение интерфейса согласуется с обеими сторонами и verification inputs; формальный новый совет/registry не требуется."
+        }
+      ],
+      "current_v2_proposition": "Общая карта, строка13: «SCM-03 — selected native SCM worker и causal fit». Подробные SCM §7 и LANE-05 распределяют SCM-03 closure/prepared-plan/coordinates, SCM-02 conditional-row/PSD/refit, SCM-01 twin и native selected fit→query acceptance. SCM-02 дополнительно называет worker fit owner общим с SCM-01.",
+      "evidence": [
+        {
+          "path": "00_Общее/Общие_владельцы_и_границы_изменений.md",
+          "locator": "lines3,13,27",
+          "claim": "Это координационная карта; смысловой owner не исключительный editor модуля. Native worker/causal fit у SCM-03 назван без явного разделения роли и acceptance owner."
+        },
+        {
+          "path": "01_Лейны/LANE-05.md",
+          "locator": "lines41–47",
+          "claim": "Таблица «без тройного ownership» явно разделяет три роли."
+        },
+        {
+          "path": "02_Пакеты/SCM-01.md",
+          "locator": "§7 lines158–168, especially162",
+          "claim": "Native selected fit→query acceptance принадлежит SCM-01; closure SCM-03; conditioning/refit SCM-02."
+        },
+        {
+          "path": "02_Пакеты/SCM-02.md",
+          "locator": "§7 lines177–185, especially181",
+          "claim": "Refit SCM-02; worker fit owner общий с SCM-01; не отдельный bootstrap pipeline."
+        },
+        {
+          "path": "02_Пакеты/SCM-03.md",
+          "locator": "§7 lines164–174, especially168",
+          "claim": "Closure/coordinates SCM-03; native acceptance SCM-01; sequential shared edits."
+        }
+      ],
+      "realistic_counterexample": "Координатор нового ремонта selected worker fit начинает с общей карты и приглашает SCM-03 как ответственного за этот смысловой контракт; reviewer, начавший с SCM-02 §7 или LANE-05, направляет его SCM-01/02. Оба читают действующие документы, поэтому возможен лишний круг согласования либо неверная первичная маршрутизация. Это не пример реализации, которая проходит полный v2 и вычисляет неверный результат.",
+      "preconditions": "Используется current root v2 coordination map; речь о планировании owner/review до merge, не о неизвестном runtime route или неподдержанном backend.",
+      "full_contract_check": "Общая вводная уже допускает различие технического интегратора и смыслового owner. Однако отдельное каноническое определение SCM-03 implementation role для native worker fit не найдено в прочитанных применимых общих/lane/packet contracts. Подробные роли согласованы и обязательная native acceptance не потеряна. Поэтому низкая optional clarification, не gap.",
+      "what_tests_would_miss": "Local numerical/native tests и E02-I05-C не обязаны выявлять административную путаницу краткой карты. Они по-прежнему требуют actual native fit→CAS→fresh query и не позволяют принять один closure smoke вместо native qualification. Функциональный false PASS не установлен.",
+      "impact": "Неблокирующая неоднозначность навигации и change-impact review; не доказаны неверное вычисление, потеря scientific authority или возможность обойти приёмку.",
+      "confidence": {
+        "textual_ambiguity": "high",
+        "operational_coordination_consequence": "moderate",
+        "runtime_defect": "not_established"
+      },
+      "preferred_bounded_correction": "В следующей редакции одной общей строки сохранить FIT-01 и явно назвать SCM-03 closure/prepared-plan/coordinates, SCM-02 conditional law/refit, SCM-01 native fit→query acceptance либо сослаться на таблицу LANE-05 как канон. Если у SCM-03 действительно есть отдельная implementation role для worker, назвать её и отделить от acceptance owner.",
+      "alternatives": [
+        "Добавить в общей строке только точную ссылку и приоритет подробной SCM-таблицы.",
+        "Оставить текущую редакцию без product-blocker, если coordinator явно пользуется подробным каноном; остаточная навигационная неоднозначность документируется."
+      ],
+      "discriminating_acceptance_proposal": "Документарная сверка: по общей строке и по каждой из трёх §7 один reviewer получает одинаковые meaning-owner/consumer/acceptance roles. Не добавлять новый runtime test или ownership registry.",
+      "affected_local_shared_tests": [
+        "SCM-01/02/03 existing local TEST и E02-I05-C сохраняются без изменения numerical denominator; новые тесты не требуются."
+      ],
+      "preservation_obligations": [
+        "Не переносить исходный код/модуль между owners только из-за этой заметки.",
+        "Сохранить single writer последовательность gcm_query.py/twin_network_query.py, GRF-03 canonical source reuse, SCM-02 independent replica oracle и SCM-01 selected native profile.",
+        "Не объявлять unrelated v1 defect вновь открытым."
+      ],
+      "bounded_next_step": "Parent triage: optional редакционная правка общей карты в отдельно разрешённой proposed edition; текущий v2 не менять.",
+      "product_execution": "NOT_RUN"
+    }
+  ]
+}

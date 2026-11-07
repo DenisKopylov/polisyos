@@ -1,0 +1,70 @@
+{
+  "pass_id": "C78",
+  "bundle": "CAN-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C78-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-021"
+      ],
+      "title": "Согласовать intentional conformance delta с historical compatibility corpus и старым regression oracle",
+      "evidence": [
+        "S04:81–90",
+        "S07:71–80",
+        "S14:144–149",
+        "S17:31–71",
+        "P01",
+        "P04"
+      ],
+      "remaining": "Сохранить conformance gate. Разделить эквивалентное перемещение, явное ужесточение producer/selected reader и исторический read-only/candidate путь. Привести regression ожидания в соответствие принятому контракту и проверить реальные сохранённые .2 объекты с float_hex/bytes_hex, не переписывая их IDs.",
+      "limits": "Два unchanged case FAIL реально воспроизведены. Low-level raw decoder принимает aliases, новый writer и selected-profile bridge их отвергают; array_digest control проходит. Это не blanket historical reader PASS. Current producer tests намеренно требуют отказа; конкретный повреждённый production artifact или обязательный обход защиты не установлен."
+    },
+    {
+      "id": "C78-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-021"
+      ],
+      "title": "Native persisted owner/consumer и installed baseline ещё не квалифицированы",
+      "evidence": [
+        "S09:401–454",
+        "S09:644–782",
+        "S11:1912–1973",
+        "S17:1–129",
+        "S18:1–104",
+        "P05",
+        "P06",
+        "native_verification.json"
+      ],
+      "remaining": "На поддержанной среде исполнить existing pytest, filesystem/async JSON producer preflight и selected profile reader, negative malformed/mismatched profile controls; actual local CAS и installed package объединить с общим LANE-06/CP2 прогоном. Отдельно квалифицировать only enrolled bounded .3 cohort, не снимать generic writer fence по факту codec PASS.",
+      "limits": "Actual codecs и IR IO native imported, IR file fixture roundtrip/negative checks выполнены; fixture не native CAS custody. Core profile whole module за initializer shell. Pydantic и Python вне contributor baseline. Capability imports не доказывают owner admission, crash durability или реальную научную валидность."
+    },
+    {
+      "id": "C78-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-021"
+      ],
+      "title": "Полнота ABI/исторического корпуса и границы доказательства hash",
+      "evidence": [
+        "S01:1–1074",
+        "S03:1–118",
+        "S14:1–216",
+        "S15:1–694",
+        "P02",
+        "P07"
+      ],
+      "remaining": "Сохранить разные Core/IR reader policy IDs и exception identities, version-specific grammar и raw byte/hash ABI. Расширять compatibility corpus фактическими поддержанными историческими структурами/consumers, не объявлять малый golden sample доказательством всех структур. LK07: runtime JsonDataVisitor отдельный; LK20: content hash не разрешение на reuse/closeout.",
+      "limits": "125 успешных cases и синтетический mixed value не полный historical artifact inventory. Hashlib controls доказывают digest выбранных bytes, а не полноту входов, producer authority, научную корректность или reuse policy."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "protected_distinctions": [
+    "LK07",
+    "LK20"
+  ],
+  "decision": "Общий primitive и явные профили реализованы. Новый product defect не установлен;2 characterization failures и persisted/native qualification остаются открыты."
+}

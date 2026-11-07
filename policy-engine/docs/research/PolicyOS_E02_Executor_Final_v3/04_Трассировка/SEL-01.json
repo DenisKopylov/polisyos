@@ -1,0 +1,507 @@
+{
+  "packet_id": "SEL-01",
+  "lane": "LANE-01",
+  "title": "Применимый метод без ложных требований и ложных объяснений",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B34",
+    "B35",
+    "B36"
+  ],
+  "audit_reports": [
+    "02_Пакеты/SEL-01.md"
+  ],
+  "audit_report_sha256": "9474d061a780600470e82b2a890e0e916644cd696a468c9ffae85be47d8ff2ab",
+  "sourceplan_lines": [
+    1444,
+    1588
+  ],
+  "practical_goal": "Действительно доступный метод достигает своего consumer; singleton разрешён, каталог не переписывает запрос, а причины отказа подсказывают правильный следующий шаг.",
+  "requirements": [
+    {
+      "id": "REQ-SEL-01-01",
+      "text": "Opaque candidate/atom IDs и lexical proposals не должны добавлять обязательную modality; explicit и owner-derived требования сохраняются независимо от каталога и имени.",
+      "source_ids": [
+        "B36"
+      ],
+      "audit_ids": [
+        "remaining:0090",
+        "remaining:0091",
+        "preserve:0114",
+        "preserve:0115",
+        "preserve:0116",
+        "audit-residual:C11_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-SEL-01-01"
+      ]
+    },
+    {
+      "id": "REQ-SEL-01-02",
+      "text": "Loss reason ранжированного метода должен отражать первый реально различающий ключ принятого lexicographic rank, не ложный scalar comparison.",
+      "source_ids": [
+        "B35"
+      ],
+      "audit_ids": [
+        "remaining:0087",
+        "audit-residual:C11_остатки:1"
+      ],
+      "test_ids": [
+        "TEST-SEL-01-02"
+      ]
+    },
+    {
+      "id": "REQ-SEL-01-03",
+      "text": "Для каждого hard-excluded member полного value-denominator должна сохраняться адресная disposition без выдуманного numeric rank; eligibility применяется до top-k.",
+      "source_ids": [
+        "B35"
+      ],
+      "audit_ids": [
+        "remaining:0088",
+        "remaining:0089",
+        "preserve:0111",
+        "preserve:0112",
+        "audit-residual:C11_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-SEL-01-03"
+      ]
+    },
+    {
+      "id": "REQ-SEL-01-04",
+      "text": "Genuine singleton должен приниматься на source-qualified scoped intake, а согласованно усечённый denominator отвергаться actual receiving owner.",
+      "source_ids": [
+        "B34"
+      ],
+      "audit_ids": [
+        "remaining:0085",
+        "remaining:0086",
+        "preserve:0108",
+        "preserve:0109",
+        "preserve:0110",
+        "audit-residual:C11_остатки:2"
+      ],
+      "test_ids": [
+        "TEST-SEL-01-04"
+      ]
+    },
+    {
+      "id": "REQ-SEL-01-05",
+      "text": "Выбранный подходящий метод должен реально потребить owner rows и дать полезный output; modality conversion допускается только через настоящий producer с сохранённым estimand.",
+      "source_ids": [
+        "B34",
+        "B35",
+        "B36"
+      ],
+      "audit_ids": [
+        "remaining:0089",
+        "remaining:0091",
+        "preserve:0109",
+        "preserve:0113",
+        "audit-residual:C11_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-SEL-01-05"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-SEL-01-01",
+      "requirement_ids": [
+        "REQ-SEL-01-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Actual selector/catalog с tabular method и explicit tabular; ID case-alpha→case-panel-alpha, atomID,no_panel_data; separately explicit panel.",
+      "action": "Пройти native selection→receipt/blocked consumer с каждым переименованием.",
+      "oracle": "Применимость unchanged при technical rename; explicit panel по-прежнему blocked на tabular-only и проходит actual panel method.",
+      "expected": "Context hash может измениться по ID без изменения hard modality; malformed present не пустой request.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SEL-01-02",
+      "requirement_ids": [
+        "REQ-SEL-01-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "SelectedA truthdepthhigh score10, B lowerdepth score100; equaldepth lower/tie scores и FQN tie.",
+      "action": "Пройти actual rank→receipt serialize→consumer; проверить объяснение всех losers.",
+      "oracle": "B проигрывает по truthfulness, не «score ниже»; равный tier действительно объясняет score/tie; selected неизменен.",
+      "expected": "Число rank не становится authority, legacy readers либо понимают новое поле либо корректно ограничены.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SEL-01-03",
+      "requirement_ids": [
+        "REQ-SEL-01-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Каталог eligible panelB, hard-excluded tabularA,20non-value rows;12eligible при limit8.",
+      "action": "Выбрать actual method, serialize receipt+dispositions и открыть consumer; добавить нерелевантные diagnostic entries.",
+      "oracle": "Полный value denominator и per-member hard reason сохраняются; selected/контекст unaffected нерелевантным расширением; trace ranked subset честен.",
+      "expected": "Excluded не получает fake advisor score; неизвестная причина не generic no-method.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SEL-01-04",
+      "requirement_ids": [
+        "REQ-SEL-01-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Настоящие registered output contracts, реальный owner intake/manifest для singleton и для нескольких members; не monkeypatch builder к удобному snapshot.",
+      "action": "Выполнить singleton automatic/explicit; затем скрыть mandatory member согласованно в receipt/trace и пересчитать hash, сохранив declared intake.",
+      "oracle": "Singleton accepted как единственный в scope; hidden-member receipt rejected actual consumer; fictional explicit method не registered.",
+      "expected": "Self-consistent DTO не внешний denominator proof; cross-method consensus требование2отдельно не отменять.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-SEL-01-05",
+      "requirement_ids": [
+        "REQ-SEL-01-05"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Один actual useful owner-backed value method и новый совместимый resource/entry; truthful absent-modality case. При conversion — конкретные declared source/target contracts.",
+      "action": "Пройти selection→реальное method execution→persisted consumer; сменить relevant catalog/profile, отдельно unrelated non-value drift.",
+      "oracle": "Полезный output и exact basis; relevant drift invalidates, unrelated не скрывает старый метод; conversion проверяет output semantics, не merely план.",
+      "expected": "Нет automatic empirical/rollout authority; no adapter-needed scenario не превращается в обещание универсального converter.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C11_остатки:0",
+      "requirement_ids": [
+        "REQ-SEL-01-01"
+      ],
+      "rationale": "Отделить hard source от technical lexical signal.",
+      "disposition": "fix",
+      "audit_id": "C11-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C11_остатки:1",
+      "requirement_ids": [
+        "REQ-SEL-01-02"
+      ],
+      "rationale": "Loss reason по первому differing rank key.",
+      "disposition": "fix",
+      "audit_id": "C11-R02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C11_остатки:2",
+      "requirement_ids": [
+        "REQ-SEL-01-04"
+      ],
+      "rationale": "Source-qualified full scope, не checksum shortcut.",
+      "disposition": "capability",
+      "audit_id": "C11-G01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C11_остатки:3",
+      "requirement_ids": [
+        "REQ-SEL-01-03"
+      ],
+      "rationale": "Per-member hard exclusion trace.",
+      "disposition": "capability",
+      "audit_id": "C11-G02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C11_остатки:4",
+      "requirement_ids": [
+        "REQ-SEL-01-05"
+      ],
+      "rationale": "Необходимость converter не доказана; только конкретный producer/consumer case.",
+      "disposition": "qualify",
+      "audit_id": "C11-G03",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B34",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SEL-01-04",
+        "REQ-SEL-01-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B35",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SEL-01-02",
+        "REQ-SEL-01-03",
+        "REQ-SEL-01-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B36",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-SEL-01-01",
+        "REQ-SEL-01-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0085",
+      "requirement_ids": [
+        "REQ-SEL-01-04"
+      ],
+      "rationale": "Scoped intake и consumer falsifier.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0086",
+      "requirement_ids": [
+        "REQ-SEL-01-04"
+      ],
+      "rationale": "Native singleton/hidden-member/readback.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0087",
+      "requirement_ids": [
+        "REQ-SEL-01-02"
+      ],
+      "rationale": "Реальная lexicographic причина.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0088",
+      "requirement_ids": [
+        "REQ-SEL-01-03"
+      ],
+      "rationale": "Каждый hard member получает disposition.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0089",
+      "requirement_ids": [
+        "REQ-SEL-01-03",
+        "REQ-SEL-01-05"
+      ],
+      "rationale": "Source/selector/consumer фактически связан.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0090",
+      "requirement_ids": [
+        "REQ-SEL-01-01"
+      ],
+      "rationale": "Opaque/proposal не hard panel.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0091",
+      "requirement_ids": [
+        "REQ-SEL-01-01",
+        "REQ-SEL-01-05"
+      ],
+      "rationale": "Содержательное требование и concrete conversion только когда нужно.",
+      "disposition": "qualify"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0108",
+      "requirement_ids": [
+        "REQ-SEL-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Genuine singleton должен приниматься на source-qualified scoped intake, а согласованно усечённый denominator отвергаться actual receiving owner.",
+      "test_ids": [
+        "TEST-SEL-01-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0109",
+      "requirement_ids": [
+        "REQ-SEL-01-04",
+        "REQ-SEL-01-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: Genuine singleton должен приниматься на source-qualified scoped intake, а согласованно усечённый denominator отвергаться actual receiving owner.; Выбранный подходящий метод должен реально потребить owner rows и дать полезный output; modality conversion допускается только через настоящий producer с сохранённым estimand.",
+      "test_ids": [
+        "TEST-SEL-01-04",
+        "TEST-SEL-01-05"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0110",
+      "requirement_ids": [
+        "REQ-SEL-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Genuine singleton должен приниматься на source-qualified scoped intake, а согласованно усечённый denominator отвергаться actual receiving owner.",
+      "test_ids": [
+        "TEST-SEL-01-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0111",
+      "requirement_ids": [
+        "REQ-SEL-01-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Для каждого hard-excluded member полного value-denominator должна сохраняться адресная disposition без выдуманного numeric rank; eligibility применяется до top-k.",
+      "test_ids": [
+        "TEST-SEL-01-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0112",
+      "requirement_ids": [
+        "REQ-SEL-01-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Для каждого hard-excluded member полного value-denominator должна сохраняться адресная disposition без выдуманного numeric rank; eligibility применяется до top-k.",
+      "test_ids": [
+        "TEST-SEL-01-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0113",
+      "requirement_ids": [
+        "REQ-SEL-01-05"
+      ],
+      "rationale": "Конкретный контракт и oracle: Выбранный подходящий метод должен реально потребить owner rows и дать полезный output; modality conversion допускается только через настоящий producer с сохранённым estimand.",
+      "test_ids": [
+        "TEST-SEL-01-05"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0114",
+      "requirement_ids": [
+        "REQ-SEL-01-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: Opaque candidate/atom IDs и lexical proposals не должны добавлять обязательную modality; explicit и owner-derived требования сохраняются независимо от каталога и имени.",
+      "test_ids": [
+        "TEST-SEL-01-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0115",
+      "requirement_ids": [
+        "REQ-SEL-01-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: Opaque candidate/atom IDs и lexical proposals не должны добавлять обязательную modality; explicit и owner-derived требования сохраняются независимо от каталога и имени.",
+      "test_ids": [
+        "TEST-SEL-01-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0116",
+      "requirement_ids": [
+        "REQ-SEL-01-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: Opaque candidate/atom IDs и lexical proposals не должны добавлять обязательную modality; explicit и owner-derived требования сохраняются независимо от каталога и имени.",
+      "test_ids": [
+        "TEST-SEL-01-01"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I01-A"
+  ],
+  "dependencies": [
+    "SEL-01 owns advisor/receipt semantics; existing MethodRegistry/catalog owner supplies intake, не второй registry. LK06 roles view/kernel сохраняются.",
+    "REQ-01 аналогичный invariant ID≠semantics, но другой compiler owner: не объединять два механизма в новый NLP framework.",
+    "CYC-02/EMP actual value consumer и SIM numeric profile; выбор одного метода не cross-method consensus."
+  ],
+  "preservation": [
+    "No cardinality-only ban",
+    "Native output-owner and context/content binding",
+    "One actual registry owner",
+    "Value/runnable/modality/route filter before limit",
+    "Full value denominator distinct from eligible trace",
+    "Relevant vs unrelated catalog context drift",
+    "Unchanged explicit required modalities",
+    "Malformed present input refused",
+    "Explicit method obeys same hard requirements"
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    "Рост каталога обязан увеличивать доступность compatible ресурсов, не вытеснять нужные методы через non-value top-k. Истинные hard requirements не смягчаются ради зелёного выбора."
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+      "symbol_or_anchor": "def _required_modalities",
+      "lines": [
+        1753,
+        1785
+      ],
+      "sha256": "ae87e8a3453becad9f57dbcac7097b4b8f80cff9519e40a1435c98911066b315",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/selection/advisor.py#L1753-L1785"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+      "symbol_or_anchor": "def _build_value_method_selection_receipt",
+      "lines": [
+        1519,
+        1551
+      ],
+      "sha256": "ae87e8a3453becad9f57dbcac7097b4b8f80cff9519e40a1435c98911066b315",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/selection/advisor.py#L1519-L1551"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+      "symbol_or_anchor": "def _rank_entries_with_scores",
+      "lines": [
+        1952,
+        1984
+      ],
+      "sha256": "ae87e8a3453becad9f57dbcac7097b4b8f80cff9519e40a1435c98911066b315",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/selection/advisor.py#L1952-L1984"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/receipt.py",
+      "symbol_or_anchor": "class MethodSelectionReceipt",
+      "lines": [
+        32,
+        64
+      ],
+      "sha256": "6e71cc64f8eee2d9ca6f459b4f9b5253a3cb9db869924111ac92be9f2d4345a0",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/selection/receipt.py#L32-L64"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-SEL-01-01",
+      "text": "Разделить _candidate_selection_signal для preferences от _required_modalities hard source. Исключить candidate_id/id/intervention_id/diversity key как самостоятельное semantic authority; explicit hints и typed ValueDataProfile остаются обязательными. Если содержательный текст предлагает panel, сохранить proposal отдельно до owner/declared requirement, не лечить regex только no_panel. Explicit method подчиняется тем же hard predicates."
+    },
+    {
+      "requirement_id": "REQ-SEL-01-02",
+      "text": "В _rank_entries_with_scores/receipt builder сохранить structured ranking decision keys truthfulness_depth,score_rest,fqn/tie; reason derives first differing key. Не менять приоритет truthfulness и не переписывать сырые scores ради надписи. Receipt schema/legacy module compatibility сохранить через existing receipt.py owner; version new explanatory fields if needed."
+    },
+    {
+      "requirement_id": "REQ-SEL-01-03",
+      "text": "Сохранить full value denominator отдельно от eligible trace. Existing filter loop накапливает deterministic reason unrunnable/route/modality/owner-contract gap и declared scope; использовать существующий candidate-disposition pattern, не второй catalog traversal с иной политикой. Rank reasons TEST-02 не смешиваются с hard-exclusion. Не увеличивать limit вместо исправления."
+    },
+    {
+      "requirement_id": "REQ-SEL-01-04",
+      "text": "Использовать one MethodRegistry/view и existing catalog registry_report/bound manifest/intake members контракт; где claiming full scope, композиция передаёт require_bound_discovery и настоящий report, не только context equality. Consumer revalidates complete scoped owner rows. Не требовать2метода, подпись из воздуха или universal external catalog completeness; declared envelope явно ограничен."
+    },
+    {
+      "requirement_id": "REQ-SEL-01-05",
+      "text": "Использовать FoundryValuePort→ValueDataProfile→select_value_method_for_problem→receipt/current context→method consumer. tests/unit/foundry/methods/test_selection_advisor.py — текущий suite; старый test_sel_01.py не найден. Для нового compatible registered resource подтвердить actual output, не water-quality projectorNone. Универсальный converter не заказывать: если конкретный разрешённый case требует conversion, bounded выбрать existing adapter либо implement общий contract с входами/units/shape/loss, output удовлетворяет исходному требованию."
+    }
+  ]
+}

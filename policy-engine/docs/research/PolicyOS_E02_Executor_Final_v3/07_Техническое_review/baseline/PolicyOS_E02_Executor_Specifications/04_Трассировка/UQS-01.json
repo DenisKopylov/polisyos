@@ -1,0 +1,390 @@
+{
+  "packet_id": "UQS-01",
+  "title": "Согласованные summary/decomposition и доказуемые информационные единицы",
+  "goal": "Сохранить уже вычисленный закон и корректно агрегировать доступную информацию, не повышая уверенность по числу копий.",
+  "work_type": "C112-R01/R02 fix; C112-G01 capability + native qualification",
+  "preservation": [
+    "Exact selected-view dedup; same bytes/different profiles не тождественны. Caller labels не доказывают independence.",
+    "Mean и equal-tail interval независимые functional; exact draws/weights/context и fresh recomputation сохраняются.",
+    "Typed limited consumer и declared joint identity без authority; не перезапускать sampler ради имеющихся draws."
+  ],
+  "technical_solution": [
+    "Расширить existing UncertaintyDecomposition.from_gaussian_components/gaussian_uncertainty_envelope explicit semantics/gate/provenance аргументами; caller-only summary передаёт ограничения каждой secondary projection. Не ослаблять global envelope defaults вслепую: перечислить call sites, сохранить их established semantics.",
+    "В _widest использовать общий finite-binary64 mean contract, согласованный с FED, а не bespoke scaled formula. Простое m*(fsum(point/m)/n) устраняет overflow, но теряет subnormal contribution при cancellation; поэтому точный результат для finite inputs требует exact binary-rational/integer accumulator: as_integer_ratio, общий power-of-two denominator, integer sum, деление на n до единственного correctly-rounded float conversion. Согласованный owner: FED-01 единолично создаёт предлагаемый НОВЫЙ src/polisyos/common/numeric_reductions.py с API finite_binary64_mean/finite_binary64_midpoint; UQS-01 только потребитель mean. Эти файл/API пока не существуют. Не импортировать Fabric upward; LK04 finite validation остаётся у прежнего owner. Fast path допустим лишь при доказанной эквивалентности/безопасном fallback, не по эвристическому диапазону. Не вводить Fraction на каждый row автоматически; bounded integer accumulator допустим. Измерить actual cost, не обещать вымышленный SLO. Hull semantics/dedup/non-gating сохраняются.",
+    "Для G01 ограниченно проследить aggregate persisted views и selected method-evidence route: какие existing refs подтверждают estimand/data units/prior inclusion. Если достаточный producer есть — передать verified dependency context в existing precision/Bayesian formula; иначе описать missing typed predicate/producer и bounded implementation proposal. Не добавлять caller bool independent и не новый universal registry."
+  ],
+  "owners": [
+    "src/polisyos/foundry/uncertainty/aggregator.py",
+    "src/polisyos/foundry/uncertainty/protocol.py",
+    "src/polisyos/foundry/calibration/uncertainty_adapter.py",
+    "tests/unit/remediation/test_uqs_01.py"
+  ],
+  "shared_scenarios": [
+    "E02-I10-B"
+  ],
+  "coordination": "CAL-06 общий adapter write mutex; UQP-02 владеет carrier sampling. Один existing lane fixture вместо отдельного большого posterior run. FED-01 — единственный implementation owner нового common/numeric_reductions.py; UQS-01 интегрирует finite_binary64_mean, без второго helper.",
+  "compatibility": "Новые secondary fields additive; исторические summary не ретроактивная evidence. Legacy positional draws читаются без joint promotion. При rollback сохранять conservative hull и exact corpus.",
+  "design_alignment": [
+    "[Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md#d25-epistemic-regime-architecture) и [синтез §4](../05_Основания/Исследование/design_direction.md): uncertainty/conditional outputs полезны без незаслуженной authority; новый совместимый law использует общий механизм, не доменную ветку."
+  ],
+  "open_decisions": [
+    "DEC-UQS-01-01: finite producer/ref census для independent units и prior reuse. Выход: accepted predicate map+minimal positive route либо точный missing contract с планом; независимость не выводится из разных UUID/bytes."
+  ],
+  "acceptance": "Два bounded regressions плюс useful positive fusion capability отдельно от её отсутствия. Native storage/profile и scientific posterior quality — разные claims.",
+  "lane": "LANE-10",
+  "source_ids": [
+    "B199",
+    "B200",
+    "B201",
+    "B202"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/UQS-01.md"
+  ],
+  "requirements": [
+    {
+      "text": "Secondary total/epistemic/aleatoric decomposition caller-only summary должна сохранять non-gating происхождение и approximation limitations primary result.",
+      "source_ids": [
+        "B201",
+        "B202"
+      ],
+      "audit_ids": [
+        "C112-R01"
+      ],
+      "id": "REQ-UQS-01-01",
+      "test_ids": [
+        "TEST-UQS-01-01"
+      ]
+    },
+    {
+      "text": "Среднее конечных points в _widest должно сохранять арифметический смысл без intermediate overflow, скрываемого clamp.",
+      "source_ids": [
+        "B199"
+      ],
+      "audit_ids": [
+        "C112-R02"
+      ],
+      "id": "REQ-UQS-01-02",
+      "test_ids": [
+        "TEST-UQS-01-02"
+      ]
+    },
+    {
+      "text": "Повтор selected view не меняет level/type/effective information; precision fusion разрешается лишь для установленного общего estimand и независимых information units либо проверенной dependency модели.",
+      "source_ids": [
+        "B199",
+        "B200"
+      ],
+      "audit_ids": [
+        "C112-G01"
+      ],
+      "id": "REQ-UQS-01-03",
+      "test_ids": [
+        "TEST-UQS-01-03",
+        "TEST-UQS-01-05"
+      ]
+    },
+    {
+      "text": "Summary должна сохранять исходные mean/equal-tail/draw corpus и joint row identity, включая mean вне interval; fresh consumer отвергает несогласованный сохранённый summary без уничтожения допустимого limited result.",
+      "source_ids": [
+        "B201",
+        "B202"
+      ],
+      "audit_ids": [
+        "C112-G01"
+      ],
+      "id": "REQ-UQS-01-04",
+      "test_ids": [
+        "TEST-UQS-01-04",
+        "TEST-UQS-01-05"
+      ]
+    },
+    {
+      "text": "Положительный source-bound путь aggregation/posterior propagation должен иметь actual producer→existing ref/profile→fresh consumer; отсутствие owner остаётся конкретным capability gap, не закрывается conservative hull.",
+      "source_ids": [
+        "B200",
+        "B202"
+      ],
+      "audit_ids": [
+        "C112-G01"
+      ],
+      "id": "REQ-UQS-01-05",
+      "test_ids": [
+        "TEST-UQS-01-03",
+        "TEST-UQS-01-05"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "actual summary/decomposition",
+      "setup": "Draws [-1,0,1], caller-only, optional aleatoric std .2.",
+      "action": "Вызвать summarize и прочитать все три secondary envelopes.",
+      "oracle": "Все non-gating, typed approximation/provenance сохранены; numeric decomposition остаётся полезна. Total variance=epistemic variance+aleatoric variance, rtol=1e-6 atol=1e-9; credible label не добавляет authority.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-UQS-01-01",
+      "requirement_ids": [
+        "REQ-UQS-01-01"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "stable arithmetic",
+      "setup": "Две точки +1e308, каждая с bounds [9e307,1.1e308]; cancellation: +1e308 с теми же positive bounds и −1e308 с bounds [−1.1e308,−9e307]; ordinary [1,3] с per-envelope bounds [0,2] и [2,4]. Каждый point законно внутри собственного interval. Дополнительно cancellation [1e308,−1e308,3*math.ulp(0.0)], каждому point задать законные finite bounds вокруг него; для tiny point допустим degenerate interval [point,point].",
+      "action": "Actual _widest через aggregate; независимый exact Fraction.from_float oracle sum/n и Decimal.from_float precision1200 cross-check для фактических binary64 points, с одним final float conversion, не копия production integer-accumulator algorithm.",
+      "oracle": "Means 1e308/0/2; subnormal cancellation даёт точно math.ulp(0.0), не0. Oracle — exact Fraction.from_float sum/n, single float conversion; независимый Decimal precision1200 cross-check. Для exact binary64 fixture сравнивать float equality, не tolerance, скрывающий subnormal loss. Gate remains false при unknown dependency; clamp не маскирует numerical error.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-UQS-01-02",
+      "requirement_ids": [
+        "REQ-UQS-01-02"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "selected information units",
+      "setup": "Четыре exact selected refs одного STD1; four independently generated Gaussian estimates с source-bound disjoint units и общим estimand, если existing owner достаточен.",
+      "action": "Dedup по exact view; затем accepted fusion route; tamper shared prior/data/profile.",
+      "oracle": "Copies STD1 и level .8; legitimate four independent unit-variance estimates STD.5 (atol=1e-12) при declared Gaussian assumptions. Shared data/prior не считаются новыми units. Если adequate owner отсутствует — gap остаётся, реализованный путь не заявлен.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-UQS-01-03",
+      "requirement_ids": [
+        "REQ-UQS-01-03",
+        "REQ-UQS-01-05"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "summary→fresh limited consumer",
+      "setup": "99 zeros+100; two paired arrays with same marginals and reversed pairing.",
+      "action": "Persist/read candidate, mutate mean1→2; запрос supported functional.",
+      "oracle": "Mean1, equal-tail[0,0], 100 draws preserved; altered pairing отличим; stale mean rejected; limited consumer выполняет 0 evaluator calls и не изобретает joint authority.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-UQS-01-04",
+      "requirement_ids": [
+        "REQ-UQS-01-04"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "E02-I10-B native CAS/method evidence",
+      "setup": "Existing selected posterior/method-evidence route в uncertainty_adapter; actual tmp store и supported profiles.",
+      "action": "Produce→persist→fresh resolve→propagate_posterior_summary; wrong profile/source negative.",
+      "oracle": "Exact corpus/selected profile reaches actual consumer; wrong binding fails адресно; caller-only остаётся limited. Native PASS не MCMC mixing/ESS/coverage proof.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-UQS-01-05",
+      "requirement_ids": [
+        "REQ-UQS-01-03",
+        "REQ-UQS-01-04",
+        "REQ-UQS-01-05"
+      ],
+      "status": "NOT_RUN"
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "B199",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Dedup repaired; finite mean boundary требует ремонта.",
+      "requirement_ids": [
+        "REQ-UQS-01-02",
+        "REQ-UQS-01-03"
+      ]
+    },
+    {
+      "audit_id": "B200",
+      "disposition": "capability",
+      "shared_owner": null,
+      "rationale": "Запрет ложной precision есть; admissible independent fusion ещё не доказана.",
+      "requirement_ids": [
+        "REQ-UQS-01-03",
+        "REQ-UQS-01-05"
+      ]
+    },
+    {
+      "audit_id": "B201",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Limited summary есть; secondary semantics должны совпасть.",
+      "requirement_ids": [
+        "REQ-UQS-01-01",
+        "REQ-UQS-01-04"
+      ]
+    },
+    {
+      "audit_id": "B202",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Carriers сохранены; source-bound joint/native consumer проверить.",
+      "requirement_ids": [
+        "REQ-UQS-01-01",
+        "REQ-UQS-01-04",
+        "REQ-UQS-01-05"
+      ]
+    },
+    {
+      "audit_id": "C112-R01",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Gaussian helper defaults повышают secondary eligibility.",
+      "requirement_ids": [
+        "REQ-UQS-01-01"
+      ],
+      "inventory_id": "audit-residual:C112_остатки:0"
+    },
+    {
+      "audit_id": "C112-R02",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "sum overflow затем clamp смещает point.",
+      "requirement_ids": [
+        "REQ-UQS-01-02"
+      ],
+      "inventory_id": "audit-residual:C112_остатки:1"
+    },
+    {
+      "audit_id": "C112-G01",
+      "disposition": "capability",
+      "shared_owner": null,
+      "rationale": "Раздельно native existing routes и недостающая independent fusion; не свести к tests.",
+      "requirement_ids": [
+        "REQ-UQS-01-03",
+        "REQ-UQS-01-04",
+        "REQ-UQS-01-05"
+      ],
+      "inventory_id": "audit-residual:C112_остатки:2"
+    }
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "SPECIFICATION_NOT_IMPLEMENTED",
+  "dependencies": [
+    "UQP-02",
+    "CAL-06"
+  ],
+  "protected_distinction_ids": [],
+  "original_source": "../05_Основания/Аудит/05_Источники/UQS-01_исходные_строки.txt",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0320",
+      "requirement_ids": [
+        "REQ-UQS-01-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Gaussian helper defaults повышают secondary eligibility."
+    },
+    {
+      "inventory_id": "remaining:0321",
+      "requirement_ids": [
+        "REQ-UQS-01-02"
+      ],
+      "disposition": "fix",
+      "rationale": "sum overflow затем clamp смещает point."
+    },
+    {
+      "inventory_id": "remaining:0322",
+      "requirement_ids": [
+        "REQ-UQS-01-03",
+        "REQ-UQS-01-04",
+        "REQ-UQS-01-05"
+      ],
+      "disposition": "capability",
+      "rationale": "Раздельно native existing routes и недостающая independent fusion; не свести к tests."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0512",
+      "requirement_ids": [
+        "REQ-UQS-01-03"
+      ],
+      "test_ids": [
+        "TEST-UQS-01-03",
+        "TEST-UQS-01-05"
+      ],
+      "rationale": "Exact selected-view dedup — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0513",
+      "requirement_ids": [
+        "REQ-UQS-01-03",
+        "REQ-UQS-01-05"
+      ],
+      "test_ids": [
+        "TEST-UQS-01-03",
+        "TEST-UQS-01-05"
+      ],
+      "rationale": "No caller-label independence — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0514",
+      "requirement_ids": [
+        "REQ-UQS-01-04"
+      ],
+      "test_ids": [
+        "TEST-UQS-01-04",
+        "TEST-UQS-01-05"
+      ],
+      "rationale": "Separate mean/interval functional — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0515",
+      "requirement_ids": [
+        "REQ-UQS-01-04",
+        "REQ-UQS-01-05"
+      ],
+      "test_ids": [
+        "TEST-UQS-01-03",
+        "TEST-UQS-01-04",
+        "TEST-UQS-01-05"
+      ],
+      "rationale": "Exact draw carrier/context — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0516",
+      "requirement_ids": [
+        "REQ-UQS-01-04"
+      ],
+      "test_ids": [
+        "TEST-UQS-01-04",
+        "TEST-UQS-01-05"
+      ],
+      "rationale": "Fresh candidate recomputation — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0517",
+      "requirement_ids": [
+        "REQ-UQS-01-04",
+        "REQ-UQS-01-05"
+      ],
+      "test_ids": [
+        "TEST-UQS-01-03",
+        "TEST-UQS-01-04",
+        "TEST-UQS-01-05"
+      ],
+      "rationale": "Typed limited consumer — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0518",
+      "requirement_ids": [
+        "REQ-UQS-01-03",
+        "REQ-UQS-01-04"
+      ],
+      "test_ids": [
+        "TEST-UQS-01-03",
+        "TEST-UQS-01-04",
+        "TEST-UQS-01-05"
+      ],
+      "rationale": "No invented joint authority — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    }
+  ]
+}

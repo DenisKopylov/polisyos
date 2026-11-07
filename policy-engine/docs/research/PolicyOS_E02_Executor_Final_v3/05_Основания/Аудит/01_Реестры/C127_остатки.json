@@ -1,0 +1,80 @@
+{
+  "pass_id": "C127",
+  "bundle": "CLI-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C127-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "title": "Raw producer не экранирует допустимые не-identifier имена path/query параметров",
+      "evidence": [
+        "P04",
+        "P07",
+        "S12:483–492",
+        "S12:625–634",
+        "04_Проверки/C127_CLI01/run02/raw_results.json"
+      ],
+      "remaining": "Распространить имеющийся безопасный parameter-access helper на path/query TS и JS, корректно цитировать object keys и сохранить реальные wire names. Проверить custom OpenAPI через существующий полный canonical pipeline и current corpus; не вводить per-endpoint шаблоны.",
+      "limits": "Actual generator exit0; query filter-mode выдаёт SyntaxError, path item-id — ReferenceError до fetch. Контроли filter_mode/item_id/X-Trace-ID проходят. В103selected current operations таких path/query names нет. Full canonicalizer и server endpoint не запускались; дефект не приписан именно миграции и не доказывает current production failure."
+    },
+    {
+      "id": "C127-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "title": "Зарегистрированный package architecture gate отвергает текущую legitimate generator surface",
+      "evidence": [
+        "P05",
+        "S03:30",
+        "S13:5–80",
+        "S13:107–137",
+        "04_Проверки/C127_CLI01/run02/commands.json"
+      ],
+      "remaining": "Согласовать точный allowed-file/import contract с package-owned generator и actual imports. Не интерпретировать import-like строки generated templates/test fixtures как исполняемые imports; сохранить проверку лишних runtime dependencies и запрет raw committed pair.",
+      "limits": "Actual node scripts/check-architecture.mjs exit1:2missing allowed files и2import mismatches, включая regex false positives из строк. Это developer gate, не runtime client defect и не доказательство current hosted CI failure. Не обходить gate широким allow-all."
+    },
+    {
+      "id": "C127-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Полная native regeneration и type/freshness квалификация не воспроизведена",
+      "evidence": [
+        "P02",
+        "P03",
+        "S01",
+        "S02",
+        "S06",
+        "S07",
+        "S16",
+        "S19",
+        "S20"
+      ],
+      "remaining": "В согласованном существующем Node22/Python3.14 frozen profile исполнить общий CP6 full-family generation/checker/guardrails, canonicalizer idempotency/collision и recursive/type tests с actual toolchain. Использовать existing3-output family и dashboard formatting profile, не третий checker.",
+      "limits": "types/node dependencies отсутствуют; no installs. Source7.13.0 закреплён, но installed version не аттестована. Actual checker negatives используют fixture bytes, shell routing — recorders; это не свежесть committed3files, не эквивалентность всех schema semantics."
+    },
+    {
+      "id": "C127-G02",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Transport tests и byte checks не доказывают server authority или полную внешнюю совместимость",
+      "evidence": [
+        "P01",
+        "P06",
+        "P07",
+        "S04",
+        "S08",
+        "S14",
+        "S22",
+        "S23"
+      ],
+      "remaining": "Сохранить public client operation/type boundaries, binary/exposure controls и existing service bridge; квалифицировать actual API/auth/resource semantics в соответствующем lane-level контуре. Для retirement проверить конкретные external/filesystem consumers в declared compatibility window.",
+      "limits": "15Node tests работают с fetch fixtures; synthetic bearer/CAS-like strings не авторизация.103selected operations census не execution, не обещание всехOpenAPI endpoints; POST allowlist намеренный текущий контракт. External callers и complete endpoint science/authority не доказаны."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C127-R01",
+    "C127-R02"
+  ],
+  "decision": "Исходная package-owned/scratch migration bounded подтверждена;2bounded defects и2qualification gaps. 127/127 рассмотрены, не127implemented."
+}

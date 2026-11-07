@@ -1,0 +1,89 @@
+{
+  "pass": "C22",
+  "bundle": "FUN-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C22-R01",
+      "type": "bounded_continuation_contract_gap",
+      "severity": "medium_stateful_profile",
+      "confidence": "high_control_flow_limited_native_cost",
+      "source_ids": [
+        "B158",
+        "B159"
+      ],
+      "location": "orchestrator.py:518–545,648–687,1344–1373",
+      "evidence": [
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P19"
+      ],
+      "mechanism": "Direct terminal остаётся закрыт при changed budget; explicit prior reset переисполняет все stages без различения свежих gates и reusable immutable work.",
+      "preserve": "Новые независимые requests, current gates, freeze/reject и реальная стоимость trace; не возвращать whole-outcome cache.",
+      "remaining": "Согласовать owner continuation contract: новое основание, адресная ревалидация и доказанное source-level reuse; не механически оживлять retired helpers.",
+      "limits": "Не доказан обход внешнего бюджета/ACL. Native величина повторных затрат и inner numerical caches UNRUN."
+    },
+    {
+      "id": "C22-R02",
+      "type": "lineage_projection_gap",
+      "severity": "low_medium_auditability",
+      "source_ids": [
+        "B159"
+      ],
+      "location": "policy_blueprint_runtime_reporting.py:574–740",
+      "evidence": [
+        "P18",
+        "P20",
+        "S09"
+      ],
+      "mechanism": "Parent/lineage/reason сериализуются только при result reuse, хотя нынешний linked attempt не является result reuse.",
+      "preserve": "Prior attempt refs, traces и полная prior history уже сохраняются.",
+      "remaining": "Довести существующие поля continuation до consumer либо явно описать семантику projection.",
+      "limits": "Serializer исполнен, full blueprint state storage/reload UNRUN."
+    },
+    {
+      "id": "C22-G01",
+      "type": "native_execution_qualification",
+      "source_ids": [
+        "B156",
+        "B158",
+        "B159"
+      ],
+      "remaining": "Actual source-score, CAS, stages, VOI budget owners, uncertainty, lessons/correlation и native tests UNRUN."
+    },
+    {
+      "id": "C22-G02",
+      "type": "contradictory_existing_test_contracts",
+      "source_ids": [
+        "B156",
+        "B158",
+        "B159"
+      ],
+      "evidence": [
+        "S05",
+        "S06",
+        "S10"
+      ],
+      "remaining": "Старые tests ожидают implicit cache и continuation, новые требуют fresh gates. Разрешить semantics и обеспечить различающее coverage; не объявлять native failure без запуска."
+    },
+    {
+      "id": "C22-G03",
+      "type": "numerical_reuse_and_calibration_qualification",
+      "source_ids": [
+        "B156"
+      ],
+      "remaining": "Доказать actual immutable source owner reuse и независимость calibration на source/replicate basis; новый UUID не является новым измерением."
+    }
+  ]
+}

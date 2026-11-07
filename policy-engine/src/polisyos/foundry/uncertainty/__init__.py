@@ -22,6 +22,16 @@ if TYPE_CHECKING:
         calibration_covariance_blocks_agree_v1,
         preserve_singular_covariance,
     )
+    from .empirical import (
+        EmpiricalJointRows,
+        EmpiricalNumericResolutionError,
+        empirical_indices_from_cdf,
+        empirical_joint_moments,
+        empirical_weighted_moments,
+        normalize_empirical_masses,
+        prepare_empirical_cdf,
+        prepare_empirical_joint,
+    )
     from .evaluation_failures import (
         EXCEPTION_CHAIN_EDGE_LIMIT,
         EXCEPTION_CHAIN_NODE_LIMIT,
@@ -71,6 +81,38 @@ except (
 
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "EmpiricalJointRows": (
+        "polisyos.foundry.uncertainty.empirical",
+        "EmpiricalJointRows",
+    ),
+    "EmpiricalNumericResolutionError": (
+        "polisyos.foundry.uncertainty.empirical",
+        "EmpiricalNumericResolutionError",
+    ),
+    "empirical_indices_from_cdf": (
+        "polisyos.foundry.uncertainty.empirical",
+        "empirical_indices_from_cdf",
+    ),
+    "empirical_joint_moments": (
+        "polisyos.foundry.uncertainty.empirical",
+        "empirical_joint_moments",
+    ),
+    "empirical_weighted_moments": (
+        "polisyos.foundry.uncertainty.empirical",
+        "empirical_weighted_moments",
+    ),
+    "normalize_empirical_masses": (
+        "polisyos.foundry.uncertainty.empirical",
+        "normalize_empirical_masses",
+    ),
+    "prepare_empirical_cdf": (
+        "polisyos.foundry.uncertainty.empirical",
+        "prepare_empirical_cdf",
+    ),
+    "prepare_empirical_joint": (
+        "polisyos.foundry.uncertainty.empirical",
+        "prepare_empirical_joint",
+    ),
     "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1": (
         "polisyos.foundry.uncertainty.covariance",
         "CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1",
@@ -139,6 +181,8 @@ __all__ = [
     "EXCEPTION_CHAIN_EDGE_LIMIT",
     "EXCEPTION_CHAIN_NODE_LIMIT",
     "EvaluationFailureClassification",
+    "EmpiricalNumericResolutionError",
+    "EmpiricalJointRows",
     "build_covariance_matrix",
     "calibration_covariance_blocks_agree_v1",
     "classify_evaluation_failure",
@@ -162,6 +206,12 @@ __all__ = [
     "load_aggregated_envelope_fresh",
     "persist_aggregated_envelope",
     "compute_first_order_indices",
+    "empirical_indices_from_cdf",
+    "empirical_joint_moments",
+    "empirical_weighted_moments",
     "extract_std",
     "fabric_uncertainty_context_from_decision_data",
+    "normalize_empirical_masses",
+    "prepare_empirical_cdf",
+    "prepare_empirical_joint",
 ]

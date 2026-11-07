@@ -1,0 +1,382 @@
+{
+  "packet_id": "UDF-05",
+  "lane": "LANE-07",
+  "source_ids": [
+    "LA-032"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/UDF-05.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "title": "Целостный demographic bundle без смены роли и идентичности",
+  "practical_goal": "Выбранные demographic inputs достигают реального aging/Foundry consumer с теми же totals, ordered states, donor IDs и честной candidate/source evidence; корректные old snapshots не теряются.",
+  "work_types": "fix + native qualification; historical migration preserve",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C88_остатки:0",
+      "audit_id": "C88-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-UDF-05-01",
+        "REQ-UDF-05-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Устранить молчаливую смену owner computational поля внутри выбранного bundle, сохранить metadata и valid composition."
+    },
+    {
+      "inventory_id": "audit-residual:C88_остатки:1",
+      "audit_id": "C88-R02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-UDF-05-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Валидировать дискретную identity до преобразования; исправить оба index поля, не только state range."
+    },
+    {
+      "inventory_id": "audit-residual:C88_остатки:2",
+      "audit_id": "C88-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-UDF-05-03",
+        "REQ-UDF-05-04",
+        "REQ-UDF-05-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Исполнить реальную native producer/read chain; product change только при установленном несоответствии, без новой CAS платформы."
+    },
+    {
+      "inventory_id": "audit-residual:C88_остатки:3",
+      "audit_id": "C88-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-UDF-05-05"
+      ],
+      "shared_owner": null,
+      "rationale": "Доказать truthful propagation и полезный candidate path; scientific suitability конкретного source остаётся отдельной явно ограниченной областью."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-UDF-05-01",
+      "text": "При сборке одного resolved demographic snapshot ни priors, ни donor не должны изменять вычислительные поля targets. Повтор чужого поля с отличающимся значением должен завершиться явным конфликтом роли до возврата aggregate; равный повтор допустим только как проверенное совместимое дублирование. Scalar и aggregate читатели того же source должны возвращать одинаковые target totals и порядок state_ids.",
+      "source_ids": [
+        "LA-032"
+      ],
+      "audit_ids": [
+        "C88-R01"
+      ],
+      "test_ids": [
+        "TEST-UDF-05-01",
+        "TEST-UDF-05-05"
+      ],
+      "protected_distinction_ids": []
+    },
+    {
+      "id": "REQ-UDF-05-02",
+      "text": "До любого int64 cast каждый donor_state_index и присутствующий donor_record_index должен быть конечным точным целым, представимым в int64. Дробь любого знака, NaN/Inf и выход за int64 должны отклоняться без усечения или wraparound. После этого donor_state_index должен принадлежать [0,n_states); прежние допустимые signed record IDs не ограничивать новой положительностью. Exact scalar admission выполняется до любого inferred/common float dtype, включая before field-validator: смешанная последовательность допустимых Python ints и integral floats сохраняет каждый int64 record ID без округления. Уже материализованный float input проверяется по его actual значению; утраченную ранее integer identity не угадывать.",
+      "source_ids": [
+        "LA-032"
+      ],
+      "audit_ids": [
+        "C88-R02"
+      ],
+      "test_ids": [
+        "TEST-UDF-05-02",
+        "TEST-UDF-05-05"
+      ],
+      "protected_distinction_ids": []
+    },
+    {
+      "id": "REQ-UDF-05-03",
+      "text": "Выбор historical new/legacy layout выполняется целиком до чтения членов; mixed/ambiguous/present-invalid не подменяется fallback. Явный old snapshot, scalar historical-only чтение и законное отсутствие donor сохраняются. Candidate aggregate требует materialized entrants и установленной disposition donor; unknown donor не блокирует только уже разрешённые scalar targets/priors.",
+      "source_ids": [
+        "LA-032"
+      ],
+      "audit_ids": [],
+      "test_ids": [
+        "TEST-UDF-05-03",
+        "TEST-UDF-05-05"
+      ],
+      "protected_distinction_ids": [
+        "LK12",
+        "LK20"
+      ]
+    },
+    {
+      "id": "REQ-UDF-05-04",
+      "text": "Native candidate путь должен получить inventory через существующий builder из явно выбранного producer manifest, проверить exact member set/hash/size/profile, затем прочитать captured CAS receipt новым reader и передать те же значения и evidence в pure aging/Foundry. Изменение producer files после capture не меняет старый receipt; потеря или порча выбранного CAS blob даёт отказ, а не filesystem/default fallback.",
+      "source_ids": [
+        "LA-032"
+      ],
+      "audit_ids": [
+        "C88-G01"
+      ],
+      "test_ids": [
+        "TEST-UDF-05-04",
+        "TEST-UDF-05-05"
+      ],
+      "protected_distinction_ids": [
+        "LK12",
+        "LK20"
+      ]
+    },
+    {
+      "id": "REQ-UDF-05-05",
+      "text": "Читатели и pure aging должны сохранять provenance source facts и различать consumer_asserted, not_established и проверенные content/basis facts. Отсутствие scientific/currentness authority не запрещает законную candidate/conditional работу и не превращается в verified scientific input; legacy zero-entrant projection остаётся явно не измеренным нулём.",
+      "source_ids": [
+        "LA-032"
+      ],
+      "audit_ids": [
+        "C88-G02"
+      ],
+      "test_ids": [
+        "TEST-UDF-05-03",
+        "TEST-UDF-05-05",
+        "TEST-UDF-05-06"
+      ],
+      "protected_distinction_ids": [
+        "LK12",
+        "LK20"
+      ]
+    },
+    {
+      "id": "REQ-UDF-05-06",
+      "text": "Role assembly должна сохранить полезные metadata выбранных членов без выдачи их за computational authority; source_status/identity/evidence задаются только resolved source. Экспорт payload/evidence не должен позволять внешней мутации изменить последующее чтение captured source или результат другого consumer.",
+      "source_ids": [
+        "LA-032"
+      ],
+      "audit_ids": [
+        "C88-R01",
+        "C88-G01"
+      ],
+      "test_ids": [
+        "TEST-UDF-05-01",
+        "TEST-UDF-05-04",
+        "TEST-UDF-05-05"
+      ],
+      "protected_distinction_ids": [
+        "LK12"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-UDF-05-01",
+      "requirement_ids": [
+        "REQ-UDF-05-01",
+        "REQ-UDF-05-06"
+      ],
+      "level": "native unit; historical и candidate reader",
+      "setup": "Два state_ids, targets=[100,250], согласованные priors и donor; варианты с priors.target_state_totals=[900,800], чужим state_ids, donor override, равным повтором; реальный resolved source.",
+      "action": "Вызвать scalar targets и aggregate, затем повторить после изменения только metadata другого члена.",
+      "oracle": "Чужое отличающееся computational поле вызывает role-specific refusal/ValidationError до aggregate; равный повтор не меняет [100,250]/axis. Metadata всех ролей сохраняются по выбранной совместимой схеме, reserved source evidence не подменяется.",
+      "expected": "Конфликт — negative; обычные и равные повторения — positive. На старом dict merge контроль [900,800] ошибочно проходит, поэтому regression различающий.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Разрешены tiny JSON fixtures. Нельзя заменить assembler/validator копией или считать candidate fixture доказательством CAS chain."
+    },
+    {
+      "id": "TEST-UDF-05-02",
+      "requirement_ids": [
+        "REQ-UDF-05-02"
+      ],
+      "level": "native unit DTO + public reader",
+      "setup": "Полный валидный bundle; donor state [0,1], record [1001,1002]. Параметры .9/1.9, -.9/1, record1001.9, NaN/±Inf, int64 min/max и соседние integers, float2**63, state -1/n_states; integer float1.0. Добавить mixed record lists [2**53+1,1.0], [int64max,1.0], [int64min,-1.0] и соседние out-of-range integers; expected IDs задать независимыми Python ints.",
+      "action": "Построить DTO и прочитать bundle обоими public routes; проверить standalone record_index без paired donor отдельно, если current DTO принимает такое сочетание. Mixed cases провести через direct DTO, historical raw JSON reader и candidate reader; сверить exact downstream record IDs, не allclose.",
+      "oracle": "Ни один неверный индекс не попадает в downstream int64; exact integer float разрешён без смены значения; большие Python ints сравниваются до lossy float cast. Signed record domain сохранён; state range ограничен. Preserved standalone-record shape не даёт обхода integrality. Valid mixed int/integral-float input не округляет 2**53+1 к2**53 и не превращает int64max в2**63. Проверка только после np.asarray с inferred float dtype не проходит этот oracle.",
+      "expected": "Дробные/непредставимые — отказ; валидные границы record и допустимые state — тот же ID. Old fractional truncation reproducer обязан упасть на старой реализации.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Настоящий NumPy/Pydantic; не имитировать dtype/validation. Допустимы входные массивы и временный filesystem."
+    },
+    {
+      "id": "TEST-UDF-05-03",
+      "requirement_ids": [
+        "REQ-UDF-05-03",
+        "REQ-UDF-05-05"
+      ],
+      "level": "native unit historical compatibility",
+      "setup": "Матрица new only / legacy only / оба complete / mixed partial / present-invalid / standalone scalar / absent donor / legacy entrants absent / candidate entrants absent / unknown donor.",
+      "action": "Вызвать существующие public readers с explicit layout и без него; сохранить прежний snapshot отдельно.",
+      "oracle": "Whole-layout semantics не смешивают sources; explicit old остаётся доступным; standalone scalar и lawful donor absence работают; legacy omitted entrants дают zeros только вместе с compatibility note и not_established; candidate omitted entrants — отказ.",
+      "expected": "Положительные legacy/scalar paths обязательны; отказ не является единственной реализацией защиты.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Использовать реальный tempfile filesystem, не mock existence/read. Это bounded historical compatibility, не native pipeline evidence."
+    },
+    {
+      "id": "TEST-UDF-05-04",
+      "requirement_ids": [
+        "REQ-UDF-05-04",
+        "REQ-UDF-05-06"
+      ],
+      "level": "native integration producer→inventory→profile-aware CAS→fresh reader",
+      "setup": "Tiny реальный producer manifest с targets/priors/donor и ArtifactRecord; build_demography_source_inventory_stage, FileSystemCAS и load_verified_stage_artifacts. Отдельные generations, explicit donor absence; выбранные profile receipts.",
+      "action": "Создать inventory stage/receipt; закрыть объекты и открыть fresh reader. Изменить producer files; прочитать старый receipt. Затем по одному удалить/испортить CAS member, изменить manifest membership/hash/size/profile basis.",
+      "oracle": "Receipt имеет exact selected manifest/member IDs/hash/size/profile и сохранённый generation basis; captured чтение не зависит от producer mutation; fresh reader выдаёт прежние arrays/evidence, integrity failures не дают filesystem fallback/смешение поколений.",
+      "expected": "Valid route и old receipt работают; corrupt/missing/inexact basis отказывают с причиной и без частичного aggregate.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Нельзя fake CAS, read API или hashes. Синтетический producer manifest — допустимый source fixture, не реальное ведомственное происхождение. Патчи server/Part-A gate в existing helper требуют отдельной маркировки и не доказывают admitted orchestrator run."
+    },
+    {
+      "id": "TEST-UDF-05-05",
+      "requirement_ids": [
+        "REQ-UDF-05-01",
+        "REQ-UDF-05-02",
+        "REQ-UDF-05-03",
+        "REQ-UDF-05-04",
+        "REQ-UDF-05-05",
+        "REQ-UDF-05-06"
+      ],
+      "level": "native integration public readers→pure aging→Foundry",
+      "setup": "Валидный inventory receipt из TEST-04, source facts partly consumer_asserted/partly not_established. Native JAX/Foundry environment. Реальный build_static_aging_state и StaticAgingSimulationEstimator.",
+      "action": "Прочитать все четыре public readers, построить aging state и выполнить pure_step; вторым compatible fixture изменить state names/count и значения без case-specific code. Попытаться изменить exported arrays/evidence и прочитать повторно.",
+      "oracle": "В pure state/result diagnostics поступают тот же ordered axis, totals, discrete donor IDs, source_identity, candidate evidence; повторное чтение неизменно; actual estimator производит предусмотренный конечный результат. Условный fixture calibration report не становится empirical calibration.",
+      "expected": "Два полезных candidate consumers работают; роль/ID corruption не доходит до compute. Сравнить конкретные ожидаемые arrays/diagnostics, не только exit0.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Нельзя подменять JAX/Foundry/pure_step. Малый calibration report допустим только явно synthetic prerequisite; не выдавать его за scientific validation. Проверять чистоту aging отдельно: никаких новых IO внутри."
+    },
+    {
+      "id": "TEST-UDF-05-06",
+      "requirement_ids": [
+        "REQ-UDF-05-05"
+      ],
+      "level": "contract qualification / concrete-use boundary",
+      "setup": "Один валидный candidate receipt с полным перечнем source fact keys и intentional unknowns; отдельно переданный документированный concrete-use источник, только если он реально имеется.",
+      "action": "Сформировать evidence mapping фактических measure/unit/period/state mapping/owner/currentness и вывод consumer на selected fixture.",
+      "oracle": "Каждому claimed fact соответствует существующий witness или явное not_established; hash/author assertion не поднимает уровень до scientific/owner currentness. Без внешнего witness candidate computation остаётся доступным, а concrete empirical claim остаётся withheld.",
+      "expected": "Механическая приёмка LA-032 возможна с честным candidate scope; эмпирическая пригодность не объявляется PASS без конкретного источника.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Нельзя выдумывать corpus/owner signature или требовать универсального автоматического изобретателя demographic модели. Source fixture доказывает лишь contract propagation."
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I07-B"
+  ],
+  "dependencies": [
+    "E02-I07-B shared with FED-01/FED-02; existing CAS/generation contract owners LANE-06/08"
+  ],
+  "preservation": [
+    "Whole layout selection и old snapshots",
+    "Optional donor и scalar historical compatibility",
+    "Captured bytes и immutable projections",
+    "Candidate/legacy evidence limits",
+    "Verified read API, pure aging и generation basis"
+  ],
+  "design_alignment": [
+    "Vision §3–7,11; North Star §2,5,7; Target Architecture D2.5; bounded domain schema, no bespoke per dataset"
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0426",
+      "requirement_ids": [
+        "REQ-UDF-05-01",
+        "REQ-UDF-05-06"
+      ],
+      "disposition": "fix",
+      "rationale": "Устранить молчаливую смену owner computational поля внутри выбранного bundle, сохранить metadata и valid composition."
+    },
+    {
+      "inventory_id": "remaining:0427",
+      "requirement_ids": [
+        "REQ-UDF-05-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Валидировать дискретную identity до преобразования; исправить оба index поля, не только state range."
+    },
+    {
+      "inventory_id": "remaining:0428",
+      "requirement_ids": [
+        "REQ-UDF-05-03",
+        "REQ-UDF-05-04",
+        "REQ-UDF-05-06"
+      ],
+      "disposition": "qualify",
+      "rationale": "Исполнить реальную native producer/read chain; product change только при установленном несоответствии, без новой CAS платформы."
+    },
+    {
+      "inventory_id": "remaining:0429",
+      "requirement_ids": [
+        "REQ-UDF-05-05"
+      ],
+      "disposition": "qualify",
+      "rationale": "Доказать truthful propagation и полезный candidate path; scientific suitability конкретного source остаётся отдельной явно ограниченной областью."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0682",
+      "requirement_ids": [
+        "REQ-UDF-05-03"
+      ],
+      "test_ids": [
+        "TEST-UDF-05-03"
+      ],
+      "rationale": "Whole layout и explicit old snapshots остаются доступными без смешивания."
+    },
+    {
+      "inventory_id": "preserve:0683",
+      "requirement_ids": [
+        "REQ-UDF-05-03"
+      ],
+      "test_ids": [
+        "TEST-UDF-05-03",
+        "TEST-UDF-05-05"
+      ],
+      "rationale": "Optional donor/scalar compatibility проверяются положительно и не заменяются blanket refusal."
+    },
+    {
+      "inventory_id": "preserve:0684",
+      "requirement_ids": [
+        "REQ-UDF-05-04",
+        "REQ-UDF-05-06"
+      ],
+      "test_ids": [
+        "TEST-UDF-05-04",
+        "TEST-UDF-05-05"
+      ],
+      "rationale": "Captured bytes и exports не зависят от producer/caller mutation."
+    },
+    {
+      "inventory_id": "preserve:0685",
+      "requirement_ids": [
+        "REQ-UDF-05-05"
+      ],
+      "test_ids": [
+        "TEST-UDF-05-03",
+        "TEST-UDF-05-05",
+        "TEST-UDF-05-06"
+      ],
+      "rationale": "Candidate/legacy evidence не повышается; zero projection остаётся qualified."
+    },
+    {
+      "inventory_id": "preserve:0686",
+      "requirement_ids": [
+        "REQ-UDF-05-04"
+      ],
+      "test_ids": [
+        "TEST-UDF-05-04",
+        "TEST-UDF-05-05"
+      ],
+      "rationale": "Actual read API→pure aging→Foundry и selected generation basis."
+    }
+  ],
+  "owners": [
+    "src/polisyos/data_forge/domains/ukraine/demography/__init__.py::_artifacts_from_resolved_source",
+    "src/polisyos/data_forge/domains/ukraine/demography/__init__.py::UkraineDemographyArtifacts._validate_shapes",
+    "src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py::_resolve_inventory",
+    "src/polisyos/data_forge/domains/ukraine/builders/demography_inventory.py::build_demography_source_inventory_stage",
+    "src/polisyos/data_forge/read_api/ukraine.py::load_verified_stage_artifacts",
+    "src/polisyos/data_forge/domains/ukraine/static_aging.py::build_static_aging_state"
+  ],
+  "protected_distinction_ids": [
+    "LK12",
+    "LK20"
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "scope": "Proposed conditional X04 resource witness; product NOT_RUN",
+  "model": "Selected feasibility profile: load>capacity means infeasible, not allocation/capped outcome/permission. Three binary actions; demands4,4,4; benefits5,4,3; capacity10; no extra interaction",
+  "rows": [
+    {
+      "mask": 0,
+      "actions": [],
+      "demand": 0,
+      "value": 0,
+      "feasible": true
+    },
+    {
+      "mask": 1,
+      "actions": [
+        "A"
+      ],
+      "demand": 4,
+      "value": 5,
+      "feasible": true
+    },
+    {
+      "mask": 2,
+      "actions": [
+        "B"
+      ],
+      "demand": 4,
+      "value": 4,
+      "feasible": true
+    },
+    {
+      "mask": 3,
+      "actions": [
+        "A",
+        "B"
+      ],
+      "demand": 8,
+      "value": 9,
+      "feasible": true
+    },
+    {
+      "mask": 4,
+      "actions": [
+        "C"
+      ],
+      "demand": 4,
+      "value": 3,
+      "feasible": true
+    },
+    {
+      "mask": 5,
+      "actions": [
+        "A",
+        "C"
+      ],
+      "demand": 8,
+      "value": 8,
+      "feasible": true
+    },
+    {
+      "mask": 6,
+      "actions": [
+        "B",
+        "C"
+      ],
+      "demand": 8,
+      "value": 7,
+      "feasible": true
+    },
+    {
+      "mask": 7,
+      "actions": [
+        "A",
+        "B",
+        "C"
+      ],
+      "demand": 12,
+      "value": 12,
+      "feasible": false
+    }
+  ],
+  "optimal_feasible": [
+    {
+      "mask": 3,
+      "actions": [
+        "A",
+        "B"
+      ],
+      "demand": 8,
+      "value": 9,
+      "feasible": true
+    }
+  ],
+  "note": "Every pair feasible, triple infeasible. With capacity12 triple becomes feasible. Requires actual existing selected resource owner and real user-program consumer. Bare arithmetic predicate is not joint capability. Optimum only relevant if selected search maximizes benefit; no new optimizer mandated. This arithmetic does not establish owner existence."
+}

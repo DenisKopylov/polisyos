@@ -1,0 +1,286 @@
+{
+  "packet_id": "CMP-03",
+  "lane": "LANE-04",
+  "source_ids": [
+    "B47",
+    "B48"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/CMP-03.md",
+    "../05_Основания/Аудит/01_Реестры/C44_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C44-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CMP-03-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Diagnostics ошибочно используют stale src_name; привязать каждую строку к actual matched_source.",
+      "inventory_id": "audit-residual:C44_остатки:0"
+    },
+    {
+      "audit_id": "C44-R02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CMP-03-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Оптимизировать предпочтения назначения целиком после максимальной мощности, не только локальную очередь target.",
+      "inventory_id": "audit-residual:C44_остатки:1"
+    },
+    {
+      "audit_id": "C44-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CMP-03-01",
+        "REQ-CMP-03-02",
+        "REQ-CMP-03-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Все oracles повторить с native compiler/dispatcher/checkpoint в P-CORE, не подменяя registry.",
+      "inventory_id": "audit-residual:C44_остатки:2"
+    },
+    {
+      "audit_id": "C44-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CMP-03-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Типы и именованный allowance не являются residualization или эмпирическим обоснованием; explicit meaningful choice сохраняется.",
+      "inventory_id": "audit-residual:C44_остатки:3"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-CMP-03-01",
+      "text": "SlotLinker._link_auto выводит exact-name decision, Auto-linked, used и alternatives из выбранного matched_source/SlotBinding, а не loop-local source предыдущего обхода. Каждая строка называет допустимое фактическое ребро; alternatives исключают только выбранный source. Rematching не может ложно подавить warning. Correct binding и numerical result неизменны, corrected diagnostics доходят до result и fresh checkpoint readback.",
+      "source_ids": [
+        "B47",
+        "B48"
+      ],
+      "audit_ids": [
+        "C44-R01",
+        "C44-G01"
+      ],
+      "test_ids": [
+        "TEST-CMP-03-01"
+      ]
+    },
+    {
+      "id": "REQ-CMP-03-02",
+      "text": "Среди admissible assignments auto сначала максимизирует число связанных targets, затем лексикографически суммарные компоненты существующего _score_candidate (при prefer_exact_names=True exact-name первая компонента), затем стабильный tie-break по sorted(target,source). Имя не может уменьшить полноту. Единственный output right при inputs left/right выбирает right→right; два отдельных producers left=10/right=20 для 100*left+right дают1020 при обоих connect orders. prefer_exact_names=False отключает именно name preference; не обещать общую connect-order независимость для содержательно неоднозначного многорёберного DAG.",
+      "source_ids": [
+        "B47",
+        "B48"
+      ],
+      "audit_ids": [
+        "C44-R02",
+        "C44-G01"
+      ],
+      "test_ids": [
+        "TEST-CMP-03-02"
+      ]
+    },
+    {
+      "id": "REQ-CMP-03-03",
+      "text": "Auto/explicit применяют один admissibility contract: canonical outcome→residual допустим, outcome→treatment запрещён; binary_treatment→treatment допустим. Unit/shape/concrete-contract mismatch остаются отказом, bounds mismatch warning-only. Composer joint typed sources L/R дают30 при полной связке; неполный DAG и tampered forbidden edge отвергаются финальной проверкой. Unknown names не получают semantic attestation; содержательно неоднозначный estimate требует explicit mapping/существующего adapter, а не arbitrary matching.",
+      "source_ids": [
+        "B47",
+        "B48"
+      ],
+      "audit_ids": [
+        "C44-G01",
+        "C44-G02"
+      ],
+      "test_ids": [
+        "TEST-CMP-03-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-CMP-03-01",
+      "requirement_ids": [
+        "REQ-CMP-03-01"
+      ],
+      "level": "native linker + executors + persistence",
+      "setup": "Flexible a_flexible(None)/b_fixed(B)→c_first(B)/d_second(A), actual methods output values producing2010; rematch a→z,z→zz; native checkpoint.",
+      "action": "Inspect binding+all diagnostics, sequential/async execute, save/read/resume; compare old stale-source implementation as negative control.",
+      "oracle": "Binding fixed→first/flexible→second; diagnostic names exactly bindings (never forbidden b_fixed→d_second); rematch warnings not suppressed by stale name; numerical2010 preserved; checkpoint returns2 results,0 new dispatch and same corrected diagnostics.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-CMP-03-02",
+      "requirement_ids": [
+        "REQ-CMP-03-02"
+      ],
+      "level": "algorithm unit + native composer",
+      "setup": "Single right output vs left/right inputs; two native producer nodes left10/right20→100*left+right; flexible/fixed and independent brute-force small contract graph oracle.",
+      "action": "Run both connect orders, names permutations, preference on/off; enumerate729 3×3 None/A/B contract graphs and compare cardinality+objective to independent exhaustive assignments.",
+      "oracle": "right→right when preference on; both DAG orders1020; all graph cardinalities agree (baseline583 full,120 size2,24 size1,2 empty for unchanged census); chosen objective maximal among max-cardinality solutions. Flexible/fixed remains complete. Old algorithm fails single-source/preference witness.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-CMP-03-03",
+      "requirement_ids": [
+        "REQ-CMP-03-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Real canonical slot_schema and checker, no semantic stub; units/shapes/contracts incompatible cases, bounds warning, explicit typed L/R producers, unknown estimate names.",
+      "action": "Run auto/explicit pair and full composer finalize; corrupt a selected edge; execute accepted full DAG sequential/async.",
+      "oracle": "Same accept/reject meaning in both branches, preserving existing exception classes; typed full output30, incomplete/forbidden refuse; bounds accept withwarning; unknown accepted only as unconstrained. No claim allowance computes residualization.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I04-A"
+  ],
+  "dependencies": [
+    "CMP-02"
+  ],
+  "preservation": [
+    "Полный admissible graph строится до выбора; augmenting-path способность перераспределять flexible source ради полноты сохраняется.",
+    "Explicit mapping, unit/shape/contract checks и canonical semantic registry остаются общими с auto; unknown семантика означает unconstrained, не доказанную корректность.",
+    "Strict pair link требует полноты пары, composer допускает partial edge и проверяет joint DAG completeness; уже занятые auto target inputs исключаются.",
+    "Bounds overlap остаётся warning-only согласно текущему checker, не новый hard gate."
+  ],
+  "design_alignment": [
+    "Автоматический поиск обслуживает расширяемый typed contract, но не изобретает семантику данных.",
+    "Сохранённый warning — evidence of compiler decision, поэтому должен описывать actual edge; долговечность не превращает ложное сообщение в истинное."
+  ],
+  "open_decisions": [],
+  "source_obligations": [
+    "B47: сначала максимальная полнота допустимого назначения, затем configured preferences; flexible/fixed witness и нейтральные переименования должны сохранять существование решения (REQ02).",
+    "B48: одинаковая обязательная semantic/structural оценка auto/explicit, pair versus whole-DAG completeness и explicit adapter path; никаких научных claims из matching (REQ03)."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/foundry/methods/components/linker.py: SlotLinker._link_auto, _score_candidate, validate_chain",
+    "policy-engine/src/polisyos/foundry/methods/components/composer.py: MethodComposer.connect",
+    "policy-engine/src/polisyos/foundry/methods/components/slot_schema.py: is_semantically_compatible",
+    "policy-engine/src/polisyos/foundry/methods/types/checker.py: check_slot_compatibility"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_cmp_03.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0109",
+      "requirement_ids": [
+        "REQ-CMP-03-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Diagnostics ошибочно используют stale src_name; привязать каждую строку к actual matched_source."
+    },
+    {
+      "inventory_id": "remaining:0110",
+      "requirement_ids": [
+        "REQ-CMP-03-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Оптимизировать предпочтения назначения целиком после максимальной мощности, не только локальную очередь target."
+    },
+    {
+      "inventory_id": "remaining:0111",
+      "requirement_ids": [
+        "REQ-CMP-03-01",
+        "REQ-CMP-03-02",
+        "REQ-CMP-03-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Все oracles повторить с native compiler/dispatcher/checkpoint в P-CORE, не подменяя registry."
+    },
+    {
+      "inventory_id": "remaining:0112",
+      "requirement_ids": [
+        "REQ-CMP-03-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Типы и именованный allowance не являются residualization или эмпирическим обоснованием; explicit meaningful choice сохраняется."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0145",
+      "requirement_ids": [
+        "REQ-CMP-03-02",
+        "REQ-CMP-03-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-03-02",
+        "TEST-CMP-03-03"
+      ],
+      "rationale": "Admissibility before matching — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0146",
+      "requirement_ids": [
+        "REQ-CMP-03-02"
+      ],
+      "test_ids": [
+        "TEST-CMP-03-02"
+      ],
+      "rationale": "Augmenting paths — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0147",
+      "requirement_ids": [
+        "REQ-CMP-03-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-03-03"
+      ],
+      "rationale": "Explicit mapping route — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0148",
+      "requirement_ids": [
+        "REQ-CMP-03-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-03-03"
+      ],
+      "rationale": "Unit/shape/contract checks — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0149",
+      "requirement_ids": [
+        "REQ-CMP-03-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-03-03"
+      ],
+      "rationale": "Shared structural and semantic checks — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0150",
+      "requirement_ids": [
+        "REQ-CMP-03-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-03-03"
+      ],
+      "rationale": "Final joint completeness — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0151",
+      "requirement_ids": [
+        "REQ-CMP-03-02",
+        "REQ-CMP-03-03"
+      ],
+      "test_ids": [
+        "TEST-CMP-03-02",
+        "TEST-CMP-03-03"
+      ],
+      "rationale": "Composer filtering of already bound inputs — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}
+

@@ -87,6 +87,6 @@ The Playwright config starts `serve_fixture_runtime_api.py --port 8000 --metadat
 
 ## Receipt and disposition
 
-Complete command/stdout/stderr/exit captures for the lightweight profile, cgroup, storage, package, host, port, and input-hash checks are under [`raw/final-wave-readiness/`](raw/final-wave-readiness/); `SHA256SUMS` covers the bounded receipt files. Tracked input-file hashes observed during the read are in `input-hashes.tsv`; root and worker lock hashes above are included there. `free(1)` is not installed in the Debian-slim worker image, so guest memory was measured from `/proc/meminfo` and the container's cgroup files instead.
+Complete command/stdout/stderr/exit captures for the lightweight profile, cgroup, storage, package, host, port, and input-hash checks are under `raw/final-wave-readiness/` (`raw/final-wave-readiness/`; unavailable in this checkout); `SHA256SUMS` covers the bounded receipt files. Tracked input-file hashes observed during the read are in `input-hashes.tsv`; root and worker lock hashes above are included there. `free(1)` is not installed in the Debian-slim worker image, so guest memory was measured from `/proc/meminfo` and the container's cgroup files instead.
 
 Disposition: existing Linux environments pass package consistency; source transport and frozen identity are pending root's actual freeze; heavy numerical/B212/F, LA-029, DFK and browser runs remain unexecuted pending root's one-slot release. No production payload, credentials, source mount, or currentness assertion is part of this profile.

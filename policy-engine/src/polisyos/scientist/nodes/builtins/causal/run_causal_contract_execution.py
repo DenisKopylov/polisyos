@@ -26,7 +26,11 @@ from polisyos.foundry.methods.catalog.causal.dtr import (
     QLearningDTR,
 )
 from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
-from polisyos.ir.analytics.dynamic_regime import DTRResult, persist_dynamic_treatment_regime
+from polisyos.ir.analytics.dynamic_regime import (
+    DTRResult,
+    load_effect_trajectory_bundle,
+    persist_dynamic_treatment_regime,
+)
 from polisyos.ir.artifacts import InputRef
 from polisyos.ir.governance.policy_spec import TemporalInterventionSequence
 from polisyos.ir.kernel.base import KernelModel
@@ -127,22 +131,31 @@ class TemporalInterventionSequenceCompiler:
                     "effect trajectory was not persisted."
                 )
             else:
+                query = resolved_task.continuous_time_query
+                query = query.model_copy(
+                    update={
+                        "metadata": {
+                            **query.metadata,
+                            "temporal_estimator_method": resolved_task.dtr_method,
+                        }
+                    }
+                )
                 trajectory = CausalEngine(artifact_store=self.store).temporal_causal_effect(
                     dynamic_data,
-                    resolved_task.continuous_time_query,
+                    query,
                     intervention=resolved_task.intervention_trajectory,
-                    method=resolved_task.dtr_method,
+                    method=str(query.metadata.get("preferred_backend", "linear_sde")),
                 )
-                effect_bundle_artifact_id = trajectory.metadata.get("effect_bundle_artifact_id")
-                if isinstance(effect_bundle_artifact_id, str) and effect_bundle_artifact_id.strip():
-                    effect_ref = EffectTrajectoryBundleRef(
-                        artifact_id=effect_bundle_artifact_id,
-                        kind="ir.effect_trajectory_bundle",
-                        media_type="application/json",
-                    )
+                effect_bundle_ref = trajectory.metadata.get("effect_bundle_artifact_ref")
+                if effect_bundle_ref is not None:
+                    effect_ref = EffectTrajectoryBundleRef.model_validate(effect_bundle_ref)
+                    if not effect_ref.manifest_profile_sha256:
+                        raise ValueError("temporal_effect_bundle_selected_profile_missing")
+                    load_effect_trajectory_bundle(_ensure_ir_artifact_store(self.store), effect_ref)
                 else:
                     warnings.append(
-                        "Continuous-time execution completed without a persisted effect bundle."
+                        "Continuous-time execution completed without a producer-selected effect "
+                        "bundle reference; trajectory lineage is not established."
                     )
 
         entry = TemporalDTRExecutionEntry(
@@ -389,7 +402,11 @@ _CAUSAL_CONTRACT_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
 def _artifact_input_ref(ref: ArtifactRefModel | None, *, role: str) -> InputRef | None:
     if ref is None:
         return None
-    return InputRef(artifact_id=ref.artifact_id, role=role)
+    return InputRef(
+        artifact_id=ref.artifact_id,
+        role=role,
+        manifest_profile_sha256=ref.manifest_profile_sha256,
+    )
 
 
 class RunCausalContractExecutionNode:

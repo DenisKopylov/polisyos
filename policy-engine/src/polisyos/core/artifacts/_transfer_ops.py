@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ctypes
 import errno
 import hashlib
 import json
@@ -9,17 +10,27 @@ import os
 import re
 import shutil
 import stat
+import sys
 import tarfile
 import tempfile
 from collections.abc import Iterator
 from contextlib import ExitStack, contextmanager, suppress
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from io import BytesIO
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, BinaryIO, Literal, Protocol
 
-from polisyos.common.serialization import fast_json_dumps, fast_json_dumps_bytes
+from polisyos.common.serialization import fast_json_dumps_bytes
 
+from ._atomic_write import fsync_directory
+from ._export_admission import (
+    DEFAULT_MAX_RETAINED_BYTES,
+    DEFAULT_MAX_RETAINED_GENERATIONS,
+    ExportResourceError,
+    _BudgetedArchiveWriter,
+    _export_target_admission,
+    _ExportAdmission,
+)
 from ._integrity_ops import ArtifactIntegrityError, validate_manifest_identity
 from ._manifest_lifecycle import ManifestLifecycle
 from .ids import ArtifactID
@@ -29,6 +40,7 @@ from .signing import (
     SIGNATURE_FORMAT_VERSION,
     SIGNATURE_STATEMENT_TYPE,
     DetachedSignature,
+    SignatureVerificationResult,
 )
 
 if TYPE_CHECKING:
@@ -83,7 +95,11 @@ class ImportPublication:
     refs: tuple[ArtifactRef, ...]
     published_refs: tuple[ArtifactRef, ...]
     reused_refs: tuple[ArtifactRef, ...]
-    basis: Literal["durable_owner_manifest_stage_intent"] = "durable_owner_manifest_stage_intent"
+    basis: Literal["durable_owner_manifest_stage_intent", "exact_owned_view_admission"] = (
+        "durable_owner_manifest_stage_intent"
+    )
+    signature_verified_refs: tuple[ArtifactRef, ...] = ()
+    imported_member_count: int | None = None
 
 
 def snapshot_transfer_member(member: str, stream: _TransferReadStream) -> TransferMemberSnapshot:
@@ -242,6 +258,11 @@ class ExportReport:
     output_path: Path
     missing_artifacts: list[str]
     missing_manifests: list[str]
+    previous_generation: Path | None = None
+    retained_paths: tuple[Path, ...] = ()
+    retained_bytes: int = 0
+    max_retained_generations: int = DEFAULT_MAX_RETAINED_GENERATIONS
+    max_retained_bytes: int = DEFAULT_MAX_RETAINED_BYTES
 
 
 @dataclass(frozen=True)
@@ -267,6 +288,8 @@ class ImportReport:
         "verification_failed_before_publication",
         "legacy_callback_refs_without_transaction_disposition",
     ] = "received_members_rejected_before_admission"
+    signature_verification_requested: bool = False
+    signature_verified_refs: tuple[ArtifactRef, ...] = ()
 
 
 def _canonical_import_refs(
@@ -389,7 +412,9 @@ def _validate_directory_export(target: Path) -> set[Path]:
         raise ValueError(f"Export target must not be a symlink: {target}")
     if target.exists() and not target.is_dir():
         raise ValueError(f"Export target is not a directory: {target}")
-    target.mkdir(parents=True, exist_ok=True)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if not target.exists():
+        return set()
     marker = target / "export_manifest.json"
     if marker.is_symlink():
         raise ValueError(f"Export manifest must not be a symlink: {marker}")
@@ -441,27 +466,218 @@ def _prepare_directory_export(target: Path) -> None:
             path.unlink()
 
 
-def _publish_directory_generation(staging_root: Path, target: Path) -> None:
-    """Publish a complete staged directory while retaining rollback on swap failure."""
-    if not target.exists():
-        os.replace(staging_root, target)
-        return
-
-    previous_root = Path(tempfile.mkdtemp(prefix=f".{target.name}.previous-", dir=target.parent))
-    previous_root.rmdir()
-    os.replace(target, previous_root)
+def _export_entry_identity(path: Path) -> tuple[int, int] | None:
+    """Return no-follow entry identity, or no identity when it cannot be established."""
     try:
-        os.replace(staging_root, target)
-    except BaseException:
+        metadata = path.lstat()
+    except OSError:
+        return None
+    return metadata.st_dev, metadata.st_ino
+
+
+class ImportSignatureVerificationError(ArtifactIntegrityError):
+    """Refuse a required selected signature before any import publication."""
+
+    def __init__(self, artifact_ref: ArtifactRef, result: SignatureVerificationResult) -> None:
+        self.artifact_ref = artifact_ref
+        self.result = result
+        super().__init__(
+            f"Required import signature {result.status.value} for {artifact_ref.artifact_id} "
+            f"profile={artifact_ref.manifest_profile_sha256}: {result.message}"
+        )
+
+
+class ExportDurabilityError(OSError):
+    """Expose publication visibility and retained paths without promising rollback.
+
+    ``replaced`` is None when the selected inode cannot be established. A
+    staging path names retained bytes, never a claim that they form a complete
+    export. Retention and eventual reclamation belong to the caller.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        replaced: bool | None,
+        previous_generation: Path | None = None,
+        staging_path: Path | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.replaced = replaced
+        self.previous_generation = previous_generation
+        self.staging_path = staging_path
+
+
+def _regular_archive_mode(target: Path) -> int | None:
+    """Admit the supplied final pathname itself, before any private staging."""
+    try:
+        metadata = target.lstat()
+    except FileNotFoundError:
+        return None
+    if not stat.S_ISREG(metadata.st_mode):
+        raise ValueError(f"Archive export target must be a regular file: {target}")
+    return stat.S_IMODE(metadata.st_mode)
+
+
+def _publish_archive_generation(
+    staging: Path,
+    target: Path,
+    *,
+    expected_identity: tuple[int, int] | None,
+) -> Path | None:
+    """Publish a descriptor-owned file, retaining the actually displaced archive."""
+    return _publish_export_generation(
+        staging, target, expected_identity=expected_identity, directory=False
+    )
+
+
+def _rename_export_generation(staging: Path, target: Path, *, exchange: bool) -> None:
+    """Publish files or directories with one native exchange or no-replace rename."""
+    library = ctypes.CDLL(None, use_errno=True)
+    if sys.platform == "linux":
+        rename = getattr(library, "renameat2", None)
+        if rename is None:
+            raise NotImplementedError("Atomic export rename is unavailable")
+        rename.argtypes = [
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_uint,
+        ]
+        rename.restype = ctypes.c_int
+        result = rename(-100, os.fsencode(staging), -100, os.fsencode(target), 2 if exchange else 1)
+    elif sys.platform == "darwin":
+        rename = getattr(library, "renamex_np", None)
+        if rename is None:
+            raise NotImplementedError("Atomic export rename is unavailable")
+        rename.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
+        rename.restype = ctypes.c_int
+        result = rename(os.fsencode(staging), os.fsencode(target), 2 if exchange else 4)
+    else:
+        raise NotImplementedError("Atomic export rename is unavailable")
+    if result != 0:
+        code = ctypes.get_errno()
+        raise OSError(code, os.strerror(code), str(target))
+
+
+def _exchange_directory_generation(staging: Path, target: Path) -> None:
+    """Exchange either regular export files or directories through the shared primitive."""
+    _rename_export_generation(staging, target, exchange=True)
+
+
+def _publish_export_generation(
+    staging: Path,
+    target: Path,
+    *,
+    expected_identity: tuple[int, int] | None,
+    directory: bool,
+) -> Path | None:
+    """Select the owned inode once, preserving the actually displaced namespace entry."""
+    if expected_identity is None or _export_entry_identity(staging) != expected_identity:
+        raise ExportDurabilityError(
+            "Export staging identity is not established; publication refused",
+            replaced=False,
+            staging_path=staging,
+        )
+    try:
+        prior = target.lstat()
+    except FileNotFoundError:
+        prior = None
+    valid_kind = stat.S_ISDIR if directory else stat.S_ISREG
+    if prior is not None and not valid_kind(prior.st_mode):
+        raise ExportDurabilityError(
+            "Export destination has an unsupported entry kind; publication refused",
+            replaced=False,
+            staging_path=staging,
+        )
+    exchanged = prior is not None
+    try:
+        if exchanged:
+            _exchange_directory_generation(staging, target)
+        else:
+            # Never remove an entry created by another writer after the missing check.
+            _rename_export_generation(staging, target, exchange=False)
+    except BaseException as error:
+        selected = _export_entry_identity(target)
+        staged = _export_entry_identity(staging)
+        visible = (
+            True
+            if selected == expected_identity
+            else False
+            if staged == expected_identity
+            else None
+        )
+        previous = (
+            staging if exchanged and staged is not None and staged != expected_identity else None
+        )
+        if not isinstance(error, Exception):
+            error.add_note(
+                f"Export visibility={visible}; retained_stage={staging}; previous={previous}"
+            )
+            raise
+        raise ExportDurabilityError(
+            f"Export publication failed: {error}; retained_stage={staging}; previous={previous}",
+            replaced=visible,
+            previous_generation=previous,
+            staging_path=staging,
+        ) from error
+    previous = staging if exchanged else None
+    if _export_entry_identity(target) != expected_identity:
+        raise ExportDurabilityError(
+            "Published export inode is not the owned staged inode; visibility not established",
+            replaced=None,
+            previous_generation=previous,
+            staging_path=staging,
+        )
+    if previous is not None:
         try:
-            os.replace(previous_root, target)
-        except OSError as restore_error:
-            raise OSError(
-                "Failed to restore the previous directory export after publication failure"
-            ) from restore_error
-        raise
-    if previous_root.exists():
-        shutil.rmtree(previous_root, ignore_errors=True)
+            previous_mode = previous.lstat().st_mode
+        except OSError as error:
+            raise ExportDurabilityError(
+                "Export selected but displaced entry cannot be established",
+                replaced=True,
+                previous_generation=previous,
+                staging_path=staging,
+            ) from error
+        if not valid_kind(previous_mode):
+            raise ExportDurabilityError(
+                "Export selected but displaced entry has an untrusted kind",
+                replaced=True,
+                previous_generation=previous,
+                staging_path=staging,
+            )
+    try:
+        fsync_directory(target.parent)
+    except OSError as error:
+        raise ExportDurabilityError(
+            f"Export was selected; parent durability is uncertain: {error}; previous={previous}",
+            replaced=True,
+            previous_generation=previous,
+            staging_path=staging,
+        ) from error
+    return previous
+
+
+def _sync_directory_generation(staging: Path) -> None:
+    """Sync the inventory and every staged directory before selecting the generation."""
+    with (staging / "export_manifest.json").open("rb") as inventory:
+        os.fsync(inventory.fileno())
+    for directory, _directories, _files in os.walk(staging, topdown=False):
+        fsync_directory(Path(directory))
+
+
+def _publish_directory_generation(
+    staging_root: Path,
+    target: Path,
+    *,
+    expected_identity: tuple[int, int] | None,
+) -> Path | None:
+    """Publish a complete directory without sweeping any retained or failed tree."""
+    return _publish_export_generation(
+        staging_root, target, expected_identity=expected_identity, directory=True
+    )
 
 
 def _reject_symlink_components(path: Path, root: Path, *, member: str) -> None:
@@ -650,6 +866,29 @@ def _validate_staged_signatures(
             raise ValueError(f"Invalid detached signature for {artifact_id}: {exc}") from exc
 
 
+@contextmanager
+def _new_export_member(root_descriptor: int, name: str) -> Iterator[BinaryIO]:
+    """Create a staged member exclusively below a pinned no-follow directory."""
+    parts = PurePosixPath(name).parts
+    if not parts or PurePosixPath(name).is_absolute() or ".." in parts:
+        raise ValueError("Export member escapes its private stage")
+    current = os.dup(root_descriptor)
+    try:
+        for part in parts[:-1]:
+            with suppress(FileExistsError):
+                os.mkdir(part, mode=0o700, dir_fd=current)
+            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=current)
+            os.close(current)
+            current = child
+        descriptor = os.open(
+            parts[-1], os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=current
+        )
+        with os.fdopen(descriptor, "wb") as stream:
+            yield stream
+    finally:
+        os.close(current)
+
+
 def export_subgraph(
     *,
     open_member: Callable[[ArtifactID | ArtifactRef, str], AbstractContextManager[CASMemberStream]],
@@ -658,11 +897,75 @@ def export_subgraph(
     target: Path,
     compress: bool = True,
     include_manifests: bool = True,
+    max_retained_generations: int = DEFAULT_MAX_RETAINED_GENERATIONS,
+    max_retained_bytes: int = DEFAULT_MAX_RETAINED_BYTES,
+) -> ExportReport:
+    """Admit finite target resources before consuming source IDs or creating a stage."""
+    output = normalize_archive_path(target) if compress else target
+    target_mode: int | None = None
+
+    def validate_target() -> None:
+        nonlocal target_mode
+        if compress:
+            target_mode = _regular_archive_mode(output)
+        else:
+            _validate_directory_export(output)
+            target_mode = stat.S_IMODE(output.stat().st_mode) if output.exists() else None
+
+    with _export_target_admission(
+        output,
+        max_retained_generations=max_retained_generations,
+        max_retained_bytes=max_retained_bytes,
+        validate_target=validate_target,
+    ) as admission:
+        try:
+            report = _export_generation(
+                open_member=open_member,
+                member_name=member_name,
+                artifact_ids=artifact_ids,
+                target=output,
+                compress=compress,
+                include_manifests=include_manifests,
+                _admission=admission,
+                _target_mode=target_mode,
+            )
+            # After selection only the actually displaced locator can remain.
+            admission.staging_path = report.previous_generation
+            snapshot = admission.after_publication()
+        except ExportResourceError as error:
+            # Reconcile actual retained bytes after the owned stream has closed.
+            snapshot = admission.snapshot()
+            raise admission.refusal(
+                error.reason,
+                snapshot.paths,
+                snapshot.byte_size,
+                replaced=error.replaced,
+            ) from error
+        return replace(
+            report,
+            retained_paths=snapshot.paths,
+            retained_bytes=snapshot.byte_size,
+            max_retained_generations=max_retained_generations,
+            max_retained_bytes=max_retained_bytes,
+        )
+
+
+def _export_generation(
+    *,
+    open_member: Callable[[ArtifactID | ArtifactRef, str], AbstractContextManager[CASMemberStream]],
+    member_name: Callable[[ArtifactID | ArtifactRef, str], str],
+    artifact_ids: Iterable[ArtifactID | ArtifactRef | str],
+    target: Path,
+    _admission: _ExportAdmission,
+    _target_mode: int | None,
+    compress: bool = True,
+    include_manifests: bool = True,
 ) -> ExportReport:
     """Export selected CAS members through their owner-held streaming reads."""
     missing_artifacts: list[str] = []
     missing_manifests: list[str] = []
     total_bytes = 0
+    previous_generation: Path | None = None
     member_bindings: dict[str, tuple[str, int]] = {}
 
     requests_by_key: dict[tuple[str, str], ArtifactID | ArtifactRef] = {}
@@ -697,17 +1000,19 @@ def export_subgraph(
         return receipt.byte_size
 
     def copy_directory_member(
-        staging_root: Path,
+        staging_descriptor: int,
         request: ArtifactID | ArtifactRef,
         kind: str,
     ) -> int:
         name = member_name(request, kind)
         if name in added_members:
             return 0
-        destination = staging_root / Path(*PurePosixPath(name).parts)
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        with open_member(request, kind) as stream, destination.open("wb") as sink:
+        with (
+            open_member(request, kind) as stream,
+            _new_export_member(staging_descriptor, name) as sink,
+        ):
             while payload := stream.read(1024 * 1024):
+                _admission.consume(len(payload))
                 sink.write(payload)
             sink.flush()
             os.fsync(sink.fileno())
@@ -718,89 +1023,168 @@ def export_subgraph(
 
     if compress:
         archive_path = normalize_archive_path(target)
+        target_mode = _target_mode
         archive_path.parent.mkdir(parents=True, exist_ok=True)
-        with tarfile.open(archive_path, "w:gz", format=tarfile.PAX_FORMAT) as tar:
-            for request in requests:
-                artifact_id, profile_sha256, _ref = artifact_reference_parts(request)
-                try:
-                    total_bytes += add_archive_member(tar, request, "blob")
-                except FileNotFoundError:
-                    missing_artifacts.append(str(artifact_id))
-                    continue
-
-                manifest_available = False
-                if include_manifests:
-                    try:
-                        total_bytes += add_archive_member(tar, request, "manifest")
-                        manifest_available = True
-                    except FileNotFoundError:
-                        missing_manifests.append(str(artifact_id))
-                with suppress(FileNotFoundError):
-                    total_bytes += add_archive_member(tar, request, "signature")
-                exported_ids.add(str(artifact_id))
-                if manifest_available:
-                    exported_views.add((str(artifact_id), profile_sha256 or "default"))
-
-            meta_payload = _inventory_payload(
-                exported=len(exported_ids),
-                requested=len(requested_ids),
-                exported_views=len(exported_views),
-                requested_views=len(requests),
-                members=member_bindings,
-            )
-            meta_bytes = fast_json_dumps_bytes(meta_payload, sort_keys=True)
-            info = tarfile.TarInfo(name="export_manifest.json")
-            info.size = len(meta_bytes)
-            info.mtime = 0
-            tar.addfile(info, BytesIO(meta_bytes))
-            total_bytes += len(meta_bytes)
-        output_path = archive_path
-    else:
-        _validate_directory_export(target)
-        target_mode = target.stat().st_mode & 0o7777
-        staging_root = Path(tempfile.mkdtemp(prefix=f".{target.name}.staging-", dir=target.parent))
+        descriptor, name = tempfile.mkstemp(
+            prefix=f".{archive_path.name}.staging-", dir=archive_path.parent
+        )
+        staging_archive = Path(name)
+        _admission.staging_path = staging_archive
+        metadata = os.fstat(descriptor)
+        archive_identity = metadata.st_dev, metadata.st_ino
+        archive_replaced: bool | None = False
         try:
-            for request in requests:
-                artifact_id, profile_sha256, _ref = artifact_reference_parts(request)
-                try:
-                    total_bytes += copy_directory_member(staging_root, request, "blob")
-                except FileNotFoundError:
-                    missing_artifacts.append(str(artifact_id))
-                    continue
+            with os.fdopen(descriptor, "w+b") as output:
+                with tarfile.open(
+                    staging_archive,
+                    "w:gz",
+                    fileobj=_BudgetedArchiveWriter(output, _admission),
+                    format=tarfile.PAX_FORMAT,
+                ) as tar:
+                    for request in requests:
+                        artifact_id, profile_sha256, _ref = artifact_reference_parts(request)
+                        try:
+                            total_bytes += add_archive_member(tar, request, "blob")
+                        except FileNotFoundError:
+                            missing_artifacts.append(str(artifact_id))
+                            continue
 
-                manifest_available = False
-                if include_manifests:
-                    try:
-                        total_bytes += copy_directory_member(staging_root, request, "manifest")
-                        manifest_available = True
-                    except FileNotFoundError:
-                        missing_manifests.append(str(artifact_id))
-                with suppress(FileNotFoundError):
-                    total_bytes += copy_directory_member(staging_root, request, "signature")
-                exported_ids.add(str(artifact_id))
-                if manifest_available:
-                    exported_views.add((str(artifact_id), profile_sha256 or "default"))
+                        manifest_available = False
+                        if include_manifests:
+                            try:
+                                total_bytes += add_archive_member(tar, request, "manifest")
+                                manifest_available = True
+                            except FileNotFoundError:
+                                missing_manifests.append(str(artifact_id))
+                        with suppress(FileNotFoundError):
+                            total_bytes += add_archive_member(tar, request, "signature")
+                        exported_ids.add(str(artifact_id))
+                        if manifest_available:
+                            exported_views.add((str(artifact_id), profile_sha256 or "default"))
 
-            meta_path = staging_root / "export_manifest.json"
-            meta_path.write_text(
-                fast_json_dumps(
-                    _inventory_payload(
+                    meta_payload = _inventory_payload(
                         exported=len(exported_ids),
                         requested=len(requested_ids),
                         exported_views=len(exported_views),
                         requested_views=len(requests),
                         members=member_bindings,
-                    ),
-                    sort_keys=True,
+                    )
+                    meta_bytes = fast_json_dumps_bytes(meta_payload, sort_keys=True)
+                    info = tarfile.TarInfo(name="export_manifest.json")
+                    info.size = len(meta_bytes)
+                    info.mtime = 0
+                    tar.addfile(info, BytesIO(meta_bytes))
+                    total_bytes += len(meta_bytes)
+                output.flush()
+                if target_mode is not None:
+                    os.fchmod(output.fileno(), target_mode)
+                os.fsync(output.fileno())
+                # Confirm the completed private entry before any target selection.
+                fsync_directory(archive_path.parent)
+                _admission.before_publication(staging_archive)
+                archive_replaced = None
+                previous_generation = _publish_archive_generation(
+                    staging_archive, archive_path, expected_identity=archive_identity
+                )
+                archive_replaced = True
+        except (ExportDurabilityError, ExportResourceError):
+            raise
+        except BaseException as error:
+            if not isinstance(error, Exception):
+                error.add_note(
+                    f"Retained export stage={staging_archive}; publication={archive_replaced}"
+                )
+                raise
+            raise ExportDurabilityError(
+                f"Export failed: {error}; retained_stage={staging_archive}",
+                replaced=archive_replaced,
+                previous_generation=previous_generation,
+                staging_path=staging_archive,
+            ) from error
+        # Pathname cleanup cannot bind an unlink atomically to our opened inode.
+        # Preserve failed stages and displaced generations for explicit reclamation.
+        output_path = archive_path
+    else:
+        target_mode = _target_mode
+        staging_root = Path(
+            tempfile.mkdtemp(prefix=f".{target.name}.generation-", dir=target.parent)
+        )
+        _admission.staging_path = staging_root
+        staging_descriptor = os.open(staging_root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        metadata = os.fstat(staging_descriptor)
+        staging_identity = metadata.st_dev, metadata.st_ino
+        publication_attempted = False
+        try:
+            for request in requests:
+                artifact_id, profile_sha256, _ref = artifact_reference_parts(request)
+                try:
+                    total_bytes += copy_directory_member(staging_descriptor, request, "blob")
+                except FileNotFoundError:
+                    missing_artifacts.append(str(artifact_id))
+                    continue
+
+                manifest_available = False
+                if include_manifests:
+                    try:
+                        total_bytes += copy_directory_member(
+                            staging_descriptor, request, "manifest"
+                        )
+                        manifest_available = True
+                    except FileNotFoundError:
+                        missing_manifests.append(str(artifact_id))
+                with suppress(FileNotFoundError):
+                    total_bytes += copy_directory_member(staging_descriptor, request, "signature")
+                exported_ids.add(str(artifact_id))
+                if manifest_available:
+                    exported_views.add((str(artifact_id), profile_sha256 or "default"))
+
+            meta_bytes = fast_json_dumps_bytes(
+                _inventory_payload(
+                    exported=len(exported_ids),
+                    requested=len(requested_ids),
+                    exported_views=len(exported_views),
+                    requested_views=len(requests),
+                    members=member_bindings,
                 ),
-                encoding="utf-8",
+                sort_keys=True,
             )
-            total_bytes += meta_path.stat().st_size
-            staging_root.chmod(target_mode)
-            _publish_directory_generation(staging_root, target)
+            with _new_export_member(staging_descriptor, "export_manifest.json") as inventory:
+                _admission.consume(len(meta_bytes))
+                inventory.write(meta_bytes)
+                inventory.flush()
+                os.fsync(inventory.fileno())
+            total_bytes += len(meta_bytes)
+            if target_mode is not None:
+                os.fchmod(staging_descriptor, target_mode)
+            if _export_entry_identity(staging_root) != staging_identity:
+                raise ValueError("Export staging directory identity changed")
+            _sync_directory_generation(staging_root)
+            # An unknown staging member is not part of a complete owned export.
+            _validate_directory_export(staging_root)
+            _admission.before_publication(staging_root)
+            publication_attempted = True
+            previous_generation = _publish_directory_generation(
+                staging_root, target, expected_identity=staging_identity
+            )
+            _validate_directory_export(target)
+        except (ExportDurabilityError, ExportResourceError):
+            raise
+        except BaseException as error:
+            if not isinstance(error, Exception):
+                error.add_note(
+                    f"Retained export stage={staging_root}; publication={publication_attempted}"
+                )
+                raise
+            raise ExportDurabilityError(
+                f"Export failed: {error}; retained_stage={staging_root}",
+                replaced=None if publication_attempted else False,
+                previous_generation=previous_generation,
+                staging_path=staging_root,
+            ) from error
         finally:
-            if staging_root.exists():
-                shutil.rmtree(staging_root, ignore_errors=True)
+            # Even an originally owned root can contain a late foreign child.
+            # Retain failures for the caller; never recursively remove this tree.
+            os.close(staging_descriptor)
         output_path = target
 
     return ExportReport(
@@ -809,6 +1193,7 @@ def export_subgraph(
         output_path=output_path,
         missing_artifacts=missing_artifacts,
         missing_manifests=missing_manifests,
+        previous_generation=previous_generation,
     )
 
 
@@ -825,6 +1210,7 @@ def import_subgraph(
     ],
     source: Path,
     verify_integrity: bool = False,
+    signature_verification_requested: bool = False,
 ) -> ImportReport:
     """Admit a content-bound transfer before staging or publishing CAS members."""
     imported_artifacts: set[str] = set()
@@ -959,12 +1345,13 @@ def import_subgraph(
                 verification_failed=sorted(binding_failures),
                 received_artifact_ids=tuple(sorted(imported_artifacts)),
                 integrity_verification_requested=verify_integrity,
+                signature_verification_requested=signature_verification_requested,
                 disposition_basis="received_members_rejected_before_admission",
             )
 
         admission = source_handles.enter_context(admit_members(intake))
         canonical_exact_refs = admission.canonical_exact_refs or admission.exact_refs
-        if not admission.pending_artifact_ids:
+        if not admission.pending_artifact_ids and not signature_verification_requested:
             exact_failures: set[str] = set()
             if verify_integrity:
                 for ref, canonical_ref in zip(
@@ -987,6 +1374,7 @@ def import_subgraph(
                     reused_refs=_canonical_import_refs(canonical_exact_refs),
                     integrity_verified_refs=_canonical_import_refs(verified_refs),
                     integrity_verification_requested=verify_integrity,
+                    signature_verification_requested=signature_verification_requested,
                     disposition_basis="verification_failed_before_publication",
                 )
             return ImportReport(
@@ -1001,6 +1389,7 @@ def import_subgraph(
                 reused_refs=_canonical_import_refs(canonical_exact_refs),
                 integrity_verified_refs=_canonical_import_refs(verified_refs),
                 integrity_verification_requested=verify_integrity,
+                signature_verification_requested=signature_verification_requested,
                 disposition_basis="exact_owned_view_admission",
             )
 
@@ -1012,7 +1401,10 @@ def import_subgraph(
         for safe_path, stream in incoming_members():
             member_name = safe_path.as_posix()
             artifact_id = artifact_id_from_member(member_name)
-            if artifact_id is None or str(artifact_id) not in admission.pending_artifact_ids:
+            if artifact_id is None or (
+                not signature_verification_requested
+                and str(artifact_id) not in admission.pending_artifact_ids
+            ):
                 continue
             _stage_member(
                 staging_root=staging_root,
@@ -1030,7 +1422,8 @@ def import_subgraph(
         expected_staged = {
             member
             for member in intake
-            if str(artifact_id_from_member(member)) in admission.pending_artifact_ids
+            if signature_verification_requested
+            or str(artifact_id_from_member(member)) in admission.pending_artifact_ids
         }
         if expected_staged != staged_members:
             raise ValueError("Transfer changed its admitted member set before staging")
@@ -1117,6 +1510,7 @@ def import_subgraph(
                 reused_refs=_canonical_import_refs(canonical_exact_refs),
                 integrity_verified_refs=_canonical_import_refs(verified_refs),
                 integrity_verification_requested=verify_integrity,
+                signature_verification_requested=signature_verification_requested,
                 disposition_basis="verification_failed_before_publication",
             )
 
@@ -1129,6 +1523,7 @@ def import_subgraph(
             )
             disposition_basis: Literal[
                 "durable_owner_manifest_stage_intent",
+                "exact_owned_view_admission",
                 "legacy_callback_refs_without_transaction_disposition",
             ] = publication.basis
         else:
@@ -1138,7 +1533,12 @@ def import_subgraph(
             disposition_basis = "legacy_callback_refs_without_transaction_disposition"
         imported_refs = admission.exact_refs + callback_refs
         return ImportReport(
-            imported_files=len(staged_members),
+            imported_files=(
+                publication.imported_member_count
+                if isinstance(publication, ImportPublication)
+                and publication.imported_member_count is not None
+                else len(staged_members)
+            ),
             imported_artifacts=len(imported_artifacts),
             total_bytes=intake_total_bytes,
             source=source,
@@ -1150,6 +1550,12 @@ def import_subgraph(
             reused_refs=reused_refs,
             integrity_verified_refs=_canonical_import_refs(verified_refs),
             integrity_verification_requested=verify_integrity,
+            signature_verification_requested=signature_verification_requested,
+            signature_verified_refs=(
+                publication.signature_verified_refs
+                if isinstance(publication, ImportPublication)
+                else ()
+            ),
             disposition_basis=disposition_basis,
         )
     finally:

@@ -29,7 +29,6 @@ from polisyos.foundry.agent_sim.metrics import (
     standard_training_metrics,
     training_loss_metrics,
 )
-from polisyos.foundry.agent_sim.prng import get_mechanism_key
 from polisyos.foundry.agent_sim.rewards import compute_agent_reward
 from polisyos.foundry.agent_sim.rl import (
     Trajectory,
@@ -38,8 +37,17 @@ from polisyos.foundry.agent_sim.rl import (
 )
 from polisyos.foundry.agent_sim.state import GlobalState
 from polisyos.foundry.agent_sim.temporal import build_temporal_observations
-from polisyos.foundry.agent_sim.temporal_mechanisms import TemporalConsumptionMechanism
-from polisyos.foundry.agent_sim.training_config import TrainingConfigBase
+from polisyos.foundry.agent_sim.temporal_mechanisms import (
+    _TEMPORAL_DECISION_METRIC,
+    TemporalConsumptionMechanism,
+    _capture_temporal_decisions,
+    _next_temporal_observations,
+    _read_temporal_decision,
+)
+from polisyos.foundry.agent_sim.training_config import (
+    TrainingConfigBase,
+    _require_supported_training_fidelity,
+)
 
 
 def _require_exact_bool_selector(value: object, selector_name: str) -> bool:
@@ -221,10 +229,11 @@ def create_jit_trainer(
     config: JITTrainingConfig,
 ) -> Callable[[jax.Array], tuple[ActorCritic, dict]]:
     """Create jit trainer."""
+    _require_supported_training_fidelity(config.fidelity)
     params, static = eqx.partition(actor_critic, eqx.is_inexact_array)
 
-    probe_executor = executor_factory(actor_critic)
-    temporal_salt = _resolve_temporal_salt(probe_executor)
+    probe_executor = _capture_temporal_decisions(executor_factory(actor_critic))
+    temporal_decision_key = _resolve_temporal_decision_key(probe_executor)
 
     optimizer = optax.chain(
         optax.clip_by_global_norm(config.max_grad_norm),
@@ -238,34 +247,16 @@ def create_jit_trainer(
         rng_key: jax.Array,
     ) -> tuple[Trajectory, GlobalState, jnp.ndarray]:
         actor = eqx.combine(static, actor_params)
-        executor = executor_factory(actor)
+        executor = _capture_temporal_decisions(executor_factory(actor))
 
         def _run_step(cur_state: GlobalState, cur_key: jax.Array):
-            key_action, key_credit, next_key = jax.random.split(cur_key, 3)
-
-            obs = build_temporal_observations(
-                cur_state,
-                horizon=config.horizon,
-                include_expectations=config.include_expectations,
-            )
-            action_out, value = actor(obs, deterministic=True)
-            dist = actor.get_action_distribution(obs, action_output=action_out)
-
-            if temporal_salt is None:
-                action_key = key_action
-            else:
-                action_key = get_mechanism_key(
-                    cur_state.rng_key,
-                    cur_state.time_step,
-                    temporal_salt,
-                )
-
-            action = sample_actions(dist, action_key, action_type=actor.action_type)
-            if actor.action_type == "continuous" and action.ndim == 1:
-                action = action[:, None]
-            log_prob = compute_log_prob(action, dist, action_type=actor.action_type)
+            _key_action, key_credit, next_key = jax.random.split(cur_key, 3)
 
             next_state, step_metrics = executor.step(cur_state, fidelity=config.fidelity)
+            decision = _read_temporal_decision(step_metrics, temporal_decision_key)
+            obs, action, log_prob, value, active, _sampled = decision
+            if actor.action_type == "continuous" and action.ndim == 1:
+                action = action[:, None]
             transition_supported = jnp.asarray(True)
             if config.track_active_wealth:
                 transition_supported = _tracked_population_supported(
@@ -326,7 +317,7 @@ def create_jit_trainer(
                 "reward": reward,
                 "value": value,
                 "log_prob": log_prob,
-                "active": cur_state.agents.active,
+                "active": active,
             }
             if config.track_active_wealth:
                 transition["active_wealth_supported"] = transition_supported
@@ -388,18 +379,18 @@ def create_jit_trainer(
             final_state,
         )
 
-        final_obs = build_temporal_observations(
-            final_state,
-            horizon=config.horizon,
-            include_expectations=config.include_expectations,
+        final_obs, final_active = _next_temporal_observations(
+            executor, final_state, config.fidelity
         )
+        following_active = jnp.concatenate((transitions["active"][1:], final_active[None]), axis=0)
+        dones = transitions["active"] & ~following_active
 
         trajectory = Trajectory(
             observations=transitions["obs"],
             actions=transitions["action"],
             rewards=transitions["reward"],
             values=transitions["value"],
-            dones=jnp.zeros_like(transitions["reward"], dtype=jnp.bool_),
+            dones=dones,
             log_probs=transitions["log_prob"],
             final_observation=final_obs,
             active_mask=transitions["active"],
@@ -596,10 +587,11 @@ def create_jit_trainer_with_metrics(
     custom_metrics: Sequence[MetricDefinition] | None = None,
 ) -> Callable[[jax.Array], tuple[ActorCritic, dict, MetricsCollector]]:
     """Create jit trainer with metrics."""
+    _require_supported_training_fidelity(config.fidelity)
     params, static = eqx.partition(actor_critic, eqx.is_inexact_array)
 
-    probe_executor = executor_factory(actor_critic)
-    temporal_salt = _resolve_temporal_salt(probe_executor)
+    probe_executor = _capture_temporal_decisions(executor_factory(actor_critic))
+    temporal_decision_key = _resolve_temporal_decision_key(probe_executor)
 
     optimizer = optax.chain(
         optax.clip_by_global_norm(config.max_grad_norm),
@@ -624,34 +616,16 @@ def create_jit_trainer_with_metrics(
         rng_key: jax.Array,
     ) -> tuple[Trajectory, GlobalState, jnp.ndarray]:
         actor = eqx.combine(static, actor_params)
-        executor = executor_factory(actor)
+        executor = _capture_temporal_decisions(executor_factory(actor))
 
         def _run_step(cur_state: GlobalState, cur_key: jax.Array):
-            key_action, key_credit, next_key = jax.random.split(cur_key, 3)
-
-            obs = build_temporal_observations(
-                cur_state,
-                horizon=config.horizon,
-                include_expectations=config.include_expectations,
-            )
-            action_out, value = actor(obs, deterministic=True)
-            dist = actor.get_action_distribution(obs, action_output=action_out)
-
-            if temporal_salt is None:
-                action_key = key_action
-            else:
-                action_key = get_mechanism_key(
-                    cur_state.rng_key,
-                    cur_state.time_step,
-                    temporal_salt,
-                )
-
-            action = sample_actions(dist, action_key, action_type=actor.action_type)
-            if actor.action_type == "continuous" and action.ndim == 1:
-                action = action[:, None]
-            log_prob = compute_log_prob(action, dist, action_type=actor.action_type)
+            _key_action, key_credit, next_key = jax.random.split(cur_key, 3)
 
             next_state, step_metrics = executor.step(cur_state, fidelity=config.fidelity)
+            decision = _read_temporal_decision(step_metrics, temporal_decision_key)
+            obs, action, log_prob, value, active, _sampled = decision
+            if actor.action_type == "continuous" and action.ndim == 1:
+                action = action[:, None]
             transition_supported = jnp.asarray(True)
             if config.track_active_wealth:
                 transition_supported = _tracked_population_supported(
@@ -712,7 +686,7 @@ def create_jit_trainer_with_metrics(
                 "reward": reward,
                 "value": value,
                 "log_prob": log_prob,
-                "active": cur_state.agents.active,
+                "active": active,
             }
             if config.track_active_wealth:
                 transition["active_wealth_supported"] = transition_supported
@@ -774,18 +748,18 @@ def create_jit_trainer_with_metrics(
             final_state,
         )
 
-        final_obs = build_temporal_observations(
-            final_state,
-            horizon=config.horizon,
-            include_expectations=config.include_expectations,
+        final_obs, final_active = _next_temporal_observations(
+            executor, final_state, config.fidelity
         )
+        following_active = jnp.concatenate((transitions["active"][1:], final_active[None]), axis=0)
+        dones = transitions["active"] & ~following_active
 
         trajectory = Trajectory(
             observations=transitions["obs"],
             actions=transitions["action"],
             rewards=transitions["reward"],
             values=transitions["value"],
-            dones=jnp.zeros_like(transitions["reward"], dtype=jnp.bool_),
+            dones=dones,
             log_probs=transitions["log_prob"],
             final_observation=final_obs,
             active_mask=transitions["active"],
@@ -1056,8 +1030,8 @@ def _record_training_losses(
     return buffer
 
 
-def _resolve_temporal_salt(executor: PureExecutor) -> int | None:
+def _resolve_temporal_decision_key(executor: PureExecutor) -> str:
     for mech in executor.mechanisms:
         if isinstance(mech, TemporalConsumptionMechanism):
-            return executor.prng_config.get(mech.spec.name, 0)
-    return None
+            return f"{mech.spec.name}/{_TEMPORAL_DECISION_METRIC}"
+    raise ValueError("Temporal policy consumer is required for training")

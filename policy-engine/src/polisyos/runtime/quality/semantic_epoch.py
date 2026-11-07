@@ -508,6 +508,11 @@ def _load_selected_acquisition_mapping(
     elif codec.payload_format not in {"canonical_json", "raw_json"}:
         raise ValueError("selected acquisition payload format is unsupported")
     result = {str(key): value for key, value in mapping.items()}
+    if expected_kind == "fabric.evidence_bundle":
+        epoch_contract._verify_decoded_evidence_bundle_manifest_inputs(
+            manifest=manifest,
+            decoded=result,
+        )
     if expected_kind == "fabric.data_snapshot":
         epoch_contract._verify_decoded_data_snapshot_manifest_inputs(
             manifest=manifest,
@@ -593,7 +598,7 @@ def _data_snapshot_manifest_inputs_match(
     if schema is None or schema.name != contracts.DataSnapshot.ARTIFACT_SCHEMA_NAME:
         return False
     try:
-        from polisyos.core.contracts.fabric import data_snapshot_manifest_inputs_match
+        from polisyos.core.contracts import data_snapshot_manifest_inputs_match
 
         if not data_snapshot_manifest_inputs_match(
             snapshot,
@@ -1018,6 +1023,9 @@ def _live_source_candidate_graph_matches(
     if schema_version != "polisyos.runtime.acquisition_admission_passport.v2":
         return source_lane != "live_fetch"
     try:
+        from polisyos.data_forge.read_api import catalog as catalog_read_api
+        from polisyos.fabric.data_plane import verify_live_ingestion_snapshot_profile
+        from polisyos.fabric.ingestion import verify_live_ingestion_evidence_profile
         from polisyos.runtime.quality.acquisition_executor import (
             PASSPORT_SCHEMA_VERSION,
             AdmissionPassport,
@@ -1029,7 +1037,11 @@ def _live_source_candidate_graph_matches(
         if passport.source_lane != "live_fetch":
             return passport.live_source_execution is None
         live = passport.live_source_execution
-        if live is None:
+        if (
+            live is None
+            or live.schema_version
+            != catalog_read_api.SELECTED_LIVE_SOURCE_EXECUTION_EVIDENCE_SCHEMA_VERSION
+        ):
             return False
         if any(
             ref.manifest_profile_sha256 is None
@@ -1050,10 +1062,12 @@ def _live_source_candidate_graph_matches(
         snapshot = contracts.DataSnapshot.model_validate(snapshot_mapping)
         if snapshot.evidence_ref is None or snapshot.quality_report_ref is None:
             return False
+        verify_live_ingestion_snapshot_profile(store, selected_snapshot_ref, snapshot)
         selected_bundle_ref, bundle_mapping = _load_owner_projection_mapping(
             store, live.evidence_bundle_ref
         )
         bundle = contracts.EvidenceBundle.model_validate(bundle_mapping)
+        verify_live_ingestion_evidence_profile(store, selected_bundle_ref, bundle)
         if any(source.manifest_profile_sha256 is None for source in bundle.sources):
             return False
         selected_quality_ref, quality = _load_owner_projection_mapping(
@@ -2799,6 +2813,27 @@ _OWNER_SNAPSHOT_REFERENCE_ROLES: dict[str, dict[tuple[str, ...], str]] = {
             "rows",
             "*",
             "observed_passport_json",
+            "live_source_execution",
+            "raw_artifact_ref",
+        ): "fabric.acquisition.raw_evidence",
+        (
+            "rows",
+            "*",
+            "observed_passport_json",
+            "live_source_execution",
+            "evidence_bundle_ref",
+        ): "fabric.evidence_bundle",
+        (
+            "rows",
+            "*",
+            "observed_passport_json",
+            "live_source_execution",
+            "data_snapshot_ref",
+        ): "fabric.data_snapshot",
+        (
+            "rows",
+            "*",
+            "observed_passport_json",
             "semantic_boundary_candidate_ref",
         ): "epoch.acquisition_semantic_boundary_candidate",
         ("rows", "*", "observed_passport_json", "prepared_semantic_epoch_ref"): "epoch.prepared",
@@ -2833,7 +2868,7 @@ def _declared_artifact_ref_paths(
     active_models: frozenset[type[BaseModel]] = frozenset(),
 ) -> set[tuple[str, ...]]:
     """Derive ArtifactRef leaves from a complete typed owner output schema."""
-    if annotation is ArtifactRef:
+    if isinstance(annotation, type) and issubclass(annotation, ArtifactRef):
         return {prefix}
     origin = get_origin(annotation)
     args = get_args(annotation)

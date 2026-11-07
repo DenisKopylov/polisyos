@@ -1,0 +1,105 @@
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/generation_cycle.py:9937-9969
+ 9937     def _n7_data_requirement_basis_with_report(
+ 9938         self,
+ 9939         problem: DesignProblem,
+ 9940         *,
+ 9941         acquisition_request: Mapping[str, Any],
+ 9942         cycle: GenerationCycleRecord | None = None,
+ 9943     ) -> _N7DataRequirementBasis:
+ 9944         """Retain the exact compiler output alongside the selected candidate inputs."""
+ 9945 
+ 9946         # The compiler remains the only source of requirement specs and resolver
+ 9947         # rows. A typed cycle gap may select one already-compiled requirement for
+ 9948         # routing, but its payload never changes the compiler denominator.
+ 9949         unbound_input_fields = tuple(
+ 9950             [
+ 9951                 f"acquisition_request.{key}"
+ 9952                 for key in (
+ 9953                     "data_requirement_specs",
+ 9954                     "compiled_requirement_specs",
+ 9955                 )
+ 9956                 if key in acquisition_request
+ 9957             ]
+ 9958             + (
+ 9959                 ["runtime_hints.n7_data_requirement_specs"]
+ 9960                 if "n7_data_requirement_specs" in problem.runtime_hints
+ 9961                 else []
+ 9962             )
+ 9963         )
+ 9964         raw_gap_present = "requirement_gap" in acquisition_request
+ 9965         source_gap: AcquisitionRequirementGap | None = None
+ 9966         routing_limitation_code: str | None = None
+ 9967         request_binding_refused = (
+ 9968             type(cycle) is GenerationCycleRecord
+ 9969             and _cycle_acquisition_requirement(cycle.grounding, cycle.value_port) is not None
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/generation_cycle.py:9542-9574
+ 9542     def _run_n7_acquisition_if_requested(
+ 9543         self,
+ 9544         problem: DesignProblem,
+ 9545         *,
+ 9546         cycle: GenerationCycleRecord,
+ 9547         planner_report: AcquisitionPlannerReport | None = None,
+ 9548         planner_report_ref: CASArtifactRef | None = None,
+ 9549         planned_route: _N7PlannedRoute | None = None,
+ 9550     ) -> AcquisitionReceipt | None:
+ 9551         if cycle.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
+ 9552             return None
+ 9553         if planned_route is None:
+ 9554             planned_route = self._plan_n7_requirement_gap_if_requested(problem, cycle=cycle)
+ 9555             if planned_route is None:
+ 9556                 return None
+ 9557         if planner_report is None:
+ 9558             planner_report = planned_route.report
+ 9559         if planner_report_ref is None:
+ 9560             planner_report_ref = planned_route.report_ref
+ 9561         if planner_report != planned_route.report or planner_report_ref != planned_route.report_ref:
+ 9562             raise GenerationCycleError("n7_planner_report_binding_refused")
+ 9563         normalized_request = dict(planned_route.acquisition_request)
+ 9564         basis = planned_route.basis
+ 9565         world_snapshot = planned_route.world_snapshot
+ 9566         basis_binding = planned_route.report.requirement_basis_binding
+ 9567         if planner_report is not None and (
+ 9568             planner_report.status == "blocked"
+ 9569             or planner_report.basis_limitation_code in _N7_BLOCKING_BASIS_LIMITATION_CODES
+ 9570         ):
+ 9571             # This is a typed, persisted refusal. It carries no fabricated gap,
+ 9572             # no estimate of zero, and no owner dispatch.
+ 9573             return None
+ 9574         if basis.routing_limitation_code is not None:
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py:2274-2306
+ 2274     def _prepare_candidate_world_context(
+ 2275         self,
+ 2276         *,
+ 2277         closure: VerifiedAcquisitionRouteClosure,
+ 2278         growth: AcquisitionWorldGrowthReceipt,
+ 2279         overlay: data_forge_read_api.catalog.CatalogAcquisitionOverlay,
+ 2280         observation_projection: (
+ 2281             data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+ 2282         ),
+ 2283         refresh: AcquisitionCandidateWorldRefresh,
+ 2284         n5_execution_configuration: PreparedJointSimulationConfiguration | None = None,
+ 2285     ) -> AcquisitionCandidatePreparation:
+ 2286         """Resolve the shared prospective data/state/model without any write."""
+ 2287 
+ 2288         from polisyos.runtime.quality.cycle_substrate import (
+ 2289             ConfiguredCandidateSimulationContextAdmissionOwner,
+ 2290         )
+ 2291         from polisyos.runtime.quality.data_state_substrate import (
+ 2292             ControlledAcquisitionSlotBinding,
+ 2293             prepare_acquired_observation_snapshot,
+ 2294         )
+ 2295         from polisyos.runtime.quality.joint_simulation_horizon import (
+ 2296             PreparedJointSimulationConfiguration,
+ 2297             prepare_joint_simulation_configuration,
+ 2298         )
+ 2299         from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+ 2300         from polisyos.runtime.quality.world_model_record import (
+ 2301             world_model_artifact_views,
+ 2302         )
+ 2303 
+ 2304         configuration_reasons: tuple[str, ...] = ()
+ 2305         try:
+ 2306             if n5_execution_configuration is None:

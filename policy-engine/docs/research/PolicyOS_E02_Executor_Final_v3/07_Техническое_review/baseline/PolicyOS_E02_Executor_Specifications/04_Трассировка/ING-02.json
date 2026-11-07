@@ -1,0 +1,285 @@
+{
+  "packet_id": "ING-02",
+  "lane": "LANE-08",
+  "source_ids": [
+    "B81",
+    "B82",
+    "B85"
+  ],
+  "protected_distinction_ids": [],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/ING-02.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "work_types": "fix + native recovery qualification",
+  "practical_goal": "Transient ошибка до первого commit не блокирует повтор; восстановленные окна сохраняют тот же состав и зависимости.",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C100_остатки:0",
+      "audit_id": "C100-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-ING-02-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Initial error metadata derives stable admitted identity, not observed state."
+    },
+    {
+      "inventory_id": "audit-residual:C100_остатки:1",
+      "audit_id": "C100-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-ING-02-02",
+        "REQ-ING-02-03",
+        "REQ-ING-02-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Native frontier/revalidation/consumer and scoped physical crash evidence."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-ING-02-01",
+      "text": "First-frontier ordinary error checkpoint должен быть возобновимым с тем же admitted source/clock и оставаться пустой committed boundary, не observed progress.",
+      "source_ids": [
+        "B81",
+        "B82",
+        "B85"
+      ],
+      "audit_ids": [
+        "C100-R01"
+      ],
+      "test_ids": [
+        "TEST-ING-02-01"
+      ]
+    },
+    {
+      "id": "REQ-ING-02-02",
+      "text": "Все window strategies сохраняют versioned pending state/order/ordinal/policy и paired frontier intent/readback/conditional compensation.",
+      "source_ids": [
+        "B81",
+        "B82",
+        "B85"
+      ],
+      "audit_ids": [
+        "C100-G01"
+      ],
+      "test_ids": [
+        "TEST-ING-02-02"
+      ]
+    },
+    {
+      "id": "REQ-ING-02-03",
+      "text": "Каждое emitted window несёт все concrete contributor refs; withdrawal A должен инвалидировать зависимое A+B окно через штатный consumer/revalidation, не скрываться valid B.",
+      "source_ids": [
+        "B81",
+        "B82",
+        "B85"
+      ],
+      "audit_ids": [
+        "C100-G01"
+      ],
+      "test_ids": [
+        "TEST-ING-02-03"
+      ]
+    },
+    {
+      "id": "REQ-ING-02-04",
+      "text": "Native modes/evidence/served consumer квалифицирует output и partial guarantees без global exactly-once claim.",
+      "source_ids": [
+        "B81",
+        "B82",
+        "B85"
+      ],
+      "audit_ids": [
+        "C100-G01"
+      ],
+      "test_ids": [
+        "TEST-ING-02-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-ING-02-01",
+      "requirement_ids": [
+        "REQ-ING-02-01"
+      ],
+      "level": "native unit / integration",
+      "setup": "RuntimeError после poll/dedupe перед raw, после raw, после window до первого commit; source with current owner; fresh CursorStore reopen.",
+      "action": "Actual process_stream_dataset→save diagnostic→restart.",
+      "oracle": "Повтор начинается с chunk0, все rows/windows/refs совпадают непрерывному проходу; cursor не продвинут на failure. Changed owner/clock/schema по-прежнему отказ до poll.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не manual patch checkpoint и не отключение restart guards.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-ING-02-02",
+      "requirement_ids": [
+        "REQ-ING-02-02"
+      ],
+      "level": "native unit / integration",
+      "setup": "COUNT/SESSION/SLIDING/TUMBLING,41 rows, interruption19; failures raw/window/index/commit/readback, cancellation и separate process kill где supported.",
+      "action": "Continuous vs restart actual CAS/CursorStore; replay native source token implementation отдельно.",
+      "oracle": "Точные logical windows/time bounds/rows/ordinal одинаковы; pending dedupe не suppress recovery; old predecessor сохранён при failed transition; no forced flush.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "BaseException injection не OS kill; external connector guarantees заявляются только для tested token contract.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-ING-02-03",
+      "requirement_ids": [
+        "REQ-ING-02-03"
+      ],
+      "level": "native unit / integration",
+      "setup": "Два raw chunks A/B, bucket trigger из C, final flush/restart; actual CAS graph, independent valid D.",
+      "action": "Publish→fresh consumer→revoke/remove A→existing targeted revalidation/read.",
+      "oracle": "Payload-contributor exact match; C не вымышленный data input; affected window недоступно как current, independent D остаётся полезным; восстановление valid A basis даёт controlled rerun.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не только assert InputRef list; нужен реальный consumer refusal/revalidation witness.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-ING-02-04",
+      "requirement_ids": [
+        "REQ-ING-02-04"
+      ],
+      "level": "native unit / integration",
+      "setup": "Actual selected tenant/profile/input closure, source-owned finite JSONL, successful и interrupted run.",
+      "action": "Whole mode→snapshot/evidence→fresh source collection/public consumer.",
+      "oracle": "Полезные complete outputs реально читаются; replay/synthetic limitations явны; schema/owner mismatch не создаёт artifacts или positive cursor.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не source-only/fixture CAS PASS; shared E02-I08-C evidence не дублировать.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I08-C"
+  ],
+  "dependencies": [
+    "ING-01 and NET-01 predecessors; ING-03 shared streaming writer",
+    "E02-I08-C; CAS/revalidation owner review for withdrawal test"
+  ],
+  "preservation": [
+    "Observed versus committed frontier",
+    "Explicit empty frontier",
+    "Versioned pending operator/order state",
+    "Policy and owner binding",
+    "Concrete contributor refs",
+    "Paired intent/readback/conditional compensation",
+    "Honest replay/at-least-once limits"
+  ],
+  "design_alignment": [
+    "[Vision §3, §6–§7, §11](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md) — существующий owner, реально подключённый consumer, совместимые новые ресурсы через общий контракт; не бесконечный реестр вместо работы. [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md) — candidate/conditional вычисление не равно эмпирической или институциональной authority.",
+    "Восстановление не меняет научную выборку или окно. Новые source token profiles квалифицируются адресно; общий state contract не требует одинаковой offset semantics для всех connectors."
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0148",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-ING-02-01"
+      ],
+      "rationale": "Initial error metadata derives stable admitted identity, not observed state."
+    },
+    {
+      "inventory_id": "remaining:0149",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-ING-02-02",
+        "REQ-ING-02-03",
+        "REQ-ING-02-04"
+      ],
+      "rationale": "Native frontier/revalidation/consumer and scoped physical crash evidence."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0229",
+      "requirement_ids": [
+        "REQ-ING-02-01",
+        "REQ-ING-02-02"
+      ],
+      "test_ids": [
+        "TEST-ING-02-01",
+        "TEST-ING-02-02"
+      ],
+      "rationale": "Observed vs committed."
+    },
+    {
+      "inventory_id": "preserve:0230",
+      "requirement_ids": [
+        "REQ-ING-02-01"
+      ],
+      "test_ids": [
+        "TEST-ING-02-01"
+      ],
+      "rationale": "Explicit empty frontier."
+    },
+    {
+      "inventory_id": "preserve:0231",
+      "requirement_ids": [
+        "REQ-ING-02-02"
+      ],
+      "test_ids": [
+        "TEST-ING-02-02"
+      ],
+      "rationale": "Full pending/order state."
+    },
+    {
+      "inventory_id": "preserve:0232",
+      "requirement_ids": [
+        "REQ-ING-02-01",
+        "REQ-ING-02-02"
+      ],
+      "test_ids": [
+        "TEST-ING-02-01",
+        "TEST-ING-02-02"
+      ],
+      "rationale": "Policy/owner/clock admission."
+    },
+    {
+      "inventory_id": "preserve:0233",
+      "requirement_ids": [
+        "REQ-ING-02-03"
+      ],
+      "test_ids": [
+        "TEST-ING-02-03"
+      ],
+      "rationale": "Actual contributor refs."
+    },
+    {
+      "inventory_id": "preserve:0234",
+      "requirement_ids": [
+        "REQ-ING-02-02"
+      ],
+      "test_ids": [
+        "TEST-ING-02-02"
+      ],
+      "rationale": "Paired intent/readback."
+    },
+    {
+      "inventory_id": "preserve:0235",
+      "requirement_ids": [
+        "REQ-ING-02-02",
+        "REQ-ING-02-04"
+      ],
+      "test_ids": [
+        "TEST-ING-02-02",
+        "TEST-ING-02-04"
+      ],
+      "rationale": "Scoped at-least-once/replay."
+    }
+  ],
+  "owners": [
+    "src/polisyos/fabric/data_plane/streaming.py",
+    "src/polisyos/fabric/data_plane/cursor_store.py",
+    "src/polisyos/core/artifacts/store.py"
+  ]
+}

@@ -53,6 +53,60 @@ def test_backtesting_orchestrator_naive_mode(tmp_path) -> None:
     assert report.report_id.startswith("BT_")
 
 
+def test_backtest_cli_withholds_unbound_trust_from_a_real_exact_replay(
+    tmp_path, monkeypatch
+) -> None:
+    from argparse import Namespace
+
+    from polisyos.ir.analytics.backtest import load_backtest_report, load_backtest_report_candidate
+    from polisyos.ir.registry.refs import BacktestReportRef
+    from polisyos.scientist.methods.backtesting.cli import _render_summary, run_backtest_command
+
+    history = tmp_path / "history.json"
+    history.write_text(json.dumps({"metric": [1.0, 1.0]}), encoding="utf-8")
+    cas_root = tmp_path / "cas"
+    observed = []
+    run_real = BacktestOrchestrator.run
+
+    def observe(orchestrator, *args, **kwargs):
+        report = run_real(orchestrator, *args, **kwargs)
+        observed.append(report)
+        return report
+
+    monkeypatch.setattr(BacktestOrchestrator, "run", observe)
+    exit_code, output = run_backtest_command(
+        Namespace(
+            config=None,
+            cas_root=str(cas_root),
+            output=None,
+            format="json",
+            json=False,
+            run_id="cli-exact",
+            historical_data=str(history),
+            metric=["metric"],
+            ground_truth=["metric=1"],
+            intervention_step=1,
+            prediction_source="provided",
+            predicted=["metric=1"],
+        )
+    )
+    payload = json.loads(output)
+    assert exit_code == 0
+    assert payload["trust_score_status"] == "not_established"
+    assert not payload["trust_eligible"]
+    assert payload["trust_score"] is None and payload["trust_grade"] is None
+    assert "trust_score_status=not_established" in _render_summary(payload)
+    assert len(observed) == 1 and not observed[0].trust_eligible
+    assert observed[0].trust_score is None and observed[0].trust_grade is None
+    assert observed[0].metadata["source_reconciliation_status"] == "not_established"
+    ir_store = _ensure_ir_artifact_store(FileSystemCAS(cas_root))
+    report_ref = BacktestReportRef(artifact_id=payload["cas_artifact_id"])
+    candidate = load_backtest_report_candidate(ir_store, report_ref)
+    fresh = load_backtest_report(ir_store, report_ref)
+    assert not candidate.trust_eligible and candidate.trust_score is None
+    assert not fresh.trust_eligible and fresh.trust_score is None
+
+
 def test_fresh_backtest_report_readback_preserves_replica_cohort_metadata(
     monkeypatch,
     tmp_path,
@@ -470,8 +524,9 @@ def test_predictive_trust_screening_only_denies_trust(tmp_path) -> None:
         trust_screening=TrustScreeningMode.PREDICTIVE_ONLY_BRIDGE_PENDING,
     )
 
-    assert default_report.trust_eligible is True
-    assert default_report.trust_score is not None
+    assert default_report.trust_eligible is False
+    assert default_report.trust_score is None
+    assert "backtest_source_not_established" in default_report.degraded_reasons
     assert screened_report.trust_eligible is False
     assert screened_report.trust_score is None
     assert "trust_screening:predictive_only_bridge_pending" in screened_report.degraded_reasons

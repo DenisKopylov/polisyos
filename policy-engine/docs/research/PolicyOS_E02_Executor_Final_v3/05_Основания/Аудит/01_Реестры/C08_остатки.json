@@ -1,0 +1,65 @@
+[
+  {
+    "id": "C08-R1",
+    "source_ids": [
+      "B07"
+    ],
+    "kind": "input_preflight_gap_source_and_bounded_reproduction",
+    "severity": "medium",
+    "confidence": "high for local mechanism; native served reach not measured",
+    "owner": "JointSimulationHorizonController._select_coupled_engine → _run_coupled_horizon → coupled._vector → _run_cached_replicates",
+    "finding": "Registered initial_income slot is checked, but actual coupled_state initial_income is not; selected first plan can fail before later supplied plan is considered.",
+    "preserve": [
+      "Coupling/temporal/composition selection",
+      "Honest failed-work accounting and no-run",
+      "Declared optional input defaults",
+      "Budget/access/integrity refusals"
+    ],
+    "remaining": "Share bounded engine-owned required-input validation with preflight; native missing-first→viable-second and both-missing controls. No catch-all retry.",
+    "evidence": [
+      "C08-S02",
+      "C08-S05",
+      "C08-P01",
+      "C08-P04",
+      "C08-P05"
+    ],
+    "native_status": "UNRUN",
+    "report": "02_Пакеты/SIM-01.md"
+  },
+  {
+    "id": "C08-V1",
+    "source_ids": [
+      "B06",
+      "B07"
+    ],
+    "kind": "missing_current_native_acceptance",
+    "owner": "existing test_sim_01.py and selected result/CAS consumers",
+    "finding": "Substantial current implementation and strong test designs found; existing tests not executed in this audit.",
+    "preserve": [
+      "Full rejected-decision history",
+      "Request-aware physical binding",
+      "Selected CAS view",
+      "Unknown provenance restriction"
+    ],
+    "remaining": "Execute current selector→native runner→adapter→CAS/consumer witnesses including coherently reissued forged reference. Do not count mocked fixed7 output as native NCM.",
+    "native_status": "UNRUN",
+    "report": "02_Пакеты/SIM-01.md"
+  },
+  {
+    "id": "C08-G1",
+    "source_ids": [
+      "B07"
+    ],
+    "kind": "scoped_integration_capability_boundary_not_universal_bug",
+    "owner": "JointSimulationPort request builders / upstream plan producer",
+    "finding": "Two inspected builders emit engine_plan=(plan,); lower multi-plan fallback does not prove upstream automatic alternative generation.",
+    "preserve": [
+      "Legitimate singleton requests",
+      "Owner-bound model/context",
+      "Existing multi-plan controller"
+    ],
+    "remaining": "Trace one LLM-or-algorithm supplied alternative set through supported persistent request path; preserve task/estimand. Do not require a new universal deterministic author.",
+    "native_status": "UNRUN",
+    "report": "02_Пакеты/SIM-01.md"
+  }
+]

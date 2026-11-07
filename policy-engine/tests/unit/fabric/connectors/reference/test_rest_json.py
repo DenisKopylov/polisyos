@@ -8,7 +8,10 @@ from __future__ import annotations
 
 import asyncio
 import json
+import math
+import os
 from datetime import UTC, datetime
+from types import SimpleNamespace
 
 import pytest
 
@@ -434,6 +437,247 @@ async def test_actual_http_response_header_case_preserves_etag_and_incremental_s
         assert result.version.strategy is VersionStrategy.ETAG
         assert result.version.value == '"source-9"'
         assert observed and all(query.get("since") == '"source-8"' for query in observed)
+    finally:
+        await connector.disconnect(handle)
+        await runner.cleanup()
+
+
+def _rest_rate_limiter_registry(connector: GenericRESTConnector):
+    page_request = connector._page_request
+    while page_request is not None:
+        registry = getattr(page_request, "_rate_limiters", None)
+        if registry is not None:
+            return registry
+        page_request = getattr(page_request, "__wrapped__", None)
+    raise AssertionError("Generic REST page request has no rate limiter registry")
+
+
+class _RestLimiterClock:
+    """Clock seam for limiter state while actual aiohttp loopback I/O still runs."""
+
+    def __init__(self) -> None:
+        self.now = 0.0
+
+    def monotonic(self) -> float:
+        return self.now
+
+    async def sleep(self, delay: float) -> None:
+        if delay > 0:
+            self.now = math.nextafter(self.now + delay, math.inf)
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    ("rate", "same_rate", "spacing"),
+    [(1, 1.0, 1.0), (0.2, 0.2, 5.0)],
+)
+@pytest.mark.asyncio
+async def test_actual_rest_transport_shares_numeric_rate_key_and_separates_domains(
+    monkeypatch: pytest.MonkeyPatch,
+    rate: int | float,
+    same_rate: float,
+    spacing: float,
+) -> None:
+    """Real aiohttp pagination retains numeric owners and fractional pacing."""
+    from socket import AF_INET, IPPROTO_TCP
+
+    import aiohttp.abc
+    import aiohttp.web
+
+    import polisyos.fabric.connectors.resilience.rate_limiter as rate_limiter_module
+    from polisyos.fabric.connectors.reference.rest_json import _SESSION_STATE_KEY
+
+    class _LoopbackResolver(aiohttp.abc.AbstractResolver):
+        async def resolve(self, host, port=0, family=0):
+            assert host == "alternate.test"
+            return [
+                {
+                    "hostname": host,
+                    "host": "127.0.0.1",
+                    "port": port,
+                    "family": AF_INET,
+                    "proto": IPPROTO_TCP,
+                    "flags": 0,
+                }
+            ]
+
+        async def close(self) -> None:
+            return None
+
+    class _LoopbackREST(GenericRESTConnector):
+        async def _get_session(self, handle):
+            async with self._session_lock(handle):
+                session = handle._read_typed_state_or_default(_SESSION_STATE_KEY, None)
+                if session is None or session.closed:
+                    session = aiohttp.ClientSession(
+                        timeout=aiohttp.ClientTimeout(total=handle.config.timeout_seconds),
+                        connector=aiohttp.TCPConnector(resolver=_LoopbackResolver()),
+                    )
+                    handle._set_typed_state(_SESSION_STATE_KEY, session)
+                return session
+
+    clock = _RestLimiterClock()
+    monkeypatch.setattr(rate_limiter_module, "_monotonic", clock.monotonic)
+    monkeypatch.setattr(
+        rate_limiter_module,
+        "asyncio",
+        SimpleNamespace(sleep=clock.sleep),
+    )
+
+    observed: list[tuple[str, float, int]] = []
+
+    async def endpoint(request):
+        page = int(request.query.get("page", "1"))
+        observed.append((request.host, clock.now, page))
+        rows = [{"id": page}] if page == 1 else []
+        return aiohttp.web.json_response({"data": rows})
+
+    app = aiohttp.web.Application()
+    app.router.add_get("/records", endpoint)
+    runner = aiohttp.web.AppRunner(app)
+    connector = _LoopbackREST()
+    handles = []
+    try:
+        await runner.setup()
+        site = aiohttp.web.TCPSite(runner, host="127.0.0.1", port=0)
+        await site.start()
+        port = site._server.sockets[0].getsockname()[1]
+        urls = [
+            f"http://127.0.0.1:{port}/records",
+            f"http://alternate.test:{port}/records",
+        ]
+
+        def config(url: str, rate: int | float) -> ConnectionConfig:
+            return ConnectionConfig(
+                url=url,
+                headers={
+                    "X-REST-DataPath": "data",
+                    "X-REST-Pagination": "page_number",
+                    "X-REST-PageSize": "1",
+                },
+                rate_limit_rps=rate,
+            )
+
+        first_handle = await connector.connect(config(urls[0], rate))
+        second_handle = await connector.connect(config(urls[0], same_rate))
+        independent_domain = await connector.connect(config(urls[1], float(rate)))
+        handles.extend((first_handle, second_handle, independent_domain))
+        request = FetchRequest(dataset_id="records")
+
+        assert (await connector.fetch(first_handle, request)).row_count == 1
+        assert (await connector.fetch(second_handle, request)).row_count == 1
+        assert (await connector.fetch(independent_domain, request)).row_count == 1
+
+        first_host = f"127.0.0.1:{port}"
+        second_host = f"alternate.test:{port}"
+        assert [(host, round(when, 6), page) for host, when, page in observed] == [
+            (first_host, 0.0, 1),
+            (first_host, spacing, 2),
+            (first_host, spacing * 2, 1),
+            (first_host, spacing * 3, 2),
+            (second_host, spacing * 3, 1),
+            (second_host, spacing * 4, 2),
+        ]
+
+        registry = _rest_rate_limiter_registry(connector)
+        assert len(registry._items) == 2
+        assert {entry.value.limiter_id for entry in registry._items.values()} == {
+            f"reference.rest_json:{first_host}",
+            f"reference.rest_json:{second_host}",
+        }
+    finally:
+        for handle in handles:
+            await connector.disconnect(handle)
+        await runner.cleanup()
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("rate", [0.0, -1.0, float("nan"), float("inf")])
+@pytest.mark.asyncio
+async def test_actual_rest_transport_rejects_invalid_rates_before_http_request(rate: float) -> None:
+    """Invalid limiter settings refuse before the selected HTTP transport is entered."""
+    import aiohttp.web
+
+    requests: list[str] = []
+
+    async def endpoint(request):
+        requests.append(request.path_qs)
+        return aiohttp.web.json_response({"data": []})
+
+    app = aiohttp.web.Application()
+    app.router.add_get("/records", endpoint)
+    runner = aiohttp.web.AppRunner(app)
+    await runner.setup()
+    site = aiohttp.web.TCPSite(runner, host="127.0.0.1", port=0)
+    await site.start()
+    port = site._server.sockets[0].getsockname()[1]
+    connector = GenericRESTConnector()
+    handle = await connector.connect(
+        ConnectionConfig(url=f"http://127.0.0.1:{port}/records", rate_limit_rps=rate)
+    )
+    try:
+        with pytest.raises(ValueError):
+            await connector.fetch(handle, FetchRequest(dataset_id="records"))
+        assert requests == []
+    finally:
+        await connector.disconnect(handle)
+        await runner.cleanup()
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_actual_rest_result_survives_initialized_observability_profile() -> None:
+    """Actual aiohttp results survive enabled and disabled telemetry owners."""
+    import aiohttp.web
+
+    from polisyos.core.observability import get_metrics, get_tracer
+
+    enabled = os.environ.get("POLISYOS_OTEL_ENABLED", "true").lower() == "true"
+    requests = 0
+
+    async def endpoint(_request):
+        nonlocal requests
+        requests += 1
+        return aiohttp.web.json_response({"data": [{"id": 9}]})
+
+    app = aiohttp.web.Application()
+    app.router.add_get("/records", endpoint)
+    runner = aiohttp.web.AppRunner(app)
+    await runner.setup()
+    site = aiohttp.web.TCPSite(runner, host="127.0.0.1", port=0)
+    await site.start()
+    port = site._server.sockets[0].getsockname()[1]
+    metrics = get_metrics()
+    metrics._ensure_initialized()
+    tracer = get_tracer()
+    tracer._ensure_initialized()
+    connector = GenericRESTConnector()
+    handle = await connector.connect(
+        ConnectionConfig(
+            url=f"http://127.0.0.1:{port}/records",
+            headers={"X-REST-DataPath": "data"},
+            rate_limit_rps=1.0,
+        )
+    )
+    try:
+        result = await connector.fetch(handle, FetchRequest(dataset_id="records"))
+        assert result.data == [{"id": 9}]
+        assert result.row_count == 1
+        assert requests == 1
+
+        assert metrics._config is not None and metrics._config.enabled is enabled
+        assert tracer._config is not None and tracer._config.enabled is enabled
+
+        if enabled:
+            assert metrics._provider is not None
+            assert metrics._meter is not None
+            assert tracer._tracer is not None
+            assert metrics.connector_rate_limit_acquire_duration_seconds is not None
+        else:
+            assert metrics._provider is None
+            assert metrics._meter is None
+            with tracer.start_as_current_span("fabric.net02.disabled_telemetry") as span:
+                assert not span.is_recording()
     finally:
         await connector.disconnect(handle)
         await runner.cleanup()

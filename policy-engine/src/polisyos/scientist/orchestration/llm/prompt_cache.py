@@ -30,7 +30,12 @@ from polisyos.core.llm.cache_settlement import (
     session_for_cache_client,
 )
 
-from .gateway_client import GatewayLLMResponse, GatewayToolCall, GatewayUsage
+from ._translator_materialization import (
+    TRANSLATOR_MATERIALIZATION_PROFILE,
+    TRANSLATOR_ROLES,
+    bind_current_translator_materialization,
+)
+from .gateway_client import GatewayLLMClient, GatewayLLMResponse, GatewayToolCall, GatewayUsage
 from .prepared_request import (
     PreparedCallValues,
     PreparedLLMRequest,
@@ -86,6 +91,9 @@ class CacheReuseEvidence:
     immutable: bool
     content: bytes
     content_hash: str
+    role: str | None = None
+    kind: str | None = None
+    media_type: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -99,6 +107,9 @@ class CacheReuseRequest:
     model: str
     parameters_digest: str
     evidence: tuple[CacheReuseEvidence, ...]
+    materialization_profile: str | None = None
+    absent_roles: tuple[str, ...] = ()
+    provider_route: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -131,6 +142,9 @@ class CacheReuseDecision:
     model: str
     parameters_digest: str
     evidence: tuple[CacheReuseEvidence, ...]
+    materialization_profile: str | None = None
+    absent_roles: tuple[str, ...] = ()
+    provider_route: str | None = None
 
 
 class CacheReuseAuthorizer(Protocol):
@@ -688,10 +702,30 @@ class CachingLLMClient:
         # cache/evidence normalization. Opaque providers preserve original objects.
         prepared, caller_snapshot = call.provider_request, call.caller_snapshot
         provider_kwargs = _provider_kwargs(kwargs)
+        materialization_requested, materialization = bind_current_translator_materialization(
+            args,
+            kwargs,
+            model=self._model,
+            prepared_wire_payload=(
+                prepared.wire_payload if type(self._client) is GatewayLLMClient else None
+            ),
+        )
         if self._require_reuse_authorization and self._reuse_guard is None:
             raise LLMSettlementOwnershipError("live_reuse_owner_unavailable")
         if self._require_reuse_authorization:
             self._reuse_guard(lambda: None)
+        if materialization_requested and (
+            not self._require_reuse_authorization or materialization is None
+        ):
+            _record_cache_skip(self._cache, "translator_materialization_unavailable")
+            return await self._generate_uncached(
+                args,
+                kwargs,
+                provider_kwargs=provider_kwargs,
+                prepared=prepared,
+                caller_snapshot=caller_snapshot,
+            )
+        if self._require_reuse_authorization:
             authorize = getattr(self._cache_reuse_authorizer, "authorize_reuse", None)
             principal = self._cache_reuse_principal
             if not callable(authorize) or principal is None or self._trusted_reuse_context is None:
@@ -710,7 +744,13 @@ class CachingLLMClient:
             trusted_metadata["provider_metadata"] = provider_kwargs.get("metadata")
             trusted_metadata["tenant"] = principal.tenant
             trusted_metadata["scope"] = principal.scope
-            trusted_metadata["cache_reuse"] = self._trusted_reuse_context
+            # Materialization is derived from the current translator call, never
+            # from caller-provided metadata or a previously captured context.
+            trusted_context = dict(self._trusted_reuse_context)
+            trusted_context.pop("materialization", None)
+            if materialization is not None:
+                trusted_context["materialization"] = materialization
+            trusted_metadata["cache_reuse"] = trusted_context
             kwargs["metadata"] = trusted_metadata
         if not prepared.reusable:
             _record_cache_skip(self._cache, "prepared_dispatch_not_established")
@@ -727,6 +767,7 @@ class CachingLLMClient:
             kwargs=kwargs,
             strict_reuse=self._require_reuse_authorization,
             deterministic_default=self._has_deterministic_provider_default(),
+            verified_materialization=materialization is not None,
         )
         if reason is not None:
             _record_cache_skip(self._cache, reason)
@@ -779,22 +820,12 @@ class CachingLLMClient:
 
         # Guard errors, including actual dependency timeouts and an absent current
         # lease, propagate. They never authorize replacement physical work.
-        admitted = guard(admit_lookup)
-        if admitted is None:
-            _record_cache_skip(self._cache, "reuse_authorization_unavailable")
-            return await self._generate_uncached(
-                args,
-                kwargs,
-                request_digest=cache_key,
-                provider_kwargs=provider_kwargs,
-                prepared=prepared,
-                caller_snapshot=caller_snapshot,
-            )
-        if admitted.response is not None:
-            try:
-                return self._verified_reuse_response(admitted.response, request_digest=cache_key)
-            except (TypeError, ValueError):
-                _record_cache_skip(self._cache, "cache_origin_mismatch")
+        # A publication conflict gets one fresh owner-guarded lookup. Continued
+        # churn falls back to the existing authorized physical path, without spin.
+        for _ in range(2):
+            admitted = guard(admit_lookup)
+            if admitted is None:
+                _record_cache_skip(self._cache, "reuse_authorization_unavailable")
                 return await self._generate_uncached(
                     args,
                     kwargs,
@@ -803,60 +834,94 @@ class CachingLLMClient:
                     prepared=prepared,
                     caller_snapshot=caller_snapshot,
                 )
-        try:
-            internal_cache_key = admitted.cache_key
-            scope_key = admitted.scope_key
-            request_digest = admitted.request_digest
-            flight_key = internal_cache_key
-            with self._shared_cache_state.lock:
-                if self._shared_cache_state.publication_revision != admitted.publication_revision:
-                    raise ValueError("cache_head_changed_during_admission")
-                self._cache_settlement_session.forget_cached_key(internal_cache_key)
-                attempt_id = f"cache-attempt:{uuid.uuid4().hex}"
-                registration = self._cache_settlement_session.register_request(
-                    scope_key, request_digest, attempt_id
-                )
-                self._cache_settlement_session.bind_request_key(registration, internal_cache_key)
-                flight = self._inflight.get(flight_key)
-                is_owner = flight is None
-                if is_owner:
-                    self._cache_settlement_session.dispatch(registration, attempt_id)
-                    producer_event_id = f"llm-provider:{uuid.uuid4().hex}"
-                    owner_task = asyncio.create_task(
-                        self._produce(
-                            internal_cache_key,
-                            prepared,
-                            timeout=_coerce_timeout(provider_kwargs.get("timeout")),
+            if admitted.response is not None:
+                try:
+                    return self._verified_reuse_response(
+                        admitted.response, request_digest=cache_key
+                    )
+                except (TypeError, ValueError):
+                    _record_cache_skip(self._cache, "cache_origin_mismatch")
+                    return await self._generate_uncached(
+                        args,
+                        kwargs,
+                        request_digest=cache_key,
+                        provider_kwargs=provider_kwargs,
+                        prepared=prepared,
+                        caller_snapshot=caller_snapshot,
+                    )
+            try:
+                internal_cache_key = admitted.cache_key
+                scope_key = admitted.scope_key
+                request_digest = admitted.request_digest
+                flight_key = internal_cache_key
+                with self._shared_cache_state.lock:
+                    if (
+                        self._shared_cache_state.publication_revision
+                        != admitted.publication_revision
+                    ):
+                        continue
+                    self._cache_settlement_session.forget_cached_key(internal_cache_key)
+                    attempt_id = f"cache-attempt:{uuid.uuid4().hex}"
+                    registration = self._cache_settlement_session.register_request(
+                        scope_key, request_digest, attempt_id
+                    )
+                    self._cache_settlement_session.bind_request_key(
+                        registration, internal_cache_key
+                    )
+                    flight = self._inflight.get(flight_key)
+                    is_owner = flight is None
+                    if is_owner:
+                        self._cache_settlement_session.dispatch(registration, attempt_id)
+                        producer_event_id = f"llm-provider:{uuid.uuid4().hex}"
+                        owner_task = asyncio.create_task(
+                            self._produce(
+                                internal_cache_key,
+                                prepared,
+                                timeout=_coerce_timeout(provider_kwargs.get("timeout")),
+                                request_digest=request_digest,
+                                scope_key=scope_key,
+                                producer_attempt_id=attempt_id,
+                                producer_event_id=producer_event_id,
+                            )
+                        )
+                        flight = _CacheFlight(
+                            task=owner_task,
+                            result=Future(),
                             request_digest=request_digest,
                             scope_key=scope_key,
+                            owner_registration=registration,
+                            registrations=[registration],
                             producer_attempt_id=attempt_id,
-                            producer_event_id=producer_event_id,
+                            origin_event_id=producer_event_id,
+                            cache_key=internal_cache_key,
                         )
-                    )
-                    flight = _CacheFlight(
-                        task=owner_task,
-                        result=Future(),
-                        request_digest=request_digest,
-                        scope_key=scope_key,
-                        owner_registration=registration,
-                        registrations=[registration],
-                        producer_attempt_id=attempt_id,
-                        origin_event_id=producer_event_id,
-                        cache_key=internal_cache_key,
-                    )
-                    self._inflight[flight_key] = flight
-                    owner_task.add_done_callback(
-                        lambda task: self._settle_shared_flight_result(flight, task)
-                    )
-                    owner_task.add_done_callback(_consume_task_exception)
-                else:
-                    self._cache_settlement_session.join(
-                        registration, scope_key, request_digest, internal_cache_key, attempt_id
-                    )
-                    flight.registrations.append(registration)
-                flight.waiters += 1
+                        self._inflight[flight_key] = flight
+                        owner_task.add_done_callback(
+                            lambda task, owned_flight=flight: self._settle_shared_flight_result(
+                                owned_flight, task
+                            )
+                        )
+                        owner_task.add_done_callback(_consume_task_exception)
+                    else:
+                        self._cache_settlement_session.join(
+                            registration, scope_key, request_digest, internal_cache_key, attempt_id
+                        )
+                        flight.registrations.append(registration)
+                    flight.waiters += 1
 
-        except (OSError, RuntimeError, TypeError, ValueError):
+            except (OSError, RuntimeError, TypeError, ValueError):
+                _record_cache_skip(self._cache, "reuse_admission_unavailable")
+                return await self._generate_uncached(
+                    args,
+                    kwargs,
+                    request_digest=cache_key,
+                    provider_kwargs=provider_kwargs,
+                    prepared=prepared,
+                    caller_snapshot=caller_snapshot,
+                )
+
+            break
+        else:
             _record_cache_skip(self._cache, "reuse_admission_unavailable")
             return await self._generate_uncached(
                 args,
@@ -1013,23 +1078,71 @@ class CachingLLMClient:
                 or not actor_id
             ):
                 return None
-        evidence = (
+        evidence_items = [
             CacheReuseEvidence(
                 ref=str(snapshot.get("ref", "")),
                 version=str(snapshot.get("version", "")),
                 immutable=snapshot.get("immutable") is True,
                 content=bytes(snapshot.get("content", b"")),
                 content_hash=str(snapshot.get("content_hash", "")),
-            ),
-        )
+            )
+        ]
         if (
-            not evidence[0].ref
-            or not evidence[0].version
-            or not evidence[0].immutable
-            or evidence[0].content_hash
-            != "sha256:" + hashlib.sha256(evidence[0].content).hexdigest()
+            not evidence_items[0].ref
+            or not evidence_items[0].version
+            or not evidence_items[0].immutable
+            or evidence_items[0].content_hash
+            != "sha256:" + hashlib.sha256(evidence_items[0].content).hexdigest()
         ):
             return None
+        profile = None
+        absent_roles: tuple[str, ...] = ()
+        materialization = raw.get("materialization")
+        if materialization is not None:
+            if not self._require_reuse_authorization or not isinstance(materialization, Mapping):
+                return None
+            profile = materialization.get("profile")
+            roles = materialization.get("roles")
+            if (
+                profile != TRANSLATOR_MATERIALIZATION_PROFILE
+                or not isinstance(roles, list)
+                or any(not isinstance(item, Mapping) for item in roles)
+                or tuple(item.get("role") for item in roles) != TRANSLATOR_ROLES
+            ):
+                return None
+            absent: list[str] = []
+            for item in roles:
+                role = item["role"]
+                if item.get("absent") is True:
+                    if role != "implementation_plan" or set(item) != {"role", "absent"}:
+                        return None
+                    absent.append(role)
+                    continue
+                content = item.get("content")
+                if not isinstance(content, bytes):
+                    return None
+                candidate = CacheReuseEvidence(
+                    ref=str(item.get("ref", "")),
+                    version=str(item.get("version", "")),
+                    immutable=item.get("immutable") is True,
+                    content=content,
+                    content_hash=str(item.get("content_hash", "")),
+                    role=role,
+                    kind=str(item.get("kind", "")),
+                    media_type=str(item.get("media_type", "")),
+                )
+                if (
+                    not candidate.ref
+                    or not candidate.version
+                    or not candidate.immutable
+                    or not candidate.kind
+                    or not candidate.media_type
+                    or candidate.content_hash != "sha256:" + hashlib.sha256(content).hexdigest()
+                ):
+                    return None
+                evidence_items.append(candidate)
+            absent_roles = tuple(absent)
+        evidence = tuple(evidence_items)
         request = CacheReuseRequest(
             actor_id=actor_id,
             tenant=tenant,
@@ -1038,6 +1151,9 @@ class CachingLLMClient:
             model=self._model,
             parameters_digest=cache_key,
             evidence=evidence,
+            materialization_profile=profile,
+            absent_roles=absent_roles,
+            provider_route=self._provider_route if profile is not None else None,
         )
         try:
             decision = authorize(request)
@@ -1065,6 +1181,9 @@ class CachingLLMClient:
             or decision.model != request.model
             or decision.parameters_digest != request.parameters_digest
             or decision.evidence != request.evidence
+            or decision.materialization_profile != request.materialization_profile
+            or decision.absent_roles != request.absent_roles
+            or decision.provider_route != request.provider_route
         ):
             return None
         scope_key = (
@@ -1275,6 +1394,7 @@ def _cache_skip_reason(
     kwargs: dict[str, Any],
     strict_reuse: bool = False,
     deterministic_default: bool = False,
+    verified_materialization: bool = False,
 ) -> str | None:
     del model
     if strict_reuse and kwargs.get("seed") is not None:
@@ -1331,7 +1451,7 @@ def _cache_skip_reason(
             "uncertainty_notes",
             "recency_days",
         )
-    ) and (strict_reuse or reuse_context is None):
+    ) and ((strict_reuse and not verified_materialization) or reuse_context is None):
         return "retrieval_freshness_guard"
     return None
 

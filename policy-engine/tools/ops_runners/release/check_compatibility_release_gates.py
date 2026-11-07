@@ -12,7 +12,7 @@ import types
 from dataclasses import dataclass, fields
 from html.parser import HTMLParser
 from pathlib import Path, PurePosixPath
-from typing import Any, Union, get_args, get_origin, get_type_hints
+from typing import Any, Literal, Union, get_args, get_origin, get_type_hints
 from urllib.parse import unquote, urlsplit
 
 from tools.lib.document_references import reference_scan_text
@@ -194,6 +194,10 @@ def _placeholder_for_schema(annotation: object) -> object:
         return Path("schema-placeholder")
     origin = get_origin(annotation)
     arguments = get_args(annotation)
+    if origin is Literal:
+        if not arguments:
+            raise TypeError(f"unsupported canonical schema annotation: {annotation!r}")
+        return arguments[0]
     if origin in (tuple, list):
         item_type = arguments[0] if arguments else TypingAny
         if dataclasses.is_dataclass(item_type):
@@ -238,6 +242,8 @@ def _matches_declared_value(value: object, annotation: object) -> bool:
         return isinstance(value, str)
     origin = get_origin(annotation)
     arguments = get_args(annotation)
+    if origin is Literal:
+        return any(type(value) is type(option) and value == option for option in arguments)
     if origin in (types.UnionType, Union):
         return any(_matches_declared_value(value, option) for option in arguments)
     if origin in (tuple, list):

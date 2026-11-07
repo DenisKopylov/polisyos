@@ -2228,8 +2228,11 @@ def test_build_decision_packet_includes_calibration_validation_summary(tmp_path)
     payload = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
 
     assert payload["calibration_validation"]["status"] == "completed"
-    assert payload["calibration_validation"]["summary"]["composite_score"] == 0.82
-    assert payload["calibration_validation"]["summary"]["worst_backtest_kind"] == "distress"
+    summary = payload["calibration_validation"]["summary"]
+    assert summary["composite_score"] is None
+    assert summary["worst_backtest_kind"] is None
+    assert summary["eligible_for_promotion"] is False
+    assert "backtest_matrix_report_not_established" in summary["gap_flags"]
     assert (
         payload["calibration_validation"]["governance_accountability_summary"][
             "risk_weighted_verdict"
@@ -4620,12 +4623,13 @@ def test_s1_c5b_fresh_backtest_binding_reaches_packet_and_rejects_kept_markers(
     assert badpacket["calibration_validation"]["summary"]["eligible_for_promotion"] is False
 
 
-def test_s1_exact_zero_trust_recomputes_through_cas_c5b_and_packet(tmp_path) -> None:
+def test_s1_exact_zero_arithmetic_is_limited_through_cas_c5b_and_packet(tmp_path) -> None:
     from polisyos.core.artifacts.manifest import InputRef as InputRefModel
     from polisyos.ir.analytics.backtest import load_backtest_report
     from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
     from polisyos.scientist.governance.backtest_matrix import (
         BacktestKind,
+        verify_backtest_diagnostic_projection,
         verify_backtest_trust_projection,
     )
     from polisyos.scientist.governance.calibration import CalibrationGovernanceReport
@@ -4691,14 +4695,13 @@ def test_s1_exact_zero_trust_recomputes_through_cas_c5b_and_packet(tmp_path) -> 
     assert report_ref is not None
     report = load_backtest_report(_ensure_ir_artifact_store(store), report_ref)
     projection = verify_backtest_trust_projection(report)
-    assert projection.status == "recomputed" and projection.eligible is True
-    assert projection.score == report.trust_score and projection.grade == report.trust_grade
+    diagnostic = verify_backtest_diagnostic_projection(report)
+    assert diagnostic.recomputed and diagnostic.status == "computed"
+    assert projection.status == "not_established" and not projection.eligible
+    assert projection.score is None and projection.grade is None
     readout = fresh.readout_summary()
-    assert readout["backtest_trust_status"] == "recomputed"
-    assert (
-        readout["backtest_trust_score"] == projection.score
-        and readout["backtest_trust_grade"] == projection.grade
-    )
+    assert readout["backtest_trust_status"] == "not_established"
+    assert readout["backtest_trust_score"] is None and readout["backtest_trust_grade"] is None
 
     registry = build_default_registry_bundle(store).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry, run_id="s1-exact-zero")
@@ -4729,12 +4732,14 @@ def test_s1_exact_zero_trust_recomputes_through_cas_c5b_and_packet(tmp_path) -> 
     )
     packet_ref = BuildDecisionPacketNode().execute(ctx, state).artifacts[0]
     packet = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
-    assert packet["backtest"]["trust_score_status"] == "recomputed"
-    assert (
-        packet["backtest"]["trust_eligible"] is True
-        and packet["backtest"]["trust_score"] == projection.score
+    assert packet["backtest"]["trust_score_status"] == "not_established"
+    assert not packet["backtest"]["trust_eligible"]
+    assert packet["backtest"]["trust_score"] is None
+    assert packet["calibration_validation"]["summary"]["backtest_trust_status"] == "not_established"
+    assert packet["calibration_validation"]["summary"]["backtest_source_reconciliation_status"] == (
+        "not_established"
     )
-    assert packet["calibration_validation"]["summary"]["backtest_trust_status"] == "recomputed"
+    assert packet["calibration_validation"]["summary"]["eligible_for_promotion"] is False
 
     report_inputs = [
         InputRefModel(
@@ -4756,7 +4761,7 @@ def test_s1_exact_zero_trust_recomputes_through_cas_c5b_and_packet(tmp_path) -> 
     for field, value in (
         ("trust_score", 0.75),
         ("trust_grade", "B" if projection.grade != "B" else "A"),
-        ("trust_eligible", False),
+        ("trust_eligible", True),
     ):
         changed = report.model_copy(update={field: value})
         changed_ref = persist_backtest_report(
@@ -4768,7 +4773,7 @@ def test_s1_exact_zero_trust_recomputes_through_cas_c5b_and_packet(tmp_path) -> 
         )
         bundle_ref = persist_calibration_validation_bundle(store, bundle, inputs=bundle_inputs)
         changed_readout = load_calibration_validation_bundle(store, bundle_ref).readout_summary()
-        assert changed_readout["backtest_trust_status"] == "unavailable"
+        assert changed_readout["backtest_trust_status"] == "not_established"
         assert (
             changed_readout["backtest_trust_score"] is None
             and changed_readout["backtest_trust_grade"] is None
@@ -4794,7 +4799,7 @@ def test_s1_exact_zero_trust_recomputes_through_cas_c5b_and_packet(tmp_path) -> 
         )
         changed_packet_ref = BuildDecisionPacketNode().execute(ctx, changed_state).artifacts[0]
         changed_packet = from_canonical_bytes(store.get_bytes(changed_packet_ref.artifact_id))
-        assert changed_packet["backtest"]["trust_score_status"] == "unavailable"
+        assert changed_packet["backtest"]["trust_score_status"] == "not_established"
         assert changed_packet["backtest"]["trust_eligible"] is False
         assert (
             changed_packet["backtest"]["trust_score"] is None
@@ -4802,7 +4807,7 @@ def test_s1_exact_zero_trust_recomputes_through_cas_c5b_and_packet(tmp_path) -> 
         )
         assert (
             changed_packet["calibration_validation"]["summary"]["backtest_trust_status"]
-            == "unavailable"
+            == "not_established"
         )
         assert (
             changed_packet["calibration_validation"]["summary"]["eligible_for_promotion"] is False

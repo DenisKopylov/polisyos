@@ -84,6 +84,14 @@ def ensure_causal_kuzu_schema(
         conn = kuzu.Connection(db)
         for statement in _iter_ddl_statements(ddl_text):
             conn.execute(statement)
+        # CREATE IF NOT EXISTS preserves an older table unchanged. Add the new
+        # complete-payload field without fabricating unavailable historical data.
+        if ddl_path is None:
+            properties = conn.execute("CALL table_info('CausalEdge') RETURN name").get_as_df()
+            if "name" not in properties.columns:
+                raise CausalGraphKuzuSchemaError("Kuzu relation property inventory is unavailable")
+            if "payload_json" not in set(properties["name"]):
+                conn.execute("ALTER TABLE CausalEdge ADD payload_json STRING")
     except Exception as exc:
         # Optional Kuzu bindings surface adapter/database-specific exceptions
         # that are not stable enough to type-match here, so normalize them once
@@ -105,6 +113,16 @@ def materialize_causal_kuzu_from_graph(
         kuzu_enabled = False
     if not kuzu_enabled:
         return
+
+    if not clear_on_start:
+        raise CausalGraphKuzuError(
+            "incremental causal Kuzu bulk export is unsupported; use an explicitly "
+            "replaceable isolated database with clear_on_start=True"
+        )
+
+    from polisyos.ir.analytics.causal_graph import _canonical_causal_graph
+
+    graph = _canonical_causal_graph(graph)
 
     kuzu = _import_kuzu()
     ensure_causal_kuzu_schema(
@@ -178,6 +196,7 @@ def _export_graph_edges_csv(graph: CausalGraphModel, output_path: Path) -> None:
                 "sources",
                 "evidence_refs",
                 "metadata_json",
+                "payload_json",
             ],
         )
         writer.writeheader()
@@ -198,6 +217,7 @@ def _export_graph_edges_csv(graph: CausalGraphModel, output_path: Path) -> None:
                     "sources": edge["sources"],
                     "evidence_refs": edge["evidence_refs"],
                     "metadata_json": edge["metadata_json"],
+                    "payload_json": edge["payload_json"],
                 }
             )
 

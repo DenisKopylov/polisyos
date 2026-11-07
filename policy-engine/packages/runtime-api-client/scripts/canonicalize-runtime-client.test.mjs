@@ -483,11 +483,9 @@ export class RuntimeApiClient {}
   );
 });
 
-
 test("legacy ArtifactID export aliases only the exact serialized output component", () => {
   const legacyExportName = "polisyos__core__artifacts__ids__ArtifactID";
-  const outputSchemaName =
-    "polisyos__core__artifacts__ids__ArtifactID-Output";
+  const outputSchemaName = "polisyos__core__artifacts__ids__ArtifactID-Output";
   const componentSchemas = {
     [outputSchemaName]: {
       type: "string",
@@ -552,8 +550,7 @@ void invalidArtifactID;
 });
 
 test("legacy ArtifactID compatibility alias rejects a changed serialized type", () => {
-  const outputSchemaName =
-    "polisyos__core__artifacts__ids__ArtifactID-Output";
+  const outputSchemaName = "polisyos__core__artifacts__ids__ArtifactID-Output";
   assert.throws(
     () =>
       canonicalizeRuntimeClientSource(
@@ -572,4 +569,199 @@ export class RuntimeApiClient {}
       error.code === "compatibility_export_schema_changed" &&
       error.details.targetSchemaName === outputSchemaName,
   );
+});
+
+const DATA_SNAPSHOT_INPUT_SCHEMA = {
+  additionalProperties: false,
+  properties: {
+    artifact_id: { $ref: "#/components/schemas/ArtifactID-Input" },
+    kind: { default: "fabric.data_snapshot", title: "Kind", type: "string" },
+    manifest_profile_sha256: {
+      anyOf: [
+        { pattern: "^sha256:[0-9a-f]{64}$", type: "string" },
+        { type: "null" },
+      ],
+      title: "Manifest Profile Sha256",
+    },
+    media_type: {
+      default: "application/json",
+      title: "Media Type",
+      type: "string",
+    },
+  },
+  required: ["artifact_id"],
+  type: "object",
+};
+const DATA_SNAPSHOT_SCHEMA_NAMES = [
+  "DataSnapshotRef-Input",
+  "DataSnapshotRef-Output",
+];
+const DATA_SNAPSHOT_GENERATED_SOURCE = `// GENERATED FILE. DO NOT EDIT.
+// Source: schemas/runtime_api_v1.openapi.json
+
+export type DataSnapshotRefInput = { artifact_id: string };
+export type DataSnapshotRefOutput = { artifact_id: string };
+export interface RuntimeApiClientOptions { baseUrl: string; }
+export class RuntimeApiClient {}
+`;
+
+function dataSnapshotComponentSchemas(
+  inputSchema = DATA_SNAPSHOT_INPUT_SCHEMA,
+) {
+  return {
+    "DataSnapshotRef-Input": inputSchema,
+    "DataSnapshotRef-Output": {
+      ...structuredClone(DATA_SNAPSHOT_INPUT_SCHEMA),
+      properties: {
+        ...structuredClone(DATA_SNAPSHOT_INPUT_SCHEMA.properties),
+        artifact_id: { type: "string" },
+      },
+    },
+  };
+}
+
+test("legacy DataSnapshotRef export retains the exact established input view", () => {
+  const componentSchemas = dataSnapshotComponentSchemas({
+    ...structuredClone(DATA_SNAPSHOT_INPUT_SCHEMA),
+    title: "DataSnapshotRef",
+    description: "Existing selected data snapshot input.",
+  });
+  const canonicalized = canonicalizeRuntimeClientSource(
+    DATA_SNAPSHOT_GENERATED_SOURCE,
+    DATA_SNAPSHOT_SCHEMA_NAMES,
+    componentSchemas,
+  );
+  const compatibilityExport = exportedTypeAliases(canonicalized).find(
+    (declaration) => declaration.name.text === "DataSnapshotRef",
+  );
+  assert.ok(compatibilityExport);
+  assert.equal(
+    compatibilityExport.type.getText(),
+    'RuntimeApiComponents["schemas"]["DataSnapshotRef-Input"]',
+  );
+  assert.deepEqual(
+    typeDiagnostics(
+      `${canonicalized}
+type Equal<Left, Right> = (<Value>() => Value extends Left ? 1 : 2) extends (<Value>() => Value extends Right ? 1 : 2) ? true : false;
+type Assert<Value extends true> = Value;
+type LegacySnapshotMatchesInput = Assert<Equal<DataSnapshotRef, RuntimeApiComponents["schemas"]["DataSnapshotRef-Input"]>>;
+const legacyInput: DataSnapshotRef = { artifact_id: "sha256:" + "a".repeat(64) };
+const requestInput: RuntimeApiComponents["schemas"]["DataSnapshotRef-Input"] = legacyInput;
+// @ts-expect-error a legacy input must still provide a string artifact ID
+const invalidInput: DataSnapshotRef = { artifact_id: 42 };
+void requestInput;
+void invalidInput;
+`,
+      `export interface components {
+  schemas: {
+    "DataSnapshotRef-Input": { artifact_id: string; manifest_profile_sha256?: string | null };
+    "DataSnapshotRef-Output": { artifact_id: string; manifest_profile_sha256?: string | null };
+  };
+}
+`,
+    ),
+    [],
+  );
+  assert.equal(
+    canonicalizeRuntimeClientSource(
+      canonicalized,
+      DATA_SNAPSHOT_SCHEMA_NAMES,
+      componentSchemas,
+    ),
+    canonicalized,
+  );
+});
+
+test("legacy DataSnapshotRef compatibility rejects nested schema drift", () => {
+  const mutations = [
+    [
+      "artifact ID type",
+      (schema) => {
+        schema.properties.artifact_id = { type: "string" };
+      },
+    ],
+    [
+      "kind default",
+      (schema) => {
+        schema.properties.kind.default = "fabric.data_snapshox";
+      },
+    ],
+    [
+      "profile pattern",
+      (schema) => {
+        schema.properties.manifest_profile_sha256.anyOf[0].pattern =
+          "^sha256:[0-9a-f]{63}$";
+      },
+    ],
+    [
+      "media type",
+      (schema) => {
+        schema.properties.media_type.type = "number";
+      },
+    ],
+    [
+      "required member",
+      (schema) => {
+        schema.required = ["media_type"];
+      },
+    ],
+    [
+      "required addition",
+      (schema) => {
+        schema.required.push("kind");
+      },
+    ],
+    [
+      "unknown property",
+      (schema) => {
+        schema.properties.unsafe = { type: "boolean" };
+      },
+    ],
+    [
+      "extra properties",
+      (schema) => {
+        schema.additionalProperties = true;
+      },
+    ],
+  ];
+  for (const [label, mutate] of mutations) {
+    const schema = structuredClone(DATA_SNAPSHOT_INPUT_SCHEMA);
+    mutate(schema);
+    assert.throws(
+      () =>
+        canonicalizeRuntimeClientSource(
+          DATA_SNAPSHOT_GENERATED_SOURCE,
+          DATA_SNAPSHOT_SCHEMA_NAMES,
+          dataSnapshotComponentSchemas(schema),
+        ),
+      (error) =>
+        error instanceof RuntimeApiClientGenerationError &&
+        error.code === "compatibility_export_schema_changed" &&
+        error.details.targetSchemaName === "DataSnapshotRef-Input",
+      label,
+    );
+  }
+});
+
+test("legacy DataSnapshotRef compatibility refuses conflicting package exports", () => {
+  for (const declaration of [
+    "export type DataSnapshotRef = string;",
+    "export interface DataSnapshotRef { artifact_id: string; }",
+  ]) {
+    assert.throws(
+      () =>
+        canonicalizeRuntimeClientSource(
+          DATA_SNAPSHOT_GENERATED_SOURCE.replace(
+            "export type DataSnapshotRefInput",
+            `${declaration}\nexport type DataSnapshotRefInput`,
+          ),
+          DATA_SNAPSHOT_SCHEMA_NAMES,
+          dataSnapshotComponentSchemas(),
+        ),
+      (error) =>
+        error instanceof RuntimeApiClientGenerationError &&
+        error.code === "compatibility_export_changed" &&
+        error.details.exportName === "DataSnapshotRef",
+    );
+  }
 });

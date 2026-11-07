@@ -1,0 +1,69 @@
+{
+  "pass_id": "C81",
+  "bundle": "MIG-04",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C81-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-050"
+      ],
+      "title": "Исторический format mapping и target disposition остаются отдельной квалификацией",
+      "evidence": [
+        "S01:15–26",
+        "S02:48–68",
+        "S03:27–47",
+        "S13:1–27",
+        "P02",
+        "P04"
+      ],
+      "remaining": "Собрать реальные поддержанные historical profiles и явно определить conversion-only против optional target validation. Сохранить различие equal aliases, conflicts, unknown и missing; не выбрасывать одно противоречащее значение и не выдумывать raw_hash/created_at. При будущей target admission пользоваться существующими Fabric DTO/consumer, не новым параллельным validator.",
+      "limits": "CLI format conversion честно возвращает1.0 даже для payload, который native registry отвергает; current contract прямо не обещает validated DTO. Поэтому это не новый product defect. Complete synthetic fixture и real DTO не доказывают все historical artifacts. DTO clock default не становится исходной provenance."
+    },
+    {
+      "id": "C81-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-050"
+      ],
+      "title": "Compatibility adapter retirement нельзя вывести только из успешного owner move",
+      "evidence": [
+        "S05:1–35",
+        "S06:1–24",
+        "S12:169–252",
+        "S14:1–36",
+        "P01",
+        "P05"
+      ],
+      "remaining": "Сохранять explicit legacy module import/registration side effect и deprecated version export на поддержанное окно. Перед retirement квалифицировать реальных внешних callers/import order; держать bounded equivalence corpus до удаления adapter. Не вернуть Fabric import в generic Common ради удаления маленькой совместимой копии.",
+      "limits": "Actual fresh child Common import не загружает Fabric; explicit adapter также нейтрален; canonical registration работает отдельно. Это narrow callable/import proof, не полный downstream usage census или benchmark стоимости всего Fabric."
+    },
+    {
+      "id": "C81-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-050"
+      ],
+      "title": "Native registered CLI/release и содержательная доказательность не закрыты rename результатом",
+      "evidence": [
+        "S09:74–86",
+        "S10:168–175",
+        "S18:80–104",
+        "P02",
+        "native_verification.json"
+      ],
+      "remaining": "Объединить supported-runtime registered/installed CLI JSON/YAML/atomic failure checks с C79/C80 и LANE-06/CP2. Сохранить shared C79-R01 cleanup residual. Истинность raw_hash, license/source authority, completeness, reconciliation и reuse eligibility проверять у действующих evidence/admission owners отдельно от format conversion.",
+      "limits": "Native actual Fabric registry/DTO выполнены; full native tools CLI/preflight/scoped output нет. Synthetic sha256:abc сохранён как строка, не проверен против raw data. Отсутствие raw bytes в migration probe не само по себе product defect; полномочие использовать данные этим результатом не получено."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "carried_related_residuals": [
+    "C79-R01"
+  ],
+  "protected_distinctions": [
+    "LK28"
+  ],
+  "decision": "Schema-owner relocation/explicit registration реализованы, format-only profile сохранён. Новый product defect не установлен; historical/target/lifecycle/native CLI qualification остаются."
+}

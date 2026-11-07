@@ -31,7 +31,7 @@ from polisyos.runtime.http.dependencies import (
 from polisyos.runtime.http.errors import conflict, forbidden, service_unavailable
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.resource_binding import (
-    human_decision_create_from_bound_request,
+    human_decision_create_owner_from_bound_request,
 )
 from polisyos.runtime.http.services.human_decision_contracts import (
     HumanDecisionCreateCommand,
@@ -502,7 +502,15 @@ if router is not None:
         ctx: _RuntimeContextDependency,
         service: _HumanDecisionServiceDependency,
     ) -> HumanDecisionCreateResponse:
-        run = _require_run(request, ctx=ctx, run_id=run_id)
+        bound_context, run = human_decision_create_owner_from_bound_request(
+            request,
+            ctx=ctx,
+            run_id=run_id,
+        )
+        if run is None:
+            run = _require_run(request, ctx=ctx, run_id=run_id)
+        else:
+            enforce_run_tenant_access(request, ctx=ctx, run=run)
         tenant_id = _run_tenant_id(run)
         set_authz_resource(
             request,
@@ -516,7 +524,6 @@ if router is not None:
                 "Human-decision mutation lacks its frozen pre-OPA resource",
                 code="authorization_binding_context_missing",
             )
-        bound_context = human_decision_create_from_bound_request(request)
         bound_body = bound_context.get("body")
         bound_exposure_session_ref = bound_context.get("exposure_session_ref")
         if (

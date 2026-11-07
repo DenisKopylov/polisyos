@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from hashlib import sha256
+from io import BytesIO
 from pathlib import Path
 
 import jax
@@ -10,7 +11,7 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.compiler.report import CompileReport
@@ -34,6 +35,7 @@ from polisyos.foundry.agent_sim.agents import AdaptiveAgentMechanism
 from polisyos.foundry.compile.api import compile
 from polisyos.foundry.compile.randomization import TreasuryPlan, build_treasury_plan
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.execute._internal import graph as graph_module
 from polisyos.foundry.execute._internal.graph import execute_program_graph
 from polisyos.foundry.execute._internal.ops import apply_ops_to_state
 from polisyos.foundry.execute.api import execute as execute_foundry
@@ -58,9 +60,9 @@ def _load(store, ref, model):
     return model.model_validate(from_canonical_bytes(store.get_bytes(ref)))
 
 
-def _compile(root: Path, seed: int = 17):
+def _compile(root: Path, seed: int | None = 17, *, return_selected_profile: bool = False):
     store = FileSystemCAS(root)
-    registry = build_default_registry_bundle(store)
+    registry = build_default_registry_bundle(store, return_selected_profile=return_selected_profile)
     bundle = TrinityBundle(
         problem_frame=ProblemFrame(problem_id="treasury_execution", domain=ProblemDomain.FISCAL),
         policy_spec=PolicySpec(
@@ -91,6 +93,7 @@ def _compile(root: Path, seed: int = 17):
                 version=bundle.ARTIFACT_SCHEMA_VERSION,
             ),
         ),
+        return_selected_profile=return_selected_profile,
     )
     result = compile(
         store,
@@ -98,6 +101,7 @@ def _compile(root: Path, seed: int = 17):
             policy_ref=ref,
             registry_bundle_ref=registry.bundle_ref,
             compile_config=FoundryCompileConfig(random_seed=seed),
+            return_selected_profile=return_selected_profile,
         ),
     )
     assert result.ok, result.notes
@@ -154,13 +158,18 @@ def _oracle(seed, root_seed, node_id):
     return np.asarray(patches["agents.income"][0]["value"])
 
 
-@pytest.mark.parametrize("seed", [None, 0, 17, 2147483655])
+@pytest.mark.parametrize("seed", [None, 0, 17, -3, 2147483655])
 def test_compiled_seed_and_persisted_salts_drive_actual_native_kernel(tmp_path, seed):
     store, report, content = _compile(tmp_path / "cas", seed)
     plan = _load(store, report.exec_plan_ref, ExecPlan)
     graph = _load(store, report.program_graph_ref, ProgramGraph)
     treasury = _load(store, report.treasury_plan_ref, TreasuryPlan)
     assert treasury.root_seed == (seed or 0)
+    manifest = store.get_manifest(report.treasury_plan_ref)
+    assert manifest.kind == "foundry.treasury_plan"
+    assert manifest.artifact_schema == SchemaInfo(
+        name="polisyos.foundry.TreasuryPlan", version="1.0"
+    )
     assert plan.random_seed == seed
     assert PROFILE in plan.notes
     (edge,) = [
@@ -178,6 +187,86 @@ def test_compiled_seed_and_persisted_salts_drive_actual_native_kernel(tmp_path, 
     assert not np.array_equal(actual, override)
 
 
+def test_native_graph_pins_patch_value_write_profiles_despite_same_bytes_default(
+    tmp_path, monkeypatch
+):
+    root = tmp_path / "cas"
+    store, report, content = _compile(root)
+    graph = _load(store, report.program_graph_ref, ProgramGraph)
+    (node,) = [item for item in graph.nodes if item.mechanism_type == "adaptive_agent"]
+    expected = _oracle(17, 17, node.node_id)
+    encoded = BytesIO()
+    np.save(encoded, expected, allow_pickle=False)
+    unrelated_ref = store.put_bytes(
+        encoded.getvalue(),
+        PutOptions(
+            kind="foundry.patch_value",
+            media_type="application/x-npy",
+            schema=SchemaInfo(name="test.UnrelatedNativePatchView", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    merged_refs = []
+    native_merge = graph_module.merge_patch_records
+
+    def observe_native_merge(*args, **kwargs):
+        ops = native_merge(*args, **kwargs)
+        merged_refs.extend(op.value_ref for op in ops)
+        return ops
+
+    monkeypatch.setattr(graph_module, "merge_patch_records", observe_native_merge)
+
+    artifacts = execute_program_graph(
+        store,
+        program_ref=report.program_graph_ref,
+        exec_plan_ref=report.exec_plan_ref,
+        base_state=_base_state(),
+        mechanism_registry=content.mechanism_registry,
+        slot_registry=content.slot_registry,
+        merge_registry=content.merge_registry,
+        selector_field_registry=content.selector_field_registry,
+        constraint_registry=content.constraint_registry,
+        welfare_bound_mode="off",
+        return_selected_profile=True,
+    )
+
+    assert not artifacts.failure_cards
+    assert artifacts.constraint_report_ref is not None
+    fresh = FileSystemCAS(root)
+    delta = _load(fresh, artifacts.state_delta_ref, StateDelta)
+    (op,) = delta.ops
+    assert op.value_ref.artifact_id == unrelated_ref.artifact_id
+    assert op.value_ref.manifest_profile_sha256 is not None
+    assert op.value_ref.manifest_profile_sha256 != unrelated_ref.manifest_profile_sha256
+    assert fresh.get_manifest(op.value_ref).artifact_schema is None
+    assert fresh.get_manifest(op.value_ref.artifact_id).artifact_schema is not None
+    assert merged_refs
+    for ref in merged_refs:
+        assert ref.artifact_id == unrelated_ref.artifact_id
+        assert ref.manifest_profile_sha256 is not None
+        assert ref.manifest_profile_sha256 != unrelated_ref.manifest_profile_sha256
+        assert fresh.get_manifest(ref).artifact_schema is None
+    for output_ref in (
+        artifacts.state_delta_ref,
+        artifacts.metrics_ref,
+        artifacts.constraint_report_ref,
+    ):
+        patch_inputs = [
+            item for item in fresh.get_manifest(output_ref).inputs if item.role == "patch_value"
+        ]
+        assert len(patch_inputs) == 1
+        assert patch_inputs[0].artifact_id == op.value_ref.artifact_id
+        assert patch_inputs[0].manifest_profile_sha256 == op.value_ref.manifest_profile_sha256
+    replayed = apply_ops_to_state(
+        fresh,
+        base_state=_base_state(),
+        ops=delta.ops,
+        slot_registry=content.slot_registry,
+        merge_registry=content.merge_registry,
+    )
+    np.testing.assert_array_equal(np.asarray(replayed.agents.income), expected)
+
+
 def _replace_plan(store, report, *, plan=None, inputs=None):
     plan = plan or _load(store, report.exec_plan_ref, ExecPlan)
     manifest = store.get_manifest(report.exec_plan_ref)
@@ -193,12 +282,33 @@ def _replace_plan(store, report, *, plan=None, inputs=None):
     return report.model_copy(update={"exec_plan_ref": ref})
 
 
-@pytest.mark.parametrize("seed", [None, 0, 17])
-def test_unmarked_historical_plan_keeps_sequential_default_and_override(tmp_path, seed):
+@pytest.mark.parametrize("seed", [None, 0, 17, -3])
+def test_unmarked_historical_plan_keeps_sequential_default_and_override(
+    tmp_path, monkeypatch, seed
+):
     store, report, content = _compile(tmp_path / "cas")
     plan = _load(store, report.exec_plan_ref, ExecPlan)
     historical = plan.model_copy(update={"notes": [], "random_seed": 4321})
-    report = _replace_plan(store, report, plan=historical)
+    report = _replace_plan(
+        store,
+        report,
+        plan=historical,
+        inputs=[
+            x for x in store.get_manifest(report.exec_plan_ref).inputs if x.role != "treasury_plan"
+        ],
+    )
+    treasury_id = str(report.treasury_plan_ref.artifact_id)
+
+    def guard_treasury_read(original):
+        def checked(ref, *args, **kwargs):
+            if str(getattr(ref, "artifact_id", ref)) == treasury_id:
+                pytest.fail("unmarked legacy law attempted to read the versioned treasury")
+            return original(ref, *args, **kwargs)
+
+        return checked
+
+    monkeypatch.setattr(store, "get_manifest", guard_treasury_read(store.get_manifest))
+    monkeypatch.setattr(store, "get_bytes", guard_treasury_read(store.get_bytes))
     kwargs = {} if seed is None else {"seed": seed}
     _, draw_key = jax.random.split(jax.random.PRNGKey(seed or 0))
     patches, _ = AdaptiveAgentMechanism(**PARAMS).emit_patches(
@@ -207,6 +317,126 @@ def test_unmarked_historical_plan_keeps_sequential_default_and_override(tmp_path
     np.testing.assert_array_equal(
         _execute(store, report, content, **kwargs), np.asarray(patches["agents.income"][0]["value"])
     )
+
+
+@pytest.mark.parametrize("seed", [0, 17, -3])
+def test_repeated_native_compilation_preserves_versioned_plan_bytes(tmp_path, seed):
+    """Within one declared profile, independent compilations preserve content, not timestamps."""
+    first, left, _ = _compile(tmp_path / "first", seed)
+    second, right, _ = _compile(tmp_path / "second", seed)
+    for role in ("program_graph_ref", "treasury_plan_ref", "exec_plan_ref", "slot_layout_ref"):
+        assert first.get_bytes(getattr(left, role)) == second.get_bytes(getattr(right, role)), role
+    graph = _load(first, left.program_graph_ref, ProgramGraph)
+    permuted = graph.model_copy(update={"nodes": list(reversed(graph.nodes))})
+    from polisyos.core.canon import to_canonical_bytes
+
+    assert first.get_bytes(left.treasury_plan_ref) == to_canonical_bytes(
+        build_treasury_plan(permuted, root_seed=seed)
+    )
+
+
+@pytest.mark.parametrize("invalid_mechanism", [False, True])
+def test_real_scientist_compile_exposes_selected_layout_and_treasury_to_fresh_reader(
+    tmp_path, invalid_mechanism
+):
+    """The real workflow adapter carries compiler artifacts; no success-shaped port is used."""
+    import logging
+
+    from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+    from polisyos.core.run.context import RunContext
+    from polisyos.ir.kernel.slots import build_slot_layout
+    from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+    from polisyos.scientist.nodes.builtins.compile.compile_foundry import CompileFoundryNode
+    from polisyos.scientist.nodes.builtins.state_keys import (
+        ARTIFACT_SLOT_LAYOUT_REF,
+        ARTIFACT_TREASURY_PLAN_REF,
+        INPUT_REGISTRY_BUNDLE_REF,
+        INPUT_TRINITY_BUNDLE_REF,
+        REPORT_COMPILE_REPORT_REF,
+    )
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+    store, original, content = _compile(tmp_path / "cas", -3, return_selected_profile=True)
+    assert original.policy_ref is not None and original.registry_bundle_ref is not None
+    policy_ref = original.policy_ref
+    if invalid_mechanism:
+        bundle = _load(store, policy_ref, TrinityBundle)
+        intervention = bundle.policy_spec.interventions[0].model_copy(
+            update={"kind": "unregistered_mechanism_for_compile_refusal"}
+        )
+        bundle = bundle.model_copy(
+            update={
+                "policy_spec": bundle.policy_spec.model_copy(
+                    update={"interventions": [intervention]}
+                )
+            }
+        )
+        manifest = store.get_manifest(policy_ref)
+        policy_ref = store.put_json(
+            bundle,
+            PutOptions(
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                schema=manifest.artifact_schema,
+            ),
+            return_selected_profile=True,
+        )
+    run = RunContext.start(
+        store=store, registry_bundle=original.registry_bundle_ref, run_id="layout_treasury_consumer"
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger(__name__),
+        foundry=DefaultFoundryPort(),
+    )
+    state = ExperimentState(
+        run_id=run.run_manifest.run_id,
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: policy_ref,
+            INPUT_REGISTRY_BUNDLE_REF: original.registry_bundle_ref,
+        },
+    )
+    outcome = CompileFoundryNode(compile_config=FoundryCompileConfig(random_seed=-3)).execute(
+        ctx, state
+    )
+    fresh = FileSystemCAS(tmp_path / "cas")
+    report_ref = outcome.state.reports_index[REPORT_COMPILE_REPORT_REF]
+    report = _load(fresh, report_ref, CompileReport)
+    assert REPORT_COMPILE_REPORT_REF not in state.reports_index
+    if invalid_mechanism:
+        assert outcome.status == "fail"
+        assert outcome.error is not None and outcome.error.code == "foundry.compile_failed"
+        assert not report.ok
+        assert report.policy_ref == policy_ref
+        assert report.slot_layout_ref is None and report.treasury_plan_ref is None
+        assert ARTIFACT_SLOT_LAYOUT_REF not in outcome.state.artifacts_index
+        assert ARTIFACT_TREASURY_PLAN_REF not in outcome.state.artifacts_index
+        return
+    assert outcome.status == "ok", outcome.error
+    assert report.ok
+    edges = {edge.role: edge for edge in fresh.get_manifest(report_ref).inputs}
+    for key, role in (
+        (ARTIFACT_SLOT_LAYOUT_REF, "slot_layout"),
+        (ARTIFACT_TREASURY_PLAN_REF, "treasury_plan"),
+    ):
+        selected = outcome.state.artifacts_index[key]
+        assert selected.manifest_profile_sha256 is not None
+        assert artifact_ref_identity_key(selected) == artifact_ref_identity_key(
+            getattr(report, f"{role}_ref")
+        )
+        assert edges[role].artifact_id == selected.artifact_id
+        assert edges[role].manifest_profile_sha256 == selected.manifest_profile_sha256
+        assert key not in state.artifacts_index
+    actual_layout = _load(
+        fresh, report.slot_layout_ref, type(build_slot_layout(content.slot_registry))
+    )
+    assert actual_layout == build_slot_layout(content.slot_registry)
+    assert actual_layout.layout["government.balance"] == "government_balance"
+    treasury = _load(fresh, report.treasury_plan_ref, TreasuryPlan)
+    graph = _load(fresh, report.program_graph_ref, ProgramGraph)
+    assert treasury == build_treasury_plan(graph, root_seed=-3)
 
 
 @pytest.mark.parametrize(
@@ -218,6 +448,7 @@ def test_unmarked_historical_plan_keeps_sequential_default_and_override(tmp_path
         ("duplicate_treasury", "treasury_requires_one_treasury_plan_input"),
         ("wrong_plan_program", "treasury_exec_program_mismatch"),
         ("wrong_program_input", "treasury_program_input_mismatch"),
+        ("wrong_program_profile", "treasury_program_profile_mismatch"),
         ("wrong_treasury_program", "treasury_source_program_mismatch"),
         ("wrong_root", "treasury_seed_or_salts_mismatch"),
         ("wrong_node_salt", "treasury_seed_or_salts_mismatch"),
@@ -257,6 +488,24 @@ def test_profile_rejects_cas_bound_same_shape_wrong_property_before_kernel(
             else x
             for x in inputs
         ]
+    elif defect == "wrong_program_profile":
+        original = report.program_graph_ref
+        manifest = store.get_manifest(original)
+        different_profile = store.put_bytes(
+            store.get_bytes(original),
+            PutOptions(
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                schema=manifest.artifact_schema,
+                inputs=manifest.inputs,
+                producer=ProducerInfo(component="test.other_program_profile", version="2.0"),
+                canon=manifest.canon,
+            ),
+            return_selected_profile=True,
+        )
+        assert different_profile.artifact_id == original.artifact_id
+        assert different_profile.manifest_profile_sha256 is not None
+        report = report.model_copy(update={"program_graph_ref": different_profile})
     else:
         treasury = _load(store, report.treasury_plan_ref, TreasuryPlan)
         manifest = store.get_manifest(report.treasury_plan_ref)
@@ -499,16 +748,15 @@ def test_actual_registered_dispatcher_consumes_versioned_node_seed(tmp_path, mon
         update={"nodes": [method_node if n.node_id == node.node_id else n for n in graph.nodes]}
     )
     report = _replace_graph(store, report, graph)
-    dispatcher = MethodDispatcher.get_instance()
-    original = dispatcher.dispatch
+    original = MethodDispatcher.dispatch
     observed = []
 
-    def observe(**kwargs):
-        result = original(**kwargs)
+    def observe(self, **kwargs):
+        result = original(self, **kwargs)
         observed.append((kwargs["seed"], result))
         return result
 
-    monkeypatch.setattr(dispatcher, "dispatch", observe)
+    monkeypatch.setattr(MethodDispatcher, "dispatch", observe)
     _execute(store, report, content)
     seed, result = observed.pop()
     key = jax.random.PRNGKey(17)
@@ -567,3 +815,96 @@ def test_native_skipped_prior_draw_cannot_move_versioned_node_stream(tmp_path):
     assert not np.array_equal(
         _execute(store, legacy, content, step=0), _execute(store, legacy, content, step=1)
     )
+
+
+@pytest.mark.parametrize("seed", [0, 17, -3])
+def test_source_qualified_unmarked_fixture_replays_current_public_executor(
+    tmp_path, monkeypatch, seed
+):
+    """Replay actual old-source bytes and draws, rather than editing a current plan's notes."""
+    import json
+    import tarfile
+
+    fixture_root = Path(__file__).resolve().parents[3] / "fixtures/foundry/historical_randomization"
+    metadata = json.loads((fixture_root / "unmarked_1980768_cpu.json").read_text())
+    assert metadata["source_commit"] == "198076863e143dea9f89f02734b13d50dae3eed5"
+    assert metadata["generated_today"] is True
+    assert metadata["retained_production_provenance"] is False
+    archive_path = fixture_root / metadata["archive"]["name"]
+    assert sha256(archive_path.read_bytes()).hexdigest() == metadata["archive"]["sha256"]
+    with tarfile.open(archive_path) as archive:
+        archive.extractall(tmp_path, filter="data")
+    case = next(item for item in metadata["cases"] if item["seed"] == seed)
+    store = FileSystemCAS(tmp_path / f"seed-{seed}" / "cas")
+    refs = {name: ArtifactRef.model_validate(value) for name, value in case["refs"].items()}
+    plan = _load(store, refs["exec_plan"], ExecPlan)
+    assert plan.random_seed == seed
+    assert plan.notes == case["old_plan_notes"]
+    assert not any(note.startswith("randomization:") for note in plan.notes)
+    snapshot = put_state_snapshot(store, state=_base_state(), step=0)
+    snapshot_ref = StateSnapshotRef(artifact_id=snapshot.artifact_id)
+    data_ref = store.put_json(
+        DataSnapshot(data_ref=snapshot_ref),
+        PutOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+    bindings = store.put_json(
+        FoundryInputBindings(
+            data_snapshot_ref=data_ref,
+            registry_bundle_ref=refs["registry_bundle"],
+            rules=[],
+            bound_state_snapshot_ref=snapshot_ref,
+        ),
+        PutOptions(
+            kind="foundry.input_bindings",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=FoundryInputBindings.ARTIFACT_SCHEMA_NAME,
+                version=FoundryInputBindings.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+    treasury_id = str(refs["treasury_plan"].artifact_id)
+
+    def guard_treasury_read(original):
+        def checked(self, ref, *args, **kwargs):
+            if str(getattr(ref, "artifact_id", ref)) == treasury_id:
+                pytest.fail("historical public execution tried to admit a versioned treasury")
+            return original(self, ref, *args, **kwargs)
+
+        return checked
+
+    monkeypatch.setattr(
+        FileSystemCAS, "get_manifest", guard_treasury_read(FileSystemCAS.get_manifest)
+    )
+    monkeypatch.setattr(FileSystemCAS, "get_bytes", guard_treasury_read(FileSystemCAS.get_bytes))
+    executed = execute_foundry(
+        store,
+        ExecuteRequest(
+            exec_plan_ref=ExecPlanRef.model_validate(refs["exec_plan"].model_dump()),
+            input_bindings_ref=FoundryInputBindingsRef(artifact_id=bindings.artifact_id),
+            registry_bundle_ref=refs["registry_bundle"],
+            exec_config=FoundryExecConfig(seed=seed, max_steps=1),
+            welfare_bound_mode="ex_ante",
+        ),
+    )
+    assert executed.ok, executed.notes
+    fresh = FileSystemCAS(tmp_path / f"seed-{seed}" / "cas")
+    simulation = _load(fresh, executed.simulation_result_ref, SimulationResult)
+    final = load_state_snapshot(fresh, snapshot_ref=simulation.state_snapshot_ref)
+    expected = case["expected_state"]
+    np.testing.assert_array_equal(
+        np.asarray(final.agents.income), np.asarray(expected["agents.income"], dtype=np.float32)
+    )
+    np.testing.assert_array_equal(
+        np.asarray(final.agents.reported_income),
+        np.asarray(expected["agents.reported_income"], dtype=np.float32),
+    )
+    np.testing.assert_array_equal(final.agents.active, expected["agents.active"])
+    assert float(final.government_balance) == expected["government.balance"]

@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
+import time
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -10,6 +15,7 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     ProducerInfo,
     PutOptions,
+    artifact_ref_for_manifest,
 )
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -26,7 +32,10 @@ from polisyos.scientist.orchestration.engine.checkpoint import (
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
-from polisyos.scientist.orchestration.engine.idempotency import NodeResultCache
+from polisyos.scientist.orchestration.engine.idempotency import (
+    NodeResultCache,
+    compute_idempotency_key,
+)
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -60,24 +69,229 @@ def test_cache_seed_deduplicates_exact_refs_and_does_not_mark_failed_load(
     )
 
     reads = 0
+    failed_manifest_attempts = 0
     original_get_bytes = store.get_bytes
+    original_get_raw_manifest_bytes = store.get_raw_manifest_bytes
 
     def counted_get_bytes(artifact_ref: ArtifactRef):
         nonlocal reads
         reads += 1
         return original_get_bytes(artifact_ref)
 
+    def counted_get_raw_manifest_bytes(artifact_ref: Any, **kwargs: Any) -> bytes:
+        nonlocal failed_manifest_attempts
+        if artifact_ref == missing_ref:
+            failed_manifest_attempts += 1
+        return original_get_raw_manifest_bytes(artifact_ref, **kwargs)
+
     monkeypatch.setattr(store, "get_bytes", counted_get_bytes)
-    restored = NodeResultCache(store, run_id=run_id).seed_from_entry_refs(
+    monkeypatch.setattr(store, "get_raw_manifest_bytes", counted_get_raw_manifest_bytes)
+    cache = NodeResultCache(store, run_id=run_id)
+    restored = cache.seed_from_entry_refs(
         [entry_ref] * 100 + [missing_ref] * 2,
     )
 
     assert restored == 1
-    assert reads == 3
+    # Current canonical admission rejects a missing manifest before payload I/O.
+    assert reads == 1
+    assert failed_manifest_attempts == 2
+    assert cache.seed_from_entry_refs([missing_ref]) == 0
+    assert failed_manifest_attempts == 3
+    assert reads == 1
 
     replay = NodeResultCache(store, run_id=run_id)
     assert replay.seed_from_entry_refs([missing_ref]) == 0
+    assert failed_manifest_attempts == 4
     assert not replay.has("a" * 64)
+
+
+def test_full_scan_recovery_reports_duplicate_and_distinct_workloads(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    record_property: Callable[[str, object], None],
+) -> None:
+    """Measure full scans through the first verified cache result, without an SLA."""
+    store = FileSystemCAS(tmp_path / "cas")
+    run_id = "R_res_01_full_scan_measurement"
+    ctx, _bundle_ref = _context(store, run_id)
+    writer = NodeResultCache(store, run_id=run_id)
+    refs: list[ArtifactRef] = []
+    keys = [f"{index + 1:064x}" for index in range(16)]
+    values = [index * index + 2 for index in range(16)]
+    try:
+        for key, value in zip(keys, values, strict=True):
+            branch = branch_state(
+                ExperimentState(run_id=run_id), write_paths=("params.measurement_value",)
+            )
+            branch.state.params["measurement_value"] = value
+            written_ref = writer.put(
+                key,
+                node_id="scientist.node_res_measurement@1.0.0",
+                outcome=NodeOutcome(status="ok", state=branch.state),
+            )
+            # Bind the actual immutable manifest selected by the owner, rather
+            # than assuming an ID-only producer handle is the eventual read ref.
+            ref = artifact_ref_for_manifest(store.get_manifest(written_ref))
+            assert ref.manifest_profile_sha256 is not None
+            refs.append(ref)
+            ctx.run.emit("res01.measurement", "NODE_CACHE_STORE", outputs=[ref])
+        source_lines = [
+            line
+            for line in ctx.run.trace_path.read_bytes().splitlines(keepends=True)
+            if json.loads(line).get("event") == "NODE_CACHE_STORE"
+        ]
+        assert len(source_lines) == len(refs) == len(set(keys)) == 16
+    finally:
+        ctx.run.suspend_for_resume()
+
+    # Setup reads are outside the timed interval. These real bytes supply the
+    # independent expected I/O denominator, not a second cache decoder.
+    payloads = {str(ref.artifact_id): store.get_bytes(ref) for ref in refs}
+    input_members = [
+        {
+            "ref": ref.model_dump(mode="json"),
+            "bytes": len(payloads[str(ref.artifact_id)]),
+            "sha256": hashlib.sha256(payloads[str(ref.artifact_id)]).hexdigest(),
+        }
+        for ref in refs
+    ]
+    original_open = Path.open
+    original_get_bytes = store.get_bytes
+    original_get_manifest = store.get_manifest
+    original_verify = store.verify
+
+    def measure_workload(name: str, copies: int) -> dict[str, Any]:
+        trace_path = tmp_path / f"{name}.jsonl"
+        trace_bytes = b"".join(source_lines) * copies
+        trace_path.write_bytes(trace_bytes)
+        checkpoint_refs = refs * copies
+        observed = {
+            "trace_open_calls": 0,
+            "trace_lines": 0,
+            "trace_bytes": 0,
+            "get_bytes_calls": 0,
+            "get_bytes_returned_bytes": 0,
+            "get_manifest_calls": 0,
+            "verify_calls": 0,
+        }
+        payload_reads: list[dict[str, Any]] = []
+
+        class MeasuredTrace:
+            def __init__(self, handle: Any) -> None:
+                self.handle = handle
+
+            def __enter__(self) -> Any:
+                self.handle.__enter__()
+                return self
+
+            def __exit__(self, *args: Any) -> Any:
+                return self.handle.__exit__(*args)
+
+            def __iter__(self) -> Any:
+                for line in self.handle:
+                    observed["trace_lines"] += 1
+                    observed["trace_bytes"] += len(line.encode("utf-8"))
+                    yield line
+
+        def measured_open(path: Path, *args: Any, **kwargs: Any) -> Any:
+            handle = original_open(path, *args, **kwargs)
+            if path == trace_path:
+                observed["trace_open_calls"] += 1
+                return MeasuredTrace(handle)
+            return handle
+
+        def measured_get_bytes(ref: ArtifactRef) -> bytes:
+            observed["get_bytes_calls"] += 1
+            payload = original_get_bytes(ref)
+            observed["get_bytes_returned_bytes"] += len(payload)
+            payload_reads.append(
+                {
+                    "ref": ref.model_dump(mode="json"),
+                    "bytes": len(payload),
+                    "sha256": hashlib.sha256(payload).hexdigest(),
+                }
+            )
+            return payload
+
+        def measured_get_manifest(ref: Any) -> Any:
+            observed["get_manifest_calls"] += 1
+            return original_get_manifest(ref)
+
+        def measured_verify(ref: Any) -> Any:
+            observed["verify_calls"] += 1
+            return original_verify(ref)
+
+        with monkeypatch.context() as measurement:
+            measurement.setattr(Path, "open", measured_open)
+            measurement.setattr(store, "get_bytes", measured_get_bytes)
+            measurement.setattr(store, "get_manifest", measured_get_manifest)
+            measurement.setattr(store, "verify", measured_verify)
+            restored = NodeResultCache(store, run_id=run_id)
+            started_ns = time.perf_counter_ns()
+            from_trace = restored.seed_from_trace(trace_path)
+            from_checkpoint = restored.seed_from_entry_refs(checkpoint_refs)
+            admission_ns = time.perf_counter_ns() - started_ns
+            admission_observed = dict(observed)
+            useful = restored.get(keys[0])
+            first_useful_ns = time.perf_counter_ns() - started_ns
+
+        assert from_trace == 16 and from_checkpoint == 0 and restored.size == 16
+        assert useful is not None and useful.state.params["measurement_value"] == values[0]
+        assert admission_observed["get_bytes_calls"] == 16
+        assert admission_observed["get_bytes_returned_bytes"] == sum(map(len, payloads.values()))
+        assert observed["get_bytes_calls"] == 17
+        assert observed["get_bytes_returned_bytes"] == (
+            sum(map(len, payloads.values())) + len(payloads[str(refs[0].artifact_id)])
+        )
+        assert payload_reads == [*input_members, input_members[0]]
+        assert observed["trace_open_calls"] == 1
+        assert observed["trace_lines"] == len(refs) * copies
+        assert observed["trace_bytes"] == len(trace_bytes)
+        assert observed["get_manifest_calls"] > 0 and observed["verify_calls"] > 0
+        assert 0 <= admission_ns <= first_useful_ns
+        # Validate the entire recovered index outside the first-result interval.
+        actual_values = []
+        for key in keys:
+            outcome = restored.get(key)
+            assert outcome is not None
+            actual_values.append(outcome.state.params["measurement_value"])
+        assert actual_values == values
+        return {
+            "workload": name,
+            "trace_path": str(trace_path),
+            "trace_sha256": hashlib.sha256(trace_bytes).hexdigest(),
+            "trace_records": len(refs) * copies,
+            "checkpoint_ref_occurrences": len(checkpoint_refs),
+            "unique_exact_refs": len(refs),
+            "admission": admission_observed,
+            "through_first_useful": observed,
+            "actual_payload_reads": payload_reads,
+            "full_scan_admission_ns": admission_ns,
+            "time_to_first_verified_cache_result_ns": first_useful_ns,
+            "accepted_values": actual_values,
+        }
+
+    rows = [measure_workload("distinct_refs", 1), measure_workload("duplicate_heavy", 100)]
+    record_property(
+        "res01_full_scan_measurement",
+        json.dumps(
+            {
+                "backend": "FileSystemCAS; current embedded-outcome cache entries",
+                "first_useful": "first verified numerical NodeResultCache.get after both full scans",
+                "inputs": input_members,
+                "workloads": rows,
+                "unresolved_by_construction": [
+                    "No fresh-process, residual-node or end-to-end resume latency claim",
+                    "Setup and final full-index validation excluded from timing",
+                    "Elapsed time includes measurement overhead; no uninstrumented comparison",
+                    "Manifest/verify counts include nested API calls, not unique physical reads",
+                    "Returned payload/trace bytes exclude manifest bytes, verify internal I/O and OS cache",
+                    "Synthetic 16-entry profile; no SLA, tail optimization or speedup claim",
+                ],
+            },
+            sort_keys=True,
+        ),
+    )
 
 
 def test_cache_seed_does_not_mix_different_content_under_same_key(
@@ -319,8 +533,10 @@ def _resume_registry() -> NodeRegistry:
     return registry
 
 
-def _context(store: FileSystemCAS, run_id: str) -> tuple[ExecutionContext, object]:
-    bundle = build_default_registry_bundle(store)
+def _context(
+    store: FileSystemCAS, run_id: str, *, selected_profile: bool = False
+) -> tuple[ExecutionContext, object]:
+    bundle = build_default_registry_bundle(store, return_selected_profile=selected_profile)
     run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id=run_id)
     return ExecutionContext(
         store=store, run=run, logger=logging.getLogger("res_01")
@@ -336,6 +552,7 @@ def _write_known_successful_frontier_checkpoint(
     completed_node_id: str,
     completed_nodes: list[str],
     workflow: WorkflowSpec,
+    cache_entry_ref: ArtifactRef | None = None,
 ) -> CheckpointWriteResult:
     """Persist a successful test frontier through the canonical checkpoint hook."""
     hook = CASCheckpointHook(store=store, run_dir=run_dir)
@@ -348,7 +565,7 @@ def _write_known_successful_frontier_checkpoint(
         completed_nodes=completed_nodes,
         workflow_id=workflow.workflow_id,
         workflow_fingerprint=compute_workflow_fingerprint(workflow),
-        cache_entry_ref=None,
+        cache_entry_ref=cache_entry_ref,
     )
     assert result is not None
     return result
@@ -490,6 +707,92 @@ def test_allow_replay_rebuilds_completed_nodes_for_missing_state(tmp_path: Path)
 
     assert resumed.report.status == "ok"
     assert [record.alias for record in resumed.report.nodes] == ["a", "b", "c"]
+
+
+def test_allow_replay_restart_publishes_only_new_frontier(tmp_path: Path) -> None:
+    class ReplayInterrupted(BaseException):
+        pass
+
+    class InterruptOnceNode(_ResumeNode):
+        def execute(self, _ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+            self.invocations += 1
+            if self.invocations == 1:
+                raise ReplayInterrupted()
+            return self._finish(state)
+
+    store = FileSystemCAS(tmp_path)
+    workflow = _resume_workflow()
+    registry = _resume_registry()
+    registry.register(
+        InterruptOnceNode(node_id="scientist.node_res_b@1.0.0", name="B", read_path="params.a"),
+        override=True,
+    )
+    run_id = "R_res_01_replay_frontier"
+    original_state = ExperimentState(run_id=run_id, params={"a": 1})
+    node_a = registry.get(ComponentId.parse("scientist.node_res_a@1.0.0"))
+    cached_branch = branch_state(original_state, write_paths=("params.a",))
+    cached_branch.state.params["a"] = 11
+    matching_cache_ref = NodeResultCache(store, run_id=run_id).put(
+        compute_idempotency_key(node_a.spec, original_state),
+        node_id="scientist.node_res_a@1.0.0",
+        outcome=NodeOutcome(status="ok", state=cached_branch.state),
+    )
+    _write_known_successful_frontier_checkpoint(
+        store,
+        run_dir=tmp_path / "runs" / run_id,
+        state=original_state,
+        completed_node_alias="b",
+        completed_node_id="scientist.node_res_b@1.0.0",
+        completed_nodes=["a", "b"],
+        workflow=workflow,
+        cache_entry_ref=matching_cache_ref,
+    )
+    ctx, bundle_ref = _context(store, run_id, selected_profile=True)
+    ctx.run.suspend_for_resume()
+    with pytest.raises(ReplayInterrupted):
+        resume_from_checkpoint(
+            store,
+            run_id,
+            workflow=workflow,
+            registry=registry,
+            registry_bundle_ref=bundle_ref,
+            resume_strategy="allow_replay",
+        )
+    latest = resolve_latest_checkpoint(store, run_id)
+    assert latest is not None
+    assert latest[1].metadata.completed_nodes == ["a"]
+    assert matching_cache_ref in latest[1].metadata.cache_entry_refs
+    assert latest[1].metadata.origin_workflow_fingerprint == compute_workflow_fingerprint(workflow)
+    assert node_a.invocations == 0
+
+    registry.get(ComponentId.parse("scientist.node_res_c@1.0.0")).fail_once = False
+    resumed = resume_from_checkpoint(
+        store, run_id, workflow=workflow, registry=registry, registry_bundle_ref=bundle_ref
+    )
+    assert resumed.report.status == "ok"
+    assert resumed.state.params["a"] == 11
+    assert [record.alias for record in resumed.report.nodes] == ["b", "c"]
+
+
+def test_strict_budget_executor_refuses_fake_owner_before_dispatch(tmp_path: Path) -> None:
+    from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
+
+    class FakeBudgetOwner:
+        invocation_settlement_profile = "single_owner_local_v1"
+
+    store = FileSystemCAS(tmp_path)
+    ctx, _ = _context(store, "R_fake_budget_owner")
+    registry = _resume_registry()
+    with pytest.raises(ValueError, match="strict_budget_attempts_profile_not_established"):
+        AsyncWorkflowExecutor(
+            ctx,
+            registry,
+            budget_middleware=FakeBudgetOwner(),
+            max_parallelism=1,
+            strict_budget_attempts=True,
+        )
+    assert all(registry.get(node.node_id).invocations == 0 for node in _resume_workflow().nodes)
+    ctx.run.suspend_for_resume()
 
 
 def test_changed_functional_input_remains_incompatible_with_checkpoint(tmp_path: Path) -> None:

@@ -1331,7 +1331,11 @@ def evaluate_benchmark(
     recomputation of the metrics it claims.
     """
     thresholds = readiness_thresholds_for_profile(config.run_profile)
-    graph = DatasetCatalogGraph(db_path=config.db_path, index_dir=config.index_dir)
+    graph = DatasetCatalogGraph(
+        db_path=config.db_path,
+        index_dir=config.index_dir,
+        embedding_model=config.embedding_model,
+    )
     con = duckdb.connect(str(config.db_path), read_only=True)
     try:
         active_suite = _benchmark_suite_for_snapshot(con, suite)

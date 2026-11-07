@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sys
 import threading
 from pathlib import Path
 from typing import Any
@@ -10,6 +11,7 @@ from typing import Any
 import pytest
 
 from polisyos.core.artifacts import _integrity_ops as integrity_ops
+from polisyos.core.artifacts import signing as signing_module
 from polisyos.core.artifacts import store as store_module
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.signing import (
@@ -38,23 +40,21 @@ def _valid_result(artifact_id: ArtifactID) -> SignatureVerificationResult:
     )
 
 
-def probe_default_inventory_cancellation_stops_member_name_walk(
+def test_default_inventory_cancellation_stops_member_name_walk(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
     """Removal probe: cancellation must stop an in-progress CAS name walk.
 
-    This helper is called only by a separate scratch pytest leaf. It is not
-    collected in the normal CAS-03 file cohort. It signals cancellation from
+    This native witness signals cancellation from
     the first actual CAS-root ``scandir`` call and then records any later scan
-    calls; the standalone probe is expected to fail until the owner can
-    interrupt its authenticated name census.
+    calls. The authenticated census must stop before a second scan.
     """
     store = FileSystemCAS(tmp_path / "cas")
     cancel_event = threading.Event()
     visited_prefixes: set[str] = set()
     candidate_index = 0
-    while len(visited_prefixes) < 3:
+    while len(visited_prefixes) < 24:
         ref = store.put_bytes(
             f"cas-03-cancelled-name-walk-{candidate_index}".encode(),
             PutOptions(kind="cas03.inventory", media_type="application/octet-stream"),
@@ -89,6 +89,10 @@ def probe_default_inventory_cancellation_stops_member_name_walk(
         cancel_event=cancel_event,
     )
 
+    assert report.state == "aborted"
+    assert report.abort_reason == "cancelled"
+    assert report.inventory_exhausted is False
+    assert report.admitted == report.finished == 0
     assert report.errors == 1
     assert report.details[-1].artifact_id == "<batch>"
     assert cancellation_observed
@@ -117,6 +121,8 @@ def test_verify_signature_reuses_one_loaded_blob_and_manifest_snapshot(
 
     reads = {"blob": 0, "manifest": 0}
     integrity_hashes = 0
+    crypto_hashes = 0
+    original_crypto_hash = signing_module.hash_bytes
     original_read_bytes = Path.read_bytes
     original_read_text = Path.read_text
     original_member_reader = store._read_cas_file_no_follow
@@ -166,6 +172,12 @@ def test_verify_signature_reuses_one_loaded_blob_and_manifest_snapshot(
         integrity_hashes += 1
         return original_integrity_content_hash(data, *args, **kwargs)
 
+    def counted_crypto_hash(data: bytes) -> str:
+        nonlocal crypto_hashes
+        crypto_hashes += 1
+        return original_crypto_hash(data)
+
+    monkeypatch.setattr(signing_module, "hash_bytes", counted_crypto_hash)
     monkeypatch.setattr(Path, "read_bytes", counted_read_bytes)
     monkeypatch.setattr(Path, "read_text", counted_read_text)
     monkeypatch.setattr(store, "_read_cas_file_no_follow", counted_member_reader)
@@ -183,6 +195,7 @@ def test_verify_signature_reuses_one_loaded_blob_and_manifest_snapshot(
     assert member_reads == {"blob": 1, "manifest": 1, "signature": 1}
     assert reads == {"blob": 0, "manifest": 0}
     assert integrity_hashes == 1
+    assert crypto_hashes == 2, "cryptographic verifier must check its own blob/manifest bindings"
 
 
 def test_verify_signature_records_corrupt_manifest_and_preserves_valid_control(
@@ -566,8 +579,8 @@ def test_default_batch_path_stops_lazy_inventory_on_cancellation(
     )
     original_inventory = store._iter_artifact_ids_lazy
 
-    def lazy_inventory():
-        for artifact_id in original_inventory():
+    def lazy_inventory(**kwargs):
+        for artifact_id in original_inventory(**kwargs):
             yielded.append(artifact_id)
             yield artifact_id
 
@@ -881,3 +894,234 @@ def test_default_and_explicit_bulk_reads_keep_foreign_tenant_bytes_unread(
     assert explicit_report.errors == 1
     assert explicit_report.details[0].artifact_id == str(tenant_b_ref.artifact_id)
     assert blob_reads == 0
+
+
+@pytest.mark.parametrize("tamper", ["blob", "size", "manifest", "signature", "profile"])
+def test_native_signature_tamper_is_refused_without_invalidating_valid_sibling(
+    tmp_path: Path, tamper: str
+) -> None:
+    """Real Ed25519 plus selected CAS custody rejects corrupted physical input."""
+    store = FileSystemCAS(tmp_path / "cas")
+    key = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(key.private_pem())
+    verifier = Ed25519Verifier()
+    verifier.add_trusted_key(key.public_key, key_id=key.key_id)
+    refs = [
+        store.put_bytes(
+            data, PutOptions(kind="cas03.crypto", media_type="application/octet-stream")
+        )
+        for data in (b"target-payload", b"valid-sibling")
+    ]
+    for ref in refs:
+        store.sign_artifact(ref, signer, signer_identity="cas03")
+    target, sibling = refs
+    assert store.verify_signature(target, verifier).status == SignatureVerificationStatus.VALID
+    manifest_path = store._manifest_path_for_ref(target.artifact_id, target.manifest_profile_sha256)
+    if tamper == "blob":
+        store._paths(target.artifact_id)[0].write_bytes(b"corrupt-payload")
+    elif tamper in {"size", "manifest", "profile"}:
+        manifest = json.loads(manifest_path.read_bytes())
+        if tamper == "size":
+            manifest["byte_size"] += 1
+        elif tamper == "manifest":
+            manifest["artifact_id"] = str(sibling.artifact_id)
+        else:
+            manifest["kind"] = "cas03.same-shape-wrong-profile"
+        manifest_path.write_text(json.dumps(manifest))
+    else:
+        path = store._sig_path(target.artifact_id, target.manifest_profile_sha256)
+        signature = json.loads(path.read_bytes())
+        signature["signature_hex"] = "00" * 64
+        path.write_text(json.dumps(signature))
+    refused = store.verify_signature(target, verifier)
+    assert refused.status in {
+        SignatureVerificationStatus.ERROR,
+        SignatureVerificationStatus.INVALID,
+    }
+    assert (
+        FileSystemCAS(store.root).verify_signature(sibling, verifier).status
+        == SignatureVerificationStatus.VALID
+    )
+
+
+@pytest.mark.parametrize("compress", [False, True])
+def test_scoped_signed_views_survive_transfer_and_current_trust_is_rechecked(
+    tmp_path: Path, compress: bool
+) -> None:
+    """I06-D's real signed A/B views remain exact through a fresh CAS reader."""
+    source = FileSystemCAS(tmp_path / "source", tenant_id="tenant-cas03", cell_id="cell-cas03")
+    key = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(key.private_pem())
+    verifier = Ed25519Verifier(strict_identity=True)
+    verifier.add_trusted_key(key.public_key, key_id=key.key_id, identity="cas03")
+    refs = [
+        source.put_bytes(
+            b"one blob, two signed selected views",
+            PutOptions(kind=kind, media_type="application/octet-stream"),
+            return_selected_profile=True,
+        )
+        for kind in ("cas03.view-a", "cas03.view-b")
+    ]
+    for ref in refs:
+        source.sign_artifact(ref, signer, signer_identity="cas03")
+    assert refs[0].artifact_id == refs[1].artifact_id
+    assert refs[0].manifest_profile_sha256 != refs[1].manifest_profile_sha256
+    package = tmp_path / ("export.tar.gz" if compress else "export")
+    source.export_subgraph(refs, package, compress=compress)
+    receiver = FileSystemCAS(tmp_path / "receiver", tenant_id="tenant-cas03", cell_id="cell-cas03")
+    report = receiver.import_subgraph(package, verify_integrity=True)
+    assert not report.verification_failed
+    fresh = FileSystemCAS(receiver.root, tenant_id="tenant-cas03", cell_id="cell-cas03")
+    for ref in refs:
+        assert fresh.get_manifest_bytes(ref) == source.get_manifest_bytes(ref)
+        assert fresh.get_signature_bytes(ref) == source.get_signature_bytes(ref)
+        assert fresh.verify_signature(ref, verifier).status == SignatureVerificationStatus.VALID
+        assert (
+            fresh.verify_signature(ref, Ed25519Verifier()).status
+            == SignatureVerificationStatus.UNTRUSTED
+        )
+    verifier.add_revoked_key_id(key.key_id)
+    for ref in refs:
+        assert fresh.verify_signature(ref, verifier).status == SignatureVerificationStatus.REVOKED
+
+
+@pytest.mark.parametrize("phase", ["visibility", "recheck"])
+@pytest.mark.parametrize("operation", ["verify", "sign"])
+def test_native_default_stop_reaches_visibility_and_exhaustion_recheck(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, phase: str, operation: str
+) -> None:
+    """Cancellation is observed inside owner membership and final scanner work."""
+    store = FileSystemCAS(tmp_path / "cas", tenant_id="cas03", cell_id="cell03")
+    refs = [
+        store.put_bytes(
+            f"cas03-hidden-stop-{index}".encode(),
+            PutOptions(kind="cas03.stop", media_type="application/octet-stream"),
+        )
+        for index in range(8)
+    ]
+    key = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(key.private_pem())
+    verifier = Ed25519Verifier()
+    cancel = threading.Event()
+    seen_after_cancel = []
+    count = 0
+    if phase == "visibility":
+        original = store._ownership_index.is_owned_by
+
+        def observe_visibility(*args, **kwargs):
+            nonlocal count
+            if cancel.is_set():
+                seen_after_cancel.append(args)
+            result = original(*args, **kwargs)
+            count += 1
+            cancel.set()
+            return result
+
+        monkeypatch.setattr(store._ownership_index, "is_owned_by", observe_visibility)
+    else:
+        original_capture = store._capture_default_inventory_state
+
+        def observe_capture(**kwargs):
+            nonlocal count
+            count += 1
+            if count == 2:
+                cancel.set()
+            return original_capture(**kwargs)
+
+        monkeypatch.setattr(store, "_capture_default_inventory_state", observe_capture)
+    options = {"max_workers": 1, "pending_window": 2, "cancel_event": cancel}
+    report = (
+        store.verify_all_signatures(verifier, **options)
+        if operation == "verify"
+        else store.sign_all_artifacts(signer, **options)
+    )
+    assert count == (1 if phase == "visibility" else 2)
+    assert seen_after_cancel == []
+    assert report.state == "aborted"
+    assert report.abort_reason == "cancelled"
+    assert report.inventory_exhausted is False
+    assert report.admitted == report.finished == (0 if phase == "visibility" else len(refs))
+
+
+def test_real_batch_reports_pending_and_n_dependent_retained_memory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Measure selected real batch containers, without claiming total O(1) RAM."""
+    store = FileSystemCAS(tmp_path / "cas")
+    key = KeyPair.generate()
+    signer = Ed25519Signer.from_pem(key.private_pem())
+    verifier = Ed25519Verifier()
+    verifier.add_trusted_key(key.public_key, key_id=key.key_id)
+    refs = [
+        store.put_bytes(
+            f"memory-row-{i}".encode(), PutOptions(kind="cas03.memory", media_type="text/plain")
+        )
+        for i in range(64)
+    ]
+    for ref in refs:
+        store.sign_artifact(ref, signer)
+    original_iterator = store_module._iter_canonical_artifact_ids
+    original_verify = store.verify_signature
+    measurements = []
+
+    def measure(count):
+        peak_seen_bytes = 0
+        consumed = finished = peak_pending = 0
+        lock = threading.Lock()
+
+        def measured_iterator(*args, **kwargs):
+            nonlocal peak_seen_bytes
+            iterator = original_iterator(*args, **kwargs)
+            for artifact_id in iterator:
+                seen = iterator.gi_frame.f_locals["seen"]
+                peak_seen_bytes = max(
+                    peak_seen_bytes, sys.getsizeof(seen) + sum(sys.getsizeof(item) for item in seen)
+                )
+                yield artifact_id
+
+        def source():
+            nonlocal consumed, peak_pending
+            for ref in refs[:count]:
+                with lock:
+                    consumed += 1
+                    peak_pending = max(peak_pending, consumed - finished)
+                yield ref.artifact_id
+
+        def verify_one(*args, **kwargs):
+            nonlocal finished
+            result = original_verify(*args, **kwargs)
+            with lock:
+                finished += 1
+            return result
+
+        monkeypatch.setattr(store_module, "_iter_canonical_artifact_ids", measured_iterator)
+        monkeypatch.setattr(store, "verify_signature", verify_one)
+        report = store.verify_all_signatures(
+            verifier, artifact_ids=source(), max_workers=2, pending_window=4
+        )
+        assert report.state == "complete"
+        assert report.valid == report.finished == count
+        assert peak_pending <= 4
+        row_bytes = sys.getsizeof(report.details) + sum(
+            sys.getsizeof(row) + sys.getsizeof(row.__dict__) for row in report.details
+        )
+        measurements.append(
+            {
+                "N": count,
+                "peak_pending": peak_pending,
+                "seen_container_and_keys_bytes": peak_seen_bytes,
+                "report_list_and_rows_shallow_bytes": row_bytes,
+            }
+        )
+
+    measure(16)
+    measure(64)
+    assert (
+        measurements[1]["seen_container_and_keys_bytes"]
+        > measurements[0]["seen_container_and_keys_bytes"]
+    )
+    assert (
+        measurements[1]["report_list_and_rows_shallow_bytes"]
+        > measurements[0]["report_list_and_rows_shallow_bytes"]
+    )
+    print(json.dumps({"native_batch_memory_measurements": measurements}, sort_keys=True))

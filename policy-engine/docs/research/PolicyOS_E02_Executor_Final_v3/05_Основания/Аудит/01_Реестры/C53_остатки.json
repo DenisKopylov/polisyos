@@ -1,0 +1,69 @@
+{
+  "pass": "C53",
+  "bundle": "CAU-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C53-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B207",
+        "B208",
+        "B209"
+      ],
+      "title": "Native job/CAS/RNG injection и supported dependency profile не исполнены",
+      "evidence": [
+        "S08",
+        "S09",
+        "S10:462–558",
+        "S10:584–651",
+        "S11",
+        "P01",
+        "P08",
+        "P11",
+        "native_attempt.log",
+        "native_did_import.log"
+      ],
+      "remaining": "На поддержанной среде выполнить существующие focused/native consumer/CAS tests и полный declared producer→registry/dispatcher→persisted source/result→fresh reader маршрут, сохраняя target и diagnostic reconciliation.",
+      "limits": "18 bodies/37 cases — isolated AST с explicit helper seams. Pytest отсутствует; ordinary import остановлен Python 3.14 syntax under Python 3.12. Actual extracted readers исполнены, но job source loading, CAS и EvalSafety не подменяются этим PASS."
+    },
+    {
+      "id": "C53-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B207",
+        "B208"
+      ],
+      "title": "Квалифицирован конечный iid-unit scalar профиль, не все designs или номинальное покрытие",
+      "evidence": [
+        "S01:716–998",
+        "S09:237–274",
+        "P02–P06",
+        "P08",
+        "bounded_DGP.json"
+      ],
+      "remaining": "Проверять применимость independent panel-unit sampling и заранее заданного scalar target для фактических данных. Для иных assignment/spatial clusters, shared shocks, simultaneous bands или target populations расширять существующий method только по конкретному обоснованному контракту. Сохранять point-only отказ при degenerate influence.",
+      "limits": "160 fixed DGP repetitions дали 6 null rejections,154/160 null coverage,160/160 power,154/160 alternative coverage; existing binomial bounds пройдены. Это не общий nominal coverage theorem и не независимая аттестация всех Callaway–Sant’Anna implementations. theta_sel намеренно отличается от прежнего cell-size weighted target."
+    },
+    {
+      "id": "C53-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B209"
+      ],
+      "title": "Корректное eligibility правило не устанавливает эмпирическую длину anticipation и causal identification",
+      "evidence": [
+        "S01:526–694",
+        "S01:851–894",
+        "P07",
+        "P10",
+        "P11"
+      ],
+      "remaining": "Сохранять anticipation, fixed cohort/period window и unsupported-cell gaps как явные inputs/limits. Обосновывать window и untreated-potential-outcome предпосылки для реального исследования; не использовать LLM proposal, synthetic effect или pretrend nonrejection как empirical authority.",
+      "limits": "Boundary g=t+a, never-treated, zero anticipation и missing-baseline/no-control paths проверены finite controls. Недоступные cells вызывают точный refusal, а не silent target shrink. Native authority chain не исполнялась."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "Готовые ATT cells больше не bootstrap sampling units; общий unit influence включает оценённые cohort shares, H0 и CI используют одну finite-B inversion, anticipation eligibility исправлена. Нового R не установлено; native/general scientific qualification открыта."
+}

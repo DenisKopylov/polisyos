@@ -1,0 +1,243 @@
+{
+  "reviewer": "generalization",
+  "status": "completed_read_only_review_NOT_PRODUCT_VALIDATION",
+  "id_merge_note": "GEN-01 overlaps parent independently identified X03 freeze proposal; merge into one final requirement/test change.",
+  "findings": [
+    {
+      "id": "GEN-01",
+      "title": "Операционализировать существующий запрет leakage: freeze перед bounded transfer witness",
+      "classification": "targeted_evidence_contract_clarification",
+      "severity": "medium",
+      "blocking_scope": "Только самостоятельный claim о переносимости/free-grow после расширения; не блокирует local repair, synthetic candidate или квалификацию известного механизма.",
+      "packets": [
+        "CYC-01",
+        "CYC-03",
+        "REQ-01",
+        "ACQ-01"
+      ],
+      "requirements": [
+        "E02-GREQ-10",
+        "REQ-CYC-01-07",
+        "REQ-CYC-03-06",
+        "REQ-REQ-01-07",
+        "REQ-ACQ-01-05"
+      ],
+      "tests": [
+        "TEST-CYC-01-06",
+        "TEST-CYC-03-06",
+        "TEST-REQ-01-04",
+        "TEST-ACQ-01-05"
+      ],
+      "scenarios": [
+        "E02-X03"
+      ],
+      "bindings": [
+        "BIND-X03-E01"
+      ],
+      "faulty_proposition": "Два содержательно разных известным исполнителю случая с общим generic кодом и независимыми numerical oracles достаточны как независимое свидетельство transfer после заморозки реализации. Текущий MD не задаёт такую заморозку; JSON уже запрещает эту переинтерпретацию, но не делает её процедурно проверяемой.",
+      "evidence": [
+        "P/03_Интеграция/Практическая_расширяемость.md:23–33: второй случай, общие primitives, manual ledger, general code allowed, limited portability; нет freeze/independent selection sequence.",
+        "P/03_Интеграция/Сценарии.json global_rules[2] уже требует independently selected held-out для domain practical validation; cross_lane_stories[E02-X03].negative_oracle уже запрещает handmade second profile как independent generalization.",
+        "P/05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md:559–616: bounded mechanism claim, frozen-system held-out falsifier. Направление, не implemented authority."
+      ],
+      "counterexample": "Исполнитель знает оба примера и настраивает общий ranking/template mechanism под их структуру. Нет if-case-ID и оба analytical oracle верны, resource registration проходит. Третий совместимый structural recombination после заморозки не получается: mechanism умеет только выбранный разработчиком набор templates. Это класс ложного обобщения, не обнаруженный дефект данного исходного кода. Текущий JSON запрещает назвать это independent generalization; не хватает наблюдаемого критерия, отделяющего разработку от validation.",
+      "alternatives": [
+        "Оставить два известных development examples и не делать independent-transfer claim. Это законный limited repair outcome.",
+        "Огромный скрытый benchmark всех доменов: отвергнуть как несоразмерный.",
+        "Уточнить existing X03 без нового engine/registry."
+      ],
+      "preferred_solution": "В X03 разделить development и verification. После generic extension зафиксировать relevant code/grammar/adapter/version/profile-schema hashes; независимый reviewer выбирает ранее не использованный совместимый случай, отличающийся композиционной структурой/контрастом/временной постановкой. Разрешены типизированные предметные данные, model/policy IR из существующих primitives в замороженной schema и новые compatible resources через existing owner; router/decoder/operator semantics также frozen. Arbitrary Python/callback внутри YAML считается новым кодом, не data-only. Запрещены новый callable/answer table/routing rule. При требуемой новой семантике записать capability gap, разрешить generic development, затем новый freeze и свежий heldout.",
+      "replacement_requirement": "Для заявления самостоятельной ограниченной переносимости E02-X03 фиксирует relevant executable/configuration boundary до выбора verification case. Case и independent oracle выбираются независимо от настройки этой boundary. Все изменения после freeze перечисляются; разрешённые data/resource inputs проходят existing typed contracts. Изменение общих primitives переводит этот case в development и требует нового ранее не использованного verification case. Ручной authored profile допустим для wiring/mechanism evidence, но не выдаётся за autonomous formulation.",
+      "replacement_test": "Сохранить freeze manifest и время/порядок выбора case; провести development-case positive, один heldout compatible-resource/composition positive, один out-of-profile typed limitation и одно deciding-input изменение. Проверить actual producer→persist→fresh consumer и semantic oracle, отсутствие case dispatch/hidden executable in profile, diff/manual/cost ledger. Independent oracle не импортирует numerical evaluator под проверкой. Не считать heldout PASS доказательством всех доменов.",
+      "shared_owner": "Существующий E02-X03 story/test owners; parent объединяет этот proposal со своим совпадающим X03 finding, не дублирует обязательства.",
+      "tradeoffs": "Небольшая дополнительная организационная процедура; не требует live LLM/платной API или запрещения domain parameters. Case selection должен быть ограничен заранее объявленным supported envelope, иначе результат честно показывает новое развитие, а не regression.",
+      "preservation_risks": [
+        "Не запретить новый общий код для действительно новой семантики.",
+        "Не выдать ручную model construction за автономную постановку.",
+        "Не переносить full X03 на каждый локальный numerical fix."
+      ],
+      "validation_plan": "Read-only diff audit plus future selected actual X03 run; record freeze, typed additions, independent case/oracle, exact commands/profile and limitations.",
+      "uncertainty": "Обнаружен пробел операционализации, не факт runtime overfitting. Все tests NOT_RUN. JSON уже содержит правильную принципиальную границу.",
+      "sources": [
+        "P/03_Интеграция/Практическая_расширяемость.md",
+        "P/03_Интеграция/Сценарии.json",
+        "P/04_Трассировка/Связь_требований_с_интеграцией.json",
+        "P/05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md"
+      ]
+    },
+    {
+      "id": "GEN-02",
+      "title": "Для cross-lane discovery claim связать известный допустимый ресурс с actual query→discovery→consumer, не только direct injection",
+      "classification": "conditional_capability_qualification_recommendation",
+      "severity": "medium_conditional",
+      "blocking_scope": "Только claim, что полезная способность обнаруживается из ordinary request в объявленном envelope; не установлен новый packet defect и не требуется NLP во всех ветвях.",
+      "packets": [
+        "REQ-01",
+        "ACQ-01",
+        "CYC-01",
+        "DFK-02",
+        "DFI-03"
+      ],
+      "requirements": [
+        "E02-GREQ-02",
+        "E02-GREQ-10",
+        "REQ-REQ-01-04",
+        "REQ-REQ-01-07"
+      ],
+      "tests": [
+        "TEST-REQ-01-04"
+      ],
+      "scenarios": [
+        "E02-X01",
+        "E02-X03",
+        "E02-I01-B",
+        "E02-I08-A"
+      ],
+      "faulty_proposition": "Успешная регистрация/прямое разрешение explicit construct автоматически доказывают достаточную recall и отсутствие false abstention в пользовательском discovery path. Это разные свойства, и source owners уже различают их.",
+      "evidence": [
+        "P/02_Пакеты/REQ-01.md:47–61,85–92: explicit constructs and generic governed resolver are positive path; lexical proposals not authority.",
+        "P/05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md:201–230 explicitly distinguishes discoverable/executable/admitted and requires recall/freshness.",
+        "R/src/polisyos/runtime/quality/capability_discovery.py:1040–1125,2158–2188: source-profile snapshot search uses all query+construct terms; declared bounded lexical contract, not proof of semantic completeness.",
+        "Existing R/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py:1867–1962 and tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py:905–960 already implement known-seed/freshness checks. G5 conversion tests:1995–2025 distinguish search ceiling from domain ceiling."
+      ],
+      "counterexample": "Compatible resource is present/current and callable, but user query contains extra ordinary words absent from its owner-projected label/description. Direct explicit-construct witness succeeds; all-term lexical search can return no match. This is correct lexical behavior, but a consumer incorrectly treating it as evidence that no applicable capability exists would overclaim. No such erroneous consumer execution is established here.",
+      "alternatives": [
+        "Explicit-construct-only bounded claim: retain and name it.",
+        "New global semantic-search/NLP framework: not justified.",
+        "Reuse current search frontier/known-seed freshness owners with finite actual request→query coverage for the selected story."
+      ],
+      "preferred_solution": "When X03 claims automatic discovery, choose a small independently enumerated set of known-groundable resources and current query contract; include irrelevant terms/distractors only where promised normalization supports them, hard-negative near match, newly added compatible row and withdrawn/stale row. Test actual query construction and downstream selected-resource execution. Separate retrieval miss, unsupported language, budget cutoff, stale index and true absence.",
+      "replacement_requirement": "В выбранном E02-X03 discovery envelope positive проверяется от actual supported request/query, а не только injected resource ref. Known-groundable denominator задаётся независимо от возвращённых hits. Отсутствие lexical match/лимит поиска не повышается до domain incapability; существующие recall/freshness owners используются без параллельной status system.",
+      "replacement_test": "До добавления R_new запрос не получает R_new; после штатного publication/refresh при неизменном core тот же semantic request получает R_new и actual consumer использует его. Distractor сходен названием, но не scope/role; wrong resource не admitted. Withdrawal меняет current answer только зависимого result. Независимый ресурс остаётся доступен. При injected retrieval miss test fails positive rather than reports successful honest refusal.",
+      "shared_owner": "Existing compiler/resolver, capability discovery/frontier and G*/GL proving-ground owners; scenario evidence join only.",
+      "tradeoffs": "Более слабый explicit-construct envelope совершенно законен. Synonym/language robustness не требуются без соответствующего product promise. Existing seed checks cannot automatically certify all other provider paths.",
+      "preservation_risks": [
+        "Не смешивать resource discovery с authority admission.",
+        "Не считать hardcoded test seeds runtime capability whitelist.",
+        "Не считать lexical AND сам по себе багом."
+      ],
+      "validation_plan": "Future selected-owner witness on existing profile, known positive and hard negative, actual snapshot identity/currentness and consumer read; no live provider needed for wiring claim.",
+      "uncertainty": "Packet-level reviewers may already identify equivalent local assertion. Then bind existing evidence, do not duplicate it. This review has not exhaustively read all discovery test bodies.",
+      "sources": [
+        "P/03_Интеграция/Сценарии.json",
+        "P/02_Пакеты/REQ-01.md",
+        "R/src/polisyos/runtime/quality/capability_discovery.py",
+        "R/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py"
+      ]
+    },
+    {
+      "id": "GEN-03",
+      "title": "Стоимость free-grow: workload qualifier прежде оптимизации small registry",
+      "classification": "optimization_measurement_suggestion",
+      "severity": "low",
+      "blocking_scope": "Не блокирует current repair или утверждение о малом bounded corpus. Требуется для заявлений о дешёвом росте/масштабировании.",
+      "packets": [
+        "REQ-01",
+        "ACQ-01",
+        "CYC-01"
+      ],
+      "requirements": [
+        "E02-GREQ-10"
+      ],
+      "tests": [],
+      "scenarios": [
+        "E02-X03"
+      ],
+      "bindings": [
+        "BIND-X03-E01"
+      ],
+      "faulty_proposition": "Two-case lower manual effort and no case switch imply bounded compute/memory cost as compatible corpus grows. They do not; but source scan is not itself suboptimal at current cardinality.",
+      "evidence": [
+        "R/src/polisyos/runtime/quality/capability_resolver.py:464–506 fetches all rows in optional DuckDB constructor;553–577 loops all capabilities per construct.",
+        "R/src/polisyos/runtime/quality/generation_cycle.py:10152–10174 actual fallback calls governed_fixture, not shown DuckDB constructor.",
+        "Governed artifact architecture/policy_design_case/layer2_s3_governed_capability_rows.json: parsed cardinality3 capabilities,3 strategies,1 failure; size11 688 bytes.",
+        "BIND-X03-E01 already requires code/manual/compute/cost comparison without invented SLA."
+      ],
+      "counterexample": "A mechanism may correctly handle two tiny cases but reparse an enlarged registry for every construct or repeat expensive evaluator calls after equal input. Tiny acceptance remains green while growth makes it impractical. No performance failure measured here; same-value replay controls already catch several repeated-computation bugs.",
+      "alternatives": [
+        "Keep current scan for small immutable snapshot.",
+        "Build normalized-construct map once per snapshot if repeated scans measured dominant.",
+        "Push selective filtering into existing DuckDB owner only after measured persisted corpus use.",
+        "Do not add ART/vector DB/distributed search merely from Big-O notation."
+      ],
+      "preferred_solution": "Extend existing X03 cost ledger with actual corpus cardinality, per-request resolver constructions/scans, query count, bytes, expensive owner call counts, cold/warm wall time and peak RSS. Compare baseline workload and one justified larger workload on same supported profile; choose thresholds from owner budget, not arbitrary review constant. Record constructor frequency and reload semantics.",
+      "replacement_requirement": "Для claim о cheap extension E02-X03 предъявляет стоимость на явно выбранном current/grown workload. Сначала измеряется действительный owner path и размер registry. Изменение структуры поиска требуется только при нарушении выбранного ресурсного бюджета или подтверждённом ненужном повторе работы; одинаковые semantics/ref ordering/currentness сохраняются.",
+      "replacement_test": "Compare scan/reference and proposed access plan on same rows incl duplicate normalized constructs, scopes, conflicts, rejected alternatives, new snapshot/withdrawal. Assert identical selected result and independent useful-result oracle. Measure actual process RSS/time and call counts separately cold/warm; UNRUN remains UNRUN.",
+      "shared_owner": "Existing capability resolver/index constructor and X03 evidence bundle, no extra performance registry.",
+      "tradeoffs": "Map adds memory and invalidation burden; DuckDB ART costs writes/memory and helps selective cases, not all scans. Current3-row registry probably favors scan, but no runtime benchmark was run.",
+      "preservation_risks": [
+        "Do not optimize away rejected-alternative evidence or scope checks.",
+        "Do not cache mutable currentness by content hash alone.",
+        "Do not import stable DuckDB2.0 behavior into locked1.4.3 silently."
+      ],
+      "validation_plan": "Scoped future measurement on locked environment; read query plan only if SQL access plan changes; compare independent semantics and snapshot invalidation.",
+      "uncertainty": "Source complexity observation only. Current real production corpus size/load frequency beyond persisted fallback unknown.",
+      "sources": [
+        "EXT-DUCK14",
+        "P/04_Трассировка/Связь_требований_с_интеграцией.json",
+        "R/src/polisyos/runtime/quality/capability_resolver.py",
+        "R/src/polisyos/runtime/quality/generation_cycle.py"
+      ]
+    },
+    {
+      "id": "GEN-04",
+      "title": "Конкретизировать уже сохранённые X04 resource/currentness gaps, не объявлять их новым дефектом",
+      "classification": "existing_gap_acceptance_refinement",
+      "severity": "informational",
+      "blocking_scope": "Capacity claim only if selected story declares a shared constrained resource; currentness claim only for selected result/claim. Local numerical/monitor repairs independent.",
+      "packets": [
+        "SIM-03",
+        "DDM-02",
+        "UQP-03"
+      ],
+      "requirements": [
+        "REQ-SIM-03-06",
+        "REQ-DDM-02-02",
+        "REQ-DDM-02-07",
+        "REQ-UQP-03-05"
+      ],
+      "tests": [
+        "TEST-SIM-03-06",
+        "TEST-DDM-02-02",
+        "TEST-DDM-02-03",
+        "TEST-DDM-02-06",
+        "TEST-UQP-03-05"
+      ],
+      "scenarios": [
+        "E02-X04"
+      ],
+      "bindings": [
+        "BIND-X04-E01",
+        "BIND-X04-E02"
+      ],
+      "faulty_proposition": "Не является утверждением текущего комплекта: nonadditive algebra alone proves resource feasibility, or separate monitor and UQ tests prove same-result lifecycle. Crosswalk already explicitly rejects both inferences.",
+      "evidence": [
+        "P/03_Интеграция/Практическая_расширяемость.md:37–43",
+        "P/04_Трассировка/Связь_требований_с_интеграцией.json additional_story_evidence[BIND-X04-E01/E02]"
+      ],
+      "counterexample": "Pairwise-only feasibility checker accepts3 actions because each pair uses8<=10 although all3 use12>10. Separate monitor emits changed applicability on another subject while saved selected program keeps old current claim. Existing obligations reject these outcomes, but exact shared witness should distinguish them.",
+      "alternatives": [
+        "Add universal allocation/event engine: reject.",
+        "Keep only algebraic joint-effect qualification and explicitly NOT_ESTABLISHED resource claim if owner absent.",
+        "Use existing selected resource and claim-currentness owners with finite fixture."
+      ],
+      "preferred_solution": "First choose exact existing feasibility contract: load>capacity means program infeasible, not automatically allocated/capped/authorized. Owner must express load/capacity/outcome and actual user program consume it. Use binary actions demands4,4,4, benefits5,4,3, capacity10, independent enumeration8subsets; optimumA+B value9 only if selected search contract maximizes benefit. Capacity12 positive admits all3 value12. A bare12>10 helper test is not joint capability. Couple selected actual persisted result to dependency diamond source→P,Q→R plus independentD; withdrawal/new observation changes current applicability on affected cone, retains exact historical result and D.",
+      "replacement_requirement": "BIND-X04-E01 при выбранном resource claim предъявляет third-order feasibility, а не только pairwise compatibility, through named existing owner. BIND-X04-E02 связывает один selected program/result ref до/после deciding observation, historical read и current/public limitation; protective status не обновляет causal model без дополнительного основания.",
+      "replacement_test": "Declare feasibility-vs-allocation/capped-outcome semantics first; for the chosen feasibility profile run actual selected owner and program consumer, persist joint result; assert complete feasibility table (independent oracle file included), ID/order/regrouping invariance and positive capacity boundary. Reopen fresh consumer after source revision/withdrawal; current dependent claim limited, historical bytes/ref stable, independentD usable. Late old callback cannot resurrect current claim; rereading old evidence must not refresh evidence time.",
+      "shared_owner": "Named existing model/resource owner conditional on availability; existing DDM/currentness/CAS/claim projection owners. No new owner chosen by this review.",
+      "tradeoffs": "Finite analytic fixture tests mechanics, not societal resource model validity. Source and observation role determines which claim changes; no forced numeric causal change.",
+      "preservation_risks": [
+        "Do not turn historical read into current authority.",
+        "Do not globally block unrelated results.",
+        "Do not invent resource owner to make test green."
+      ],
+      "validation_plan": "Arithmetic oracle generated with stdlib only; actual product test future NOT_RUN. Reuse X04 witness across named REQs only when refs/basis agree.",
+      "uncertainty": "Not a new omission finding. Existence of suitable capacity owner not established in this review.",
+      "sources": [
+        "P/04_Трассировка/Связь_требований_с_интеграцией.json",
+        "P/03_Интеграция/Практическая_расширяемость.md",
+        "independent_capacity_oracle.json"
+      ]
+    }
+  ]
+}

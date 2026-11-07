@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import ComponentMetadata
 from polisyos.core.contracts.skip_blockers import SkippedNodeBlocker
+from polisyos.scientist.orchestration.engine.errors import ErrorCategory as _ErrorCategory
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 if TYPE_CHECKING:
@@ -25,6 +26,7 @@ class NodeError(BaseModel):
 
     code: str
     message: str
+    category: _ErrorCategory | None = Field(default=None, exclude_if=lambda value: value is None)
     details: dict[str, Any] = Field(
         default_factory=dict,
         description="Diagnostic details; persisted reports apply the CAS canonical profile.",
@@ -94,6 +96,43 @@ class NodeSpec(BaseModel):
     state_reads: list[str] = Field(default_factory=list)
     state_writes: list[str] = Field(default_factory=list)
     produces: list[str] = Field(default_factory=list, description="Logical artifact keys")
+
+
+class NodeInputRule(BaseModel):
+    """Presence and nullability of one explicitly declared state read.
+
+    Paths use the engine's finite model/dict/list lookup grammar. Numeric dict
+    keys remain strings; a numeric segment selects an index only inside a list.
+    The rule does not turn an arbitrary JSON mapping into an artifact reference.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    path: str = Field(min_length=1)
+    availability: Literal["required", "optional"] = "required"
+    allow_null: bool = False
+
+    @model_validator(mode="after")
+    def _validate_path(self) -> NodeInputRule:
+        parts = self.path.split(".")
+        if any(not part for part in parts) or parts[0] not in ExperimentState.model_fields:
+            raise ValueError("input_contract_state_path_invalid")
+        return self
+
+
+class InputAwareNodeSpec(NodeSpec):
+    """Explicit read requirements without changing ordinary NodeSpec bytes."""
+
+    input_rules: tuple[NodeInputRule, ...]
+
+    @model_validator(mode="after")
+    def _validate_input_population(self) -> InputAwareNodeSpec:
+        paths = [rule.path for rule in self.input_rules]
+        if len(paths) != len(set(paths)) or len(self.state_reads) != len(set(self.state_reads)):
+            raise ValueError("input_contract_duplicate_path")
+        if set(paths) != set(self.state_reads):
+            raise ValueError("input_contract_population_mismatch")
+        return self
 
 
 class NodeOutputRule(BaseModel):

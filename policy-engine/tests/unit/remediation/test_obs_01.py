@@ -45,12 +45,23 @@ def _load_builder_surface() -> tuple[Any, Any, Any, Any, Any]:
 @pytest.mark.parametrize(
     ("period_value", "time_grain", "expected_start", "expected_end"),
     [
+        ("1900-02", TimeFrequency.MONTH, "1900-02-01", "1900-02-28"),
+        ("2000-02", TimeFrequency.MONTH, "2000-02-01", "2000-02-29"),
         ("2024-02", TimeFrequency.MONTH, "2024-02-01", "2024-02-29"),
+        ("2100-02", TimeFrequency.MONTH, "2100-02-01", "2100-02-28"),
         ("2023M02", TimeFrequency.MONTH, "2023-02-01", "2023-02-28"),
         ("2024Q2", TimeFrequency.QUARTER, "2024-04-01", "2024-06-30"),
         ("2024", TimeFrequency.YEAR, "2024-01-01", "2024-12-31"),
     ],
-    ids=["leap-month", "ordinary-month", "quarter", "year"],
+    ids=[
+        "ordinary-century",
+        "leap-century",
+        "leap-month",
+        "future-ordinary-century",
+        "ordinary-month",
+        "quarter",
+        "year",
+    ],
 )
 def test_canonical_period_owner_uses_inclusive_calendar_bounds(
     period_value: str,

@@ -1,0 +1,122 @@
+{
+  "status": "INDEPENDENT_STDLIB_ARITHMETIC_NOT_PRODUCT_TESTS",
+  "rdd": {
+    "n_side": 12,
+    "u": "i/13 i=1..12",
+    "kernel": "triangular w=1-u",
+    "error_law": "independent mean0 variance1",
+    "true_intercept_variance": "127/286",
+    "true_float": 0.44405594405594406,
+    "expected_legacy_variance": "63/220",
+    "legacy_float": 0.2863636363636364,
+    "ratio": 0.6448818897637796,
+    "derivation": "H=X B XtW; E(weighted RSS)=tr((I-H)t W (I-H)); true var=ell tell"
+  },
+  "ols": {
+    "rows": [
+      {
+        "A": 0,
+        "X": -1,
+        "Y": -3
+      },
+      {
+        "A": 0,
+        "X": 1,
+        "Y": 3
+      },
+      {
+        "A": 0,
+        "X": -1,
+        "Y": -1
+      },
+      {
+        "A": 0,
+        "X": 1,
+        "Y": 5
+      },
+      {
+        "A": 1,
+        "X": -1,
+        "Y": -1
+      },
+      {
+        "A": 1,
+        "X": 1,
+        "Y": 5
+      },
+      {
+        "A": 1,
+        "X": -1,
+        "Y": 1
+      },
+      {
+        "A": 1,
+        "X": 1,
+        "Y": 7
+      }
+    ],
+    "column_order": [
+      "intercept",
+      "A",
+      "X"
+    ],
+    "beta": [
+      1,
+      2,
+      3
+    ],
+    "SSE": 8,
+    "df_resid": 5,
+    "sigma2": 1.6,
+    "treatment_variance": 0.8,
+    "treatment_se": 0.8944271909999159,
+    "critical_t975_df5": 2.570581835636312,
+    "ci95": [
+      -0.2991982904835937,
+      4.299198290483593
+    ],
+    "reference": "independent closed CDF: F(t)=.5+theta/pi+2sin(2theta)/(3pi)+sin(4theta)/(12pi), theta=atan(t/sqrt(5)); root via bisection; no scipy/statsmodels/dowhy"
+  },
+  "elasticnet_global_target_scaling": {
+    "derivation": "raw slope=(1-.005*s)/1.005 on training x,y=(-1,1); global s from[-1,1,M]",
+    "values": [
+      {
+        "M": 0,
+        "s": 0.816496580927726,
+        "beta": 0.9909627035774741
+      },
+      {
+        "M": 30,
+        "s": 14.165686240583852,
+        "beta": 0.9245488246737122
+      }
+    ]
+  },
+  "shap_game": {
+    "f": "x1*x2+2*x1",
+    "background": [
+      [
+        0,
+        0
+      ],
+      [
+        2,
+        2
+      ]
+    ],
+    "target": [
+      1,
+      3
+    ],
+    "values": {
+      "empty": 4,
+      "1": 3,
+      "2": 5,
+      "12": 5
+    },
+    "phi": [
+      -0.5,
+      1.5
+    ]
+  }
+}

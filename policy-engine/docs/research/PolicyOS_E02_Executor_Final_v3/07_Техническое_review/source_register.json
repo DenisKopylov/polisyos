@@ -1,0 +1,39 @@
+[
+  {
+    "id": "ROOT-LIB-01",
+    "url": "https://hypothesis.readthedocs.io/en/latest/stateful.html",
+    "checked_date": "2026-11-01",
+    "claim": "Existing property-testing dependency supports sequence generation and invariant checks against a simpler independent model; use bounded existing owners, not new orchestration.",
+    "baseline": "hypothesis6.151.2 locked; latestdocs notproofallnewAPIsavailable"
+  },
+  {
+    "id": "ROOT-LIB-02",
+    "url": "https://hypothesis.readthedocs.io/en/latest/reference/strategies.html",
+    "checked_date": "2026-11-01",
+    "claim": "Strategies support generated numeric edge classes and composition; domain constraints andvalidmetamorphicrelations mustbeexplicit."
+  },
+  {
+    "id": "ROOT-LIB-03",
+    "url": "https://github.com/boxed/mutmut/tree/3.5.0",
+    "checked_date": "2026-11-01",
+    "claim": "Version-specific pinned mutation configuration uses paths_to_mutate andrequiresfork; currentdocs source_paths mustnotbesilentlycopied."
+  },
+  {
+    "id": "ROOT-LIB-04",
+    "url": "https://docs.pytest.org/en/stable/explanation/flaky.html",
+    "checked_date": "2026-11-01",
+    "claim": "Isolation/order/globalstate and overlystrictnumeric/timing assertions can produce flaky evidence; retriesalone do not establish property."
+  },
+  {
+    "id": "ROOT-LIB-05",
+    "url": "https://github.com/python/cpython/blob/v3.14.0/Lib/statistics.py",
+    "checked_date": "2026-11-01",
+    "claim": "mean delegates_sum thenfinal total/n conversion; reusable validatedfinitefloatmean candidate, independentlyreviewedbyFED/UQS specialists. median/fmean not equivalentoverflow-safe substitutes."
+  },
+  {
+    "id": "ROOT-LANG-01",
+    "url": "https://tc39.es/ecma262/multipage/ecmascript-language-expressions.html#sec-object-initializer-runtime-semantics-propertydefinitionevaluation",
+    "checked_date": "2026-11-01",
+    "claim": "Noncomputed __proto__ literal key isprototype setter; computedkey isordinarydata property. IsolatedNode24counterexample recorded, notgeneratedclientacceptance."
+  }
+]

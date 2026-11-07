@@ -194,7 +194,7 @@ def test_failed_reused_directory_export_preserves_prior_complete_generation(
         if path.is_file()
     }
 
-    original_replace = transfer_ops.os.replace
+    original_exchange = transfer_ops._exchange_directory_generation
     failed_publish_attempts = 0
 
     def fail_staged_publication(source_path: Path, destination_path: Path) -> None:
@@ -202,17 +202,17 @@ def test_failed_reused_directory_export_preserves_prior_complete_generation(
         staged_path = Path(source_path)
         live_path = Path(destination_path)
         if (
-            staged_path.name.startswith(f".{export_root.name}.staging-")
+            staged_path.name.startswith(f".{export_root.name}.generation-")
             and live_path == export_root
             and failed_publish_attempts == 0
         ):
             failed_publish_attempts += 1
             raise OSError("injected replacement publication failure")
-        original_replace(source_path, destination_path)
+        original_exchange(source_path, destination_path)
 
-    monkeypatch.setattr(transfer_ops.os, "replace", fail_staged_publication)
+    monkeypatch.setattr(transfer_ops, "_exchange_directory_generation", fail_staged_publication)
 
-    with pytest.raises(OSError, match="replacement publication"):
+    with pytest.raises(OSError, match="replacement publication") as refusal:
         source.export_subgraph([artifact_b.artifact_id], export_root, compress=False)
 
     assert failed_publish_attempts == 1

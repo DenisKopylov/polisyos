@@ -42,6 +42,7 @@ components into runtime registries.
 ## Public API
 
 - discovery evidence: `ProviderOriginBinding` and `ProviderModuleBinding` are additive stable-facade exports with their existing class identities.
+- direct source observation: `describe_callable_source(function, expected_module=...)` reconciles a direct Python function against its actual module source and returns its file digest without invoking it. DOE uses this facade instead of importing the private component origin reader. This observation supplies no installed-distribution, dependency, publisher or execution authority.
 - identity/metadata: `ComponentId`, `ComponentKind`, `ComponentMetadata`, `ComponentDep`, `Capability`
 - discovery/registry: `discover_components`, `BuiltinLoaderSpec`,
   `DeclaredBuiltinLoader`, `ComponentRegistry`, `build_components_index`

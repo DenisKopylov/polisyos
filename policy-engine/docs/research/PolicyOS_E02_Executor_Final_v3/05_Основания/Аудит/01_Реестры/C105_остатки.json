@@ -1,0 +1,63 @@
+{
+  "pass_id": "C105",
+  "bundle": "SCL-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C105-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "source_ids": [
+        "LA-025"
+      ],
+      "title": "Bytes normalization теряет selected raw ArtifactRef перед acquisition recheck",
+      "evidence": [
+        "P03",
+        "P06",
+        "S03:91–101",
+        "S02:175–215,526–544"
+      ],
+      "remaining": "Сохранить и валидировать существующую selected reference через bytes normalization и её source identity, чтобы actual acquire выполнял предусмотренную selected-view проверку. Сохранить API preflight, exact bytes/hash/size и отдельную web_evidence provenance. Не создавать новый store и не заменять ref одним digest.",
+      "limits": "Actual normalizer удаляет ref; whole orchestrator достигает docs-ingest без selected store read, когда direct _acquire_bytes того же seed отказывает на own-fixture denial. API предварительная source-binding проверка остаётся; web_evidence payload хранит исходную ref. Не доказаны подмена bytes, глобальная потеря provenance, native permission exploit или полная docs публикация."
+    },
+    {
+      "id": "C105-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "source_ids": [
+        "LA-025"
+      ],
+      "title": "Реальный search-fetch producer не записывает effective fetch profile",
+      "evidence": [
+        "P04",
+        "P06",
+        "S07:74–98",
+        "S08:104",
+        "S01:369–371"
+      ],
+      "remaining": "Заполнять существующий fetch_profile фактически применёнными ограничениями/версией transport на producer boundary и переносить его через cache/SourceMetadata/seed. Отдельно обозначать неизвестный исторический профиль; не объявлять пустой словарь разрешением reuse. Согласовать минимум контекста с существующим policy owner, без новой бумажной архитектуры.",
+      "limits": "Nondefault allowed/blocked domains, MIME, max_bytes4096, timeout3 и user-agent реально проходят в fake transport, но fetched/cached/source profiles={} и seed props=\"{}\". Synthetic profile в существующих tests переносится, что не доказывает producer wiring. Само наличие profile не заменяет лицензию или право на повторное использование."
+    },
+    {
+      "id": "C105-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-025"
+      ],
+      "title": "Native full pipeline и содержательная допустимость reuse не квалифицированы",
+      "evidence": [
+        "commands.json",
+        "S16:624–865",
+        "P01–P07"
+      ],
+      "remaining": "В поддерживаемой среде выполнить existing full API→native CAS→docs/claims→fresh-reader test и регрессии R01/R02, включая selected view после normalization, missing/denied raw, MIME/document/byte limits и explicit refresh lineage. Подтвердить applicable access/license policy отдельно от content binding; public-web не универсальное разрешение.",
+      "limits": "14 bounded cases включают1FAIL старого fake DNS контракта; исправленный current-contract control отдельный, не ретроспективный PASS. Profile fixture использует реальные DTO/hash primitives, но не native CAS owner/signatures/transactions. Реального HTTP/model вызова и установки нет."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C105-R01",
+    "C105-R02"
+  ],
+  "decision": "Exact snapshot вместо второго URL-fetch полезно реализован; normalization теряет selected ref, producer не заполняет effective profile, native full chain остаётся открыта."
+}

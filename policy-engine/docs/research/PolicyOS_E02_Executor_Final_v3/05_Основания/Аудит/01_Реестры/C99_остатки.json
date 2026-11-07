@@ -1,0 +1,49 @@
+{
+  "pass_id": "C99",
+  "bundle": "ING-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C99-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "source_ids": [
+        "B88"
+      ],
+      "title": "Replay session с двумя fixture namespaces ищется только в первом",
+      "evidence": [
+        "S01:1164–1175",
+        "S06:97–114",
+        "S07:383–404",
+        "P03",
+        "run04/replay_trace.json"
+      ],
+      "remaining": "Согласовать existing replay intake/dispatch с per-connector/dataset layout: выбрать правильный namespace по фактическому source request либо явно отказать unsupported multi-namespace input до частичного исполнения. Не выполнять live fallback, не сканировать произвольные namespaces с неоднозначным выбором и не писать второй replay engine.",
+      "limits": "Два корректно записанных SimulatorFixture в одном RecordSession отдельно воспроизводятся actual owner, вместе второй даёт MissingFixtureError из первого namespace. Native egress/ordinary delegate не запускались. Current run_record_mode также помечает весь capture первым namespace; поэтому не утверждается, что каждая текущая record→replay пара ломается. Это bounded completeness/compatibility boundary для documented per-source session layout; CAS и ingestion delegate fixtures."
+    },
+    {
+      "id": "C99-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B79",
+        "B80",
+        "B88"
+      ],
+      "title": "Finite-owner progression не равно native/live ingestion и полной replay provenance",
+      "evidence": [
+        "S01–S05",
+        "S13–S16",
+        "P01–P04",
+        "native_modes.stdout",
+        "native_source_progress.stdout"
+      ],
+      "remaining": "В supported environment исполнить current native tests и finite source→actual ingestion/cache/provenance/CAS→cursor→fresh consumer цепочку, mixed A/B failure, legacy migration/refusal, same-name different source, save failure, replay bytes/provenance и multi-namespace case. Live source при необходимости получает конкретный independently admitted owner reader на существующей границе; не автоматически доверять completeness/version/header.",
+      "limits": "Actual finite source scope явно finite_source_fixture с production_currentness/rights not_established. Механизм полезен и не требует universal deterministic inventor; но native production I/O savings и legal/scientific authority не измерены. Probe CAS profile validation и ingestion producer не native; replay success evidence reference fixture, whole served provenance не доказана."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C99-R01"
+  ],
+  "decision": "B79/B80 совместно исправлены для честно ограниченного finite-owner route; B88 live fallback удалён. Сохранить guards и полезный delta/full-materialization bridge; один bounded replay namespace остаток и native/live qualification остаются."
+}

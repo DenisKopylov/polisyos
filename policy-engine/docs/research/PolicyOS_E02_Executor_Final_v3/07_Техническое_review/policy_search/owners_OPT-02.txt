@@ -1,0 +1,284 @@
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py:896-960
+  896     def suggest(
+  897         self,
+  898         evaluations: list[Evaluation],
+  899         pending: list[PolicyCandidate] | None = None,
+  900         *,
+  901         attempted_count: int | None = None,
+  902     ) -> PolicyCandidate:
+  903         """Suggest using attempts for exploration and admissible scores for GP fitting."""
+  904         if attempted_count is None:
+  905             attempted_count = len(evaluations)
+  906         elif type(attempted_count) is not int or attempted_count < 0:
+  907             raise ValueError("attempted_count must be a non-negative integer")
+  908         history_count = max(len(evaluations), attempted_count)
+  909         self._iteration = history_count
+  910         pending = pending or []
+  911         training_corpus = self._effective_training_corpus(evaluations)
+  912         proposal_index = max(history_count, len(training_corpus), self._sobol_cursor)
+  913 
+  914         if len(training_corpus) < self._config.n_initial:
+  915             return self._sobol_candidate(proposal_index, source="sobol_init")
+  916 
+  917         if not self._botorch_ready:
+  918             return self._non_duplicate_random(pending, source="random_no_botorch")
+  919 
+  920         with self._arbiter.acquire("torch"):
+  921             soft, hard = self._arbiter.enforce_limits()
+  922             if hard:
+  923                 return self._non_duplicate_random(pending, source="random_hard_limit")
+  924 
+  925             train_set = self._select_training_subset(training_corpus)
+  926             if len(train_set) < 3:
+  927                 return self._non_duplicate_random(pending, source="random_insufficient_data")
+  928 
+  929             try:
+  930                 X, y_bo = self._prepare_training_data(train_set)
+  931                 self._fit_gp(X, y_bo)
+  932                 self._record_fitted_training_corpus(train_set)
+  933                 self._record_acquisition_training_corpus(training_corpus)
+  934                 candidate, _, acquisition_type = self._optimize_acquisition(
+  935                     y_bo=y_bo,
+  936                     soft_limit=soft,
+  937                     evaluations=training_corpus,
+  938                 )
+  939                 result = self._tensor_to_candidate(
+  940                     candidate.squeeze(0),
+  941                     source="bayesian_acquisition",
+  942                     acquisition_type=acquisition_type,
+  943                 )
+  944                 prediction = self.proposal_prediction(
+  945                     params=result.params,
+  946                     evaluations=training_corpus,
+  947                 )
+  948                 result.predicted_mean = prediction["predicted_mean"]
+  949                 result.predicted_std = prediction["predicted_std"]
+  950                 result.acquisition_value = prediction["acquisition_value"]
+  951                 result.metadata["acquisition_type"] = prediction["acquisition_type"]
+  952             except Exception as exc:
+  953                 logger.warning("BayesianOptimizer failed; fallback to random: {}", exc)
+  954                 if not self._config.fallback_on_failure:
+  955                     raise
+  956                 result = self._non_duplicate_random(pending, source="random_fallback")
+  957 
+  958         if self._is_duplicate(result, pending):
+  959             return self._non_duplicate_random(pending, source="random_duplicate_avoidance")
+  960         return result
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py:962-1036
+  962     def suggest_batch(
+  963         self,
+  964         evaluations: list[Evaluation],
+  965         batch_size: int,
+  966         *,
+  967         attempted_count: int | None = None,
+  968     ) -> list[PolicyCandidate]:
+  969         """Suggest a batch while keeping attempt and score counts separate."""
+  970         if batch_size < 1:
+  971             return []
+  972         if attempted_count is None:
+  973             attempted_count = len(evaluations)
+  974         elif type(attempted_count) is not int or attempted_count < 0:
+  975             raise ValueError("attempted_count must be a non-negative integer")
+  976         history_count = max(len(evaluations), attempted_count)
+  977         self._iteration = history_count
+  978 
+  979         training_corpus = self._effective_training_corpus(evaluations)
+  980         proposal_index = max(history_count, len(training_corpus), self._sobol_cursor)
+  981         if len(training_corpus) < self._config.n_initial:
+  982             return [
+  983                 self._sobol_candidate(proposal_index + idx, source="sobol_init")
+  984                 for idx in range(batch_size)
+  985             ]
+  986 
+  987         if not self._botorch_ready:
+  988             return [
+  989                 self._non_duplicate_random([], source="random_no_botorch")
+  990                 for _ in range(batch_size)
+  991             ]
+  992 
+  993         with self._arbiter.acquire("torch"):
+  994             soft, hard = self._arbiter.enforce_limits()
+  995             if hard:
+  996                 return [
+  997                     self._non_duplicate_random([], source="random_hard_limit")
+  998                     for _ in range(batch_size)
+  999                 ]
+ 1000 
+ 1001             train_set = self._select_training_subset(training_corpus)
+ 1002             if len(train_set) < 3:
+ 1003                 return [
+ 1004                     self._non_duplicate_random([], source="random_insufficient_data")
+ 1005                     for _ in range(batch_size)
+ 1006                 ]
+ 1007 
+ 1008             try:
+ 1009                 X, y_bo = self._prepare_training_data(train_set)
+ 1010                 self._fit_gp(X, y_bo)
+ 1011                 self._record_fitted_training_corpus(train_set)
+ 1012                 restarts, raw_samples = self._effective_optim_params(soft_limit=soft)
+ 1013                 best_f = y_bo.max()
+ 1014                 acq = qExpectedImprovement(model=self._model, best_f=best_f)
+ 1015                 candidates, _ = optimize_acqf(
+ 1016                     acq_function=acq,
+ 1017                     bounds=self._space.to_botorch_bounds().to(self._device),
+ 1018                     q=batch_size,
+ 1019                     num_restarts=restarts,
+ 1020                     raw_samples=raw_samples,
+ 1021                 )
+ 1022                 output: list[PolicyCandidate] = []
+ 1023                 for idx in range(batch_size):
+ 1024                     output.append(
+ 1025                         self._tensor_to_candidate(
+ 1026                             candidates[idx],
+ 1027                             source="batch_qei",
+ 1028                         )
+ 1029                     )
+ 1030                 return output
+ 1031             except Exception as exc:
+ 1032                 logger.warning("Bayesian batch optimization failed; random fallback: {}", exc)
+ 1033                 return [
+ 1034                     self._non_duplicate_random([], source="random_batch_fallback")
+ 1035                     for _ in range(batch_size)
+ 1036                 ]
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py:869-881
+  869     def _fallback_generate(
+  870         self,
+  871         history: list[Any],
+  872         current_best: dict[str, Any] | None,
+  873         context: dict[str, Any],
+  874     ) -> dict[str, Any]:
+  875         if current_best is not None:
+  876             return dict(current_best)
+  877         if history:
+  878             last = history[-1]
+  879             if isinstance(last, dict):
+  880                 return dict(last)
+  881         return dict(context) if context else {}
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py:1290-1412
+ 1290 def benchmark_to_evaluation(
+ 1291     bench: BenchmarkEvaluation,
+ 1292     *,
+ 1293     primary_metric: str,
+ 1294     direction: MetricDirection = MetricDirection.MAXIMIZE,
+ 1295     split: BenchmarkSplit = BenchmarkSplit.HOLDOUT,
+ 1296     dim: int = 0,
+ 1297     search_space: Any | None = None,
+ 1298     expected_unit: str | None = None,
+ 1299 ) -> Any | None:
+ 1300     """Convert a BenchmarkEvaluation to a methods.search strategy Evaluation."""
+ 1301     deps = _try_import_bayesian()
+ 1302     if deps is None:
+ 1303         return None
+ 1304     _, _, Evaluation, EvaluationStatus, _, ObjectiveValue, OptimizationDirection = deps
+ 1305 
+ 1306     runtime_split = bench.resolved_runtime_split_type()
+ 1307     if runtime_split != split:
+ 1308         return None
+ 1309     benchmark_metadata = dict(bench.metadata)
+ 1310     benchmark_identity = _merge_identity_sources(
+ 1311         (
+ 1312             {"candidate_id": bench.candidate_ref.artifact_id, "split": runtime_split},
+ 1313             benchmark_metadata,
+ 1314             _as_mapping(benchmark_metadata.get("metadata")),
+ 1315         )
+ 1316     )
+ 1317     if benchmark_identity is None:
+ 1318         return None
+ 1319     value = bench.primary_value(split=split, metric=primary_metric)
+ 1320     if value is None:
+ 1321         return None
+ 1322     finite_value = _finite_float(value)
+ 1323     if finite_value is _INVALID:
+ 1324         return None
+ 1325 
+ 1326     raw_params = benchmark_metadata.get("params", benchmark_metadata.get("candidate_params"))
+ 1327     if not isinstance(raw_params, Mapping):
+ 1328         return None
+ 1329     params = dict(raw_params)
+ 1330 
+ 1331     if search_space is not None:
+ 1332         try:
+ 1333             params_normalized = tuple(search_space.normalize(params))
+ 1334         except (TypeError, ValueError):
+ 1335             return None
+ 1336     else:
+ 1337         raw_normalized = benchmark_metadata.get("params_normalized")
+ 1338         if not isinstance(raw_normalized, (list, tuple)):
+ 1339             return None
+ 1340         try:
+ 1341             params_normalized = tuple(float(item) for item in raw_normalized)
+ 1342         except (TypeError, ValueError):
+ 1343             return None
+ 1344         if not all(math.isfinite(item) for item in params_normalized):
+ 1345             return None
+ 1346     if dim and len(params_normalized) != dim:
+ 1347         return None
+ 1348 
+ 1349     from .source_profile_verification import _search_history_source_payload_claimed
+ 1350 
+ 1351     # This converter has no source store. A MethodJob claim requires the
+ 1352     # selected-CAS verifier and cannot be promoted from its metadata here.
+ 1353     if _search_history_source_payload_claimed(bench) or bench.status not in {
+ 1354         "ok",
+ 1355         "measured_candidate",
+ 1356     }:
+ 1357         return None
+ 1358     declared_source_unit = benchmark_metadata.get("metric_unit")
+ 1359     if (
+ 1360         not isinstance(expected_unit, str)
+ 1361         or not expected_unit.strip()
+ 1362         or declared_source_unit != expected_unit
+ 1363     ):
+ 1364         return None
+ 1365     source_result = {
+ 1366         "metrics": {primary_metric: float(finite_value)},
+ 1367         "metric_units": {primary_metric: declared_source_unit},
+ 1368     }
+ 1369     assessment = _assess_search_metric(
+ 1370         source_result, primary_metric, direction.value, expected_unit
+ 1371     )
+ 1372     if assessment.status is not ObjectiveScoreStatus.AVAILABLE or assessment.value is None:
+ 1373         return None
+ 1374     scalar = assessment.value
+ 1375     split_value = split.value
+ 1376     metadata = {
+ 1377         **benchmark_metadata,
+ 1378         "source": "benchmark_evaluation",
+ 1379         "search_source_assurance": "generic_caller_declared_candidate_only",
+ 1380         "loop_id": bench.loop_id,
+ 1381         "suite_id": bench.suite_id,
+ 1382         "suite_version": bench.suite_version,
+ 1383         "split": split_value,
+ 1384         "params": dict(params),
+ 1385         "params_normalized": list(params_normalized),
+ 1386     }
+ 1387     candidate_id = str(bench.candidate_ref.artifact_id)
+ 1388 
+ 1389     return Evaluation(
+ 1390         candidate_id=candidate_id,
+ 1391         params=params,
+ 1392         params_normalized=params_normalized,
+ 1393         objectives=[
+ 1394             ObjectiveValue(
+ 1395                 name=primary_metric,
+ 1396                 raw_value=scalar,
+ 1397                 direction=OptimizationDirection.MINIMIZE,
+ 1398                 score_status=assessment.status,
+ 1399                 score_assessment=assessment,
+ 1400             )
+ 1401         ],
+ 1402         scalar_score=scalar,
+ 1403         stage_a_passed=True,
+ 1404         stage_b_result=source_result,
+ 1405         status=EvaluationStatus.SUCCESS,
+ 1406         score_status=assessment.status,
+ 1407         score_assessment=assessment,
+ 1408         provenance_ref=str(benchmark_metadata["provenance_ref"])
+ 1409         if benchmark_metadata.get("provenance_ref") is not None
+ 1410         else None,
+ 1411         metadata=metadata,
+ 1412     )

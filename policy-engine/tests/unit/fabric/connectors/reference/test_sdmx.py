@@ -278,3 +278,31 @@ async def test_sdmx_fetch_local() -> None:
 
     await connector.disconnect(handle)
     await runner.cleanup()
+
+
+@pytest.mark.parametrize(
+    "headers",
+    [
+        {"X-SDMX-MaxResponseBytes": "not-a-number"},
+        {"X-SDMX-MaxJsonBytes": "0"},
+        {"X-SDMX-Agency": "../escape"},
+        {"X-SDMX-DataPath": "data/escape"},
+    ],
+)
+def test_validate_config_returns_typed_header_and_path_issues(headers):
+    """Actual malformed headers become a validation result, not a hidden code bug."""
+    result = SDMXConnector.validate_config(
+        ConnectionConfig(url="https://example.test/sdmx", headers=headers)
+    )
+    assert not result.valid
+    assert len(result.issues) == 1
+    assert result.issues[0].field == "headers"
+
+
+def test_validate_config_propagates_unexpected_parser_failure(monkeypatch):
+    def broken_parser(_config):
+        raise RuntimeError("SDMX parser invariant broke")
+
+    monkeypatch.setattr(SDMXConnector, "_parse_sdmx_config", staticmethod(broken_parser))
+    with pytest.raises(RuntimeError, match="SDMX parser invariant broke"):
+        SDMXConnector.validate_config(ConnectionConfig(url="https://example.test/sdmx"))

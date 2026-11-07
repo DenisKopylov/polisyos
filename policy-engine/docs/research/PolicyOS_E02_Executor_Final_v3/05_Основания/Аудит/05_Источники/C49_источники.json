@@ -1,0 +1,197 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1066
+        ]
+      ],
+      "evidence_level": "Actual graph DTO, canonical reconstruction, freezing/copy, NetworkX/Rustworkx/direct-Kuzu exports и artifact persist/load прочитаны. Диапазоны C48 на том же восстановленном срезе сохранены в readset; в C49 дополнены и решающие owners перечитаны. Product methods исполнены из whole module с namespace/typing seams; native backends/CAS не исполнены. Последний DAG projector после 1066 не заявляется полным C49 review.",
+      "git_blob": "cd207643eba4a4a975beedda59d06bbe339a8105",
+      "sha256": "2facb531db2ea4bbb6361f9bd7ccf66c14a7f0213d7647b92620a879efa4db5a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/admg_ops.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          307
+        ],
+        [
+          368,
+          801
+        ]
+      ],
+      "evidence_level": "Прочитаны cache/admission/adjacency, graph operations и separator; основные cache bodies перечитаны в C49 после C48. Whole actual methods исполнены; wrappers только считают вызовы canonical/hash и возвращают исходные результаты.",
+      "git_blob": "f526b98385052d219b28e223a1236af88f3196eb",
+      "sha256": "27cdde2cdfe43631d4b087ab446c80f5b444200cc959a2913d2dd6b71c6d61ff",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_graph_projection.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/_graph_projection.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          15
+        ]
+      ],
+      "evidence_level": "Полный compatibility alias прочитан; не считается отдельным causal algorithm.",
+      "git_blob": "d9331accaee19e40ec3ba63b82c9876e6991483b",
+      "sha256": "81e9c8cda63041e0c105930bdb8de719d230ccd3ce963fe48d7f8af67979d18a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph_kuzu.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/causal_graph_kuzu.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          297
+        ]
+      ],
+      "evidence_level": "Полный bulk materializer/CSV/DDL/count/cleanup owner прочитан; actual CSV helpers исполнены. Kuzu COPY/schema/backend count route не исполнялся.",
+      "git_blob": "ba76c2e0448ebd725dee17de80f4af9ae908fe1b",
+      "sha256": "d53e9c159c4dca77a80dfb8553b1b9d69f4fb09e4c2e3d21ba0bdfe3cc9fe822",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/ir/analytics/ddl/kuzu_causal.cypher",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/ddl/kuzu_causal.cypher",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          16
+        ]
+      ],
+      "evidence_level": "Полный DDL прочитан; applied schema в реальной базе не создана.",
+      "git_blob": "89435a00d26f52669464fe0a4993c6fed1b6871a",
+      "sha256": "9be298f66266254363738cf05b65682b760415307267ea3a1b862ab11746b9bb",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/ir/test_causal_graph_cache_rows.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          188
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан; семь существующих test bodies, 14 cases, исполнены через AST с actual product functions и minimal pytest.raises fixture, не native pytest.",
+      "git_blob": "f3b466d243f707093d968dda75f6492efdc61d3f",
+      "sha256": "c4e7d533b3f67d4aeed1374a917cfce3d82a979ff79f07c358f16b621226214c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          110
+        ],
+        [
+          296,
+          501
+        ]
+      ],
+      "evidence_level": "Complete selected mixed-edge helper и четыре test bodies прочитаны/исполнены: 12 cases, NetworkX заменён явно указанным MultiRecorder; другие контрактные tests не аттестованы.",
+      "git_blob": "64b205973c545d33baca813c5ec0d1747b7258dc",
+      "sha256": "d642b1517bbaed2dac67332e6cec16ffb072aac742eb77a916d5e11fc24ad267",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/ir/test_causal_graph_networkx_roundtrip.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          92
+        ]
+      ],
+      "evidence_level": "Полный native NetworkX+CAS test файл прочитан. 120 permutations/readback и removal control найдены, но НЕ исполнены: native dependencies/Python несовместимы.",
+      "git_blob": "ca1c2bab5d66f49bb0e25121227a96fc8471e98b",
+      "sha256": "b307a855c3ba0c29dc170d7f9e00206f655efaa43cabbd9d372c58cd6af2f8c1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/catalog/causal/test_admg_profile_consumers.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          90
+        ],
+        [
+          1186,
+          1281
+        ]
+      ],
+      "evidence_level": "Прочитан helper и полный cache revalidation test; один unchanged body исполнен изолированно. Остальные consumers большого файла не аттестованы.",
+      "git_blob": "320db2084fb8906610744e2b415ff96ead94c0a0",
+      "sha256": "bcd14acd6cd82e508962f7ddf1d57a053a802036436e7f06c4ea4296bd5f47d6",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          35
+        ]
+      ],
+      "evidence_level": "Supported Python/build/dependency constraints прочитаны на том же восстановленном срезе; установки не выполнялись.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      6035,
+      6128
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "Свежий C49 после внешнего сохранения восстановленного C48; прежний потерянный C49 не используется как evidence."
+}

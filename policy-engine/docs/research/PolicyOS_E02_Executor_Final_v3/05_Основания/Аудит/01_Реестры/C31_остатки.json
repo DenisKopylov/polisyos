@@ -1,0 +1,71 @@
+{
+  "pass": "C31",
+  "bundle": "FRC-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C31-R01",
+      "type": "metadata_count_fraction_truncation_during_reconciliation",
+      "severity": "bounded_data_validation",
+      "source_ids": [
+        "LA-051"
+      ],
+      "location": "forecast_bridge.py:1446–1463,1852–1859",
+      "evidence": [
+        "P17",
+        "P18",
+        "P19"
+      ],
+      "mechanism": "int(value) accepts2.9 as2 and-.1 as0. A report with observed2/2 and all four metadata counters2.9 produces usable evidence, persists and reopens without mismatch under actual bridge definitions and fixture CAS. Negative fractional zero counter is also not identified as invalid.",
+      "preserve": "Actual numerator/denominator are independently recomputed from bounds; booleans rejected; malformed metadata does not replace observed counts. No measured-hit fabrication or production bypass established.",
+      "remaining": "Validate nonnegative integral counters before normalization; keep explicit allowed legacy textual integer policy if needed. Characterize fractional, negative-fractional, bool and integral inputs.",
+      "limits": "Actual BacktestReport and bridge definitions executed; CAS/refs/owned IO explicit fixtures. Native ForecastOwner normally writes integer counters and was not shown to emit these malformed values."
+    },
+    {
+      "id": "C31-G01",
+      "type": "native_owner_CAS_S10_short_chain_qualification",
+      "source_ids": [
+        "LA-051"
+      ],
+      "evidence": [
+        "S02",
+        "S06",
+        "S10",
+        "S11",
+        "native_attempt.log"
+      ],
+      "remaining": "Run existing full owner→native CAS→neutral evidence→S10 tests in supported Python/dependency environment. Current native attempt stopped before collection because pytest is absent. No installation performed; fixture storage cannot attest native selected-profile or owned JSON law."
+    },
+    {
+      "id": "C31-G02",
+      "type": "predictive_series_to_policy_outcome_and_empirical_scope",
+      "source_ids": [
+        "LA-051"
+      ],
+      "evidence": [
+        "S06:612–615",
+        "S07:17201–17217",
+        "S11:1191–1251",
+        "P20"
+      ],
+      "remaining": "Keep the established predictive-only estimand and useful measured corpus. Existing N4 scope consumer deliberately blocks claiming policy-outcome calibration without observed-metric relation; population/time/issuer remain not_established. For one useful new policy question wire and qualify that relation through existing owners rather than invent universal deterministic causal planner.",
+      "limits": "N4 refusal is intentional, not a defective restoration target. P20 shows generic bridge1/1 from2 requested rows can be usable; this measures observed-interval subset, not whole-corpus completeness. Native ForecastOwner requires every horizon interval and did not demonstrate partial output."
+    },
+    {
+      "id": "C31-G03",
+      "type": "finite_corpus_screening_not_general_calibration_authority",
+      "source_ids": [
+        "LA-051"
+      ],
+      "evidence": [
+        "S01:496–515",
+        "S02:1243–1254",
+        "S05:500–602",
+        "P01",
+        "P02"
+      ],
+      "remaining": "Qualify horizon/sample regime, independence and calibration experiment for intended scientific claim. Point forecasts and held-out hit rates are useful; a threshold crossing or test-authored context/ref graph is not causal CI validity or authenticated external source. Preserve source/authority distinctions LK01/LK29/LK30."
+    }
+  ]
+}

@@ -13,6 +13,11 @@ attach schema contracts and source profiles, or debug runtime fetch behavior.
 It owns the fetch surface that the rest of Fabric uses for ingestion,
 retrieval, and streaming.
 
+The existing `types.units` facade also exposes its canonical `STANDARD_UNITS`,
+`PREFIX_FACTORS`, and `SUPERSCRIPT_MAP` registries for consumers that must
+reconcile unit parsing against the same definitions. These are the original
+owner objects, not copied alternate registries.
+
 ## Where to Start
 
 - Read [__init__.py](./__init__.py) to see the exported connector facade.
@@ -264,11 +269,13 @@ projection has a 4 MiB bound. JOIN always estimates actual row multiplicity,
 including normalized multi-key null equivalence and unmatched outer rows, before
 merge; explicit many-to-many also requires `join_max_rows`.
 
-The candidate protocol `/2` replaces only unapplied Cloud `/1` proposal bytes;
-there is no admitted product-v1 compatibility claim. Tagged scalar values cover
+The candidate protocol `/3` binds its composition rule explicitly. Historical
+`/2` replaced only unapplied Cloud `/1` proposal bytes; there is no admitted
+product-v1 compatibility claim. Tagged scalar values cover
 null, bool, bounded int, float64 (including explicit infinities), string and
-nanosecond timestamp. Schema objects, custom resolvers, and source quality/coverage
-objects are refused before publication until an explicit replay profile exists.
+nanosecond timestamp. Actual strict `DataSchema` requests use a bounded canonical
+model projection in `/3`; custom resolvers and source quality/coverage objects
+remain refused before publication until an explicit replay profile exists.
 Per-column policy enums and the effective resolver seed round-trip as runtime types.
 A writer returns a ref only after the actual fresh reader accepts it under the
 same held selections and limits.
@@ -324,7 +331,9 @@ object-first restoration avoids silently rounding nullable large integers before
 casting. Output byte bounds cover supported numeric/timestamp widening, not just
 the largest input scalar. Request fields are admitted from the dataclass contract
 with strict key/container/enum/literal types and a 64 KiB encoded request cap.
-Unsupported schema/report objects remain explicitly `None` in this wire profile.
+Quality/coverage reports remain explicitly `None` in this wire profile. The
+acquisition service retains its existing schema-free request subprofile; the
+selected-derivation owner separately admits the bounded `DataSchema` codec.
 
 The technical profile bounds retained audit details at 5,000, admitting historical
 FULL zero/unlimited settings only when the conservative operation bound itself
@@ -370,3 +379,33 @@ fresh projection without trusting mutable attrs or a derived carrier's metadata.
 Its declarations still establish no institutional issuer/trust/currentness truth.
 
 JOIN preflight and materialization use a common internal key relation; numeric equality is exact and null matching follows the request. The relation is internal, not a wire format.
+
+### Finite points, typed empty unions, and historical replay
+
+The `/3` rule `finite-binary64-points-and-typed-empty-union/1` uses the shared
+`common.numeric_reductions` owner over CPython `statistics.mean`. Finite inputs
+are accumulated by that standard-library owner before rounding the binary64
+mean or even midpoint. CONSENSUS produces an aggregate point; scalar MEDIAN
+validates before a singleton shortcut and selects a real existing producer
+under its existing closest/tie policy. Null remains absence. These numerical
+properties establish no source independence, unit compatibility or authority.
+The inherited scalar selection policy uses the seeded stable tie breaker for
+observations within `1e-10` of the midpoint; otherwise equal nearest distances
+retain the first declared input. Source order is bound by the selected derivation.
+
+A successful all-empty UNION retains the stable full admitted column union,
+with explicit request-schema columns and dtypes first when supplied. A
+schema-only nullable column needs no invented observation or source template.
+Unsupported dtypes refuse before publication; absent or failed acquisition is
+not a successful empty result. Empty schema inference carries zero empirical
+confidence and an explicit unestablished-quality warning; its conservative
+completeness expectation is not a measured zero rate.
+
+Unaffected historical `/2` JOIN, OVERLAY and nonempty ordinary UNION selections
+remain readable only without a declared request schema or MEDIAN policy,
+including column-level policy overrides. Historical requests with any declared
+request schema, numeric CONSENSUS, MEDIAN policy or all-empty UNION receive a
+typed historical-rule-unavailable refusal. Their original
+selected bytes remain intact: a new `/3` derivation is required rather than
+silently reinterpreting them under the new arithmetic or schema rule. Generic
+source inspection is unaffected, and replay never promotes candidate assurance.

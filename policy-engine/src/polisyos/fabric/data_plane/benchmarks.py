@@ -23,7 +23,7 @@ from polisyos.fabric.data_plane.streaming import (
     StreamRuntimeOptions,
     process_stream_dataset,
 )
-from polisyos.fabric.world.materialize import (
+from polisyos.fabric.world import (
     WorldMaterializationPolicy,
     WorldMaterializeStats,
     ensure_world_materialized,
@@ -36,6 +36,7 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.base import ConnectionConfig
     from polisyos.fabric.data_plane.cursor_store import CursorStore
     from polisyos.fabric.ingestion import ConnectorManifestSpec
+    from polisyos.fabric.ingestion.source_progress import FiniteSourceProgressReader
     from polisyos.fabric.io.db import SimulationDB
 
 
@@ -149,8 +150,9 @@ async def benchmark_stream_processing(
     sanitize_rows: Callable[..., tuple[list[dict[str, Any]], list[str], int]],
     runtime_options: StreamRuntimeOptions | None = None,
     connection_config: ConnectionConfig | dict[str, Any] | None = None,
+    source_progress_readers: tuple[FiniteSourceProgressReader, ...] = (),
 ) -> tuple[StreamDatasetRunResult, FabricBenchmarkReport]:
-    """Run one event-driven stream and capture throughput/memory baseline."""
+    """Run a stream using its host-owned progress contract and measure the result."""
 
     async def _run() -> StreamDatasetRunResult:
         return await process_stream_dataset(
@@ -161,6 +163,7 @@ async def benchmark_stream_processing(
             sanitize_rows=sanitize_rows,
             runtime_options=runtime_options,
             connection_config=connection_config,
+            source_progress_readers=source_progress_readers,
         )
 
     result, started_at, elapsed_seconds, peak_memory_bytes = await _capture_async(_run)

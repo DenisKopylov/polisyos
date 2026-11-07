@@ -86,4 +86,4 @@ R793 is historical only: it ran 326 outcomes at old HEAD `14683576597938efc1b01b
 
 R1 remains `verification_missing` pending the current complete run, module-origin receipt, and matched removals. `closure_ids=[]`.
 
-Independent receipt: [`r1126-prepared-b-complete-defining-baseline-current-consumer-replay-20261013.json`](/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1126-prepared-b-complete-defining-baseline-current-consumer-replay-20261013.json).
+Independent receipt: `r1126-prepared-b-complete-defining-baseline-current-consumer-replay-20261013.json` (`/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r1126-prepared-b-complete-defining-baseline-current-consumer-replay-20261013.json`; unavailable in this checkout).

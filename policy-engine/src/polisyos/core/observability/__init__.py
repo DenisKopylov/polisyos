@@ -598,7 +598,16 @@ else:
                 return None
 
         class PolicyOSTracer:
-            def start_as_current_span(self, name: str, attributes=None):
+            def start_as_current_span(
+                self,
+                name: str,
+                attributes=None,
+                *,
+                kind=None,
+                record_exception: bool = True,
+                set_status_on_exception: bool = True,
+            ):
+                del name, attributes, kind, record_exception, set_status_on_exception
                 return _NoopSpan()
 
         def get_tracer() -> PolicyOSTracer:

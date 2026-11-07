@@ -51,11 +51,16 @@ from polisyos.runtime.quality.design_problem import DesignProblem
 if TYPE_CHECKING:
     from polisyos.common.canonical_profile import CanonicalProfileRead, CanonicalProfileStatus
     from polisyos.ir import NCMSpec
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationExecutionV5,
+        CandidateSimulationN5InputV5,
+    )
     from polisyos.runtime.quality.credal_reference import CredalReference
     from polisyos.runtime.quality.generation_cycle import (
         CandidateSummary,
         GenerationSourcePreservationReceipt,
     )
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationResult
 
 SOURCE_SCHEMA = "policyos.runtime.generation_source_handoff.v1"
 SOURCE_KIND = "runtime.generation_source_handoff"
@@ -80,6 +85,34 @@ _N4_CANDIDATE_SCENARIO_SOURCE_SCHEMA = "policyos.runtime.quality.n4_candidate_sc
 _N4_CANDIDATE_SCENARIO_SOURCE_V2_SCHEMA = "policyos.runtime.quality.n4_candidate_scenario_source.v2"
 _N4_CANDIDATE_SCENARIO_SOURCE_V3_SCHEMA = "policyos.runtime.quality.n4_candidate_scenario_source.v3"
 _CANDIDATE_MODEL_DECLARATION_KIND = "runtime.quality.candidate_simulation_model_declaration"
+
+
+@dataclass(frozen=True)
+class _GenerationSourceReadExpectations:
+    """Carry only caller-established scope for a previously persisted source."""
+
+    expected_run_id: str
+    expected_job_id: str
+    expected_tenant_id: str
+    expected_cell_id: str
+    context_job_ref: ArtifactRef | None = None
+    profile_ref: ArtifactRef | None = None
+    n4_child_profile_family_ref: ArtifactRef | None = None
+
+
+@dataclass(frozen=True)
+class _CandidateSimulationV5NumericalRead:
+    """Actual selected V5 facts reopened by the existing source/result owners."""
+
+    execution: CandidateSimulationExecutionV5
+    input_record: CandidateSimulationN5InputV5
+    source: N4CandidateScenarioSourceRecordV2 | N4CandidateScenarioSourceRecordV3
+    result: JointSimulationResult
+    authority_blockers: tuple[str, ...]
+
+
+class _GenerationSourceReadScopeError(ValueError):
+    """The caller lacks retained expectations for one selected source view."""
 
 
 def _validated_content_bound_record[ContentBoundModelT: BaseModel](
@@ -3520,6 +3553,96 @@ class GenerationSourceRepository:
         current_lease_resolver: Callable[[object], bool] | None = None,
     ) -> object:
         """Resolve the versioned selected-model input or its N5 execution."""
+        return self._resolve_candidate_simulation_v5_record(
+            ref=ref,
+            expected_run_id=expected_run_id,
+            expected_job_id=expected_job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+            require_current_lease=require_current_lease,
+            current_lease_resolver=current_lease_resolver,
+        )
+
+    def _resolve_selected_candidate_simulation_v5_pair(
+        self,
+        *,
+        source_ref: ArtifactRef,
+        execution_ref: ArtifactRef,
+        input_ref: ArtifactRef,
+        expected_run_id: str,
+        expected_tenant_id: str,
+        expected_cell_id: str,
+    ) -> tuple[
+        N4CandidateScenarioSourceRecordV3,
+        object,
+        object,
+    ]:
+        """Resolve one selected N4 source and its paired V5 input/execution.
+
+        The source snapshot is created by this repository under the unchanged
+        run/tenant/cell and exact selected CAS view. It is shared only between
+        the two V5 membership checks in this call; it is not an admission or a
+        reusable permission result.
+        """
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationExecutionV5,
+            CandidateSimulationN5InputV5,
+        )
+
+        source = self.load_candidate_scenario_source_in_owner_scope(
+            source_ref,
+            expected_run_id=expected_run_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+        )
+        if type(source) is not N4CandidateScenarioSourceRecordV3:
+            raise ValueError("acquisition_prior_source_semantics_unobserved")
+
+        input_record = self._resolve_candidate_simulation_v5_record(
+            ref=input_ref,
+            expected_run_id=expected_run_id,
+            expected_job_id=source.job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+            _source_snapshot=source,
+            _source_ref=source_ref,
+        )
+        if type(input_record) is not CandidateSimulationN5InputV5:
+            raise ValueError("candidate_simulation_v5_input_record_required")
+
+        execution = self._resolve_candidate_simulation_v5_record(
+            ref=execution_ref,
+            expected_run_id=expected_run_id,
+            expected_job_id=source.job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+            _source_snapshot=source,
+            _source_ref=source_ref,
+            _input_snapshot=input_record,
+            _input_ref=input_ref,
+        )
+        if type(execution) is not CandidateSimulationExecutionV5:
+            raise ValueError("candidate_simulation_v5_execution_record_required")
+        return source, execution, input_record
+
+    def _resolve_candidate_simulation_v5_record(
+        self,
+        *,
+        ref: ArtifactRef,
+        expected_run_id: str,
+        expected_job_id: str | None = None,
+        expected_tenant_id: str | None = None,
+        expected_cell_id: str | None = None,
+        require_current_lease: bool = False,
+        current_lease_resolver: Callable[[object], bool] | None = None,
+        _source_snapshot: N4CandidateScenarioSourceRecordV2
+        | N4CandidateScenarioSourceRecordV3
+        | None = None,
+        _source_ref: ArtifactRef | None = None,
+        _input_snapshot: object | None = None,
+        _input_ref: ArtifactRef | None = None,
+    ) -> object:
+        """Validate one V5 record; only the paired owner path supplies snapshots."""
         import hashlib
 
         from polisyos.runtime.quality.candidate_simulation import (
@@ -3615,9 +3738,28 @@ class GenerationSourceRepository:
         # The N5 input owns the profile. Execution V5 persists only its
         # profile reference, so replay must resolve that exact input before
         # checking source membership.
-        input_record = (
-            record if is_input else self._load_candidate_simulation_input_v5(record.n5_input_ref)
-        )
+        if is_input:
+            if _input_snapshot is not None or _input_ref is not None:
+                raise ValueError("candidate_simulation_v5_execution_input_mismatch")
+            input_record = record
+        elif _input_snapshot is None:
+            if _input_ref is not None or (_source_snapshot is not None and _source_ref is None):
+                raise ValueError("candidate_simulation_v5_execution_input_mismatch")
+            input_record = self._load_candidate_simulation_input_v5(record.n5_input_ref)
+        else:
+            input_read = _generation_source_read_result(_input_snapshot)
+            if (
+                type(_input_snapshot) is not CandidateSimulationN5InputV5
+                or not isinstance(_input_ref, ArtifactRef)
+                or artifact_ref_identity_key(record.n5_input_ref)
+                != artifact_ref_identity_key(_input_ref)
+                or input_read is None
+                or input_read.provenance.selected_artifact_id != str(_input_ref.artifact_id)
+                or input_read.provenance.selected_manifest_profile_sha256
+                != _input_ref.manifest_profile_sha256
+            ):
+                raise ValueError("candidate_simulation_v5_execution_input_mismatch")
+            input_record = _input_snapshot
         if not is_input and (
             type(input_record) is not CandidateSimulationN5InputV5
             or artifact_ref_identity_key(input_record.n4_source_ref)
@@ -3638,13 +3780,29 @@ class GenerationSourceRepository:
         ):
             raise ValueError("candidate_simulation_v5_execution_input_mismatch")
 
-        source = self.load_candidate_scenario_source_for_n5(
-            record.n4_source_ref,
-            expected_run_id=record.run_id,
-            expected_job_id=record.job_id,
-            expected_tenant_id=record.tenant_id,
-            expected_cell_id=record.cell_id,
-        )
+        if _source_snapshot is None:
+            if _source_ref is not None:
+                raise ValueError("candidate_simulation_v5_n4_source_membership_mismatch")
+            source = self.load_candidate_scenario_source_for_n5(
+                record.n4_source_ref,
+                expected_run_id=record.run_id,
+                expected_job_id=record.job_id,
+                expected_tenant_id=record.tenant_id,
+                expected_cell_id=record.cell_id,
+            )
+        else:
+            source_read = _generation_source_read_result(_source_snapshot)
+            if (
+                not isinstance(_source_ref, ArtifactRef)
+                or artifact_ref_identity_key(record.n4_source_ref)
+                != artifact_ref_identity_key(_source_ref)
+                or source_read is None
+                or source_read.provenance.selected_artifact_id != str(_source_ref.artifact_id)
+                or source_read.provenance.selected_manifest_profile_sha256
+                != _source_ref.manifest_profile_sha256
+            ):
+                raise ValueError("candidate_simulation_v5_n4_source_membership_mismatch")
+            source = _source_snapshot
         source_v2 = (
             source.source_record
             if type(source) is N4CandidateScenarioSourceRecordV3
@@ -3709,6 +3867,77 @@ class GenerationSourceRepository:
             raise ValueError("candidate_simulation_v5_current_lease_not_established")
         record = _mark_canonical_profile_read(record, profile_read, ref)
         return record
+
+    def _read_candidate_simulation_v5_numerical_output(
+        self,
+        *,
+        ref: ArtifactRef,
+        expected_run_id: str,
+        expected_job_id: str,
+        expected_tenant_id: str,
+        expected_cell_id: str,
+    ) -> _CandidateSimulationV5NumericalRead:
+        """Reopen one numerical completion without granting currentness or authority."""
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationExecutionV5,
+            CandidateSimulationN5InputV5,
+        )
+        from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
+        from polisyos.runtime.quality.generation_cycle import (
+            _joint_simulation_port_outcome,
+            load_joint_simulation_result,
+        )
+
+        expected = {
+            "expected_run_id": expected_run_id,
+            "expected_job_id": expected_job_id,
+            "expected_tenant_id": expected_tenant_id,
+            "expected_cell_id": expected_cell_id,
+        }
+        execution = self.resolve_candidate_simulation_v5(ref=ref, **expected)
+        if type(execution) is not CandidateSimulationExecutionV5:
+            raise ValueError("candidate_simulation_v5_numerical_execution_required")
+        selected_refs = (
+            ref,
+            execution.n5_input_ref,
+            execution.n4_source_ref,
+            execution.n5_result_ref,
+        )
+        if any(selected.manifest_profile_sha256 is None for selected in selected_refs):
+            raise ValueError("candidate_simulation_v5_numerical_selected_view_missing")
+        input_record = self.resolve_candidate_simulation_v5(ref=execution.n5_input_ref, **expected)
+        if type(input_record) is not CandidateSimulationN5InputV5:
+            raise ValueError("candidate_simulation_v5_numerical_input_required")
+        source = self.load_candidate_scenario_source_for_n5(execution.n4_source_ref, **expected)
+        if type(source) not in (
+            N4CandidateScenarioSourceRecordV2,
+            N4CandidateScenarioSourceRecordV3,
+        ):
+            raise ValueError("candidate_simulation_v5_numerical_source_required")
+        context = CycleSubstrateContextArtifactOwner(
+            store=self.store
+        ).resolve_historical_job_artifact(
+            execution.context_job_ref, problem=source.problem, **expected
+        )
+        if (
+            context.context.world_model_record.content_hash != execution.world_model_record_hash
+            or context.context.content_hash != input_record.materialization.context_hash
+        ):
+            raise ValueError("candidate_simulation_v5_numerical_context_mismatch")
+        result = load_joint_simulation_result(
+            execution.n5_result_ref,
+            store=self.store,
+            expected_world_model_record_content_hash=execution.world_model_record_hash,
+            expected_atom_ids=(input_record.materialization.derived_n5_atom.intervention_id,),
+            expected_selected_outcomes=(input_record.outcome_variable,),
+            expected_receipt_payload_hash=execution.n5_result_content_hash,
+        )
+        status, blockers = _joint_simulation_port_outcome(result)
+        if status != "joint_simulated":
+            raise ValueError("candidate_simulation_v5_numerical_result_not_completed")
+        return _CandidateSimulationV5NumericalRead(
+            execution, input_record, source, result, tuple(blockers)
+        )
 
     def _load_candidate_simulation_input_v5(self, ref: ArtifactRef) -> object:
         """Resolve one exact V5 input and its upstream candidate source."""
@@ -4251,7 +4480,13 @@ class GenerationSourceRepository:
                 source_ref=artifact.content_hash,
                 input_refs=generic_source_inputs,
             )
-        ref = self._writer().put_bytes(body, options)
+        ref = self._writer().put_bytes(
+            body,
+            options,
+            return_selected_profile=bool(generic_source_inputs),
+        )
+        if generic_source_inputs and ref.manifest_profile_sha256 is None:
+            raise ValueError("generation_source_generic_selected_profile_not_returned")
         return ref
 
     def load(
@@ -4602,6 +4837,36 @@ class GenerationSourceRepository:
         record = _mark_canonical_profile_read(record, profile_read, ref)
         return record
 
+    def _load_retained_source(
+        self,
+        ref: ArtifactRef | str,
+        *,
+        run_id: str,
+        read_expectations_by_ref: Mapping[
+            tuple[str, str, str, str | None], _GenerationSourceReadExpectations
+        ]
+        | None,
+    ) -> GenerationSourceHandoff:
+        if read_expectations_by_ref is None:
+            return self.load(ref, run_id=run_id)
+        key = (
+            artifact_ref_identity_key(ref) if isinstance(ref, ArtifactRef) else (ref, "", "", None)
+        )
+        expectations = read_expectations_by_ref.get(key)
+        if type(expectations) is not _GenerationSourceReadExpectations:
+            raise _GenerationSourceReadScopeError("generation_source_read_scope_not_established")
+        return self.load(
+            ref,
+            run_id=run_id,
+            expected_run_id=expectations.expected_run_id,
+            expected_job_id=expectations.expected_job_id,
+            expected_tenant_id=expectations.expected_tenant_id,
+            expected_cell_id=expectations.expected_cell_id,
+            context_job_ref=expectations.context_job_ref,
+            profile_ref=expectations.profile_ref,
+            n4_child_profile_family_ref=expectations.n4_child_profile_family_ref,
+        )
+
     def resolve(
         self,
         *,
@@ -4609,6 +4874,10 @@ class GenerationSourceRepository:
         run_id: str,
         summary: CandidateSummary,
         problem: DesignProblem,
+        read_expectations_by_ref: Mapping[
+            tuple[str, str, str, str | None], _GenerationSourceReadExpectations
+        ]
+        | None = None,
     ) -> GenerationSourceResolution:
         """Resolve the whole source set before selecting one exact candidate occurrence."""
         ref_keys = tuple(
@@ -4623,11 +4892,15 @@ class GenerationSourceRepository:
         matched = []
         try:
             for ref in refs:
-                artifact = self.load(ref, run_id=run_id)
+                artifact = self._load_retained_source(
+                    ref, run_id=run_id, read_expectations_by_ref=read_expectations_by_ref
+                )
                 if identity in artifact.identities():
                     identity_matches.append((ref, artifact))
                     if artifact.cycle_index == summary.cycle_index:
                         matched.append((ref, artifact))
+        except _GenerationSourceReadScopeError as exc:
+            return GenerationSourceResolution(status="not_established", code=str(exc))
         except (KeyError, OSError, ValueError, TypeError):
             return GenerationSourceResolution(status="not_established", code="source_replay_failed")
         if not matched:
@@ -4710,6 +4983,10 @@ class GenerationSourceRepository:
         expected: Sequence[Identity],
         prior_issues: Sequence[str] = (),
         scope_synthetic: Literal[True] | None = None,
+        read_expectations_by_ref: Mapping[
+            tuple[str, str, str, str | None], _GenerationSourceReadExpectations
+        ]
+        | None = None,
     ) -> GenerationSourcePreservationReceipt:
         """Re-read every persisted candidate and compare complete identity sets."""
         from polisyos.runtime.quality.generation_cycle import (
@@ -4728,7 +5005,9 @@ class GenerationSourceRepository:
             issues.append("source_ref_duplicate")
         for ref in refs:
             try:
-                artifact = self.load(ref, run_id=run_id)
+                artifact = self._load_retained_source(
+                    ref, run_id=run_id, read_expectations_by_ref=read_expectations_by_ref
+                )
                 source_ref = str(ref.artifact_id) if isinstance(ref, ArtifactRef) else ref
                 if isinstance(ref, ArtifactRef):
                     default_manifest = self.store.get_manifest(source_ref)
@@ -4742,6 +5021,8 @@ class GenerationSourceRepository:
                     retained.append(identity)
                 if artifact.synthetic is True:
                     synthetic = True
+            except _GenerationSourceReadScopeError as exc:
+                issues.append(str(exc))
             except (KeyError, OSError, ValueError, TypeError):
                 issues.append("source_replay_failed")
         if set(expected) != set(retained):

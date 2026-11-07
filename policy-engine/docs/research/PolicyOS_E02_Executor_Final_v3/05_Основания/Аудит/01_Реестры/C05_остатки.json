@@ -1,0 +1,71 @@
+{
+  "scope": "CYC-04 only; not a separate product operational backlog",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "residuals": [
+    {
+      "finding_id": "B10",
+      "class": "verification_remaining",
+      "statement": "Существующий post-grounding selector должен быть проверен связанным controller→actual N5→result readback, не только recording port.",
+      "preserve": "_grounded_candidate_for_evaluation; full candidate summaries",
+      "sources": [
+        "C05-S01",
+        "C05-S05"
+      ],
+      "test_status": "UNRUN_native"
+    },
+    {
+      "finding_id": "B10",
+      "class": "test_fixture_drift",
+      "statement": "_grounded_two_candidate_state возвращает problem=object(), тогда как _generate_node требует DesignProblem; исправлять fixture, не product guard.",
+      "sources": [
+        "C05-S01",
+        "C05-S05"
+      ],
+      "probe": "T01_object_fixture_rejected_by_generate_prologue",
+      "native_result": "UNRUN"
+    },
+    {
+      "finding_id": "B10",
+      "class": "capability_extension",
+      "statement": "В прочитанном _joint_value_node_impl нет повторного отбора после позднего candidate-local N5/N8 отказа. Нужен ограниченный переход по уже произведённому набору, без обхода общего budget/permission отказа.",
+      "sources": [
+        "C05-S01"
+      ],
+      "probes": [
+        "C05_late_N5_block_does_not_try_second",
+        "C05_late_N8_block_does_not_try_second"
+      ],
+      "production_incidence": "not_measured"
+    },
+    {
+      "finding_id": "B11",
+      "class": "verification_remaining",
+      "statement": "Нынешнюю information-over-low-ROI ветвь и actual budget admission проверить вместе; существующий C49 тест прочитан, не исполнен.",
+      "sources": [
+        "C05-S01",
+        "C05-S02",
+        "C05-S06"
+      ],
+      "native_result": "UNRUN"
+    },
+    {
+      "finding_id": "B11",
+      "class": "measurement_and_allocation_limit",
+      "statement": "N5 USD price и per-call reservation не установлены данным producer-budget owner; stage costs остаются эвристикой. Это не отсутствие ledger или current-owner check.",
+      "sources": [
+        "C05-S01",
+        "C05-S04"
+      ]
+    },
+    {
+      "finding_id": "B11",
+      "class": "policy_question_not_automatic_new_bug",
+      "statement": "Защищённая квота исследовательских проверок, если требуется, задаётся через существующее распределение ресурса. Positive information gain и calibration reserve уровня4 не доказывают её для reviewed N6 stage3.",
+      "sources": [
+        "C05-S01",
+        "C05-S02"
+      ],
+      "working_direction": "LLM proposes substantive hypotheses; algorithmic mechanisms preferred where equally/more general and scalable."
+    }
+  ]
+}

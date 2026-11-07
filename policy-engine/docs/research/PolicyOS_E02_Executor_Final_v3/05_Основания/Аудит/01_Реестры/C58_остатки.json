@@ -1,0 +1,86 @@
+{
+  "pass": "C58",
+  "bundle": "SCM-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C58-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high_bounded",
+      "source_ids": [
+        "B215"
+      ],
+      "title": "Абсолютный covariance threshold уничтожает ненулевой Gaussian posterior при смене масштаба",
+      "evidence": [
+        "S01:893–1015",
+        "P02",
+        "P04",
+        "P05"
+      ],
+      "remaining": "Не объявлять posterior deterministic только по абсолютному порогу1e−12 в физических единицах. Сохранять PSD stochastic covariance с согласованным scale-aware numerical admission; проверить unit-rescaling, rank-deficient exact factual и query/twin marginal controls на существующем shared draw owner.",
+      "limits": "s=1e−7, X=Ux,Y=X+Uy, evidenceY=2s. Actual posterior variance5e−15>0, но draw возвращает mean для всех4096 draws; output std≈2.65e−23 вместо7.07e−8. Same marginal in twin. Общий envelope non-gating, production reach не измерен."
+    },
+    {
+      "id": "C58-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high_bounded",
+      "source_ids": [
+        "B215"
+      ],
+      "title": "Наблюдённый empirical root фиксируется без conditioning общего row carrier",
+      "evidence": [
+        "S01:788–821",
+        "S01:1328–1489",
+        "S05",
+        "P06",
+        "P07"
+      ],
+      "remaining": "Для joint observed root carrier condition согласовать совместную выборку с factual evidence либо явно отказать/обозначить unsupported limited posterior. Не маркировать exact только из-за известности отдельного root. Сохранить existing unconditional common-row law и не подменять factual condition интервенцией.",
+      "limits": "Declared rows(W,Z)=(0,0),(10,1), factualZ=1, doT0,Y=T+W. Actual outcome mean4.9902/std5 вместо10/0; генерируется pair(0,1), отсутствующая в заданном joint law. Metadata exact_residual_fallback/abduction_gate_eligible=True, но overall envelope remainsFalse. Это finite executable conditional-law defect, не эмпирическая идентификация."
+    },
+    {
+      "id": "C58-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B215",
+        "B223"
+      ],
+      "title": "Native query→CAS→Scientist/ensemble и historical admission не исполнены",
+      "evidence": [
+        "S03:596–753",
+        "S06",
+        "S07",
+        "S08",
+        "native_pytest.log",
+        "native_import.log"
+      ],
+      "remaining": "В supported environment выполнить existing native producer/persistence/ensemble tests, различая mock run_job portions от genuine method jobs. Проверить typed target/comparator, source/whole-output binding, manifest versions и conservative eligibility на actual consumers.",
+      "limits": "Local JSON roundtrip/DTO conflict refusal не CAS custody. Source query owner имеет canonical whole-output/alias/request checks; ensemble source сравнивает canonical arms до aggregation. Native chain отсутствует из-за среды, не product failure."
+    },
+    {
+      "id": "C58-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B215",
+        "B223"
+      ],
+      "title": "Supported law/estimand и scientific authority остаются ограниченными",
+      "evidence": [
+        "S01:822–990",
+        "S01:1128–1163",
+        "S03:419–452",
+        "P01–P10"
+      ],
+      "remaining": "Сохранять поддержанный independent linear-Gaussian posterior, declared limitations unsupported empirical/nonlinear paths и distinction ITE distribution versus estimator CI. Refit bootstrap требует отдельной actual source-bound qualification; C58 его не запускал и SCM03 сам по себе не назначается владельцем проверки.",
+      "limits": "Синтетические Gaussian/finite empirical controls не доказывают причинную идентификацию реальной политики. Отсутствие общей nonlinear posterior/универсального deterministic model invention не само по себе баг; R01/R02 — конкретные нарушения заявленного numerical/conditional profile."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C58-R01",
+    "C58-R02"
+  ],
+  "decision": "Основные partial Gaussian и explicit contrast fixes подтверждены bounded controls, но остаются два fresh conditional-law residual. Native chain/scientific scope не закрыты."
+}

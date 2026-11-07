@@ -94,6 +94,9 @@
                 "type": "integer"
               },
               {
+                "type": "number"
+              },
+              {
                 "type": "boolean"
               },
               {

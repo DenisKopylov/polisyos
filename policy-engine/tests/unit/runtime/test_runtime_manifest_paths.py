@@ -2,7 +2,9 @@ import base64
 import hashlib
 import json
 import pickle
+from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -233,6 +235,13 @@ def test_append_audit_recovers_pending_record_after_interrupted_append(
 
 
 def test_pre_move_manifest_pickles_load_at_the_preserved_module_path() -> None:
+    """Keep cf6a076 pickle/model ABI and reconcile only the later ID schema grammar.
+
+    The original whole-source closure reproduces the fixture's de473e88 hash.
+    Commit 6b5df639 intentionally added ArtifactID's JSON-Schema constraints;
+    importing the old Runtime class against current Core is a mixed closure.
+    All other current schema bytes must still reproduce the original baseline.
+    """
     fixture_path = (
         Path(__file__).resolve().parents[2]
         / "fixtures"
@@ -243,6 +252,12 @@ def test_pre_move_manifest_pickles_load_at_the_preserved_module_path() -> None:
 
     manifest_payload = base64.b64decode(fixture["objects"]["RunManifest"]["pickle_base64"])
     artifact_payload = base64.b64decode(fixture["objects"]["ArtifactRef"]["pickle_base64"])
+    assert (
+        hashlib.sha256(manifest_payload).hexdigest() == fixture["objects"]["RunManifest"]["sha256"]
+    )
+    assert (
+        hashlib.sha256(artifact_payload).hexdigest() == fixture["objects"]["ArtifactRef"]["sha256"]
+    )
     manifest = pickle.loads(manifest_payload)  # noqa: S301 -- fixed repo-owned pre-move fixture.
     artifact = pickle.loads(artifact_payload)  # noqa: S301 -- fixed repo-owned pre-move fixture.
 
@@ -252,13 +267,7 @@ def test_pre_move_manifest_pickles_load_at_the_preserved_module_path() -> None:
     assert type(artifact).__module__ == fixture["objects"]["ArtifactRef"]["module"]
     assert manifest.run_id == "legacy-package-pickle"
     assert manifest.artifacts[0] == artifact
-    schema_hash = hashlib.sha256(
-        json.dumps(
-            RunManifest.model_json_schema(),
-            sort_keys=True,
-            separators=(",", ":"),
-        ).encode()
-    ).hexdigest()
+    schema_hash = _schema_hash_with_original_artifact_id_grammar(RunManifest.model_json_schema())
     assert schema_hash == fixture["baseline"]["run_manifest_schema_sha256"]
     assert list(RunManifest.model_json_schema()["properties"]) == [
         "schema_version",
@@ -276,3 +285,40 @@ def test_pre_move_manifest_pickles_load_at_the_preserved_module_path() -> None:
         "environment_fingerprint",
         "run_root",
     ]
+
+
+def _schema_hash_with_original_artifact_id_grammar(schema: dict[str, Any]) -> str:
+    """Reconcile the exact three added ID constraints, preserving every other byte."""
+    from polisyos.core.artifacts.ids import ArtifactID
+
+    actual = schema["$defs"]["ArtifactID"]
+    assert actual == ArtifactID.model_json_schema(mode="validation")
+    constraints = {
+        "pattern": r"^sha256:[0-9A-Fa-f]{64}$",
+        "minLength": 71,
+        "maxLength": 71,
+    }
+    historical = deepcopy(schema)
+    for key, expected in constraints.items():
+        assert actual[key] == expected
+        del historical["$defs"]["ArtifactID"][key]
+    return hashlib.sha256(
+        json.dumps(historical, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
+@pytest.mark.parametrize("changed_path", ["run_id", "artifact_id_pattern", "unrecognized_id_key"])
+def test_pre_move_schema_reconciliation_rejects_unexpected_drift(
+    monkeypatch: pytest.MonkeyPatch, changed_path: str
+) -> None:
+    """The actual compatibility test rejects unrelated or weakened schema changes."""
+    changed = deepcopy(RunManifest.model_json_schema())
+    if changed_path == "run_id":
+        changed["properties"]["run_id"]["type"] = "integer"
+    elif changed_path == "artifact_id_pattern":
+        changed["$defs"]["ArtifactID"]["pattern"] = ".*"
+    else:
+        changed["$defs"]["ArtifactID"]["unrecognized"] = True
+    monkeypatch.setattr(RunManifest, "model_json_schema", lambda **_kwargs: changed)
+    with pytest.raises(AssertionError):
+        test_pre_move_manifest_pickles_load_at_the_preserved_module_path()

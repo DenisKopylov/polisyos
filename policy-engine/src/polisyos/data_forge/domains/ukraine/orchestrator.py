@@ -7,6 +7,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 import pandas as pd
 
@@ -58,6 +59,11 @@ class StageBlockedError(RuntimeError):
     def __init__(self, status: str, message: str) -> None:
         super().__init__(message)
         self.status = status
+
+
+def _new_run_id(stage_name: str) -> str:
+    """Identify one attempt even when wall-clock seconds repeat or move backwards."""
+    return f"{stage_name}_{int(time.time())}_{uuid4().hex}"
 
 
 @dataclass(frozen=True)
@@ -345,6 +351,10 @@ class UkraineDataOrchestrator:
             self._log(f"building stage {stage_id.value}")
             result = builder(self.config)
             result.validate_inputs()
+            for record in result.inputs:
+                current = ArtifactRecord.from_path(Path(record.path))
+                if current.sha256 != record.sha256 or current.size_bytes != record.size_bytes:
+                    raise ValueError("stage builder input content does not match its record")
             builder_input_paths = [Path(item.path).resolve() for item in result.inputs]
             if len(builder_input_paths) != len(set(builder_input_paths)):
                 raise ValueError("stage builder returned duplicate input paths")
@@ -375,7 +385,7 @@ class UkraineDataOrchestrator:
         peak_rss_gib = tracker.peak_rss_gib
         disk_used_gib = directory_size_gib(self.config.build_root.root)
         manifest = BuildRunManifest(
-            run_id=f"{stage_id.value}_{int(time.time())}",
+            run_id=_new_run_id(stage_id.value),
             stage_id=stage_id,
             status=status,
             started_at=started_at,
@@ -420,7 +430,7 @@ class UkraineDataOrchestrator:
             capability_path = self.write_server_capability_manifest()
             outputs.append(ArtifactRecord.from_path(capability_path))
         manifest = BuildRunManifest(
-            run_id=f"{StageId.BOOTSTRAP_SERVER.value}_{int(time.time())}",
+            run_id=_new_run_id(StageId.BOOTSTRAP_SERVER.value),
             stage_id=StageId.BOOTSTRAP_SERVER,
             status="completed",
             started_at=started_at,
@@ -440,18 +450,20 @@ class UkraineDataOrchestrator:
         )
 
     def validate_part_a(self) -> StageRunSummary:
-        assert_server_execution_allowed(self.config.server)
-        self.ensure_layout()
-        tracker = ResourceTracker(self.config.build_root.root)
         started_at = utc_now_iso()
+        # The shared gate first distinguishes an unavailable repository from a
+        # server action. It still enforces server admission before invoking the
+        # Ops runner for every usable checkout.
         gate = run_part_a_gate(
             self.config.server,
             self.workspace_root,
             runner=self.part_a_gate_runner,
         )
+        self.ensure_layout()
+        tracker = ResourceTracker(self.config.build_root.root)
         gate_path = write_manifest(self.config.build_root.part_a_gate_manifest_path, gate)
         manifest = BuildRunManifest(
-            run_id=f"{StageId.VALIDATE_PART_A.value}_{int(time.time())}",
+            run_id=_new_run_id(StageId.VALIDATE_PART_A.value),
             stage_id=StageId.VALIDATE_PART_A,
             status=gate.status,
             started_at=started_at,
@@ -495,7 +507,7 @@ class UkraineDataOrchestrator:
             )
         except StageBlockedError as exc:
             manifest = BuildRunManifest(
-                run_id=f"{stage_id.value}_{int(time.time())}",
+                run_id=_new_run_id(stage_id.value),
                 stage_id=stage_id,
                 status=exc.status,
                 started_at=utc_now_iso(),
@@ -542,7 +554,7 @@ class UkraineDataOrchestrator:
                     )
                 )
         validation_manifest = BuildRunManifest(
-            run_id=f"validate_{stage_id.value}_{int(time.time())}",
+            run_id=_new_run_id(f"validate_{stage_id.value}"),
             stage_id=stage_id,
             status="completed" if not findings else "failed",
             started_at=utc_now_iso(),

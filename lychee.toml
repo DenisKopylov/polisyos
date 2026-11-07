@@ -37,6 +37,23 @@ exclude_path = [
   # them to point at current files would falsify the historical record, which is
   # the same violation as regenerating a baseline over a finding.
   "policy-engine/docs/reference/frontend/atlas-live-application-audit.md",
+  # E02 process captures and received transcripts are immutable output, not
+  # authored navigation. Text such as `file://$out/benchmarks` records the run's
+  # own workspace; checking it as a repository hyperlink changes its meaning.
+  "policy-engine/docs/research/e02-cloud-test-plan/.*\\.txt$",
+  # Retained source excerpts keep links relative to their original source tree.
+  # The canonical source/docs remain checked; never rewrite captured inputs to
+  # make an incomplete copied subtree look like a published documentation tree.
+  "policy-engine/docs/research/e02-cloud-test-plan/.*/(preimages|postimages|source-inputs)/",
+  # These received v3 source/baseline captures retain links in their original
+  # source context. Preserve their bytes rather than rebinding historical claims
+  # to current files. Current 00-04/06/09 and live navigation stay checked;
+  # links from those pages into captured files still require an existing target.
+  "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/05_Основания/Архитектура/",
+  "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/05_Основания/Аудит/",
+  "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/05_Основания/Исследование/",
+  "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/07_Техническое_review/baseline/",
+  "policy-engine/docs/research/PolicyOS_E02_Executor_Final_v3/08_Источниковое_review_v2/",
 ]
 
 # Local-only exclusions: mail, telephony and example hosts are never resolvable.

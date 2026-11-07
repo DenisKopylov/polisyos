@@ -17,22 +17,30 @@ type SelectedArtifactRef = components["schemas"]["ArtifactRef-Input"] & {
   media_type: "application/json";
   manifest_profile_sha256: string;
 };
-type SelectedDataSnapshotRef = components["schemas"]["DataSnapshotRef"] & {
-  kind: "fabric.data_snapshot";
-  media_type: "application/json";
-  manifest_profile_sha256: string;
-};
+type SelectedDataSnapshotRef =
+  components["schemas"]["DataSnapshotRef-Input"] & {
+    kind: "fabric.data_snapshot";
+    media_type: "application/json";
+    manifest_profile_sha256: string;
+  };
 
 /** Exact local wire type until the canonical OpenAPI types are regenerated. */
 export type NaturalLanguageRunRequest = Omit<
   GeneratedNaturalLanguageRunRequest,
   | "data_source"
+  | "run_budget_scope"
+  | "candidate_acquisition_intent"
   | "value_data_profile_ref"
   | "value_data_unit_id"
   | "model_spec_ref"
   | "policy_spec_ref"
   | "calibration_rule_ref"
 > & {
+  candidate_acquisition_intent?: "bounded_experiment_voi_unknown" | null;
+  run_budget_scope?:
+    | "hard_total_usd"
+    | "metered_paid_producers_and_bounded_candidate"
+    | null;
   data_source?:
     | (Omit<components["schemas"]["DataSourceBinding"], "data_snapshot_ref"> & {
         data_snapshot_ref?: string | SelectedDataSnapshotRef | null;

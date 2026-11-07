@@ -85,8 +85,8 @@ def _fork_scm(*, noise_std: float = 0.5) -> StructuralCausalModelSpec:
             NodeMechanism(
                 variable="Z",
                 parents=[],
-                family=MechanismFamily.EMPIRICAL,
-                family_params={"mean": 0.0, "std": 1.0},
+                family=MechanismFamily.LINEAR,
+                family_params={"intercept": 0.0, "noise_std": 1.0},
                 source=MechanismSource.DEFAULT,
             ),
             NodeMechanism(

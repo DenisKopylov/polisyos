@@ -1,0 +1,77 @@
+{
+  "pass": "C41",
+  "bundle": "PLG-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "phase": "LA-023 этап 2/2, accountable closure остаётся неполной",
+  "findings": [
+    {
+      "id": "C41-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high_for_source_and_bounded_branch",
+      "source_ids": [
+        "LA-023"
+      ],
+      "phase": "2/2",
+      "title": "HARD_DISCRETE rollout записывает sampled action, но выполняет deterministic mean",
+      "evidence": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "S02:238–334",
+        "S02:628–726",
+        "S03:79–127",
+        "S01:705–739",
+        "S07:109–168"
+      ],
+      "remaining": "В existing canonical collector/temporal action owner согласовать записанное действие с реально применённым либо честно ограничить неподдержанный training fidelity. Проверить оба collectors и сохранить обычный HARD evaluation; третий PPO loop не нужен.",
+      "limits": "HARD — явно выбранный non-default profile; default fluid и relaxed controls согласованы. Exact bodies с NumPy, scripted RNG и fixture actor/executor; selected monitor в collector fixture выключен. Native gradient/loss distortion и actual completed HARD training не измерялись. Ошибка относится к action-transition binding до PPO, не утверждает неисправность всех training runs."
+    },
+    {
+      "id": "C41-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-023"
+      ],
+      "title": "Tiny native gradient→learned action→fresh artifact consumer не исполнен в этой среде",
+      "evidence": [
+        "S15:254–548",
+        "S15:550–701",
+        "native_attempt.log"
+      ],
+      "remaining": "На поддержанном Python 3.14/JAX/Optax/pytest profile исполнить прочитанный tiny test и HARD distinguishing control, включая raw gradient observer, same-seed replay, fresh reader, missing-weight removal, post-training action и reset/continuation.",
+      "limits": "Наличие подробного настоящего test и source update loop признано, но не равно свежему PASS. Нет pytest/JAX; зависимости не устанавливались. Bounded fixtures не являются train execution."
+    },
+    {
+      "id": "C41-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-023"
+      ],
+      "title": "Наблюдаемое изменение — ограниченный capability criterion, не научная полезность",
+      "evidence": [
+        "P06",
+        "P07",
+        "P08",
+        "P14",
+        "P18",
+        "P21",
+        "S01:748–805",
+        "S15:649–701"
+      ],
+      "remaining": "Сохранить honest pending для ненаблюдаемого update и явно раскрыть узкий Economics/CRRA/active finite nonnegative profile. Реальную полезность learned policy оценивать отдельно на обоснованных данных/модели, не по seed delta, tiny fixture или наличию artifact.",
+      "limits": "Нулевой градиент вправе не менять policy; typed pending с training_update_not_observed не объявлен дефектом. Этот пакет не требует универсального trainer для всех DomainPlugin, нового optimizer или нового слоя paperwork."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C41-R01"
+  ],
+  "carried_forward_without_retest": [
+    "C40-R01",
+    "C40-G01"
+  ],
+  "superseded_scope_note": "C40-G02 требовал данный разбор этапа 2; source/bounded review теперь выполнен, native qualification остаётся C41-G01."
+}

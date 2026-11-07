@@ -2999,3 +2999,95 @@ def test_captured_registration_allows_same_entry_lazy_load_and_refuses_replaced_
         await registry.shutdown_async()
 
     asyncio.run(_exercise())
+
+
+@pytest.mark.parametrize(
+    "resolution_error",
+    [
+        ConnectorNotFoundError("removed"),
+        AmbiguousConnectorError("removed", ["one.removed", "two.removed"]),
+    ],
+)
+def test_pending_cleanup_retains_only_expected_resolution_failures(
+    registry: ConnectorRegistry,
+    sample_config: ConnectionConfig,
+    monkeypatch: pytest.MonkeyPatch,
+    resolution_error: Exception,
+) -> None:
+    """Unregistered/ambiguous IDs still retain their exact pending pool owner."""
+    pool = ConnectionPool(
+        connector_factory=MockConnectorA,
+        config=sample_config,
+        pool_config=PoolConfig(),
+    )
+
+    def resolve(_connector_id: str) -> str:
+        raise resolution_error
+
+    monkeypatch.setattr(registry, "_resolve_id", resolve)
+    registry.retain_pending_startup_cleanup("removed", pool)
+    assert registry._pending_startup_cleanup[id(pool)] == ("removed", pool)
+
+
+def test_pending_cleanup_does_not_hide_unexpected_resolution_failure(
+    registry: ConnectorRegistry,
+    sample_config: ConnectionConfig,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A broken resolver cannot be laundered into an ordinary removed owner."""
+    pool = ConnectionPool(
+        connector_factory=MockConnectorA,
+        config=sample_config,
+        pool_config=PoolConfig(),
+    )
+
+    def resolve(_connector_id: str) -> str:
+        raise RuntimeError("resolver invariant broke")
+
+    monkeypatch.setattr(registry, "_resolve_id", resolve)
+    with pytest.raises(RuntimeError, match="resolver invariant broke"):
+        registry.retain_pending_startup_cleanup("removed", pool)
+    assert registry._pending_startup_cleanup == {}
+
+
+@pytest.mark.parametrize("import_error", [ModuleNotFoundError, RuntimeError])
+def test_optional_cache_import_does_not_hide_unexpected_execution_failure(
+    registry: ConnectorRegistry,
+    sample_config: ConnectionConfig,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    import_error: type[Exception],
+) -> None:
+    """Only an unavailable optional import falls back; imported code bugs escape."""
+    import builtins
+    from datetime import timedelta
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.fabric.connectors.cache import (
+        CachingConnectorProxy,
+        ConnectorCacheStore,
+        TTLPolicy,
+    )
+
+    registry.register(MockConnectorA, config=sample_config)
+    registry.configure_cache(
+        ConnectorCacheStore(FileSystemCAS(tmp_path / "cas"), TTLPolicy(ttl=timedelta(hours=1)))
+    )
+    original_import = builtins.__import__
+    attempts: list[str] = []
+
+    def load_proxy(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "polisyos.fabric.connectors.cache.proxy":
+            attempts.append(name)
+            raise import_error("controlled cache module failure")
+        return original_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", load_proxy)
+    if issubclass(import_error, ImportError):
+        connector = registry.get("mock_a")
+        assert not isinstance(connector, CachingConnectorProxy)
+        assert connector.connector_id == "mock_a"
+    else:
+        with pytest.raises(RuntimeError, match="controlled cache module failure"):
+            registry.get("mock_a")
+    assert attempts == ["polisyos.fabric.connectors.cache.proxy"]

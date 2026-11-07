@@ -1,0 +1,197 @@
+[
+  {
+    "packet_id": "UDF-01",
+    "lane": "LANE-07",
+    "verdict": "retain",
+    "reason": "Lazy facade вместо очередного relocation — правильный локальный ремонт: contract-only import не должен активировать все stages. Dynamic activation должен возвращать canonical functions, а не copied wrappers. D4 exact deny bytes и первые5 positional полей StageBuildResult — реальные ABI, inputs extension не основание ломать callers.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "OBS-01",
+    "lane": "LANE-07",
+    "verdict": "retain",
+    "reason": "Calendar.monthrange и source-owned period parsing соответствуют календарной задаче; не заменять общим fuzzy date parser, способным угадывать missing дату. Inclusive bounds, coarse/fine precision и positional duplicate index semantics важнее pandas index labels.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "UDF-02",
+    "lane": "LANE-07",
+    "verdict": "bounded qualification",
+    "reason": "Existing IO/bindings extraction уже есть; повторная архитектурная перестройка не оправдана. Exact legacy JSON bytes, NPZ/Parquet semantic reader и D0–D3 prepared input bindings нужно квалифицировать на реальном producer/consumer.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "OBS-02",
+    "lane": "LANE-07",
+    "verdict": "retain",
+    "reason": "Disk-captured immutable read + bounded Arrow batch + prefix accounting соответствует replay при mutation/rebatch. Копия на диск дороже прямого parquet scan, но необходима для выбранного неизменного источника; mapper failures не должны провоцировать reader fallback и дублирование accepted prefix.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "UDF-04",
+    "lane": "LANE-07",
+    "verdict": "retain",
+    "reason": "Preflight unavailable до server guard разумен: absence checkout — structural capability, не попытка обойти запрещённый action. Workspace root и artifact root отдельны; callbacks принадлежат Ops. Installed C7 receipt требует real same-child collection/setup/call/teardown, не stdout passed.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "UDF-05",
+    "lane": "LANE-07",
+    "verdict": "targeted revision",
+    "reason": "Role-aware assembler выбран правильно: scalar/aggregate согласованность, equal legacy duplicate vs conflicting value, metadata preservation и reserved evidence last. Но exact index validator поставлен после before np.asarray — FA-01. Исправление должно захватить raw scalar identity.",
+    "finding_ids": [
+      "FA-01"
+    ]
+  },
+  {
+    "packet_id": "FED-01",
+    "lane": "LANE-07",
+    "verdict": "targeted revision",
+    "reason": "Numeric contract сильный: finite extremes/subnormal/cancellation, MEDIAN validation до singleton, distinction arithmetic point vs actual source selection. Предпочтительнее existing statistics.mean за common wrapper, чем новая arithmetic implementation (FA-04). Custom exact algorithm сам по себе не ошибочен.",
+    "finding_ids": [
+      "FA-04"
+    ]
+  },
+  {
+    "packet_id": "FED-02",
+    "lane": "LANE-07",
+    "verdict": "retain",
+    "reason": "Schema-first typed empty UNION и one bounded audit collector решают реальные дефекты без новой relational engine. Declared nullable schema-only column должна создаваться до pd.concat templates; no-sources отличается от lawful empty sources.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "CAL-01",
+    "lane": "LANE-07",
+    "verdict": "retain",
+    "reason": "Normalize paired source axis до inferred linspace и equal-length shortcut — правильное место; np.interp сам не валидирует domain invariants. Unit/interval compatibility всей selected series, не unit первого record. Не навязывать Pint/global conversion: upstream declared conversion owner достаточен.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "DFK-02",
+    "lane": "LANE-08",
+    "verdict": "retain",
+    "reason": "Catalog visibility не должна проходить executable connector projection. Исправить predicate через current selection owner, сохранив governed source config semantics; не отождествлять catalog-only с callable source.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "DFI-01",
+    "lane": "LANE-08",
+    "verdict": "bounded qualification",
+    "reason": "Existing finite binding/context extraction уже выполнен, поэтому retain owners и квалифицировать actual three leaf groups. ContextVar правильнее module global overrides; scope restoration в finally нужно проверять при exceptions/cancellation.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "DFI-02",
+    "lane": "LANE-08",
+    "verdict": "retain",
+    "reason": "Потерянный empty_shards counter протянуть через actual aggregate. Facade stale delegate решается small weak identity bookkeeping либо stable forwarding with current owner lookup; не broad monkeypatch broadcast и не дублирование API функций.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "DFI-03",
+    "lane": "LANE-08",
+    "verdict": "targeted revision",
+    "reason": "Strict nonnegative integer counts (not bool/coercion) и content-bound resume правильны. §5 содержит неподдержанный sync helper; off-only alternative не покрывает smart direct admission. FA-02: existing async finite-stage route предпочтителен.",
+    "finding_ids": [
+      "FA-02",
+      "FA-05"
+    ]
+  },
+  {
+    "packet_id": "EMB-01",
+    "lane": "LANE-08",
+    "verdict": "bounded qualification",
+    "reason": "Existing shared encode kernel хороший reuse: разные Academic/Catalog text projections остаются domain-owned, matrix/index normalization и dtype общие. Re-extract no need. Dimension from actual encoder4 vs fallback99 полезно отличает silent pad.",
+    "finding_ids": [
+      "FA-05",
+      "FA-06",
+      "FA-07"
+    ]
+  },
+  {
+    "packet_id": "EMB-02",
+    "lane": "LANE-08",
+    "verdict": "retain",
+    "reason": "Перед selector switch вызвать существующую semantic admission — оптимальный небольшой fix. Hashes не видят coherent but wrong index vectors; common staged validator нужен, selected flag forge не нужен. Postcommit projection error не rollback уже committed selector.",
+    "finding_ids": [
+      "FA-05",
+      "FA-06"
+    ]
+  },
+  {
+    "packet_id": "EMB-03",
+    "lane": "LANE-08",
+    "verdict": "bounded qualification",
+    "reason": "Legal incremental per-record text/assets/tokenizer identity следует сохранить, а не менять на Academic full rebuild или ID-only cache. Owned runtime positive served query действительно добавляет способность; source-owned finite CPU1024/ST2.7 profile допустим старт, не вечный hardcoded universe.",
+    "finding_ids": [
+      "FA-05",
+      "FA-06",
+      "FA-07"
+    ]
+  },
+  {
+    "packet_id": "ING-01",
+    "lane": "LANE-08",
+    "verdict": "retain",
+    "reason": "Finite pre-admitted request_hash→unique namespace map устраняет first namespace selection без filesystem guessing. Identical HTTP request across two sources действительно неоднозначен без request-scoped identity; bounded upfront unsupported честнее случайного routing.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "ING-02",
+    "lane": "LANE-08",
+    "verdict": "retain",
+    "reason": "Initial failure checkpoint должен иметь admitted source/clock/schema identities и empty operator state, а не mutated observed progress. Малый helper identity fields корректнее клонирования live accumulator. Actual committed frontier остаётся единственным resume basis.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "ING-03",
+    "lane": "LANE-08",
+    "verdict": "retain",
+    "reason": "Owned per-occurrence serialized byte accounting правильно заменяет repeated full sum; id(dict)-only memoization неверна при reuse/mutation. CATEGORY allowed_values is not None отличает empty allowed set от unconstrained; existing quarantine owner достаточен.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "NET-01",
+    "lane": "LANE-08",
+    "verdict": "retain",
+    "reason": "Terminal cleanup task cancelled нельзя shield-await forever: inspect done/cancelled and unified settlement retaining owner/permit until real close. Caller cancellation after success сначала settles physical result, then propagates. Design uses existing lifecycle, not new cancellation framework.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "NET-02",
+    "lane": "LANE-08",
+    "verdict": "retain",
+    "reason": "Successful result feeds AdaptiveRateLimiter once after actual provider completion. Plain RateLimiter protocol не расширять обязательным callback. Success feedback exception нельзя перехватить как provider RateLimitError и повторить physical call.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "SCL-01",
+    "lane": "LANE-09",
+    "verdict": "targeted revision",
+    "reason": "Current cached admission и per-attempt deadline — нужный ремонт, но offline ordering явно исправить FA-03. Общий raw transport сохраняет numeric destination/peer/hostname SNI; rewrite HTTP stack без причины не оправдан.",
+    "finding_ids": [
+      "FA-03"
+    ]
+  },
+  {
+    "packet_id": "SCL-03",
+    "lane": "LANE-09",
+    "verdict": "retain",
+    "reason": "Carry existing typed raw ArtifactRef through manual bytes normalization activates existing acquire recheck; второй CAS/SourceSpec type не нужен. Fetch profile must come from actual applied transport arguments on cache and no-cache routes, not populated test DTO.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "LLM-01",
+    "lane": "LANE-09",
+    "verdict": "retain",
+    "reason": "Optional metrics/traces не могут скрыть response/mandatory post_record. Нужен safe optional context boundary preserving body exception, не blanket suppress. Existing ledger/accounting owner retain; no new money subsystem.",
+    "finding_ids": []
+  },
+  {
+    "packet_id": "LLM-02",
+    "lane": "LANE-09",
+    "verdict": "retain",
+    "reason": "Finite six-role translator closure — обоснованное новое общее contract extension; не regex whitelist и не universal NL semantics. Exact prepared request binding + current owner/epoch per hit and once bounded revision re-admission avoids needless physical duplicate. Existing coordinator sufficient.",
+    "finding_ids": []
+  }
+]

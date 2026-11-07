@@ -80,6 +80,27 @@ class CausalModelEnsemble(BaseModel):
         self,
         query_results: dict[str, list[float]],
     ) -> UncertaintyEnvelope:
+        """Summarize member draws without inventing estimator confidence.
+
+        Args:
+            query_results: Finite fixed-model query draws grouped by caller key.
+
+        Returns:
+            The existing pooled-draw median and empirical percentile range,
+            explicitly heuristic and non-gating. Model selection weights remain
+            structural model weights, not independent-information weights.
+        """
+        metadata = {
+            "member_count": len(self.members),
+            "edge_frequency_count": len(self.edge_inclusion_frequency),
+            "aggregation_profile": "fixed_model_pooled_draw_range_v1",
+            "authority_limitation": (
+                "Fixed-model member draws do not establish estimator sampling confidence, "
+                "independent information units, or empirical causal validity"
+            ),
+            "member_weight_role": "structural_model_weights_not_pooled_draw_probabilities",
+            "member_weights": [float(member.weight) for member in self.members],
+        }
         all_estimates: list[float] = []
         for estimates in query_results.values():
             for raw in estimates:
@@ -101,8 +122,7 @@ class CausalModelEnsemble(BaseModel):
                 is_heuristic_ci=True,
                 gate_eligible=False,
                 metadata={
-                    "member_count": len(self.members),
-                    "edge_frequency_count": len(self.edge_inclusion_frequency),
+                    **metadata,
                     "empty_estimates": True,
                 },
             )
@@ -115,18 +135,19 @@ class CausalModelEnsemble(BaseModel):
                 float(np.percentile(arr, 2.5)),
                 float(np.percentile(arr, 97.5)),
             ),
-            confidence_level=0.95,
-            distribution_family=DistributionFamily.BOOTSTRAP,
+            confidence_level=None,
+            distribution_family=DistributionFamily.UNKNOWN,
             source=UncertaintySource.ENSEMBLE,
             propagation_method=PropagationMethod.MONTE_CARLO,
-            interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
+            interval_semantics=IntervalSemantics.HEURISTIC_RANGE,
             sample_size=int(arr.size),
-            is_heuristic_ci=False,
-            gate_eligible=True,
+            is_heuristic_ci=True,
+            gate_eligible=False,
             metadata={
-                "member_count": len(self.members),
-                "edge_frequency_count": len(self.edge_inclusion_frequency),
+                **metadata,
                 "consensus_graph_ref": self.consensus_graph_ref,
+                "draw_group_count": len(query_results),
+                "range_quantiles": [0.025, 0.975],
             },
         )
 

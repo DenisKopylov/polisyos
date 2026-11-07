@@ -1,0 +1,218 @@
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py:3598-3621
+ 3598 def _resolve_assignment_writes(
+ 3599     writes: Sequence[tuple[tuple[str, ...], Any, str]],
+ 3600 ) -> dict[tuple[str, ...], Any]:
+ 3601     """Merge identical writes and reject conflicting or overlapping targets."""
+ 3602     resolved: dict[tuple[str, ...], tuple[Any, set[str]]] = {}
+ 3603     for path, value, source_id in writes:
+ 3604         for prior_path, (prior_value, prior_sources) in resolved.items():
+ 3605             exact = prior_path == path
+ 3606             overlap = (len(prior_path) < len(path) and path[: len(prior_path)] == prior_path) or (
+ 3607                 len(path) < len(prior_path) and prior_path[: len(path)] == path
+ 3608             )
+ 3609             if exact and _same_assignment_value(prior_value, value):
+ 3610                 prior_sources.add(source_id)
+ 3611                 break
+ 3612             if exact or overlap:
+ 3613                 sources = ",".join(sorted((*prior_sources, source_id)))
+ 3614                 target = ".".join(path)
+ 3615                 raise JointSimulationControllerError(
+ 3616                     "intervention_assignment_conflict",
+ 3617                     f"{target} is assigned incompatibly by {sources}",
+ 3618                 )
+ 3619         else:
+ 3620             resolved[path] = (deepcopy(value), {source_id})
+ 3621     return {path: value for path, (value, _) in sorted(resolved.items())}
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py:4224-4245
+ 4224 def _assign_path_value(state: dict[str, Any], path: str, value: float) -> None:
+ 4225     parts = path.split(".")
+ 4226     current: Any = state
+ 4227     for part in parts[:-1]:
+ 4228         if isinstance(current, Mapping):
+ 4229             if part not in current:
+ 4230                 raise JointSimulationControllerError(
+ 4231                     "system_dynamics_intervention_binding_missing",
+ 4232                     path,
+ 4233                 )
+ 4234             current = current[part]
+ 4235         elif isinstance(current, list | np.ndarray):
+ 4236             current = current[int(part)]
+ 4237         else:
+ 4238             current = getattr(current, part)
+ 4239     last = parts[-1]
+ 4240     if isinstance(current, dict):
+ 4241         current[last] = value
+ 4242     elif isinstance(current, list | np.ndarray):
+ 4243         current[int(last)] = value
+ 4244     else:
+ 4245         setattr(current, last, value)
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py:1118-1253
+ 1118 def _run_cached_replicates(
+ 1119     request: JointSimulationRequest,
+ 1120     plan: EnginePlan,
+ 1121     decision: EngineDecision,
+ 1122     run_once: Callable[[RunLevel, tuple[InterventionAtomBinding, ...], int], SimulationTrajectory],
+ 1123     *,
+ 1124     producer_budget_observer: ProducerBudgetObserver | None = None,
+ 1125 ) -> list[SimulationTrajectory]:
+ 1126     """Admit each physical seed once; role projections do not create new work.
+ 1127 
+ 1128     The budget read is current at the actual call boundary. The work unit is a
+ 1129     physical invocation and does not establish a USD price or numerical producer
+ 1130     authenticity. An interruption retains only fully completed role trajectories.
+ 1131     """
+ 1132     if producer_budget_observer is not None and (
+ 1133         type(producer_budget_observer) is not ProducerBudgetObserver
+ 1134         or "admit" in vars(producer_budget_observer)
+ 1135         or "observe" in vars(producer_budget_observer)
+ 1136     ):
+ 1137         raise JointSimulationControllerError("n5_budget_observer_not_canonical")
+ 1138     cache: dict[str, SimulationTrajectory] = {}
+ 1139     output: list[SimulationTrajectory] = []
+ 1140     observations: list[PhysicalSimulationWorkObservation] = []
+ 1141     budget_bases: dict[str, ProducerBudgetObservation] = {}
+ 1142     invocation_id = uuid4().hex
+ 1143     seeds = _replication_seeds(request)
+ 1144     for run_level, raw_subset in _atom_subsets(request.intervention_atoms):
+ 1145         subset = tuple(raw_subset)
+ 1146         physical_ref = _physical_run_ref(request, plan, decision, subset)
+ 1147         physical_digest = _physical_spec_digest(physical_ref)
+ 1148         reused = physical_ref in cache
+ 1149         if not reused:
+ 1150             replicated: list[SimulationTrajectory] = []
+ 1151             physical_observations: list[PhysicalSimulationWorkObservation] = []
+ 1152             for seed in seeds:
+ 1153                 budget_observation = None
+ 1154                 if producer_budget_observer is not None:
+ 1155                     try:
+ 1156                         budget_observation = producer_budget_observer.admit()
+ 1157                     except (BudgetExhaustedError, ProducerBudgetSourceError) as exc:
+ 1158                         last_checked = producer_budget_observer.last_checked
+ 1159                         if last_checked is not None:
+ 1160                             budget_bases[last_checked.source_basis_digest] = last_checked
+ 1161                         exhausted = isinstance(exc, BudgetExhaustedError)
+ 1162                         status = (
+ 1163                             "configured_limit_only"
+ 1164                             if producer_budget_observer.configured_limit_usd == 0
+ 1165                             else "current_owner_checked"
+ 1166                             if exhausted
+ 1167                             else "last_checked_not_current"
+ 1168                         )
+ 1169                         raise _PhysicalWorkInterruptedError(
+ 1170                             "n5_current_budget_exhausted"
+ 1171                             if exhausted
+ 1172                             else "n5_current_budget_source_not_established",
+ 1173                             output,
+ 1174                             observations,
+ 1175                             tuple(budget_bases.values()),
+ 1176                             budget_refusal_basis={
+ 1177                                 "status": status,
+ 1178                                 "configured_limit_usd": str(
+ 1179                                     producer_budget_observer.configured_limit_usd
+ 1180                                 ),
+ 1181                                 "last_checked_observation_ref": (
+ 1182                                     last_checked.source_basis_digest
+ 1183                                     if last_checked is not None
+ 1184                                     else None
+ 1185                                 ),
+ 1186                             },
+ 1187                         ) from exc
+ 1188                     budget_bases[budget_observation.source_basis_digest] = budget_observation
+ 1189                 started_monotonic = perf_counter()
+ 1190                 started_at = datetime.now(UTC)
+ 1191                 error: Exception | None = None
+ 1192                 try:
+ 1193                     trajectory = run_once(run_level, subset, seed)
+ 1194                 except Exception as exc:
+ 1195                     error = exc
+ 1196                 work = PhysicalSimulationWorkObservation(
+ 1197                     invocation_id=invocation_id,
+ 1198                     event_id=uuid4().hex,
+ 1199                     physical_spec_ref=physical_digest,
+ 1200                     effective_seed=seed,
+ 1201                     status="completed" if error is None else "failed",
+ 1202                     started_at=started_at,
+ 1203                     completed_at=datetime.now(UTC),
+ 1204                     duration_seconds=max(0.0, perf_counter() - started_monotonic),
+ 1205                     budget_status=(
+ 1206                         "current_owner_checked"
+ 1207                         if budget_observation is not None
+ 1208                         else "not_established"
+ 1209                     ),
+ 1210                     budget_source_basis_digest=(
+ 1211                         budget_observation.source_basis_digest
+ 1212                         if budget_observation is not None
+ 1213                         else None
+ 1214                     ),
+ 1215                     error_type=type(error).__name__ if error is not None else None,
+ 1216                 )
+ 1217                 observations.append(work)
+ 1218                 physical_observations.append(work)
+ 1219                 if error is not None:
+ 1220                     raise _PhysicalWorkInterruptedError(
+ 1221                         "n5_physical_work_failed",
+ 1222                         output,
+ 1223                         observations,
+ 1224                         tuple(budget_bases.values()),
+ 1225                     ) from error
+ 1226                 replicated.append(trajectory)
+ 1227             aggregate = _aggregate_replicated_trajectory(replicated, seeds, physical_ref)
+ 1228             cache[physical_ref] = aggregate.model_copy(
+ 1229                 update={
+ 1230                     "diagnostics": {
+ 1231                         **aggregate.diagnostics,
+ 1232                         "physical_work_event_ids": [
+ 1233                             item.event_id for item in physical_observations
+ 1234                         ],
+ 1235                     }
+ 1236                 }
+ 1237             )
+ 1238         cached = cache[physical_ref]
+ 1239         output.append(
+ 1240             cached.model_copy(
+ 1241                 update={
+ 1242                     "run_level": run_level,
+ 1243                     "atom_ids": tuple(atom.intervention_id for atom in subset),
+ 1244                     "diagnostics": {
+ 1245                         **cached.diagnostics,
+ 1246                         "physical_run_ref": physical_ref,
+ 1247                         "physical_run_reused": reused,
+ 1248                         "role": run_level,
+ 1249                     },
+ 1250                 }
+ 1251             )
+ 1252         )
+ 1253     return _PhysicalRunOutput(output, observations, tuple(budget_bases.values()))
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py:3835-3862
+ 3835 def _selected_outcome_value(
+ 3836     value: object,
+ 3837     *,
+ 3838     outcome: str,
+ 3839     engine_kind: EngineKind,
+ 3840 ) -> float:
+ 3841     """Return one real finite selected scalar or a typed missing/invalid refusal."""
+ 3842     prefix = _outcome_error_prefix(engine_kind)
+ 3843     if value is _MISSING_OUTCOME:
+ 3844         raise JointSimulationControllerError(f"{prefix}_outcome_missing", outcome)
+ 3845     try:
+ 3846         raw = np.asarray(value)
+ 3847     except (TypeError, ValueError, OverflowError) as exc:
+ 3848         raise JointSimulationControllerError(f"{prefix}_outcome_non_numeric", outcome) from exc
+ 3849     if raw.size == 0:
+ 3850         raise JointSimulationControllerError(f"{prefix}_outcome_missing", outcome)
+ 3851     if raw.dtype.kind not in "iuf":
+ 3852         raise JointSimulationControllerError(f"{prefix}_outcome_non_numeric", outcome)
+ 3853     try:
+ 3854         numeric = raw.astype(float)
+ 3855     except (TypeError, ValueError, OverflowError) as exc:
+ 3856         raise JointSimulationControllerError(f"{prefix}_outcome_non_numeric", outcome) from exc
+ 3857     if not np.isfinite(numeric).all():
+ 3858         raise JointSimulationControllerError(f"{prefix}_outcome_non_finite", outcome)
+ 3859     value_mean = float(np.mean(numeric))
+ 3860     if not np.isfinite(value_mean):
+ 3861         raise JointSimulationControllerError(f"{prefix}_outcome_non_finite", outcome)
+ 3862     return value_mean

@@ -1902,6 +1902,48 @@ class ArtifactOwnershipIndex:
             )
         return evidence
 
+    def _current_generation_token(self) -> str:
+        """Return a fresh token for the current validated owner-index state.
+
+        Pointer-generation stores reread and hash the current pointer and
+        generation on every call. Legacy signed pairs are reread and signature
+        verified on every call. Unlike :meth:`evidence`, this method does not
+        walk the full parent history; use that method when history diagnostics
+        are required.
+
+        Returns:
+            A content-bound SHA-256 token for the current owner-index state.
+
+        Raises:
+            ValueError: The current pointer, generation, or signature is invalid.
+        """
+        with self._lock:
+            snapshot = self._load_snapshot_for_claim_query()
+            if snapshot.source_format == OWNERSHIP_INDEX_POINTER_SCHEMA_VERSION:
+                if snapshot.generation_sha256 is None:
+                    raise ValueError("ownership_index_generation_invalid")
+                return snapshot.generation_sha256
+
+            payload_sha256 = snapshot.payload_sha256 or _digest_payload(snapshot.payload)
+            signature_sha256 = snapshot.signature_sha256
+            if signature_sha256 is None:
+                signature = snapshot.signature
+                if signature is None:
+                    if snapshot.source_format != "ephemeral_empty_v2":
+                        raise ValueError("ownership_index_signature_invalid")
+                    signature = self._signature_payload(
+                        snapshot.payload,
+                        digest=payload_sha256,
+                    )
+                signature_sha256 = _digest_payload(signature)
+
+            token_input = f"{payload_sha256}:{signature_sha256}"
+            if snapshot.source_format == "ephemeral_empty_v2":
+                # A missing index is distinct from a persisted empty signed
+                # pair with the same projected payload.
+                token_input = "ephemeral_empty_v2:" + token_input
+            return "sha256:" + hashlib.sha256(token_input.encode()).hexdigest()
+
     def _pre_v3_history_status(self, generation_sha256: str) -> str:
         """Classify only the pre-v3 history proven by the retained parent chain."""
         visited: set[str] = set()

@@ -14,9 +14,15 @@ from pathlib import Path
 _PACKAGE_NAMES = ("async_tools", "config", "jax_env", "logger", "serialization", "timestamps")
 _PUBLIC_DECLARATIONS = {
     "async_tools": {
+        "SharedExecutionCompletion",
+        "SharedExecutionFailure",
+        "SharedExecutionHandle",
+        "SharedExecutorBackpressureError",
         "SharedExecutorConfigurationError",
         "SharedExecutorProfile",
         "SharedExecutorReentrancyError",
+        "SharedExecutorWaitTimeoutError",
+        "capture_shared_executor_observations",
         "resolve_shared_executor_profile",
         "configure_shared_executor_profile",
         "get_shared_executor_profile",
@@ -26,6 +32,9 @@ _PUBLIC_DECLARATIONS = {
         "run_shared_executor_sync",
         "run_coro_sync",
         "run_blocking_async",
+        "request_shared_executor_cancellation",
+        "submit_shared_executor_cancellable",
+        "wrap_shared_executor_future",
     },
     "config": {
         "EnvVarSpec",

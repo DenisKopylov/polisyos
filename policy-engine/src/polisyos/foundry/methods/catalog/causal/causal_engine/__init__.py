@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from . import artifacts as _artifacts
+import polisyos.foundry.methods.catalog.causal.causal_engine.artifacts as _artifacts
+
 from .api import CausalEngine
 
 _FACADE_METADATA_KEYS = frozenset(

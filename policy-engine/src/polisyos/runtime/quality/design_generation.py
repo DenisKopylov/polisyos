@@ -1353,6 +1353,106 @@ def _recognized_confidence_layer_vintage(
         return None
 
 
+def ground_existing_candidate_scenario_proposal(
+    proposal: N4CandidateProposalSource,
+    *,
+    problem: DesignProblem,
+    context: CycleSubstrateContext,
+    repo_root: Path,
+    grounding_run_budget: GroundingRunBudget | None = None,
+) -> DesignGenerationOrganRun:
+    """Run the real CGF owner over an existing proposal without another LLM call.
+
+    The selected world must have an admissible owner-built credal reference.
+    A missing or withheld reference is an error, not a synthetic disposition.
+    This result retains the actual CGF candidates and certificates; callers
+    must independently bind any configured scenario candidate to this source.
+    """
+    from polisyos.runtime.quality.cycle_substrate import (
+        revalidate_cycle_substrate_context,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblem as DesignProblemModel
+
+    if type(proposal) is not N4CandidateProposalSource or type(problem) is not DesignProblemModel:
+        raise DesignGenerationError("candidate_scenario_cgf_source_untyped")
+    checked_context = revalidate_cycle_substrate_context(context)
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    if (
+        proposal.design_problem_ref != problem_ref
+        or checked_context.design_problem_ref != problem_ref
+    ):
+        raise DesignGenerationError("candidate_scenario_cgf_problem_binding_mismatch")
+    root = repo_root.resolve()
+    try:
+        reference = build_credal_reference(
+            root,
+            world_model_record=checked_context.world_model_record,
+        )
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise DesignGenerationError(
+            "candidate_scenario_credal_reference_unavailable",
+            str(getattr(exc, "code", None) or type(exc).__name__),
+        ) from exc
+
+    capture = _N4SourceCapture()
+    candidates, dispositions = _content_bound_candidates(
+        design_problem=problem,
+        design_problem_ref=problem_ref,
+        bundle=proposal.trinity_bundle,
+        model_id=proposal.model_id,
+        draft_path=proposal.drafter_path,
+        formalizer_path=proposal.formalizer_path,
+        critic_path=proposal.critic_path,
+        critique_verdict=str(proposal.critique.verdict),
+        calls=proposal.llm_calls,
+        repo_root=root,
+        world_model_record_ref=checked_context.world_model_record.world_model_record_id,
+        reference=reference,
+        cycle_substrate_context=checked_context,
+        grounding_run_budget=grounding_run_budget,
+        source_capture=capture,
+    )
+    if not dispositions:
+        raise DesignGenerationError("candidate_scenario_cgf_disposition_denominator_empty")
+    diversity = measure_generation_diversity(
+        candidates,
+        min_required=1,
+        dispositions=dispositions,
+    )
+    rankings = (
+        rank_shadow_candidates_with_graph_causal_surrogate(
+            candidates,
+            design_problem=problem,
+            repo_root=root,
+        )
+        if candidates
+        else ()
+    )
+    result = GenerationUnderAResult(
+        status="generated",
+        design_problem_ref=problem_ref,
+        model_id=proposal.model_id,
+        preflight=proposal.preflight,
+        candidates=tuple(candidates),
+        grounding_dispositions=tuple(dispositions),
+        grounding_disposition_summary=_grounding_disposition_summary(dispositions),
+        diversity_report=diversity,
+        surrogate_rankings=tuple(rankings),
+        llm_calls=proposal.llm_calls,
+        firewall_evidence=default_firewall_evidence(),
+        strangle_receipts=design_generation_strangle_receipts(root),
+    )
+    return DesignGenerationOrganRun(
+        result=result,
+        draft=proposal.draft,
+        trinity_bundle=proposal.trinity_bundle,
+        critique=proposal.critique,
+        cycle_substrate_context=checked_context,
+        credal_reference=capture.reference,
+        candidate_sources=tuple(capture.candidates),
+    )
+
+
 def build_candidate_scenario_proposal_candidate(
     proposal: N4CandidateProposalSource,
     *,
@@ -1480,7 +1580,7 @@ def build_candidate_scenario_proposal_candidate(
     )
     query_target = QueryTarget(
         outcome_variables=(problem.outcome_of_interest.target_variable,),
-        conditioning=(),
+        conditioning=problem.outcome_of_interest.conditioning_variables,
         functional=problem.outcome_of_interest.estimand,
     )
     selector_ref = intervention_atom_target_selector_ref(intervention)
@@ -1518,6 +1618,7 @@ def build_candidate_scenario_proposal_candidate(
         operator_proof_type_map={intervention.kind: "node"},
         mechanism_variable_map={intervention.kind: target_slots},
         estimand_metric_id=problem.outcome_of_interest.metric_id,
+        estimand_unit_id=_declared_outcome_unit_from_world(problem, world),
         target_population=problem.jurisdiction_time.region,
         status="candidate_unverified",
     )
@@ -1692,6 +1793,27 @@ async def _generate_design_candidate_bundle_under_a(
         if candidate_scenario_reference_capture is not None:
             candidate_scenario_reference_capture.k_ref_limitation_code = (
                 "candidate_scenario_l2_not_consumed"
+            )
+    elif (
+        candidate_proposal_only
+        and cycle_substrate_context is not None
+        and (
+            cycle_substrate_context.candidate_levers
+            or cycle_substrate_context.source_profile is not None
+            or cycle_substrate_context.intervention_substrate is not None
+        )
+    ):
+        # This selected-context route already derives its prompt from the held
+        # substrate. Candidate-only N4 never consumes a full CG1 reference.
+        # Keep the ordinary context reconciliation and grounded lane unchanged.
+        lever_space_prompt_slice = derive_lever_space_prompt_slice(
+            design_problem,
+            repo_root=repo_root,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+        if candidate_scenario_reference_capture is not None:
+            candidate_scenario_reference_capture.k_ref_limitation_code = (
+                "full_credal_reference_not_consumed"
             )
     else:
         try:
@@ -4197,6 +4319,26 @@ def _candidate_grounding_signature(
     return signature
 
 
+def _declared_outcome_unit_from_world(problem: DesignProblem, world: object | None) -> str | None:
+    """Bind an opt-in declared outcome unit to its exact selected world-slot owner.
+
+    Legacy requests leave the atom's unit absent. An unknown owner remains
+    unestablished; a known conflicting unit is refused before numerical work.
+    The declaration alone never establishes measurement or causal authority.
+    """
+    from polisyos.runtime.quality.world_model_record import WorldModelRecord
+
+    declared = problem.outcome_of_interest.measurement_unit
+    if declared is None or not isinstance(world, WorldModelRecord):
+        return None
+    binding = world.slot_binding(problem.outcome_of_interest.target_variable)
+    if binding is None or binding.unit is None:
+        return None
+    if binding.unit != declared:
+        raise DesignGenerationError("n4_outcome_measurement_unit_mismatch")
+    return binding.unit
+
+
 def _candidate_direct_params(intervention: InterventionSpec) -> dict[str, Any]:
     params = dict(_mapping(intervention.params))
     for key in (
@@ -4361,7 +4503,7 @@ def _shadow_candidate_from_grounding(
     )
     query_target = QueryTarget(
         outcome_variables=(design_problem.outcome_of_interest.target_variable,),
-        conditioning=(),
+        conditioning=design_problem.outcome_of_interest.conditioning_variables,
         functional=design_problem.outcome_of_interest.estimand,
     )
     selector_ref = intervention_atom_target_selector_ref(selected_intervention)
@@ -4402,6 +4544,7 @@ def _shadow_candidate_from_grounding(
         operator_proof_type_map={operator_kind: "node"},
         mechanism_variable_map={operator_kind: target_slots},
         estimand_metric_id=design_problem.outcome_of_interest.metric_id,
+        estimand_unit_id=_declared_outcome_unit_from_world(design_problem, world_record),
         target_population=design_problem.jurisdiction_time.region,
         normalized_from=_normalization_record_for_grounded_candidate(
             intervention,
@@ -4920,6 +5063,7 @@ __all__ = [
     "generate_design_candidate_proposal_under_a",
     "generate_design_candidate_scenario_proposal_under_a",
     "generate_design_candidates_under_a",
+    "ground_existing_candidate_scenario_proposal",
     "measure_generation_diversity",
     "preflight_model_profile",
     "rank_shadow_candidates_with_graph_causal_surrogate",

@@ -36,12 +36,36 @@ time value is one row's current step, not a scan start; repeated steps require
 explicit repeated calls. Static selector structure is admitted during
 `compile_program`, while inactive rows do not numerically read selector fields.
 
-This executor API does **not** yet select a Calibrator batch objective profile.
-`CalibratorInputs` and execution-basis schema 1.1 cannot bind row states, times,
-keys, order, and reduction semantics, so scalar calibration remains unchanged.
-Persisting a batch fit requires a reader-first versioned basis extension and a
-real welfare-consumer reconciliation; a digest or reuse of `controls_seq` is
-not a substitute.
+`CalibratorInputs.ordered_batch_profile` selects the existing explicit one-step
+row objective. Execution-basis schema 1.2 binds selected row-state snapshots,
+times, complete keys, target values, weights and reduction settings; a fresh
+consumer can reopen those sources and replay the final forward/loss projection.
+The optional profile leaves ordinary scalar calibration unchanged. It supports
+the declared finite absolute-MSE contract, rather than silently treating
+`controls_seq` as row states or claiming a measurement/robust objective. Numerical
+row time is a schedule step, not a physical calendar unit. Final cross-lane
+objective/uncertainty and welfare qualification remain separate.
+
+Conditional execution derives traced patch structure through abstract evaluation
+of the real pure producer. Empty output maps, multiple records and integer patch
+values therefore have matching active/inactive branch structures without
+numerically running an inactive emitter. Concrete inactive calls do not invoke
+an emitter even for abstract evaluation. Traced execution requires fixed receiving
+state shapes/dtypes; an active producer that would promote a receiver is refused
+with a precise diagnostic, without downcasting its values. Callers can declare a
+matching receiver profile, such as x64 labor employer IDs or an x64 adaptive
+reported-income field. Use explicitly typed receiving arrays: JAX may strengthen
+weak Python-scalar state leaves, and preservation of their `weak_type` flag is
+outside the state-identity claim. Selected snapshots reopen explicit array dtypes.
+Schedule mapping remains distinct from state mapping:
+mapped predicates refuse, shared scalar predicates and scalar `lax.map` rows work.
+
+The current default registry contains five runtime descriptors. Tax, subsidy,
+labor and adaptive-agent producers are exercised with actual `GlobalState`
+receivers, including lawful empty adaptive populations; queue remains a separate
+`QueueState` contract and has no default GlobalState slot mapping. This is a finite
+producer-profile qualification, not a promise that every custom producer, state
+layout or dtype transition is admitted.
 
 - [calibrator.py](calibrator.py) for the optional JAX-backed fit loop.
 - [report.py](report.py) for persisted reports and fit diagnostics.
@@ -70,6 +94,65 @@ not a substitute.
 
 ## Persisting a calibration run for a fresh consumer
 
+Measurement-aware fitting uses one frozen sample measure for preflight, the
+optimizer, GradNorm and both physical-parameter Hessian objectives. It intersects
+finite observed coverage, the existing training split and positive quality before
+residual or nonlinear loss arithmetic. The original model prediction must remain
+finite even on an excluded row. Quality returned by a host-valued custom adapter
+is normalized before the Calibrator converts it to its float32 computational
+profile; this protects a common host factor such as `1e-300`. The default
+measurement adapter retains its existing float32 quality profile, qualified here
+at common factors down to `1e-9`; normalization cannot recover values it already
+rounded to zero. An unrepresentable relative probability receives an explicit
+numeric-resolution refusal. The loss-scale epsilon stabilizes residual scaling;
+it does not turn a positive normalized sample measure into zero.
+
+`per_target_loss` and `total_loss` describe the selected training objective.
+`execution_context.measurement_fit` retains the fit role, effective support and
+per-partition descriptive metrics/counts. Evaluation partitions do not contribute
+to training, and missing-observation placeholders do not become evaluation data.
+The legacy unlabelled route is explicitly `legacy_all_eligible`; it promises no
+independent evaluation. The existing `fit_quality` remains a separately declared
+all-aligned-row descriptive view. Sample-quality normalization also applies to
+the existing interference auxiliary consumer; target split selection does not
+change its independent configured penalty inputs.
+
+Each start passes the same finite-result selector, including a single start.
+No finite result yields an inspectable failed outcome with actual per-start
+histories and checked parameter/weight information, rather than a successful
+zero-loss report. A checked forward snapshot carries its exact parameters,
+weights and replica. Stationary identity can reuse it; equality of scalar loss
+cannot admit a different point. A failed final comparison preserves an available
+checked snapshot with its original objective and a limitation. Raw Hessian
+condition status is retained separately from repaired covariance in
+`execution_context.hessian`; local curvature remains non-authoritative.
+
+### Report profiles and partial uncertainty
+
+| Report version | Objective/profile | Projection coverage |
+| --- | --- | --- |
+| `1.0` | Historical wire projection | Historical reading rules; no inferred new scope |
+| `2.0` | Ordinary scalar calibration | Complete projection covers every calibrated point field |
+| `2.1` | Selected ordered-row objective | Same complete coverage, plus its typed ordered execution/basis |
+| `2.2` | Ordinary scalar with explicit uncertainty scope | Exact ordered `uncertainty_field_scope` equals projection fields |
+| `2.3` | Ordered-row objective with explicit uncertainty scope | Same exact scope, plus all existing ordered basis/replay checks |
+
+The scoped profiles preserve unrelated calibrated point values without inventing
+their uncertainty. Projection rows cover exactly the declared field scope and
+columns exactly the Hessian coordinate order. Tied fields retain cross-covariance
+and singular dependence. A point-only field receives no fabricated Normal or zero
+variance. Unknown, duplicate, reordered or incomplete scope/basis data is refused;
+the old complete-coverage meaning is unchanged. The optional scope field is omitted
+from historical profiles, including the byte-preserving v1 serialization.
+
+The finite entry-source literal census covered 55 maintained Python source/tool/test
+files mentioning `CalibrationReport`. Actual Foundry writers/readers are this
+package, `execution_basis`, the uncertainty adapter, Scientist feedback/autotune,
+and the response/welfare intake. Other DDM, Funnel and robust-set reports are
+distinct models. The selected welfare covariance bridge also consumes the
+projection without naming the report type. Its owner carries the exact scope
+through persisted consumption; this census does not assert external usage absence.
+
 `Calibrator.run_and_persist(store)` snapshots the exact `CalibrationConfig`, runs that
 snapshot once, writes the config artifact, then writes the typed v2 `CalibrationReport`
 with an edge built from the complete selected config ref, including a non-default
@@ -84,6 +167,17 @@ envelopes remain heuristic and gate-ineligible. Calibration execution is still a
 explicit library call; the default workflow does not schedule a calibration run.
 
 ## Source-bound posterior candidate
+
+Caller-only summary candidates 1.1 bind `point_reduction=finite_binary64_mean` to
+the shared CPython-backed finite-point owner. The fresh loader replays historical
+candidate 1.0 with its original NumPy-mean profile; it does not silently recalculate
+old point bytes under the new policy. Both retain their original draw context and
+candidate-only authority boundary. A missing emulator-noise scale or singleton
+sample dispersion is an explicit unavailable component, not an asserted zero;
+multiple identical samples and an explicitly supplied zero noise remain distinct
+known numerical cases. Gaussian component approximations are gate-ineligible and
+cannot establish caller-row binding or a joint law. A total requiring an unknown
+component stays unavailable while useful point/draw results remain accessible.
 
 `uncertainty_adapter.persist_posterior_summary_from_method_evidence()` accepts Bayesian MCMC
 method-evidence only after resolving the producer-issued `method_result_ref` and matching its

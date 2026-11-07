@@ -41,6 +41,7 @@ __all__ = [
     "list_quarantine_records",
     "load_quarantine_payload",
     "load_quarantine_record",
+    "parse_datetime_utc",
     "payload_to_dataframe",
     "persist_cdc_schema_change_event",
     "persist_fabric_benchmark_report",
@@ -61,9 +62,11 @@ __all__ = [
     "resolve_raw_response_body",
     "run_orchestrated_ingestion",
     "verify_journal_event_ref",
+    "verify_live_ingestion_snapshot_profile",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "parse_datetime_utc": ("polisyos.fabric.data_plane.temporal", "parse_datetime_utc"),
     "IngestionResult": ("polisyos.fabric.data_plane.orchestrator", "IngestionResult"),
     "ingestion_is_complete": ("polisyos.fabric.data_plane.orchestrator", "ingestion_is_complete"),
     "AppendOnlyEvidenceJournal": (
@@ -254,6 +257,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "run_orchestrated_ingestion": (
         "polisyos.fabric.data_plane.orchestrator",
         "run_orchestrated_ingestion",
+    ),
+    "verify_live_ingestion_snapshot_profile": (
+        "polisyos.fabric.data_plane.orchestrator",
+        "verify_live_ingestion_snapshot_profile",
     ),
 }
 

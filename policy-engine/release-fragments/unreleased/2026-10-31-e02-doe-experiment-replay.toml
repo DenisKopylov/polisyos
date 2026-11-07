@@ -1,0 +1,13 @@
+id = "2026-10-31-e02-doe-experiment-replay"
+title = "Replay selected DOE experiments before search consumption"
+type = "fixed"
+component = "scientist"
+owner = "scientist"
+summary = "Use the canonical sensitivity sampler and defensively admitted plan, persist complete ordered exploratory experiments under a full selected CAS profile, then reproduce them before exposing sensitivity priors to search. Preserve failed-run denominators and declared units."
+evidence = ["tests/unit/scientist/methods/doe/test_analysis_receipt.py", "tests/unit/scientist/methods/doe/test_plan_runtime_admission.py", "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py"]
+compatibility = "Legacy unseeded in-process candidates remain available. New persisted experiments require an explicit replay seed; persisted Sobol experiments require a declared independent experimental law. Existing Morris geometry and adaptive failure accounting remain in force."
+change_class = "Internal exploratory experiment persistence and plan admission."
+surface_classification = "internal: internal-only"
+api = "New internal doe_sensitivity_analysis CAS schema 1.0 and an additive from_artifact search adapter; no HTTP or dashboard API change."
+limitations = "Numerical reproduction does not establish evaluator provenance, transitive environment authenticity, population law or publication/promotion authority. B198 is unchanged; E02 and G acceptance remain separate."
+generated_client_compatibility = "not_applicable"

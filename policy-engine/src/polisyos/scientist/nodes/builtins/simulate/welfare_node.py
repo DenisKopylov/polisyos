@@ -14,6 +14,7 @@ from polisyos.core.artifacts import (
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import Metrics, SimulationResult, SimulationResultRef
 from polisyos.ir import (
+    IntervalSemantics,
     WelfareBundle,
     WelfareMethod,
     WelfareStatus,
@@ -57,7 +58,9 @@ from .welfare_types import (
     _WELFARE_LOAD_ERRORS,
     _fail_error,
     _input_ref,
+    _persist_collected_envelope,
     _PropagationOutcome,
+    _reconcile_calibration_requested_inputs,
     _WelfareNodeFailure,
 )
 
@@ -74,6 +77,7 @@ class _PreparedWelfareRun:
     nominal_params: dict[str, float]
     used_input_envelopes: dict[str, Any]
     pe_uncertainty_refs: dict[str, Any]
+    all_input_envelope_refs: dict[str, Any]
 
 
 @dataclass(frozen=True)
@@ -81,7 +85,7 @@ class _WelfareEvaluation:
     point_outputs: Mapping[str, Any]
     point_estimate: float
     propagation: _PropagationOutcome
-    robust_interval: tuple[float, float]
+    robust_interval: tuple[float, float] | None
     robust_diagnostics: dict[str, Any]
     warnings: list[str]
     status: WelfareStatus
@@ -184,6 +188,10 @@ def _prepare_welfare_run(
         response_size_hint=len(numeric_metrics),
         return_selected_profile=return_selected_profile,
     )
+    missing_fields, center_mismatches = _reconcile_calibration_requested_inputs(
+        context, collection.calibration_source, collection.envelopes
+    )
+    has_calibration_issue = has_calibration_issue or bool(missing_fields or center_mismatches)
     simulation_fn, nominal_params, used_input_envelopes, pe_uncertainty_refs = build_simulation_fn(
         ctx,
         context=context,
@@ -208,6 +216,12 @@ def _prepare_welfare_run(
                 )
             ],
         )
+    all_input_envelope_refs = dict(pe_uncertainty_refs)
+    for name, envelope in used_input_envelopes.items():
+        if name not in all_input_envelope_refs:
+            all_input_envelope_refs[name] = collection.refs.get(
+                name
+            ) or _persist_collected_envelope(ctx, collection, name, envelope)
     return _PreparedWelfareRun(
         sim_result_ref=sim_result_ref,
         sim_result=sim_result,
@@ -219,6 +233,7 @@ def _prepare_welfare_run(
         nominal_params=nominal_params,
         used_input_envelopes=used_input_envelopes,
         pe_uncertainty_refs=pe_uncertainty_refs,
+        all_input_envelope_refs=all_input_envelope_refs,
     )
 
 
@@ -241,21 +256,40 @@ def _evaluate_welfare_run(
         simulation_fn=prepared.simulation_fn,
         nominal_params=prepared.nominal_params,
         input_envelopes=prepared.used_input_envelopes,
-        input_envelope_refs=prepared.pe_uncertainty_refs,
+        input_envelope_refs=prepared.all_input_envelope_refs,
         calibration_source=prepared.collection.calibration_source,
         execution_input_basis_ref=prepared.sim_result.execution_input_basis_ref,
         return_selected_profile=prepared.return_selected_profile,
     )
-    robust_interval, robust_diagnostics = _build_robust_interval(
-        context=prepared.context,
-        nominal_params=prepared.nominal_params,
-        input_envelopes=prepared.used_input_envelopes,
+    input_limitations = {
+        "calibration_used_field_uncertainty_missing",
+        "calibration_used_field_center_mismatch",
+    }.intersection(propagation.diagnostics.get("limitation_codes", ()))
+    law_limitations = {"welfare_input_distribution_not_established"}.intersection(
+        propagation.diagnostics.get("limitation_codes", ())
     )
-    if not all(math.isfinite(value) for value in robust_interval):
-        raise _fail_error(
-            _ERROR_WELFARE_OUTPUT_NONFINITE,
-            "Robust welfare interval contains non-finite values",
+    if law_limitations and any(
+        envelope.interval_semantics is not IntervalSemantics.DETERMINISTIC_BOUNDS
+        for envelope in prepared.used_input_envelopes.values()
+    ):
+        input_limitations.update(law_limitations)
+    if input_limitations:
+        robust_interval = None
+        robust_diagnostics = {
+            "status": "unavailable",
+            "limitation": next(iter(input_limitations)),
+        }
+    else:
+        robust_interval, robust_diagnostics = _build_robust_interval(
+            context=prepared.context,
+            nominal_params=prepared.nominal_params,
+            input_envelopes=prepared.used_input_envelopes,
         )
+        if not all(math.isfinite(value) for value in robust_interval):
+            raise _fail_error(
+                _ERROR_WELFARE_OUTPUT_NONFINITE,
+                "Robust welfare interval contains non-finite values",
+            )
     warnings, status = _resolve_bundle_status(
         context=prepared.context,
         used_input_envelopes=prepared.used_input_envelopes,
@@ -331,14 +365,18 @@ def _persist_welfare_run(
 ) -> _PersistedWelfareRun:
     propagation = evaluation.propagation
     context = prepared.context
-    sensitivity_ref = _persist_sensitivity_diagnostics(
-        ctx,
-        simulation_fn=prepared.simulation_fn,
-        nominal_params=prepared.nominal_params,
-        input_envelopes=prepared.used_input_envelopes,
-        robust_interval=evaluation.robust_interval,
-        execution_input_basis_ref=prepared.sim_result.execution_input_basis_ref,
-        return_selected_profile=prepared.return_selected_profile,
+    sensitivity_ref = (
+        _persist_sensitivity_diagnostics(
+            ctx,
+            simulation_fn=prepared.simulation_fn,
+            nominal_params=prepared.nominal_params,
+            input_envelopes=prepared.used_input_envelopes,
+            robust_interval=evaluation.robust_interval,
+            execution_input_basis_ref=prepared.sim_result.execution_input_basis_ref,
+            return_selected_profile=prepared.return_selected_profile,
+        )
+        if evaluation.robust_interval is not None
+        else None
     )
     total_vector = _point_total_vector(context, nominal_params=prepared.nominal_params)
     subgroup_welfare = _resolve_subgroup_welfare(

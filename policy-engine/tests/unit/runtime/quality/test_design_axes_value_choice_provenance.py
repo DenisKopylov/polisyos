@@ -792,7 +792,7 @@ def _normative_harness(
 def test_generation_source_reader_replays_historical_schema_by_its_manifest(
     tmp_path: Path,
 ) -> None:
-    """The source reader admits real byte-exact v1/v2/current records by manifest."""
+    """The source reader admits real byte-exact v1/v2/v3 records by manifest."""
 
     from polisyos.core import artifacts, canon
     from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
@@ -815,8 +815,8 @@ def test_generation_source_reader_replays_historical_schema_by_its_manifest(
             / "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
         ).read_text(encoding="utf-8")
     )["generation_cycle_run"]
-    current_fixture, mismatch_fixture = _v3_history_fixtures()
-    current_payload = current_fixture[1]
+    v3_fixture, mismatch_fixture = _v3_history_fixtures()
+    v3_payload = v3_fixture[1]
     mismatch_payload = mismatch_fixture[1]
 
     store = artifacts.FileSystemCAS(tmp_path)
@@ -839,7 +839,7 @@ def test_generation_source_reader_replays_historical_schema_by_its_manifest(
         )
         return str(ref.artifact_id)
 
-    for historical_payload in (v1_payload, v2_payload, current_payload):
+    for historical_payload in (v1_payload, v2_payload, v3_payload):
         run_schema = historical_payload["schema_version"]
         assert isinstance(run_schema, str)  # noqa: S101
         run = GenerationCycleRun.model_validate(historical_payload)
@@ -857,10 +857,10 @@ def test_generation_source_reader_replays_historical_schema_by_its_manifest(
             == historical_payload
         )
 
-    current_schema = current_payload["schema_version"]
+    v3_schema = v3_payload["schema_version"]
     v2_schema = v2_payload["schema_version"]
-    assert current_schema == GENERATION_CYCLE_SCHEMA_VERSION  # noqa: S101
-    assert mismatch_payload["schema_version"] == current_schema  # noqa: S101
+    assert v3_schema == "policyos.runtime.generation_cycle_controller.v3"  # noqa: S101
+    assert mismatch_payload["schema_version"] == v3_schema  # noqa: S101
     mismatched_ref = put(mismatch_payload, manifest_schema=v2_schema)
     with pytest.raises(s8.P20NormativeChoiceError, match="ref_unresolvable"):
         owner._read(
@@ -894,13 +894,200 @@ def test_generation_source_reader_replays_historical_schema_by_its_manifest(
             schema=GENERATION_CYCLE_SCHEMA_VERSION,
         )
 
-    unknown_history = deepcopy(current_payload)
+    unknown_history = deepcopy(v3_payload)
     unknown_schema = "policyos.runtime.generation_cycle_controller.v0"
     unknown_history["schema_version"] = unknown_schema
     unknown_ref = put(unknown_history, manifest_schema=unknown_schema)
     with pytest.raises(s8.P20NormativeChoiceError, match="ref_unresolvable"):
         owner._read(
             unknown_ref,
+            kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+            schema=GENERATION_CYCLE_SCHEMA_VERSION,
+        )
+
+
+def test_generation_source_reader_refuses_content_bound_candidate_basis_transition(
+    tmp_path: Path,
+) -> None:
+    """Intrinsic history cannot substitute for candidate-source owner replay."""
+
+    from polisyos.core import artifacts, canon
+    from polisyos.core.artifacts import ArtifactID, ArtifactRef
+    from polisyos.runtime.quality.design_axes import value_choice_provenance as s8
+    from polisyos.runtime.quality.generation_cycle import (
+        GENERATION_CYCLE_SCHEMA_VERSION,
+        CandidateSourceBasisTransition,
+        GenerationCycleRun,
+        validate_generation_cycle_run_history,
+    )
+
+    product_root = Path(__file__).resolve().parents[4]
+    v2_payload = json.loads(
+        (
+            product_root
+            / "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
+        ).read_text(encoding="utf-8")
+    )["generation_cycle_run"]
+    store = artifacts.FileSystemCAS(tmp_path)
+    owner = s8.NormativeValueScheduleOwner(store=store)
+
+    def put(payload: dict[str, Any]) -> str:
+        ref = store.put_json(
+            payload,
+            artifacts.PutOptions(
+                kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+                media_type="application/json",
+                schema=artifacts.SchemaInfo(
+                    name=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+                    version=payload["schema_version"],
+                ),
+            ),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        )
+        return str(ref.artifact_id)
+
+    valid_source_ref = put(v2_payload)
+    assert (
+        owner._read(
+            valid_source_ref,
+            kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+            schema=GENERATION_CYCLE_SCHEMA_VERSION,
+        )
+        == v2_payload
+    )
+
+    def candidate_ref(kind: str, identity: str) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id=ArtifactID.model_validate(f"sha256:{identity * 64}"),
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256=f"sha256:{'f' * 64}",
+        )
+
+    base_run = GenerationCycleRun.model_validate(v2_payload)
+    _, existing_acquisition_cycle = base_run.cycles
+    candidate_id = existing_acquisition_cycle.selected_candidate_ref
+    prior_n4_source_ref = candidate_ref("runtime.quality.n4_candidate_scenario_source", "4")
+    prior_n5_input_ref = candidate_ref("runtime.quality.candidate_simulation_n5_input", "5")
+    prior_context_job_ref = candidate_ref("runtime.quality.cycle_substrate_context_job", "6")
+    basis_ref = existing_acquisition_cycle.design_problem_ref
+    source_cycle = existing_acquisition_cycle.model_copy(
+        update={
+            "cycle_index": 0,
+            "design_problem_basis_ref": basis_ref,
+            "simulation": existing_acquisition_cycle.simulation.model_copy(
+                update={
+                    "candidate_simulation_n4_source_ref": prior_n4_source_ref,
+                    "candidate_simulation_n5_input_ref": prior_n5_input_ref,
+                    "candidate_simulation_context_job_ref": prior_context_job_ref,
+                    "candidate_simulation_profile_config_ref": "profile:test",
+                    "candidate_simulation_profile_selection_ref": f"sha256:{'9' * 64}",
+                }
+            ),
+        }
+    )
+    target_cycle = existing_acquisition_cycle.model_copy(
+        update={
+            "cycle_index": 1,
+            "selected_candidate_ref": candidate_id,
+            "design_problem_basis_ref": basis_ref,
+            "introduced_grammar_elements": (),
+            "grounding": existing_acquisition_cycle.grounding.model_copy(
+                update={"candidate_id": candidate_id}
+            ),
+            "simulation": existing_acquisition_cycle.simulation.model_copy(
+                update={
+                    "candidate_id": candidate_id,
+                    "candidate_simulation_n5_input_ref": None,
+                    "simulation_result_ref": None,
+                }
+            ),
+            "counterexample": existing_acquisition_cycle.counterexample.model_copy(
+                update={"candidate_ref": candidate_id}
+            ),
+            "driven_by_counterexample_ref": None,
+            "revision_driver": "none",
+            "revision_request": existing_acquisition_cycle.revision_request.model_copy(
+                update={"previous_candidate_ref": candidate_id}
+            ),
+        }
+    )
+    source_payload = base_run.model_dump(mode="json")
+    transition = CandidateSourceBasisTransition.issue(
+        tenant_id="tenant:test",
+        cell_id="cell:test",
+        run_id="run:test",
+        action_job_id="job:test",
+        route_id=f"sha256:{'1' * 64}",
+        from_cycle_index=0,
+        to_cycle_index=1,
+        source_generation_run_content_hash=canon.content_hash(
+            canon.to_canonical_bytes(source_payload, canon.CanonSpec(forbid_floats=False)),
+            prefix=True,
+        ),
+        source_candidate_ref=candidate_id,
+        source_candidate_content_hash=source_cycle.selected_candidate_content_hash,
+        target_candidate_content_hash=source_cycle.selected_candidate_content_hash,
+        design_problem_basis_ref=basis_ref,
+        prior_n4_source_ref=prior_n4_source_ref,
+        prior_n5_input_ref=prior_n5_input_ref,
+        prior_context_job_ref=prior_context_job_ref,
+        prior_scenario_world_model_hash=f"sha256:{'7' * 64}",
+        candidate_action_ref=candidate_ref(
+            "runtime_quality.acquisition_candidate_action_receipt", "8"
+        ),
+        candidate_source_ref=candidate_ref("runtime.quality.candidate_acquisition_source", "9"),
+        candidate_world_intent_ref=candidate_ref(
+            "runtime_quality.acquisition_candidate_world_intent", "a"
+        ),
+        candidate_world_checkpoint_ref=candidate_ref(
+            "runtime_quality.acquisition_candidate_world_checkpoint", "b"
+        ),
+        data_snapshot_ref=candidate_ref("fabric.data_snapshot", "c"),
+        world_model_ref=candidate_ref("runtime.quality.world_model_record", "d"),
+        world_model_content_hash=f"sha256:{'e' * 64}",
+        context_job_ref=candidate_ref("runtime.quality.cycle_substrate_context_job", "a"),
+        scenario_world_model_content_hash=f"sha256:{'b' * 64}",
+        model_declaration_ref=candidate_ref(
+            "runtime.quality.candidate_simulation_model_declaration", "c"
+        ),
+        ncm_ref=candidate_ref("ir.ncm_spec", "d"),
+        limitations=("candidate_only",),
+    )
+    transition_payload = base_run.model_copy(
+        update={
+            "schema_version": "policyos.runtime.generation_cycle_controller.v9",
+            "design_problem_ref": basis_ref,
+            "cycles": (source_cycle, target_cycle),
+            "basis_transitions": (transition,),
+            "promotion_port": base_run.promotion_port.model_copy(
+                update={
+                    "status": "not_promoted",
+                    "certified_candidate_ids": (),
+                    "receipts": (),
+                    "strangle_receipt": None,
+                    "pre_n9_open_world_gates": (),
+                }
+            ),
+            "deployment_identity_reason": "loaded_deployment_identity_not_supplied",
+        }
+    ).model_dump(mode="json")
+    transition_run = GenerationCycleRun.model_validate(transition_payload)
+    assert transition_run.basis_transitions == (transition,)
+    history_issues = validate_generation_cycle_run_history(transition_payload)
+    assert history_issues == (), history_issues
+    assert (
+        CandidateSourceBasisTransition.model_validate(transition.model_dump(mode="json"))
+        == transition
+    )
+
+    candidate_transition_ref = put(transition_payload)
+    with pytest.raises(
+        s8.P20NormativeChoiceError,
+        match="p20_normative_generation_history_invalid",
+    ):
+        owner._read(
+            candidate_transition_ref,
             kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
             schema=GENERATION_CYCLE_SCHEMA_VERSION,
         )

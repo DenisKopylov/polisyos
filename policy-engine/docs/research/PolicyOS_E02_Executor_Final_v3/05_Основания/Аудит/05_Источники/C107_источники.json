@@ -1,0 +1,387 @@
+{
+  "pass_id": "C107",
+  "bundle": "LLM-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1593
+        ]
+      ],
+      "evidence_level": "Полностью прочитан C106, ключевые eligibility/admission/revision/flight/cleanup/proof paths повторно прослежены C107 на том же blob. Actual native module execution; custom guard только управляет interleaving, не заменяет cache logic.",
+      "git_blob": "1cb18cf2f135a588d599457fa7e9468ff24fcc20",
+      "sha256": "d1553de4c7f710ee2483593f92e1fae8760d811398f1cb8f545b1d5072df8351",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          531
+        ]
+      ],
+      "evidence_level": "Полностью прочитан C106, scope ticket/close и actual runtime-style selection повторно прочитаны C107. Existing simulator factory tests исполнены с явным default-tracer fixture; real HTTP не запускался.",
+      "git_blob": "dc6b05adcb91eb2ab1ce5f5f4c9e75c89ce9fa10",
+      "sha256": "47497d983c315b370982f7549eec0cf3ac35b8df198e65380a572daed1fcd32a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/llm/traced_client.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1686
+        ]
+      ],
+      "evidence_level": "Полный предыдущий C106 read на том же commit; actual native settlement/cancellation owner paths C107. Run01 default-tracer invocation BLOCKED no-OTel fallback signature, run02 optional tracer fixture; project AST не извлекался.",
+      "git_blob": "454023e4ddbd00ecace8b57b7747743787bb3260",
+      "sha256": "7e4cf1bbceeb2573354b597128fabe202ba8d13a1cc6783913fa0f5ff636fbfa",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/core/llm/cache_settlement.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/llm/cache_settlement.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          475
+        ]
+      ],
+      "evidence_level": "Полный C106 read, actual exact Core session/flight/reuse attestation/whole projection C107. Publication race не обходит этот verifier.",
+      "git_blob": "752cbfa4f51a41c4848a307fed1ed8c0482059e0",
+      "sha256": "fde6449b48571ec167e3ee4ee462476ca948026e3f33b6725c6205842b9b0473",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/llm/settlement.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          523
+        ]
+      ],
+      "evidence_level": "Полный C106 read, actual provider/reuse IDs, origin and bounded owner state C107. Secret/session не подменены.",
+      "git_blob": "6d16b985a872ad612deceb883d92b3c9f9902231",
+      "sha256": "442d0ddf13d30a91d442ce58a3a6e6cd4178d508edb8b284f1d0de0fda6dc8a1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prepared_request.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/llm/prepared_request.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          256
+        ]
+      ],
+      "evidence_level": "Полный C106 read; actual native value identity, opaque physical-only route и Gateway strict wire control C107. Nonfinite original Python input не становится cacheable.",
+      "git_blob": "eab77f16446c3ef4cc510c1222fff63fc2995634",
+      "sha256": "b147b4788ae96373af086703752b40d74b686a350301e9e351386360745e779f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          394
+        ]
+      ],
+      "evidence_level": "Полный C106 read, actual scopes/begin/settle/readback в existing C107 tests и P05. Ledger настоящий, не store fixture.",
+      "git_blob": "587b8842bcadb67535185f01ce63e5b6350e5272",
+      "sha256": "8abd43ad46b34b1dc2865ec8fe5d60f04bfbb20693ec8cbe0b1de6a89660e8f1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          704,
+          781
+        ],
+        [
+          1129,
+          1410
+        ],
+        [
+          1425,
+          1636
+        ]
+      ],
+      "evidence_level": "Selected complete producer settlement/publication functions прочитаны C106; actual fresh ledger reopened C107. Не полная новая durability/power-loss квалификация.",
+      "git_blob": "9aeb1a13f592bd9ad3903649ccd70164008b3dcf",
+      "sha256": "c16ce6380ef81fffbcdf96986046033e0110d20ac7fbd37d6b0f9d9834a40e00",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          861
+        ]
+      ],
+      "evidence_level": "Полностью прочитан.30 unchanged bodies / 43 cases PASS. PI test source-only, его тяжёлый import исключён; остальные native project modules не изменены.",
+      "git_blob": "c6afbfcec7f36d08a4b50e50998f57efb501cfa1",
+      "sha256": "2dac534e1a31b98a8f6b3494eda561e49731600252ded9f411161aecaa7053d2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cache_owner_admission.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/orchestration/llm/test_cache_owner_admission.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          733
+        ]
+      ],
+      "evidence_level": "Полностью прочитан.11 selected unchanged bodies /37 cases: run02 36PASS1FAIL (NaN expectation). HTTP-server и runtime-dependency-error bodies не исполнялись. Original run01 failures сохранены.",
+      "git_blob": "2283e280d53b2a9fbe14f9bc49aa9ca0c5e70d1c",
+      "sha256": "9035a7c53a0948da0eda911ca4c85cd642c300d7fd121cea2fc69545e34c94ab",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_scope_admission.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_scope_admission.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          405
+        ]
+      ],
+      "evidence_level": "Полностью прочитан source-only; native CAS graph BLOCKED. Старый shield observer ожидает flight.task, тогда как actual wait использует wrap_future; тест не переобъявлен PASS. Новая отдельная P05 наблюдает registrations.",
+      "git_blob": "9b4f77da9c4ee387034ffaaf97531df34d93343e",
+      "sha256": "3e2eef1eb057b0dc540efdeeeb140fe0e5474569de4d5502b1f04fecb69577b1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/orchestration/llm/test_factory_cache_composition.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          465
+        ]
+      ],
+      "evidence_level": "Полностью прочитан source-only. Existing HTTP→native CAS→factory→ledger composition и current join witness не запускались; local network services не поднимались.",
+      "git_blob": "f198115a5ffc3d3c7b72bc6252f5290980c8a44b",
+      "sha256": "8436d312b802d7ed8c73795ecf4f1916166ae7b44671602c8eebb1ac925bdafe",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          149,
+          350
+        ]
+      ],
+      "evidence_level": "Полная relevant _compile_control_nl_job функция прочитана: actual snapshot owner, current admission, producer binding scope и factory scope. Source-only; native runtime graph BLOCKED.",
+      "git_blob": "4c982cb5764d0b787faa70dde696ffa32d4e35f1",
+      "sha256": "c3708768ecb6ac9e2b4ec4d64133588e133f01331d4ec409893566aa1739a59f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          222,
+          304
+        ],
+        [
+          3868,
+          3905
+        ],
+        [
+          8410,
+          8495
+        ]
+      ],
+      "evidence_level": "Полная snapshot binding функция и relevant caller/factory edges прочитаны. CAS bytes/profile/tenant binding и strict reuse wiring source-only; не весь большой NL pipeline.",
+      "git_blob": "45f8243399947cf03bd4eeaa46cd9d4f161db26e",
+      "sha256": "f926fffeaabb6293797a053a1ae8a194353cf20063d6ecdd4199b35cbe0c596a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          3975,
+          4030
+        ],
+        [
+          4436,
+          4460
+        ]
+      ],
+      "evidence_level": "Constructor dependency selection и полный bind_llm_cache_reuse прочитаны source-only. Optional injected owner не объявлен автоматически configured production authority.",
+      "git_blob": "a2b69e73be76af5247dd41acd9d8d5949243f3fe",
+      "sha256": "55ae6b7a043d70ba2d48bcf78ed6e512830407ea7f7dfe3f18656a87905d1848",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/src/polisyos/core/observability/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/observability/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          58
+        ],
+        [
+          565,
+          650
+        ]
+      ],
+      "evidence_level": "Реальный missing-module fallback и tracer signature прочитаны. Run01 TypeError kind= предшествует целевым assertions; не считать 26 дефектами продукта.",
+      "git_blob": "b128741cb6e4a0efc6b815e1ecd674fb974d95a4",
+      "sha256": "b0dfb0934dc4d335ee1b68e1e593a853a8a368676ed2174053cc792b229f84cf",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/src/polisyos/core/observability/tracer.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/observability/tracer.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          320,
+          365
+        ]
+      ],
+      "evidence_level": "Полный relevant real start_as_current_span принимает kind; установленный SDK path не исполнялся. Fallback-only environment distinction сохранён.",
+      "git_blob": "2e0b0303eba54574e0a746abd1003768fc41f6ab",
+      "sha256": "bac8b15dc232b3e1589198d68e89c2e785f0cf7d5f80352344fba99644b71a8d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S18",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/simulated_gateway.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/llm/simulated_gateway.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          235
+        ],
+        [
+          354,
+          378
+        ]
+      ],
+      "evidence_level": "Actual simulator constructor/preparation/generate и generic branch прочитаны. Existing scope tests используют generic synthetic response и cost0; остальные domain templates не квалифицированы.",
+      "git_blob": "5b2d94fa66eb64ca1d52eb28188b127e5f575e9d",
+      "sha256": "9956d879a398abcf4bd7a02cf94f46197957ef7bfc289e992f705c82e4912561",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S19",
+      "path": "policy-engine/src/polisyos/core/llm/README.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/llm/README.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          135
+        ]
+      ],
+      "evidence_level": "Полный contract прочитан: in-process owner, current scope, retained producer attribution, unmanaged versus durable; source-only documentation не execution evidence.",
+      "git_blob": "c5bc77eea8811f775cacab45de14eb18b364cd19",
+      "sha256": "27e25ad37d62679de663eaa8392248a5040e5d5d4fc2f6df2d2c7c5c8eaf8bc9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S20",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          135
+        ],
+        [
+          206,
+          497
+        ],
+        [
+          578,
+          597
+        ],
+        [
+          744,
+          900
+        ]
+      ],
+      "evidence_level": "Relevant full request/response functions прочитаны C106. Actual prepared Gateway nonfinite input refusal в P08 до forbidden transport; real HTTP не исполнялся.",
+      "git_blob": "7dd8714caa35448c3faf46214d93275b18c1a4d8",
+      "sha256": "4163475f21651920bb80bde605a877e7b769a741458eb6fe87957ac4ef5ea930",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

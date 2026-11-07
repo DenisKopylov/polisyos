@@ -13,6 +13,10 @@ if TYPE_CHECKING:
 import pytest
 
 import polisyos.runtime.http.services.control_plane_store as store_module
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.runtime.http.services.control_plane_store import (
     ControlJobLeaseLostError,
     ControlJobRecord,
@@ -32,6 +36,19 @@ def _types() -> tuple[type[Any], type[Any], type[Any]]:
 
 def _sha(label: str) -> str:
     return "sha256:" + hashlib.sha256(label.encode("utf-8")).hexdigest()
+
+
+def _selected_receipt_ref(tmp_path: Path, label: str, *, version: str = "3") -> ArtifactRef:
+    return FileSystemCAS(tmp_path / "receipt-cas").put_json(
+        {"receipt": label},
+        ArtifactWriteOptions(
+            kind="runtime.acquisition_action_receipt",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.runtime.acquisition_action_receipt", version=version),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
 
 
 def _scope(tenant: str = "tenant-a", cell: str = "cell-a") -> dict[str, object]:
@@ -159,6 +176,8 @@ def _append_action(
     expected_ref: str | None,
     route_id: str,
     replacement: Any,
+    receipt_ref: str | None = None,
+    receipt_manifest_profile_sha256: str | None = None,
 ) -> Any:
     _, _, cas_type = _types()
     cas = cas_type(
@@ -167,6 +186,7 @@ def _append_action(
         expected_frontier_ref=expected_ref,
         replacement=replacement,
     )
+    selected_receipt_ref = receipt_ref or _sha(f"{route_id}:receipt")
     with store.job_execution_fence(job_id=job.job_id, worker_id=worker_id, attempt=attempt):
         return store.advance_acquisition_action_head_with_frontier(
             tenant_id=key.tenant_id,
@@ -176,8 +196,8 @@ def _append_action(
             route_id=_sha(route_id),
             action_generation=1,
             expected_head_generation=0,
-            receipt_ref=_sha(f"{route_id}:receipt"),
-            receipt_sha256=_sha(f"{route_id}:receipt"),
+            receipt_ref=selected_receipt_ref,
+            receipt_sha256=selected_receipt_ref,
             durable_event_id=f"event-{route_id}",
             coarse_phase="completed",
             receipt_phase="completed",
@@ -185,6 +205,7 @@ def _append_action(
             job_id=job.job_id,
             predecessor_receipt_ref=None,
             frontier_cas=cas,
+            receipt_manifest_profile_sha256=receipt_manifest_profile_sha256,
         )
 
 
@@ -196,6 +217,179 @@ def test_frontier_bootstrap_is_owner_fenced_and_history_is_immutable(tmp_path: P
     assert store.get_acquisition_evaluation_frontier_by_ref(record.frontier_ref) == record
     assert (
         store.read_acquisition_evaluation_frontier(_key("source-nl", candidate="unseen-candidate"))
+        is None
+    )
+
+
+def test_absent_frontier_check_only_commits_action_head_without_advancing_frontier(
+    tmp_path: Path,
+) -> None:
+    """A blocked terminal can atomically attest an empty frontier preimage."""
+    _, _, cas_type = _types()
+    path = tmp_path / "absent-check-only.sqlite3"
+    writer = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    reader = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    key = _key("source-blocked")
+    source_job = _create_job(
+        writer, job_id=key.source_job_id, kind="natural_language_run", run_id="run-a"
+    )
+    source_worker, source_attempt = _lease_job(writer, source_job, "worker-source-blocked")
+    with writer.job_execution_fence(
+        job_id=source_job.job_id, worker_id=source_worker, attempt=source_attempt
+    ):
+        writer.complete_job(
+            job_id=source_job.job_id,
+            run_id="run-a",
+            progress={
+                "compiled_recursive_generation_cycle_ref": _sha("blocked-source-output"),
+                "compiled_recursive_generation_cycle_artifact_ref": {
+                    "artifact_id": _sha("blocked-source-output"),
+                    "kind": "runtime.compiled_recursive_generation_cycle",
+                    "media_type": "application/json",
+                },
+            },
+        )
+    job, worker, attempt = _create_action_job(writer, job_id="action-blocked")
+    route_id = _sha("blocked-route")
+    pending_ref = _sha("pending-phase")
+    with writer.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+        pending = writer.advance_acquisition_action_head(
+            tenant_id=key.tenant_id,
+            cell_id=key.cell_id,
+            run_id="run-a",
+            source_job_id=key.source_job_id,
+            route_id=route_id,
+            action_generation=1,
+            expected_head_generation=0,
+            receipt_ref=pending_ref,
+            receipt_sha256=pending_ref,
+            durable_event_id="event-pending",
+            coarse_phase="candidate_input_reentry_pending",
+            receipt_phase="candidate_input_reentry_pending",
+            recovery_state="none",
+            job_id=job.job_id,
+            predecessor_receipt_ref=None,
+        )
+    cas = cas_type(
+        key=key,
+        expected_revision=0,
+        expected_frontier_ref=None,
+        replacement=None,
+    )
+    receipt_ref = _sha("blocked-terminal")
+    with writer.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+        head = writer.advance_acquisition_action_head(
+            tenant_id=key.tenant_id,
+            cell_id=key.cell_id,
+            run_id="run-a",
+            source_job_id=key.source_job_id,
+            route_id=route_id,
+            action_generation=1,
+            expected_head_generation=pending.head_generation,
+            receipt_ref=receipt_ref,
+            receipt_sha256=receipt_ref,
+            durable_event_id="event-blocked-terminal",
+            coarse_phase="terminal",
+            receipt_phase="terminal",
+            recovery_state="complete",
+            job_id=job.job_id,
+            predecessor_receipt_ref=pending.receipt_ref,
+            frontier_cas=cas,
+        )
+
+    assert head.evaluation_frontier_before_ref is None
+    assert head.evaluation_frontier_ref is None
+    assert reader.read_acquisition_evaluation_frontier(key) is None
+    assert (
+        reader.get_acquisition_action_head(
+            tenant_id=key.tenant_id,
+            cell_id=key.cell_id,
+            run_id="run-a",
+            source_job_id=key.source_job_id,
+            route_id=route_id,
+            action_generation=1,
+        )
+        == head
+    )
+
+
+def test_absent_frontier_check_only_conflict_rolls_back_action_head(tmp_path: Path) -> None:
+    """An absent-preimage check fails if another connection selected a frontier."""
+    _, _, cas_type = _types()
+    path = tmp_path / "absent-check-conflict.sqlite3"
+    writer = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    reader = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    key = _key("source-check-conflict")
+    source_job = _create_job(
+        writer, job_id="source-check-conflict", kind="natural_language_run", run_id="run-a"
+    )
+    source_worker, source_attempt = _lease_job(writer, source_job, "worker-source-check-conflict")
+    value = _value()
+    output_ref = value.selected_evaluation_witness_ref
+    cas_initial = cas_type(
+        key=key,
+        expected_revision=0,
+        expected_frontier_ref=None,
+        replacement=value,
+    )
+    with writer.job_execution_fence(
+        job_id=source_job.job_id, worker_id=source_worker, attempt=source_attempt
+    ):
+        selected = writer.complete_job(
+            job_id=source_job.job_id,
+            run_id="run-a",
+            progress={
+                "compiled_recursive_generation_cycle_ref": output_ref,
+                "compiled_recursive_generation_cycle_artifact_ref": {
+                    "artifact_id": output_ref,
+                    "kind": "runtime.compiled_recursive_generation_cycle",
+                    "media_type": "application/json",
+                },
+            },
+            selected_evaluation_frontier_cas=cas_initial,
+        )
+    assert selected is not None
+    blocked_job, worker, attempt = _create_action_job(reader, job_id="action-absent-conflict")
+    blocked = cas_type(
+        key=key,
+        expected_revision=0,
+        expected_frontier_ref=None,
+        replacement=None,
+    )
+    receipt_ref = _sha("must-rollback-blocked-terminal")
+    with (
+        reader.job_execution_fence(job_id=blocked_job.job_id, worker_id=worker, attempt=attempt),
+        pytest.raises(ValueError, match="frontier_conflict"),
+    ):
+        reader.advance_acquisition_action_head(
+            tenant_id=key.tenant_id,
+            cell_id=key.cell_id,
+            run_id="run-a",
+            source_job_id=key.source_job_id,
+            route_id=_sha("blocked-conflict-route"),
+            action_generation=1,
+            expected_head_generation=0,
+            receipt_ref=receipt_ref,
+            receipt_sha256=receipt_ref,
+            durable_event_id="event-absent-conflict",
+            coarse_phase="terminal",
+            receipt_phase="terminal",
+            recovery_state="complete",
+            job_id=blocked_job.job_id,
+            predecessor_receipt_ref=_sha("pending-phase"),
+            frontier_cas=blocked,
+        )
+
+    assert writer.read_acquisition_evaluation_frontier(key) == selected
+    assert (
+        reader.get_acquisition_action_head(
+            tenant_id=key.tenant_id,
+            cell_id=key.cell_id,
+            run_id="run-a",
+            source_job_id=key.source_job_id,
+            route_id=_sha("blocked-conflict-route"),
+            action_generation=1,
+        )
         is None
     )
 
@@ -527,19 +721,23 @@ def _oracle_write(
     replacement: Any,
     expected_head_generation: int = 0,
     predecessor_receipt_ref: str | None = None,
+    receipt_ref: str | None = None,
+    receipt_manifest_profile_sha256: str | None = None,
 ) -> Any:
     # Caller binds the job fence, so expiry can be injected after fence admission.
+    selected_receipt_ref = receipt_ref or _sha(f"{route}:receipt:{expected_head_generation}")
     return store.advance_acquisition_action_head_with_frontier(
         **_oracle_action_scope(initial.key, route),
         expected_head_generation=expected_head_generation,
-        receipt_ref=_sha(f"{route}:receipt:{expected_head_generation}"),
-        receipt_sha256=_sha(f"{route}:receipt:{expected_head_generation}"),
+        receipt_ref=selected_receipt_ref,
+        receipt_sha256=selected_receipt_ref,
         durable_event_id=f"event-{route}-{expected_head_generation}",
         coarse_phase="terminal",
         receipt_phase="terminal",
         recovery_state="complete",
         job_id=job.job_id,
         predecessor_receipt_ref=predecessor_receipt_ref,
+        receipt_manifest_profile_sha256=receipt_manifest_profile_sha256,
         frontier_cas=_types()[2](
             key=initial.key,
             expected_revision=initial.revision,
@@ -558,8 +756,18 @@ def test_v3_action_relation_survives_all_readers_and_store_reopen(
     _, initial, _ = _bootstrap(store, tmp_path)
     job, worker, attempt = _create_action_job(store, job_id="v3-relation-action")
     replacement = _value("compiled-v3", "selected-v3") if replace_frontier else None
+    selected_receipt = _selected_receipt_ref(tmp_path, "selected")
+    assert selected_receipt.manifest_profile_sha256 is not None
     with store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
-        commit = _oracle_write(store, job, initial, route="v3-relation", replacement=replacement)
+        commit = _oracle_write(
+            store,
+            job,
+            initial,
+            route="v3-relation",
+            replacement=replacement,
+            receipt_ref=str(selected_receipt.artifact_id),
+            receipt_manifest_profile_sha256=selected_receipt.manifest_profile_sha256,
+        )
     expected_ref = (
         _oracle_frontier_ref(initial.key, 2, replacement)
         if replacement is not None
@@ -567,6 +775,8 @@ def test_v3_action_relation_survives_all_readers_and_store_reopen(
     )
     assert commit.head.evaluation_frontier_before_ref == initial.frontier_ref
     assert commit.head.evaluation_frontier_ref == expected_ref == commit.frontier.frontier_ref
+    assert commit.head.receipt_ref == str(selected_receipt.artifact_id)
+    assert commit.head.receipt_manifest_profile_sha256 == selected_receipt.manifest_profile_sha256
     assert commit.frontier.revision == (2 if replace_frontier else 1)
     assert commit.frontier.selected_evaluation_witness_ref == (
         replacement.selected_evaluation_witness_ref
@@ -600,15 +810,36 @@ def test_v3_predecessor_conflict_rolls_back_frontier_version_and_relation(tmp_pa
     store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "v3-predecessor.sqlite3")
     _, initial, _ = _bootstrap(store, tmp_path)
     job, worker, attempt = _create_action_job(store, job_id="v3-predecessor-action")
+    selected_receipt = _selected_receipt_ref(tmp_path, "first")
+    rejected_receipt = _selected_receipt_ref(tmp_path, "conflicting", version="4")
+    assert selected_receipt.manifest_profile_sha256 is not None
+    assert rejected_receipt.manifest_profile_sha256 is not None
+    assert selected_receipt.manifest_profile_sha256 != rejected_receipt.manifest_profile_sha256
     with store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
-        first = _oracle_write(store, job, initial, route="v3-same-route", replacement=None)
+        first = _oracle_write(
+            store,
+            job,
+            initial,
+            route="v3-same-route",
+            replacement=None,
+            receipt_ref=str(selected_receipt.artifact_id),
+            receipt_manifest_profile_sha256=selected_receipt.manifest_profile_sha256,
+        )
     replacement = _value("compiled-uncommitted", "selected-uncommitted")
     with (
         store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt),
         pytest.raises(ValueError, match="acquisition_action_predecessor_conflict"),
     ):
         # CAS is attempted first, then the already-present route head rejects this append.
-        _oracle_write(store, job, initial, route="v3-same-route", replacement=replacement)
+        _oracle_write(
+            store,
+            job,
+            initial,
+            route="v3-same-route",
+            replacement=replacement,
+            receipt_ref=str(rejected_receipt.artifact_id),
+            receipt_manifest_profile_sha256=rejected_receipt.manifest_profile_sha256,
+        )
     assert store.read_acquisition_evaluation_frontier(initial.key) == initial
     assert (
         store.get_acquisition_evaluation_frontier_by_ref(
@@ -620,6 +851,325 @@ def test_v3_predecessor_conflict_rolls_back_frontier_version_and_relation(tmp_pa
         store.get_acquisition_action_head(**_oracle_action_scope(initial.key, "v3-same-route"))
         == first.head
     )
+    assert first.head.receipt_manifest_profile_sha256 == selected_receipt.manifest_profile_sha256
+    assert (
+        store.get_acquisition_action_head_by_receipt(
+            **_oracle_action_scope(initial.key, "v3-same-route"),
+            receipt_ref=str(rejected_receipt.artifact_id),
+        )
+        is None
+    )
+
+
+@pytest.mark.parametrize("replace_frontier", [False, True])
+def test_exact_profiled_retry_preserves_the_committed_head_and_frontier(
+    tmp_path: Path, replace_frontier: bool
+) -> None:
+    path = tmp_path / "profile-exact-retry.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    _, initial, _ = _bootstrap(store, tmp_path)
+    job, worker, attempt = _create_action_job(store, job_id="profile-exact-retry-action")
+    selected = _selected_receipt_ref(tmp_path, "exact-retry")
+    assert selected.manifest_profile_sha256 is not None
+    replacement = _value("compiled-exact", "tuple-exact") if replace_frontier else None
+    args = {
+        "route": "profile-exact-retry",
+        "replacement": replacement,
+        "receipt_ref": str(selected.artifact_id),
+        "receipt_manifest_profile_sha256": selected.manifest_profile_sha256,
+    }
+    with store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+        first = _oracle_write(store, job, initial, **args)
+    expected_error = (
+        "acquisition_evaluation_frontier_conflict"
+        if replace_frontier
+        else "acquisition_action_predecessor_conflict"
+    )
+    with (
+        store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt),
+        pytest.raises(ValueError, match=expected_error),
+    ):
+        _oracle_write(store, job, initial, **args)
+
+    reopened = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    scope = _oracle_action_scope(initial.key, "profile-exact-retry")
+    assert first.head.receipt_ref == str(selected.artifact_id)
+    assert first.head.receipt_manifest_profile_sha256 == selected.manifest_profile_sha256
+    assert reopened.get_acquisition_action_head(**scope) == first.head
+    assert (
+        reopened.get_acquisition_action_head_by_receipt(
+            **scope, receipt_ref=str(selected.artifact_id)
+        )
+        == first.head
+    )
+    route_scope = {key: value for key, value in scope.items() if key != "action_generation"}
+    assert reopened.list_acquisition_action_heads(**route_scope) == (first.head,)
+    assert reopened.read_acquisition_evaluation_frontier(initial.key) == first.frontier
+    assert (
+        reopened.get_acquisition_evaluation_frontier_by_ref(
+            _oracle_frontier_ref(initial.key, first.frontier.revision + 1, first.frontier)
+        )
+        is None
+    )
+
+
+def test_profiled_head_refuses_same_body_other_view_and_null_downgrade(tmp_path: Path) -> None:
+    path = tmp_path / "profile-identity.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    _, initial, _ = _bootstrap(store, tmp_path)
+    job, worker, attempt = _create_action_job(store, job_id="profile-identity-action")
+    selected = _selected_receipt_ref(tmp_path, "same-body", version="3")
+    other_view = _selected_receipt_ref(tmp_path, "same-body", version="4")
+    assert selected.artifact_id == other_view.artifact_id
+    assert selected.manifest_profile_sha256 is not None
+    assert other_view.manifest_profile_sha256 is not None
+    assert selected.manifest_profile_sha256 != other_view.manifest_profile_sha256
+    scope = _oracle_action_scope(initial.key, "profile-identity")
+    with store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+        first = _oracle_write(
+            store,
+            job,
+            initial,
+            route="profile-identity",
+            replacement=None,
+            receipt_ref=str(selected.artifact_id),
+            receipt_manifest_profile_sha256=selected.manifest_profile_sha256,
+        )
+
+    replacement = _value("compiled-profile-rejected", "tuple-profile-rejected")
+    for supplied_ref, supplied_profile, expected_generation, predecessor, error in (
+        (
+            str(other_view.artifact_id),
+            other_view.manifest_profile_sha256,
+            0,
+            None,
+            "acquisition_action_predecessor_conflict",
+        ),
+        (
+            str(other_view.artifact_id),
+            other_view.manifest_profile_sha256,
+            1,
+            first.head.receipt_ref,
+            "acquisition_action_receipt_manifest_profile_conflict",
+        ),
+        (
+            str(selected.artifact_id),
+            selected.manifest_profile_sha256,
+            1,
+            first.head.receipt_ref,
+            "acquisition_action_receipt_duplicate",
+        ),
+        (
+            _sha("another-receipt"),
+            None,
+            1,
+            first.head.receipt_ref,
+            "acquisition_action_receipt_manifest_profile_downgrade",
+        ),
+    ):
+        with (
+            store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt),
+            pytest.raises(ValueError, match=error),
+        ):
+            _oracle_write(
+                store,
+                job,
+                initial,
+                route="profile-identity",
+                replacement=replacement,
+                expected_head_generation=expected_generation,
+                predecessor_receipt_ref=predecessor,
+                receipt_ref=supplied_ref,
+                receipt_manifest_profile_sha256=supplied_profile,
+            )
+        reopened = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+        assert reopened.get_acquisition_action_head(**scope) == first.head
+        assert (
+            reopened.get_acquisition_action_head_by_receipt(
+                **scope, receipt_ref=str(selected.artifact_id)
+            )
+            == first.head
+        )
+        assert reopened.read_acquisition_evaluation_frontier(initial.key) == initial
+        assert (
+            reopened.get_acquisition_evaluation_frontier_by_ref(
+                _oracle_frontier_ref(initial.key, 2, replacement)
+            )
+            is None
+        )
+
+
+def test_legacy_null_head_is_not_rebound_to_later_selected_view(tmp_path: Path) -> None:
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "profile-legacy.sqlite3")
+    _, initial, _ = _bootstrap(store, tmp_path)
+    job, worker, attempt = _create_action_job(store, job_id="profile-legacy-action")
+    selected = _selected_receipt_ref(tmp_path, "legacy-body")
+    assert selected.manifest_profile_sha256 is not None
+    scope = _oracle_action_scope(initial.key, "profile-legacy")
+    with store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+        legacy = _oracle_write(
+            store,
+            job,
+            initial,
+            route="profile-legacy",
+            replacement=None,
+            receipt_ref=str(selected.artifact_id),
+        )
+    assert legacy.head.receipt_manifest_profile_sha256 is None
+    replacement = _value("compiled-legacy-rejected", "tuple-legacy-rejected")
+    with (
+        store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt),
+        pytest.raises(ValueError, match="acquisition_action_receipt_manifest_profile_conflict"),
+    ):
+        _oracle_write(
+            store,
+            job,
+            initial,
+            route="profile-legacy",
+            replacement=replacement,
+            expected_head_generation=1,
+            predecessor_receipt_ref=legacy.head.receipt_ref,
+            receipt_ref=str(selected.artifact_id),
+            receipt_manifest_profile_sha256=selected.manifest_profile_sha256,
+        )
+    assert store.get_acquisition_action_head(**scope) == legacy.head
+    assert store.read_acquisition_evaluation_frontier(initial.key) == initial
+    assert (
+        store.get_acquisition_evaluation_frontier_by_ref(
+            _oracle_frontier_ref(initial.key, 2, replacement)
+        )
+        is None
+    )
+
+
+@pytest.mark.parametrize(
+    "bad_profile", ["", "sha256:" + "a" * 63, "sha256:" + "A" * 64, "a" * 64, False]
+)
+def test_malformed_profile_refuses_without_head_or_frontier_write(
+    tmp_path: Path, bad_profile: Any
+) -> None:
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "profile-invalid.sqlite3")
+    _, initial, _ = _bootstrap(store, tmp_path)
+    job, worker, attempt = _create_action_job(store, job_id="profile-invalid-action")
+    replacement = _value("compiled-invalid-profile", "tuple-invalid-profile")
+    with (
+        store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt),
+        pytest.raises(ValueError, match="acquisition_action_receipt_manifest_profile_invalid"),
+    ):
+        _oracle_write(
+            store,
+            job,
+            initial,
+            route="profile-invalid",
+            replacement=replacement,
+            receipt_manifest_profile_sha256=bad_profile,
+        )
+    assert (
+        store.get_acquisition_action_head(**_oracle_action_scope(initial.key, "profile-invalid"))
+        is None
+    )
+    assert store.read_acquisition_evaluation_frontier(initial.key) == initial
+    assert (
+        store.get_acquisition_evaluation_frontier_by_ref(
+            _oracle_frontier_ref(initial.key, 2, replacement)
+        )
+        is None
+    )
+
+
+def test_corrupt_profile_is_refused_by_each_head_reader(tmp_path: Path) -> None:
+    path = tmp_path / "profile-corrupt.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    _, initial, _ = _bootstrap(store, tmp_path)
+    job, worker, attempt = _create_action_job(store, job_id="profile-corrupt-action")
+    selected = _selected_receipt_ref(tmp_path, "profile-corrupt")
+    assert selected.manifest_profile_sha256 is not None
+    scope = _oracle_action_scope(initial.key, "profile-corrupt")
+    with store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+        head = _oracle_write(
+            store,
+            job,
+            initial,
+            route="profile-corrupt",
+            replacement=None,
+            receipt_ref=str(selected.artifact_id),
+            receipt_manifest_profile_sha256=selected.manifest_profile_sha256,
+        ).head
+    with sqlite3.connect(path) as connection:
+        connection.execute(
+            "UPDATE runtime_acquisition_action_heads SET receipt_manifest_profile_sha256 = ? "
+            "WHERE receipt_ref = ?",
+            ("sha256:corrupt", head.receipt_ref),
+        )
+    route_scope = {key: value for key, value in scope.items() if key != "action_generation"}
+    source_scope = {key: value for key, value in route_scope.items() if key != "route_id"}
+    readers = (
+        lambda: store.get_acquisition_action_head(**scope),
+        lambda: store.get_acquisition_action_head_by_receipt(**scope, receipt_ref=head.receipt_ref),
+        lambda: store.list_acquisition_action_heads(**route_scope),
+        lambda: store.list_acquisition_action_heads_for_source(**source_scope),
+    )
+    for read in readers:
+        with pytest.raises(
+            RuntimeError, match="acquisition_action_receipt_manifest_profile_corrupt"
+        ):
+            read()
+
+
+@pytest.mark.parametrize("altered_field", ["receipt_ref", "receipt_manifest_profile_sha256"])
+def test_head_readback_binds_receipt_and_profile_before_commit(
+    tmp_path: Path, altered_field: str
+) -> None:
+    path = tmp_path / "profile-readback.sqlite3"
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    _, initial, _ = _bootstrap(store, tmp_path)
+    job, worker, attempt = _create_action_job(store, job_id="profile-readback-action")
+    selected = _selected_receipt_ref(tmp_path, "profile-readback")
+    assert selected.manifest_profile_sha256 is not None
+    replacement = _value("compiled-readback-rejected", "tuple-readback-rejected")
+    statements = {
+        "receipt_ref": (
+            "CREATE TRIGGER change_head AFTER INSERT ON runtime_acquisition_action_heads BEGIN "
+            "UPDATE runtime_acquisition_action_heads SET receipt_ref = "
+            "'sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' "
+            "WHERE rowid = NEW.rowid; END"
+        ),
+        "receipt_manifest_profile_sha256": (
+            "CREATE TRIGGER change_head AFTER INSERT ON runtime_acquisition_action_heads BEGIN "
+            "UPDATE runtime_acquisition_action_heads SET receipt_manifest_profile_sha256 = "
+            "'sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' "
+            "WHERE rowid = NEW.rowid; END"
+        ),
+    }
+    with sqlite3.connect(path) as connection:
+        connection.execute(statements[altered_field])
+    with (
+        store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt),
+        pytest.raises(RuntimeError, match="acquisition_action_head_readback_failed"),
+    ):
+        _oracle_write(
+            store,
+            job,
+            initial,
+            route="profile-readback",
+            replacement=replacement,
+            receipt_ref=str(selected.artifact_id),
+            receipt_manifest_profile_sha256=selected.manifest_profile_sha256,
+        )
+    reopened = ControlPlaneStore(backend="sqlite", sqlite_path=path)
+    assert (
+        reopened.get_acquisition_action_head(
+            **_oracle_action_scope(initial.key, "profile-readback")
+        )
+        is None
+    )
+    assert reopened.read_acquisition_evaluation_frontier(initial.key) == initial
+    assert (
+        reopened.get_acquisition_evaluation_frontier_by_ref(
+            _oracle_frontier_ref(initial.key, 2, replacement)
+        )
+        is None
+    )
 
 
 def test_v3_sql_head_insert_abort_rolls_back_frontier_and_history(tmp_path: Path) -> None:
@@ -628,6 +1178,8 @@ def test_v3_sql_head_insert_abort_rolls_back_frontier_and_history(tmp_path: Path
     _, initial, _ = _bootstrap(store, tmp_path)
     job, worker, attempt = _create_action_job(store, job_id="v3-abort-action")
     replacement = _value("compiled-aborted", "selected-aborted")
+    selected_receipt = _selected_receipt_ref(tmp_path, "sql-abort")
+    assert selected_receipt.manifest_profile_sha256 is not None
     with sqlite3.connect(path) as connection:
         connection.execute(
             "CREATE TRIGGER oracle_abort_action_insert BEFORE INSERT ON "
@@ -638,7 +1190,15 @@ def test_v3_sql_head_insert_abort_rolls_back_frontier_and_history(tmp_path: Path
         store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt),
         pytest.raises(sqlite3.IntegrityError, match="oracle_action_insert_abort"),
     ):
-        _oracle_write(store, job, initial, route="v3-aborted", replacement=replacement)
+        _oracle_write(
+            store,
+            job,
+            initial,
+            route="v3-aborted",
+            replacement=replacement,
+            receipt_ref=str(selected_receipt.artifact_id),
+            receipt_manifest_profile_sha256=selected_receipt.manifest_profile_sha256,
+        )
     reopened = ControlPlaneStore(backend="sqlite", sqlite_path=path)
     assert reopened.read_acquisition_evaluation_frontier(initial.key) == initial
     assert (
@@ -786,6 +1346,7 @@ def test_v3_legacy_schema_upgrade_preserves_null_unproven_relation(tmp_path: Pat
     scope = _oracle_action_scope(_key(), "legacy-route")
     legacy = store.get_acquisition_action_head(**scope)
     assert legacy is not None
+    assert legacy.receipt_manifest_profile_sha256 is None
     assert legacy.evaluation_frontier_before_ref is None
     assert legacy.evaluation_frontier_ref is None
     assert (
@@ -807,6 +1368,7 @@ def test_v3_legacy_schema_upgrade_preserves_null_unproven_relation(tmp_path: Pat
     )
     assert added.evaluation_frontier_before_ref is None
     assert added.evaluation_frontier_ref is None
+    assert added.receipt_manifest_profile_sha256 is None
 
 
 @pytest.mark.parametrize("stale_part", ["revision", "selected_ref"])

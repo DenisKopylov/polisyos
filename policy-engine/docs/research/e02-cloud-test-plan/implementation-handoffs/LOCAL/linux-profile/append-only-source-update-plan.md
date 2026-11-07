@@ -1,6 +1,6 @@
 # Append-only update of the existing Linux checkout
 
-This is a read-only preparation plan for the next root-supplied C12 freeze. No new freeze SHA/tree has been supplied, so no Git refs, objects, source checkout, container files, or environment were changed. Current measured state and pins are in [append-only-source-update-current-state-7574c864-20261010.txt](raw/append-only-source-update-current-state-7574c864-20261010.txt).
+This is a read-only preparation plan for the next root-supplied C12 freeze. No new freeze SHA/tree has been supplied, so no Git refs, objects, source checkout, container files, or environment were changed. Current measured state and pins are in append-only-source-update-current-state-7574c864-20261010.txt (`raw/append-only-source-update-current-state-7574c864-20261010.txt`; unavailable in this checkout).
 
 Reuse only the existing worker bare store and attached checkout. The source stream is a Git bundle made from the host's own attached branch; it carries the new Git objects, not a source-tree copy. The host bare store remains the immutable record of the original 7574 import. On Linux, fetch the bundle into the existing shallow bare store, advance its branch ref with a compare-and-swap only after proving the new commit descends from 7574, then fetch from that bare store into the existing checkout and `merge --ff-only`. Preserve both existing `shallow` files as the single line `7574c864a605c50efc033b966807790cbd8d1781`.
 

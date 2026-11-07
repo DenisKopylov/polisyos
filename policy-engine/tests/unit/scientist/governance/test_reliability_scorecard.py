@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from polisyos.scientist.validation.reliability_scorecard import (
     BENCHMARK_EVIDENCE_CASES,
     OPERATIONAL_EVIDENCE_CASES,
@@ -71,9 +73,49 @@ def test_scientist_reliability_scorecard_from_evidence_maps_required_cases() -> 
     assert payload["scenario_evidence"]["happy_path"] == [
         "test_linear_scientist_workflow_happy_path"
     ]
+    assert payload["scenario_evidence"]["checkpoint_resume"] == [
+        "test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes[incomplete]"
+    ]
     assert payload["operational_evidence"]["metrics_exporter"] == [
         "test_metrics_exporter_operational_signal"
     ]
+
+
+def test_scientist_reliability_scorecard_counts_successful_checkpoint_resume_parameter() -> None:
+    expected_case = (
+        "test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes[incomplete]"
+    )
+    assert SCENARIO_EVIDENCE_CASES["checkpoint_resume"] == (expected_case,)
+
+    scorecard = build_scientist_reliability_scorecard_from_evidence(
+        passed_test_cases={expected_case},
+        benchmark_names=set(),
+    )
+
+    assert scorecard.scenario_results["checkpoint_resume"] is True
+    assert "scenario_missing:checkpoint_resume" not in scorecard.notes
+
+
+@pytest.mark.parametrize(
+    "observed_case",
+    [
+        "test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes",
+        "test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes[terminal]",
+        "test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes[corrupt_registry]",
+        "test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes[unbound_registry]",
+        "test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes_nearby[incomplete]",
+    ],
+)
+def test_scientist_reliability_scorecard_rejects_nonpositive_checkpoint_resume_evidence(
+    observed_case: str,
+) -> None:
+    scorecard = build_scientist_reliability_scorecard_from_evidence(
+        passed_test_cases={observed_case},
+        benchmark_names=set(),
+    )
+
+    assert scorecard.scenario_results["checkpoint_resume"] is False
+    assert "scenario_missing:checkpoint_resume" in scorecard.notes
 
 
 def test_scientist_reliability_scorecard_from_evidence_marks_missing_inputs() -> None:

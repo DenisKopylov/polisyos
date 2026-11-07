@@ -901,7 +901,7 @@ class HierarchicalSearchCoordinator:
             provider_hint=self._config.llm_provider_hint,
             run_id=f"{candidate.candidate_id}_hybrid_seed",
         )
-        degraded = client is None
+        gateway_available = client is not None
         candidates: list[PolicyCandidateSchema] = []
 
         monitoring_seed = self._build_monitoring_hybrid_seed(candidate)
@@ -921,18 +921,16 @@ class HierarchicalSearchCoordinator:
             if candidate_hash == candidate.candidate_hash() or candidate_hash in seen_hashes:
                 continue
             seen_hashes.add(candidate_hash)
-            source = "hybrid_seed_llm_assisted" if not degraded else "hybrid_seed_degraded"
             seeds.append(
                 StructureCandidate(
                     structure_id=f"{candidate.candidate_id}_hybrid_{index}",
                     candidate=self._with_policy_family(hybrid_candidate, policy_family),
                     candidate_hash=candidate_hash,
                     policy_family=policy_family,
-                    source=source,
+                    source="hybrid_seed_deterministic",
                     metadata={
                         "parent_structure_hash": candidate.candidate_hash(),
-                        "hybrid_gateway_available": not degraded,
-                        "hybrid_degraded_reason": (None if not degraded else "gateway_unavailable"),
+                        "hybrid_gateway_available": gateway_available,
                     },
                 )
             )

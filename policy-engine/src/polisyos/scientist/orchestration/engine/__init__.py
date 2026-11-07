@@ -5,6 +5,11 @@ from __future__ import annotations
 from importlib import import_module
 
 __all__ = [
+    "ProducerBudgetObservation",
+    "ProducerBudgetSourceError",
+    "BudgetInvocationCapacityObservation",
+    "BudgetInvocationExhaustionWitness",
+    "ProducerBudgetObserver",
     "ATTR_CACHE_HIT",
     "ATTR_CELL_ID",
     "ATTR_DURATION_MS",
@@ -23,6 +28,10 @@ __all__ = [
     "IDEMPOTENCY_CONTRACT_VERSION",
     "AsyncWorkflowExecutor",
     "BudgetExhaustedError",
+    "BudgetInvocationQuotaPolicy",
+    "BudgetLedgerInvocationProfile",
+    "BudgetLedgerReentryBudgetScope",
+    "BudgetLedgerReentryBudgetWindow",
     "BudgetLedger",
     "BudgetLedgerMutation",
     "BudgetLedgerCacheReuseAdmission",
@@ -73,6 +82,8 @@ __all__ = [
     "NodeEvent",
     "NodeExecutionError",
     "NodeInvocation",
+    "NodeInputRule",
+    "InputAwareNodeSpec",
     "NodeOutcome",
     "NodeOutputRule",
     "OutputAwareNodeSpec",
@@ -123,6 +134,50 @@ __all__ = [
 ]
 
 _EXPORTS = {
+    "ProducerBudgetObservation": (
+        "polisyos.scientist.orchestration.engine.producer_budget",
+        "ProducerBudgetObservation",
+    ),
+    "ProducerBudgetSourceError": (
+        "polisyos.scientist.orchestration.engine.producer_budget",
+        "ProducerBudgetSourceError",
+    ),
+    "ProducerBudgetObserver": (
+        "polisyos.scientist.orchestration.engine.producer_budget",
+        "ProducerBudgetObserver",
+    ),
+    "BudgetInvocationCapacityObservation": (
+        "polisyos.scientist.orchestration.engine.producer_budget",
+        "BudgetInvocationCapacityObservation",
+    ),
+    "BudgetInvocationExhaustionWitness": (
+        "polisyos.scientist.orchestration.engine.producer_budget",
+        "BudgetInvocationExhaustionWitness",
+    ),
+    "BudgetLedgerReentryBudgetScope": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "BudgetLedgerReentryBudgetScope",
+    ),
+    "BudgetLedgerReentryBudgetWindow": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "BudgetLedgerReentryBudgetWindow",
+    ),
+    "BudgetInvocationQuotaPolicy": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "BudgetInvocationQuotaPolicy",
+    ),
+    "BudgetLedgerInvocationProfile": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "BudgetLedgerInvocationProfile",
+    ),
+    "NodeInputRule": (
+        "polisyos.scientist.orchestration.engine.protocol",
+        "NodeInputRule",
+    ),
+    "InputAwareNodeSpec": (
+        "polisyos.scientist.orchestration.engine.protocol",
+        "InputAwareNodeSpec",
+    ),
     "NodeOutputRule": (
         "polisyos.scientist.orchestration.engine.protocol",
         "NodeOutputRule",

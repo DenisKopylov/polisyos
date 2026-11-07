@@ -1,0 +1,41 @@
+{
+  "pass_id": "C113",
+  "bundle": "UQP-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C113-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Native response-basis→dispatcher→persisted result и autodiff не квалифицированы",
+      "evidence": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "S04:1010–1280",
+        "S09:145–222",
+        "commands.json"
+      ],
+      "remaining": "В поддерживаемой среде проверить существующую source-bound execute-response route, eager/JIT/Jacobian, fixed kwargs, zero/partial/missing outputs, реальные random/QMC и native persistence совместно с UQP-02/03. Не заменять unresolved map универсальным guessed mapping и не снимать candidate-only ограничения. Сохранить реальный non-differentiable fallback.",
+      "limits": "Actual helpers/selected loops выполнены, но numerical derivative не JAX, deterministic sampler не MC/QMC. Recomputed projection fixture не подтверждает source admission. Existing native node test прочитан, не запущен; научная правомерность отклика/закона не доказана."
+    },
+    {
+      "id": "C113-G02",
+      "kind": "qualification_gap",
+      "severity": "low",
+      "title": "Явный float32 профиль меняет nominal point на границе представимости",
+      "evidence": [
+        "P05",
+        "S01:68–72",
+        "S01:102–119",
+        "S02:293–307"
+      ],
+      "remaining": "Уточнить и проверить supported numeric domain/precision для delta probe и execution; связать nominal/model dtype с уже существующим контрактом. Для y=x−1e8 при x=100000001 проверить согласованность nominal и projected point в native JAX, включая declared backend settings. Не обещать float64 precision без договорённости.",
+      "limits": "NumPy-bound actual float32 vector path даёт point0 при Python nominal1. Это зафиксированная representability boundary и qualification gap, не утверждение о native gradient bug, production impact или обязательном нарушении документированного precision contract."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "Четыре основных ремонта присутствуют и подтверждены bounded actual producer/consumer checks. Нового подтверждённого product defect не объявлено; native/source-bound и precision qualification открыты."
+}

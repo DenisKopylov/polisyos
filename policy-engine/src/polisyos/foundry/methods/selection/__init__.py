@@ -20,6 +20,7 @@ __all__ = [
     "MethodLossProfile",
     "MethodScoreTraceEntry",
     "MethodSelectionAlternative",
+    "MethodSelectionDisposition",
     "MethodRouteConstraint",
     "InputContractMethodCandidate",
     "InputContractMethodSelection",
@@ -45,6 +46,7 @@ __all__ = [
     "suggest_adapter_methods",
     "suggest_alternative_methods",
     "suggest_plan_node_alternatives",
+    "verify_value_method_selection_receipt",
 ]
 
 # Keep runtime lookup and source-bound closure on the same finite owner map.
@@ -64,6 +66,7 @@ _EXPORT_MODULES = {
     "MethodLossProfile": "polisyos.foundry.methods.selection.advisor",
     "MethodScoreTraceEntry": "polisyos.foundry.methods.selection.advisor",
     "MethodSelectionAlternative": "polisyos.foundry.methods.selection.receipt",
+    "MethodSelectionDisposition": "polisyos.foundry.methods.selection.receipt",
     "MethodRouteConstraint": "polisyos.foundry.methods.selection.advisor",
     "InputContractMethodCandidate": "polisyos.foundry.methods.selection.advisor",
     "InputContractMethodSelection": "polisyos.foundry.methods.selection.advisor",
@@ -89,6 +92,7 @@ _EXPORT_MODULES = {
     "suggest_adapter_methods": "polisyos.foundry.methods.selection.advisor",
     "suggest_alternative_methods": "polisyos.foundry.methods.selection.advisor",
     "suggest_plan_node_alternatives": "polisyos.foundry.methods.selection.advisor",
+    "verify_value_method_selection_receipt": "polisyos.foundry.methods.selection.advisor",
 }
 
 

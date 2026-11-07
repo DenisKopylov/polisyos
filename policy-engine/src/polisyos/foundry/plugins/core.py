@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterator, Sequence
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Generic, Protocol, TypeVar, runtime_checkable
@@ -112,6 +114,72 @@ class PluginMetadata:
             raise ValueError("Plugin version required")
 
 
+_REGISTRATION_METADATA: ContextVar[tuple[object, object, PluginMetadata] | None] = ContextVar(
+    "domain_plugin_registration_metadata", default=None
+)
+
+
+@contextmanager
+def _registration_metadata_scope(
+    registry: PluginRegistry, plugin: DomainPlugin, metadata: PluginMetadata
+) -> Iterator[None]:
+    """Carry one source's detached declaration through the ordinary override point."""
+    token = _REGISTRATION_METADATA.set((registry, plugin, metadata))
+    try:
+        yield
+    finally:
+        _REGISTRATION_METADATA.reset(token)
+
+
+def _snapshot_plugin_metadata(plugin: DomainPlugin) -> PluginMetadata:
+    """Materialize typed registration metadata without retaining callback-owned containers."""
+    return _copy_plugin_metadata(plugin.metadata)
+
+
+def _copy_plugin_metadata(metadata: PluginMetadata) -> PluginMetadata:
+    """Validate and detach one already materialized metadata declaration."""
+    if not isinstance(metadata, PluginMetadata):
+        raise TypeError("DomainPlugin.metadata must return PluginMetadata")
+
+    def plain_string(value: object, field: str, *, nonempty: bool = False) -> str:
+        if not isinstance(value, str) or (nonempty and not value):
+            raise TypeError(f"DomainPlugin.metadata.{field} must be a string")
+        # Preserve the underlying string while avoiding a custom subclass hash.
+        return str.__str__(value)
+
+    def sequence(value: object, field: str) -> tuple:
+        if isinstance(value, (str, bytes)) or not isinstance(value, Sequence):
+            raise TypeError(f"DomainPlugin.metadata.{field} must be a sequence")
+        return tuple(value)
+
+    dependencies = tuple(
+        plain_string(value, "dependencies", nonempty=True)
+        for value in sequence(metadata.dependencies, "dependencies")
+    )
+    tags = tuple(plain_string(value, "tags") for value in sequence(metadata.tags, "tags"))
+    capabilities = []
+    for value in sequence(metadata.capabilities, "capabilities"):
+        try:
+            capabilities.append(
+                value
+                if isinstance(value, PluginCapability)
+                else PluginCapability(plain_string(value, "capabilities"))
+            )
+        except ValueError as exc:
+            raise TypeError(
+                "DomainPlugin.metadata.capabilities contains an unsupported value"
+            ) from exc
+    return PluginMetadata(
+        name=plain_string(metadata.name, "name", nonempty=True),
+        version=plain_string(metadata.version, "version", nonempty=True),
+        description=plain_string(metadata.description, "description"),
+        author=plain_string(metadata.author, "author"),
+        capabilities=tuple(capabilities),
+        dependencies=dependencies,
+        tags=tags,
+    )
+
+
 class DomainPlugin(ABC, Generic[StateT]):
     """Base class for domain plugins."""
 
@@ -191,10 +259,22 @@ class PluginRegistry:
             cls._instance = super().__new__(cls)
             cls._instance._plugins = {}
             cls._instance._loaded = set()
+            cls._instance._metadata = {}
         return cls._instance
 
     def register(self, plugin: DomainPlugin) -> None:
-        meta = plugin.metadata
+        """Register a domain against a detached, consistently used metadata snapshot.
+
+        Source admission carries an already evaluated declaration in a scoped
+        context. Ordinary callers evaluate their plugin's declaration once;
+        existing one-argument registry overrides remain supported.
+        """
+        admitted = _REGISTRATION_METADATA.get()
+        meta = (
+            _copy_plugin_metadata(admitted[2])
+            if admitted is not None and admitted[0] is self and admitted[1] is plugin
+            else _snapshot_plugin_metadata(plugin)
+        )
         if meta.name in self._plugins:
             raise ValueError(f"Plugin '{meta.name}' already registered")
 
@@ -203,13 +283,14 @@ class PluginRegistry:
                 raise ValueError(f"Plugin '{meta.name}' requires '{dep}' which is not registered")
 
         self._plugins[meta.name] = plugin
+        self._metadata[meta.name] = meta
 
     def unregister(self, name: str) -> None:
         if name not in self._plugins:
             raise KeyError(f"Plugin '{name}' not found")
 
-        for other_name, other_plugin in self._plugins.items():
-            if name in other_plugin.metadata.dependencies:
+        for other_name, metadata in self._metadata.items():
+            if name in metadata.dependencies:
                 raise ValueError(f"Cannot unregister '{name}': '{other_name}' depends on it")
 
         if name in self._loaded:
@@ -217,6 +298,7 @@ class PluginRegistry:
             self._loaded.remove(name)
 
         del self._plugins[name]
+        del self._metadata[name]
 
     def get(self, name: str) -> DomainPlugin:
         if name not in self._plugins:
@@ -231,19 +313,24 @@ class PluginRegistry:
         return plugin
 
     def list_plugins(self) -> list[PluginMetadata]:
-        return [p.metadata for p in self._plugins.values()]
+        return [PluginMetadata(**vars(metadata)) for metadata in self._metadata.values()]
 
     def with_capability(self, capability: PluginCapability) -> list[DomainPlugin]:
-        return [p for p in self._plugins.values() if capability in p.metadata.capabilities]
+        return [
+            p
+            for name, p in self._plugins.items()
+            if capability in self._metadata[name].capabilities
+        ]
 
     def with_tag(self, tag: str) -> list[DomainPlugin]:
-        return [p for p in self._plugins.values() if tag in p.metadata.tags]
+        return [p for name, p in self._plugins.items() if tag in self._metadata[name].tags]
 
     def clear(self) -> None:
         for name in list(self._loaded):
             self._plugins[name].on_unload()
         self._plugins.clear()
         self._loaded.clear()
+        self._metadata.clear()
 
 
 def get_registry() -> PluginRegistry:

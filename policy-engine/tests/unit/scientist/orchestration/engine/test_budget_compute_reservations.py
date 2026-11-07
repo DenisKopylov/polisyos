@@ -7,8 +7,10 @@ import multiprocessing
 from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
 from pathlib import Path
+from queue import Empty
 
 import pytest
+from _helpers.budget_ledger_process import reserve_in_process
 
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import (
@@ -237,17 +239,6 @@ def test_legacy_and_identified_reservations_keep_separate_floor(
     assert owner.snapshot().state.reserved["run"] == Decimal("0")
 
 
-def _process_reserve(path: str, event: str, barrier, result) -> None:
-    owner = FileBudgetLedger(Path(path))
-    barrier.wait()
-    try:
-        owner.reserve_compute(event, REQUEST, "run", Decimal("0.75"))
-    except ValueError as exc:
-        result.put(("refused", str(exc)))
-    else:
-        result.put(("reserved", event))
-
-
 def test_two_processes_compete_on_one_durable_owner(tmp_path: Path) -> None:
     path = tmp_path / "budget.json"
     owner = _owner(path)
@@ -255,15 +246,30 @@ def test_two_processes_compete_on_one_durable_owner(tmp_path: Path) -> None:
     barrier = ctx.Barrier(2)
     result = ctx.Queue()
     processes = [
-        ctx.Process(target=_process_reserve, args=(str(path), event, barrier, result))
+        ctx.Process(target=reserve_in_process, args=(str(path), event, REQUEST, barrier, result))
         for event in ("event-a", "event-b")
     ]
-    for process in processes:
-        process.start()
-    outcomes = [result.get(timeout=30) for _ in processes]
-    for process in processes:
-        process.join(timeout=30)
-        assert process.exitcode == 0
+    try:
+        for process in processes:
+            process.start()
+        try:
+            outcomes = [result.get(timeout=30) for _ in processes]
+        except Empty as exc:
+            states = [(process.pid, process.exitcode, process.is_alive()) for process in processes]
+            raise AssertionError(
+                f"reservation worker output timed out: {states}; barrier waiting={barrier.n_waiting}"
+            ) from exc
+        for process in processes:
+            process.join(timeout=30)
+            assert process.exitcode == 0
+    finally:
+        for process in processes:
+            if process.is_alive():
+                process.terminate()
+                process.join(timeout=5)
+                if process.is_alive():
+                    process.kill()
+                    process.join(timeout=5)
     assert sorted(item[0] for item in outcomes) == ["refused", "reserved"]
     assert [item[1] for item in outcomes if item[0] == "refused"] == [
         "compute_budget_unresolved_reservation"

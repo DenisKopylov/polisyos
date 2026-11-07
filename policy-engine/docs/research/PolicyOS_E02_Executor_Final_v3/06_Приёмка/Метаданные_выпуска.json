@@ -1,0 +1,25 @@
+{
+  "release": "PolicyOS E02 final executor tasks v3",
+  "status": "READY_FOR_EXECUTOR_IMPLEMENTATION_NOT_RUN",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "prior_v2_zip_sha256": "7f22b1737f67b20137ce57b95bc77b244c479d4c850e96aab3f3e518e68501ed",
+  "source_review_zip_sha256": "8df1bfc02bd9ff40b1d9eeaa5d6a86f2d65c16229efc19a2792a07b13633a161",
+  "requested_execution": "sequential lanes, safe within-lane parallelism",
+  "product_changes": "NONE",
+  "native_product_tests": "NOT_RUN",
+  "history_scope": "05/07/08 and named QA_v2 describe their own original inputs. Current00-04+09 are v3.",
+  "self_reference_boundary": "Content QA precedes final QA report copies, release metadata and manifest. Final archive integrity checks all emitted bytes.",
+  "created_utc": "2026-11-01T13:53:54.523398+00:00",
+  "independent_qa_status": "PASS_FINAL_EXECUTOR_DOCUMENT_QA",
+  "qa_report_sha256": "77ff30889a405ef5eb27af6159c57309404041351632981c729a0ca72080e517",
+  "counts": {
+    "packets": 127,
+    "requirements": 606,
+    "tests": 613,
+    "bindings": 159,
+    "scenarios": 42
+  },
+  "core_checks": 10949,
+  "schedule_checks": 1538,
+  "relative_links_checked": 2011
+}

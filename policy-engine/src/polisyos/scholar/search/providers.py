@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import re
@@ -10,6 +11,7 @@ from collections import Counter
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from html.parser import HTMLParser
+from time import monotonic
 from typing import TYPE_CHECKING, Protocol
 
 import httpx
@@ -75,7 +77,7 @@ def _provider_error_type(exc: Exception) -> _ProviderTraceErrorType:
     """Return a fixed, value-free category for one provider exception."""
     if isinstance(exc, httpx.HTTPStatusError):
         return "http_status_error"
-    if isinstance(exc, httpx.TimeoutException):
+    if isinstance(exc, (TimeoutError, httpx.TimeoutException)):
         return "timeout_error"
     if isinstance(exc, httpx.ConnectError):
         return "connection_error"
@@ -122,25 +124,37 @@ class ProviderFailoverPolicy:
         constraints: SearchConstraints,
         max_results: int,
         timeout_s: float = 10.0,
+        deadline: float | None = None,
     ) -> tuple[str, list[WebSearchHit], str | None, list[ProviderAttemptTrace]]:
         """Return the legacy selection plus an ordered, source-backed attempt trace.
 
         Concrete adapters provide exact normalization and constraint counts. A
         third-party implementation of the historical list protocol remains usable,
         but its raw population and filtering cause are explicitly not established.
+        The optional absolute monotonic deadline bounds each attempt. Exhaustion
+        returns ``stopped:max_wall_time_s`` separately from observed provider errors;
+        an unstarted attempt is never added to the trace.
         """
         last_error: str | None = None
         attempts: list[ProviderAttemptTrace] = []
         for provider in self._providers:
+            attempt_timeout_s = timeout_s
+            if deadline is not None:
+                remaining = deadline - monotonic()
+                if remaining <= 0:
+                    selected = attempts[-1].provider if attempts else self._providers[0].name
+                    return selected, [], "stopped:max_wall_time_s", attempts
+                attempt_timeout_s = min(timeout_s, remaining)
             try:
                 diagnostic_search = getattr(provider, "search_with_diagnostics", None)
                 if callable(diagnostic_search):
-                    observed = await diagnostic_search(
-                        query,
-                        constraints=constraints,
-                        max_results=max_results,
-                        timeout_s=timeout_s,
-                    )
+                    async with asyncio.timeout(attempt_timeout_s):
+                        observed = await diagnostic_search(
+                            query,
+                            constraints=constraints,
+                            max_results=max_results,
+                            timeout_s=attempt_timeout_s,
+                        )
                     if not isinstance(observed, _ProviderSearchOutcome):
                         raise TypeError("provider search diagnostics have an invalid shape")
                     hits = list(observed.hits)
@@ -174,12 +188,13 @@ class ProviderFailoverPolicy:
                             outcome = "returned_no_hits"
                             reason = "provider_returned_no_hits"
                 else:
-                    hits = await provider.search(
-                        query,
-                        constraints=constraints,
-                        max_results=max_results,
-                        timeout_s=timeout_s,
-                    )
+                    async with asyncio.timeout(attempt_timeout_s):
+                        hits = await provider.search(
+                            query,
+                            constraints=constraints,
+                            max_results=max_results,
+                            timeout_s=attempt_timeout_s,
+                        )
                     outcome = "returned_hits" if hits else "returned_no_hits"
                     reason = "not_established"
                     raw_result_count = None
@@ -218,6 +233,8 @@ class ProviderFailoverPolicy:
                     )
                 )
                 continue
+        if deadline is not None and monotonic() >= deadline:
+            return attempts[-1].provider, [], "stopped:max_wall_time_s", attempts
         return self._providers[-1].name, [], last_error, attempts
 
 

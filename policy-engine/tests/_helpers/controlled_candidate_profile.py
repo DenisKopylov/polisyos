@@ -13,12 +13,12 @@ import hashlib
 import json
 import math
 import threading
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 from uuid import uuid4
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
@@ -54,6 +54,17 @@ from tools.quality.validation import (
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
+ProviderUsageBasis = Literal[
+    "explicit_new_synthetic_values_from_source_counters_not_measured_usage",
+    "explicit_new_fixed_fixture_values_not_provider_measured",
+]
+SOURCE_COUNTER_USAGE_BASIS: ProviderUsageBasis = (
+    "explicit_new_synthetic_values_from_source_counters_not_measured_usage"
+)
+FIXED_FIXTURE_USAGE_BASIS: ProviderUsageBasis = (
+    "explicit_new_fixed_fixture_values_not_provider_measured"
+)
+
 
 @dataclass(frozen=True)
 class SyntheticCandidateProviderProfile:
@@ -71,8 +82,11 @@ class SyntheticCandidateProviderProfile:
     controlled_recording_content_hash: str
     response_rows: tuple[tuple[str, str], ...]
     evidence_root: Path
+    usage_basis: ProviderUsageBasis = SOURCE_COUNTER_USAGE_BASIS
 
     def __post_init__(self) -> None:
+        if self.usage_basis not in (SOURCE_COUNTER_USAGE_BASIS, FIXED_FIXTURE_USAGE_BASIS):
+            raise ValueError("synthetic_provider_usage_basis_unknown")
         from polisyos.scientist.orchestration.llm._n4_request import _STAGES
 
         if {stage for stage, _ in self.response_rows} != _STAGES or len(self.response_rows) != len(
@@ -111,7 +125,7 @@ class SyntheticCandidateProviderProfile:
             "controlled_recording_content_hash": self.controlled_recording_content_hash,
             "configured_model": self.model_id,
             "profile_selection_ref": self.profile_selection_ref,
-            "usage_basis": "explicit_new_synthetic_values_from_source_counters_not_measured_usage",
+            "usage_basis": self.usage_basis,
             "cost_scope": "current_configured_model_estimate_not_historical_billing",
             "authority": "candidate_only_not_external_evidence",
             "stages": rows,
@@ -181,12 +195,22 @@ class ControlledCandidateGateway:
     """Small OpenAI-compatible local gateway for the real traced-client factory."""
 
     def __init__(self) -> None:
+        from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+
         self._lock = threading.Lock()
         self._recording: dict[str, object] | None = None
         self._problem: dict[str, object] | None = None
+        self._compiler_reply_factory: (
+            Callable[[Mapping[str, object]], Mapping[str, object]] | None
+        ) = None
+        self._compiler_request_bodies: list[bytes] = []
         self._n4_cursor = 0
         self._provider_profile: SyntheticCandidateProviderProfile | None = None
         self._compiled_problem_ref: str | None = None
+        self._configured_child_selections: frozenset[str] = frozenset()
+        self._derived_subjects: dict[str, tuple[str, str, str]] = {}
+        self._active_root_result_ref: str | None = None
+        self._canonical_child_derivation = derive_n4_candidate_child_problems
 
         class Handler(BaseHTTPRequestHandler):
             owner: ControlledCandidateGateway
@@ -223,10 +247,18 @@ class ControlledCandidateGateway:
                 compiler_name = self._compiler_tool_name(request)
                 if compiler_name is not None:
                     with self.owner._lock:
+                        self.owner._compiler_request_bodies.append(bytes(raw_request))
                         problem = self.owner._problem
+                        compiler_reply_factory = self.owner._compiler_reply_factory
                         self.owner._n4_cursor = 0
                     if problem is None:
                         self._send_json(503, {"error": "fixture_not_selected"})
+                        return
+                    compiler_arguments: Mapping[str, object] = problem
+                    if compiler_reply_factory is not None:
+                        compiler_arguments = compiler_reply_factory(copy.deepcopy(request))
+                    if not isinstance(compiler_arguments, Mapping):
+                        self._send_json(502, {"error": "compiler_fixture_reply_invalid"})
                         return
                     completion = {
                         "id": "synthetic-design-problem-completion",
@@ -246,7 +278,7 @@ class ControlledCandidateGateway:
                                             "function": {
                                                 "name": compiler_name,
                                                 "arguments": json.dumps(
-                                                    problem,
+                                                    dict(compiler_arguments),
                                                     sort_keys=True,
                                                     separators=(",", ":"),
                                                 ),
@@ -267,6 +299,18 @@ class ControlledCandidateGateway:
                     compiled_problem_ref = self.owner._compiled_problem_ref
                 if profile is not None:
                     try:
+                        from polisyos.scientist.orchestration.llm._n4_request import _read_payload
+
+                        subject = _read_payload(request)["subject_ref"]
+                        with self.owner._lock:
+                            child = self.owner._derived_subjects.get(subject)
+                            if (
+                                child is not None
+                                and child[0] == compiled_problem_ref
+                                and child[1] == self.owner._active_root_result_ref
+                                and child[2] in self.owner._configured_child_selections
+                            ):
+                                compiled_problem_ref = subject
                         completion = profile.completion(
                             request,
                             raw_request=raw_request,
@@ -370,6 +414,16 @@ class ControlledCandidateGateway:
         host, port = self._server.server_address
         return f"http://{host}:{port}/v1"
 
+    def environment(self) -> dict[str, str]:
+        """Return explicit local-only fixture configuration, never real credentials."""
+        return {
+            "POLISYOS_LLM_SIMULATION_MODE": "0",
+            "POLISYOS_LLM_GATEWAY_BASE_URL": self.base_url,
+            "POLISYOS_LLM_GATEWAY_API_KEY": "sk-synthetic-local-fixture-key",
+            "POLISYOS_LLM_GATEWAY_MAX_RETRIES": "0",
+            "POLISYOS_LLM_FALLBACK_URLS": "",
+        }
+
     def __enter__(self) -> ControlledCandidateGateway:
         self._thread.start()
         return self
@@ -385,6 +439,9 @@ class ControlledCandidateGateway:
         *,
         problem: object,
         provider_profile: SyntheticCandidateProviderProfile | None = None,
+        compiler_reply_factory: (
+            Callable[[Mapping[str, object]], Mapping[str, object]] | None
+        ) = None,
     ) -> None:
         """Select a historical replay or explicit synthetic provider profile."""
         self._validate_recording(recording)
@@ -393,6 +450,8 @@ class ControlledCandidateGateway:
             and type(provider_profile) is not SyntheticCandidateProviderProfile
         ):
             raise TypeError("synthetic_provider_profile_untyped")
+        if compiler_reply_factory is not None and not callable(compiler_reply_factory):
+            raise TypeError("controlled_compiler_reply_factory_untyped")
         model_dump = getattr(problem, "model_dump", None)
         if not callable(model_dump):
             raise TypeError("controlled_gateway_problem_untyped")
@@ -402,9 +461,29 @@ class ControlledCandidateGateway:
         with self._lock:
             self._recording = copy.deepcopy(recording)
             self._problem = copy.deepcopy(problem_payload)
+            self._compiler_reply_factory = compiler_reply_factory
+            self._compiler_request_bodies.clear()
             self._n4_cursor = 0
             self._provider_profile = provider_profile
             self._compiled_problem_ref = None
+            self._configured_child_selections = frozenset()
+            self._derived_subjects = {}
+            self._active_root_result_ref = None
+
+    def configure_compiler_reply(
+        self,
+        factory: Callable[[Mapping[str, object]], Mapping[str, object]] | None,
+    ) -> None:
+        """Select a controlled external compiler reply without changing N4 inputs."""
+        if factory is not None and not callable(factory):
+            raise TypeError("controlled_compiler_reply_factory_untyped")
+        with self._lock:
+            self._compiler_reply_factory = factory
+
+    def compiler_request_bodies(self) -> tuple[bytes, ...]:
+        """Return captured compiler HTTP bodies, excluding headers and credentials."""
+        with self._lock:
+            return tuple(bytes(body) for body in self._compiler_request_bodies)
 
     def admit_compiled_problem(self, problem: object) -> None:
         """Bind the actual validated compiler product before profiled N4 calls."""
@@ -422,11 +501,178 @@ class ControlledCandidateGateway:
                 problem.nl_provenance.raw_request != self._problem["nl_provenance"]["raw_request"]
             ):
                 raise ValueError("synthetic_provider_compiler_request_mismatch")
-            self._compiled_problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+            selected_ref = gy_content_hash(problem.model_dump(mode="json"))
+            self._derived_subjects = {}
+            self._active_root_result_ref = None
+            self._compiled_problem_ref = selected_ref
+
+    def configure_child_profile_selections(self, selection_refs: Sequence[str]) -> None:
+        """Opt into the exact prepared child profile family, retaining root-only defaults."""
+        refs = tuple(selection_refs)
+        if (
+            not refs
+            or len(refs) != len(set(refs))
+            or any(
+                not isinstance(ref, str)
+                or len(ref) != 71
+                or not ref.startswith("sha256:")
+                or any(char not in "0123456789abcdef" for char in ref[7:])
+                for ref in refs
+            )
+        ):
+            raise ValueError("synthetic_provider_child_profile_family_invalid")
+        with self._lock:
+            self._configured_child_selections = frozenset(refs)
+            self._derived_subjects = {}
+            self._active_root_result_ref = None
+
+    def has_compiled_root(self, problem: object) -> bool:
+        """Recognize the actual admitted root without trusting raw lineage labels."""
+        if type(problem) is not DesignProblem:
+            return False
+        with self._lock:
+            return self._compiled_problem_ref == gy_content_hash(problem.model_dump(mode="json"))
+
+    def admit_actual_child_family(
+        self, *, parent_problem: object, root_result: object, children: object
+    ) -> None:
+        """Recompute exact source children before accepting their producer subjects."""
+        from polisyos.runtime.quality.cycle_substrate import generic_n4_child_profile_selection_ref
+        from polisyos.runtime.quality.design_generation import (
+            GenerationUnderAResult,
+            N4CandidateChildProblem,
+        )
+
+        if (
+            type(parent_problem) is not DesignProblem
+            or type(root_result) is not GenerationUnderAResult
+            or type(children) is not tuple
+            or any(type(child) is not N4CandidateChildProblem for child in children)
+        ):
+            raise TypeError("synthetic_provider_child_source_untyped")
+        with self._lock:
+            profile = self._provider_profile
+            root_ref = self._compiled_problem_ref
+            configured = self._configured_child_selections
+        if (
+            profile is None
+            or root_ref != gy_content_hash(parent_problem.model_dump(mode="json"))
+            or root_result.design_problem_ref != root_ref
+            or root_result.model_id != profile.model_id
+            or root_result.status != "generated"
+        ):
+            raise ValueError("synthetic_provider_child_root_not_admitted")
+        expected = self._canonical_child_derivation(
+            parent_problem, root_result, model_id=profile.model_id
+        )
+        if expected != children:
+            raise ValueError("synthetic_provider_child_derivation_mismatch")
+        result_ref = gy_content_hash(root_result.model_dump(mode="json"))
+        entries: dict[str, tuple[str, str, str]] = {}
+        for child in children:
+            selection = generic_n4_child_profile_selection_ref(
+                child.problem,
+                parent_problem_ref=root_ref,
+                source_result_ref=child.source_result_ref,
+                source_atom_refs=child.source_atom_refs,
+                semantic_ref=child.semantic_ref,
+            )
+            entries[gy_content_hash(child.problem.model_dump(mode="json"))] = (
+                root_ref,
+                result_ref,
+                selection,
+            )
+        if len(entries) != len(configured) or {row[2] for row in entries.values()} != configured:
+            raise ValueError("synthetic_provider_child_profile_family_mismatch")
+        with self._lock:
+            if (
+                root_ref != self._compiled_problem_ref
+                or configured != self._configured_child_selections
+            ):
+                raise ValueError("synthetic_provider_child_root_changed")
+            self._active_root_result_ref = result_ref
+            self._derived_subjects = entries
 
     @staticmethod
     def _validate_recording(recording: dict[str, object]) -> None:
         n4_contract._validate_recording_fixture(recording)  # type: ignore[arg-type]
+
+
+def synthetic_controlled_candidate_provider_profile(
+    recording: dict[str, Any],
+    controlled: dict[str, Any],
+    *,
+    problem: DesignProblem,
+    evidence_root: Path,
+) -> SyntheticCandidateProviderProfile:
+    """Declare new stage inputs from the exact controlled capture's parent rows.
+
+    The selected successful bodies remain candidate software fixtures. Token
+    magnitudes are explicitly new synthetic quantities, not recovered historical
+    usage or billing; the normal traced client computes the current estimate.
+    """
+    n4_contract._validate_recording_fixture(recording)
+    n4_contract._validate_recording_fixture(controlled)
+    if (
+        controlled.get("derived_from_recording_id") != recording["recording_id"]
+        or controlled.get("derived_from_content_hash") != recording["recording_content_hash"]
+        or len(controlled["responses"]) != len(recording["responses"])
+    ):
+        raise ValueError("synthetic_provider_controlled_parent_mismatch")
+    # Exact row occurrences in the retained decisive capture, including the
+    # successful final formalizer. Consolidation deliberately reuses draft as a
+    # declared stage function; this is not a historical call-order replay.
+    stage_rows = (
+        ("draft", 0, "draft"),
+        ("drafter_multipass", 1, "drafter_multipass"),
+        ("drafter_consolidation", 0, "draft"),
+        ("formalizer", 8, "formalizer"),
+        ("critic", 9, "critic"),
+    )
+    rows = []
+    for stage, index, parent_role in stage_rows:
+        source = recording["responses"][index]
+        selected = controlled["responses"][index]
+        if (
+            source.get("role") != parent_role
+            or selected.get("role") != parent_role
+            or source.get("status") != "success"
+            or selected.get("status") != "success"
+            or source.get("model_id") != recording["model_id"]
+            or selected.get("model_id") != recording["model_id"]
+        ):
+            raise ValueError("synthetic_provider_parent_response_identity_unresolved")
+        quantity = _usage_quantity(source.get("usage"))
+        if quantity.status != "known":
+            raise ValueError("synthetic_provider_explicit_usage_values_invalid")
+        row = {
+            "status": "success",
+            "source_model_id": recording["model_id"],
+            "raw_response": selected["raw_response"],
+            "raw_response_hash": selected["raw_response_hash"],
+            "usage": {
+                "prompt_tokens": quantity.prompt_tokens,
+                "completion_tokens": quantity.completion_tokens,
+                "total_tokens": quantity.total_tokens,
+                "usage_status": "known",
+            },
+            "legacy_counter_availability": "not_established",
+            "usage_declaration": "new_synthetic_test_input_not_provider_measurement",
+            "parent_role": parent_role,
+            "parent_response_hash": source["raw_response_hash"],
+        }
+        rows.append((stage, json.dumps(row, sort_keys=True, separators=(",", ":"))))
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
+
+    return SyntheticCandidateProviderProfile(
+        model_id=str(recording["model_id"]),
+        profile_selection_ref=cycle_job_profile_selection_ref(problem),
+        source_recording_id=str(recording["recording_id"]),
+        source_recording_content_hash=str(recording["recording_content_hash"]),
+        controlled_recording_content_hash=str(controlled["recording_content_hash"]),
+        response_rows=tuple(rows),
+        evidence_root=evidence_root,
+    )
 
 
 def _resolve_controlled_parent_slot(slot_id: str) -> str:
@@ -440,7 +686,13 @@ def _resolve_controlled_parent_slot(slot_id: str) -> str:
     return canonical_id
 
 
-def _current_compiler_problem(recording: dict[str, object]):
+def _current_compiler_problem(
+    recording: dict[str, object],
+    *,
+    raw_request: str | None = None,
+    outcome_variable: str | None = None,
+    problem_statement: str | None = None,
+):
     """Build a controlled current-schema parent without rewriting replay bytes.
 
     The selected recording supplies response bytes only; its historical problem
@@ -463,12 +715,23 @@ def _current_compiler_problem(recording: dict[str, object]):
         else constraint
         for constraint in reconstructed.constraints
     ]
-    problem = reconstructed.model_copy(
-        update={
-            "schema_version": DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION,
-            "constraints": constraints,
-        }
-    )
+    problem_updates: dict[str, object] = {
+        "schema_version": DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION,
+        "constraints": constraints,
+    }
+    if raw_request is not None:
+        if source_text not in raw_request:
+            raise ValueError("controlled_n4_parent_candidate_only_source_missing")
+        problem_updates["nl_provenance"] = reconstructed.nl_provenance.model_copy(
+            update={"raw_request": raw_request}
+        )
+    if outcome_variable is not None:
+        problem_updates["outcome_of_interest"] = reconstructed.outcome_of_interest.model_copy(
+            update={"target_variable": outcome_variable}
+        )
+    if problem_statement is not None:
+        problem_updates["problem_statement"] = problem_statement
+    problem = reconstructed.model_copy(update=problem_updates)
     # Controlled current-schema parents pass the complete owner validator;
     # fixture adapters must not rely on model_copy to establish validity.
     problem = DesignProblem.model_validate(problem.model_dump(mode="python"))
@@ -797,8 +1060,9 @@ def _controlled_selected_slot_specs(
     declared_ncm_outcomes: frozenset[str],
     candidate_baseline_state: Mapping[str, object] | None,
     candidate_outcome_state_paths: Mapping[str, str] | None,
+    candidate_model_unit_ids: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
-    """Build a selected-only registry from requested slots and a persisted NCM."""
+    """Build selected slots, preserving explicit candidate model unit assumptions."""
     from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY, SlotSpec, UnitRef
 
     resolved = _controlled_resolve_policy_slot_ids(policy_slot_ids)
@@ -814,6 +1078,19 @@ def _controlled_selected_slot_specs(
     requested_ids = {slot_id for slot_id, _ in resolved}
     if set(state_paths) - requested_ids:
         raise ValueError("controlled_wmr_unselected_candidate_outcome_state_path")
+    if candidate_model_unit_ids is not None and not isinstance(candidate_model_unit_ids, Mapping):
+        raise ValueError("controlled_wmr_candidate_model_units_invalid")
+    model_units = dict(candidate_model_unit_ids or {})
+    if any(
+        not isinstance(slot_id, str)
+        or not slot_id.strip()
+        or not isinstance(unit_id, str)
+        or not unit_id.strip()
+        for slot_id, unit_id in model_units.items()
+    ):
+        raise ValueError("controlled_wmr_candidate_model_units_invalid")
+    if set(model_units) - requested_ids:
+        raise ValueError("controlled_wmr_unselected_candidate_model_unit")
 
     specs: dict[str, Any] = {}
     selected_state_paths: dict[str, str] = {}
@@ -821,6 +1098,14 @@ def _controlled_selected_slot_specs(
         if canonical_id in DEFAULT_SLOT_REGISTRY.slots:
             canonical_slot = DEFAULT_SLOT_REGISTRY.slots[canonical_id]
             slot_spec = canonical_slot.model_copy(update={"slot_id": slot_id})
+            declared_unit = model_units.get(slot_id)
+            if declared_unit is not None:
+                if canonical_slot.unit is not None and canonical_slot.unit.unit_id != declared_unit:
+                    raise ValueError("controlled_wmr_registered_model_unit_mismatch:" + slot_id)
+                if canonical_slot.unit is None:
+                    slot_spec = slot_spec.model_copy(
+                        update={"unit": UnitRef(unit_id=declared_unit)}
+                    )
             if slot_id in declared_ncm_outcomes:
                 value_type_name = getattr(
                     canonical_slot.value_type, "value", canonical_slot.value_type
@@ -862,7 +1147,7 @@ def _controlled_selected_slot_specs(
                 {
                     **template.model_dump(mode="python"),
                     "slot_id": slot_id,
-                    "unit": UnitRef(unit_id="synthetic_score"),
+                    "unit": UnitRef(unit_id=model_units.get(slot_id, "synthetic_score")),
                     "kind": "stock",
                     "state_path": state_path,
                     "description": (
@@ -1197,6 +1482,7 @@ def _materialize_controlled_world_model_build(
     ncm_view_refs: Sequence[Any] = (),
     candidate_baseline_state: Mapping[str, object] | None = None,
     candidate_outcome_state_paths: Mapping[str, str] | None = None,
+    candidate_model_unit_ids: Mapping[str, str] | None = None,
 ) -> Any:
     """Build a source-bound, limited WMR from real local owner artifacts.
 
@@ -1208,8 +1494,14 @@ def _materialize_controlled_world_model_build(
         if source_root is not None
         else tmp_path / "controlled-candidate-source"
     )
+    selected_skg_path = selected_skg_source.db_path.resolve()
     expected_skg_path = admitted_source_root / "academic-skg.duckdb"
-    if selected_skg_source.db_path.resolve() != expected_skg_path.resolve():
+    # Explicit source owners can retain their actual directory layout. The
+    # immutable source capture and reader checks below still bind the exact DB;
+    # an implicit fixture keeps its original, single admitted source path.
+    if (source_root is None and selected_skg_path != expected_skg_path.resolve()) or (
+        source_root is not None and not selected_skg_path.is_relative_to(admitted_source_root)
+    ):
         raise ValueError("controlled_selected_skg_source_path_mismatch")
     _validate_controlled_skg_source(selected_skg_source)
 
@@ -1271,6 +1563,7 @@ def _materialize_controlled_world_model_build(
         declared_ncm_outcomes=declared_ncm_outcomes,
         candidate_baseline_state=candidate_baseline_state,
         candidate_outcome_state_paths=candidate_outcome_state_paths,
+        candidate_model_unit_ids=candidate_model_unit_ids,
     )
     controlled_slot_registry = SlotRegistry.model_validate(
         {
@@ -1503,6 +1796,7 @@ def _materialize_controlled_world_model_build(
                 )
             ),
             candidate_only=True,
+            return_selected_profile=True,
         )
         persisted_record = load_world_model_record(artifact_store, built.record_ref)
         if persisted_record != built.record:
@@ -1527,6 +1821,7 @@ def _materialize_controlled_world_model_record(
     ncm_view_refs: Sequence[Any] = (),
     candidate_baseline_state: Mapping[str, object] | None = None,
     candidate_outcome_state_paths: Mapping[str, str] | None = None,
+    candidate_model_unit_ids: Mapping[str, str] | None = None,
 ) -> Any:
     """Return the exact WMR from its owner build result for existing callers."""
 
@@ -1545,6 +1840,7 @@ def _materialize_controlled_world_model_record(
         ncm_view_refs=ncm_view_refs,
         candidate_baseline_state=candidate_baseline_state,
         candidate_outcome_state_paths=candidate_outcome_state_paths,
+        candidate_model_unit_ids=candidate_model_unit_ids,
     )
     return built.record
 
@@ -1649,6 +1945,7 @@ def _build_configured_procurement_profile(
     source_root: Path | None = None,
     selected_skg_source: ControlledSKGSourceSelection | None = None,
     repo_root: Path | None = None,
+    basis_repo_root: Path | None = None,
     l6_source_owner_root: Path | None = None,
     rule_operator_kind: str = "procurement_shock_intensity",
     rule_parameter_id: str = "intensity",
@@ -1688,7 +1985,7 @@ def _build_configured_procurement_profile(
     product_root = repo_root or REPO_ROOT
     _, base_context = _controlled_profile_cycle_basis(
         recorded_problem,
-        repo_root=product_root,
+        repo_root=basis_repo_root or product_root,
     )
     outcome_variable = recorded_problem.outcome_of_interest.target_variable
     rule = CandidateScenarioSetToRule(
@@ -1708,6 +2005,21 @@ def _build_configured_procurement_profile(
         outcome_noise_stddev=0.01,
     )
     ncm = candidate_ncm_spec_from_declaration(model_parameters)
+    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+
+    outcome_slot_id = _CONTROLLED_SLOT_ALIASES.get(outcome_variable, outcome_variable)
+    outcome_slot = DEFAULT_SLOT_REGISTRY.slots.get(outcome_slot_id)
+    outcome_unit_id = (
+        outcome_slot.unit.unit_id
+        if outcome_slot is not None and outcome_slot.unit is not None
+        else rule.unit_id
+    )
+    # These units are the explicit synthetic-model assumption, not a claim that
+    # a canonical unknown slot has acquired empirical measurement semantics.
+    model_unit_ids = {
+        rule.target_world_slot: rule.unit_id,
+        outcome_variable: outcome_unit_id,
+    }
     selected_source = selected_skg_source or _seed_controlled_selected_skg_source(
         tmp_path,
         source_root=source_root,
@@ -1751,6 +2063,7 @@ def _build_configured_procurement_profile(
         ncm_view_refs=(ncm_ref,),
         candidate_baseline_state=n5.baseline_state,
         candidate_outcome_state_paths=_controlled_direct_ncm_outcome_state_paths(outcome_variable),
+        candidate_model_unit_ids=model_unit_ids,
     )
     world = world_build.record
     context_inputs = CandidateSimulationContextInputs(
@@ -1795,17 +2108,6 @@ def _build_configured_procurement_profile(
                 draft_profile.model_dump(mode="json", exclude={"content_hash"})
             ),
         }
-    )
-    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
-
-    outcome_slot_id = _CONTROLLED_SLOT_ALIASES.get(
-        model_parameters.outcome_variable, model_parameters.outcome_variable
-    )
-    outcome_slot = DEFAULT_SLOT_REGISTRY.slots.get(outcome_slot_id)
-    outcome_unit_id = (
-        outcome_slot.unit.unit_id
-        if outcome_slot is not None and outcome_slot.unit is not None
-        else rule.unit_id
     )
     declaration_fields = {
         "schema_version": ("policyos.runtime.candidate_simulation.synthetic_model_declaration.v1"),
@@ -1867,6 +2169,7 @@ def _configured_procurement_profile(
     source_root: Path | None = None,
     selected_skg_source: ControlledSKGSourceSelection | None = None,
     repo_root: Path | None = None,
+    basis_repo_root: Path | None = None,
     l6_source_owner_root: Path | None = None,
     rule_operator_kind: str = "procurement_shock_intensity",
     rule_parameter_id: str = "intensity",
@@ -1888,6 +2191,7 @@ def _configured_procurement_profile(
         source_root=source_root,
         selected_skg_source=selected_skg_source,
         repo_root=repo_root,
+        basis_repo_root=basis_repo_root,
         l6_source_owner_root=l6_source_owner_root,
         rule_operator_kind=rule_operator_kind,
         rule_parameter_id=rule_parameter_id,

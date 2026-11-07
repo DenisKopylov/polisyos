@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from threading import Event, Lock
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, Literal, TypeVar
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -51,3 +51,26 @@ class BatchAuthorizationLossSignal:
             if self._requested.is_set():
                 return None
             return submit()
+
+
+class _BatchStopRequestedError(Exception):
+    """Carry an observed cooperative stop through private inventory preparation."""
+
+    def __init__(self, reason: Literal["cancelled", "authorization_lost"]) -> None:
+        super().__init__(reason)
+        self.reason = reason
+
+
+def _raise_if_batch_stopped(
+    cancel_event: Event | None,
+    authorization_loss_signal: BatchAuthorizationLossSignal | None = None,
+) -> None:
+    if cancel_event is not None and cancel_event.is_set():
+        raise _BatchStopRequestedError("cancelled")
+    if authorization_loss_signal is not None and authorization_loss_signal.is_set():
+        raise _BatchStopRequestedError("authorization_lost")
+
+
+def _probe_batch_stop(stop_probe: Callable[[], None] | None) -> None:
+    if stop_probe is not None:
+        stop_probe()

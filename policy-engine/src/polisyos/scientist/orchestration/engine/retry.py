@@ -27,6 +27,7 @@ import queue
 import random
 import secrets
 import signal
+import struct
 import sys
 import threading
 import time
@@ -36,15 +37,27 @@ from datetime import UTC, date, datetime, timedelta
 from datetime import time as _time_type
 from decimal import Decimal, InvalidOperation
 from functools import wraps
+from pathlib import Path
 from types import GetSetDescriptorType, SimpleNamespace
-from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Literal, NoReturn, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from polisyos.common.async_tools import get_shared_executor, run_blocking_async
+from polisyos.common.async_tools import (
+    get_shared_executor,
+    request_shared_executor_cancellation,
+    run_blocking_async,
+    wrap_shared_executor_future,
+)
 from polisyos.common.canonical import _admit_canon_spec
 from polisyos.common.job_execution_interrupt import (
+    JobExecutionInterrupt,
     JobExecutionInterrupted,
+    JobExecutionOwnerNotEstablishedError,
+    _current_job_execution_identity,
+    has_job_execution_owner_check,
+    has_job_execution_scope,
+    job_execution_interrupt_scope,
     raise_if_job_execution_interrupted,
 )
 from polisyos.core.artifacts.manifest import (
@@ -59,11 +72,14 @@ from polisyos.core.contracts import (
     BoundedLivenessConfig,
     bounded_liveness_config_from_mapping,
 )
+from polisyos.core.run.context import ChildOutcomeUnknownError
 from polisyos.core.run.context import RunContext as _RunContext
 from polisyos.ir.artifacts.contracts import _register_trusted_artifact_ref_facade
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.errors import (
     CircuitBreakerOpenError,
+    ErrorCategory,
+    NodeExecutionError,
     NodeTimeoutError,
     RetryExhaustedError,
 )
@@ -150,12 +166,27 @@ class _WorkerComputeTimeout(Exception):
     """The worker did not finish computation before the node deadline."""
 
 
-class _WorkerProcessExited(RuntimeError):
+class _WorkerOutcomeUnknown(RuntimeError):
+    """No authenticated outcome exists; replay requires reconciliation."""
+
+    default_category = ErrorCategory.FATAL
+    code = "node.worker_outcome_unknown"
+
+
+class _WorkerProcessExited(_WorkerOutcomeUnknown):
     """The worker exited without publishing a completion mark."""
 
     def __init__(self, exitcode: int | None) -> None:
         super().__init__(f"timeout worker exited before completion (exitcode={exitcode})")
         self.exitcode = exitcode
+
+
+class _WorkerTransportError(_WorkerOutcomeUnknown):
+    """The result transport closed before the worker published completion."""
+
+
+class _WorkerDeliveryError(_WorkerOutcomeUnknown):
+    """A completed worker result could not be admitted after bounded delivery."""
 
 
 class _WorkerDeliveryTimeout(Exception):
@@ -308,6 +339,181 @@ def _reap_owned_children() -> bool:
         time.sleep(0.001)
 
 
+@dataclasses.dataclass
+class _ForkOwnerHandoff:
+    """Private parent-owned control channel for one exact forked attempt."""
+
+    parent: Any
+    child: Any
+    lost: Any
+    identity: tuple[str, str, int, str]
+    nonce: str
+    binding: tuple[str, str, str, str, str]
+    deadline: float
+    sequence: int = 0
+    buffer: bytearray = dataclasses.field(default_factory=bytearray)
+    eof: bool = False
+
+    def _request_ready(self, completion_time: Any) -> bool:
+        if self.eof:
+            return False
+        while True:
+            try:
+                chunk = os.read(self.parent.fileno(), 2053)
+            except BlockingIOError:
+                break
+            except OSError as exc:
+                self.lost.set()
+                raise _WorkerTransportError("fork_owner_request_unavailable") from exc
+            if not chunk:
+                if not self.buffer and _completion_before_deadline(completion_time, self.deadline):
+                    self.eof = True
+                    return False
+                self.lost.set()
+                raise _WorkerTransportError("fork_owner_request_eof_before_completion")
+            self.buffer.extend(chunk)
+            if len(self.buffer) > 2052:
+                self.lost.set()
+                raise _WorkerTransportError("fork_owner_request_too_large")
+        if len(self.buffer) < 4:
+            return False
+        size = struct.unpack("!i", self.buffer[:4])[0]
+        if size < 0 or size > 2048:
+            self.lost.set()
+            raise _WorkerTransportError("fork_owner_request_size_invalid")
+        if len(self.buffer) < 4 + size:
+            return False
+        raw = bytes(self.buffer[4 : 4 + size])
+        del self.buffer[: 4 + size]
+        try:
+            request = json.loads(raw)
+        except (ValueError, UnicodeError) as exc:
+            self.lost.set()
+            raise _WorkerTransportError("fork_owner_request_invalid") from exc
+        expected = [self.nonce, *self.identity, self.sequence, *self.binding]
+        if (
+            not isinstance(request, list)
+            or len(request) != 11
+            or any(type(request[index]) is not str for index in (0, 1, 2, 4, 6, 7, 8, 9, 10))
+            or type(request[3]) is not int
+            or type(request[5]) is not int
+            or request != expected
+            or _current_job_execution_identity() != self.identity
+        ):
+            self.lost.set()
+            raise _WorkerTransportError("fork_owner_request_binding_mismatch")
+        return True
+
+    def _reply(self) -> None:
+        if time.monotonic() >= self.deadline:
+            self.lost.set()
+            raise _WorkerTransportError("fork_owner_grant_after_deadline")
+        try:
+            self.parent.send_bytes(json.dumps([self.nonce, self.sequence, True]).encode())
+        except (OSError, ValueError) as exc:
+            self.lost.set()
+            raise _WorkerTransportError("fork_owner_response_unavailable") from exc
+        self.sequence += 1
+
+    @staticmethod
+    def _check_current(attempt_check: Callable[[], None] | None) -> None:
+        raise_if_job_execution_interrupted(check_current_owner=True)
+        if attempt_check is not None:
+            try:
+                attempt_check()
+            except Exception as exc:
+                raise _WorkerTransportError("fork_owner_engine_attempt_not_current") from exc
+        raise_if_job_execution_interrupted(check_current_owner=True)
+
+    def service(
+        self, completion_time: Any = None, attempt_check: Callable[[], None] | None = None
+    ) -> None:
+        """Refresh job and Core attempt before granting this one request."""
+        if not self._request_ready(completion_time):
+            return
+        try:
+            self._check_current(attempt_check)
+            self._reply()
+        except BaseException:
+            self.lost.set()
+            raise
+
+    async def service_async(
+        self, completion_time: Any = None, attempt_check: Callable[[], None] | None = None
+    ) -> None:
+        """Keep a slow owner store off the caller's event loop and deadline."""
+        if not self._request_ready(completion_time):
+            return
+        try:
+            remaining = self.deadline - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError("fork_owner_deadline_expired")
+            await run_blocking_async(self._check_current, attempt_check, timeout_seconds=remaining)
+            self._reply()
+        except BaseException:
+            self.lost.set()
+            raise
+
+    def close(self) -> None:
+        self.lost.set()
+        self.parent.close()
+        self.child.close()
+
+
+def _fork_child_interrupt_scope(
+    connection: Any,
+    lost: Any,
+    identity: tuple[str, str, int, str],
+    nonce: str,
+    binding: tuple[str, str, str, str, str],
+    deadline: float,
+) -> Any:
+    """Replace the copied parent closure with a bounded private owner check."""
+    sequence = 0
+    channel_lock = threading.Lock()
+
+    def check_owner() -> None:
+        nonlocal sequence
+        remaining = deadline - time.monotonic()
+        if remaining <= 0 or not channel_lock.acquire(timeout=remaining):
+            lost.set()
+            raise JobExecutionInterrupted("fork_owner_channel_deadline_expired")
+        try:
+            if lost.is_set():
+                raise JobExecutionInterrupted("fork_owner_lost")
+            connection.send_bytes(json.dumps([nonce, *identity, sequence, *binding]).encode())
+            remaining = deadline - time.monotonic()
+            if remaining <= 0 or not connection.poll(remaining):
+                raise TimeoutError("fork_owner_response_timeout")
+            response = json.loads(connection.recv_bytes(2048))
+            if (
+                not isinstance(response, list)
+                or len(response) != 3
+                or type(response[0]) is not str
+                or type(response[1]) is not int
+                or response[2] is not True
+                or response != [nonce, sequence, True]
+            ):
+                raise ValueError("fork_owner_response_binding_mismatch")
+            sequence += 1
+        except (EOFError, OSError, ValueError, UnicodeError, TimeoutError) as exc:
+            lost.set()
+            raise JobExecutionInterrupted("fork_owner_check_not_established") from exc
+        finally:
+            channel_lock.release()
+
+    return job_execution_interrupt_scope(
+        JobExecutionInterrupt(
+            identity[0],
+            identity[1],
+            identity[2],
+            lost=lost,
+            run_id=identity[3],
+            current_owner_check=check_owner,
+        )
+    )
+
+
 def _node_execute_supervisor(
     node: Any,
     ctx: Any,
@@ -318,9 +524,12 @@ def _node_execute_supervisor(
     compute_deadline: float,
     cleanup_complete: Any,
     worker_binding: _ForkWorkerReceiptBinding | None = None,
+    owner_handoff: _ForkOwnerHandoff | None = None,
 ) -> None:
     """Own one real node process and reap it before exposing its result."""
     result_channel.close_reader()
+    if owner_handoff is not None:
+        owner_handoff.parent.close()
     if sys.platform != "linux":
         # The established group boundary remains available; native non-Linux
         # descendant reaping is not established by this Linux supervisor.
@@ -332,6 +541,7 @@ def _node_execute_supervisor(
             group_ready,
             completion_time,
             worker_binding=worker_binding,
+            compute_deadline=compute_deadline,
         )
         result_channel.close_writer()
         return
@@ -356,15 +566,37 @@ def _node_execute_supervisor(
             signal.signal(signal.SIGTERM, signal.SIG_DFL)
             try:
                 try:
-                    _node_execute_worker(
-                        node,
-                        ctx,
-                        state,
-                        child_channel,
-                        None,
-                        completion_time,
-                        worker_binding=worker_binding,
-                    )
+                    _remaining_deadline(compute_deadline, execution_state="not_started")
+                    if owner_handoff is None:
+                        _node_execute_worker(
+                            node,
+                            ctx,
+                            state,
+                            child_channel,
+                            None,
+                            completion_time,
+                            worker_binding=worker_binding,
+                            compute_deadline=compute_deadline,
+                        )
+                    else:
+                        with _fork_child_interrupt_scope(
+                            owner_handoff.child,
+                            owner_handoff.lost,
+                            owner_handoff.identity,
+                            owner_handoff.nonce,
+                            owner_handoff.binding,
+                            compute_deadline,
+                        ):
+                            _node_execute_worker(
+                                node,
+                                ctx,
+                                state,
+                                child_channel,
+                                None,
+                                completion_time,
+                                worker_binding=worker_binding,
+                                compute_deadline=compute_deadline,
+                            )
                 except (SystemExit, KeyboardInterrupt) as exc:
                     completion_time.value = time.monotonic()
                     code = exc.code if isinstance(exc, SystemExit) else None
@@ -395,6 +627,8 @@ def _node_execute_supervisor(
             finally:
                 os._exit(0)
         child_channel.close_writer()
+        if owner_handoff is not None:
+            owner_handoff.child.close()
         while not stopped:
             deadline = (
                 float(completion_time.value) + _PROCESS_DELIVERY_GRACE_S
@@ -443,6 +677,7 @@ class _WorkerLifecycle:
 
 
 _RETRY_RUNTIME_ERRORS = (
+    NodeExecutionError,
     ArithmeticError,
     AssertionError,
     AttributeError,
@@ -660,6 +895,38 @@ class _AttemptAuthority:
                 self._active = False
             else:
                 self._shared_active.value = False
+
+
+class _AttemptSettlementFacade:
+    """Guard the existing issued view with the owning attempt's local authority."""
+
+    __slots__ = ("__authority", "__view")
+
+    def __init__(self, view: Any, authority: _AttemptAuthority) -> None:
+        self.__view = view
+        self.__authority = authority
+
+    def __invoke(self, operation: Any, *args: Any, **kwargs: Any) -> Any:
+        def checked() -> Any:
+            raise_if_job_execution_interrupted(check_current_owner=True)
+            return operation(*args, **kwargs)
+
+        return self.__authority.invoke_persistent_write(checked)
+
+    @property
+    def spent(self) -> Decimal:
+        return self.__invoke(lambda: self.__view.spent)
+
+    @property
+    def settlement_attempted(self) -> bool:
+        return self.__invoke(lambda: self.__view.settlement_attempted)
+
+    def settle_spend(
+        self, amount: Decimal, *, payload_ref: ArtifactRef, provider: str | None = None
+    ) -> ArtifactRef:
+        return self.__invoke(
+            self.__view.settle_spend, amount, payload_ref=payload_ref, provider=provider
+        )
 
 
 def _new_attempt_authority(
@@ -1570,7 +1837,10 @@ class _AttemptContext:
 def _build_attempt_context(target: Any, authority: _AttemptAuthority) -> Any:
     """Build a gated context without changing its concrete public type."""
     proxy = _AttemptContext(target, authority)
-    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.context import (
+        ExecutionContext,
+        _EngineInvocationBinding,
+    )
 
     if not isinstance(target, ExecutionContext):
         return proxy
@@ -1580,6 +1850,11 @@ def _build_attempt_context(target: Any, authority: _AttemptAuthority) -> Any:
         for name in field_names
         if name in {"store", "run", "audit", "claim_ledger_owner"}
     }
+    binding = target._engine_invocation
+    if isinstance(binding, _EngineInvocationBinding) and binding.settlement_view is not None:
+        replacements["_engine_invocation"] = dataclasses.replace(
+            binding, settlement_view=_AttemptSettlementFacade(binding.settlement_view, authority)
+        )
     try:
         return dataclasses.replace(target, **replacements)
     except (TypeError, ValueError) as exc:
@@ -1604,10 +1879,22 @@ class RetryPolicy(BaseModel):
     )
 
 
+_OUTCOME_UNKNOWN_CODES = frozenset(
+    {
+        _WorkerOutcomeUnknown.code,
+        "node.budget_settlement_outcome_unknown",
+    }
+)
+
+
 def _should_retry(error: NodeError | None, policy: RetryPolicy) -> bool:
     if error is None:
         return False
-    return error.code in policy.retry_on
+    return (
+        error.code not in _OUTCOME_UNKNOWN_CODES
+        and error.category not in {ErrorCategory.FATAL, ErrorCategory.VALIDATION}
+        and error.code in policy.retry_on
+    )
 
 
 def _retry_write_paths(node: Any) -> tuple[str, ...]:
@@ -1650,7 +1937,9 @@ def _exception_category(exc: BaseException) -> str:
         return "fatal"
     if category == "transient":
         return "transient"
-    if isinstance(exc, (AssertionError, AttributeError, LookupError)):
+    if isinstance(
+        exc, (AssertionError, AttributeError, LookupError, JobExecutionOwnerNotEstablishedError)
+    ):
         return "fatal"
     return str(classify_remote_error(exc).value)
 
@@ -1660,9 +1949,42 @@ def _exception_code(exc: BaseException) -> str:
     return code if isinstance(code, str) and code else "node.exception"
 
 
+def _error_chain(error: BaseException) -> Iterator[BaseException]:
+    """Traverse actual exception causes and standard groups once, including cycles."""
+    pending = [error]
+    seen: set[int] = set()
+    while pending:
+        current = pending.pop()
+        if id(current) in seen:
+            continue
+        seen.add(id(current))
+        yield current
+        if isinstance(current, BaseExceptionGroup):
+            pending.extend(current.exceptions)
+        if isinstance(current, _WorkerNodeError):
+            pending.extend(current.child_unknowns)
+        for linked in (current.__cause__, current.__context__, getattr(current, "error", None)):
+            if isinstance(linked, BaseException):
+                pending.append(linked)
+
+
+def _has_unknown_outcome(error: BaseException) -> bool:
+    """Keep nested unknown effects from becoming retryable typed failures."""
+    return any(
+        isinstance(current, (ChildOutcomeUnknownError, _WorkerOutcomeUnknown, NodeTimeoutError))
+        or _exception_code(current) in _OUTCOME_UNKNOWN_CODES
+        for current in _error_chain(error)
+    )
+
+
 def _should_retry_exception(exc: BaseException, policy: RetryPolicy) -> bool:
     """Apply the same semantic category/code on direct, thread and IPC routes."""
-    return _exception_category(exc) != "fatal" and _exception_code(exc) in policy.retry_on
+    code = _exception_code(exc)
+    return (
+        not _has_unknown_outcome(exc)
+        and _exception_category(exc) != "fatal"
+        and code in policy.retry_on
+    )
 
 
 def _worker_control_error(payload: Any) -> BaseException:
@@ -1696,22 +2018,33 @@ class _WorkerNodeError(RuntimeError):
         category: str,
         code: str,
         known_spend: dict[str, Decimal] | None = None,
+        child_unknowns: tuple[ChildOutcomeUnknownError, ...] = (),
+        deadline_execution_state: str | None = None,
     ) -> None:
         super().__init__(message)
         self.category = category
         self.code = code
         self.known_spend = known_spend
+        self.child_unknowns = child_unknowns
+        self.deadline_execution_state = deadline_execution_state
 
 
 class _CompletedAttemptError(RuntimeError):
     """Deliver only known completed-failure spend beside the original local error."""
 
-    def __init__(self, error: Exception, known_spend: dict[str, Decimal]) -> None:
+    def __init__(
+        self,
+        error: Exception,
+        known_spend: dict[str, Decimal],
+        *,
+        non_run_after: dict[str, Any] | None = None,
+    ) -> None:
         super().__init__(str(error))
         self.error = error
         self.category = _exception_category(error)
         self.code = _exception_code(error)
         self.known_spend = known_spend
+        self.non_run_after = non_run_after
 
 
 def _worker_error_payload(
@@ -1720,11 +2053,22 @@ def _worker_error_payload(
     known_spend: dict[str, Decimal] | None = None,
     run_id: str | None = None,
 ) -> dict[str, Any]:
+    code = _exception_code(exc)
+    unknown = _has_unknown_outcome(exc)
     payload: dict[str, Any] = {
         "message": f"{type(exc).__name__}: {exc}",
-        "category": _exception_category(exc),
-        "code": _exception_code(exc),
+        "category": "fatal" if unknown else _exception_category(exc),
+        "code": code
+        if not unknown or code in _OUTCOME_UNKNOWN_CODES
+        else _WorkerOutcomeUnknown.code,
     }
+    child_unknowns = [
+        {"run_id": item.run_id, "run_dir": str(item.run_dir)}
+        for item in _error_chain(exc)
+        if isinstance(item, ChildOutcomeUnknownError)
+    ]
+    if child_unknowns:
+        payload["child_unknowns"] = child_unknowns
     if known_spend is not None:
         from polisyos.scientist.orchestration.engine.runner.serialization import (
             serialize_state_safe,
@@ -1747,6 +2091,33 @@ def _worker_node_error(payload: Any, *, expected_run_id: str | None = None) -> _
         or not isinstance(payload.get("message"), str)
     ):
         raise ValueError("invalid typed node error payload")
+    deadline_execution_state = payload.get("deadline_execution_state")
+    if deadline_execution_state is not None and (
+        deadline_execution_state != "not_started"
+        or payload["code"] != _WorkerOutcomeUnknown.code
+        or payload["category"] != "fatal"
+    ):
+        raise ValueError("invalid worker deadline state")
+    child_unknowns = []
+    raw_children = payload.get("child_unknowns", [])
+    if not isinstance(raw_children, list):
+        raise ValueError("invalid child unknown locators")
+    for child in raw_children:
+        if (
+            not isinstance(child, dict)
+            or set(child) != {"run_id", "run_dir"}
+            or not isinstance(child["run_id"], str)
+            or not child["run_id"]
+            or not isinstance(child["run_dir"], str)
+            or not child["run_dir"]
+            or payload["code"] not in _OUTCOME_UNKNOWN_CODES
+        ):
+            raise ValueError("invalid child unknown locator")
+        child_unknowns.append(
+            ChildOutcomeUnknownError(
+                "child_outcome_unknown", run_id=child["run_id"], run_dir=Path(child["run_dir"])
+            )
+        )
     known_spend = None
     if "known_spend_state_v1" in payload:
         from polisyos.scientist.orchestration.engine.runner.serialization import (
@@ -1769,6 +2140,8 @@ def _worker_node_error(payload: Any, *, expected_run_id: str | None = None) -> _
         category=payload["category"],
         code=payload["code"],
         known_spend=known_spend,
+        child_unknowns=tuple(child_unknowns),
+        deadline_execution_state=deadline_execution_state,
     )
 
 
@@ -1786,6 +2159,24 @@ def _spend_snapshot(state: ExperimentState) -> dict[str, Decimal]:
         except InvalidOperation, TypeError, ValueError:
             continue
     return snapshot
+
+
+def _non_run_spend_snapshot(state: ExperimentState) -> dict[str, Any]:
+    """Capture all non-run spend fields, including invalid mutations, for strict comparison."""
+    budgets = getattr(state, "budgets", {})
+    if not isinstance(budgets, dict):
+        return {}
+    return {
+        key: value
+        for key, value in budgets.items()
+        if isinstance(key, str) and key.endswith("_spent_usd") and key != "run_spent_usd"
+    }
+
+
+def _require_unchanged_non_run_spend(before: dict[str, Any], after: dict[str, Any]) -> None:
+    if before != after:
+        error = ValueError("budget_invocation_non_run_spend_not_established")
+        raise _SettlementProofNotEstablished(error) from error
 
 
 def _spend_delta(
@@ -1819,12 +2210,39 @@ def _require_node_outcome(value: object) -> NodeOutcome:
     return value
 
 
+def _execute_unbounded_sync(node: Any, ctx: Any, state: ExperimentState) -> Any:
+    """Revoke an issued settlement view when a direct sync invocation ends."""
+    from polisyos.scientist.orchestration.engine.context import (
+        ExecutionContext,
+        _EngineInvocationBinding,
+    )
+
+    binding = ctx._engine_invocation if isinstance(ctx, ExecutionContext) else None
+    if isinstance(binding, _EngineInvocationBinding) and binding.settlement_view is not None:
+        authority = _AttemptAuthority()
+        guarded_ctx = _build_attempt_context(ctx, authority)
+        try:
+            raise_if_job_execution_interrupted(check_current_owner=True)
+            return node.execute(_node_facing_context(guarded_ctx), state)
+        finally:
+            authority.revoke()
+    raise_if_job_execution_interrupted(check_current_owner=True)
+    return node.execute(_node_facing_context(ctx), state)
+
+
 def _execute_capture_failure(node: Any, ctx: Any, state: ExperimentState) -> NodeOutcome:
     before = _spend_snapshot(state)
     try:
+        raise_if_job_execution_interrupted(check_current_owner=True)
         return _require_node_outcome(node.execute(_node_facing_context(ctx), state))
+    except NodeTimeoutError:
+        raise
     except _RETRY_RUNTIME_ERRORS as exc:
-        raise _CompletedAttemptError(exc, _spend_changes(before, _spend_snapshot(state))) from exc
+        raise _CompletedAttemptError(
+            exc,
+            _spend_changes(before, _spend_snapshot(state)),
+            non_run_after=_non_run_spend_snapshot(state),
+        ) from exc
 
 
 def _accumulate_spend(
@@ -1850,6 +2268,198 @@ def _merge_spend(state: ExperimentState, spend: dict[str, Decimal]) -> None:
         except InvalidOperation, TypeError, ValueError:
             continue
         budgets[key] = current_decimal + value
+
+
+def _finish_base_error_sync(
+    error: BaseException,
+    callback: Callable[[str, NodeOutcome | None], None] | None,
+    attempt_id: str | None,
+) -> NoReturn:
+    """Keep the producer's original interruption if unknown completion persistence fails."""
+    try:
+        _finish_invocation_attempt(callback, attempt_id=attempt_id, outcome=None)
+    except BaseException as finalization_error:
+        error.add_note("Attempt finalization failed after producer interruption")
+        raise error from finalization_error
+    raise error
+
+
+async def _finish_base_error_async(
+    error: BaseException,
+    callback: Callable[[str, NodeOutcome | None], Awaitable[None]] | None,
+    attempt_id: str | None,
+) -> NoReturn:
+    """Keep the producer's original interruption if unknown completion persistence fails."""
+    try:
+        await _finish_invocation_attempt_async(callback, attempt_id=attempt_id, outcome=None)
+    except BaseException as finalization_error:
+        error.add_note("Attempt finalization failed after producer interruption")
+        raise error from finalization_error
+    raise error
+
+
+def _finish_unverified_sync(
+    proof: _SettlementProofNotEstablished,
+    callback: Callable[[str, NodeOutcome | None], None] | None,
+    attempt_id: str | None,
+) -> NoReturn:
+    """Persist unknown without replacing the original verification failure."""
+    try:
+        _finish_invocation_attempt(callback, attempt_id=attempt_id, outcome=None)
+    except BaseException as finalization_error:
+        proof.error.add_note("Attempt finalization failed after settlement verification refused")
+        raise proof.error from finalization_error
+    raise proof.error
+
+
+async def _finish_unverified_async(
+    proof: _SettlementProofNotEstablished,
+    callback: Callable[[str, NodeOutcome | None], Awaitable[None]] | None,
+    attempt_id: str | None,
+) -> NoReturn:
+    """Persist unknown without replacing the original verification failure."""
+    try:
+        await _finish_invocation_attempt_async(callback, attempt_id=attempt_id, outcome=None)
+    except BaseException as finalization_error:
+        proof.error.add_note("Attempt finalization failed after settlement verification refused")
+        raise proof.error from finalization_error
+    raise proof.error
+
+
+def _issued_settlement_view(ctx: Any) -> Any | None:
+    """Return only the engine-issued local settlement view, if one is bound."""
+    from polisyos.scientist.orchestration.engine._invocation_settlement import (
+        _InvocationSettlementView,
+    )
+    from polisyos.scientist.orchestration.engine.context import (
+        ExecutionContext,
+        _EngineInvocationBinding,
+    )
+
+    if not isinstance(ctx, ExecutionContext):
+        return None
+    binding = ctx._engine_invocation
+    if binding is None:
+        return None
+    if not isinstance(binding, _EngineInvocationBinding):
+        raise ValueError("budget_invocation_binding_invalid")
+    view = binding.settlement_view
+    if view is not None and type(view) is not _InvocationSettlementView:
+        raise ValueError("budget_invocation_settlement_view_invalid")
+    return view
+
+
+def _confirmed_view_spend(view: Any) -> Decimal:
+    """Read only the issued owner's confirmed cumulative run spend."""
+    amount = view.spent
+    if not isinstance(amount, Decimal) or not amount.is_finite() or amount < 0:
+        raise ValueError("budget_invocation_confirmed_spend_invalid")
+    return amount
+
+
+class _SettlementProofNotEstablished(Exception):
+    """Carry an original proof refusal to the attempt-completion boundary."""
+
+    def __init__(self, error: Exception) -> None:
+        self.error = error
+        super().__init__(str(error))
+
+
+def _acknowledged_view_spend(view: Any, before: Decimal) -> Decimal:
+    """Use only a receipt reconciled by its actual engine-issued owner."""
+    try:
+        verified = view._verify_acknowledged_settlement()
+        if verified is None:
+            return before
+        if verified.total != before + verified.amount:
+            raise ValueError("budget_invocation_receipt_total_mismatch")
+        return verified.total
+    except Exception as error:
+        raise _SettlementProofNotEstablished(error) from error
+
+
+def _typed_failure_completion(
+    error: BaseException, view: Any | None, before: Decimal | None, state: ExperimentState
+) -> NodeOutcome | None:
+    """Produce a failure only for a typed completion with a verifiable local receipt."""
+    if (
+        not isinstance(error, NodeExecutionError)
+        or isinstance(error, NodeTimeoutError)
+        or _has_unknown_outcome(error)
+        or view is None
+        or before is None
+    ):
+        return None
+    try:
+        proof = view._verify_acknowledged_settlement()
+        if proof is None:
+            if view.settlement_attempted:
+                raise ValueError("budget_invocation_receipt_not_established")
+            total = before
+            artifacts = []
+        else:
+            if proof.total != before + proof.amount:
+                raise ValueError("budget_invocation_receipt_total_mismatch")
+            total = proof.total
+            artifacts = [proof.payload_ref, proof.receipt_ref]
+    except Exception as exc:
+        raise _SettlementProofNotEstablished(exc) from exc
+    completed_state = state.model_copy(deep=True)
+    completed_state.budgets["run_spent_usd"] = total
+    return NodeOutcome(
+        status="fail",
+        state=completed_state,
+        artifacts=artifacts,
+        error=NodeError(code=_exception_code(error), message=str(error), category=error.category),
+    )
+
+
+def _known_unknown_view_spend(view: Any, before: Decimal, unknown: BaseException) -> Decimal:
+    """Reconcile the same pending event or retain only an independently verified prior receipt."""
+    try:
+        verified = view._reconcile_pending_settlement()
+    except BaseException as reconciliation_error:
+        unknown.add_note(
+            f"Settlement reconciliation did not establish the current cost: {type(reconciliation_error).__name__}"
+        )
+        try:
+            prior = view._verify_prior_acknowledged_settlement()
+        except BaseException as prior_error:
+            unknown.add_note(f"Prior settlement verification failed: {type(prior_error).__name__}")
+            return Decimal(0)
+        return Decimal(0) if prior is None else prior.amount
+    if verified is None:
+        return Decimal(0)
+    if verified.total != before + verified.amount:
+        unknown.add_note("Settlement reconciliation total did not match the original baseline")
+        return Decimal(0)
+    return verified.amount
+
+
+def _merge_failed_spend_for_outcome(
+    outcome: NodeOutcome, failed_spend: dict[str, Decimal], *, strict: bool
+) -> None:
+    """Avoid re-adding prior charges already in a confirmed strict total."""
+    _merge_spend(
+        outcome.state,
+        {key: value for key, value in failed_spend.items() if not strict or key != "run_spent_usd"},
+    )
+
+
+def _project_completed_spend(
+    state: ExperimentState,
+    baseline: dict[str, Decimal],
+    completed: dict[str, Decimal],
+) -> None:
+    """Project exactly the known completed costs onto the original budget."""
+    budgets = getattr(state, "budgets", None)
+    if not isinstance(budgets, dict):
+        return
+    for key in set(_spend_snapshot(state)) | set(baseline) | set(completed):
+        if key in baseline or key in completed:
+            budgets[key] = baseline.get(key, Decimal(0)) + completed.get(key, Decimal(0))
+        else:
+            budgets.pop(key, None)
 
 
 def _preserve_retry_spend(
@@ -2158,33 +2768,109 @@ def execute_with_retry_sync(
     )
     # Fast path — no retry, no timeout
     if retry_policy.max_retries == 0 and deadline is None and circuit_breaker is None:
+        baseline_spend = _spend_snapshot(state)
+        non_run_before = _non_run_spend_snapshot(state)
+        fast_known_spend: dict[str, Decimal] = {}
         attempt_id = _begin_invocation_attempt(
             attempt_started,
             attempt_number=1,
             state=state,
         )
+        strict_view = None
+        completion_baseline = state
+        strict_before = None
         try:
             attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
-            outcome_value = node.execute(_node_facing_context(attempt_ctx), state)
+            strict_view = _issued_settlement_view(attempt_ctx)
+            completion_baseline = state.model_copy(deep=True) if strict_view is not None else state
+            strict_before = _confirmed_view_spend(strict_view) if strict_view is not None else None
+            if strict_before is not None:
+                baseline_spend["run_spent_usd"] = strict_before
+            outcome_value = _execute_unbounded_sync(node, attempt_ctx, state)
             if not isinstance(outcome_value, NodeOutcome):
                 raise TypeError("node execution must return a NodeOutcome")
             outcome = outcome_value
-        except BaseException:
+            raise_if_job_execution_interrupted(check_current_owner=True)
+            if strict_view is not None and strict_before is not None:
+                strict_after = _acknowledged_view_spend(strict_view, strict_before)
+                if strict_after < strict_before:
+                    raise ValueError("budget_invocation_confirmed_spend_regressed")
+                fast_known_spend["run_spent_usd"] = strict_after - strict_before
+                _require_unchanged_non_run_spend(
+                    non_run_before, _non_run_spend_snapshot(outcome.state)
+                )
+                outcome.state.budgets["run_spent_usd"] = strict_after
+        except _SettlementProofNotEstablished as proof:
+            _project_completed_spend(state, baseline_spend, fast_known_spend)
+            _finish_unverified_sync(proof, attempt_completed, attempt_id)
+        except ChildOutcomeUnknownError as unknown:
+            known = {}
+            if strict_view is not None and strict_before is not None:
+                baseline_spend["run_spent_usd"] = strict_before
+                known["run_spent_usd"] = _known_unknown_view_spend(
+                    strict_view, strict_before, unknown
+                )
+            _project_completed_spend(state, baseline_spend, known)
+            try:
+                _finish_invocation_attempt(attempt_completed, attempt_id=attempt_id, outcome=None)
+            except BaseException as finalization_error:
+                unknown.add_note("Attempt finalization failed after child outcome became unknown")
+                raise unknown from finalization_error
+            raise
+        except _RETRY_RUNTIME_ERRORS as exc:
+            if strict_view is not None and strict_before is not None:
+                if _has_unknown_outcome(exc):
+                    amount = _known_unknown_view_spend(strict_view, strict_before, exc)
+                else:
+                    try:
+                        amount = (
+                            _acknowledged_view_spend(strict_view, strict_before) - strict_before
+                        )
+                    except _SettlementProofNotEstablished as proof:
+                        _project_completed_spend(state, baseline_spend, fast_known_spend)
+                        _finish_unverified_sync(proof, attempt_completed, attempt_id)
+                _project_completed_spend(state, baseline_spend, {"run_spent_usd": amount})
+            try:
+                completion = _typed_failure_completion(
+                    exc, strict_view, strict_before, completion_baseline
+                )
+                _finish_invocation_attempt(
+                    attempt_completed, attempt_id=attempt_id, outcome=completion
+                )
+            except _SettlementProofNotEstablished as proof:
+                _project_completed_spend(state, baseline_spend, fast_known_spend)
+                _finish_unverified_sync(proof, attempt_completed, attempt_id)
+            except BaseException as finalization_error:
+                if _has_unknown_outcome(exc):
+                    exc.add_note("Attempt finalization failed after outcome became unknown")
+                    raise exc from finalization_error
+                raise
+            raise
+        except BaseException as error:
+            if strict_view is not None and strict_before is not None:
+                baseline_spend["run_spent_usd"] = strict_before
+                known = {
+                    "run_spent_usd": _known_unknown_view_spend(strict_view, strict_before, error)
+                }
+                _project_completed_spend(state, baseline_spend, known)
+            _finish_base_error_sync(error, attempt_completed, attempt_id)
+        try:
             _finish_invocation_attempt(
                 attempt_completed,
                 attempt_id=attempt_id,
-                outcome=None,
+                outcome=outcome if isinstance(outcome, NodeOutcome) else None,
             )
+        except BaseException:
+            if strict_view is not None:
+                _project_completed_spend(state, baseline_spend, fast_known_spend)
             raise
-        _finish_invocation_attempt(
-            attempt_completed,
-            attempt_id=attempt_id,
-            outcome=outcome if isinstance(outcome, NodeOutcome) else None,
-        )
         return outcome
 
     last_outcome: NodeOutcome | None = None
     failed_spend: dict[str, Decimal] = {}
+    known_completed_spend: dict[str, Decimal] = {}
+    baseline_spend = _spend_snapshot(state)
+    strict_profile = False
     node_id = str((getattr(node, "spec", None) and node.spec.metadata.component_id) or alias)
 
     for attempt in range(retry_policy.max_retries + 1):
@@ -2205,11 +2891,24 @@ def execute_with_retry_sync(
             attempt_number=attempt + 1,
             state=attempt_state,
         )
+        non_run_before = _non_run_spend_snapshot(attempt_state)
         attempt_recorded = False
+        completed_attempt_spend: dict[str, Decimal] | None = None
+        failed_attempt_spend_recorded = False
+        strict_view = None
+        completion_baseline = state
+        strict_before = None
         attempt_dispatch_basis_ref: ArtifactRef | None = None
         try:
             attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
             attempt_dispatch_basis_ref = _attempt_dispatch_basis_ref(attempt_ctx)
+            strict_view = _issued_settlement_view(attempt_ctx)
+            completion_baseline = state.model_copy(deep=True) if strict_view is not None else state
+            strict_before = _confirmed_view_spend(strict_view) if strict_view is not None else None
+            if strict_before is not None:
+                if not strict_profile:
+                    baseline_spend["run_spent_usd"] = strict_before
+                strict_profile = True
             if remaining is not None:
                 outcome = _execute_with_timeout_sync(
                     node,
@@ -2221,18 +2920,38 @@ def execute_with_retry_sync(
                     dispatch_params=dispatch_params,
                 )
             else:
-                outcome_value = node.execute(_node_facing_context(attempt_ctx), attempt_state)
+                outcome_value = _execute_unbounded_sync(node, attempt_ctx, attempt_state)
                 if not isinstance(outcome_value, NodeOutcome):
                     raise TypeError("node execution must return a NodeOutcome")
                 outcome = outcome_value
 
+            raise_if_job_execution_interrupted(check_current_owner=True)
+            strict_attempt_spend = None
+            if strict_view is not None and strict_before is not None:
+                strict_after = _acknowledged_view_spend(strict_view, strict_before)
+                if strict_after < strict_before:
+                    raise ValueError("budget_invocation_confirmed_spend_regressed")
+                strict_attempt_spend = {"run_spent_usd": strict_after - strict_before}
+                completed_attempt_spend = strict_attempt_spend
+                _accumulate_spend(known_completed_spend, strict_attempt_spend)
+                _require_unchanged_non_run_spend(
+                    non_run_before, _non_run_spend_snapshot(outcome.state)
+                )
+                outcome.state.budgets["run_spent_usd"] = strict_after
             try:
                 _remaining_deadline(deadline, execution_state="completed_publication_rejected")
             except NodeTimeoutError:
-                _accumulate_spend(failed_spend, _spend_delta(state, outcome.state))
+                _accumulate_spend(
+                    failed_spend,
+                    strict_attempt_spend
+                    if strict_attempt_spend is not None
+                    else _spend_delta(state, outcome.state),
+                )
                 raise
             if outcome.status != "fail":
-                _merge_spend(outcome.state, failed_spend)
+                _merge_failed_spend_for_outcome(
+                    outcome, failed_spend, strict=strict_view is not None
+                )
                 if circuit_breaker is not None:
                     circuit_breaker.record_success()
                 _finish_invocation_attempt(
@@ -2248,8 +2967,13 @@ def execute_with_retry_sync(
                 circuit_breaker.record_failure()
 
             if attempt < retry_policy.max_retries and _should_retry(outcome.error, retry_policy):
-                attempt_spend = _spend_delta(state, outcome.state)
+                attempt_spend = (
+                    strict_attempt_spend
+                    if strict_attempt_spend is not None
+                    else _spend_delta(state, outcome.state)
+                )
                 _accumulate_spend(failed_spend, attempt_spend)
+                failed_attempt_spend_recorded = True
                 last_outcome = outcome
                 _finish_invocation_attempt(
                     attempt_completed,
@@ -2275,7 +2999,7 @@ def execute_with_retry_sync(
                 _retry_delay_sync(delay, deadline)
                 continue
 
-            _merge_spend(outcome.state, failed_spend)
+            _merge_failed_spend_for_outcome(outcome, failed_spend, strict=strict_view is not None)
             _finish_invocation_attempt(
                 attempt_completed,
                 attempt_id=attempt_id,
@@ -2284,6 +3008,34 @@ def execute_with_retry_sync(
             attempt_recorded = True
             return outcome
 
+        except _SettlementProofNotEstablished as proof:
+            _project_completed_spend(state, baseline_spend, known_completed_spend)
+            _finish_unverified_sync(
+                proof, None if attempt_recorded else attempt_completed, attempt_id
+            )
+        except ChildOutcomeUnknownError as unknown:
+            if strict_view is not None and strict_before is not None:
+                _accumulate_spend(
+                    known_completed_spend,
+                    {
+                        "run_spent_usd": _known_unknown_view_spend(
+                            strict_view, strict_before, unknown
+                        )
+                    },
+                )
+            if strict_profile:
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+            else:
+                _merge_spend(state, failed_spend)
+            try:
+                if not attempt_recorded:
+                    _finish_invocation_attempt(
+                        attempt_completed, attempt_id=attempt_id, outcome=None
+                    )
+            except BaseException as finalization_error:
+                unknown.add_note("Attempt finalization failed after child outcome became unknown")
+                raise unknown from finalization_error
+            raise
         except NodeTimeoutError:
             if not attempt_recorded:
                 _finish_invocation_attempt(
@@ -2301,33 +3053,98 @@ def execute_with_retry_sync(
                     outcome=None,
                 )
             raise
-        except KeyboardInterrupt:
-            if not attempt_recorded:
-                _finish_invocation_attempt(
-                    attempt_completed,
-                    attempt_id=attempt_id,
-                    outcome=None,
+        except KeyboardInterrupt as error:
+            if (
+                strict_view is not None
+                and strict_before is not None
+                and completed_attempt_spend is None
+            ):
+                _accumulate_spend(
+                    known_completed_spend,
+                    {"run_spent_usd": _known_unknown_view_spend(strict_view, strict_before, error)},
                 )
-            raise
+            if strict_profile:
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+            else:
+                _merge_spend(state, failed_spend)
+            _finish_base_error_sync(
+                error, None if attempt_recorded else attempt_completed, attempt_id
+            )
         except _InvocationAttemptPersistenceError:
             raise
         except _RETRY_RUNTIME_ERRORS as exc:
-            if not attempt_recorded:
-                _finish_invocation_attempt(
-                    attempt_completed,
-                    attempt_id=attempt_id,
-                    outcome=None,
-                )
             original_error = exc.error if isinstance(exc, _CompletedAttemptError) else exc
+            if (
+                strict_view is not None
+                and strict_before is not None
+                and completed_attempt_spend is None
+            ):
+                if _has_unknown_outcome(exc):
+                    amount = _known_unknown_view_spend(strict_view, strict_before, original_error)
+                else:
+                    try:
+                        amount = (
+                            _acknowledged_view_spend(strict_view, strict_before) - strict_before
+                        )
+                    except _SettlementProofNotEstablished as proof:
+                        _project_completed_spend(state, baseline_spend, known_completed_spend)
+                        _finish_unverified_sync(
+                            proof, None if attempt_recorded else attempt_completed, attempt_id
+                        )
+                completed_attempt_spend = {"run_spent_usd": amount}
+                _accumulate_spend(known_completed_spend, completed_attempt_spend)
+                try:
+                    _require_unchanged_non_run_spend(
+                        non_run_before,
+                        exc.non_run_after
+                        if isinstance(exc, _CompletedAttemptError) and exc.non_run_after is not None
+                        else _non_run_spend_snapshot(attempt_state),
+                    )
+                except _SettlementProofNotEstablished as proof:
+                    _project_completed_spend(state, baseline_spend, known_completed_spend)
+                    _finish_unverified_sync(
+                        proof, None if attempt_recorded else attempt_completed, attempt_id
+                    )
+            if not attempt_recorded:
+                try:
+                    completion = _typed_failure_completion(
+                        original_error, strict_view, strict_before, completion_baseline
+                    )
+                    _finish_invocation_attempt(
+                        attempt_completed,
+                        attempt_id=attempt_id,
+                        outcome=completion,
+                    )
+                except _SettlementProofNotEstablished as proof:
+                    _project_completed_spend(state, baseline_spend, known_completed_spend)
+                    _finish_unverified_sync(
+                        proof, None if attempt_recorded else attempt_completed, attempt_id
+                    )
+                except BaseException as finalization_error:
+                    if _has_unknown_outcome(exc):
+                        if strict_profile:
+                            _project_completed_spend(state, baseline_spend, known_completed_spend)
+                        else:
+                            _merge_spend(state, failed_spend)
+                        original_error.add_note(
+                            "Attempt finalization failed after outcome became unknown"
+                        )
+                        raise original_error from finalization_error
+                    raise
             captured_spend = (
                 exc.known_spend
                 if isinstance(exc, (_CompletedAttemptError, _WorkerNodeError))
                 else None
             )
             attempt_spend = (
-                captured_spend if captured_spend is not None else _spend_delta(state, attempt_state)
+                completed_attempt_spend
+                if completed_attempt_spend is not None
+                else captured_spend
+                if captured_spend is not None
+                else _spend_delta(state, attempt_state)
             )
-            _accumulate_spend(failed_spend, attempt_spend)
+            if not failed_attempt_spend_recorded:
+                _accumulate_spend(failed_spend, attempt_spend)
             try:
                 _remaining_deadline(
                     deadline, execution_state="completed_error_publication_rejected"
@@ -2363,7 +3180,10 @@ def execute_with_retry_sync(
                     raise
                 continue
 
-            _merge_spend(state, failed_spend)
+            if strict_profile:
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+            else:
+                _merge_spend(state, failed_spend)
             dlq_ref = _persist_dead_letter(
                 ctx,
                 alias,
@@ -2385,6 +3205,23 @@ def execute_with_retry_sync(
             raise RetryExhaustedError(
                 f"Node {alias}: all {retry_policy.max_retries} retries exhausted",
             ) from original_error
+        except BaseException as error:
+            if (
+                strict_view is not None
+                and strict_before is not None
+                and completed_attempt_spend is None
+            ):
+                _accumulate_spend(
+                    known_completed_spend,
+                    {"run_spent_usd": _known_unknown_view_spend(strict_view, strict_before, error)},
+                )
+            if strict_profile:
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+            else:
+                _merge_spend(state, failed_spend)
+            _finish_base_error_sync(
+                error, None if attempt_recorded else attempt_completed, attempt_id
+            )
 
     # Should not reach here, but for safety:
     if last_outcome is not None:
@@ -2488,16 +3325,17 @@ async def _execute_with_timeout_thread_async(
     assert deadline is not None
     _remaining_deadline(deadline)
     future, authority, completed = _submit_thread_attempt(node, ctx, state, deadline)
-    wrapped = asyncio.wrap_future(future)
+    wrapped = wrap_shared_executor_future(future)
     try:
         done, _ = await asyncio.wait([wrapped], timeout=_remaining_deadline(deadline))
         if not done or completed[0] > deadline:
-            raise _thread_deadline_error(future)
+            cancelled = request_shared_executor_cancellation(future)
+            raise _deadline_error("not_started" if cancelled else "external_outcome_unknown")
         return _require_node_outcome(wrapped.result())
     except BaseException:
-        # The actual concurrent Future is cancelled before handing ownership back;
-        # asyncio's deferred cancellation callback cannot admit a queued late job.
-        future.cancel()
+        # Reserve the no-start outcome before returning; its worker acknowledges
+        # cancellation and executes user callbacks without blocking this loop.
+        request_shared_executor_cancellation(future)
         wrapped.add_done_callback(_consume_finished_task)
         raise
     finally:
@@ -2660,6 +3498,16 @@ def _terminate_owned_process(
     return not process.is_alive() and group_clean
 
 
+def _report_owned_cleanup_incomplete(primary: BaseException | None) -> None:
+    """Keep a failed physical stop visible without replacing cancellation."""
+    _logger.error("Owned timeout worker cleanup did not establish physical stop")
+    if primary is None:
+        raise _WorkerDeliveryError("timeout_worker_owned_cleanup_incomplete")
+    primary.add_note("timeout_worker_owned_cleanup_incomplete")
+    if isinstance(primary, Exception) and not isinstance(primary, _WorkerOutcomeUnknown):
+        raise _WorkerDeliveryError("timeout_worker_owned_cleanup_incomplete") from primary
+
+
 def _close_worker_process(process: mp.Process) -> None:
     """Release process resources after the owned process has stopped."""
     if process.is_alive():
@@ -2685,45 +3533,66 @@ def _require_worker_result_frame(value: object) -> tuple[str, object]:
     return status, payload
 
 
+def _raise_worker_result_boundary(
+    process: mp.Process,
+    *,
+    compute_deadline: float,
+    completion_time: Any,
+) -> NoReturn:
+    """Classify a closed channel using one fresh, nonblocking observation."""
+    if _completion_before_deadline(completion_time, compute_deadline):
+        raise _WorkerDeliveryTimeout
+    exitcode = process.exitcode
+    if exitcode is not None or not process.is_alive():
+        raise _WorkerProcessExited(process.exitcode)
+    if time.monotonic() >= compute_deadline:
+        raise _WorkerComputeTimeout
+    raise _WorkerTransportError(
+        f"timeout worker result channel closed before completion (exitcode={process.exitcode})"
+    )
+
+
 def _drain_result_sync(
     process: mp.Process,
     result_queue: Any,
     *,
     compute_deadline: float,
     completion_time: Any = None,
+    owner_handoff: _ForkOwnerHandoff | None = None,
+    owner_attempt_check: Callable[[], None] | None = None,
 ) -> tuple[str, object]:
-    """Receive a result while its producer runs, without partial-frame blocking."""
+    """Receive a result and service bounded child-owner checks."""
     raise_if_job_execution_interrupted()
-    while process.is_alive() and not _completion_before_deadline(
-        completion_time,
-        compute_deadline,
-    ):
+    while process.is_alive() and not _completion_before_deadline(completion_time, compute_deadline):
         raise_if_job_execution_interrupted()
+        if owner_handoff is not None:
+            owner_handoff.service(completion_time, owner_attempt_check)
         remaining = compute_deadline - time.monotonic()
         if remaining <= 0:
             raise _WorkerComputeTimeout
         try:
             raw_frame: object = result_queue.get(timeout=min(_PROCESS_RESULT_POLL_S, remaining))
         except EOFError:
-            raise _WorkerComputeTimeout from None
+            _raise_worker_result_boundary(
+                process, compute_deadline=compute_deadline, completion_time=completion_time
+            )
         except queue.Empty:
             continue
         if not _completion_before_deadline(completion_time, compute_deadline):
             raise _WorkerComputeTimeout
         raise_if_job_execution_interrupted()
         return _require_worker_result_frame(raw_frame)
-
     if not process.is_alive() and not _completion_before_deadline(
-        completion_time,
-        compute_deadline,
+        completion_time, compute_deadline
     ):
         raise _WorkerProcessExited(process.exitcode)
     if not _completion_before_deadline(completion_time, compute_deadline):
         raise _WorkerComputeTimeout
-
     delivery_deadline = _delivery_deadline(completion_time)
     while time.monotonic() < delivery_deadline:
         raise_if_job_execution_interrupted()
+        if owner_handoff is not None:
+            owner_handoff.service(completion_time, owner_attempt_check)
         remaining = delivery_deadline - time.monotonic()
         try:
             delivered_frame: object = result_queue.get(
@@ -2744,18 +3613,21 @@ async def _drain_result_async(
     *,
     compute_deadline: float,
     completion_time: Any = None,
+    owner_handoff: _ForkOwnerHandoff | None = None,
+    owner_attempt_check: Callable[[], None] | None = None,
 ) -> tuple[str, object]:
     """Async counterpart of :func:`_drain_result_sync`."""
     raise_if_job_execution_interrupted()
-    while process.is_alive() and not _completion_before_deadline(
-        completion_time,
-        compute_deadline,
-    ):
+    while process.is_alive() and not _completion_before_deadline(completion_time, compute_deadline):
         raise_if_job_execution_interrupted()
+        if owner_handoff is not None:
+            await owner_handoff.service_async(completion_time, owner_attempt_check)
         try:
             raw_frame: object = result_queue.get_nowait()
         except EOFError:
-            raise _WorkerComputeTimeout from None
+            _raise_worker_result_boundary(
+                process, compute_deadline=compute_deadline, completion_time=completion_time
+            )
         except queue.Empty:
             remaining = compute_deadline - time.monotonic()
             if remaining <= 0:
@@ -2766,18 +3638,17 @@ async def _drain_result_async(
                 raise _WorkerComputeTimeout
             raise_if_job_execution_interrupted()
             return _require_worker_result_frame(raw_frame)
-
     if not process.is_alive() and not _completion_before_deadline(
-        completion_time,
-        compute_deadline,
+        completion_time, compute_deadline
     ):
         raise _WorkerProcessExited(process.exitcode)
     if not _completion_before_deadline(completion_time, compute_deadline):
         raise _WorkerComputeTimeout
-
     delivery_deadline = _delivery_deadline(completion_time)
     while time.monotonic() < delivery_deadline:
         raise_if_job_execution_interrupted()
+        if owner_handoff is not None:
+            await owner_handoff.service_async(completion_time, owner_attempt_check)
         try:
             delivered_frame: object = result_queue.get_nowait()
             raise_if_job_execution_interrupted()
@@ -2786,7 +3657,7 @@ async def _drain_result_async(
             raise _WorkerDeliveryTimeout from None
         except queue.Empty:
             remaining = delivery_deadline - time.monotonic()
-            await asyncio.sleep(min(_PROCESS_RESULT_POLL_S, remaining))
+            await asyncio.sleep(min(_PROCESS_RESULT_POLL_S, max(0.0, remaining)))
     raise _WorkerDeliveryTimeout
 
 
@@ -3126,10 +3997,25 @@ def _admit_spawn_timeout_worker_result(
     )
 
 
+def _require_current_fork_engine_attempt(ctx: Any, selected: Any) -> None:
+    """Recheck the same live Core attempt without resetting the delivery budget."""
+    attempts = ctx.run.read_runtime_invocation_attempts()
+    matches = [item for item in attempts if item.basis.attempt_id == selected.attempt_id]
+    if (
+        len(matches) != 1
+        or matches[0].basis_ref != selected.basis_ref
+        or matches[0].outcome is not None
+        or matches[0].basis.run_id != selected.run_id
+    ):
+        raise RuntimeError("fork_owner_engine_attempt_changed")
+
+
 def _admit_fork_timeout_worker_result(
     ctx: Any,
     binding: _ForkWorkerReceiptBinding,
     payload: Any,
+    *,
+    owner_checked: bool = False,
 ) -> NodeOutcome:
     """Admit one Linux fork worker result into the exact live parent RunContext."""
     return _admit_worker_execution_receipt(
@@ -3138,18 +4024,14 @@ def _admit_fork_timeout_worker_result(
         capability=binding.capability,
         binding=binding.binding,
         expected_run_id=binding.run_id,
+        owner_checked=owner_checked,
     )
 
 
-def _admit_worker_execution_receipt(
-    ctx: Any,
-    payload: Any,
-    *,
-    capability: WorkerLifecycleCapability,
-    binding: WorkerDispatchBinding,
-    expected_run_id: str,
-) -> NodeOutcome:
-    """Validate one result envelope and merge its trace only through its parent."""
+def _decode_worker_execution_receipt(
+    payload: Any, *, binding: WorkerDispatchBinding, expected_run_id: str
+) -> tuple[Any, NodeOutcome | None, Any]:
+    """Decode and bind a worker receipt before any parent-owned mutation."""
     from polisyos.scientist.orchestration.engine.runner.serialization import (
         DeserializationError,
         deserialize_outcome,
@@ -3195,7 +4077,22 @@ def _admit_worker_execution_receipt(
     except (AttributeError, TypeError, ValueError) as exc:
         raise RuntimeError("timeout_worker_result_invalid") from exc
 
+    return worker_error, outcome, records
+
+
+def _commit_worker_execution_receipt(
+    ctx: Any,
+    *,
+    capability: WorkerLifecycleCapability,
+    binding: WorkerDispatchBinding,
+    decoded: tuple[Any, NodeOutcome | None, Any],
+    owner_checked: bool = False,
+) -> NodeOutcome:
+    """Admit a validated receipt under the currently checked parent owner."""
+    worker_error, outcome, records = decoded
     try:
+        if not owner_checked:
+            raise_if_job_execution_interrupted(check_current_owner=True)
         authority = getattr(ctx.run, "_authority", None)
         if isinstance(authority, _AttemptAuthority):
             authority.invoke_persistent_write(
@@ -3212,6 +4109,27 @@ def _admit_worker_execution_receipt(
     if outcome is None:
         raise RuntimeError("timeout_worker_outcome_missing_after_admission")
     return outcome
+
+
+def _admit_worker_execution_receipt(
+    ctx: Any,
+    payload: Any,
+    *,
+    capability: WorkerLifecycleCapability,
+    binding: WorkerDispatchBinding,
+    expected_run_id: str,
+    owner_checked: bool = False,
+) -> NodeOutcome:
+    decoded = _decode_worker_execution_receipt(
+        payload, binding=binding, expected_run_id=expected_run_id
+    )
+    return _commit_worker_execution_receipt(
+        ctx,
+        capability=capability,
+        binding=binding,
+        decoded=decoded,
+        owner_checked=owner_checked,
+    )
 
 
 def _typed_node_timeout_worker(
@@ -3294,6 +4212,23 @@ def _decode_worker_node_outcome(payload: object) -> NodeOutcome:
     return decode_node_outcome(payload)
 
 
+def _refuse_untransportable_process_context(ctx: Any, *, allow_fork_owner: bool = False) -> None:
+    """Do not drop local invocation or live-owner authority at a process boundary."""
+    if has_job_execution_owner_check() and not allow_fork_owner:
+        raise _timeout_worker_unsupported("live_owner_check_not_transportable")
+    from polisyos.scientist.orchestration.engine.context import (
+        ExecutionContext,
+        _EngineInvocationBinding,
+    )
+
+    if isinstance(ctx, ExecutionContext):
+        binding = ctx._engine_invocation
+        if binding is not None and (
+            not isinstance(binding, _EngineInvocationBinding) or binding.settlement_view is not None
+        ):
+            raise _timeout_worker_unsupported("invocation_settlement_not_transportable")
+
+
 def _execute_with_timeout_process(
     node: Any,
     ctx: Any,
@@ -3306,6 +4241,9 @@ def _execute_with_timeout_process(
     process_context: BaseContext | None = None,
     dispatch_params: Mapping[str, Any] | None = None,
 ) -> NodeOutcome:
+    identity = _current_job_execution_identity()
+    allow_fork_owner = identity is not None and _timeout_worker_start_method() == "fork"
+    _refuse_untransportable_process_context(ctx, allow_fork_owner=allow_fork_owner)
     deadline = _invocation_deadline(timeout_s, deadline_monotonic)
     compute_deadline = deadline if deadline is not None else time.monotonic() + timeout_s
     start_method = _timeout_worker_start_method()
@@ -3358,8 +4296,56 @@ def _execute_with_timeout_process(
                 raise
             reason = str(exc) or type(exc).__name__
             raise _timeout_worker_unsupported(reason) from exc
+    owner_handoff = None
+    owner_engine = None
+    if allow_fork_owner:
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.runner.serialization import (
+            capture_timeout_worker_engine_invocation,
+        )
+
+        if (
+            not isinstance(ctx, ExecutionContext)
+            or fork_binding is None
+            or identity is None
+            or getattr(ctx.run.run_manifest, "control_job_id", None) != identity[0]
+            or fork_binding.run_id != state.run_id
+            or identity[3] != state.run_id
+        ):
+            raise _timeout_worker_unsupported("live_owner_fork_binding_not_established")
+        try:
+            owner_engine = capture_timeout_worker_engine_invocation(
+                ctx,
+                expected_run_id=state.run_id,
+                node_alias=alias or "",
+                component_id=str(node.spec.metadata.component_id),
+                dispatch_params=dispatch_params,
+                timeout_s=timeout_s,
+                supervisor_deadline_monotonic=compute_deadline,
+                state=state,
+            )
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise _timeout_worker_unsupported("live_owner_engine_attempt_not_established") from exc
+        parent_channel, child_channel = mp_ctx.Pipe(duplex=True)
+        os.set_blocking(parent_channel.fileno(), False)
+        owner_handoff = _ForkOwnerHandoff(
+            parent_channel,
+            child_channel,
+            mp_ctx.Event(),
+            identity,
+            secrets.token_hex(32),
+            (
+                fork_binding.run_id,
+                fork_binding.invocation_id,
+                fork_binding.dispatch_sha256,
+                owner_engine.attempt_id,
+                owner_engine.basis_ref.model_dump_json(),
+            ),
+            compute_deadline,
+        )
     result_queue: _WorkerResultChannel | None = None
     process: Any = None
+    cleanup_incomplete = False
     lifecycle = _WorkerLifecycle(compute_deadline=compute_deadline, completion_time=None)
     try:
         result_queue = _WorkerResultChannel(mp_ctx)
@@ -3398,11 +4384,16 @@ def _execute_with_timeout_process(
                     lifecycle.compute_deadline,
                     lifecycle.cleanup_complete,
                     fork_binding,
+                    owner_handoff,
                 ),
                 daemon=True,
             )
         raise_if_job_execution_interrupted()
+        _remaining_deadline(lifecycle.compute_deadline, execution_state="not_started")
+        raise_if_job_execution_interrupted(check_current_owner=True)
         process.start()
+        if owner_handoff is not None:
+            owner_handoff.child.close()
         result_queue.close_writer()
         lifecycle.process_group_id = _owned_process_group_id(
             process,
@@ -3415,6 +4406,12 @@ def _execute_with_timeout_process(
             result_queue,
             compute_deadline=lifecycle.compute_deadline,
             completion_time=lifecycle.completion_time,
+            owner_handoff=owner_handoff,
+            owner_attempt_check=(
+                (lambda: _require_current_fork_engine_attempt(ctx, owner_engine))
+                if owner_engine is not None
+                else None
+            ),
         )
         if start_method == "spawn":
             cleanup_complete = _terminate_owned_process(
@@ -3426,14 +4423,16 @@ def _execute_with_timeout_process(
                 raise _worker_timeout_error(timeout_s, cleanup_complete=False)
         else:
             _join_worker_until(process, deadline=_delivery_deadline(lifecycle.completion_time))
-        raise_if_job_execution_interrupted()
-    except JobExecutionInterrupted:
+        raise_if_job_execution_interrupted(check_current_owner=owner_handoff is not None)
+    except JobExecutionInterrupted as interrupted:
         authority.revoke()
         if process is not None and process.pid is not None:
             # The validated owner group can outlive the immediate child.
-            _terminate_owned_process(
+            cleaned = _terminate_owned_process(
                 process, lifecycle.process_group_id, lifecycle.cleanup_complete
             )
+            if not cleaned:
+                cleanup_incomplete = True
         raise
     except _WorkerComputeTimeout:
         cleanup_complete = _terminate_owned_process(
@@ -3449,7 +4448,7 @@ def _execute_with_timeout_process(
     except _WorkerProcessExited:
         authority.revoke()
         if process is not None:
-            _terminate_owned_process(
+            cleanup_incomplete = not _terminate_owned_process(
                 process, lifecycle.process_group_id, lifecycle.cleanup_complete
             )
         raise
@@ -3463,20 +4462,26 @@ def _execute_with_timeout_process(
         if not cleanup_complete:
             raise _worker_timeout_error(timeout_s, cleanup_complete=False) from exc
         cleanup_suffix = ""
-        raise RuntimeError(
+        raise _WorkerDeliveryError(
             "Node timeout worker result delivery exceeded bounded grace "
             f"(exitcode={process.exitcode}{cleanup_suffix})"
         ) from exc
     finally:
+        primary = sys.exception()
         authority.revoke()
         if process is not None:
             if process.is_alive():
-                _terminate_owned_process(
+                cleaned = _terminate_owned_process(
                     process, lifecycle.process_group_id, lifecycle.cleanup_complete
                 )
+                cleanup_incomplete = cleanup_incomplete or not cleaned
             _close_worker_process(process)
         if result_queue is not None:
             _close_result_queue(result_queue)
+        if owner_handoff is not None:
+            owner_handoff.close()
+        if cleanup_incomplete:
+            _report_owned_cleanup_incomplete(primary)
 
     if status == "ok":
         if start_method == "spawn":
@@ -3492,6 +4497,10 @@ def _execute_with_timeout_process(
     if status == "worker_receipt":
         if fork_binding is None:
             raise RuntimeError("fork_worker_receipt_without_parent_dispatch")
+        if owner_handoff is not None:
+            if owner_engine is None:
+                raise RuntimeError("fork_owner_engine_attempt_not_established")
+            _require_current_fork_engine_attempt(ctx, owner_engine)
         return _admit_fork_timeout_worker_result(ctx, fork_binding, payload)
     if status == "error":
         raise _worker_node_error(payload, expected_run_id=state.run_id)
@@ -3514,6 +4523,9 @@ async def _execute_with_timeout_process_async(
     process_context: BaseContext | None = None,
     dispatch_params: Mapping[str, Any] | None = None,
 ) -> NodeOutcome:
+    identity = _current_job_execution_identity()
+    allow_fork_owner = identity is not None and _timeout_worker_start_method() == "fork"
+    _refuse_untransportable_process_context(ctx, allow_fork_owner=allow_fork_owner)
     deadline = _invocation_deadline(timeout_s, deadline_monotonic)
     compute_deadline = deadline if deadline is not None else time.monotonic() + timeout_s
     start_method = _timeout_worker_start_method()
@@ -3568,8 +4580,56 @@ async def _execute_with_timeout_process_async(
                 raise
             reason = str(exc) or type(exc).__name__
             raise _timeout_worker_unsupported(reason) from exc
+    owner_handoff = None
+    owner_engine = None
+    if allow_fork_owner:
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.runner.serialization import (
+            capture_timeout_worker_engine_invocation,
+        )
+
+        if (
+            not isinstance(ctx, ExecutionContext)
+            or fork_binding is None
+            or identity is None
+            or getattr(ctx.run.run_manifest, "control_job_id", None) != identity[0]
+            or fork_binding.run_id != state.run_id
+            or identity[3] != state.run_id
+        ):
+            raise _timeout_worker_unsupported("live_owner_fork_binding_not_established")
+        try:
+            owner_engine = capture_timeout_worker_engine_invocation(
+                ctx,
+                expected_run_id=state.run_id,
+                node_alias=alias or "",
+                component_id=str(node.spec.metadata.component_id),
+                dispatch_params=dispatch_params,
+                timeout_s=timeout_s,
+                supervisor_deadline_monotonic=compute_deadline,
+                state=state,
+            )
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise _timeout_worker_unsupported("live_owner_engine_attempt_not_established") from exc
+        parent_channel, child_channel = mp_ctx.Pipe(duplex=True)
+        os.set_blocking(parent_channel.fileno(), False)
+        owner_handoff = _ForkOwnerHandoff(
+            parent_channel,
+            child_channel,
+            mp_ctx.Event(),
+            identity,
+            secrets.token_hex(32),
+            (
+                fork_binding.run_id,
+                fork_binding.invocation_id,
+                fork_binding.dispatch_sha256,
+                owner_engine.attempt_id,
+                owner_engine.basis_ref.model_dump_json(),
+            ),
+            compute_deadline,
+        )
     result_queue: _WorkerResultChannel | None = None
     process: Any = None
+    cleanup_incomplete = False
     lifecycle = _WorkerLifecycle(compute_deadline=compute_deadline, completion_time=None)
     try:
         result_queue = _WorkerResultChannel(mp_ctx)
@@ -3608,11 +4668,23 @@ async def _execute_with_timeout_process_async(
                     lifecycle.compute_deadline,
                     lifecycle.cleanup_complete,
                     fork_binding,
+                    owner_handoff,
                 ),
                 daemon=True,
             )
         raise_if_job_execution_interrupted()
+        _remaining_deadline(lifecycle.compute_deadline, execution_state="not_started")
+        if owner_handoff is not None:
+            await run_blocking_async(
+                raise_if_job_execution_interrupted,
+                check_current_owner=True,
+                timeout_seconds=_remaining_deadline(lifecycle.compute_deadline),
+            )
+        else:
+            raise_if_job_execution_interrupted(check_current_owner=True)
         process.start()
+        if owner_handoff is not None:
+            owner_handoff.child.close()
         result_queue.close_writer()
         lifecycle.process_group_id = _owned_process_group_id(
             process,
@@ -3625,6 +4697,12 @@ async def _execute_with_timeout_process_async(
             result_queue,
             compute_deadline=lifecycle.compute_deadline,
             completion_time=lifecycle.completion_time,
+            owner_handoff=owner_handoff,
+            owner_attempt_check=(
+                (lambda: _require_current_fork_engine_attempt(ctx, owner_engine))
+                if owner_engine is not None
+                else None
+            ),
         )
         if start_method == "spawn":
             cleanup_complete = _terminate_owned_process(
@@ -3638,14 +4716,23 @@ async def _execute_with_timeout_process_async(
             await _join_worker_until_async(
                 process, deadline=_delivery_deadline(lifecycle.completion_time)
             )
-        raise_if_job_execution_interrupted()
-    except JobExecutionInterrupted:
+        if owner_handoff is not None:
+            await run_blocking_async(
+                raise_if_job_execution_interrupted,
+                check_current_owner=True,
+                timeout_seconds=_remaining_deadline(_delivery_deadline(lifecycle.completion_time)),
+            )
+        else:
+            raise_if_job_execution_interrupted()
+    except JobExecutionInterrupted as interrupted:
         authority.revoke()
         if process is not None and process.pid is not None:
             # The validated owner group can outlive the immediate child.
-            _terminate_owned_process(
+            cleaned = _terminate_owned_process(
                 process, lifecycle.process_group_id, lifecycle.cleanup_complete
             )
+            if not cleaned:
+                cleanup_incomplete = True
         raise
     except _WorkerComputeTimeout:
         cleanup_complete = _terminate_owned_process(
@@ -3661,7 +4748,7 @@ async def _execute_with_timeout_process_async(
     except _WorkerProcessExited:
         authority.revoke()
         if process is not None:
-            _terminate_owned_process(
+            cleanup_incomplete = not _terminate_owned_process(
                 process, lifecycle.process_group_id, lifecycle.cleanup_complete
             )
         raise
@@ -3675,20 +4762,26 @@ async def _execute_with_timeout_process_async(
         if not cleanup_complete:
             raise _worker_timeout_error(timeout_s, cleanup_complete=False) from exc
         cleanup_suffix = ""
-        raise RuntimeError(
+        raise _WorkerDeliveryError(
             "Node timeout worker result delivery exceeded bounded grace "
             f"(exitcode={process.exitcode}{cleanup_suffix})"
         ) from exc
     finally:
+        primary = sys.exception()
         authority.revoke()
         if process is not None:
             if process.is_alive():
-                _terminate_owned_process(
+                cleaned = _terminate_owned_process(
                     process, lifecycle.process_group_id, lifecycle.cleanup_complete
                 )
+                cleanup_incomplete = cleanup_incomplete or not cleaned
             _close_worker_process(process)
         if result_queue is not None:
             _close_result_queue(result_queue)
+        if owner_handoff is not None:
+            owner_handoff.close()
+        if cleanup_incomplete:
+            _report_owned_cleanup_incomplete(primary)
 
     if status == "ok":
         if start_method == "spawn":
@@ -3704,6 +4797,26 @@ async def _execute_with_timeout_process_async(
     if status == "worker_receipt":
         if fork_binding is None:
             raise RuntimeError("fork_worker_receipt_without_parent_dispatch")
+        if owner_handoff is not None:
+            if owner_engine is None:
+                raise RuntimeError("fork_owner_engine_attempt_not_established")
+            _require_current_fork_engine_attempt(ctx, owner_engine)
+            decoded = _decode_worker_execution_receipt(
+                payload, binding=fork_binding.binding, expected_run_id=fork_binding.run_id
+            )
+            await run_blocking_async(
+                raise_if_job_execution_interrupted,
+                check_current_owner=True,
+                timeout_seconds=_remaining_deadline(_delivery_deadline(lifecycle.completion_time)),
+            )
+            raise_if_job_execution_interrupted()
+            return _commit_worker_execution_receipt(
+                ctx,
+                capability=fork_binding.capability,
+                binding=fork_binding.binding,
+                decoded=decoded,
+                owner_checked=True,
+            )
         return _admit_fork_timeout_worker_result(ctx, fork_binding, payload)
     if status == "error":
         raise _worker_node_error(payload, expected_run_id=state.run_id)
@@ -3742,12 +4855,15 @@ async def _execute_with_timeout_async(
         _remaining_deadline(deadline)
         before = _spend_snapshot(worker_state)
         try:
+            raise_if_job_execution_interrupted(check_current_owner=True)
             return _require_node_outcome(
                 await node.execute_async(_node_facing_context(worker_ctx), worker_state)
             )
         except _RETRY_RUNTIME_ERRORS as exc:
             raise _CompletedAttemptError(
-                exc, _spend_changes(before, _spend_snapshot(worker_state))
+                exc,
+                _spend_changes(before, _spend_snapshot(worker_state)),
+                non_run_after=_non_run_spend_snapshot(worker_state),
             ) from exc
         finally:
             completed[0] = time.monotonic()
@@ -3775,6 +4891,7 @@ def _node_execute_worker(
     group_ready: Any = None,
     completion_time: Any = None,
     worker_binding: _ForkWorkerReceiptBinding | None = None,
+    compute_deadline: float | None = None,
 ) -> None:
     if group_ready is not None:
         try:
@@ -3807,12 +4924,19 @@ def _node_execute_worker(
 
     staged_trace = None
 
-    def _send_worker_error(exc: BaseException, *, known_spend: dict[str, Decimal]) -> None:
+    def _send_worker_error(
+        exc: BaseException,
+        *,
+        known_spend: dict[str, Decimal],
+        deadline_not_started: bool = False,
+    ) -> None:
         error_payload = _worker_error_payload(
             exc,
             known_spend=known_spend,
             run_id=state.run_id,
         )
+        if deadline_not_started:
+            error_payload["deadline_execution_state"] = "not_started"
         if worker_binding is None:
             _send("error", error_payload)
             return
@@ -3865,7 +4989,16 @@ def _node_execute_worker(
         else:
             worker_ctx = ctx
 
-        outcome = node.execute(_node_facing_context(worker_ctx), state)
+        node_ctx = _node_facing_context(worker_ctx)
+        execute = node.execute
+        raise_if_job_execution_interrupted(check_current_owner=True)
+        try:
+            _remaining_deadline(compute_deadline, execution_state="not_started")
+        except NodeTimeoutError as exc:
+            _mark_completion()
+            _send_worker_error(exc, known_spend={}, deadline_not_started=True)
+            return
+        outcome = execute(node_ctx, state)
         _mark_completion()
         if isinstance(outcome, NodeOutcome):
             from polisyos.scientist.orchestration.engine.runner.serialization import (
@@ -3924,6 +5057,96 @@ def _node_execute_worker(
         )
 
 
+class _PinnedPhysicalCall:
+    """Keep a caller-owned resource pinned until the physical callable ends."""
+
+    def __init__(self, release: Callable[[], None]) -> None:
+        self._lock = threading.Lock()
+        self._release: Callable[[], None] | None = release
+        self._started = False
+        self._abandoned = False
+        self._body_error: BaseException | None = None
+
+    def _take_release(self) -> Callable[[], None] | None:
+        release, self._release = self._release, None
+        return release
+
+    def abandon_if_not_started(self) -> None:
+        with self._lock:
+            if self._started or self._abandoned:
+                return
+            self._abandoned = True
+            release = self._take_release()
+        if release is not None:
+            release()
+
+    def outcome_may_be_unknown(self, error: BaseException) -> bool:
+        """Separate an undelivered worker result from the actual body exception."""
+        with self._lock:
+            return self._started and self._body_error is not error
+
+    def run[T](self, fn: Callable[[], T]) -> T:
+        with self._lock:
+            if self._abandoned:
+                raise RuntimeError("physical_resource_call_abandoned")
+            self._started = True
+        try:
+            result = fn()
+        except BaseException as primary:
+            with self._lock:
+                self._body_error = primary
+                release = self._take_release()
+            if release is not None:
+                try:
+                    release()
+                except BaseException as cleanup:
+                    primary.add_note("Physical resource release failed after node interruption")
+                    raise primary from cleanup
+            raise
+        with self._lock:
+            release = self._take_release()
+        if release is not None:
+            try:
+                release()
+            except BaseException as cleanup:
+                raise _WorkerOutcomeUnknown(
+                    "physical_resource_release_after_completion_failed"
+                ) from cleanup
+        return result
+
+
+async def _run_pinned_callable[T](
+    fn: Callable[[], T],
+    pin: Callable[[], Callable[[], None]],
+) -> T:
+    """Cancel before start safely; a running worker owns the release."""
+    admission = _PinnedPhysicalCall(pin())
+    try:
+        return await run_blocking_async(admission.run, fn, unbounded=True)
+    except BaseException as primary:
+        try:
+            admission.abandon_if_not_started()
+        except BaseException as cleanup:
+            primary.add_note("Physical resource release failed during cancellation")
+            raise primary from cleanup
+        if not isinstance(primary, asyncio.CancelledError) and admission.outcome_may_be_unknown(
+            primary
+        ):
+            raise _WorkerOutcomeUnknown("physical_worker_result_not_established") from primary
+        raise
+    finally:
+        admission.abandon_if_not_started()
+
+
+async def _run_pinned_blocking(
+    node: Any,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    pin: Callable[[], Callable[[], None]],
+) -> NodeOutcome:
+    return await _run_pinned_callable(lambda: _execute_capture_failure(node, ctx, state), pin)
+
+
 async def execute_with_retry_async(
     node: Any,
     ctx: ExecutionContext,
@@ -3940,6 +5163,8 @@ async def execute_with_retry_async(
     attempt_started: Callable[[int, ExperimentState], Awaitable[str]] | None = None,
     attempt_completed: Callable[[str, NodeOutcome | None], Awaitable[None]] | None = None,
     attempt_context: Callable[[str], ExecutionContext] | None = None,
+    attempt_admission: Callable[[], Awaitable[None]] | None = None,
+    physical_resource_pin: Callable[[], Callable[[], None]] | None = None,
 ) -> NodeOutcome:
     """Async retry wrapper for ``AsyncWorkflowExecutor``.
 
@@ -3966,8 +5191,117 @@ async def execute_with_retry_async(
         attempt_ctx: ExecutionContext,
     ) -> NodeOutcome:
         remaining = _remaining_deadline(deadline)
+        node_type = type(node)
+        if (
+            node_type.__module__ == "polisyos.scientist.orchestration.engine.child_workflow"
+            and node_type.__name__ == "_ManagedSubWorkflowDispatch"
+        ):
+            from polisyos.scientist.orchestration.engine.child_workflow import (
+                _ManagedSubWorkflowDispatch,
+            )
+            from polisyos.scientist.orchestration.engine.context import (
+                ExecutionContext,
+                _EngineInvocationBinding,
+            )
+
+            if node_type is _ManagedSubWorkflowDispatch:
+                if physical_resource_pin is not None:
+                    raise _timeout_worker_unsupported(
+                        "prepared_managed_child_lifetime_not_established"
+                    )
+                binding = (
+                    attempt_ctx._engine_invocation
+                    if isinstance(attempt_ctx, ExecutionContext)
+                    else None
+                )
+                if deadline is not None:
+                    raise _timeout_worker_unsupported("managed_child_async_profile_unsupported")
+                if has_job_execution_scope():
+                    return NodeOutcome(
+                        status="fail",
+                        state=attempt_state,
+                        error=NodeError(
+                            code="sub_workflow.control_job_fence_not_established",
+                            message="Managed child execution is not admitted under a job owner scope.",
+                            category=ErrorCategory.FATAL,
+                        ),
+                    )
+                if (
+                    isinstance(binding, _EngineInvocationBinding)
+                    and binding.settlement_view is not None
+                ):
+                    return NodeOutcome(
+                        status="fail",
+                        state=attempt_state,
+                        error=NodeError(
+                            code="sub_workflow.child_budget_settlement_not_established",
+                            message="Managed child budget settlement is not established.",
+                            category=ErrorCategory.FATAL,
+                        ),
+                    )
+                raise_if_job_execution_interrupted(check_current_owner=True)
+                authority = _AttemptAuthority()
+                guarded_ctx = _build_attempt_context(attempt_ctx, authority)
+                try:
+                    return _require_node_outcome(
+                        await node.execute_managed_async(
+                            _node_facing_context(guarded_ctx), attempt_state
+                        )
+                    )
+                finally:
+                    authority.revoke()
+        if _has_async and physical_resource_pin is not None:
+            raise _timeout_worker_unsupported("prepared_async_resource_lifetime_not_established")
         if _has_async:
             if remaining is None:
+                from polisyos.scientist.orchestration.engine.context import (
+                    ExecutionContext,
+                    _EngineInvocationBinding,
+                )
+
+                binding = (
+                    attempt_ctx._engine_invocation
+                    if isinstance(attempt_ctx, ExecutionContext)
+                    else None
+                )
+                if (
+                    isinstance(binding, _EngineInvocationBinding)
+                    and binding.settlement_view is not None
+                ):
+                    authority = _AttemptAuthority()
+                    guarded_ctx = _build_attempt_context(attempt_ctx, authority)
+                    guarded_state = attempt_state.model_copy(deep=True)
+
+                    async def invoke_guarded() -> NodeOutcome:
+                        raise_if_job_execution_interrupted(check_current_owner=True)
+                        before = _spend_snapshot(guarded_state)
+                        try:
+                            return _require_node_outcome(
+                                await node.execute_async(
+                                    _node_facing_context(guarded_ctx), guarded_state
+                                )
+                            )
+                        except NodeTimeoutError:
+                            raise
+                        except _RETRY_RUNTIME_ERRORS as exc:
+                            raise _CompletedAttemptError(
+                                exc,
+                                _spend_changes(before, _spend_snapshot(guarded_state)),
+                                non_run_after=_non_run_spend_snapshot(guarded_state),
+                            ) from exc
+
+                    task = asyncio.create_task(invoke_guarded())
+                    try:
+                        return await asyncio.shield(task)
+                    except BaseException:
+                        authority.revoke()
+                        if not task.done():
+                            task.add_done_callback(_consume_finished_task)
+                            task.cancel()
+                        raise
+                    finally:
+                        authority.revoke()
+                raise_if_job_execution_interrupted(check_current_owner=True)
                 return _require_node_outcome(
                     await node.execute_async(_node_facing_context(attempt_ctx), attempt_state)
                 )
@@ -3979,6 +5313,8 @@ async def execute_with_retry_async(
                 deadline_monotonic=deadline,
             )
         if remaining is not None:
+            if physical_resource_pin is not None:
+                raise _timeout_worker_unsupported("prepared_resource_not_transportable")
             if _timeout_worker_start_method() is not None:
                 return await _execute_with_timeout_process_async(
                     node,
@@ -4002,86 +5338,367 @@ async def execute_with_retry_async(
         worker_ctx = _build_attempt_context(attempt_ctx, authority)
         worker_state = attempt_state.model_copy(deep=True)
         try:
+            if physical_resource_pin is not None:
+                return await _run_pinned_blocking(
+                    node, worker_ctx, worker_state, physical_resource_pin
+                )
             return await run_blocking_async(
                 _execute_capture_failure, node, worker_ctx, worker_state, unbounded=True
             )
         finally:
             authority.revoke()
 
+    baseline_spend = _spend_snapshot(state)
+    baseline_non_run = _non_run_spend_snapshot(state)
+    known_completed_spend: dict[str, Decimal] = {}
+
     # Fast path
     if retry_policy.max_retries == 0 and deadline is None and circuit_breaker is None:
-        if retry_stats is not None:
-            retry_stats["attempts"] = 1
-        attempt_id = await _begin_invocation_attempt_async(
-            attempt_started,
-            attempt_number=1,
-            state=state,
-        )
         try:
-            attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
-            outcome = await _invoke(state, attempt_ctx)
-        except _CompletedAttemptError as exc:
-            await _finish_invocation_attempt_async(
-                attempt_completed,
-                attempt_id=attempt_id,
-                outcome=None,
+            if retry_stats is not None:
+                retry_stats["attempts"] = 1
+            if attempt_admission is not None:
+                await attempt_admission()
+            attempt_id = await _begin_invocation_attempt_async(
+                attempt_started,
+                attempt_number=1,
+                state=state,
             )
-            _merge_spend(state, exc.known_spend)
-            raise exc.error from None
-        except BaseException:
-            await _finish_invocation_attempt_async(
-                attempt_completed,
-                attempt_id=attempt_id,
-                outcome=None,
-            )
+            strict_view = None
+            completion_baseline = state
+            strict_before = None
+            try:
+                attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
+                strict_view = _issued_settlement_view(attempt_ctx)
+                completion_baseline = (
+                    state.model_copy(deep=True) if strict_view is not None else state
+                )
+                strict_before = (
+                    _confirmed_view_spend(strict_view) if strict_view is not None else None
+                )
+                if strict_before is not None:
+                    baseline_spend["run_spent_usd"] = strict_before
+                outcome = await _invoke(state, attempt_ctx)
+                raise_if_job_execution_interrupted(check_current_owner=True)
+                completed_spend = _spend_changes(baseline_spend, _spend_snapshot(outcome.state))
+                if strict_view is not None and strict_before is not None:
+                    strict_after = _acknowledged_view_spend(strict_view, strict_before)
+                    if strict_after < strict_before:
+                        raise ValueError("budget_invocation_confirmed_spend_regressed")
+                    completed_spend = {"run_spent_usd": strict_after - strict_before}
+                    _accumulate_spend(known_completed_spend, completed_spend)
+                    _require_unchanged_non_run_spend(
+                        baseline_non_run, _non_run_spend_snapshot(outcome.state)
+                    )
+                    outcome.state.budgets["run_spent_usd"] = strict_after
+                else:
+                    _accumulate_spend(known_completed_spend, completed_spend)
+            except _SettlementProofNotEstablished as proof:
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+                await _finish_unverified_async(proof, attempt_completed, attempt_id)
+            except ChildOutcomeUnknownError as unknown:
+                if strict_view is not None and strict_before is not None:
+                    _accumulate_spend(
+                        known_completed_spend,
+                        {
+                            "run_spent_usd": _known_unknown_view_spend(
+                                strict_view, strict_before, unknown
+                            )
+                        },
+                    )
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+                try:
+                    await _finish_invocation_attempt_async(
+                        attempt_completed, attempt_id=attempt_id, outcome=None
+                    )
+                except BaseException as finalization_error:
+                    unknown.add_note(
+                        "Attempt finalization failed after child outcome became unknown"
+                    )
+                    raise unknown from finalization_error
+                raise
+            except _CompletedAttemptError as exc:
+                completed_spend = exc.known_spend.copy()
+                if strict_view is not None and strict_before is not None:
+                    if _has_unknown_outcome(exc):
+                        completed_spend = {
+                            "run_spent_usd": _known_unknown_view_spend(
+                                strict_view, strict_before, exc.error
+                            )
+                        }
+                    else:
+                        try:
+                            strict_after = _acknowledged_view_spend(strict_view, strict_before)
+                        except _SettlementProofNotEstablished as proof:
+                            _project_completed_spend(state, baseline_spend, known_completed_spend)
+                            await _finish_unverified_async(proof, attempt_completed, attempt_id)
+                        if strict_after < strict_before:
+                            raise ValueError("budget_invocation_confirmed_spend_regressed")
+                        completed_spend = {"run_spent_usd": strict_after - strict_before}
+                    _accumulate_spend(known_completed_spend, completed_spend)
+                    if not _has_unknown_outcome(exc):
+                        try:
+                            _require_unchanged_non_run_spend(
+                                baseline_non_run,
+                                exc.non_run_after
+                                if exc.non_run_after is not None
+                                else _non_run_spend_snapshot(state),
+                            )
+                        except _SettlementProofNotEstablished as proof:
+                            _project_completed_spend(state, baseline_spend, known_completed_spend)
+                            await _finish_unverified_async(proof, attempt_completed, attempt_id)
+                else:
+                    _accumulate_spend(known_completed_spend, completed_spend)
+                try:
+                    completion = _typed_failure_completion(
+                        exc.error, strict_view, strict_before, completion_baseline
+                    )
+                    await _finish_invocation_attempt_async(
+                        attempt_completed,
+                        attempt_id=attempt_id,
+                        outcome=completion,
+                    )
+                except _SettlementProofNotEstablished as proof:
+                    _project_completed_spend(state, baseline_spend, known_completed_spend)
+                    await _finish_unverified_async(proof, attempt_completed, attempt_id)
+                except BaseException as finalization_error:
+                    if _has_unknown_outcome(exc):
+                        _project_completed_spend(state, baseline_spend, known_completed_spend)
+                        exc.error.add_note(
+                            "Attempt finalization failed after outcome became unknown"
+                        )
+                        raise exc.error from finalization_error
+                    raise
+                if strict_view is not None:
+                    _project_completed_spend(state, baseline_spend, known_completed_spend)
+                else:
+                    _merge_spend(state, completed_spend)
+                raise exc.error from None
+            except asyncio.CancelledError as cancelled:
+                if strict_view is not None and strict_before is not None:
+                    _accumulate_spend(
+                        known_completed_spend,
+                        {
+                            "run_spent_usd": _known_unknown_view_spend(
+                                strict_view, strict_before, cancelled
+                            )
+                        },
+                    )
+                try:
+                    await _finish_invocation_attempt_async(
+                        attempt_completed, attempt_id=attempt_id, outcome=None
+                    )
+                except BaseException as finalization_error:
+                    cancelled.add_note(
+                        "Attempt finalization was interrupted or failed during cancellation"
+                    )
+                    _logger.warning(
+                        "Attempt finalization failed during cancellation", exc_info=True
+                    )
+                    raise cancelled from finalization_error
+                raise
+            except _RETRY_RUNTIME_ERRORS as exc:
+                if strict_view is None and not _has_unknown_outcome(exc):
+                    _accumulate_spend(
+                        known_completed_spend,
+                        _spend_changes(baseline_spend, _spend_snapshot(state)),
+                    )
+                try:
+                    completion = _typed_failure_completion(
+                        exc, strict_view, strict_before, completion_baseline
+                    )
+                    await _finish_invocation_attempt_async(
+                        attempt_completed,
+                        attempt_id=attempt_id,
+                        outcome=completion,
+                    )
+                except _SettlementProofNotEstablished as proof:
+                    _project_completed_spend(state, baseline_spend, known_completed_spend)
+                    await _finish_unverified_async(proof, attempt_completed, attempt_id)
+                except BaseException as finalization_error:
+                    if _has_unknown_outcome(exc):
+                        _project_completed_spend(state, baseline_spend, known_completed_spend)
+                        exc.add_note("Attempt finalization failed after outcome became unknown")
+                        raise exc from finalization_error
+                    raise
+                raise
+            except BaseException as error:
+                if strict_view is not None and strict_before is not None:
+                    _accumulate_spend(
+                        known_completed_spend,
+                        {
+                            "run_spent_usd": _known_unknown_view_spend(
+                                strict_view, strict_before, error
+                            )
+                        },
+                    )
+                    _project_completed_spend(state, baseline_spend, known_completed_spend)
+                await _finish_base_error_async(error, attempt_completed, attempt_id)
+            try:
+                await _finish_invocation_attempt_async(
+                    attempt_completed,
+                    attempt_id=attempt_id,
+                    outcome=outcome if isinstance(outcome, NodeOutcome) else None,
+                )
+            except BaseException:
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+                raise
+            return outcome
+        except asyncio.CancelledError:
+            _project_completed_spend(state, baseline_spend, known_completed_spend)
             raise
-        await _finish_invocation_attempt_async(
-            attempt_completed,
-            attempt_id=attempt_id,
-            outcome=outcome if isinstance(outcome, NodeOutcome) else None,
-        )
-        return outcome
 
     last_outcome: NodeOutcome | None = None
     failed_spend: dict[str, Decimal] = {}
+    strict_profile = False
     node_id = str((getattr(node, "spec", None) and node.spec.metadata.component_id) or alias)
 
-    for attempt in range(retry_policy.max_retries + 1):
-        try:
-            _remaining_deadline(deadline)
-        except NodeTimeoutError:
+    def settle_failed_spend(attempt_state: ExperimentState) -> None:
+        if strict_profile or attempt_state is state:
+            _project_completed_spend(state, baseline_spend, known_completed_spend)
+        else:
             _merge_spend(state, failed_spend)
-            raise
-        # Circuit breaker check
-        if circuit_breaker is not None and not circuit_breaker.allow_request():
-            raise CircuitBreakerOpenError(
-                f"Circuit breaker '{circuit_breaker.name}' is open for node {alias}",
+
+    try:
+        for attempt in range(retry_policy.max_retries + 1):
+            try:
+                _remaining_deadline(deadline)
+            except NodeTimeoutError:
+                if strict_profile:
+                    _project_completed_spend(state, baseline_spend, known_completed_spend)
+                else:
+                    _merge_spend(state, failed_spend)
+                raise
+            # Circuit breaker check
+            if circuit_breaker is not None and not circuit_breaker.allow_request():
+                raise CircuitBreakerOpenError(
+                    f"Circuit breaker '{circuit_breaker.name}' is open for node {alias}",
+                )
+
+            if attempt_admission is not None:
+                try:
+                    await attempt_admission()
+                except BaseException:
+                    _project_completed_spend(state, baseline_spend, known_completed_spend)
+                    raise
+            attempt_state = (
+                _fresh_retry_state(state, node) if retry_policy.max_retries > 0 else state
             )
 
-        attempt_state = _fresh_retry_state(state, node) if retry_policy.max_retries > 0 else state
-        attempt_id = await _begin_invocation_attempt_async(
-            attempt_started,
-            attempt_number=attempt + 1,
-            state=attempt_state,
-        )
-        attempt_recorded = False
-        attempt_dispatch_basis_ref: ArtifactRef | None = None
-        try:
-            attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
-            attempt_dispatch_basis_ref = _attempt_dispatch_basis_ref(attempt_ctx)
-            outcome = await _invoke(attempt_state, attempt_ctx)
-
+            attempt_baseline = _spend_snapshot(attempt_state)
+            non_run_before = _non_run_spend_snapshot(attempt_state)
+            attempt_id = await _begin_invocation_attempt_async(
+                attempt_started,
+                attempt_number=attempt + 1,
+                state=attempt_state,
+            )
+            attempt_recorded = False
+            completed_attempt_spend: dict[str, Decimal] | None = None
+            failed_attempt_spend_recorded = False
+            attempt_dispatch_basis_ref: ArtifactRef | None = None
+            strict_view = None
+            completion_baseline = state
+            strict_before = None
             try:
-                _remaining_deadline(deadline, execution_state="completed_publication_rejected")
-            except NodeTimeoutError:
-                _accumulate_spend(failed_spend, _spend_delta(state, outcome.state))
-                raise
-            if outcome.status != "fail":
-                _merge_spend(outcome.state, failed_spend)
+                attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
+                attempt_dispatch_basis_ref = _attempt_dispatch_basis_ref(attempt_ctx)
+                strict_view = _issued_settlement_view(attempt_ctx)
+                completion_baseline = (
+                    state.model_copy(deep=True) if strict_view is not None else state
+                )
+                strict_before = (
+                    _confirmed_view_spend(strict_view) if strict_view is not None else None
+                )
+                if strict_before is not None:
+                    if not strict_profile:
+                        baseline_spend["run_spent_usd"] = strict_before
+                    strict_profile = True
+                outcome = await _invoke(attempt_state, attempt_ctx)
+                raise_if_job_execution_interrupted(check_current_owner=True)
+                candidate_spend = _spend_changes(attempt_baseline, _spend_snapshot(outcome.state))
+                if strict_view is not None and strict_before is not None:
+                    strict_after = _acknowledged_view_spend(strict_view, strict_before)
+                    if strict_after < strict_before:
+                        raise ValueError("budget_invocation_confirmed_spend_regressed")
+                    completed_attempt_spend = {"run_spent_usd": strict_after - strict_before}
+                    _accumulate_spend(known_completed_spend, completed_attempt_spend)
+                    _require_unchanged_non_run_spend(
+                        non_run_before, _non_run_spend_snapshot(outcome.state)
+                    )
+                    outcome.state.budgets["run_spent_usd"] = strict_after
+                else:
+                    completed_attempt_spend = candidate_spend
+                    _accumulate_spend(known_completed_spend, completed_attempt_spend)
+
+                try:
+                    _remaining_deadline(deadline, execution_state="completed_publication_rejected")
+                except NodeTimeoutError:
+                    _accumulate_spend(
+                        failed_spend,
+                        completed_attempt_spend
+                        if strict_view is not None
+                        else _spend_delta(state, outcome.state),
+                    )
+                    raise
+                if outcome.status != "fail":
+                    _merge_failed_spend_for_outcome(
+                        outcome, failed_spend, strict=strict_view is not None
+                    )
+                    if circuit_breaker is not None:
+                        circuit_breaker.record_success()
+                    if retry_stats is not None:
+                        retry_stats["attempts"] = attempt + 1
+                    await _finish_invocation_attempt_async(
+                        attempt_completed,
+                        attempt_id=attempt_id,
+                        outcome=outcome,
+                    )
+                    attempt_recorded = True
+                    return outcome
+
                 if circuit_breaker is not None:
-                    circuit_breaker.record_success()
+                    circuit_breaker.record_failure()
+
+                if attempt < retry_policy.max_retries and _should_retry(
+                    outcome.error, retry_policy
+                ):
+                    attempt_spend = (
+                        completed_attempt_spend
+                        if strict_view is not None
+                        else _spend_delta(state, outcome.state)
+                    )
+                    _accumulate_spend(failed_spend, attempt_spend)
+                    failed_attempt_spend_recorded = True
+                    last_outcome = outcome
+                    await _finish_invocation_attempt_async(
+                        attempt_completed,
+                        attempt_id=attempt_id,
+                        outcome=outcome,
+                    )
+                    attempt_recorded = True
+                    delay = _backoff_delay(attempt, retry_policy)
+                    _logger.info(
+                        "Retrying node %s (attempt %d/%d) after %.1fs",
+                        alias,
+                        attempt + 1,
+                        retry_policy.max_retries,
+                        delay,
+                    )
+                    _emit_retry_event(
+                        ctx,
+                        alias,
+                        attempt=attempt + 1,
+                        delay=delay,
+                        spend=attempt_spend,
+                    )
+                    await _retry_delay_async(delay, deadline)
+                    continue
+
                 if retry_stats is not None:
                     retry_stats["attempts"] = attempt + 1
+                _merge_failed_spend_for_outcome(
+                    outcome, failed_spend, strict=strict_view is not None
+                )
                 await _finish_invocation_attempt_async(
                     attempt_completed,
                     attempt_id=attempt_id,
@@ -4090,155 +5707,243 @@ async def execute_with_retry_async(
                 attempt_recorded = True
                 return outcome
 
-            if circuit_breaker is not None:
-                circuit_breaker.record_failure()
-
-            if attempt < retry_policy.max_retries and _should_retry(outcome.error, retry_policy):
-                attempt_spend = _spend_delta(state, outcome.state)
-                _accumulate_spend(failed_spend, attempt_spend)
-                last_outcome = outcome
-                await _finish_invocation_attempt_async(
-                    attempt_completed,
-                    attempt_id=attempt_id,
-                    outcome=outcome,
+            except _SettlementProofNotEstablished as proof:
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+                await _finish_unverified_async(
+                    proof, None if attempt_recorded else attempt_completed, attempt_id
                 )
-                attempt_recorded = True
-                delay = _backoff_delay(attempt, retry_policy)
-                _logger.info(
-                    "Retrying node %s (attempt %d/%d) after %.1fs",
-                    alias,
-                    attempt + 1,
-                    retry_policy.max_retries,
-                    delay,
-                )
-                _emit_retry_event(
-                    ctx,
-                    alias,
-                    attempt=attempt + 1,
-                    delay=delay,
-                    spend=attempt_spend,
-                )
-                await _retry_delay_async(delay, deadline)
-                continue
-
-            if retry_stats is not None:
-                retry_stats["attempts"] = attempt + 1
-            _merge_spend(outcome.state, failed_spend)
-            await _finish_invocation_attempt_async(
-                attempt_completed,
-                attempt_id=attempt_id,
-                outcome=outcome,
-            )
-            attempt_recorded = True
-            return outcome
-
-        except NodeTimeoutError:
-            if not attempt_recorded:
-                await _finish_invocation_attempt_async(
-                    attempt_completed,
-                    attempt_id=attempt_id,
-                    outcome=None,
-                )
-            _merge_spend(state, failed_spend)
-            raise
-        except CircuitBreakerOpenError:
-            if not attempt_recorded:
-                await _finish_invocation_attempt_async(
-                    attempt_completed,
-                    attempt_id=attempt_id,
-                    outcome=None,
-                )
-            raise
-        except asyncio.CancelledError:
-            if not attempt_recorded:
-                await _finish_invocation_attempt_async(
-                    attempt_completed,
-                    attempt_id=attempt_id,
-                    outcome=None,
-                )
-            _logger.info("Node %s cancelled during attempt %d", alias, attempt)
-            raise
-        except _InvocationAttemptPersistenceError:
-            raise
-        except _RETRY_RUNTIME_ERRORS as exc:
-            if not attempt_recorded:
-                await _finish_invocation_attempt_async(
-                    attempt_completed,
-                    attempt_id=attempt_id,
-                    outcome=None,
-                )
-            original_error = exc.error if isinstance(exc, _CompletedAttemptError) else exc
-            captured_spend = (
-                exc.known_spend
-                if isinstance(exc, (_CompletedAttemptError, _WorkerNodeError))
-                else None
-            )
-            attempt_spend = (
-                captured_spend if captured_spend is not None else _spend_delta(state, attempt_state)
-            )
-            _accumulate_spend(failed_spend, attempt_spend)
-            try:
-                _remaining_deadline(
-                    deadline, execution_state="completed_error_publication_rejected"
-                )
-            except NodeTimeoutError:
-                _merge_spend(state, failed_spend)
-                raise
-            if circuit_breaker is not None:
-                circuit_breaker.record_failure()
-            if attempt < retry_policy.max_retries and _should_retry_exception(
-                exc,
-                retry_policy,
-            ):
-                delay = _backoff_delay(attempt, retry_policy)
-                _logger.info(
-                    "Retrying node %s after exception (attempt %d/%d): %s",
-                    alias,
-                    attempt + 1,
-                    retry_policy.max_retries,
-                    exc,
-                )
-                _emit_retry_event(
-                    ctx,
-                    alias,
-                    attempt=attempt + 1,
-                    delay=delay,
-                    spend=attempt_spend,
-                )
+            except ChildOutcomeUnknownError as unknown:
+                if strict_view is not None and strict_before is not None:
+                    _accumulate_spend(
+                        known_completed_spend,
+                        {
+                            "run_spent_usd": _known_unknown_view_spend(
+                                strict_view, strict_before, unknown
+                            )
+                        },
+                    )
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
                 try:
-                    await _retry_delay_async(delay, deadline)
+                    if not attempt_recorded:
+                        await _finish_invocation_attempt_async(
+                            attempt_completed, attempt_id=attempt_id, outcome=None
+                        )
+                except BaseException as finalization_error:
+                    unknown.add_note(
+                        "Attempt finalization failed after child outcome became unknown"
+                    )
+                    raise unknown from finalization_error
+                raise
+            except NodeTimeoutError:
+                if not attempt_recorded:
+                    await _finish_invocation_attempt_async(
+                        attempt_completed,
+                        attempt_id=attempt_id,
+                        outcome=None,
+                    )
+                settle_failed_spend(attempt_state)
+                raise
+            except CircuitBreakerOpenError:
+                if not attempt_recorded:
+                    await _finish_invocation_attempt_async(
+                        attempt_completed,
+                        attempt_id=attempt_id,
+                        outcome=None,
+                    )
+                raise
+            except asyncio.CancelledError as cancelled:
+                if (
+                    strict_view is not None
+                    and strict_before is not None
+                    and completed_attempt_spend is None
+                ):
+                    _accumulate_spend(
+                        known_completed_spend,
+                        {
+                            "run_spent_usd": _known_unknown_view_spend(
+                                strict_view, strict_before, cancelled
+                            )
+                        },
+                    )
+                try:
+                    if not attempt_recorded:
+                        await _finish_invocation_attempt_async(
+                            attempt_completed,
+                            attempt_id=attempt_id,
+                            outcome=None,
+                        )
+                except BaseException as finalization_error:
+                    cancelled.add_note(
+                        "Attempt finalization was interrupted or failed during cancellation"
+                    )
+                    _logger.warning(
+                        "Attempt finalization failed during cancellation", exc_info=True
+                    )
+                    raise cancelled from finalization_error
+                _logger.info("Node %s cancelled during attempt %d", alias, attempt)
+                raise
+            except _InvocationAttemptPersistenceError:
+                raise
+            except _RETRY_RUNTIME_ERRORS as exc:
+                original_error = exc.error if isinstance(exc, _CompletedAttemptError) else exc
+                captured_spend = (
+                    exc.known_spend
+                    if isinstance(exc, (_CompletedAttemptError, _WorkerNodeError))
+                    else None
+                )
+                if completed_attempt_spend is None:
+                    candidate_spend = (
+                        captured_spend.copy()
+                        if captured_spend is not None
+                        else _spend_changes(attempt_baseline, _spend_snapshot(attempt_state))
+                    )
+                    if strict_view is not None and strict_before is not None:
+                        if _has_unknown_outcome(exc):
+                            amount = _known_unknown_view_spend(
+                                strict_view, strict_before, original_error
+                            )
+                        else:
+                            try:
+                                strict_after = _acknowledged_view_spend(strict_view, strict_before)
+                            except _SettlementProofNotEstablished as proof:
+                                _project_completed_spend(
+                                    state, baseline_spend, known_completed_spend
+                                )
+                                await _finish_unverified_async(
+                                    proof,
+                                    None if attempt_recorded else attempt_completed,
+                                    attempt_id,
+                                )
+                            if strict_after < strict_before:
+                                raise ValueError("budget_invocation_confirmed_spend_regressed")
+                            amount = strict_after - strict_before
+                        completed_attempt_spend = {"run_spent_usd": amount}
+                        _accumulate_spend(known_completed_spend, completed_attempt_spend)
+                        try:
+                            _require_unchanged_non_run_spend(
+                                non_run_before,
+                                exc.non_run_after
+                                if isinstance(exc, _CompletedAttemptError)
+                                and exc.non_run_after is not None
+                                else _non_run_spend_snapshot(attempt_state),
+                            )
+                        except _SettlementProofNotEstablished as proof:
+                            _project_completed_spend(state, baseline_spend, known_completed_spend)
+                            await _finish_unverified_async(
+                                proof, None if attempt_recorded else attempt_completed, attempt_id
+                            )
+                    else:
+                        completed_attempt_spend = candidate_spend
+                        _accumulate_spend(known_completed_spend, completed_attempt_spend)
+                attempt_spend = completed_attempt_spend
+                if not failed_attempt_spend_recorded:
+                    _accumulate_spend(failed_spend, attempt_spend)
+                if not attempt_recorded:
+                    try:
+                        completion = _typed_failure_completion(
+                            original_error, strict_view, strict_before, completion_baseline
+                        )
+                        await _finish_invocation_attempt_async(
+                            attempt_completed,
+                            attempt_id=attempt_id,
+                            outcome=completion,
+                        )
+                    except _SettlementProofNotEstablished as proof:
+                        _project_completed_spend(state, baseline_spend, known_completed_spend)
+                        await _finish_unverified_async(
+                            proof, None if attempt_recorded else attempt_completed, attempt_id
+                        )
+                    except BaseException as finalization_error:
+                        if _has_unknown_outcome(exc):
+                            settle_failed_spend(attempt_state)
+                            original_error.add_note(
+                                "Attempt finalization failed after outcome became unknown"
+                            )
+                            raise original_error from finalization_error
+                        raise
+                try:
+                    _remaining_deadline(
+                        deadline, execution_state="completed_error_publication_rejected"
+                    )
                 except NodeTimeoutError:
-                    _merge_spend(state, failed_spend)
+                    settle_failed_spend(attempt_state)
                     raise
-                continue
+                if circuit_breaker is not None:
+                    circuit_breaker.record_failure()
+                if attempt < retry_policy.max_retries and _should_retry_exception(
+                    exc,
+                    retry_policy,
+                ):
+                    delay = _backoff_delay(attempt, retry_policy)
+                    _logger.info(
+                        "Retrying node %s after exception (attempt %d/%d): %s",
+                        alias,
+                        attempt + 1,
+                        retry_policy.max_retries,
+                        exc,
+                    )
+                    _emit_retry_event(
+                        ctx,
+                        alias,
+                        attempt=attempt + 1,
+                        delay=delay,
+                        spend=attempt_spend,
+                    )
+                    try:
+                        await _retry_delay_async(delay, deadline)
+                    except NodeTimeoutError:
+                        settle_failed_spend(attempt_state)
+                        raise
+                    continue
 
-            if retry_stats is not None:
-                retry_stats["attempts"] = attempt + 1
-            _merge_spend(state, failed_spend)
-            dlq_ref = _persist_dead_letter(
-                ctx,
-                alias,
-                node_id,
-                original_error,
-                attempts=attempt + 1,
-                policy=retry_policy,
-                dispatch_params=dispatch_params,
-                dispatch_basis_ref=attempt_dispatch_basis_ref,
-            )
-            if dlq_ref is not None:
-                _emit_dead_letter_event(
+                if retry_stats is not None:
+                    retry_stats["attempts"] = attempt + 1
+                settle_failed_spend(attempt_state)
+                dlq_ref = _persist_dead_letter(
                     ctx,
                     alias,
-                    attempt=attempt + 1,
-                    output=dlq_ref,
-                    spend=failed_spend,
+                    node_id,
+                    original_error,
+                    attempts=attempt + 1,
+                    policy=retry_policy,
+                    dispatch_params=dispatch_params,
+                    dispatch_basis_ref=attempt_dispatch_basis_ref,
                 )
-            raise RetryExhaustedError(
-                f"Node {alias}: all {retry_policy.max_retries} retries exhausted",
-            ) from original_error
+                if dlq_ref is not None:
+                    _emit_dead_letter_event(
+                        ctx,
+                        alias,
+                        attempt=attempt + 1,
+                        output=dlq_ref,
+                        spend=failed_spend,
+                    )
+                raise RetryExhaustedError(
+                    f"Node {alias}: all {retry_policy.max_retries} retries exhausted",
+                ) from original_error
+            except BaseException as error:
+                if (
+                    strict_view is not None
+                    and strict_before is not None
+                    and completed_attempt_spend is None
+                ):
+                    _accumulate_spend(
+                        known_completed_spend,
+                        {
+                            "run_spent_usd": _known_unknown_view_spend(
+                                strict_view, strict_before, error
+                            )
+                        },
+                    )
+                _project_completed_spend(state, baseline_spend, known_completed_spend)
+                await _finish_base_error_async(
+                    error, None if attempt_recorded else attempt_completed, attempt_id
+                )
 
-    if last_outcome is not None:  # pragma: no cover
-        return last_outcome
-    raise RetryExhaustedError(  # pragma: no cover
-        f"Node {alias}: all retries exhausted",
-    )
+        if last_outcome is not None:  # pragma: no cover
+            return last_outcome
+        raise RetryExhaustedError(  # pragma: no cover
+            f"Node {alias}: all retries exhausted",
+        )
+    except asyncio.CancelledError:
+        _project_completed_spend(state, baseline_spend, known_completed_spend)
+        raise

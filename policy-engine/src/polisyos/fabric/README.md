@@ -311,3 +311,35 @@ Source collection and partial source-scope evidence projections reuse the privat
 `ingestion/_source_evidence_schema.py` helper. They preserve the selected persisted
 manifest's typed `artifact_schema` and refuse a missing schema before derived writes;
 this check does not establish source provenance or currentness.
+
+## Dataset manifest format compatibility
+
+`identity.migrations.migrate_manifest_0_9_to_1_0` retains the finite 0.9 alias
+rename contract. It mutates/returns its input without stamping the version;
+Common's public migration engine deep-copies caller data and stamps the selected
+edge. The canonical migration CLI binds its Fabric converter per call through
+`selected_edges`, avoiding shared-registry replacement between concurrent calls.
+An explicit Fabric registration API and the deprecated explicit-import Common
+adapter remain available; generic Common imports do not initialize Fabric.
+The adapter is retained because no external-caller retirement window is established.
+
+Conversion remains format-only. Complete converted JSON can be read by the
+native `ManifestRegistry`; conflicting/equal duplicate aliases and unknown fields
+remain visible and fail its strict DTO admission. Absent hashes/timestamps are
+not manufactured by conversion. A DTO's current-clock timestamp default is not
+historical source provenance, and reconciliation eligibility is checked by
+`ManifestRegistry.require` separately from parse success. The finite synthetic
+profile matrix covers these distinctions, JSON/YAML registered CLI conversion
+and fresh-process registry reads; it does not certify external historical datasets,
+raw contents, license authority, or scientific reuse eligibility. No stricter
+validation mode or new validator is needed by this format-only CLI contract.
+
+## Selected ingestion evidence readers
+
+The ingestion facade exposes the existing selected readers and provenance builder:
+`load_source_evidence_bundle`, `load_provenance_graph`,
+`verify_live_ingestion_evidence_profile`, `build_connector_provenance_graph` and
+`canonicalize_ingestion_scalar`. These are aliases to their canonical owners.
+The graph records declared operations; construction does not verify rights, source
+currency or scientific validity. Consumers still verify the complete selected
+manifest and producer bindings before using an evidence profile.

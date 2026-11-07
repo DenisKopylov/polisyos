@@ -2,7 +2,7 @@
 
 **Status:** occurrence crosswalk preparation only. This is not a v4 evaluation input, source freeze, test receipt, candidate disposition, or G decision.
 
-The full, machine-readable preparation join is retained locally at [`raw/full-id-closeout-preparation/full-id-current-draft.json`](../raw/full-id-closeout-preparation/full-id-current-draft.json) (`path@SHA-256`: `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-closeout-preparation/full-id-current-draft.json@b04812ae40f423c6c5105a9ffa781a0c8830d05c14ad9f5cdfabb2d5fad3f894`, 2,267,749 bytes). It was moved without content change from the crosswalk directory; byte-for-byte and SHA-256 readback matched. The path is ignored by the existing `policy-engine/.gitignore` raw-directory rule. This tracked note retains the decision-useful denominator and source-packet bindings without committing the large derived inventory.
+The full, machine-readable preparation join is retained locally at `raw/full-id-closeout-preparation/full-id-current-draft.json` (`../raw/full-id-closeout-preparation/full-id-current-draft.json`; unavailable in this checkout) (`path@SHA-256`: `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-closeout-preparation/full-id-current-draft.json@b04812ae40f423c6c5105a9ffa781a0c8830d05c14ad9f5cdfabb2d5fad3f894`, 2,267,749 bytes). It was moved without content change from the crosswalk directory; byte-for-byte and SHA-256 readback matched. The path is ignored by the existing `policy-engine/.gitignore` raw-directory rule. This tracked note retains the decision-useful denominator and source-packet bindings without committing the large derived inventory.
 
 ## Source bindings
 

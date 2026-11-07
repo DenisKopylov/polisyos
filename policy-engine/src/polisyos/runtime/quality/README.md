@@ -1,6 +1,6 @@
 # Runtime Quality
 
-- Last updated: 2026-10-17
+- Last updated: 2026-11-03
 
 `polisyos.runtime.quality` owns Policy Design Case runtime-quality artifacts:
 the canonical quality-report role/file/ref map lives in `report_registry.py` so refs, scorecards, and canary assembly share one intake set.
@@ -11,6 +11,46 @@ This package may orchestrate producer-backed signals, but it does not make LLM
 output, corpus stubs, simulations, or historical priors into current evidence
 authority by itself. Those paths remain candidates, caps, context, or replay
 inputs until a producer-owned capability admits them.
+
+## Conditional design-cycle owners
+
+The LANE-01 implementation extends the existing cycle, acquisition and N5
+owners. Current qualification and unfinished integration are recorded in the
+repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
+
+- `generation_cycle.py` owns candidate evaluation attempts, source-basis
+  transitions and current-occurrence projections. A retained historical result
+  and a current decision-front occurrence are separate facts.
+- `candidate_acquisition_action.py` and `candidate_acquisition_source.py` bind
+  candidate-only fetch work to the selected compiler, scope and exact source
+  bytes. They do not issue observed-data passports or source-currentness claims.
+- `candidate_source_basis.py` reopens selected inputs for the existing
+  acquisition-basis comparator. Repeated owner-generated ancestry can be folded
+  only after producer replay; scientific changes and source limitations remain
+  part of the comparison.
+- `candidate_source_reentry_history.py` verifies persisted candidate history
+  without acquiring a current lease or rerunning N5. Current-route admission
+  remains with the acquisition route owner.
+- `acquisition_model_transition.py` replays bounded candidate model/outcome
+  changes through the existing evaluation and N5 owners.
+  `acquisition_evidence_transition.py` distinguishes that supported route from
+  method, constraint and independent-replica work whose verification is absent.
+- `candidate_value_method.py` connects an explicitly selected source-row request
+  to the existing Foundry selector, numerical producer and fresh report verifier.
+  Its candidate result is separate from the conditional N5 projection: simulation
+  samples never become observational rows, and neither result grants publication.
+  Optional outcome conditioning and measurement-unit coordinates remain
+  `candidate_proposed_unverified`; their agreement with user intent is not
+  established by an LLM response. The canonical context owner selects V6 when
+  they are present and preserves them in problem/profile identities and CAS
+  replay. Existing requests keep their frozen V1–V5 projections and bytes.
+- `ncm_numeric_profile.py` builds checked-model numerical error contracts. Such
+  bounds do not establish empirical calibration, source units or causal validity.
+
+New selected references come from the actual writer and are reopened with their
+manifest profile. Historical missing selectors are not repaired from a current
+default view. Generic/configured producers, retained readers and HTTP projections
+must preserve their separate schemas and candidate authority boundaries.
 
 Phase-barrier records remain candidate diagnostics until each required record is
 produced and bound to the current run. The live NL control-job path persists an
@@ -51,6 +91,33 @@ semantic evaluation basis or a retained-evaluation terminal. The admitted source
 occurrence, persisted evaluation identity, eligibility/frontier fence and fresh
 history projection remain distinct. No new currentness or authority is inferred
 by preparing or admitting a limited candidate context.
+
+## Retained candidate N5 results
+
+A completed configured V5 simulation has one numerical read boundary:
+`GenerationSourceRepository._read_candidate_simulation_v5_numerical_output`.
+It reopens the selected execution, input, N4 source, historical context and result,
+then checks world, atom, outcome, receipt and numerical-completion bindings. Both
+normal compiled publication and late-failure preservation consume this reader.
+Core outputs retain all four selected execution/input/source/result references.
+
+The cycle controller keeps a private per-invocation completion slot before the
+value/revision stage. Its advisory error attachment preserves the original
+exception and cause; Control still replays the artifacts and the current worker
+fence before publishing failed-attempt outputs. This does not fabricate a
+completed cycle. Cancellation and ownership loss keep their interruption path.
+
+Fresh RunDetails returns numerical trajectories through the candidate observation
+body. A distinct failed-candidate projection marks `cycle_completed=False` and
+carries only verified N5 facts. The public Core identity is reconciled to its exact
+immutable terminal event, including earlier attempts after a later terminal;
+historical reading requires no current worker lease. Configured and generic
+numerical bodies are sibling contracts with their own fixed purposes. Their
+finite horizon/trajectory validation is shared, while currentness remains
+`not_established` and publication authority stays false. Unknown source-derived
+child-family lineage does not erase an independently verified configured N5
+result, and it is not upgraded by that result. Generic raw artifact downloads
+retain their separate authority admission rules.
 
 ## Selected HTE source content join
 
@@ -141,6 +208,20 @@ Boundary notes:
   corrected, and the persisted fresh-GET verification remains pending.
   This request path is separate from the recourse `InterventionProgram`, which
   remains a distinct estimator input.
+- Persisted N5 numerical results are read through `load_joint_simulation_result`.
+  The reader reconciles the single selected engine decision with the signed
+  receipt and every trajectory identity. N8 and EvalSafety additionally bind the
+  observation's sibling `simulation_ref` to that receipt's content hash; a
+  missing or conflicting sibling refuses consumption. CAS integrity and a valid
+  receipt alone do not establish this join. Fresh readers retain the exact
+  selected manifest profile and existing candidate-only limitations.
+  Fresh state-consumption receipts sign the complete typed projection, including
+  an explicit unknown execution-plan profile, so the live verifier sees the same
+  payload as a fresh reader. Historical signed payload bytes remain unchanged.
+  The common physical-work interruption boundary preserves actual access
+  denials through Core's cause-chain helper; recording a failed invocation does
+  not turn permission failure into partial numerical output. Budget and ordinary
+  numerical interruptions retain their existing typed work observations.
 - `joint_simulation_horizon.py` is the N5 candidate simulation adapter. It resolves
   simultaneous writes before invoking a selected engine. Duplicate writes merge
   only when recursively compared types and values match (including array shape
@@ -1681,6 +1762,15 @@ No source authority, observation admissibility, historical retention, or policy
 publication follows from this join.
 
 ## N4 source context and versioned candidate replay
+
+Candidate-only N4 derives its prompt directly from an admitted selected context
+when that context supplies candidate vocabulary, a selected source profile or an
+intervention substrate. The existing context/content reconciliation still runs.
+It does not first build an unused global credal reference, and reports
+`full_credal_reference_not_consumed` without claiming an L2 vintage or CG1
+admission. Unbound fallback contexts retain their reference path. Grounded N4
+still requires the actual credal reference and CG1 prewarm; this optimization
+cannot turn an unavailable grounding source into an admitted policy candidate.
 
 Bound N4 owners record source-issued stages rather than infer roles from prompt
 keywords. The actual configured Core transformation is bound as one opaque

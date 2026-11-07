@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { isDeepStrictEqual } from "node:util";
 
 import prettier from "prettier";
 import ts from "typescript";
@@ -18,6 +19,35 @@ const LEGACY_TYPE_EXPORT_COMPATIBILITY = Object.freeze([
       pattern: "^sha256:[0-9a-f]{64}$",
       minLength: 71,
       maxLength: 71,
+    }),
+  }),
+  Object.freeze({
+    exportName: "DataSnapshotRef",
+    targetSchemaName: "DataSnapshotRef-Input",
+    expectedSchema: Object.freeze({
+      additionalProperties: false,
+      properties: {
+        artifact_id: { $ref: "#/components/schemas/ArtifactID-Input" },
+        kind: {
+          default: "fabric.data_snapshot",
+          title: "Kind",
+          type: "string",
+        },
+        manifest_profile_sha256: {
+          anyOf: [
+            { pattern: "^sha256:[0-9a-f]{64}$", type: "string" },
+            { type: "null" },
+          ],
+          title: "Manifest Profile Sha256",
+        },
+        media_type: {
+          default: "application/json",
+          title: "Media Type",
+          type: "string",
+        },
+      },
+      required: ["artifact_id"],
+      type: "object",
     }),
   }),
 ]);
@@ -107,7 +137,9 @@ function compatibilityTypeExports(schemaNames, componentSchemas) {
       schema !== null &&
       typeof schema === "object" &&
       !Array.isArray(schema) &&
-      Object.entries(expectedSchema).every(([key, value]) => schema[key] === value) &&
+      Object.entries(expectedSchema).every(([key, value]) =>
+        isDeepStrictEqual(schema[key], value),
+      ) &&
       Object.keys(schema).every(
         (key) =>
           Object.hasOwn(expectedSchema, key) ||
@@ -519,7 +551,7 @@ export function canonicalizeRuntimeClientSource(
       ) {
         throw new RuntimeApiClientGenerationError(
           "compatibility_export_changed",
-          `Compatibility export ${compatibility.exportName} no longer binds the exact output component`,
+          `Compatibility export ${compatibility.exportName} no longer binds the exact selected component`,
           {
             exportName: compatibility.exportName,
             targetSchemaName: compatibility.targetSchemaName,

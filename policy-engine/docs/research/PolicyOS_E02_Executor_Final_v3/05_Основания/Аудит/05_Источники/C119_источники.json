@@ -1,0 +1,213 @@
+{
+  "pass_id": "C119",
+  "bundle": "STR-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          99
+        ],
+        [
+          421,
+          1166
+        ]
+      ],
+      "evidence_level": "Полный relevant stress owner прочитан; platform meta-evaluator164–420 не включён. Actual selected run_stress_test без CAS выполнен, включая adaptive loop.",
+      "git_blob": "da0e5e8098ceaf0a11ea4e3997763e06dad85a89",
+      "sha256": "3eb6740376acad7af30de5fd6b548363b52ff7e33e59719600227e4ebf254a8d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          692,
+          700
+        ],
+        [
+          1146,
+          1342
+        ],
+        [
+          1548,
+          1621
+        ]
+      ],
+      "evidence_level": "Typed direction/value/base/composite/rule admission прочитаны; actual selected enums/dataclass/guard и custom diagnostic objective. Built-in metric assessment/native CompositeObjective path не выполнены.",
+      "git_blob": "19f375b836d59954649ac120530df055d42e2758",
+      "sha256": "1e9fefdb189b7bb6afc9aa5fa01f410c14dbdd70afa2918670f41e0017352f66",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          818
+        ],
+        [
+          1010,
+          1224
+        ]
+      ],
+      "evidence_level": "DTO, badness/dedupe/count helper и adversarial source replay/admission прочитаны. Selected DTO/helpers выполнены; source-bound resolver только read, D.4 middle819–1009 не аттестован.",
+      "git_blob": "ea0c11564042fc1d52e3919d9b6d342f1c70de16",
+      "sha256": "2626703c3906b338d6cedb428b4fe53bbc511c6c68a0f3f082759fd9fa30a5c7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          401
+        ]
+      ],
+      "evidence_level": "Read C116 унаследован; actual AdversarialPlan models.",
+      "git_blob": "1108150cbc0c64a635bbe2d7de585177308fe412",
+      "sha256": "b8420f14abb36aa0e1e4423c8215aec836f637e69060992308ef47b12ffe9a8f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          109
+        ]
+      ],
+      "evidence_level": "Read C116; actual GRID_EXTREME и SciPy SEARCH_LOOP generation выполнены. Отдельные repeated/empty checks — явно external sampler fixtures.",
+      "git_blob": "c2a4b105c122ca3d2c20d5ab80710844894ecc65",
+      "sha256": "8cd056fde7b64825baa33c440ec0f05e96b2b12313355a4228e00279ce36e596",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          113
+        ],
+        [
+          357,
+          388
+        ]
+      ],
+      "evidence_level": "Actual selected stopping contracts/MaxIterations/OR composite прочитаны и исполнены; остальной файл не заявлен покрытым.",
+      "git_blob": "dda3875d68e1dd43002835ee332270cf3d4e23b5",
+      "sha256": "d34d8ccd041ac2b6372346e956bd489be7e1500c7f10e94e15bc5c1dc98d21d0",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          34
+        ],
+        [
+          330,
+          372
+        ]
+      ],
+      "evidence_level": "Actual SearchIteration и score-state guard прочитаны/исполнены; inactive artifact/admission annotation bindings не native contract qualification.",
+      "git_blob": "93768dd16c915f96488bfde09cae606be3e0b658",
+      "sha256": "b95d17e62e55a5e16e7d76bc42a2a5dd2d07d95ea3febc589a7cbb7b050bef6d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial_direction_c49.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/test_adversarial_direction_c49.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          33
+        ]
+      ],
+      "evidence_level": "Полный read; 1 unchanged body / 6 cases malformed direction PASS.",
+      "git_blob": "cbd33439cca948b9e0af26f59a5b697c08bb151a",
+      "sha256": "c4a7114101ddbccd46b5c4d25dbb138044fc12f066e92137b1e3f8ed11d7fdf6",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/search/test_adversarial.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          111,
+          174
+        ],
+        [
+          217,
+          244
+        ],
+        [
+          326,
+          517
+        ],
+        [
+          861,
+          1027
+        ]
+      ],
+      "evidence_level": "Точные selected reads. 2 unchanged scalar/top-k bodies PASS. Adaptive/native composite/CAS/source-bound cases прочитаны, не исполнены; большой persisted test только indexed prefix, не весь1615-строчный файл.",
+      "git_blob": "ba8088e98b08555c806a2d0e2086dae970f83696",
+      "sha256": "9bd8ce83a3171af119f1988ef788460113bf21c59ca90a0bd3366cf72a531174",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          105
+        ]
+      ],
+      "evidence_level": "Read C117 унаследован; environment mismatch, installs не делались.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

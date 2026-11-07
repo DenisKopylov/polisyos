@@ -1,0 +1,311 @@
+{
+  "packet_id": "DFI-03",
+  "lane": "LANE-08",
+  "source_ids": [
+    "LA-041"
+  ],
+  "protected_distinction_ids": [
+    "LK20"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/DFI-03.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "work_types": "fix + native qualification",
+  "practical_goal": "Повторное выполнение реально переиспользует только текущий полный результат, а off гарантирует fresh stage work.",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C98_остатки:0",
+      "audit_id": "C98-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-DFI-03-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Typed local count admission before equality comparisons; malformed receipt becomes miss."
+    },
+    {
+      "inventory_id": "audit-residual:C98_остатки:1",
+      "audit_id": "C98-R02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-DFI-03-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Direct CLI uses the same existing resume policy as pipeline."
+    },
+    {
+      "inventory_id": "audit-residual:C98_остатки:2",
+      "audit_id": "C98-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-DFI-03-03",
+        "REQ-DFI-03-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Native content-bound chain and selected hashing cost evidence."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-DFI-03-01",
+      "text": "Malformed receipt counts должны давать typed cache miss, а не необработанный ValueError; полная denominator/hash/currentness проверка сохраняется. Допускаются только объявленные неотрицательные целые counts, не bool или произвольная coercion.",
+      "source_ids": [
+        "LA-041"
+      ],
+      "audit_ids": [
+        "C98-R01"
+      ],
+      "test_ids": [
+        "TEST-DFI-03-01"
+      ]
+    },
+    {
+      "id": "REQ-DFI-03-02",
+      "text": "Direct harvest CLI обязан соблюдать resume_mode=off независимо от resume=True. Smart resume должен сохранять content-bound reuse; off не запрещает отдельно разрешённый transport cache.",
+      "source_ids": [
+        "LA-041"
+      ],
+      "audit_ids": [
+        "C98-R02"
+      ],
+      "test_ids": [
+        "TEST-DFI-03-02"
+      ]
+    },
+    {
+      "id": "REQ-DFI-03-03",
+      "text": "Native selected stage chain должна связать actual config/profile, harvest payloads, normalize DB, embedding generation и fresh reader с отдельными input basis и output inventory.",
+      "source_ids": [
+        "LA-041"
+      ],
+      "audit_ids": [
+        "C98-G01"
+      ],
+      "test_ids": [
+        "TEST-DFI-03-03"
+      ]
+    },
+    {
+      "id": "REQ-DFI-03-04",
+      "text": "Legacy checkpoint read и formatter compatibility сохраняются без ослабления strict current admission; explicit required_outputs=[] отличается от None. Core/QC live stages остаются non-cacheable.",
+      "source_ids": [
+        "LA-041"
+      ],
+      "audit_ids": [
+        "C98-G01"
+      ],
+      "test_ids": [
+        "TEST-DFI-03-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-DFI-03-01",
+      "requirement_ids": [
+        "REQ-DFI-03-01"
+      ],
+      "level": "native unit / integration",
+      "setup": "Current receipt с valid payload и отдельными повреждениями трёх count fields: string garbage, negative, bool, fractional; valid zero и positive control.",
+      "action": "Вызвать actual _harvest_stage_receipt и public resume route.",
+      "oracle": "Повреждённый receipt не используется и запускается fresh acquisition; valid complete receipt остаётся reusable; source/hash/path mismatch по-прежнему отказ.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не catch-all вокруг всего pipeline; неизвестная runtime ошибка не становится cache miss.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-DFI-03-02",
+      "requirement_ids": [
+        "REQ-DFI-03-02"
+      ],
+      "level": "native unit / integration",
+      "setup": "Один current completed harvest с payload; CLI --resume --resume-mode off и smart; actual selected source.",
+      "action": "Вызвать _run_single_stage через parser/config и actual harvest owner с counted connector.",
+      "oracle": "off выполняет stage work, smart использует только current valid receipt; output/receipt после fresh work пригодны fresh reader.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Controlled endpoint допустим; не сравнивать только config fields без invocation.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-DFI-03-03",
+      "requirement_ids": [
+        "REQ-DFI-03-03"
+      ],
+      "level": "native unit / integration",
+      "setup": "Tiny actual DB/NPZ/HNSW corpus; two selected sources, one lawful complete_empty; same-stat byte mutation, absent output, partial source receipt, unbound encoder.",
+      "action": "Run→smart resume→mutation→rerun→fresh consumer, совместно с EMB-01/02/03.",
+      "oracle": "Stable admitted input/output допускает reuse; каждый invalid case его снимает; rebuilt current generation снова полезна. Hash/model label не заменяют current encoder admission.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Лёгкий encoder допустим для compute, но bound encoder identity/current assets нужны для vector admission.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-DFI-03-04",
+      "requirement_ids": [
+        "REQ-DFI-03-04"
+      ],
+      "level": "native unit / integration",
+      "setup": "Historical state without content fields, explicit []/None, excluded private profile coverage, complete_empty и complete_nonempty.",
+      "action": "Actual stage_can_skip/current_content_stage_receipt и JSON write/read.",
+      "oracle": "Legacy state читается для diagnostics, strict reuse отказ; [] отказ, None следует recorded paths; JSON indent2/sorted/atomic сохраняется. Private profile coverage mismatch отказ.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не признавать all([]) evidence полного inventory. Benchmark selected DB hash cost и bounded optimization только при доказанной immutable receipt guarantee.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I08-A"
+  ],
+  "dependencies": [
+    "EMB-02 predecessor and shared C96-R01 owner",
+    "DFI-02 shared pipeline writer; E02-I08-A plus native EMB consumer witness"
+  ],
+  "preservation": [
+    "Separate input/output basis",
+    "Required source/hash/count denominator",
+    "Encoder asset identity",
+    "Typed empty generation",
+    "Historical formatter and atomic writer",
+    "Legacy reader without strict admission",
+    "Explicit [] vs None",
+    "Current profile coverage refusal"
+  ],
+  "design_alignment": [
+    "[Vision §3, §6–§7, §11](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md) — существующий owner, реально подключённый consumer, совместимые новые ресурсы через общий контракт; не бесконечный реестр вместо работы. [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md) — candidate/conditional вычисление не равно эмпирической или институциональной authority.",
+    "Новый stage интегрируется existing basis/inventory/receipt contract. Новый тип содержимого может потребовать adapter, но не отдельный cache протокол. Exact hashing cost измерить; оптимизация допустима только при доказанной immutable selected artifact identity."
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0450",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-DFI-03-01"
+      ],
+      "rationale": "Typed local count admission before equality comparisons; malformed receipt becomes miss."
+    },
+    {
+      "inventory_id": "remaining:0451",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-DFI-03-02"
+      ],
+      "rationale": "Direct CLI uses the same existing resume policy as pipeline."
+    },
+    {
+      "inventory_id": "remaining:0452",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-DFI-03-03",
+        "REQ-DFI-03-04"
+      ],
+      "rationale": "Native content-bound chain and selected hashing cost evidence."
+    },
+    {
+      "inventory_id": "remaining:0453",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-DFI-03-03"
+      ],
+      "rationale": "C96-R01 исправляется EMB-02 в общем embedding basis owner; здесь consumer qualification."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0742",
+      "requirement_ids": [
+        "REQ-DFI-03-03"
+      ],
+      "test_ids": [
+        "TEST-DFI-03-03"
+      ],
+      "rationale": "Input identity separated from output integrity."
+    },
+    {
+      "inventory_id": "preserve:0743",
+      "requirement_ids": [
+        "REQ-DFI-03-01",
+        "REQ-DFI-03-03"
+      ],
+      "test_ids": [
+        "TEST-DFI-03-01",
+        "TEST-DFI-03-03"
+      ],
+      "rationale": "Full selected source denominator."
+    },
+    {
+      "inventory_id": "preserve:0744",
+      "requirement_ids": [
+        "REQ-DFI-03-03"
+      ],
+      "test_ids": [
+        "TEST-DFI-03-03"
+      ],
+      "rationale": "Current encoder asset identity."
+    },
+    {
+      "inventory_id": "preserve:0745",
+      "requirement_ids": [
+        "REQ-DFI-03-03",
+        "REQ-DFI-03-04"
+      ],
+      "test_ids": [
+        "TEST-DFI-03-03",
+        "TEST-DFI-03-04"
+      ],
+      "rationale": "Declared empty vs failed/partial."
+    },
+    {
+      "inventory_id": "preserve:0746",
+      "requirement_ids": [
+        "REQ-DFI-03-04"
+      ],
+      "test_ids": [
+        "TEST-DFI-03-04"
+      ],
+      "rationale": "Existing JSON formatter and atomic text."
+    },
+    {
+      "inventory_id": "preserve:0747",
+      "requirement_ids": [
+        "REQ-DFI-03-04"
+      ],
+      "test_ids": [
+        "TEST-DFI-03-04"
+      ],
+      "rationale": "Historical diagnostics without authority."
+    },
+    {
+      "inventory_id": "preserve:0748",
+      "requirement_ids": [
+        "REQ-DFI-03-04"
+      ],
+      "test_ids": [
+        "TEST-DFI-03-04"
+      ],
+      "rationale": "Explicit [] vs None."
+    },
+    {
+      "inventory_id": "preserve:0749",
+      "requirement_ids": [
+        "REQ-DFI-03-04"
+      ],
+      "test_ids": [
+        "TEST-DFI-03-04"
+      ],
+      "rationale": "Profile coverage refusal."
+    }
+  ],
+  "owners": [
+    "src/polisyos/data_forge/domains/catalog/batch/pipeline.py",
+    "src/polisyos/data_forge/domains/catalog/batch/checkpoints.py",
+    "src/polisyos/data_forge/domains/catalog/batch/cli.py",
+    "src/polisyos/data_forge/domains/catalog/batch/harvester.py"
+  ]
+}

@@ -1,0 +1,12 @@
+id = "2026-11-04-e02-verified-child-n4-diversity"
+title = "Select the N4 diversity floor for verified singleton children"
+type = "fixed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "A complete owner-verified child family may select a one-candidate floor for a child with exactly one allowed lever and one parent source atom. Other N4 paths retain the default floor of three."
+evidence = ["tests/unit/runtime/quality/test_generation_source.py", "tests/integration/runtime_quality/test_recursive_n5_capacity_frontier.py"]
+compatibility = "The port parameter is additive and defaults to three. Source, grounding, N5 admission, component rules and quota guards remain enforced."
+change_class = "internal verified child generation"
+surface_classification = "internal: N4 generation port and Control child-family composition"
+limitations = "Focused port controls pass. The full frontier invocation still fails at its current-versus-prepared atom oracle; this change alone establishes neither a completed N5 nor quota exhaustion."
+generated_client_compatibility = "not_applicable"

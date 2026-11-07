@@ -1,0 +1,76 @@
+{
+  "pass_id": "C10_SIM03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "items": [
+    {
+      "id": "C10-R01",
+      "source_ids": [
+        "B21"
+      ],
+      "type": "bounded_implementation_defect",
+      "severity": "medium",
+      "confidence": "high_for_source_bodies; native_reach_unverified",
+      "owner": "foundry/coupling/estimation.py paired_monte_carlo_effect; catalog/simulation/coupled.py paired adapter",
+      "finding": "Nonfinite endpoints/differences or aggregate error can return NaN/inf with standard_error_status=estimated",
+      "probes": [
+        "P25",
+        "P26",
+        "P27",
+        "P28"
+      ],
+      "preserve": "Actual seeds, complete metric set, singleton None; no zero fill",
+      "repair_direction": "Validate finite inputs, pair differences and aggregates through existing numeric owner; retain accurate failure reason",
+      "acceptance": "finite, missing, NaN/inf, overflow, singleton, actual adapter/readback"
+    },
+    {
+      "id": "C10-R02",
+      "source_ids": [
+        "B25"
+      ],
+      "type": "bounded_implementation_defect",
+      "severity": "medium",
+      "confidence": "high_for_source_bodies; native_reach_unverified",
+      "owner": "CoupledSMMEstimator.pure_step before dict(zip(moment_names,observed_values))",
+      "finding": "Duplicate effective moment names silently overwrite an observed value before required-set validation",
+      "probes": [
+        "P17",
+        "P18"
+      ],
+      "preserve": "unique valid request, required comparability, optional counts, declared aggregation where supported",
+      "repair_direction": "Resolve identity or reject duplicates before dictionary conversion and numerical work",
+      "acceptance": "malformed duplicate refuses before producer; unique reordered pairs equivalent; distinct true coordinates retained"
+    },
+    {
+      "id": "C10-G01",
+      "source_ids": [
+        "B19"
+      ],
+      "type": "capability_gap_not_false_claim",
+      "finding": "Current effect/comparator basis deliberately remains not_established; explicit arithmetic is not full comparator qualification",
+      "repair_direction": "One real supported estimand-specific comparator/evidence binding using existing method owners"
+    },
+    {
+      "id": "C10-G02",
+      "source_ids": [
+        "B26"
+      ],
+      "type": "contract_boundary",
+      "probes": [
+        "P48"
+      ],
+      "finding": "Absolute 1e-12 classification and any positive observed SE restriction need declared scale and inference scope",
+      "repair_direction": "Qualify supported units/tolerance and stochastic inference profile, retain current limitations; not blanket removal"
+    },
+    {
+      "id": "C10-T01",
+      "source_ids": [
+        "B21"
+      ],
+      "type": "static_test_contract_mismatch",
+      "finding": "Existing controlled-second-draw-failure test expects raised RuntimeError, current wrapper retains an interruption result",
+      "cross_reference": "C09-R02 / C09-T01; not independent product bug",
+      "repair_direction": "Native reproduce and update test to precise retained cause and denominator, not generic no_run"
+    }
+  ],
+  "no_product_changes": true
+}

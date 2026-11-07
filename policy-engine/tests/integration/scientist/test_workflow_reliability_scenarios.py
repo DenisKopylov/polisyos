@@ -3,6 +3,7 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
+from _helpers.run_lifecycle import interrupt_before_finalize, run_trace_events
 from _helpers.scientist_runtime import (
     build_execution_context,
     build_initial_state,
@@ -86,7 +87,12 @@ def test_linear_scientist_workflow_tool_failure_retries_and_succeeds(tmp_path) -
     assert search_record.status == "ok"
 
 
-def test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes(tmp_path) -> None:
+@pytest.mark.parametrize(
+    "resume_case", ["incomplete", "terminal", "corrupt_registry", "unbound_registry"]
+)
+def test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes(
+    tmp_path, resume_case: str
+) -> None:
     store = FileSystemCAS(tmp_path)
     run_id = "R_scientist_resume"
     workflow = build_linear_workflow_spec()
@@ -102,18 +108,54 @@ def test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes(tmp_p
     registry_a, nodes_a = build_linear_registry(store, decision_failures=1)
     hook = CASCheckpointHook(store=store, run_dir=run_dir, checkpoint_policy="strict")
 
-    first = WorkflowExecutor(ctx, registry_a, checkpoint_hook=hook).execute(workflow, state)
-
-    assert first.report.status == "fail"
+    if resume_case == "terminal":
+        first = WorkflowExecutor(ctx, registry_a, checkpoint_hook=hook).execute(workflow, state)
+        assert first.report.status == "fail"
+    else:
+        interrupt_before_finalize(
+            ctx.run,
+            lambda: WorkflowExecutor(ctx, registry_a, checkpoint_hook=hook).execute(
+                workflow, state
+            ),
+        )
     assert nodes_a["agent"].calls == 1
     assert nodes_a["search"].calls == 1
     assert nodes_a["simulation"].calls == 1
     assert nodes_a["governance"].calls == 1
     assert nodes_a["decision"].calls == 1
 
-    registry_b, nodes_b = build_linear_registry(store, decision_failures=0)
+    if resume_case == "corrupt_registry":
+        blob_path, _ = store._paths(registry_bundle_ref.artifact_id)
+        blob_path.write_bytes(b"corrupt registry")
+    elif resume_case == "unbound_registry":
+        registry_bundle_ref = registry_bundle_ref.model_copy(
+            update={"manifest_profile_sha256": None}
+        )
+
+    fresh_store = FileSystemCAS(tmp_path)
+    registry_b, nodes_b = build_linear_registry(fresh_store, decision_failures=0)
+    if resume_case != "incomplete":
+        refusal = {
+            "terminal": "run_resume_trace_not_incomplete",
+            "corrupt_registry": "run_resume_registry_cas_invalid",
+            "unbound_registry": "run_resume_owner_inputs_mismatch",
+        }[resume_case]
+        with pytest.raises(ValueError, match=refusal):
+            resume_from_checkpoint(
+                fresh_store,
+                run_id,
+                workflow=workflow,
+                registry=registry_b,
+                registry_bundle_ref=registry_bundle_ref,
+                checkpoint_policy="strict",
+                run_dir=run_dir,
+            )
+        assert all(node.calls == 0 for node in nodes_b.values())
+        assert not any(event.get("event") == "RUN_RESUMED" for event in run_trace_events(ctx.run))
+        return
+
     resumed = resume_from_checkpoint(
-        store,
+        fresh_store,
         run_id,
         workflow=workflow,
         registry=registry_b,
@@ -128,6 +170,10 @@ def test_linear_scientist_workflow_checkpoint_resume_skips_completed_nodes(tmp_p
     assert nodes_b["simulation"].calls == 0
     assert nodes_b["governance"].calls == 0
     assert nodes_b["decision"].calls == 1
+    events = run_trace_events(ctx.run)
+    assert sum(event.get("event") == "RUN_STARTED" for event in events) == 1
+    assert sum(event.get("event") == "RUN_RESUMED" for event in events) == 1
+    assert sum(event.get("event") == "RUN_FINALIZED" for event in events) == 1
 
 
 def test_linear_scientist_workflow_governance_rejection_stops_decision_publication(

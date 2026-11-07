@@ -1,0 +1,289 @@
+{
+  "packet_id": "UDF-02",
+  "lane": "LANE-07",
+  "source_ids": [
+    "LA-031"
+  ],
+  "protected_distinction_ids": [
+    "LK10",
+    "LK11",
+    "LK12"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/UDF-02.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "work_types": "preserve + native/consumer qualification + lifecycle",
+  "practical_goal": "Существующие stages сохраняют output meaning и форматы, а synthetic runtime seed действительно доходит до bindings consumer без ложной эмпирической authority.",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C85_остатки:0",
+      "audit_id": "C85-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-UDF-02-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Native output profiles/activation, не повторный move."
+    },
+    {
+      "inventory_id": "audit-residual:C85_остатки:1",
+      "audit_id": "C85-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-UDF-02-02",
+        "REQ-UDF-02-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Actual consumer validation positive path и purpose; если missing wire, bounded repair of existing owner."
+    },
+    {
+      "inventory_id": "audit-residual:C85_остатки:2",
+      "audit_id": "C85-G03",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-UDF-02-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Caller/aliases/phase closure и protected contracts; shared C83-R01 не дублировать."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-UDF-02-01",
+      "text": "Выбранные native stage outputs должны сохранить доменные JSON bytes, NPZ arrays/metadata и Parquet semantic profile, errors/warnings и registry activation; JSON formatter не подменяется другой kernel JSON функцией.",
+      "source_ids": [
+        "LA-031"
+      ],
+      "audit_ids": [
+        "C85-G01"
+      ],
+      "test_ids": [
+        "TEST-UDF-02-01"
+      ]
+    },
+    {
+      "id": "REQ-UDF-02-02",
+      "text": "Synthetic runtime seed должен пройти actual selected-snapshot→Foundry bindings consumer с явным diagnostic purpose; consumer_required не считается выполненной validation. Valid synthetic input допускает полезный bounded consumer, но не становится empirical observations.",
+      "source_ids": [
+        "LA-031"
+      ],
+      "audit_ids": [
+        "C85-G02"
+      ],
+      "test_ids": [
+        "TEST-UDF-02-02"
+      ]
+    },
+    {
+      "id": "REQ-UDF-02-03",
+      "text": "Canonical IO/bindings owners, explicit imports и narrow aliases должны сохранять actual callers, sequential memory scheduler и protected materialize/academic shadow/readAPI. Shared import isolation owner UDF-01; LA031 closure собирает все 3 phases, не удаляет common по имени.",
+      "source_ids": [
+        "LA-031"
+      ],
+      "audit_ids": [
+        "C85-G03"
+      ],
+      "test_ids": [
+        "TEST-UDF-02-03"
+      ]
+    },
+    {
+      "id": "REQ-UDF-02-04",
+      "text": "Bindings diagnostics должны сохранять identity coverage/subset warnings, nonmutation и synthetic fallback distinctions; env-limited sample не выдаётся full population observation.",
+      "source_ids": [
+        "LA-031"
+      ],
+      "audit_ids": [
+        "C85-G02"
+      ],
+      "test_ids": [
+        "TEST-UDF-02-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-UDF-02-01",
+      "requirement_ids": [
+        "REQ-UDF-02-01"
+      ],
+      "level": "native unit / integration",
+      "setup": "Unicode/NumPy/date/Path/DTO fixtures, adjacency NPZ, real Parquet. Раздельные controlled failures: до successful replace (write/file fsync/replace refusal) и directory fsync после successful replace; собственный temp/target и наблюдаемая фаза отказа.",
+      "action": "Actual IO helpers и selected stage producer→manifest→native CAS reader.",
+      "oracle": "JSON exact legacy bytes, NPZ arrays/nnz/hashsize, Parquet rows/schema/index=False. Отказ до успешного replace сохраняет prior file и удаляет собственный оставшийся temp. Если replace уже успешен, новые bytes видимы; ошибка directory fsync не доказывает durability и не обещает восстановление prior file; фаза/исход различимы в existing error/reporting evidence. No output PASS до reader.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Real formats/CAS/atomic writer; compressed NPZ historical byte equivalence не выводить из decoded arrays.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-UDF-02-02",
+      "requirement_ids": [
+        "REQ-UDF-02-02"
+      ],
+      "level": "native unit / integration",
+      "setup": "RuntimeBundleManifest с synthetic payload/selected DataSnapshotRef; actual D0→D3 tiny intake fixtures и Foundry contracts; bad profile/missing validation controls.",
+      "action": "load_ukraine_foundry_intake затем actual prepare/build_input_bindings и конкретный consumer; inspect receipt.",
+      "oracle": "Real binding receipt связан с selected snapshot и source profile; diagnostic/synthetic meaning сохранён. Missing required contract/validation не accepted как empirical; valid fixture reaches consumer.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "No fake Foundry bindings/CAS; fixture data explicit, not empirical. Если связка отсутствует — implement narrow existing owner wiring, не закончить документацией consumer_required.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-UDF-02-03",
+      "requirement_ids": [
+        "REQ-UDF-02-03"
+      ],
+      "level": "native unit / integration",
+      "setup": "Census actual imports/callers, scheduler tasks/budget, academic read-only fixture и protected DAG controls.",
+      "action": "Fresh activation, alias identity, selected callers and scheduler; подтверждённые external serialization calls.",
+      "oracle": "No wildcard/domain→tools; scheduler order/budget unchanged; aliases resolve one owner. Academic currentness/schema and read-only contract сохраняется. До retirement нет unqualified callers.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Census не semantic proof всех stage bodies; DuckDB native only для read-only claim.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-UDF-02-04",
+      "requirement_ids": [
+        "REQ-UDF-02-04"
+      ],
+      "level": "native unit / integration",
+      "setup": "Absent/empty/nonempty procurement proxy; duplicated participants; bounded subset/env limits; empty runtime fixture.",
+      "action": "Actual _select_procurement_frame/_validation_subset/_build_synthetic_multiscale_payload.",
+      "oracle": "Preferred nonempty proxy выбран; empty warning+required fallback; missing required refusal; source unchanged; synthetic payload не имеет observations/observation IDs; finite diagnostic serialization.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Frame fixtures allowed для unit; native Parquet selection отдельно REQ01.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I07-A"
+  ],
+  "dependencies": [
+    "UDF-01 и OBS-01 prerequisites; UDF02 accountable LA-031",
+    "Foundry binding owner co-review; OBS02 shared sources writer"
+  ],
+  "preservation": [
+    "Canonical coherent owners",
+    "Legacy JSON serializer и kernel atomic boundary",
+    "Diagnostic warnings/synthetic purpose",
+    "Sequential scheduler",
+    "Narrow compatibility aliases и защищённые контракты"
+  ],
+  "design_alignment": [
+    "[Vision §3, §6–§7, §11](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md) — существующий owner, реально подключённый consumer, совместимые новые ресурсы через общий контракт; не бесконечный реестр вместо работы. [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md) — candidate/conditional вычисление не равно эмпирической или институциональной authority.",
+    "Новая semantics может потребовать общий binding adapter; проверенный typed contract, а не bespoke branch на каждый dataset. Не создавать universal model inventor и не запрещать diagnostic/candidate work из-за отсутствия empirical authority."
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0421",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-UDF-02-01"
+      ],
+      "rationale": "Native output profiles/activation, не повторный move."
+    },
+    {
+      "inventory_id": "remaining:0422",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-UDF-02-02",
+        "REQ-UDF-02-04"
+      ],
+      "rationale": "Actual consumer validation positive path и purpose; если missing wire, bounded repair of existing owner."
+    },
+    {
+      "inventory_id": "remaining:0423",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-UDF-02-03"
+      ],
+      "rationale": "Caller/aliases/phase closure и protected contracts; shared C83-R01 не дублировать."
+    },
+    {
+      "inventory_id": "remaining:0424",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-UDF-02-03"
+      ],
+      "rationale": "C83-R01 ownerUDF01; use shared freshimporttest."
+    },
+    {
+      "inventory_id": "remaining:0425",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-UDF-02-03"
+      ],
+      "rationale": "Closure требует UDF01/OBS01 residual evidence, historical reevaluation не объявлятьзавершённой."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0677",
+      "requirement_ids": [
+        "REQ-UDF-02-01",
+        "REQ-UDF-02-03"
+      ],
+      "test_ids": [
+        "TEST-UDF-02-01",
+        "TEST-UDF-02-03"
+      ],
+      "rationale": "Coherentcanonicalowners."
+    },
+    {
+      "inventory_id": "preserve:0678",
+      "requirement_ids": [
+        "REQ-UDF-02-01"
+      ],
+      "test_ids": [
+        "TEST-UDF-02-01"
+      ],
+      "rationale": "Legacyserializer/atomicboundary."
+    },
+    {
+      "inventory_id": "preserve:0679",
+      "requirement_ids": [
+        "REQ-UDF-02-02",
+        "REQ-UDF-02-04"
+      ],
+      "test_ids": [
+        "TEST-UDF-02-02",
+        "TEST-UDF-02-04"
+      ],
+      "rationale": "Syntheticpurpose/warnings."
+    },
+    {
+      "inventory_id": "preserve:0680",
+      "requirement_ids": [
+        "REQ-UDF-02-03"
+      ],
+      "test_ids": [
+        "TEST-UDF-02-03"
+      ],
+      "rationale": "Sequentialmemoryscheduler."
+    },
+    {
+      "inventory_id": "preserve:0681",
+      "requirement_ids": [
+        "REQ-UDF-02-03"
+      ],
+      "test_ids": [
+        "TEST-UDF-02-03"
+      ],
+      "rationale": "Aliases/LK10/11/12 protected."
+    }
+  ],
+  "owners": [
+    "src/polisyos/data_forge/domains/ukraine/builders/io.py",
+    "src/polisyos/data_forge/domains/ukraine/builders/bindings_validation.py",
+    "src/polisyos/data_forge/domains/ukraine/builders/common.py",
+    "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+    "src/polisyos/foundry/data_plane/bindings.py::load_ukraine_foundry_intake"
+  ]
+}

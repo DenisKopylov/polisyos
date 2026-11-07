@@ -2,6 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import subprocess
+import sys
+import textwrap
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
@@ -1729,3 +1733,933 @@ def test_candidate_only_scenario_proposal_does_not_replace_semantic_requirements
     assert resolver.queries
     assert "candidate_only_future_construct" not in {query.construct for query in resolver.queries}
     assert "candidate_only_future_construct" in report.metadata["candidate_construct_proposals"]
+
+
+@pytest.mark.parametrize("domain", list(ProblemDomain))
+@pytest.mark.parametrize("spelling", ["value", "name", "policy_slug", "policy_words", "enum"])
+def test_scenario_domain_spelling_has_one_canonical_route(
+    monkeypatch: pytest.MonkeyPatch, domain: ProblemDomain, spelling: str
+) -> None:
+    raw: str | ProblemDomain = {
+        "value": domain.value,
+        "name": domain.name,
+        "policy_slug": f"{domain.value}_policy",
+        "policy_words": f"  {domain.name} Policy  ",
+        "enum": domain,
+    }[spelling]
+    observed: list[ProblemDomain] = []
+
+    def grammar_boundary(_self: object, *, intent: PolicyGrammarIntent, **kwargs: Any) -> Any:
+        del kwargs
+        observed.append(intent.domain)
+        return SimpleNamespace(facets=None)
+
+    monkeypatch.setattr(compiler_module.PolicyGrammarCompiler, "compile", grammar_boundary)
+    report = DataRequirementCompiler().compile_for_scenario(
+        {
+            "scenario_id": "opaque:route",
+            "text": "Preserve the declared policy question.",
+            "domain": raw,
+        }
+    )
+
+    assert observed == [domain]
+    resolution = report.metadata["scenario_domain_resolution"]
+    assert resolution["canonical_domain"] == domain.value
+    assert resolution["status"] == "resolved"
+    assert resolution["raw_inputs"] == {"domain": domain.value if spelling == "enum" else raw}
+    assert resolution["rule_version_ref"] in report.rule_version_refs
+
+
+@pytest.mark.parametrize("raw", ["education_policy", "Education Policy", "education-policy"])
+def test_education_domain_spelling_never_routes_to_fiscal(
+    monkeypatch: pytest.MonkeyPatch, raw: str
+) -> None:
+    observed = []
+
+    def grammar_boundary(_self: object, *, intent: PolicyGrammarIntent, **kwargs: Any) -> Any:
+        del kwargs
+        observed.append((intent.text, intent.domain))
+        return SimpleNamespace(facets=None)
+
+    monkeypatch.setattr(compiler_module.PolicyGrammarCompiler, "compile", grammar_boundary)
+    DataRequirementCompiler().compile_for_scenario(
+        {"scenario_id": "opaque:education", "request": "Education for every child.", "domain": raw}
+    )
+    assert observed == [("Education for every child.", ProblemDomain.EDUCATION)]
+
+
+@pytest.mark.parametrize("scenario_id", ["case-alpha", "fiscal-housing-health"])
+@pytest.mark.parametrize("domain_fields", [{}, {"domain": "unknown_public_question"}])
+def test_unknown_or_absent_domain_is_explicit_custom_without_lexical_authority(
+    monkeypatch: pytest.MonkeyPatch, scenario_id: str, domain_fields: dict[str, str]
+) -> None:
+    observed = []
+
+    def grammar_boundary(_self: object, *, intent: PolicyGrammarIntent, **kwargs: Any) -> Any:
+        del kwargs
+        observed.append(intent.domain)
+        return SimpleNamespace(facets=None)
+
+    monkeypatch.setattr(compiler_module.PolicyGrammarCompiler, "compile", grammar_boundary)
+    report = DataRequirementCompiler().compile_for_scenario(
+        {
+            "scenario_id": scenario_id,
+            "text": "A fiscal housing health statement does not declare a domain.",
+            "required_constructs": ["independent_required_construct"],
+            **domain_fields,
+        }
+    )
+    assert observed == [ProblemDomain.CUSTOM]
+    resolution = report.metadata["scenario_domain_resolution"]
+    assert resolution["status"] == ("unresolved" if domain_fields else "not_supplied")
+    assert resolution["raw_inputs"] == domain_fields
+    assert report.capability_requirement_resolutions is not None
+    assert [row.query.construct for row in report.capability_requirement_resolutions] == [
+        "independent_required_construct"
+    ]
+    assert report.capability_requirement_resolutions[0].reason_codes == (
+        "capability_resolver_not_established",
+    )
+
+
+@pytest.mark.parametrize(
+    ("fields", "reason", "field"),
+    [
+        ({"domain": None}, "domain_wrong_type", "domain"),
+        ({"domain": 123}, "domain_wrong_type", "domain"),
+        ({"domain": []}, "domain_wrong_type", "domain"),
+        ({"domain": ""}, "domain_empty", "domain"),
+        ({"domain_hint": "  "}, "domain_empty", "domain_hint"),
+        ({"domain": "education", "domain_hint": "fiscal"}, "domain_alias_conflict", "domain_hint"),
+        ({"domain": "novel_a", "domain_hint": "novel_b"}, "domain_alias_conflict", "domain_hint"),
+    ],
+)
+def test_scenario_domain_malformed_or_conflicting_input_refuses_before_grammar(
+    monkeypatch: pytest.MonkeyPatch, fields: dict[str, Any], reason: str, field: str
+) -> None:
+    calls = []
+
+    def grammar_boundary(*args: Any, **kwargs: Any) -> Any:
+        calls.append((args, kwargs))
+        return SimpleNamespace(facets=None)
+
+    monkeypatch.setattr(compiler_module.PolicyGrammarCompiler, "compile", grammar_boundary)
+    with pytest.raises(ValueError) as raised:
+        DataRequirementCompiler().compile_for_scenario(
+            {"scenario_id": "opaque:bad-domain", "text": "Keep the question.", **fields}
+        )
+    assert type(raised.value).__name__ == "ScenarioDomainInputError"
+    assert raised.value.code == "scenario_domain_input_invalid"
+    assert raised.value.reason_code == reason
+    assert raised.value.field_path == field
+    assert calls == []
+
+
+def test_compatible_domain_aliases_preserve_both_raw_fields() -> None:
+    report = DataRequirementCompiler().compile_for_scenario(
+        {
+            "scenario_id": "same-domain-aliases",
+            "text": "Investigate education outcomes.",
+            "domain": "education_policy",
+            "domain_hint": "Education Policy",
+        }
+    )
+    assert report.metadata["scenario_domain_resolution"]["raw_inputs"] == {
+        "domain": "education_policy",
+        "domain_hint": "Education Policy",
+    }
+    assert report.metadata["scenario_domain_resolution"]["canonical_domain"] == "education"
+
+
+@pytest.mark.parametrize("raw", ["health", "Health Care", "HEALTH_POLICY", "образование"])
+def test_documented_domain_vocabulary_aliases_are_exact(raw: str) -> None:
+    expected = "education" if raw == "образование" else "healthcare"
+    report = DataRequirementCompiler().compile_for_scenario(
+        {"scenario_id": "explicit-vocabulary", "text": "Keep the question.", "domain": raw}
+    )
+    assert report.metadata["scenario_domain_resolution"]["canonical_domain"] == expected
+
+
+@pytest.mark.parametrize(
+    "field",
+    [
+        "required_constructs",
+        "required_evidence_constructs",
+        "explicit_constructs",
+        "construct_refs",
+        "construct_ref",
+    ],
+)
+def test_public_mapping_claim_refuses_unsupported_top_level_construct_shape(field: str) -> None:
+    resolver = _RecordingCapabilityResolver()
+    compiler = DataRequirementCompiler(capability_resolver=resolver)
+    with pytest.raises(ValueError) as raised:
+        compiler.compile_for_claim_ledger(
+            run_id="unsupported-claim-shape",
+            claim_ledger={
+                "claims": [
+                    {
+                        "claim_id": "claim:shape",
+                        "claim_use": "decision_support",
+                        "text": "This declaration must not disappear.",
+                        field: ["required_construct"],
+                        "metadata": {"required_constructs": ["different_construct"]},
+                    }
+                ]
+            },
+            facet_snapshots=(),
+        )
+    assert type(raised.value).__name__ == "ClaimConstructDeclarationInputError"
+    assert raised.value.code == "claim_construct_declaration_invalid"
+    assert raised.value.reason_code == "unsupported_top_level_construct_declaration"
+    assert raised.value.field_path == f"claims[0].{field}"
+    assert resolver.queries == []
+
+
+def test_public_mapping_claim_metadata_reaches_actual_governed_resolver() -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    resolver = RequirementToCapabilityResolver.governed_fixture()
+    report = DataRequirementCompiler(capability_resolver=resolver).compile_for_claim_ledger(
+        run_id="supported-claim-metadata",
+        claim_ledger={
+            "claims": [
+                {
+                    "claim_id": "claim:metadata",
+                    "claim_use": "decision_support",
+                    "text": "Preserve this required construct without authority inflation.",
+                    "metadata": {"required_constructs": ["firm_survival"]},
+                }
+            ]
+        },
+        facet_snapshots=(),
+    )
+    assert report.capability_requirement_resolutions is not None
+    assert len(report.capability_requirement_resolutions) == 1
+    row = report.capability_requirement_resolutions[0]
+    assert row.query.construct == "firm_survival"
+    assert row.binding is not None
+    assert row.binding.capability_index_ref == resolver.capability_index_ref
+    assert row.state == "binding_returned"
+    # A real resolver can reject the mismatched generic scope; this confirms the
+    # input contract, not admission of the old governed pilot as a new resource.
+    assert row.binding.authority_envelope_result != "passed"
+
+
+def test_new_domain_rule_preserves_current_raw_input_and_changes_bound_identity(
+    tmp_path: Path,
+) -> None:
+    first = {
+        "scenario_id": "domain-rule",
+        "request": "Explore a policy question.",
+        "domain": "novel_question",
+        "required_constructs": ["unavailable_construct"],
+    }
+    compiler = DataRequirementCompiler()
+    report = compiler.compile_for_scenario(first)
+    changed = compiler.compile_for_scenario({**first, "domain": "another_novel_question"})
+    assert report.schema_version == "policyos.data_requirement_compilation.v2"
+    resolution = report.metadata["scenario_domain_resolution"]
+    assert resolution["raw_inputs"] == {"domain": "novel_question"}
+    assert resolution["canonical_domain"] == "custom"
+    assert resolution["status"] == "unresolved"
+    assert resolution["rule_version_ref"] == "policyos.data_requirement.scenario_domain.v1"
+    assert resolution["rule_version_ref"] in report.rule_version_refs
+    assert changed.input_content_hash != report.input_content_hash
+    assert changed.requirement_basis.basis_grade == "not_established"
+    path = write_data_requirement_compilation_report(report, tmp_path)
+    fresh = parse_data_requirement_compilation_report(path.read_bytes())
+    assert fresh.metadata["scenario_domain_resolution"] == resolution
+    assert fresh.rule_version_refs == report.rule_version_refs
+    assert (
+        data_requirement_compilation_audit_surface(fresh)["metadata"]
+        == report.model_dump(mode="json")["metadata"]
+    )
+
+
+def test_v2_source_bytes_roundtrip_and_retention_removal_control(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # This is a declared current producer fixture, not a claimed historical V2
+    # capture. Whitespace/order are part of the already-selected artifact bytes.
+    produced = DataRequirementCompiler().compile_for_scenario(
+        {"scenario_id": "raw-bytes-café", "text": "Preserve this source.", "domain": "custom"}
+    )
+    original = (
+        json.dumps(produced.model_dump(mode="json"), ensure_ascii=False, separators=(",", ":"))
+        + " \r\n"
+    ).encode("utf-8")
+    parsed = parse_data_requirement_compilation_report(original)
+    path = write_data_requirement_compilation_report(parsed, tmp_path / "intact")
+    assert path.read_bytes() == original
+    assert path.name == f"sha256-{hashlib.sha256(original).hexdigest()}-data-requirements.json"
+    fresh = parse_data_requirement_compilation_report(path.read_bytes())
+    assert fresh.original_bytes == original
+    assert fresh.input_content_hash == produced.input_content_hash
+
+    with monkeypatch.context() as control:
+        control.setattr(
+            DataRequirementCompilationReport, "original_bytes", property(lambda _: None)
+        )
+        removed = write_data_requirement_compilation_report(parsed, tmp_path / "removed")
+        assert removed.read_bytes() != original
+        assert json.loads(removed.read_bytes()) == json.loads(original)
+    restored = write_data_requirement_compilation_report(parsed, tmp_path / "restored")
+    assert restored.read_bytes() == original
+
+    changed = parsed.model_copy(update={"metadata": {**parsed.metadata, "changed": True}})
+    changed_path = write_data_requirement_compilation_report(changed, tmp_path / "intact")
+    assert changed_path != path
+    assert json.loads(changed_path.read_bytes())["metadata"]["changed"] is True
+    assert path.read_bytes() == original
+    # A clobbered physical artifact is not blessed by retained source metadata.
+    path.write_bytes(b"tampered artifact")
+    with pytest.raises(ValueError, match="data_requirement_report_content_conflict"):
+        write_data_requirement_compilation_report(parsed, tmp_path / "intact")
+    assert path.read_bytes() == b"tampered artifact"
+
+
+def test_pre_domain_v2_source_replay_roundtrips_in_fresh_current_reader(
+    tmp_path: Path,
+) -> None:
+    """Preserve one exact pre-domain-provenance V2 writer replay in a fresh reader."""
+
+    fixture_path = (
+        Path(__file__).resolve().parents[2]
+        / "_data/data_requirement/req01/pre-domain-source-replay-v2.json"
+    )
+    original = fixture_path.read_bytes()
+    original_sha256 = hashlib.sha256(original).hexdigest()
+    assert len(original) == 3590
+    assert original_sha256 == "1e816f7da651d4694aa29e7b52d0ec06d184fe8f788a01e3229aa215a232dd79"
+
+    # This raw input was compiled and persisted by the public producer/serializer at
+    # 63706888af4676c49a84150cf8bc1c5523b7f93c / 659f4a103edb50aeb60f725aa1380a58da5e6f14.
+    # It is a historical-source replay, not recovered archived production bytes.
+    scenario = {
+        "scenario_id": "opaque:req01-pre-domain-v2-replay",
+        "text": "Evaluate a fiscal intervention for education policy.",
+        "domain": "Education Policy",
+        "scope_profile": {
+            "profile_id": "scope:req01-pre-domain-v2-replay:v1",
+            "jurisdiction": "UA",
+            "population": "low_income_households",
+            "entity_scope": "household",
+            "time_window": {"start": "2023-01-01", "end": "2024-12-31"},
+            "time_role": "observation_time",
+            "granularity": "annual",
+            "required_constructs": ["employment_status"],
+        },
+    }
+    scenario_bytes = (
+        json.dumps(scenario, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+    ).encode("utf-8")
+    assert hashlib.sha256(scenario_bytes).hexdigest() == (
+        "7628ce10d3cf176cee43c4f57f5959866a04b16423e3fe24d7443528536293d6"
+    )
+
+    payload = json.loads(original)
+    assert payload["schema_version"] == "policyos.data_requirement_compilation.v2"
+    assert payload["scenario_id"] == scenario["scenario_id"]
+    assert payload["input_content_hash"] == (
+        "sha256:46e0499b6b95c8ab322b9044813177a69087eca46286c4d5b34868faa6502a5a"
+    )
+    assert payload["rule_version_refs"] == ["policyos.data_requirement.compiler.v2"]
+    assert "scenario_domain_resolution" not in payload["metadata"]
+    assert payload["requirement_basis"]["state"] == "not_established"
+    assert payload["requirement_basis"]["basis_grade"] == "not_established"
+    assert payload["requirement_basis"]["reason_codes"] == ["legacy_report_basis_not_carried"]
+    assert payload["specs"] == []
+    (resolution,) = payload["capability_requirement_resolutions"]
+    assert resolution["state"] == "not_established"
+    assert resolution["scope_profile_id"] == scenario["scope_profile"]["profile_id"]
+    assert resolution["query"]["construct"] == "employment_status"
+    assert resolution["query"]["geography"] == "UA"
+    assert resolution["query"]["time_window"] == scenario["scope_profile"]["time_window"]
+
+    current_source_root = Path(compiler_module.__file__).resolve().parents[2]
+    reader_probe = textwrap.dedent(
+        """
+        import hashlib, importlib, json, sys
+        from pathlib import Path
+        from polisyos.data_requirement import (
+            DataRequirementCompilationReport, data_requirement_compilation_audit_surface,
+            parse_data_requirement_compilation_report, write_data_requirement_compilation_report,
+        )
+        fixture, output_dir = map(Path, sys.argv[1:3])
+        expected_digest, expected_input_hash, source_root = sys.argv[3:]
+        raw = fixture.read_bytes()
+        assert hashlib.sha256(raw).hexdigest() == expected_digest
+        module = Path(importlib.import_module("polisyos.data_requirement.compiler").__file__).resolve()
+        assert module == Path(source_root) / "polisyos/data_requirement/compiler.py"
+        report = parse_data_requirement_compilation_report(raw)
+        assert type(report) is DataRequirementCompilationReport
+        assert report.original_bytes == raw and report.input_content_hash == expected_input_hash
+        document = json.loads(raw)
+        assert report.scenario_id == document["scenario_id"]
+        assert report.rule_version_refs == tuple(document["rule_version_refs"])
+        assert report.metadata == document["metadata"]
+        assert report.requirement_basis.state == "not_established"
+        assert "scenario_domain_resolution" not in report.metadata
+        surface = data_requirement_compilation_audit_surface(raw)
+        assert surface["input_content_hash"] == expected_input_hash
+        assert surface["rule_version_refs"] == document["rule_version_refs"]
+        assert surface["requirement_basis"] == report.requirement_basis.model_dump(mode="json")
+        written = write_data_requirement_compilation_report(report, output_dir)
+        assert written.read_bytes() == raw
+        written.write_bytes(b"tampered report")
+        try:
+            write_data_requirement_compilation_report(report, output_dir)
+        except ValueError as exc:
+            assert "data_requirement_report_content_conflict" in str(exc)
+        else:
+            raise AssertionError("writer accepted clobbered historical V2 bytes")
+        assert written.read_bytes() == b"tampered report" and fixture.read_bytes() == raw
+        print(json.dumps({
+            "status": "PASS", "module": str(module), "report_sha256": expected_digest
+        }))
+        """
+    )
+    product_root = current_source_root.parent
+    child_environment = os.environ.copy()
+    child_environment.pop("PYTHONHOME", None)
+    child_environment["PYTHONPATH"] = str(current_source_root)
+    child_environment["PYTHONNOUSERSITE"] = "1"
+    child_environment["PYTHONDONTWRITEBYTECODE"] = "1"
+    child_environment["OMP_NUM_THREADS"] = "1"
+    child_environment["OPENBLAS_NUM_THREADS"] = "1"
+    child_environment["MKL_NUM_THREADS"] = "1"
+    child = subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            "-c",
+            reader_probe,
+            str(fixture_path),
+            str(tmp_path / "fresh-current-reader"),
+            original_sha256,
+            payload["input_content_hash"],
+            str(current_source_root),
+        ],
+        cwd=product_root,
+        env=child_environment,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    assert child.returncode == 0, child.stdout + "\n" + child.stderr
+    result = json.loads(child.stdout)
+    assert result["status"] == "PASS"
+    assert result["module"] == str(current_source_root / "polisyos/data_requirement/compiler.py")
+    assert result["report_sha256"] == original_sha256
+
+
+def _declared_source_scenario(construct: str, population: str) -> dict[str, Any]:
+    return {
+        "scenario_id": "candidate-source-scope",
+        "text": "Evaluate education policy using explicitly declared annual country context.",
+        "domain": "education_policy",
+        "scope_profile": {
+            "profile_id": "scope:candidate-source-usa-2024:v1",
+            "jurisdiction": "USA",
+            "population": population,
+            "entity_scope": "country",
+            "time_window": {"start": "2024-01-01", "end": "2024-12-31"},
+            "time_role": "observation_time",
+            "granularity": "annual",
+            "required_constructs": [construct],
+        },
+    }
+
+
+@pytest.mark.parametrize(
+    ("construct", "population", "family"),
+    [
+        ("economic.gdp", "national_economy", "wdi_nominal_gdp_annual"),
+        ("labor.unemployment_rate", "total_labor_force", "wdi_unemployment_laborforce_annual"),
+    ],
+)
+def test_actual_governed_source_discovery_keeps_claim_binding_and_declared_scope(
+    construct: str,
+    population: str,
+    family: str,
+    tmp_path: Path,
+) -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    resolver = RequirementToCapabilityResolver.governed_fixture()
+    report = DataRequirementCompiler(
+        capability_resolver=resolver, require_capability_index=True
+    ).compile_for_scenario(_declared_source_scenario(construct, population))
+    assert report.specs
+    assert {item.required_data_families for item in report.specs} == {(family,)}
+    assert all(item.scope.population == population for item in report.specs)
+    (resolution,) = report.capability_requirement_resolutions
+    assert resolution.query.construct == construct
+    assert resolution.query.entity_scope == "country"
+    assert resolution.query.population_filter == {"type": population}
+    assert resolution.query.geography == "USA"
+    assert resolution.query.time_window.start == "2024-01-01"
+    assert resolution.query.time_window.end == "2024-12-31"
+    assert resolution.query.claim_use == "claim_evidence_closeout"
+    assert "candidate_unverified" in resolution.query.forbidden_evidence_modes
+    assert resolution.binding.status.startswith("blocked_")
+    assert resolver.resolve(resolution.query).satisfies_claim_evidence is False
+    discovery = resolution.candidate_discovery
+    assert discovery is not None and discovery.query == resolution.query
+    assert len(discovery.candidates) == 1
+    assert discovery.candidates[0].scope["population"] == population
+    assert discovery.rule_version_ref in report.rule_version_refs
+    assert discovery.satisfies_claim_evidence is False
+    path = write_data_requirement_compilation_report(report, tmp_path)
+    fresh = parse_data_requirement_compilation_report(path.read_bytes())
+    assert fresh.capability_requirement_resolutions == report.capability_requirement_resolutions
+    assert (
+        fresh.capability_requirement_resolutions[0].candidate_discovery.candidates[0].content_digest
+        == discovery.candidates[0].content_digest
+    )
+
+
+def test_optional_discovery_removal_or_outage_preserves_full_claim_result() -> None:
+    from polisyos.core.contracts.capability_resolution import (
+        CapabilitySourceDiscoveryUnavailableError,
+    )
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    actual = RequirementToCapabilityResolver.governed_fixture()
+    scenario = _declared_source_scenario("economic.gdp", "national_economy")
+    full = DataRequirementCompiler(capability_resolver=actual).compile_for_scenario(scenario)
+
+    class AuthorityOnly:
+        def resolve(self, query):
+            return actual.resolve(query)
+
+    class Unavailable(AuthorityOnly):
+        def discover_sources(self, query):
+            raise CapabilitySourceDiscoveryUnavailableError("declared_index_backend_unavailable")
+
+    removed = DataRequirementCompiler(capability_resolver=AuthorityOnly()).compile_for_scenario(
+        scenario
+    )
+    unavailable = DataRequirementCompiler(capability_resolver=Unavailable()).compile_for_scenario(
+        scenario
+    )
+    (source_resolution,) = full.capability_requirement_resolutions
+    for report in (removed, unavailable):
+        (resolution,) = report.capability_requirement_resolutions
+        assert resolution.query == source_resolution.query
+        assert resolution.binding == source_resolution.binding
+        assert resolution.candidate_discovery is None
+        assert "candidate_discovery" not in resolution.model_dump(mode="json")
+        assert report.specs == full.specs
+    assert unavailable.capability_requirement_resolutions[0].reason_codes == (
+        "candidate_source_discovery_unavailable",
+        "declared_index_backend_unavailable",
+    )
+    assert removed.capability_requirement_resolutions[0].reason_codes == ()
+    assert source_resolution.candidate_discovery.candidates
+
+
+@pytest.mark.parametrize("mutation", ["claim", "admission", "query", "index"])
+def test_compiler_revalidates_optional_discovery_not_frozen_instance(mutation: str) -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    actual = RequirementToCapabilityResolver.governed_fixture()
+
+    class Tampered:
+        def resolve(self, query):
+            return actual.resolve(query)
+
+        def discover_sources(self, query):
+            discovery = actual.discover_sources(query)
+            change = {
+                "claim": {"satisfies_claim_evidence": True},
+                "admission": {"requires_native_source_admission": False},
+                "query": {
+                    "query": query.model_copy(update={"requirement_id": "wrong-requirement"})
+                },
+                "index": {"capability_index_ref": "wrong-index"},
+            }[mutation]
+            return discovery.model_copy(update=change)
+
+    with pytest.raises(ValueError):
+        DataRequirementCompiler(capability_resolver=Tampered()).compile_for_scenario(
+            _declared_source_scenario("economic.gdp", "national_economy")
+        )
+
+
+@pytest.mark.parametrize("field", ["population", "entity_scope"])
+def test_declared_scope_new_fields_reject_malformed_or_conflicting_aliases(field: str) -> None:
+    scenario = _declared_source_scenario("economic.gdp", "national_economy")
+    scenario["scope_profile"][field] = 17
+    with pytest.raises(
+        compiler_module.ScenarioScopeProfileInputError, match="profile_text_invalid"
+    ):
+        DataRequirementCompiler().compile_for_scenario(scenario)
+    scenario = _declared_source_scenario("economic.gdp", "national_economy")
+    scenario["scope_profile"]["scope"] = {field: "different"}
+    with pytest.raises(
+        compiler_module.ScenarioScopeProfileInputError, match=f"profile_{field}_alias_conflict"
+    ):
+        DataRequirementCompiler().compile_for_scenario(scenario)
+
+
+@pytest.mark.parametrize("extra_family", ["wdi_nominal_gdp_annual", "unmapped_policy_panel"])
+def test_grammar_unavailable_candidate_merge_does_not_upgrade_legacy_denominator(
+    extra_family: str,
+) -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    scenario = _declared_source_scenario("economic.gdp", "national_economy")
+    scenario["expected_evidence_contract"] = {"admissible_data_source_families": [extra_family]}
+    report = DataRequirementCompiler(
+        capability_resolver=RequirementToCapabilityResolver.governed_fixture()
+    ).compile_for_scenario(scenario)
+    families = [family for spec in report.specs for family in spec.required_data_families]
+    assert families.count("wdi_nominal_gdp_annual") == 1
+    canonical = next(
+        spec for spec in report.specs if spec.required_data_families == ("wdi_nominal_gdp_annual",)
+    )
+    assert canonical.metadata["family_derivation"] == "capability_resolver"
+    assert report.metadata["grammar_facets_status"] == "not_established"
+    (resolution,) = report.capability_requirement_resolutions
+    assert resolution.binding.status.startswith("blocked_")
+    assert resolution.candidate_discovery.satisfies_claim_evidence is False
+    if extra_family == "unmapped_policy_panel":
+        assert set(families) == {"wdi_nominal_gdp_annual", "unmapped_policy_panel"}
+        assert report.requirement_basis.source == "explicit_scenario_family_declaration"
+        assert report.requirement_basis.basis_grade == "consumer_asserted"
+    else:
+        assert families == ["wdi_nominal_gdp_annual"]
+        assert report.requirement_basis.source == "governed_capability_resolution"
+        assert report.requirement_basis.basis_grade == "recomputed"
+
+
+@pytest.mark.parametrize(
+    ("construct", "population", "source_family", "world_slot"),
+    [
+        ("economic.gdp", "national_economy", "wdi_nominal_gdp_annual", "global.gdp"),
+        (
+            "labor.unemployment_rate",
+            "total_labor_force",
+            "wdi_unemployment_laborforce_annual",
+            "global.unemployment_rate",
+        ),
+    ],
+)
+def test_declared_world_slot_joins_exact_canonical_construct_need(
+    construct: str,
+    population: str,
+    source_family: str,
+    world_slot: str,
+) -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    scenario = _declared_source_scenario(construct, population)
+    scenario["expected_evidence_contract"] = {"admissible_data_source_families": [world_slot]}
+    resolver = RequirementToCapabilityResolver.governed_fixture()
+    report = DataRequirementCompiler(capability_resolver=resolver).compile_for_scenario(scenario)
+    # The slot declaration is the same declared need only through the actual
+    # content-bound source mapping, never because names or families look alike.
+    assert [spec.required_data_families for spec in report.specs] == [(source_family,)]
+    matches = compiler_module.compiled_requirements_for_world_slot(
+        world_slot=world_slot,
+        specs=report.specs,
+        capability_resolutions=report.capability_requirement_resolutions,
+    )
+    assert len(matches) == 1
+    spec = matches[0]
+    (resolution,) = report.capability_requirement_resolutions
+    assert spec.metadata["capability_binding"]["requirement_id"] == resolution.query.requirement_id
+    assert spec.metadata["capability_binding"]["construct_ref"] == f"construct:{construct}"
+    assert spec.metadata["construct_ref"] == f"construct:{construct}"
+    assert resolution.binding.status.startswith("blocked_")
+    assert resolver.resolve(resolution.query).satisfies_claim_evidence is False
+    assert report.requirement_basis.basis_grade == "recomputed"
+    assert report.metadata["declared_legacy_data_source_families"] == [world_slot]
+    assert "policyos.data_requirement.world_slot_projection.v1" in report.rule_version_refs
+
+
+def test_world_slot_join_accepts_bare_binding_construct_identity() -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    report = DataRequirementCompiler(
+        capability_resolver=RequirementToCapabilityResolver.governed_fixture()
+    ).compile_for_scenario(_declared_source_scenario("economic.gdp", "national_economy"))
+    (spec,) = report.specs
+    (resolution,) = report.capability_requirement_resolutions
+    assert resolution.binding is not None
+    bare_binding = resolution.binding.model_copy(update={"construct_ref": "economic.gdp"})
+    bare_resolution = resolution.model_copy(update={"binding": bare_binding})
+    spec_payload = spec.model_dump(mode="json")
+    metadata = dict(spec_payload["metadata"])
+    metadata["capability_binding"] = bare_binding.model_dump(mode="json")
+    metadata["construct_ref"] = "economic.gdp"
+    bare_spec = DataRequirementSpec.model_validate({**spec_payload, "metadata": metadata})
+
+    assert compiler_module.compiled_requirements_for_world_slot(
+        world_slot="global.gdp",
+        specs=(bare_spec,),
+        capability_resolutions=(bare_resolution,),
+    ) == (bare_spec,)
+
+
+def test_world_slot_join_revalidates_foreign_candidate_construct_ref() -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    report = DataRequirementCompiler(
+        capability_resolver=RequirementToCapabilityResolver.governed_fixture()
+    ).compile_for_scenario(_declared_source_scenario("economic.gdp", "national_economy"))
+    (spec,) = report.specs
+    (resolution,) = report.capability_requirement_resolutions
+    assert resolution.binding is not None
+    discovery = resolution.candidate_discovery
+    assert discovery is not None
+    (candidate,) = discovery.candidates
+    foreign_candidate = candidate.model_copy(
+        update={"construct_ref": "construct:foreign.construct"}
+    )
+    foreign_discovery = discovery.model_copy(update={"candidates": (foreign_candidate,)})
+    foreign_resolution = resolution.model_copy(update={"candidate_discovery": foreign_discovery})
+    assert resolution.binding.construct_ref == spec.metadata["construct_ref"]
+
+    with pytest.raises(ValueError, match="candidate_source_descriptor_construct_mismatch"):
+        compiler_module.compiled_requirements_for_world_slot(
+            world_slot="global.gdp",
+            specs=(spec,),
+            capability_resolutions=(foreign_resolution,),
+        )
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["missing_slot", "foreign_dataset", "foreign_population", "missing_fetch"],
+)
+def test_world_slot_join_requires_actual_declared_source_binding(mutation: str) -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    original = RequirementToCapabilityResolver.governed_fixture()
+    source = next(
+        row for row in original.capabilities if row.construct_id == "labor.unemployment_rate"
+    )
+    (asset,) = source.source_assets
+    metadata = {
+        **asset.metadata,
+        "catalog_fetch_binding": dict(asset.metadata["catalog_fetch_binding"]),
+    }
+    if mutation == "missing_slot":
+        metadata.pop("target_world_slot")
+    elif mutation == "foreign_dataset":
+        metadata["catalog_fetch_binding"]["dataset_id"] = "wrong-dataset"
+    elif mutation == "foreign_population":
+        metadata["population_scope"] = "households"
+    else:
+        metadata.pop("catalog_fetch_binding")
+    source = source.model_copy(
+        update={"source_assets": (asset.model_copy(update={"metadata": metadata}),)}
+    )
+    resolver = RequirementToCapabilityResolver(
+        capabilities=(source,), capability_index_ref=original.capability_index_ref
+    )
+    scenario = _declared_source_scenario("labor.unemployment_rate", "total_labor_force")
+    scenario["expected_evidence_contract"] = {
+        "admissible_data_source_families": ["global.unemployment_rate"]
+    }
+    report = DataRequirementCompiler(capability_resolver=resolver).compile_for_scenario(scenario)
+    # The actual resolver regenerates the descriptor digest after this source
+    # input mutation; retaining an old digest is not the refusal under test.
+    (resolution,) = report.capability_requirement_resolutions
+    assert resolution.candidate_discovery.candidates
+    assert (
+        compiler_module.compiled_requirements_for_world_slot(
+            world_slot="global.unemployment_rate",
+            specs=report.specs,
+            capability_resolutions=report.capability_requirement_resolutions,
+        )
+        == ()
+    )
+    assert len(report.specs) == 2
+    assert report.requirement_basis.basis_grade == "consumer_asserted"
+    assert report.metadata["candidate_world_slot_aliases"] == []
+    assert resolution.binding.status.startswith("blocked_")
+
+
+def test_world_slot_join_refuses_foreign_slot_or_unbound_spec() -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    report = DataRequirementCompiler(
+        capability_resolver=RequirementToCapabilityResolver.governed_fixture()
+    ).compile_for_scenario(
+        _declared_source_scenario("labor.unemployment_rate", "total_labor_force")
+    )
+    assert (
+        compiler_module.compiled_requirements_for_world_slot(
+            world_slot="global.gdp",
+            specs=report.specs,
+            capability_resolutions=report.capability_requirement_resolutions,
+        )
+        == ()
+    )
+    (spec,) = report.specs
+    metadata = dict(spec.metadata)
+    metadata.pop("capability_binding")
+    unbound = DataRequirementSpec.model_validate(
+        {**spec.model_dump(mode="json"), "metadata": metadata}
+    )
+    assert (
+        compiler_module.compiled_requirements_for_world_slot(
+            world_slot="global.unemployment_rate",
+            specs=(unbound,),
+            capability_resolutions=report.capability_requirement_resolutions,
+        )
+        == ()
+    )
+
+
+def test_world_slot_join_preserves_multiple_matching_claim_specs_as_ambiguous() -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    scenario = _declared_source_scenario("labor.unemployment_rate", "total_labor_force")
+    report = DataRequirementCompiler(
+        capability_resolver=RequirementToCapabilityResolver.governed_fixture()
+    ).compile_for_claim_ledger(
+        run_id="world-slot-two-claims",
+        scenario_id=scenario["scenario_id"],
+        facet_snapshots=(),
+        scope_profile=compiler_module._scenario_scope_profile(scenario),
+        claim_ledger={
+            "claims": [
+                {
+                    "claim_id": claim_id,
+                    "claim_family": "implementation",
+                    "claim_type": "implementation",
+                    "claim_use": "decision_support",
+                    "text": "Use the declared annual labor-market source.",
+                    "metadata": {"required_constructs": ["labor.unemployment_rate"]},
+                }
+                for claim_id in ("claim:one", "claim:two")
+            ]
+        },
+    )
+    assert len(report.specs) == 2
+    matches = compiler_module.compiled_requirements_for_world_slot(
+        world_slot="global.unemployment_rate",
+        specs=report.specs,
+        capability_resolutions=report.capability_requirement_resolutions,
+    )
+    assert len(matches) == 2
+    assert {spec.claim_id for spec in matches} == {"claim:one", "claim:two"}
+
+
+def test_world_slot_join_preserves_source_alternatives_inside_one_spec() -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    original = RequirementToCapabilityResolver.governed_fixture()
+    source = next(
+        row for row in original.capabilities if row.construct_id == "labor.unemployment_rate"
+    )
+    (asset,) = source.source_assets
+    alternate = source.model_copy(
+        update={
+            "capability_id": source.capability_id + ":alternative",
+            "source_assets": (asset.model_copy(update={"ref": asset.ref + "?alternative"}),),
+        }
+    )
+    resolver = RequirementToCapabilityResolver(
+        capabilities=(source, alternate), capability_index_ref=original.capability_index_ref
+    )
+    scenario = _declared_source_scenario("labor.unemployment_rate", "total_labor_force")
+    scenario["expected_evidence_contract"] = {
+        "admissible_data_source_families": ["global.unemployment_rate"]
+    }
+    report = DataRequirementCompiler(capability_resolver=resolver).compile_for_scenario(scenario)
+    assert len(report.specs) == 1
+    matches = compiler_module.compiled_requirements_for_world_slot(
+        world_slot="global.unemployment_rate",
+        specs=report.specs,
+        capability_resolutions=report.capability_requirement_resolutions,
+    )
+    assert len(matches) == 1
+    (resolution,) = report.capability_requirement_resolutions
+    assert {
+        candidate.capability_ref for candidate in resolution.candidate_discovery.candidates
+    } == {source.capability_id, alternate.capability_id}
+    assert resolver.resolve(resolution.query).satisfies_claim_evidence is False
+
+
+def test_world_slot_join_preserves_valid_optional_fetch_profile() -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    original = RequirementToCapabilityResolver.governed_fixture()
+    source = next(row for row in original.capabilities if row.construct_id == "economic.gdp")
+    (asset,) = source.source_assets
+    metadata = {
+        **asset.metadata,
+        "catalog_fetch_binding": {**asset.metadata["catalog_fetch_binding"], "profile_id": None},
+    }
+    source = source.model_copy(
+        update={"source_assets": (asset.model_copy(update={"metadata": metadata}),)}
+    )
+    report = DataRequirementCompiler(
+        capability_resolver=RequirementToCapabilityResolver(
+            capabilities=(source,), capability_index_ref=original.capability_index_ref
+        )
+    ).compile_for_scenario(_declared_source_scenario("economic.gdp", "national_economy"))
+    matches = compiler_module.compiled_requirements_for_world_slot(
+        world_slot="global.gdp",
+        specs=report.specs,
+        capability_resolutions=report.capability_requirement_resolutions,
+    )
+    assert len(matches) == 1
+    (resolution,) = report.capability_requirement_resolutions
+    assert (
+        resolution.candidate_discovery.candidates[0].source_assets[0]["metadata"][
+            "catalog_fetch_binding"
+        ]["profile_id"]
+        is None
+    )
+    assert resolution.candidate_discovery.satisfies_claim_evidence is False
+
+
+@pytest.mark.parametrize(
+    ("source_window", "compatible"),
+    [
+        ({"time_start": "0000-garbage", "time_end": "9999-garbage"}, False),
+        ({"time_start": "2025-01-01", "time_end": "2023-01-01"}, False),
+        ({"time_start": "2024-W01-1", "time_end": "2024-12-31"}, True),
+    ],
+)
+def test_world_slot_receiver_reconciles_calendar_scope_after_valid_rehash(
+    source_window: dict[str, str],
+    compatible: bool,
+) -> None:
+    from polisyos.data_requirement import CapabilityRequirementResolution
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    report = DataRequirementCompiler(
+        capability_resolver=RequirementToCapabilityResolver.governed_fixture()
+    ).compile_for_scenario(_declared_source_scenario("economic.gdp", "national_economy"))
+    (resolution,) = report.capability_requirement_resolutions
+    wire = resolution.model_dump(mode="json")
+    (candidate,) = wire["candidate_discovery"]["candidates"]
+    candidate["descriptor"]["scope"].update(source_window)
+    candidate["content_digest"] = (
+        "sha256:"
+        + hashlib.sha256(
+            json.dumps(
+                candidate["descriptor"],
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode()
+        ).hexdigest()
+    )
+    rebound = CapabilityRequirementResolution.model_validate(wire)
+    matches = compiler_module.compiled_requirements_for_world_slot(
+        world_slot="global.gdp", specs=report.specs, capability_resolutions=(rebound,)
+    )
+    assert bool(matches) is compatible
+    assert rebound.candidate_discovery.satisfies_claim_evidence is False

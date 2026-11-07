@@ -1,0 +1,13 @@
+id = "2026-11-04-e02-candidate-source-unconstrained-scope"
+title = "Preserve unconstrained candidate measures without invented denominators"
+type = "fixed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Extend the canonical candidate source reader/writer with v2 for an unconstrained measure whose declared denominator is absent. Keep share denominators mandatory and preserve v1 writing for existing records."
+evidence = ["tests/unit/runtime/quality/test_lane01_candidate_source.py", "tests/unit/runtime/quality/test_candidate_acquisition_world.py"]
+compatibility = "Existing v1 sources retain their schema, producer version and required denominator. The existing canonical owner reads v1 and v2; no historical artifact rewrite is needed."
+change_class = "internal typed artifact extension"
+surface_classification = "internal: candidate acquisition source artifact"
+api = "CandidateAcquisitionSource v2 permits denominator=null only for unconstrained quantity_kind. It does not add an HTTP endpoint."
+limitations = "Controlled generated GDP values establish candidate input identity only. Observed-source authority, real GDP acquisition, currentness, causal validity, range enforcement and N5 reentry are not established."
+generated_client_compatibility = "not_applicable"

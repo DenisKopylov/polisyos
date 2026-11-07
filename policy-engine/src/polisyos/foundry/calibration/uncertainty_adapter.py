@@ -6,12 +6,13 @@ import math
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from enum import StrEnum
-from statistics import NormalDist
+from statistics import NormalDist, stdev
 from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common.numeric_reductions import finite_binary64_mean
 from polisyos.core.artifacts import (
     ArtifactManifest,
     ArtifactRef,
@@ -23,6 +24,7 @@ from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.foundry.uncertainty.protocol import (
     PropagationResult,
     UncertaintyDecomposition,
+    gaussian_uncertainty_envelope,
 )
 from polisyos.ir import (
     ArtifactRefModel,
@@ -78,6 +80,7 @@ class BayesianCalibrationPosteriorSummary:
     )
     credible_mass: float = 0.9
     persisted_candidate_ref: _BayesianCalibrationSummaryCandidateRef | None = None
+    point_reduction: Literal["finite_binary64_mean", "legacy_numpy_mean"] = "finite_binary64_mean"
 
 
 class BayesianCalibrationEnvelopeLimitation(StrEnum):
@@ -137,7 +140,10 @@ class _BayesianCalibrationSummaryCandidateV1(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.1"
+    point_reduction: Literal["finite_binary64_mean"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     point_role: Literal["posterior_mean"] = "posterior_mean"
     interval_method: Literal["numpy_quantile_linear"] = "numpy_quantile_linear"
     credible_mass: float = Field(gt=0.0, lt=1.0)
@@ -155,6 +161,8 @@ class _BayesianCalibrationSummaryCandidateV1(BaseModel):
 
     @model_validator(mode="after")
     def _validate_candidate_summary(self) -> _BayesianCalibrationSummaryCandidateV1:
+        if (self.schema_version == "1.1") != (self.point_reduction is not None):
+            raise ValueError("candidate1.1 requires its explicit finite binary64 point reduction")
         names = set(self.posterior_means)
         envelope_names = set(self.parameter_envelopes)
         limitation_names = set(self.parameter_envelope_limitations)
@@ -215,11 +223,19 @@ class BayesianCalibrationCandidateConsumption:
 
 def _credible_interval(samples: np.ndarray, *, credible_mass: float) -> tuple[float, float]:
     alpha = max(1e-6, 1.0 - float(credible_mass))
-    lower, upper = np.quantile(
-        np.asarray(samples, dtype=float),
-        [alpha / 2.0, 1.0 - alpha / 2.0],
-        method="linear",
-    )
+    values = np.asarray(samples, dtype=float)
+    with np.errstate(over="ignore", invalid="ignore"):
+        lower, upper = np.quantile(values, [alpha / 2.0, 1.0 - alpha / 2.0], method="linear")
+    if not np.isfinite(lower) or not np.isfinite(upper):
+        magnitude = float(np.max(np.abs(values)))
+        lower, upper = (
+            np.quantile(
+                values / magnitude,
+                [alpha / 2.0, 1.0 - alpha / 2.0],
+                method="linear",
+            )
+            * magnitude
+        )
     return float(lower), float(upper)
 
 
@@ -392,6 +408,30 @@ def summarize_bayesian_calibration_posterior(
     posterior_diagnostics: Mapping[str, Any] | None = None,
     candidate_store: ArtifactStore | None = None,
 ) -> BayesianCalibrationPosteriorSummary:
+    """Summarize finite draws without granting caller-provided samples authority.
+
+    New persisted candidates bind the shared finite binary64 mean profile.
+    Historical candidates retain their explicit legacy replay calculation.
+    """
+    return _summarize_bayesian_calibration_posterior(
+        posterior_draws,
+        credible_mass=credible_mass,
+        emulator_diagnostics=emulator_diagnostics,
+        posterior_diagnostics=posterior_diagnostics,
+        candidate_store=candidate_store,
+        point_reduction="finite_binary64_mean",
+    )
+
+
+def _summarize_bayesian_calibration_posterior(
+    posterior_draws: Mapping[str, Any],
+    *,
+    credible_mass: float = 0.9,
+    emulator_diagnostics: Mapping[str, Any] | None = None,
+    posterior_diagnostics: Mapping[str, Any] | None = None,
+    candidate_store: ArtifactStore | None = None,
+    point_reduction: Literal["finite_binary64_mean", "legacy_numpy_mean"],
+) -> BayesianCalibrationPosteriorSummary:
     """Summarize Bayesian calibration draws and optionally persist their candidate context.
 
     ``candidate_store`` requests a caller-input-only CAS artifact for the complete summary. This
@@ -421,7 +461,11 @@ def summarize_bayesian_calibration_posterior(
             raise ValueError(f"posterior draws for {param_name!r} must be non-empty")
         if not np.all(np.isfinite(draws)):
             raise ValueError(f"posterior draws for {param_name!r} must be finite")
-        point = float(np.mean(draws))
+        point = (
+            finite_binary64_mean(draws)
+            if point_reduction == "finite_binary64_mean"
+            else float(np.mean(draws))
+        )
         interval = _credible_interval(draws, credible_mass=credible_mass)
         posterior_means[param_name] = point
         credible_intervals[param_name] = interval
@@ -453,26 +497,82 @@ def summarize_bayesian_calibration_posterior(
             envelope_limitations[param_name] = (
                 BayesianCalibrationEnvelopeLimitation.POINT_OUTSIDE_CREDIBLE_INTERVAL
             )
-        epistemic_std = float(np.std(draws, ddof=1)) if draws.shape[0] > 1 else 0.0
-        aleatoric_std = 0.0
-        if isinstance(noise_map, Mapping) and param_name in noise_map:
-            aleatoric_std = max(float(noise_map[param_name]), 0.0)
-        elif np.isscalar(noise_map):
-            aleatoric_std = max(float(noise_map), 0.0)
-        decomposition = UncertaintyDecomposition.from_gaussian_components(
-            metric_id=param_name,
-            point_estimate=point,
-            confidence_level=credible_mass,
-            epistemic_std=epistemic_std,
-            aleatoric_std=aleatoric_std,
-            source=UncertaintySource.CALIBRATION,
-            distribution_family=DistributionFamily.BAYESIAN,
-            propagation_method=PropagationMethod.MONTE_CARLO,
-            metadata={
-                "calibration_mode": ("bayesian_emulator" if emulator_info else "bayesian_direct"),
-            },
-        )
-        decompositions[param_name] = decomposition.as_dict()
+        reasons: dict[str, str] = {}
+        epistemic_std = None
+        if draws.size > 1:
+            try:
+                epistemic_std = float(stdev(float(value) for value in draws))
+            except (OverflowError, ValueError):
+                reasons["epistemic"] = "sample_dispersion_outside_binary64_range"
+        else:
+            reasons["epistemic"] = "sample_dispersion_not_established_from_single_draw"
+        raw_noise = noise_map.get(param_name) if isinstance(noise_map, Mapping) else noise_map
+        aleatoric_std = None
+        if raw_noise is not None:
+            try:
+                candidate_noise = float(raw_noise)
+            except (OverflowError, TypeError, ValueError):
+                reasons["aleatoric"] = "invalid_emulator_noise_std"
+            else:
+                if math.isfinite(candidate_noise) and candidate_noise >= 0.0:
+                    aleatoric_std = candidate_noise
+                else:
+                    reasons["aleatoric"] = "invalid_emulator_noise_std"
+        else:
+            reasons["aleatoric"] = "emulator_noise_std_not_established"
+        metadata = {
+            "calibration_mode": "bayesian_emulator" if emulator_info else "bayesian_direct",
+            "sample_binding_status": "caller_input_only",
+            "joint_sampling_eligible": False,
+            "approximation": "gaussian_components",
+        }
+        components: dict[str, Any] = {
+            "metric_id": param_name,
+            "total": None,
+            "epistemic": None,
+            "aleatoric": None,
+            "diagnostics": {"component_limitations": reasons},
+        }
+        for component, std in (("epistemic", epistemic_std), ("aleatoric", aleatoric_std)):
+            if std is None:
+                continue
+            try:
+                envelope = gaussian_uncertainty_envelope(
+                    point_estimate=point,
+                    std=std,
+                    confidence_level=credible_mass,
+                    source=UncertaintySource.CALIBRATION,
+                    distribution_family=DistributionFamily.BAYESIAN,
+                    propagation_method=PropagationMethod.MONTE_CARLO,
+                    gate_eligible=False,
+                    metadata={**metadata, "component": component},
+                )
+            except (OverflowError, ValueError):
+                reasons[component] = "gaussian_display_outside_binary64_range"
+            else:
+                components[component] = envelope.model_dump(mode="python")
+        if epistemic_std is not None and aleatoric_std is not None:
+            try:
+                decomposition = UncertaintyDecomposition.from_gaussian_components(
+                    metric_id=param_name,
+                    point_estimate=point,
+                    confidence_level=credible_mass,
+                    epistemic_std=epistemic_std,
+                    aleatoric_std=aleatoric_std,
+                    source=UncertaintySource.CALIBRATION,
+                    distribution_family=DistributionFamily.BAYESIAN,
+                    propagation_method=PropagationMethod.MONTE_CARLO,
+                    gate_eligible=False,
+                    metadata=metadata,
+                )
+            except (OverflowError, ValueError):
+                reasons["total"] = "gaussian_total_outside_binary64_range"
+            else:
+                components = decomposition.as_dict()
+                components["diagnostics"]["component_limitations"] = reasons
+        else:
+            reasons["total"] = "component_scale_not_established"
+        decompositions[param_name] = components
 
     diagnostics.setdefault("credible_mass", float(credible_mass))
     diagnostics.setdefault("num_parameters", float(len(posterior_means)))
@@ -515,6 +615,7 @@ def summarize_bayesian_calibration_posterior(
         posterior_draw_context=draw_context,
         parameter_envelope_limitations=envelope_limitations,
         credible_mass=float(credible_mass),
+        point_reduction=point_reduction,
     )
     if candidate_store is not None and draw_context is not None:
         summary = replace(
@@ -535,6 +636,14 @@ def _bayesian_calibration_summary_candidate_payload(
         raise ValueError("posterior summary has no retained draw context")
     return _BayesianCalibrationSummaryCandidateV1.model_validate(
         {
+            "schema_version": (
+                "1.1" if summary.point_reduction == "finite_binary64_mean" else "1.0"
+            ),
+            "point_reduction": (
+                "finite_binary64_mean"
+                if summary.point_reduction == "finite_binary64_mean"
+                else None
+            ),
             "credible_mass": summary.credible_mass,
             "point_role": "posterior_mean",
             "interval_method": "numpy_quantile_linear",
@@ -557,11 +666,11 @@ def _persist_bayesian_calibration_summary_candidate(
     store: ArtifactStore,
     summary: BayesianCalibrationPosteriorSummary,
 ) -> _BayesianCalibrationSummaryCandidateRef:
-    """Persist the exact legacy output and its caller-input draw context as a candidate.
+    """Persist the versioned point summary and its caller-only draw context.
 
-    The artifact preserves the existing NumPy quantile, mean, and envelope-limitation
-    semantics. It does not bind the caller arrays to a method execution or assert that
-    equal-length columns are jointly sampled.
+    Candidate1.0 retains its original stored NumPy profile; candidate1.1 binds
+    the shared finite binary64 point reduction. Neither establishes a method
+    execution, external observation authority or joint sampling relation.
     """
     candidate = _bayesian_calibration_summary_candidate_payload(summary)
     ref = put_json_artifact(
@@ -569,7 +678,7 @@ def _persist_bayesian_calibration_summary_candidate(
         candidate.model_dump(mode="python", round_trip=True),
         kind="foundry.calibration.bayesian_posterior_summary_candidate",
         schema_name="polisyos.foundry.calibration.BayesianCalibrationSummaryCandidate",
-        schema_version="1.0",
+        schema_version=candidate.schema_version,
         canon_spec=CanonSpec(forbid_floats=False),
     )
     return _BayesianCalibrationSummaryCandidateRef.model_validate(ref)
@@ -583,6 +692,17 @@ def _load_bayesian_calibration_summary_candidate(
     candidate = _BayesianCalibrationSummaryCandidateV1.model_validate(
         get_json_artifact(ensure_ir_artifact_store(store), ref)
     )
+    selected = ArtifactRef.model_validate(ref.model_dump(mode="python"))
+    manifest, _ = read_core_manifest_profile(ensure_ir_artifact_store(store), selected)
+    if (
+        manifest.kind != ref.kind
+        or manifest.media_type != ref.media_type
+        or manifest.artifact_schema is None
+        or manifest.artifact_schema.name
+        != "polisyos.foundry.calibration.BayesianCalibrationSummaryCandidate"
+        or manifest.artifact_schema.version != candidate.schema_version
+    ):
+        raise ValueError("posterior candidate manifest does not match its point profile")
     context = candidate.posterior_draw_context
     draws_by_parameter = {
         name: np.asarray(context.samples_by_parameter[name].samples, dtype=float).reshape(
@@ -590,11 +710,14 @@ def _load_bayesian_calibration_summary_candidate(
         )
         for name in context.parameter_order
     }
-    recomputed = summarize_bayesian_calibration_posterior(
+    recomputed = _summarize_bayesian_calibration_posterior(
         draws_by_parameter,
         credible_mass=candidate.credible_mass,
         emulator_diagnostics=candidate.emulator_diagnostics,
         posterior_diagnostics=candidate.diagnostics,
+        point_reduction=(
+            "finite_binary64_mean" if candidate.schema_version == "1.1" else "legacy_numpy_mean"
+        ),
     )
     if _bayesian_calibration_summary_candidate_payload(recomputed).model_dump(
         mode="json"

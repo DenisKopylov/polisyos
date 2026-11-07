@@ -1843,9 +1843,9 @@ class AuthzMiddleware:
                 )
             )
         except RuntimeHTTPError as exc:
-            # The canonical owner guard owns a confirmed run refusal and its
-            # single caller-scoped data-access event. Do not emit a provisional
-            # binding denial that could duplicate that event or replace its 403.
+            # The canonical owner guard owns the single caller-scoped
+            # data-access event for a confirmed run refusal. Preserve the
+            # distinct authorization decision for the failed route binding.
             owner_error = await to_thread.run_sync(
                 partial(
                     _recheck_optional_run_owner,
@@ -1855,6 +1855,17 @@ class AuthzMiddleware:
                 )
             )
             if owner_error is not None:
+                audit_failure = await self._audit_optional_action(
+                    request,
+                    route=route,
+                    child_scope=child_scope,
+                    requirement=requirement,
+                    bound_resource=None,
+                    outcome=RuntimeAuthorizationOutcome.DENY,
+                    denial_reason=exc.code or exc.error,
+                )
+                if audit_failure is not None:
+                    return None, audit_failure
                 return None, _AuthorizationFailure(
                     response=_response_for_runtime_error(request, owner_error),
                     reason=owner_error.code or owner_error.error,

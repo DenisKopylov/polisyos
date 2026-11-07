@@ -56,6 +56,9 @@ def compute_returns_and_advantages(
 
     if active_mask is None:
         active_mask = trajectory.active_mask
+    rewards = jnp.where(active_mask, rewards, 0.0)
+    values = jnp.where(active_mask, values, 0.0)
+    final_value = jnp.where(active_mask[-1], final_value, 0.0)
 
     def gae_step(carry, t):
         next_advantage, next_value = carry
@@ -116,8 +119,15 @@ def ppo_loss(
     active_mask: Bool[Array, "T n_agents"] | None = None,
 ) -> tuple[Float[Array, ""], dict[str, Array]]:
     """Evaluate PPO policy, value, and entropy losses over a collected trajectory."""
-    observations = trajectory.observations
-    actions = trajectory.actions
+    mask = active_mask if active_mask is not None else trajectory.active_mask
+    # Neutralize only excluded operands before actor/nonlinear arithmetic:
+    # multiplying an already non-finite value by zero is not masking.
+    observations = jnp.where(mask[..., None], trajectory.observations, 0.0)
+    action_mask = mask.reshape(mask.shape + (1,) * (trajectory.actions.ndim - mask.ndim))
+    actions = jnp.where(action_mask, trajectory.actions, 0)
+    advantages = jnp.where(mask, advantages, 0.0)
+    returns = jnp.where(mask, returns, 0.0)
+    old_log_probs = jnp.where(mask, old_log_probs, 0.0)
     T, n_agents, obs_dim = observations.shape
     obs_flat = observations.reshape(T * n_agents, obs_dim)
     actions_flat = actions.reshape(T * n_agents, -1)
@@ -132,7 +142,6 @@ def ppo_loss(
     )
     new_log_probs = new_log_probs.reshape(T, n_agents)
 
-    mask = active_mask if active_mask is not None else trajectory.active_mask
     mask_f = mask.astype(jnp.float32)
     mask_sum = jnp.maximum(jnp.sum(mask_f), 1.0)
 
@@ -147,9 +156,9 @@ def ppo_loss(
 
     entropy = compute_entropy(dist, action_type=actor_critic.action_type)
     if entropy.ndim == 0:
-        entropy_term = entropy
+        entropy_term = jnp.where(jnp.any(mask), entropy, 0.0)
     else:
-        entropy_term = jnp.mean(entropy)
+        entropy_term = jnp.sum(jnp.where(mask, entropy.reshape(T, n_agents), 0.0)) / mask_sum
 
     policy_loss = jnp.sum(policy_loss * mask_f) / mask_sum
     value_loss = jnp.sum(value_loss * mask_f) / mask_sum

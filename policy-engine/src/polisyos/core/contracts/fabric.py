@@ -6,9 +6,18 @@ from collections import Counter
 from decimal import Decimal
 from typing import Annotated, Any, ClassVar, Literal, get_args
 
-from pydantic import BaseModel, ConfigDict, Field, StrictInt, StrictStr, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StrictInt,
+    StrictStr,
+    field_validator,
+    model_validator,
+)
 
-from ..artifacts.manifest import ArtifactRef, InputRef, WarningRecord
+from ..artifacts.ids import ArtifactID
+from ..artifacts.manifest import ArtifactRef, InputRef, WarningRecord, input_ref_from_artifact_ref
 from .uncertainty import UncertaintyEnvelopeRef
 
 
@@ -98,6 +107,35 @@ class EvidenceStep(BaseModel):
     details: dict[str, str | int | bool] = Field(default_factory=dict)
 
 
+class IngestionExecutionContext(BaseModel):
+    """Bind captured ingestion to its mode and exact replay-session view.
+
+    This records execution provenance. It does not establish source currency,
+    institutional authority, or entitlement to use the captured data.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    mode: Literal["record", "replay"]
+    capture_session_id: str = Field(min_length=1)
+    selected_record_session_ref: ArtifactRef | None = None
+
+    @model_validator(mode="after")
+    def _require_selected_session(self) -> IngestionExecutionContext:
+        selected = self.selected_record_session_ref
+        if self.mode == "record":
+            if selected is not None:
+                raise ValueError("record_execution_context_cannot_claim_completed_session")
+        elif (
+            selected is None
+            or selected.kind != "fabric.record_session"
+            or selected.media_type != "application/json"
+            or selected.manifest_profile_sha256 is None
+        ):
+            raise ValueError("replay_execution_context_requires_selected_record_session")
+        return self
+
+
 class ProvenanceCoreRefModel(BaseModel):
     """Pydantic model for ProvenanceCoreRef."""
 
@@ -106,6 +144,9 @@ class ProvenanceCoreRefModel(BaseModel):
     graph_id: str
     stable_id: str
     artifact_id: str
+    manifest_profile_sha256: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$", exclude_if=lambda value: value is None
+    )
 
 
 class EvidenceBundle(BaseModel):
@@ -119,6 +160,45 @@ class EvidenceBundle(BaseModel):
     notes: list[str] = Field(default_factory=list)
     provenance_ref: ProvenanceCoreRefModel | None = None
     quality_indicators: dict[str, dict[str, Any]] | None = None
+    execution_context: IngestionExecutionContext | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+
+
+def evidence_bundle_manifest_input_refs(bundle: EvidenceBundle) -> tuple[InputRef, ...] | None:
+    """Return the writer's ordered input closure, or ``None`` for a legacy bundle.
+
+    The edges bind the exact selected views declared by the payload. They do not
+    establish the authority, freshness, or semantic validity of their sources.
+    """
+    provenance = bundle.provenance_ref
+    selected_provenance = provenance is not None and provenance.manifest_profile_sha256 is not None
+    if bundle.execution_context is None and not selected_provenance:
+        return None
+
+    inputs = [
+        input_ref_from_artifact_ref(ref, role="fabric.ingestion.payload") for ref in bundle.sources
+    ]
+    session = (
+        bundle.execution_context.selected_record_session_ref
+        if bundle.execution_context is not None
+        else None
+    )
+    if session is not None:
+        inputs.append(input_ref_from_artifact_ref(session, role="fabric.ingestion.record_session"))
+    if provenance is not None:
+        inputs.append(
+            input_ref_from_artifact_ref(
+                ArtifactRef(
+                    artifact_id=ArtifactID.model_validate(provenance.artifact_id),
+                    kind="fabric.provenance_graph",
+                    media_type="application/json",
+                    manifest_profile_sha256=provenance.manifest_profile_sha256,
+                ),
+                role="fabric.ingestion.provenance",
+            )
+        )
+    return tuple(inputs)
 
 
 class UncertaintyBounds(BaseModel):
@@ -194,10 +274,19 @@ class AcquiredObservationDataSnapshotLineage(_DataSnapshotOwnerLineage):
     passport_ref: ArtifactRef
 
 
+class CandidateAcquisitionSourceDataSnapshotLineage(_DataSnapshotOwnerLineage):
+    """Candidate source refs that never represent an observed-data admission."""
+
+    owner: Literal["candidate_acquisition_source"] = "candidate_acquisition_source"
+    base_data_snapshot_ref: ArtifactRef
+    candidate_source_ref: ArtifactRef
+
+
 DataSnapshotOwnerLineage = Annotated[
     MeasurementRootDataSnapshotLineage
     | FabricBridgeDataSnapshotLineage
-    | AcquiredObservationDataSnapshotLineage,
+    | AcquiredObservationDataSnapshotLineage
+    | CandidateAcquisitionSourceDataSnapshotLineage,
     Field(discriminator="owner"),
 ]
 
@@ -350,6 +439,12 @@ def data_snapshot_owner_input_requirements(
             (lineage.base_data_snapshot_ref, "input.base_data_snapshot"),
             (lineage.overlay_admission_receipt_ref, "evidence.overlay_admission_receipt"),
             (lineage.passport_ref, "evidence.acquisition_passport"),
+        )
+    elif isinstance(lineage, CandidateAcquisitionSourceDataSnapshotLineage):
+        field_roles = {"data_ref": "payload.candidate_acquisition_source"}
+        extra_refs = (
+            (lineage.base_data_snapshot_ref, "input.base_data_snapshot"),
+            (lineage.candidate_source_ref, "evidence.candidate_acquisition_source"),
         )
     else:  # pragma: no cover - Pydantic's discriminated union owns this boundary.
         raise ValueError("data_snapshot_owner_lineage_unsupported")

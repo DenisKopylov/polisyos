@@ -40,6 +40,17 @@ The existing pre-admission actor/run/profile/ledger and origin checks remain in 
 The actual research POST pre-admission replay, distinct same-binding reuse event, altered
 or missing origin controls and late physical settlement are mandatory verification inputs.
 
+## Candidate simulation failure outputs
+
+`control/job_nl_execution.py` replays selected, same-job N5 artifacts before
+linking them to either a compiled result or a failed Core attempt. The original
+late-stage exception is re-raised; the existing Core error record and Debug view
+retain its code, type, message and explicit cause. Error attributes alone grant
+no output membership. Publication remains behind the canonical current-attempt
+fence. Read-side numerical projection instead uses the immutable creation scope
+and exact terminal attempt, so a later attempt does not erase historical N5
+facts. See [the numerical owner and candidate projection boundary](../../quality/README.md#retained-candidate-n5-results).
+
 ## Role in System
 
 - **Depends on:** `core.artifacts`, `core.contracts`, `core.trace`, `core.security`, and the domain packages used by control-plane calls.
@@ -278,6 +289,9 @@ for supported carriers, compatibility, and verification requirements.
   run-bound costed-route projection and deferred PA2/worker composition. It
   consumes the control-plane phase-head sink and strict owner port without
   becoming a passport, overlay, epoch, or world writer.
+- [`acquisition_n5_projection.py`](acquisition_n5_projection.py) formats the
+  owner-resolved candidate N5 result, its selected manifest profile and declared
+  units for the run and candidate experiment readers.
 - [`acquisition_admission_bundle.py`](acquisition_admission_bundle.py) owns the deterministic,
   acquisition-only admission producer. Its default production signer slot is empty; a
   configured signer persists, signs, reconciles, reads back, and maps one bundle for the existing

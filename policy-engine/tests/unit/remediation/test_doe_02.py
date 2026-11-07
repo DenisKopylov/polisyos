@@ -17,6 +17,7 @@ from polisyos.scientist.methods.doe.designs import (
     TriangularDistributionSpecV1,
     _build_salib_problem,
     _derive_backend_seed,
+    _derive_plan_seed,
 )
 
 SALib = pytest.importorskip("SALib", reason="DOE-02 requires the pinned SALib backend")
@@ -257,9 +258,12 @@ def test_sampling_forwards_seed_without_resetting_external_numpy_state(
         *,
         N: int,  # noqa: N803 - SALib's public sampler keyword.
         num_levels: int,
+        optimal_trajectories: None,
+        local_optimization: bool,
         seed: object = None,
     ) -> np.ndarray:
         captured["seed"] = seed
+        captured["profile"] = (optimal_trajectories, local_optimization, num_levels)
         return np.zeros((N * 2, 1), dtype=float)
 
     monkeypatch.setattr(morris_sampler, "sample", fake_sample)
@@ -271,6 +275,7 @@ def test_sampling_forwards_seed_without_resetting_external_numpy_state(
 
     assert _numpy_state_equal(before, after)
     assert captured["seed"] == _derive_backend_seed(13, "sampling:morris")
+    assert captured["profile"] == (None, True, 4)
 
 
 def test_analysis_forwards_seed_to_backend_without_global_rng_side_effect(
@@ -288,9 +293,13 @@ def test_analysis_forwards_seed_to_backend_without_global_rng_side_effect(
         *,
         conf_level: float,
         num_levels: int,
+        num_resamples: int,
+        print_to_console: bool,
+        scaled: bool,
         seed: object = None,
     ) -> dict[str, list[float]]:
         captured["seed"] = seed
+        captured["profile"] = (num_resamples, print_to_console, scaled, conf_level, num_levels)
         return {"mu_star": [1.0], "sigma": [0.0]}
 
     monkeypatch.setattr(morris_analyzer, "analyze", fake_analyze)
@@ -311,6 +320,7 @@ def test_analysis_forwards_seed_to_backend_without_global_rng_side_effect(
     after = np.random.get_state()
     assert _numpy_state_equal(before, after)
     assert captured["seed"] == _derive_backend_seed(29, "analysis:morris")
+    assert captured["profile"] == (100, False, False, 0.95, 4)
 
 
 def test_seeded_fast_analysis_fails_closed_for_backend_global_rng() -> None:
@@ -365,3 +375,59 @@ def test_independent_seeded_plans_are_order_independent() -> None:
 
     assert np.array_equal(first_order["left"], second_order["left"])
     assert np.array_equal(first_order["right"], second_order["right"])
+
+
+def test_explicit_replica_changes_actual_sample_stream_without_global_rng() -> None:
+    """A new replica is a new sampled request, not only a different metadata label."""
+    original = _morris_plan(seed=13)
+    replica = original.model_copy(update={"replica_id": 1})
+    before = np.random.get_state()
+    first = sampling_module.generate_sensitivity_samples(original)
+    changed = sampling_module.generate_sensitivity_samples(replica)
+    after = np.random.get_state()
+    assert _numpy_state_equal(before, after)
+    assert _derive_plan_seed(original, "sampling:morris") == _derive_backend_seed(
+        13, "sampling:morris"
+    )
+    assert _derive_plan_seed(replica, "sampling:morris") != _derive_plan_seed(
+        original, "sampling:morris"
+    )
+    assert not np.array_equal(first, changed)
+    np.testing.assert_array_equal(changed, sampling_module.generate_sensitivity_samples(replica))
+
+
+def test_native_distribution_scaling_matches_independent_fixed_quantiles() -> None:
+    """Physical typed supports reach SALib's actual inverse-CDF mapping."""
+    from SALib.util import scale_samples
+    from scipy.stats import triang, truncnorm
+
+    quantiles = np.array([[0.1], [0.5], [0.9]], dtype=float)
+    cases = [
+        (
+            ParameterSpec(
+                name="x",
+                lower_bound=-2.0,
+                upper_bound=2.0,
+                distribution=ParameterDist.NORMAL,
+                distribution_spec=NormalDistributionSpecV1(mean=0.0, std=0.5),
+            ),
+            truncnorm(-4.0, 4.0, loc=0.0, scale=0.5).ppf(quantiles[:, 0]),
+        ),
+        (
+            ParameterSpec(
+                name="x",
+                lower_bound=-2.0,
+                upper_bound=2.0,
+                distribution=ParameterDist.TRIANGULAR,
+                distribution_spec=TriangularDistributionSpecV1(mode_fraction=0.25),
+            ),
+            triang(0.25, loc=-2.0, scale=4.0).ppf(quantiles[:, 0]),
+        ),
+    ]
+    for spec, expected in cases:
+        plan = SensitivityPlan(parameter_specs=[spec], seed=13)
+        problem, _ = _build_salib_problem(plan)
+        actual = scale_samples(quantiles.copy(), problem)[:, 0]
+        np.testing.assert_allclose(actual, expected, rtol=1e-10, atol=1e-12)
+        assert np.all(actual >= -2) and np.all(actual <= 2)
+        assert not np.array_equal(actual, -2 + 4 * quantiles[:, 0])

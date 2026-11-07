@@ -1,0 +1,120 @@
+{
+  "pass_id": "C09",
+  "bundle": "SIM-02",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "items": [
+    {
+      "id": "C09-R01",
+      "finding_ids": [
+        "B20"
+      ],
+      "kind": "source_confirmed_with_bounded_numeric_reproduction",
+      "severity": "medium",
+      "confidence": "high_local; ordinary_HTTP_reach_unmeasured",
+      "observed": "Literal paths .0/.00 (and .-1/.1) pass as distinct writes but alias one actual list cell; spelling swap changes winning effect. The same mechanism occurs in method-registry state adapter.",
+      "preserve": [
+        "pre-run conflict check",
+        "compatible equal assignments",
+        "type-aware program-parameter comparison",
+        "unchanged source state"
+      ],
+      "direction": "Resolve actual typed destination identity before conflict admission, or explicitly reject unsupported noncanonical index spellings at the same owner. Do not normalize dictionary string keys as array indices. Apply one consistent write plan.",
+      "evidence": [
+        "C09-S01",
+        "C09-S02",
+        "C09-S03",
+        "C09-P21",
+        "C09-P22",
+        "C09-P23",
+        "C09-P24",
+        "C09-P25",
+        "C09-P26",
+        "C09-P27"
+      ],
+      "native_acceptance": "Actual EnginePlan/request with aliased list targets refuses before method call; distinct indices and distinct dictionary keys remain valid; compatible duplicate writes remain invariant."
+    },
+    {
+      "id": "C09-R02",
+      "finding_ids": [
+        "B18",
+        "B22"
+      ],
+      "kind": "persisted_diagnostic_information_loss",
+      "severity": "medium",
+      "confidence": "high_for_wrapper_and_projection; full_CAS_UNRUN",
+      "observed": "Specific missing/nonfinite code survives only in __cause__; failed event stores exception type and run records n5_physical_work_failed. These different repair causes have same persisted semantic diagnostic.",
+      "preserve": [
+        "failed-work observation",
+        "resource history",
+        "completed earlier role trajectories",
+        "no fabricated zero"
+      ],
+      "direction": "Carry the original typed cause and affected outcome/slot into the existing interruption/work diagnostic contract and readback. Keep partial-work retention; do not revert to losing prior results.",
+      "evidence": [
+        "C09-S04",
+        "C09-S05",
+        "C09-P41",
+        "C09-P42",
+        "C09-P43",
+        "C09-P44"
+      ],
+      "native_acceptance": "Two real controller failures (missing and NaN) remain distinguishable after CAS/new consumer; first completed role remains readable when later role fails."
+    },
+    {
+      "id": "C09-T01",
+      "finding_ids": [
+        "B18",
+        "B22"
+      ],
+      "kind": "existing_test_expectation_drift_needs_native_confirmation",
+      "severity": "verification_gap",
+      "confidence": "source-level mismatch; pytest_UNRUN",
+      "observed": "Several current tests expect original JointSimulationControllerError.code out of controller.run while current run catches physical-work interruption. Program fake refs also do not model full current artifact protocol.",
+      "direction": "Run existing tests in supported environment; align tests to declared retained-result contract while requiring specific persisted causes. Do not merely weaken to any generic block or switch off retention.",
+      "evidence": [
+        "C09-S09",
+        "C09-S11",
+        "C09-S12",
+        "C09-S04",
+        "C09-S05"
+      ]
+    },
+    {
+      "id": "C09-G01",
+      "finding_ids": [
+        "B22"
+      ],
+      "kind": "explicit_time_semantics_boundary",
+      "severity": "not_a_new_unqualified_product_bug",
+      "confidence": "source and bounded numerical execution",
+      "observed": "Partial coverage/no hold-last and dt mismatch flags work. A one-point horizon still requests one physical transition and can attach final mass_balance to the first row. Surplus rows are clipped to a prefix without emitted coordinate reconciliation. Time alignment is explicitly not established.",
+      "direction": "Declare row/time/initial/final semantics at existing adapter/producer. A final summary and initial state remain different output roles. Valid explicit reconstruction is allowed with provenance; no blanket interpolation ban and no fabricated time evidence.",
+      "evidence": [
+        "C09-S06",
+        "C09-S08",
+        "C09-P28",
+        "C09-P29",
+        "C09-P30",
+        "C09-P31",
+        "C09-P32",
+        "C09-P33",
+        "C09-P34"
+      ],
+      "native_acceptance": "One-point and multistep requests preserve initial/final role and physical coordinates, requested dt or explicit limitation; partial prefix cannot become complete-horizon evidence."
+    },
+    {
+      "id": "C09-G02",
+      "finding_ids": [
+        "B18"
+      ],
+      "kind": "scalar_reduction_contract_question",
+      "severity": "not_confirmed_bug",
+      "observed": "Generic selected-outcome helper accepts finite arrays of any dimension and averages them. Some callers may legitimately return population vectors; broad prohibition is not justified.",
+      "direction": "Use actual output contract for scalar vs declared aggregation; do not infer allowed reduction solely from numerical shape.",
+      "evidence": [
+        "C09-S03",
+        "C09-P13"
+      ]
+    }
+  ]
+}

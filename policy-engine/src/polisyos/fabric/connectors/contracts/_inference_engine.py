@@ -278,19 +278,35 @@ class SchemaInference:
         # Infer allowed values for category
         allowed_values: frozenset[str] | None = None
         if data_type == SchemaType.CATEGORY:
-            unique = series.dropna().unique()
+            unique = (
+                series.cat.categories
+                if series.empty and isinstance(series.dtype, pd.CategoricalDtype)
+                else series.dropna().unique()
+            )
             if len(unique) <= self._config.category_threshold:
-                allowed_values = frozenset(str(v) for v in unique)
+                allowed_values = (
+                    frozenset(str(v) for v in unique) if len(unique) or not series.empty else None
+                )
 
         # Compute completeness
-        null_ratio = series.isna().mean()
-        completeness = 1.0 - null_ratio
-        nullable = null_ratio > self._config.null_threshold
-        if 0.0 < null_ratio <= self._config.null_threshold:
+        if series.empty:
+            confidence = 0.0
+            nullable = True
+            completeness = 0.0
             warnings.append(
-                f"Field '{normalized_name}' has rare nulls ({null_ratio:.1%}); "
-                "consider marking nullable if expected."
+                f"Field '{normalized_name}' has no observations: empirical quality is "
+                "unestablished; completeness=0 is a conservative expectation, not measured zero. "
+                "Dtype and explicit hints remain declarations."
             )
+        else:
+            null_ratio = series.isna().mean()
+            completeness = 1.0 - null_ratio
+            nullable = null_ratio > self._config.null_threshold
+            if 0.0 < null_ratio <= self._config.null_threshold:
+                warnings.append(
+                    f"Field '{normalized_name}' has rare nulls ({null_ratio:.1%}); "
+                    "consider marking nullable if expected."
+                )
 
         field = FieldSpec(
             name=normalized_name,
@@ -317,6 +333,9 @@ class SchemaInference:
 
         # Integer detection
         if pd.api.types.is_integer_dtype(dtype):
+            if series.empty:
+                prefix = "uint" if pd.api.types.is_unsigned_integer_dtype(dtype) else "int"
+                return SchemaType(f"{prefix}{dtype.itemsize * 8}"), 0.0
             if series.min() >= 0:
                 if series.max() <= 255:
                     return SchemaType.UINT8, 0.95
@@ -335,6 +354,8 @@ class SchemaInference:
 
         # Float detection
         if pd.api.types.is_float_dtype(dtype):
+            if series.empty:
+                return SchemaType(f"float{dtype.itemsize * 8}"), 0.0
             if self._config.prefer_float32:
                 return SchemaType.FLOAT32, 0.95
             return SchemaType.FLOAT64, 0.95
@@ -654,6 +675,8 @@ class SchemaInference:
         1. Look for _id or _key suffixes
         2. Check for uniqueness
         """
+        if df.empty:
+            return ()
         candidates: list[str] = []
 
         for field in fields:
@@ -701,7 +724,7 @@ class SchemaInference:
                     "Consider providing time_dimension hint."
                 )
 
-        for field in schema.fields:
+        for field in () if df.empty else schema.fields:
             if field.expected_completeness < 0.5:
                 suggestions.append(
                     f"Field '{field.name}' has low completeness "

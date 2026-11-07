@@ -113,14 +113,7 @@ def _require_stock_enforcement_provider(store: object) -> None:
     """
     from pathlib import Path
 
-    from polisyos.core.artifacts._atomic_write import AtomicFileWriter
-    from polisyos.core.artifacts._layout import CASPathLayout
-    from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
     from polisyos.core.artifacts.ir_adapter import CoreToIRArtifactStoreAdapter
-    from polisyos.core.artifacts.ownership import (
-        ArtifactOwnershipIndex,
-        _RootTransactionCoordinator,
-    )
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.runtime.http.resilience import GuardedDependencyProxy
 
@@ -139,13 +132,7 @@ def _require_stock_enforcement_provider(store: object) -> None:
         raise TechnicalInspectionOwnerNotEstablishedError("cas_provider_not_stock")
     owner = cast("FileSystemCAS", owner)
     index, coordinator = owner._ownership_index, owner._coordinator
-    if (
-        type(index) is not ArtifactOwnershipIndex
-        or type(coordinator) is not _RootTransactionCoordinator
-        or type(owner._layout) is not CASPathLayout
-        or type(owner._files) is not AtomicFileWriter
-        or type(owner._manifests) is not ManifestLifecycle
-    ):
+    if not FileSystemCAS.has_stock_component_types(owner):
         raise TechnicalInspectionOwnerNotEstablishedError("enforcement_provider_not_stock")
     root = owner.root
     path_type = type(Path("."))

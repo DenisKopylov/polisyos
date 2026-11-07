@@ -30,6 +30,8 @@ from polisyos.data_forge.read_api.academic import (
     SKGQuery,
     retained_skg_source_binding,
 )
+from polisyos.foundry.methods.catalog.causal.parameter_transfer import ParameterTransfer
+from polisyos.foundry.methods.catalog.causal.protocols import ParameterTransferData
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
     CausalGraphModel,
@@ -42,6 +44,7 @@ from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceSummary,
     persist_cross_graph_evidence_profile,
 )
+from polisyos.ir.analytics.literature import EvidenceParameter
 from polisyos.ir.analytics.parameters import (
     ContextAdaptiveParameterBundle,
     ContextAdaptiveParameterBundleV11,
@@ -224,6 +227,112 @@ def _capture_cache_source(execution_context, tmp_path, name):
     return source_ref, retained_skg_source_binding(execution_context.store, source_ref)
 
 
+def _source_unbound_runtime_reuse(execution_context, minimal_state):
+    """Persist actual source-unbound v1.1 bundle and selected causal graph."""
+    graph_ref, _other_graph_ref = _graph_profile_pair(execution_context.store)
+    bundle = ContextAdaptiveParameterBundle(
+        target_context=ContextProfile(context_id="control"),
+        simulation_domain="fiscal",
+        parameters={
+            "gamma": EvidenceParameter(name="gamma", value=-1.0, std_error=0.0),
+            "beta": EvidenceParameter(name="beta", value=2.0, std_error=0.2),
+        },
+        applicability={
+            "beta": ParameterApplicability(
+                parameter_id="beta",
+                target_context_id="control",
+                transport_status=TransportabilityStatus.IDENTIFIED,
+                transport_mode=TransportMode.TRANSPORT_FORMULA,
+                transport_confidence=0.6,
+                context_distance=0.4,
+                is_applicable=True,
+                adjustment_required=True,
+                uncertainty_multiplier=3.0,
+            ),
+        },
+        unsupported_parameters=["missing"],
+    )
+    bundle_ref = _persist_v1_1_bundle(
+        _ensure_ir_artifact_store(execution_context.store),
+        bundle,
+        inputs=[
+            input_ref_from_artifact_ref(
+                ArtifactRef.model_validate(graph_ref.model_dump(mode="json")),
+                role="causal_graph",
+            )
+        ],
+    )
+    state = _cached_request_state(minimal_state, graph_ref, bundle_ref)
+    state.params["required_parameters"] = ["gamma", "missing", "beta"]
+    state.params["phase15_runtime_backend"] = "numpy"
+    return bundle, bundle_ref, state
+
+
+@pytest.mark.parametrize(("draws", "seed"), [(32, 1), (128, 9)])
+def test_source_unbound_reuse_materializes_current_runtime_and_preserves_bundle(
+    execution_context, minimal_state, draws, seed
+):
+    """Real typed CAS bundle reuse recomputes current bridge outputs without selection."""
+    bundle, bundle_ref, state = _source_unbound_runtime_reuse(execution_context, minimal_state)
+    state.params.update(
+        {
+            "phase15_runtime_draws": draws,
+            "phase15_runtime_seed": seed,
+            "literature_priors": {"stale": {}},
+            "parameter_uncertainty_multipliers": {"stale": 99},
+            "phase15_runtime_backend_used": "old",
+            "phase15_runtime_parameter_intervals": {"stale": {}},
+            "phase15_runtime_ready": True,
+        }
+    )
+    before = state.model_dump(mode="python")
+    with patch(
+        "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ParameterSelector"
+    ) as selector:
+        outcome = ResolveParametersNode().execute(execution_context, state)
+    selector.assert_not_called()
+    assert outcome.status == "ok"
+    assert state.model_dump(mode="python") == before
+    assert outcome.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF].model_dump(
+        mode="json"
+    ) == bundle_ref.model_dump(mode="json")
+    expected = ParameterTransfer.pure_step(
+        ParameterTransferData(parameter_bundle=bundle),
+        params={"runtime_backend": "numpy", "runtime_draws": draws, "runtime_seed": seed},
+    )
+    actual = outcome.state.params
+    assert actual["literature_priors"] == expected["literature_priors"]
+    assert actual["parameter_uncertainty_multipliers"] == expected["uncertainty_multipliers"]
+    assert actual["phase15_runtime_parameter_intervals"] == expected["runtime_parameter_intervals"]
+    assert actual["phase15_runtime_parameter_intervals"]["beta"]["draws"] == draws
+    assert actual["phase15_runtime_backend_used"] == "numpy"
+    assert actual["phase15_runtime_ready"] is True
+    # Independent arithmetic oracle over typed pre-sampling inputs.
+    assert actual["literature_priors"]["beta"]["__intercept__"]["mean"] == 2.0
+    assert actual["literature_priors"]["beta"]["__intercept__"]["std"] == pytest.approx(0.6)
+    assert actual["literature_priors"]["gamma"]["__intercept__"]["mean"] == -1.0
+    assert actual["literature_priors"]["gamma"]["__intercept__"]["std"] == pytest.approx(0.1)
+    assert "missing" not in actual["literature_priors"]
+
+
+def test_source_unbound_reuse_does_not_publish_stale_ready_on_bridge_failure(
+    execution_context, minimal_state
+):
+    """Failure before branch publication preserves the original state and bundle."""
+    _bundle, _ref, state = _source_unbound_runtime_reuse(execution_context, minimal_state)
+    state.params.update({"phase15_runtime_ready": True, "literature_priors": {"stale": {}}})
+    before = state.model_dump(mode="python")
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.causal.resolve_parameters.ParameterTransfer.pure_step",
+            side_effect=RuntimeError("controlled bridge failure"),
+        ),
+        pytest.raises(RuntimeError, match="controlled bridge failure"),
+    ):
+        ResolveParametersNode().execute(execution_context, state)
+    assert state.model_dump(mode="python") == before
+
+
 def test_cache_hit_binds_explicit_source_before_legacy_no_request_replay(
     execution_context,
     minimal_state,
@@ -374,7 +483,12 @@ def test_existing_bundle_requires_valid_cas_artifact(
     valid_outcome = ResolveParametersNode().execute(execution_context, valid_state)
 
     assert valid_outcome.status == "ok"
-    assert valid_outcome.state is valid_state
+    assert valid_outcome.state is not valid_state
+    assert valid_outcome.state.artifacts_index[
+        ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
+    ].model_dump(mode="json") == valid_ref.model_dump(mode="json")
+    assert valid_outcome.state.params["phase15_runtime_ready"] is False
+    assert "phase15_runtime_ready" not in valid_state.params
 
     invalid_state = minimal_state.model_copy(deep=True)
     invalid_state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] = (

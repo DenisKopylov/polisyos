@@ -56,6 +56,7 @@ The table lists selected facade names. The complete export set is owned by
 | ---------------------------------------------------- | ----------------------------------------------------------------------- |
 | `ArtifactID`                                         | Validated canonical artifact identifier                                 |
 | `ArtifactStore`                                      | Protocol for CAS backends                                               |
+| `InputRefLike`                                       | Structural Core/IR input edge retaining its selected manifest profile |
 | `PutOptions`, `StorePutOptions`                      | Write metadata, schema information, and lineage inputs                  |
 | `normalize_artifact_ref()`, `normalize_input_refs()` | Normalize typed refs before persistence                                 |
 | `put_json_artifact()`                                | Persist a canonical JSON artifact and return a standardized ref payload |
@@ -67,7 +68,7 @@ Full reference: [docs/reference/ir/](../../../../docs/reference/ir/index.md)
 
 - Last updated: 2026-10-14
 - Files: 6 Python files under this package tree
-- Exports: 33 public names in `__all__` in `__init__.py`
+- Exports: 34 public names in `__all__` in `__init__.py`
 - Current usage: shared I/O layer for analytics artifacts, observation bundles, and typed `ir.refs`
 
 ## Explicit `.3` generic reads and callback boundary

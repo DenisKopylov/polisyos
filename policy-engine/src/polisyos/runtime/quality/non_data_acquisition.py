@@ -36,6 +36,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     ACQUISITION_PLANNER_SCHEMA_NAME,
     ACQUISITION_PLANNER_SCHEMA_VERSION_SHORT,
     AcquisitionGap,
+    _n7_require_current_report_input_provenance,
     load_acquisition_planner_report,
     persist_acquisition_planner_report,
     plan_evidence_acquisition,
@@ -72,6 +73,7 @@ def run_non_data_acquisition(
     if gap.gap_id != request.gap_id or gap.claim_ref != request.claim_ref:
         raise ValueError("non_data_gap_binding_mismatch")
     report = plan_evidence_acquisition(run_id=run_id, gaps=[gap], generated_at=at)
+    _n7_require_current_report_input_provenance(report)
     report_ref = persist_acquisition_planner_report(runtime.store, report)
     bound = NonDataRequest.model_validate(
         {

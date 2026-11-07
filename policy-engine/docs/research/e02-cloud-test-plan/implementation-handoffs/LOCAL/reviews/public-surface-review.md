@@ -1,6 +1,6 @@
 # Read-only public-surface review
 
-Reviewed candidate: `077a572ff5880b3f50a85d3e3db6a232d277659a`, tree `2895b6c7597215b714275cb4ba83a504724dc89c`; pinned G comparison source: `93d6aa62a8d236667fdf322a5fc17962523b185e`. The Python checks used the candidate worktree's `.venv/bin/python`, `PYTHONPATH=src:.`, and resolved imports from the stated worktree. Full path SHA-256s and runtime outputs are retained under [`raw/`](raw/).
+Reviewed candidate: `077a572ff5880b3f50a85d3e3db6a232d277659a`, tree `2895b6c7597215b714275cb4ba83a504724dc89c`; pinned G comparison source: `93d6aa62a8d236667fdf322a5fc17962523b185e`. The Python checks used the candidate worktree's `.venv/bin/python`, `PYTHONPATH=src:.`, and resolved imports from the stated worktree. Full path SHA-256s and runtime outputs are retained under `raw/` (`raw/`; unavailable in this checkout).
 
 ## Findings
 
@@ -28,11 +28,11 @@ Reviewed candidate: `077a572ff5880b3f50a85d3e3db6a232d277659a`, tree `2895b6c759
 
 ## Evidence and limits
 
-- Runtime import receipt: [`raw/public-surface-runtime-imports.log`](raw/public-surface-runtime-imports.log) (all 51 Lex exports resolved; removed names absent; Core object identity and required custody field checked).
-- Scientist package/module boundary receipt: [`raw/lex-internal-exports.log`](raw/lex-internal-exports.log).
-- Legal owner/Zod full-field comparison: [`raw/legal-dashboard-field-compare.log`](raw/legal-dashboard-field-compare.log), 49/49 exact names.
-- DTO OpenAPI shape: [`raw/legal-openapi-shape.log`](raw/legal-openapi-shape.log).
-- Core subpackage wildcard failure: [`raw/core-contracts-star-import.log`](raw/core-contracts-star-import.log), confirmed inherited from the G source's literal `*_CHRONOLOGY_EXPORTS` entry.
-- Source byte hashes: [`raw/public-surface-source-sha256.txt`](raw/public-surface-source-sha256.txt) and [`raw/public-surface-source-sha256-runtime.txt`](raw/public-surface-source-sha256-runtime.txt). Candidate/G blob relationships: [`raw/public-surface-source-version.log`](raw/public-surface-source-version.log). Candidate pin: [`raw/public-surface-candidate-state.txt`](raw/public-surface-candidate-state.txt).
+- Runtime import receipt: `raw/public-surface-runtime-imports.log` (`raw/public-surface-runtime-imports.log`; unavailable in this checkout) (all 51 Lex exports resolved; removed names absent; Core object identity and required custody field checked).
+- Scientist package/module boundary receipt: `raw/lex-internal-exports.log` (`raw/lex-internal-exports.log`; unavailable in this checkout).
+- Legal owner/Zod full-field comparison: `raw/legal-dashboard-field-compare.log` (`raw/legal-dashboard-field-compare.log`; unavailable in this checkout), 49/49 exact names.
+- DTO OpenAPI shape: `raw/legal-openapi-shape.log` (`raw/legal-openapi-shape.log`; unavailable in this checkout).
+- Core subpackage wildcard failure: `raw/core-contracts-star-import.log` (`raw/core-contracts-star-import.log`; unavailable in this checkout), confirmed inherited from the G source's literal `*_CHRONOLOGY_EXPORTS` entry.
+- Source byte hashes: `raw/public-surface-source-sha256.txt` (`raw/public-surface-source-sha256.txt`; unavailable in this checkout) and `raw/public-surface-source-sha256-runtime.txt` (`raw/public-surface-source-sha256-runtime.txt`; unavailable in this checkout). Candidate/G blob relationships: `raw/public-surface-source-version.log` (`raw/public-surface-source-version.log`; unavailable in this checkout). Candidate pin: `raw/public-surface-candidate-state.txt` (`raw/public-surface-candidate-state.txt`; unavailable in this checkout).
 - Only `src/polisyos/runtime/quality/README.md` was modified in the reviewed tracked source paths; its working-tree delta is an unrelated `derived_observations.py` note. The native-chronology paragraphs cited above match G/HEAD. No product source, test, generated inventory, or release fragment was changed by this review.
 - No browser run, dashboard test, full import-inventory generator, heavy test, or architecture gate was run. The evidence establishes source/API wiring and live Python import behavior, not a rendered browser experience or production Legal model/corpus authority.

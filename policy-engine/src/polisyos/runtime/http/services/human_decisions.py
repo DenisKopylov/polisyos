@@ -459,14 +459,17 @@ def _pa2_packet_join_issues(
     )
     snapshot = source.permission_snapshot
     from polisyos.runtime.http.permissions import RuntimePermission
-    from polisyos.runtime.quality.agent_action_authority import ACQUISITION_ACTION_KIND
+    from polisyos.runtime.quality.agent_action_authority import (
+        ACQUISITION_ACTION_KIND,
+        CANDIDATE_EXPERIMENT_ACTION_KIND,
+    )
 
     # Acquisition is an in-envelope action with mandatory pre-action human
     # accountability. Its exact tuple/permission distinguishes it from S7's
     # out-of-envelope review; a request reason alone cannot select this arm.
     acquisition_source = (
-        source.action_kind == ACQUISITION_ACTION_KIND
-        and source.operation_id == ACQUISITION_ACTION_KIND
+        source.action_kind in {ACQUISITION_ACTION_KIND, CANDIDATE_EXPERIMENT_ACTION_KIND}
+        and source.operation_id == source.action_kind
         and source.operation_version == "v1"
         and envelope is not None
         and envelope.action_kind == source.action_kind
@@ -3482,6 +3485,38 @@ class HumanDecisionService:
         expected_tenant_id: str | None,
         expected_run_id: str | None,
     ) -> _ResolvedSignedArtifact:
+        """Resolve one signed artifact and normalize a read-time disappearance."""
+        try:
+            return self._read_signed_model_checked(
+                ref,
+                expected_kind=expected_kind,
+                expected_schema_name=expected_schema_name,
+                expected_schema_version=expected_schema_version,
+                model_type=model_type,
+                expected_tenant_id=expected_tenant_id,
+                expected_run_id=expected_run_id,
+            )
+        except FileNotFoundError as exc:
+            raise _ResolutionIssueError(
+                _reason(
+                    "DS9-DECISION-ARTIFACT-MISSING",
+                    "A supplied exact artifact disappeared during signed resolution.",
+                    "artifact_missing",
+                )
+            ) from exc
+
+    def _read_signed_model_checked(
+        self,
+        ref: str,
+        *,
+        expected_kind: str,
+        expected_schema_name: str,
+        expected_schema_version: str,
+        model_type: type[_TModel],
+        expected_tenant_id: str | None,
+        expected_run_id: str | None,
+    ) -> _ResolvedSignedArtifact:
+        """Verify the signed model without converting other failures to absence."""
         if not self._sink.has_artifact(ref):
             raise _ResolutionIssueError(
                 _reason(

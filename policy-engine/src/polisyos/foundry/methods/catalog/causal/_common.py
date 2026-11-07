@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+from statistics import NormalDist
 from typing import Any
 
 import numpy as np
@@ -13,6 +15,19 @@ from polisyos.ir.analytics.causal import (
     DiagnosticTest,
     EstimationStatus,
 )
+
+
+def _normal_critical_value(confidence_level: float) -> float:
+    """Return a representable positive two-sided normal critical value."""
+
+    level = float(confidence_level)
+    if not math.isfinite(level) or not 0.0 < level < 1.0:
+        raise ValueError("confidence_level must be in (0, 1)")
+    # Form the small tail directly: (1 + level)/2 rounds to one near level=1.
+    critical = -float(NormalDist().inv_cdf((1.0 - level) / 2.0))
+    if not math.isfinite(critical) or critical <= 0.0:
+        raise ValueError("confidence_level is outside the representable normal numerical range")
+    return critical
 
 
 def bootstrap_ci(

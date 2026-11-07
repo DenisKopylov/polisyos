@@ -1,0 +1,338 @@
+{
+  "pass_id": "C81",
+  "bundle": "MIG-04",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/fabric/identity/migrations.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/identity/migrations.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          40
+        ]
+      ],
+      "evidence_level": "Полный canonical callback/registration прочитан и native исполнен. Format-only rename, не target DTO validator.",
+      "git_blob": "facefc99ccae349243905be93d2a68f6ded023b3",
+      "sha256": "daa6691ca7eb8f0248915bf73d5edf2e1639d42c9775bc7201922abbbdd78d97",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/fabric/identity/manifest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/identity/manifest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          68
+        ]
+      ],
+      "evidence_level": "Полная настоящая Fabric DTO прочитана и native исполнена без clock trap; complete/alias/unknown/missing cases различены.",
+      "git_blob": "e45d04099d856b1ab7b59f91062b06011f0d1e3d",
+      "sha256": "d9b63a4ab032cfc0a3a3ffc39814fe78a59707774e12f4eb5cc08f65e9dbaaab",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/fabric/_internal/registry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/_internal/registry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          52
+        ]
+      ],
+      "evidence_level": "Полный реальный persisted consumer прочитан и native исполнен: model_validate_json перед register, require/reconciliation check. Raw hash не проверялся как содержание файла.",
+      "git_blob": "d83cf07f8380d02e93196deb607e8c434c7f9147",
+      "sha256": "978c9471dea05dd2d18bf11d4a7917b1949fb19901d244b3a9c8cd23b1fd40dc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/core/registry/generic.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/registry/generic.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          184
+        ]
+      ],
+      "evidence_level": "Полный generic registry прочитан; actual module служит consumer, не fixture dictionary. Concurrent/secondary-index semantics этим пакетом не квалифицируются.",
+      "git_blob": "0563b4217dc587d2f60d502d5b5edf7dd0f5ea90",
+      "sha256": "b1e1708fa846adf841fc4f54faa126c0b2605f005ce12c0c1e1ce9a79758553c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/common/migrations/manifest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/migrations/manifest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          35
+        ]
+      ],
+      "evidence_level": "Полный explicit legacy callback/registration side effect прочитан и native исполнен. Bounded duplicate намеренно сохраняет ABI без Common→Fabric dependency.",
+      "git_blob": "d8c87c8eef174de89a866d4d9448ddc57131284b",
+      "sha256": "7d7a8ecb625f23fb9e3e0dfc66f7837b9b30353d15a587c3a23525d991b72806",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/common/migrations/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/migrations/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          24
+        ]
+      ],
+      "evidence_level": "Полный neutral initializer прочитан; fresh native subprocess не загружает Fabric. Deprecated version export сохранён.",
+      "git_blob": "9f824af76221076dad702d4b55d9f54581eeebed",
+      "sha256": "ec2daeb4da70819341721f887cc4669a443627cef426b324d7511c8066bd470f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/common/migrations/base.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/migrations/base.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          101
+        ]
+      ],
+      "evidence_level": "Полный registry/copy/stamp owner source-qualified C79, повторно исполнен; raw callback и public engine mutation contracts различены.",
+      "git_blob": "9079f08f1dbf4429c588e548ea824395137a10f8",
+      "sha256": "5575321803537f6c4f8b3d94be5cd959e54dec1e4e6f6536cdd3bc398caa088f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/common/migrations/_engine.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/migrations/_engine.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          64
+        ]
+      ],
+      "evidence_level": "Полный shared traversal source-qualified C79, повторно исполнен; полного MIG-05 verdict здесь нет.",
+      "git_blob": "2e4fee3cec993e9321c712ce094ae955136091b4",
+      "sha256": "08df89953e0ebe66ee97bc981b432ee7a63aec3f7d80169ae28a3e1828351a01",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tools/ops_runners/migrations/migrate.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/ops_runners/migrations/migrate.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          90
+        ]
+      ],
+      "evidence_level": "Полный current CLI source-qualified C79, current Fabric dispatch перечитан; whole actual module выполнен за tools.lib/fs seam.",
+      "git_blob": "a0c11ebbe6a5349461221f60f7a8b5161de68855",
+      "sha256": "1d9b11c83823f652be26055d69f26734c4a4cc48e527ca68ce00783902bc76fe",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/ops/migrations/migration-contracts.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/ops/migrations/migration-contracts.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          109,
+          138
+        ],
+        [
+          168,
+          175
+        ]
+      ],
+      "evidence_level": "API-schemas migration class source-qualified C79 и actual Fabric helper binding перечитан. TOML binding validator действительно исполнен.",
+      "git_blob": "3738ab8b7328627e11160f2e8df4570d90717fda",
+      "sha256": "2ce3d51361b0ad463a094b5c0cc64676d236b5da23f1d9678f554cd616e00944",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/tools/ops_runners/migrations/contracts.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/ops_runners/migrations/contracts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          88
+        ]
+      ],
+      "evidence_level": "Полный unchanged binding validator source-qualified C79, actual execution в existing body и CLI; release gate UNRUN.",
+      "git_blob": "0155438feb8afaa2596ac3a412ad8ac7602258bd",
+      "sha256": "84011950e8c64847bee232fb8cf5f8d36e66630c1c73f415f42b1ef2a2c2896d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/tests/unit/remediation/test_mig_04.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_mig_04.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          306
+        ]
+      ],
+      "evidence_level": "Полный regression прочитан. Все12 unchanged bodies/14 cases PASS, включая3 actual native child process commands (не дополнительные cases).",
+      "git_blob": "cb9027a4684b09a56abc6bf06103e625da0ea286",
+      "sha256": "c7c3f2380977d9537df947054d8bc4a65239be5bda385668281b0e8b2644f0d4",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/docs/migration/dataset-manifest-migration.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/migration/dataset-manifest-migration.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          27
+        ]
+      ],
+      "evidence_level": "Полный current format-only/compatibility qualification прочитан; отсутствует blanket equivalence/provenance claim.",
+      "git_blob": "1c8a8fc479b83415d877498fb0b29864778d49f3",
+      "sha256": "0cbf4ed4b3cf93fcd97dbcb4c6f54842213538db9688e94a729385d632b7e866",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/common/migrations/README.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/migrations/README.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          36
+        ]
+      ],
+      "evidence_level": "Полное current ownership/deprecated version export описание прочитано; historical corpus explicitly not established.",
+      "git_blob": "160192fb91690c41696e0fc2824861e99fca4a2e",
+      "sha256": "da1041dbd91de51d1c5a3273bd71df9ce9f6f1b71b910fe7efa65e9e800d7acd",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/fabric/identity/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/identity/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          18
+        ]
+      ],
+      "evidence_level": "Полный domain initializer прочитан и native imported; eager DTO/segment helper не импортируются через generic Common.",
+      "git_blob": "7b7fe0140edf7852b28ae8410692175d4f1099a6",
+      "sha256": "3f975d03add1893263aae962e2649c90ded3124723999968f4f27749efceabf7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/src/polisyos/fabric/identity/segment_manifest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/identity/segment_manifest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          19
+        ]
+      ],
+      "evidence_level": "Полный соседний helper прочитан для import boundary; write_segment_manifest не исполнялся и не относится к converter.",
+      "git_blob": "9364d81b9e9d048433fc1650c65dff86a1c5b2fa",
+      "sha256": "d05031209950fd172985311739b0737bb4b6a6aa43599696f30c7967dd5b964e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/temporal.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/fabric/data_plane/temporal.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          24
+        ]
+      ],
+      "evidence_level": "Actual utc_now прочитан; clock не stubbed. DTO default отделён от converter/source timestamp.",
+      "git_blob": "f1c2e5f870dc00af9b9540fe24c897e2249f3123",
+      "sha256": "7c2f9ef36bf2326e3db211c72feb19d82b4f241ff76f09d8294610cc2ec61492",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S18",
+      "path": "policy-engine/tools/lib/fs.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/lib/fs.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          80,
+          104
+        ],
+        [
+          850,
+          860
+        ]
+      ],
+      "evidence_level": "C79 source-qualified unchanged atomic writer исполняется под selector None. Shared C79-R01 остаётся; native full tools.fs blocked.",
+      "git_blob": "e0c3311b75bf07863695b9b6220fa8c1ec26869e",
+      "sha256": "0ddf42f824ddfe55386f5d5d63b39cacfb53f73dad03d8d2158f19a6b9a15119",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S19",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          30
+        ]
+      ],
+      "evidence_level": "Supported runtime/dependency baseline.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

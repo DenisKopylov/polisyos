@@ -1,0 +1,380 @@
+{
+  "pass_id": "C85",
+  "bundle": "UDF-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/io.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/io.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          255
+        ]
+      ],
+      "evidence_level": "Полный canonical owner прочитан; whole module исполнен за двумя initializer shells. JSON/NPZ/selection проверены, Parquet native BLOCKED, CAS не исполнялся.",
+      "git_blob": "3eb495bcf67c134f85b2ba17bf9f8502cbe12fd5",
+      "sha256": "5f2bfe31a2ed8ee0cea4bdec800670dbe8df6749ea7a4d810ab5a88f38bc7686",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/bindings_validation.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/bindings_validation.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          707
+        ]
+      ],
+      "evidence_level": "Полный модуль прочитан и actual whole module импортирован. Selected identity/coverage/subset/synthetic functions исполнены; не все identity bridge branches проверены.",
+      "git_blob": "bb6cbcc51d907bea59fe917c08a3518acefbce0d",
+      "sha256": "fa4ea895e020d540f65d6069bf9ad07508df606b19fcf34802e5c78960c79ab4",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/common.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          418
+        ]
+      ],
+      "evidence_level": "Полный модуль прочитан, включая прежние source-qualified C83/C84 ranges; actual whole module исполнен. Scheduler и28 lazy aliases проверены; не все graph helper branches аттестованы.",
+      "git_blob": "0b46581c7ba3bf72d8bd68d397f62cd7f0979e36",
+      "sha256": "462d1e92af6468703221b0f891de4d5c7f19a32c81f20361b2f22cfb69dd6d36",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/sources.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          120
+        ],
+        [
+          650,
+          820
+        ]
+      ],
+      "evidence_level": "Actual explicit imports и D0 tail: subset warnings, synthetic snapshot, selected profile guard, consumer_required и возврат результата. Source-only, полный D0 stage не исполнялся.",
+      "git_blob": "75292565d4ef85f40b436f93f1afb0fa8470c405",
+      "sha256": "6e7c51f66aa9a81f1f6a94804eea3d84fcffa78f4b14a5cdb04a5ed7c8f15a52",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/release.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/release.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          110
+        ]
+      ],
+      "evidence_level": "Actual explicit imports и полный начальный helper context прочитаны; whole release module/native stage не запускались.",
+      "git_blob": "ab95ca78574ca8f9cd3342ebf0c1985ca34af9de",
+      "sha256": "dc783e16c5ed86dc54efca57da00281cae4b12807b794cff89fa3616b7d14d99",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          88
+        ]
+      ],
+      "evidence_level": "Полный facade/registry mapping прочитан. Explicit aliases source-only, no wildcard; native eager initializer остаётся shared C83-R01.",
+      "git_blob": "6c31f31549a1a680b311c229de636479a085f8ff",
+      "sha256": "0a368cb92a79bd4f905640cfe40ed5a88dd55933c9f8297e466393ef0845194b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/contracts.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/contracts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          77
+        ]
+      ],
+      "evidence_level": "Полный DTO source-qualified C83, actual import current. New inputs field уже отдельно оценён, не удалять ради pure move.",
+      "git_blob": "63dd5ea565668b5419f6d2c879cbe36383e8e0dc",
+      "sha256": "5168ed85799befea34e60c01b47ad6e705135a56a212390a7d466aa0f8fc58cd",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/governance_handoff.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/governance_handoff.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          52
+        ]
+      ],
+      "evidence_level": "Полный owner source-qualified C83; current AST import census. D4 behavior не переаттестован этим пакетом.",
+      "git_blob": "d55958e4f412e7db05accb7a32ca58d7776084ac",
+      "sha256": "edef1c80d3424e1cd10132fc674dcb20feb4483f8d6b377b06f142b765e03738",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/calibration.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/calibration.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          5
+        ]
+      ],
+      "evidence_level": "Полный narrow compatibility facade source-qualified C83, current AST census.",
+      "git_blob": "83412f259142f0918ddcdf1912a6174a4ec9bf36",
+      "sha256": "1d4b5504f14a5dd23605414adc6da1a4c383110b4b479383a08bbf988b70da16",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/observation.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/observation.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          274
+        ]
+      ],
+      "evidence_level": "Полный period owner source-qualified C84; current actual module import. B146 не переаттестуется C85.",
+      "git_blob": "7ff1b15cd7471e17fa53fe6122ed381bb1e5cd14",
+      "sha256": "1181aa0b1d23395db623d3cb82cba18a8152ad9bef9026a806d6144e132b5a9f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          120
+        ]
+      ],
+      "evidence_level": "Actual explicit imports source-qualified C84; current AST census. Остальной body не считается проверенным по census.",
+      "git_blob": "9155621b7174530226f38f58b7c322c016152d80",
+      "sha256": "e3b30b65da5c95ddc0684a0d582049e134ad75ee65c1df3ffec1891df1f32707",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography_inventory.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography_inventory.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          64
+        ]
+      ],
+      "evidence_level": "Полный candidate-only builder прочитан; useful source-bound input extension сохранена. Source-only, не native inventory qualification.",
+      "git_blob": "a3f3a67439b408f83199f587f366919c5b957a2b",
+      "sha256": "4e861a188988df1fe9451e6cf0bb852dce52cf1d66aeba64110c44d4e657ee63",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/atomic.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/io/atomic.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          71
+        ]
+      ],
+      "evidence_level": "Полный actual atomic owner прочитан и исполнен. File fsync/replace pre-publication failures tested; power-loss не тестировался.",
+      "git_blob": "3bc1c0e05b196e29c9d5f0fff1149221fd54bcee",
+      "sha256": "38cae9207be0d3d3d6ff810f62b79a433b13ff0dd0b9aac86a53d2fbb9598c41",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/manifests.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/manifests.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          125
+        ]
+      ],
+      "evidence_level": "Полный ArtifactRecord/from_path и соседний context прочитаны; actual hash/size models исполнены за Core initializer shell.",
+      "git_blob": "ced7a1f9a6c9ac81d7c40a94ac155e4557569a58",
+      "sha256": "1185bb4cb15a5cad3774a1e5345e63bdf1f242c287dc37ee8d333bdb4e512718",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/tests/unit/remediation/test_udf_02.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_udf_02.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          161
+        ]
+      ],
+      "evidence_level": "Все7 bodies прочитаны.4 unchanged selected PASS,2 actual attempts BLOCKED на Parquet engine,1 full facade alias body UNRUN.",
+      "git_blob": "27c4c09d13063138f4e8f18bb6593a0ca898413b",
+      "sha256": "a881994611813ad38820523045799eab1ba95454b0258188aae0575d1ce63853",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_builders.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/data_forge/domains/ukraine/test_builders.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          89,
+          234
+        ],
+        [
+          395,
+          431
+        ]
+      ],
+      "evidence_level": "Complete selected scheduler2,identity2,subset1,sanitizer1 bodies исполнены unchanged AST; extra cohort helper не в bindings owner и не включён в final selection.",
+      "git_blob": "620f61d8ddefa6b6a29ea2264b2fe1a0c808058e",
+      "sha256": "855b3a10f4e6b1a5e266b3b860dd5085dfb119223e5cdf3c6645509bc29e2c0a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/materialize.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/pipeline/materialize.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          99
+        ]
+      ],
+      "evidence_level": "LK10: полный real asset binding/planner прочитан, не placeholder. Current packet не исполнял planner и не заявляет distributed executor.",
+      "git_blob": "c0685ed77aced323be9d6abb1eee3681a1151142",
+      "sha256": "082c106822e67702556afa0af52fae803fe13b96e8e69279fbb444c12d5719d3",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S18",
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/shadow.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/academic/shadow.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          100,
+          190
+        ]
+      ],
+      "evidence_level": "LK11: complete current shadow loader/readiness/identity gate прочитан. Native DuckDB UNRUN.",
+      "git_blob": "e3fd454d67674ec11cb3cecd3d43be1ffd05db68",
+      "sha256": "156e9d2888a8e483942c8cd53854f80a74f06142ad0cd2ff5a16904232ecad29",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S19",
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/skg.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/academic/skg.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          120
+        ]
+      ],
+      "evidence_level": "LK11: полный read-only SKG helper прочитан; duckdb.connect(read_only=True), close/error behavior. Native DuckDB отсутствует.",
+      "git_blob": "63c468a0a0618613781b21b1d70a569717fee31f",
+      "sha256": "567e8271661ce68c0c3ea096dc8ec12118d33f3ab22823a7c123cf9c6915cdf3",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S20",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          137,
+          155
+        ],
+        [
+          175,
+          200
+        ],
+        [
+          263,
+          264
+        ]
+      ],
+      "evidence_level": "LK12 routing/error boundaries source-qualified C83/C84; full actual read API уже limited-tested C83. Current packet не заменяет guards plain-file чтением.",
+      "git_blob": "a3ef27d1af21361cfc4467f9d646f4df218a279c",
+      "sha256": "cb9735fb4c27d1a8a59c388ac0b56de8ec3bc446cac3a83badfdc54f2a972fb5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S21",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          30
+        ]
+      ],
+      "evidence_level": "Supported runtime baseline source-qualified previous packets; current environment mismatch explicit.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

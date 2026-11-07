@@ -1,0 +1,193 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1006
+        ]
+      ],
+      "evidence_level": "complete_registry_AST_executed_with_explicit_artifact_store_boundary",
+      "git_blob": "071f568739b2ef7279acebf9ef04d79917f43d53",
+      "sha256": "99ce5e98e88e524f19a4dd1f166aa46b2fa06edce21170280415bb8b1015e33a",
+      "local_file": null,
+      "note": "Generic chain, actual filesystem/flock executed; full MethodJob and claim authority paths UNRUN."
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          240
+        ],
+        [
+          558,
+          740
+        ],
+        [
+          780,
+          860
+        ],
+        [
+          940,
+          1055
+        ]
+      ],
+      "evidence_level": "selected_original_Pydantic_DTO_definitions_executed",
+      "git_blob": "631d87c1ade0b084e92806cc7f253f9628571c0e",
+      "sha256": "a83f8ee607349126395658143040510f4a5c4245155f8e1481f47f532e79a2ae",
+      "local_file": null,
+      "note": "Artifact loaders/persist helpers только прочитаны; настоящий CAS не исполнялся."
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          100
+        ],
+        [
+          219,
+          320
+        ],
+        [
+          365,
+          385
+        ]
+      ],
+      "evidence_level": "selected_actual_InputRef_ArtifactRef_and_identity_definitions_executed",
+      "git_blob": "f1b3372d9e209cf823bacf7dc38eecd76b6780bb",
+      "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+      "local_file": null,
+      "note": "Не полный manifest subsystem. CanonInfo defaults source-read only."
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/ids.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          149
+        ]
+      ],
+      "evidence_level": "complete_ArtifactID_source_executed",
+      "git_blob": "3c2c8b3269ca290bc8c6b413e2e96c3012a17558",
+      "sha256": "6fbfc522d960556af66e44a8c3d6b59e478ca1ff4578b49a3573c95d33c01b4d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          110
+        ],
+        [
+          292,
+          700
+        ],
+        [
+          770,
+          1055
+        ]
+      ],
+      "evidence_level": "existing_test_design_read_UNRUN",
+      "git_blob": "9994dbf3a158d409084ba2624804f06444734c06",
+      "sha256": "bd9c2b00274a7cce441e3c728c5cac242ecc581933040075da9903cf518a5499",
+      "local_file": null,
+      "note": "Native project tests не запускались; C21 multiprocess experiment — отдельный audit harness."
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          130,
+          265
+        ],
+        [
+          1708,
+          1741
+        ],
+        [
+          1940,
+          2040
+        ],
+        [
+          2290,
+          2369
+        ]
+      ],
+      "evidence_level": "actual_producer_persistence_registry_and_loader_source_trace_UNRUN",
+      "git_blob": "dcc27af39812c88b0abb9ddfcac1a76f83ca5826",
+      "sha256": "143ecb1eac1e33f916656a0b6dbb15dabc77c8c949bd453544dd4f2f87426dec",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch/claim_adjudication_policy.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/academic/batch/claim_adjudication_policy.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          140
+        ]
+      ],
+      "evidence_level": "actual_pure_metric_and_claim_policy_functions_executed",
+      "git_blob": "44df49132dd4c8660a267ac76c4278bb38c7d2a0",
+      "sha256": "b8eb3a3c57d95e198990103bc01bf2b33f9b4129f1a2c447b0864498c928f1bc",
+      "local_file": null,
+      "note": "Claim aggregation, evidence authentication и authority не исполнялись."
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch/claim_adjudication_verifier.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/academic/batch/claim_adjudication_verifier.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          481,
+          650
+        ]
+      ],
+      "evidence_level": "claim_envelope_predecessor_and_authority_boundary_source_read_UNRUN",
+      "git_blob": "582ba23d926ad090bd3cc2ff71a9ed79e8e73c47",
+      "sha256": "940eb30691b69b6dcd5960f4fcfafc26db972f0a4aebe66caef0120c1a9b3d57",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      2600,
+      2696
+    ]
+  },
+  "discovery": {
+    "census": false
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace"
+}

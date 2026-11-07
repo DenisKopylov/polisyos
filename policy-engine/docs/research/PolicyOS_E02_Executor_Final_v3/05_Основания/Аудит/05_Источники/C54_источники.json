@@ -1,0 +1,277 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/rdd.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          645
+        ]
+      ],
+      "evidence_level": "Весь файл прочитан в свежем C52; complete conventional/RBC helpers перечитаны C54. Exact pure_step/helpers/materializer/metadata исполняются заново через AST; registration/signature assignments omitted.",
+      "git_blob": "58e1ffc4751e94bbee4899aaeffc513d2b77e597",
+      "sha256": "eb2505f40b8a5ad464b5669f5432a8152859aa81ce98e9668787f7208ba8ba43",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          205
+        ],
+        [
+          989,
+          1032
+        ]
+      ],
+      "evidence_level": "Полные panel/RDD DTO прочитаны C52 на том же SHA и повторно исполнены C54 через setup. RDD actual Pydantic validators исполняются; panel здесь лишь неиспользуемая setup dependency.",
+      "git_blob": "81ba5604fd375ac6abeab193bde0d4f8c66a133a",
+      "sha256": "ece93225711e7702b9dace607ab6cf9ab4941baa56bc847e19b3f35c7e8ca44b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/_common.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          161
+        ]
+      ],
+      "evidence_level": "Полный common owner прочитан C52; report builders/wrap/compute_cohen_d exact AST исполнены C54. Native envelope dependency fixture.",
+      "git_blob": "9097e312036819146bac6bbd8bc8decebf236f3f",
+      "sha256": "afe8b61f2d8bd9ff8b6c357ff8c42133603f2a1bc2b437e3546d681a5a1490ab",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/causal.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          138,
+          246
+        ],
+        [
+          541,
+          846
+        ]
+      ],
+      "evidence_level": "Actual report/diagnostic/enums/finite/JSON source прочитан в свежем C52. Exact DTO validators и report JSON исполнены C54; owner/CAS declarations не исполняются, envelope/output/unused transport seams явны.",
+      "git_blob": "0b3ac71020119ec6eff304269ff484dad32ee082",
+      "sha256": "70eb563ecf417ef467bf651a1e84921d2a3e07dced337cfb270445cd1194f249",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/ir/_internal/validation.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/_internal/validation.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          59,
+          155
+        ]
+      ],
+      "evidence_level": "Actual numeric/interval helpers и runtime protocol прочитаны C52 и исполнены C54.",
+      "git_blob": "c7183c9845bbd9c01e7a84705ca7ef078825aa91",
+      "sha256": "e267487d810dddfe2db8ea75f148e6f69d3c4220c0460e586256f9b2cf8fb9a6",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/foundry/methods/base.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/base.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          55
+        ],
+        [
+          172,
+          180
+        ],
+        [
+          270,
+          277
+        ],
+        [
+          800,
+          1010
+        ]
+      ],
+      "evidence_level": "MethodMetadata/source dependencies прочитаны C52; exact dataclass/mapping ownership повторно исполняется C54. None-only truthfulness and metadata determinism fixtures; ABI/registration not executed.",
+      "git_blob": "e7a5c5c8c68c8cef191abe688d2a17f8c2872f76",
+      "sha256": "21f0a6bffb2a4a015a8b6da18d5e53aa2401bf6994b6b56542f0af241ee88f09",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/_payloads.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/_payloads.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          45
+        ]
+      ],
+      "evidence_level": "Complete helper прочитан C52; setup вновь определяет его, RDD materializer не делегирует ему. Нет нового payload acceptance claim.",
+      "git_blob": "bf90c9a436b1d9dd59608e72fe358d9ad7dab623",
+      "sha256": "506939fca818ea7fedf1d60c35fe9a3d410cfca1f1ab116e63604589830546e9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/did.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          525
+        ],
+        [
+          1014,
+          1288
+        ]
+      ],
+      "evidence_level": "Readset свежих C52/C53 на том же SHA; reused setup определяет class/method/metadata objects, C54 не исполняет DiD inference и не переаттестует его.",
+      "git_blob": "5176583d8e08817ee4995f86ba11124182663054",
+      "sha256": "3a66ea7ed5ce149254beefbc355867696d51757b9e6832c36a7df91c919b8075",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tests/unit/remediation/test_cau_03.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cau_03.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          305
+        ]
+      ],
+      "evidence_level": "Полный regression file прочитан; 10 unchanged bodies/23 cases исполнены. Два signature tests UNRUN, поскольку class signature не загружена.",
+      "git_blob": "574406f404d41cd51a43fb6cbc87b94894f60af8",
+      "sha256": "1c0c76b9a47bb33b01b74662d844b4934ae4df07dcbde851a7a34a955116442a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          263
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан; 10 unchanged bodies/30 cases исполнены с actual extracted numeric owner, включая point-removal и small-matrix guards. Native registry/CAS body UNRUN.",
+      "git_blob": "f2016f1f4c1cdb76903fb1fb2f4248c26c0661d6",
+      "sha256": "0e62932bc5ca82ecc95144aca7e4c9221dc0b9c9e91f59d17182bdaa9816b603",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_rbc_independent_oracle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          292
+        ]
+      ],
+      "evidence_level": "Полный independent weighted-lstsq sensitivity/coverage/removal source прочитан. 6 unchanged bodies/13 cases исполнены, включая fixed 400-repetition DGP test. Native dispatch/CAS body UNRUN.",
+      "git_blob": "697e4d4e1f1626daac5ace2bed5d0003e6b8cb6e",
+      "sha256": "4c8398b42efa15eeba4b28c9900a18541269931322edb8122412443d081f1585",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          43
+        ]
+      ],
+      "evidence_level": "Полный native known-jump registry/dispatcher test прочитан, source-only; не объявлен executed.",
+      "git_blob": "4f662eafdc3bda105c4626335fe1c7113905617b",
+      "sha256": "1225fec5dbd5d643a4e9661a6945f5ee66a0f6badc1ddf55abd4a088a8f8f91e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_dml_input_materialization.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/catalog/causal/test_rdd_dml_input_materialization.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          105
+        ]
+      ],
+      "evidence_level": "Полный test file прочитан. RDD cutoff/materializer boundary отдельно исполнена direct actual materialize_input; generic component materializer и DML bodies не исполняются.",
+      "git_blob": "3b44786863d7f3c5ac02b004ada22316d479621f",
+      "sha256": "50dd1ccf1da320de26312873b2ac8e9368a90cdf37f534d9ec3189047379a038",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          35
+        ]
+      ],
+      "evidence_level": "Supported runtime constraints прочитаны в свежем аудите; current environment перепроверена, no installs.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      6601,
+      6690
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "Свежий C54 после внешнего сохранения C53. Потерянный прежний C54 не является evidence; previous source reads на одном восстановленном SHA обозначены явно, execution fresh."
+}

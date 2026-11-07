@@ -158,15 +158,16 @@ describe("composer form schemas and mappers", () => {
       ],
     });
 
-    expect(
-      buildNaturalLanguageLaunchRequest(parsed, {
-        locale: "uk",
-        preflightEnabled: true,
-        autoMaterializationEnabled: true,
-        maxParallelConstraint: 3,
-        maxIterationsConstraint: 5,
-      }),
-    ).toMatchObject({
+    const request = buildNaturalLanguageLaunchRequest(parsed, {
+      locale: "uk",
+      preflightEnabled: true,
+      autoMaterializationEnabled: true,
+      maxParallelConstraint: 3,
+      maxIterationsConstraint: 5,
+    });
+    expect(request).not.toHaveProperty("run_budget_scope");
+    expect(request).not.toHaveProperty("candidate_acquisition_intent");
+    expect(request).toMatchObject({
       request: "Assess affordability impacts",
       llm_model: "openai/gpt-5.4",
       llm_models: ["openai/gpt-5.4", "anthropic/claude"],
@@ -175,6 +176,145 @@ describe("composer form schemas and mappers", () => {
       checkpoint_policy: "lenient",
       data_source: { data_snapshot_ref: "sha256:snapshot" },
     });
+  });
+
+  it.each([
+    "hard_total_usd",
+    "metered_paid_producers_and_bounded_candidate",
+  ] as const)("sends the explicitly selected %s budget scope", (scope) => {
+    const parsed = naturalLanguageLaunchSchema.parse({
+      nlRequest: "Assess affordability",
+      executionIntent: "",
+      domainHint: "custom",
+      selectedLlmModels: ["model"],
+      maxParallelModels: 1,
+      runBudgetUsd: "12.5",
+      runBudgetScope: scope,
+      perModelBudgetUsd: "",
+      maxIterations: 1,
+      checkpointPolicy: "strict",
+      nlDataSourceRef: "",
+      expectedOutputs: [{ kind: "candidate", description: "" }],
+      governanceConstraints: [
+        { scope: "budget", rule: "", severity: "warning" },
+      ],
+    });
+    const body = buildNaturalLanguageLaunchRequest(parsed, {
+      locale: "en",
+      preflightEnabled: true,
+      autoMaterializationEnabled: true,
+      maxParallelConstraint: 1,
+      maxIterationsConstraint: 1,
+    });
+    expect(body.run_budget_scope).toBe(scope);
+    expect(body.run_budget_usd).toBe(12.5);
+  });
+
+  it("requires a finite explicit amount only for the limited budget scope", () => {
+    const base = {
+      nlRequest: "Assess affordability",
+      executionIntent: "",
+      domainHint: "custom",
+      selectedLlmModels: ["model"],
+      maxParallelModels: 1,
+      runBudgetUsd: "",
+      perModelBudgetUsd: "",
+      maxIterations: 1,
+      checkpointPolicy: "strict",
+      nlDataSourceRef: "",
+      expectedOutputs: [{ kind: "candidate", description: "" }],
+      governanceConstraints: [
+        { scope: "budget", rule: "", severity: "warning" },
+      ],
+    };
+    const limited = "metered_paid_producers_and_bounded_candidate";
+    for (const amount of ["", "   ", "Infinity", "1e309", "-1"]) {
+      const result = naturalLanguageLaunchSchema.safeParse({
+        ...base,
+        runBudgetScope: limited,
+        runBudgetUsd: amount,
+      });
+      expect(result).toMatchObject({
+        success: false,
+        error: {
+          issues: expect.arrayContaining([
+            expect.objectContaining({
+              path: ["runBudgetUsd"],
+              message: "pages.composer.runBudgetScope.limitedBudgetRequired",
+            }),
+          ]),
+        },
+      });
+    }
+    for (const amount of ["0", "5", "12.5"]) {
+      expect(
+        naturalLanguageLaunchSchema.safeParse({
+          ...base,
+          runBudgetScope: limited,
+          runBudgetUsd: amount,
+        }).success,
+      ).toBe(true);
+    }
+    expect(naturalLanguageLaunchSchema.safeParse(base).success).toBe(true);
+    expect(
+      naturalLanguageLaunchSchema.safeParse({
+        ...base,
+        runBudgetScope: "hard_total_usd",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("requires explicit limited scope and finite cap for a bounded experiment", () => {
+    const base = naturalLanguageLaunchSchema.parse({
+      nlRequest: "Assess affordability",
+      executionIntent: "",
+      domainHint: "custom",
+      selectedLlmModels: ["model"],
+      maxParallelModels: 1,
+      runBudgetUsd: "5",
+      runBudgetScope: "metered_paid_producers_and_bounded_candidate",
+      perModelBudgetUsd: "",
+      maxIterations: 1,
+      checkpointPolicy: "strict",
+      nlDataSourceRef: "",
+      expectedOutputs: [{ kind: "candidate", description: "" }],
+      governanceConstraints: [
+        { scope: "budget", rule: "", severity: "warning" },
+      ],
+    });
+    const context = {
+      locale: "en",
+      preflightEnabled: true,
+      autoMaterializationEnabled: true,
+      maxParallelConstraint: 1,
+      maxIterationsConstraint: 1,
+    };
+    expect(buildNaturalLanguageLaunchRequest(base, context)).not.toHaveProperty(
+      "candidate_acquisition_intent",
+    );
+    const selected = naturalLanguageLaunchSchema.parse({
+      ...base,
+      boundedCandidateExperiment: true,
+    });
+    expect(buildNaturalLanguageLaunchRequest(selected, context)).toMatchObject({
+      candidate_acquisition_intent: "bounded_experiment_voi_unknown",
+      run_budget_scope: "metered_paid_producers_and_bounded_candidate",
+      run_budget_usd: 5,
+    });
+    for (const change of [
+      { runBudgetScope: "" as const },
+      { runBudgetScope: "hard_total_usd" as const },
+      { runBudgetUsd: "" },
+      { runBudgetUsd: "1e309" },
+    ]) {
+      expect(
+        naturalLanguageLaunchSchema.safeParse({ ...selected, ...change })
+          .success,
+      ).toBe(false);
+      expect(() =>
+        buildNaturalLanguageLaunchRequest({ ...selected, ...change }, context),
+      ).toThrow("candidate_experiment_budget_scope_or_amount_invalid");
+    }
   });
 
   it("keeps predictive basis refs typed, exact, and all-or-none", () => {

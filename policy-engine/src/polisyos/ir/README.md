@@ -13,6 +13,14 @@ The root facade does not mirror all code under `src/polisyos/ir/**`.
 through the root facade; linker entry points are in
 [`linker`](./linker/README.md).
 
+Selected causal consumers use the existing owner objects through this lazy
+facade: `InterventionQueryRef`, `StructuralCausalModelSpecRef`,
+`load_intervention_query`, `load_proof_bundle`, `graph_for_analysis`, and
+`project_graph_to_dag`. These additive public experimental routes preserve
+canonical class/function identity and perform no wrapping or alternate graph
+admission. Structural projection remains conditional on the admitted graph;
+it does not establish empirical causal validity.
+
 ## Where to Start
 
 - [`__init__.py`](./__init__.py) — stable lazy facade and supported root import surface.

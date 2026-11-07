@@ -1,0 +1,13 @@
+id = "2026-11-05-candidate-source-row-value-method"
+title = "Expose candidate source-row method evidence alongside conditional simulation"
+type = "added"
+component = "runtime-quality"
+owner = "team-polisyos-runtime"
+summary = "Reuse the Foundry source-row selector and executor for an explicitly configured candidate method, persist selected input/output bindings, and reconcile them on fresh Runtime reads without repeating N5."
+change_class = "schema-openapi-abi"
+surface_classification = "public_experimental: polisyos.core.contracts.runtime and Runtime candidate simulation projection"
+compatibility = "Optional candidate_value_method and proposed query coordinates preserve absence in legacy payloads. Only the new V6 context carries the new coordinates; historical V1-V5 projections retain their identities."
+migration = "Existing profiles and persisted artifacts need no rewrite. Opt-in source-row methods supply an exact selected source request and declared candidate coordinates; regenerate API consumers for the additive fields."
+api = "Candidate method projections expose selected lineage, method/value/report, point estimate, statistical interval and outer set, or an explicit refusal/limitation. They retain publication_authority=false, production_value_eligible=false and unverified source-time/assignment status."
+limitations = "The ordinary served method positive remains under qualification. Neither numerical execution nor proposed query coordinates establish causal identification, user agreement, source currentness, issuer authority or publication permission. G acceptance is separate."
+evidence = ["tests/unit/runtime/quality/test_candidate_value_method.py", "tests/unit/runtime/quality/test_cycle_substrate_query_coordinates.py", "tests/unit/runtime/quality/test_value_gate.py", "tests/integration/runtime_quality/test_candidate_value_method_served.py", "apps/runtime-dashboard/src/api/validators.test.ts"]

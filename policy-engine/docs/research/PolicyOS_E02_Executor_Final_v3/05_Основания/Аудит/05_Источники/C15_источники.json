@@ -1,0 +1,176 @@
+{
+  "release": "v013",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "git_blob": "dcc27af39812c88b0abb9ddfcac1a76f83ca5826",
+      "read_ranges": [
+        [
+          1,
+          650
+        ],
+        [
+          1700,
+          2440
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "evidence_boundary": "read selected complete runner run and evaluation sections; run body + codec prefix transcribed/executed; real post-codec persistence/admission/registry UNRUN"
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "git_blob": "bcc87e32cc1903888845a557a729f6dcf6b182b2",
+      "read_ranges": [
+        [
+          175,
+          335
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "evidence_boundary": "fresh run path read; preserved complete source verified by Git blob and executed with declared owner dependencies"
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "git_blob": "754e942a21b3198c3989ac9175c54342b6c67ab3",
+      "read_ranges": [
+        [
+          480,
+          665
+        ],
+        [
+          800,
+          960
+        ],
+        [
+          1420,
+          1600
+        ],
+        [
+          1660,
+          1760
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "evidence_boundary": "fresh selected boundaries; same-pinned prior evaluator/begin/finish excerpts reused; whole package and native owner constructor UNRUN"
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "git_blob": "b4f980de235263513c7ad7e5771e1ccfbb3d8b3d",
+      "read_ranges": [
+        [
+          1,
+          130
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "evidence_boundary": "complete fresh source read; preserved full blob verified/executed with contract fixtures"
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "git_blob": "631d87c1ade0b084e92806cc7f253f9628571c0e",
+      "read_ranges": [
+        [
+          1,
+          210
+        ],
+        [
+          650,
+          850
+        ],
+        [
+          1020,
+          1320
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "evidence_boundary": "MutationArtifact/codec class excerpts executed with real Pydantic, not native full module; empty out-of-range queries not considered evidence"
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sentinels.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "git_blob": "85409acfc8042bf3df14f78b0e291979a5495f96",
+      "read_ranges": [
+        [
+          130,
+          285
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/sentinels.py",
+      "evidence_boundary": "injector bodies transcribed/executed; SentinelSet input fixture, no real CAS"
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "git_blob": "c15801509c9a890128ad33e493974bcbb8687ebb",
+      "read_ranges": [
+        [
+          1,
+          205
+        ],
+        [
+          250,
+          465
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "evidence_boundary": "read caller/subject/invoke contracts; materializer/hash boundaries fixtures in probes"
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/remediation/test_srv_03.py",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "git_blob": "9a752a4e72400548590a48861d1aea9351e11e5e",
+      "read_ranges": [
+        [
+          1,
+          650
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_srv_03.py",
+      "evidence_boundary": "complete file read; pytest UNRUN; real CAS classes in code, controlled numeric evaluator; warm trace not actual runner"
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/CONTRIBUTING.md",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "git_blob": "8ff414198e306e671abff1f76f31330a1f29d765",
+      "read_ranges": [
+        [
+          1,
+          18
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/CONTRIBUTING.md",
+      "evidence_boundary": "supported Python 3.14 baseline only"
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/v5-final-joined-search-engineering-20261010.md",
+      "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "git_blob": null,
+      "read_ranges": [
+        [
+          1,
+          230
+        ]
+      ],
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/v5-final-joined-search-engineering-20261010.md",
+      "evidence_boundary": "historical 2026-10-10 note; response truncated; only visible context read; not current census or native evidence"
+    }
+  ],
+  "web_view": "cached repository page crawled two months earlier; not used as source baseline",
+  "external_census": "not performed"
+}

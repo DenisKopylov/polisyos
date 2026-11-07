@@ -1,0 +1,349 @@
+{
+  "packet_id": "FRY-01",
+  "lane": "LANE-04",
+  "source_ids": [
+    "LA-001",
+    "LA-002",
+    "LA-037"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/FRY-01.md",
+    "../05_Основания/Аудит/01_Реестры/C36_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C36-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FRY-01-01",
+        "REQ-FRY-01-02",
+        "REQ-FRY-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Настоящие compiler/CAS/JAX/IC consumer и installed imports вместо manifest/fold fixtures.",
+      "inventory_id": "audit-residual:C36_остатки:0"
+    },
+    {
+      "audit_id": "C36-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FRY-01-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Два versioned execution пути, seed override и historical corpus квалифицируются раздельно; новый digest допустим только при явном профиле.",
+      "inventory_id": "audit-residual:C36_остатки:1"
+    },
+    {
+      "audit_id": "C36-G03",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-FRY-01-02",
+        "REQ-FRY-01-03",
+        "REQ-FRY-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Family assumptions и runtime dispatch отдельно от catalog; direct facades сохраняются до actual caller window.",
+      "inventory_id": "audit-residual:C36_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-FRY-01-01",
+      "text": "Native compile→CAS→fresh execution сохраняет schema/kind/lineage TreasuryPlan и stable salts для seed0/17/−3, permutation и повторной compile в одном профиле. Marked treasury_salts_v1 reader принимает только exact program/treasury selected views, recomputed salts и seed; high-word salt/lineage/profile mismatch отказаны. Unmarked historical plan сохраняет старую execution law без принудительного treasury read. Между версиями изменение digest/draw допустимо и явно объявлено.",
+      "source_ids": [
+        "LA-001"
+      ],
+      "audit_ids": [
+        "C36-G01",
+        "C36-G02"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-01"
+      ]
+    },
+    {
+      "id": "REQ-FRY-01-02",
+      "text": "IC consumer получает family spec у catalog owner и вызывает IR certificate implementation; positive/negative математический пример одной семьи даёт различающиеся certificate outcomes. Runtime descriptor view разрешает actual registered method и исполняет его state transition, не считает family ID executable kernel. Assumptions, parameters/modes/solver hints четырёх текущих declarations и unknown-ID refusal сохраняются; certificate применим только к проверенной постановке.",
+      "source_ids": [
+        "LA-002"
+      ],
+      "audit_ids": [
+        "C36-G01",
+        "C36-G03"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-02"
+      ]
+    },
+    {
+      "id": "REQ-FRY-01-03",
+      "text": "Compiler использует IR layout builders и сохраняет slot_layout/treasury refs в compile report/Scientist outputs. Все текущие default slots сохраняют mapping; slot без state_path отсутствует в layout, но присутствует в family inventory, unknown prefix попадает global. Пять public objects у supported facades identity-equal IR; добавление нового совместимого slot не требует нового registry.",
+      "source_ids": [
+        "LA-037"
+      ],
+      "audit_ids": [
+        "C36-G01",
+        "C36-G03"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-03"
+      ]
+    },
+    {
+      "id": "REQ-FRY-01-04",
+      "text": "Перед удалением treasury/design/layout aliases составить finite source/string/FQN/docs/installed consumer map и support window. Прямые фасады не удалять ради числа файлов; first-party consumers не возвращаются через obsolete hop. ABI registry/certificate owner/MethodRegistry view сохраняют свои роли; package/docs build не заявлять выполненным по source inspection.",
+      "source_ids": [
+        "LA-001",
+        "LA-002",
+        "LA-037"
+      ],
+      "audit_ids": [
+        "C36-G03"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-FRY-01-01",
+      "requirement_ids": [
+        "REQ-FRY-01-01"
+      ],
+      "level": "native compiler + local CAS + real JAX PRNG",
+      "setup": "Tiny valid ProgramGraph, real registered execution, fixed seeds0/17/−3; marked current and source-qualified unmarked historical plan.",
+      "action": "Compile twice/permuted nodes, fresh store execute; inject high-word salt/root seed/selected program mismatch, absent/duplicate randomization marker.",
+      "oracle": "Within-profile canonical bytes/salts/draws reproducible; admission rejects each mismatch before random execution. Both salt words affect actual PRNG. Unmarked uses historical law, no treasury manifest read; cross-version difference labelled intentional, not failed equivalence.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-FRY-01-02",
+      "requirement_ids": [
+        "REQ-FRY-01-02"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Actual catalog, IR certificate funcs, IC service and MethodRegistry runtime descriptors; small tax/auction inputs.",
+      "action": "Monotone vs nonmonotone earnings; valid vs off-grid payment residual; unknown family; actual income-tax dispatch.",
+      "oracle": "Certificate certified/rejected follows actual obligations, not membership; unknown family ValueError. Descriptor dispatch changes expected state through true kernel; certificate sidecar survives fresh read. No empirical/global IC claim beyond grid/assumptions.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-FRY-01-03",
+      "requirement_ids": [
+        "REQ-FRY-01-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Actual DEFAULT_SLOT_REGISTRY, added slot without state_path and unscoped slot, native compile/CompileFoundryNode.",
+      "action": "Build layout/family manifest; compile/persist/read refs; compare old facade identities; mutate builder after result.",
+      "oracle": "Pinned31 default mappings preserved without forbidding future extension; no-path slot inventory-only; government.balance→government_balance; global fallback. Five identities exact; fresh consumer sees actual layout/ref, report retains failures honestly.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-FRY-01-04",
+      "requirement_ids": [
+        "REQ-FRY-01-04"
+      ],
+      "level": "native installed imports + caller lifecycle",
+      "setup": "Current aliases and recorded FQN/config/docs consumers; shared package baseline.",
+      "action": "Both old layout imports with intermediate alias poisoned in controlled process, canonical imports, docs/package validation and census.",
+      "oracle": "External facade resolves IR directly; no intermediate hop dependency; no export expansion. Existing supported names remain until explicit retirement. Census boundaries and external unknowns recorded, no invented0usage.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I04-A"
+  ],
+  "dependencies": [],
+  "preservation": [
+    "TreasuryPlan schema1.0/kind foundry.treasury_plan, zero-seed историческая формула и stable node/stream salts.",
+    "Historical unmarked execution остаётся отдельным путём; marked treasury_salts_v1 требует exact selected-profile lineage admission.",
+    "Четыре family declarations/assumptions, IR certificate objects и unknown-ID refusal; runtime registry — view MethodRegistry, не второй реестр.",
+    "Пять IR layout identities, весь текущий default registry (31 baseline slot), layout против family inventory и прямые compatibility bindings."
+  ],
+  "design_alignment": [
+    "Identity/custody boundary требует exact persisted lineage, но не scientific authority из same bytes.",
+    "Каталог families и registry views расширяются общими owners; design-doc физический layout не догма."
+  ],
+  "open_decisions": [
+    "Нужен source-qualified historical RNG corpus для полной declared backward support; synthetic v1 sample не весь production corpus.",
+    "Предметная применимость IC assumptions определяется выбранной задачей отдельно от native mechanical PASS."
+  ],
+  "source_obligations": [
+    "LA-001: перенос builder уже выполнен; current treasury_salts_v1 — отдельный intentional behavior delta, которому нельзя требовать ложной cross-version byte/draw equivalence.",
+    "LA-002: family spec, IR certificate и executable method разные сущности. Catalog membership не доказывает IC и не ограничивает будущие families четырьмя.",
+    "LA-037: два старых адреса теперь независимо прямые, не обязательная wrapper chain; retirement отдельно. LK03 ABIModelEntry registry не DTO duplicate; LK06 MethodRegistry view/runtime adapter не kernel."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/foundry/compile/randomization.py: build_treasury_plan, TreasuryPlan",
+    "policy-engine/src/polisyos/foundry/compile/trinity_compiler.py: treasury/layout persistence",
+    "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py: _execution_treasury",
+    "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/families.py: get_mechanism_family_spec",
+    "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime_registry.py: _runtime_registry_descriptors",
+    "policy-engine/src/polisyos/ir/kernel/slots.py: build_slot_layout, build_slot_family_manifest",
+    "policy-engine/src/polisyos/scientist/validation/verification/ic/service.py: family certificate consumer"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/foundry/compile/test_treasury_execution.py",
+    "policy-engine/tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0357",
+      "requirement_ids": [
+        "REQ-FRY-01-01",
+        "REQ-FRY-01-02",
+        "REQ-FRY-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Настоящие compiler/CAS/JAX/IC consumer и installed imports вместо manifest/fold fixtures."
+    },
+    {
+      "inventory_id": "remaining:0358",
+      "requirement_ids": [
+        "REQ-FRY-01-01"
+      ],
+      "disposition": "qualify",
+      "rationale": "Два versioned execution пути, seed override и historical corpus квалифицируются раздельно; новый digest допустим только при явном профиле."
+    },
+    {
+      "inventory_id": "remaining:0359",
+      "requirement_ids": [
+        "REQ-FRY-01-02",
+        "REQ-FRY-01-03",
+        "REQ-FRY-01-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Family assumptions и runtime dispatch отдельно от catalog; direct facades сохраняются до actual caller window."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0573",
+      "requirement_ids": [
+        "REQ-FRY-01-01"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-01"
+      ],
+      "rationale": "Treasury schema/kind — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0574",
+      "requirement_ids": [
+        "REQ-FRY-01-01"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-01"
+      ],
+      "rationale": "Stable salts — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0575",
+      "requirement_ids": [
+        "REQ-FRY-01-01"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-01"
+      ],
+      "rationale": "Historical unmarked path — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0576",
+      "requirement_ids": [
+        "REQ-FRY-01-01"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-01"
+      ],
+      "rationale": "Explicit selected-profile admission — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0577",
+      "requirement_ids": [
+        "REQ-FRY-01-02"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-02"
+      ],
+      "rationale": "Four family declarations — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0578",
+      "requirement_ids": [
+        "REQ-FRY-01-02"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-02"
+      ],
+      "rationale": "IR certificate identity — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0579",
+      "requirement_ids": [
+        "REQ-FRY-01-02"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-02"
+      ],
+      "rationale": "Unknown-ID rejection — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0580",
+      "requirement_ids": [
+        "REQ-FRY-01-02"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-02"
+      ],
+      "rationale": "MethodRegistry view — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0704",
+      "requirement_ids": [
+        "REQ-FRY-01-03"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-03"
+      ],
+      "rationale": "Five IR identities — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0705",
+      "requirement_ids": [
+        "REQ-FRY-01-03"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-03"
+      ],
+      "rationale": "Default31 slots — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0706",
+      "requirement_ids": [
+        "REQ-FRY-01-03"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-03"
+      ],
+      "rationale": "Layout/inventory distinction — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0707",
+      "requirement_ids": [
+        "REQ-FRY-01-04"
+      ],
+      "test_ids": [
+        "TEST-FRY-01-04"
+      ],
+      "rationale": "Explicit compatibility lifecycle — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}
+

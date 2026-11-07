@@ -3,12 +3,38 @@
 from __future__ import annotations
 
 import asyncio
+import json
+import subprocess
+import sys
 from contextlib import suppress
+from pathlib import Path
 
 import pytest
 
 from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle, HealthStatus
 from polisyos.fabric.connectors.pool import ConnectionPool, PoolConfig, PoolExhaustedError
+
+
+@pytest.mark.parametrize("entrypoint", ["release", "close_all"])
+def test_terminal_cancelled_cleanup_settles_without_blocking_loop(
+    tmp_path: Path,
+    entrypoint: str,
+) -> None:
+    """A parent watchdog bounds the defective loop without treating a kill as success."""
+    resource = tmp_path / "owned-resource"
+    resource.write_bytes(b"terminal-cleanup-owned-resource")
+    worker = Path(__file__).parents[3] / "_helpers" / "pool_cleanup_worker.py"
+    result = subprocess.run(
+        [sys.executable, str(worker), str(resource), entrypoint],
+        capture_output=True,
+        text=True,
+        timeout=6.0,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    output = json.loads(result.stdout.splitlines()[-1])
+    assert output["entrypoint"] == entrypoint
+    assert output["heartbeat"] > 0 and output["closed_fd"] is True
 
 
 class _GatedConnector:

@@ -1,0 +1,62 @@
+{
+  "pass": "C33",
+  "bundle": "BKT-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C33-R01",
+      "type": "finite_input_numeric_overflow_loses_partial_comparison",
+      "severity": "bounded_extreme_numeric_range",
+      "source_ids": [
+        "B167",
+        "B171"
+      ],
+      "location": "evaluator.py:99–104,161–163,202–205;orchestrator.py:1420–1437",
+      "evidence": [
+        "P19",
+        "P20",
+        "P21"
+      ],
+      "mechanism": "Finite residual1e308 raises OverflowError at abs_err**2 before the isfinite guard. Two individually finite squares1e308 overflow accumulation and produce a rejected non-finite scenario. In the first case a valid preceding point is lost with the whole call, rather than returned alongside an invalid cell.",
+      "preserve": "Reject NaN/inf, strict finite DTO and requested/invalid addresses; do not replace errors with0/inf or relax reconciliation.",
+      "remaining": "Use a stated numerical-range policy at existing evaluator/aggregation owner: safe scaled norm/accumulation where supported; otherwise account for unrepresentable cells or a typed scenario limitation without silently dropping useful comparisons. Add bounded large-finite regression.",
+      "limits": "Actual NumPy and evaluator/DTO definitions; synthetic extreme numeric values only, no production-data prevalence or successful trust bypass."
+    },
+    {
+      "id": "C33-G01",
+      "type": "native_uncertainty_chain_and_regression_fixture_qualification",
+      "source_ids": [
+        "B167",
+        "B168",
+        "B171"
+      ],
+      "evidence": [
+        "S09:331–495",
+        "S04:733–834",
+        "P10",
+        "P23"
+      ],
+      "remaining": "Run native tests with supported environment and current workflow/Foundry/CAS ownership. Existing persisted-envelope tests use lambda _state and artifact-index-only fake execution, while current orchestration supplies store/foundry and requires bound workflow/physical execution plus admitted propagation. Update that fixture basis rather than restore raw-envelope trust. Qualify actual interval producer→scenario→CAS→reader once.",
+      "limits": "pytest missing before collection; tests not executed, so fixture incompatibility is source-only diagnosis, not observed pytest failure. Exact source definitions/JSON readback are not native ownership proof."
+    },
+    {
+      "id": "C33-G02",
+      "type": "aggregation_semantics_and_empirical_authority",
+      "source_ids": [
+        "B168",
+        "B171"
+      ],
+      "evidence": [
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P22",
+        "S04:1381–1468"
+      ],
+      "remaining": "Bind comparable quantity/units, stable scenario meaning and predeclared weighting before pooling distinct metrics/jurisdictions. Keep explicit macro alongside micro. Exact point fit and conditional hit counts are not calibrated predictive intervals, independent residuals or population transport evidence.",
+      "limits": "Current code correctly pools arithmetic sufficient statistics and preserves nominal/type. This is a capability qualification gap, not a claim that every macro weighting is erroneous or a universal deterministic model generator is required."
+    }
+  ]
+}

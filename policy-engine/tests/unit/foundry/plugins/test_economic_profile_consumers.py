@@ -231,3 +231,171 @@ def test_historical_baseline_preserves_all_entry_population_and_aliases(income, 
         )
     )(high_income.agents.income)
     np.testing.assert_allclose(gradient, np.zeros(len(income)), atol=1e-7, rtol=0)
+
+
+def _inactive_population_state() -> EconomicState:
+    state = EconomicState.empty(n_agents=3, seed=31)
+    return state.replace(
+        agents=state.agents.replace(
+            active=jnp.asarray([True, False, True]),
+            income=jnp.asarray([10.0, 1.0, 30.0]),
+            wealth=jnp.asarray([1000.0, 1.0, 1000.0]),
+            consumption=jnp.asarray([2.0, 1.0, 6.0]),
+            savings=jnp.asarray([1.0, 1.0, 3.0]),
+            employed=jnp.asarray([True, True, False]),
+            risk_aversion=jnp.asarray([2.0, 2.0, 2.0]),
+        )
+    )
+
+
+@pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+def test_inactive_payload_does_not_enter_current_population_aggregates(compiled) -> None:
+    state = _inactive_population_state()
+    malformed = state.replace(
+        agents=state.agents.replace(
+            **{
+                name: getattr(state.agents, name).at[1].set(jnp.nan)
+                for name in ("income", "wealth", "consumption", "savings")
+            }
+        )
+    )
+    refresh = (
+        jax.jit(EconomicState.update_aggregates) if compiled else EconomicState.update_aggregates
+    )
+    finite = refresh(state)
+    actual = refresh(malformed)
+    _assert_full_state(actual.aggregates, finite.aggregates)
+    _assert_full_state(actual.distributions, finite.distributions)
+    assert float(actual.aggregates.gdp) == 40.0
+    assert float(actual.aggregates.mean_income) == 20.0
+    assert float(actual.aggregates.mean_wealth) == 1000.0
+    assert float(actual.aggregates.total_consumption) == 8.0
+    assert float(actual.aggregates.total_investment) == 4.0
+    assert float(actual.aggregates.unemployment_rate) == 0.5
+    for name in ("income", "wealth", "consumption", "savings"):
+        assert bool(jnp.isnan(getattr(malformed.agents, name)[1]))
+        assert bool(jnp.isnan(getattr(actual.agents, name)[1]))
+
+
+@pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+def test_inactive_income_is_not_taxed_or_backpropagated_into_policy(compiled) -> None:
+    taxation = next(m for m in EconomicsPlugin().get_mechanisms() if m.name == "taxation")
+    finite = _inactive_population_state()
+    malformed = finite.replace(
+        agents=finite.agents.replace(income=finite.agents.income.at[1].set(jnp.nan))
+    )
+
+    def evaluate(state, multiplier):
+        current = state.replace(policy=state.policy.replace(tax_rate=multiplier))
+        result = taxation.apply(current)
+        return jnp.sum(result.agents.wealth), result
+
+    value_gradient = jax.value_and_grad(evaluate, argnums=1, has_aux=True)
+    if compiled:
+        value_gradient = jax.jit(value_gradient)
+    (finite_value, expected), finite_gradient = value_gradient(finite, jnp.asarray(0.25))
+    (actual_value, actual), gradient = value_gradient(malformed, jnp.asarray(0.25))
+    # The first 10% bracket debits only active incomes10 and30; inactive wealth1 stays1.
+    np.testing.assert_array_equal(actual.agents.wealth, [999.0, 1.0, 997.0])
+    np.testing.assert_array_equal(actual.agents.wealth, expected.agents.wealth)
+    assert float(actual_value) == float(finite_value) == 1997.0
+    assert float(gradient) == float(finite_gradient) == -4.0
+    assert bool(jnp.isnan(malformed.agents.income[1]))
+    assert bool(jnp.isnan(actual.agents.income[1]))
+
+
+@pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+def test_inactive_wealth_is_excluded_before_reward_nonlinearity_and_gradient(compiled) -> None:
+    reward = EconomicsPlugin().get_reward_function()
+    finite = _inactive_population_state()
+    malformed = finite.replace(
+        agents=finite.agents.replace(wealth=finite.agents.wealth.at[1].set(jnp.nan))
+    )
+    deltas = jnp.asarray([10.0, 2.0, 30.0])
+
+    def evaluate(state, scale):
+        after = state.replace(
+            agents=state.agents.replace(wealth=state.agents.wealth + scale * deltas)
+        )
+        values = reward.compute(state, after)
+        return jnp.sum(values), values
+
+    value_gradient = jax.value_and_grad(evaluate, argnums=1, has_aux=True)
+    if compiled:
+        value_gradient = jax.jit(value_gradient)
+    (finite_value, expected), finite_gradient = value_gradient(finite, jnp.asarray(1.0))
+    (actual_value, actual), gradient = value_gradient(malformed, jnp.asarray(1.0))
+    np.testing.assert_array_equal(actual, expected)
+    assert float(actual[1]) == 0.0
+    assert float(actual_value) == float(finite_value)
+    assert np.isfinite(float(gradient))
+    np.testing.assert_allclose(gradient, finite_gradient, rtol=1e-6, atol=1e-8)
+    expected_gradient = 1e-5 * (10.0 * (1 - np.tanh(0.001) ** 2) + 30.0 * (1 - np.tanh(0.003) ** 2))
+    np.testing.assert_allclose(gradient, expected_gradient, rtol=1e-6, atol=1e-8)
+    assert bool(jnp.isnan(malformed.agents.wealth[1]))
+
+
+@pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+@pytest.mark.parametrize("field", ["consumption", "risk_aversion"])
+def test_inactive_utility_operands_are_excluded_before_nonlinearity_and_gradient(
+    compiled, field
+) -> None:
+    reward = EconomicsPlugin().get_reward_function()
+    finite = _inactive_population_state()
+    original = getattr(finite.agents, field)
+    malformed = finite.replace(agents=finite.agents.replace(**{field: original.at[1].set(jnp.nan)}))
+    delta = jnp.asarray([1.0, 0.5, 2.0] if field == "consumption" else [0.1, 0.5, 0.2])
+
+    def evaluate(state, scale):
+        values = getattr(state.agents, field) + scale * delta
+        after = state.replace(agents=state.agents.replace(**{field: values}))
+        result = reward.compute(state, after)
+        return jnp.sum(result), result
+
+    value_gradient = jax.value_and_grad(evaluate, argnums=1, has_aux=True)
+    if compiled:
+        value_gradient = jax.jit(value_gradient)
+    (finite_value, expected), finite_gradient = value_gradient(finite, jnp.asarray(1.0))
+    (actual_value, actual), gradient = value_gradient(malformed, jnp.asarray(1.0))
+    np.testing.assert_array_equal(actual, expected)
+    assert float(actual[1]) == 0.0
+    assert float(actual_value) == float(finite_value)
+    assert np.isfinite(float(gradient))
+    np.testing.assert_allclose(gradient, finite_gradient, rtol=1e-6, atol=1e-7)
+    if field == "consumption":
+        consumption = np.asarray([3.0, 8.0]) + 1e-6
+        expected_gradient = np.sum(np.asarray([1.0, 2.0]) / consumption**2)
+    else:
+        consumption = np.asarray([2.0, 6.0]) + 1e-6
+        exponent = 1.0 - np.asarray([2.1, 2.2])
+        denominator = exponent + 1e-8
+        expected_gradient = np.sum(
+            np.asarray([0.1, 0.2])
+            * consumption**exponent
+            * (1 / denominator**2 - np.log(consumption) / denominator)
+        )
+    np.testing.assert_allclose(gradient, expected_gradient, rtol=1e-6, atol=1e-7)
+    assert bool(jnp.isnan(getattr(malformed.agents, field)[1]))
+
+
+@pytest.mark.parametrize("compiled", [False, True], ids=["eager", "jit"])
+def test_active_nan_is_not_neutralized_by_economic_population_selectors(compiled) -> None:
+    state = _inactive_population_state()
+    malformed = state.replace(
+        agents=state.agents.replace(
+            income=state.agents.income.at[0].set(jnp.nan),
+            consumption=state.agents.consumption.at[0].set(jnp.nan),
+        )
+    )
+    taxation = next(m for m in EconomicsPlugin().get_mechanisms() if m.name == "taxation")
+    reward = EconomicsPlugin().get_reward_function()
+
+    def evaluate(current):
+        aggregate = EconomicState._compute_aggregates(current.agents)
+        taxed = taxation.apply(current)
+        values = reward.compute(state, current)
+        return aggregate.gdp, taxed.agents.wealth[0], values[0]
+
+    if compiled:
+        evaluate = jax.jit(evaluate)
+    assert all(bool(jnp.isnan(value)) for value in evaluate(malformed))

@@ -12,10 +12,10 @@ Reviewed source: commit `9e02a9f49c8b01026327a9f7c7e18711b13a96f2`, tree `881a95
 
 The complete baseline output and command are retained at:
 
-- [`raw/governance-baseline-9e02/focused-tests.log`](raw/governance-baseline-9e02/focused-tests.log), SHA-256 `e8b3a19c113a7d44cc2b8b49d4e6ff7f0ffa9ca40d7c6a84a19aa58922c1c60d`
-- [`raw/governance-baseline-9e02/focused-tests.command.txt`](raw/governance-baseline-9e02/focused-tests.command.txt), SHA-256 `34a115941935fceac082cae91ab9b37fb45f1473934a4b4a50afb29cf68b2879`
-- [`raw/governance-baseline-9e02/focused-tests.exit.txt`](raw/governance-baseline-9e02/focused-tests.exit.txt), exit `1`, SHA-256 `4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865`
-- [`raw/governance-baseline-9e02/ir-store-adapter-counterfactual.log`](raw/governance-baseline-9e02/ir-store-adapter-counterfactual.log), SHA-256 `91661bd217b773d78f68b126b410a37cd4b193a279245abb8d4e83dcc4b3f461`
+- `raw/governance-baseline-9e02/focused-tests.log` (`raw/governance-baseline-9e02/focused-tests.log`; unavailable in this checkout), SHA-256 `e8b3a19c113a7d44cc2b8b49d4e6ff7f0ffa9ca40d7c6a84a19aa58922c1c60d`
+- `raw/governance-baseline-9e02/focused-tests.command.txt` (`raw/governance-baseline-9e02/focused-tests.command.txt`; unavailable in this checkout), SHA-256 `34a115941935fceac082cae91ab9b37fb45f1473934a4b4a50afb29cf68b2879`
+- `raw/governance-baseline-9e02/focused-tests.exit.txt` (`raw/governance-baseline-9e02/focused-tests.exit.txt`; unavailable in this checkout), exit `1`, SHA-256 `4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865`
+- `raw/governance-baseline-9e02/ir-store-adapter-counterfactual.log` (`raw/governance-baseline-9e02/ir-store-adapter-counterfactual.log`; unavailable in this checkout), SHA-256 `91661bd217b773d78f68b126b410a37cd4b193a279245abb8d4e83dcc4b3f461`
 
 Command, from `policy-engine/` with that checkout's `.venv`:
 

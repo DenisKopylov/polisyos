@@ -3,15 +3,23 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.common.serialization import extract_llm_json_object
+from polisyos.core.artifacts import ArtifactStore, ArtifactWriteOptions
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.methods.search.readiness import DecisionReadinessContract
 from polisyos.scientist.orchestration.engine.budget import BudgetState
+from polisyos.scientist.orchestration.llm._translator_materialization import (
+    TRANSLATOR_INPUT_KIND,
+    TRANSLATOR_ROLES,
+    TranslatorMaterialization,
+    translator_materialization_scope,
+)
 from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
 from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
 from polisyos.scientist.policy_design.output import (
@@ -59,6 +67,53 @@ class TranslatorInputBundle(BaseModel):
     budget_state: BudgetState | None = None
     run_id: str = Field(default="policy_translator", min_length=1)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+def _translator_payload(bundle: TranslatorInputBundle) -> dict[str, Any]:
+    payload: dict[str, Any] = {}
+    for role in TRANSLATOR_ROLES:
+        value = getattr(bundle, role)
+        payload[role] = value.model_dump(mode="json") if value is not None else None
+    return payload
+
+
+def materialize_translator_inputs(
+    store: ArtifactStore, bundle: TranslatorInputBundle
+) -> TranslatorMaterialization:
+    """Persist the actual finite translator inputs as selected CAS views.
+
+    Args:
+        store: The CAS owner that writes and later reads each selected view.
+        bundle: The exact candidate input to the translator.
+
+    Returns:
+        A materialization for an optional scoped reuse attempt. It confers no
+        current permission or authority: the cache checks the actual call and
+        a current authorizer independently admits the selected evidence.
+    """
+    payload = _translator_payload(bundle)
+    role_refs: list[tuple[str, ArtifactRef | None]] = []
+    for role in TRANSLATOR_ROLES:
+        value = payload[role]
+        if value is None:
+            if role != "implementation_plan":
+                raise ValueError("translator_required_input_missing")
+            role_refs.append((role, None))
+            continue
+        content = json.dumps(
+            {"role": role, "value": value},
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("utf-8")
+        ref = store.put_bytes(
+            content,
+            ArtifactWriteOptions(kind=TRANSLATOR_INPUT_KIND, media_type="application/json"),
+            return_selected_profile=True,
+        )
+        role_refs.append((role, ref))
+    return TranslatorMaterialization(store=store, role_refs=tuple(role_refs))
 
 
 class TranslatorComplianceFinding(BaseModel):
@@ -185,7 +240,12 @@ class PolicyTranslatorWorker:
         self._config = config or PolicyTranslatorConfig()
         self._fallback = fallback or DeterministicPolicyTranslator()
 
-    async def translate_async(self, bundle: TranslatorInputBundle) -> PolicyBrief:
+    async def translate_async(
+        self,
+        bundle: TranslatorInputBundle,
+        *,
+        materialization: TranslatorMaterialization | None = None,
+    ) -> PolicyBrief:
         client = create_traced_gateway_client(
             model_name=self._config.model_name,
             provider_hint=self._config.provider_hint,
@@ -204,27 +264,17 @@ class PolicyTranslatorWorker:
                 run_id=bundle.run_id,
             )
 
-        payload = {
-            "dossier": bundle.dossier.model_dump(mode="json"),
-            "readiness_contract": bundle.readiness_contract.model_dump(mode="json"),
-            "constraint_report": bundle.constraint_report.model_dump(mode="json"),
-            "subgroup_report": bundle.subgroup_report.model_dump(mode="json"),
-            "uncertainty_report": bundle.uncertainty_report.model_dump(mode="json"),
-            "implementation_plan": (
-                bundle.implementation_plan.model_dump(mode="json")
-                if bundle.implementation_plan is not None
-                else None
-            ),
-        }
+        payload = _translator_payload(bundle)
         try:
-            response = await llm_client.generate(
-                system=get_policy_translator_prompt(),
-                user=build_policy_translator_user_payload(payload),
-                response_format={"type": "json_object"},
-                temperature=self._config.temperature,
-                max_tokens=self._config.max_tokens,
-                _run_id=bundle.run_id,
-            )
+            with translator_materialization_scope(materialization):
+                response = await llm_client.generate(
+                    system=get_policy_translator_prompt(),
+                    user=build_policy_translator_user_payload(payload),
+                    response_format={"type": "json_object"},
+                    temperature=self._config.temperature,
+                    max_tokens=self._config.max_tokens,
+                    _run_id=bundle.run_id,
+                )
             raw = getattr(response, "content", response)
             return PolicyBrief.model_validate(_parse_json_object(raw))
         except Exception:
@@ -232,11 +282,16 @@ class PolicyTranslatorWorker:
                 raise
             return self._fallback.translate(bundle)
 
-    def translate(self, bundle: TranslatorInputBundle) -> PolicyBrief:
+    def translate(
+        self,
+        bundle: TranslatorInputBundle,
+        *,
+        materialization: TranslatorMaterialization | None = None,
+    ) -> PolicyBrief:
         try:
             asyncio.get_running_loop()
         except RuntimeError:
-            return asyncio.run(self.translate_async(bundle))
+            return asyncio.run(self.translate_async(bundle, materialization=materialization))
         return self._fallback.translate(bundle)
 
     async def translate_and_persist_async(
@@ -245,8 +300,9 @@ class PolicyTranslatorWorker:
         bundle: TranslatorInputBundle,
         *,
         inputs: list[InputRef] | None = None,
+        materialization: TranslatorMaterialization | None = None,
     ) -> tuple[PolicyBrief, ArtifactRef]:
-        brief = await self.translate_async(bundle)
+        brief = await self.translate_async(bundle, materialization=materialization)
         ref = persist_policy_brief(store, brief, inputs=inputs)
         return brief, ref
 
@@ -256,11 +312,16 @@ class PolicyTranslatorWorker:
         bundle: TranslatorInputBundle,
         *,
         inputs: list[InputRef] | None = None,
+        materialization: TranslatorMaterialization | None = None,
     ) -> tuple[PolicyBrief, ArtifactRef]:
         try:
             asyncio.get_running_loop()
         except RuntimeError:
-            return asyncio.run(self.translate_and_persist_async(store, bundle, inputs=inputs))
+            return asyncio.run(
+                self.translate_and_persist_async(
+                    store, bundle, inputs=inputs, materialization=materialization
+                )
+            )
         brief = self._fallback.translate(bundle)
         ref = persist_policy_brief(store, brief, inputs=inputs)
         return brief, ref
@@ -402,4 +463,6 @@ __all__ = [
     "TranslatorCompliancePass",
     "TranslatorComplianceResult",
     "TranslatorInputBundle",
+    "TranslatorMaterialization",
+    "materialize_translator_inputs",
 ]

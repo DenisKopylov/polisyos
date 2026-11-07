@@ -20,7 +20,12 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import content_hash, from_canonical_bytes
 from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent
-from polisyos.fabric.claims.persist import load_doc_meta
+from polisyos.fabric.claims.persist import (
+    claim_artifact_ids_by_claim_id,
+    load_claim,
+    load_doc_meta,
+)
+from polisyos.ir.world.doc import DocFragment
 from polisyos.ir.world.ids import doc_version_id_from_raw_artifact
 from polisyos.scholar import (
     EnrichmentReportV1,
@@ -679,6 +684,48 @@ def test_actual_snapshot_bytes_feed_unpatched_enrichment_and_fresh_bundle_reader
                 rows.append((artifact_id, manifest))
         return rows
 
+    def _assert_fresh_docs_and_claims(result, expected_bytes, expected_value):
+        reader = FileSystemCAS(cas_root, tenant_id=tenant)
+        payload = KnowledgeBundlePayloadV1.model_validate(
+            load_core_json_artifact(reader, result.knowledge_bundle_ref)
+        )
+        assert len(payload.doc_version_ids) == 1
+        for meta_id in payload.doc_meta_artifact_ids:
+            meta = load_doc_meta(reader, meta_id)
+            assert reader.get_bytes(ArtifactID.model_validate(meta.raw_ref)) == expected_bytes
+            assert meta.doc_version_id in payload.doc_version_ids
+            assert meta.normalized_ref is not None
+            normalized = load_core_json_artifact(
+                reader, ArtifactID.model_validate(meta.normalized_ref)
+            )["text"]
+            assert expected_value in normalized
+        fragments = [
+            DocFragment.model_validate(load_core_json_artifact(reader, artifact_id))
+            for artifact_id, _ in _rows_for_kind(reader, "fabric.world.doc_fragment")
+        ]
+        selected_fragments = [
+            item for item in fragments if item.doc_version_id in payload.doc_version_ids
+        ]
+        assert selected_fragments
+        for fragment in selected_fragments:
+            text = load_core_json_artifact(reader, ArtifactID.model_validate(fragment.text_hash))[
+                "text"
+            ]
+            start, end = fragment.locator.offset_start, fragment.locator.offset_end
+            assert 0 <= start < end <= len(text)
+            assert fragment.quote_preview == " ".join(text[start:end].split())[:240]
+        claim_map = claim_artifact_ids_by_claim_id(reader, payload.claim_set_artifact_ids)
+        assert payload.claim_ids
+        for claim_id in payload.claim_ids:
+            claim = load_claim(reader, claim_map[claim_id])
+            assert claim.value_text == expected_value
+            assert claim.citations
+            assert all(
+                citation.doc.doc_version_id in payload.doc_version_ids
+                for citation in claim.citations
+            )
+        return payload
+
     try:
         tenant = "la025-actual-route-fixture"
         cas_root = tmp_path / "cas"
@@ -773,6 +820,8 @@ def test_actual_snapshot_bytes_feed_unpatched_enrichment_and_fresh_bundle_reader
             )
         assert matching_doc_metas
         assert all(meta.license == "public-web" for meta in matching_doc_metas)
+        # A public-web label is retained provenance, not an institutional reuse grant.
+        _assert_fresh_docs_and_claims(result, v1, "120")
 
         cached_bundle = asyncio.run(
             service.deep_search(
@@ -788,6 +837,18 @@ def test_actual_snapshot_bytes_feed_unpatched_enrichment_and_fresh_bundle_reader
         assert cached_source.raw_artifact_ref == selected_ref
         assert server.request_count == 1
 
+        cached_result = enrich_topic(
+            cas=cas,
+            fact_log_root=tmp_path / "facts-cached",
+            intent=intent,
+            web_search_service=service,
+            web_search_constraints=constraints,
+            web_search_budgets=budgets,
+        )
+        cached_knowledge = _assert_fresh_docs_and_claims(cached_result, v1, "120")
+        assert cached_knowledge.doc_version_ids == knowledge.doc_version_ids
+        assert server.request_count == 1
+
         expired_cache = UrlFetchCache(
             index_path=cache_index,
             cas=cas,
@@ -798,12 +859,20 @@ def test_actual_snapshot_bytes_feed_unpatched_enrichment_and_fresh_bundle_reader
             cas=cas,
             cache=expired_cache,
         )
-        refreshed_bundle = asyncio.run(
-            refresh_service.deep_search(
-                intent=intent,
-                claim_texts=[intent.topic],
-                constraints=constraints,
-                budgets=budgets,
+        refreshed_result = enrich_topic(
+            cas=cas,
+            fact_log_root=tmp_path / "facts-refreshed",
+            intent=intent,
+            web_search_service=refresh_service,
+            web_search_constraints=constraints,
+            web_search_budgets=budgets,
+        )
+        refreshed_knowledge = _assert_fresh_docs_and_claims(refreshed_result, v2, "999")
+        refreshed_bundle = WebEvidenceBundle.model_validate(
+            from_canonical_bytes(
+                fresh.get_bytes(
+                    ArtifactID.model_validate(refreshed_knowledge.web_evidence["artifact_id"])
+                )
             )
         )
         refreshed = refreshed_bundle.sources[0]

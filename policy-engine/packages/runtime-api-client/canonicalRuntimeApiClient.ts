@@ -48,6 +48,9 @@ export type AcquisitionRouteReplayPins =
 export type AcquisitionRoutingPayload =
   RuntimeApiComponents["schemas"]["AcquisitionRoutingPayload"];
 
+export type AcquisitionSelectedEvaluation =
+  RuntimeApiComponents["schemas"]["AcquisitionSelectedEvaluation"];
+
 export type AgentPipelineAttempt =
   RuntimeApiComponents["schemas"]["AgentPipelineAttempt"];
 
@@ -289,6 +292,27 @@ export type CacheStatusResponse =
 
 export type CandidateDecisionPacketHTEProjection =
   RuntimeApiComponents["schemas"]["CandidateDecisionPacketHTEProjection"];
+
+export type CandidateExperimentCurrentActionProjection =
+  RuntimeApiComponents["schemas"]["CandidateExperimentCurrentActionProjection"];
+
+export type CandidateExperimentN5ResultProjection =
+  RuntimeApiComponents["schemas"]["CandidateExperimentN5ResultProjection"];
+
+export type CandidateExperimentRouteExecutionRequest =
+  RuntimeApiComponents["schemas"]["CandidateExperimentRouteExecutionRequest"];
+
+export type CandidateExperimentRouteMutationRequest =
+  RuntimeApiComponents["schemas"]["CandidateExperimentRouteMutationRequest"];
+
+export type CandidateExperimentRouteProjection =
+  RuntimeApiComponents["schemas"]["CandidateExperimentRouteProjection"];
+
+export type CandidateExperimentRouteReplayPinsInput =
+  RuntimeApiComponents["schemas"]["CandidateExperimentRouteReplayPins-Input"];
+
+export type CandidateExperimentRouteReplayPinsOutput =
+  RuntimeApiComponents["schemas"]["CandidateExperimentRouteReplayPins-Output"];
 
 export type CandidateLever = RuntimeApiComponents["schemas"]["CandidateLever"];
 
@@ -559,11 +583,16 @@ export type DataResolveRequest =
 export type DataResolveResponse =
   RuntimeApiComponents["schemas"]["DataResolveResponse"];
 
-export type DataSnapshotRef =
-  RuntimeApiComponents["schemas"]["DataSnapshotRef"];
+export type DataSnapshotRefInput =
+  RuntimeApiComponents["schemas"]["DataSnapshotRef-Input"];
+
+export type DataSnapshotRefOutput =
+  RuntimeApiComponents["schemas"]["DataSnapshotRef-Output"];
 
 export type DataSourceBinding =
   RuntimeApiComponents["schemas"]["DataSourceBinding"];
+
+export type DataTrust = RuntimeApiComponents["schemas"]["DataTrust"];
 
 export type DataViewRequestRef =
   RuntimeApiComponents["schemas"]["DataViewRequestRef"];
@@ -822,6 +851,9 @@ export type EvidenceAcquisitionNeeds =
   RuntimeApiComponents["schemas"]["EvidenceAcquisitionNeeds"];
 
 export type EvidenceBasis = RuntimeApiComponents["schemas"]["EvidenceBasis"];
+
+export type EvidenceBundleRef =
+  RuntimeApiComponents["schemas"]["EvidenceBundleRef"];
 
 export type EvidenceNeed = RuntimeApiComponents["schemas"]["EvidenceNeed"];
 
@@ -1518,6 +1550,12 @@ export type RunAuthorityProjection =
 export type RunBoundDesignRecordBinding =
   RuntimeApiComponents["schemas"]["RunBoundDesignRecordBinding"];
 
+export type RunCandidateEvaluationAttemptProjection =
+  RuntimeApiComponents["schemas"]["RunCandidateEvaluationAttemptProjection"];
+
+export type RunCandidateSimulationAcquiredOutcomeRevision =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationAcquiredOutcomeRevision"];
+
 export type RunCandidateSimulationAcquisitionContinuationProjection =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationAcquisitionContinuationProjection"];
 
@@ -1526,6 +1564,15 @@ export type RunCandidateSimulationAcquisitionHistoryEntry =
 
 export type RunCandidateSimulationAcquisitionHistoryEntryV3 =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"];
+
+export type RunCandidateSimulationAcquisitionHistoryEntryV4 =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"];
+
+export type RunCandidateSimulationAcquisitionHistoryEntryV5 =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV5"];
+
+export type RunCandidateSimulationCheapConsequences =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationCheapConsequences"];
 
 export type RunCandidateSimulationChildProfileBinding =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationChildProfileBinding"];
@@ -1536,8 +1583,14 @@ export type RunCandidateSimulationContinuationFronts =
 export type RunCandidateSimulationCurrentOccurrence =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationCurrentOccurrence"];
 
+export type RunCandidateSimulationModelRevision =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationModelRevision"];
+
 export type RunCandidateSimulationN5Observation =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationN5Observation"];
+
+export type RunCandidateSimulationN5ResultBody =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationN5ResultBody"];
 
 export type RunCandidateSimulationN8ChildSourceBinding =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationN8ChildSourceBinding"];
@@ -1547,6 +1600,12 @@ export type RunCandidateSimulationProjection =
 
 export type RunCandidateSimulationRetainedEvaluation =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationRetainedEvaluation"];
+
+export type RunCandidateSourceCurrentProjection =
+  RuntimeApiComponents["schemas"]["RunCandidateSourceCurrentProjection"];
+
+export type RunCandidateValueMethodProjection =
+  RuntimeApiComponents["schemas"]["RunCandidateValueMethodProjection"];
 
 export type RunCompareResponse =
   RuntimeApiComponents["schemas"]["RunCompareResponse"];
@@ -1586,6 +1645,9 @@ export type RunEvidencePlanView =
 
 export type RunEvidencePromotionView =
   RuntimeApiComponents["schemas"]["RunEvidencePromotionView"];
+
+export type RunFailedCandidateSimulationProjection =
+  RuntimeApiComponents["schemas"]["RunFailedCandidateSimulationProjection"];
 
 export type RunFeedbackResponse =
   RuntimeApiComponents["schemas"]["RunFeedbackResponse"];
@@ -1913,6 +1975,8 @@ export type ValidationError =
 export type ValueGatePayload =
   RuntimeApiComponents["schemas"]["ValueGatePayload"];
 
+export type ValueOuterSet = RuntimeApiComponents["schemas"]["ValueOuterSet"];
+
 export type ValueRefusalCode =
   RuntimeApiComponents["schemas"]["ValueRefusalCode"];
 
@@ -1930,6 +1994,9 @@ export type WorkflowDataSourceBinding =
 
 export type WorkflowRunRequest =
   RuntimeApiComponents["schemas"]["WorkflowRunRequest"];
+
+export type _BuildIdentityArtifactSelection =
+  RuntimeApiComponents["schemas"]["_BuildIdentityArtifactSelection"];
 
 export type _QualifiedOutcomeOfInterestV3 =
   RuntimeApiComponents["schemas"]["_QualifiedOutcomeOfInterestV3"];
@@ -3357,6 +3424,52 @@ export class RuntimeApiClient {
     );
   }
 
+  async getRunCandidateAcquisitionExperiment(params: {
+    run_id: string;
+  }): Promise<CandidateExperimentRouteProjection> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/candidate-acquisition-experiment`;
+    const query = undefined;
+    return this.request<CandidateExperimentRouteProjection>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
+  async requestRunCandidateAcquisitionExperimentDecision(params: {
+    run_id: string;
+    route_id: string;
+    body: CandidateExperimentRouteMutationRequest;
+  }): Promise<AcquisitionDecisionRequestResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/candidate-acquisition-experiment/${encodeURIComponent(String(params.route_id))}/decision-request`;
+    const query = undefined;
+    return this.request<AcquisitionDecisionRequestResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
+      undefined,
+    );
+  }
+
+  async executeRunCandidateAcquisitionExperiment(params: {
+    run_id: string;
+    route_id: string;
+    body: CandidateExperimentRouteExecutionRequest;
+  }): Promise<AcquisitionExecutionResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/candidate-acquisition-experiment/${encodeURIComponent(String(params.route_id))}/execute`;
+    const query = undefined;
+    return this.request<AcquisitionExecutionResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
+      undefined,
+    );
+  }
+
   async getCaseInspection(params: {
     run_id: string;
     manifest_artifact_id?: string | null;
@@ -3973,3 +4086,7 @@ export class RuntimeApiClient {
 /** Compatibility export retained for established package-root imports. */
 export type polisyos__core__artifacts__ids__ArtifactID =
   RuntimeApiComponents["schemas"]["polisyos__core__artifacts__ids__ArtifactID-Output"];
+
+/** Compatibility export retained for established package-root imports. */
+export type DataSnapshotRef =
+  RuntimeApiComponents["schemas"]["DataSnapshotRef-Input"];

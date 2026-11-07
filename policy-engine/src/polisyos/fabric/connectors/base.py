@@ -14,6 +14,8 @@ import json
 import re
 import threading
 from collections.abc import AsyncIterable, AsyncIterator, Awaitable, Callable, Iterable, Mapping
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -53,6 +55,8 @@ from polisyos.ir.connectors import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from polisyos.fabric.connectors.types import (
         DataChunk,
         FreshnessResult,
@@ -722,6 +726,29 @@ class SourceConnector(_SourceConnectorOperations[DataT], Protocol[DataT]):
 
 
 type SourceConnectorValue[DataT] = SourceConnector[DataT] | SourceConnectorInstance[DataT]
+
+
+_FETCH_SOURCE_NAMESPACE: ContextVar[tuple[str, str] | None] = ContextVar(
+    "fabric_fetch_source_namespace", default=None
+)
+
+
+@contextmanager
+def _bind_fetch_source_namespace(connector_id: str, dataset_id: str) -> Iterator[None]:
+    """Bind actual selected fetch intent, without asserting source authority."""
+    selected_owner = validate_connector_owner_id(connector_id)
+    if not isinstance(dataset_id, str) or not dataset_id.strip():
+        raise ValueError("fetch_dataset_id_missing_or_invalid")
+    token = _FETCH_SOURCE_NAMESPACE.set((selected_owner, dataset_id))
+    try:
+        yield
+    finally:
+        _FETCH_SOURCE_NAMESPACE.reset(token)
+
+
+def _get_fetch_source_namespace() -> tuple[str, str] | None:
+    """Return the selected source only inside its actual connector fetch."""
+    return _FETCH_SOURCE_NAMESPACE.get()
 
 
 def validate_connector_owner_id(connector_id: object) -> str:

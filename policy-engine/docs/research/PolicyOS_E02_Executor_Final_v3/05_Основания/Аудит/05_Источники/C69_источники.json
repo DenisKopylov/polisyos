@@ -1,0 +1,187 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          98,
+          466
+        ],
+        [
+          2507,
+          3716
+        ],
+        [
+          3770,
+          3924
+        ]
+      ],
+      "evidence_level": "Полные channel/supervisor, process selection, compute/delivery drain, cleanup, spawn/fork bindings, receipt admission, sync/async process wrappers и worker blocks прочитаны. Exact selected channel/drain/join/group-cleanup/worker definitions исполнены; native supervisor, process admission и receipt custody UNRUN.",
+      "git_blob": "557140e6651bd1a5a4bbd717bf4b7ca50bf58920",
+      "sha256": "274bae76b807ef08df74143439eba9a28fa0a3b00689cfc478909e6d3800d2af",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          70
+        ],
+        [
+          298,
+          335
+        ],
+        [
+          651,
+          823
+        ],
+        [
+          941,
+          1127
+        ],
+        [
+          1149,
+          1310
+        ],
+        [
+          1732,
+          1902
+        ]
+      ],
+      "evidence_level": "Actual typed codec и complete timeout context contract прочитаны в указанных ranges. Whole module imported; реальные encode/decode вызваны для NodeOutcome. Full1902line human review не заявлен; другие codec helpers не подменялись.",
+      "git_blob": "d71e6eb76f6b46d697061b6cba0096172e7a0969",
+      "sha256": "d66e82d4f2dccf068ac8786f8d96e64c52d24606597358915fcbd50b645f8712",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1794,
+          1832
+        ],
+        [
+          2040,
+          2223
+        ],
+        [
+          2225,
+          2320
+        ]
+      ],
+      "evidence_level": "Small/1MiB, malformed frames, send failure, late completion, direct/group/descendant cleanup tests прочитаны.5unchanged selected bodies /6cases исполнены с bounded seams; full fork-wrapper и descendant native tests UNRUN.",
+      "git_blob": "892853590329afa2aae1b1b858f04353a4bbcb0d",
+      "sha256": "daa4d0553c49976c7c18370188c9446256c685723b683c69e72ba839cba7f4ba",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_timeout_transport_attempt_binding.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/orchestration/engine/runner/test_timeout_transport_attempt_binding.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          312
+        ]
+      ],
+      "evidence_level": "Полный current transport attempt fixture, identity/replay test и Darwin-only native test прочитаны. Все UNRUN; Linux fork probe не переименован в macOS spawn coverage.",
+      "git_blob": "d87af2205b0c3a28ff2c54b78a215e1981bf0220",
+      "sha256": "cd472c2756f3064e83fabd19feadcb2a94ffa04e43459cd1f513b2ea429014c5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/common/async_tools/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/common/async_tools/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          795,
+          978
+        ]
+      ],
+      "evidence_level": "Соседний completion/timeout receipt contract прочитан в C68 same blob, без новой аттестации; RUN-02 не меняет thread helper и не использует его для доказательства process cleanup.",
+      "git_blob": "fe5c9d96021c98dbb41a005e625d66bc7f832f62",
+      "sha256": "f986fb79507b7c81d8d680f61abcf8e94115db13fb90e7706bca83fcd1a634ec",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          81
+        ]
+      ],
+      "evidence_level": "Полный typed state owner прочитан C65 same blob; imported/executed снова для actual NodeOutcome wire.",
+      "git_blob": "3724db92babaa2e2da1d1e35f8467159d3afe980",
+      "sha256": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/orchestration/engine/protocol.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          229
+        ]
+      ],
+      "evidence_level": "Полный typed result owner прочитан C65 same blob; imported/executed снова, не dict-success substitute.",
+      "git_blob": "9beb3b3c46c72ac46f333a1028e453288d3d6011",
+      "sha256": "335125a09166458c151d749ca1f8a8548df356f349d288db584c63f2a9000e0f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          30
+        ]
+      ],
+      "evidence_level": "Pinned toolchain baseline и actual environment разведены; Python3.14-required retry syntax не переписывалась.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      8152,
+      8220
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "Свежий C69 после внешнего сохранения C68. Один sequential tiny Linux fork diagnostic wave, actual channel/codec; process supervisor/receipt custody/macOS не аттестованы."
+}

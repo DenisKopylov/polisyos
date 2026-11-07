@@ -12,6 +12,7 @@ from collections.abc import Callable, Mapping
 from contextvars import ContextVar
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeVar, cast, overload
 
@@ -219,9 +220,13 @@ from polisyos.runtime.http.services.control.workspace_loop_transition import (
     ControlPlaneWorkspaceLoopTransitionMixin,
 )
 from polisyos.runtime.quality.acquisition_route_loop import (
+    AcquisitionCandidateExperimentPhaseReceipt,
+    AcquisitionCandidateExperimentTerminalReceipt,
+    AcquisitionCandidateRouteLoopReceipt,
     AcquisitionRouteLoopReceipt,
     AcquisitionRouteLoopReceiptV2,
     AcquisitionRoutePhaseReceipt,
+    VerifiedCandidateExperimentOrigin,
     parse_acquisition_route_loop_receipt,
 )
 from polisyos.runtime.quality.authority import GovernanceMetadata
@@ -310,6 +315,7 @@ from ..control_plane_store import (
     HumanDecisionReservationRecord,
     HumanDecisionReservationResult,
     HumanDecisionWriteFence,
+    _PreparedAcquisitionActionHeadPublication,
 )
 from ..control_plane_store import (
     _completed_hte_source_invalidation_dedupe_key as _control_hte_invalidation_dedupe_key,
@@ -317,6 +323,17 @@ from ..control_plane_store import (
 from ..control_worker import ControlWorker
 
 logger = get_logger(__name__)
+
+
+class _AcquisitionSourceBudgetIdentity(Protocol):
+    """The exact completed-NL identity shared by costed and candidate routes."""
+
+    tenant_id: str
+    cell_id: str
+    run_id: str
+    source_job_id: str
+    source_payload_ref: str
+    capability_manifest_ref: str
 
 
 def _same_selected_artifact_ref(left: object, right: object) -> bool:
@@ -468,12 +485,17 @@ def _build_control_nl_producer_budget_reconciler(
     settlement_store: BudgetMiddleware,
     producer_run_binding: BudgetLedgerProducerRunBinding,
     budget_state: BudgetState,
+    reentry_budget_scope: BudgetLedgerReentryBudgetScope | None = None,
+    invocation_guard_binding: object | None = None,
 ) -> ProducerBudgetObserver:
     """Bind the canonical current producer-budget owner for N5 and N6 consumers."""
     return ProducerBudgetObserver(
         settlement_store=settlement_store,
         producer_run_binding=producer_run_binding,
         budget_state=budget_state,
+        invocation_selection_pending=True,
+        reentry_budget_scope=reentry_budget_scope,
+        invocation_guard_binding=invocation_guard_binding,
     )
 
 
@@ -2055,6 +2077,10 @@ if TYPE_CHECKING:
         ContractCompatibilityTarget as _ContractCompatibilityTarget,
     )
     from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        AcquisitionActionService,
+        CandidateExperimentRouteMutationRequest,
+    )
     from polisyos.runtime.http.services.adapters.core_run import (
         TerminalCoreRunSource,
         _TerminalReadBudget,
@@ -2075,7 +2101,19 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.control.owned_attempt_anchor import (
         _OwnedAttemptAnchorArtifactStore,
     )
-    from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobScope
+    from polisyos.runtime.http.services.control_plane_store import AcquisitionEvaluationFrontierCAS
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        CandidateEvaluationTerminalHistory,
+        CandidateExperimentTerminalHistory,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        CandidateAcquisitionActionReceipt,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        VerifiedNLJobBudgetScope,
+        VerifiedNLJobScope,
+    )
     from polisyos.runtime.quality.data_forge_binding import (
         MeasurementRootExecutionBinding,
     )
@@ -2091,6 +2129,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.recursive_generation_cycle import (
         ExecutionIntent,
         RecursiveCycleBudget,
+        RecursiveGenerationCyclePartialRunV4,
         RecursiveLeafContextOwner,
     )
     from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
@@ -2117,7 +2156,12 @@ if TYPE_CHECKING:
         MethodMetricProjectionWorkLike,
         _MethodMetricProjectionArtifactStore,
     )
-    from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding
+    from polisyos.scientist.orchestration.engine import (
+        BudgetLedger,
+        BudgetLedgerProducerRunBinding,
+        BudgetLedgerReentryBudgetScope,
+        NodeRegistry,
+    )
     from polisyos.scientist.orchestration.engine.context import (
         FoundryPort as _FoundryPortProtocol,
     )
@@ -2132,7 +2176,10 @@ if TYPE_CHECKING:
     from .capability_discovery import CapabilityDiscoveryService
 
     class _HumanDecisionSignedArtifactStore(Protocol):
-        def get_manifest_bytes(self, artifact_id: artifacts.ArtifactID | str) -> bytes: ...
+        def get_manifest_bytes(
+            self,
+            artifact_id: artifacts.ArtifactID | artifacts.ArtifactRef | str,
+        ) -> bytes: ...
 
         def get_signature(
             self, artifact_id: artifacts.ArtifactID | str
@@ -2148,7 +2195,7 @@ if TYPE_CHECKING:
 
         def verify_signature(
             self,
-            artifact_id: artifacts.ArtifactID,
+            artifact_id: artifacts.ArtifactID | artifacts.ArtifactRef | str,
             verifier: artifacts.Ed25519Verifier,
             *,
             strict_identity: bool | None = None,
@@ -2178,10 +2225,34 @@ class VerifiedAcquisitionActionPhase:
 
     receipt_ref: str
     receipt: (
-        AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt | AcquisitionRouteLoopReceiptV2
+        AcquisitionRoutePhaseReceipt
+        | AcquisitionCandidateExperimentPhaseReceipt
+        | AcquisitionCandidateExperimentTerminalReceipt
+        | AcquisitionRouteLoopReceipt
+        | AcquisitionRouteLoopReceiptV2
     )
     durable_event_id: str
     event: DiagnosticEvent
+
+
+@dataclass(frozen=True)
+class OriginalRunBudgetScopeEvidence:
+    """Owner-replayed original NL budget scope, not an execution permit."""
+
+    tenant_id: str
+    cell_id: str
+    run_id: str
+    source_job_id: str
+    source_payload_ref: str
+    run_budget_usd: Decimal | None
+    scope_explicit: bool
+    run_budget_scope: (
+        Literal["hard_total_usd", "metered_paid_producers_and_bounded_candidate"] | None
+    )
+    request_snapshot_schema: str | None
+    request_content_hash: str | None
+    candidate_acquisition_intent_present: bool = False
+    candidate_acquisition_intent: Literal["bounded_experiment_voi_unknown"] | None = None
 
 
 @dataclass(frozen=True)
@@ -2190,33 +2261,49 @@ class VerifiedAcquisitionActionOutcome:
 
     head: AcquisitionActionHeadRecord
     latest_receipt: (
-        AcquisitionRoutePhaseReceipt | AcquisitionRouteLoopReceipt | AcquisitionRouteLoopReceiptV2
+        AcquisitionRoutePhaseReceipt
+        | AcquisitionCandidateExperimentPhaseReceipt
+        | AcquisitionCandidateExperimentTerminalReceipt
+        | AcquisitionRouteLoopReceipt
+        | AcquisitionRouteLoopReceiptV2
     )
     executing_phase_ref: str | None
-    executing_phase: AcquisitionRoutePhaseReceipt | None
+    executing_phase: (
+        AcquisitionRoutePhaseReceipt | AcquisitionCandidateExperimentPhaseReceipt | None
+    )
     selection_phase_ref: str | None
-    selection_phase: AcquisitionRoutePhaseReceipt | None
+    selection_phase: (
+        AcquisitionRoutePhaseReceipt | AcquisitionCandidateExperimentPhaseReceipt | None
+    )
     phase_chain: tuple[VerifiedAcquisitionActionPhase, ...]
+    candidate_terminal_history: CandidateEvaluationTerminalHistory | None = None
+    candidate_experiment_terminal_history: CandidateExperimentTerminalHistory | None = None
 
 
 def _require_action_phase_receipt(
     receipt: AcquisitionRoutePhaseReceipt
+    | AcquisitionCandidateExperimentPhaseReceipt
     | AcquisitionRouteLoopReceipt
     | AcquisitionRouteLoopReceiptV2,
-) -> AcquisitionRoutePhaseReceipt:
+) -> AcquisitionRoutePhaseReceipt | AcquisitionCandidateExperimentPhaseReceipt:
     """Refuse any durable replay whose receipt is not a phase record."""
-    if not isinstance(receipt, AcquisitionRoutePhaseReceipt):
+    if not isinstance(
+        receipt, (AcquisitionRoutePhaseReceipt, AcquisitionCandidateExperimentPhaseReceipt)
+    ):
         raise ValueError("acquisition_action_phase_replay_conflict")
     return receipt
 
 
 def _require_action_selection_phase_receipt(
     receipt: AcquisitionRoutePhaseReceipt
+    | AcquisitionCandidateExperimentPhaseReceipt
     | AcquisitionRouteLoopReceipt
     | AcquisitionRouteLoopReceiptV2,
-) -> AcquisitionRoutePhaseReceipt:
+) -> AcquisitionRoutePhaseReceipt | AcquisitionCandidateExperimentPhaseReceipt:
     """Refuse a durable replay unless it resolved to the expected phase type."""
-    if not isinstance(receipt, AcquisitionRoutePhaseReceipt):
+    if not isinstance(
+        receipt, (AcquisitionRoutePhaseReceipt, AcquisitionCandidateExperimentPhaseReceipt)
+    ):
         raise ValueError("acquisition_action_selection_replay_conflict")
     return receipt
 
@@ -2236,6 +2323,8 @@ class _AcquisitionRouteLoopArtifactStore(ArtifactStore, CoreJSONArtifactProfileR
 
 def _acquisition_route_receipt_inputs(
     receipt: AcquisitionRoutePhaseReceipt
+    | AcquisitionCandidateExperimentPhaseReceipt
+    | AcquisitionCandidateExperimentTerminalReceipt
     | AcquisitionRouteLoopReceipt
     | AcquisitionRouteLoopReceiptV2,
 ) -> tuple[str, ...]:
@@ -2243,7 +2332,54 @@ def _acquisition_route_receipt_inputs(
     refs = set(receipt.owner_receipt_refs)
     if receipt.predecessor_receipt_ref is not None:
         refs.add(receipt.predecessor_receipt_ref)
-    if isinstance(receipt, AcquisitionRouteLoopReceiptV2):
+    if isinstance(receipt, AcquisitionCandidateExperimentPhaseReceipt):
+        from polisyos.runtime.quality.acquisition_evaluation import _typed_record_input_refs
+
+        refs.update(
+            str(ref.artifact_id) for _, ref in _typed_record_input_refs(receipt.policy_scope)
+        )
+    if type(receipt) is AcquisitionCandidateExperimentTerminalReceipt:
+        from polisyos.runtime.quality.acquisition_evaluation import _typed_record_input_refs
+
+        refs.update(
+            str(ref.artifact_id) for _, ref in _typed_record_input_refs(receipt.policy_scope)
+        )
+        refs.update(
+            {
+                str(receipt.policy_ref.artifact_id),
+                str(receipt.authority_decision_ref.artifact_id),
+                receipt.source_payload_ref,
+                receipt.capability_manifest_ref,
+                str(receipt.candidate_action_ref.artifact_id),
+            }
+        )
+        for ref in (
+            receipt.candidate_reentry_ref,
+            receipt.evaluation_decision_ref,
+            receipt.selected_basis_ref,
+            receipt.selected_evaluation_witness_ref,
+            receipt.current_continuation_ref,
+            receipt.blocker_ref,
+        ):
+            if ref is not None:
+                refs.add(str(ref.artifact_id))
+        refs.update(
+            {
+                str(receipt.policy_ref.artifact_id),
+                str(receipt.authority_decision_ref.artifact_id),
+                receipt.source_payload_ref,
+                receipt.capability_manifest_ref,
+            }
+        )
+    if (
+        isinstance(receipt, AcquisitionRouteLoopReceipt)
+        and receipt.terminal_outcome == "candidate_reentry_completed"
+    ):
+        if receipt.candidate_action_ref is not None:
+            refs.add(str(receipt.candidate_action_ref.artifact_id))
+        if receipt.reentry_receipt_ref is not None:
+            refs.add(receipt.reentry_receipt_ref)
+    if isinstance(receipt, (AcquisitionRouteLoopReceiptV2, AcquisitionCandidateRouteLoopReceipt)):
         from polisyos.runtime.quality.acquisition_evaluation import _typed_record_input_refs
 
         refs.update(str(ref.artifact_id) for _, ref in _typed_record_input_refs(receipt))
@@ -2255,7 +2391,7 @@ def _acquisition_route_receipt_inputs(
 class AcquisitionRouteLoopAuthoritySink:
     """Persist and advance verified acquisition route phase heads."""
 
-    __slots__ = ("_artifact_store", "_control_store", "_event_log")
+    __slots__ = ("_artifact_store", "_control_store", "_core_source_resolver", "_event_log")
     _artifact_store: _AcquisitionRouteLoopArtifactStore
 
     def __init__(
@@ -2264,6 +2400,7 @@ class AcquisitionRouteLoopAuthoritySink:
         artifact_store: object,
         event_log: RuntimeDiagnosticEventLog,
         control_store: ControlPlaneStore,
+        core_source_resolver: Callable[..., TerminalCoreRunSource] | None = None,
     ) -> None:
         from polisyos.core.artifacts.protocol import matches_runtime_protocol
 
@@ -2272,10 +2409,13 @@ class AcquisitionRouteLoopAuthoritySink:
         self._artifact_store = artifact_store
         self._event_log = event_log
         self._control_store = control_store
+        self._core_source_resolver = core_source_resolver
 
     def get_head(
         self,
         receipt: AcquisitionRoutePhaseReceipt
+        | AcquisitionCandidateExperimentPhaseReceipt
+        | AcquisitionCandidateExperimentTerminalReceipt
         | AcquisitionRouteLoopReceipt
         | AcquisitionRouteLoopReceiptV2,
     ) -> AcquisitionActionHeadRecord | None:
@@ -2319,11 +2459,17 @@ class AcquisitionRouteLoopAuthoritySink:
         latest = outcomes[-1]
         receipt = latest.latest_receipt
         if not isinstance(
-            receipt, (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2)
+            receipt,
+            (
+                AcquisitionRouteLoopReceipt,
+                AcquisitionRouteLoopReceiptV2,
+                AcquisitionCandidateRouteLoopReceipt,
+            ),
         ) or receipt.terminal_outcome not in {
             "quarantined_no_growth",
             "reentry_completed",
             "source_admitted_evaluation_retained",
+            "candidate_reentry_completed",
         }:
             raise ValueError("acquisition_action_generation_not_reopenable")
         return latest.head.action_generation + 1
@@ -2370,9 +2516,24 @@ class AcquisitionRouteLoopAuthoritySink:
         ):
             raise ValueError("acquisition_action_scope_mismatch")
         outcomes = tuple(self.verify_action_head(head) for head in heads)
+        if any(
+            type(outcome.latest_receipt)
+            in {
+                AcquisitionCandidateExperimentPhaseReceipt,
+                AcquisitionCandidateExperimentTerminalReceipt,
+            }
+            for outcome in outcomes
+        ):
+            raise ValueError("acquisition_action_scope_mixed_receipt_family")
         for outcome in outcomes[:-1]:
             if not isinstance(
-                outcome.latest_receipt, (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2)
+                outcome.latest_receipt,
+                (
+                    AcquisitionRouteLoopReceipt,
+                    AcquisitionRouteLoopReceiptV2,
+                    AcquisitionCandidateRouteLoopReceipt,
+                    AcquisitionCandidateExperimentTerminalReceipt,
+                ),
             ):
                 raise ValueError("acquisition_action_generation_predecessor_not_terminal")
         current_heads = tuple(
@@ -2408,13 +2569,35 @@ class AcquisitionRouteLoopAuthoritySink:
     @staticmethod
     def _allowed_predecessor_phases(
         receipt: AcquisitionRoutePhaseReceipt
+        | AcquisitionCandidateExperimentPhaseReceipt
+        | AcquisitionCandidateExperimentTerminalReceipt
         | AcquisitionRouteLoopReceipt
         | AcquisitionRouteLoopReceiptV2,
     ) -> frozenset[str] | None:
         """Return the finite ActionHead predecessor relation for one receipt."""
-        if isinstance(receipt, (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2)):
+        if type(receipt) is AcquisitionCandidateExperimentPhaseReceipt:
+            return {
+                "requested": frozenset(),
+                "executing": frozenset({"requested"}),
+                "outcome_selected": frozenset({"executing"}),
+                "candidate_input_reentry_pending": frozenset({"outcome_selected"}),
+            }.get(receipt.receipt_phase)
+        if type(receipt) is AcquisitionCandidateExperimentTerminalReceipt:
+            return frozenset({"candidate_input_reentry_pending"})
+        if isinstance(
+            receipt,
+            (
+                AcquisitionRouteLoopReceipt,
+                AcquisitionRouteLoopReceiptV2,
+                AcquisitionCandidateRouteLoopReceipt,
+            ),
+        ):
             if receipt.terminal_outcome == "reentry_completed":
                 return frozenset({"world_committed_reentry_pending"})
+            if receipt.terminal_outcome == "candidate_reentry_completed":
+                return frozenset({"candidate_input_reentry_pending"})
+            if receipt.terminal_outcome == "candidate_evaluation_retained":
+                return frozenset({"candidate_input_reentry_pending"})
             if receipt.terminal_outcome == "source_admitted_evaluation_retained":
                 return frozenset({"outcome_selected"})
             return frozenset({"executing", "outcome_selected"})
@@ -2423,10 +2606,14 @@ class AcquisitionRouteLoopAuthoritySink:
             "executing": frozenset({"requested"}),
             "outcome_selected": frozenset({"executing"}),
             "world_committed_reentry_pending": frozenset({"executing", "outcome_selected"}),
+            "candidate_input_reentry_pending": frozenset({"outcome_selected"}),
         }.get(receipt.receipt_phase)
 
     def _verified_action_phase_chain(
-        self, head: AcquisitionActionHeadRecord
+        self,
+        head: AcquisitionActionHeadRecord,
+        *,
+        selected_terminal_ref: ArtifactRef | None = None,
     ) -> tuple[VerifiedAcquisitionActionPhase, ...]:
         """Resolve every CAS/event predecessor to the unique requested root."""
         newest_first: list[VerifiedAcquisitionActionPhase] = []
@@ -2436,7 +2623,10 @@ class AcquisitionRouteLoopAuthoritySink:
             if current_ref in seen_refs:
                 raise ValueError("acquisition_action_phase_chain_cycle")
             seen_refs.add(current_ref)
-            current = self._read_verified_action_phase(current_ref)
+            current = self._read_verified_action_phase(
+                current_ref,
+                selected_ref=selected_terminal_ref if not newest_first else None,
+            )
             newest_first.append(current)
             current_ref = current.receipt.predecessor_receipt_ref
         chain = tuple(reversed(newest_first))
@@ -2450,7 +2640,14 @@ class AcquisitionRouteLoopAuthoritySink:
             receipt = current.receipt
             phase_name = (
                 "terminal"
-                if isinstance(receipt, (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2))
+                if isinstance(
+                    receipt,
+                    (
+                        AcquisitionRouteLoopReceipt,
+                        AcquisitionRouteLoopReceiptV2,
+                        AcquisitionCandidateRouteLoopReceipt,
+                    ),
+                )
                 else receipt.receipt_phase
             )
             if phase_name in seen_phases:
@@ -2472,7 +2669,11 @@ class AcquisitionRouteLoopAuthoritySink:
                     "terminal"
                     if isinstance(
                         previous_receipt,
-                        (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2),
+                        (
+                            AcquisitionRouteLoopReceipt,
+                            AcquisitionRouteLoopReceiptV2,
+                            AcquisitionCandidateRouteLoopReceipt,
+                        ),
                     )
                     else previous_receipt.receipt_phase
                 )
@@ -2500,6 +2701,14 @@ class AcquisitionRouteLoopAuthoritySink:
 
         latest = chain[-1]
         latest_receipt = latest.receipt
+        if isinstance(latest_receipt, AcquisitionCandidateRouteLoopReceipt) and (
+            selected_terminal_ref is None
+        ):
+            raise ValueError("acquisition_candidate_terminal_history_not_established")
+        if selected_terminal_ref is not None and not isinstance(
+            latest_receipt, AcquisitionCandidateRouteLoopReceipt
+        ):
+            raise ValueError("acquisition_candidate_terminal_profile_invalid")
         if isinstance(latest_receipt, AcquisitionRouteLoopReceiptV2) and (
             head.evaluation_frontier_ref is None
         ):
@@ -2559,16 +2768,93 @@ class AcquisitionRouteLoopAuthoritySink:
                 executing_phase,
                 executing.receipt_ref,
                 selection.receipt.owner_receipt_refs,
+                candidate_receipt_ref=selection.receipt.candidate_receipt_ref,
             )
-        if isinstance(latest_receipt, (AcquisitionRouteLoopReceipt, AcquisitionRouteLoopReceiptV2)):
-            if latest_receipt.terminal_outcome == "reentry_completed":
+            selected_candidate = selection.receipt.candidate_receipt_ref
+            if selected_candidate is not None:
+                for item in later_phases:
+                    if not isinstance(item.receipt, AcquisitionRoutePhaseReceipt):
+                        continue
+                    candidate_ref = item.receipt.candidate_receipt_ref
+                    if isinstance(latest_receipt, AcquisitionCandidateRouteLoopReceipt):
+                        if (
+                            candidate_ref is None
+                            or set(type(candidate_ref).model_fields) - set(ArtifactRef.model_fields)
+                            or set(type(selected_candidate).model_fields)
+                            - set(ArtifactRef.model_fields)
+                            or artifacts.artifact_ref_identity_key(candidate_ref)
+                            != artifacts.artifact_ref_identity_key(selected_candidate)
+                        ):
+                            raise ValueError("acquisition_candidate_phase_profile_changed")
+                    elif candidate_ref != selected_candidate:
+                        raise ValueError("acquisition_candidate_phase_profile_changed")
+        if isinstance(
+            latest_receipt,
+            (
+                AcquisitionRouteLoopReceipt,
+                AcquisitionRouteLoopReceiptV2,
+                AcquisitionCandidateRouteLoopReceipt,
+            ),
+        ):
+            if latest_receipt.terminal_outcome in {
+                "reentry_completed",
+                "candidate_reentry_completed",
+                "candidate_evaluation_retained",
+            }:
+                pending_phase = (
+                    "candidate_input_reentry_pending"
+                    if latest_receipt.terminal_outcome
+                    in {"candidate_reentry_completed", "candidate_evaluation_retained"}
+                    else "world_committed_reentry_pending"
+                )
                 if (
                     len(chain) < 2
                     or not isinstance(chain[-2].receipt, AcquisitionRoutePhaseReceipt)
-                    or chain[-2].receipt.receipt_phase != "world_committed_reentry_pending"
-                    or chain[-2].receipt.owner_receipt_refs != latest_receipt.owner_receipt_refs
+                    or chain[-2].receipt.receipt_phase != pending_phase
+                    or (
+                        not set(chain[-2].receipt.owner_receipt_refs).issubset(
+                            set(latest_receipt.owner_receipt_refs)
+                        )
+                        if isinstance(latest_receipt, AcquisitionCandidateRouteLoopReceipt)
+                        else chain[-2].receipt.owner_receipt_refs
+                        != latest_receipt.owner_receipt_refs
+                    )
                 ):
                     raise ValueError("acquisition_action_terminal_owner_chain_mismatch")
+                if latest_receipt.terminal_outcome in {
+                    "candidate_reentry_completed",
+                    "candidate_evaluation_retained",
+                } and (
+                    not isinstance(
+                        latest_receipt,
+                        (AcquisitionRouteLoopReceipt, AcquisitionCandidateRouteLoopReceipt),
+                    )
+                    or selection is None
+                    or latest_receipt.candidate_action_ref is None
+                    or selection.receipt.owner_receipt_refs
+                    != (str(latest_receipt.candidate_action_ref.artifact_id),)
+                    or selection.receipt.candidate_receipt_ref is None
+                    or (
+                        isinstance(latest_receipt, AcquisitionCandidateRouteLoopReceipt)
+                        and set(type(selection.receipt.candidate_receipt_ref).model_fields)
+                        - set(ArtifactRef.model_fields)
+                    )
+                    or (
+                        artifacts.artifact_ref_identity_key(latest_receipt.candidate_action_ref)
+                        != artifacts.artifact_ref_identity_key(
+                            selection.receipt.candidate_receipt_ref
+                        )
+                        if isinstance(latest_receipt, AcquisitionCandidateRouteLoopReceipt)
+                        else latest_receipt.candidate_action_ref
+                        != selection.receipt.candidate_receipt_ref
+                    )
+                ):
+                    raise ValueError("acquisition_candidate_terminal_selection_mismatch")
+                if (
+                    latest_receipt.terminal_outcome == "candidate_reentry_completed"
+                    and selected_terminal_ref is None
+                ):
+                    self._verify_candidate_reentry_terminal(latest_receipt)
             elif selection is not None and not set(selection.receipt.owner_receipt_refs).issubset(
                 set(latest_receipt.owner_receipt_refs)
             ):
@@ -2578,12 +2864,58 @@ class AcquisitionRouteLoopAuthoritySink:
     @staticmethod
     def _same_action_identity(
         left: AcquisitionRoutePhaseReceipt
+        | AcquisitionCandidateExperimentPhaseReceipt
+        | AcquisitionCandidateExperimentTerminalReceipt
         | AcquisitionRouteLoopReceipt
         | AcquisitionRouteLoopReceiptV2,
         right: AcquisitionRoutePhaseReceipt
+        | AcquisitionCandidateExperimentPhaseReceipt
+        | AcquisitionCandidateExperimentTerminalReceipt
         | AcquisitionRouteLoopReceipt
         | AcquisitionRouteLoopReceiptV2,
     ) -> bool:
+        experiment_receipt_types = (
+            AcquisitionCandidateExperimentPhaseReceipt,
+            AcquisitionCandidateExperimentTerminalReceipt,
+        )
+        if isinstance(left, experiment_receipt_types) or isinstance(
+            right, experiment_receipt_types
+        ):
+            if (
+                type(left) not in experiment_receipt_types
+                or type(right) not in experiment_receipt_types
+            ):
+                return False
+            from polisyos.runtime.quality.acquisition_evaluation import (
+                _candidate_model_values_same,
+                _candidate_ref_same,
+            )
+
+            return (
+                all(
+                    getattr(left, field) == getattr(right, field)
+                    for field in (
+                        "tenant_id",
+                        "cell_id",
+                        "run_id",
+                        "source_job_id",
+                        "route_id",
+                        "action_generation",
+                        "job_id",
+                        "source_payload_ref",
+                        "capability_manifest_ref",
+                        "request_content_hash",
+                        "monetary_cost",
+                        "information_value",
+                        "observed_data_authority",
+                        "publication_authority",
+                    )
+                )
+                and _candidate_model_values_same(left.policy_scope, right.policy_scope)
+                and _candidate_ref_same(left.policy_ref, right.policy_ref)
+                and _candidate_ref_same(left.authority_decision_ref, right.authority_decision_ref)
+                and _candidate_model_values_same(left.voi_decision, right.voi_decision)
+            )
         return all(
             getattr(left, field) == getattr(right, field)
             for field in (
@@ -2601,7 +2933,9 @@ class AcquisitionRouteLoopAuthoritySink:
             )
         )
 
-    def _read_verified_action_phase(self, receipt_ref: str) -> VerifiedAcquisitionActionPhase:
+    def _read_verified_action_phase(
+        self, receipt_ref: str, *, selected_ref: ArtifactRef | None = None
+    ) -> VerifiedAcquisitionActionPhase:
         """Resolve exact receipt bytes and verify its complete producer-event binding."""
         if (
             not receipt_ref.startswith("sha256:")
@@ -2610,21 +2944,48 @@ class AcquisitionRouteLoopAuthoritySink:
         ):
             raise ValueError("acquisition_action_head_receipt_ref_invalid")
         artifact_id = artifacts.ArtifactID.model_validate(receipt_ref)
-        payload = self._artifact_store.get_bytes(artifact_id)
+        if selected_ref is not None and (
+            selected_ref.artifact_id != artifact_id
+            or selected_ref.kind
+            not in {
+                "runtime_quality.acquisition_route_loop_receipt",
+                "runtime_quality.acquisition_candidate_experiment_phase_receipt",
+            }
+            or selected_ref.media_type != "application/json"
+            or selected_ref.manifest_profile_sha256 is None
+            or set(type(selected_ref).model_fields) - set(ArtifactRef.model_fields)
+        ):
+            raise ValueError("acquisition_action_receipt_profile_invalid")
+        selector = selected_ref if selected_ref is not None else artifact_id
+        payload = self._artifact_store.get_bytes(selector)
         if "sha256:" + hashlib.sha256(payload).hexdigest() != receipt_ref:
             raise ValueError("acquisition_action_head_receipt_hash_mismatch")
-        manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
+        manifest = read_core_manifest_profile(self._artifact_store, selector)[0]
+        if selected_ref is not None and artifacts.artifact_ref_identity_key(
+            artifact_ref_for_manifest(manifest)
+        ) != artifacts.artifact_ref_identity_key(selected_ref):
+            raise ValueError("acquisition_candidate_terminal_profile_mismatch")
         if manifest.kind == "runtime_quality.acquisition_route_loop_receipt":
+            version = manifest.artifact_schema.version if manifest.artifact_schema else None
+            schema = manifest.artifact_schema
             receipt_type = (
-                AcquisitionRouteLoopReceiptV2
-                if manifest.artifact_schema is not None
-                and manifest.artifact_schema.version == "2.0"
-                else AcquisitionRouteLoopReceipt
+                AcquisitionCandidateExperimentTerminalReceipt
+                if schema is not None
+                and schema.name == "polisyos.runtime.AcquisitionCandidateExperimentTerminalReceipt"
+                else {
+                    "2.0": AcquisitionRouteLoopReceiptV2,
+                    "3.0": AcquisitionCandidateRouteLoopReceipt,
+                }.get(version, AcquisitionRouteLoopReceipt)
             )
             schema_name = "polisyos.runtime.AcquisitionRouteLoopReceipt"
+            if receipt_type is AcquisitionCandidateExperimentTerminalReceipt:
+                schema_name = "polisyos.runtime.AcquisitionCandidateExperimentTerminalReceipt"
         elif manifest.kind == "runtime_quality.acquisition_route_phase_receipt":
             receipt_type = AcquisitionRoutePhaseReceipt
             schema_name = "polisyos.runtime.AcquisitionRoutePhaseReceipt"
+        elif manifest.kind == "runtime_quality.acquisition_candidate_experiment_phase_receipt":
+            receipt_type = AcquisitionCandidateExperimentPhaseReceipt
+            schema_name = "polisyos.runtime.AcquisitionCandidateExperimentPhaseReceipt"
         else:
             raise ValueError("acquisition_action_head_receipt_kind_invalid")
         receipt = receipt_type.model_validate(
@@ -2662,7 +3023,7 @@ class AcquisitionRouteLoopAuthoritySink:
         report = reconcile_authority_ref(
             artifact_store=self._artifact_store,
             event_log=self._event_log,
-            cas_ref=receipt_ref,
+            cas_ref=selected_ref if selected_ref is not None else receipt_ref,
             expected_tenant_id=receipt.tenant_id,
             expected_cell_id=receipt.cell_id,
             expected_run_id=receipt.run_id,
@@ -2694,16 +3055,34 @@ class AcquisitionRouteLoopAuthoritySink:
         )
         expected_inputs = _acquisition_route_receipt_inputs(receipt)
         expected_event_type = (
-            "polisyos.runtime.acquisition.route_loop.v2"
-            if isinstance(receipt, AcquisitionRouteLoopReceiptV2)
+            "polisyos.runtime.acquisition.candidate_experiment_terminal.v1"
+            if type(receipt) is AcquisitionCandidateExperimentTerminalReceipt
             else (
-                "polisyos.runtime.acquisition.route_loop.v1"
-                if isinstance(receipt, AcquisitionRouteLoopReceipt)
-                else "polisyos.runtime.acquisition.route_phase.v1"
+                "polisyos.runtime.acquisition.route_loop.v3"
+                if isinstance(receipt, AcquisitionCandidateRouteLoopReceipt)
+                else (
+                    "polisyos.runtime.acquisition.candidate_experiment_phase.v1"
+                    if isinstance(receipt, AcquisitionCandidateExperimentPhaseReceipt)
+                    else (
+                        "polisyos.runtime.acquisition.route_loop.v2"
+                        if isinstance(receipt, AcquisitionRouteLoopReceiptV2)
+                        else (
+                            "polisyos.runtime.acquisition.route_loop.v1"
+                            if isinstance(receipt, AcquisitionRouteLoopReceipt)
+                            else "polisyos.runtime.acquisition.route_phase.v1"
+                        )
+                    )
+                )
             )
         )
         expected_blocking = (
-            "blocking" if receipt.recovery_state == "reentry_recovery_required" else "non_blocking"
+            "blocking"
+            if receipt.recovery_state == "reentry_recovery_required"
+            or (
+                type(receipt) is AcquisitionCandidateExperimentTerminalReceipt
+                and receipt.terminal_outcome == "candidate_blocked"
+            )
+            else "non_blocking"
         )
         records = self._event_log.list_events(
             event_id=event.event_id,
@@ -2768,6 +3147,8 @@ class AcquisitionRouteLoopAuthoritySink:
         executing: AcquisitionRoutePhaseReceipt,
         executing_ref: str,
         owner_receipt_refs: tuple[str, ...],
+        *,
+        candidate_receipt_ref: artifacts.ArtifactRef | None = None,
     ) -> str:
         """Resolve exactly one current action outcome CAS from the full owner receipt set."""
         from polisyos.runtime.quality.acquisition_world_growth import (
@@ -2794,7 +3175,29 @@ class AcquisitionRouteLoopAuthoritySink:
             ):
                 raise ValueError("acquisition_action_owner_receipt_ref_invalid")
             artifact_id = artifacts.ArtifactID.model_validate(ref)
-            manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
+            selector = (
+                candidate_receipt_ref
+                if candidate_receipt_ref is not None
+                and str(candidate_receipt_ref.artifact_id) == ref
+                else artifact_id
+            )
+            manifest = read_core_manifest_profile(self._artifact_store, selector)[0]
+            if manifest.kind == "runtime_quality.acquisition_candidate_action_receipt":
+                from polisyos.runtime.quality.candidate_acquisition_action import (
+                    read_candidate_acquisition_action_historical,
+                )
+
+                if candidate_receipt_ref is None:
+                    raise ValueError("acquisition_candidate_owner_profile_missing")
+                read_candidate_acquisition_action_historical(
+                    artifact_store=self._artifact_store,
+                    event_log=self._event_log,
+                    receipt_ref=candidate_receipt_ref,
+                    executing_phase=executing,
+                    executing_phase_ref=executing_ref,
+                )
+                matches.append(ref)
+                continue
             expected = kinds.get(manifest.kind)
             if expected is None:
                 continue
@@ -2920,6 +3323,8 @@ class AcquisitionRouteLoopAuthoritySink:
         self,
         action_phase_ref: str,
         owner_receipt_refs: tuple[str, ...],
+        *,
+        candidate_receipt_ref: artifacts.ArtifactRef | None = None,
     ) -> AcquisitionActionHeadRecord:
         """Persist selection of one verified owner CAS as a durable action-head transition."""
         executing, _ = self._verified_receipt_ref(action_phase_ref)
@@ -2943,13 +3348,17 @@ class AcquisitionRouteLoopAuthoritySink:
         ):
             raise ValueError("acquisition_action_selection_executing_head_changed")
         outcome_ref = self._verified_current_action_outcome_ref(
-            executing, action_phase_ref, owner_receipt_refs
+            executing,
+            action_phase_ref,
+            owner_receipt_refs,
+            candidate_receipt_ref=candidate_receipt_ref,
         )
         if snapshot.selection_phase is not None:
             selection = snapshot.selection_phase
             if (
                 selection.predecessor_receipt_ref != action_phase_ref
                 or selection.owner_receipt_refs != (outcome_ref,)
+                or selection.candidate_receipt_ref != candidate_receipt_ref
                 or snapshot.selection_phase_ref is None
             ):
                 raise ValueError("acquisition_action_selection_replay_conflict")
@@ -2970,12 +3379,21 @@ class AcquisitionRouteLoopAuthoritySink:
                 executing.job_id,
                 action_phase_ref,
                 outcome_ref,
+                *(
+                    (candidate_receipt_ref.manifest_profile_sha256,)
+                    if candidate_receipt_ref
+                    else ()
+                ),
             )
         )
         digest = hashlib.sha256(identity.encode()).hexdigest()
         suffix = f"outcome_selected_{digest[:24]}"
         selection = AcquisitionRoutePhaseReceipt(
-            schema_version="AcquisitionRoutePhaseReceipt@1.1",
+            schema_version=(
+                "AcquisitionRoutePhaseReceipt@1.2"
+                if candidate_receipt_ref
+                else "AcquisitionRoutePhaseReceipt@1.1"
+            ),
             receipt_id=f"{executing.job_id}.outcome-selected.{digest[:24]}",
             tenant_id=executing.tenant_id,
             cell_id=executing.cell_id,
@@ -2993,6 +3411,7 @@ class AcquisitionRouteLoopAuthoritySink:
             recovery_state="none",
             predecessor_receipt_ref=action_phase_ref,
             owner_receipt_refs=(outcome_ref,),
+            candidate_receipt_ref=candidate_receipt_ref,
             generated_at=datetime.now(UTC),
         )
         event_id = f"evt_acquisition_{executing.action_generation}_{suffix}"
@@ -3026,14 +3445,587 @@ class AcquisitionRouteLoopAuthoritySink:
             or after.selection_phase_ref != head.receipt_ref
             or after.selection_phase.predecessor_receipt_ref != action_phase_ref
             or after.selection_phase.owner_receipt_refs != (outcome_ref,)
+            or after.selection_phase.candidate_receipt_ref != candidate_receipt_ref
         ):
             raise RuntimeError("acquisition_action_selection_readback_failed")
         return head
 
+    def _candidate_selected_terminal_chain(
+        self, head: AcquisitionActionHeadRecord, terminal_ref: ArtifactRef
+    ) -> tuple[VerifiedAcquisitionActionPhase, ...]:
+        """Read an @3 chain using the exact profile committed in the head transaction."""
+        if (
+            str(terminal_ref.artifact_id) != head.receipt_ref
+            or terminal_ref.manifest_profile_sha256 is None
+            or terminal_ref.manifest_profile_sha256
+            != getattr(head, "receipt_manifest_profile_sha256", None)
+        ):
+            raise ValueError("acquisition_candidate_terminal_profile_not_selected")
+        scope = {
+            "tenant_id": head.tenant_id,
+            "cell_id": head.cell_id,
+            "run_id": head.run_id,
+            "source_job_id": head.source_job_id,
+            "route_id": head.route_id,
+            "action_generation": head.action_generation,
+        }
+        if self._control_store.get_acquisition_action_head(**scope) != head:
+            raise ValueError("acquisition_action_generation_head_changed")
+        chain = self._verified_action_phase_chain(head, selected_terminal_ref=terminal_ref)
+        if self._control_store.get_acquisition_action_head(**scope) != head:
+            raise ValueError("acquisition_action_generation_head_changed")
+        return chain
+
+    def _verify_candidate_experiment_phase_owner(
+        self,
+        phase: AcquisitionCandidateExperimentPhaseReceipt,
+        *,
+        verified_origin: VerifiedCandidateExperimentOrigin | None = None,
+        reuse_verified_origin: bool = False,
+    ) -> None:
+        """Verify the current source and the original signed PA2 decision history."""
+        from polisyos.runtime.quality.agent_action_authority import (
+            CANDIDATE_EXPERIMENT_ACTION_KIND,
+            AuthenticatedAgentActionDecisionHistory,
+        )
+
+        action_service, request, decision_ref = self._candidate_experiment_phase_action_context(
+            phase,
+            verified_origin=verified_origin if reuse_verified_origin else None,
+        )
+        try:
+            if verified_origin is None:
+                history = action_service.load_candidate_experiment_decision_history(
+                    tenant_id=phase.tenant_id,
+                    cell_id=phase.cell_id,
+                    run_id=phase.run_id,
+                    route_id=phase.route_id,
+                    request=request,
+                    job_id=phase.job_id,
+                    decision_ref=decision_ref,
+                )
+            else:
+                # The caller already verified this exact source prefix. Reuse
+                # its historical PA2 inputs, never a live permit.
+                if (
+                    phase.action_generation
+                    != len(verified_origin.candidate_terminal_history_chain) + 1
+                ):
+                    raise ValueError("candidate_experiment_phase_prefix_mismatch")
+                provider = action_service._authority_provider
+                history = provider.load_candidate_experiment_decision_history(
+                    origin=verified_origin,
+                    request=request,
+                    job_id=phase.job_id,
+                    decision_ref=decision_ref,
+                )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("candidate_experiment_pa2_decision_not_verified") from exc
+        if (
+            type(history) is not AuthenticatedAgentActionDecisionHistory
+            or history.current_authority != "not_revalidated"
+            or history.decision_ref != decision_ref
+            or decision_ref != f"sha256:{history.payload_sha256}"
+            or not history.durable_event_id
+            or not history.signer_identity
+            or history.decision.outcome != "allowed"
+            or history.decision.action_kind != CANDIDATE_EXPERIMENT_ACTION_KIND
+        ):
+            raise ValueError("candidate_experiment_pa2_decision_not_authorized")
+
+    def _verify_candidate_experiment_live_authority(
+        self, phase: AcquisitionCandidateExperimentPhaseReceipt
+    ) -> None:
+        """Reopen current PA2/DS9 permission before a phase head may advance."""
+        from polisyos.runtime.quality.agent_action_authority import (
+            CANDIDATE_EXPERIMENT_ACTION_KIND,
+        )
+
+        action_service, request, decision_ref = self._candidate_experiment_phase_action_context(
+            phase
+        )
+
+        def _no_effect(_invocation: object) -> object:
+            raise RuntimeError("candidate experiment phase persistence cannot execute an effect")
+
+        try:
+            gateway = action_service.replay_candidate_experiment_authority(
+                tenant_id=phase.tenant_id,
+                cell_id=phase.cell_id,
+                run_id=phase.run_id,
+                route_id=phase.route_id,
+                request=request,
+                job_id=phase.job_id,
+                decision_ref=decision_ref,
+                effect_handler=_no_effect,
+            )
+            persisted = gateway.load_persisted_decision(decision_ref)
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("candidate_experiment_live_authority_not_established") from exc
+        if (
+            str(persisted.write_result.cas_ref.artifact_id) != decision_ref
+            or persisted.decision.outcome != "allowed"
+            or persisted.decision.action_kind != CANDIDATE_EXPERIMENT_ACTION_KIND
+        ):
+            raise ValueError("candidate_experiment_live_authority_not_established")
+
+    def _verify_candidate_experiment_prejob_live_authority(
+        self,
+        phase: AcquisitionCandidateExperimentPhaseReceipt,
+        request: object,
+    ) -> None:
+        """Verify source and current PA2/DS9 without requiring an inserted job row."""
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionActionService,
+            CandidateExperimentRouteMutationRequest,
+        )
+        from polisyos.runtime.http.services.acquisition_authority_provider import (
+            ProductionAcquisitionAuthorityProvider,
+        )
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            _candidate_model_values_same,
+            _candidate_ref_same,
+        )
+        from polisyos.runtime.quality.agent_action_authority import (
+            CANDIDATE_EXPERIMENT_ACTION_KIND,
+        )
+
+        if type(request) is not CandidateExperimentRouteMutationRequest:
+            raise ValueError("candidate_experiment_request_untyped")
+        try:
+            origin = self._resolve_candidate_experiment_source(
+                tenant_id=phase.tenant_id,
+                cell_id=phase.cell_id,
+                run_id=phase.run_id,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("candidate_experiment_source_not_current") from exc
+        if (
+            (phase.tenant_id, phase.cell_id, phase.run_id, phase.source_job_id)
+            != (origin.tenant_id, origin.cell_id, origin.run_id, origin.source_job_id)
+            or phase.route_id != origin.route_id
+            or phase.source_payload_ref != origin.source_payload_ref
+            or phase.capability_manifest_ref != origin.capability_manifest_ref
+            or phase.request_content_hash != origin.request_content_hash
+            or not _candidate_model_values_same(phase.policy_scope, origin.policy_scope)
+            or not _candidate_ref_same(phase.policy_ref, origin.policy_ref)
+            or not _candidate_model_values_same(
+                phase.voi_decision, origin.source_cycle.voi_decision
+            )
+        ):
+            raise ValueError("candidate_experiment_phase_source_identity_mismatch")
+        control_service = getattr(self._core_source_resolver, "__self__", None)
+        handler = getattr(control_service, "_acquisition_job_handler", None)
+        action_service = getattr(handler, "__self__", None)
+        if (
+            type(control_service) is not ControlPlaneService
+            or type(action_service) is not AcquisitionActionService
+            or action_service.control_service is not control_service
+            or type(action_service._authority_provider)
+            is not ProductionAcquisitionAuthorityProvider
+        ):
+            raise ValueError("candidate_experiment_authority_owner_not_composed")
+        decision_ref = str(phase.authority_decision_ref.artifact_id)
+        origin = action_service._candidate_experiment_origin_for_request(
+            tenant_id=phase.tenant_id,
+            cell_id=phase.cell_id,
+            run_id=phase.run_id,
+            request=request,
+            require_current=True,
+        )
+        expected_job_id = action_service._candidate_experiment_job_id(origin, request)
+        if (
+            request.route_id != phase.route_id
+            or phase.job_id != expected_job_id
+            or phase.action_generation != len(origin.candidate_terminal_history_chain) + 1
+            or phase.authority_decision_ref.kind
+            != "runtime_quality.agent_action_authority_decision"
+        ):
+            raise ValueError("candidate_experiment_phase_action_binding_mismatch")
+        try:
+            history = action_service.load_candidate_experiment_decision_history(
+                tenant_id=phase.tenant_id,
+                cell_id=phase.cell_id,
+                run_id=phase.run_id,
+                route_id=phase.route_id,
+                request=request,
+                job_id=phase.job_id,
+                decision_ref=decision_ref,
+            )
+            gateway = action_service.replay_candidate_experiment_authority(
+                tenant_id=phase.tenant_id,
+                cell_id=phase.cell_id,
+                run_id=phase.run_id,
+                route_id=phase.route_id,
+                request=request,
+                job_id=phase.job_id,
+                decision_ref=decision_ref,
+                effect_handler=lambda _invocation: (_ for _ in ()).throw(
+                    RuntimeError("candidate_experiment_phase_preparation_has_no_effect")
+                ),
+            )
+            persisted = gateway.load_persisted_decision(decision_ref)
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("candidate_experiment_live_authority_not_established") from exc
+        if (
+            history.current_authority != "not_revalidated"
+            or history.decision_ref != decision_ref
+            or decision_ref != "sha256:" + history.payload_sha256
+            or history.decision.outcome != "allowed"
+            or history.decision.action_kind != CANDIDATE_EXPERIMENT_ACTION_KIND
+            or persisted.decision != history.decision
+            or str(persisted.write_result.cas_ref.artifact_id) != decision_ref
+        ):
+            raise ValueError("candidate_experiment_live_authority_not_established")
+
+    @staticmethod
+    def _prepared_experiment_phase_publication(
+        phase: AcquisitionCandidateExperimentPhaseReceipt,
+        request: object,
+        *,
+        receipt_ref: str,
+        receipt_manifest_profile_sha256: str,
+        durable_event_id: str,
+    ) -> _PreparedAcquisitionActionHeadPublication:
+        """Create the typed SQL-only continuation of a fully read-back phase."""
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            CandidateExperimentRouteMutationRequest,
+        )
+
+        if type(request) is not CandidateExperimentRouteMutationRequest:
+            raise ValueError("candidate_experiment_request_untyped")
+        return _PreparedAcquisitionActionHeadPublication(
+            tenant_id=phase.tenant_id,
+            cell_id=phase.cell_id,
+            run_id=phase.run_id,
+            source_job_id=phase.source_job_id,
+            route_id=phase.route_id,
+            action_generation=phase.action_generation,
+            job_id=phase.job_id,
+            action_kind="runtime.evidence.acquisition.candidate_experiment.execute",
+            request_json=json.dumps(
+                request.model_dump(mode="json"), sort_keys=True, separators=(",", ":")
+            ),
+            decision_ref=str(phase.authority_decision_ref.artifact_id),
+            payload_ref=None,
+            receipt_ref=receipt_ref,
+            receipt_sha256=receipt_ref,
+            receipt_manifest_profile_sha256=receipt_manifest_profile_sha256,
+            durable_event_id=durable_event_id,
+            coarse_phase=phase.coarse_phase,
+            receipt_phase="requested",
+            recovery_state=phase.recovery_state,
+            predecessor_receipt_ref=phase.predecessor_receipt_ref,
+            expected_head_generation=0,
+            expected_previous_terminal_ref=(
+                str(request.replay_pins.predecessor_terminal_ref.artifact_id)
+                if request.replay_pins.predecessor_terminal_ref is not None
+                else None
+            ),
+            expected_previous_terminal_manifest_profile_sha256=(
+                request.replay_pins.predecessor_terminal_ref.manifest_profile_sha256
+                if request.replay_pins.predecessor_terminal_ref is not None
+                else None
+            ),
+        )
+
+    def _candidate_experiment_phase_action_context(
+        self,
+        phase: AcquisitionCandidateExperimentPhaseReceipt,
+        *,
+        verified_origin: VerifiedCandidateExperimentOrigin | None = None,
+    ) -> tuple[AcquisitionActionService, CandidateExperimentRouteMutationRequest, str]:
+        """Resolve current source and the exact typed request from its persisted action job."""
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionActionService,
+            CandidateExperimentRouteMutationRequest,
+        )
+        from polisyos.runtime.http.services.acquisition_authority_provider import (
+            ProductionAcquisitionAuthorityProvider,
+        )
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            _candidate_model_values_same,
+            _candidate_ref_same,
+        )
+
+        if verified_origin is None:
+            try:
+                origin = self._resolve_candidate_experiment_source(
+                    tenant_id=phase.tenant_id,
+                    cell_id=phase.cell_id,
+                    run_id=phase.run_id,
+                )
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                raise ValueError("candidate_experiment_source_not_current") from exc
+        elif (
+            type(verified_origin) is VerifiedCandidateExperimentOrigin
+            and verified_origin.schema_version == "polisyos.runtime.candidate_experiment_origin.v1"
+        ):
+            origin = verified_origin
+        else:
+            raise ValueError("candidate_experiment_source_not_current")
+        if (
+            (phase.tenant_id, phase.cell_id, phase.run_id, phase.source_job_id)
+            != (origin.tenant_id, origin.cell_id, origin.run_id, origin.source_job_id)
+            or phase.route_id != origin.route_id
+            or phase.source_payload_ref != origin.source_payload_ref
+            or phase.capability_manifest_ref != origin.capability_manifest_ref
+            or phase.request_content_hash != origin.request_content_hash
+            or not _candidate_model_values_same(phase.policy_scope, origin.policy_scope)
+            or not _candidate_ref_same(phase.policy_ref, origin.policy_ref)
+            or not _candidate_model_values_same(
+                phase.voi_decision, origin.source_cycle.voi_decision
+            )
+        ):
+            raise ValueError("candidate_experiment_phase_source_identity_mismatch")
+
+        control_service = getattr(self._core_source_resolver, "__self__", None)
+        if type(control_service) is not ControlPlaneService:
+            raise ValueError("candidate_experiment_control_service_owner_missing")
+        job = self._control_store.get_job(phase.job_id)
+        if (
+            job is None
+            or job.kind != "acquisition"
+            or job.run_id != phase.run_id
+            or job.payload_ref is None
+        ):
+            raise ValueError("candidate_experiment_action_job_not_established")
+        payload_id = artifacts.ArtifactID.model_validate(job.payload_ref)
+        manifest = read_core_manifest_profile(self._artifact_store, payload_id)[0]
+        if (
+            manifest.kind != "runtime.control_job_payload.acquisition"
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name != "polisyos.runtime.ControlJobPayload"
+        ):
+            raise ValueError("candidate_experiment_action_job_payload_invalid")
+        payload_ref = artifact_ref_for_manifest(manifest)
+        if str(payload_ref.artifact_id) != job.payload_ref:
+            raise ValueError("candidate_experiment_action_job_payload_invalid")
+        payload = read_core_json_artifact(self._artifact_store, payload_ref).value
+        if not isinstance(payload, dict):
+            raise ValueError("candidate_experiment_action_job_payload_invalid")
+        request = CandidateExperimentRouteMutationRequest.model_validate(payload.get("request"))
+        decision_ref = payload.get("decision_ref")
+        if (
+            payload.get("action_kind")
+            != "runtime.evidence.acquisition.candidate_experiment.execute"
+            or not isinstance(decision_ref, str)
+            or decision_ref != str(phase.authority_decision_ref.artifact_id)
+            or payload.get("route_id") != phase.route_id
+            or payload.get("run_id") != phase.run_id
+            or payload.get("tenant_id") != phase.tenant_id
+            or payload.get("cell_id") != phase.cell_id
+        ):
+            raise ValueError("candidate_experiment_action_job_binding_mismatch")
+        decision_manifest = read_core_manifest_profile(
+            self._artifact_store, phase.authority_decision_ref
+        )[0]
+        if (
+            decision_manifest.kind != "runtime_quality.agent_action_authority_decision"
+            or decision_manifest.media_type != "application/json"
+            or decision_manifest.artifact_schema is None
+            or decision_manifest.artifact_schema.name
+            != "polisyos.runtime.AgentActionAuthorityDecision"
+            or artifacts.artifact_ref_identity_key(artifact_ref_for_manifest(decision_manifest))
+            != artifacts.artifact_ref_identity_key(phase.authority_decision_ref)
+        ):
+            raise ValueError("candidate_experiment_pa2_decision_profile_mismatch")
+        handler = getattr(control_service, "_acquisition_job_handler", None)
+        action_service = getattr(handler, "__self__", None)
+        if (
+            type(action_service) is not AcquisitionActionService
+            or action_service.control_service is not control_service
+            or type(action_service._authority_provider)
+            is not ProductionAcquisitionAuthorityProvider
+            or not callable(
+                getattr(action_service, "load_candidate_experiment_decision_history", None)
+            )
+            or not callable(getattr(action_service, "replay_candidate_experiment_authority", None))
+        ):
+            raise ValueError("candidate_experiment_authority_owner_not_composed")
+        return action_service, request, decision_ref
+
+    def _resolve_candidate_experiment_source(
+        self, *, tenant_id: str, cell_id: str, run_id: str
+    ) -> VerifiedCandidateExperimentOrigin:
+        """Resolve source and policy through the exact ControlPlaneService owner."""
+        from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
+
+        control_service = getattr(self._core_source_resolver, "__self__", None)
+        if type(control_service) is not ControlPlaneService:
+            raise ValueError("candidate_experiment_control_service_owner_missing")
+        return AcquisitionRouteLoop(
+            control_store=self._control_store,
+            artifact_store=self._artifact_store,
+            event_log=self._event_log,
+            core_source_resolver=self._core_source_resolver,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            action_outcome_reader=self,
+        )._resolve_candidate_experiment_source(run_id=run_id)
+
+    def _verified_candidate_experiment_phase_chain(
+        self,
+        head: AcquisitionActionHeadRecord,
+        *,
+        verified_origin: VerifiedCandidateExperimentOrigin | None = None,
+        reuse_verified_origin: bool = False,
+    ) -> tuple[VerifiedAcquisitionActionPhase, ...]:
+        """Replay one exact in-flight experiment phase chain from its current head."""
+        newest_first: list[VerifiedAcquisitionActionPhase] = []
+        seen_refs: set[str] = set()
+        current_ref: str | None = head.receipt_ref
+        expected_head_generation = head.head_generation
+        while current_ref is not None:
+            if current_ref in seen_refs:
+                raise ValueError("candidate_experiment_phase_chain_cycle")
+            seen_refs.add(current_ref)
+            row = self._control_store.get_acquisition_action_head_by_receipt(
+                tenant_id=head.tenant_id,
+                cell_id=head.cell_id,
+                run_id=head.run_id,
+                source_job_id=head.source_job_id,
+                route_id=head.route_id,
+                action_generation=head.action_generation,
+                receipt_ref=current_ref,
+            )
+            if row is None or row.head_generation != expected_head_generation:
+                raise ValueError("candidate_experiment_phase_chain_sql_head_missing")
+            selected_ref = (
+                None
+                if row.receipt_manifest_profile_sha256 is None
+                else artifacts.ArtifactRef(
+                    artifact_id=artifacts.ArtifactID.model_validate(current_ref),
+                    kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
+                    media_type="application/json",
+                    manifest_profile_sha256=row.receipt_manifest_profile_sha256,
+                )
+            )
+            current = self._read_verified_action_phase(current_ref, selected_ref=selected_ref)
+            if type(current.receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
+                raise ValueError("candidate_experiment_phase_chain_untyped")
+            receipt = current.receipt
+            if (
+                row.receipt_ref != current.receipt_ref
+                or row.receipt_sha256 != current.receipt_ref
+                or row.durable_event_id != current.durable_event_id
+                or row.tenant_id != receipt.tenant_id
+                or row.cell_id != receipt.cell_id
+                or row.run_id != receipt.run_id
+                or row.source_job_id != receipt.source_job_id
+                or row.route_id != receipt.route_id
+                or row.action_generation != receipt.action_generation
+                or row.job_id != receipt.job_id
+                or row.coarse_phase != receipt.coarse_phase
+                or row.receipt_phase != receipt.receipt_phase
+                or row.recovery_state != receipt.recovery_state
+                or row.predecessor_receipt_ref != receipt.predecessor_receipt_ref
+            ):
+                raise ValueError("candidate_experiment_phase_chain_sql_head_conflict")
+            newest_first.append(current)
+            current_ref = current.receipt.predecessor_receipt_ref
+            expected_head_generation -= 1
+        chain = tuple(reversed(newest_first))
+        if not chain or expected_head_generation != 0 or len(chain) != head.head_generation:
+            raise ValueError("candidate_experiment_phase_chain_generation_mismatch")
+        first = chain[0]
+        if (
+            first.receipt.receipt_phase != "requested"
+            or first.receipt.predecessor_receipt_ref is not None
+            or first.event.state_before is not None
+        ):
+            raise ValueError("candidate_experiment_phase_requested_root_invalid")
+        previous: VerifiedAcquisitionActionPhase | None = None
+        seen_phases: set[str] = set()
+        for current in chain:
+            receipt = current.receipt
+            if type(receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
+                raise ValueError("candidate_experiment_phase_chain_untyped")
+            if receipt.receipt_phase in seen_phases:
+                raise ValueError("candidate_experiment_phase_duplicate")
+            seen_phases.add(receipt.receipt_phase)
+            if not self._same_action_identity(first.receipt, receipt):
+                raise ValueError("candidate_experiment_phase_identity_mismatch")
+            if previous is not None:
+                predecessor = previous.receipt
+                allowed_predecessors = self._allowed_predecessor_phases(receipt)
+                if (
+                    type(predecessor) is not AcquisitionCandidateExperimentPhaseReceipt
+                    or receipt.predecessor_receipt_ref != previous.receipt_ref
+                    or current.event.state_before != predecessor.receipt_phase
+                    or allowed_predecessors is None
+                    or predecessor.receipt_phase not in allowed_predecessors
+                    or receipt.generated_at < predecessor.generated_at
+                ):
+                    raise ValueError("candidate_experiment_phase_transition_invalid")
+            if current.event.state_after != receipt.receipt_phase:
+                raise ValueError("candidate_experiment_phase_event_state_mismatch")
+            previous = current
+        latest = chain[-1]
+        receipt = latest.receipt
+        if (
+            type(receipt) is not AcquisitionCandidateExperimentPhaseReceipt
+            or head.receipt_ref != head.receipt_sha256
+            or latest.receipt_ref != head.receipt_ref
+            or latest.durable_event_id != head.durable_event_id
+            or any(
+                getattr(receipt, field) != getattr(head, field)
+                for field in (
+                    "tenant_id",
+                    "cell_id",
+                    "run_id",
+                    "source_job_id",
+                    "route_id",
+                    "action_generation",
+                    "job_id",
+                    "coarse_phase",
+                    "receipt_phase",
+                    "recovery_state",
+                    "predecessor_receipt_ref",
+                )
+            )
+        ):
+            raise ValueError("candidate_experiment_action_head_binding_mismatch")
+        self._verify_candidate_experiment_phase_owner(
+            receipt,
+            verified_origin=verified_origin,
+            reuse_verified_origin=reuse_verified_origin,
+        )
+        return chain
+
     def verify_action_head(
         self, head: AcquisitionActionHeadRecord
     ) -> VerifiedAcquisitionActionOutcome:
-        """Verify the exact head, every receipt/event ancestor, and a fresh head read."""
+        """Verify a head with an independently reopened source and a fresh head read."""
+        return self._verify_action_head_with_origin(head)
+
+    def _verify_action_head_with_origin(
+        self,
+        head: AcquisitionActionHeadRecord,
+        *,
+        verified_origin: VerifiedCandidateExperimentOrigin | None = None,
+    ) -> VerifiedAcquisitionActionOutcome:
+        """Verify one head, optionally reusing the caller's source inside a fenced fold."""
+        if verified_origin is not None and (
+            type(verified_origin) is not VerifiedCandidateExperimentOrigin
+            or verified_origin.schema_version != "polisyos.runtime.candidate_experiment_origin.v1"
+            or (
+                verified_origin.tenant_id,
+                verified_origin.cell_id,
+                verified_origin.run_id,
+                verified_origin.source_job_id,
+                verified_origin.route_id,
+            )
+            != (
+                head.tenant_id,
+                head.cell_id,
+                head.run_id,
+                head.source_job_id,
+                head.route_id,
+            )
+        ):
+            raise ValueError("candidate_experiment_action_source_scope_mismatch")
         current = self._control_store.get_acquisition_action_head(
             tenant_id=head.tenant_id,
             cell_id=head.cell_id,
@@ -3044,13 +4036,60 @@ class AcquisitionRouteLoopAuthoritySink:
         )
         if current != head:
             raise ValueError("acquisition_action_generation_head_changed")
-        phase_chain = self._verified_action_phase_chain(head)
+        candidate_history = None
+        candidate_experiment_history = None
+        if head.receipt_manifest_profile_sha256 is not None:
+            selected_ref = artifacts.ArtifactRef(
+                artifact_id=artifacts.ArtifactID.model_validate(head.receipt_ref),
+                kind=(
+                    "runtime_quality.acquisition_candidate_experiment_phase_receipt"
+                    if head.receipt_phase != "terminal"
+                    else "runtime_quality.acquisition_route_loop_receipt"
+                ),
+                media_type="application/json",
+                manifest_profile_sha256=head.receipt_manifest_profile_sha256,
+            )
+            owner = getattr(self._core_source_resolver, "__self__", None)
+            selected = self._read_verified_action_phase(head.receipt_ref, selected_ref=selected_ref)
+            if type(selected.receipt) is AcquisitionCandidateExperimentPhaseReceipt:
+                phase_chain = self._verified_candidate_experiment_phase_chain(
+                    head,
+                    verified_origin=verified_origin,
+                    reuse_verified_origin=verified_origin is not None,
+                )
+            elif type(selected.receipt) is AcquisitionCandidateExperimentTerminalReceipt:
+                from polisyos.runtime.quality.acquisition_evaluation_history import (
+                    verify_candidate_experiment_terminal_history,
+                )
+
+                candidate_experiment_history = verify_candidate_experiment_terminal_history(
+                    control_service=owner, head=head, terminal_ref=selected_ref
+                )
+                phase_chain = candidate_experiment_history.phase_chain
+            else:
+                from polisyos.runtime.quality.acquisition_evaluation_history import (
+                    verify_candidate_terminal_history,
+                )
+
+                candidate_history = verify_candidate_terminal_history(
+                    control_service=owner, head=head, terminal_ref=selected_ref
+                )
+                phase_chain = self._candidate_selected_terminal_chain(head, selected_ref)
+        else:
+            latest = self._read_verified_action_phase(head.receipt_ref)
+            if type(latest.receipt) is AcquisitionCandidateExperimentPhaseReceipt:
+                phase_chain = self._verified_candidate_experiment_phase_chain(head)
+            else:
+                phase_chain = self._verified_action_phase_chain(head)
         latest = phase_chain[-1]
         executing = next(
             (
                 item
                 for item in phase_chain
-                if isinstance(item.receipt, AcquisitionRoutePhaseReceipt)
+                if isinstance(
+                    item.receipt,
+                    (AcquisitionRoutePhaseReceipt, AcquisitionCandidateExperimentPhaseReceipt),
+                )
                 and item.receipt.receipt_phase == "executing"
             ),
             None,
@@ -3059,7 +4098,10 @@ class AcquisitionRouteLoopAuthoritySink:
             (
                 item
                 for item in phase_chain
-                if isinstance(item.receipt, AcquisitionRoutePhaseReceipt)
+                if isinstance(
+                    item.receipt,
+                    (AcquisitionRoutePhaseReceipt, AcquisitionCandidateExperimentPhaseReceipt),
+                )
                 and item.receipt.receipt_phase == "outcome_selected"
             ),
             None,
@@ -3090,7 +4132,228 @@ class AcquisitionRouteLoopAuthoritySink:
             selection_phase_ref=None if selection is None else selection.receipt_ref,
             selection_phase=selection_phase,
             phase_chain=phase_chain,
+            candidate_terminal_history=candidate_history,
+            candidate_experiment_terminal_history=candidate_experiment_history,
         )
+
+    def experiment_action_outcomes(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        source_job_id: str,
+        route_id: str,
+        verified_origin: VerifiedCandidateExperimentOrigin | None = None,
+    ) -> tuple[VerifiedAcquisitionActionOutcome, ...]:
+        """Resolve only owner-replayed in-flight experiment phases for one source."""
+        from dataclasses import replace
+
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            CandidateExperimentTerminalHistory,
+            _candidate_model_values_same,
+        )
+
+        if verified_origin is not None and (
+            type(verified_origin) is not VerifiedCandidateExperimentOrigin
+            or verified_origin.schema_version != "polisyos.runtime.candidate_experiment_origin.v1"
+            or (
+                verified_origin.tenant_id,
+                verified_origin.cell_id,
+                verified_origin.run_id,
+                verified_origin.source_job_id,
+                verified_origin.route_id,
+            )
+            != (tenant_id, cell_id, run_id, source_job_id, route_id)
+        ):
+            raise ValueError("candidate_experiment_action_source_scope_mismatch")
+
+        source_origin = (
+            None
+            if verified_origin is None
+            else replace(
+                verified_origin,
+                current_action_head=None,
+                current_terminal_history=None,
+                candidate_terminal_history_chain=(),
+            )
+        )
+        phase_origin = source_origin
+        matched_supplied_prefix = verified_origin is None
+
+        scope = {
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "run_id": run_id,
+            "source_job_id": source_job_id,
+            "route_id": route_id,
+        }
+        heads = tuple(
+            sorted(
+                self._control_store.list_acquisition_action_heads(**scope),
+                key=lambda head: head.action_generation,
+            )
+        )
+        if not heads:
+            if verified_origin is not None and verified_origin.candidate_terminal_history_chain:
+                raise ValueError("candidate_experiment_action_prefix_mismatch")
+            return ()
+        if tuple(head.action_generation for head in heads) != tuple(range(1, len(heads) + 1)):
+            raise ValueError("candidate_experiment_action_generations_not_contiguous")
+        outcomes: list[VerifiedAcquisitionActionOutcome] = []
+        for index, head in enumerate(heads):
+            if (
+                head.tenant_id,
+                head.cell_id,
+                head.run_id,
+                head.source_job_id,
+                head.route_id,
+            ) != (tenant_id, cell_id, run_id, source_job_id, route_id):
+                raise ValueError("candidate_experiment_action_scope_mismatch")
+            if verified_origin is not None and (
+                head.action_generation == len(verified_origin.candidate_terminal_history_chain) + 1
+            ):
+                expected_origin = replace(verified_origin, current_action_head=None)
+                if not _candidate_model_values_same(phase_origin, expected_origin):
+                    raise ValueError("candidate_experiment_action_prefix_mismatch")
+                matched_supplied_prefix = True
+            if phase_origin is None:
+                outcome = self.verify_action_head(head)
+            else:
+                outcome = self._verify_action_head_with_origin(head, verified_origin=phase_origin)
+            latest = outcome.latest_receipt
+            if type(latest) is AcquisitionCandidateExperimentTerminalReceipt:
+                history = outcome.candidate_experiment_terminal_history
+                if type(history) is not CandidateExperimentTerminalHistory:
+                    raise ValueError("candidate_experiment_terminal_history_not_established")
+                if verified_origin is not None:
+                    if not _candidate_model_values_same(history.origin, phase_origin):
+                        raise ValueError("candidate_experiment_action_prefix_mismatch")
+                    phase_origin = replace(
+                        history.origin,
+                        current_action_head=None,
+                        current_terminal_history=history,
+                        candidate_terminal_history_chain=(
+                            *history.origin.candidate_terminal_history_chain,
+                            history,
+                        ),
+                    )
+            elif type(latest) is not AcquisitionCandidateExperimentPhaseReceipt:
+                raise ValueError("candidate_experiment_action_receipt_untyped")
+            if (
+                index < len(heads) - 1
+                and type(latest) is not AcquisitionCandidateExperimentTerminalReceipt
+            ):
+                raise ValueError("candidate_experiment_action_generation_predecessor_not_terminal")
+            outcomes.append(outcome)
+        if verified_origin is not None and not matched_supplied_prefix:
+            expected_origin = replace(verified_origin, current_action_head=None)
+            if not _candidate_model_values_same(phase_origin, expected_origin):
+                raise ValueError("candidate_experiment_action_prefix_mismatch")
+            matched_supplied_prefix = True
+        if verified_origin is not None and not matched_supplied_prefix:
+            raise ValueError("candidate_experiment_action_prefix_mismatch")
+        outcome = outcomes[-1]
+        latest = outcome.latest_receipt
+        if self._control_store.list_acquisition_action_heads(**scope) != heads:
+            raise ValueError("candidate_experiment_action_history_changed")
+        refreshed_origin = self._resolve_candidate_experiment_source(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+        )
+        from polisyos.runtime.quality.acquisition_evaluation import _candidate_ref_same
+
+        if (
+            (
+                source_origin is not None
+                and not _candidate_model_values_same(source_origin, refreshed_origin)
+            )
+            or latest.source_payload_ref != refreshed_origin.source_payload_ref
+            or latest.capability_manifest_ref != refreshed_origin.capability_manifest_ref
+            or latest.request_content_hash != refreshed_origin.request_content_hash
+            or latest.route_id != refreshed_origin.route_id
+            or not _candidate_model_values_same(latest.policy_scope, refreshed_origin.policy_scope)
+            or not _candidate_ref_same(latest.policy_ref, refreshed_origin.policy_ref)
+            or not _candidate_model_values_same(
+                latest.voi_decision, refreshed_origin.source_cycle.voi_decision
+            )
+        ):
+            raise ValueError("candidate_experiment_source_changed")
+        return tuple(outcomes)
+
+    def verify_prepared_experiment_requested_phase(
+        self,
+        publication: _PreparedAcquisitionActionHeadPublication,
+        *,
+        allow_terminal: bool = False,
+    ) -> AcquisitionActionHeadRecord:
+        """Read back a requested phase from current verified history after an ambiguous ack."""
+        if type(publication) is not _PreparedAcquisitionActionHeadPublication:
+            raise TypeError("candidate_experiment_prepared_publication_untyped")
+        head = self._control_store.get_acquisition_action_head(
+            tenant_id=publication.tenant_id,
+            cell_id=publication.cell_id,
+            run_id=publication.run_id,
+            source_job_id=publication.source_job_id,
+            route_id=publication.route_id,
+            action_generation=publication.action_generation,
+        )
+        if head is None:
+            raise ValueError("candidate_experiment_requested_head_not_established")
+        verified = self.verify_action_head(head)
+        if not verified.phase_chain:
+            raise ValueError("candidate_experiment_requested_phase_history_missing")
+        first = verified.phase_chain[0]
+        requested = first.receipt
+        requested_head = self._control_store.get_acquisition_action_head_by_receipt(
+            tenant_id=publication.tenant_id,
+            cell_id=publication.cell_id,
+            run_id=publication.run_id,
+            source_job_id=publication.source_job_id,
+            route_id=publication.route_id,
+            action_generation=publication.action_generation,
+            receipt_ref=publication.receipt_ref,
+        )
+        if (
+            type(requested) is not AcquisitionCandidateExperimentPhaseReceipt
+            or requested_head is None
+            or requested_head.head_generation != 1
+            or requested_head.receipt_manifest_profile_sha256
+            != publication.receipt_manifest_profile_sha256
+            or first.receipt_ref != publication.receipt_ref
+            or requested.receipt_phase != "requested"
+            or requested.job_id != publication.job_id
+            or requested.route_id != publication.route_id
+            or requested.tenant_id != publication.tenant_id
+            or requested.cell_id != publication.cell_id
+            or requested.run_id != publication.run_id
+            or requested.source_job_id != publication.source_job_id
+            or requested.action_generation != publication.action_generation
+            or str(requested.authority_decision_ref.artifact_id) != publication.decision_ref
+            or first.durable_event_id != publication.durable_event_id
+            or head.job_id != publication.job_id
+            or (head.receipt_phase == "terminal" and not allow_terminal)
+        ):
+            raise ValueError("candidate_experiment_requested_phase_history_conflict")
+        if allow_terminal and head.receipt_phase == "terminal":
+            from polisyos.runtime.quality.acquisition_evaluation import (
+                CandidateExperimentTerminalHistory,
+            )
+            from polisyos.runtime.quality.acquisition_route_loop import (
+                AcquisitionCandidateExperimentTerminalReceipt,
+            )
+
+            terminal_history = verified.candidate_experiment_terminal_history
+            if (
+                type(verified.latest_receipt) is not AcquisitionCandidateExperimentTerminalReceipt
+                or type(terminal_history) is not CandidateExperimentTerminalHistory
+                or terminal_history.head != head
+                or terminal_history.terminal != verified.latest_receipt
+                or str(terminal_history.terminal_ref.artifact_id) != head.receipt_ref
+            ):
+                raise ValueError("candidate_experiment_terminal_history_not_established")
+        return head
 
     def persist_phase(
         self,
@@ -3109,39 +4372,989 @@ class AcquisitionRouteLoopAuthoritySink:
             receipt_label="phase",
         )
 
+    def persist_experiment_phase(
+        self,
+        receipt: AcquisitionCandidateExperimentPhaseReceipt,
+    ) -> AcquisitionActionHeadRecord:
+        """Persist one source-bound candidate-experiment phase through the shared head."""
+        typed = AcquisitionCandidateExperimentPhaseReceipt.model_validate(receipt)
+        if typed.receipt_phase == "requested":
+            raise ValueError("candidate_experiment_requested_phase_requires_atomic_job_publish")
+        self._require_candidate_experiment_running_admission(typed)
+        recovered = self._recover_orphan_experiment_phase(typed)
+        if recovered is not None:
+            return recovered
+        return self._persist_receipt(
+            typed,
+            artifact_kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
+            schema_name="polisyos.runtime.AcquisitionCandidateExperimentPhaseReceipt",
+            event_type="polisyos.runtime.acquisition.candidate_experiment_phase.v1",
+            event_suffix=(
+                "experiment_phase_"
+                + typed.receipt_phase
+                + "_"
+                + hashlib.sha256(typed.receipt_id.encode()).hexdigest()[:16]
+            ),
+            receipt_type=AcquisitionCandidateExperimentPhaseReceipt,
+            receipt_label="candidate_experiment_phase",
+        )
+
+    def _require_candidate_experiment_running_admission(
+        self,
+        phase: AcquisitionCandidateExperimentPhaseReceipt,
+    ) -> ControlJobExecutionAdmission:
+        """Bind in-flight phase writes to the authenticated running job lease."""
+        admission = self._control_store.current_execution_job_admission()
+        if (
+            type(admission) is not ControlJobExecutionAdmission
+            or admission.job.kind != "acquisition"
+            or admission.job.state != "running"
+            or admission.job.job_id != phase.job_id
+            or admission.job.run_id != phase.run_id
+            or admission.scope.status != "established"
+            or admission.scope.actor_authenticated is not True
+            or admission.scope.tenant_id != phase.tenant_id
+            or admission.scope.cell_id != phase.cell_id
+        ):
+            raise ValueError("candidate_experiment_running_lease_not_established")
+        return admission
+
+    def _recover_orphan_experiment_phase(
+        self,
+        expected: AcquisitionCandidateExperimentPhaseReceipt,
+    ) -> AcquisitionActionHeadRecord | None:
+        """Adopt the exact original CAS/event after a phase-write acknowledgement loss."""
+        from polisyos.core.artifacts import artifact_ref_for_manifest, read_core_manifest_profile
+        from polisyos.runtime.quality.agent_action_authority import reconcile_authority_ref
+
+        self._require_candidate_experiment_running_admission(expected)
+        current = self.get_head(expected)
+        if current is not None and current.receipt_phase == expected.receipt_phase:
+            verified = self.verify_action_head(current)
+            latest = verified.latest_receipt
+            recovered = expected.model_copy(update={"generated_at": latest.generated_at})
+            if type(latest) is AcquisitionCandidateExperimentPhaseReceipt and latest == recovered:
+                return current
+            raise ValueError("candidate_experiment_phase_recovery_head_conflict")
+        expected_event_id = (
+            "evt_acquisition_"
+            + str(expected.action_generation)
+            + "_experiment_phase_"
+            + expected.receipt_phase
+            + "_"
+            + hashlib.sha256(expected.receipt_id.encode()).hexdigest()[:16]
+        )
+        events = self._event_log.list_events(
+            event_id=expected_event_id,
+            run_id=expected.run_id,
+            job_id=expected.job_id,
+            limit=10,
+        )
+        if len(events) > 1:
+            raise ValueError("candidate_experiment_phase_recovery_event_not_unique")
+        expected_payload_ref = events[0].event.payload_ref if events else None
+        if events and not expected_payload_ref:
+            raise ValueError("candidate_experiment_phase_recovery_payload_missing")
+        inventory = getattr(self._artifact_store, "manifest_inventory_snapshot", None)
+        if not callable(inventory):
+            raise ValueError("candidate_experiment_phase_recovery_inventory_unavailable")
+        snapshot = inventory(kind="runtime_quality.acquisition_candidate_experiment_phase_receipt")
+        if snapshot.verdict != "pass":
+            raise ValueError("candidate_experiment_phase_recovery_inventory_unverified")
+        candidates: list[tuple[ArtifactRef, AcquisitionCandidateExperimentPhaseReceipt]] = []
+        for entry in snapshot.entries:
+            manifest = entry.manifest
+            closure = manifest.same_input_closure
+            if (
+                closure is None
+                or closure.closure_id != f"acquisition-route:{expected.receipt_id}"
+                or closure.job_id != expected.job_id
+                or manifest.artifact_schema is None
+                or manifest.artifact_schema.name
+                != "polisyos.runtime.AcquisitionCandidateExperimentPhaseReceipt"
+                or manifest.artifact_schema.version != "1.0"
+                or manifest.tenant_context is None
+                or (manifest.tenant_context.tenant_id, manifest.tenant_context.cell_id)
+                != (expected.tenant_id, expected.cell_id)
+                or manifest.producer is None
+                or manifest.producer.component != "polisyos.runtime.acquisition_route_loop"
+                or manifest.producer.version != "2026.08.28+ds15-c02"
+            ):
+                continue
+            candidate_ref = artifact_ref_for_manifest(manifest)
+            if expected_payload_ref is not None and str(candidate_ref.artifact_id) != (
+                expected_payload_ref
+            ):
+                continue
+            try:
+                candidate = AcquisitionCandidateExperimentPhaseReceipt.model_validate(
+                    read_core_json_artifact(self._artifact_store, candidate_ref).value
+                )
+            except (OSError, RuntimeError, TypeError, ValueError):
+                continue
+            if candidate.receipt_id == expected.receipt_id:
+                candidates.append((candidate_ref, candidate))
+        if not candidates:
+            if events:
+                raise ValueError("candidate_experiment_phase_recovery_cas_missing")
+            return None
+        if len(candidates) != 1:
+            raise ValueError("candidate_experiment_phase_recovery_cas_not_unique")
+        selected_ref, recovered = candidates[0]
+        if selected_ref is None or recovered is None:
+            raise ValueError("candidate_experiment_phase_recovery_selection_missing")
+        selected_profile = selected_ref.manifest_profile_sha256
+        expected_with_time = expected.model_copy(update={"generated_at": recovered.generated_at})
+        if (
+            recovered != expected_with_time
+            or str(selected_ref.artifact_id)
+            != "sha256:" + hashlib.sha256(self._artifact_store.get_bytes(selected_ref)).hexdigest()
+            or selected_profile is None
+        ):
+            raise ValueError("candidate_experiment_phase_recovery_content_conflict")
+        manifest = read_core_manifest_profile(self._artifact_store, selected_ref)[0]
+        if manifest.authority is None:
+            raise ValueError("candidate_experiment_phase_recovery_authority_missing")
+        event_ref = resolve_authority_diagnostic_event_ref(self._artifact_store, manifest.authority)
+        event_manifest = read_core_manifest_profile(self._artifact_store, event_ref)[0]
+        event = DiagnosticEvent.model_validate(
+            read_core_json_artifact(
+                self._artifact_store, artifact_ref_for_manifest(event_manifest)
+            ).value
+        )
+        if (
+            event.event_id != expected_event_id
+            or event.event_source != "polisyos.runtime.quality.acquisition_route_loop"
+            or event.event_type != "polisyos.runtime.acquisition.candidate_experiment_phase.v1"
+            or event.event_subject
+            != (
+                f"run/{recovered.run_id}/job/{recovered.job_id}/acquisition/"
+                f"{recovered.receipt_phase}"
+            )
+            or event.event_time != recovered.generated_at
+            or event.state_before != (current.receipt_phase if current is not None else None)
+            or event.state_after != recovered.receipt_phase
+            or event.payload_ref != str(selected_ref.artifact_id)
+            or event.artifact_refs != (str(selected_ref.artifact_id),)
+            or event.tenant_id != recovered.tenant_id
+            or event.cell_id != recovered.cell_id
+            or event.run_id != recovered.run_id
+            or event.job_id != recovered.job_id
+        ):
+            raise ValueError("candidate_experiment_phase_recovery_event_conflict")
+        if not events:
+            self._event_log.append(
+                event,
+                payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True),
+            )
+        report = reconcile_authority_ref(
+            artifact_store=self._artifact_store,
+            event_log=self._event_log,
+            cas_ref=selected_ref,
+            expected_tenant_id=recovered.tenant_id,
+            expected_cell_id=recovered.cell_id,
+            expected_run_id=recovered.run_id,
+            expected_job_id=recovered.job_id,
+        )
+        if report.durable_event_id != expected_event_id:
+            raise ValueError("candidate_experiment_phase_recovery_reconciliation_failed")
+        verified = self._read_verified_action_phase(
+            str(selected_ref.artifact_id), selected_ref=selected_ref
+        )
+        if verified.receipt != recovered:
+            raise ValueError("candidate_experiment_phase_recovery_readback_failed")
+        self._verify_candidate_experiment_live_authority(recovered)
+        current = self.get_head(recovered)
+        if (current.receipt_ref if current is not None else None) != (
+            recovered.predecessor_receipt_ref
+        ):
+            raise ValueError("candidate_experiment_phase_recovery_predecessor_changed")
+        head = self._control_store.advance_acquisition_action_head(
+            tenant_id=recovered.tenant_id,
+            cell_id=recovered.cell_id,
+            run_id=recovered.run_id,
+            source_job_id=recovered.source_job_id,
+            route_id=recovered.route_id,
+            action_generation=recovered.action_generation,
+            expected_head_generation=current.head_generation if current is not None else 0,
+            receipt_ref=str(selected_ref.artifact_id),
+            receipt_sha256=str(selected_ref.artifact_id),
+            durable_event_id=report.durable_event_id,
+            coarse_phase=recovered.coarse_phase,
+            receipt_phase=recovered.receipt_phase,
+            recovery_state=recovered.recovery_state,
+            job_id=recovered.job_id,
+            predecessor_receipt_ref=recovered.predecessor_receipt_ref,
+            receipt_manifest_profile_sha256=selected_profile,
+        )
+        if self.get_head(recovered) != head:
+            raise ValueError("candidate_experiment_phase_recovery_head_readback_failed")
+        verified_head = self.verify_action_head(head)
+        if verified_head.latest_receipt != recovered:
+            raise ValueError("candidate_experiment_phase_recovery_chain_readback_failed")
+        return head
+
+    def prepare_experiment_phase_publication(
+        self,
+        receipt: AcquisitionCandidateExperimentPhaseReceipt,
+        request: object,
+    ) -> _PreparedAcquisitionActionHeadPublication:
+        """Prepare an authenticated requested phase without exposing a job or head."""
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            CandidateExperimentRouteMutationRequest,
+        )
+
+        typed = AcquisitionCandidateExperimentPhaseReceipt.model_validate(receipt)
+        if (
+            type(request) is not CandidateExperimentRouteMutationRequest
+            or typed.receipt_phase != "requested"
+            or typed.predecessor_receipt_ref is not None
+            or typed.action_generation < 1
+        ):
+            raise ValueError("candidate_experiment_requested_phase_publication_invalid")
+        self._verify_candidate_experiment_prejob_live_authority(typed, request)
+        event_suffix = (
+            "experiment_phase_"
+            + typed.receipt_phase
+            + "_"
+            + hashlib.sha256(typed.receipt_id.encode()).hexdigest()[:16]
+        )
+        expected_event_id = f"evt_acquisition_{typed.action_generation}_{event_suffix}"
+        events = self._event_log.list_events(
+            event_id=expected_event_id,
+            run_id=typed.run_id,
+            job_id=typed.job_id,
+            limit=10,
+        )
+        if len(events) > 1:
+            raise ValueError("candidate_experiment_requested_event_not_unique")
+        recovered = self._recover_orphan_experiment_requested_phase(
+            typed, request, expected_event_id=expected_event_id
+        )
+        if recovered is not None:
+            head = self.get_head(typed)
+            if head is not None and (
+                head.job_id != typed.job_id
+                or head.receipt_ref != recovered.receipt_ref
+                or head.durable_event_id != recovered.durable_event_id
+                or head.receipt_manifest_profile_sha256 != recovered.receipt_manifest_profile_sha256
+                or head.receipt_phase != "requested"
+                or head.head_generation != 1
+            ):
+                raise ValueError("candidate_experiment_requested_phase_already_published")
+            return recovered
+        if events:
+            raise ValueError("candidate_experiment_requested_phase_recovery_cas_missing")
+        result = self._persist_receipt(
+            typed,
+            artifact_kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
+            schema_name="polisyos.runtime.AcquisitionCandidateExperimentPhaseReceipt",
+            event_type="polisyos.runtime.acquisition.candidate_experiment_phase.v1",
+            event_suffix=event_suffix,
+            receipt_type=AcquisitionCandidateExperimentPhaseReceipt,
+            receipt_label="candidate_experiment_phase",
+            candidate_experiment_request=request,
+        )
+        if type(result) is not _PreparedAcquisitionActionHeadPublication:
+            raise RuntimeError("candidate_experiment_requested_phase_not_prepared")
+        return result
+
+    def _recover_orphan_experiment_requested_phase(
+        self,
+        expected: AcquisitionCandidateExperimentPhaseReceipt,
+        request: object,
+        *,
+        expected_event_id: str,
+    ) -> _PreparedAcquisitionActionHeadPublication | None:
+        """Resume one CAS-first phase write whose durable event append was interrupted."""
+        inventory = getattr(self._artifact_store, "manifest_inventory_snapshot", None)
+        if not callable(inventory):
+            raise ValueError("candidate_experiment_phase_recovery_inventory_unavailable")
+        existing_events = self._event_log.list_events(
+            event_id=expected_event_id,
+            run_id=expected.run_id,
+            job_id=expected.job_id,
+            limit=10,
+        )
+        if len(existing_events) > 1:
+            raise ValueError("candidate_experiment_requested_event_not_unique")
+        expected_payload_ref = existing_events[0].event.payload_ref if existing_events else None
+        if existing_events and not expected_payload_ref:
+            raise ValueError("candidate_experiment_requested_event_payload_missing")
+        snapshot = inventory(kind="runtime_quality.acquisition_candidate_experiment_phase_receipt")
+        if snapshot.verdict != "pass":
+            raise ValueError("candidate_experiment_phase_recovery_inventory_unverified")
+        candidates: list[tuple[ArtifactRef, AcquisitionCandidateExperimentPhaseReceipt]] = []
+        for entry in snapshot.entries:
+            manifest = entry.manifest
+            closure = manifest.same_input_closure
+            tenant = manifest.tenant_context
+            schema = manifest.artifact_schema
+            producer = manifest.producer
+            if (
+                closure is None
+                or closure.closure_id != f"acquisition-route:{expected.receipt_id}"
+                or closure.job_id != expected.job_id
+                or tenant is None
+                or (tenant.tenant_id, tenant.cell_id) != (expected.tenant_id, expected.cell_id)
+                or schema is None
+                or schema.name != "polisyos.runtime.AcquisitionCandidateExperimentPhaseReceipt"
+                or schema.version != "1.0"
+                or producer is None
+                or producer.component != "polisyos.runtime.acquisition_route_loop"
+                or producer.version != "2026.08.28+ds15-c02"
+            ):
+                continue
+            selected_ref = artifact_ref_for_manifest(manifest)
+            if expected_payload_ref is not None and str(selected_ref.artifact_id) != (
+                expected_payload_ref
+            ):
+                continue
+            try:
+                receipt = AcquisitionCandidateExperimentPhaseReceipt.model_validate(
+                    read_core_json_artifact(self._artifact_store, selected_ref).value
+                )
+            except (OSError, RuntimeError, TypeError, ValueError):
+                continue
+            if receipt.receipt_id == expected.receipt_id:
+                candidates.append((selected_ref, receipt))
+        if not candidates:
+            if existing_events:
+                raise ValueError("candidate_experiment_requested_phase_recovery_cas_missing")
+            return None
+        if len(candidates) != 1:
+            raise ValueError("candidate_experiment_phase_recovery_cas_not_unique")
+        selected_ref, receipt = candidates[0]
+        expected_with_time = expected.model_copy(update={"generated_at": receipt.generated_at})
+        if (
+            receipt != expected_with_time
+            or str(selected_ref.artifact_id)
+            != "sha256:" + hashlib.sha256(self._artifact_store.get_bytes(selected_ref)).hexdigest()
+            or selected_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("candidate_experiment_phase_recovery_cas_conflict")
+        manifest = read_core_manifest_profile(self._artifact_store, selected_ref)[0]
+        if manifest.authority is None:
+            raise ValueError("candidate_experiment_phase_recovery_authority_missing")
+        event_ref = resolve_authority_diagnostic_event_ref(self._artifact_store, manifest.authority)
+        event_manifest = read_core_manifest_profile(self._artifact_store, event_ref)[0]
+        event = DiagnosticEvent.model_validate(
+            read_core_json_artifact(
+                self._artifact_store, artifact_ref_for_manifest(event_manifest)
+            ).value
+        )
+        if (
+            event.event_id != expected_event_id
+            or event.event_source != "polisyos.runtime.quality.acquisition_route_loop"
+            or event.event_type != "polisyos.runtime.acquisition.candidate_experiment_phase.v1"
+            or event.event_subject
+            != f"run/{receipt.run_id}/job/{receipt.job_id}/acquisition/requested"
+            or event.event_time != receipt.generated_at
+            or event.state_before is not None
+            or event.state_after != "requested"
+            or event.payload_ref != str(selected_ref.artifact_id)
+            or event.artifact_refs != (str(selected_ref.artifact_id),)
+            or event.tenant_id != receipt.tenant_id
+            or event.cell_id != receipt.cell_id
+            or event.run_id != receipt.run_id
+            or event.job_id != receipt.job_id
+        ):
+            raise ValueError("candidate_experiment_phase_recovery_event_conflict")
+        existing_events = self._event_log.list_events(
+            event_id=expected_event_id,
+            run_id=receipt.run_id,
+            job_id=receipt.job_id,
+            limit=10,
+        )
+        if not existing_events:
+            self._event_log.append(
+                event,
+                payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True),
+            )
+        elif len(existing_events) != 1 or existing_events[0].event != event:
+            raise ValueError("candidate_experiment_phase_recovery_event_not_unique")
+        report = reconcile_authority_ref(
+            artifact_store=self._artifact_store,
+            event_log=self._event_log,
+            cas_ref=selected_ref,
+            expected_tenant_id=receipt.tenant_id,
+            expected_cell_id=receipt.cell_id,
+            expected_run_id=receipt.run_id,
+            expected_job_id=receipt.job_id,
+        )
+        if report.durable_event_id != expected_event_id:
+            raise ValueError("candidate_experiment_phase_recovery_reconciliation_failed")
+        verified = self._read_verified_action_phase(
+            str(selected_ref.artifact_id), selected_ref=selected_ref
+        )
+        if verified.receipt != receipt:
+            raise ValueError("candidate_experiment_phase_recovery_readback_failed")
+        self._verify_candidate_experiment_prejob_live_authority(receipt, request)
+        selected_profile = selected_ref.manifest_profile_sha256
+        if selected_profile is None:
+            raise ValueError("candidate_experiment_phase_recovery_profile_missing")
+        return self._prepared_experiment_phase_publication(
+            receipt,
+            request,
+            receipt_ref=str(selected_ref.artifact_id),
+            receipt_manifest_profile_sha256=selected_profile,
+            durable_event_id=report.durable_event_id,
+        )
+
+    @staticmethod
+    def _require_candidate_terminal_history_owner() -> None:
+        """Refuse @3 publication until its historical frontier owner is composed."""
+        raise ValueError("acquisition_candidate_terminal_history_not_established")
+
     def persist_terminal(
         self,
-        receipt: AcquisitionRouteLoopReceipt | AcquisitionRouteLoopReceiptV2,
+        receipt: AcquisitionRouteLoopReceipt
+        | AcquisitionRouteLoopReceiptV2
+        | AcquisitionCandidateRouteLoopReceipt
+        | AcquisitionCandidateExperimentTerminalReceipt,
     ) -> AcquisitionActionHeadRecord:
         """Write and expose a terminal head only after exact loop-receipt readback."""
 
         typed = parse_acquisition_route_loop_receipt(receipt)
+        candidate_frontier = None
+        if isinstance(typed, AcquisitionCandidateRouteLoopReceipt):
+            self._require_candidate_terminal_history_owner()
+            from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+                candidate_terminal_frontier_cas,
+            )
+
+            candidate_frontier = candidate_terminal_frontier_cas(
+                typed, artifact_store=self._artifact_store, control_store=self._control_store
+            )
+        if (
+            type(typed)
+            in {
+                AcquisitionRouteLoopReceipt,
+                AcquisitionRouteLoopReceiptV2,
+                AcquisitionCandidateRouteLoopReceipt,
+            }
+            and typed.terminal_outcome == "candidate_reentry_completed"
+        ):
+            self._verify_candidate_reentry_terminal(typed)
+        if type(typed) is AcquisitionCandidateExperimentTerminalReceipt:
+            current = self.get_head(typed)
+            if current is None or current.receipt_phase != "candidate_input_reentry_pending":
+                raise ValueError("candidate_experiment_terminal_predecessor_not_current")
+            from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+                CandidateExperimentReentryOwner,
+                require_candidate_experiment_reentry_fence,
+            )
+
+            require_candidate_experiment_reentry_fence(typed, predecessor_head=current)
+            from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+                _CANDIDATE_EXPERIMENT_REENTRY_SCOPE,
+            )
+
+            scope = _CANDIDATE_EXPERIMENT_REENTRY_SCOPE.get()
+            if (
+                scope is not None
+                and type(getattr(scope, "owner", None)) is CandidateExperimentReentryOwner
+            ):
+                orphan = self.recover_candidate_experiment_terminal(
+                    typed,
+                    predecessor_head=current,
+                    owner=scope.owner,
+                )
+                if orphan is not None:
+                    recovered, orphan_ref = orphan
+                    if recovered != typed:
+                        raise ValueError("candidate_experiment_terminal_orphan_time_not_adopted")
+                    return self._persist_terminal_receipt(
+                        typed,
+                        candidate_experiment_orphan_ref=orphan_ref,
+                    )
+            else:
+                raise ValueError("candidate_experiment_terminal_owner_not_established")
+        return self._persist_terminal_receipt(typed, candidate_frontier_cas=candidate_frontier)
+
+    def _persist_terminal_receipt(
+        self,
+        typed: AcquisitionRouteLoopReceipt
+        | AcquisitionRouteLoopReceiptV2
+        | AcquisitionCandidateRouteLoopReceipt
+        | AcquisitionCandidateExperimentTerminalReceipt,
+        *,
+        candidate_frontier_cas: AcquisitionEvaluationFrontierCAS | None = None,
+        candidate_experiment_orphan_ref: ArtifactRef | None = None,
+    ) -> AcquisitionActionHeadRecord:
+        """Persist one already-fenced terminal and require orphan identity reuse."""
         return self._persist_receipt(
             typed,
             artifact_kind="runtime_quality.acquisition_route_loop_receipt",
-            schema_name="polisyos.runtime.AcquisitionRouteLoopReceipt",
+            schema_name=(
+                "polisyos.runtime.AcquisitionCandidateExperimentTerminalReceipt"
+                if type(typed) is AcquisitionCandidateExperimentTerminalReceipt
+                else "polisyos.runtime.AcquisitionRouteLoopReceipt"
+            ),
             event_type=(
-                "polisyos.runtime.acquisition.route_loop.v2"
-                if isinstance(typed, AcquisitionRouteLoopReceiptV2)
-                else "polisyos.runtime.acquisition.route_loop.v1"
+                "polisyos.runtime.acquisition.candidate_experiment_terminal.v1"
+                if type(typed) is AcquisitionCandidateExperimentTerminalReceipt
+                else (
+                    "polisyos.runtime.acquisition.route_loop.v3"
+                    if isinstance(typed, AcquisitionCandidateRouteLoopReceipt)
+                    else (
+                        "polisyos.runtime.acquisition.route_loop.v2"
+                        if isinstance(typed, AcquisitionRouteLoopReceiptV2)
+                        else "polisyos.runtime.acquisition.route_loop.v1"
+                    )
+                )
             ),
             event_suffix=(
-                "loop_terminal_"
-                + hashlib.sha256(
-                    to_canonical_bytes(
-                        typed.model_dump(mode="json"), CanonSpec(forbid_floats=False)
+                "experiment_terminal_" + hashlib.sha256(typed.receipt_id.encode()).hexdigest()[:16]
+                if type(typed) is AcquisitionCandidateExperimentTerminalReceipt
+                else (
+                    "loop_terminal_"
+                    + hashlib.sha256(
+                        to_canonical_bytes(
+                            typed.model_dump(mode="json"), CanonSpec(forbid_floats=False)
+                        )
+                    ).hexdigest()
+                    if isinstance(
+                        typed,
+                        (AcquisitionRouteLoopReceiptV2, AcquisitionCandidateRouteLoopReceipt),
                     )
-                ).hexdigest()
-                if isinstance(typed, AcquisitionRouteLoopReceiptV2)
-                else "loop_terminal"
+                    else "loop_terminal"
+                )
             ),
             receipt_type=type(typed),
             receipt_label="loop",
+            candidate_frontier_cas=candidate_frontier_cas,
+            candidate_experiment_orphan_ref=candidate_experiment_orphan_ref,
         )
+
+    def recover_candidate_experiment_terminal(
+        self,
+        expected: AcquisitionCandidateExperimentTerminalReceipt,
+        *,
+        predecessor_head: AcquisitionActionHeadRecord,
+        owner: object,
+    ) -> tuple[AcquisitionCandidateExperimentTerminalReceipt, ArtifactRef] | None:
+        """Recover one exact experiment terminal CAS/event orphan under its live owner.
+
+        The only field adopted from the saved CAS is ``generated_at``. The caller
+        must bind the returned receipt into a freshly prepared reentry owner before
+        the terminal head can be selected.
+        """
+        from polisyos.runtime.quality.acquisition_evaluation import (
+            CandidateExperimentTerminalHistory,
+        )
+        from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+            CandidateExperimentReentryOwner,
+            _revalidate_candidate_experiment_reentry_owner,
+        )
+        from polisyos.runtime.quality.acquisition_evaluation_history import (
+            verify_candidate_experiment_terminal_history,
+        )
+
+        if (
+            type(expected) is not AcquisitionCandidateExperimentTerminalReceipt
+            or type(predecessor_head) is not AcquisitionActionHeadRecord
+            or type(owner) is not CandidateExperimentReentryOwner
+            or owner.terminal != expected
+            or owner.predecessor_head != predecessor_head
+            or expected.predecessor_receipt_ref != predecessor_head.receipt_ref
+        ):
+            raise ValueError("candidate_experiment_terminal_recovery_owner_mismatch")
+        if (
+            self.get_head(expected) != predecessor_head
+            or predecessor_head.receipt_phase != "candidate_input_reentry_pending"
+            or predecessor_head.job_id != expected.job_id
+            or predecessor_head.action_generation != expected.action_generation
+        ):
+            raise ValueError("candidate_experiment_terminal_recovery_predecessor_changed")
+        _revalidate_candidate_experiment_reentry_owner(owner)
+
+        event_suffix = hashlib.sha256(expected.receipt_id.encode()).hexdigest()[:16]
+        expected_event_id = (
+            f"evt_acquisition_{expected.action_generation}_experiment_terminal_{event_suffix}"
+        )
+        event_rows = self._event_log.list_events(
+            event_id=expected_event_id,
+            run_id=expected.run_id,
+            job_id=expected.job_id,
+            limit=10,
+        )
+        if len(event_rows) > 1:
+            raise ValueError("candidate_experiment_terminal_recovery_event_not_unique")
+
+        selected_ref: ArtifactRef | None = None
+        if event_rows:
+            event = event_rows[0].event
+            if not event.payload_ref:
+                raise ValueError("candidate_experiment_terminal_recovery_event_payload_missing")
+            receipt_id = artifacts.ArtifactID.model_validate(event.payload_ref)
+            snapshotter = getattr(self._artifact_store, "inventory_snapshot", None)
+            if not callable(snapshotter):
+                raise ValueError("candidate_experiment_terminal_recovery_inventory_unavailable")
+            inventory = snapshotter(artifact_id=receipt_id)
+        else:
+            inventory = None
+
+        if inventory is None:
+            manifest_inventory = getattr(self._artifact_store, "manifest_inventory_snapshot", None)
+            if not callable(manifest_inventory):
+                raise ValueError("candidate_experiment_terminal_recovery_inventory_unavailable")
+            inventory = manifest_inventory(kind="runtime_quality.acquisition_route_loop_receipt")
+        if inventory.verdict != "pass":
+            raise ValueError("candidate_experiment_terminal_recovery_inventory_unverified")
+        recovered_candidates: list[
+            tuple[AcquisitionCandidateExperimentTerminalReceipt, ArtifactRef]
+        ] = []
+        for entry in inventory.entries:
+            manifest = entry.manifest
+            schema = manifest.artifact_schema
+            producer = manifest.producer
+            tenant = manifest.tenant_context
+            closure = manifest.same_input_closure
+            if (
+                manifest.kind != "runtime_quality.acquisition_route_loop_receipt"
+                or manifest.media_type != "application/json"
+                or schema is None
+                or schema.name != "polisyos.runtime.AcquisitionCandidateExperimentTerminalReceipt"
+                or schema.version != "1.0"
+                or producer is None
+                or producer.component != "polisyos.runtime.acquisition_route_loop"
+                or producer.version != "2026.08.28+ds15-c02"
+                or tenant is None
+                or (tenant.tenant_id, tenant.cell_id) != (expected.tenant_id, expected.cell_id)
+                or closure is None
+                or closure.closure_id != f"acquisition-route:{expected.receipt_id}"
+                or closure.run_id != expected.run_id
+                or closure.job_id != expected.job_id
+            ):
+                continue
+            selected = artifact_ref_for_manifest(manifest)
+            if event_rows and selected.artifact_id != receipt_id:
+                continue
+            try:
+                recovered = AcquisitionCandidateExperimentTerminalReceipt.model_validate(
+                    read_core_json_artifact(self._artifact_store, selected).value
+                )
+            except (OSError, RuntimeError, TypeError, ValueError):
+                continue
+            if recovered.receipt_id == expected.receipt_id:
+                recovered_candidates.append((recovered, selected))
+        if not recovered_candidates:
+            if event_rows:
+                raise ValueError("candidate_experiment_terminal_recovery_cas_missing")
+            return None
+        if len(recovered_candidates) != 1:
+            raise ValueError("candidate_experiment_terminal_recovery_cas_not_unique")
+        recovered, selected_ref = recovered_candidates[0]
+        recovered_expected = expected.model_copy(update={"generated_at": recovered.generated_at})
+        if (
+            recovered != recovered_expected
+            or selected_ref.manifest_profile_sha256 is None
+            or str(selected_ref.artifact_id)
+            != "sha256:" + hashlib.sha256(self._artifact_store.get_bytes(selected_ref)).hexdigest()
+        ):
+            raise ValueError("candidate_experiment_terminal_recovery_content_conflict")
+        manifest = read_core_manifest_profile(self._artifact_store, selected_ref)[0]
+        if manifest.authority is None:
+            raise ValueError("candidate_experiment_terminal_recovery_authority_missing")
+        event_ref = resolve_authority_diagnostic_event_ref(self._artifact_store, manifest.authority)
+        event_manifest = read_core_manifest_profile(self._artifact_store, event_ref)[0]
+        event = DiagnosticEvent.model_validate(
+            read_core_json_artifact(
+                self._artifact_store, artifact_ref_for_manifest(event_manifest)
+            ).value
+        )
+        input_refs = _acquisition_route_receipt_inputs(recovered)
+        if (
+            event.event_id != expected_event_id
+            or event.event_source != "polisyos.runtime.quality.acquisition_route_loop"
+            or event.event_type != "polisyos.runtime.acquisition.candidate_experiment_terminal.v1"
+            or event.event_subject
+            != f"run/{recovered.run_id}/job/{recovered.job_id}/acquisition/terminal"
+            or event.event_time != recovered.generated_at
+            or event.state_before != "candidate_input_reentry_pending"
+            or event.state_after != "terminal"
+            or event.payload_ref != str(selected_ref.artifact_id)
+            or event.artifact_refs != (str(selected_ref.artifact_id),)
+            or event.input_refs != input_refs
+            or event.tenant_id != recovered.tenant_id
+            or event.cell_id != recovered.cell_id
+            or event.run_id != recovered.run_id
+            or event.job_id != recovered.job_id
+        ):
+            raise ValueError("candidate_experiment_terminal_recovery_event_conflict")
+        if event_rows and event_rows[0].event != event:
+            raise ValueError("candidate_experiment_terminal_recovery_event_changed")
+        if not event_rows:
+            self._event_log.append(
+                event,
+                payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True),
+            )
+        report = reconcile_authority_ref(
+            artifact_store=self._artifact_store,
+            event_log=self._event_log,
+            cas_ref=selected_ref,
+            expected_tenant_id=recovered.tenant_id,
+            expected_cell_id=recovered.cell_id,
+            expected_run_id=recovered.run_id,
+            expected_job_id=recovered.job_id,
+        )
+        if report.durable_event_id != expected_event_id:
+            raise ValueError("candidate_experiment_terminal_recovery_reconciliation_failed")
+        verified = self._read_verified_action_phase(
+            str(selected_ref.artifact_id), selected_ref=selected_ref
+        )
+        if verified.receipt != recovered:
+            raise ValueError("candidate_experiment_terminal_recovery_readback_failed")
+        owner_service = getattr(self._core_source_resolver, "__self__", None)
+        if type(owner_service) is not ControlPlaneService:
+            raise ValueError("candidate_experiment_terminal_recovery_history_owner_missing")
+        history = verify_candidate_experiment_terminal_history(
+            control_service=owner_service,
+            head=predecessor_head,
+            terminal_ref=selected_ref,
+        )
+        if (
+            type(history) is not CandidateExperimentTerminalHistory
+            or history.head != predecessor_head
+            or history.terminal_ref != selected_ref
+            or history.terminal != recovered
+            or history.frontier_after is not None
+        ):
+            raise ValueError("candidate_experiment_terminal_recovery_history_not_established")
+        _revalidate_candidate_experiment_reentry_owner(owner)
+        if self.get_head(expected) != predecessor_head:
+            raise ValueError("candidate_experiment_terminal_recovery_predecessor_changed")
+        return recovered, selected_ref
+
+    def recover_candidate_terminal(
+        self, expected: AcquisitionCandidateRouteLoopReceipt
+    ) -> tuple[AcquisitionCandidateRouteLoopReceipt, ArtifactRef]:
+        """Recover the exact saved terminal for the current pending action."""
+        return self._recover_candidate_terminal(expected, recover_generated_at=False)
+
+    def recover_candidate_terminal_from_event(
+        self, expected: AcquisitionCandidateRouteLoopReceipt
+    ) -> tuple[AcquisitionCandidateRouteLoopReceipt, ArtifactRef]:
+        """Recover the unique original terminal timestamp from its owner event.
+
+        Every other field must match the freshly reconciled expected terminal.
+        The caller must revalidate the live action and frontier before committing.
+        """
+        return self._recover_candidate_terminal(expected, recover_generated_at=True)
+
+    def _recover_candidate_terminal(
+        self, expected: AcquisitionCandidateRouteLoopReceipt, *, recover_generated_at: bool
+    ) -> tuple[AcquisitionCandidateRouteLoopReceipt, ArtifactRef]:
+        """Read a unique selected event; missing evidence remains unresolved."""
+        from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
+
+        if type(expected) is not AcquisitionCandidateRouteLoopReceipt:
+            raise ValueError("candidate_terminal_recovery_untyped")
+        current = self.get_head(expected)
+        if (
+            current is None
+            or current.receipt_ref != expected.predecessor_receipt_ref
+            or current.receipt_phase != "candidate_input_reentry_pending"
+        ):
+            raise ValueError("candidate_terminal_recovery_predecessor_changed")
+        prior = self.verify_action_head(current)
+        if not self._same_action_identity(expected, prior.latest_receipt):
+            raise ValueError("candidate_terminal_recovery_identity_mismatch")
+
+        limit = 500
+        events = self._event_log.list_events(
+            run_id=expected.run_id, job_id=expected.job_id, limit=limit
+        )
+        if len(events) >= limit:
+            raise ValueError("candidate_terminal_recovery_event_inventory_incomplete")
+        prefix = f"evt_acquisition_{expected.action_generation}_loop_terminal_"
+        matching = tuple(
+            row.event
+            for row in events
+            if row.event.event_type == "polisyos.runtime.acquisition.route_loop.v3"
+            and row.event.event_id.startswith(prefix)
+            and row.event.event_subject
+            == f"run/{expected.run_id}/job/{expected.job_id}/acquisition/{expected.receipt_phase}"
+        )
+        if len(matching) != 1 or not matching[0].payload_ref:
+            raise ValueError("candidate_terminal_recovery_event_not_unique")
+        event = matching[0]
+        receipt_id = artifacts.ArtifactID.model_validate(event.payload_ref)
+        inventory = getattr(self._artifact_store, "inventory_snapshot", None)
+        if not callable(inventory):
+            raise ValueError("candidate_terminal_recovery_inventory_unavailable")
+        snapshot = inventory(artifact_id=receipt_id)
+        if snapshot.verdict != "pass":
+            raise ValueError("candidate_terminal_recovery_inventory_unverified")
+        selected: dict[str, tuple[AcquisitionCandidateRouteLoopReceipt, ArtifactRef]] = {}
+        for entry in snapshot.entries:
+            manifest = entry.manifest
+            producer = manifest.producer
+            if (
+                manifest.kind != "runtime_quality.acquisition_route_loop_receipt"
+                or manifest.media_type != "application/json"
+                or producer is None
+                or producer.component != "polisyos.runtime.acquisition_route_loop"
+                or producer.version != "2026.08.28+ds15-c02"
+            ):
+                continue
+            ref = artifact_ref_for_manifest(manifest)
+            phase = self._read_verified_action_phase(str(receipt_id), selected_ref=ref)
+            receipt = phase.receipt
+            if type(receipt) is not AcquisitionCandidateRouteLoopReceipt:
+                raise ValueError("candidate_terminal_recovery_event_conflict")
+            expected_receipt = (
+                expected.model_copy(update={"generated_at": receipt.generated_at})
+                if recover_generated_at
+                else expected
+            )
+            expected_suffix = hashlib.sha256(
+                to_canonical_bytes(receipt.model_dump(mode="json"), CanonSpec(forbid_floats=False))
+            ).hexdigest()
+            if (
+                not _candidate_model_values_same(receipt, expected_receipt)
+                or phase.event != event
+                or event.event_id != prefix + expected_suffix
+            ):
+                raise ValueError("candidate_terminal_recovery_event_conflict")
+            profile = ref.manifest_profile_sha256
+            if profile is None:
+                raise ValueError("candidate_terminal_recovery_profile_missing")
+            selected[profile] = (receipt, ref)
+        if len(selected) != 1:
+            raise ValueError("candidate_terminal_recovery_profile_not_unique")
+        after = self._event_log.list_events(
+            run_id=expected.run_id, job_id=expected.job_id, limit=limit
+        )
+        if len(after) >= limit or after != events:
+            raise ValueError("candidate_terminal_recovery_event_inventory_changed")
+        if self.get_head(expected) != current:
+            raise ValueError("candidate_terminal_recovery_predecessor_changed")
+        return next(iter(selected.values()))
+
+    def _candidate_prior_closure(
+        self, terminal: AcquisitionRouteLoopReceipt | AcquisitionCandidateRouteLoopReceipt
+    ) -> VerifiedAcquisitionRouteClosure:
+        """Resolve only the independently verified action generations before this terminal."""
+        if self._core_source_resolver is None:
+            raise ValueError("acquisition_candidate_source_owner_unavailable")
+        from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
+        from polisyos.runtime.quality.agent_action_authority import agent_action_content_hash
+
+        sink = self
+        cutoff = terminal.action_generation
+
+        class _PriorOutcomeReader:
+            def action_outcomes(self, **scope: str) -> tuple[VerifiedAcquisitionActionOutcome, ...]:
+                heads = tuple(
+                    sorted(
+                        sink._control_store.list_acquisition_action_heads(**scope),
+                        key=lambda head: head.action_generation,
+                    )
+                )
+                prior = tuple(head for head in heads if head.action_generation < cutoff)
+                if tuple(head.action_generation for head in prior) != tuple(range(1, cutoff)):
+                    raise ValueError("acquisition_candidate_prior_history_incomplete")
+                outcomes = tuple(sink.verify_action_head(head) for head in prior)
+                if any(
+                    not isinstance(
+                        outcome.latest_receipt,
+                        (
+                            AcquisitionRouteLoopReceipt,
+                            AcquisitionRouteLoopReceiptV2,
+                            AcquisitionCandidateRouteLoopReceipt,
+                        ),
+                    )
+                    for outcome in outcomes
+                ):
+                    raise ValueError("acquisition_candidate_prior_history_nonterminal")
+                after = tuple(
+                    sorted(
+                        sink._control_store.list_acquisition_action_heads(**scope),
+                        key=lambda head: head.action_generation,
+                    )
+                )
+                if after != heads:
+                    raise ValueError("acquisition_candidate_prior_history_changed")
+                return outcomes
+
+        prior = AcquisitionRouteLoop(
+            control_store=self._control_store,
+            artifact_store=self._artifact_store,
+            event_log=self._event_log,
+            core_source_resolver=self._core_source_resolver,
+            tenant_id=terminal.tenant_id,
+            cell_id=terminal.cell_id,
+            action_outcome_reader=_PriorOutcomeReader(),
+        ).resolve_current_route(run_id=terminal.run_id, before_action_generation=cutoff)
+        if (
+            prior.source_job_id != terminal.source_job_id
+            or prior.route_id != terminal.route_id
+            or prior.compiled_ref != terminal.compiled_ref
+            or agent_action_content_hash(prior.planner_report) != terminal.planner_report_hash
+            or prior.cost_basis_hash != terminal.cost_basis_hash
+        ):
+            raise ValueError("acquisition_candidate_prior_source_mismatch")
+        return prior
+
+    def _verify_candidate_reentry_terminal(
+        self,
+        terminal: AcquisitionRouteLoopReceipt
+        | AcquisitionRouteLoopReceiptV2
+        | AcquisitionCandidateRouteLoopReceipt,
+    ) -> None:
+        """Replay the selected candidate lineage before exposing a terminal head."""
+        from polisyos.runtime.quality.candidate_source_reentry_history import (
+            verify_candidate_source_reentry_history,
+        )
+
+        if (
+            not isinstance(
+                terminal, (AcquisitionRouteLoopReceipt, AcquisitionCandidateRouteLoopReceipt)
+            )
+            or terminal.candidate_action_ref is None
+            or terminal.candidate_reentry_ref is None
+        ):
+            raise ValueError("acquisition_candidate_terminal_profile_missing")
+        reentry = verify_candidate_source_reentry_history(
+            artifact_store=self._artifact_store,
+            event_log=self._event_log,
+            control_store=self._control_store,
+            receipt_ref=terminal.candidate_reentry_ref,
+            expected_tenant_id=terminal.tenant_id,
+            expected_cell_id=terminal.cell_id,
+            expected_run_id=terminal.run_id,
+            expected_source_job_id=terminal.source_job_id,
+            expected_action_job_id=terminal.job_id,
+            expected_route_id=terminal.route_id,
+            expected_action_generation=terminal.action_generation,
+            expected_selected_action_ref=terminal.candidate_action_ref,
+        )
+        prior = self._candidate_prior_closure(terminal)
+        if prior.source_cycle.cycle_index != reentry.source_cycle_index:
+            raise ValueError("acquisition_candidate_prior_source_mismatch")
+        from polisyos.runtime.quality.generation_cycle import validate_candidate_source_continuation
+
+        validate_candidate_source_continuation(prior.generation_run, reentry)
+        owner = getattr(self._core_source_resolver, "__self__", None)
+        if type(owner) is not ControlPlaneService:
+            raise ValueError("acquisition_candidate_budget_owner_unavailable")
+        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.runtime.quality.candidate_acquisition_action import (
+            CandidateAcquisitionActionReceipt,
+        )
+
+        action = CandidateAcquisitionActionReceipt.model_validate(
+            load_core_json_artifact(self._artifact_store, terminal.candidate_action_ref)
+        )
+        owner.verify_candidate_source_budget_window_historical(closure=prior, action=action)
 
     def _persist_receipt(
         self,
         typed: AcquisitionRoutePhaseReceipt
+        | AcquisitionCandidateExperimentPhaseReceipt
+        | AcquisitionCandidateExperimentTerminalReceipt
         | AcquisitionRouteLoopReceipt
         | AcquisitionRouteLoopReceiptV2,
         *,
@@ -3150,12 +5363,36 @@ class AcquisitionRouteLoopAuthoritySink:
         event_type: str,
         event_suffix: str,
         receipt_type: type[AcquisitionRoutePhaseReceipt]
+        | type[AcquisitionCandidateExperimentPhaseReceipt]
         | type[AcquisitionRouteLoopReceipt]
-        | type[AcquisitionRouteLoopReceiptV2],
+        | type[AcquisitionRouteLoopReceiptV2]
+        | type[AcquisitionCandidateExperimentTerminalReceipt],
         receipt_label: str,
-    ) -> AcquisitionActionHeadRecord:
+        candidate_frontier_cas: AcquisitionEvaluationFrontierCAS | None = None,
+        candidate_experiment_request: object | None = None,
+        candidate_experiment_orphan_ref: ArtifactRef | None = None,
+    ) -> AcquisitionActionHeadRecord | _PreparedAcquisitionActionHeadPublication:
         """Persist one strict receipt family before advancing its shared action head."""
 
+        if (
+            isinstance(typed, AcquisitionCandidateRouteLoopReceipt)
+            and candidate_frontier_cas is None
+        ):
+            raise ValueError("acquisition_candidate_frontier_not_established")
+        if (
+            type(typed) is AcquisitionCandidateExperimentTerminalReceipt
+            and candidate_frontier_cas is not None
+        ):
+            raise ValueError("candidate_experiment_terminal_frontier_is_owner_derived")
+        if (
+            type(typed) is AcquisitionCandidateExperimentPhaseReceipt
+            and candidate_experiment_request is None
+        ):
+            self._verify_candidate_experiment_live_authority(typed)
+        elif type(typed) is AcquisitionCandidateExperimentPhaseReceipt:
+            self._verify_candidate_experiment_prejob_live_authority(
+                typed, candidate_experiment_request
+            )
         current = self.get_head(typed)
         if (current is None and typed.predecessor_receipt_ref is not None) or (
             current is not None and typed.predecessor_receipt_ref != current.receipt_ref
@@ -3165,14 +5402,36 @@ class AcquisitionRouteLoopAuthoritySink:
             previous = self.verify_action_head(current)
             if not self._same_action_identity(typed, previous.latest_receipt):
                 raise ValueError("acquisition_action_predecessor_identity_mismatch")
+            allowed = self._allowed_predecessor_phases(typed)
+            if allowed is None or current.receipt_phase not in allowed:
+                raise ValueError("acquisition_action_phase_transition_invalid")
+            if any(
+                item.receipt.receipt_phase == typed.receipt_phase for item in previous.phase_chain
+            ):
+                raise ValueError("acquisition_action_phase_duplicate")
+        elif self._allowed_predecessor_phases(typed) != frozenset():
+            raise ValueError("acquisition_action_phase_root_invalid")
         payload = typed.model_dump(mode="json")
         canon_spec = CanonSpec(forbid_floats=False)
         generated_at = typed.generated_at.isoformat()
         input_refs = _acquisition_route_receipt_inputs(typed)
-        result = write_runtime_authority_artifact(
+        writer = write_runtime_authority_artifact
+        writer_payload: object = payload
+        if isinstance(typed, AcquisitionCandidateRouteLoopReceipt):
+            from polisyos.runtime.http.services.control.artifacts import (
+                _recover_candidate_terminal_authority_artifact,
+            )
+            from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+                _require_candidate_terminal_recovery_intent,
+            )
+
+            _require_candidate_terminal_recovery_intent(typed)
+            writer = _recover_candidate_terminal_authority_artifact
+            writer_payload = typed
+        result = writer(
             self._artifact_store,
             self._event_log,
-            payload,
+            writer_payload,
             ArtifactWriteOptions(
                 kind=artifact_kind,
                 media_type="application/json",
@@ -3219,11 +5478,23 @@ class AcquisitionRouteLoopAuthoritySink:
             input_refs=input_refs,
             effective_mode_ref=typed.route_id,
             degradation_ledger_ref=None,
-            semantic_binding_ref=typed.cost_basis_hash,
+            semantic_binding_ref=(
+                str(typed.authority_decision_ref.artifact_id)
+                if type(typed)
+                in {
+                    AcquisitionCandidateExperimentPhaseReceipt,
+                    AcquisitionCandidateExperimentTerminalReceipt,
+                }
+                else typed.cost_basis_hash
+            ),
             validation_status="pass",
             blocking_status=(
                 "blocking"
                 if typed.recovery_state == "reentry_recovery_required"
+                or (
+                    type(typed) is AcquisitionCandidateExperimentTerminalReceipt
+                    and typed.terminal_outcome == "candidate_blocked"
+                )
                 else "non_blocking"
             ),
             governance=GovernanceMetadata(
@@ -3246,29 +5517,73 @@ class AcquisitionRouteLoopAuthoritySink:
             canon_spec=canon_spec,
         )
         receipt_ref = str(result.cas_ref.artifact_id)
+        selected_receipt = (
+            result.cas_ref
+            if isinstance(typed, AcquisitionCandidateRouteLoopReceipt)
+            or type(typed) is AcquisitionCandidateExperimentTerminalReceipt
+            else None
+        )
+        selected_experiment_phase = (
+            result.cas_ref if type(typed) is AcquisitionCandidateExperimentPhaseReceipt else None
+        )
+        selected_action_ref = selected_receipt or selected_experiment_phase
+        if selected_receipt is not None and (
+            selected_receipt.manifest_profile_sha256 is None
+            or set(type(selected_receipt).model_fields) - set(ArtifactRef.model_fields)
+        ):
+            raise ValueError("acquisition_candidate_terminal_profile_not_selected")
+        if selected_experiment_phase is not None and (
+            selected_experiment_phase.manifest_profile_sha256 is None
+            or set(type(selected_experiment_phase).model_fields) - set(ArtifactRef.model_fields)
+        ):
+            raise ValueError("candidate_experiment_phase_profile_not_selected")
+        if candidate_experiment_orphan_ref is not None and (
+            type(typed) is not AcquisitionCandidateExperimentTerminalReceipt
+            or selected_receipt is None
+            or artifacts.artifact_ref_identity_key(selected_receipt)
+            != artifacts.artifact_ref_identity_key(candidate_experiment_orphan_ref)
+        ):
+            raise ValueError("candidate_experiment_terminal_orphan_profile_changed")
         if result.payload_sha256 != receipt_ref.removeprefix("sha256:"):
             raise RuntimeError(f"acquisition_{receipt_label}_payload_hash_mismatch")
         report = reconcile_authority_ref(
             artifact_store=self._artifact_store,
             event_log=self._event_log,
-            cas_ref=receipt_ref,
+            cas_ref=selected_action_ref if selected_action_ref is not None else receipt_ref,
             expected_tenant_id=typed.tenant_id,
             expected_cell_id=typed.cell_id,
             expected_run_id=typed.run_id,
             expected_job_id=typed.job_id,
         )
         loaded = receipt_type.model_validate(
-            read_core_json_artifact(self._artifact_store, receipt_ref).value
+            read_core_json_artifact(
+                self._artifact_store,
+                selected_action_ref if selected_action_ref is not None else receipt_ref,
+            ).value
         )
-        manifest = read_core_manifest_profile(self._artifact_store, receipt_ref)[0]
+        manifest = read_core_manifest_profile(
+            self._artifact_store,
+            selected_action_ref if selected_action_ref is not None else receipt_ref,
+        )[0]
         schema = manifest.artifact_schema
+        if isinstance(typed, AcquisitionCandidateRouteLoopReceipt):
+            from polisyos.runtime.quality.acquisition_evaluation import _candidate_model_values_same
+
+            receipt_matches = _candidate_model_values_same(loaded, typed)
+        else:
+            receipt_matches = loaded == typed
         if (
-            loaded != typed
+            not receipt_matches
             or report.durable_event_id is None
             or manifest.kind != artifact_kind
             or schema is None
             or schema.name != schema_name
             or schema.version != typed.schema_version.rsplit("@", 1)[-1]
+            or (
+                selected_action_ref is not None
+                and artifacts.artifact_ref_identity_key(artifact_ref_for_manifest(manifest))
+                != artifacts.artifact_ref_identity_key(selected_action_ref)
+            )
         ):
             raise RuntimeError(f"acquisition_{receipt_label}_readback_failed")
         frontier_cas = None
@@ -3282,6 +5597,57 @@ class AcquisitionRouteLoopAuthoritySink:
                 artifact_store=self._artifact_store,
                 control_store=self._control_store,
             )
+        elif isinstance(typed, AcquisitionCandidateRouteLoopReceipt):
+            from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+                _require_candidate_terminal_recovery_intent,
+                candidate_terminal_frontier_cas,
+            )
+
+            _require_candidate_terminal_recovery_intent(typed)
+            frontier_cas = candidate_terminal_frontier_cas(
+                typed, artifact_store=self._artifact_store, control_store=self._control_store
+            )
+            if frontier_cas != candidate_frontier_cas or self.get_head(typed) != current:
+                raise ValueError("candidate_terminal_recovery_frontier_changed")
+        elif type(typed) is AcquisitionCandidateExperimentTerminalReceipt:
+            if current is None or current.receipt_phase != "candidate_input_reentry_pending":
+                raise ValueError("candidate_experiment_terminal_predecessor_not_current")
+            if selected_receipt is None:
+                raise ValueError("candidate_experiment_terminal_profile_not_selected")
+            from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+                candidate_experiment_terminal_frontier_cas,
+            )
+
+            frontier_cas = candidate_experiment_terminal_frontier_cas(
+                typed,
+                terminal_ref=selected_receipt,
+                artifact_store=self._artifact_store,
+                control_store=self._control_store,
+            )
+            if self.get_head(typed) != current:
+                raise ValueError("candidate_experiment_terminal_predecessor_changed")
+        elif type(typed) is AcquisitionCandidateExperimentPhaseReceipt:
+            if self.get_head(typed) != current:
+                raise ValueError("candidate_experiment_action_head_changed")
+            if candidate_experiment_request is not None:
+                self._verify_candidate_experiment_prejob_live_authority(
+                    typed, candidate_experiment_request
+                )
+                if (
+                    selected_experiment_phase is None
+                    or selected_experiment_phase.manifest_profile_sha256 is None
+                ):
+                    raise ValueError("candidate_experiment_phase_profile_not_selected")
+                return self._prepared_experiment_phase_publication(
+                    typed,
+                    candidate_experiment_request,
+                    receipt_ref=receipt_ref,
+                    receipt_manifest_profile_sha256=(
+                        selected_experiment_phase.manifest_profile_sha256
+                    ),
+                    durable_event_id=report.durable_event_id,
+                )
+            self._verify_candidate_experiment_live_authority(typed)
         head = self._control_store.advance_acquisition_action_head(
             tenant_id=typed.tenant_id,
             cell_id=typed.cell_id,
@@ -3299,11 +5665,25 @@ class AcquisitionRouteLoopAuthoritySink:
             job_id=typed.job_id,
             predecessor_receipt_ref=typed.predecessor_receipt_ref,
             frontier_cas=frontier_cas,
+            receipt_manifest_profile_sha256=(
+                selected_action_ref.manifest_profile_sha256
+                if selected_action_ref is not None
+                else None
+            ),
         )
         if self.get_head(typed) != head:
             raise RuntimeError("acquisition_action_head_readback_failed")
+        if selected_action_ref is not None and (
+            getattr(head, "receipt_manifest_profile_sha256", None)
+            != selected_action_ref.manifest_profile_sha256
+        ):
+            raise RuntimeError("acquisition_action_receipt_profile_readback_failed")
         verified = self.verify_action_head(head)
-        if verified.latest_receipt != typed:
+        if isinstance(typed, AcquisitionCandidateRouteLoopReceipt):
+            readback_matches = _candidate_model_values_same(verified.latest_receipt, typed)
+        else:
+            readback_matches = verified.latest_receipt == typed
+        if not readback_matches:
             raise RuntimeError("acquisition_action_chain_readback_failed")
         return head
 
@@ -3382,6 +5762,91 @@ class HumanDecisionAuthoritySink:
             governed_action_key=governed_action_key,
             reservation_version=reservation_version,
         )
+
+    def _human_decision_record_manifest_views(
+        self,
+    ) -> tuple[tuple[ArtifactRef, ArtifactManifest], ...]:
+        """Select complete, stable human-decision CAS manifest views before Core reads."""
+        from polisyos.core.artifacts.store import (
+            CASManifestInventoryEntry,
+            CASManifestInventorySnapshot,
+        )
+
+        kind = "runtime_quality.agent_action_human_decision"
+        inventory = getattr(self._artifact_store, "manifest_inventory_snapshot", None)
+        if not callable(inventory):
+            raise RuntimeError("human-decision reconciliation CAS manifest inventory unavailable")
+        snapshot = inventory(kind=kind)
+        if type(snapshot) is not CASManifestInventorySnapshot:
+            raise RuntimeError("human-decision reconciliation CAS manifest inventory untyped")
+        if snapshot.verdict != "pass":
+            raise RuntimeError(
+                "human-decision reconciliation CAS manifest scan failed"
+                + (f": {snapshot.reason}" if snapshot.reason else "")
+            )
+
+        selected: dict[
+            tuple[str, str, str, str | None],
+            tuple[ArtifactRef, ArtifactManifest, str, int],
+        ] = {}
+        for entry in snapshot.entries:
+            if type(entry) is not CASManifestInventoryEntry:
+                raise RuntimeError("human-decision reconciliation CAS manifest entry untyped")
+            manifest = entry.manifest
+            if manifest.kind != kind:
+                raise RuntimeError("human-decision reconciliation CAS manifest kind changed")
+            selected_ref = artifact_ref_for_manifest(manifest)
+            selected_identity = artifact_ref_identity_key(selected_ref)
+            if (
+                selected_ref.manifest_profile_sha256 != entry.manifest_profile_sha256
+                or (
+                    entry.artifact_ref.artifact_id
+                    if isinstance(entry.artifact_ref, ArtifactRef)
+                    else entry.artifact_ref
+                )
+                != selected_ref.artifact_id
+                or (
+                    isinstance(entry.artifact_ref, ArtifactRef)
+                    and artifact_ref_identity_key(entry.artifact_ref) != selected_identity
+                )
+            ):
+                raise RuntimeError("human-decision reconciliation CAS manifest identity changed")
+            observed = (
+                selected_ref,
+                manifest,
+                entry.manifest_sha256,
+                entry.manifest_byte_size,
+            )
+            existing = selected.get(selected_identity)
+            if existing is not None:
+                if existing != observed:
+                    raise RuntimeError(
+                        "human-decision reconciliation CAS manifest identity conflict"
+                    )
+                continue
+            selected[selected_identity] = observed
+
+        views: list[tuple[ArtifactRef, ArtifactManifest]] = []
+        for identity, (selected_ref, expected_manifest, _sha256, _size) in selected.items():
+            try:
+                actual_manifest, _declaration = read_core_manifest_profile(
+                    self._artifact_store,
+                    selected_ref,
+                    manifest_profile_sha256=selected_ref.manifest_profile_sha256,
+                )
+            except CanonicalProfileRefusalError:
+                raise
+            except Exception as exc:
+                raise RuntimeError(
+                    "human-decision reconciliation selected manifest read failed"
+                ) from exc
+            if (
+                artifact_ref_identity_key(artifact_ref_for_manifest(actual_manifest)) != identity
+                or actual_manifest != expected_manifest
+            ):
+                raise RuntimeError("human-decision reconciliation selected manifest changed")
+            views.append((selected_ref, actual_manifest))
+        return tuple(views)
 
     def hold_write_fence(
         self,
@@ -3566,20 +6031,10 @@ class HumanDecisionAuthoritySink:
                 reservation_id=reservation_id,
                 reservation_version=reservation_version,
             ) as fence:
-                matches: list[tuple[str, ArtifactManifest, Mapping[str, Any]]] = []
-                for artifact_id in self._artifact_store.iter_artifact_ids():
+                matches: list[tuple[ArtifactRef, ArtifactManifest, Mapping[str, Any]]] = []
+                for selected_ref, manifest in self._human_decision_record_manifest_views():
                     try:
-                        manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
-                    except CanonicalProfileRefusalError:
-                        raise
-                    except Exception as exc:
-                        raise RuntimeError(
-                            "human-decision recovery CAS manifest scan failed"
-                        ) from exc
-                    if manifest.kind != "runtime_quality.agent_action_human_decision":
-                        continue
-                    try:
-                        payload = read_core_json_artifact(self._artifact_store, artifact_id).value
+                        payload = read_core_json_artifact(self._artifact_store, selected_ref).value
                     except CanonicalProfileRefusalError:
                         raise
                     except Exception as exc:
@@ -3590,10 +6045,11 @@ class HumanDecisionAuthoritySink:
                         payload.get("reservation_id") == reservation_id
                         and payload.get("reservation_version") == reservation_version
                     ):
-                        matches.append((str(artifact_id), manifest, payload))
+                        matches.append((selected_ref, manifest, payload))
                 if len(matches) != 1:
                     raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-                record_ref, manifest, payload = matches[0]
+                selected_ref, manifest, payload = matches[0]
+                record_ref = str(selected_ref.artifact_id)
                 schema = manifest.artifact_schema
                 if (
                     schema is None
@@ -3620,7 +6076,7 @@ class HumanDecisionAuthoritySink:
                 ):
                     raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
                 signature = self.verify_artifact_signature(
-                    record_ref,
+                    selected_ref,
                     verifier,
                     strict_identity=True,
                 )
@@ -3665,7 +6121,7 @@ class HumanDecisionAuthoritySink:
                     payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True),
                 )
                 report = self.reconcile_authority_artifact(
-                    record_ref,
+                    selected_ref,
                     expected_tenant_id=tenant_id,
                     expected_cell_id=expected_cell_id,
                     expected_run_id=expected_run_id,
@@ -3707,17 +6163,9 @@ class HumanDecisionAuthoritySink:
             or reservation.durable_event_id is not None
         ):
             raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-        for artifact_id in self._artifact_store.iter_artifact_ids():
+        for selected_ref, _manifest in self._human_decision_record_manifest_views():
             try:
-                manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
-            except CanonicalProfileRefusalError:
-                raise
-            except Exception as exc:
-                raise RuntimeError("human-decision reconciliation CAS scan failed") from exc
-            if manifest.kind != "runtime_quality.agent_action_human_decision":
-                continue
-            try:
-                payload = read_core_json_artifact(self._artifact_store, artifact_id).value
+                payload = read_core_json_artifact(self._artifact_store, selected_ref).value
             except CanonicalProfileRefusalError:
                 raise
             except Exception as exc:
@@ -3776,7 +6224,7 @@ class HumanDecisionAuthoritySink:
 
     def reconcile_authority_artifact(
         self,
-        artifact_ref: str,
+        artifact_ref: str | ArtifactRef,
         *,
         expected_tenant_id: str | None,
         expected_cell_id: str | None,
@@ -3794,8 +6242,12 @@ class HumanDecisionAuthoritySink:
             expected_run_id=expected_run_id,
             expected_job_id=expected_job_id,
         )
-        artifact_id = artifacts.ArtifactID.model_validate(artifact_ref)
-        manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
+        record_ref = (
+            str(artifact_ref.artifact_id)
+            if isinstance(artifact_ref, ArtifactRef)
+            else str(artifacts.ArtifactID.model_validate(artifact_ref))
+        )
+        manifest = read_core_manifest_profile(self._artifact_store, artifact_ref)[0]
         authority = manifest.authority
         if authority is None:
             raise ValueError("human-decision authority manifest linkage is absent")
@@ -3820,7 +6272,7 @@ class HumanDecisionAuthoritySink:
         )
         if (
             report.durable_event_id != event.event_id
-            or event.payload_ref != artifact_ref
+            or event.payload_ref != record_ref
             or not any(getattr(record, "event", None) == event for record in durable_records)
         ):
             raise ValueError("human-decision diagnostic event binding changed")
@@ -3881,16 +6333,43 @@ class HumanDecisionAuthoritySink:
 
     def verify_artifact_signature(
         self,
-        artifact_ref: str,
+        artifact_ref: str | ArtifactRef,
         verifier: artifacts.Ed25519Verifier,
         *,
         strict_identity: bool = True,
     ) -> artifacts.SignatureVerificationResult:
-        """Verify exact bytes, manifest, key trust, and signer identity."""
-
-        return self._signed_artifact_store().verify_signature(
-            artifacts.ArtifactID.model_validate(artifact_ref),
+        """Verify the selected view; reuse a default signature only for identical manifest bytes."""
+        store = self._signed_artifact_store()
+        verification = store.verify_signature(
+            artifact_ref,
             verifier,
+            strict_identity=strict_identity,
+        )
+        if (
+            verification.status != artifacts.SignatureVerificationStatus.UNSIGNED
+            or not isinstance(artifact_ref, ArtifactRef)
+            or artifact_ref.manifest_profile_sha256 is None
+            or type(verifier) is not artifacts.Ed25519Verifier
+        ):
+            return verification
+
+        try:
+            selected_manifest_bytes = store.get_manifest_bytes(artifact_ref)
+            default_manifest_bytes = store.get_manifest_bytes(artifact_ref.artifact_id)
+            if selected_manifest_bytes != default_manifest_bytes:
+                return verification
+            default_signature = store.get_signature(artifact_ref.artifact_id)
+            if type(default_signature) is not artifacts.DetachedSignature:
+                return verification
+            selected_payload_bytes = self._artifact_store.get_bytes(artifact_ref)
+        except Exception:
+            return verification
+
+        return verifier.verify(
+            artifact_ref.artifact_id,
+            selected_payload_bytes,
+            selected_manifest_bytes,
+            default_signature,
             strict_identity=strict_identity,
         )
 
@@ -3989,6 +6468,11 @@ class ControlPlaneService(
         published_signature_population_provider: PublicSignaturePopulationProvider | None = None,
         normative_authority_trust: NormativeAuthorityTrust | None = None,
         llm_producer_settlement_store: BudgetMiddleware | None = None,
+        workflow_continuation_registry: NodeRegistry | None = None,
+        workflow_continuation_ledger: BudgetLedger | None = None,
+        workflow_continuation_access_scope: AccessScope | None = None,
+        workflow_continuation_profile: Literal["reconciled_local_v1", "single_owner_local_v1"]
+        | None = None,
         llm_cache_reuse_authorizer: CacheReuseAuthorizer | None = None,
         llm_prompt_cache: PromptCacheProtocol | None = None,
         cycle_substrate_context_admission_owner: _CycleSubstrateContextAdmissionOwner | None = None,
@@ -4001,6 +6485,48 @@ class ControlPlaneService(
 
         self._cas_root = cas_root
         self._core_runs_root = core_runs_root
+        from polisyos.scientist.orchestration.engine import (
+            FileBudgetLedger as _WorkflowFileBudgetLedger,
+        )
+        from polisyos.scientist.orchestration.engine import (
+            NodeRegistry as _WorkflowNodeRegistry,
+        )
+
+        if workflow_continuation_registry is not None and not isinstance(
+            workflow_continuation_registry, _WorkflowNodeRegistry
+        ):
+            raise TypeError("workflow_continuation_registry_must_be_node_registry")
+        if (
+            workflow_continuation_ledger is not None
+            and type(workflow_continuation_ledger) is not _WorkflowFileBudgetLedger
+        ):
+            raise TypeError("workflow_continuation_ledger_requires_file_backend")
+        if workflow_continuation_access_scope is not None and not isinstance(
+            workflow_continuation_access_scope, AccessScope
+        ):
+            raise TypeError("workflow_continuation_access_scope_must_be_access_scope")
+        if workflow_continuation_profile not in (
+            None,
+            "reconciled_local_v1",
+            "single_owner_local_v1",
+        ):
+            raise ValueError("workflow_continuation_profile_invalid")
+        if workflow_continuation_profile is not None and workflow_continuation_access_scope is None:
+            raise ValueError("workflow_continuation_profile_requires_scope")
+        if (
+            workflow_continuation_profile == "single_owner_local_v1"
+            and workflow_continuation_ledger is None
+        ):
+            raise ValueError("workflow_continuation_profile_requires_ledger_and_scope")
+        if (
+            workflow_continuation_profile == "reconciled_local_v1"
+            and workflow_continuation_ledger is not None
+        ):
+            raise ValueError("workflow_unbudgeted_continuation_received_ledger")
+        self._workflow_continuation_registry = workflow_continuation_registry
+        self._workflow_continuation_ledger = workflow_continuation_ledger
+        self._workflow_continuation_access_scope = workflow_continuation_access_scope
+        self._workflow_continuation_profile = workflow_continuation_profile
         if (
             llm_producer_settlement_store is not None
             and type(llm_producer_settlement_store) is not BudgetMiddleware
@@ -4257,6 +6783,7 @@ class ControlPlaneService(
             artifact_store=self._artifact_store,
             event_log=self._diagnostic_event_log,
             control_store=self._control_store,
+            core_source_resolver=self.resolve_completed_control_job_core_run_source,
         )
         self._acquisition_job_handler: (
             Callable[
@@ -4682,8 +7209,11 @@ class ControlPlaneService(
         model_name: str,
         trusted_source_context: Mapping[str, object | None] | None = None,
         execution_intent: ExecutionIntent | None = None,
-        joint_interaction_candidate_intent: Literal["n4_unique_parent_source_members.v1"]
+        joint_interaction_candidate_intent: Literal[
+            "n4_unique_parent_source_members.v1", "authored_joint_components.v1"
+        ]
         | None = None,
+        joint_interaction_request_payload_ref: ArtifactRef | None = None,
         n4_proposal_only: bool = False,
         n4_proposal_only_origin: Literal["explicit", "derived_legacy_default"] = "explicit",
         producer_run_id: str | None = None,
@@ -4722,7 +7252,18 @@ class ControlPlaneService(
         )
 
         producer_budget_reconciler = None
+        physical_n5_budget_scope = None
         if producer_run_binding is not None:
+            physical_n5_budget_scope = self._current_verified_nl_budget_scope()
+            if (
+                physical_n5_budget_scope.run_id != producer_run_binding.run_id
+                or physical_n5_budget_scope.tenant_id != producer_run_binding.tenant_id
+                or physical_n5_budget_scope.cell_id != producer_run_binding.cell_id
+                or physical_n5_budget_scope.job_id != producer_run_binding.control_job_id
+                or physical_n5_budget_scope.effective_execution_profile
+                != producer_run_binding.profile_id
+            ):
+                raise ValueError("nl_physical_budget_scope_run_binding_mismatch")
             if producer_run_id != producer_run_binding.run_id:
                 from polisyos.runtime.quality.generation_cycle import (
                     GenerationCycleError,
@@ -4740,6 +7281,7 @@ class ControlPlaneService(
                 settlement_store=settlement_store,
                 producer_run_binding=producer_run_binding,
                 budget_state=budget_state,
+                invocation_guard_binding=physical_n5_budget_scope,
             )
 
         return await run_catalog_source_awaitable(
@@ -4751,6 +7293,7 @@ class ControlPlaneService(
                 model_name=model_name,
                 execution_intent=execution_intent,
                 joint_interaction_candidate_intent=joint_interaction_candidate_intent,
+                joint_interaction_request_payload_ref=joint_interaction_request_payload_ref,
                 n4_proposal_only=n4_proposal_only,
                 n4_proposal_only_origin=n4_proposal_only_origin,
                 producer_run_id=producer_run_id,
@@ -4761,6 +7304,7 @@ class ControlPlaneService(
                 recursive_budget=recursive_budget,
                 recursive_budget_resolution=recursive_budget_resolution,
                 target_world_scope_profile_id=target_world_scope_profile_id,
+                capability_resolver=self._registry_providers.capability_resolver,
                 catalog_run_profile=self._catalog_run_profile,
                 catalog_serving_source=self._catalog_serving_source,
                 cycle_substrate_context_resolver=cycle_substrate_context_resolver,
@@ -4782,6 +7326,7 @@ class ControlPlaneService(
                     generic_cycle_simulation_currentness_resolver
                 ),
                 verified_nl_job_scope=verified_nl_job_scope,
+                physical_n5_budget_scope=physical_n5_budget_scope,
                 n4_recursive_source=n4_recursive_source,
                 generation_source_repository=GenerationSourceRepository(self._artifact_store),
                 recursive_leaf_context_owner=recursive_leaf_context_owner,
@@ -4909,6 +7454,710 @@ class ControlPlaneService(
             tenant_id=tenant_id,
             cell_id=cell_id,
         )
+
+    def verify_acquisition_source_budget_owner(
+        self,
+        *,
+        closure: _AcquisitionSourceBudgetIdentity,
+    ) -> BudgetLedgerProducerRunBinding:
+        """Read the completed NL producer and its existing settlement owner."""
+        from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding
+
+        source_job_id, run_id = closure.source_job_id, closure.run_id
+        tenant_id, cell_id = closure.tenant_id, closure.cell_id
+        job = self._control_store.get_job(source_job_id)
+        if (
+            job is None
+            or job.kind != "natural_language_run"
+            or job.state != "completed"
+            or job.run_id != run_id
+            or job.capability_manifest_ref != closure.capability_manifest_ref
+        ):
+            raise ValueError("acquisition_source_budget_job_not_established")
+        scope = self._control_store.historical_completed_job_execution_scope(
+            job_id=source_job_id, expected_run_id=run_id
+        )
+        if (
+            scope.status != "established"
+            or scope.actor_authenticated is not True
+            or scope.tenant_id != tenant_id
+            or scope.cell_id != cell_id
+        ):
+            raise ValueError("acquisition_source_budget_scope_not_established")
+        self.resolve_completed_control_job_core_run_source(
+            job, expected_control_run_id=run_id, tenant_id=tenant_id, cell_id=cell_id
+        )
+        if self._llm_producer_settlement_store is None:
+            raise ValueError("acquisition_source_budget_settlement_not_established")
+        return BudgetLedgerProducerRunBinding(
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            profile_id=job.effective_execution_profile,
+            control_job_id=source_job_id,
+        )
+
+    def _current_verified_nl_budget_scope(self) -> VerifiedNLJobBudgetScope:
+        """Reissue financial scope from the exact current NL owner and lease."""
+        from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobBudgetScope
+
+        if type(self) is not ControlPlaneService:
+            raise ValueError("nl_physical_budget_scope_owner_not_established")
+        admission = self._control_store.current_execution_job_admission()
+        job, scope = admission.job, admission.scope
+        if (
+            job.kind != "natural_language_run"
+            or job.state != "running"
+            or not job.payload_ref
+            or not job.capability_manifest_ref
+            or scope.status != "established"
+            or scope.actor_authenticated is not True
+        ):
+            raise ValueError("nl_physical_budget_scope_owner_not_established")
+        payload = self._payload_for_execution_scope(
+            self._load_control_nl_job_payload(job), job=job, execution_scope=scope
+        )
+        manifest_ref, manifest = self._resolve_capability_manifest_for_execution(
+            job=job, admission=admission, execution_scope=scope
+        )
+        binding = self._require_nl_job_execution_intent_binding(
+            job=job,
+            admission=admission,
+            execution_scope=scope,
+            payload=payload,
+            capability_manifest_ref=manifest_ref,
+            capability_manifest=manifest,
+        )
+        issued = binding.get("_verified_nl_job_budget_scope")
+        if (
+            type(issued) is not VerifiedNLJobBudgetScope
+            or not issued._was_issued_by_verified_nl_budget_owner
+            or issued._budget_scope_owner is not self
+        ):
+            raise ValueError("nl_physical_budget_scope_owner_not_established")
+        after = self._control_store.current_execution_job_admission()
+        if (
+            after.job.job_id != job.job_id
+            or after.job.run_id != job.run_id
+            or after.job.lease_owner != job.lease_owner
+            or after.job.attempt != job.attempt
+            or after.job.payload_ref != job.payload_ref
+            or after.job.capability_manifest_ref != job.capability_manifest_ref
+            or after.scope != scope
+        ):
+            raise ValueError("nl_physical_budget_scope_owner_changed")
+        return issued
+
+    def revalidate_verified_nl_budget_scope(
+        self, verified_scope: VerifiedNLJobBudgetScope
+    ) -> Literal[
+        "legacy_omitted",
+        "hard_total_usd",
+        "explicit_null",
+        "metered_paid_producers_and_bounded_candidate",
+    ]:
+        """Reopen the current NL worker's original signed budget scope for N5."""
+        from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobBudgetScope
+
+        if (
+            type(verified_scope) is not VerifiedNLJobBudgetScope
+            or not verified_scope._was_issued_by_verified_nl_budget_owner
+            or verified_scope._budget_scope_owner is not self
+        ):
+            raise ValueError("nl_physical_budget_scope_owner_not_established")
+        replayed = self._current_verified_nl_budget_scope()
+        if replayed._budget_scope_identity() != verified_scope._budget_scope_identity():
+            raise ValueError("nl_physical_budget_scope_replay_mismatch")
+        if not verified_scope.run_budget_scope_present:
+            return "legacy_omitted"
+        if verified_scope.run_budget_scope is None:
+            return "explicit_null"
+        if (
+            verified_scope.run_budget_scope == "metered_paid_producers_and_bounded_candidate"
+            and verified_scope.run_budget_usd is None
+        ):
+            raise ValueError("nl_physical_budget_cap_not_established")
+        return verified_scope.run_budget_scope
+
+    def acquisition_source_global_budget_usd(
+        self, *, closure: _AcquisitionSourceBudgetIdentity
+    ) -> Decimal:
+        """Resolve the original admitted NL run cap from its owned payload."""
+        from decimal import Decimal, InvalidOperation
+
+        from polisyos.core.artifacts import ArtifactID, load_core_json_artifact
+
+        self.verify_acquisition_source_budget_owner(closure=closure)
+        job = self._control_store.get_job(closure.source_job_id)
+        if job is None or job.payload_ref != closure.source_payload_ref:
+            raise ValueError("acquisition_source_budget_payload_changed")
+        selector = ArtifactID.model_validate(closure.source_payload_ref)
+        manifest = self._artifact_store.get_manifest(selector)
+        if (
+            manifest.kind != "runtime.control_job_payload.natural_language_run"
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.name != "polisyos.runtime.ControlJobPayload"
+        ):
+            raise ValueError("acquisition_source_budget_payload_unverified")
+        payload = load_core_json_artifact(self._artifact_store, selector)
+        if not isinstance(payload, dict) or any(
+            payload.get(name) != getattr(closure, name)
+            for name in ("tenant_id", "cell_id", "run_id")
+        ):
+            raise ValueError("acquisition_source_budget_payload_scope_mismatch")
+        try:
+            value = payload.get("run_budget_usd")
+            budget = Decimal("5" if value is None else str(value))
+        except (InvalidOperation, ValueError) as exc:
+            raise ValueError("acquisition_source_budget_cap_invalid") from exc
+        if not budget.is_finite() or budget < 0:
+            raise ValueError("acquisition_source_budget_cap_invalid")
+        return budget
+
+    def read_original_run_budget_scope(
+        self, *, closure: _AcquisitionSourceBudgetIdentity
+    ) -> OriginalRunBudgetScopeEvidence:
+        """Replay the original NL budget choice without inventing a live lease.
+
+        Legacy omission remains distinct; explicit choices require the admitted
+        request snapshot. No returned scope is an execution permit.
+        """
+        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.runtime.http.services.control.job_attempt_publication import (
+            _build_control_execution_intent_binding,
+        )
+
+        self.acquisition_source_global_budget_usd(closure=closure)
+        job = self._control_store.get_job(closure.source_job_id)
+        if job is None or job.payload_ref != closure.source_payload_ref:
+            raise ValueError("candidate_unpriced_budget_source_changed")
+        scope = self._control_store.historical_completed_job_execution_scope(
+            job_id=job.job_id, expected_run_id=closure.run_id
+        )
+        payload = load_core_json_artifact(self._artifact_store, job.payload_ref)
+        if not isinstance(payload, dict):
+            raise ValueError("candidate_unpriced_budget_source_not_established")
+        raw_cap = payload.get("run_budget_usd")
+        try:
+            cap = None if raw_cap is None else Decimal(str(raw_cap))
+        except (InvalidOperation, ValueError, TypeError) as exc:
+            raise ValueError("candidate_unpriced_budget_scope_not_established") from exc
+        if cap is not None and (not cap.is_finite() or cap < 0):
+            raise ValueError("candidate_unpriced_budget_scope_not_established")
+        if "run_budget_scope" not in payload and "candidate_acquisition_intent" not in payload:
+            original_snapshot = payload.get("nl_request_snapshot")
+            if isinstance(original_snapshot, Mapping):
+                original_request = original_snapshot.get("request")
+                if original_snapshot.get("schema_version") in {
+                    "polisyos.runtime.control_nl_request_snapshot.v4",
+                    "polisyos.runtime.control_nl_request_snapshot.v5",
+                } or (
+                    isinstance(original_request, Mapping)
+                    and (
+                        "run_budget_scope" in original_request
+                        or "candidate_acquisition_intent" in original_request
+                    )
+                ):
+                    raise ValueError("candidate_unpriced_budget_scope_not_established")
+            if self._control_store.get_job(job.job_id) != job:
+                raise ValueError("candidate_unpriced_budget_source_changed")
+            return OriginalRunBudgetScopeEvidence(
+                tenant_id=closure.tenant_id,
+                cell_id=closure.cell_id,
+                run_id=closure.run_id,
+                source_job_id=job.job_id,
+                source_payload_ref=job.payload_ref,
+                run_budget_usd=cap,
+                scope_explicit=False,
+                run_budget_scope=None,
+                request_snapshot_schema=None,
+                request_content_hash=None,
+            )
+        event = self._control_store.get_job_created_event_payload(job.job_id)
+        manifest_ref = event.get("capability_manifest_ref")
+        if not isinstance(manifest_ref, str):
+            raise ValueError("candidate_unpriced_budget_source_not_established")
+        manifest = load_core_json_artifact(self._artifact_store, manifest_ref)
+        actor = manifest.get("actor") if isinstance(manifest, dict) else None
+        roles = actor.get("roles") if isinstance(actor, Mapping) else None
+        if (
+            not isinstance(actor, Mapping)
+            or not isinstance(roles, (list, tuple))
+            or any(not isinstance(role, str) for role in roles)
+            or actor.get("authenticated") is not True
+            or actor.get("subject") != scope.actor_subject
+            or actor.get("tenant_id") != closure.tenant_id
+            or actor.get("cell_id") != closure.cell_id
+            or tuple(sorted(roles)) != scope.actor_roles
+            or manifest.get("job_id") != job.job_id
+            or manifest.get("run_id") != closure.run_id
+            or manifest.get("payload_ref") != job.payload_ref
+            or event.get("payload_ref") != job.payload_ref
+            or any(
+                payload.get(name) != getattr(closure, name)
+                for name in ("tenant_id", "cell_id", "run_id")
+            )
+            or payload.get("run_budget_scope")
+            not in {None, "hard_total_usd", "metered_paid_producers_and_bounded_candidate"}
+            or payload.get("candidate_acquisition_intent")
+            not in {None, "bounded_experiment_voi_unknown"}
+        ):
+            raise ValueError("candidate_unpriced_budget_scope_not_established")
+        binding = _build_control_execution_intent_binding(
+            payload, job_id=job.job_id, run_id=closure.run_id, actor=actor
+        )
+        receipt = binding.get("authorization_receipt")
+        snapshot = payload.get("nl_request_snapshot")
+        if (
+            binding.get("admission_status") != "established"
+            or binding.get("actor_authenticated") is not True
+            or binding.get("tenant_id") != closure.tenant_id
+            or binding.get("cell_id") != closure.cell_id
+            or payload.get("execution_intent_binding") != binding
+            or event.get("execution_intent_binding") != binding
+            or event.get("intent_digest") != binding.get("intent_digest")
+            or not isinstance(receipt, Mapping)
+            or not isinstance(snapshot, Mapping)
+            or snapshot.get("schema_version")
+            != (
+                "polisyos.runtime.control_nl_request_snapshot.v5"
+                if "candidate_acquisition_intent" in payload
+                else "polisyos.runtime.control_nl_request_snapshot.v4"
+            )
+            or not isinstance(receipt.get("request_content_hash"), str)
+        ):
+            raise ValueError("candidate_unpriced_budget_scope_not_established")
+        if self._control_store.get_job(job.job_id) != job:
+            raise ValueError("candidate_unpriced_budget_source_changed")
+        return OriginalRunBudgetScopeEvidence(
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            source_job_id=job.job_id,
+            source_payload_ref=job.payload_ref,
+            run_budget_usd=cap,
+            scope_explicit="run_budget_scope" in payload,
+            run_budget_scope=payload.get("run_budget_scope"),
+            request_snapshot_schema=snapshot["schema_version"],
+            request_content_hash=receipt["request_content_hash"],
+            candidate_acquisition_intent_present="candidate_acquisition_intent" in payload,
+            candidate_acquisition_intent=payload.get("candidate_acquisition_intent"),
+        )
+
+    def verify_candidate_experiment_intent(
+        self, *, closure: _AcquisitionSourceBudgetIdentity
+    ) -> OriginalRunBudgetScopeEvidence:
+        """Replay the explicit experiment and original limited budget; not a permit."""
+        evidence = self.verify_candidate_unpriced_budget_scope(closure=closure)
+        if (
+            not evidence.candidate_acquisition_intent_present
+            or evidence.candidate_acquisition_intent != "bounded_experiment_voi_unknown"
+            or evidence.request_snapshot_schema != "polisyos.runtime.control_nl_request_snapshot.v5"
+        ):
+            raise ValueError("candidate_experiment_intent_not_established")
+        return evidence
+
+    def verify_candidate_unpriced_budget_scope(
+        self, *, closure: _AcquisitionSourceBudgetIdentity
+    ) -> OriginalRunBudgetScopeEvidence:
+        """Require the explicitly authorized limited-candidate budget scope."""
+        evidence = self.read_original_run_budget_scope(closure=closure)
+        if (
+            not evidence.scope_explicit
+            or evidence.run_budget_scope != "metered_paid_producers_and_bounded_candidate"
+            or evidence.run_budget_usd is None
+        ):
+            raise ValueError("candidate_unpriced_budget_scope_not_established")
+        return evidence
+
+    def verify_candidate_source_budget_window_historical(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        action: CandidateAcquisitionActionReceipt,
+    ) -> None:
+        """Reopen the source-ledger window without renewing its baseline or lease."""
+        from polisyos.scientist.orchestration.engine import (
+            BudgetLedgerReentryBudgetScope,
+        )
+
+        if (
+            action.tenant_id != closure.tenant_id
+            or action.cell_id != closure.cell_id
+            or action.run_id != closure.run_id
+            or action.source_job_id != closure.source_job_id
+            or action.route_id != closure.route_id
+            or action.selection.design_problem_ref != closure.design_problem_ref
+        ):
+            raise ValueError("acquisition_source_budget_history_scope_mismatch")
+        binding = self.verify_acquisition_source_budget_owner(closure=closure)
+        scope = BudgetLedgerReentryBudgetScope(
+            run_binding=binding,
+            action_job_id=action.action_job_id,
+            route_id=action.route_id,
+            action_generation=action.action_generation,
+            action_phase_ref=action.action_phase_ref,
+            source_payload_ref=closure.source_payload_ref,
+            profile_selection_ref=action.profile_selection_ref,
+        )
+        store = self._llm_producer_settlement_store
+        if type(store) is not BudgetMiddleware:
+            raise ValueError("acquisition_source_budget_settlement_not_established")
+        window = store.resolve_reentry_budget_window_safe(scope)
+        if (
+            window is None
+            or window.scope != scope
+            or window.window_id != action.candidate_budget_window_id
+            or window.record_digest != action.candidate_budget_window_digest
+            or window.fresh_limit_usd != action.selection.reentry_budget_usd
+            or window.global_limit_usd != self.acquisition_source_global_budget_usd(closure=closure)
+        ):
+            raise ValueError("acquisition_source_budget_history_window_mismatch")
+
+    def verify_completed_recursive_capacity_partial(
+        self,
+        *,
+        source_job_id: str,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+        partial: RecursiveGenerationCyclePartialRunV4,
+    ) -> bool:
+        """Verify a completed NL job's capacity stop without creating a budget observer."""
+        from polisyos.core.artifacts import artifact_ref_identity_key, load_core_json_artifact
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            CompiledRecursiveGenerationCycleRun,
+        )
+        from polisyos.runtime.quality.generation_cycle import (
+            resolve_generic_n5_historical_cycle_join,
+        )
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleN5RequestProfileV3,
+        )
+        from polisyos.runtime.quality.recursive_generation_cycle import (
+            RecursiveCycleNode,
+            RecursiveGenerationCyclePartialRunV4,
+            verify_recursive_standard_n5_capacity_partial_run_historical,
+        )
+        from polisyos.scientist.orchestration.engine import (
+            BudgetLedgerProducerRunBinding,
+        )
+
+        if type(partial) is not RecursiveGenerationCyclePartialRunV4:
+            raise ValueError("recursive_capacity_historical_partial_untyped")
+        job = self._control_store.get_job(source_job_id)
+        if (
+            job is None
+            or job.kind != "natural_language_run"
+            or job.state != "completed"
+            or job.run_id != run_id
+        ):
+            raise ValueError("recursive_capacity_historical_job_not_completed")
+        scope = self._control_store.historical_completed_job_execution_scope(
+            job_id=source_job_id, expected_run_id=run_id
+        )
+        if (
+            scope.status != "established"
+            or scope.actor_authenticated is not True
+            or scope.tenant_id != tenant_id
+            or scope.cell_id != cell_id
+        ):
+            raise ValueError("recursive_capacity_historical_scope_mismatch")
+        terminal = self.resolve_completed_control_job_core_run_source(
+            job, expected_control_run_id=run_id, tenant_id=tenant_id, cell_id=cell_id
+        )
+        selected = artifacts.ArtifactRef.model_validate(
+            job.progress.get("compiled_recursive_generation_cycle_artifact_ref")
+        )
+        outputs = tuple(
+            ref
+            for ref in terminal.manifest.outputs
+            if ref.kind == "runtime.compiled_recursive_generation_cycle"
+        )
+        if (
+            terminal.manifest.status != "ok"
+            or len(outputs) != 1
+            or selected.manifest_profile_sha256 is None
+            or artifact_ref_identity_key(selected) != artifact_ref_identity_key(outputs[0])
+            or job.progress.get("compiled_recursive_generation_cycle_ref")
+            != str(selected.artifact_id)
+        ):
+            raise ValueError("recursive_capacity_historical_output_not_selected")
+        compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+            load_core_json_artifact(self._artifact_store, selected)
+        )
+        if (
+            compiled.recursive_run != partial
+            or compiled.generic_cycle_simulation_handoff is None
+            or compiled.n4_child_profile_set_ref is None
+            or compiled.n4_recursive_source_ref is None
+            or compiled.n4_recursive_source_job_id != source_job_id
+            or compiled.n4_recursive_source_run_id != run_id
+            or compiled.n4_recursive_source_tenant_id != tenant_id
+            or compiled.n4_recursive_source_cell_id != cell_id
+        ):
+            raise ValueError("recursive_capacity_historical_compiled_binding_mismatch")
+        policies = []
+        for node in partial.nodes:
+            if not isinstance(node, RecursiveCycleNode) or node.cycle_run is None:
+                continue
+            for cycle in node.cycle_run.cycles:
+                if cycle.simulation.simulation_result_ref is None:
+                    continue
+                if node.leaf_context_ref is None:
+                    raise ValueError("recursive_capacity_historical_leaf_context_missing")
+                join = resolve_generic_n5_historical_cycle_join(
+                    artifact_store=self._artifact_store,
+                    cycle_run=node.cycle_run,
+                    cycle_index=cycle.cycle_index,
+                    node_ref=node.node_ref,
+                    leaf_context_ref=node.leaf_context_ref,
+                    child_profile_set_ref=compiled.n4_child_profile_set_ref,
+                    expected_parent_handoff=compiled.generic_cycle_simulation_handoff,
+                    expected_parent_problem=compiled.design_problem,
+                    expected_parent_n4_source_ref=compiled.n4_recursive_source_ref,
+                    expected_job_id=source_job_id,
+                    expected_run_id=run_id,
+                    expected_tenant_id=tenant_id,
+                    expected_cell_id=cell_id,
+                )
+                if join.status != "resolved" or join.input_record is None:
+                    raise ValueError("recursive_capacity_historical_n5_join_unavailable")
+                n5 = join.input_record.profile.n5
+                if (
+                    type(n5) is not GenericCycleN5RequestProfileV3
+                    or n5.invocation_quota_policy is None
+                    or n5.invocation_purpose != "standard"
+                ):
+                    raise ValueError("recursive_capacity_historical_policy_unavailable")
+                policies.append(n5.invocation_quota_policy)
+        if not policies or any(policy != policies[0] for policy in policies[1:]):
+            raise ValueError("recursive_capacity_historical_policy_ambiguous")
+        store = self._llm_producer_settlement_store
+        if type(store) is not BudgetMiddleware:
+            raise ValueError("recursive_capacity_historical_ledger_unavailable")
+        binding = BudgetLedgerProducerRunBinding(
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            profile_id=job.effective_execution_profile,
+            control_job_id=source_job_id,
+        )
+        return verify_recursive_standard_n5_capacity_partial_run_historical(
+            partial,
+            settlement_store=store,
+            expected_run_binding=binding,
+            expected_policy=policies[0],
+            store=self._artifact_store,
+        )
+
+    def build_acquisition_source_budget_observer(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        budget_state: BudgetState,
+        reentry_budget_scope: BudgetLedgerReentryBudgetScope,
+    ) -> ProducerBudgetObserver:
+        """Bind the verified NL producer to the current acquisition worker."""
+        from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
+
+        binding = self.verify_acquisition_source_budget_owner(closure=closure)
+        if reentry_budget_scope.run_binding != binding:
+            raise ValueError("acquisition_source_budget_window_binding_mismatch")
+        run_id, tenant_id, cell_id = closure.run_id, closure.tenant_id, closure.cell_id
+        admission = self._control_store.current_execution_job_admission()
+        if (
+            admission.job.kind != "acquisition"
+            or admission.job.state != "running"
+            or admission.job.run_id != run_id
+            or admission.scope.status != "established"
+            or admission.scope.actor_authenticated is not True
+            or admission.scope.tenant_id != tenant_id
+            or admission.scope.cell_id != cell_id
+        ):
+            raise ValueError("acquisition_source_budget_action_not_established")
+        current = AcquisitionRouteLoop(
+            control_store=self._control_store,
+            artifact_store=self._artifact_store,
+            event_log=self._diagnostic_event_log,
+            core_source_resolver=self.resolve_completed_control_job_core_run_source,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            action_outcome_reader=self.acquisition_route_sink,
+        ).resolve_current_route(run_id=run_id, action_job_id=admission.job.job_id)
+        if current != closure:
+            raise ValueError("acquisition_source_budget_route_changed")
+        settlement_store = self._llm_producer_settlement_store
+        if settlement_store is None:
+            raise ValueError("acquisition_source_budget_settlement_not_established")
+        return _build_control_nl_producer_budget_reconciler(
+            settlement_store=settlement_store,
+            producer_run_binding=binding,
+            budget_state=budget_state,
+            reentry_budget_scope=reentry_budget_scope,
+        )
+
+    def build_candidate_experiment_source_budget_observer(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+        budget_state: BudgetState,
+        reentry_budget_scope: BudgetLedgerReentryBudgetScope,
+    ) -> ProducerBudgetObserver:
+        """Bind the completed NL ledger to the current candidate phase and lease."""
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionActionService,
+        )
+        from polisyos.runtime.http.services.acquisition_surface_execution import (
+            WorldBankWDIAcquisitionExecutionPort,
+        )
+        from polisyos.runtime.quality.acquisition_route_loop import (
+            VerifiedCandidateExperimentOrigin,
+        )
+        from polisyos.runtime.quality.candidate_acquisition_action import (
+            _current_candidate_experiment_action,
+        )
+        from polisyos.scientist.orchestration.engine import (
+            BudgetLedgerReentryBudgetScope,
+        )
+
+        if type(origin) is not VerifiedCandidateExperimentOrigin:
+            raise TypeError("candidate_experiment_budget_origin_untyped")
+        if type(reentry_budget_scope) is not BudgetLedgerReentryBudgetScope:
+            raise TypeError("candidate_experiment_budget_scope_untyped")
+        binding = self.verify_acquisition_source_budget_owner(closure=origin)
+        if (
+            reentry_budget_scope.run_binding != binding
+            or reentry_budget_scope.source_payload_ref != origin.source_payload_ref
+            or reentry_budget_scope.route_id != origin.route_id
+        ):
+            raise ValueError("candidate_experiment_budget_window_binding_mismatch")
+        handler = getattr(self, "_acquisition_job_handler", None)
+        action_service = getattr(handler, "__self__", None)
+        port = getattr(action_service, "_production_execution_port", None)
+        if (
+            type(action_service) is not AcquisitionActionService
+            or action_service.control_service is not self
+            or type(port) is not WorldBankWDIAcquisitionExecutionPort
+            or action_service._execution_port is not port
+        ):
+            raise ValueError("candidate_experiment_budget_execution_owner_not_current")
+        bridge = port._world_growth_bridge
+        selection, phase, admission = _current_candidate_experiment_action(
+            bridge, origin, reentry_budget_scope.action_phase_ref
+        )
+        if (
+            reentry_budget_scope.action_job_id != phase.job_id
+            or reentry_budget_scope.action_generation != phase.action_generation
+            or reentry_budget_scope.route_id != phase.route_id
+            or reentry_budget_scope.profile_selection_ref != selection.profile_selection_ref
+            or admission.job.job_id != phase.job_id
+            or admission.job.state != "running"
+        ):
+            raise ValueError("candidate_experiment_budget_action_binding_mismatch")
+        settlement_store = self._llm_producer_settlement_store
+        if type(settlement_store) is not BudgetMiddleware:
+            raise ValueError("candidate_experiment_budget_settlement_not_established")
+        observer = _build_control_nl_producer_budget_reconciler(
+            settlement_store=settlement_store,
+            producer_run_binding=binding,
+            budget_state=budget_state,
+            reentry_budget_scope=reentry_budget_scope,
+        )
+        ProducerBudgetObserver.require_bound_state(observer, budget_state)
+        return observer
+
+    def build_candidate_experiment_reentry_budget_observer(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+        candidate_action_ref: ArtifactRef,
+        budget_state: BudgetState,
+        reentry_budget_scope: BudgetLedgerReentryBudgetScope,
+    ) -> ProducerBudgetObserver:
+        """Bind the completed NL ledger to the selected pending action and live lease."""
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionActionService,
+        )
+        from polisyos.runtime.http.services.acquisition_surface_execution import (
+            WorldBankWDIAcquisitionExecutionPort,
+        )
+        from polisyos.runtime.quality.acquisition_route_loop import (
+            VerifiedCandidateExperimentOrigin,
+        )
+        from polisyos.runtime.quality.candidate_acquisition_action import (
+            _current_candidate_experiment_reentry_action,
+        )
+        from polisyos.scientist.orchestration.engine import (
+            BudgetLedgerReentryBudgetScope,
+        )
+
+        if (
+            type(origin) is not VerifiedCandidateExperimentOrigin
+            or not isinstance(candidate_action_ref, ArtifactRef)
+            or candidate_action_ref.kind != "runtime_quality.acquisition_candidate_action_receipt"
+            or candidate_action_ref.manifest_profile_sha256 is None
+            or type(reentry_budget_scope) is not BudgetLedgerReentryBudgetScope
+        ):
+            raise TypeError("candidate_experiment_reentry_budget_identity_untyped")
+        binding = self.verify_acquisition_source_budget_owner(closure=origin)
+        if (
+            reentry_budget_scope.run_binding != binding
+            or reentry_budget_scope.source_payload_ref != origin.source_payload_ref
+            or reentry_budget_scope.route_id != origin.route_id
+        ):
+            raise ValueError("candidate_experiment_reentry_budget_scope_mismatch")
+        handler = getattr(self, "_acquisition_job_handler", None)
+        action_service = getattr(handler, "__self__", None)
+        port = getattr(action_service, "_production_execution_port", None)
+        if (
+            type(action_service) is not AcquisitionActionService
+            or action_service.control_service is not self
+            or type(port) is not WorldBankWDIAcquisitionExecutionPort
+            or action_service._execution_port is not port
+        ):
+            raise ValueError("candidate_experiment_reentry_execution_owner_not_current")
+        current_head = self._control_store.get_acquisition_action_head(
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            source_job_id=origin.source_job_id,
+            route_id=origin.route_id,
+            action_generation=reentry_budget_scope.action_generation,
+        )
+        if current_head is None or current_head.receipt_phase != "candidate_input_reentry_pending":
+            raise ValueError("candidate_experiment_reentry_pending_head_not_current")
+        selection, phase, admission, action_receipt = _current_candidate_experiment_reentry_action(
+            port._world_growth_bridge,
+            origin,
+            current_head.receipt_ref,
+            candidate_action_ref=candidate_action_ref,
+        )
+        if (
+            phase.receipt_phase != "candidate_input_reentry_pending"
+            or action_receipt.action_phase_ref != reentry_budget_scope.action_phase_ref
+            or action_receipt.action_job_id != phase.job_id
+            or action_receipt.action_generation != phase.action_generation
+            or action_receipt.route_id != phase.route_id
+            or reentry_budget_scope.action_job_id != phase.job_id
+            or reentry_budget_scope.action_generation != phase.action_generation
+            or reentry_budget_scope.route_id != phase.route_id
+            or reentry_budget_scope.profile_selection_ref != selection.profile_selection_ref
+            or admission.job.job_id != phase.job_id
+            or admission.job.state != "running"
+        ):
+            raise ValueError("candidate_experiment_reentry_budget_action_mismatch")
+        settlement_store = self._llm_producer_settlement_store
+        if type(settlement_store) is not BudgetMiddleware:
+            raise ValueError("candidate_experiment_reentry_budget_settlement_not_established")
+        observer = _build_control_nl_producer_budget_reconciler(
+            settlement_store=settlement_store,
+            producer_run_binding=binding,
+            budget_state=budget_state,
+            reentry_budget_scope=reentry_budget_scope,
+        )
+        ProducerBudgetObserver.require_bound_state(observer, budget_state)
+        return observer
 
     def submit_normative_evidence(
         self,
@@ -5115,6 +8364,7 @@ class ControlPlaneService(
         payload: dict[str, Any],
         request_id: str | None = None,
         principal: RuntimePrincipal | None = None,
+        prepared_acquisition_action_head: _PreparedAcquisitionActionHeadPublication | None = None,
     ) -> ControlJobRecord:
         """Persist one deterministic acquisition payload and queue it for the generic worker."""
 
@@ -5122,6 +8372,47 @@ class ControlPlaneService(
         if existing is not None:
             if existing.kind != "acquisition" or existing.run_id != run_id:
                 raise RuntimeError("acquisition_job_identity_conflict")
+            if prepared_acquisition_action_head is not None:
+                if (
+                    type(prepared_acquisition_action_head)
+                    is not _PreparedAcquisitionActionHeadPublication
+                    or prepared_acquisition_action_head.job_id != job_id
+                    or prepared_acquisition_action_head.run_id != run_id
+                    or existing.payload_ref is None
+                    or existing.state not in {"pending", "running"}
+                    or (
+                        prepared_acquisition_action_head.payload_ref is not None
+                        and existing.payload_ref != prepared_acquisition_action_head.payload_ref
+                    )
+                ):
+                    raise RuntimeError("candidate_experiment_job_retry_identity_conflict")
+                self._control_store._reconcile_control_job_creation_envelope(existing)
+                stored_payload = read_core_json_artifact(
+                    self._artifact_store, existing.payload_ref
+                ).value
+                expected_request = prepared_acquisition_action_head.request_json
+                if (
+                    not isinstance(stored_payload, dict)
+                    or stored_payload.get("action_kind")
+                    != prepared_acquisition_action_head.action_kind
+                    or stored_payload.get("tenant_id") != prepared_acquisition_action_head.tenant_id
+                    or stored_payload.get("cell_id") != prepared_acquisition_action_head.cell_id
+                    or stored_payload.get("run_id") != prepared_acquisition_action_head.run_id
+                    or stored_payload.get("route_id") != prepared_acquisition_action_head.route_id
+                    or stored_payload.get("decision_ref")
+                    != prepared_acquisition_action_head.decision_ref
+                    or json.dumps(
+                        stored_payload.get("request"), sort_keys=True, separators=(",", ":")
+                    )
+                    != expected_request
+                ):
+                    raise RuntimeError("candidate_experiment_job_retry_payload_conflict")
+                try:
+                    self.acquisition_route_sink.verify_prepared_experiment_requested_phase(
+                        prepared_acquisition_action_head
+                    )
+                except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                    raise RuntimeError("candidate_experiment_job_retry_head_conflict") from exc
             return existing
         policy = self._resolve_execution_policy(
             requested_profile=None,
@@ -5136,6 +8427,7 @@ class ControlPlaneService(
             payload=payload,
             policy=policy,
             request_id=request_id,
+            prepared_acquisition_action_head=prepared_acquisition_action_head,
         )
 
     @property
@@ -5350,6 +8642,49 @@ class ControlPlaneService(
         if telemetry is not None:
             enriched_payload["_telemetry"] = telemetry
         return enriched_payload
+
+    @staticmethod
+    def _job_payload_without_telemetry(payload: dict[str, Any]) -> dict[str, Any]:
+        """Separate the canonical diagnostic envelope from a strict action payload.
+
+        Diagnostic fields cannot add action parameters or authority. Reject
+        malformed or unrecognized telemetry instead of accepting arbitrary
+        underscore-prefixed payload fields.
+        """
+        if "_telemetry" not in payload:
+            return dict(payload)
+        telemetry = payload["_telemetry"]
+        if not isinstance(telemetry, dict) or set(telemetry) - {
+            "request_id",
+            "runtime_trace",
+            "trace_context",
+        }:
+            raise ValueError("control_job_telemetry_invalid")
+        if "request_id" in telemetry and not isinstance(telemetry["request_id"], str):
+            raise ValueError("control_job_telemetry_invalid")
+        if "runtime_trace" in telemetry:
+            trace = telemetry["runtime_trace"]
+            if (
+                not isinstance(trace, dict)
+                or set(trace) != {"trace_id", "span_id", "parent_span_id"}
+                or not isinstance(trace["trace_id"], str)
+                or not trace["trace_id"]
+                or not isinstance(trace["span_id"], str)
+                or not trace["span_id"]
+                or (
+                    trace["parent_span_id"] is not None
+                    and not isinstance(trace["parent_span_id"], str)
+                )
+            ):
+                raise ValueError("control_job_telemetry_invalid")
+        if "trace_context" in telemetry:
+            carrier = telemetry["trace_context"]
+            if not isinstance(carrier, dict) or any(
+                not isinstance(key, str) or not isinstance(value, str)
+                for key, value in carrier.items()
+            ):
+                raise ValueError("control_job_telemetry_invalid")
+        return {key: value for key, value in payload.items() if key != "_telemetry"}
 
     def _job_trace_context(
         self,
@@ -11717,20 +15052,32 @@ class ControlPlaneService(
                 lease_owner=job.lease_owner,
             )
         try:
-            final_state = run_experiment(
-                execution_payload,
-                store=self._artifact_store,
-                foundry=foundry_capture,
-                epoch_certificate_issuance_owner=self._epoch_certificate_issuance_owner,
-                eval_safety_execution_context=execution_context,
-                eval_safety_verifier=(
-                    self._evaluation_safety_admission_verifier
-                    if execution_context is not None
-                    else None
-                ),
-                method_metric_selection_owner=self if job is not None else None,
-                completed_method_hte_selection_owner=self if job is not None else None,
-            )
+            with self._workflow_checkpoint_execution_scope():
+                budget_middleware = self._configured_workflow_budget_middleware()
+                budget_kwargs: dict[str, Any] = (
+                    {"budget_middleware": budget_middleware}
+                    if budget_middleware is not None
+                    else {}
+                )
+                if self._workflow_continuation_profile == "single_owner_local_v1":
+                    budget_kwargs["strict_budget_attempts"] = True
+                if self._workflow_continuation_profile is not None:
+                    budget_kwargs["capture_workflow_execution_admission"] = True
+                final_state = run_experiment(
+                    execution_payload,
+                    store=self._artifact_store,
+                    foundry=foundry_capture,
+                    epoch_certificate_issuance_owner=self._epoch_certificate_issuance_owner,
+                    eval_safety_execution_context=execution_context,
+                    eval_safety_verifier=(
+                        self._evaluation_safety_admission_verifier
+                        if execution_context is not None
+                        else None
+                    ),
+                    method_metric_selection_owner=self if job is not None else None,
+                    completed_method_hte_selection_owner=self if job is not None else None,
+                    **budget_kwargs,
+                )
             if not isinstance(final_state, dict):
                 raise TypeError("legacy_scientist_workflow_final_state_not_mapping")
         except Exception as exc:
@@ -12481,6 +15828,16 @@ class ControlPlaneService(
             "llm_models": requested_models,
             "max_parallel_models": request.max_parallel_models,
             "run_budget_usd": request.run_budget_usd,
+            **(
+                {"run_budget_scope": request.run_budget_scope}
+                if "run_budget_scope" in request.model_fields_set
+                else {}
+            ),
+            **(
+                {"candidate_acquisition_intent": request.candidate_acquisition_intent}
+                if "candidate_acquisition_intent" in request.model_fields_set
+                else {}
+            ),
             "per_model_budget_usd": request.per_model_budget_usd,
             "checkpoint_policy": request.checkpoint_policy,
             "execution_plan_ref": request.execution_plan_ref,
@@ -12621,7 +15978,7 @@ class ControlPlaneService(
         request_id: str | None = None,
     ) -> IngestResponse:
         """Execute connector ingestion and return refs/status for produced artifacts."""
-        from polisyos.core.artifacts import ArtifactOwnershipError
+        from polisyos.core.artifacts import ArtifactOwnershipError, legacy_default_artifact_id
         from polisyos.fabric.ingestion import (
             ConnectorManifestSpec,
             DatasetFetchSpec,
@@ -12695,6 +16052,15 @@ class ControlPlaneService(
                 raise IngestionStoreBindingError("served_ingestion_store_root_mismatch")
             return cast("RootedArtifactStore", self._artifact_store)
 
+        def _legacy_default_ref(ref: ArtifactRef | None, legacy_value: str | None) -> str | None:
+            if ref is None:
+                return legacy_value
+            return (
+                legacy_value
+                if legacy_default_artifact_id(self._artifact_store, ref) is not None
+                else None
+            )
+
         sidecar_scope = TenantSidecarScope.from_current_context(self._cas_root)
         ingestion_dependencies = IngestionDependencies(
             registry=cast("Any", self._registry_providers.connectors),
@@ -12705,12 +16071,19 @@ class ControlPlaneService(
         )
 
         mode = request.execution_mode
-        if request.replay_ref is not None:
+        replay_selector = (
+            request.replay_selected_ref
+            if request.replay_selected_ref is not None
+            else request.replay_ref
+        )
+        if replay_selector is not None:
             mode = "replay"
+        elif request.record_mode:
+            mode = "record"
         record_ref: str | None = None
         try:
             # Record/replay takes priority over execution mode dispatch
-            if request.replay_ref is not None:
+            if replay_selector is not None:
                 from polisyos.fabric.data_plane.modes import run_replay_mode
 
                 result = run_replay_mode(
@@ -12718,7 +16091,7 @@ class ControlPlaneService(
                     source=request.source,
                     license_name=request.license_name,
                     cas_root=self._cas_root,
-                    replay_ref=request.replay_ref,
+                    replay_ref=replay_selector,
                     connection_config=connection_config,
                     produce_snapshot=request.produce_data_snapshot,
                     ingestion_dependencies=ingestion_dependencies,
@@ -12801,13 +16174,32 @@ class ControlPlaneService(
                 meta=_build_api_meta(request_id),
                 status=result.status,
                 evidence_bundle_ref=(
-                    str(result.evidence_bundle_ref.artifact_id.hex)
+                    _legacy_default_ref(
+                        result.evidence_bundle_ref,
+                        str(result.evidence_bundle_ref.artifact_id.hex),
+                    )
                     if result.evidence_bundle_ref
                     else None
                 ),
                 data_snapshot_ref=(
-                    str(result.data_snapshot_ref.artifact_id.hex)
+                    _legacy_default_ref(
+                        result.data_snapshot_ref,
+                        str(result.data_snapshot_ref.artifact_id.hex),
+                    )
                     if ingestion_is_complete(result) and result.data_snapshot_ref
+                    else None
+                ),
+                evidence_bundle_selected_ref=(
+                    result.evidence_bundle_ref
+                    if result.evidence_bundle_ref is not None
+                    and result.evidence_bundle_ref.manifest_profile_sha256 is not None
+                    else None
+                ),
+                data_snapshot_selected_ref=(
+                    result.data_snapshot_ref
+                    if ingestion_is_complete(result)
+                    and result.data_snapshot_ref is not None
+                    and result.data_snapshot_ref.manifest_profile_sha256 is not None
                     else None
                 ),
                 datasets_fetched=result.datasets_fetched,
@@ -12819,7 +16211,8 @@ class ControlPlaneService(
                 warnings=result.warnings,
                 cursor_ref=result.cursor_ref,
                 mode_effective=result.mode_effective or mode,
-                record_ref=record_ref,
+                record_ref=_legacy_default_ref(result.record_session_selected_ref, record_ref),
+                record_session_selected_ref=result.record_session_selected_ref,
                 input_bindings_ref=input_bindings_ref,
             )
         except ArtifactOwnershipError as exc:

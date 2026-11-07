@@ -77,6 +77,155 @@ def test_empty_deployment_provider_persists_real_refusal(tmp_path, monkeypatch):
     assert effects == []
 
 
+def test_empty_deployment_persists_candidate_experiment_refusal_with_exact_permission_snapshot(
+    tmp_path, monkeypatch
+):
+    """Synthetic tuple pins prove PA2 refusal/snapshot only, not source or live-action custody."""
+    from polisyos.runtime.http.services.acquisition_authority_provider import (
+        ProductionAcquisitionAuthorityProvider,
+    )
+    from tests.unit.runtime.http.services.test_acquisition_action_service import (
+        _candidate_experiment_action_fixture,
+    )
+
+    monkeypatch.setattr(authority, "_utcnow", lambda: fixtures.NOW)
+    store, event_log, idempotency = fixtures._harness(tmp_path)
+    deployment = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    )
+    provider = ProductionAcquisitionAuthorityProvider(
+        deployment_security=deployment,
+        artifact_store=store,
+        event_log=event_log,
+        idempotency_store=idempotency,
+        execution_profile="governed",
+    )
+    origin, request = _candidate_experiment_action_fixture(
+        tenant_id=fixtures.TENANT_ID,
+        cell_id=fixtures.CELL_ID,
+        run_id=fixtures.RUN_ID,
+    )
+    proof = fixtures._candidate_proof(request)
+    job_id = AcquisitionActionService._candidate_experiment_job_id(origin, request)
+    effects: list[object] = []
+    gateway = provider.for_candidate_experiment_request(
+        origin=origin,
+        request=request,
+        job_id=job_id,
+        bound_permission=proof,
+        effect_handler=effects.append,
+    )
+    operation, invocation, intent = AcquisitionActionService._candidate_experiment_action_tuple(
+        origin, request
+    )
+    with authority.agent_action_authority_scope(gateway):
+        decision = authority.produce_agent_action_authority_decision(
+            bound_permission=proof,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+        )
+        receipt = gateway.persist_decision(decision)
+
+    assert decision.outcome == "refused"
+    assert "delegation_contract_not_persisted" in decision.refusal_reasons
+    assert decision.permission_snapshot is not None
+    assert decision.permission_snapshot.required_permission == "evidence.acquire"
+    assert decision.permission_snapshot.body_sha256 == proof.bound_resource.body_sha256
+    assert decision.permission_snapshot.query_sha256 == proof.bound_resource.query_sha256
+    loaded = gateway.load_persisted_decision(str(receipt.write_result.cas_ref.artifact_id))
+    assert loaded.decision.action_kind == authority.CANDIDATE_EXPERIMENT_ACTION_KIND
+    assert loaded.decision.operation_content_hash == authority.agent_action_content_hash(operation)
+    from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier, KeyPair
+
+    decision_signer_identity = "service://test/candidate-decision"
+    decision_pair = KeyPair.generate()
+    decision_signer = Ed25519Signer(decision_pair.private_key)
+    history_verifier = Ed25519Verifier(strict_identity=True)
+    history_verifier.add_trusted_key(decision_pair.public_key, identity=decision_signer_identity)
+    decision_ref = str(receipt.write_result.cas_ref.artifact_id)
+    store.sign_artifact(
+        receipt.write_result.cas_ref.artifact_id,
+        decision_signer,
+        signer_identity=decision_signer_identity,
+    )
+    history = authority.load_agent_action_decision_history(
+        artifact_store=store,
+        event_log=event_log,
+        artifact_verifier=history_verifier,
+        expected_signer_identity=decision_signer_identity,
+        write_context=provider._context(origin, job_id),
+        decision_ref=decision_ref,
+    )
+    assert history.decision == decision
+    assert history.payload_sha256 == history.decision_ref.removeprefix("sha256:")
+    assert history.current_authority == "not_revalidated"
+    with pytest.raises(authority.AgentActionAuthorityRecordingError):
+        authority.load_agent_action_decision_history(
+            artifact_store=store,
+            event_log=event_log,
+            artifact_verifier=history_verifier,
+            expected_signer_identity=decision_signer_identity,
+            write_context=provider._context(origin, f"{job_id}-wrong"),
+            decision_ref=decision_ref,
+        )
+    untrusted_verifier = Ed25519Verifier(strict_identity=True)
+    with pytest.raises(authority.AgentActionAuthorityRecordingError):
+        authority.load_agent_action_decision_history(
+            artifact_store=store,
+            event_log=event_log,
+            artifact_verifier=untrusted_verifier,
+            expected_signer_identity=decision_signer_identity,
+            write_context=provider._context(origin, job_id),
+            decision_ref=decision_ref,
+        )
+    assert effects == []
+
+
+def test_candidate_experiment_worker_replay_requires_decision_verification_appointment(
+    tmp_path,
+):
+    """Synthetic candidate pins cannot enter worker replay without the appointed verifier."""
+    from polisyos.runtime.http.services.acquisition_authority_provider import (
+        ProductionAcquisitionAuthorityProvider,
+    )
+    from polisyos.runtime.quality.agent_action_authority import (
+        AgentActionAuthorityRecordingError,
+    )
+    from tests.unit.runtime.http.services.test_acquisition_action_service import (
+        _candidate_experiment_action_fixture,
+    )
+
+    store, event_log, idempotency = fixtures._harness(tmp_path)
+    deployment = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    )
+    provider = ProductionAcquisitionAuthorityProvider(
+        deployment_security=deployment,
+        artifact_store=store,
+        event_log=event_log,
+        idempotency_store=idempotency,
+        execution_profile="governed",
+    )
+    origin, request = _candidate_experiment_action_fixture(
+        tenant_id=fixtures.TENANT_ID,
+        cell_id=fixtures.CELL_ID,
+        run_id=fixtures.RUN_ID,
+    )
+
+    with pytest.raises(
+        AgentActionAuthorityRecordingError,
+        match="acquisition_worker_decision_verification_unallocated",
+    ):
+        provider.for_candidate_experiment_job(
+            origin=origin,
+            request=request,
+            job_id="candidate-experiment-worker",
+            decision_ref="sha256:" + "e" * 64,
+            effect_handler=lambda _call: None,
+        )
+
+
 def test_real_worker_replay_refuses_absent_decision_verification_appointment(
     tmp_path, monkeypatch, served_recorded_candidate_gateway
 ):

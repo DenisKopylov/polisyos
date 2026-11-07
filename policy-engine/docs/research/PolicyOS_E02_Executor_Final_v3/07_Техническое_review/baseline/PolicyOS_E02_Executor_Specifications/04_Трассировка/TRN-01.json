@@ -1,0 +1,475 @@
+{
+  "packet_id": "TRN-01",
+  "lane": "LANE-02",
+  "title": "Верный исторический Evaluation и допустимый численный перенос",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B128",
+    "B130",
+    "B131",
+    "B132"
+  ],
+  "audit_reports": [
+    "02_Пакеты/TRN-01.md"
+  ],
+  "audit_report_sha256": "236bcfd3e21e6a45eb51a698858c52cd432b4ce2031bbeaafb6b0a1a0fa7c017",
+  "sourceplan_lines": [
+    3045,
+    3182
+  ],
+  "practical_goal": "Сохранённые пригодные наблюдения доходят до target training либо честной переоценки, не меняя время, feasibility и происхождение.",
+  "requirements": [
+    {
+      "id": "REQ-TRN-01-01",
+      "text": "History reconstruction сохраняет event timestamp и принимает stage_a_passed только как настоящий boolean.",
+      "source_ids": [
+        "B128",
+        "B130",
+        "B131",
+        "B132"
+      ],
+      "audit_ids": [
+        "remaining:0215",
+        "remaining:0216",
+        "remaining:0222",
+        "preserve:0333",
+        "preserve:0334",
+        "audit-residual:C25_остатки:0",
+        "audit-residual:C25_остатки:1"
+      ],
+      "test_ids": [
+        "TEST-TRN-01-01"
+      ]
+    },
+    {
+      "id": "REQ-TRN-01-02",
+      "text": "Квоты diagnostic delivery и допустимого training corpus имеют разные явные counts/лимиты; MIN/MAX ordering сохраняется.",
+      "source_ids": [
+        "B128",
+        "B130",
+        "B131",
+        "B132"
+      ],
+      "audit_ids": [
+        "remaining:0220",
+        "remaining:0221",
+        "preserve:0337",
+        "preserve:0338",
+        "audit-residual:C25_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-TRN-01-02"
+      ]
+    },
+    {
+      "id": "REQ-TRN-01-03",
+      "text": "Native source compatibility и candidate-only reevaluation остаются разными полезными маршрутами.",
+      "source_ids": [
+        "B128",
+        "B130",
+        "B131",
+        "B132"
+      ],
+      "audit_ids": [
+        "remaining:0217",
+        "remaining:0221",
+        "remaining:0223",
+        "preserve:0339",
+        "preserve:0340",
+        "audit-residual:C25_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-TRN-01-03"
+      ]
+    },
+    {
+      "id": "REQ-TRN-01-04",
+      "text": "Обратный benchmark bridge не создаёт измерение target suite из исторического Evaluation.",
+      "source_ids": [
+        "B128",
+        "B130",
+        "B131",
+        "B132"
+      ],
+      "audit_ids": [
+        "remaining:0224",
+        "remaining:0225",
+        "preserve:0341",
+        "audit-residual:C25_остатки:2"
+      ],
+      "test_ids": [
+        "TEST-TRN-01-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-TRN-01-01",
+      "requirement_ids": [
+        "REQ-TRN-01-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "JSON round-trip timestamp2001-01-01T00:00:00+00:00, boolean false/true, string false,0,1,null,missing; typed source assessment.",
+      "action": "Actual register_run→CAS→history read→deserialize→bridge; malformed rows среди пригодных.",
+      "oracle": "Время2001 сохраняется; false infeasible; true при действительном source проходит; malformed видим как rejected и не valid training; остальные rows не пропадают.",
+      "expected": "Не восстановить старый value= constructor или swallow-all. Raw objective/direction/provenance/metadata сохраняются.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-TRN-01-02",
+      "requirement_ids": [
+        "REQ-TRN-01-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "MIN1/2/9, MAX1/2/9; histories1+3 при limit4; rejected row в первом source и ещё valid во втором.",
+      "action": "Actual transfer selection→consumer corpus, сравнить declared quota semantics и порядок.",
+      "oracle": "MIN first1/MAX first9; общий предел не превышен, доступная квота распределена; diagnostics не считаются numerical observations; admitted request заполняется до доступного bound.",
+      "expected": "Source diversity сохраняется; ties не меняют identity; performance/GP benefit измерять отдельно, не обещать по количеству rows.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-TRN-01-03",
+      "requirement_ids": [
+        "REQ-TRN-01-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Compatible saved native fitted observation и target; по одному drift bounds/split/unit/origin/tenant/direction/rule; отдельная похожая, но numerical-incompatible идея.",
+      "action": "Actual store→bridge→source verifier→GP corpus; отдельно idea→target reevaluation→новый evaluation ref.",
+      "oracle": "Только совместимое source-admitted наблюдение входит один раз; drift исключается до неправильного reuse; новая полезная идея может быть измерена на target и получить новый результат.",
+      "expected": "Closed holdout не становится training; candidate_only не configured_native_gp; source-only fixture contradiction не назван native test failure.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-TRN-01-04",
+      "requirement_ids": [
+        "REQ-TRN-01-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Два actual distinct candidate refs, source hidden/selection split и suite, raw MAX0.8/normalized-0.8, отсутствующий selected profile и zero-digest syntactic-only ref.",
+      "action": "Разрешить source и round-trip через фактический выбранный caller; отдельно target reevaluation.",
+      "oracle": "Source identity/split/profile не переименованы в selection/warm_start; raw0.8 не normalized-0.8; params вне metrics, holdout отсутствует если не измерен.",
+      "expected": "Nonpromotable сохраняется; syntactic-only candidate не объявлен существующим; отсутствие production caller явно зафиксировано, не новый blocker основного warm-start.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C25_остатки:0",
+      "requirement_ids": [
+        "REQ-TRN-01-01"
+      ],
+      "rationale": "Event time не restore time.",
+      "disposition": "fix",
+      "audit_id": "C25-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C25_остатки:1",
+      "requirement_ids": [
+        "REQ-TRN-01-01"
+      ],
+      "rationale": "Wire boolean validation.",
+      "disposition": "fix",
+      "audit_id": "C25-R02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C25_остатки:2",
+      "requirement_ids": [
+        "REQ-TRN-01-04"
+      ],
+      "rationale": "Historical result либо actual resolved benchmark.",
+      "disposition": "capability",
+      "audit_id": "C25-G01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C25_остатки:3",
+      "requirement_ids": [
+        "REQ-TRN-01-03"
+      ],
+      "rationale": "Native chain и fixture contract.",
+      "disposition": "qualify",
+      "audit_id": "C25-G02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C25_остатки:4",
+      "requirement_ids": [
+        "REQ-TRN-01-02"
+      ],
+      "rationale": "Explicit diagnostics/admitted quota.",
+      "disposition": "qualify",
+      "audit_id": "C25-G03",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B128",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-TRN-01-01",
+        "REQ-TRN-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B130",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-TRN-01-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B131",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-TRN-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B132",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-TRN-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0215",
+      "requirement_ids": [
+        "REQ-TRN-01-01"
+      ],
+      "rationale": "Исходное время восстановлено.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0216",
+      "requirement_ids": [
+        "REQ-TRN-01-01"
+      ],
+      "rationale": "Strict boolean.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0217",
+      "requirement_ids": [
+        "REQ-TRN-01-03"
+      ],
+      "rationale": "Native owner qualification.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0220",
+      "requirement_ids": [
+        "REQ-TRN-01-02"
+      ],
+      "rationale": "Два вида quotas.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0221",
+      "requirement_ids": [
+        "REQ-TRN-01-02",
+        "REQ-TRN-01-03"
+      ],
+      "rationale": "Benefit отдельно от correctness.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0222",
+      "requirement_ids": [
+        "REQ-TRN-01-01"
+      ],
+      "rationale": "History fidelity.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0223",
+      "requirement_ids": [
+        "REQ-TRN-01-03"
+      ],
+      "rationale": "Actual tenant/receipt/source consumer.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0224",
+      "requirement_ids": [
+        "REQ-TRN-01-04"
+      ],
+      "rationale": "True source suite/split/profile.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0225",
+      "requirement_ids": [
+        "REQ-TRN-01-04"
+      ],
+      "rationale": "Caller census, не вымышленная activation.",
+      "disposition": "qualify"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0333",
+      "requirement_ids": [
+        "REQ-TRN-01-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: History reconstruction сохраняет event timestamp и принимает stage_a_passed только как настоящий boolean.",
+      "test_ids": [
+        "TEST-TRN-01-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0334",
+      "requirement_ids": [
+        "REQ-TRN-01-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: History reconstruction сохраняет event timestamp и принимает stage_a_passed только как настоящий boolean.",
+      "test_ids": [
+        "TEST-TRN-01-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0337",
+      "requirement_ids": [
+        "REQ-TRN-01-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Квоты diagnostic delivery и допустимого training corpus имеют разные явные counts/лимиты; MIN/MAX ordering сохраняется.",
+      "test_ids": [
+        "TEST-TRN-01-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0338",
+      "requirement_ids": [
+        "REQ-TRN-01-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Квоты diagnostic delivery и допустимого training corpus имеют разные явные counts/лимиты; MIN/MAX ordering сохраняется.",
+      "test_ids": [
+        "TEST-TRN-01-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0339",
+      "requirement_ids": [
+        "REQ-TRN-01-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Native source compatibility и candidate-only reevaluation остаются разными полезными маршрутами.",
+      "test_ids": [
+        "TEST-TRN-01-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0340",
+      "requirement_ids": [
+        "REQ-TRN-01-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Native source compatibility и candidate-only reevaluation остаются разными полезными маршрутами.",
+      "test_ids": [
+        "TEST-TRN-01-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0341",
+      "requirement_ids": [
+        "REQ-TRN-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Обратный benchmark bridge не создаёт измерение target suite из исторического Evaluation.",
+      "test_ids": [
+        "TEST-TRN-01-04"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I02-D",
+    "E02-I02-B",
+    "E02-X03"
+  ],
+  "dependencies": [
+    "TRN-02 владеет exact ref/cache/discovery; общий transfer.py один writer.",
+    "OPT-02 — canonical training params; OPT-03 — learned GP/source-fit qualification.",
+    "TRN-03 определяет aware timestamp boundary; historical unknown не автоматически UTC-now."
+  ],
+  "preservation": [
+    "Actual raw/direction/assessment constructor.",
+    "Malformed records retain identity/reason.",
+    "MIN/MAX normalized ordering.",
+    "Source diversity and refill without limit excess.",
+    "Exact source/target fingerprints, rules and units.",
+    "Actual native GP source receipt boundary; candidate-only reevaluation route.",
+    "Distinct typed IDs, raw metric, empty holdout, nonpromotable."
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    ""
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "symbol_or_anchor": "    def _deserialize_evaluation(",
+      "lines": [
+        537,
+        569
+      ],
+      "sha256": "47cf5b8f4e1553aa6419ea54c09274e60375ef4e8e52fb91876e1d787c016102",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py#L537-L569"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "symbol_or_anchor": "    def get_warm_start_evaluations(",
+      "lines": [
+        222,
+        254
+      ],
+      "sha256": "47cf5b8f4e1553aa6419ea54c09274e60375ef4e8e52fb91876e1d787c016102",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py#L222-L254"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "symbol_or_anchor": "    def evaluations_to_benchmarks(",
+      "lines": [
+        78,
+        110
+      ],
+      "sha256": "112e9a272240c92fd736c2d1f2b7c65958a47863185e4251845c6ff7346fbc86",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py#L78-L110"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-TRN-01-01",
+      "text": "В TransferLearningManager._deserialize_evaluation разбирать timestamp из schema5 и передавать в Evaluation; restore_time, если нужен, отдельное diagnostic поле. Проверить timezone по общему TRN-03 contract. stage_a_passed требует type(value) is bool; malformed string/число дают уже существующий rejected row с candidate ID/reason, не truthiness. Legacy отсутствующий timestamp не now: explicit historical_time_unknown и ограниченный reuse/migration contract."
+    },
+    {
+      "requirement_id": "REQ-TRN-01-02",
+      "text": "Существующий round-robin diversity и normalized ordering оставить. Расширить result envelope либо documented caller policy: returned/admitted/rejected/unavailable counts, общий bounded diagnostics и отдельный admissible max. Если API обещает max_evals всего выдаваемых rows, не менять молча; отдельный request admitted_quota с bounded refill и retained rejection refs. Не удалять плохие valid examples, полезные learning corpus, ради best-only."
+    },
+    {
+      "requirement_id": "REQ-TRN-01-03",
+      "text": "Пройти existing WarmStartBridge→BayesianCandidateGenerator.warm_start_for_context с target MethodJob profile, exact selected Core history/header, actual objective rule/source receipt verifier и authenticated tenant owner. Same fingerprint не заменяет source admission. Для несовместимых чисел разрешить existing candidate-only hint и новое target evaluation без копирования старого score. Проверить required exact lookup fixture method вместо ослабления reader."
+    },
+    {
+      "requirement_id": "REQ-TRN-01-04",
+      "text": "Сначала подтвердить caller census: production runtime сейчас передаёт Evaluation напрямую. Сохранить этот основной путь. Если evaluations_to_benchmarks нужен explicit caller, требовать source resolver настоящего candidate/suite/split/selected profile и raw objective, не синтаксический ref; иначе возвращать historical Evaluation/typed unsupported, а target evaluator создаёт новый benchmark. Не активировать неиспользуемый converter ради coverage."
+    }
+  ]
+}

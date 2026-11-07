@@ -1,0 +1,802 @@
+{
+  "schema_version": "1.0",
+  "artifact_kind": "research_source_inventory_not_capability_receipt",
+  "generated_at_utc": "2026-11-01T09:39:50.733690+00:00",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "denominator": {
+    "directory": "e02_repository/policy-engine/docs/system-design-decisions",
+    "selection": "all regular files, no extension filter",
+    "file_count": 20,
+    "bytes": 713376,
+    "line_count": 11042
+  },
+  "reading_coverage": {
+    "files_fully_read": 20,
+    "lines_read": 11042,
+    "bytes_in_fully_read_files": 713376,
+    "collective_not_single_reader": true,
+    "main_reader_files": 10,
+    "delegated_reader_files": 10
+  },
+  "claim_boundaries": [
+    "Hashes establish byte identity, not correctness or implementation maturity.",
+    "Full corpus read is collective; child coverage based on saved attributed reading note and task attestation, not a fresh independent reread.",
+    "Secondary E02 sources are selectively read; all127 audit completion and final QA are trusted prior task history, not rerun here.",
+    "No external cited scientific/legal/library claim was independently reverified."
+  ],
+  "sources": [
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/README.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/README.md",
+      "name": "README.md",
+      "bytes": 15161,
+      "line_count": 134,
+      "sha256": "9e759eb17b5b57b178e2b3e6bddb103bf90a4466485a202a93f384495c6f7942",
+      "git_blob_oid": "bd8f514f70d9894a87a46748fcf71313d1d25325",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/README.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            134
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_evidence": "direct sequential full-text reads in task transcript; any truncated span was re-read in a smaller call",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "PolicyOS System Design Decisions",
+        "status": "active",
+        "created": "2026-05-14"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/honest-diagnostics-substrate-decision-log.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/honest-diagnostics-substrate-decision-log.md",
+      "name": "honest-diagnostics-substrate-decision-log.md",
+      "bytes": 17720,
+      "line_count": 283,
+      "sha256": "50718961ac73d261dd649e93494f1e0c7daaecb836cc5388723c0f212a8c4fdb",
+      "git_blob_oid": "389ee6cbadd3344d9712bc4085add27177dbf53f",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/honest-diagnostics-substrate-decision-log.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            283
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Honest Diagnostics Substrate Decision Log",
+        "status": "active append-only log",
+        "created": "2026-05-15"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/honest-diagnostics-substrate.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/honest-diagnostics-substrate.md",
+      "name": "honest-diagnostics-substrate.md",
+      "bytes": 46553,
+      "line_count": 1059,
+      "sha256": "b083ba18af2ced88f360ef74f75c64cdf5c1a840ee2fb25b1f9e4353e8ff01d7",
+      "git_blob_oid": "2f270c68bbd2a9d2b5e789e2c894f5a476703c5e",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/honest-diagnostics-substrate.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            1059
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "PolicyOS Honest Diagnostics Substrate",
+        "status": "draft design decision",
+        "created": "2026-05-14"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md",
+      "name": "int-r7-r8-public-verification-and-disclosure-ratification.md",
+      "bytes": 28402,
+      "line_count": 439,
+      "sha256": "cec0658a3df7828e19a9f2c3e20b56629f8bc8e0db32aa703d1ed215214fd7fe",
+      "git_blob_oid": "ea1ab50f4aa0dce5c1cabb53490d63a6f6176d71",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/int-r7-r8-public-verification-and-disclosure-ratification.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            439
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Public Verification And Disclosure — Ratification Record (PV-K01–PV-K09)",
+        "status": "ratified design decision — the nine public-verification and disclosure invariants",
+        "created": "2026-08-05",
+        "last_reviewed": "2026-08-05",
+        "decision_status": "accepted — ratified by the human principal (owner decision, 2026-08-05); this document is the acceptance record for all nine statements, for the refutation list, and for the three architect corrections applied to the consolidation",
+        "authoritative_for": "[public_verification_dispositions, disclosure_semantics_rulings, int_r7_int_r8_current_standing, rfr_06_correction]",
+        "may_not_use_for": "[capability_claim, production_schema, code_contract, wire_format, status_lattice, canonical_owner_assignment, vendor_or_authority_appointment, authority_grant, legal_compliance_conclusion, implementation_authorization, benchmark_passage, publication_permission, first_public_gate_opening, numerical_disclosure_bound]"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md",
+      "name": "int-wave-claim-semantics-ratification.md",
+      "bytes": 23774,
+      "line_count": 379,
+      "sha256": "04a7aeb685ba210d2a5d1477ef840d9b7e75b3a04d39d7b29504d5fb2e7af201",
+      "git_blob_oid": "57e34bb71ce1fc87a57b494f8d84a6e984173315",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/int-wave-claim-semantics-ratification.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            379
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "INT Wave Claim Semantics — Ratification Record (INT-K01–INT-K08)",
+        "status": "ratified design decision — the eight INT-wave claim-semantics invariants",
+        "created": "2026-08-04",
+        "last_reviewed": "2026-08-04",
+        "decision_status": "accepted — ratified by the human principal (owner decision, 2026-08-04); this document is the acceptance record for all eight statements, for the refutation list, and for the current standing of INT-R9",
+        "authoritative_for": "[int_wave_dispositions, claim_semantics_rulings, int_r9_current_standing]",
+        "may_not_use_for": "[capability_claim, production_schema, code_contract, canonical_owner_assignment, authority_grant, legal_compliance_conclusion, implementation_authorization, benchmark_passage, bounded_complete_issuance, numeric_family_claim]"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+      "name": "policy-design-best-in-class-operating-model.md",
+      "bytes": 86690,
+      "line_count": 1410,
+      "sha256": "f1910b0aadc4758a6b08b9976df6926f43974267dbabfedddae2eb251787dc9e",
+      "git_blob_oid": "215f040e01467131778dcba26f16c57b99eb7562",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            1410
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_evidence": "direct sequential full-text reads in task transcript; any truncated span was re-read in a smaller call",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "PolicyOS Best-In-Class Policy Design Operating Model",
+        "status": "draft design decision",
+        "created": "2026-05-16"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/policy-design-case-decision-log.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/policy-design-case-decision-log.md",
+      "name": "policy-design-case-decision-log.md",
+      "bytes": 49188,
+      "line_count": 437,
+      "sha256": "a3c43d8e99452826145d14e606a9fd3d3d4ac84860983a4135d8928ca4b20b58",
+      "git_blob_oid": "ea32bf04cf50d8cd115720154c779b8ac0dfc206",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/policy-design-case-decision-log.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            437
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Policy Design Case Decision Log",
+        "status": "active append-only log",
+        "created": "2026-05-17"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/policy-design-causal-grounding-firewall.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/policy-design-causal-grounding-firewall.md",
+      "name": "policy-design-causal-grounding-firewall.md",
+      "bytes": 11006,
+      "line_count": 150,
+      "sha256": "2ec8b6d1351027ae7476e42a5c7d3443679a3c20f1ec39da790b2e4712ed03be",
+      "git_blob_oid": "e02e808f13dbf5623b7a816827819a24f2d415b0",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/policy-design-causal-grounding-firewall.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            150
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_evidence": "direct sequential full-text reads in task transcript; any truncated span was re-read in a smaller call",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Causal Grounding Firewall (CGF) — Formal Target Specification for the Grounding Layer",
+        "status": "draft design decision — formal target spec for the GY grounding block (Phase 5)",
+        "created": "2026-06-30",
+        "last_reviewed": "2026-06-30",
+        "decision_status": "accepted as the target spec the GY grounding block (GY-CG) is subordinated to"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/policy-design-causal-operating-system-north-star.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/policy-design-causal-operating-system-north-star.md",
+      "name": "policy-design-causal-operating-system-north-star.md",
+      "bytes": 9789,
+      "line_count": 167,
+      "sha256": "46f6502a1a29c160d99a258ea3a6209e08ae55dfcb95836790403ec26c8998e2",
+      "git_blob_oid": "cf2f3193561a546a4e8acf543048ad73d8172021",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/policy-design-causal-operating-system-north-star.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            167
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_evidence": "direct sequential full-text reads in task transcript; any truncated span was re-read in a smaller call",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Policy Design as a Causal Operating System — North Star",
+        "status": "draft design decision — strategic direction (north star)",
+        "created": "2026-06-24",
+        "last_reviewed": "2026-06-24",
+        "decision_status": "proposed — the strategic frame the whole build is converging toward"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/policy-design-custody-time-model.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/policy-design-custody-time-model.md",
+      "name": "policy-design-custody-time-model.md",
+      "bytes": 14810,
+      "line_count": 224,
+      "sha256": "0691783add6af224e5f09e3aa9645622c1283ce9e17376df258d7a9b81338229",
+      "git_blob_oid": "88b37a10efed21c04fc9fc0f9bf52d07a7893921",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/policy-design-custody-time-model.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            224
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_evidence": "direct sequential full-text reads in task transcript; any truncated span was re-read in a smaller call",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Custody Time Model (CTM) — Target Temporal Semantics for Policy Custody",
+        "status": "draft design decision — target temporal spec for custody-bearing work",
+        "created": "2026-08-02",
+        "last_reviewed": "2026-08-02",
+        "decision_status": "accepted as the target spec every custody-bearing temporal contract is subordinated to; ratified in pair with S0-K09",
+        "authoritative_for": "[temporal_role_vocabulary, temporal_query_semantics, late_event_reaction_categories]",
+        "may_not_use_for": "[production_wire_contract, universal_event_envelope, legal_effective_date_adjudication, administrative_deadline_operation, authority_grant, capability_claim, executable_benchmark_claim]"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/policy-design-execution-topology.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/policy-design-execution-topology.md",
+      "name": "policy-design-execution-topology.md",
+      "bytes": 17738,
+      "line_count": 241,
+      "sha256": "686ed2ced9c0db4f5fc5efd31f08370e5c76fc300b163d85420cca4fdd0e97e3",
+      "git_blob_oid": "1c22f4fe07bff56fb230379fad24b1045b831880",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/policy-design-execution-topology.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            241
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_evidence": "direct sequential full-text reads in task transcript; any truncated span was re-read in a smaller call",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Policy Design — Universal Execution Topology (Blackboard Control Plane over an Artifact Graph)",
+        "status": "draft design decision — execution-topology approach and vision",
+        "created": "2026-06-14",
+        "decision_status": "proposed — the execution model the universal policy designer runs on"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/policy-design-search-target-spec.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/policy-design-search-target-spec.md",
+      "name": "policy-design-search-target-spec.md",
+      "bytes": 11732,
+      "line_count": 179,
+      "sha256": "253e062814827adc0467866d2c60aec4d9777824f707f6d96782a6b87f7c0ba8",
+      "git_blob_oid": "a83586140ae7b88a63c4aabecccc80ca9d4ed801",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/policy-design-search-target-spec.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            179
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_evidence": "direct sequential full-text reads in task transcript; any truncated span was re-read in a smaller call",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Policy-Design Search & Selection — Formal Target Specification (RACE-HOG-PODS v3.2)",
+        "status": "draft design decision — formal target spec for Phase 5 (B-on-A generation cycle)",
+        "created": "2026-06-27",
+        "last_reviewed": "2026-06-27",
+        "decision_status": "accepted as the target spec the GY Phase-5 cycle is subordinated to"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md",
+      "name": "policyos-atlas-surface-constitution-and-frontend-vision.md",
+      "bytes": 30009,
+      "line_count": 604,
+      "sha256": "ad3a19c641a97d5d3593f63ec7596c48cd338b20c78956f145537c5268bdbe4b",
+      "git_blob_oid": "a47babfb04d689c0b56822f6d66c7f24dc4ccdb2",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            604
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "PolicyOS Atlas Surface Constitution And Frontend Vision",
+        "status": "draft design decision - derived surface constitution",
+        "created": "2026-06-10",
+        "last_reviewed": "2026-06-10",
+        "decision_status": "proposed - derives frontend and design-system laws from the Universal Policy Design constitution"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
+      "name": "policyos-identity-and-custody-boundary.md",
+      "bytes": 21556,
+      "line_count": 305,
+      "sha256": "f9b3776032e88190ac8d29f60d9623450f4d734e163cc16ae53f49b0f2a77bce",
+      "git_blob_oid": "873198b24d7fe8edf204be44374d20c9256cd24e",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            305
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_evidence": "direct sequential full-text reads in task transcript; any truncated span was re-read in a smaller call",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "PolicyOS Identity And The Custody Boundary",
+        "status": "ratified design decision — system identity and scope boundary",
+        "created": "2026-07-20",
+        "last_reviewed": "2026-09-17",
+        "decision_status": "accepted — ratified by the human principal (owner decision, 2026-07-20); this document is the human-principal acceptance record required by constitution §12 for the §1 amendment it introduces. Amended additively 2026-08-30 by a second principal ruling, recorded as §9 item 5 — an institutional absence binds the claim, never the capability. Nothing prior is rewritten. Amended additively again 2026-08-31 by a third principal ruling, recorded as §9 item 6 — an appointment binds the act it names, never the vocabulary that describes it; verifying a signature is not signing. Nothing prior is rewritten. Amended additively again 2026-09-17 by a fourth principal ruling, recorded as §9 item 7 — a decision is recorded so that it is visible, with its options, premises, remainder and revisit trigger, and a later change is made by a dated record that names what moved it. Nothing prior is rewritten.",
+        "authoritative_for": "[system_identity, scope_adjudication, own_integrate_observe_boundary_rulings]",
+        "may_not_use_for": "[capability_claim, task_execution_contract, jurisdiction_specific_legal_conclusion]"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md",
+      "name": "stage0-custody-kernel-ratification.md",
+      "bytes": 16120,
+      "line_count": 264,
+      "sha256": "a8410cddf3e2c8b7f4c194d06d0c38523fb64634f247e6baf96dfd6359197ea7",
+      "git_blob_oid": "6397ec2b9ba043c742f096813a0229418721fbfb",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/stage0-custody-kernel-ratification.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            264
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Stage-0 Custody Kernel — Ratification Record (S0-K01–S0-K16)",
+        "status": "ratified design decision — the sixteen Stage-0 custody invariants",
+        "created": "2026-08-02",
+        "last_reviewed": "2026-08-02",
+        "decision_status": "accepted — ratified by the human principal (owner decision, 2026-08-02); this document is the acceptance record for all sixteen statements and for the three amendments applied to them",
+        "authoritative_for": "[stage0_kernel_dispositions, custody_invariant_rulings]",
+        "may_not_use_for": "[capability_claim, production_schema, code_contract, canonical_owner_assignment, authority_grant, legal_compliance_conclusion, implementation_authorization, benchmark_passage]"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md",
+      "name": "universal-policy-design-system-vision-and-organizing-rules.md",
+      "bytes": 32695,
+      "line_count": 467,
+      "sha256": "791d7028932d0b8097c8d6b1962e068b956136ae5d314ae0c7f60d5863d8b44d",
+      "git_blob_oid": "ace72e4066409340b3367459a4d8e56ccd1b7282",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            467
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_evidence": "direct sequential full-text reads in task transcript; any truncated span was re-read in a smaller call",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Universal Policy Design — System Vision And Organizing Rules",
+        "status": "draft design decision — organizing constitution (post-S14 synthesis)",
+        "created": "2026-06-03",
+        "last_reviewed": "2026-07-20 (additive amendment to §1: identity and the custody boundary; acceptance record in policyos-identity-and-custody-boundary.md)",
+        "decision_status": "proposed — the durable laws that govern how the Layer 2 system is built and extended"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "name": "universal-policy-design-target-architecture-and-gap.md",
+      "bytes": 181491,
+      "line_count": 2705,
+      "sha256": "000736b6d70f52f4d3aeb8550f34bacf539e8d22fb8e4e926ec6eb5d78610a79",
+      "git_blob_oid": "afb1c0f01222385b579e7114f31d3348adba2de3",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            2705
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_evidence": "direct sequential full-text reads in task transcript; any truncated span was re-read in a smaller call",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Universal Policy Design — Target Architecture, Gap, And Next Architecture Work (D0-D4)",
+        "status": "draft design decision — NORTH STAR ACCEPTED (B-on-A, shadow-first)",
+        "created": "2026-05-29",
+        "last_reviewed": "2026-05-29",
+        "decision_status": "accepted — B-on-A is the north star; A is the release gate, B is the product ambition"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/wave4-decision-evidence-ratification.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/wave4-decision-evidence-ratification.md",
+      "name": "wave4-decision-evidence-ratification.md",
+      "bytes": 30297,
+      "line_count": 454,
+      "sha256": "ee20f0569cb0bab69be4094fb4aafd07d131d245d0c5993e54420fa412820819",
+      "git_blob_oid": "ddafd69de13c3f4b85f8097947f02c6d5d381b9c",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/wave4-decision-evidence-ratification.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            454
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Decision Evidence And Repository Standing — Ratification Record (W4-K01–W4-K06)",
+        "status": "ratified design decision — the six statements governing what a deciding procedure may turn on",
+        "created": "2026-08-17",
+        "last_reviewed": "2026-08-17",
+        "decision_status": "accepted — ratified by the human principal (owner decision, 2026-08-17); this document is the acceptance record for all six statements, for the refutation list, and for the three architect corrections applied to the consolidation",
+        "authoritative_for": "[gate_predicate_evidence_rules, set_level_fact_attribution, capability_label_vocabulary, research_package_standing_axes, wave4_package_dispositions, f_14a_withdrawal]",
+        "may_not_use_for": "[capability_claim, production_schema, code_contract, wire_format, status_lattice, canonical_owner_assignment, vendor_or_authority_appointment, authority_grant, legal_compliance_conclusion, implementation_authorization, benchmark_passage, publication_permission, first_public_gate_opening, ops_r15_unblock, scoring_permission]"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "name": "wave5-evidence-substitution-ratification.md",
+      "bytes": 41016,
+      "line_count": 639,
+      "sha256": "e3e9265b9a48a9cf1b7110f657616c61770e3a73ed812da5de4853291ab7338a",
+      "git_blob_oid": "367c21f0f6c3171a72d8ced5e8bf9643ae0de552",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            639
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Evidence Substitution Boundaries — Ratification Record (W5-K01–W5-K06)",
+        "status": "ratified design decision — the six wave-5 evidence-substitution invariants",
+        "created": "2026-08-30",
+        "last_reviewed": "2026-08-30",
+        "decision_status": "accepted — ratified by the human principal (owner decision, 2026-08-30); this document is the acceptance record for all six statements and for the refutation list in §5. It does not amend the constitution and does not amend any prior kernel.",
+        "authoritative_for": "[wave5_dispositions, evidence_substitution_rulings]",
+        "may_not_use_for": "[capability_claim, production_schema, code_contract, canonical_owner_assignment, authority_grant, institutional_appointment, legal_compliance_conclusion, implementation_authorization, benchmark_passage, threshold_selection]"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    },
+    {
+      "path": "e02_repository/policy-engine/docs/system-design-decisions/withheld-propositions-register.md",
+      "repository_path": "policy-engine/docs/system-design-decisions/withheld-propositions-register.md",
+      "name": "withheld-propositions-register.md",
+      "bytes": 27629,
+      "line_count": 502,
+      "sha256": "f026e87b7c028cfcc853eb2232de491c03cc8d73ea6c13ae576a7afc1cea5115",
+      "git_blob_oid": "b78970fb1c739415f504999f6b2d801a26f5b358",
+      "matches_pinned_git_bytes": true,
+      "pinned_url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/system-design-decisions/withheld-propositions-register.md",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            502
+          ]
+        ],
+        "coverage_fraction": 1.0,
+        "reader": "/root/review_freegrow_design_direction/read_ratifications",
+        "coverage_evidence": "reader full-read attestation in ratification_reading.md and task messages; original contiguous chunk calls not separately preserved here",
+        "range_semantics": "Union of actual reading coverage, not reconstructed original tool chunk boundaries"
+      },
+      "frontmatter": {
+        "title": "Withheld Propositions Register (`WP-*`)",
+        "status": "active standing register — append-only",
+        "created": "2026-08-30",
+        "last_reviewed": "2026-08-30",
+        "decision_status": "opened by the human principal's ruling of 2026-08-30 that propositions withheld from ratification carry real intellectual and functional value and must have a permanent, appendable home",
+        "authoritative_for": "[withheld_proposition_record, withholding_reason_classification]",
+        "may_not_use_for": "[capability_claim, authority_grant, ratified_statement, code_contract, canonical_owner_assignment, implementation_authorization, institutional_appointment]"
+      },
+      "authority_note": "Read as source text within declared scope and dated amendments; not revalidated implementation evidence."
+    }
+  ],
+  "supporting_sources": [
+    {
+      "path": "e02_work/PolicyOS_E02_Dossier_complete/00_Обзор/Состояние_и_приоритеты.md",
+      "bytes": 3110,
+      "line_count": 17,
+      "sha256": "93fbca920b2d0224d2d73d329593734a38ca6d184acd6ad4d29244a59547ed0d",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            17
+          ]
+        ],
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_fraction": 1.0
+      },
+      "note": "Historical snapshot contains pending QA wording; later completion trusted from task history."
+    },
+    {
+      "path": "e02_work/PolicyOS_E02_Dossier_complete/00_Обзор/Правила_содержательной_проверки.md",
+      "bytes": 12747,
+      "line_count": 55,
+      "sha256": "800440eaa0c301f8e15d5644d775202f6ac38bc63cb2deaf14dfa93e34133922",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            55
+          ]
+        ],
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_fraction": 1.0
+      },
+      "note": "Full substantive audit rules, not independent rerun."
+    },
+    {
+      "path": "e02_work/PolicyOS_E02_Dossier_complete/00_Обзор/LANE-01_сводка.md",
+      "bytes": 6475,
+      "line_count": 35,
+      "sha256": "8fd5468e76ef9027dec4e710a084b772c2192d1c70acbe3e7a57e15bd3602840",
+      "read_scope": {
+        "kind": "full_text",
+        "ranges_inclusive": [
+          [
+            1,
+            35
+          ]
+        ],
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_fraction": 1.0
+      },
+      "note": "Full lane synthesis; inherited findings retain their original evidence limits."
+    },
+    {
+      "path": "e02_work/PolicyOS_E02_Dossier_complete/02_Пакеты/CYC-01.md",
+      "bytes": 47939,
+      "line_count": 203,
+      "sha256": "3ef2fd6750ed45defb89b5b839547dc46492bc150ba557d01c9a4a5e3cc0a725",
+      "read_scope": {
+        "kind": "selected_ranges",
+        "ranges_inclusive": [
+          [
+            1,
+            90
+          ]
+        ],
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_fraction": 0.4433497536945813
+      },
+      "note": "Selected sections; repository source links not reopened in this research."
+    },
+    {
+      "path": "e02_work/PolicyOS_E02_Dossier_complete/02_Пакеты/CYC-02.md",
+      "bytes": 39853,
+      "line_count": 152,
+      "sha256": "cabc45067dd3a217241f4a4785a7ec034cc6ffe1796e075746ea24f5c7db0db5",
+      "read_scope": {
+        "kind": "selected_ranges",
+        "ranges_inclusive": [
+          [
+            1,
+            90
+          ]
+        ],
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_fraction": 0.5921052631578947
+      },
+      "note": "Selected sections; repository source links not reopened in this research."
+    },
+    {
+      "path": "e02_work/PolicyOS_E02_Dossier_complete/02_Пакеты/SIM-03.md",
+      "bytes": 39686,
+      "line_count": 199,
+      "sha256": "8172e5a2943fa1b615f120ab9ed580126b1ebcf5d4f7970e01a4fab7c7a1d9cd",
+      "read_scope": {
+        "kind": "selected_ranges",
+        "ranges_inclusive": [
+          [
+            1,
+            85
+          ]
+        ],
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_fraction": 0.4271356783919598
+      },
+      "note": "Selected sections; repository source links not reopened in this research."
+    },
+    {
+      "path": "e02_inputs/PolicyOS_Combined_Remediation_E02_Agent_Bundles.md",
+      "bytes": 2900970,
+      "line_count": 20849,
+      "sha256": "a786081953e0d6d4e59bd469dd3b5fb976f4924e1b10df407abde15b924dc865",
+      "read_scope": {
+        "kind": "selected_ranges",
+        "ranges_inclusive": [
+          [
+            15489,
+            15601
+          ]
+        ],
+        "reader": "/root/review_freegrow_design_direction",
+        "coverage_fraction": 0.005419924216988824
+      },
+      "note": "Full S01-S08 text; no claim of full 20849-line plan reading in this task."
+    }
+  ]
+}

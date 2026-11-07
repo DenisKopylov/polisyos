@@ -8,7 +8,7 @@ import pytest
 from polisyos.foundry.methods.catalog.causal import gcm_query as gcm_query_module
 from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
 from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.analytics.causal_queries import (
     CausalQuery,
     InterventionSpec,
@@ -114,6 +114,144 @@ def _soft_query(
     )
 
 
+def test_manual_query_revalidates_partial_graph_and_normalizes_known_orientation() -> None:
+    """Unresolved marks refuse; equivalent known direction keeps its actual effect."""
+    mechanisms = [
+        _linear("Y", intercept=5.0),
+        _linear("X", parents=["Y"], coefficients={"Y": 2.0}),
+    ]
+    query = CausalQuery(
+        query_type=QueryType.INTERVENTIONAL,
+        treatment_variable="Y",
+        treatment_value=2.0,
+        outcome_variable="X",
+        n_samples=8,
+    )
+    reverse = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y", mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.TAIL)],
+    )
+    forward = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="Y", dst="X")],
+    )
+    unresolved = CausalGraphModel(
+        graph_type=GraphType.PAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="Y", dst="X", mark_src=EdgeMark.CIRCLE)],
+    )
+    for graph in (reverse, forward):
+        before = graph.model_dump(mode="json")
+        scm = StructuralCausalModelSpec(graph=graph, mechanisms=mechanisms, fit_method="manual")
+        assert _run(scm, query)["query_result"].result_mean == pytest.approx(4.0)
+        assert graph.model_dump(mode="json") == before
+    scm = StructuralCausalModelSpec(graph=unresolved, mechanisms=mechanisms, fit_method="manual")
+    with pytest.raises(ValueError, match=r"partial|projection|profile|orientation"):
+        _run(scm, query)
+
+
+def test_manual_query_rejects_repeated_mechanism_parent() -> None:
+    """A repeated parent would otherwise multiply its declared effect twice."""
+    scm = _scm(
+        nodes=["X", "Y"],
+        edges=[("X", "Y")],
+        mechanisms=[
+            _linear("X"),
+            _linear("Y", parents=["X", "X"], coefficients={"X": 1.0}),
+        ],
+    )
+    with pytest.raises(ValueError, match="mechanism parents do not match"):
+        _run(scm, _interventional_query(treatment_value=2.0))
+
+
+def test_manual_static_query_refuses_temporal_and_unavailable_latent_mechanisms() -> None:
+    """A static sampler must not ignore time or invent projected latent laws."""
+    temporal = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y", lag=1)],
+    )
+    confounded = CausalGraphModel(
+        graph_type=GraphType.ADMG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y", mark_src=EdgeMark.ARROW, mark_dst=EdgeMark.ARROW)],
+    )
+    mechanisms = [_linear("X"), _linear("Y", parents=["X"], coefficients={"X": 1.0})]
+    for graph, reason in ((temporal, "temporal"), (confounded, "latent mechanisms")):
+        scm = StructuralCausalModelSpec(graph=graph, mechanisms=mechanisms, fit_method="manual")
+        with pytest.raises(ValueError, match=reason):
+            _run(scm, _interventional_query(treatment_value=2.0))
+
+
+def test_manual_query_rejects_cycle_and_stale_or_forged_disposition() -> None:
+    """The query rechecks the source even if a caller retained a stale typed instance."""
+    from polisyos.ir.analytics.causal_graph import (
+        GraphProjectionStatus,
+        graph_projection_disposition,
+    )
+
+    with pytest.raises(ValueError, match="DAG must be acyclic"):
+        _graph(("X", "Y"), ("Y", "X"), nodes=["X", "Y"])
+
+    graph = _graph(("X", "Y"), nodes=["X", "Y"])
+    forged_cycle = graph.model_copy(
+        update={"edges": [CausalEdge(src="X", dst="Y"), CausalEdge(src="Y", dst="X")]}
+    )
+    with pytest.raises(ValueError, match="DAG must be acyclic"):
+        StructuralCausalModelSpec(
+            graph=forged_cycle,
+            mechanisms=[
+                _linear("X", parents=["Y"], coefficients={"Y": 1.0}),
+                _linear("Y", parents=["X"], coefficients={"X": 1.0}),
+            ],
+            fit_method="manual",
+        )
+    disposition = graph_projection_disposition(graph, graph, status=GraphProjectionStatus.IDENTITY)
+    valid = StructuralCausalModelSpec(
+        graph=graph,
+        source_graph=graph,
+        graph_projection=disposition,
+        mechanisms=[_linear("X"), _linear("Y", parents=["X"], coefficients={"X": 1.0})],
+        fit_method="manual",
+    )
+    assert _run(valid, _interventional_query(treatment_value=2.0))["query_result"].result_mean == 2
+    stale_source = graph.model_copy(update={"metadata": {"revision": "different"}})
+    forged_disposition = disposition.model_copy(update={"source_graph_sha256": "0" * 64})
+    for changed, reason in (
+        (
+            valid.model_copy(update={"source_graph": stale_source}),
+            "does not bind the current source graph",
+        ),
+        (
+            valid.model_copy(update={"graph_projection": forged_disposition}),
+            "canonical GraphProjectionDisposition validation failed",
+        ),
+    ):
+        with pytest.raises(ValueError, match=reason):
+            _run(changed, _interventional_query(treatment_value=2.0))
+
+
+@pytest.mark.parametrize("condition", [{"Y": 4.0}, {"B": 1.0}, {"B": 1.0, "C": 2.0}])
+def test_gaussian_posterior_replicas_do_not_depend_on_graph_storage_order(
+    condition: dict[str, float],
+) -> None:
+    """The same joint posterior and seed map to the same named replicas."""
+    first, reordered = _b224_reordered_active_models()
+    query = CausalQuery(
+        query_type=QueryType.COUNTERFACTUAL,
+        treatment_variable="X",
+        treatment_value=2.0,
+        outcome_variable="Y",
+        condition=condition,
+        n_samples=512,
+    )
+    left = _run(first, query, seed=31)["query_result"].result_distribution
+    right = _run(reordered, query, seed=31)["query_result"].result_distribution
+    np.testing.assert_allclose(left, right, rtol=1e-12, atol=1e-12)
+
+
 def test_scm03_b224_perfect_do_skips_broken_natural_treatment_sampler(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -171,6 +309,55 @@ def test_scm03_b224_active_plan_prunes_irrelevant_root_but_keeps_factual_ancesto
 
     assert output["query_result"].result_mean == pytest.approx(7.0)
     assert output["query_result"].result_distribution == pytest.approx([7.0] * 64)
+
+
+def test_active_and_explicit_full_trace_preserve_output_with_actual_call_counts(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Twenty unrelated roots are sampled only for an explicit full trace."""
+    extras = [f"Q{index:02d}" for index in range(20)]
+    scm = _scm(
+        nodes=["X", "Y", *extras],
+        edges=[("X", "Y")],
+        mechanisms=[
+            _linear("X", intercept=99.0),
+            _linear("Y", parents=["X"], intercept=1.0, coefficients={"X": 3.0}),
+            *[_linear(name, noise_std=1.0) for name in extras],
+        ],
+    )
+    query = _interventional_query(treatment_value=2.0, n_samples=10)
+    graph_before = scm.graph.model_dump(mode="json")
+    original = gcm_query_module._sample_node_value
+    count = 0
+
+    def observed_sampler(**kwargs: object) -> float:
+        nonlocal count
+        count += 1
+        return original(**kwargs)
+
+    monkeypatch.setattr(gcm_query_module, "_sample_node_value", observed_sampler)
+    active_rng, full_rng, expected_rng = (np.random.default_rng(7) for _ in range(3))
+    expected_rng.integers(0, 2**63, size=4, dtype=np.uint64)
+    active, active_nodes = gcm_query_module._simulate_samples(
+        scm_spec=scm, query=query, n_samples=10, rng=active_rng, warnings=[]
+    )
+    assert count == 10 and sum(len(values) for values in active_nodes.values()) == 20
+    count = 0
+    full, full_nodes = gcm_query_module._simulate_samples(
+        scm_spec=scm,
+        query=query,
+        n_samples=10,
+        rng=full_rng,
+        warnings=[],
+        include_all_nodes=True,
+    )
+    assert count == 210 and sum(len(values) for values in full_nodes.values()) == 220
+    np.testing.assert_array_equal(active, full)
+    np.testing.assert_array_equal(active, np.full(10, 7.0))
+    expected_next = expected_rng.integers(0, 2**63)
+    assert active_rng.integers(0, 2**63) == expected_next
+    assert full_rng.integers(0, 2**63) == expected_next
+    assert scm.graph.model_dump(mode="json") == graph_before
 
 
 def test_scm03_b224_pruning_preserves_logical_draws_for_relevant_chain(
@@ -265,6 +452,27 @@ def test_scm03_b224_reordered_active_ancestors_keep_per_node_draws() -> None:
     reordered_result = _run(reversed_siblings, query, seed=31)["query_result"].result_distribution
 
     assert first_result == reordered_result
+
+
+def test_explicit_generator_consumes_one_fixed_entropy_token() -> None:
+    """Node ordering does not change either outcomes or the caller's RNG position."""
+    first, reordered = _b224_reordered_active_models()
+    query = _interventional_query(treatment_value=2.0, n_samples=64)
+    first_rng, second_rng, expected_rng = (np.random.default_rng(31) for _ in range(3))
+    expected_rng.integers(0, 2**63, size=4, dtype=np.uint64)
+    first_result = GCMQuery.pure_step(
+        SCMQueryData(scm_spec=first, query=query),
+        {"__rng__": first_rng, "enable_dowhy_comparison": False},
+    )["query_result"]
+    second_result = GCMQuery.pure_step(
+        SCMQueryData(scm_spec=reordered, query=query),
+        {"__rng__": second_rng, "enable_dowhy_comparison": False},
+    )["query_result"]
+    assert first_result.result_distribution == second_result.result_distribution
+    expected_next = expected_rng.integers(0, 2**63)
+    assert first_rng.integers(0, 2**63) == expected_next
+    assert second_rng.integers(0, 2**63) == expected_next
+    assert second_rng.bit_generator.state == first_rng.bit_generator.state
 
 
 def test_scm03_b224_reordered_draws_detect_shared_rng_mutant(
@@ -408,3 +616,64 @@ def test_scm03_b225_uniform_seed_is_reproducible_and_preserves_support() -> None
     assert np.array_equal(first_values, second_values)
     assert np.all((first_values >= 2.0) & (first_values < 3.0))
     assert np.unique(first_values).size > 1
+
+
+def test_truncated_normal_uses_one_law_parse_and_independent_tail_moments(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A far-tail intervention follows its density, rather than clipped noise."""
+    import math
+
+    from scipy.integrate import quad
+
+    scm = _scm(
+        nodes=["X", "Y"],
+        edges=[("X", "Y")],
+        mechanisms=[_linear("X"), _linear("Y", parents=["X"], coefficients={"X": 1.0})],
+    )
+    query = _soft_query(
+        InterventionSpec(type=InterventionType.STOCHASTIC, distribution="truncnorm(0,1,8,9)"),
+        n_samples=2048,
+    )
+    original = gcm_query_module._resolve_stochastic_distribution
+    calls = []
+
+    def count_law(value: str):
+        calls.append(value)
+        return original(value)
+
+    monkeypatch.setattr(gcm_query_module, "_resolve_stochastic_distribution", count_law)
+    first = np.asarray(_run(scm, query, seed=23)["query_result"].result_distribution)
+    assert calls == ["truncnorm(0,1,8,9)"]
+    calls.clear()
+    second = np.asarray(_run(scm, query, seed=23)["query_result"].result_distribution)
+    assert calls == ["truncnorm(0,1,8,9)"]
+    np.testing.assert_array_equal(first, second)
+    assert np.all((first > 8.0) & (first < 9.0))
+
+    density = lambda value: math.exp(-0.5 * (value * value - 64.0))  # noqa: E731
+    normalizer = quad(density, 8.0, 9.0)[0]
+    mean = quad(lambda value: value * density(value), 8.0, 9.0)[0] / normalizer
+    variance = quad(lambda value: (value - mean) ** 2 * density(value), 8.0, 9.0)[0] / normalizer
+    fourth = quad(lambda value: (value - mean) ** 4 * density(value), 8.0, 9.0)[0] / normalizer
+    assert np.mean(first) == pytest.approx(mean, abs=6.0 * math.sqrt(variance / len(first)))
+    assert np.var(first) == pytest.approx(
+        variance, abs=6.0 * math.sqrt((fourth - variance**2) / len(first))
+    )
+    degenerate = _run(
+        scm,
+        _soft_query(
+            InterventionSpec(type=InterventionType.STOCHASTIC, distribution="truncnorm(0,1,8,8)"),
+            n_samples=32,
+        ),
+        seed=23,
+    )["query_result"].result_distribution
+    clipped = _run(
+        scm,
+        _soft_query(
+            InterventionSpec(type=InterventionType.TRUNCATED, bounds=(8.0, 9.0)), n_samples=32
+        ),
+        seed=23,
+    )["query_result"].result_distribution
+    assert degenerate == [8.0] * 32
+    assert clipped == [8.0] * 32

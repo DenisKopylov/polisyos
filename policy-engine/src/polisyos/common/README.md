@@ -27,6 +27,11 @@ migration primitives. Keep domain logic out of this package.
   private pure backend-selection predicate.
 - `src/polisyos/common/logger/__init__.py` owns the logger adapter classes and trace-context behavior.
 - `src/polisyos/common/migrations/README.md` documents package-local artifact migrations.
+- `src/polisyos/common/numeric_reductions.py` owns finite binary64 mean and
+  midpoint for numerical consumers. It delegates accumulation to CPython's
+  `statistics.mean`, refuses non-finite inputs/results and preserves typed
+  overflow rather than silently emitting infinity. It is a supported direct
+  module entrypoint; the Common root's lazy export list remains unchanged.
 
 ## Internal Markdown table syntax
 
@@ -49,7 +54,7 @@ follow the [measurement register decision](../../../docs/superpowers/specs/2026-
 
 - Supported package entrypoints: `polisyos.common`, `polisyos.common.text`,
   `polisyos.common.canonical`, `polisyos.common.canonical_profile`, and
-  `polisyos.common.hashing`.
+  `polisyos.common.hashing`, and `polisyos.common.numeric_reductions`.
 - `polisyos.common.text` provides pure shared whitespace normalization through
   `collapse_ws`; existing Lex consumers retain that same function object through
   the lazy root facade.
@@ -110,6 +115,12 @@ codec does not by itself establish persisted-profile or E02 acceptance.
   authority.
 - `migrations/` owns package-local migration manifest helpers.
 
+`exception_metadata.py` provides one private storage primitive for producer-owned
+failure progress. It accesses the real `BaseException` instance dictionary without
+running subclass attribute hooks, preserving the original error, args and cause.
+Stored data still needs its caller's issuer, scope, reference and current-attempt
+verification; this helper grants no publication or execution authority.
+
 ## Extension Points
 
 `polisyos.common` is not an extension host. Extension hosts should depend on
@@ -158,14 +169,31 @@ retains its logical reservation while its worker wrapper or synchronous done
 callbacks run, even after `result()` becomes available. Physical workers are
 counted separately. Direct nested submissions from that executor's worker or
 callback context receive `SharedExecutorReentrancyError` when capacity is fully
-reserved or occupied. Ordinary external callers can queue work. Late callbacks
-execute in their registering thread and retain the direct-submission reentry
-guard; callbacks retain registration order and execute in the completing
-thread. The synchronous dispatch bridge inlines only on a physical
-shared-executor worker. A late callback using that bridge queues its dispatch
-through the same bounded pool, and the submission captures the callback
-thread's current context. Callback exceptions follow the standard Future
-logging behavior.
+reserved or occupied. Ordinary external callers can queue work. Pre-completion
+user callbacks run in the completing owner slot; late user callbacks run through
+the bounded owner pool, and their registering thread waits for that work. After
+shutdown, a caller may run a late callback inline only while holding the same
+physical-slot guard. Callback exceptions follow the standard Future logging
+behavior. The synchronous dispatch bridge inlines only for the current owner
+slot, and submitted work captures its submitter's context.
+
+`wrap_shared_executor_future` is the fixed Future-to-event-loop transport used by
+the blocking helper, completion handle and Scientist retry. Its internal callback
+only schedules a state copy on the event loop; it does not dispatch an arbitrary
+user callback or wait for executor capacity. Ordinary Futures use the standard
+asyncio adapter. Destination cancellation requests cancellation of queued source
+work; running work retains its slot. `request_shared_executor_cancellation`
+atomically reserves the no-start outcome without invoking user callbacks on the
+requesting event loop. The already-reserved worker acknowledges cancellation
+when it reaches the queued item and runs its callbacks in its owner slot; until
+then the source Future can remain pending and its reservation stays held.
+Ordinary synchronous `Future.cancel()` retains its existing callback contract.
+
+If `run_coro_sync` receives a shared-executor backpressure or reentrancy refusal
+before scheduling, it closes only the fresh, unstarted coroutine supplied to that
+call and propagates the original refusal. Tasks, Futures, suspended coroutines and
+custom awaitables retain their existing owners. Exceptions from accepted work are
+not treated as admission refusals.
 
 Every submission captures its own current context. Queue cancellation prevents
 unstarted work and notifies Future waiters; running callables and arbitrary
@@ -175,7 +203,9 @@ lock. `run_blocking_async(..., unbounded=True)` explicitly represents an owner
 with no configured helper deadline. Omitted/None timeouts keep the existing
 default; combining `unbounded=True` with a float timeout is invalid.
 
-`run_blocking_async` records the callable's monotonic completion time in its
+`run_blocking_async` starts its helper deadline before executor setup and
+submission. A queued callable whose deadline has already elapsed cannot begin.
+The helper records the callable's monotonic completion time in its
 worker receipt before the executor Future is delivered to the event loop. If
 that receipt proves the callable completed within the helper wait deadline, a
 late Future callback does not discard the completed value or original error.

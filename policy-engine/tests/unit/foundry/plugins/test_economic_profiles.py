@@ -19,8 +19,10 @@ from polisyos.foundry.methods.catalog.mechanism.runtime import (
 )
 from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
     create_mechanism_from_spec,
+    get_mechanism_descriptor,
 )
 from polisyos.foundry.methods.loss import policy_loss_fn
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.foundry.plugins.economics import EconomicsPlugin, EconomicState
 from polisyos.foundry.plugins.economics.baselines import normalized_income_budget_loss
 from polisyos.foundry.plugins.economics.mechanisms import (
@@ -167,6 +169,26 @@ def test_registered_labor_full_patch_has_independent_extreme_probability_oracle(
     )["result"]
     _assert_full_patch(json.loads(json.dumps(artifact))["patches"], expected_patch)
     assert artifact["n_patch_slots"] == 4
+
+
+def test_all_false_labor_target_preserves_agents_but_recounts_active_firm_population() -> None:
+    state, key = _state(), jax.random.PRNGKey(27)
+    mechanism = create_mechanism_from_spec("labor_market", {"employment_threshold": 1.0}, 4, 1)
+    patch, next_key = mechanism.emit_patches(state, key, target_mask=jnp.zeros(4, dtype=bool))
+    expected = state.replace(
+        firms=state.firms.replace(labor_count=jnp.asarray([1], dtype=jnp.int32))
+    )
+    _assert_tree_equal(_apply(state, patch), expected)
+    np.testing.assert_array_equal(next_key, jax.random.split(key, 3)[2])
+    _assert_tree_equal(state.agents, _state().agents)
+
+
+@pytest.mark.parametrize("kind", ["income_tax", "tax_subsidy"])
+@pytest.mark.parametrize("rate", [float("nan"), float("inf"), -float("inf")])
+def test_actual_eager_fiscal_constructor_refuses_nonfinite_scalar_rate(kind, rate) -> None:
+    mechanism_class = get_mechanism_descriptor(kind).mechanism_class
+    with pytest.raises(ValueError, match="rate must be finite"):
+        mechanism_class(rate=rate, n_agents=4)
 
 
 def test_labor_seed_replay_and_perturbation_are_observable_in_state() -> None:
@@ -360,6 +382,48 @@ def test_historical_budget_scales_have_independent_hand_oracle(balance, minimum,
         government_balance=jnp.asarray(balance),
     )
     assert float(jax.jit(policy_loss_fn)(state, min_balance=minimum)) == pytest.approx(expected)
+
+
+@pytest.mark.parametrize("kind", ["income_tax", "tax_subsidy", "labor_market"])
+def test_selected_runtime_consumer_discloses_conditional_baseline_scope(kind) -> None:
+    """The selected live method exposes its actual law without empirical promotion."""
+    descriptor = get_mechanism_descriptor(kind)
+    method = MethodRegistry.get_instance().get(descriptor.method_fqn)
+    metadata = method.metadata
+    assert "baseline" in metadata.description.lower()
+    assert metadata.assumptions["empirical_status"] == "not_established"
+    assert "per kernel call" in metadata.assumptions["units_and_clock"]
+    assert method.satisfies_method_obligations == ()
+    assert {
+        "causal_effect_estimation",
+        "implementation_feasibility",
+        "uncertainty_interval",
+    } <= set(method.not_sufficient_for_method_obligations)
+    state = _state().replace(
+        agents=_state().agents.replace(reported_income=jnp.asarray([-80.0, 40.0, 200.0, 60.0]))
+    )
+    result = method.pure_step(
+        state,
+        {"rate": 0.25, "employment_threshold": 0.0, "target_mask": _TARGET, "__seed__": 27},
+    )["result"]
+    assert result["mechanism_type"] == kind
+    if kind == "income_tax":
+        # Signed reported income is the existing mathematical law, not a
+        # newly inferred legal tax policy or an automatic clamp to zero.
+        np.testing.assert_array_equal(
+            result["patches"]["agents.income"][0]["delta"], [20.0, 0.0, 0.0, -15.0]
+        )
+        assert result["patches"]["government.balance"][0]["delta"] == -5.0
+    elif kind == "tax_subsidy":
+        np.testing.assert_array_equal(
+            result["patches"]["agents.income"][0]["delta"], [25.0, 0.0, 0.0, 20.0]
+        )
+        assert result["patches"]["government.balance"][0]["delta"] == -45.0
+    else:
+        np.testing.assert_array_equal(
+            result["patches"]["agents.is_employed"][0]["value"], [False, True, True, False]
+        )
+        np.testing.assert_array_equal(result["patches"]["firms.labor_count"][0]["value"], [1])
 
 
 @pytest.mark.parametrize("invalid", [float("nan"), float("inf"), -float("inf")])

@@ -1,0 +1,73 @@
+{
+  "release": "v012",
+  "scope": "SRV-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "findings": [
+    {
+      "id": "C14-R01",
+      "source_id": "LA-014",
+      "severity": "medium_conditional_on_overlap_or_reentry",
+      "confidence": "high_local",
+      "status": "reproduced_bounded",
+      "title": "Duplicate tell can mutate shared owner twice before a KeyError",
+      "locations": [
+        "service.py::_NativeSearchServiceDriver.tell",
+        "lifecycle.py::_SearchLifecycleOwner._accept_tell",
+        "run_state.py::apply_tell_transition"
+      ],
+      "observations": [
+        "P14",
+        "P15"
+      ],
+      "positive_controls": [
+        "P08",
+        "P16"
+      ],
+      "direction_control": "P17",
+      "preserve": [
+        "sequential duplicate refusal",
+        "detached original subject",
+        "single state owner",
+        "legitimate out-of-order different candidates"
+      ],
+      "remaining": "Coordinate atomic pending claim and commit with shared run generation. Either support overlapping responses or explicitly refuse them before mutation; no second ledger.",
+      "limits": "No native DTO/registry/provider/CAS; no evidence of duplicate physical execution, money charge, scientific approval or publication.",
+      "related_previous": [
+        "C12-R02 pending/run affinity"
+      ],
+      "not_independent_new_B_ID": true
+    },
+    {
+      "id": "C14-G01",
+      "source_id": "LA-014",
+      "status": "observed_interface_limitation",
+      "title": "Explicit goal/search_space discarded by ask",
+      "observations": [
+        "P18",
+        "P19"
+      ],
+      "remaining": "Wire to existing task context with conflict rules or explicitly limit/refuse unsupported non-None inputs.",
+      "limits": "No observed active caller using these fields; current read tests pass None; not a demonstrated user-level wrong policy."
+    },
+    {
+      "id": "C14-G02",
+      "source_id": "LA-014",
+      "status": "profile_ownership_not_established",
+      "title": "Manual ask/tell does not inherit full-run stopping and generation accounting",
+      "observations": [
+        "P20",
+        "P21"
+      ],
+      "remaining": "Qualify actual external split-controller or use existing bounded lifecycle; permit retaining already completed late work.",
+      "limits": "Fixture cost/producer; not proof bypassing durable owner. Externally driven ask/tell may intentionally allocate orchestration elsewhere."
+    },
+    {
+      "id": "C14-G03",
+      "source_id": "LA-014",
+      "status": "native_verification_unrun",
+      "title": "Full cold imports, preserved identities and supported consumers not recertified",
+      "remaining": "Run existing test_srv_01/test_contracts in supported environment; real DTO/source owner/installation and finite compatibility census.",
+      "limits": "Executable alias excerpt is not transitive native import."
+    }
+  ]
+}

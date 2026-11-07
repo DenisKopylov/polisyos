@@ -209,8 +209,8 @@ _PROMOTION_CLASS_GATE_SOURCE_RULE_VERSION = (
     "polisyos.policy_design_case.layer3_gy.n9_class_gate_source.v1"
 )
 _PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION: Literal[
-    "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v3"
-] = "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v3"
+    "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v4"
+] = "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v4"
 _LEGACY_PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION: Literal[
     "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v1"
 ] = "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v1"
@@ -536,6 +536,7 @@ class N9PromotionEvidenceBridgeRecord(_StrictModel):
     schema_version: Literal[
         "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v2",
         "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v3",
+        "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v4",
     ] = _PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION
     evidence_kind: _PromotionEvidenceKind
     candidate_id: str = Field(min_length=1)
@@ -550,6 +551,9 @@ class N9PromotionEvidenceBridgeRecord(_StrictModel):
     disposition: Literal["established", "blocked"]
     limitation_code: str = Field(min_length=1)
     verifier_provenance_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    verifier_provenance_manifest_profile_sha256: str | None = Field(
+        default=None, exclude_if=lambda value: value is None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
 
     synthetic: Literal[True] | None = None
     source_disposition: Literal["established", "blocked"] | None = None
@@ -558,6 +562,11 @@ class N9PromotionEvidenceBridgeRecord(_StrictModel):
     @model_validator(mode="after")
     def _validate_source_authority_projection(self) -> N9PromotionEvidenceBridgeRecord:
         fields = {"synthetic", "source_disposition", "source_limitation_code"}
+        if self.schema_version.endswith(".v4"):
+            if self.verifier_provenance_manifest_profile_sha256 is None:
+                raise ValueError("evidence_bridge_verifier_profile_missing")
+        elif "verifier_provenance_manifest_profile_sha256" in self.model_fields_set:
+            raise ValueError("historical_evidence_bridge_cannot_be_restamped")
         if self.schema_version.endswith(".v2"):
             if fields & self.model_fields_set:
                 raise ValueError("historical_evidence_bridge_cannot_be_restamped")
@@ -593,7 +602,10 @@ def parse_n9_promotion_evidence_bridge_history(
     """Read declared bridge epochs without invoking current authority admission."""
 
     schema = value.get("schema_version")
-    if schema == _PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION:
+    if schema in {
+        _PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION,
+        "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v3",
+    }:
         return N9PromotionEvidenceBridgeRecord.model_validate(value)
     if schema == "policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v2":
         return _LegacyN9PromotionEvidenceBridgeRecordV2.model_validate(value)
@@ -802,13 +814,6 @@ class N9PromotionEvidenceBridgeRepository:
         self._measurement_catalog = measurement_catalog
         self._measurement_providers = measurement_providers
         self._execution_scope_binding = execution_scope_binding
-        self._verifier_provenance_ref = store.put_bytes(
-            _PROMOTION_EVIDENCE_VERIFIER_BYTES,
-            core_artifacts.ArtifactWriteOptions(
-                kind=_PROMOTION_EVIDENCE_VERIFIER_KIND,
-                media_type="text/plain",
-            ),
-        )
 
     def persist_promotion_safety_request(
         self,
@@ -1080,8 +1085,11 @@ class N9PromotionEvidenceBridgeRepository:
             expected_type = _promotion_evidence_bridge_type(evidence_kind)
             if (
                 bridge_ref.artifact_type != expected_type
-                or bridge_ref.schema_ref != _PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION
-                or bridge_ref.version != "v3"
+                or (bridge_ref.schema_ref, bridge_ref.version)
+                not in {
+                    (_PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION, "v4"),
+                    ("policyos.policy_design_case.layer3_gy.n9_evidence_bridge.v3", "v3"),
+                }
                 or bridge_ref.uri != f"cas://{bridge_ref.artifact_id}"
                 or bridge_ref.manifest_profile_sha256 is None
             ):
@@ -1113,13 +1121,17 @@ class N9PromotionEvidenceBridgeRepository:
                 raise TypeError("promotion_evidence_bridge_model_invalid")
             if (
                 bridge_ref.content_hash != gy_content_hash(record.model_dump(mode="json"))
+                or record.schema_version != bridge_ref.schema_ref
                 or record.evidence_kind != evidence_kind
                 or record.candidate_id != promotion_input.candidate_summary.candidate_id
                 or record.candidate_content_hash != promotion_input.candidate_summary.content_hash
                 or record.design_problem_binding != promotion_input.design_problem_binding
                 or record.source_owner_ref != owner_ref
-                or record.verifier_provenance_ref != str(self._verifier_provenance_ref.artifact_id)
-                or not self._verifier_provenance_is_exact(record.verifier_provenance_ref)
+                or record.verifier_provenance_ref != _raw_hash(_PROMOTION_EVIDENCE_VERIFIER_BYTES)
+                or not self._verifier_provenance_is_exact(
+                    record.verifier_provenance_ref,
+                    record.verifier_provenance_manifest_profile_sha256,
+                )
             ):
                 raise ValueError("promotion_evidence_bridge_binding_invalid")
             source_ref = self._source_ref_from_bridge_manifest(core_ref, record)
@@ -1201,6 +1213,18 @@ class N9PromotionEvidenceBridgeRepository:
             raise ValueError("promotion_evidence_source_selector_invalid")
         source_artifact_id = str(source_ref.artifact_id)
         synthetic = self._source_synthetic_provenance(source_ref, promotion_input=promotion_input)
+        # Write only when producing a bridge, under the caller's active owner scope.
+        # Construction and replay must never claim a tenant's immutable artifact.
+        verifier_ref = self._store.put_bytes(
+            _PROMOTION_EVIDENCE_VERIFIER_BYTES,
+            core_artifacts.ArtifactWriteOptions(
+                kind=_PROMOTION_EVIDENCE_VERIFIER_KIND,
+                media_type="text/plain",
+            ),
+            return_selected_profile=True,
+        )
+        if verifier_ref.manifest_profile_sha256 is None:
+            raise ValueError("promotion_evidence_verifier_selected_profile_missing")
         record = N9PromotionEvidenceBridgeRecord(
             evidence_kind=evidence_kind,
             candidate_id=promotion_input.candidate_summary.candidate_id,
@@ -1221,7 +1245,8 @@ class N9PromotionEvidenceBridgeRepository:
                 if synthetic is True
                 else limitation_code
             ),
-            verifier_provenance_ref=str(self._verifier_provenance_ref.artifact_id),
+            verifier_provenance_ref=str(verifier_ref.artifact_id),
+            verifier_provenance_manifest_profile_sha256=verifier_ref.manifest_profile_sha256,
         )
         ref, _semantic, _raw = _persist_model(
             store=self._store,
@@ -1241,7 +1266,7 @@ class N9PromotionEvidenceBridgeRepository:
             content_hash=gy_content_hash(record.model_dump(mode="json")),
             schema_ref=_PROMOTION_EVIDENCE_BRIDGE_SCHEMA_VERSION,
             uri=f"cas://{ref.artifact_id}",
-            version="v3",
+            version="v4",
             manifest_profile_sha256=ref.manifest_profile_sha256,
         )
 
@@ -1655,16 +1680,29 @@ class N9PromotionEvidenceBridgeRepository:
             raise ValueError("measurement_root_source_projection_mismatch")
         return payload, source_root_ref
 
-    def _verifier_provenance_is_exact(self, artifact_id_value: str) -> bool:
+    def _verifier_provenance_is_exact(
+        self, artifact_id_value: str, manifest_profile_sha256: str | None
+    ) -> bool:
         try:
             artifact_id = core_artifacts.ArtifactID(artifact_id_value)
-            report = self._store.verify(artifact_id)
-            raw = self._store.get_bytes(artifact_id)
-            manifest = self._store.get_manifest(artifact_id)
+            ref = core_artifacts.ArtifactRef(
+                artifact_id=artifact_id,
+                kind=_PROMOTION_EVIDENCE_VERIFIER_KIND,
+                media_type="text/plain",
+                manifest_profile_sha256=manifest_profile_sha256,
+            )
+            report = self._store.verify(ref)
+            raw = self._store.get_bytes(ref)
+            manifest = self._store.get_manifest(ref)
             return bool(
                 report.ok
                 and raw == _PROMOTION_EVIDENCE_VERIFIER_BYTES
                 and manifest.artifact_id == artifact_id
+                and (
+                    manifest_profile_sha256 is None
+                    or core_artifacts.artifact_manifest_profile_sha256(manifest)
+                    == manifest_profile_sha256
+                )
                 and manifest.kind == _PROMOTION_EVIDENCE_VERIFIER_KIND
                 and manifest.media_type == "text/plain"
                 and manifest.byte_size == len(raw)

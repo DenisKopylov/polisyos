@@ -1,0 +1,16 @@
+id = "2026-10-30-e02-neural-transfer-checkpoint"
+title = "Reopen selected neural transfer history at checkpoint and use"
+type = "fixed"
+component = "scientist"
+owner = "E02"
+summary = "The neural Sobol phase records selected transfer histories and reloads their verified CAS content before checkpoint, restore and use."
+evidence = ["tests/unit/scientist/search/strategies/test_neural_checkpoint.py", "tests/unit/scientist/methods/autotune/test_warm_start.py"]
+compatibility = "Selected warm history uses the existing transfer manager and a receiver fingerprint. The manager rejects more than one selected history per run, including alternate profiles of the same bytes. Unbound warm data, count-only legacy snapshots, and snapshots after a surrogate attempt are refused for checkpointing."
+change_class = "internal"
+surface_classification = "internal: Scientist neural search strategy"
+migration = "Select the intended transfer histories with complete target and exact source profiles before making a new Sobol checkpoint."
+limitations = "The transfer reader reconstructs observation timestamps, so original time and temporal provenance are not preserved. Live verification and later use are not an atomic read against concurrent mutation. This candidate-grade path does not establish source authority, empirical calibration, automatic production wiring, or fitted-GP continuation."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scientist/methods/search/strategies/README.md"]
+runbook_docs = []

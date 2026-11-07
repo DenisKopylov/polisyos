@@ -1,0 +1,94 @@
+{
+  "pass_id": "C89",
+  "bundle": "FED-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C89-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high",
+      "source_ids": [
+        "B145"
+      ],
+      "title": "Finite mean/median inputs переполняют aggregate и сохраняются как воспроизводимый inf",
+      "evidence": [
+        "S01:1673–1724",
+        "S04:81–82",
+        "S05:560–605",
+        "S05:734–769",
+        "P03"
+      ],
+      "remaining": "В существующем numeric consensus owner использовать устойчивое вычисление representable mean/even median и проверять конечность результата до его admission как point aggregate. Сохранить finite valid aggregate12 для10/14, partial participant/exclusion semantics и отдельный categorical mode. Replay должен сохранять exact rule, но не выдавать воспроизводимость за numerical admissibility.",
+      "limits": "Strict mean и median для двух finite1e308 даютinf вместо finite1e308; actual selected JSON persistence/readback/replay воспроизводитinf, participants2/excluded0. RuntimeWarnings сохранены. Это bounded selected composition defect, не доказательство обхода finite ObservationRecord guard или принятой policy recommendation. Composer исполнен с явной syntax-only адаптацией трёх except headers на Python3.12."
+    },
+    {
+      "id": "C89-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high",
+      "source_ids": [
+        "B145"
+      ],
+      "title": "Strict scalar MEDIAN пропускает singleton invalid value после null-filter до policy validity",
+      "evidence": [
+        "S02:105–129",
+        "S02:275–320",
+        "S01:1667–1715",
+        "P04"
+      ],
+      "remaining": "Согласовать numeric admissibility scalar MEDIAN и numeric CONSENSUS до single-effective-source shortcut. Реальный null сохранить как отсутствие, nonnumeric/nonfinite как invalid under strict policy. Не заменять consensus aggregate выбором одного source и не ломать полезный FIRST_AVAILABLE/trust behavior.",
+      "limits": "Actual unchanged resolver для[inf,None] и[bad,None] возвращает invalid candidate с reasoning single_source, тогда как actual numeric consensus отказывает. Доказан ограниченный dispatch inconsistency, а не native service promotion или общее запрещение nonnumeric категорий под другими policies."
+    },
+    {
+      "id": "C89-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B138",
+        "B140",
+        "B141",
+        "B145"
+      ],
+      "title": "Supported native facade, Parquet и полный opt-in acquisition bridge ещё не квалифицированы",
+      "evidence": [
+        "S01",
+        "S05",
+        "S06",
+        "S07",
+        "S11",
+        "S12",
+        "P01",
+        "P02"
+      ],
+      "remaining": "В поддержанном окружении повторить выбранный regression и selected artifact corpus без initializer/telemetry/syntax seams, включая существующий Parquet test. Исполнить реальную opt-in acquisition composition с контролируемым connector и frozen request, actual typed receipt/reopen и semantic negatives; не обращаться к production или сети без отдельного разрешения.",
+      "limits": "Native import BLOCKED на TypeVar(default) через eager connectors initializer на Python3.12; pytest/Parquet engines отсутствуют. 46PASS — isolated bodies, не native suite. Actual JSON artifact producer/replay исполнены и полезны, однако service caller только прочитан. Python3.14 except syntax не product defect."
+    },
+    {
+      "id": "C89-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B138",
+        "B140",
+        "B141",
+        "B145"
+      ],
+      "title": "Software replay и declared grain не устанавливают внешнее происхождение или независимость измерений",
+      "evidence": [
+        "S03:136–158",
+        "S05:95–111",
+        "S08",
+        "S11:479–551",
+        "P02",
+        "P05"
+      ],
+      "remaining": "Для конкретного использования связать declared grain, единицы, source scope/версии, допустимую кратность и независимость вкладов с предметными доказательствами. Сохранить current candidate/unknown leaf-history limits; использовать existing integration contract, не создавать универсальную provenance-платформу.",
+      "limits": "Owned cell lineage и selected graph подтверждают программное происхождение относительно предъявленных leaves, не их issuer truth/currentness. Erased copy разрешён только как явно limited new candidate; это не само по себе laundering defect. Full population/unit compatibility и научная независимость sources не доказаны synthetic corpus."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C89-R01",
+    "C89-R02"
+  ],
+  "decision": "B138/B140/B141 основная реализация подтверждена bounded runtime и actual selected JSON replay. B145 invalid-participant repair есть, но finite output overflow и singleton validity residual остаются."
+}

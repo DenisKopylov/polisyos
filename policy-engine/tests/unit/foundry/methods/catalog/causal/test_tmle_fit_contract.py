@@ -7,6 +7,7 @@ import json
 import logging
 import secrets
 import threading
+import time
 from dataclasses import fields, replace
 
 import numpy as np
@@ -99,6 +100,96 @@ def _bound_pool_task(node, alias: str, state, parent_context, *, priority: int =
     )
 
 
+def _current_native_study_result(x, treatment, outcome, *, study: str, fitting_params=None):
+    """Exercise the actual fit once, then rebind only its diagnostic policy."""
+    from polisyos.common.serialization import to_python_data
+
+    cold_params = _params(
+        __shared_nuisance_key=study,
+        min_effective_sample_size=48,
+        coverage_guard="ess_aware",
+        **(fitting_params or {}),
+    )
+    source = {"X": x, "treatment": treatment, "outcome": outcome}
+    cold = TMLEEstimator.pure_step(source, cold_params)
+    current_params = {**cold_params, "min_effective_sample_size": 100, "coverage_guard": "off"}
+    current = TMLEEstimator.pure_step(source, current_params)
+    old_diagnostics = cold["result"]["nuisance_diagnostics"]
+    current_diagnostics = current["result"]["nuisance_diagnostics"]
+    assert old_diagnostics["fit_identity"] == current_diagnostics["fit_identity"]
+    assert old_diagnostics["min_effective_sample_size"] == 48
+    assert old_diagnostics["coverage_guard"] == "ess_aware"
+    assert current_diagnostics["min_effective_sample_size"] == 100
+    assert current_diagnostics["coverage_guard"] == "off"
+    assert current["report"].method_params["min_effective_sample_size"] == 100
+    assert current["report"].method_params["coverage_guard"] == "off"
+    return to_python_data(current, sort_keys=True)
+
+
+def _persist_native_study(ctx, x, treatment, outcome, payload):
+    from polisyos.core.artifacts.manifest import InputRef
+    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.core.canon import CanonSpec
+
+    source_ref = ctx.store.put_json(
+        {"X": x.tolist(), "treatment": treatment.tolist(), "outcome": outcome.tolist()},
+        PutOptions(kind="test.tmle_source", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    return ctx.store.put_json(
+        {**payload, "source_ref": source_ref.model_dump(mode="json")},
+        PutOptions(
+            kind="test.tmle_result",
+            media_type="application/json",
+            inputs=[
+                InputRef(
+                    artifact_id=source_ref.artifact_id,
+                    role="input:causal_observations",
+                    manifest_profile_sha256=source_ref.manifest_profile_sha256,
+                )
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+
+def _read_current_native_study(reader, ref):
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.ir.analytics.causal import CausalEffectReport
+    from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
+
+    payload = from_canonical_bytes(reader.get_bytes(ref))
+    result = payload["result"]
+    report = CausalEffectReport.model_validate(payload["report"])
+    envelope = UncertaintyEnvelope.model_validate(payload["envelope"])
+    source_ref = ArtifactRef.model_validate(payload["source_ref"])
+    source = from_canonical_bytes(reader.get_bytes(source_ref))
+    manifest_input = reader.get_manifest(ref).inputs[0]
+    assert manifest_input.artifact_id == source_ref.artifact_id
+    assert manifest_input.manifest_profile_sha256 == source_ref.manifest_profile_sha256
+    assert result["nuisance_diagnostics"]["fit_identity"] == core._fit_identity(
+        np.asarray(source["X"], dtype=float),
+        np.asarray(source["treatment"], dtype=float),
+        np.asarray(source["outcome"], dtype=float),
+        core.ATENuisanceContract.from_params(result["nuisance_contract"]),
+    )
+    assert report.point_estimate == result["ate"]
+    assert report.confidence_interval == (result["ci_lower"], result["ci_upper"])
+    assert report.method_params["min_effective_sample_size"] == 100
+    assert report.method_params["coverage_guard"] == "off"
+    assert result["nuisance_diagnostics"]["min_effective_sample_size"] == 100
+    assert result["nuisance_diagnostics"]["coverage_guard"] == "off"
+    assert report.metadata["assumption_basis"] == "consumer_asserted"
+    assert report.metadata["gate_eligible"] is False
+    assert result["gate_eligible"] is False
+    assert envelope == report.to_uncertainty_envelope()
+    assert envelope.gate_eligible is False
+    return payload
+
+
 def test_native_cold_warm_rebind_and_reader_isolation(monkeypatch: pytest.MonkeyPatch) -> None:
     x, a, y = _dgp()
     calls = []
@@ -136,6 +227,148 @@ def test_native_cold_warm_rebind_and_reader_isolation(monkeypatch: pytest.Monkey
     second.selection_manifest[0]["split_policy"] = "corrupt-reader"
     fresh = core.fit_crossfit_nuisance_bundle(x, a, y, updated, params)
     assert fresh.selection_manifest[0]["split_policy"] == "current-report-policy"
+
+
+@pytest.mark.parametrize("scaling", ["standardized", "raw+standardized", "raw", "auto"])
+def test_continuous_nuisance_preprocessing_belongs_to_the_fit_fold(
+    scaling: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A held-out outcome may change targeting, but cannot train its own nuisance."""
+    n = 96
+    x = np.linspace(-2.0, 2.0, n)[:, None]
+    treatment = (np.arange(n) % 2).astype(float)
+    outcome = 1.7 * x[:, 0] + 0.4 * treatment + 0.15 * np.sin(3 * x[:, 0])
+    params = _params(
+        outcome_backend="elastic_net",
+        outcome_scaling=scaling,
+        outcome_family="continuous",
+        n_repeats=1,
+        __shared_nuisance_key="continuous-fold-preprocessing",
+    )
+    contract = core.ATENuisanceContract.from_params(params)
+    calls = []
+    native = core._fit_crossfit_fold
+
+    def observe(**kwargs):
+        result = native(**kwargs)
+        calls.append(
+            {
+                "fit_idx": kwargs["fit_idx"].copy(),
+                "calib_idx": kwargs["calib_idx"].copy(),
+                "test_idx": kwargs["test_idx"].copy(),
+                "scaler": kwargs["scaler"],
+                "result": result,
+            }
+        )
+        return result
+
+    monkeypatch.setattr(core, "_fit_crossfit_fold", observe)
+    first = core.fit_crossfit_nuisance_bundle(x, treatment, outcome, contract, params)
+    first_fold = calls[0]
+    assert len(calls) == 3
+    assert first_fold["result"]["outcome_backends"] == ["elastic_net", "elastic_net"]
+    test_idx = first_fold["test_idx"]
+    fit_idx = first_fold["fit_idx"]
+    assert not np.intersect1d(test_idx, fit_idx).size
+
+    heldout_changed = outcome.copy()
+    heldout_changed[test_idx] += 30.0 * (1.0 + x[test_idx, 0])
+    second = core.fit_crossfit_nuisance_bundle(x, treatment, heldout_changed, contract, params)
+    second_fold = calls[3]
+    assert len(calls) == 6  # Same label never licenses reuse after an actual Y change.
+    assert first.fit_identity != second.fit_identity
+    for arm in ("mu0", "mu1"):
+        np.testing.assert_allclose(
+            second_fold["result"][arm], first_fold["result"][arm], rtol=1e-12, atol=1e-12
+        )
+    assert second_fold["result"]["outcome_backends"] == first_fold["result"]["outcome_backends"]
+    assert second_fold["scaler"] == first_fold["scaler"]
+    assert first_fold["scaler"].mean == pytest.approx(np.mean(outcome[fit_idx]))
+    assert first_fold["scaler"].scale == pytest.approx(np.std(outcome[fit_idx]))
+    if scaling == "auto":
+        assert not first_fold["scaler"].applied
+        # The same held-out change would flip a forbidden full-data decision.
+        assert np.std(heldout_changed) > 10.0
+    recorded = first.split_manifest[0]["folds"][0]["outcome_preprocessing"]
+    assert recorded["fit_indices_digest"] == core._hash_array(fit_idx)
+    assert recorded["test_indices_digest"] == core._hash_array(test_idx)
+    assert recorded["scope"] == "fold_fit_only"
+    assert recorded["mean"] == first_fold["scaler"].mean
+    assert recorded["scale"] == first_fold["scaler"].scale
+    assert first.diagnostics()["outcome_scaler"]["scope"] == "targeting_reference_only"
+
+    # The same actual fit must react to training outcomes, so invariance is not
+    # a constant-output or cache-hit artifact.
+    train_changed = outcome.copy()
+    train_changed[fit_idx] += 2.0 * x[fit_idx, 0]
+    third = core.fit_crossfit_nuisance_bundle(x, treatment, train_changed, contract, params)
+    third_fold = calls[6]
+    assert len(calls) == 9
+    assert third.fit_identity not in {first.fit_identity, second.fit_identity}
+    assert np.max(np.abs(third_fold["result"]["mu1"] - first_fold["result"]["mu1"])) > 0.1
+
+    current = core.fit_crossfit_nuisance_bundle(
+        x, treatment, outcome, replace(contract, min_effective_sample_size=1000), params
+    )
+    assert len(calls) == 9
+    assert current.fit_identity == first.fit_identity
+    assert current.diagnostics()["min_effective_sample_size"] == 1000
+    assert first.diagnostics()["min_effective_sample_size"] == contract.min_effective_sample_size
+    np.testing.assert_array_equal(current.mu1, first.mu1)
+    current.split_manifest[0]["folds"][0]["outcome_preprocessing"]["mean"] = 900.0
+    fresh = core.fit_crossfit_nuisance_bundle(x, treatment, outcome, contract, params)
+    assert fresh.split_manifest[0]["folds"][0]["outcome_preprocessing"] == recorded
+
+
+@pytest.mark.parametrize("scaling", ["raw", "standardized"])
+def test_empty_arm_nuisance_fallback_uses_only_permitted_fold_fit_rows(scaling: str) -> None:
+    """An absent arm cannot import held-out outcomes through its constant fallback."""
+    x = np.arange(6, dtype=float)[:, None]
+    treatment = np.array([0.0, 0.0, 0.0, 0.0, 1.0, 1.0])
+    outcome = np.array([1.0, 2.0, 3.0, 4.0, 20.0, 30.0])
+    fit_idx = np.arange(4)
+    test_idx = np.array([4, 5])
+    contract = core.ATENuisanceContract.from_params(_params(outcome_scaling=scaling))
+
+    def fold(y):
+        scaler = core.fit_outcome_scaler(y[fit_idx], scaling)
+        return core._fit_crossfit_fold(
+            X=x,
+            T=treatment,
+            Y_scaled=core.scale_outcome(y, scaler),
+            scaler=scaler,
+            contract=contract,
+            rep_seed=18,
+            fold_id=0,
+            fit_idx=fit_idx,
+            calib_idx=np.array([], dtype=int),
+            test_idx=test_idx,
+        )
+
+    first = fold(outcome)
+    changed = outcome.copy()
+    changed[test_idx] += 900.0
+    second = fold(changed)
+    assert first["outcome_backends"][0] == "constant"
+    np.testing.assert_allclose(first["mu1"], np.mean(outcome[fit_idx]), rtol=0.0, atol=1e-12)
+    np.testing.assert_array_equal(first["mu1"], second["mu1"])
+    np.testing.assert_array_equal(first["mu0"], second["mu0"])
+    assert first["selection_records"][1]["fallback_indices_digest"] == core._hash_array(fit_idx)
+    changed[fit_idx] += 2.0
+    third = fold(changed)
+    np.testing.assert_allclose(third["mu1"], first["mu1"] + 2.0, rtol=0.0, atol=1e-12)
+
+
+def test_outcome_nuisance_without_permitted_training_rows_refuses() -> None:
+    with pytest.raises(ValueError, match="no permitted fold-fit support"):
+        core._fit_regression_backend(
+            np.arange(4, dtype=float)[:, None],
+            np.arange(4, dtype=float),
+            np.array([], dtype=int),
+            np.array([0, 1]),
+            core.ATENuisanceContract.from_params(_params()),
+            seed=18,
+        )
 
 
 @pytest.mark.parametrize("axis", ["X", "T", "Y", "seed", "folds", "model", "split"])
@@ -183,6 +416,82 @@ def test_precomputed_bundle_is_content_bound_and_reader_isolated() -> None:
     bundle.fit_identity = None
     with pytest.raises(ValueError, match="identity"):
         core.fit_crossfit_nuisance_bundle(x, a, y, contract, precomputed)
+
+
+@pytest.mark.parametrize("name", ["DRLearnerEstimator", "RLearnerEstimator"])
+def test_sibling_meta_learners_resolve_offered_predictions_from_the_controlled_core(
+    name: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A sibling consumer cannot use mutable offered predictions as fit authority."""
+    from polisyos.foundry.methods.catalog.causal import advanced_designs
+
+    x, treatment, outcome = _dgp(n=120)
+    params = _params(n_repeats=1, nuisance_model_family="linear", bootstrap_draws=20)
+    contract = core.ATENuisanceContract.from_params(params)
+    calls = []
+    native = core._fit_crossfit_fold
+
+    def observe(**kwargs):
+        calls.append((kwargs["rep_seed"], kwargs["fold_id"]))
+        return native(**kwargs)
+
+    monkeypatch.setattr(core, "_fit_crossfit_fold", observe)
+    offered = core.fit_crossfit_nuisance_bundle(x, treatment, outcome, contract, params)
+    current = {
+        **params,
+        "__shared_nuisance_bundle": offered,
+        "min_effective_sample_size": 100,
+        "coverage_guard": "off",
+    }
+    estimator = getattr(advanced_designs, name)
+    state = {"X": x, "treatment": treatment, "outcome": outcome}
+    baseline = estimator.pure_step(state, current)["result"]
+    assert np.isfinite(baseline["ate"])
+    offered.mu1 = np.full(outcome.size, 900.0)
+    offered.scaler = replace(offered.scaler, mean=900.0)
+    offered.selection_manifest.clear()
+    replay = estimator.pure_step(state, current)["result"]
+    assert replay == baseline
+    assert len(calls) == 3
+    core_info = replay["nuisance_diagnostics"]["backend_info"]
+    assert core_info["fit_identity"] == offered.fit_identity
+    assert core_info["native_contract"]["min_effective_sample_size"] == 100
+    assert offered.contract.min_effective_sample_size == contract.min_effective_sample_size
+    different_outcome = outcome.copy()
+    different_outcome[0] = 1 - different_outcome[0]
+    wrong_state = {**state, "outcome": different_outcome}
+    if name == "DRLearnerEstimator":
+        refused = estimator.pure_step(wrong_state, current)["result"]
+        assert refused["failed"] is True
+        assert "identity" in refused["fail_reason"]
+        assert not np.isfinite(refused["ate"])
+    else:
+        with pytest.raises(ValueError, match="identity"):
+            estimator.pure_step(wrong_state, current)
+    assert len(calls) == 3
+    assert len(core._SHARED_NUISANCE_CACHE) == 1
+
+
+@pytest.mark.parametrize("change", ["source", "unknown_identity", "evicted_core"])
+def test_sibling_nuisance_resolver_cannot_fallback_after_offered_core_refusal(change: str) -> None:
+    from polisyos.foundry.methods.catalog.causal import advanced_designs
+
+    x, treatment, outcome = _dgp(n=120)
+    params = _params(n_repeats=1, nuisance_model_family="linear")
+    contract = core.ATENuisanceContract.from_params(params)
+    offered = core.fit_crossfit_nuisance_bundle(x, treatment, outcome, contract, params)
+    if change == "source":
+        outcome = outcome.copy()
+        outcome[0] = 1 - outcome[0]
+    elif change == "unknown_identity":
+        offered.fit_identity = "unissued-fit"
+    else:
+        core._SHARED_NUISANCE_CACHE.clear()
+        core._SHARED_NUISANCE_CACHE_ORDER.clear()
+    with pytest.raises(ValueError, match="identity|controlled|issued"):
+        advanced_designs._resolve_nuisance_outputs(
+            x, treatment, outcome, params={**params, "__shared_nuisance_bundle": offered}
+        )
 
 
 def test_native_binary_target_score_ate_and_eif_oracle() -> None:
@@ -236,21 +545,104 @@ def test_observed_positivity_failure_is_limited_at_actual_method_consumer(
     assert "observed_positivity_failure" in output["inference_limitations"]
 
 
-def test_effective_fold_policy_retains_all_folds_and_native_results() -> None:
+@pytest.mark.parametrize("max_parallel_folds", [0, 1, 2])
+def test_effective_fold_policy_retains_all_folds_and_native_results(
+    max_parallel_folds: int, monkeypatch: pytest.MonkeyPatch
+) -> None:
     x, a, y = _dgp(n=240)
+    calls = []
+    native = core._fit_crossfit_fold
+
+    def observe(**kwargs):
+        calls.append((kwargs["rep_seed"], kwargs["fold_id"], kwargs["test_idx"].tolist()))
+        return native(**kwargs)
+
+    monkeypatch.setattr(core, "_fit_crossfit_fold", observe)
     serial, _ = core.fit_tmle_ate(x, a, y, _params(parallel_folds=False))
+    assert len(calls) == 6
     requested_parallel, bundle = core.fit_tmle_ate(
         x,
         a,
         y,
-        _params(parallel_folds=True, max_parallel_folds=0, __disable_shared_nuisance_cache=True),
+        _params(
+            parallel_folds=True,
+            max_parallel_folds=max_parallel_folds,
+            __disable_shared_nuisance_cache=True,
+        ),
     )
+    assert len(calls) == 12
+    assert calls[:6] == calls[6:]
+    assert [(seed, fold) for seed, fold, _ in calls[:6]] == [
+        (seed, fold) for seed in (18, 1015) for fold in range(3)
+    ]
+    for seed in (18, 1015):
+        held_out = [i for observed, _, indices in calls[:6] if observed == seed for i in indices]
+        assert sorted(held_out) == list(range(240))
     assert bundle.diagnostics()["execution_policy"]["effective_fold_workers"] == 1
+    assert bundle.diagnostics()["execution_policy"]["requested_parallel_folds"] is True
+    assert (
+        bundle.diagnostics()["execution_policy"]["requested_max_parallel_folds"]
+        == max_parallel_folds
+    )
     assert sum(len(r["folds"]) for r in bundle.split_manifest) == 6
     np.testing.assert_array_equal(requested_parallel.eif_values, serial.eif_values)
     assert requested_parallel.ate == serial.ate
     assert requested_parallel.ci_lower == serial.ci_lower
     assert requested_parallel.ci_upper == serial.ci_upper
+
+
+def test_numerical_fold_oracle_detects_dropped_contribution_with_complete_task_markers(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Removing one native contribution must fail even if all task labels survive."""
+    x, treatment, outcome = _dgp(n=240)
+    baseline, _ = core.fit_tmle_ate(x, treatment, outcome, _params(parallel_folds=False))
+    native = core._fit_crossfit_fold
+    actual_calls = []
+
+    def discard_first_contribution(**kwargs):
+        result = native(**kwargs)
+        actual_calls.append((kwargs["rep_seed"], kwargs["fold_id"]))
+        if kwargs["rep_seed"] == 18 and kwargs["fold_id"] == 0:
+            # Execute the real models, then remove only their scientific
+            # contribution. Backend/task/selection markers remain unchanged.
+            return {
+                **result,
+                "test_idx": np.array([], dtype=int),
+                "propensity": np.array([], dtype=float),
+                "mu1": np.array([], dtype=float),
+                "mu0": np.array([], dtype=float),
+            }
+        return result
+
+    monkeypatch.setattr(core, "_fit_crossfit_fold", discard_first_contribution)
+    damaged, bundle = core.fit_tmle_ate(
+        x,
+        treatment,
+        outcome,
+        _params(parallel_folds=True, max_parallel_folds=2, __disable_shared_nuisance_cache=True),
+    )
+    assert len(actual_calls) == 6
+    assert actual_calls == [(seed, fold) for seed in (18, 1015) for fold in range(3)]
+    assert sum(len(repeat["folds"]) for repeat in bundle.split_manifest) == 6
+    assert len(bundle.outcome_backends) == 12
+    assert bundle.diagnostics()["execution_policy"]["effective_fold_workers"] == 1
+    with pytest.raises(AssertionError, match="Arrays are not equal"):
+        np.testing.assert_array_equal(damaged.eif_values, baseline.eif_values)
+    print(
+        json.dumps(
+            {
+                "control": "one_native_fold_contribution_removed",
+                "actual_native_fold_calls": len(actual_calls),
+                "declared_fold_markers": 6,
+                "outcome_backend_markers": len(bundle.outcome_backends),
+                "maximum_absolute_eif_difference": float(
+                    np.max(np.abs(damaged.eif_values - baseline.eif_values))
+                ),
+                "numerical_oracle": "array_equality_rejected",
+            }
+        )
+    )
 
 
 _FIT_CHANGES = {
@@ -373,21 +765,42 @@ def test_unsupported_inference_profiles_do_not_emit_an_interval(profile: str) ->
     assert fit.inference_limitations == ("unsupported_inference_profile",)
 
 
-@pytest.mark.parametrize("budget", [1, 2])
+@pytest.mark.parametrize(
+    ("submission_mode", "budget", "sample_size", "outcome_backend"),
+    [
+        ("serial", 1, 120, "linear"),
+        ("queued", 1, 120, "linear"),
+        ("queued", 2, 120, "linear"),
+        ("serial", 1, 600, "elastic_net"),
+        ("queued", 1, 600, "elastic_net"),
+        ("queued", 2, 600, "elastic_net"),
+    ],
+    ids=[
+        "serial-baseline",
+        "outer-1",
+        "outer-2",
+        "n600-elastic-serial",
+        "n600-elastic-outer-1",
+        "n600-elastic-outer-2",
+    ],
+)
 def test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout(
+    submission_mode: str,
     budget: int,
+    sample_size: int,
+    outcome_backend: str,
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
 ) -> None:
     """Run real node dispatch, native models and CAS readback under pool pressure."""
     from polisyos.core.artifacts.manifest import ArtifactRef
-    from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-    from polisyos.core.canon import CanonSpec
+    from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
     from polisyos.core.registry import build_default_registry_bundle
     from polisyos.core.security import tenant_scope
     from polisyos.scientist.orchestration.engine import registry
     from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
+    from polisyos.scientist.orchestration.engine.runner import local_pool as pool_module
     from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
     from polisyos.scientist.orchestration.engine.runner.serialization import deserialize_outcome
     from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -396,7 +809,17 @@ def test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout(
     lock = threading.Lock()
     active = peak = 0
     calls = []
+    submitted_at = {}
+    dispatched_at = {}
+    numerical_results = []
     native = core._fit_crossfit_fold
+    native_dispatch = pool_module._run_parent_receipt_task
+
+    async def observe_dispatch(payload, **kwargs):
+        dispatched_at[payload["alias"]] = time.perf_counter()
+        return await native_dispatch(payload, **kwargs)
+
+    monkeypatch.setattr(pool_module, "_run_parent_receipt_task", observe_dispatch)
 
     class StudyNode:
         spec = NodeSpec(
@@ -412,17 +835,32 @@ def test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout(
         )
 
         def execute(self, ctx, state):
-            x, a, y = _dgp(seed=state.params["study_seed"], n=120)
-            result = TMLEEstimator.pure_step(
-                {"X": x, "treatment": a, "outcome": y},
-                _params(__disable_shared_nuisance_cache=True),
-            )["result"]
-            ref = ctx.store.put_json(
-                result,
-                PutOptions(kind="test.tmle_result", media_type="application/json"),
-                canon_spec=CanonSpec(forbid_floats=False),
-                return_selected_profile=True,
+            fitting_params = {}
+            if outcome_backend == "elastic_net":
+                rng = np.random.default_rng(state.params["study_seed"])
+                x = rng.normal(size=(sample_size, 2))
+                a = rng.binomial(1, 0.5, size=sample_size).astype(float)
+                y = (
+                    1.7 * x[:, 0]
+                    + 0.4 * a
+                    + 0.15 * np.sin(3.0 * x[:, 0])
+                    + rng.normal(scale=0.2, size=sample_size)
+                )
+                fitting_params = {
+                    "outcome_backend": "elastic_net",
+                    "outcome_scaling": "standardized",
+                    "outcome_family": "continuous",
+                }
+            else:
+                x, a, y = _dgp(seed=state.params["study_seed"], n=sample_size)
+            result = _current_native_study_result(
+                x, a, y, study=state.run_id, fitting_params=fitting_params
             )
+            if outcome_backend == "elastic_net":
+                diagnostics = result["result"]["nuisance_diagnostics"]
+                assert set(diagnostics["outcome_backends"]) == {"elastic_net"}
+                assert set(diagnostics["propensity_backends"]) == {"logistic_regression"}
+            ref = _persist_native_study(ctx, x, a, y, result)
             state.artifacts_index["tmle_result"] = ref
             ctx.run.add_output(ref)
             return NodeOutcome(status="ok", state=state, artifacts=[ref])
@@ -465,6 +903,8 @@ def test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout(
                     active -= 1
 
         monkeypatch.setattr(core, "_fit_crossfit_fold", observe)
+        if submission_mode == "serial":
+            release.set()
         with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
             store = FileSystemCAS(
                 tmp_path / "cas",
@@ -476,6 +916,8 @@ def test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout(
             parent_contexts = []
             try:
                 futures = []
+                serial_results = []
+                started_at = time.perf_counter()
                 for study in range(4):
                     state = ExperimentState(
                         run_id=f"study-{study}",
@@ -484,14 +926,22 @@ def test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout(
                     parent_context = _start_pool_parent_context(store, bundle, state.run_id)
                     parent_contexts.append(parent_context)
                     task = _bound_pool_task(node, f"study-{study}", state, parent_context)
-                    futures.append(await pool.submit_with_parent_context(task, parent_context))
-                await asyncio.wait_for(admitted.wait(), timeout=20)
-                capacity = await pool.current_capacity()
-                assert capacity.active_tasks == budget
-                assert capacity.queue_depth == 4 - budget
-                assert peak == budget
-                release.set()
-                results = await asyncio.wait_for(asyncio.gather(*futures), timeout=60)
+                    submitted_at[task.alias] = time.perf_counter()
+                    future = await pool.submit_with_parent_context(task, parent_context)
+                    futures.append(future)
+                    if submission_mode == "serial":
+                        serial_results.append(await asyncio.wait_for(future, timeout=60))
+                if submission_mode == "queued":
+                    await asyncio.wait_for(admitted.wait(), timeout=20)
+                    capacity = await pool.current_capacity()
+                    assert capacity.active_tasks == budget
+                    assert capacity.queue_depth == 4 - budget
+                    assert peak == budget
+                    release.set()
+                    results = await asyncio.wait_for(asyncio.gather(*futures), timeout=60)
+                else:
+                    results = serial_results
+                elapsed = time.perf_counter() - started_at
                 assert len(calls) == 24  # all 4 studies × 2 repeats × 3 folds actually executed
                 assert peak <= budget
                 reader = FileSystemCAS(
@@ -503,7 +953,16 @@ def test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout(
                     outcome = deserialize_outcome(result_bytes)
                     assert outcome.status == "ok"
                     ref = ArtifactRef.model_validate(outcome.state.artifacts_index["tmle_result"])
-                    payload = json.loads(reader.get_bytes(ref))
+                    saved = _read_current_native_study(reader, ref)
+                    payload = saved["result"]
+                    numerical_results.append(
+                        {
+                            "run_id": outcome.state.run_id,
+                            "fit_identity": payload["nuisance_diagnostics"]["fit_identity"],
+                            "ate": payload["ate"],
+                            "ci": [payload["ci_lower"], payload["ci_upper"]],
+                        }
+                    )
                     assert payload["targeting_summary"]["converged"]
                     assert ref in parent_context.run.run_manifest.outputs
                     assert parent_context.run.trace_path is not None
@@ -521,13 +980,36 @@ def test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout(
                     )
                     for repeat in payload["nuisance_diagnostics"]["split_manifest"]:
                         held_out = [i for fold in repeat["folds"] for i in fold["test_indices"]]
-                        assert sorted(held_out) == list(range(120))
+                        assert sorted(held_out) == list(range(sample_size))
                     assert (
                         payload["nuisance_diagnostics"]["execution_policy"][
                             "effective_fold_workers"
                         ]
                         == 1
                     )
+                print(
+                    json.dumps(
+                        {
+                            "profile": f"native_tmle_logistic_{outcome_backend}_n{sample_size}_cpu1",
+                            "cache_mode": "four_cold_studies_with_diagnostic_only_hit",
+                            "submission_mode": submission_mode,
+                            "outer_budget": budget,
+                            "study_seeds": [71, 72, 73, 74],
+                            "scientific_studies": 4,
+                            "scientific_fold_tasks": len(calls),
+                            "wall_seconds": elapsed,
+                            "peak_active_fold_work": peak,
+                            "active_work_unit": "executing_native_fold_callbacks_not_OS_threads",
+                            "queue_wait_scope": "submit_with_parent_context_to_admitted_receipt_dispatch_includes_scheduling",
+                            "queue_wait_seconds": {
+                                key: dispatched_at[key] - submitted_at[key]
+                                for key in sorted(submitted_at)
+                            },
+                            "results": numerical_results,
+                            "peak_RSS": "measured_by_retained_supervisor_per_process_command",
+                        }
+                    )
+                )
             finally:
                 release.set()
                 await pool.shutdown()
@@ -545,8 +1027,7 @@ def test_failed_native_study_releases_shared_pool_slot_for_waiting_study(
 ) -> None:
     """A real native failure releases its shared slot without losing sibling folds."""
     from polisyos.core.artifacts.manifest import ArtifactRef
-    from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-    from polisyos.core.canon import CanonSpec
+    from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
     from polisyos.core.registry import build_default_registry_bundle
     from polisyos.core.security import tenant_scope
@@ -583,21 +1064,13 @@ def test_failed_native_study_releases_shared_pool_slot_for_waiting_study(
             current_study.run_id = state.run_id
             try:
                 x, a, y = _dgp(seed=state.params["study_seed"], n=120)
-                result = TMLEEstimator.pure_step(
-                    {"X": x, "treatment": a, "outcome": y},
-                    _params(__disable_shared_nuisance_cache=True),
-                )["result"]
+                result = _current_native_study_result(x, a, y, study=state.run_id)
             finally:
                 del current_study.run_id
 
             if state.params.get("fail_after_fit"):
                 raise RuntimeError("study failed after all native folds")
-            ref = ctx.store.put_json(
-                result,
-                PutOptions(kind="test.tmle_result", media_type="application/json"),
-                canon_spec=CanonSpec(forbid_floats=False),
-                return_selected_profile=True,
-            )
+            ref = _persist_native_study(ctx, x, a, y, result)
             state.artifacts_index["tmle_result"] = ref
             ctx.run.add_output(ref)
             return NodeOutcome(status="ok", state=state, artifacts=[ref])
@@ -705,7 +1178,7 @@ def test_failed_native_study_releases_shared_pool_slot_for_waiting_study(
                     tenant_id=tenant_id,
                     cell_id=cell_id,
                 )
-                payload = json.loads(reader.get_bytes(ref))
+                payload = _read_current_native_study(reader, ref)["result"]
                 assert payload["targeting_summary"]["converged"]
                 assert ref in parent_contexts["study-survives"].run.run_manifest.outputs
                 for run_id, parent_context in parent_contexts.items():

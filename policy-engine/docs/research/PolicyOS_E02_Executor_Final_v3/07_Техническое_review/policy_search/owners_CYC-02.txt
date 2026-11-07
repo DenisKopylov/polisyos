@@ -1,0 +1,165 @@
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/generation_cycle.py:6940-6972
+ 6940 def _n8_interaction_qualification(result: JointSimulationResult) -> dict[str, str]:
+ 6941     """Project interaction class and basis without upgrading historical schemas."""
+ 6942 
+ 6943     if result.schema_version != (
+ 6944         JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
+ 6945     ):
+ 6946         return {
+ 6947             "n5_interaction_schema_version": result.schema_version,
+ 6948             "numeric_interaction": "unsupported",
+ 6949             "numeric_interaction_basis": "not_established",
+ 6950             "interaction_sampling_status": "not_established",
+ 6951         }
+ 6952     feedback = result.feedback_classification
+ 6953     return {
+ 6954         "n5_interaction_schema_version": result.schema_version,
+ 6955         "numeric_interaction": feedback.numeric_interaction,
+ 6956         "numeric_interaction_basis": feedback.numeric_interaction_basis,
+ 6957         "interaction_sampling_status": feedback.interaction_sampling_status,
+ 6958     }
+ 6959 
+ 6960 
+ 6961 def _n8_sampling_uncertainty_limitations(
+ 6962     result: JointSimulationResult,
+ 6963 ) -> frozenset[str]:
+ 6964     """Derive candidate limitations from the exact fresh-loaded N5 artifact."""
+ 6965 
+ 6966     if result.schema_version in {
+ 6967         JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION,
+ 6968         JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION,
+ 6969         JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION,
+ 6970     }:
+ 6971         # v1-v3 did not bind pairwise and higher-order residual vectors. The
+ 6972         # existing point-level standard errors are not a substitute for them.
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/generation_cycle.py:6961-6993
+ 6961 def _n8_sampling_uncertainty_limitations(
+ 6962     result: JointSimulationResult,
+ 6963 ) -> frozenset[str]:
+ 6964     """Derive candidate limitations from the exact fresh-loaded N5 artifact."""
+ 6965 
+ 6966     if result.schema_version in {
+ 6967         JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION,
+ 6968         JOINT_SIMULATION_HORIZON_STATE_CONSUMPTION_SCHEMA_VERSION,
+ 6969         JOINT_SIMULATION_HORIZON_REPLICATION_UNCERTAINTY_SCHEMA_VERSION,
+ 6970     }:
+ 6971         # v1-v3 did not bind pairwise and higher-order residual vectors. The
+ 6972         # existing point-level standard errors are not a substitute for them.
+ 6973         return frozenset({"legacy_sampling_not_established", "legacy_interaction_not_established"})
+ 6974     if (
+ 6975         result.schema_version
+ 6976         != JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION
+ 6977     ):
+ 6978         raise GenerationCycleError("joint_simulation_result_schema_unsupported")
+ 6979     statuses = {
+ 6980         point.replication_sampling.status
+ 6981         for trajectory in result.trajectories
+ 6982         for point in trajectory.points
+ 6983         if point.replication_sampling is not None
+ 6984     }
+ 6985     if not statuses or any(
+ 6986         point.replication_sampling is None
+ 6987         for trajectory in result.trajectories
+ 6988         for point in trajectory.points
+ 6989     ):
+ 6990         raise GenerationCycleError("replication_sampling_summary_missing")
+ 6991     if len(statuses) != 1:
+ 6992         raise GenerationCycleError("replication_sampling_status_mixed")
+ 6993     feedback = result.feedback_classification
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/generation_cycle.py:7008-7040
+ 7008 def _conditional_simulation_value_observation(
+ 7009     *,
+ 7010     candidate: object,
+ 7011     simulation: SimulationPortObservation,
+ 7012     problem: DesignProblem,
+ 7013     artifact_store: ArtifactStore | None,
+ 7014     generic_cycle_simulation_currentness_resolver: Callable[[], bool] | None = None,
+ 7015     cycle_index: int | None = None,
+ 7016     generic_handoff: GenericCycleSimulationContextHandoffV1 | None = None,
+ 7017     generic_child_selection: GenericCycleSimulationChildSelectionV1 | None = None,
+ 7018     generic_verified_scope: object | None = None,
+ 7019     generic_source_run_id: str | None = None,
+ 7020     propagate_artifact_access_errors: bool = False,
+ 7021 ) -> ValuePortObservation | None:
+ 7022     """Consume a verified K_sim result without laundering it into N8 authority."""
+ 7023 
+ 7024     blockers = set(simulation.authority_blockers)
+ 7025     if (
+ 7026         simulation.status != "joint_simulated"
+ 7027         or not blockers.issubset(_N8_CANDIDATE_SIMULATION_LIMITATIONS)
+ 7028         or simulation.simulation_result_ref is None
+ 7029     ):
+ 7030         return None
+ 7031     started = time.monotonic()
+ 7032     candidate_id = _candidate_id(candidate)
+ 7033     if simulation.candidate_id != candidate_id:
+ 7034         return _blocked_value_observation(
+ 7035             code="value_candidate_simulation_mismatch",
+ 7036             reason="N8 refuses a simulation result produced for another candidate.",
+ 7037             mode="simulate_only",
+ 7038             started=started,
+ 7039             candidate_id=candidate_id,
+ 7040         )
+
+### e02_repository/policy-engine/tests/unit/remediation/test_cyc_02.py:829-886
+  829 class _GenericDefaultN5Store(FileSystemCAS):
+  830     """Keep a generic JSON view as default while returning N5's selected view."""
+  831 
+  832     def __init__(self, root: Path) -> None:
+  833         super().__init__(root)
+  834         self.generic_view_ref: CASArtifactRef | None = None
+  835 
+  836     def put_json(
+  837         self,
+  838         obj: object,
+  839         opts: PutOptions,
+  840         canon_spec: CanonSpec | None = None,
+  841     ) -> CASArtifactRef:
+  842         if (
+  843             opts.kind == "polisyos.runtime.joint_simulation_result"
+  844             and self.generic_view_ref is None
+  845         ):
+  846             self.generic_view_ref = super().put_json(
+  847                 obj,
+  848                 PutOptions(
+  849                     kind="application/json",
+  850                     media_type="application/json",
+  851                     schema=SchemaInfo(name="application/json", version="1"),
+  852                 ),
+  853                 canon_spec=canon_spec,
+  854             )
+  855         return super().put_json(obj, opts, canon_spec=canon_spec)
+  856 
+  857 
+  858 def test_n5_result_has_reopenable_cas_reference(tmp_path: Path) -> None:
+  859     """The selected N5 view remains distinct from another honest view of its bytes."""
+  860 
+  861     store = _GenericDefaultN5Store(tmp_path / "n5-multiview-store")
+  862     _problem, _context, _candidate, simulation, produced, supplied_store = _real_n5_observation(
+  863         tmp_path, artifact_store=store
+  864     )
+  865     assert supplied_store is store
+  866     result_ref = simulation.simulation_result_ref
+  867     assert result_ref is not None
+  868     assert result_ref.kind == "polisyos.runtime.joint_simulation_result"
+  869     generic_ref = store.generic_view_ref
+  870     assert generic_ref is not None
+  871     assert generic_ref.artifact_id == result_ref.artifact_id
+  872     assert generic_ref.manifest_profile_sha256 is None
+  873     assert result_ref.manifest_profile_sha256 is not None
+  874 
+  875     generic_manifest = store.get_manifest(generic_ref)
+  876     assert generic_manifest.kind == "application/json"
+  877     manifest = store.get_manifest(result_ref)
+  878     payload = json.loads(store.get_bytes(result_ref))
+  879     assert manifest.artifact_schema is not None
+  880     assert manifest.artifact_schema.name == "policyos.runtime.n5.joint_simulation_result"
+  881     assert payload["receipt"]["payload_hash"] == produced.receipt.payload_hash
+  882     assert payload["trajectories"]
+  883 
+  884     reopened = load_joint_simulation_result(
+  885         result_ref,
+  886         store=store,

@@ -1,7 +1,7 @@
 # E02 Persisted Artifact Compatibility and Recovery
 
 Owner: @runtime-owners, with the owning Core, Scientist, and Data Forge teams.
-Source of truth: [Predictive-calibration API](../reference/api/runs.md#predictive-calibration), [Artifact Inspection API](../reference/api/artifacts.md), [selected N4 inputs](../reference/api/nl-profiled-run-inputs.md), [Core contracts](../../src/polisyos/core/contracts/README.md), and [Runtime owner-lineage contract](../../src/polisyos/runtime/quality/README.md).
+Source of truth: [Predictive-calibration API](../reference/api/runs.md#predictive-calibration), [Artifact Inspection API](../reference/api/artifacts.md), [selected N4 inputs](../reference/api/nl-profiled-run-inputs.md), `src/polisyos/core/contracts/README.md`, and `src/polisyos/runtime/quality/README.md`.
 Status: operator guidance for the repository source contract. It does not establish a deployed service, external owner, or current production data.
 
 ## Persisted legacy N4 outcome binding

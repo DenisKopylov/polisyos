@@ -9,7 +9,7 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
-from polisyos.core.artifacts import load_core_json_artifact
+from polisyos.core.artifacts import artifact_manifest_profile_sha256, load_core_json_artifact
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -131,6 +131,79 @@ def test_load_tensor_rejects_numpy_archive_payload(tmp_path) -> None:
 
     with pytest.raises(ValueError, match="NumPy array"):
         load_tensor(store, ref)
+
+
+def test_put_tensor_selects_its_written_profile_instead_of_same_bytes_default(tmp_path) -> None:
+    root = tmp_path / "cas"
+    store = FileSystemCAS(root)
+    value = np.asarray([2.0, 4.0], dtype=np.float32)
+    encoded = BytesIO()
+    np.save(encoded, value, allow_pickle=False)
+    default_ref = store.put_bytes(
+        encoded.getvalue(),
+        PutOptions(
+            kind="foundry.patch_value",
+            media_type="application/x-npy",
+            schema=SchemaInfo(name="test.UnrelatedTensorView", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+
+    selected_ref = put_tensor(store, value, return_selected_profile=True)
+
+    fresh = FileSystemCAS(root)
+    assert selected_ref.artifact_id == default_ref.artifact_id
+    assert selected_ref.manifest_profile_sha256 is not None
+    assert selected_ref.manifest_profile_sha256 != default_ref.manifest_profile_sha256
+    assert fresh.get_manifest(selected_ref.artifact_id).artifact_schema is not None
+    selected_manifest = fresh.get_manifest(selected_ref)
+    assert selected_manifest.artifact_schema is None
+    assert (
+        artifact_manifest_profile_sha256(selected_manifest) == selected_ref.manifest_profile_sha256
+    )
+    np.testing.assert_array_equal(load_tensor(fresh, selected_ref), value)
+
+
+def test_put_tensor_preserves_legacy_writer_and_refuses_unsupported_selected_mode(tmp_path) -> None:
+    cas = FileSystemCAS(tmp_path / "cas")
+
+    class LegacyWriter:
+        calls = 0
+
+        def put_bytes(self, data, options):
+            self.calls += 1
+            return cas.put_bytes(data, options)
+
+    legacy = LegacyWriter()
+    ref = put_tensor(legacy, [1.0])
+    assert ref.manifest_profile_sha256 is None
+    assert legacy.calls == 1
+    with pytest.raises(
+        NotImplementedError, match="artifact_store_return_selected_profile_unsupported"
+    ):
+        put_tensor(legacy, [2.0], return_selected_profile=True)
+    assert legacy.calls == 1
+
+
+def test_put_tensor_refuses_writer_that_drops_selected_profile_request(tmp_path) -> None:
+    cas = FileSystemCAS(tmp_path / "cas")
+
+    class ProfileDroppingWriter:
+        def put_bytes(self, data, options, *, return_selected_profile=False):
+            return cas.put_bytes(data, options)
+
+    with pytest.raises(ValueError, match="artifact_write_selected_profile_missing"):
+        put_tensor(ProfileDroppingWriter(), [1.0], return_selected_profile=True)
+
+
+@pytest.mark.parametrize("flag", [None, 0, 1, "true"])
+def test_put_tensor_refuses_non_boolean_profile_mode_before_writer_call(flag) -> None:
+    class UncalledWriter:
+        def put_bytes(self, *_args, **_kwargs):
+            pytest.fail("invalid profile mode must not write")
+
+    with pytest.raises(TypeError, match="return_selected_profile must be a bool"):
+        put_tensor(UncalledWriter(), [1.0], return_selected_profile=flag)
 
 
 def test_apply_ops_for_slot_combines_multiple_add_ops_with_masks(tmp_path) -> None:
@@ -651,7 +724,8 @@ def test_append_method_patch_records_adds_provenance_and_validates_contract() ->
         _append_method_patch_records({}, {}, node=node, output_payload={})
 
 
-def test_build_state_delta_ops_uses_sum_diff_for_touched_slots(tmp_path) -> None:
+@pytest.mark.parametrize("selected", [False, True])
+def test_build_state_delta_ops_uses_sum_diff_for_touched_slots(tmp_path, selected) -> None:
     store = FileSystemCAS(tmp_path)
     base_state = GlobalState.empty(n_agents=1, n_firms=1).replace(
         government_balance=jnp.asarray(10.0)
@@ -665,11 +739,13 @@ def test_build_state_delta_ops_uses_sum_diff_for_touched_slots(tmp_path) -> None
         touched_slots={"government.balance"},
         slot_registry=DEFAULT_SLOT_REGISTRY,
         merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+        return_selected_profile=selected,
     )
 
     assert len(ops) == 1
     assert ops[0].slot_id == "government.balance"
     assert ops[0].op == "add"
+    assert (ops[0].value_ref.manifest_profile_sha256 is not None) is selected
     assert float(np.asarray(load_tensor(store, ops[0].value_ref))) == pytest.approx(5.0)
 
 

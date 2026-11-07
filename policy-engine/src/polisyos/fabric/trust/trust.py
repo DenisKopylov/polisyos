@@ -20,7 +20,21 @@ def two_pass_compare(
     *,
     method: str = "two_pass_compare",
 ) -> UncertaintyBounds:
-    """Two pass compare helper."""
+    """Order two scenario values and compute their deterministic midpoint.
+
+    Decimal values are constructed from the string form of each input float;
+    the smaller and larger values become the lower and upper bounds. The
+    caller-supplied method label is carried into the result. These bounds do
+    not represent a probability or a statistically estimated interval.
+
+    Args:
+        optimistic_value: Value from the optimistic scenario.
+        pessimistic_value: Value from the pessimistic scenario.
+        method: Label stored with the resulting bounds.
+
+    Returns:
+        Bounds spanning both scenario values, with their arithmetic midpoint.
+    """
     lower = Decimal(str(min(optimistic_value, pessimistic_value)))
     upper = Decimal(str(max(optimistic_value, pessimistic_value)))
     value = (lower + upper) / Decimal("2")
@@ -35,7 +49,25 @@ def two_pass_compare_with_envelope(
     trust_policy_id: str | None = None,
     assume_triangular: bool = False,
 ) -> tuple[UncertaintyBounds, UncertaintyEnvelope]:
-    """Two pass compare with envelope helper."""
+    """Return deterministic scenario bounds and their trust-envelope projection.
+
+    The bounds are computed by :func:`two_pass_compare` and then mapped by
+    :func:`envelope_from_trust_bounds`. The envelope's distribution remains
+    unknown unless the caller explicitly requests the optional triangular
+    assumption; neither result estimates a probability distribution.
+
+    Args:
+        optimistic_value: Value from the optimistic scenario.
+        pessimistic_value: Value from the pessimistic scenario.
+        method: Label stored with the resulting bounds.
+        trust_policy_id: Optional identifier copied into envelope metadata.
+        assume_triangular: Whether to record a triangular distribution
+            assumption in the envelope.
+
+    Returns:
+        A pair containing the deterministic bounds and the envelope derived
+        from those bounds.
+    """
     bounds = two_pass_compare(
         optimistic_value=optimistic_value,
         pessimistic_value=pessimistic_value,
@@ -56,7 +88,22 @@ def persist_uncertainty_bounds(
     schema_name: str = "fabric.uncertainty_bounds",
     schema_version: str = "1.0",
 ) -> UncertaintyBoundsRef:
-    """Persist uncertainty bounds helper."""
+    """Store uncertainty bounds in CAS and return their typed artifact reference.
+
+    The serialized model is written as JSON with the Fabric uncertainty-bounds
+    artifact kind. The optional schema name and version are recorded in the
+    artifact metadata; this function does not recompute or alter the bounds.
+
+    Args:
+        store: CAS instance that receives the serialized bounds.
+        bounds: Bounds payload to persist.
+        schema_name: Artifact schema name, defaulting to the Fabric bounds
+            schema.
+        schema_version: Artifact schema version recorded with the payload.
+
+    Returns:
+        A validated :class:`UncertaintyBoundsRef` for the stored artifact.
+    """
     ref = store.put_json(
         bounds.model_dump(),
         opts=PutOptions(

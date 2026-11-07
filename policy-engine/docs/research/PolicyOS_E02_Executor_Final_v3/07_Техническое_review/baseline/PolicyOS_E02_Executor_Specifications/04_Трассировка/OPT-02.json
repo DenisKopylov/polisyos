@@ -1,0 +1,448 @@
+{
+  "packet_id": "OPT-02",
+  "lane": "LANE-02",
+  "title": "Параметры реального действия и честное происхождение предложения",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B112",
+    "B113",
+    "B127"
+  ],
+  "audit_reports": [
+    "02_Пакеты/OPT-02.md"
+  ],
+  "audit_report_sha256": "39481161e116ed5f2143ec341a00150c3876c094f11b1d05890a8587d68e3fd3",
+  "sourceplan_lines": [
+    2386,
+    2504
+  ],
+  "practical_goal": "Настоящий SearchSpace ведёт от proposal к выполненному MethodJob и source-admitted history; конечное пространство не тратит работу на скрытые дубли.",
+  "requirements": [
+    {
+      "id": "REQ-OPT-02-01",
+      "text": "Все cold, batch и fallback ветви проверяют effective-action identity и явно сообщают exhaustion либо назначенную реплику.",
+      "source_ids": [
+        "B112",
+        "B113",
+        "B127"
+      ],
+      "audit_ids": [
+        "remaining:0213",
+        "preserve:0331",
+        "preserve:0332",
+        "audit-residual:C19_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-OPT-02-01"
+      ]
+    },
+    {
+      "id": "REQ-OPT-02-02",
+      "text": "Внешний fallback сохраняет причину и reuse semantics, а native first suggest работает на существующем SearchSpace.",
+      "source_ids": [
+        "B112",
+        "B113",
+        "B127"
+      ],
+      "audit_ids": [
+        "remaining:0181",
+        "remaining:0182",
+        "preserve:0295",
+        "preserve:0296",
+        "audit-residual:C19_остатки:1"
+      ],
+      "test_ids": [
+        "TEST-OPT-02-02"
+      ]
+    },
+    {
+      "id": "REQ-OPT-02-03",
+      "text": "Training coordinate соответствует actual typed params на всех входах Evaluation, а не relaxed proposal.",
+      "source_ids": [
+        "B112",
+        "B113",
+        "B127"
+      ],
+      "audit_ids": [
+        "remaining:0183",
+        "remaining:0184",
+        "remaining:0214",
+        "preserve:0297",
+        "preserve:0298",
+        "preserve:0331",
+        "audit-residual:C19_остатки:2",
+        "audit-residual:C19_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-OPT-02-03"
+      ]
+    },
+    {
+      "id": "REQ-OPT-02-04",
+      "text": "Допуск source history и самостоятельность реплик доказать actual producer→CAS→training, не числом evaluation_id.",
+      "source_ids": [
+        "B112",
+        "B113",
+        "B127"
+      ],
+      "audit_ids": [
+        "remaining:0182",
+        "remaining:0183",
+        "remaining:0184",
+        "preserve:0297",
+        "preserve:0298",
+        "preserve:0332",
+        "audit-residual:C19_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-OPT-02-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-OPT-02-01",
+      "requirement_ids": [
+        "REQ-OPT-02-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Бинарный n∈{0,1}; cold pending содержит первый Sobol action; batch_size=3; отдельно categorical aliases и близкие continuous.",
+      "action": "Вызвать actual suggest и batch через wrapper/service, проверить effective params до evaluator admission.",
+      "oracle": "Cold не возвращает pending action как новый; batch содержит максимум два новых действия, затем exhaustion; явная replica отлична от нового действия.",
+      "expected": "No-backend/random/hard-limit ветви тоже проверены; отсутствие свободных действий не бесконечный retry и не выдуманный evaluation.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-OPT-02-02",
+      "requirement_ids": [
+        "REQ-OPT-02-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Смешанный x∈[0,10], n integer, category A/B, log scale∈[1,100]; current_best x=7; отсутствующий backend и отдельная wiring exception.",
+      "action": "Actual generator.generate→native first suggest; затем fallback→consumer, без monkeypatch владельца SearchSpace.",
+      "oracle": "Например x5,n0,B,scale10 нормализуется в (0.5,0,0,1,0.5); reuse явно повтор старого, wiring не назван Bayesian success; working alternative возвращает новый допустимый action.",
+      "expected": "Optional backend absence не запрещает candidate exploration; context-only не исполняется как политика; GP readiness требует отдельного native qualification.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-OPT-02-03",
+      "requirement_ids": [
+        "REQ-OPT-02-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Integer n∈{0,1}: params n0 и relaxed0.9; standalone missing {}, out-of-range, bool-as-integer; две корректные continuous x0/x10.",
+      "action": "Actual converter/source verifier→training corpus, затем inspect tensor coordinates и readback.",
+      "oracle": "Недопустимый вход не становится x0/центр0.5; accepted n0 canonical0; корректные x0/x10 различны, metrics остаются отдельно.",
+      "expected": "Missing/invalid scalar не SUCCESS0; full artifact IDs и split/unit guards остаются; relaxed diagnostic не теряется.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-OPT-02-04",
+      "requirement_ids": [
+        "REQ-OPT-02-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Authorized tiny MethodJob run с declared objective units, две разные params и две разрешённые реплики одного action; duplicate origin через warm/current; fresh CAS reader.",
+      "action": "Пройти настоящий runner→history→_history_to_evaluations→training; выполнить найденный native unitless exploration контроль отдельно.",
+      "oracle": "Training содержит только source-admitted строки с canonical params и полными refs; independent repeat учитывается ровно раз; source tamper/closed split исключён с причиной.",
+      "expected": "Generic candidate_only не повышается до configured_native_gp. Полезная exploration сохраняется при недопуске в численный corpus.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C19_остатки:0",
+      "requirement_ids": [
+        "REQ-OPT-02-01"
+      ],
+      "rationale": "Расширить уже имеющийся guard на callers.",
+      "disposition": "fix",
+      "audit_id": "C19-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C19_остатки:1",
+      "requirement_ids": [
+        "REQ-OPT-02-02"
+      ],
+      "rationale": "Fallback не новый Bayesian результат.",
+      "disposition": "fix",
+      "audit_id": "C19-R02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C19_остатки:2",
+      "requirement_ids": [
+        "REQ-OPT-02-03"
+      ],
+      "rationale": "Canonical input до training.",
+      "disposition": "fix",
+      "audit_id": "C19-G01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C19_остатки:3",
+      "requirement_ids": [
+        "REQ-OPT-02-03"
+      ],
+      "rationale": "Source-bound regression, не доказанный GP bypass.",
+      "disposition": "fix",
+      "audit_id": "C19-G02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C19_остатки:4",
+      "requirement_ids": [
+        "REQ-OPT-02-04"
+      ],
+      "rationale": "Реальные provenance/replicas, не metadata ID alone.",
+      "disposition": "qualify",
+      "audit_id": "C19-G03",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B112",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-OPT-02-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B113",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-OPT-02-03",
+        "REQ-OPT-02-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B127",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-OPT-02-01",
+        "REQ-OPT-02-03",
+        "REQ-OPT-02-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0181",
+      "requirement_ids": [
+        "REQ-OPT-02-02"
+      ],
+      "rationale": "Typed внешняя причина и reuse.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0182",
+      "requirement_ids": [
+        "REQ-OPT-02-02",
+        "REQ-OPT-02-04"
+      ],
+      "rationale": "Actual first suggest и отдельно GP readiness.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0183",
+      "requirement_ids": [
+        "REQ-OPT-02-03",
+        "REQ-OPT-02-04"
+      ],
+      "rationale": "Producer→history→training.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0184",
+      "requirement_ids": [
+        "REQ-OPT-02-03",
+        "REQ-OPT-02-04"
+      ],
+      "rationale": "Standalone params и origin/replica.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0213",
+      "requirement_ids": [
+        "REQ-OPT-02-01"
+      ],
+      "rationale": "Все proposal branches и exhaustion.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0214",
+      "requirement_ids": [
+        "REQ-OPT-02-03"
+      ],
+      "rationale": "Canonical direct Evaluation admission.",
+      "disposition": "fix"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0295",
+      "requirement_ids": [
+        "REQ-OPT-02-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Внешний fallback сохраняет причину и reuse semantics, а native first suggest работает на существующем SearchSpace.",
+      "test_ids": [
+        "TEST-OPT-02-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0296",
+      "requirement_ids": [
+        "REQ-OPT-02-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Внешний fallback сохраняет причину и reuse semantics, а native first suggest работает на существующем SearchSpace.",
+      "test_ids": [
+        "TEST-OPT-02-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0297",
+      "requirement_ids": [
+        "REQ-OPT-02-03",
+        "REQ-OPT-02-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Training coordinate соответствует actual typed params на всех входах Evaluation, а не relaxed proposal.; Допуск source history и самостоятельность реплик доказать actual producer→CAS→training, не числом evaluation_id.",
+      "test_ids": [
+        "TEST-OPT-02-03",
+        "TEST-OPT-02-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0298",
+      "requirement_ids": [
+        "REQ-OPT-02-03",
+        "REQ-OPT-02-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Training coordinate соответствует actual typed params на всех входах Evaluation, а не relaxed proposal.; Допуск source history и самостоятельность реплик доказать actual producer→CAS→training, не числом evaluation_id.",
+      "test_ids": [
+        "TEST-OPT-02-03",
+        "TEST-OPT-02-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0331",
+      "requirement_ids": [
+        "REQ-OPT-02-01",
+        "REQ-OPT-02-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Все cold, batch и fallback ветви проверяют effective-action identity и явно сообщают exhaustion либо назначенную реплику.; Training coordinate соответствует actual typed params на всех входах Evaluation, а не relaxed proposal.",
+      "test_ids": [
+        "TEST-OPT-02-01",
+        "TEST-OPT-02-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0332",
+      "requirement_ids": [
+        "REQ-OPT-02-01",
+        "REQ-OPT-02-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Все cold, batch и fallback ветви проверяют effective-action identity и явно сообщают exhaustion либо назначенную реплику.; Допуск source history и самостоятельность реплик доказать actual producer→CAS→training, не числом evaluation_id.",
+      "test_ids": [
+        "TEST-OPT-02-01",
+        "TEST-OPT-02-04"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I02-B"
+  ],
+  "dependencies": [
+    "CTL-02 владеет portable RNG/base snapshot; OPT-03 GP continuation. Общий bayesian.py — последовательный writer.",
+    "SRV-01 владеет атомарным tell, SRV-03 typed role envelope; не второй pending registry.",
+    "TRN-01/02 обеспечивают совместимый source history, но similarity не admission."
+  ],
+  "preservation": [
+    "Настоящий native SearchSpace и делегирование normalize/denormalize/Sobol/bounds.",
+    "Работающая альтернативная стратегия не равна GP-ready.",
+    "Нормализация фактических параметров, полные IDs и согласование identity.",
+    "Missing score не становится successful zero; selected CAS/source/split ограничения.",
+    "Сравнение integer/category по исполнению.",
+    "Distinct continuous и явно независимые seed/replicate."
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    ""
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "symbol_or_anchor": "    def suggest(",
+      "lines": [
+        896,
+        928
+      ],
+      "sha256": "51635c530d94f185049a559016fa92c3e98da2cae4452ccc342162228b195c15",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py#L896-L928"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "symbol_or_anchor": "    def suggest_batch(",
+      "lines": [
+        962,
+        994
+      ],
+      "sha256": "51635c530d94f185049a559016fa92c3e98da2cae4452ccc342162228b195c15",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py#L962-L994"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "symbol_or_anchor": "    def _fallback_generate(",
+      "lines": [
+        869,
+        901
+      ],
+      "sha256": "f933be68848e16cc3cc1b7757d5434d89a68a158b6cb3633c8d33e5576203bd1",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py#L869-L901"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "symbol_or_anchor": "def benchmark_to_evaluation(",
+      "lines": [
+        1290,
+        1322
+      ],
+      "sha256": "f933be68848e16cc3cc1b7757d5434d89a68a158b6cb3633c8d33e5576203bd1",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py#L1290-L1322"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-OPT-02-01",
+      "text": "В BayesianOptimizer.suggest/suggest_batch направить каждый candidate через существующий _is_duplicate. Batch ведёт накопленный pending, включая уже выданные в этом batch. Для конечного пространства после ограниченного поиска не возвращать заведомый дубль: существующий typed outcome расширить exhausted/repeat-intent, довести до service. Стохастический повтор допускается с явным seed/replicate и новой provenance, не новым action ID. Continuous без принятого допуска не округлять."
+    },
+    {
+      "requirement_id": "REQ-OPT-02-02",
+      "text": "BayesianCandidateGenerator._fallback_generate возвращает совместимый с caller typed generation result/metadata: reuse_current_best/history, backend_unavailable либо wiring_error с проверенным candidate contract. Не считать context словарь кандидатом. Сохранить реально работающий random_no_botorch и различить wrapper_created/native_gp_ready. Провести metadata через codec/service без помещения reserved fields в mutation payload."
+    },
+    {
+      "requirement_id": "REQ-OPT-02-03",
+      "text": "Сохранить proposal_vector отдельно; в history и прямом Evaluation admission проверить полный набор имён, типы/range и canonical normalize(params) на версии пространства. При несовпадении params_normalized либо вычислить canonical значение по подтверждённым params с явной diagnostic provenance, либо адресно отклонить: не молча обучать на чужой координате. Standalone benchmark converter получает ту же обязательность параметров до permissive normalize."
+    },
+    {
+      "requirement_id": "REQ-OPT-02-04",
+      "text": "Использовать SearchLoopRunner._evaluate_candidate и source resolver: сравнить candidate/evaluation/full selected profile, MethodJob input/data/split/unit basis. Одна provenance+replica в двух списках даёт одну строку; действительная новая MethodJob evaluation/seed сохраняет отдельную observation. Не снимать unitless/closed-holdout ограничения ради GP; unitless ATE может давать четыре разных exploratory actions без GP admission."
+    }
+  ]
+}

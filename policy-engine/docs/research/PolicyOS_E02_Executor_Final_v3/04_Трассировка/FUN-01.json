@@ -1,0 +1,440 @@
+{
+  "packet_id": "FUN-01",
+  "lane": "LANE-02",
+  "title": "Сохранное продолжение и свежие gates",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B156",
+    "B158",
+    "B159"
+  ],
+  "audit_reports": [
+    "02_Пакеты/FUN-01.md"
+  ],
+  "audit_report_sha256": "6498ee1c4d99937775695bc13e68ef151a395fe4fa3de1cda9f5774da84c155c",
+  "sourceplan_lines": [
+    2697,
+    2804
+  ],
+  "practical_goal": "После разрешённого изменения основания продолжить нужную работу, не переплачивая за уже пригодный immutable source и не переиспользуя старый допуск.",
+  "requirements": [
+    {
+      "id": "REQ-FUN-01-01",
+      "text": "Разделить fresh организационную попытку, текущие gates и reuse неизменной source-owned численной работы.",
+      "source_ids": [
+        "B156",
+        "B158",
+        "B159"
+      ],
+      "audit_ids": [
+        "remaining:0265",
+        "remaining:0268",
+        "preserve:0393",
+        "preserve:0394",
+        "audit-residual:C22_остатки:0",
+        "audit-residual:C22_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-FUN-01-01"
+      ]
+    },
+    {
+      "id": "REQ-FUN-01-02",
+      "text": "Continuation требует явного new-basis successor, сохраняя неизменный terminal и постоянные blockers.",
+      "source_ids": [
+        "B156",
+        "B158",
+        "B159"
+      ],
+      "audit_ids": [
+        "remaining:0270",
+        "preserve:0397",
+        "preserve:0398",
+        "preserve:0399",
+        "preserve:0400",
+        "audit-residual:C22_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-FUN-01-02"
+      ]
+    },
+    {
+      "id": "REQ-FUN-01-03",
+      "text": "Parent, lineage и continuation_reason сериализуются для всех применимых attempts, не только result reuse.",
+      "source_ids": [
+        "B156",
+        "B158",
+        "B159"
+      ],
+      "audit_ids": [
+        "remaining:0271",
+        "preserve:0400",
+        "audit-residual:C22_остатки:1"
+      ],
+      "test_ids": [
+        "TEST-FUN-01-03"
+      ]
+    },
+    {
+      "id": "REQ-FUN-01-04",
+      "text": "Согласовать старые cache/continuation tests с современными fresh-gate контрактами и квалифицировать native full/split work.",
+      "source_ids": [
+        "B156",
+        "B158",
+        "B159"
+      ],
+      "audit_ids": [
+        "remaining:0265",
+        "remaining:0266",
+        "remaining:0269",
+        "preserve:0394",
+        "preserve:0397",
+        "preserve:0398",
+        "audit-residual:C22_остатки:2",
+        "audit-residual:C22_остатки:3",
+        "audit-residual:C22_остатки:4"
+      ],
+      "test_ids": [
+        "TEST-FUN-01-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-FUN-01-01",
+      "requirement_ids": [
+        "REQ-FUN-01-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Один strict candidate/proposal, тот же source, затем dataset v2 и изменённые lessons; normal и sentinel роли; actual immutable source owner с physical call counter.",
+      "action": "Full против owner-bound A/B; повтор independent request; source reuse через actual owner и свежие gates.",
+      "oracle": "При одной basis численное source work1, gates актуальны в обоих API; dataset v2 вызывает новую нужную работу; history normal не меняется sentinel.",
+      "expected": "Новый UUID не новая независимая калибровка; opaque context допускает fresh work без ложного reuse; rejected source не используется.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-FUN-01-02",
+      "requirement_ids": [
+        "REQ-FUN-01-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Terminal defer после L2, unchanged budget, затем owner-issued new budget; freeze on/off; permanent reject; alternate cheaper plan.",
+      "action": "Явно запросить resume для каждого состояния, пройти реальный scheduler/resource owner и actual source reuse из REQ01.",
+      "oracle": "Unchanged не тратит физический ресурс; changed admissible basis rechecks L2→L3 и выполняет остаток; prior costs/traces retained; permanent reject не исчезает.",
+      "expected": "Full/direct split/bound split имеют одинаковое transition решение на одной basis, не двойное списание; freeze нельзя обойти новым ID.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-FUN-01-03",
+      "requirement_ids": [
+        "REQ-FUN-01-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Explicit-linked attempt с parent и lineage2, reuse_ref=None, prior trace; отдельный source-reuse attempt.",
+      "action": "Actual serializer→JSON/CAS/state→fresh blueprint consumer.",
+      "oracle": "Оба типа связи видимы с точным reason; parent/lineage не исчезают у live_split_gates_rechecked; prior cost history не дублируется.",
+      "expected": "Нет новой параллельной ledger; legacy отсутствие полей не интерпретируется как доказанное отсутствие предшественника.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-FUN-01-04",
+      "requirement_ids": [
+        "REQ-FUN-01-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Один source-admitted tiny objective с единицами, full/A-B paths, capped/defer/changed-basis variants; supported native runtime.",
+      "action": "Пройти actual lifecycle и readback, сравнить work IDs, admission decisions, consumed budget и scopes.",
+      "oracle": "На одинаковой basis тот же разрешённый набор source computations, costs и stop reasons; любое дополнительное re-gating объяснено; score не повышен отсутствующим admission.",
+      "expected": "Историческое source-only test contradiction не называется прежним native failure; skip остаётся видимым.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C22_остатки:0",
+      "requirement_ids": [
+        "REQ-FUN-01-01",
+        "REQ-FUN-01-02"
+      ],
+      "rationale": "Новый допустимый successor с адресным reuse.",
+      "disposition": "capability",
+      "audit_id": "C22-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C22_остатки:1",
+      "requirement_ids": [
+        "REQ-FUN-01-03"
+      ],
+      "rationale": "Lineage не зависит от reuse kind.",
+      "disposition": "fix",
+      "audit_id": "C22-R02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C22_остатки:2",
+      "requirement_ids": [
+        "REQ-FUN-01-04"
+      ],
+      "rationale": "Actual source и mutable owners.",
+      "disposition": "qualify",
+      "audit_id": "C22-G01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C22_остатки:3",
+      "requirement_ids": [
+        "REQ-FUN-01-04"
+      ],
+      "rationale": "Примирить tests по предметной семантике.",
+      "disposition": "fix",
+      "audit_id": "C22-G02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C22_остатки:4",
+      "requirement_ids": [
+        "REQ-FUN-01-01",
+        "REQ-FUN-01-04"
+      ],
+      "rationale": "Source identity и реальная независимость.",
+      "disposition": "capability",
+      "audit_id": "C22-G03",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B156",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-FUN-01-01",
+        "REQ-FUN-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B158",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-FUN-01-01",
+        "REQ-FUN-01-02",
+        "REQ-FUN-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B159",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-FUN-01-02",
+        "REQ-FUN-01-03",
+        "REQ-FUN-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0265",
+      "requirement_ids": [
+        "REQ-FUN-01-01",
+        "REQ-FUN-01-04"
+      ],
+      "rationale": "Actual immutable reuse и replicate independence.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0266",
+      "requirement_ids": [
+        "REQ-FUN-01-04"
+      ],
+      "rationale": "Обновить stale assertions, не вернуть whole cache.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0268",
+      "requirement_ids": [
+        "REQ-FUN-01-01"
+      ],
+      "rationale": "Gates отдельно от source computation.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0269",
+      "requirement_ids": [
+        "REQ-FUN-01-04"
+      ],
+      "rationale": "Native work/cost equivalence.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0270",
+      "requirement_ids": [
+        "REQ-FUN-01-02"
+      ],
+      "rationale": "Owner-valid successor.",
+      "disposition": "capability"
+    },
+    {
+      "inventory_id": "remaining:0271",
+      "requirement_ids": [
+        "REQ-FUN-01-03"
+      ],
+      "rationale": "Общая lineage projection.",
+      "disposition": "fix"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0393",
+      "requirement_ids": [
+        "REQ-FUN-01-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: Разделить fresh организационную попытку, текущие gates и reuse неизменной source-owned численной работы.",
+      "test_ids": [
+        "TEST-FUN-01-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0394",
+      "requirement_ids": [
+        "REQ-FUN-01-01",
+        "REQ-FUN-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Разделить fresh организационную попытку, текущие gates и reuse неизменной source-owned численной работы.; Согласовать старые cache/continuation tests с современными fresh-gate контрактами и квалифицировать native full/split work.",
+      "test_ids": [
+        "TEST-FUN-01-01",
+        "TEST-FUN-01-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0397",
+      "requirement_ids": [
+        "REQ-FUN-01-02",
+        "REQ-FUN-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Continuation требует явного new-basis successor, сохраняя неизменный terminal и постоянные blockers.; Согласовать старые cache/continuation tests с современными fresh-gate контрактами и квалифицировать native full/split work.",
+      "test_ids": [
+        "TEST-FUN-01-02",
+        "TEST-FUN-01-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0398",
+      "requirement_ids": [
+        "REQ-FUN-01-02",
+        "REQ-FUN-01-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Continuation требует явного new-basis successor, сохраняя неизменный terminal и постоянные blockers.; Согласовать старые cache/continuation tests с современными fresh-gate контрактами и квалифицировать native full/split work.",
+      "test_ids": [
+        "TEST-FUN-01-02",
+        "TEST-FUN-01-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0399",
+      "requirement_ids": [
+        "REQ-FUN-01-02"
+      ],
+      "rationale": "Конкретный контракт и oracle: Continuation требует явного new-basis successor, сохраняя неизменный terminal и постоянные blockers.",
+      "test_ids": [
+        "TEST-FUN-01-02"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0400",
+      "requirement_ids": [
+        "REQ-FUN-01-02",
+        "REQ-FUN-01-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Continuation требует явного new-basis successor, сохраняя неизменный terminal и постоянные blockers.; Parent, lineage и continuation_reason сериализуются для всех применимых attempts, не только result reuse.",
+      "test_ids": [
+        "TEST-FUN-01-02",
+        "TEST-FUN-01-03"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I02-C"
+  ],
+  "dependencies": [
+    "FUN-01 — orchestration/continuation owner; FUN-02 — fidelity/aggregate projection; FUN-03 — current knowledge/calibration/protected action.",
+    "CTL-03 владеет actual resource admission; bound continuation не создаёт второй budget owner.",
+    "Источник immutable numerical work остаётся у existing Foundry/AD01 owner; не общий ticket-cache."
+  ],
+  "preservation": [
+    "Strict candidate/proposal subject binding.",
+    "Свежие current gates и неизменность обычной sentinel истории.",
+    "Перед L3 проверяется pending L2 edge.",
+    "Bound split не обходит defer и не скрывает repeated cost.",
+    "Direct terminal не тратит новую работу.",
+    "Freeze/reject остаются; prior attempts/costs retained."
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    ""
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "symbol_or_anchor": "    def submit(",
+      "lines": [
+        471,
+        503
+      ],
+      "sha256": "b01a4e6277e45b17379a75734586d16383271f8e7e41bbfe926a3dea96577502",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py#L471-L503"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "symbol_or_anchor": "    def advance(",
+      "lines": [
+        648,
+        680
+      ],
+      "sha256": "b01a4e6277e45b17379a75734586d16383271f8e7e41bbfe926a3dea96577502",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py#L648-L680"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py",
+      "symbol_or_anchor": "def _serialize_funnel_outcome(",
+      "lines": [
+        574,
+        606
+      ],
+      "sha256": "56b5f5ada5c8cec5a825c888d5d1acdd83e98256398eea530f000e44fe324094",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py#L574-L606"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-FUN-01-01",
+      "text": "Сохранить отсутствие whole-ticket cache. У stage.evaluate выделить/переиспользовать существующий source computation interface с immutable input/model/data/procedure/seed refs и отдельную current admission/re-gating projection. Bound A/B переносит только проверенные source refs; lessons/correlation/access/budget проверяются заново. Не подключать старые _carry_forward helpers без modern owner checks. Sentinel получает отдельную роль/attempt, а независимость определяется источником и replicate, не UUID."
+    },
+    {
+      "requirement_id": "REQ-FUN-01-02",
+      "text": "В submit/advance добавить явный continuation request с parent attempt, прежним terminal_basis и событием действительного owner change. Проверить изменившийся budget/freeze/data/permit; при допустимом изменении создать linked successor и остаточный plan. У того же terminal без new basis не очищать results/is_terminal. retry_cheaper связывает другой разрешённый plan/ref, а не бесконечный reset. Не выводить новое разрешение из caller changed JSON."
+    },
+    {
+      "requirement_id": "REQ-FUN-01-03",
+      "text": "В policy_blueprint_runtime_reporting._serialize_funnel_outcome вынести существующие fields из условия result_reuse_source_ticket_id. При отсутствии не выдумывать relation; versioned projection различает linked attempt и actual result reuse. Blueprint state params и fresh reader сохраняют prior_attempt_history вместе с общей lineage/reason."
+    },
+    {
+      "requirement_id": "REQ-FUN-01-04",
+      "text": "В existing subject_identity, transition_accounting_semantics и stage-B tests заменить только устаревшее ожидание implicit whole-outcome reuse. Сохранить его содержательную цель новым test source work reuse + fresh gates + bound successor. Actual source-score/VOI/uncertainty/lessons/correlation owners выполнять, не scoreless fixture. Отдельно записать стоимость re-gating и physical evaluation, не равнять их по числу stage.evaluate."
+    }
+  ]
+}

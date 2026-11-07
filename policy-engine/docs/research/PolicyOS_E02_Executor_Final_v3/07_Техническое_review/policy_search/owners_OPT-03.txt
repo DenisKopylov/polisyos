@@ -1,0 +1,174 @@
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py:1085-1195
+ 1085     def set_state(self, state: StrategyState) -> None:
+ 1086         """Restore a recorded GP basis and its actual full-refit boundary.
+ 1087 
+ 1088         Legacy model snapshots lack enough information for append continuation;
+ 1089         reject them explicitly rather than invent the missing fitting history.
+ 1090         """
+ 1091         score_state_present = state.model_state is not None or any(
+ 1092             field in state.metadata for field in ("train_X", "train_y_bo", "gp_continuation")
+ 1093         )
+ 1094         if (
+ 1095             score_state_present
+ 1096             and state.metadata.get("selected_objective_binding")
+ 1097             != self._objective_binding_payload()
+ 1098         ):
+ 1099             raise ValueError("GP continuation objective binding differs from the selected run")
+ 1100         rejection_history = state.metadata.get("warm_start_rejections")
+ 1101         if rejection_history is None:
+ 1102             rejection_records: list[dict[str, Any]] = []
+ 1103             rejection_history_complete = False
+ 1104         else:
+ 1105             if (
+ 1106                 not isinstance(rejection_history, Mapping)
+ 1107                 or type(rejection_history.get("version")) is not int
+ 1108                 or rejection_history.get("version") != 1
+ 1109                 or type(rejection_history.get("complete")) is not bool
+ 1110                 or not isinstance(rejection_history.get("records"), list)
+ 1111             ):
+ 1112                 raise ValueError("Warm-start rejection history is malformed or unsupported")
+ 1113             for record in rejection_history["records"]:
+ 1114                 if (
+ 1115                     not isinstance(record, Mapping)
+ 1116                     or not isinstance(record.get("reason"), str)
+ 1117                     or record.get("reason") not in _WARM_REJECTION_REASONS
+ 1118                     or not isinstance(record.get("evaluation"), Mapping)
+ 1119                     or not isinstance(record["evaluation"].get("candidate_id"), str)
+ 1120                 ):
+ 1121                     raise ValueError("Warm-start rejection record or reason is malformed")
+ 1122             rejection_records = deepcopy(rejection_history["records"])
+ 1123             rejection_history_complete = rejection_history["complete"]
+ 1124         continuation = state.metadata.get("gp_continuation")
+ 1125         if state.model_state is not None:
+ 1126             if not isinstance(continuation, Mapping) or continuation.get("version") != "1.0":
+ 1127                 raise ValueError("GP continuation basis/refit history not established in snapshot")
+ 1128             if continuation.get("space_fingerprint") != self._space.sobol_space_fingerprint():
+ 1129                 raise ValueError("GP continuation search space differs from the snapshot")
+ 1130             last_iteration = continuation.get("last_refit_iteration")
+ 1131             last_size = continuation.get("last_train_size")
+ 1132             if (
+ 1133                 type(last_iteration) is not int
+ 1134                 or type(last_size) is not int
+ 1135                 or last_iteration < 0
+ 1136                 or last_iteration > state.iteration
+ 1137                 or last_size < 1
+ 1138             ):
+ 1139                 raise ValueError("GP continuation has invalid full-refit counters")
+ 1140         super().set_state(state)
+ 1141         self._warm_start_rejections = rejection_records
+ 1142         self._warm_start_rejection_history_complete = rejection_history_complete
+ 1143         self._model = None
+ 1144         self._train_X = self._train_y_bo = None
+ 1145         self._fitted_train_X = self._fitted_train_y_bo = None
+ 1146         self._last_fitted_training_evaluation_refs = None
+ 1147         self._last_refit_iteration, self._last_train_size = -1, 0
+ 1148         if not self._botorch_ready:
+ 1149             return
+ 1150         torch_rng_state = state.rng_state.get("torch")
+ 1151         if self._torch_rng is not None and torch_rng_state is not None:
+ 1152             self._torch_rng.set_state(self._torch.tensor(torch_rng_state, dtype=self._torch.uint8))
+ 1153 
+ 1154         train_X_list = state.metadata.get("train_X")
+ 1155         train_y_list = state.metadata.get("train_y_bo")
+ 1156         if train_X_list is None or train_y_list is None:
+ 1157             if state.model_state is not None:
+ 1158                 raise ValueError("GP continuation requested corpus is missing from snapshot")
+ 1159             return
+ 1160         self._train_X = self._torch.tensor(train_X_list, dtype=self._torch.float64)
+ 1161         self._train_y_bo = self._torch.tensor(train_y_list, dtype=self._torch.float64)
+ 1162         if self._device != "cpu":
+ 1163             self._train_X = self._train_X.to(self._device)
+ 1164             self._train_y_bo = self._train_y_bo.to(self._device)
+ 1165         if state.model_state is None:
+ 1166             return
+ 1167         if not isinstance(continuation.get("fitted_train_X"), (list, tuple)) or not isinstance(
+ 1168             continuation.get("fitted_train_y_bo"), (list, tuple)
+ 1169         ):
+ 1170             raise ValueError("GP continuation fitted corpus is missing from snapshot")
+ 1171         fitted_X = self._torch.tensor(continuation.get("fitted_train_X"), dtype=self._torch.float64)
+ 1172         fitted_y = self._torch.tensor(
+ 1173             continuation.get("fitted_train_y_bo"), dtype=self._torch.float64
+ 1174         )
+ 1175         if (
+ 1176             fitted_X.ndim != 2
+ 1177             or fitted_X.shape[1] != self._space.dim
+ 1178             or fitted_y.shape != (fitted_X.shape[0], 1)
+ 1179             or fitted_X.shape[0] < last_size
+ 1180             or not self._torch.isfinite(fitted_X).all()
+ 1181             or not self._torch.isfinite(fitted_y).all()
+ 1182         ):
+ 1183             raise ValueError("GP continuation fitted corpus has invalid shape or values")
+ 1184         self._fitted_train_X = fitted_X.to(self._device)
+ 1185         self._fitted_train_y_bo = fitted_y.to(self._device)
+ 1186         self._model = SingleTaskGP(
+ 1187             train_X=self._fitted_train_X,
+ 1188             train_Y=self._fitted_train_y_bo,
+ 1189             input_transform=Normalize(d=self._fitted_train_X.shape[-1]),
+ 1190             outcome_transform=Standardize(m=1),
+ 1191         )
+ 1192         buffer = io.BytesIO(state.model_state)
+ 1193         self._model.load_state_dict(self._torch.load(buffer, map_location=self._device))
+ 1194         self._last_refit_iteration = last_iteration
+ 1195         self._last_train_size = last_size
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py:1197-1207
+ 1197     def _select_training_subset(self, evaluations: list[Evaluation]) -> list[Evaluation]:
+ 1198         filtered = self._effective_training_corpus(evaluations)
+ 1199         if len(filtered) <= self._config.max_train_size:
+ 1200             return filtered
+ 1201         # Keep recent half + uniformly sampled remainder for diversity.
+ 1202         recent_n = self._config.max_train_size // 2
+ 1203         recent = filtered[-recent_n:]
+ 1204         older = filtered[:-recent_n]
+ 1205         step = max(1, len(older) // max(1, self._config.max_train_size - recent_n))
+ 1206         sampled = older[::step][: self._config.max_train_size - recent_n]
+ 1207         return sampled + recent
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py:1373-1418
+ 1373     def _fit_gp(self, X, y_bo) -> None:
+ 1374         current_train_size = X.shape[0]
+ 1375         should_refit = (
+ 1376             self._model is None
+ 1377             or self._iteration - self._last_refit_iteration >= self._config.refit_interval
+ 1378             or current_train_size > self._last_train_size * 1.2
+ 1379         )
+ 1380 
+ 1381         if should_refit:
+ 1382             self._fit_full_gp(X, y_bo)
+ 1383             return
+ 1384 
+ 1385         previous_X = self._model_train_x()
+ 1386         if (
+ 1387             previous_X is None
+ 1388             or self._fitted_train_X is None
+ 1389             or self._fitted_train_y_bo is None
+ 1390             or not self._model_train_x_matches_fitted(previous_X)
+ 1391             or not self._is_append_update(X, y_bo)
+ 1392         ):
+ 1393             logger.info("Bayesian GP corpus changed outside append-only update; refitting model")
+ 1394             self._fit_full_gp(X, y_bo)
+ 1395             return
+ 1396 
+ 1397         previous_size = previous_X.shape[0]
+ 1398         if previous_size == current_train_size:
+ 1399             return
+ 1400 
+ 1401         try:
+ 1402             # GPyTorch's supported fantasy update requires an evaluation-mode
+ 1403             # prediction cache.  Acquisition optimization normally creates it,
+ 1404             # but keep this invariant local so a caller that updates the model
+ 1405             # before requesting a posterior is still handled safely.
+ 1406             self._model.eval()
+ 1407             if getattr(self._model, "prediction_strategy", None) is None:
+ 1408                 with self._torch.no_grad():
+ 1409                     self._model(X[:1])
+ 1410             self._model = self._model.condition_on_observations(
+ 1411                 X=X[previous_size:],
+ 1412                 Y=y_bo[previous_size:],
+ 1413             )
+ 1414             self._fitted_train_X = X.detach().clone()
+ 1415             self._fitted_train_y_bo = y_bo.detach().clone()
+ 1416         except Exception as exc:
+ 1417             logger.warning("Bayesian GP conditioning unavailable; using bounded refit: {}", exc)
+ 1418             self._fit_full_gp(X, y_bo)

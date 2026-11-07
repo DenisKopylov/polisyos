@@ -203,6 +203,34 @@ def test_scholar_cache_follows_new_selected_generation(
         store.close()
 
 
+def test_scholar_currentness_uses_effective_abstract_on_fresh_and_warm_reads(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Tail changes preserve vectors; changing the indexed prefix refuses them."""
+    db_path, index_dir = _work_fixture(tmp_path, monkeypatch)
+    with duckdb.connect(str(db_path)) as con:
+        con.execute("UPDATE ac_works SET abstract = ? WHERE id = 'w1'", ["a" * 1200 + "old"])
+    _build_work_generation(monkeypatch, db_path, index_dir)
+    selector = (index_dir / "embedding_generation.json").read_bytes()
+    query = np.asarray([1.0, 0.0], dtype=np.float32)
+    for abstract, admitted in (("a" * 1200 + "new", True), ("b" + "a" * 1199 + "new", False)):
+        # Each actual DB revision is committed before opening its read sessions.
+        with duckdb.connect(str(db_path)) as con:
+            con.execute("UPDATE ac_works SET abstract = ? WHERE id = 'w1'", [abstract])
+        for _fresh_session in range(2):
+            reader = ScholarKnowledgeStore(db_path, index_dir)
+            try:
+                for _fresh_or_warm in range(2):
+                    results = reader.search_works_by_vector(query)
+                    assert {row.id for row in results} == ({"w1", "w2"} if admitted else set())
+                    assert reader.vector_index_refusal_reason == (
+                        None if admitted else "selected_generation_membership_mismatch"
+                    )
+            finally:
+                reader.close()
+    assert (index_dir / "embedding_generation.json").read_bytes() == selector
+
+
 def test_scholar_cached_reader_refuses_selector_switch_during_source_projection(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

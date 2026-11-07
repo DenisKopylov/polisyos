@@ -1,0 +1,230 @@
+{
+  "pass_id": "C109",
+  "bundle": "CAL-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/foundry/calibration/multi_start.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/multi_start.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          171
+        ]
+      ],
+      "evidence_level": "Полный read и whole-module import/execution с actual NumPy, selected unchanged dependency DTOs. Не native package suite.",
+      "git_blob": "aee5061dae662bffb6e157faaf8a2a91bb949afe",
+      "sha256": "b3988d200da684ba6cf323381e6021de357be594f1a56c22f39cb5ff5c29c260",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          480,
+          520
+        ],
+        [
+          680,
+          715
+        ],
+        [
+          875,
+          898
+        ],
+        [
+          2640,
+          2685
+        ],
+        [
+          3050,
+          3305
+        ],
+        [
+          3313,
+          3327
+        ],
+        [
+          3574,
+          3635
+        ]
+      ],
+      "evidence_level": "Прочитаны lifecycle owner, fresh factory, per-start loop, actual selection и final projection. Выбранные factory/lower-loss helper и точный selection if исполнены; optimizer/report только source.",
+      "git_blob": "dd435dced710805345da768fb14341b98671dac6",
+      "sha256": "f23b724aa07a447fbf10effad60c28f7e286ff137e2805e4e4a195adc28ac6a1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/foundry/calibration/hessian.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/hessian.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          173
+        ]
+      ],
+      "evidence_level": "Полный read. Неизменённые DTO/compute/fallback/repair bodies исполнены с jnp=NumPy и explicit derivative-unavailable fixture; не native JAX Hessian.",
+      "git_blob": "68919a62665fd24652bf077c3c9ad39521cc77e5",
+      "sha256": "f136b9d4195ae6b66a0261c271c6f00f6a58b3ac93692e4d65f997956c3d9361",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          149
+        ]
+      ],
+      "evidence_level": "Прочитаны фактические diagnostic DTO и producer. Выбраны неизменённые class bodies и функция; full module не импортирован из-за dependency graph.",
+      "git_blob": "7229089c88c9692a27c660787e6fb151a90f870d",
+      "sha256": "1027d1b6efebfacf836b8d0a81896e6b6886995833a527736ff08de28ca47a5b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/ir/analytics/calibration.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/calibration.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          204,
+          470
+        ]
+      ],
+      "evidence_level": "Read C108 на том же blob унаследован. Actual MultiStartConfig и зависимые config class bodies использованы без изменения.",
+      "git_blob": "8b88c6610d875997e4a0b9feecfe6620344e21ae",
+      "sha256": "0fbfec3e929f2562c31a2b554c8d61e6dc2162a6312d8576984e2d7d5fcd2c79",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/tests/unit/remediation/test_cal_03.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cal_03.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          211
+        ]
+      ],
+      "evidence_level": "Полный read. Все 11 unchanged test bodies исполнены в ограниченном runner.",
+      "git_blob": "0731a730dffdd1c11fe34eeb7d9e5f3bac07cf13",
+      "sha256": "189adf915ccdf055e44dad8ab3fb9717ca90a05ecece454630bcff134a73ef62",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_multi_start.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/calibration/test_multi_start.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          109
+        ]
+      ],
+      "evidence_level": "Полный read. Все пять unchanged test bodies исполнены; название global minimum относится к таблице результатов, не к доказанной глобальной оптимизации.",
+      "git_blob": "eb502152a0abacd7d48a59af145bb834c803d431",
+      "sha256": "8a32656a3b600834a458fa47ef5362e21d1c17d5d0049e0b09d6d39f3f76a86e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_lifecycle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/calibration/test_calibration_lifecycle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          303
+        ]
+      ],
+      "evidence_level": "Source-only read: real metrics provider lifecycle, preflight exception preservation и single actual calibration test. OTel/JAX отсутствуют, тесты не запускались.",
+      "git_blob": "61c7ebdf35daa9c512c7ef253ba0b3bcfc7aae67",
+      "sha256": "8662008e66ab9e92d1f4d3115d4ceba11459894b41d201b2b1e83424b0079acf",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/foundry/calibration/report.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/calibration/report.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          55
+        ],
+        [
+          177,
+          268
+        ]
+      ],
+      "evidence_level": "Source-only: float total_loss и report validators. Full report constructor/persistence не выполнялись; отсутствие finite field validator не превращено в execution claim.",
+      "git_blob": "e7417784afcb5eee3ef970f383d2ad79a803d094",
+      "sha256": "9e063a7b96c4bc6c0e68a20641410f81701d535d7cad9470c1c17a7c68638587",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/ir/observation/bundles.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/observation/bundles.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          100
+        ],
+        [
+          109,
+          115
+        ],
+        [
+          285,
+          301
+        ]
+      ],
+      "evidence_level": "Зависимые manifest DTO в повторно использованной external setup: read C91 унаследован, selected bodies unchanged. Не evidence научной пригодности.",
+      "git_blob": "e1c61a894b2c0a923d42312bad1f75e5d7003046",
+      "sha256": "34f689a2b3feb3f265cf9a006029f84cb80c57f64858ee8ec58056c1a1bad167",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/ir/observation/contracts.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/observation/contracts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          254
+        ]
+      ],
+      "evidence_level": "Read C91 унаследован на том же commit; только setup import, не новый предмет аудита.",
+      "git_blob": "0e0aa931227d023ce5691b17ef26562a0dbc9117",
+      "sha256": "efbe3ca78107dc47158d01c30b03cca4f16074b2ad37f3573fb581e423fdf2d4",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

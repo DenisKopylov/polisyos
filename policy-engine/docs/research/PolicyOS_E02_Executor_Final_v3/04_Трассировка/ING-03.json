@@ -1,0 +1,313 @@
+{
+  "packet_id": "ING-03",
+  "lane": "LANE-08",
+  "source_ids": [
+    "B83",
+    "B84",
+    "B86"
+  ],
+  "protected_distinction_ids": [],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/ING-03.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "work_types": "fix + native resource/schema qualification",
+  "practical_goal": "Поток сохраняет состав допустимых строк и логические окна, не платя квадратичной сериализацией за контроль памяти.",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C101_остатки:0",
+      "audit_id": "C101-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-ING-03-01",
+        "REQ-ING-03-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Owned exact incremental byte accounting with reference scan oracle."
+    },
+    {
+      "inventory_id": "audit-residual:C101_остатки:1",
+      "audit_id": "C101-R02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-ING-03-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Existing CATEGORY restriction reaches actual row admission/quarantine."
+    },
+    {
+      "inventory_id": "audit-residual:C101_остатки:2",
+      "audit_id": "C101-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-ING-03-01",
+        "REQ-ING-03-02",
+        "REQ-ING-03-03",
+        "REQ-ING-03-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Native OS worker/CAS/consumer and separate resource measurements."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-ING-03-01",
+      "text": "Exact retained-byte accounting должно быть incremental на existing accumulator owner, без повторной сериализации всего pending buffer при каждом admission. Restore/preview/eviction/flush сохраняют точный прежний serialization-size contract.",
+      "source_ids": [
+        "B83",
+        "B84",
+        "B86"
+      ],
+      "audit_ids": [
+        "C101-R01",
+        "C101-G01"
+      ],
+      "test_ids": [
+        "TEST-ING-03-01"
+      ]
+    },
+    {
+      "id": "REQ-ING-03-02",
+      "text": "CATEGORY.allowed_values применяется в row-local stream admission и actual quarantine; None означает отсутствие ограничения, empty set не равно None.",
+      "source_ids": [
+        "B83",
+        "B84",
+        "B86"
+      ],
+      "audit_ids": [
+        "C101-R02",
+        "C101-G01"
+      ],
+      "test_ids": [
+        "TEST-ING-03-02"
+      ]
+    },
+    {
+      "id": "REQ-ING-03-03",
+      "text": "Exact UTC first-accepted horizon и source event/version scope сохраняются на native separate-process restart; capacity не вытесняет живые keys и disabled остаётся at_least_once.",
+      "source_ids": [
+        "B83",
+        "B84",
+        "B86"
+      ],
+      "audit_ids": [
+        "C101-G01"
+      ],
+      "test_ids": [
+        "TEST-ING-03-03"
+      ]
+    },
+    {
+      "id": "REQ-ING-03-04",
+      "text": "Input/operator/output capacity guards сохраняют window semantics и quarantine/consumer usefulness; честный unsupported spill не выдаётся за disk spill.",
+      "source_ids": [
+        "B83",
+        "B84",
+        "B86"
+      ],
+      "audit_ids": [
+        "C101-R01",
+        "C101-G01"
+      ],
+      "test_ids": [
+        "TEST-ING-03-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-ING-03-01",
+      "requirement_ids": [
+        "REQ-ING-03-01"
+      ],
+      "level": "native unit / integration",
+      "setup": "Long unclosed SESSION20/40/80, COUNT/TUMBLING/count- и time-SLIDING, JSON roundtrip restart, same row object repeated; instrument estimator calls.",
+      "action": "Actual process and accumulator transitions; compare cached total с independent full scan after every transition.",
+      "oracle": "Точные totals/cap decisions совпадают; buffered_bytes O(1); retained payload сериализуется один раз при owned admission/restore, не N² через repeated scans. Preview не меняет live accounting; flush/expiry освобождают соответствующий size.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Это serialized payload bytes, не RSS. Отдельно измерить CPU/RSS/source allocation, без fabricated SLO/OOM.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-ING-03-02",
+      "requirement_ids": [
+        "REQ-ING-03-02"
+      ],
+      "level": "native unit / integration",
+      "setup": "Schema CATEGORY allowed={allowed}, empty set, None, optional missing/null и invalid type; batches1/3/8, same source set.",
+      "action": "Actual field_value_violation→sanitizer→CAS chunk/quarantine→fresh reader.",
+      "oracle": "outside rejected с stable specific reason; allowed retained; empty set отвергает все present non-null category values, None не ограничивает; missing/null решает existing presence/nullable contract; batch membership одинаков.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не coercion в str, guessed enum или majority inference; sibling DataFrame contract comparison для CATEGORY, не claim all-schema equivalence.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-ING-03-03",
+      "requirement_ids": [
+        "REQ-ING-03-03"
+      ],
+      "level": "native unit / integration",
+      "setup": "Existing OS worker, UTC86399/86400, cap2 a,b,c,a затем cap3 retry; malformed/missing owner/event/version; same IDs different sources.",
+      "action": "Actual process→persisted CursorStore→new PID restore.",
+      "oracle": "86399 suppress,86400 admit; c при cap2 refusal без eviction, cap3 retry correct; disabled сохраняет все rows; unknown source identity не hash/position fallback.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Finite/replay owner не production currentness; separate PID evidence обязателен для этого claim.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-ING-03-04",
+      "requirement_ids": [
+        "REQ-ING-03-04"
+      ],
+      "level": "native unit / integration",
+      "setup": "4 window strategies×backpressure profiles, restored/live over-cap и exact closing transition; oversized chunk до sanitizer; native CAS/tenant/profile.",
+      "action": "Full modes→real chunk/window/quarantine→fresh consumers, с removal controls guards.",
+      "oracle": "Rejected transition не публикует input/frontier; at-cap legitimate close допускается; valid bounded corpus читается; optional coverage не CDC removal; bad finite/type rows quarantined.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не forced flush или silent row drop; allocation producer до возврата chunk измеряется отдельно от retained-state cap.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I08-C"
+  ],
+  "dependencies": [
+    "ING-02 predecessor and shared streaming.py mutex",
+    "E02-I08-C actual CAS/quarantine/fresh consumer"
+  ],
+  "preservation": [
+    "Exact UTC horizon and scope",
+    "No live-key eviction or identity hash fallback",
+    "Disabled at-least-once semantics",
+    "Pre-publication capacity guards",
+    "At-cap logical window transitions",
+    "Optional/required/null/type/finite validation",
+    "Actual quarantine storage/readback"
+  ],
+  "design_alignment": [
+    "[Vision §3, §6–§7, §11](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md) — существующий owner, реально подключённый consumer, совместимые новые ресурсы через общий контракт; не бесконечный реестр вместо работы. [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md) — candidate/conditional вычисление не равно эмпирической или институциональной authority.",
+    "Общий row/schema/state owner расширяется один раз; source semantics задаёт bound contract. Реальный spill может быть дальнейшей полезной capability, но текущий honest bounded refusal допустим и не оправдывает ложное имя implemented spill."
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0150",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-ING-03-01",
+        "REQ-ING-03-04"
+      ],
+      "rationale": "Owned exact incremental byte accounting with reference scan oracle."
+    },
+    {
+      "inventory_id": "remaining:0151",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-ING-03-02"
+      ],
+      "rationale": "Existing CATEGORY restriction reaches actual row admission/quarantine."
+    },
+    {
+      "inventory_id": "remaining:0152",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-ING-03-01",
+        "REQ-ING-03-02",
+        "REQ-ING-03-03",
+        "REQ-ING-03-04"
+      ],
+      "rationale": "Native OS worker/CAS/consumer and separate resource measurements."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0236",
+      "requirement_ids": [
+        "REQ-ING-03-03"
+      ],
+      "test_ids": [
+        "TEST-ING-03-03"
+      ],
+      "rationale": "UTC horizon/scope."
+    },
+    {
+      "inventory_id": "preserve:0237",
+      "requirement_ids": [
+        "REQ-ING-03-03"
+      ],
+      "test_ids": [
+        "TEST-ING-03-03"
+      ],
+      "rationale": "No eviction or identity fallback."
+    },
+    {
+      "inventory_id": "preserve:0238",
+      "requirement_ids": [
+        "REQ-ING-03-03"
+      ],
+      "test_ids": [
+        "TEST-ING-03-03"
+      ],
+      "rationale": "Disabled guarantee."
+    },
+    {
+      "inventory_id": "preserve:0239",
+      "requirement_ids": [
+        "REQ-ING-03-01",
+        "REQ-ING-03-04"
+      ],
+      "test_ids": [
+        "TEST-ING-03-01",
+        "TEST-ING-03-04"
+      ],
+      "rationale": "Prepublication capacity."
+    },
+    {
+      "inventory_id": "preserve:0240",
+      "requirement_ids": [
+        "REQ-ING-03-01",
+        "REQ-ING-03-04"
+      ],
+      "test_ids": [
+        "TEST-ING-03-01",
+        "TEST-ING-03-04"
+      ],
+      "rationale": "Exact closing transitions."
+    },
+    {
+      "inventory_id": "preserve:0241",
+      "requirement_ids": [
+        "REQ-ING-03-02",
+        "REQ-ING-03-04"
+      ],
+      "test_ids": [
+        "TEST-ING-03-02",
+        "TEST-ING-03-04"
+      ],
+      "rationale": "Required/optional/null/type/finite."
+    },
+    {
+      "inventory_id": "preserve:0242",
+      "requirement_ids": [
+        "REQ-ING-03-02",
+        "REQ-ING-03-04"
+      ],
+      "test_ids": [
+        "TEST-ING-03-02",
+        "TEST-ING-03-04"
+      ],
+      "rationale": "Actual quarantine readback."
+    }
+  ],
+  "owners": [
+    "src/polisyos/fabric/data_plane/streaming.py",
+    "src/polisyos/fabric/data_plane/schema_rows.py",
+    "src/polisyos/fabric/data_plane/quarantine.py",
+    "src/polisyos/fabric/connectors/contracts/_schema_field.py"
+  ]
+}

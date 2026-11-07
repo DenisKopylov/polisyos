@@ -21,6 +21,7 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.core import canon
 from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
 from polisyos.pdc import (
     CompositionCertificate,
@@ -33,11 +34,14 @@ from polisyos.pdc import (
     gy_content_hash,
 )
 from polisyos.runtime.quality.candidate_simulation import (
+    CandidateScenarioMaterializationV1,
+    CandidateScenarioNumericMaterializationV1,
     CandidateSimulationContextHandoff,
 )
 from polisyos.runtime.quality.cycle_substrate import (
     ConfiguredCandidateSimulationContextAdmissionOwner,
     CycleSubstrateContextArtifactOwner,
+    VerifiedNLJobBudgetScope,
     VerifiedNLJobScope,
 )
 from polisyos.runtime.quality.design_axes.coupling_composition import (
@@ -59,7 +63,9 @@ from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleError,
     GenerationCycleRun,
     N4GenerationPort,
+    _bind_scoped_n5_invocation_policy,
     generation_cycle_terminal_state,
+    load_joint_simulation_result,
     persist_joint_simulation_result,
     validate_generation_cycle_candidate_run,
     validate_generation_cycle_run_history,
@@ -81,13 +87,16 @@ from polisyos.runtime.quality.workspace.loop import (
     select_search_terminal,
 )
 from polisyos.scientist.orchestration.engine.producer_budget import (
+    BudgetInvocationCapacityObservation,
+    BudgetInvocationExhaustionWitness,
     ProducerBudgetObserver,
     ProducerBudgetSourceError,
+    verify_standard_invocation_exhaustion_historical,
 )
 
 if TYPE_CHECKING:
     from polisyos.core import contracts as core_contracts
-    from polisyos.core.artifacts import ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore, ArtifactWriteOptions
     from polisyos.core.contracts import CatalogRunProfile
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.data_forge_binding import (
@@ -98,6 +107,11 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
     from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
     from polisyos.scientist import BudgetState
+    from polisyos.scientist.orchestration.engine import (
+        BudgetInvocationQuotaPolicy,
+        BudgetLedgerProducerRunBinding,
+        BudgetMiddleware,
+    )
 
 RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.recursive_generation_cycle.v1"
 RECURSIVE_GENERATION_CYCLE_PARTIAL_V2_SCHEMA_VERSION = (
@@ -106,6 +120,11 @@ RECURSIVE_GENERATION_CYCLE_PARTIAL_V2_SCHEMA_VERSION = (
 RECURSIVE_GENERATION_CYCLE_PARTIAL_V3_SCHEMA_VERSION = (
     "policyos.runtime.recursive_generation_cycle.partial.v3"
 )
+RECURSIVE_GENERATION_CYCLE_PARTIAL_V4_SCHEMA_VERSION = (
+    "policyos.runtime.recursive_generation_cycle.partial.v4"
+)
+_N4_CHILD_PROFILE_SET_CANON = canon.CanonSpec(forbid_floats=False)
+_GENERIC_LEAF_CAPSULE_CANON = canon.CanonSpec(forbid_floats=False)
 ExecutionIntent = Literal[
     "candidate_only",
     "simulate_only",
@@ -174,6 +193,8 @@ def _joint_simulation_is_unsupported(result: JointSimulationResult) -> bool:
         result.receipt.calibration_status in {"unsupported_coupling_gated", "no_run"}
         or not result.trajectories
         or not any(decision.decision == "selected" for decision in result.engine_decisions)
+        or result.diagnostics.get("physical_work_interruption")
+        == "n5_physical_budget_scope_lost_after_work"
     )
 
 
@@ -196,6 +217,26 @@ class _RecursiveBudgetStopError(Exception):
         self.budget_stop_node_ref = budget_stop_node_ref
         self.frontier_node_refs = frontier_node_refs
         super().__init__("recursive_child_budget_exhausted")
+
+
+class _RecursiveStandardQuotaStopError(Exception):
+    """Unwind before a sibling after owner-replayed standard N5 exhaustion."""
+
+    def __init__(
+        self,
+        *,
+        stop_parent_node_ref: str,
+        pending_child_node_ref: str,
+        pending_child_index: int,
+        frontier_node_refs: tuple[str, ...],
+        exhaustion_witness: BudgetInvocationExhaustionWitness,
+    ) -> None:
+        self.stop_parent_node_ref = stop_parent_node_ref
+        self.pending_child_node_ref = pending_child_node_ref
+        self.pending_child_index = pending_child_index
+        self.frontier_node_refs = frontier_node_refs
+        self.exhaustion_witness = exhaustion_witness
+        super().__init__("recursive_standard_n5_capacity_exhausted")
 
 
 class _StrictModel(BaseModel):
@@ -922,6 +963,7 @@ class RecursiveLeafContextOwner:
                 version="1.0",
             ),
             producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+            canon=artifacts.CanonInfo.from_spec(_N4_CHILD_PROFILE_SET_CANON),
             inputs=inputs,
             tenant_context=ArtifactTenantContextInfo(
                 tenant_id=family.tenant_id,
@@ -1076,14 +1118,17 @@ class RecursiveLeafContextOwner:
         family = RecursiveN4ChildProfileSetV1.model_validate(
             {**payload, "content_hash": gy_content_hash(payload)}
         )
-        from polisyos.core import canon
-
         options = self._n4_child_profile_set_write_options(family)
         ref = self._store.put_json(
             family.model_dump(mode="json"),
             options,
-            canon_spec=canon.CanonSpec(forbid_floats=False),
+            canon_spec=_N4_CHILD_PROFILE_SET_CANON,
+            return_selected_profile=True,
         )
+        if type(ref) is not CASArtifactRef or ref.manifest_profile_sha256 is None:
+            raise RecursiveGenerationCycleError(
+                "recursive_n4_child_profile_set_selected_ref_not_returned"
+            )
         self.load_n4_child_profile_set(
             ref,
             expected_job_id=parent.job_id,
@@ -1342,48 +1387,239 @@ class RecursiveLeafContextOwner:
             or row.selection != capsule.child_selection
         ):
             raise RecursiveGenerationCycleError("recursive_generic_capsule_family_binding_mismatch")
-        from polisyos.core import artifacts, canon
+
+        ref = self._store.put_json(
+            capsule.model_dump(mode="json"),
+            self._generic_capsule_write_options(capsule),
+            canon_spec=_GENERIC_LEAF_CAPSULE_CANON,
+            return_selected_profile=True,
+        )
+        if type(ref) is not CASArtifactRef or ref.manifest_profile_sha256 is None:
+            raise RecursiveGenerationCycleError(
+                "recursive_generic_capsule_selected_ref_not_returned"
+            )
+        return ref
+
+    @staticmethod
+    def _generic_capsule_write_options(
+        capsule: RecursiveLeafContextCapsuleV2,
+    ) -> ArtifactWriteOptions:
+        """Return the exact manifest profile used for a generic leaf capsule."""
+        from polisyos.core import artifacts
         from polisyos.core.artifacts import (
             ArtifactTenantContextInfo,
             input_ref_from_artifact_ref,
         )
 
-        return self._store.put_json(
-            capsule.model_dump(mode="json"),
-            artifacts.ArtifactWriteOptions(
-                kind="runtime.quality.recursive_leaf_context",
-                media_type="application/json",
-                schema=artifacts.SchemaInfo(name=capsule.schema_version, version="2.0"),
-                producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
-                inputs=[
-                    input_ref_from_artifact_ref(
-                        capsule.handoff.context_job_ref,
-                        role="leaf_context_job",
-                    ),
-                    input_ref_from_artifact_ref(
-                        capsule.handoff.profile_ref,
-                        role="generic_cycle_simulation_profile",
-                    ),
-                    input_ref_from_artifact_ref(
-                        capsule.n4_source_ref,
-                        role="n4_source",
-                    ),
-                    input_ref_from_artifact_ref(
-                        capsule.n4_child_profile_family_ref,
-                        role="n4_child_profile_family",
-                    ),
-                    input_ref_from_artifact_ref(
-                        capsule.n4_child_profile_set_ref,
-                        role="n4_child_profile_set",
-                    ),
-                ],
-                tenant_context=ArtifactTenantContextInfo(
-                    tenant_id=capsule.handoff.tenant_id,
-                    cell_id=capsule.handoff.cell_id,
+        if type(capsule) is not RecursiveLeafContextCapsuleV2:
+            raise RecursiveGenerationCycleError("recursive_generic_capsule_untyped")
+        return artifacts.ArtifactWriteOptions(
+            kind="runtime.quality.recursive_leaf_context",
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(name=capsule.schema_version, version="2.0"),
+            producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+            canon=artifacts.CanonInfo.from_spec(_GENERIC_LEAF_CAPSULE_CANON),
+            inputs=[
+                input_ref_from_artifact_ref(
+                    capsule.handoff.context_job_ref,
+                    role="leaf_context_job",
                 ),
+                input_ref_from_artifact_ref(
+                    capsule.handoff.profile_ref,
+                    role="generic_cycle_simulation_profile",
+                ),
+                input_ref_from_artifact_ref(capsule.n4_source_ref, role="n4_source"),
+                input_ref_from_artifact_ref(
+                    capsule.n4_child_profile_family_ref,
+                    role="n4_child_profile_family",
+                ),
+                input_ref_from_artifact_ref(
+                    capsule.n4_child_profile_set_ref,
+                    role="n4_child_profile_set",
+                ),
+            ],
+            tenant_context=ArtifactTenantContextInfo(
+                tenant_id=capsule.handoff.tenant_id,
+                cell_id=capsule.handoff.cell_id,
             ),
-            canon_spec=canon.CanonSpec(forbid_floats=False),
         )
+
+    def resolve_generic_capsule_historical(
+        self,
+        ref: CASArtifactRef,
+        *,
+        expected_node_ref: str,
+        expected_parent_ref: str,
+        expected_problem: DesignProblem,
+        expected_parent_handoff: GenericCycleSimulationContextHandoffV1,
+        expected_child_profile_set_ref: CASArtifactRef,
+        source_repository: GenerationSourceRepository,
+    ) -> RecursiveLeafContextCapsuleV2:
+        """Reopen a selected generic capsule and its complete historical N4 family.
+
+        This is a read-only historical owner path. It does not create a worker
+        lease, re-resolve current configuration, or grant simulation authority.
+        The expected parent handoff and child-profile-set ref must come from the
+        independently reopened compiled owner, not from the capsule itself.
+        """
+        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository as CanonicalSourceRepository,
+        )
+        from polisyos.runtime.quality.generation_source import (
+            _has_owner_profile,
+            _ref_selects_manifest,
+        )
+
+        if (
+            type(ref) is not CASArtifactRef
+            or ref.kind != "runtime.quality.recursive_leaf_context"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            or type(expected_node_ref) is not str
+            or not expected_node_ref
+            or type(expected_parent_ref) is not str
+            or not expected_parent_ref
+            or type(expected_problem) is not DesignProblem
+            or type(expected_parent_handoff) is not GenericCycleSimulationContextHandoffV1
+            or type(expected_child_profile_set_ref) is not CASArtifactRef
+            or expected_child_profile_set_ref.kind
+            != "runtime.quality.recursive_n4_child_profile_set"
+            or expected_child_profile_set_ref.media_type != "application/json"
+            or expected_child_profile_set_ref.manifest_profile_sha256 is None
+            or expected_parent_handoff.context_job_ref.manifest_profile_sha256 is None
+            or expected_parent_handoff.profile_ref.manifest_profile_sha256 is None
+            or expected_parent_handoff.n4_child_profile_family_ref is None
+            or expected_parent_handoff.n4_child_profile_family_ref.manifest_profile_sha256 is None
+            or type(source_repository) is not CanonicalSourceRepository
+            or source_repository.store is not self._store
+            or self._generic_admission_owner is None
+            or self._generic_admission_owner.store is not self._store
+        ):
+            raise RecursiveGenerationCycleError(
+                "recursive_generic_capsule_historical_inputs_invalid"
+            )
+        expected_scope = (
+            expected_parent_handoff.job_id,
+            expected_parent_handoff.run_id,
+            expected_parent_handoff.tenant_id,
+            expected_parent_handoff.cell_id,
+        )
+        if (
+            expected_parent_handoff.profile.profile_selection_kind != "problem"
+            or not self._store.verify(ref).ok
+        ):
+            raise RecursiveGenerationCycleError("recursive_generic_capsule_historical_ref_invalid")
+        raw = self._store.get_bytes(ref)
+        if str(ref.artifact_id) != "sha256:" + hashlib.sha256(raw).hexdigest():
+            raise RecursiveGenerationCycleError("recursive_generic_capsule_historical_cas_mismatch")
+        manifest = self._store.get_manifest(ref)
+        if not _ref_selects_manifest(ref, manifest):
+            raise RecursiveGenerationCycleError(
+                "recursive_generic_capsule_historical_profile_mismatch"
+            )
+        try:
+            capsule = RecursiveLeafContextCapsuleV2.model_validate(
+                load_core_json_artifact(self._store, ref, raw_payload_bytes=raw)
+            )
+        except (TypeError, ValueError) as exc:
+            raise RecursiveGenerationCycleError(
+                "recursive_generic_capsule_historical_payload_invalid"
+            ) from exc
+        if not _has_owner_profile(manifest, self._generic_capsule_write_options(capsule)):
+            raise RecursiveGenerationCycleError(
+                "recursive_generic_capsule_historical_manifest_mismatch"
+            )
+        if (
+            capsule.node_ref != expected_node_ref
+            or capsule.parent_ref != expected_parent_ref
+            or capsule.problem != expected_problem
+            or capsule.child_selection.parent_handoff != expected_parent_handoff
+            or capsule.n4_child_profile_set_ref != expected_child_profile_set_ref
+            or capsule.n4_source_ref.manifest_profile_sha256 is None
+            or capsule.n4_child_profile_family_ref.manifest_profile_sha256 is None
+            or capsule.handoff.context_job_ref.manifest_profile_sha256 is None
+            or capsule.handoff.profile_ref.manifest_profile_sha256 is None
+            or capsule.handoff.n4_child_profile_family_ref is None
+            or capsule.handoff.n4_child_profile_family_ref.manifest_profile_sha256 is None
+            or capsule.handoff.n4_child_profile_family_ref
+            != expected_parent_handoff.n4_child_profile_family_ref
+            or (
+                capsule.handoff.job_id,
+                capsule.handoff.run_id,
+                capsule.handoff.tenant_id,
+                capsule.handoff.cell_id,
+            )
+            != expected_scope
+        ):
+            raise RecursiveGenerationCycleError(
+                "recursive_generic_capsule_historical_binding_mismatch"
+            )
+        family = self.load_n4_child_profile_set(
+            expected_child_profile_set_ref,
+            expected_job_id=expected_parent_handoff.job_id,
+            expected_run_id=expected_parent_handoff.run_id,
+            expected_tenant_id=expected_parent_handoff.tenant_id,
+            expected_cell_id=expected_parent_handoff.cell_id,
+            expected_parent_handoff=expected_parent_handoff,
+            source_repository=source_repository,
+        )
+        matching_rows = tuple(row for row in family.children if row.node_ref == expected_node_ref)
+        if (
+            len(matching_rows) != 1
+            or family.source_ref != capsule.n4_source_ref
+            or family.n4_child_profile_family_ref != capsule.n4_child_profile_family_ref
+            or matching_rows[0].parent_ref != expected_parent_ref
+            or matching_rows[0].problem != capsule.problem
+            or matching_rows[0].selection != capsule.child_selection
+            or matching_rows[0].handoff != capsule.handoff
+        ):
+            raise RecursiveGenerationCycleError(
+                "recursive_generic_capsule_historical_family_mismatch"
+            )
+        return capsule
+
+    def generic_root_currentness_resolver(
+        self,
+        *,
+        handoff: GenericCycleSimulationContextHandoffV1,
+        problem: DesignProblem,
+        currentness: Callable[[], bool],
+    ) -> Callable[[], bool]:
+        """Bind an exact generic root/parent handoff to its live lease and family."""
+        if (
+            self._generic_admission_owner is None
+            or self._verified_nl_job_scope is None
+            or type(handoff) is not GenericCycleSimulationContextHandoffV1
+            or handoff.profile.profile_selection_kind != "problem"
+            or not callable(currentness)
+        ):
+            raise RecursiveGenerationCycleError("recursive_generic_root_owner_incomplete")
+
+        def require_current() -> bool:
+            if currentness() is not True:
+                raise RecursiveGenerationCycleError("recursive_generic_root_lease_not_current")
+            resolved = self._generic_admission_owner.resolve_handoff(
+                handoff=handoff,
+                problem=problem,
+                verified_nl_job_scope=self._verified_nl_job_scope,
+                context_owner=self._context_owner,
+                repo_root=self._repo_root,
+            )
+            if handoff.n4_child_profile_family_ref is not None:
+                self._generic_admission_owner.resolve_child_profile_family(
+                    handoff.n4_child_profile_family_ref,
+                    parent_handoff=handoff,
+                    parent_problem=problem,
+                    verified_nl_job_scope=self._verified_nl_job_scope,
+                    context_owner=self._context_owner,
+                    repo_root=self._repo_root,
+                )
+            if resolved != handoff or currentness() is not True:
+                raise RecursiveGenerationCycleError("recursive_generic_root_handoff_not_current")
+            return True
+
+        return require_current
 
     def generic_currentness_resolver(
         self,
@@ -1421,6 +1657,7 @@ class RecursiveLeafContextOwner:
 
             if (
                 capsule_ref.kind != "runtime.quality.recursive_leaf_context"
+                or capsule_ref.manifest_profile_sha256 is None
                 or not self._store.verify(capsule_ref).ok
             ):
                 raise RecursiveGenerationCycleError("recursive_generic_capsule_ref_invalid")
@@ -1431,37 +1668,17 @@ class RecursiveLeafContextOwner:
                 load_core_json_artifact(self._store, capsule_ref, raw_payload_bytes=body)
             )
             manifest = self._store.get_manifest(capsule_ref)
-            from polisyos.core.artifacts import (
-                ArtifactTenantContextInfo,
-                input_ref_from_artifact_ref,
+            from polisyos.runtime.quality.generation_source import (
+                _has_owner_profile,
+                _ref_selects_manifest,
             )
 
-            expected_inputs = [
-                input_ref_from_artifact_ref(
-                    capsule.handoff.context_job_ref,
-                    role="leaf_context_job",
-                ),
-                input_ref_from_artifact_ref(
-                    capsule.handoff.profile_ref,
-                    role="generic_cycle_simulation_profile",
-                ),
-                input_ref_from_artifact_ref(capsule.n4_source_ref, role="n4_source"),
-                input_ref_from_artifact_ref(
-                    capsule.n4_child_profile_family_ref,
-                    role="n4_child_profile_family",
-                ),
-                input_ref_from_artifact_ref(
-                    capsule.n4_child_profile_set_ref,
-                    role="n4_child_profile_set",
-                ),
-            ]
             if (
                 replayed != capsule
-                or manifest.inputs != expected_inputs
-                or manifest.tenant_context
-                != ArtifactTenantContextInfo(
-                    tenant_id=capsule.handoff.tenant_id,
-                    cell_id=capsule.handoff.cell_id,
+                or not _ref_selects_manifest(capsule_ref, manifest)
+                or not _has_owner_profile(
+                    manifest,
+                    self._generic_capsule_write_options(capsule),
                 )
             ):
                 raise RecursiveGenerationCycleError("recursive_generic_capsule_manifest_mismatch")
@@ -1622,6 +1839,671 @@ class ParentJointCandidateSelectionV2(ParentJointCandidateSelectionV1):
     joint_simulation_request_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
+class ParentJointCandidateSelectionV4(ParentJointCandidateSelectionV2):
+    """Bind configured numeric projections without asserting authored composition."""
+
+    schema_version: Literal[
+        "policyos.runtime.recursive_generation_cycle.parent_joint_candidate_selection.v4"
+    ] = "policyos.runtime.recursive_generation_cycle.parent_joint_candidate_selection.v4"
+    component_materializations: tuple[
+        CandidateScenarioMaterializationV1 | CandidateScenarioNumericMaterializationV1, ...
+    ] = Field(min_length=2)
+
+    @model_validator(mode="after")
+    def _bind_materialized_source_members(self) -> ParentJointCandidateSelectionV4:
+        if len(self.members) != len(self.component_materializations) or any(
+            materialization.candidate_id != member.source_candidate_id
+            or materialization.original_atom_hash != member.source_atom_content_hash
+            or materialization.problem_ref != self.parent_design_problem_ref
+            or materialization.context_job_ref != str(self.context_job_ref.artifact_id)
+            or materialization.source_handoff_ref != str(self.n4_source_ref.artifact_id)
+            or materialization.world_model_record_hash != self.world_model_record_content_hash
+            for member, materialization in zip(
+                self.members, self.component_materializations, strict=True
+            )
+        ):
+            raise ValueError("recursive_parent_joint_materialization_member_mismatch")
+        derived_hashes = tuple(
+            item.derived_n5_atom.content_hash for item in self.component_materializations
+        )
+        if len(set(derived_hashes)) != len(derived_hashes):
+            raise ValueError("recursive_parent_joint_materialization_duplicate")
+        return self
+
+
+class ParentJointAuthoredRelationV1(_StrictModel):
+    """Persist one explicit, candidate-only relation and its actual L6 projections."""
+
+    schema_version: Literal[
+        "policyos.runtime.recursive_generation_cycle.authored_joint_relation.v1"
+    ] = "policyos.runtime.recursive_generation_cycle.authored_joint_relation.v1"
+    authority_purpose: Literal["candidate_only"] = "candidate_only"
+    candidate_intent: Literal["authored_joint_components.v1"] = "authored_joint_components.v1"
+    source_candidate_relationship: Literal["alternatives"] = "alternatives"
+    selected_member_relationship: Literal["joint_components"] = "joint_components"
+    composition_status: Literal["authored_candidate"] = "authored_candidate"
+    child_to_parent_refinement_status: Literal["not_established"] = "not_established"
+    job_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    tenant_id: str = Field(min_length=1)
+    cell_id: str = Field(min_length=1)
+    source_run_id: str = Field(min_length=1)
+    intent_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    request_payload_ref: CASArtifactRef
+    n4_source_ref: CASArtifactRef
+    n4_source_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    n4_source_result_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    parent_design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    context_job_ref: CASArtifactRef
+    context_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    profile_ref: CASArtifactRef
+    profile_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    profile_selection_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    world_model_record_ref: str = Field(min_length=1)
+    world_model_record_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    outcome_variable: str = Field(min_length=1)
+    members: tuple[ParentJointCandidateSourceMember, ...] = Field(min_length=2)
+    component_materializations: tuple[
+        CandidateScenarioMaterializationV1 | CandidateScenarioNumericMaterializationV1, ...
+    ] = Field(min_length=2)
+    joint_simulation_request_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _bind_source_and_materializations(self) -> ParentJointAuthoredRelationV1:
+        for ref, kind in (
+            (self.request_payload_ref, "runtime.control_job_payload.natural_language_run"),
+            (self.n4_source_ref, "runtime.generation_source_handoff"),
+            (self.context_job_ref, "runtime.quality.cycle_substrate_context_job"),
+            (self.profile_ref, "runtime.quality.generic_cycle_simulation_profile"),
+        ):
+            if (
+                type(ref) is not CASArtifactRef
+                or ref.kind != kind
+                or ref.media_type != "application/json"
+                or (
+                    kind == "runtime.control_job_payload.natural_language_run"
+                    and not ref.manifest_profile_sha256
+                )
+            ):
+                raise ValueError("recursive_authored_joint_source_ref_invalid")
+        if len(self.members) != len(self.component_materializations) or len(
+            {member.source_candidate_id for member in self.members}
+        ) != len(self.members):
+            raise ValueError("recursive_authored_joint_member_denominator_invalid")
+        for member, materialization in zip(
+            self.members, self.component_materializations, strict=True
+        ):
+            if (
+                member.parent_problem_frame_ref != self.parent_design_problem_ref
+                or materialization.candidate_id != member.source_candidate_id
+                or materialization.original_atom_hash != member.source_atom_content_hash
+                or materialization.problem_ref != self.parent_design_problem_ref
+                or materialization.context_hash != self.context_content_hash
+                or materialization.context_job_ref != str(self.context_job_ref.artifact_id)
+                or materialization.source_handoff_ref != str(self.n4_source_ref.artifact_id)
+                or materialization.profile_hash != self.profile_content_hash
+                or materialization.world_model_record_hash != self.world_model_record_content_hash
+                or materialization.derived_n5_atom.problem_frame_ref
+                != self.parent_design_problem_ref
+                or materialization.derived_n5_atom.world_model_record_ref
+                != self.world_model_record_ref
+            ):
+                raise ValueError("recursive_authored_joint_materialization_binding_mismatch")
+        if self.content_hash != gy_content_hash(
+            self.model_dump(mode="json", exclude={"content_hash"})
+        ):
+            raise ValueError("recursive_authored_joint_relation_hash_mismatch")
+        return self
+
+
+class ParentJointCandidateSelectionV3(ParentJointCandidateSelectionV1):
+    """Select a requestor-authored joint candidate without claiming coupling authority."""
+
+    schema_version: Literal[
+        "policyos.runtime.recursive_generation_cycle.parent_joint_candidate_selection.v3"
+    ] = "policyos.runtime.recursive_generation_cycle.parent_joint_candidate_selection.v3"
+    selection_rule: Literal["authored_joint_components.v1"] = "authored_joint_components.v1"
+    candidate_intent: Literal["authored_joint_components.v1"] = "authored_joint_components.v1"
+    source_candidate_relationship: Literal["alternatives"] = "alternatives"
+    selected_member_relationship: Literal["joint_components"] = "joint_components"
+    composition_status: Literal["authored_candidate"] = "authored_candidate"
+    child_to_parent_refinement_status: Literal["not_established"] = "not_established"
+    child_to_parent_refinement_limitation_code: Literal[
+        "child_to_parent_refinement_rule_not_established"
+    ] = "child_to_parent_refinement_rule_not_established"
+    request_payload_ref: CASArtifactRef
+    relation_ref: CASArtifactRef
+    relation_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    joint_simulation_request_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    derived_atom_ids: tuple[str, ...] = Field(min_length=2)
+    derived_atom_content_hashes: tuple[str, ...] = Field(min_length=2)
+
+    @model_validator(mode="after")
+    def _bind_authored_selection(self) -> ParentJointCandidateSelectionV3:
+        for ref, kind in (
+            (self.request_payload_ref, "runtime.control_job_payload.natural_language_run"),
+            (self.relation_ref, "runtime.quality.recursive_authored_joint_relation"),
+        ):
+            if (
+                type(ref) is not CASArtifactRef
+                or ref.kind != kind
+                or ref.media_type != "application/json"
+                or not ref.manifest_profile_sha256
+            ):
+                raise ValueError("recursive_authored_joint_selection_ref_invalid")
+        if (
+            len(self.members) != len(self.derived_atom_ids)
+            or len(self.members) != len(self.derived_atom_content_hashes)
+            or len(set(self.derived_atom_ids)) != len(self.derived_atom_ids)
+            or len(set(self.derived_atom_content_hashes)) != len(self.derived_atom_content_hashes)
+            or any(
+                len(atom_id) != 21
+                or not atom_id.startswith("atom_")
+                or any(ch not in "0123456789abcdef" for ch in atom_id[5:])
+                for atom_id in self.derived_atom_ids
+            )
+            or any(
+                len(content_hash) != 71
+                or not content_hash.startswith("sha256:")
+                or any(ch not in "0123456789abcdef" for ch in content_hash[7:])
+                for content_hash in self.derived_atom_content_hashes
+            )
+            or any(
+                original.source_atom_content_hash == derived_hash
+                for original, derived_hash in zip(
+                    self.members, self.derived_atom_content_hashes, strict=True
+                )
+            )
+        ):
+            raise ValueError("recursive_authored_joint_materialization_denominator_invalid")
+        return self
+
+
+def _authored_joint_relation_options(relation: ParentJointAuthoredRelationV1) -> object:
+    """Describe the selected candidate relation and its exact input closure."""
+    from polisyos.core import artifacts
+    from polisyos.core.artifacts import (
+        ArtifactSameInputClosureInfo,
+        ArtifactTenantContextInfo,
+        input_ref_from_artifact_ref,
+    )
+
+    return artifacts.ArtifactWriteOptions(
+        kind="runtime.quality.recursive_authored_joint_relation",
+        media_type="application/json",
+        schema=artifacts.SchemaInfo(name=relation.schema_version, version="1.0"),
+        producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
+        canon=artifacts.CanonInfo.from_spec(_N4_CHILD_PROFILE_SET_CANON),
+        inputs=[
+            input_ref_from_artifact_ref(relation.request_payload_ref, role="nl_request_payload"),
+            input_ref_from_artifact_ref(relation.n4_source_ref, role="n4_source"),
+            input_ref_from_artifact_ref(relation.context_job_ref, role="parent_context_job"),
+            input_ref_from_artifact_ref(relation.profile_ref, role="parent_generic_profile"),
+        ],
+        tenant_context=ArtifactTenantContextInfo(
+            tenant_id=relation.tenant_id,
+            cell_id=relation.cell_id,
+        ),
+        same_input_closure=ArtifactSameInputClosureInfo(
+            closure_id=f"recursive-authored-joint:{relation.run_id}:{relation.content_hash}",
+            status="candidate_only",
+            run_id=relation.run_id,
+            job_id=relation.job_id,
+            tenant_id=relation.tenant_id,
+            cell_id=relation.cell_id,
+        ),
+    )
+
+
+def _authored_joint_request_payload(
+    *,
+    store: ArtifactStore,
+    ref: CASArtifactRef,
+    handoff: GenericCycleSimulationContextHandoffV1,
+    intent_digest: str,
+) -> None:
+    """Check selected queue bytes; the HTTP owner also verifies authorization."""
+    from polisyos.core.artifacts import read_core_json_artifact
+    from polisyos.runtime.quality.generation_source import _ref_selects_manifest
+
+    if (
+        type(ref) is not CASArtifactRef
+        or ref.kind != "runtime.control_job_payload.natural_language_run"
+        or ref.media_type != "application/json"
+        or not ref.manifest_profile_sha256
+        or not store.verify(ref).ok
+    ):
+        raise RecursiveGenerationCycleError("recursive_authored_joint_request_ref_invalid")
+    raw = store.get_bytes(ref)
+    manifest = store.get_manifest(ref)
+    if (
+        str(ref.artifact_id) != "sha256:" + hashlib.sha256(raw).hexdigest()
+        or not _ref_selects_manifest(ref, manifest)
+        or manifest.artifact_schema is None
+        or manifest.artifact_schema.name != "polisyos.runtime.ControlJobPayload"
+        or manifest.artifact_schema.version != "1.1"
+    ):
+        raise RecursiveGenerationCycleError("recursive_authored_joint_request_profile_mismatch")
+    payload = read_core_json_artifact(store, ref, raw_payload_bytes=raw).value
+    if not isinstance(payload, Mapping):
+        raise RecursiveGenerationCycleError("recursive_authored_joint_request_payload_invalid")
+    binding = payload.get("execution_intent_binding")
+    snapshot = payload.get("nl_request_snapshot")
+    snapshot_request = snapshot.get("request") if isinstance(snapshot, Mapping) else None
+    if (
+        not isinstance(binding, Mapping)
+        or not isinstance(snapshot_request, Mapping)
+        or payload.get("joint_interaction_candidate_intent") != "authored_joint_components.v1"
+        or snapshot_request.get("joint_interaction_candidate_intent")
+        != "authored_joint_components.v1"
+        or binding.get("intent_digest") != intent_digest
+        or binding.get("admission_status") != "established"
+        or binding.get("canonical_mode") != "simulate_only"
+        or (
+            binding.get("job_id"),
+            binding.get("run_id"),
+            binding.get("tenant_id"),
+            binding.get("cell_id"),
+        )
+        != (handoff.job_id, handoff.run_id, handoff.tenant_id, handoff.cell_id)
+    ):
+        raise RecursiveGenerationCycleError("recursive_authored_joint_request_binding_mismatch")
+
+
+def _materialized_joint_source_basis(
+    *,
+    source_ref: CASArtifactRef,
+    source_run_id: str,
+    source_repository: GenerationSourceRepository,
+    handoff: GenericCycleSimulationContextHandoffV1,
+    admission_owner: GenericCycleSimulationAdmissionOwner,
+    members: tuple[ParentJointCandidateSourceMember, ...],
+    request: JointSimulationRequest,
+    hypothetical_diagnostic: bool = False,
+) -> tuple[
+    object,
+    tuple[CandidateScenarioMaterializationV1 | CandidateScenarioNumericMaterializationV1, ...],
+]:
+    """Rebuild the complete source denominator, L6 materialization, and N5 request."""
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+    from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+    from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    if (
+        type(source_repository) is not GenerationSourceRepository
+        or type(admission_owner) is not GenericCycleSimulationAdmissionOwner
+        or type(handoff) is not GenericCycleSimulationContextHandoffV1
+        or source_repository.store is not admission_owner.store
+    ):
+        raise RecursiveGenerationCycleError("recursive_authored_joint_owner_not_established")
+    source = source_repository.load(
+        source_ref,
+        run_id=source_run_id,
+        expected_run_id=handoff.run_id,
+        expected_job_id=handoff.job_id,
+        expected_tenant_id=handoff.tenant_id,
+        expected_cell_id=handoff.cell_id,
+        context_job_ref=handoff.context_job_ref,
+        profile_ref=handoff.profile_ref,
+        n4_child_profile_family_ref=handoff.n4_child_profile_family_ref,
+    )
+    if (
+        source.generation_result.status != "generated"
+        or source.cycle_substrate_context != handoff.context
+        or source.trinity_bundle is None
+        or source.problem.outcome_of_interest.target_variable not in request.selected_outcomes
+    ):
+        raise RecursiveGenerationCycleError("recursive_authored_joint_source_mismatch")
+    children = derive_n4_candidate_child_problems(
+        source.problem,
+        source.generation_result,
+        model_id=source.generation_result.model_id,
+    )
+    candidates = {item.candidate_id: item for item in source.generation_result.candidates}
+    if len(children) != len(members) or len(candidates) != len(members):
+        raise RecursiveGenerationCycleError("recursive_authored_joint_denominator_mismatch")
+    for child, member in zip(children, members, strict=True):
+        candidate = candidates.get(member.source_candidate_id)
+        child_problem_ref = cycle_job_design_problem_ref(child.problem)
+        if (
+            candidate is None
+            or member.child_node_ref
+            != "design-problem://" + child_problem_ref.removeprefix("sha256:")
+            or member.child_design_problem_ref != child_problem_ref
+            or member.semantic_ref != child.semantic_ref
+            or member.source_candidate_content_hash
+            != gy_content_hash(candidate.model_dump(mode="json"))
+            or member.source_atom_id != candidate.atom.atom_id
+            or member.source_atom_content_hash != candidate.atom.content_hash
+            or child.source_atom_refs != (candidate.atom.content_hash,)
+            or member.parent_problem_frame_ref != cycle_job_design_problem_ref(source.problem)
+            or candidate.atom.problem_frame_ref != member.parent_problem_frame_ref
+        ):
+            raise RecursiveGenerationCycleError("recursive_authored_joint_source_member_mismatch")
+    materializations = admission_owner.materialize_source_atoms(
+        handoff=handoff,
+        source_ref=source_ref,
+        source_run_id=source_run_id,
+        candidate_ids=tuple(member.source_candidate_id for member in members),
+    )
+    atoms = tuple(item.derived_n5_atom for item in materializations)
+    outcome = source.problem.outcome_of_interest.target_variable
+    world = handoff.profile.context_inputs.world_model_record
+    variable_map = JointSimulationPort._joint_simulation_variable_map(
+        atoms=atoms,
+        outcome=outcome,
+        raw_hint=None,
+    )
+    n5 = handoff.profile.n5
+    scope_fields = (
+        {
+            "candidate_intent": "n4_unique_parent_source_members.v1",
+            "member_basis": "hypothetical_all_unique_n4_source_members",
+            "source_candidate_relationship": "alternatives",
+            "composition_status": "not_established",
+            "composition_limitation_code": (
+                "n4_source_candidates_are_alternatives_not_authored_compound_design"
+            ),
+            "child_to_parent_refinement_status": "not_established",
+            "child_to_parent_refinement_limitation_code": (
+                "child_to_parent_refinement_rule_not_established"
+            ),
+        }
+        if hypothetical_diagnostic
+        else {}
+    )
+    expected_request = JointSimulationRequest(
+        world_model_record_ref=world.world_model_record_id,
+        world_model_record=world,
+        intervention_atoms=atoms,
+        selected_outcomes=(outcome,),
+        horizon=n5.horizon,
+        engine_plan=admission_owner.build_engine_plans(
+            profile=handoff.profile,
+            world_record=world,
+            outcome=outcome,
+            variable_map=variable_map,
+        ),
+        baseline_state=dict(n5.baseline_state),
+        evidence_state=dict(n5.evidence_state) if n5.evidence_state is not None else None,
+        comparator_refs=n5.comparator_refs,
+        comparator_profile=(
+            n5.comparator_profile.model_copy(deep=True)
+            if n5.comparator_profile is not None
+            else None
+        ),
+        budget_ref=n5.budget_ref,
+        seed=n5.seed,
+        replications=n5.replications,
+        **scope_fields,
+    )
+    if request.model_dump(mode="json") != expected_request.model_dump(mode="json"):
+        raise RecursiveGenerationCycleError("recursive_authored_joint_request_replay_mismatch")
+    return source, materializations
+
+
+def persist_authored_joint_components(
+    *,
+    store: ArtifactStore,
+    source_repository: GenerationSourceRepository,
+    source_ref: CASArtifactRef,
+    source_run_id: str,
+    parent_handoff: GenericCycleSimulationContextHandoffV1,
+    admission_owner: GenericCycleSimulationAdmissionOwner,
+    verified_nl_job_scope: VerifiedNLJobScope,
+    request_payload_ref: CASArtifactRef,
+    members: tuple[ParentJointCandidateSourceMember, ...],
+    component_materializations: tuple[
+        CandidateScenarioMaterializationV1 | CandidateScenarioNumericMaterializationV1, ...
+    ],
+    request: JointSimulationRequest,
+) -> tuple[ParentJointAuthoredRelationV1, CASArtifactRef]:
+    """Persist a candidate relation only after actual job, source, and L6 replay."""
+    if (
+        type(verified_nl_job_scope) is not VerifiedNLJobScope
+        or not verified_nl_job_scope._was_issued_by_verified_nl_execution_owner
+        or (
+            verified_nl_job_scope.job_id,
+            verified_nl_job_scope.run_id,
+            verified_nl_job_scope.tenant_id,
+            verified_nl_job_scope.cell_id,
+        )
+        != (
+            parent_handoff.job_id,
+            parent_handoff.run_id,
+            parent_handoff.tenant_id,
+            parent_handoff.cell_id,
+        )
+        or admission_owner.store is not store
+    ):
+        raise RecursiveGenerationCycleError("recursive_authored_joint_job_scope_not_established")
+    _authored_joint_request_payload(
+        store=store,
+        ref=request_payload_ref,
+        handoff=parent_handoff,
+        intent_digest=verified_nl_job_scope.intent_digest,
+    )
+    source, replayed = _materialized_joint_source_basis(
+        source_ref=source_ref,
+        source_run_id=source_run_id,
+        source_repository=source_repository,
+        handoff=parent_handoff,
+        admission_owner=admission_owner,
+        members=members,
+        request=request,
+    )
+    if replayed != component_materializations:
+        raise RecursiveGenerationCycleError("recursive_authored_joint_materialization_mismatch")
+    world = parent_handoff.profile.context_inputs.world_model_record
+    fields: dict[str, object] = {
+        "job_id": parent_handoff.job_id,
+        "run_id": parent_handoff.run_id,
+        "tenant_id": parent_handoff.tenant_id,
+        "cell_id": parent_handoff.cell_id,
+        "source_run_id": source_run_id,
+        "intent_digest": verified_nl_job_scope.intent_digest,
+        "request_payload_ref": request_payload_ref,
+        "n4_source_ref": source_ref,
+        "n4_source_content_hash": source.content_hash,
+        "n4_source_result_content_hash": gy_content_hash(
+            source.generation_result.model_dump(mode="json")
+        ),
+        "parent_design_problem_ref": source.generation_result.design_problem_ref,
+        "context_job_ref": parent_handoff.context_job_ref,
+        "context_content_hash": parent_handoff.context.content_hash,
+        "profile_ref": parent_handoff.profile_ref,
+        "profile_content_hash": parent_handoff.profile.content_hash,
+        "profile_selection_ref": parent_handoff.profile.profile_selection_ref,
+        "world_model_record_ref": world.world_model_record_id,
+        "world_model_record_content_hash": world.content_hash,
+        "outcome_variable": source.problem.outcome_of_interest.target_variable,
+        "members": members,
+        "component_materializations": replayed,
+        "joint_simulation_request_content_hash": gy_content_hash(request.model_dump(mode="json")),
+    }
+    draft = ParentJointAuthoredRelationV1.model_construct(
+        **fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    payload = draft.model_dump(mode="json", exclude={"content_hash"})
+    relation = ParentJointAuthoredRelationV1.model_validate(
+        {**payload, "content_hash": gy_content_hash(payload)}
+    )
+    ref = store.put_json(
+        relation.model_dump(mode="json"),
+        _authored_joint_relation_options(relation),
+        canon_spec=_N4_CHILD_PROFILE_SET_CANON,
+        return_selected_profile=True,
+    )
+    loaded = load_authored_joint_components(
+        store=store,
+        relation_ref=ref,
+        source_repository=source_repository,
+        parent_handoff=parent_handoff,
+        admission_owner=admission_owner,
+        request=request,
+    )
+    if loaded != relation:
+        raise RecursiveGenerationCycleError("recursive_authored_joint_readback_mismatch")
+    return relation, ref
+
+
+def load_authored_joint_components(
+    *,
+    store: ArtifactStore,
+    relation_ref: CASArtifactRef,
+    source_repository: GenerationSourceRepository,
+    parent_handoff: GenericCycleSimulationContextHandoffV1,
+    admission_owner: GenericCycleSimulationAdmissionOwner,
+    request: JointSimulationRequest,
+    selection: ParentJointCandidateSelectionV3 | None = None,
+) -> ParentJointAuthoredRelationV1:
+    """Reopen and recompute a selected relation; no causal authority is conferred."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.runtime.quality.generation_source import _has_owner_profile, _ref_selects_manifest
+
+    if (
+        type(relation_ref) is not CASArtifactRef
+        or relation_ref.kind != "runtime.quality.recursive_authored_joint_relation"
+        or relation_ref.media_type != "application/json"
+        or not relation_ref.manifest_profile_sha256
+        or admission_owner.store is not store
+        or not store.verify(relation_ref).ok
+    ):
+        raise RecursiveGenerationCycleError("recursive_authored_joint_relation_ref_invalid")
+    raw = store.get_bytes(relation_ref)
+    if str(relation_ref.artifact_id) != "sha256:" + hashlib.sha256(raw).hexdigest():
+        raise RecursiveGenerationCycleError("recursive_authored_joint_relation_cas_mismatch")
+    relation = ParentJointAuthoredRelationV1.model_validate(
+        load_core_json_artifact(store, relation_ref, raw_payload_bytes=raw)
+    )
+    manifest = store.get_manifest(relation_ref)
+    if not _ref_selects_manifest(relation_ref, manifest) or not _has_owner_profile(
+        manifest, _authored_joint_relation_options(relation)
+    ):
+        raise RecursiveGenerationCycleError("recursive_authored_joint_relation_profile_mismatch")
+    if (
+        (relation.job_id, relation.run_id, relation.tenant_id, relation.cell_id)
+        != (
+            parent_handoff.job_id,
+            parent_handoff.run_id,
+            parent_handoff.tenant_id,
+            parent_handoff.cell_id,
+        )
+        or relation.context_job_ref != parent_handoff.context_job_ref
+        or relation.context_content_hash != parent_handoff.context.content_hash
+        or relation.profile_ref != parent_handoff.profile_ref
+        or relation.profile_content_hash != parent_handoff.profile.content_hash
+        or relation.profile_selection_ref != parent_handoff.profile.profile_selection_ref
+        or relation.joint_simulation_request_content_hash
+        != gy_content_hash(request.model_dump(mode="json"))
+    ):
+        raise RecursiveGenerationCycleError("recursive_authored_joint_relation_scope_mismatch")
+    _authored_joint_request_payload(
+        store=store,
+        ref=relation.request_payload_ref,
+        handoff=parent_handoff,
+        intent_digest=relation.intent_digest,
+    )
+    source, replayed = _materialized_joint_source_basis(
+        source_ref=relation.n4_source_ref,
+        source_run_id=relation.source_run_id,
+        source_repository=source_repository,
+        handoff=parent_handoff,
+        admission_owner=admission_owner,
+        members=relation.members,
+        request=request,
+    )
+    if (
+        relation.n4_source_content_hash != source.content_hash
+        or relation.n4_source_result_content_hash
+        != gy_content_hash(source.generation_result.model_dump(mode="json"))
+        or relation.component_materializations != replayed
+        or relation.world_model_record_ref != request.world_model_record_ref
+        or relation.world_model_record_content_hash != request.world_model_record.content_hash
+        or relation.outcome_variable not in request.selected_outcomes
+    ):
+        raise RecursiveGenerationCycleError("recursive_authored_joint_relation_replay_mismatch")
+    if selection is not None and (
+        type(selection) is not ParentJointCandidateSelectionV3
+        or selection.relation_ref != relation_ref
+        or selection.relation_content_hash != relation.content_hash
+        or selection.request_payload_ref != relation.request_payload_ref
+        or selection.n4_source_ref != relation.n4_source_ref
+        or selection.n4_source_result_content_hash != relation.n4_source_result_content_hash
+        or selection.context_job_ref != relation.context_job_ref
+        or selection.profile_ref != relation.profile_ref
+        or selection.profile_selection_ref != relation.profile_selection_ref
+        or selection.parent_design_problem_ref != relation.parent_design_problem_ref
+        or selection.members != relation.members
+        or selection.joint_simulation_request_content_hash
+        != relation.joint_simulation_request_content_hash
+        or selection.derived_atom_ids != tuple(item.derived_n5_atom.atom_id for item in replayed)
+        or selection.derived_atom_content_hashes
+        != tuple(item.derived_n5_atom.content_hash for item in replayed)
+    ):
+        raise RecursiveGenerationCycleError("recursive_authored_joint_selection_replay_mismatch")
+    return relation
+
+
+def replay_parent_joint_candidate_materializations(
+    *,
+    selection: ParentJointCandidateSelectionV4,
+    request: JointSimulationRequest,
+    parent_handoff: GenericCycleSimulationContextHandoffV1,
+    admission_owner: GenericCycleSimulationAdmissionOwner,
+) -> tuple[CandidateScenarioMaterializationV1 | CandidateScenarioNumericMaterializationV1, ...]:
+    """Recompute the selected hypothetical numeric basis from its immutable owners.
+
+    This verifies source-to-request derivation, not currentness or composition.
+    Runtime callers separately check the live context and worker lease. A fresh
+    historical reader can replay the selected profile without a configured set.
+    """
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+    if (
+        type(selection) is not ParentJointCandidateSelectionV4
+        or type(parent_handoff) is not GenericCycleSimulationContextHandoffV1
+        or type(admission_owner) is not GenericCycleSimulationAdmissionOwner
+        or type(request) is not JointSimulationRequest
+    ):
+        raise RecursiveGenerationCycleError("recursive_parent_joint_materialization_owner_untyped")
+    selection = ParentJointCandidateSelectionV4.model_validate(selection.model_dump(mode="python"))
+    if (
+        selection.context_job_ref != parent_handoff.context_job_ref
+        or selection.profile_ref != parent_handoff.profile_ref
+        or selection.profile_selection_ref != parent_handoff.profile.profile_selection_ref
+        or selection.parent_design_problem_ref != parent_handoff.context.design_problem_ref
+        or selection.joint_simulation_request_content_hash
+        != gy_content_hash(request.model_dump(mode="json"))
+    ):
+        raise RecursiveGenerationCycleError("recursive_parent_joint_materialization_scope_mismatch")
+    source, replayed = _materialized_joint_source_basis(
+        source_ref=selection.n4_source_ref,
+        source_run_id=parent_handoff.run_id,
+        source_repository=GenerationSourceRepository(admission_owner.store),
+        handoff=parent_handoff,
+        admission_owner=admission_owner,
+        members=selection.members,
+        request=request,
+        hypothetical_diagnostic=True,
+    )
+    if (
+        selection.n4_source_result_content_hash
+        != gy_content_hash(source.generation_result.model_dump(mode="json"))
+        or selection.world_model_record_ref != request.world_model_record_ref
+        or selection.world_model_record_content_hash != request.world_model_record.content_hash
+        or tuple(request.selected_outcomes) != (selection.outcome_variable,)
+        or selection.component_materializations != replayed
+    ):
+        raise RecursiveGenerationCycleError(
+            "recursive_parent_joint_materialization_replay_mismatch"
+        )
+    return replayed
+
+
 class RecursiveCycleNode(_StrictModel):
     """One replay-visible node routed through existing depth owners."""
 
@@ -1639,7 +2521,11 @@ class RecursiveCycleNode(_StrictModel):
         pattern=r"^sha256:[0-9a-f]{64}$",
     )
     joint_candidate_selection: (
-        ParentJointCandidateSelectionV1 | ParentJointCandidateSelectionV2 | None
+        ParentJointCandidateSelectionV1
+        | ParentJointCandidateSelectionV2
+        | ParentJointCandidateSelectionV3
+        | ParentJointCandidateSelectionV4
+        | None
     ) = Field(
         default=None,
         exclude_if=lambda value: value is None,
@@ -1726,7 +2612,10 @@ class RecursiveCycleNode(_StrictModel):
                 )
             ):
                 raise ValueError("recursive_parent_n5_request_result_binding_mismatch")
-            if result.schema_version == "policyos.runtime.joint_simulation_horizon.v4":
+            if result.schema_version in {
+                "policyos.runtime.joint_simulation_horizon.v4",
+                "policyos.runtime.joint_simulation_horizon.v5",
+            }:
                 from polisyos.runtime.quality.joint_simulation_horizon import (
                     _replication_seeds,
                 )
@@ -1746,6 +2635,8 @@ class RecursiveCycleNode(_StrictModel):
         if self.joint_candidate_selection is not None:
             selection = self.joint_candidate_selection
             request = self.joint_simulation_request
+            if self.composition_certificate is not None:
+                raise ValueError("recursive_candidate_selection_cannot_claim_composition")
             if (
                 self.joint_candidate_selection_content_hash != selection.content_hash
                 or request is None
@@ -1756,13 +2647,51 @@ class RecursiveCycleNode(_StrictModel):
                 or selection.world_model_record_content_hash
                 != request.world_model_record.content_hash
                 or selection.outcome_variable not in request.selected_outcomes
-                or tuple(member.source_atom_id for member in selection.members)
-                != tuple(atom.atom_id for atom in request.intervention_atoms)
-                or tuple(member.source_atom_content_hash for member in selection.members)
-                != tuple(atom.content_hash for atom in request.intervention_atoms)
+                or (
+                    isinstance(selection, ParentJointCandidateSelectionV3)
+                    and (
+                        selection.derived_atom_ids
+                        != tuple(atom.atom_id for atom in request.intervention_atoms)
+                        or selection.derived_atom_content_hashes
+                        != tuple(atom.content_hash for atom in request.intervention_atoms)
+                    )
+                )
+                or (
+                    isinstance(selection, ParentJointCandidateSelectionV4)
+                    and tuple(item.derived_n5_atom for item in selection.component_materializations)
+                    != tuple(request.intervention_atoms)
+                )
+                or (
+                    not isinstance(
+                        selection,
+                        (ParentJointCandidateSelectionV3, ParentJointCandidateSelectionV4),
+                    )
+                    and (
+                        tuple(member.source_atom_id for member in selection.members)
+                        != tuple(atom.atom_id for atom in request.intervention_atoms)
+                        or tuple(member.source_atom_content_hash for member in selection.members)
+                        != tuple(atom.content_hash for atom in request.intervention_atoms)
+                    )
+                )
             ):
                 raise ValueError("recursive_parent_joint_candidate_request_binding_mismatch")
-            if isinstance(selection, ParentJointCandidateSelectionV2):
+            if isinstance(selection, ParentJointCandidateSelectionV3):
+                if selection.joint_simulation_request_content_hash != gy_content_hash(
+                    request.model_dump(mode="json")
+                ) or any(
+                    getattr(request, field_name) is not None
+                    for field_name in (
+                        "candidate_intent",
+                        "member_basis",
+                        "source_candidate_relationship",
+                        "composition_status",
+                        "composition_limitation_code",
+                        "child_to_parent_refinement_status",
+                        "child_to_parent_refinement_limitation_code",
+                    )
+                ):
+                    raise ValueError("recursive_parent_authored_joint_request_binding_mismatch")
+            elif isinstance(selection, ParentJointCandidateSelectionV2):
                 if (
                     request is None
                     or selection.joint_simulation_request_content_hash
@@ -1831,7 +2760,11 @@ class RecursiveCycleNode(_StrictModel):
             unsupported = _joint_simulation_is_unsupported(self.joint_simulation)
             if unsupported and self.composition_certificate is not None:
                 raise ValueError("recursive_unsupported_n5_cannot_mint_composition")
-            if not unsupported and self.composition_certificate is None:
+            if (
+                not unsupported
+                and self.composition_certificate is None
+                and self.joint_candidate_selection is None
+            ):
                 raise ValueError("recursive_supported_n5_requires_composition")
         return self
 
@@ -1970,7 +2903,7 @@ class RecursiveGenerationCycleRun(_StrictModel):
                     certificate=node.composition_certificate,
                 )
             elif node.joint_simulation is not None:
-                expected_terminal = _blocked_parent_terminal("unsupported_coupling_gated")
+                expected_terminal = _fold_uncertified_joint_terminal(node)
             else:
                 expected_terminal = _fold_uncomposed_parent_terminal(node.terminal)
             if node.terminal != expected_terminal:
@@ -2142,7 +3075,7 @@ def _validate_recursive_partial_graph(
                 certificate=node.composition_certificate,
             )
         elif node.joint_simulation is not None:
-            expected_terminal = _blocked_parent_terminal("unsupported_coupling_gated")
+            expected_terminal = _fold_uncertified_joint_terminal(node)
         else:
             expected_terminal = _fold_uncomposed_parent_terminal(node.terminal)
         if node.terminal != expected_terminal:
@@ -2250,6 +3183,43 @@ class RecursiveGenerationCyclePartialRunV2(_StrictModel):
             collect_frontier_subtree(frontier_ref)
         if pending_refs != stop_ancestors | frontier_subtrees:
             raise ValueError("recursive_partial_frontier_denominator_mismatch")
+
+        # The producer routes children depth-first. When a budget-stopped leaf
+        # unwinds, every sibling before that path has already completed, while
+        # every sibling after it is still pending. The frontier tuple is emitted
+        # in unwind order (deepest parent first), so validate its exact content
+        # and order instead of treating any same-parent pending node as an
+        # interchangeable frontier. This is an intrinsic history check only;
+        # it does not establish that the embedded cycle results were actually
+        # produced by the canonical owner.
+        expected_frontier_refs: list[str] = []
+
+        def require_pending_subtree(node_ref: str) -> None:
+            if not isinstance(by_ref[node_ref], RecursiveCyclePendingNode):
+                raise ValueError("recursive_partial_later_sibling_not_pending")
+            for child_ref in children_by_ref[node_ref]:
+                require_pending_subtree(child_ref)
+
+        path_child_ref = self.budget_stop_node_ref
+        while path_child_ref != self.root_node_ref:
+            path_parent_ref = parent_by_ref.get(path_child_ref)
+            if path_parent_ref is None:
+                raise ValueError("recursive_partial_budget_stop_outside_root")
+            path_siblings = children_by_ref[path_parent_ref]
+            path_position = path_siblings.index(path_child_ref)
+            if any(
+                not isinstance(by_ref[sibling_ref], RecursiveCycleNode)
+                for sibling_ref in path_siblings[:path_position]
+            ):
+                raise ValueError("recursive_partial_prior_sibling_not_completed")
+            later_sibling_refs = path_siblings[path_position + 1 :]
+            expected_frontier_refs.extend(later_sibling_refs)
+            for sibling_ref in later_sibling_refs:
+                require_pending_subtree(sibling_ref)
+            path_child_ref = path_parent_ref
+
+        if self.frontier_node_refs != tuple(expected_frontier_refs):
+            raise ValueError("recursive_partial_frontier_order_mismatch")
 
         payload = gy_artifact_self_identity_projection(self)
         payload.pop("leaf_nodes", None)
@@ -2403,6 +3373,367 @@ class RecursiveGenerationCyclePartialRunV3(_StrictModel):
         return self
 
 
+class RecursiveGenerationCyclePartialRunV4(_StrictModel):
+    """Candidate checkpoint stopped before a sibling by replayable N5 capacity.
+
+    This parent-level capacity policy is distinct from V2's owner-issued N6
+    leaf budget terminal. It does not establish that the pending child would
+    require physical N5 work.
+    """
+
+    schema_version: Literal["policyos.runtime.recursive_generation_cycle.partial.v4"] = (
+        RECURSIVE_GENERATION_CYCLE_PARTIAL_V4_SCHEMA_VERSION
+    )
+    run_id: str = Field(min_length=1)
+    controller_ref: str = RECURSIVE_GENERATION_CYCLE_CONTROLLER_REF
+    authority_scope: Literal["production", "contract_testing"] = "production"
+    recursive_graph: RecursiveDesignGraph
+    recursive_graph_ref: str = Field(min_length=1)
+    recursive_graph_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    root_node_ref: str = Field(min_length=1)
+    root_design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    recursive_budget: RecursiveCycleBudget
+    observed_max_depth: int = Field(ge=0)
+    nodes: tuple[RecursiveCycleNode | RecursiveCyclePendingNode, ...] = Field(min_length=1)
+    traversal_status: Literal["capacity_stopped"] = "capacity_stopped"
+    traversal_stop_reason: Literal["standard_n5_invocation_capacity_exhausted"] = (
+        "standard_n5_invocation_capacity_exhausted"
+    )
+    stop_parent_node_ref: str = Field(min_length=1)
+    pending_child_node_ref: str = Field(min_length=1)
+    pending_child_index: int = Field(ge=1, strict=True)
+    frontier_node_refs: tuple[str, ...] = Field(min_length=1)
+    invocation_exhaustion_witness: BudgetInvocationExhaustionWitness
+    limitation_code: Literal["physical_need_not_established"] = "physical_need_not_established"
+    terminal: None = None
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @property
+    def leaf_nodes(self) -> tuple[RecursiveCycleNode, ...]:
+        """Return completed leaf nodes without treating pending work as absent."""
+
+        return tuple(
+            node
+            for node in self.nodes
+            if isinstance(node, RecursiveCycleNode) and not node.child_refs
+        )
+
+    @property
+    def pending_node_refs(self) -> tuple[str, ...]:
+        """Return every graph member that traversal did not execute."""
+
+        return tuple(
+            node.node_ref for node in self.nodes if isinstance(node, RecursiveCyclePendingNode)
+        )
+
+    @model_validator(mode="after")
+    def _verify_capacity_checkpoint(self) -> RecursiveGenerationCyclePartialRunV4:
+        by_ref, children_by_ref, parent_by_ref = _validate_recursive_partial_graph(
+            recursive_graph=self.recursive_graph,
+            recursive_graph_ref=self.recursive_graph_ref,
+            recursive_graph_content_hash=self.recursive_graph_content_hash,
+            root_node_ref=self.root_node_ref,
+            root_design_problem_ref=self.root_design_problem_ref,
+            recursive_budget=self.recursive_budget,
+            observed_max_depth=self.observed_max_depth,
+            nodes=self.nodes,
+        )
+        if self.terminal is not None:
+            raise ValueError("recursive_capacity_partial_root_not_pending")
+        if (
+            self.invocation_exhaustion_witness.standard_limit_units <= 0
+            or self.invocation_exhaustion_witness.not_a_permit is not True
+        ):
+            raise ValueError("recursive_capacity_partial_witness_invalid")
+        stop_parent = by_ref.get(self.stop_parent_node_ref)
+        if not isinstance(stop_parent, RecursiveCyclePendingNode):
+            raise ValueError("recursive_capacity_partial_stop_parent_not_pending")
+        siblings = children_by_ref[self.stop_parent_node_ref]
+        if (
+            self.pending_child_index >= len(siblings)
+            or siblings[self.pending_child_index] != self.pending_child_node_ref
+            or parent_by_ref.get(self.pending_child_node_ref) != self.stop_parent_node_ref
+        ):
+            raise ValueError("recursive_capacity_partial_pending_child_binding_mismatch")
+
+        pending_refs = {
+            node_ref
+            for node_ref, node in by_ref.items()
+            if isinstance(node, RecursiveCyclePendingNode)
+        }
+        expected_frontier_refs: list[str] = []
+        expected_pending_refs: set[str] = set()
+
+        def require_pending_subtree(node_ref: str) -> None:
+            if not isinstance(by_ref[node_ref], RecursiveCyclePendingNode):
+                raise ValueError("recursive_capacity_partial_frontier_not_pending")
+            if node_ref in expected_pending_refs:
+                raise ValueError("recursive_capacity_partial_frontier_duplicate")
+            expected_pending_refs.add(node_ref)
+            for child_ref in children_by_ref[node_ref]:
+                require_pending_subtree(child_ref)
+
+        # The stop parent is still being expanded. Its first not-yet-visited
+        # child and every later sibling subtree are the first frontier slice.
+        expected_pending_refs.add(self.stop_parent_node_ref)
+        later_refs = siblings[self.pending_child_index :]
+        expected_frontier_refs.extend(later_refs)
+        for frontier_ref in later_refs:
+            require_pending_subtree(frontier_ref)
+        path_child_ref = self.stop_parent_node_ref
+        while path_child_ref != self.root_node_ref:
+            path_parent_ref = parent_by_ref.get(path_child_ref)
+            if path_parent_ref is None:
+                raise ValueError("recursive_capacity_partial_stop_outside_root")
+            path_siblings = children_by_ref[path_parent_ref]
+            path_position = path_siblings.index(path_child_ref)
+            if any(
+                not isinstance(by_ref[prior_ref], RecursiveCycleNode)
+                for prior_ref in path_siblings[:path_position]
+            ):
+                raise ValueError("recursive_capacity_partial_prior_sibling_not_completed")
+            later_refs = path_siblings[path_position + 1 :]
+            expected_frontier_refs.extend(later_refs)
+            for frontier_ref in later_refs:
+                require_pending_subtree(frontier_ref)
+            expected_pending_refs.add(path_parent_ref)
+            path_child_ref = path_parent_ref
+
+        if pending_refs != expected_pending_refs:
+            raise ValueError("recursive_capacity_partial_frontier_denominator_mismatch")
+        if self.frontier_node_refs != tuple(expected_frontier_refs):
+            raise ValueError("recursive_capacity_partial_frontier_order_mismatch")
+        if not any(
+            node.cycle_run is not None
+            and any(
+                cycle.simulation.simulation_result_ref is not None
+                for cycle in node.cycle_run.cycles
+            )
+            for node in self.nodes
+            if isinstance(node, RecursiveCycleNode) and not node.child_refs
+        ):
+            raise ValueError("recursive_capacity_partial_without_completed_n5")
+
+        payload = gy_artifact_self_identity_projection(self)
+        payload.pop("leaf_nodes", None)
+        payload.pop("pending_node_refs", None)
+        if self.content_hash != gy_content_hash(payload):
+            raise ValueError("recursive_generation_cycle_content_hash_mismatch")
+        return self
+
+
+def _recursive_capacity_prefix_work(
+    *,
+    completed_nodes: Mapping[str, RecursiveCycleNode],
+    witness: BudgetInvocationExhaustionWitness,
+    store: ArtifactStore,
+) -> bool:
+    """Match owner witness operations to selected physical work in completed nodes."""
+
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationResult,
+    )
+
+    expected_ids = {operation_id for operation_id, _ in witness.terminal_witnesses}
+    observed: dict[str, str] = {}
+    loaded_results: set[tuple[str, str | None]] = set()
+    for node in completed_nodes.values():
+        cycle_run = node.cycle_run
+        if cycle_run is None:
+            continue
+        for cycle in cycle_run.cycles:
+            simulation = cycle.simulation
+            result_ref = simulation.simulation_result_ref
+            if result_ref is None:
+                if simulation.status == "joint_simulated":
+                    return False
+                continue
+            if not simulation.simulation_ref:
+                return False
+            result_key = (str(result_ref.artifact_id), result_ref.manifest_profile_sha256)
+            if result_key in loaded_results:
+                continue
+            loaded_results.add(result_key)
+            try:
+                result = load_joint_simulation_result(
+                    result_ref,
+                    store=store,
+                    expected_receipt_payload_hash=simulation.simulation_ref,
+                )
+                if type(result) is not JointSimulationResult:
+                    return False
+                work_items = result.physical_work_observations
+            except (OSError, RuntimeError, TypeError, ValueError):
+                return False
+            for item in work_items:
+                operation_id = item.invocation_quota_operation_id
+                if (
+                    operation_id is None
+                    or item.invocation_quota_profile_digest != witness.profile_digest
+                    or item.invocation_quota_purpose != "standard"
+                    or item.invocation_quota_status not in {"completed", "failed"}
+                    or item.invocation_quota_status != item.status
+                ):
+                    return False
+                encoded = gy_content_hash(item.model_dump(mode="json"))
+                prior = observed.get(operation_id)
+                if prior is not None and prior != encoded:
+                    return False
+                observed[operation_id] = encoded
+    return bool(observed) and set(observed) == expected_ids
+
+
+def verify_recursive_standard_n5_capacity_partial_run(
+    partial: RecursiveGenerationCyclePartialRunV4,
+    *,
+    observer: ProducerBudgetObserver,
+    store: ArtifactStore,
+) -> bool:
+    """Reopen the quota owner and N5 results bound by a capacity partial.
+
+    Intrinsic validation of V4 is not owner custody. This reader checks the
+    exact canonical observer and selected N5 result artifacts again.
+    """
+
+    if type(partial) is not RecursiveGenerationCyclePartialRunV4:
+        raise RecursiveGenerationCycleError("recursive_capacity_partial_untyped")
+    try:
+        partial = RecursiveGenerationCyclePartialRunV4.model_validate(
+            partial.model_dump(mode="json")
+        )
+    except (TypeError, ValueError) as exc:
+        raise RecursiveGenerationCycleError(
+            "recursive_capacity_partial_intrinsic_history_invalid"
+        ) from exc
+    if (
+        type(observer) is not ProducerBudgetObserver
+        or "observe_standard_invocation_capacity" in vars(observer)
+        or "verify_standard_invocation_exhaustion" in vars(observer)
+    ):
+        raise RecursiveGenerationCycleError("recursive_capacity_partial_owner_not_canonical")
+    witness = partial.invocation_exhaustion_witness
+    try:
+        if ProducerBudgetObserver.verify_standard_invocation_exhaustion(
+            observer, witness
+        ) is not True or not _recursive_capacity_prefix_work(
+            completed_nodes={
+                node.node_ref: node
+                for node in partial.nodes
+                if isinstance(node, RecursiveCycleNode)
+            },
+            witness=witness,
+            store=store,
+        ):
+            raise RecursiveGenerationCycleError("recursive_capacity_partial_owner_replay_mismatch")
+    except ProducerBudgetSourceError as exc:
+        raise RecursiveGenerationCycleError(
+            "recursive_capacity_partial_owner_not_established"
+        ) from exc
+    return True
+
+
+def verify_recursive_standard_n5_capacity_partial_run_historical(
+    partial: RecursiveGenerationCyclePartialRunV4,
+    *,
+    settlement_store: BudgetMiddleware,
+    expected_run_binding: BudgetLedgerProducerRunBinding,
+    expected_policy: BudgetInvocationQuotaPolicy,
+    store: ArtifactStore,
+) -> bool:
+    """Replay a persisted V4 stop from independently reopened completed-run owners.
+
+    The caller must resolve the original completed NL binding and the selected
+    generic N5 input policy through their canonical owners. This reader only
+    replays the historical ledger witness and the exact completed-prefix N5
+    result artifacts; it does not derive either selection from the witness.
+
+    Args:
+        partial: Persisted recursive capacity checkpoint.
+        settlement_store: Existing read-only settlement owner for the source run.
+        expected_run_binding: Original binding reopened from the completed NL job.
+        expected_policy: Policy reopened from the selected generic N5 input owner.
+        store: Canonical artifact store used to reopen selected N5 results.
+
+    Returns:
+        True when the owner witness and all terminal standard N5 operations
+        exactly match the completed prefix in this partial.
+
+    Raises:
+        RecursiveGenerationCycleError: If intrinsic history, owner evidence, or
+            selected N5 result bindings cannot be established.
+    """
+    if type(partial) is not RecursiveGenerationCyclePartialRunV4:
+        raise RecursiveGenerationCycleError("recursive_capacity_partial_untyped")
+    try:
+        partial = RecursiveGenerationCyclePartialRunV4.model_validate(
+            partial.model_dump(mode="json")
+        )
+    except (TypeError, ValueError) as exc:
+        raise RecursiveGenerationCycleError(
+            "recursive_capacity_partial_intrinsic_history_invalid"
+        ) from exc
+    witness = partial.invocation_exhaustion_witness
+    try:
+        if (
+            verify_standard_invocation_exhaustion_historical(
+                settlement_store=settlement_store,
+                expected_run_binding=expected_run_binding,
+                expected_policy=expected_policy,
+                witness=witness,
+            )
+            is not True
+        ):
+            raise RecursiveGenerationCycleError("recursive_capacity_partial_owner_replay_mismatch")
+    except ProducerBudgetSourceError as exc:
+        raise RecursiveGenerationCycleError(
+            "recursive_capacity_partial_owner_not_established"
+        ) from exc
+    if not _recursive_capacity_prefix_work(
+        completed_nodes={
+            node.node_ref: node for node in partial.nodes if isinstance(node, RecursiveCycleNode)
+        },
+        witness=witness,
+        store=store,
+    ):
+        raise RecursiveGenerationCycleError(
+            "recursive_capacity_partial_completed_prefix_work_mismatch"
+        )
+    return True
+
+
+def _observed_standard_exhaustion_witness(
+    observer: object | None,
+) -> BudgetInvocationExhaustionWitness | None:
+    """Return only a freshly owner-replayed standard exhaustion witness."""
+
+    if (
+        type(observer) is not ProducerBudgetObserver
+        or "observe_standard_invocation_capacity" in vars(observer)
+        or "verify_standard_invocation_exhaustion" in vars(observer)
+    ):
+        return None
+    try:
+        observation = ProducerBudgetObserver.observe_standard_invocation_capacity(observer)
+        if (
+            type(observation) is not BudgetInvocationCapacityObservation
+            or observation.status != "exhausted"
+            or observation.predicate_basis != "independently_reconciled"
+            or observation.not_a_permit is not True
+        ):
+            return None
+        witness = observation.exhaustion_witness
+        if type(witness) is not BudgetInvocationExhaustionWitness:
+            return None
+        if (
+            ProducerBudgetObserver.verify_standard_invocation_exhaustion(observer, witness)
+            is not True
+        ):
+            return None
+        return witness
+    except (OSError, ProducerBudgetSourceError, RuntimeError, TypeError, ValueError):
+        return None
+
+
 def _build_sibling_failed_recursive_run_v3(
     *,
     recursive_graph: RecursiveDesignGraph,
@@ -2527,6 +3858,73 @@ def _build_budget_stopped_recursive_run_v2(
         "terminal": None,
     }
     return RecursiveGenerationCyclePartialRunV2.model_validate(
+        {
+            **payload,
+            "nodes": tuple(nodes),
+            "content_hash": gy_content_hash(payload),
+        }
+    )
+
+
+def _build_capacity_stopped_recursive_run_v4(
+    *,
+    recursive_graph: RecursiveDesignGraph,
+    problems_by_node: Mapping[str, DesignProblem],
+    problem_refs_by_node: Mapping[str, str],
+    completed_nodes_by_ref: Mapping[str, RecursiveCycleNode],
+    children_by_node: Mapping[str, list[str]],
+    parent_by_node: Mapping[str, str],
+    depths: Mapping[str, int],
+    recursive_budget: RecursiveCycleBudget,
+    stop_parent_node_ref: str,
+    pending_child_node_ref: str,
+    pending_child_index: int,
+    frontier_node_refs: tuple[str, ...],
+    exhaustion_witness: BudgetInvocationExhaustionWitness,
+    authority_scope: Literal["production", "contract_testing"],
+) -> RecursiveGenerationCyclePartialRunV4:
+    """Seal completed N5 work and the exact next-child capacity frontier."""
+
+    nodes: list[RecursiveCycleNode | RecursiveCyclePendingNode] = []
+    for node_ref in recursive_graph.node_refs:
+        completed = completed_nodes_by_ref.get(node_ref)
+        if completed is not None:
+            nodes.append(completed)
+        else:
+            nodes.append(
+                RecursiveCyclePendingNode(
+                    node_ref=node_ref,
+                    parent_ref=parent_by_node.get(node_ref),
+                    depth=depths[node_ref],
+                    child_refs=tuple(children_by_node[node_ref]),
+                    design_problem_ref=problem_refs_by_node[node_ref],
+                )
+            )
+    node_payloads = [node.model_dump(mode="json") for node in nodes]
+    payload: dict[str, object] = {
+        "schema_version": RECURSIVE_GENERATION_CYCLE_PARTIAL_V4_SCHEMA_VERSION,
+        "run_id": f"recursive:{recursive_graph.graph_id}",
+        "controller_ref": RECURSIVE_GENERATION_CYCLE_CONTROLLER_REF,
+        "authority_scope": authority_scope,
+        "recursive_graph": recursive_graph.model_dump(mode="json"),
+        "recursive_graph_ref": recursive_graph.graph_ref,
+        "recursive_graph_content_hash": gy_content_hash(recursive_graph.model_dump(mode="json")),
+        "root_node_ref": recursive_graph.root_design_ref,
+        "root_design_problem_ref": problem_refs_by_node[recursive_graph.root_design_ref],
+        "recursive_budget": recursive_budget.model_dump(mode="json"),
+        "observed_max_depth": max(depths.values()),
+        "nodes": node_payloads,
+        "traversal_status": "capacity_stopped",
+        "traversal_stop_reason": "standard_n5_invocation_capacity_exhausted",
+        "stop_parent_node_ref": stop_parent_node_ref,
+        "pending_child_node_ref": pending_child_node_ref,
+        "pending_child_index": pending_child_index,
+        "frontier_node_refs": list(frontier_node_refs),
+        "invocation_exhaustion_witness": exhaustion_witness.model_dump(mode="json"),
+        "limitation_code": "physical_need_not_established",
+        "terminal": None,
+    }
+    return RecursiveGenerationCyclePartialRunV4.model_validate(
         {
             **payload,
             "nodes": tuple(nodes),
@@ -2750,19 +4148,67 @@ def _blocked_parent_terminal(reason: str) -> SearchTerminalState:
     )
 
 
-_UNCOMPOSED_PARENT_DIAGNOSTIC_CODES = frozenset(
+def _fold_uncertified_joint_terminal(node: RecursiveCycleNode) -> SearchTerminalState:
+    """Preserve the correct blocked reason for a joint result without a certificate."""
+    simulation = node.joint_simulation
+    if simulation is None or node.composition_certificate is not None:
+        raise ValueError("recursive_uncertified_joint_not_established")
+    if _joint_simulation_is_unsupported(simulation):
+        return _blocked_parent_terminal("unsupported_coupling_gated")
+    if node.joint_candidate_selection is not None:
+        return _blocked_parent_terminal("observed_coupling_evidence_missing")
+    # Preserve the prior blocked fold for a legacy uncomposed shape; the
+    # node's validator rejects a supported result without a selection or certificate.
+    return _blocked_parent_terminal("unsupported_coupling_gated")
+
+
+_RECURSIVE_N5_PARENT_REFUSAL_CODES = frozenset(
     {
-        "observed_coupling_evidence_missing",
-        "subdesign_contract_denominator_missing",
-        "recursive_coupling_design_ref_mismatch",
-        "recursive_coupling_child_denominator_mismatch",
-        "recursive_coupling_edge_unresolved",
-        "recursive_subdesign_denominator_mismatch",
-        "recursive_subdesign_terminal_binding_mismatch",
-        "recursive_n5_atom_problem_binding_mismatch",
-        "recursive_n5_outcome_problem_binding_mismatch",
+        "recursive_n5_invocation_selection_not_established",
+        "n5_physical_budget_scope_not_established",
+        "n5_physical_budget_scope_binding_mismatch",
+        "n5_physical_usd_reservation_not_established",
+        "n5_physical_budget_cap_mismatch",
+        "n5_invocation_quota_owner_not_established",
+        "n5_invocation_quota_settlement_owner_mismatch",
+        "n5_invocation_quota_run_binding_mismatch",
+        "n5_invocation_selected_profile_not_established",
+        "n5_invocation_quota_profile_not_established",
+        "n5_invocation_quota_selection_mismatch",
+        "n5_invocation_quota_capacity_not_established",
+        "n5_invocation_quota_exhausted",
+        "n5_invocation_selection_conflict",
+        "n5_invocation_selection_failed",
+        "n5_invocation_selection_not_established",
+        "n5_protected_purpose_not_established",
     }
 )
+
+
+_UNCOMPOSED_PARENT_DIAGNOSTIC_CODES = (
+    frozenset(
+        {
+            "observed_coupling_evidence_missing",
+            "subdesign_contract_denominator_missing",
+            "recursive_coupling_design_ref_mismatch",
+            "recursive_coupling_child_denominator_mismatch",
+            "recursive_coupling_edge_unresolved",
+            "recursive_subdesign_denominator_mismatch",
+            "recursive_subdesign_terminal_binding_mismatch",
+            "recursive_n5_atom_problem_binding_mismatch",
+            "recursive_n5_outcome_problem_binding_mismatch",
+        }
+    )
+    | _RECURSIVE_N5_PARENT_REFUSAL_CODES
+)
+
+
+def _recursive_n5_parent_refusal(exc: Exception) -> str:
+    """Preserve known refusal categories without admitting arbitrary diagnostics."""
+    code = str(exc)
+    if isinstance(exc, ProducerBudgetSourceError) and code in _RECURSIVE_N5_PARENT_REFUSAL_CODES:
+        return code
+    return "recursive_n5_invocation_selection_not_established"
 
 
 def _fold_uncomposed_parent_terminal(
@@ -2866,6 +4312,7 @@ def build_default_recursive_generation_cycle_controller(
     model_id: str | None = None,
     catalog_run_profile: CatalogRunProfile | None = None,
     catalog_serving_source: CatalogServingSourcePaths | None = None,
+    capability_resolver: core_contracts.CapabilityResolverPort | None = None,
     measurement_root_execution_binding: MeasurementRootExecutionBinding | None = None,
 ) -> RecursiveGenerationCycleController:
     """Build the production router from one container-owned promotion runtime."""
@@ -2875,6 +4322,7 @@ def build_default_recursive_generation_cycle_controller(
         model_id=model_id,
         catalog_run_profile=catalog_run_profile,
         catalog_serving_source=catalog_serving_source,
+        capability_resolver=capability_resolver,
         measurement_root_execution_binding=measurement_root_execution_binding,
         promotion_runtime=promotion_runtime,
         eval_safety_verifier=eval_safety_verifier,
@@ -2891,6 +4339,7 @@ class RecursiveGenerationCycleController:
         model_id: str | None = None,
         catalog_run_profile: CatalogRunProfile | None = None,
         catalog_serving_source: CatalogServingSourcePaths | None = None,
+        capability_resolver: core_contracts.CapabilityResolverPort | None = None,
         measurement_root_execution_binding: MeasurementRootExecutionBinding | None = None,
         promotion_runtime: PromotionRuntime | None = None,
         artifact_store: ArtifactStore | None = None,
@@ -2899,6 +4348,12 @@ class RecursiveGenerationCycleController:
         epoch_validity_gate: core_contracts.EpochValidityAuthorityGate | None = None,
         epoch_n9_evidence_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
     ) -> None:
+        if capability_resolver is not None:
+            from polisyos.core.artifacts import matches_runtime_protocol
+            from polisyos.core.contracts import CapabilityResolverPort
+
+            if not matches_runtime_protocol(capability_resolver, CapabilityResolverPort):
+                raise TypeError("recursive_capability_resolver_invalid")
         if promotion_runtime is not None and any(
             dependency is not None
             for dependency in (
@@ -2916,6 +4371,7 @@ class RecursiveGenerationCycleController:
         self._leaf_model_id = model_id
         self._catalog_run_profile = catalog_run_profile
         self._catalog_serving_source = catalog_serving_source
+        self._capability_resolver = capability_resolver
         self._measurement_root_execution_binding = measurement_root_execution_binding
         self._promotion_runtime = promotion_runtime
         self._artifact_store = artifact_store
@@ -2955,10 +4411,15 @@ class RecursiveGenerationCycleController:
         problems_by_node: Mapping[str, DesignProblem],
         budget_state: BudgetState,
         _producer_budget_reconciler: Callable[[BudgetState], None] | None = None,
+        physical_n5_budget_scope: VerifiedNLJobBudgetScope | None = None,
         recursive_budget: RecursiveCycleBudget,
         joint_simulation_requests_by_node: Mapping[str, JointSimulationRequest] | None = None,
         joint_candidate_selections_by_node: Mapping[
-            str, ParentJointCandidateSelectionV1 | ParentJointCandidateSelectionV2
+            str,
+            ParentJointCandidateSelectionV1
+            | ParentJointCandidateSelectionV2
+            | ParentJointCandidateSelectionV3
+            | ParentJointCandidateSelectionV4,
         ]
         | None = None,
         joint_candidate_currentness_resolvers_by_node: Mapping[str, Callable[[], bool]]
@@ -2971,6 +4432,8 @@ class RecursiveGenerationCycleController:
         | None = None,
         generic_simulation_handoffs_by_node: Mapping[str, GenericCycleSimulationContextHandoffV1]
         | None = None,
+        generic_simulation_currentness_resolvers_by_node: Mapping[str, Callable[[], bool]]
+        | None = None,
         generic_n4_child_profile_set_ref: CASArtifactRef | None = None,
         generic_n4_source_repository: GenerationSourceRepository | None = None,
         generic_parent_handoff: GenericCycleSimulationContextHandoffV1 | None = None,
@@ -2982,8 +4445,25 @@ class RecursiveGenerationCycleController:
         RecursiveGenerationCycleRun
         | RecursiveGenerationCyclePartialRunV2
         | RecursiveGenerationCyclePartialRunV3
+        | RecursiveGenerationCyclePartialRunV4
     ):
         """Run N6 leaves and preserve typed checkpoints for stops or sibling failures."""
+
+        if physical_n5_budget_scope is not None:
+            if type(physical_n5_budget_scope) is not VerifiedNLJobBudgetScope or not (
+                physical_n5_budget_scope._was_issued_by_verified_nl_budget_owner
+            ):
+                raise RecursiveGenerationCycleError("n5_physical_budget_scope_not_established")
+            intent_scope = (
+                leaf_context_owner._verified_nl_job_scope
+                if leaf_context_owner is not None
+                else None
+            )
+            if intent_scope is not None and any(
+                getattr(intent_scope, name) != getattr(physical_n5_budget_scope, name)
+                for name in ("job_id", "run_id", "tenant_id", "cell_id", "worker_id", "attempt")
+            ):
+                raise RecursiveGenerationCycleError("n5_physical_budget_scope_job_mismatch")
 
         # The reusable parent controller must not retain another run's budget owner.
         invocation_joint_controller = self._joint_simulation_controller
@@ -3002,6 +4482,7 @@ class RecursiveGenerationCycleController:
                 method_registry=invocation_joint_controller._registry,
                 policy=invocation_joint_controller.policy,
                 producer_budget_observer=_producer_budget_reconciler,
+                physical_n5_budget_scope=physical_n5_budget_scope,
             )
 
         if _producer_budget_reconciler is not None:
@@ -3147,7 +4628,41 @@ class RecursiveGenerationCycleController:
         generic_child_selections: dict[str, GenericCycleSimulationChildSelectionV1] = {}
         generic_currentness_resolvers: dict[str, Callable[[], bool]] = {}
         generic_leaf_capsule_refs: dict[str, CASArtifactRef] = {}
-        if generic_handoffs:
+        root_generic_refs = set(generic_handoffs) & {recursive_graph.root_design_ref}
+        if set(generic_simulation_currentness_resolvers_by_node or {}) != root_generic_refs:
+            raise RecursiveGenerationCycleError(
+                "recursive_generic_root_currentness_denominator_mismatch"
+            )
+        if root_generic_refs:
+            root_ref = recursive_graph.root_design_ref
+            if (
+                leaf_refs != {root_ref}
+                or set(generic_handoffs) != {root_ref}
+                or handoff_refs
+                or type(generic_handoffs[root_ref]) is not GenericCycleSimulationContextHandoffV1
+                or generic_handoffs[root_ref].n4_child_profile_family_ref is not None
+                or type(leaf_context_owner) is not RecursiveLeafContextOwner
+                or generic_n4_child_profile_set_ref is not None
+                or generic_n4_source_repository is not None
+                or generic_parent_handoff is not None
+                or (cycle_substrate_contexts_by_node or {}).get(root_ref)
+                != generic_handoffs[root_ref].context
+                or (execution_intents_by_node or {}).get(root_ref) != "simulate_only"
+            ):
+                raise RecursiveGenerationCycleError("recursive_generic_root_binding_mismatch")
+            require_root_current = leaf_context_owner.generic_root_currentness_resolver(
+                handoff=generic_handoffs[root_ref],
+                problem=problems_by_node[root_ref],
+                currentness=generic_simulation_currentness_resolvers_by_node[root_ref],
+            )
+            require_root_current()
+            # The fixed selected handoff was verified above. The leaf controller
+            # reopens its current handoff after reissue; retain the independent
+            # upstream lease/config predicate rather than the old-ref closure.
+            generic_currentness_resolvers[root_ref] = (
+                generic_simulation_currentness_resolvers_by_node[root_ref]
+            )
+        elif generic_handoffs:
             if handoff_refs:
                 raise RecursiveGenerationCycleError(
                     "recursive_candidate_and_generic_child_profiles_conflict"
@@ -3492,6 +5007,7 @@ class RecursiveGenerationCycleController:
                         model_id=self._leaf_model_id,
                         catalog_run_profile=self._catalog_run_profile,
                         catalog_serving_source=self._catalog_serving_source,
+                        capability_resolver=self._capability_resolver,
                         measurement_root_execution_binding=self._measurement_root_execution_binding,
                         cycle_substrate_context=context,
                         candidate_cycle_context_artifact_owner=(
@@ -3504,6 +5020,7 @@ class RecursiveGenerationCycleController:
                             if leaf_context_owner is not None
                             else None
                         ),
+                        physical_n5_budget_scope=physical_n5_budget_scope,
                         candidate_simulation_context_admission_owner=(
                             leaf_context_owner._admission_owner
                             if leaf_context_owner is not None
@@ -3598,8 +5115,12 @@ class RecursiveGenerationCycleController:
                         expected_cell_id=handoff.cell_id,
                     )
                 generic_capsule_ref = generic_leaf_capsule_refs.get(node_ref)
-                if generic_capsule_ref is not None:
-                    require_generic_current = generic_currentness_resolvers.get(node_ref)
+                if generic_capsule_ref is not None or node_ref in root_generic_refs:
+                    require_generic_current = (
+                        controller._generic_cycle_simulation_currentness_resolver
+                        if node_ref in root_generic_refs
+                        else generic_currentness_resolvers.get(node_ref)
+                    )
                     if require_generic_current is None:
                         raise RecursiveGenerationCycleError(
                             "recursive_generic_currentness_callback_missing"
@@ -3650,6 +5171,18 @@ class RecursiveGenerationCycleController:
                         stop.budget_stop_node_ref,
                         frontier_node_refs,
                     ) from None
+                except _RecursiveStandardQuotaStopError as stop:
+                    frontier_node_refs = (
+                        *stop.frontier_node_refs,
+                        *child_refs[child_index + 1 :],
+                    )
+                    raise _RecursiveStandardQuotaStopError(
+                        stop_parent_node_ref=stop.stop_parent_node_ref,
+                        pending_child_node_ref=stop.pending_child_node_ref,
+                        pending_child_index=stop.pending_child_index,
+                        frontier_node_refs=frontier_node_refs,
+                        exhaustion_witness=stop.exhaustion_witness,
+                    ) from None
                 except _RecursiveSiblingFailureError:
                     raise
                 except _RecursiveLeafExecutionError as failure:
@@ -3670,6 +5203,25 @@ class RecursiveGenerationCycleController:
                         failure.failure,
                     ) from failure
                 routed_children_list.append(routed_child)
+                if child_index + 1 < len(child_refs):
+                    observer = invocation_joint_controller._producer_budget_observer
+                    witness = _observed_standard_exhaustion_witness(observer)
+                    if (
+                        witness is not None
+                        and self._artifact_store is not None
+                        and _recursive_capacity_prefix_work(
+                            completed_nodes=node_results,
+                            witness=witness,
+                            store=self._artifact_store,
+                        )
+                    ):
+                        raise _RecursiveStandardQuotaStopError(
+                            stop_parent_node_ref=node_ref,
+                            pending_child_node_ref=child_refs[child_index + 1],
+                            pending_child_index=child_index + 1,
+                            frontier_node_refs=child_refs[child_index + 1 :],
+                            exhaustion_witness=witness,
+                        )
             routed_children = tuple(routed_children_list)
             if len(routed_children) != 1:
                 request = (joint_simulation_requests_by_node or {}).get(node_ref)
@@ -3688,7 +5240,57 @@ class RecursiveGenerationCycleController:
                     return result
                 if candidate_selection is not None:
                     selection_issue = None
-                    if (
+                    if isinstance(candidate_selection, ParentJointCandidateSelectionV3):
+                        if (
+                            self._artifact_store is None
+                            or generic_n4_source_repository is None
+                            or generic_parent_handoff is None
+                            or leaf_context_owner is None
+                            or leaf_context_owner._generic_admission_owner is None
+                        ):
+                            selection_issue = (
+                                "recursive_authored_joint_relation_owner_not_established"
+                            )
+                        else:
+                            try:
+                                load_authored_joint_components(
+                                    store=self._artifact_store,
+                                    relation_ref=candidate_selection.relation_ref,
+                                    source_repository=generic_n4_source_repository,
+                                    parent_handoff=generic_parent_handoff,
+                                    admission_owner=leaf_context_owner._generic_admission_owner,
+                                    request=request,
+                                    selection=candidate_selection,
+                                )
+                            except (OSError, RuntimeError, TypeError, ValueError):
+                                selection_issue = (
+                                    "recursive_authored_joint_relation_replay_not_established"
+                                )
+                    elif isinstance(candidate_selection, ParentJointCandidateSelectionV4):
+                        if (
+                            generic_parent_handoff is None
+                            or leaf_context_owner is None
+                            or leaf_context_owner._generic_admission_owner is None
+                            or candidate_selection.parent_design_problem_ref != problem_ref
+                            or candidate_selection.child_node_refs != child_refs
+                            or request.coupling_graph is not None
+                        ):
+                            selection_issue = (
+                                "recursive_parent_joint_materialization_owner_not_established"
+                            )
+                        else:
+                            try:
+                                replay_parent_joint_candidate_materializations(
+                                    selection=candidate_selection,
+                                    request=request,
+                                    parent_handoff=generic_parent_handoff,
+                                    admission_owner=leaf_context_owner._generic_admission_owner,
+                                )
+                            except (OSError, RuntimeError, TypeError, ValueError):
+                                selection_issue = (
+                                    "recursive_parent_joint_materialization_replay_not_established"
+                                )
+                    elif (
                         request.coupling_graph is not None
                         or candidate_selection.parent_design_problem_ref != problem_ref
                         or candidate_selection.child_node_refs != child_refs
@@ -3783,7 +5385,63 @@ class RecursiveGenerationCycleController:
                         "recursive_n5_runtime_store_not_established",
                         "The parent N5 run cannot start without its runtime-owned result store.",
                     )
-                joint_simulation = invocation_joint_controller.run(request)
+                selected_parent_n5_profile = None
+                try:
+                    if (
+                        candidate_selection is not None
+                        and generic_parent_handoff is not None
+                        and leaf_context_owner is not None
+                        and leaf_context_owner._generic_admission_owner is not None
+                    ):
+                        # Reopen the owner-selected profile; a request or candidate
+                        # label cannot select a physical-work allocation.
+                        owner = leaf_context_owner._generic_admission_owner
+                        selected_profile = owner.resolve_profile(
+                            generic_parent_handoff.profile_ref,
+                            expected_profile=generic_parent_handoff.profile,
+                            job_id=generic_parent_handoff.job_id,
+                            run_id=generic_parent_handoff.run_id,
+                            tenant_id=generic_parent_handoff.tenant_id,
+                            cell_id=generic_parent_handoff.cell_id,
+                        )
+                        selected_parent_n5_profile = selected_profile.n5
+                    invocation_scope = _bind_scoped_n5_invocation_policy(
+                        invocation_joint_controller._producer_budget_observer,
+                        n5_profile=selected_parent_n5_profile,
+                        physical_n5_budget_scope=physical_n5_budget_scope,
+                    )
+                except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                    from polisyos.core.artifacts import raise_artifact_read_access_error
+
+                    raise_artifact_read_access_error(exc)
+                    code = _recursive_n5_parent_refusal(exc)
+                    result = RecursiveCycleNode(
+                        node_ref=node_ref,
+                        parent_ref=parent_by_node.get(node_ref),
+                        depth=depths[node_ref],
+                        child_refs=child_refs,
+                        design_problem_ref=problem_ref,
+                        terminal=_blocked_parent_terminal(code),
+                    )
+                    node_results[node_ref] = result
+                    return result
+                try:
+                    with invocation_scope:
+                        joint_simulation = invocation_joint_controller.run(request)
+                except ProducerBudgetSourceError as exc:
+                    from polisyos.core.artifacts import raise_artifact_read_access_error
+
+                    raise_artifact_read_access_error(exc)
+                    result = RecursiveCycleNode(
+                        node_ref=node_ref,
+                        parent_ref=parent_by_node.get(node_ref),
+                        depth=depths[node_ref],
+                        child_refs=child_refs,
+                        design_problem_ref=problem_ref,
+                        terminal=_blocked_parent_terminal(_recursive_n5_parent_refusal(exc)),
+                    )
+                    node_results[node_ref] = result
+                    return result
                 if not _joint_simulation_is_unsupported(joint_simulation):
                     try:
                         invocation_joint_controller.validate_selected_result(
@@ -3897,8 +5555,26 @@ class RecursiveGenerationCycleController:
             node_results[node_ref] = result
             return result
 
+        original_leaf_error: Exception | None = None
         try:
             root = await route(recursive_graph.root_design_ref)
+        except _RecursiveStandardQuotaStopError as stop:
+            return _build_capacity_stopped_recursive_run_v4(
+                recursive_graph=recursive_graph,
+                problems_by_node=problems_by_node,
+                problem_refs_by_node=problem_refs_by_node,
+                completed_nodes_by_ref=node_results,
+                children_by_node=children,
+                parent_by_node=parent_by_node,
+                depths=depths,
+                recursive_budget=recursive_budget,
+                stop_parent_node_ref=stop.stop_parent_node_ref,
+                pending_child_node_ref=stop.pending_child_node_ref,
+                pending_child_index=stop.pending_child_index,
+                frontier_node_refs=stop.frontier_node_refs,
+                exhaustion_witness=stop.exhaustion_witness,
+                authority_scope=self._authority_scope,
+            )
         except _RecursiveBudgetStopError as stop:
             return _build_budget_stopped_recursive_run_v2(
                 recursive_graph=recursive_graph,
@@ -3928,7 +5604,9 @@ class RecursiveGenerationCycleController:
                 authority_scope=self._authority_scope,
             )
         except _RecursiveLeafExecutionError as failure:
-            raise failure.error from None
+            original_leaf_error = failure.error
+        if original_leaf_error is not None:
+            raise original_leaf_error
         ordered_nodes = tuple(node_results[node_ref] for node_ref in node_refs)
         node_payloads = tuple(node.model_dump(mode="json") for node in ordered_nodes)
         payload = {
@@ -3964,6 +5642,7 @@ __all__ = [
     "RECURSIVE_GENERATION_CYCLE_CONTROLLER_REF",
     "RECURSIVE_GENERATION_CYCLE_PARTIAL_V2_SCHEMA_VERSION",
     "RECURSIVE_GENERATION_CYCLE_PARTIAL_V3_SCHEMA_VERSION",
+    "RECURSIVE_GENERATION_CYCLE_PARTIAL_V4_SCHEMA_VERSION",
     "RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION",
     "DepthNStrangleReceipt",
     "RecursiveCycleBudget",
@@ -3975,9 +5654,12 @@ __all__ = [
     "RecursiveGenerationCycleError",
     "RecursiveGenerationCyclePartialRunV2",
     "RecursiveGenerationCyclePartialRunV3",
+    "RecursiveGenerationCyclePartialRunV4",
     "RecursiveGenerationCycleRun",
     "RecursiveLeafContextCapsule",
     "RecursiveLeafContextOwner",
     "build_default_recursive_generation_cycle_controller",
     "recompute_depth_n_strangle_receipt",
+    "verify_recursive_standard_n5_capacity_partial_run",
+    "verify_recursive_standard_n5_capacity_partial_run_historical",
 ]

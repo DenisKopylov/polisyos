@@ -8,13 +8,20 @@ institutional evidence.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
+from hashlib import sha256
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Literal, Protocol
 
 from polisyos.core import artifacts
 from polisyos.core.artifacts import read_core_json_artifact
-from polisyos.pdc import AuthorityBoundary, OperationContract, OperationInvocationRecord
+from polisyos.pdc import (
+    AuthorityBoundary,
+    OperationClass,
+    OperationContract,
+    OperationInvocationRecord,
+)
 from polisyos.runtime.http.authorization import ResourceBindingSource
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.resource_binding import (
@@ -30,6 +37,7 @@ from polisyos.runtime.quality.agent_action_authority import (
     AGENT_ACTION_ADMISSION_ARTIFACT_KIND,
     AGENT_ACTION_ADMISSION_SCHEMA_VERSION,
     AGENT_ACTION_AUTHORITY_RULE_VERSION,
+    CANDIDATE_EXPERIMENT_ACTION_KIND,
     DELEGATION_CONTRACT_ARTIFACT_KIND,
     AgentActionAdmissionBundle,
     AgentActionAuthorityWriteContext,
@@ -44,7 +52,10 @@ from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
     LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
 )
 
-from .acquisition_action_service import AcquisitionRouteMutationRequest
+from .acquisition_action_service import (
+    AcquisitionRouteMutationRequest,
+    CandidateExperimentRouteMutationRequest,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -54,6 +65,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 
 _SIGNER_PURPOSE: Literal["acquisition_admission"] = "acquisition_admission"
+_EMPTY_QUERY_SHA256 = f"sha256:{sha256(b'').hexdigest()}"
 
 
 class _AuthorityArtifactStore(Protocol):
@@ -166,6 +178,9 @@ class AcquisitionAdmissionBundleProducer:
         bound_permission: BoundActionPermissionVerification,
         effect_binding: AgentActionEffectBinding,
         admitted_at: datetime,
+        request: (
+            AcquisitionRouteMutationRequest | CandidateExperimentRouteMutationRequest | None
+        ) = None,
     ) -> AcquisitionAdmissionBundleReceipt:
         """Persist, sign, reconcile, and map one exact acquisition invocation bundle."""
 
@@ -185,7 +200,9 @@ class AcquisitionAdmissionBundleProducer:
             permission_hash = agent_action_permission_hash(bound_permission)
         except (TypeError, ValueError) as exc:
             raise AcquisitionAdmissionBundleBlocked("acquisition_permission_proof_invalid") from exc
-        resource_digest = _recompute_resource_digest(bound_permission)
+        resource_digest = _recompute_resource_digest(
+            bound_permission, action_kind=intent.action_kind, request=request
+        )
 
         bundle = AgentActionAdmissionBundle(
             bundle_id=f"acquisition-admission.{invocation_hash[7:31]}",
@@ -269,12 +286,18 @@ class AcquisitionAdmissionBundleProducer:
         invocation: OperationInvocationRecord,
         intent: AgentActionIntent,
     ) -> None:
+        action_kind = intent.action_kind
+        expected_class: OperationClass | None = None
+        if action_kind == CANDIDATE_EXPERIMENT_ACTION_KIND:
+            expected_class = OperationClass.ACQUIRE
+        elif action_kind != ACQUISITION_ACTION_KIND:
+            raise AcquisitionAdmissionBundleBlocked("acquisition_action_tuple_invalid")
         if (
-            intent.action_kind != ACQUISITION_ACTION_KIND
-            or getattr(operation, "operation_id", None) != ACQUISITION_ACTION_KIND
+            getattr(operation, "operation_id", None) != action_kind
             or getattr(operation, "operation_version", None) != "v1"
-            or getattr(invocation, "operation_id", None) != ACQUISITION_ACTION_KIND
+            or getattr(invocation, "operation_id", None) != action_kind
             or getattr(invocation, "operation_version", None) != "v1"
+            or (expected_class is not None and operation.operation_class is not expected_class)
         ):
             raise AcquisitionAdmissionBundleBlocked("acquisition_action_tuple_invalid")
 
@@ -404,32 +427,75 @@ def _admission_boundary() -> AuthorityBoundary:
 
 def _recompute_resource_digest(
     bound_permission: BoundActionPermissionVerification,
+    *,
+    action_kind: str,
+    request: AcquisitionRouteMutationRequest | CandidateExperimentRouteMutationRequest | None,
 ) -> str:
-    """Recompute the acquisition route's request-bound digest canonically."""
+    """Recompute only the request schema canonically bound to this action kind."""
 
     resource = bound_permission.bound_resource
     requirement = bound_permission.verification.requirement
     binding = requirement.resource_binding
-    request_fields = tuple(AcquisitionRouteMutationRequest.model_fields)
+    if action_kind == ACQUISITION_ACTION_KIND:
+        request_model = AcquisitionRouteMutationRequest
+        resource_kind = "runtime.evidence.acquisition"
+    elif action_kind == CANDIDATE_EXPERIMENT_ACTION_KIND:
+        request_model = CandidateExperimentRouteMutationRequest
+        resource_kind = "runtime.evidence.acquisition.candidate_experiment"
+    else:
+        raise AcquisitionAdmissionBundleBlocked("acquisition_action_tuple_invalid")
+    request_fields = tuple(request_model.model_fields)
     required_request_fields = tuple(
         field_name
-        for field_name, field in AcquisitionRouteMutationRequest.model_fields.items()
+        for field_name, field in request_model.model_fields.items()
         if field.is_required()
     )
     selector_names = tuple(name for name, _value in resource.canonical_selectors)
+    expected_request = request
+    if expected_request is None:
+        if action_kind == CANDIDATE_EXPERIMENT_ACTION_KIND:
+            raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
+    elif type(expected_request) is not request_model:
+        raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
+    expected_selectors = None
+    if expected_request is not None:
+        body = expected_request.model_dump(mode="json")
+        expected_selectors = tuple(
+            sorted(
+                (
+                    field,
+                    '{"present":false}'
+                    if body[field] is None
+                    else json.dumps(
+                        body[field],
+                        ensure_ascii=True,
+                        allow_nan=False,
+                        separators=(",", ":"),
+                        sort_keys=True,
+                    ),
+                )
+                for field in request_fields
+            )
+        )
     if (
         type(resource) is not BoundAuthorizationResource
         or resource.requirement is not requirement
+        or resource.resource_kind != f"{resource_kind}.{resource.authority.value}"
         or requirement.permission is not RuntimePermission.EVIDENCE_ACQUIRE
         or binding.source is not ResourceBindingSource.REQUEST_COMPOSITE
-        or binding.resource_kind != "runtime.evidence.acquisition"
+        or binding.resource_kind != resource_kind
         or binding.selector_fields != request_fields
         or binding.required_selector_fields != required_request_fields
         or binding.required_selector_alternatives
         or selector_names != tuple(sorted(request_fields))
+        or (expected_selectors is not None and resource.canonical_selectors != expected_selectors)
         or resource.authority is not BindingAuthority.REQUEST_BOUND
         or resource.tenant_id is not None
         or resource.resolved_context is not None
+        or (
+            action_kind == CANDIDATE_EXPERIMENT_ACTION_KIND
+            and resource.query_sha256 != _EMPTY_QUERY_SHA256
+        )
     ):
         raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
     digest = _digest_payload(
@@ -448,6 +514,89 @@ def _recompute_resource_digest(
     if resource.resource_digest != digest:
         raise AcquisitionAdmissionBundleBlocked("acquisition_resource_digest_mismatch")
     return digest
+
+
+def require_candidate_experiment_bound_permission(
+    bound_permission: BoundActionPermissionVerification,
+    request: CandidateExperimentRouteMutationRequest,
+) -> str:
+    """Require a real DS20 proof bound to this exact candidate DTO and no query."""
+    return _recompute_resource_digest(
+        bound_permission,
+        action_kind=CANDIDATE_EXPERIMENT_ACTION_KIND,
+        request=request,
+    )
+
+
+def candidate_experiment_request_resource_digest(
+    request: CandidateExperimentRouteMutationRequest,
+    *,
+    body_sha256: str,
+    query_sha256: str,
+) -> str:
+    """Rebuild the exact request-bound candidate resource digest from PA2 snapshot hashes."""
+    if type(request) is not CandidateExperimentRouteMutationRequest:
+        raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
+    return _request_resource_digest(
+        action_kind=CANDIDATE_EXPERIMENT_ACTION_KIND,
+        request=request,
+        body_sha256=body_sha256,
+        query_sha256=query_sha256,
+        authority=BindingAuthority.REQUEST_BOUND,
+        tenant_id=None,
+    )
+
+
+def _request_resource_digest(
+    *,
+    action_kind: str,
+    request: AcquisitionRouteMutationRequest | CandidateExperimentRouteMutationRequest,
+    body_sha256: str,
+    query_sha256: str,
+    authority: BindingAuthority,
+    tenant_id: str | None,
+) -> str:
+    """Hash one closed action-kind/request-model pair using authorization encoding."""
+    if action_kind == ACQUISITION_ACTION_KIND and type(request) is AcquisitionRouteMutationRequest:
+        resource_kind = "runtime.evidence.acquisition"
+    elif (
+        action_kind == CANDIDATE_EXPERIMENT_ACTION_KIND
+        and type(request) is CandidateExperimentRouteMutationRequest
+    ):
+        resource_kind = "runtime.evidence.acquisition.candidate_experiment"
+    else:
+        raise AcquisitionAdmissionBundleBlocked("acquisition_action_tuple_invalid")
+    body = request.model_dump(mode="json")
+    selectors = tuple(
+        sorted(
+            (
+                field,
+                '{"present":false}'
+                if body[field] is None
+                else json.dumps(
+                    body[field],
+                    ensure_ascii=True,
+                    allow_nan=False,
+                    separators=(",", ":"),
+                    sort_keys=True,
+                ),
+            )
+            for field in type(request).model_fields
+        )
+    )
+    return _digest_payload(
+        {
+            "binding_version": "runtime.authorization.resource.v1",
+            "permission": RuntimePermission.EVIDENCE_ACQUIRE.value,
+            "resource_kind": resource_kind,
+            "authority": authority.value,
+            "tenant_id": tenant_id,
+            "body_sha256": body_sha256,
+            "query_sha256": query_sha256,
+            "selectors": selectors,
+            "resolved_context_sha256": None,
+        }
+    )
 
 
 def _admission_write_options() -> artifacts.ArtifactWriteOptions:

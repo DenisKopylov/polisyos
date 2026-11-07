@@ -48,7 +48,14 @@ def test_causal_ensemble_to_uncertainty_envelope_handles_empty_and_non_empty() -
     assert empty_env.metadata["empty_estimates"] is True
 
     env = ensemble.to_uncertainty_envelope({"m1": [1.0, 2.0, 3.0], "m2": [4.0]})
-    assert env.gate_eligible is True
+    assert env.gate_eligible is False
+    assert env.confidence_level is None
+    assert env.distribution_family.value == "unknown"
+    assert env.interval_semantics.value == "heuristic_range"
+    assert env.is_heuristic_ci is True
+    assert env.metadata["aggregation_profile"] == "fixed_model_pooled_draw_range_v1"
+    assert env.metadata["member_weights"] == [1.0]
+    assert env.confidence_interval == pytest.approx((1.075, 3.925))
     assert env.point_estimate == 2.5
     assert env.confidence_interval[0] <= env.point_estimate <= env.confidence_interval[1]
 

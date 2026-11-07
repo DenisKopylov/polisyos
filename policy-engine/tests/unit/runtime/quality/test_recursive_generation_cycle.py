@@ -29,6 +29,105 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 
 
 @pytest.mark.asyncio
+async def test_recursive_single_leaf_failure_preserves_original_error_and_cause(tmp_path) -> None:
+    """The real recursive catch boundary rethrows the leaf error with its existing cause."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from tests._helpers.candidate_cycle_source_profile import _problem
+    from tests.unit.runtime.quality.test_generation_cycle import _budget
+
+    base = _problem(runtime_hints=None)
+    hints = dict(base.runtime_hints)
+    hints.pop("cycle_substrate_source_profile")
+    problem = base.model_copy(update={"runtime_hints": hints})
+    cause = LookupError("preexisting leaf cause")
+    error = GenerationCycleError("controlled_original_leaf_failure", "original leaf failure")
+    error.__cause__ = cause
+    original = (type(error), error.code, str(error), error.__cause__)
+    calls: list[int] = []
+
+    class FailingN4Port(N4GenerationPort):
+        async def __call__(self, _problem: Any, *, cycle_index: int) -> Any:
+            calls.append(cycle_index)
+            raise error
+
+    store = FileSystemCAS(tmp_path / "original-leaf-cause-cas")
+    controller = build_default_recursive_generation_cycle_controller(
+        promotion_runtime=PromotionRuntime(store=store), repo_root=tmp_path
+    )
+    graph = derive_recursive_design_graph(
+        design_ref="design://original-leaf-cause",
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="test://original-leaf-cause",
+    )
+    with pytest.raises(GenerationCycleError) as raised:
+        await controller.run(
+            graph,
+            problems_by_node={graph.root_design_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=1, max_nodes=1, min_cycles_per_leaf=1, max_cycles_per_leaf=1
+            ),
+            n4_generation_ports_by_node={
+                graph.root_design_ref: FailingN4Port(
+                    model_id="controlled-original-leaf-cause", repo_root=tmp_path
+                )
+            },
+            execution_intents_by_node={graph.root_design_ref: "simulate_only"},
+        )
+    assert calls == [0]
+    assert raised.value is error
+    assert (type(error), error.code, str(error), error.__cause__) == original
+    assert raised.value.__cause__ is cause
+
+
+@pytest.mark.asyncio
+async def test_cycle_failure_without_current_n5_clears_stale_error_packet_and_local_slot(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An engine fault before completion cannot recycle diagnostic data from another call."""
+    from polisyos.runtime.quality import generation_cycle as generation_cycle_module
+    from tests._helpers.controlled_candidate_profile import _budget, _problem
+
+    cause = LookupError("preexisting cycle cause")
+    error = GenerationCycleError("controlled_before_n5_failure", "same reused cycle error")
+    original_text = str(error)
+    error.__cause__ = cause
+    slots: list[Any] = []
+
+    class FailingEngine:
+        async def run_async(self, state: dict[str, Any]) -> Any:
+            slot = state["_generation_cycle_n5_partial_slot"]
+            assert slot.completion is None and slot.failed_stage is None
+            slots.append(slot)
+            # A stage marker alone carries no completed N5 or publication authority.
+            slot.failed_stage = "revision"
+            raise error
+
+    controller = generation_cycle_module.GenerationCycleController()
+    monkeypatch.setattr(controller, "_engine", FailingEngine())
+    problem = _problem("reused_error_no_current_n5")
+    for cycle_index in range(2):
+        # Deliberately unissued stale data: this test creates no scope or execution ref.
+        setattr(error, generation_cycle_module._N5_PARTIAL_FAILURE_ATTRIBUTE, object())
+        with pytest.raises(GenerationCycleError) as raised:
+            await controller._run_cycle(
+                problem,
+                cycle_index=cycle_index,
+                budget_state=_budget(),
+                previous_cycle=None,
+            )
+        assert raised.value is error
+        assert raised.value.__cause__ is cause
+        assert raised.value.code == "controlled_before_n5_failure"
+        assert str(raised.value) == original_text
+        assert not hasattr(error, generation_cycle_module._N5_PARTIAL_FAILURE_ATTRIBUTE)
+        assert generation_cycle_module._completed_n5_failure_from_exception(error) is None
+        assert slots[-1].completion is None and slots[-1].failed_stage is None
+    assert len(slots) == 2 and slots[0] is not slots[1]
+
+
+@pytest.mark.asyncio
 async def test_real_leaf_result_survives_later_independent_sibling_failure(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
@@ -655,17 +754,21 @@ def test_runtime_repo_root_invalid_present_refuses_and_omission_keeps_default_co
     pytest.importorskip("fastapi")
 
     from polisyos.runtime.http.app import create_runtime_api_app
-    from polisyos.runtime.http.execution_policy import RuntimeBootstrapError
 
-    with pytest.raises(RuntimeBootstrapError, match="repo_root is invalid"):
+    with pytest.raises(ValueError, match="runtime_source_repo_root_invalid"):
         create_runtime_api_app(
             cas_root=tmp_path / "invalid-root-cas",
             repo_root=tmp_path / "missing-source-checkout",
         )
-    with pytest.raises(RuntimeBootstrapError, match="repo_root is invalid"):
+    with pytest.raises(TypeError, match="runtime_source_repo_root_must_be_path"):
+        create_runtime_api_app(
+            cas_root=tmp_path / "string-root-cas",
+            repo_root="relative-source-checkout",
+        )
+    with pytest.raises(ValueError, match="runtime_source_repo_root_must_be_absolute"):
         create_runtime_api_app(
             cas_root=tmp_path / "relative-root-cas",
-            repo_root="relative-source-checkout",
+            repo_root=Path("relative-source-checkout"),
         )
 
     app = create_runtime_api_app(cas_root=tmp_path / "default-root-cas")
@@ -918,22 +1021,26 @@ async def test_control_service_rejects_explicit_proposal_only_for_selected_profi
 
 @pytest.mark.integration
 @pytest.mark.parametrize(
-    "mutate_owner_source_before_resolve",
-    [(False,), (True,)],
-    ids=("fresh-v5", "changed-owner-refuses"),
+    ("mutate_owner_source_before_resolve", "matching_plain_handoff"),
+    [(False, False), (True, False), (False, True)],
+    ids=("fresh-v5", "changed-owner-refuses", "plain-handoff-recipe-refuses"),
 )
 def test_recursive_selected_profile_persists_v5_before_n4(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
     mutate_owner_source_before_resolve: bool,
+    matching_plain_handoff: bool,
+    request: pytest.FixtureRequest,
 ) -> None:
     """The served recursive route hands N4 the freshly owner-resolved V5 context."""
     pytest.importorskip("fastapi.testclient")
     from fastapi.testclient import TestClient
 
+    from polisyos.core.artifacts import artifact_ref_identity_key
     from polisyos.core.canon import from_canonical_bytes
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
     from polisyos.runtime.http.security import build_fixture_identity_claims
     from polisyos.runtime.http.services.control import (
         generation_cycle as generation_cycle_service,
@@ -956,12 +1063,15 @@ def test_recursive_selected_profile_persists_v5_before_n4(
         parse_cycle_substrate_context_job_artifact,
     )
     from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleController,
         GenerationCycleError,
         N4GenerationPort,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
     from tests._helpers.candidate_cycle_source_profile import (
         build_candidate_cycle_substrate_route_inputs,
+        candidate_cycle_catalog_registry_providers,
+        complete_candidate_cycle_catalog_source,
     )
     from tests._helpers.control_worker import dispatch_one_control_job
     from tests.unit.runtime.http.test_control_job_execution_intent import (
@@ -969,13 +1079,28 @@ def test_recursive_selected_profile_persists_v5_before_n4(
     )
 
     fixture = build_candidate_cycle_substrate_route_inputs(tmp_path)
+    catalog_context = complete_candidate_cycle_catalog_source(fixture.root, monkeypatch)
+    catalog_selection, _catalog_source, _catalog_registry = catalog_context.__enter__()
+    request.addfinalizer(lambda: catalog_context.__exit__(None, None, None))
+    provider_context = candidate_cycle_catalog_registry_providers(
+        catalog_selection, _catalog_source
+    )
+    catalog_providers = provider_context.__enter__()
+    request.addfinalizer(lambda: provider_context.__exit__(None, None, None))
     problem = fixture.problem
+    assert type(mutate_owner_source_before_resolve) is bool
+    assert type(matching_plain_handoff) is bool
+    selection_problem = (
+        problem
+        if matching_plain_handoff
+        else problem.model_copy(update={"design_problem_id": "different_source_profile_subject"})
+    )
     inputs = fixture.seed_context
     profile_payload = {
         "schema_version": "policyos.runtime.candidate_simulation_profile.v2",
         "profile_id": "candidate-source-profile-served-route",
         "purpose": "synthetic_candidate_scenario",
-        "profile_selection_ref": cycle_job_profile_selection_ref(problem),
+        "profile_selection_ref": cycle_job_profile_selection_ref(selection_problem),
         "context_inputs": CandidateSimulationContextInputs(
             substrate_registry=fixture.substrate_registry,
             selected_registry_entry_hashes=fixture.selected_registry_entry_hashes,
@@ -1033,6 +1158,9 @@ def test_recursive_selected_profile_persists_v5_before_n4(
         cas_root=cas_root,
         repo_root=fixture.root,
         candidate_simulation_profiles=(profile,),
+        catalog_source_selection=catalog_selection,
+        catalog_run_profile=catalog_selection.catalog_run_profile,
+        container_overrides=RuntimeContainerOverrides(control_registry_providers=catalog_providers),
         allow_fixture_identity=True,
     )
     runtime_api_context = app.state.runtime_container.runtime_api_context
@@ -1048,6 +1176,24 @@ def test_recursive_selected_profile_persists_v5_before_n4(
     )
     persisted_v5: list[tuple[object, object]] = []
     resolved_v5: list[CycleSubstrateContextJobArtifactV5] = []
+    resolved_v5_refs: list[object] = []
+    resolved_v5_phases: list[str] = []
+    replay_phase = {"value": "source_profile"}
+    original_bind = GenerationCycleController._persist_resolve_and_bind_cycle_substrate_context
+
+    def bind_after_source_replay(controller: Any, *args: Any, **kwargs: Any) -> Any:
+        prior_phase = replay_phase["value"]
+        replay_phase["value"] = "bind_consumers"
+        try:
+            return original_bind(controller, *args, **kwargs)
+        finally:
+            replay_phase["value"] = prior_phase
+
+    monkeypatch.setattr(
+        GenerationCycleController,
+        "_persist_resolve_and_bind_cycle_substrate_context",
+        bind_after_source_replay,
+    )
     original_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
     original_resolve = CycleSubstrateContextArtifactOwner.resolve_for_current_job
 
@@ -1061,7 +1207,11 @@ def test_recursive_selected_profile_persists_v5_before_n4(
         return ref
 
     def record_resolve(owner: object, ref: object, **kwargs: Any) -> object:
-        if persisted_v5 and ref == persisted_v5[-1][1]:
+        same_persisted_view = bool(
+            persisted_v5
+            and artifact_ref_identity_key(ref) == artifact_ref_identity_key(persisted_v5[-1][1])
+        )
+        if same_persisted_view:
             assert kwargs.get("repo_root") == fixture.root
             missing_root_kwargs = {
                 key: value for key, value in kwargs.items() if key != "repo_root"
@@ -1079,7 +1229,7 @@ def test_recursive_selected_profile_persists_v5_before_n4(
                 match="candidate_cycle_source_profile_resolve_owner_refused",
             ):
                 original_resolve(owner, ref, **wrong_root_kwargs)
-        if mutate_owner_source_before_resolve and persisted_v5 and ref == persisted_v5[-1][1]:
+        if mutate_owner_source_before_resolve and same_persisted_view:
             import duckdb
 
             persisted_context = persisted_v5[-1][0]
@@ -1109,6 +1259,8 @@ def test_recursive_selected_profile_persists_v5_before_n4(
         if type(resolved) is CycleSubstrateContextJobArtifactV5:
             assert kwargs.get("repo_root") == fixture.root
             resolved_v5.append(resolved)
+            resolved_v5_refs.append(artifact_ref_identity_key(ref))
+            resolved_v5_phases.append(replay_phase["value"])
         return resolved
 
     monkeypatch.setattr(
@@ -1119,6 +1271,203 @@ def test_recursive_selected_profile_persists_v5_before_n4(
     )
 
     n4_observations: list[tuple[object, int]] = []
+    legacy_recipe_refusals: list[str] = []
+
+    def probe_legacy_recipe_frame(controller: Any) -> None:
+        """Reject a corrupt legacy envelope through the actual current job owner.
+
+        Legacy WMR views are structural test inputs, never numerical evidence.
+        The source profile and its subsequently mutated SKG bytes are produced
+        by the real recipe owner. No NL scope or lease is manufactured here.
+        """
+        import duckdb
+
+        from polisyos.core.artifacts import ensure_ir_artifact_store, profile_bound_ref
+        from polisyos.ir.analytics.causal_graph import (
+            CausalEdge,
+            CausalGraphModel,
+            EdgeMark,
+            GraphType,
+            persist_causal_graph_model,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            _CONTEXT_JOB_CANON,
+            CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA,
+            CycleSubstrateContextJobArtifactV4,
+            TransportContextEvidence,
+            TransportCovariateObservation,
+            _context_job_write_options,
+            build_candidate_cycle_substrate_context,
+            build_cycle_substrate_context,
+            cycle_substrate_context_binding_hash,
+            cycle_substrate_context_job_content_hash,
+        )
+        from tests.unit.runtime.quality.test_cycle_substrate import (
+            _fixture_world_with_persisted_substrate_registry,
+            _world_record_with_selected_views,
+        )
+
+        handoff = controller._candidate_simulation_handoff
+        scope = controller._candidate_cycle_verified_nl_job_scope
+        context_owner = controller._candidate_cycle_context_artifact_owner
+        store = controller._artifact_store
+        assert scope._was_issued_by_verified_nl_execution_owner
+        assert controller._candidate_simulation_currentness_resolver() is True
+        original_job = original_resolve(
+            context_owner,
+            handoff.context_job_ref,
+            problem=problem,
+            repo_root=fixture.root,
+            verified_nl_job_scope=scope,
+        )
+        registry_ref, world_v1 = _fixture_world_with_persisted_substrate_registry(
+            store, fixture.substrate_registry, fixture.world_model_record
+        )
+        selected_registry = profile_bound_ref(store, registry_ref)
+        world_v2 = _world_record_with_selected_views(
+            world_v1,
+            substrate_registry_artifact_ref=selected_registry,
+            selected_profile=selected_registry.manifest_profile_sha256,
+        )
+        recipe = build_candidate_cycle_substrate_context(
+            fixture.root,
+            problem=problem,
+            world_model_record=world_v2,
+            substrate_registry=fixture.substrate_registry,
+        )
+        graph_ref = profile_bound_ref(
+            store,
+            persist_causal_graph_model(
+                ensure_ir_artifact_store(store),
+                CausalGraphModel(
+                    graph_type=GraphType.DAG,
+                    nodes=["education_teaching_method", "education_learning_outcomes"],
+                    edges=[
+                        CausalEdge(
+                            src="education_teaching_method",
+                            dst="education_learning_outcomes",
+                            mark_src=EdgeMark.TAIL,
+                            mark_dst=EdgeMark.ARROW,
+                        )
+                    ],
+                    discovery_method="corrupt-legacy-envelope-control",
+                ),
+            ),
+        )
+        transport = TransportContextEvidence(
+            status="candidate_context_only_not_transport_authority",
+            source_context_id="legacy-source",
+            target_context_id="legacy-target",
+            source_profile_content_hash=recipe.source_profile.content_hash,
+            target_profile_content_hash=recipe.source_profile.content_hash,
+            substrate_input_content_hash=recipe.substrate_input_content_hash,
+            context_binding_hash=recipe.context_binding_hash,
+            covariates=(
+                TransportCovariateObservation(
+                    canonical_var="education.teaching_method",
+                    source_value=0.0,
+                    target_value=1.0,
+                    source_row_content_hash=gy_content_hash({"legacy_control": "source"}),
+                    target_row_content_hash=gy_content_hash({"legacy_control": "target"}),
+                ),
+            ),
+            causal_graph_ref=graph_ref,
+        )
+        legacy_context = build_cycle_substrate_context(
+            design_problem_ref=recipe.design_problem_ref,
+            domain=recipe.domain,
+            substrate_registry=recipe.substrate_registry,
+            selected_registry_entry_hashes=recipe.selected_registry_entry_hashes,
+            world_model_record=recipe.world_model_record,
+            intervention_substrate=recipe.intervention_substrate,
+            candidate_levers=recipe.candidate_levers,
+            transport_context=transport,
+            source_pack_content_hash=None,
+            substrate_input_content_hash=recipe.substrate_input_content_hash,
+            source_profile=recipe.source_profile,
+        )
+        # Build the real legacy codec first, then attach a candidate context as
+        # corrupt raw input. V4's frozen serializer forbids that nested schema.
+        plain_binding = cycle_substrate_context_binding_hash(
+            design_problem_ref=recipe.design_problem_ref,
+            domain=recipe.domain,
+            substrate_input_content_hash=recipe.substrate_input_content_hash,
+            substrate_registry_content_hash=recipe.substrate_registry_content_hash,
+            world_model_record_id=recipe.world_model_record.world_model_record_id,
+            world_model_record_content_hash=recipe.world_model_record.content_hash,
+            world_model_record_authority_status=recipe.world_model_record.authority_status,
+            selected_registry_entry_hashes=recipe.selected_registry_entry_hashes,
+        )
+        plain_context = build_cycle_substrate_context(
+            design_problem_ref=recipe.design_problem_ref,
+            domain=recipe.domain,
+            substrate_registry=recipe.substrate_registry,
+            selected_registry_entry_hashes=recipe.selected_registry_entry_hashes,
+            world_model_record=recipe.world_model_record,
+            intervention_substrate=recipe.intervention_substrate,
+            candidate_levers=(),
+            transport_context=transport.model_copy(update={"context_binding_hash": plain_binding}),
+            source_pack_content_hash=None,
+            substrate_input_content_hash=recipe.substrate_input_content_hash,
+        )
+        fields = original_job.model_dump(mode="python", exclude={"content_hash"})
+        fields.update(schema_version=CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA, context=plain_context)
+        legacy = CycleSubstrateContextJobArtifactV4.model_validate(
+            {**fields, "content_hash": cycle_substrate_context_job_content_hash(fields)}
+        )
+        corrupt_payload = legacy.model_dump(mode="json")
+        corrupt_payload["context"] = legacy_context.model_dump(mode="json")
+        corrupt_payload["content_hash"] = cycle_substrate_context_job_content_hash(corrupt_payload)
+        legacy_ref = store.put_json(
+            corrupt_payload,
+            _context_job_write_options(legacy),
+            canon_spec=_CONTEXT_JOB_CANON,
+            return_selected_profile=True,
+        )
+        source_path = Path(
+            recipe.source_profile.skg_snapshot_ref.removeprefix("duckdb://").rsplit("#v", 1)[0]
+        ).resolve(strict=True)
+        assert source_path.is_relative_to(fixture.root.resolve(strict=True))
+        with duckdb.connect(str(source_path)) as connection:
+            assert (
+                connection.execute(
+                    "SELECT COUNT(*) FROM ac_causal_claims WHERE id = ?",
+                    ["candidate-source-profile-causal-claim"],
+                ).fetchone()[0]
+                == 1
+            )
+            connection.execute(
+                "DELETE FROM ac_causal_claims WHERE id = ?",
+                ["candidate-source-profile-causal-claim"],
+            )
+        # The actual owner reader refuses the legacy-framed profile. Neither a
+        # self-consistent raw hash nor the profile's presence can make it V5.
+        assert store.verify(legacy_ref).ok
+        with pytest.raises(CycleSubstrateContextOwnerError) as refused:
+            original_resolve(
+                context_owner,
+                legacy_ref,
+                problem=problem,
+                repo_root=fixture.root,
+                verified_nl_job_scope=scope,
+            )
+        assert refused.value.code == "cycle_substrate_context_job_record_invalid"
+        assert "cycle_substrate_context_job_v4_nested_schema_unsupported" in str(refused.value)
+        assert not n4_observations
+        legacy_recipe_refusals.append(refused.value.code)
+
+    original_ensure_recipe = GenerationCycleController._ensure_selected_candidate_source_profile
+
+    def ensure_with_legacy_control(controller: Any, actual_problem: Any, **kwargs: Any) -> None:
+        if matching_plain_handoff and not legacy_recipe_refusals:
+            probe_legacy_recipe_frame(controller)
+        return original_ensure_recipe(controller, actual_problem, **kwargs)
+
+    monkeypatch.setattr(
+        GenerationCycleController,
+        "_ensure_selected_candidate_source_profile",
+        ensure_with_legacy_control,
+    )
 
     async def stop_after_n4_receives_context(
         port: N4GenerationPort,
@@ -1137,6 +1486,19 @@ def test_recursive_selected_profile_persists_v5_before_n4(
     cell_id = claims.cell_id
     assert tenant_id and cell_id
     with TestClient(app) as client:
+        from polisyos.runtime.quality.substrate_registry import (
+            require_catalog_serving_graph_binding,
+        )
+
+        control = app.state._control_service
+        assert control._registry_providers is catalog_providers
+        require_catalog_serving_graph_binding(
+            control._registry_providers.gy_catalog_graph, control._catalog_serving_source
+        )
+        require_catalog_serving_graph_binding(
+            control._retrieval_catalog, control._catalog_serving_source
+        )
+        assert control._retrieval._dataset_catalog is control._retrieval_catalog
         accepted_response = client.post(
             "/api/v1/control/runs/nl",
             headers={"Idempotency-Key": "test-r7-candidate-v5-recursive-bridge"},
@@ -1154,6 +1516,7 @@ def test_recursive_selected_profile_persists_v5_before_n4(
         accepted = accepted_response.json()
         service = app.state._control_service
         route_observations: list[dict[str, Any]] = []
+        compile_failures: list[str] = []
         persisted_v5_payload: bytes | None = None
         original_compile_route = service.compile_and_run_recursive_generation_cycle
 
@@ -1172,7 +1535,33 @@ def test_recursive_selected_profile_persists_v5_before_n4(
                     "n4_proposal_only_origin": kwargs["n4_proposal_only_origin"],
                 }
             )
-            return await original_compile_route(**kwargs)
+            try:
+                return await original_compile_route(**kwargs)
+            except Exception as exc:
+                import traceback
+
+                source_reads: list[dict[str, str]] = []
+                frame = exc.__traceback__
+                while frame is not None:
+                    if frame.tb_frame.f_code.co_name in {
+                        "_candidate_cycle_bind_current_skg_snapshot",
+                        "_candidate_source_database_path",
+                    }:
+                        values = frame.tb_frame.f_locals
+                        selected_prior = values.get("selected_prior")
+                        source_reads.append(
+                            {
+                                "function": frame.tb_frame.f_code.co_name,
+                                "db_path": str(values.get("db_path", "")),
+                                "source_ref": str(
+                                    values.get("source_ref")
+                                    or getattr(selected_prior, "skg_snapshot_ref", "")
+                                ),
+                            }
+                        )
+                    frame = frame.tb_next
+                compile_failures.append(f"source_reads={source_reads!r}\n{traceback.format_exc()}")
+                raise
 
         monkeypatch.setattr(
             service,
@@ -1196,7 +1585,7 @@ def test_recursive_selected_profile_persists_v5_before_n4(
     route = route_observations[0]
     verified_scope = route["verified_nl_job_scope"]
     leaf_owner = route["recursive_leaf_context_owner"]
-    assert route["passed_verified_nl_job_scope"] is None
+    assert route["passed_verified_nl_job_scope"] is verified_scope
     assert route["n4_proposal_only"] is True
     assert route["n4_proposal_only_origin"] == "derived_legacy_default"
     assert type(verified_scope) is VerifiedNLJobScope
@@ -1209,11 +1598,19 @@ def test_recursive_selected_profile_persists_v5_before_n4(
     assert leaf_owner._verified_nl_job_scope is verified_scope
     assert route["repo_root"] == fixture.root
     assert job_after_dispatch is not None
+    if matching_plain_handoff:
+        assert legacy_recipe_refusals == ["cycle_substrate_context_job_record_invalid"]
+        assert job_after_dispatch.state == "failed"
+        assert str(job_after_dispatch.error_message).startswith(
+            "n4_candidate_source_profile_handoff_recipe_not_established"
+        )
+        assert persisted_v5 == resolved_v5 == n4_observations == []
+        return
     if mutate_owner_source_before_resolve:
         assert job_after_dispatch.state == "failed"
         assert "candidate_cycle_source_profile_owner_rederive_mismatch" in str(
             job_after_dispatch.error_message
-        )
+        ), "\n".join(compile_failures)
         assert len(persisted_v5) == 1
         assert resolved_v5 == []
         assert n4_observations == []
@@ -1221,12 +1618,15 @@ def test_recursive_selected_profile_persists_v5_before_n4(
     assert job_after_dispatch.state == "failed"
     assert str(job_after_dispatch.error_message).startswith(
         "controlled_stop_after_candidate_v5_context"
-    )
+    ), "\n".join(compile_failures)
     assert n4_observations, f"persisted={persisted_v5!r}, resolved={resolved_v5!r}"
     assert len(persisted_v5) == 1
-    assert len(resolved_v5) == 1
+    assert len(resolved_v5) == 2
+    assert resolved_v5_phases == ["source_profile", "bind_consumers"]
+    assert resolved_v5_refs == [artifact_ref_identity_key(persisted_v5[0][1])] * 2
+    assert resolved_v5[0] == resolved_v5[1]
     assert len(n4_observations) == 1
-    resolved = resolved_v5[0]
+    resolved = resolved_v5[-1]
     n4_context, cycle_index = n4_observations[0]
     assert cycle_index == 0
     assert type(resolved) is CycleSubstrateContextJobArtifactV5

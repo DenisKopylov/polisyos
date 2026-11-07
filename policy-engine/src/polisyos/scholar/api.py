@@ -350,6 +350,9 @@ def _source_spec_from_snapshot(
                 details={"expected": declared_size, "actual": len(raw_bytes)},
             )
 
+    fetch_profile = getattr(source, "fetch_profile", None) or getattr(
+        cached_record, "fetch_profile", {}
+    )
     props = {
         "source_type": str(getattr(source, "source_type", "web")),
         "title": str(getattr(source, "title", "")),
@@ -366,9 +369,8 @@ def _source_spec_from_snapshot(
         "content_sha256": actual_digest,
         "byte_size": str(len(raw_bytes)),
         "fetch_status": str(getattr(source, "fetch_status", "ok")),
-        "fetch_profile": _json_prop(
-            getattr(source, "fetch_profile", None) or getattr(cached_record, "fetch_profile", {})
-        ),
+        "fetch_profile": _json_prop(fetch_profile),
+        "fetch_profile_status": "recorded" if fetch_profile else "unknown",
         "redirect_chain": _json_prop(
             getattr(source, "redirect_chain", None) or getattr(cached_record, "redirect_chain", [])
         ),
@@ -411,6 +413,12 @@ def _source_spec_from_snapshot(
 
 
 def _cache_record_for_source(source: Any, cache: Any | None) -> Any | None:
+    """Return cache facts only for the same selected snapshot and acquisition.
+
+    URL equality alone cannot bind a historical source to the current cache
+    entry. Even identical content bytes may have been fetched under another
+    policy; unknown historical provenance must not inherit that later profile.
+    """
     if cache is None:
         return None
     getter = getattr(cache, "get", None)
@@ -418,7 +426,23 @@ def _cache_record_for_source(source: Any, cache: Any | None) -> Any | None:
     if not callable(getter) or source_url is None:
         return None
     try:
-        return getter(str(source_url))
+        record = getter(str(source_url))
+        if record is None:
+            return None
+        source_ref = getattr(source, "raw_artifact_ref", None)
+        cached_ref = getattr(record, "raw_artifact_ref", None)
+        if source_ref is None or source_ref != cached_ref:
+            return None
+        source_digest = _normalize_digest(getattr(source, "content_sha256", None))
+        cached_digest = _normalize_digest(getattr(record, "content_sha256", None))
+        if source_digest is None or source_digest != cached_digest:
+            return None
+        fetched_at = getattr(source, "fetched_at", None)
+        if fetched_at is None or fetched_at != getattr(record, "fetched_at", None):
+            return None
+        if str(source_url) != getattr(record, "url", None):
+            return None
+        return record
     except Exception:
         return None
 

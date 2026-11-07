@@ -62,8 +62,14 @@ and downstream uncertainty classification. There is no automatic mechanism selec
 or polynomial backend claim in this profile.
 
 Run the non-skipping backend tests with `.venv/bin/python -m pytest tests -q -s`.
-The linear oracle independently fits Statsmodels OLS with `alpha=.05`, and the
-coverage test draws 200 independent correctly specified IID homoscedastic Gaussian
+The linear adapter-parity check fits Statsmodels OLS with `alpha=.05`; DoWhy's
+linear estimator uses that same underlying backend, so this is not an independent
+numerical implementation. A separate eight-row balanced-design oracle derives the
+point and variance from exact scalar sums, then inverts a closed-form Student-t5
+CDF by bisection without SciPy, Statsmodels, DoWhy, or a product interval helper.
+Row permutation, translated covariates, treatment relabelling and corrupted backend
+point/contrast/interval controls distinguish the required property. The coverage
+test separately draws 200 independent correctly specified IID homoscedastic Gaussian
 synthetic samples. The GCM oracle checks coefficients, fitted residual rows and
 actual installed fit-function execution for the base and each refit. These synthetic
 properties establish this bounded implementation; they do not establish graph

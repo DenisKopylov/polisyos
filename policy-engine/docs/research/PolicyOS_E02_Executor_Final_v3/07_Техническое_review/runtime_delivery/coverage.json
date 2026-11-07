@@ -1,0 +1,1797 @@
+{
+  "schema": "e02.final.runtime_delivery.coverage.v1",
+  "checked_date": "2026-11-01",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "delivered_zip_sha256": "e08baa70c8acf92f8f2e5afd8ced38c94213355dea07c4b33b14a417aefdebf3",
+  "packets_total": 26,
+  "packet_read_complete": true,
+  "product_test_status": "NOT_RUN",
+  "runtime_reproduction_status": "NOT_RUN; only source reasoning plus root independent Node24 language experiment",
+  "packet_reviews": [
+    {
+      "packet_id": "STA-01",
+      "lane_id": "LANE-06",
+      "verdict": "retain",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/STA-01.md",
+        "sha256": "fe1c11c3376f631fb1e36723e4fb0678066a72c57490c4aac59ed0eff93cc683",
+        "bytes": 20052,
+        "lines": 145,
+        "read_ranges": [
+          [
+            1,
+            145
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/STA-01.json",
+        "sha256": "29463ca09b918f343174fa498515e301229b58d07427181e0d92955702dff72c",
+        "bytes": 16427,
+        "lines": 305,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-STA-01-01",
+        "REQ-STA-01-02",
+        "REQ-STA-01-03",
+        "REQ-STA-01-04",
+        "REQ-STA-01-05"
+      ],
+      "tests": [
+        "TEST-STA-01-01",
+        "TEST-STA-01-02",
+        "TEST-STA-01-03",
+        "TEST-STA-01-04",
+        "TEST-STA-01-05"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: STA-01"
+    },
+    {
+      "packet_id": "STA-02",
+      "lane_id": "LANE-06",
+      "verdict": "targeted revision",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/STA-02.md",
+        "sha256": "3efe8a8ac1090d8c0b2570706af46a2b54709eef79111ec8350ef02b8545690c",
+        "bytes": 16835,
+        "lines": 132,
+        "read_ranges": [
+          [
+            1,
+            132
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/STA-02.json",
+        "sha256": "ae8247e7546456f3e5830243994311e510735bb30f0f596d6c53555bf38db291",
+        "bytes": 13669,
+        "lines": 266,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-STA-02-01",
+        "REQ-STA-02-02",
+        "REQ-STA-02-03",
+        "REQ-STA-02-04"
+      ],
+      "tests": [
+        "TEST-STA-02-01",
+        "TEST-STA-02-02",
+        "TEST-STA-02-03",
+        "TEST-STA-02-04"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: STA-02"
+    },
+    {
+      "packet_id": "EXE-01",
+      "lane_id": "LANE-06",
+      "verdict": "targeted revision",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/EXE-01.md",
+        "sha256": "4568f6b3b3080dd3dddc8cf9e839c826cbc0337f4017d9cfa12a3b5bab19aa39",
+        "bytes": 15338,
+        "lines": 130,
+        "read_ranges": [
+          [
+            1,
+            130
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/EXE-01.json",
+        "sha256": "880a0d2282ff874e338f123f240e63d462ea7a316c5a9816780a235d941d898a",
+        "bytes": 12562,
+        "lines": 269,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-EXE-01-01",
+        "REQ-EXE-01-02",
+        "REQ-EXE-01-03",
+        "REQ-EXE-01-04"
+      ],
+      "tests": [
+        "TEST-EXE-01-01",
+        "TEST-EXE-01-02",
+        "TEST-EXE-01-03",
+        "TEST-EXE-01-04"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: EXE-01"
+    },
+    {
+      "packet_id": "EXE-02",
+      "lane_id": "LANE-06",
+      "verdict": "retain",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/EXE-02.md",
+        "sha256": "3337bc17484d05ba1f2daa3b8de618a85383ae1e66e0818891bf10f0376e1fe7",
+        "bytes": 13497,
+        "lines": 114,
+        "read_ranges": [
+          [
+            1,
+            114
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/EXE-02.json",
+        "sha256": "6e7581466d09fc18e4e957e49c8af927bb05843afe77ace875f904584bbc2008",
+        "bytes": 10029,
+        "lines": 227,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-EXE-02-01",
+        "REQ-EXE-02-02",
+        "REQ-EXE-02-03"
+      ],
+      "tests": [
+        "TEST-EXE-02-01",
+        "TEST-EXE-02-02",
+        "TEST-EXE-02-03"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: EXE-02"
+    },
+    {
+      "packet_id": "RES-01",
+      "lane_id": "LANE-06",
+      "verdict": "bounded qualification",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/RES-01.md",
+        "sha256": "ccd032e287044d427a9f62c53e705a8c8b048a61ad54e58f8bec711c21558ba2",
+        "bytes": 16429,
+        "lines": 134,
+        "read_ranges": [
+          [
+            1,
+            134
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/RES-01.json",
+        "sha256": "77f06450332ab24f2d67db9f91f594c412c4ce56d2740a159946d039033c2799",
+        "bytes": 13253,
+        "lines": 259,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-RES-01-01",
+        "REQ-RES-01-02",
+        "REQ-RES-01-03",
+        "REQ-RES-01-04"
+      ],
+      "tests": [
+        "TEST-RES-01-01",
+        "TEST-RES-01-02",
+        "TEST-RES-01-03",
+        "TEST-RES-01-04"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: RES-01"
+    },
+    {
+      "packet_id": "RES-02",
+      "lane_id": "LANE-06",
+      "verdict": "retain",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/RES-02.md",
+        "sha256": "3c4d4909130128c47f9f8f6231f5a1c70ee7741ba561113497f0a0505447024a",
+        "bytes": 14074,
+        "lines": 127,
+        "read_ranges": [
+          [
+            1,
+            127
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/RES-02.json",
+        "sha256": "b18da41c167139f3f78dfc83e1d3185fcee9351f86c87ba8941c2384ae142222",
+        "bytes": 10819,
+        "lines": 236,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-RES-02-01",
+        "REQ-RES-02-02",
+        "REQ-RES-02-03",
+        "REQ-RES-02-04"
+      ],
+      "tests": [
+        "TEST-RES-02-01",
+        "TEST-RES-02-02",
+        "TEST-RES-02-03",
+        "TEST-RES-02-04"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: RES-02"
+    },
+    {
+      "packet_id": "RES-03",
+      "lane_id": "LANE-06",
+      "verdict": "bounded qualification",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/RES-03.md",
+        "sha256": "2ffb78bef514af0fdb9db4035e3268ecf6e253b147d5c23db6e76259bbe0efb8",
+        "bytes": 14658,
+        "lines": 118,
+        "read_ranges": [
+          [
+            1,
+            118
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/RES-03.json",
+        "sha256": "94d889b2feec4c6b66fbee15d3957f1dc616c1dda1c2af3e897ba2a406676fc2",
+        "bytes": 10759,
+        "lines": 213,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-RES-03-01",
+        "REQ-RES-03-02",
+        "REQ-RES-03-03"
+      ],
+      "tests": [
+        "TEST-RES-03-01",
+        "TEST-RES-03-02",
+        "TEST-RES-03-03"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: RES-03"
+    },
+    {
+      "packet_id": "RUN-01",
+      "lane_id": "LANE-06",
+      "verdict": "retain",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/RUN-01.md",
+        "sha256": "bad71176244d5179e9252638f98b81ab5399656979d74715e8e324105b54e597",
+        "bytes": 13254,
+        "lines": 117,
+        "read_ranges": [
+          [
+            1,
+            117
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/RUN-01.json",
+        "sha256": "06b810c754b4259b5269a066e0a0f4ba77c931141bb284e5f10104400ac5fc6a",
+        "bytes": 10691,
+        "lines": 242,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-RUN-01-01",
+        "REQ-RUN-01-02",
+        "REQ-RUN-01-03"
+      ],
+      "tests": [
+        "TEST-RUN-01-01",
+        "TEST-RUN-01-02",
+        "TEST-RUN-01-03"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: RUN-01"
+    },
+    {
+      "packet_id": "RUN-02",
+      "lane_id": "LANE-06",
+      "verdict": "bounded qualification",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/RUN-02.md",
+        "sha256": "fa1c749e841dfd9aa241cdb6f938f3794f07f950dd5e4ec45dfe7d76b4fa8a21",
+        "bytes": 13057,
+        "lines": 113,
+        "read_ranges": [
+          [
+            1,
+            113
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/RUN-02.json",
+        "sha256": "81109abea8b404ca9eb1cfdb1c53973a280fdd8604089f9fc3a8c963e962f246",
+        "bytes": 10649,
+        "lines": 237,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-RUN-02-01",
+        "REQ-RUN-02-02",
+        "REQ-RUN-02-03"
+      ],
+      "tests": [
+        "TEST-RUN-02-01",
+        "TEST-RUN-02-02",
+        "TEST-RUN-02-03"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: RUN-02"
+    },
+    {
+      "packet_id": "RUN-03",
+      "lane_id": "LANE-06",
+      "verdict": "retain",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/RUN-03.md",
+        "sha256": "7595cf5b163f91df6171afbf4fe78a38f8fe44d72d1b4516035cb8a87b98c828",
+        "bytes": 14529,
+        "lines": 129,
+        "read_ranges": [
+          [
+            1,
+            129
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/RUN-03.json",
+        "sha256": "0eeaa49994386e6e4231c9bbf402ddf6d81986e6d85ee0c820cb71e99a2d1142",
+        "bytes": 12212,
+        "lines": 271,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-RUN-03-01",
+        "REQ-RUN-03-02",
+        "REQ-RUN-03-03",
+        "REQ-RUN-03-04"
+      ],
+      "tests": [
+        "TEST-RUN-03-01",
+        "TEST-RUN-03-02",
+        "TEST-RUN-03-03",
+        "TEST-RUN-03-04"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: RUN-03"
+    },
+    {
+      "packet_id": "DUR-01",
+      "lane_id": "LANE-06",
+      "verdict": "retain",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/DUR-01.md",
+        "sha256": "2120e9a7fe42e6db303efab1576ad12b26f6aaf4ecc42a3448dbe2439018f529",
+        "bytes": 15564,
+        "lines": 115,
+        "read_ranges": [
+          [
+            1,
+            115
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/DUR-01.json",
+        "sha256": "a30f29667ac19c58bde232932c53599df98ad0446be60a08f816e383da195a9e",
+        "bytes": 12368,
+        "lines": 236,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-DUR-01-01",
+        "REQ-DUR-01-02",
+        "REQ-DUR-01-03"
+      ],
+      "tests": [
+        "TEST-DUR-01-01",
+        "TEST-DUR-01-02",
+        "TEST-DUR-01-03"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: DUR-01"
+    },
+    {
+      "packet_id": "DUR-02",
+      "lane_id": "LANE-06",
+      "verdict": "retain",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/DUR-02.md",
+        "sha256": "622d30f3bae19030df59bc7e1108ad8425419c1c65160abaf68c1aa27d68eb41",
+        "bytes": 14211,
+        "lines": 116,
+        "read_ranges": [
+          [
+            1,
+            116
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/DUR-02.json",
+        "sha256": "e9c155e844dc05d155ab8d43d24d4d1fafb2f4db9e8141c080310244a9595090",
+        "bytes": 11574,
+        "lines": 240,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-DUR-02-01",
+        "REQ-DUR-02-02",
+        "REQ-DUR-02-03"
+      ],
+      "tests": [
+        "TEST-DUR-02-01",
+        "TEST-DUR-02-02",
+        "TEST-DUR-02-03"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: DUR-02"
+    },
+    {
+      "packet_id": "WIRE-01",
+      "lane_id": "LANE-06",
+      "verdict": "retain",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/WIRE-01.md",
+        "sha256": "027fcccd16ec48132506eb05a059811f6279be734661ef0e9fd476b1611bd81d",
+        "bytes": 13353,
+        "lines": 114,
+        "read_ranges": [
+          [
+            1,
+            114
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/WIRE-01.json",
+        "sha256": "6dbc8d931bc78db12d2f05416cc600dcff79ccc6eb72f00731d9ed5e297ec6e1",
+        "bytes": 10389,
+        "lines": 239,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-WIRE-01-01",
+        "REQ-WIRE-01-02",
+        "REQ-WIRE-01-03"
+      ],
+      "tests": [
+        "TEST-WIRE-01-01",
+        "TEST-WIRE-01-02",
+        "TEST-WIRE-01-03"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: WIRE-01"
+    },
+    {
+      "packet_id": "CAS-01",
+      "lane_id": "LANE-06",
+      "verdict": "bounded qualification",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAS-01.md",
+        "sha256": "7a34468d33afe41a8c005c8698a1593bc91936831adda2f1de883859764695d4",
+        "bytes": 16022,
+        "lines": 117,
+        "read_ranges": [
+          [
+            1,
+            117
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAS-01.json",
+        "sha256": "b259f96f43167d6a2cccf43a2f485b3a5c8b1fc2c0cd121ea7a5b424a83137b4",
+        "bytes": 13547,
+        "lines": 257,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-CAS-01-01",
+        "REQ-CAS-01-02",
+        "REQ-CAS-01-03"
+      ],
+      "tests": [
+        "TEST-CAS-01-01",
+        "TEST-CAS-01-02",
+        "TEST-CAS-01-03"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: CAS-01"
+    },
+    {
+      "packet_id": "CAS-02",
+      "lane_id": "LANE-06",
+      "verdict": "retain",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAS-02.md",
+        "sha256": "1cb1efa58b9fde425e41728b5a662f3296c118d814eaf58c966f67c846b6fa09",
+        "bytes": 16636,
+        "lines": 114,
+        "read_ranges": [
+          [
+            1,
+            114
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAS-02.json",
+        "sha256": "ebe8d6a431a114f5abb35ed75fd6c1d78d3998c00c49ec158e1e6fca7bccac08",
+        "bytes": 14684,
+        "lines": 266,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-CAS-02-01",
+        "REQ-CAS-02-02",
+        "REQ-CAS-02-03"
+      ],
+      "tests": [
+        "TEST-CAS-02-01",
+        "TEST-CAS-02-02",
+        "TEST-CAS-02-03"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: CAS-02"
+    },
+    {
+      "packet_id": "CAS-03",
+      "lane_id": "LANE-06",
+      "verdict": "retain",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAS-03.md",
+        "sha256": "b49d9e2c1ce5d49416880fd19deb519f5953e307ee6b08066dcef2d7b290bf31",
+        "bytes": 18200,
+        "lines": 131,
+        "read_ranges": [
+          [
+            1,
+            131
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAS-03.json",
+        "sha256": "9fb5462f103610008c7a6be4f911b3c2e8c1fb84c72e1ed9f3f36aeaeb278b3f",
+        "bytes": 17033,
+        "lines": 313,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-CAS-03-01",
+        "REQ-CAS-03-02",
+        "REQ-CAS-03-03",
+        "REQ-CAS-03-04"
+      ],
+      "tests": [
+        "TEST-CAS-03-01",
+        "TEST-CAS-03-02",
+        "TEST-CAS-03-03",
+        "TEST-CAS-03-04"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: CAS-03"
+    },
+    {
+      "packet_id": "REP-01",
+      "lane_id": "LANE-06",
+      "verdict": "bounded qualification",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/REP-01.md",
+        "sha256": "d190dfa5bae718ae744c2b79a0c5f3a33daf53c4acf50fd3cc42d3808a68d3d8",
+        "bytes": 15269,
+        "lines": 122,
+        "read_ranges": [
+          [
+            1,
+            122
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/REP-01.json",
+        "sha256": "a79aecbbdfcf2951653b449b534760eb91c7bda8cd206f2b3f959dc3efa92c8d",
+        "bytes": 12858,
+        "lines": 249,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-REP-01-01",
+        "REQ-REP-01-02",
+        "REQ-REP-01-03"
+      ],
+      "tests": [
+        "TEST-REP-01-01",
+        "TEST-REP-01-02",
+        "TEST-REP-01-03"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: REP-01"
+    },
+    {
+      "packet_id": "CAN-01",
+      "lane_id": "LANE-06",
+      "verdict": "retain",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAN-01.md",
+        "sha256": "7e5637077c3f745d94dc09d8210a0378af6e34bcbc5b338a2881b7d4ec024c25",
+        "bytes": 15887,
+        "lines": 120,
+        "read_ranges": [
+          [
+            1,
+            120
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAN-01.json",
+        "sha256": "a0129255fb4f607b4c5e5ea08b44c180b50efa9cf3d89f9876a21cd85e67647e",
+        "bytes": 13493,
+        "lines": 253,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-CAN-01-01",
+        "REQ-CAN-01-02",
+        "REQ-CAN-01-03"
+      ],
+      "tests": [
+        "TEST-CAN-01-01",
+        "TEST-CAN-01-02",
+        "TEST-CAN-01-03"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: CAN-01"
+    },
+    {
+      "packet_id": "MIG-01",
+      "lane_id": "LANE-06",
+      "verdict": "retain",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/MIG-01.md",
+        "sha256": "4595ddebbb557ac7babee6b2b99f5799f7f931bf14d5804118f9ba7231ef1dbd",
+        "bytes": 15632,
+        "lines": 119,
+        "read_ranges": [
+          [
+            1,
+            119
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/MIG-01.json",
+        "sha256": "78a7ba2a779977e356db60ff29385d8054e4e7254dd53fd8c07354f47874a98b",
+        "bytes": 13802,
+        "lines": 267,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-MIG-01-01",
+        "REQ-MIG-01-02",
+        "REQ-MIG-01-03"
+      ],
+      "tests": [
+        "TEST-MIG-01-01",
+        "TEST-MIG-01-02",
+        "TEST-MIG-01-03"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: MIG-01"
+    },
+    {
+      "packet_id": "MIG-02",
+      "lane_id": "LANE-06",
+      "verdict": "bounded qualification",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/MIG-02.md",
+        "sha256": "853a9ea2950100adc1ea1474bed8179e9ff544aede23be2c6f279e706df9e44e",
+        "bytes": 14933,
+        "lines": 117,
+        "read_ranges": [
+          [
+            1,
+            117
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/MIG-02.json",
+        "sha256": "53bf7dbdf4017fb7928013e98a151a9645fea9634e9da949487a7fba5471539e",
+        "bytes": 12709,
+        "lines": 247,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-MIG-02-01",
+        "REQ-MIG-02-02",
+        "REQ-MIG-02-03"
+      ],
+      "tests": [
+        "TEST-MIG-02-01",
+        "TEST-MIG-02-02",
+        "TEST-MIG-02-03"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: MIG-02"
+    },
+    {
+      "packet_id": "MIG-04",
+      "lane_id": "LANE-06",
+      "verdict": "retain",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/MIG-04.md",
+        "sha256": "da87b38791872dd7762691c98387d33f48261ad3de794387f8ae1587b4b9580e",
+        "bytes": 15261,
+        "lines": 120,
+        "read_ranges": [
+          [
+            1,
+            120
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/MIG-04.json",
+        "sha256": "75237935d407a6f902447ec4614ff7e0c5a492e2852adde26dac02ef88360d41",
+        "bytes": 13069,
+        "lines": 249,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-MIG-04-01",
+        "REQ-MIG-04-02",
+        "REQ-MIG-04-03"
+      ],
+      "tests": [
+        "TEST-MIG-04-01",
+        "TEST-MIG-04-02",
+        "TEST-MIG-04-03"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: MIG-04"
+    },
+    {
+      "packet_id": "MIG-05",
+      "lane_id": "LANE-06",
+      "verdict": "targeted revision",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/MIG-05.md",
+        "sha256": "18ef45c179c16e9598edfe0f733cf63063bd0accb1d68b9684550a33b60212c0",
+        "bytes": 17818,
+        "lines": 131,
+        "read_ranges": [
+          [
+            1,
+            131
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/MIG-05.json",
+        "sha256": "d6a2c7e91f50c598c8cec6e759b5f37936fcf2b34d750c8d2ba3649c63566de3",
+        "bytes": 14430,
+        "lines": 269,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-MIG-05-01",
+        "REQ-MIG-05-02",
+        "REQ-MIG-05-03",
+        "REQ-MIG-05-04"
+      ],
+      "tests": [
+        "TEST-MIG-05-01",
+        "TEST-MIG-05-02",
+        "TEST-MIG-05-03",
+        "TEST-MIG-05-04"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: MIG-05"
+    },
+    {
+      "packet_id": "DFK-01",
+      "lane_id": "LANE-12",
+      "verdict": "bounded qualification",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/DFK-01.md",
+        "sha256": "696de65d97b7ea80bea5472e26775c4fa522627a95d2e3a59b06ce63c95ed950",
+        "bytes": 15664,
+        "lines": 150,
+        "read_ranges": [
+          [
+            1,
+            150
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/DFK-01.json",
+        "sha256": "000e5cd4be6df082ff1757f23ce08df9ae658e59fc1c610c8f8322be8d9a1a93",
+        "bytes": 17708,
+        "lines": 380,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-DFK-01-01",
+        "REQ-DFK-01-02",
+        "REQ-DFK-01-03",
+        "REQ-DFK-01-04",
+        "REQ-DFK-01-05"
+      ],
+      "tests": [
+        "TEST-DFK-01-01",
+        "TEST-DFK-01-02",
+        "TEST-DFK-01-03",
+        "TEST-DFK-01-04"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: DFK-01"
+    },
+    {
+      "packet_id": "HYG-02",
+      "lane_id": "LANE-12",
+      "verdict": "retain",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/HYG-02.md",
+        "sha256": "e12e769762c8cb62876c11b840186af1dea5b1e01626f4c1d7662885a5c160eb",
+        "bytes": 14113,
+        "lines": 146,
+        "read_ranges": [
+          [
+            1,
+            146
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/HYG-02.json",
+        "sha256": "de1b9402f1425add07f6957d70af6a626930c1ebac15e91a8a371c418975d244",
+        "bytes": 15753,
+        "lines": 338,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-HYG-02-01",
+        "REQ-HYG-02-02",
+        "REQ-HYG-02-03",
+        "REQ-HYG-02-04"
+      ],
+      "tests": [
+        "TEST-HYG-02-01",
+        "TEST-HYG-02-02",
+        "TEST-HYG-02-03",
+        "TEST-HYG-02-04"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: HYG-02"
+    },
+    {
+      "packet_id": "HYG-04",
+      "lane_id": "LANE-12",
+      "verdict": "bounded qualification",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/HYG-04.md",
+        "sha256": "7a82226c027c76544a87792fa58629469a7309d8eb9b4c12cbc45500191e2062",
+        "bytes": 13876,
+        "lines": 144,
+        "read_ranges": [
+          [
+            1,
+            144
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/HYG-04.json",
+        "sha256": "5f29dcdbc3d15730884bba31dd07bd3761b0b299c2a985f11cb328487fdadcab",
+        "bytes": 15840,
+        "lines": 338,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-HYG-04-01",
+        "REQ-HYG-04-02",
+        "REQ-HYG-04-03",
+        "REQ-HYG-04-04"
+      ],
+      "tests": [
+        "TEST-HYG-04-01",
+        "TEST-HYG-04-02",
+        "TEST-HYG-04-03",
+        "TEST-HYG-04-04"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: HYG-04"
+    },
+    {
+      "packet_id": "CLI-01",
+      "lane_id": "LANE-12",
+      "verdict": "targeted revision",
+      "md": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CLI-01.md",
+        "sha256": "5102642dba5394677db593dfe67ddef6c33039378c8edd3189b8f1f54ba2065d",
+        "bytes": 17728,
+        "lines": 164,
+        "read_ranges": [
+          [
+            1,
+            164
+          ]
+        ],
+        "read_status": "FULL_SOLUTION_REQUIREMENTS_TESTS_PRESERVATION_READ; truncated segments recovered"
+      },
+      "json": {
+        "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CLI-01.json",
+        "sha256": "996494c1ff841976493c4a686ea9aa9f38dede27c2d02f8f24ca5c581738d2cf",
+        "bytes": 19811,
+        "lines": 389,
+        "read_status": "Full JSON parsed; semantic requirements/tests/solutions cross-read with full MD; unique decisions/preservation/obligation bindings inspected in extracted fields, not claiming every formatting line manually reread"
+      },
+      "requirements": [
+        "REQ-CLI-01-01",
+        "REQ-CLI-01-02",
+        "REQ-CLI-01-03",
+        "REQ-CLI-01-04",
+        "REQ-CLI-01-05"
+      ],
+      "tests": [
+        "TEST-CLI-01-01",
+        "TEST-CLI-01-02",
+        "TEST-CLI-01-03",
+        "TEST-CLI-01-04",
+        "TEST-CLI-01-05"
+      ],
+      "product_tests": "NOT_RUN",
+      "review_section": "3: CLI-01"
+    }
+  ],
+  "baseline_context": [
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-06.md",
+      "sha256": "6fa64228b13d5ed3fe46edab10fe7e18fa6787c89fce172e42ffab611f92f9f6",
+      "bytes": 12146,
+      "lines": 76,
+      "read_status": "full",
+      "read_ranges": [
+        [
+          1,
+          76
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-12.md",
+      "sha256": "44f4346608515172a9371de19203870ff939a0a649d2324009126c711bf78b12",
+      "bytes": 4904,
+      "lines": 37,
+      "read_status": "full",
+      "read_ranges": [
+        [
+          1,
+          37
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/03_Интеграция/LANE-06.md",
+      "sha256": "9dfab7c14179cb055e063c02eaf411d0afd26cdbfec8a2f05b0278d6a4f60237",
+      "bytes": 15582,
+      "lines": 100,
+      "read_status": "full",
+      "read_ranges": [
+        [
+          1,
+          100
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/03_Интеграция/LANE-12.md",
+      "sha256": "6ac4fffd75a510ebed7badaae0cf9a5415a93ef78c81f99f514c222e3a8dc077",
+      "bytes": 10414,
+      "lines": 67,
+      "read_status": "full",
+      "read_ranges": [
+        [
+          1,
+          67
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/00_Общее/Правила_исполнения_и_приёмки.md",
+      "sha256": "d36682b96c32d58e3b5effe5ff7e14369d7000e6a32a0c20090ddebd6384f8b9",
+      "bytes": 14252,
+      "lines": 57,
+      "read_status": "full",
+      "read_ranges": [
+        [
+          1,
+          57
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/00_Общее/Общие_владельцы_и_границы_изменений.md",
+      "sha256": "036a9db1db0158424fc6428a70130df05558b88e2a671188647c47eb6d20ee78",
+      "bytes": 7611,
+      "lines": 27,
+      "read_status": "full",
+      "read_ranges": [
+        [
+          1,
+          27
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/00_Общее/Архитектурное_направление_и_отступления.md",
+      "sha256": "cfbabc5614a0d624940482536204aec687feb4c619f1892da09611d2c17d4317",
+      "bytes": 8287,
+      "lines": 32,
+      "read_status": "full",
+      "read_ranges": [
+        [
+          1,
+          32
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/Связь_требований_с_интеграцией.json",
+      "sha256": "9217638667c8c26a30e1b5f5ba20a7a3904268e233c67a0167f866864f18576c",
+      "bytes": 1262605,
+      "lines": 22274,
+      "read_status": "Full JSON parsed; all selected scenario binding obligations/limits/REQ→TEST edges read; duplicate aggregate text not treated as separate evidence",
+      "selected_scenarios": [
+        "E02-I06-A",
+        "E02-I06-B",
+        "E02-I06-C",
+        "E02-I06-D",
+        "E02-I06-E",
+        "E02-I12-A",
+        "E02-I12-B"
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/05_Основания/Исследование/design_direction.md",
+      "sha256": "1d26f1502403971a0366aaec305c5109913ea42d54a47982f6063d19f38ebf7c",
+      "bytes": 54486,
+      "lines": 235,
+      "read_status": "selected sections; design_direction initial long output truncated, recovered central semantic sections; no full20docs claim",
+      "read_ranges": [
+        [
+          1,
+          135
+        ],
+        [
+          150,
+          190
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/05_Основания/Архитектура/policyos-identity-and-custody-boundary.md",
+      "sha256": "f9b3776032e88190ac8d29f60d9623450f4d734e163cc16ae53f49b0f2a77bce",
+      "bytes": 21556,
+      "lines": 305,
+      "read_status": "selected sections; design_direction initial long output truncated, recovered central semantic sections; no full20docs claim",
+      "read_ranges": [
+        [
+          25,
+          151
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/05_Основания/Архитектура/policy-design-custody-time-model.md",
+      "sha256": "0691783add6af224e5f09e3aa9645622c1283ce9e17376df258d7a9b81338229",
+      "bytes": 14810,
+      "lines": 224,
+      "read_status": "selected sections; design_direction initial long output truncated, recovered central semantic sections; no full20docs claim",
+      "read_ranges": [
+        [
+          61,
+          158
+        ]
+      ]
+    },
+    {
+      "path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/05_Основания/Архитектура/policy-design-execution-topology.md",
+      "sha256": "686ed2ced9c0db4f5fc5efd31f08370e5c76fc300b163d85420cca4fdd0e97e3",
+      "bytes": 17738,
+      "lines": 241,
+      "read_status": "selected sections; design_direction initial long output truncated, recovered central semantic sections; no full20docs claim",
+      "read_ranges": [
+        [
+          130,
+          220
+        ]
+      ]
+    }
+  ],
+  "repository_read_evidence": [
+    {
+      "path": "e02_repository/AGENTS.md",
+      "sha256": "919ae21b9ae3e6762dd72e5ab4ddef62b170917fc189de2700e09d978f63d638",
+      "bytes": 15015,
+      "lines": 68,
+      "read_ranges": [
+        [
+          1,
+          68
+        ]
+      ],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/CONTRIBUTING.md",
+      "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f",
+      "bytes": 12253,
+      "lines": 227,
+      "read_ranges": [
+        [
+          1,
+          227
+        ]
+      ],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/tools/AGENTS.md",
+      "sha256": "545214238601f635ab64c06cb5a3e49a4fbfd37d7d72251f3588ff8d52401c1a",
+      "bytes": 601,
+      "lines": 10,
+      "read_ranges": [
+        [
+          1,
+          10
+        ]
+      ],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/pyproject.toml",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "bytes": 11241,
+      "lines": 295,
+      "read_ranges": [
+        [
+          1,
+          295
+        ]
+      ],
+      "read_status": "full manifest; exact line count in metadata"
+    },
+    {
+      "path": "e02_repository/policy-engine/uv.lock",
+      "sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+      "bytes": 808851,
+      "lines": 7226,
+      "read_ranges": [],
+      "read_status": "stdlib tomllib full parse + selected package records/version markers; not full manual raw read"
+    },
+    {
+      "path": "e02_repository/policy-engine/package.json",
+      "sha256": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f",
+      "bytes": 802,
+      "lines": 17,
+      "read_ranges": [],
+      "read_status": "full manifest"
+    },
+    {
+      "path": "e02_repository/policy-engine/pnpm-lock.yaml",
+      "sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+      "bytes": 482583,
+      "lines": 13671,
+      "read_ranges": [
+        [
+          108,
+          117
+        ],
+        [
+          462,
+          480
+        ]
+      ],
+      "read_status": "selected resolved package entries; not whole lock manual read"
+    },
+    {
+      "path": "e02_repository/policy-engine/packages/runtime-api-client/package.json",
+      "sha256": "0e88f8dcea58be097b3249eee3692f670ed3dce44a799c71b84d6cf4daf29cf1",
+      "bytes": 1589,
+      "lines": 41,
+      "read_ranges": [
+        [
+          1,
+          41
+        ]
+      ],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/packages/runtime-api-client/tsconfig.json",
+      "sha256": "6e6223067c8a9e1cee69e412df98dccc64a7050aad3be704378fa37d7f890603",
+      "bytes": 429,
+      "lines": 20,
+      "read_ranges": [],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/common/async_tools/__init__.py",
+      "sha256": "f986fb79507b7c81d8d680f61abcf8e94115db13fb90e7706bca83fcd1a634ec",
+      "bytes": 41538,
+      "lines": 978,
+      "read_ranges": [
+        [
+          1,
+          978
+        ]
+      ],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/orchestration/engine/state_merge.py",
+      "sha256": "7cbd92c9afd24a40deb483bbe9f6ff6a66357662ded1d79f2765346aab39239b",
+      "bytes": 23943,
+      "lines": 666,
+      "read_ranges": [
+        [
+          1,
+          180
+        ]
+      ],
+      "read_status": "focused function/range reading"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "sha256": "1a09deae5b3876b53199dc5901e1af51850d4a0d050124d1a928dbfcb7be903f",
+      "bytes": 117610,
+      "lines": 2710,
+      "read_ranges": [
+        [
+          480,
+          565
+        ],
+        [
+          956,
+          1055
+        ],
+        [
+          1198,
+          1238
+        ]
+      ],
+      "read_status": "focused function/range reading"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "sha256": "274bae76b807ef08df74143439eba9a28fa0a3b00689cfc478909e6d3800d2af",
+      "bytes": 157246,
+      "lines": 4244,
+      "read_ranges": [
+        [
+          2397,
+          2540
+        ],
+        [
+          4130,
+          4225
+        ]
+      ],
+      "read_status": "focused function/range reading"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "sha256": "ef30d956f8aa58254bd8bd3a67c55e79d20c16e60497143d536576ec94103fe9",
+      "bytes": 102016,
+      "lines": 2744,
+      "read_ranges": [
+        [
+          1146,
+          1208
+        ],
+        [
+          2470,
+          2645
+        ]
+      ],
+      "read_status": "focused function/range reading"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+      "sha256": "12cfb068a2f9d563be46396caa48631a6a5cca19ff435af1d0e3bf7926694eac",
+      "bytes": 40760,
+      "lines": 1017,
+      "read_ranges": [
+        [
+          97,
+          112
+        ],
+        [
+          134,
+          215
+        ],
+        [
+          860,
+          1017
+        ]
+      ],
+      "read_status": "focused function/range reading"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+      "sha256": "b01fc36f5e71db6424e8dd606be2b205a54b739b2c2623d7023b42c8d499e2a7",
+      "bytes": 27986,
+      "lines": 698,
+      "read_ranges": [
+        [
+          240,
+          460
+        ]
+      ],
+      "read_status": "focused function/range reading"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/parameter_transfer.py",
+      "sha256": "7bfc76a0f8fbbc89b4d207637157b7fb528145e7804d804081727ea6dc98cd02",
+      "bytes": 13599,
+      "lines": 385,
+      "read_ranges": [
+        [
+          96,
+          215
+        ],
+        [
+          248,
+          365
+        ]
+      ],
+      "read_status": "focused function/range reading"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "sha256": "c16ce6380ef81fffbcdf96986046033e0110d20ac7fbd37d6b0f9d9834a40e00",
+      "bytes": 70125,
+      "lines": 1636,
+      "read_ranges": [
+        [
+          630,
+          900
+        ],
+        [
+          1030,
+          1129
+        ],
+        [
+          1380,
+          1548
+        ]
+      ],
+      "read_status": "focused function/range reading"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/runtime/http/services/control_worker.py",
+      "sha256": "f7d2990379ddbe57ef227287729aa2faefbd2dfab3961036433a401c18c9f852",
+      "bytes": 15001,
+      "lines": 388,
+      "read_ranges": [
+        [
+          160,
+          310
+        ]
+      ],
+      "read_status": "focused function/range reading"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+      "sha256": "d66e82d4f2dccf068ac8786f8d96e64c52d24606597358915fcbd50b645f8712",
+      "bytes": 74455,
+      "lines": 1902,
+      "read_ranges": [
+        [
+          940,
+          1078
+        ]
+      ],
+      "read_status": "focused decode fullfunctions plus function/depth/codec symbol inventory; not full1879line read"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "sha256": "ce8004a1ab0ea0ad94e71b3ed99c104247eb0ad5c576a8d14bef33b3613d4df1",
+      "bytes": 49169,
+      "lines": 1158,
+      "read_ranges": [
+        [
+          400,
+          470
+        ],
+        [
+          653,
+          815
+        ]
+      ],
+      "read_status": "focused function/range reading"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "sha256": "0f37f8534184ee6e7b783b24b1e1d525536a604480f02da21e585719350243bb",
+      "bytes": 17877,
+      "lines": 489,
+      "read_ranges": [
+        [
+          100,
+          224
+        ]
+      ],
+      "read_status": "focused function/range reading"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/replay/backend.py",
+      "sha256": "d0da515551437789bbcafc3c0d26eb1fdd4ed30522893762a7b9453768b4bb98",
+      "bytes": 20689,
+      "lines": 564,
+      "read_ranges": [
+        [
+          1,
+          180
+        ]
+      ],
+      "read_status": "focused function/range reading"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/common/canonical.py",
+      "sha256": "84dafbfed8852efdab14727600ce17dd1bb29783c614216c069adafb2448090c",
+      "bytes": 41477,
+      "lines": 1074,
+      "read_ranges": [
+        [
+          1,
+          205
+        ]
+      ],
+      "read_status": "focused function/range reading"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/common/migrations/_engine.py",
+      "sha256": "08df89953e0ebe66ee97bc981b432ee7a63aec3f7d80169ae28a3e1828351a01",
+      "bytes": 2124,
+      "lines": 64,
+      "read_ranges": [],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/tools/lib/fs.py",
+      "sha256": "0ddf42f824ddfe55386f5d5d63b39cacfb53f73dad03d8d2158f19a6b9a15119",
+      "bytes": 35453,
+      "lines": 939,
+      "read_ranges": [
+        [
+          1,
+          230
+        ]
+      ],
+      "read_status": "focused function/range reading"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/runtime/manifest_migrations.py",
+      "sha256": "5271322b277c106141cb003a311672ec5d71242ea795f66190e3d57910ef256e",
+      "bytes": 6294,
+      "lines": 165,
+      "read_ranges": [
+        [
+          1,
+          165
+        ]
+      ],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/fabric/identity/migrations.py",
+      "sha256": "daa6691ca7eb8f0248915bf73d5edf2e1639d42c9775bc7201922abbbdd78d97",
+      "bytes": 1298,
+      "lines": 40,
+      "read_ranges": [],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/ir/migrations/base.py",
+      "sha256": "116c5dd22a54942f29be2fbec6a206d010ff54132e9f1523ae2b1809f43ebae8",
+      "bytes": 47350,
+      "lines": 1303,
+      "read_ranges": [
+        [
+          1,
+          345
+        ],
+        [
+          500,
+          650
+        ],
+        [
+          1070,
+          1303
+        ]
+      ],
+      "read_status": "focused function/range reading"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/data_forge/kernel/schemas/migrations.py",
+      "sha256": "51fc6ebacfdbe3c310ccc45ac152fd484c9d97fd13dd3e5c4f5107531051d4b2",
+      "bytes": 5014,
+      "lines": 147,
+      "read_ranges": [
+        [
+          1,
+          147
+        ]
+      ],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/governance/passes/__init__.py",
+      "sha256": "2c5e37b892f1031f7b1edae740215890b892414bc0e043a0d727f7d06d189aa0",
+      "bytes": 3912,
+      "lines": 134,
+      "read_ranges": [],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/governance/pass_entrypoints.py",
+      "sha256": "94a433b3516c1e710fc9095cec95a95886ce19ae65ecc7294311a6c36cfce4e6",
+      "bytes": 7217,
+      "lines": 196,
+      "read_ranges": [],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/backends/async_chain_executor.py",
+      "sha256": "37b151c404b73b125dbba91abf680b839d17d113246d5ed1cab47c29077ab79b",
+      "bytes": 17348,
+      "lines": 473,
+      "read_ranges": [
+        [
+          50,
+          170
+        ],
+        [
+          216,
+          270
+        ]
+      ],
+      "read_status": "focused function/range reading"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/orchestration/engine/runner/temporal_runner.py",
+      "sha256": "3471b180691d5f6c7305c699bad50fc668c7a6742d63c827ef3660aeb74eb42d",
+      "bytes": 27679,
+      "lines": 637,
+      "read_ranges": [
+        [
+          60,
+          92
+        ]
+      ],
+      "read_status": "focused actual parent receipt refusal plus import/caller inventory"
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "sha256": "4b57f16d7d4381eee92de03cfb9b2e3c61938043b4b64f66ac03b1759462e013",
+      "bytes": 1010584,
+      "lines": 22574,
+      "read_ranges": [],
+      "read_status": "symbol/partial persistence surface inventory only; not fullimplementation proof"
+    },
+    {
+      "path": "e02_repository/policy-engine/tools/research/demos/run_mechanism_design.py",
+      "sha256": "ef7ea802b84e82dcbaa963899dcbe82729a2668ff7208f3c4892e9cf3f260a1f",
+      "bytes": 17077,
+      "lines": 459,
+      "read_ranges": [
+        [
+          26,
+          41
+        ]
+      ],
+      "read_status": "import order/retired reference plus numerical call symbol inventory"
+    },
+    {
+      "path": "e02_repository/policy-engine/tools/ops_runners/runtime/generate_runtime_client.py",
+      "sha256": "19a097bc6dc4ec95a0d236a58c3e969ded3789e33bdc691fe99cba986292b1cf",
+      "bytes": 26209,
+      "lines": 699,
+      "read_ranges": [
+        [
+          1,
+          699
+        ]
+      ],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/packages/runtime-api-client/scripts/check-architecture.mjs",
+      "sha256": "588c2ab388fb41bc3a989cdf370dd10b10b74a8329110a348c62a86894767457",
+      "bytes": 3751,
+      "lines": 141,
+      "read_ranges": [],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/packages/runtime-api-client/remediation.test.mjs",
+      "sha256": "a3cd0fa9f0fc6c7508a38ad421d1b711abc4c9796e7dc0a0c68c33009b2ab840",
+      "bytes": 3081,
+      "lines": 103,
+      "read_ranges": [
+        [
+          1,
+          103
+        ]
+      ],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/common/test_async_tools.py",
+      "sha256": "9dc06da55a0e63206c5d69bd5bc4b54c523eba9da2203ab06de3350504730325",
+      "bytes": 47060,
+      "lines": 1240,
+      "read_ranges": [
+        [
+          141,
+          172
+        ],
+        [
+          1110,
+          1175
+        ]
+      ],
+      "read_status": "focused actual test bodies; callback test inventory across file, not full read"
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_mig_05.py",
+      "sha256": "fe12d74068edc20add6201348e9f407e4badefd5aba6424bbaa6dc073cdf1217",
+      "bytes": 13570,
+      "lines": 438,
+      "read_ranges": [
+        [
+          1,
+          438
+        ]
+      ],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py",
+      "sha256": "759722a3d2f6e7fdad9937dfec423e7cf9737ac5e6551d865ab622d82b0086cc",
+      "bytes": 14162,
+      "lines": 401,
+      "read_ranges": [
+        [
+          1,
+          401
+        ]
+      ],
+      "read_status": "full"
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "sha256": "2a472d9c21c9a58dcf4bb2a80f18812d63c40f44476533b86de1b06af15454b0",
+      "bytes": 88440,
+      "lines": 2075,
+      "read_ranges": [
+        [
+          1,
+          185
+        ]
+      ],
+      "read_status": "focused canonical behavior/compatibility tests; remaining census test inventory only"
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_hyg_04.py",
+      "sha256": "23af8e255ae6b967f6bcc4ed5e9779affb4463345cd8acad2758356a9625f383",
+      "bytes": 66625,
+      "lines": 1670,
+      "read_ranges": [],
+      "read_status": "test function inventory only; not full reading or runtime evidence"
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/repo_quality/tools/test_e02_installed_census_contract.py",
+      "sha256": "0d36dcb94628fde07f9857691fad718d25d34d1ab0c9afd045054de8e63d73f8",
+      "bytes": 38573,
+      "lines": 708,
+      "read_ranges": [
+        [
+          1,
+          125
+        ]
+      ],
+      "read_status": "focused actual binding/origin observer; remaining capability inventory only"
+    }
+  ],
+  "limitations": [
+    "All assigned packet solutions/tests read in full; actual repository source/tests selected by root cause and handoff, not every line of all owner modules.",
+    "No full system-design corpus reread: selected identity/time/topology and synthesis sections only.",
+    "No native supported Python3.14/Node22 qualification; no installed packages/build/realprocess reproduction.",
+    "Historical/external consumers, production FS/powerloss/multihost, actual JAXwarmfork and scientific prior validity remain unqualified.",
+    "Some initial long output was truncated; full packet segments recovered; only conservative selected source ranges recorded."
+  ],
+  "authorization_and_mutations": {
+    "product_changed": false,
+    "installs": false,
+    "external_mutations": false,
+    "denials": [],
+    "uncertain_tool_outcomes": [],
+    "writes": [
+      "e02_final_technical_review/runtime_delivery/",
+      "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/{02_Пакеты,04_Трассировка}/{EXE-01,STA-02,RUN-02,MIG-05,CLI-01}.{md,json}, explicitly authorized by root after review triage"
+    ]
+  },
+  "review_completion": "Full26packet verdicts,6evidence-backed findings,10library decisions,15primarysources,2lane boundedplans complete; proposedv2 requested separately by root.",
+  "proposed_v2": {
+    "status": "PROPOSED_NOT_IMPLEMENTED_PENDING_INDEPENDENT_REVIEW",
+    "manifest": "proposed_changes.json",
+    "packets": [
+      "EXE-01",
+      "STA-02",
+      "RUN-02",
+      "MIG-05",
+      "CLI-01"
+    ],
+    "baseline_packet_hashes_rechecked_unchanged": true,
+    "product_worktree_status": "clean at2026-11-01T11:32Z; recheck below"
+  }
+}

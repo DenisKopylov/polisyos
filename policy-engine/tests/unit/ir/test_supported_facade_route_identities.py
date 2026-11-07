@@ -12,6 +12,21 @@ from polisyos.ir.api import (
 from polisyos.ir.registry.refs import MetricValidationReportRef as IRMetricValidationReportRef
 
 
+def test_causal_consumer_facade_exports_preserve_canonical_owner_identity() -> None:
+    from polisyos import ir
+    from polisyos.ir.analytics.causal import load_proof_bundle
+    from polisyos.ir.analytics.causal_graph import graph_for_analysis, project_graph_to_dag
+    from polisyos.ir.analytics.interventions import load_intervention_query
+    from polisyos.ir.registry.refs import InterventionQueryRef, StructuralCausalModelSpecRef
+
+    assert ir.InterventionQueryRef is InterventionQueryRef
+    assert ir.StructuralCausalModelSpecRef is StructuralCausalModelSpecRef
+    assert ir.load_proof_bundle is load_proof_bundle
+    assert ir.load_intervention_query is load_intervention_query
+    assert ir.graph_for_analysis is graph_for_analysis
+    assert ir.project_graph_to_dag is project_graph_to_dag
+
+
 def test_loading_facade_exports_owner_objects() -> None:
     from polisyos.ir.loading.citations import CitationRef
     from polisyos.ir.loading.fact_log import Fact, FactSegmentManifest

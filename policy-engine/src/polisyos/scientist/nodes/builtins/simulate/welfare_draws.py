@@ -19,8 +19,14 @@ from polisyos.foundry.uncertainty import (
     EvaluationFailureClassification,
     PropagationConfig,
     classify_evaluation_failure,
+    empirical_indices_from_cdf,
 )
-from polisyos.ir import DistributionFamily, PosteriorSamplesCarrier, UncertaintyEnvelope
+from polisyos.ir import (
+    DistributionFamily,
+    IntervalSemantics,
+    PosteriorSamplesCarrier,
+    UncertaintyEnvelope,
+)
 
 from .welfare_types import (
     _ERROR_MONTE_CARLO_NOT_CONVERGED,
@@ -216,27 +222,14 @@ def _bounded_welfare_error_message(exc: Exception) -> str:
     return " ".join(str(exc).split())[:256]
 
 
-def _posterior_sample_probabilities(
-    payload: PosteriorSamplesCarrier,
-) -> tuple[float, ...] | None:
-    """Normalize finite non-negative source weights without inventing support."""
-    raw = tuple(1.0 for _ in payload.samples) if payload.weights is None else payload.weights
-    try:
-        total = math.fsum(float(weight) for weight in raw)
-    except OverflowError:
-        return None
-    if not math.isfinite(total) or total <= 0.0:
-        return None
-    probabilities = tuple(float(weight) / total for weight in raw)
-    if not all(math.isfinite(value) and value >= 0.0 for value in probabilities):
-        return None
-    return probabilities
-
-
 def _sample_empirical_row(
     rng: np.random.Generator, sampler: _EmpiricalRowSampler
 ) -> dict[str, float]:
-    row_index = int(rng.choice(len(sampler.probabilities), p=sampler.probabilities))
+    if sampler.cumulative is None:
+        raise ValueError("empirical CDF was not admitted for sampling")
+    row_index = int(
+        empirical_indices_from_cdf(rng.random(), sampler.probabilities, sampler.cumulative)
+    )
     return {name: float(sampler.samples_by_name[name][row_index]) for name in sampler.param_names}
 
 
@@ -344,8 +337,12 @@ def _quantile_from_envelope(u: float, env: UncertaintyEnvelope) -> float:
     point = float(env.point_estimate)
     lower = float(env.confidence_interval[0])
     upper = float(env.confidence_interval[1])
+    if env.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS and lower == upper:
+        return point
     if env.distribution_family == DistributionFamily.NORMAL:
-        std = max(_extract_std(env), 1e-12)
+        std = _extract_std(env)
+        if std == 0.0:
+            return point
         z_value = NormalDist().inv_cdf(bounded_u)
         return float(point + std * z_value)
     if env.distribution_family == DistributionFamily.UNIFORM:
@@ -364,9 +361,11 @@ def _quantile_from_envelope(u: float, env: UncertaintyEnvelope) -> float:
 def _sample_from_envelope(rng: np.random.Generator, env: UncertaintyEnvelope) -> float:
     point = float(env.point_estimate)
     lower, upper = float(env.confidence_interval[0]), float(env.confidence_interval[1])
+    if env.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS and lower == upper:
+        return point
     if env.distribution_family == DistributionFamily.NORMAL:
         std = _extract_std(env)
-        return float(rng.normal(loc=point, scale=max(std, 1e-12)))
+        return float(rng.normal(loc=point, scale=std))
     if env.distribution_family == DistributionFamily.UNIFORM:
         return float(rng.uniform(lower, upper))
     if env.distribution_family == DistributionFamily.TRIANGULAR:

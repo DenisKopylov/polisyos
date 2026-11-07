@@ -1,0 +1,314 @@
+{
+  "packet_id": "ING-01",
+  "lane": "LANE-08",
+  "source_ids": [
+    "B79",
+    "B80",
+    "B88"
+  ],
+  "protected_distinction_ids": [],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/ING-01.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "work_types": "fix + native end-to-end qualification",
+  "practical_goal": "Полезная инкрементальная загрузка и дешёвое воспроизведение сохраняют точный состав и происхождение данных каждого источника.",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C99_остатки:0",
+      "audit_id": "C99-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-ING-01-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Deterministic declared namespace dispatch, early ambiguity refusal, no live fallback."
+    },
+    {
+      "inventory_id": "audit-residual:C99_остатки:1",
+      "audit_id": "C99-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-ING-01-02",
+        "REQ-ING-01-03",
+        "REQ-ING-01-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Whole native cursor/ingestion/replay provenance and useful finite source path."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-ING-01-01",
+      "text": "Replay должен поддержать однозначный declared per-source session layout либо отказать неоднозначному layout до ingestion. Фикстура выбирается по exact canonical request identity и declared namespace, не поиском похожего ответа.",
+      "source_ids": [
+        "B79",
+        "B80",
+        "B88"
+      ],
+      "audit_ids": [
+        "C99-R01"
+      ],
+      "test_ids": [
+        "TEST-ING-01-01"
+      ]
+    },
+    {
+      "id": "REQ-ING-01-02",
+      "text": "B79+B80 должны пройти native совместную цепочку approved cursor→actual fetch request→raw/transformed/PII payload→persisted graph/evidence→conditional promotion→fresh consumer.",
+      "source_ids": [
+        "B79",
+        "B80",
+        "B88"
+      ],
+      "audit_ids": [
+        "C99-G01"
+      ],
+      "test_ids": [
+        "TEST-ING-01-02"
+      ]
+    },
+    {
+      "id": "REQ-ING-01-03",
+      "text": "Retained cursor требует полный current source proof и exact persisted request/payload/provenance; source time не local now, CAS write предшествует conditional index update.",
+      "source_ids": [
+        "B79",
+        "B80",
+        "B88"
+      ],
+      "audit_ids": [
+        "C99-G01"
+      ],
+      "test_ids": [
+        "TEST-ING-01-03"
+      ]
+    },
+    {
+      "id": "REQ-ING-01-04",
+      "text": "Native replay success должен сохранить реальные produced provenance и served outcome; новая production source capability добавляется bounded adapter к existing owner-reader contract, не автоматически из finite fixture.",
+      "source_ids": [
+        "B79",
+        "B80",
+        "B88"
+      ],
+      "audit_ids": [
+        "C99-G01"
+      ],
+      "test_ids": [
+        "TEST-ING-01-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-ING-01-01",
+      "requirement_ids": [
+        "REQ-ING-01-01"
+      ],
+      "level": "native unit / integration",
+      "setup": "Session с двумя namespaces и разными requests, individual controls; одинаковый request hash в двух namespaces; unknown manifest pair, missing/corrupt fixture.",
+      "action": "Actual run_replay_mode→APISimulator→persisted evidence; guard native egress и ordinary delegate.",
+      "oracle": "Два однозначных requests дают свои recorded bytes; ambiguity отказывает до частичного исполнения; missing/corrupt не вызывает live/ordinary fallback. Mode/provenance replay остаются правдивыми.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не утверждать, что вся текущая record→replay пара сломана: current record маркирует первым namespace.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-ING-01-02",
+      "requirement_ids": [
+        "REQ-ING-01-02"
+      ],
+      "level": "native unit / integration",
+      "setup": "Finite actual source A8→A9 и failed B, typed/dict manifest, same dataset name у разных connectors, actual CAS/tenant/profile.",
+      "action": "Full batch incremental дважды, fresh CursorStore и downstream source collection/snapshot.",
+      "oracle": "Только A продвигается; B unchanged; actual request versions None→8→9; empty delta материализует весь current A; partial evidence без complete snapshot.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Source owner reader и ingestion delegate не подменять fixture для acceptance; fixture source остаётся declared replay/synthetic, не live authority.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-ING-01-03",
+      "requirement_ids": [
+        "REQ-ING-01-03"
+      ],
+      "level": "native unit / integration",
+      "setup": "Удаление каждого proof member, wrong source/schema/partition, delayed source timestamp, save failure, stale predecessor; valid current control.",
+      "action": "Reopen/admit/fetch/promote actual owners.",
+      "oracle": "Недостаточный legacy cursor full-fetch-only; source time сохранён; failed write и stale predecessor не продвигают index; valid complete proof допускает полезный incremental fetch.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не доверять completeness/header/version self-report или payload-hash как source identity.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-ING-01-04",
+      "requirement_ids": [
+        "REQ-ING-01-04"
+      ],
+      "level": "native unit / integration",
+      "setup": "Existing served catalog→HTTP→replay integration corpus и actual CAS; finite file I/O counters.",
+      "action": "Run existing full oracle и fresh evidence reader; сравнить actual source bytes/read count/outputs.",
+      "oracle": "Recorded bytes и request binding прослеживаются до consumer; I/O savings заявляются только измеренные в конкретном source scope. Rights/currentness not_established явно не скрыты.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не требовать универсального deterministic inventor; source-specific owner extension только по реальной потребности и доказуемому contract.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I08-C"
+  ],
+  "dependencies": [
+    "ING-02 jointly preserves frontier; ING-03 schema/identity; E02-I08-C",
+    "NET-01 lifecycle and NET-02 transport owners remain separate"
+  ],
+  "preservation": [
+    "Joint cursor intake and advancement",
+    "Typed/dict manifest normalization",
+    "Whole finite source owner",
+    "Persisted request/payload/provenance reconciliation",
+    "Source-time not local-now watermark",
+    "Conditional cursor predecessor",
+    "Empty delta materializes whole source",
+    "Partial evidence without complete snapshot",
+    "Replay no ordinary/live fallback"
+  ],
+  "design_alignment": [
+    "[Vision §3, §6–§7, §11](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md) — существующий owner, реально подключённый consumer, совместимые новые ресурсы через общий контракт; не бесконечный реестр вместо работы. [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md) — candidate/conditional вычисление не равно эмпирической или институциональной authority.",
+    "Один request/owner contract допускает реальные новые source adapters без branch в orchestration. Finite fixture — полезный bounded режим, но production source completeness требует собственного проверяемого owner, не универсального изобретателя семантики."
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0146",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-ING-01-01"
+      ],
+      "rationale": "Deterministic declared namespace dispatch, early ambiguity refusal, no live fallback."
+    },
+    {
+      "inventory_id": "remaining:0147",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-ING-01-02",
+        "REQ-ING-01-03",
+        "REQ-ING-01-04"
+      ],
+      "rationale": "Whole native cursor/ingestion/replay provenance and useful finite source path."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0220",
+      "requirement_ids": [
+        "REQ-ING-01-02",
+        "REQ-ING-01-03"
+      ],
+      "test_ids": [
+        "TEST-ING-01-02",
+        "TEST-ING-01-03"
+      ],
+      "rationale": "Joint cursor intake/advance."
+    },
+    {
+      "inventory_id": "preserve:0221",
+      "requirement_ids": [
+        "REQ-ING-01-02"
+      ],
+      "test_ids": [
+        "TEST-ING-01-02"
+      ],
+      "rationale": "Typed/dict parity."
+    },
+    {
+      "inventory_id": "preserve:0222",
+      "requirement_ids": [
+        "REQ-ING-01-02",
+        "REQ-ING-01-03"
+      ],
+      "test_ids": [
+        "TEST-ING-01-02",
+        "TEST-ING-01-03"
+      ],
+      "rationale": "Whole physical finite source owner."
+    },
+    {
+      "inventory_id": "preserve:0223",
+      "requirement_ids": [
+        "REQ-ING-01-02",
+        "REQ-ING-01-03",
+        "REQ-ING-01-04"
+      ],
+      "test_ids": [
+        "TEST-ING-01-02",
+        "TEST-ING-01-03",
+        "TEST-ING-01-04"
+      ],
+      "rationale": "Persisted reconciliation."
+    },
+    {
+      "inventory_id": "preserve:0224",
+      "requirement_ids": [
+        "REQ-ING-01-03"
+      ],
+      "test_ids": [
+        "TEST-ING-01-03"
+      ],
+      "rationale": "Source-time boundary."
+    },
+    {
+      "inventory_id": "preserve:0225",
+      "requirement_ids": [
+        "REQ-ING-01-03"
+      ],
+      "test_ids": [
+        "TEST-ING-01-03"
+      ],
+      "rationale": "Conditional predecessor."
+    },
+    {
+      "inventory_id": "preserve:0226",
+      "requirement_ids": [
+        "REQ-ING-01-02"
+      ],
+      "test_ids": [
+        "TEST-ING-01-02"
+      ],
+      "rationale": "Empty delta materialization."
+    },
+    {
+      "inventory_id": "preserve:0227",
+      "requirement_ids": [
+        "REQ-ING-01-02"
+      ],
+      "test_ids": [
+        "TEST-ING-01-02"
+      ],
+      "rationale": "Partial not complete."
+    },
+    {
+      "inventory_id": "preserve:0228",
+      "requirement_ids": [
+        "REQ-ING-01-01",
+        "REQ-ING-01-04"
+      ],
+      "test_ids": [
+        "TEST-ING-01-01",
+        "TEST-ING-01-04"
+      ],
+      "rationale": "No live fallback."
+    }
+  ],
+  "owners": [
+    "src/polisyos/fabric/data_plane/modes.py",
+    "src/polisyos/fabric/data_plane/replay_store.py",
+    "src/polisyos/fabric/connectors/testing/simulator.py",
+    "src/polisyos/fabric/ingestion/source_progress.py",
+    "src/polisyos/fabric/ingestion/ingestion.py",
+    "src/polisyos/fabric/data_plane/cursor_store.py"
+  ]
+}

@@ -77,7 +77,7 @@ from polisyos.fabric.connectors.types import (
     ValidationResult,
     ValidationSeverity,
 )
-from polisyos.fabric.quality.safety import safe_path_segment
+from polisyos.fabric.quality.safety import UnsafePathSegmentError, safe_path_segment
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,
@@ -791,7 +791,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
             )
         try:
             cls._parse_sdmx_config(config)
-        except Exception as exc:
+        except (ConfigurationError, UnsafePathSegmentError) as exc:
             issues.append(
                 ValidationIssue(
                     severity=ValidationSeverity.ERROR,

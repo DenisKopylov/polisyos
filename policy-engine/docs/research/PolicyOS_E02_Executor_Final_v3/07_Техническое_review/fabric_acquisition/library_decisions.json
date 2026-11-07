@@ -1,0 +1,391 @@
+{
+  "schema": "e02.final-review.libraries.v1",
+  "reviewer": "fabric_acquisition",
+  "product_tests": "NOT_RUN",
+  "sources": {
+    "statistics": {
+      "url": "https://raw.githubusercontent.com/python/cpython/v3.14.0/Lib/statistics.py",
+      "section": "mean146–165; fmean168–205; median304–324; _sum1322–1373",
+      "checked": "2026-11-01",
+      "applicability": "Точная CPython3.14.0 implementation; target project Python>=3.14,<3.15. Source inspection, not target runtime execution."
+    },
+    "numpy_array": {
+      "url": "https://numpy.org/doc/2.3/reference/generated/numpy.asarray.html",
+      "section": "dtype parameter / inferred from input",
+      "checked": "2026-11-01",
+      "applicability": "NumPy2.3.5 lock; same2.3 API."
+    },
+    "arrow": {
+      "url": "https://raw.githubusercontent.com/apache/arrow/apache-arrow-22.0.0/python/pyarrow/parquet/core.py",
+      "section": "ParquetFile source file-like193–200; iter_batches492–542",
+      "checked": "2026-11-01",
+      "applicability": "Exact locked22.0.0. Versioned documentation URL unavailable; used immutable maintainer source instead."
+    },
+    "duckdb": {
+      "url": "https://duckdb.org/docs/1.4/guides/python/sql_on_arrow",
+      "section": "Arrow Datasets/Scanners/RecordBatchReaders",
+      "checked": "2026-11-01",
+      "applicability": "DuckDB1.4.3 lock;1.4 LTS docs. No claim newest2.0 features available."
+    },
+    "pandas": {
+      "url": "https://pandas.pydata.org/pandas-docs/version/2.3/reference/api/pandas.concat.html",
+      "section": "Parameters/Notes/outer join missing columns",
+      "checked": "2026-11-01",
+      "applicability": "2.3.3 docs match lock."
+    },
+    "interp": {
+      "url": "https://numpy.org/doc/2.3/reference/generated/numpy.interp.html",
+      "section": "xp increasing / Warning / left,right",
+      "checked": "2026-11-01",
+      "applicability": "NumPy2.3.5; does not define domain units or duplicate observation policy."
+    },
+    "hnsw": {
+      "url": "https://github.com/nmslib/hnswlib",
+      "section": "Python API: set_ef; get_items cosine normalized; thread safety; M/ef_construction",
+      "checked": "2026-11-01",
+      "applicability": "Project hnswlib0.8.0 optional vector-search; current maintainer API requires native qualification on lock."
+    },
+    "faiss": {
+      "url": "https://github.com/facebookresearch/faiss/wiki/Guidelines-to-choose-an-index",
+      "section": "Few searches; exact Flat; HNSW memory/accuracy tradeoff",
+      "checked": "2026-11-01",
+      "applicability": "Alternative only, not existing approved dependency. No recommendation to install/upgrade."
+    },
+    "st": {
+      "url": "https://raw.githubusercontent.com/UKPLab/sentence-transformers/v2.7.0/sentence_transformers/SentenceTransformer.py",
+      "section": "constructor46–85; encode normalize_embeddings; get_max_seq_length530–537",
+      "checked": "2026-11-01",
+      "applicability": "Exact locked2.7.0 optional rag-local; do not prescribe modern backend/local_files_only constructor keywords absent in this version."
+    },
+    "asyncio": {
+      "url": "https://docs.python.org/3.14/library/asyncio-task.html",
+      "section": "Shielding; timeout_at; Task cancellation",
+      "checked": "2026-11-01",
+      "applicability": "3.14 docs; cancellation is cooperative, physical worker lifecycle remains application owned."
+    },
+    "httpx_timeout": {
+      "url": "https://www.python-httpx.org/advanced/timeouts/",
+      "section": "Fine tuning: connect/read/write/pool",
+      "checked": "2026-11-01",
+      "applicability": "HTTPX0.28.1 in lock. Timeout read is per chunk, not total wall budget."
+    },
+    "httpx_transport": {
+      "url": "https://www.python-httpx.org/advanced/transports/",
+      "section": "HTTP transport / custom transports / retries",
+      "checked": "2026-11-01",
+      "applicability": "Current primary docs; generic client not drop-in proof of project DNS-pinned peer/SNI contract."
+    },
+    "otel": {
+      "url": "https://opentelemetry.io/docs/specs/otel/error-handling/",
+      "section": "Basic principles124–137",
+      "checked": "2026-11-01",
+      "applicability": "General normative design guidance, not evidence locked Python SDK1.39.1 never throws injected callback exceptions."
+    },
+    "cachetools": {
+      "url": "https://cachetools.readthedocs.io/en/latest/",
+      "section": "Cache mutable mapping/getsizeof/thread safety; TTLCache",
+      "checked": "2026-11-01",
+      "applicability": "Current docs7.2.8, lock6.2.4. Exact version URL unavailable; general comparison only, no new6.2.4 API recommendation."
+    }
+  },
+  "decisions": [
+    {
+      "id": "LIB-FA-01",
+      "packets": [
+        "FED-01",
+        "FED-02",
+        "UQS-01"
+      ],
+      "decision": "Предпочесть statistics.mean за narrow common finite-binary64 wrapper; midpoint через mean двух чисел. Не менять provenance policy.",
+      "locked_baseline": "Python3.14; NumPy2.3.5/pandas2.3.3 имеются.",
+      "alternatives": [
+        "Новый exact integer accumulator",
+        "Fraction per input",
+        "numpy/pandas mean",
+        "scaled fsum",
+        "statistics.fmean/median"
+      ],
+      "reason": "CPython mean уже группирует exact integer ratios по denominator, суммирует рационально и округляет после total/n. fmean и even median не дают нужной overflow/subnormal семантики. Нужен finite/type wrapper, а не смешанные Decimal/NumPy types.",
+      "cost_and_tradeoffs": "O(n) conversion, bounded binary64 denominator buckets; big integers растут с log n. Не бесплатно и не vectorized. Большой group-cost измерить; optimized fallback только при доказанном сохранении точности.",
+      "validation": "Target3.14 independent Fraction oracle: extremes, signed cancellation, subnormal ties, permutations, empty/singleton, n scaling. FED sole writer; UQS contract tests.",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/python/cpython/v3.14.0/Lib/statistics.py",
+          "section": "mean146–165; fmean168–205; median304–324; _sum1322–1373",
+          "checked": "2026-11-01",
+          "applicability": "Точная CPython3.14.0 implementation; target project Python>=3.14,<3.15. Source inspection, not target runtime execution."
+        }
+      ]
+    },
+    {
+      "id": "LIB-FA-02",
+      "packets": [
+        "OBS-02",
+        "UDF-02"
+      ],
+      "decision": "Сохранить Arrow streaming + existing snapshot owner; DuckDB/Arrow handoff оптимизировать только после профиля.",
+      "locked_baseline": "PyArrow22.0.0 + DuckDB1.4.3 already core.",
+      "alternatives": [
+        "Full pandas.read_parquet",
+        "DuckDB direct scan вместо capture",
+        "Arrow RecordBatchReader→DuckDB вместо per-batch pandas conversion",
+        "Новая streaming platform"
+      ],
+      "reason": "iter_batches и column projection решают bounded reading; file-like input позволяет читать captured snapshot. DuckDB читает Arrow reader и умеет pushdown, но сам не заменяет source capture/retry/row ordinal contract.",
+      "cost_and_tradeoffs": "Нынешний capture: O(file bytes) disk+hash/copy и O(batch) dataframe; fallback повторно сканирует prefix. Direct scan может сократить copies, но обязан сохранить immutable basis и exactly accepted prefix.",
+      "validation": "Batch1/odd sizes/rowgroup changes, duplicate-valued distinct rows, failure afteryield, same-stat ABA mutation, tmp free space/peak RSS/read bytes. Нет утверждения zero-copy во всём пути.",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/apache/arrow/apache-arrow-22.0.0/python/pyarrow/parquet/core.py",
+          "section": "ParquetFile source file-like193–200; iter_batches492–542",
+          "checked": "2026-11-01",
+          "applicability": "Exact locked22.0.0. Versioned documentation URL unavailable; used immutable maintainer source instead."
+        },
+        {
+          "url": "https://duckdb.org/docs/1.4/guides/python/sql_on_arrow",
+          "section": "Arrow Datasets/Scanners/RecordBatchReaders",
+          "checked": "2026-11-01",
+          "applicability": "DuckDB1.4.3 lock;1.4 LTS docs. No claim newest2.0 features available."
+        }
+      ]
+    },
+    {
+      "id": "LIB-FA-03",
+      "packets": [
+        "FED-02"
+      ],
+      "decision": "Оставить pandas composition и явную schema-first typed empty branch.",
+      "locked_baseline": "pandas2.3.3, DuckDB1.4.3.",
+      "alternatives": [
+        "Inference из concat empty templates",
+        "Перенос всей composition в DuckDB",
+        "Новая dataframe library"
+      ],
+      "reason": "Уже существующие lineage/conflict/cardinality semantics важнее смены backend; concat сам не создаёт объявленный schema-only column. Для empty schema dtype создаётся из контрактного declaration до inference.",
+      "cost_and_tradeoffs": "Index-once per composition полезнее повторного row lookup. SQL pushdown оправдан только measured large-group work и полным equivalence корпусом null/join/lineage.",
+      "validation": "Full typed empty schema→SQL fresh read; nullable z; all audit modes identical values/counts; precise dtype/metadata tests.",
+      "sources": [
+        {
+          "url": "https://pandas.pydata.org/pandas-docs/version/2.3/reference/api/pandas.concat.html",
+          "section": "Parameters/Notes/outer join missing columns",
+          "checked": "2026-11-01",
+          "applicability": "2.3.3 docs match lock."
+        },
+        {
+          "url": "https://duckdb.org/docs/1.4/guides/python/sql_on_arrow",
+          "section": "Arrow Datasets/Scanners/RecordBatchReaders",
+          "checked": "2026-11-01",
+          "applicability": "DuckDB1.4.3 lock;1.4 LTS docs. No claim newest2.0 features available."
+        }
+      ]
+    },
+    {
+      "id": "LIB-FA-04",
+      "packets": [
+        "UDF-05",
+        "CAL-01"
+      ],
+      "decision": "Сохранить NumPy/Pydantic; исправить admission order, не вводить численную платформу.",
+      "locked_baseline": "NumPy2.3.5; Pydantic2.12.5; JAX0.8.2.",
+      "alternatives": [
+        "Blind np.asarray then validate",
+        "New generic units/axis engine",
+        "SciPy interpolation migration"
+      ],
+      "reason": "asarray infers common dtype; exact IDs проверять до него. np.interp требует increasing source axis и не проверяет все domain invariants. Stable paired normalization и domain unit/interval policy достаточно.",
+      "cost_and_tradeoffs": "Prevalidation O(n), сортировка time O(nlog n); explicit target order сохраняется. JAX dtype/report profile фиксировать; measurement.py explicitly float32, поэтому нельзя считать весь pipeline binary64.",
+      "validation": "Mixed large-int/integral-float record IDs; axis permutations/equal-length/inferred-grid; unit mismatch; native calibration target consumer.",
+      "sources": [
+        {
+          "url": "https://numpy.org/doc/2.3/reference/generated/numpy.asarray.html",
+          "section": "dtype parameter / inferred from input",
+          "checked": "2026-11-01",
+          "applicability": "NumPy2.3.5 lock; same2.3 API."
+        },
+        {
+          "url": "https://numpy.org/doc/2.3/reference/generated/numpy.interp.html",
+          "section": "xp increasing / Warning / left,right",
+          "checked": "2026-11-01",
+          "applicability": "NumPy2.3.5; does not define domain units or duplicate observation policy."
+        }
+      ]
+    },
+    {
+      "id": "LIB-FA-05",
+      "packets": [
+        "EMB-01",
+        "EMB-02",
+        "EMB-03"
+      ],
+      "decision": "Сохранить hnswlib; добавить exact small-corpus oracle и measured quality/cost qualification.",
+      "locked_baseline": "hnswlib0.8.0 optional vector-search; lock entry sdist without wheels; NumPy available.",
+      "alternatives": [
+        "NumPy exact cosine/flat retrieval для small N",
+        "FAISS Flat/HNSW/PQ",
+        "External vector database"
+      ],
+      "reason": "Native index admission принадлежит existing shared owner. HNSW set_ef после load важен и уже есть=100; stored-vector equality не доказывает retrieval recall. FAISS предлагает exact baseline/quantization, но migration сейчас не оправдана.",
+      "cost_and_tradeoffs": "HNSW строится и держит graph memory. При редких query exact scan может быть проще; warm validation читает whole artifacts/text. Сначала measurements, затем bounded immutable-generation lease, не stat-only cache.",
+      "validation": "Cold/warm query at N ladder, exact cosine no-tie fixtures, recall@k on frozen query holdout, provenance and withdrawal; native build availability3.14 qualification before stronger claim.",
+      "sources": [
+        {
+          "url": "https://github.com/nmslib/hnswlib",
+          "section": "Python API: set_ef; get_items cosine normalized; thread safety; M/ef_construction",
+          "checked": "2026-11-01",
+          "applicability": "Project hnswlib0.8.0 optional vector-search; current maintainer API requires native qualification on lock."
+        },
+        {
+          "url": "https://github.com/facebookresearch/faiss/wiki/Guidelines-to-choose-an-index",
+          "section": "Few searches; exact Flat; HNSW memory/accuracy tradeoff",
+          "checked": "2026-11-01",
+          "applicability": "Alternative only, not existing approved dependency. No recommendation to install/upgrade."
+        }
+      ]
+    },
+    {
+      "id": "LIB-FA-06",
+      "packets": [
+        "EMB-03"
+      ],
+      "decision": "Оставить первый owned local ST2.7 CPU1024 профиль как bounded capability, не выдать его за универсальную модель.",
+      "locked_baseline": "sentence-transformers2.7.0 rag-local; torch2.10.0; transformers4.57.6; research/all extra не включает rag-local.",
+      "alternatives": [
+        "Generic encoder fixture",
+        "Latest ST backend API",
+        "Новая модель/сервис"
+      ],
+      "reason": "2.7 constructor supports local path/revision/device; owner уже snapshot_download(local_files_only=True), exact assets и dimension. Generic text encoder полезен candidate, не заменяет owned served witness.",
+      "cost_and_tradeoffs": "Tiny corpus не делает саму модель tiny. Отдельно cold load/RSS, encode batches, runtime hashing. Tokenizer truncation может скрыть релевантный конец текста; обязательна adversarial retrieval qualification, не обещание всех языков.",
+      "validation": "Заранее предоставленные local assets; actual model+index+fresh public query, no admission mock; second content corpus with frozen holdout. No downloads/install authorized.",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/UKPLab/sentence-transformers/v2.7.0/sentence_transformers/SentenceTransformer.py",
+          "section": "constructor46–85; encode normalize_embeddings; get_max_seq_length530–537",
+          "checked": "2026-11-01",
+          "applicability": "Exact locked2.7.0 optional rag-local; do not prescribe modern backend/local_files_only constructor keywords absent in this version."
+        }
+      ]
+    },
+    {
+      "id": "LIB-FA-07",
+      "packets": [
+        "ING-02",
+        "ING-03",
+        "NET-01",
+        "NET-02"
+      ],
+      "decision": "Сохранить domain stream/frontier и stdlib asyncio/deque/locks; не переносить в Flink/Kafka ради локального ремонта.",
+      "locked_baseline": "Python3.14 asyncio, aiohttp3.13.3; existing CAS/cursor/pool/rate limiter.",
+      "alternatives": [
+        "TaskGroup вместо lifecycle owner",
+        "Generic retry decorator",
+        "External streaming framework"
+      ],
+      "reason": "Shield не делает independently-cancelled task живой: terminal state обязан settle. Operator byte budget — не eviction cache; live keys нельзя выбрасывать ради capacity. Callback success belongs completed provider outcome, not attempted request.",
+      "cost_and_tradeoffs": "O(1) byte counter не устраняет O(buffer) _prune_row_refs/preview copies. Explicit process resources remain until physical close; cancellation deadline not FD evidence.",
+      "validation": "Barrier-driven cancellation, watchdog+heartbeat, os.fstat/pread and fresh session, independent row/window oracle, UTC restart. Custom limiter local, no distributed quota claim.",
+      "sources": [
+        {
+          "url": "https://docs.python.org/3.14/library/asyncio-task.html",
+          "section": "Shielding; timeout_at; Task cancellation",
+          "checked": "2026-11-01",
+          "applicability": "3.14 docs; cancellation is cooperative, physical worker lifecycle remains application owned."
+        }
+      ]
+    },
+    {
+      "id": "LIB-FA-08",
+      "packets": [
+        "SCL-01",
+        "SCL-03"
+      ],
+      "decision": "Сохранить общий pinned raw transport; stdlib absolute async deadline в существующем owner.",
+      "locked_baseline": "urllib custom raw owner; HTTPX0.28.1 already used in search adapters; common bounded executor.",
+      "alternatives": [
+        "Replace all transport with requests/httpx",
+        "HTTPX per-phase timeout only",
+        "TTL cache permission"
+      ],
+      "reason": "HTTPX timeouts не total deadline. Custom transports дают extension seam, но не автоматически peer/SNI/redirect policy. Offline saved-byte admission отделить от live DNS. Shared raw owner already implemented; переписывание добавит риск.",
+      "cost_and_tradeoffs": "Outer cancellation прекращает ожидание, не гарантирует уничтожение running blocking thread. Current shared executor сохраняет physical slot; измерять exit/resource separately. DNS before cache запрещает offline reuse.",
+      "validation": "Persisted offline cache network0, real local TLS/SNI redirects on allowed fixture, drip response vs absolute budget, all failover attempt starts. Не ослаблять rawbytes/MIME/maxbytes.",
+      "sources": [
+        {
+          "url": "https://www.python-httpx.org/advanced/timeouts/",
+          "section": "Fine tuning: connect/read/write/pool",
+          "checked": "2026-11-01",
+          "applicability": "HTTPX0.28.1 in lock. Timeout read is per chunk, not total wall budget."
+        },
+        {
+          "url": "https://www.python-httpx.org/advanced/transports/",
+          "section": "HTTP transport / custom transports / retries",
+          "checked": "2026-11-01",
+          "applicability": "Current primary docs; generic client not drop-in proof of project DNS-pinned peer/SNI contract."
+        },
+        {
+          "url": "https://docs.python.org/3.14/library/asyncio-task.html",
+          "section": "Shielding; timeout_at; Task cancellation",
+          "checked": "2026-11-01",
+          "applicability": "3.14 docs; cancellation is cooperative, physical worker lifecycle remains application owned."
+        }
+      ]
+    },
+    {
+      "id": "LIB-FA-09",
+      "packets": [
+        "LLM-01"
+      ],
+      "decision": "Оставить OTel и узкий best-effort optional boundary; mandatory budget/audit вне неё.",
+      "locked_baseline": "OTel API/SDK1.39.1 core; declared no-OTel fallback distinct environment.",
+      "alternatives": [
+        "Blanket except around provider/ledger",
+        "Remove tracing entirely",
+        "Async telemetry queue rewrite"
+      ],
+      "reason": "OTel principle предпочитает потерю telemetry изменению business logic; injection useful even if normal SDK handles exporter errors. Existing _post_record mutates mandatory projection; optional tail isolate only.",
+      "cost_and_tradeoffs": "Safe callbacks add small overhead; не создавать recursive diagnostic failure. Fallback profile не равен ordinary core install with OTel; проверить ABI independently.",
+      "validation": "Enter/exit/attribute/status fault matrix, body exception cannot be suppressed, response/ledger persist, provider count1, unknown owner blocks spend then recovers.",
+      "sources": [
+        {
+          "url": "https://opentelemetry.io/docs/specs/otel/error-handling/",
+          "section": "Basic principles124–137",
+          "checked": "2026-11-01",
+          "applicability": "General normative design guidance, not evidence locked Python SDK1.39.1 never throws injected callback exceptions."
+        }
+      ]
+    },
+    {
+      "id": "LIB-FA-10",
+      "packets": [
+        "LLM-02",
+        "DFI-03",
+        "SCL-01"
+      ],
+      "decision": "Сохранить domain content-bound owners; cachetools/TTL лишь storage primitive, не permission/proof/single-flight framework.",
+      "locked_baseline": "cachetools6.2.4 existing; custom PromptCache owns proofs/settlement and shared Future state.",
+      "alternatives": [
+        "functools.lru_cache",
+        "cachetools.TTLCache wrapper",
+        "Redis/distributed locks",
+        "Regex whitelist cacheable prompts"
+      ],
+      "reason": "TTL/memoization не кодирует current actor/epoch/selected CAS/profile/prepared wire bytes. Frozen six-role translator closure минимальна и переносима на данные, а произвольные live/tool requests остаются physical-only.",
+      "cost_and_tradeoffs": "Public docs newer than lock used only generic comparison. Extra binding adds hashes+CAS reads, но решает semantic ownership; per-key revision optimization не нужна для one-retry correction.",
+      "validation": "Two actual translator bundles, one-role mutation matrix, explicit optional absence, no stale grant, separate loops/follower cancellation, physical ledger readback. Exact response-content holdout prevents constant fixture becoming semantic proof.",
+      "sources": [
+        {
+          "url": "https://cachetools.readthedocs.io/en/latest/",
+          "section": "Cache mutable mapping/getsizeof/thread safety; TTLCache",
+          "checked": "2026-11-01",
+          "applicability": "Current docs7.2.8, lock6.2.4. Exact version URL unavailable; general comparison only, no new6.2.4 API recommendation."
+        },
+        {
+          "url": "https://docs.python.org/3.14/library/asyncio-task.html",
+          "section": "Shielding; timeout_at; Task cancellation",
+          "checked": "2026-11-01",
+          "applicability": "3.14 docs; cancellation is cooperative, physical worker lifecycle remains application owned."
+        }
+      ]
+    }
+  ]
+}

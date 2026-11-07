@@ -1,0 +1,64 @@
+{
+  "pass": "C56",
+  "bundle": "CAU-05",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C56-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-016"
+      ],
+      "title": "Нативный dedicated bootstrap/dispatch/CAS route не исполнен",
+      "evidence": [
+        "S05–S08",
+        "S13–S18",
+        "P06–P08",
+        "native_attempt.log",
+        "native_did_import.log"
+      ],
+      "remaining": "В поддержанном Python3.14 окружении выполнить existing retirement/request-route/diagnostics ownership tests через actual family component bridge, registry, dispatch, output ABI и fresh persisted reader. AST membership/get fixture не заменяет эту цепочку.",
+      "limits": "Pytest отсутствует; native public import блокируется Python3.14 syntax under3.12. 8 unchanged bodies/9 cases исполнены изолированно; source-declared default boot подтверждён статически."
+    },
+    {
+      "id": "C56-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-016"
+      ],
+      "title": "Direct-import old-slot adapter не доказывает versioned frozen-plan replay",
+      "evidence": [
+        "S01:1004–1120",
+        "S08:685–733",
+        "S13:108–152",
+        "S14",
+        "S16",
+        "P03",
+        "P07",
+        "python_literal_census.json"
+      ],
+      "remaining": "Установить finite supported historical plan/schema/FQN scope и проверить его existing reader/migration route на сохранённых fixtures. Либо явно признать только direct-import compatibility и документировать retirement/migration boundary; не возвращать старый generic в новое planning лишь ради общего alias.",
+      "limits": "Current source intentionally excludes old FQN from default registry, exact get has no alias fallback; existing tests expect refusal. Direct class adapter correctly maps slots/mode. Actual supported frozen plan/reader evidence не предъявлена, поэтому это qualification gap, не доказанный production client outage и не требование вечной поддержки всех старых имён."
+    },
+    {
+      "id": "C56-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-016"
+      ],
+      "title": "Миграция не закрывает numerical/scientific остатки CAU-01/02",
+      "evidence": [
+        "C52-R01",
+        "C52-G01",
+        "C53-G01",
+        "S01",
+        "P02–P05"
+      ],
+      "remaining": "Сохранять independent metadata/common helpers и отдельные corrected standard/staggered profiles. Учитывать C52 NaN-unit cluster residual и C52/C53 native/inferential limitations; не выдавать interface cutover за исправленное CI/coverage/identification.",
+      "limits": "C56 повторно сравнивает finite equivalent outputs, но не повторяет все C52/C53 oracles/DGP tests и не переаттестует их. Synthetic planner/benchmark refs/pass markers не scientific authority."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "Dedicated default boot/request/callers и detached metadata сохранены. Direct old-slot/mode adapter equivalent для проверенных запросов; versioned frozen-plan replay/native chain и прежние numerical остатки не закрыты. LA016 accountable closure не заявляется."
+}

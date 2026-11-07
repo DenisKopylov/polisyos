@@ -1,0 +1,410 @@
+{
+  "pass_id": "C123",
+  "bundle": "LEX-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/lex/normpack/diff.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/lex/normpack/diff.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          184
+        ]
+      ],
+      "evidence_level": "Полный read; actual selected diff с native NormPack.",
+      "git_blob": "381e1d84e36353d480b4d0a5e9cc3706a13f95a2",
+      "sha256": "bb8aabfb791ef3fa5d4624d90039db99a2904bbdd0cff30e0c7aaad2f98f7c0d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/lex/legal_evaluation/impact_diff.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          721
+        ]
+      ],
+      "evidence_level": "Полный read721lines; unpersisted analyzer и reconcile helper выполнены через selected definitions. Selected reader и persistence source-only.",
+      "git_blob": "e6210db66f63267e31b3be52c95711e8c1fc4fa4",
+      "sha256": "8252c8af680a77006a08fd187a10a287919c4f2d5e323822d27e1556b0ce31dc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/lex/simulator/diff.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/lex/simulator/diff.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          17
+        ]
+      ],
+      "evidence_level": "Полный read; узкий alias, native import equivalence UNRUN.",
+      "git_blob": "b9408dcc8c3cbcc8bd91c6f278b2a1334db14af4",
+      "sha256": "1f664f0444f186db8c0642864f0d4adb56c8e1a9470829b918c396b7cac215f7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/lex/simulator/engine.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/lex/simulator/engine.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          5
+        ]
+      ],
+      "evidence_level": "Полный read; alias на actual owner.",
+      "git_blob": "9c99688ab06b1fbe4187b09af04640af87026828",
+      "sha256": "11b8417241a535508f1e41f4876c8650defd70fd33647c480c4b1d9db46e17d9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/lex/simulator/report.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/lex/simulator/report.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          15
+        ]
+      ],
+      "evidence_level": "Полный read; aliases report DTO.",
+      "git_blob": "ba5e94fb84f32c1e2bb8b1b2521e2071b985bf49",
+      "sha256": "e983c41a73fcc7b36c0717c961544820969e43675aa25c3f87929de299b9274d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/lex/simulator/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/lex/simulator/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          26
+        ]
+      ],
+      "evidence_level": "Полный read; public surface.",
+      "git_blob": "9e44a6b10ce5b9cd34fc7fc09aae74c97e449e0a",
+      "sha256": "78416a8633f6da02bd53f5113eb98371dbb1101bbfef44e6a21f96f0c1fe924d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/lex/simulator/cli.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/lex/simulator/cli.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          134
+        ]
+      ],
+      "evidence_level": "Полный read134lines; actual renderer выполнен; loader source-only.",
+      "git_blob": "aa140ae6a6f58ba1d8746191813db8f120a783ad",
+      "sha256": "6a76a22289ac9a37d69808097b0a3c0f9bf17602efd395975c493035cd7b38e3",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/core/components/_cli_lex.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/components/_cli_lex.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          124
+        ]
+      ],
+      "evidence_level": "Полный read124lines; actual downstream reader-first CLI source-only.",
+      "git_blob": "aac7daac55c99284f72f3cea69d5176fdc9f9c34",
+      "sha256": "890fbc404b5fc05d7dde4be16499e7c3a23fbdf13d058a45b502b777c67d9d35",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/core/governance/passes/legal_pass.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/governance/passes/legal_pass.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          120
+        ]
+      ],
+      "evidence_level": "Полный read; actual selected class с injected backend object; registry string route UNRUN.",
+      "git_blob": "fef4bf28a09184a30dbff03775e64a699467174b",
+      "sha256": "9f5b1f65b37e608a127ffff7559b311ee4d0fc4707433fd95393d98a9300b3b5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/core/governance/passes/safety_pass.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/governance/passes/safety_pass.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          92
+        ]
+      ],
+      "evidence_level": "Полный read; selected definitions загружены, no full safety scenario qualification.",
+      "git_blob": "583be08db43168797899f025a7b027a20afcc142",
+      "sha256": "18611aa8d50573277188f986f81d590b859f1c7b99889c8696745d6dfb06ad5b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/core/governance/passes/base.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/governance/passes/base.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          84
+        ]
+      ],
+      "evidence_level": "Полный read; selected PassContext/ValidatorPass.",
+      "git_blob": "047fe03852505d9eaa1deca3aaec0e60c9c1dfc7",
+      "sha256": "b4795a2f6d7c331269a3c47af719a8dc4884ad539cc5e18aad340bbc7ef71f1f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/core/governance/profiles.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/governance/profiles.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          222
+        ]
+      ],
+      "evidence_level": "Полный read; selected ProfileLevel/ValidationProfile без control dependency.",
+      "git_blob": "f5a11507032b6e8c879bfb2626f71b1b641bacf1",
+      "sha256": "484018694b9833258bffe9666a8c8649b46060c52d7a6f6ba84463639e248186",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/core/governance/legal/ast_policy.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/governance/legal/ast_policy.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          189
+        ]
+      ],
+      "evidence_level": "Полный read; actual selected AST policy executed.",
+      "git_blob": "7a0b33f6105aece86a2ec4b2d3aa2fd83a117810",
+      "sha256": "f2bee5468121fe9fcc4260c442f7f464eddfde84b5f72a879f75465f5eda1ab8",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/core/governance/legal/backends/expr_ast.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/governance/legal/backends/expr_ast.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          438
+        ]
+      ],
+      "evidence_level": "Полный read438lines, включая повторно прочитанные gaps130–285; actual selected safe evaluator executed, stdlib logger replaces project logging only.",
+      "git_blob": "d16a2b77d166d67f48e0608130af6d82f2c70b99",
+      "sha256": "c0ee21bba0a15f7c72d1e9bd06d9ac741bc1e95762ec910a943c177a6a56d3ee",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/core/governance/legal/backends/stub.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/governance/legal/backends/stub.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          52
+        ]
+      ],
+      "evidence_level": "Полный read; actual selected non-evaluating stub executed.",
+      "git_blob": "725daf86ad24518d5734b1d64e02f58affca1dcb",
+      "sha256": "65882c9b4c451c9247bcd51e0a7ac6a65df37c914cad4de3ed6195abeae4f187",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/src/polisyos/ir/loading/norm_pack.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/loading/norm_pack.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          120
+        ]
+      ],
+      "evidence_level": "Полные relevant NormPack/NormRule/RuleType definitions; actual module imported unchanged.",
+      "git_blob": "d8e071495b226e552b1c3c04ba66711363aed186",
+      "sha256": "6613777ebe6fb355d537b39b9b4968dd9dcc866a2173696f95207d5a0e21686d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/src/polisyos/core/contracts/lex.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/contracts/lex.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          75
+        ]
+      ],
+      "evidence_level": "Relevant strict ComplianceIssue/severity definitions; selected AST, not native Core import.",
+      "git_blob": "074096763929ca6eb89394d4a4a17b075d6c5fb9",
+      "sha256": "e547a1ca7c7b1ed08a0a746e2a4c2cdfc61dbfcfd7b34b3b81fab8a7c608fb8c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S18",
+      "path": "policy-engine/tests/unit/remediation/test_lex_01.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_lex_01.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          185
+        ]
+      ],
+      "evidence_level": "Полный read; source-only native aliases/CAS/authority tests, не executed.",
+      "git_blob": "20a9e5bf39233121ec85969702e7b7c37eb2e84c",
+      "sha256": "d84a1fd719e43220d53c77bbc19b084b1353a9f66afe4a46c0ec840453fef2c1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S19",
+      "path": "policy-engine/tests/unit/lex/simulator/test_diff.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/lex/simulator/test_diff.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          47
+        ]
+      ],
+      "evidence_level": "Полный read; 1 unchanged test body executed with actual native NormPack and selected diff.",
+      "git_blob": "b9f52acd66976db53b3bf5118fe2f51f7081fc54",
+      "sha256": "0f5ebae8904636a562ec492affe384f90c1c27b38b69f51fc4538dc1357d9b6b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S20",
+      "path": "policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/lex/legal_evaluation/test_impact_diff.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          236
+        ]
+      ],
+      "evidence_level": "Полный read; source-only native tests. Собственные bounded context/pass probes не считаются их исполнением.",
+      "git_blob": "8c73aaa81d9d79d8ffe6fff3fba4a1244fc5fe14",
+      "sha256": "f45085e041d7f9d9040b189ed156b3420f7e7dbfa7caa43765dcb98702d0a3b7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S21",
+      "path": "policy-engine/tests/unit/remediation/test_lex_impact_semantics.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_lex_impact_semantics.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          308,
+          365
+        ],
+        [
+          521,
+          560
+        ],
+        [
+          681,
+          788
+        ]
+      ],
+      "evidence_level": "Selected complete/adjacent ranges; coarse report ID, multiset issues, reader-first opt-in/rollback и custom backend honesty. Не полный test file и не executed.",
+      "git_blob": "d88a5a26e980abc73edad312a01940a0363c1529",
+      "sha256": "0c95601db1785e7f0543ed25fa2f6e46cd86c15443e8e863d0b91617d330e2f0",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S22",
+      "path": "policy-engine/tools/ops_runners/runtime_cli.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tools/ops_runners/runtime_cli.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          900,
+          935
+        ]
+      ],
+      "evidence_level": "Actual CLI selectors/default schema/backend source-only.",
+      "git_blob": "64271a0633aea1416f39c324a430716e55ca030e",
+      "sha256": "bc0feb763bdf28a82e1bd352dd37769c6da84258a82fb940cff5cbeb71d71b1c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S23",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          105
+        ],
+        [
+          169,
+          179
+        ]
+      ],
+      "evidence_level": "Inherited supported runtime/dependency contract; no install.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

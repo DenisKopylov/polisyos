@@ -12,15 +12,15 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1679`.
-- Public/root-or-package facade types: `680`.
+- Total IR types: `1675`.
+- Public/root-or-package facade types: `682`.
 - ABI snapshot-backed types: `103`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
 | ------- | ------------ |
-| `polisyos.ir` | 533 |
-| `polisyos.ir.analytics` | 320 |
+| `polisyos.ir` | 541 |
+| `polisyos.ir.analytics` | 321 |
 | `polisyos.ir.kernel` | 81 |
 | `polisyos.ir.loading` | 12 |
 | `polisyos.ir.model_layer` | 6 |
@@ -31,10 +31,10 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 1026 | 342 | 45 |
+| `analytics` | 1028 | 344 | 45 |
 | `artifacts` | 30 | 3 | 0 |
 | `governance` | 99 | 27 | 8 |
-| `kernel` | 66 | 54 | 0 |
+| `kernel` | 60 | 54 | 0 |
 | `linker` | 7 | 0 | 0 |
 | `migrations` | 13 | 0 | 0 |
 | `observation` | 138 | 63 | 30 |
@@ -1466,6 +1466,17 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `status` | `str` | `yes` | `—` | — |
 | `unresolved_assumptions` | `list[str]` | `no` | `—` | — |
 
+### `polisyos.ir.analytics.backtest.NativeBacktestVerificationRequiredError` { #polisyos-ir-analytics-backtest-nativebacktestverificationrequirederror }
+
+- Kind: `class`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: A selected native report needs its higher-layer trajectory verifier.
+
 ### `polisyos.ir.analytics.backtest.OutcomeComparison` { #polisyos-ir-analytics-backtest-outcomecomparison }
 
 - Kind: `pydantic_model`
@@ -2445,7 +2456,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.causal_capabilities.CausalBackendCapability`, `polisyos.ir.analytics.causal_capabilities.CausalBackendId`, `polisyos.ir.analytics.causal_capabilities.CausalIdentificationFamily`
-- Summary: Causal capability contract data model.
+- Summary: Record reported causal backend availability and supported identification families.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -3390,7 +3401,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: PAG identification policy data model.
+- Summary: Select a supported identification mode for a partial ancestral graph.
 
 | Enum values |
 | ----------- |
@@ -4218,7 +4229,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.context.ContextProfile`, `polisyos.ir.analytics.cross_graph.CanonicalConcept`, `polisyos.ir.analytics.cross_graph.ConceptBridge`, `polisyos.ir.analytics.cross_graph.CrossGraphDiagnostic`, `polisyos.ir.analytics.cross_graph.CrossGraphEvidenceSummary`, `polisyos.ir.analytics.cross_graph.CrossGraphSourceRefs`, `polisyos.ir.analytics.cross_graph.EvidenceNeedAssessment`, `polisyos.ir.analytics.cross_graph.EvidenceSourceStatus`
-- Summary: Cross graph evidence profile data model.
+- Summary: Collect cross-graph evidence needs, assessments, and source-state summaries.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -7712,7 +7723,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 - Kind: `pydantic_model`
 - Public status: `internal`
-- Current version: `—`
+- Current version: `1.0`
 - Exported from: —
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
@@ -7721,11 +7732,15 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
+| `decision_rule_profile` | `Literal[legacy_rule, linear_q_action.v1, linear_q_current_interactions.v1]` | `no` | `'legacy_rule'` | — |
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
+| `n_covariates` | `int \| NoneType` | `no` | `—` | — |
 | `outcome` | `str` | `yes` | `—` | — |
 | `regime_coefficients` | `tuple[float] \| NoneType` | `no` | `—` | — |
 | `rule` | `polisyos.ir.analytics.dynamic_regime.RegimeRule` | `no` | `<RegimeRule.ALWAYS_TREAT: 'always_treat'>` | `polisyos.ir.analytics.dynamic_regime.RegimeRule` |
 | `scheduled_actions` | `tuple[int] \| NoneType` | `no` | `—` | — |
+| `schema_version` | `Literal[1.0, 1.1]` | `no` | `'1.0'` | — |
+| `stage_coefficients` | `tuple[tuple[float]] \| NoneType` | `no` | `—` | — |
 | `threshold_covariate_index` | `int` | `no` | `0` | — |
 | `threshold_value` | `float` | `no` | `0.0` | — |
 | `time_points` | `tuple[int]` | `yes` | `—` | — |
@@ -14726,6 +14741,17 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `shared_with` | `list[str]` | `no` | `—` | — |
 | `variable` | `str` | `yes` | `—` | — |
 
+### `polisyos.ir.analytics.ncm.NCMSourceProfileMismatchError` { #polisyos-ir-analytics-ncm-ncmsourceprofilemismatcherror }
+
+- Kind: `class`
+- Public status: `root_facade`
+- Current version: `—`
+- Exported from: `polisyos.ir:NCMSourceProfileMismatchError`
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: An exact NCM manifest does not use the requested owner source codec.
+
 ### `polisyos.ir.analytics.ncm.NCMSpec` { #polisyos-ir-analytics-ncm-ncmspec }
 
 - Kind: `pydantic_model`
@@ -15157,7 +15183,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.normative_arbitration.NormativeAuditStatus`
-- Summary: Hard constraint audit entry data model.
+- Summary: Record the reported evaluation status and values for one hard constraint.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -15178,7 +15204,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.normative_arbitration.ArbitrationOption`, `polisyos.ir.analytics.normative_arbitration.HardConstraintAuditEntry`, `polisyos.ir.analytics.normative_arbitration.NormativeModelCompleteness`, `polisyos.ir.analytics.normative_arbitration.NormativeProvenance`, `polisyos.ir.analytics.normative_arbitration.OptionOutcomeMatrix`, `polisyos.ir.analytics.normative_arbitration.PolicyOutcome`, `polisyos.ir.analytics.normative_arbitration.ResidualDissent`, `polisyos.ir.analytics.normative_arbitration.RightsAuditEntry`, `polisyos.ir.analytics.normative_arbitration.StakeholderUtilitySummary`, `polisyos.ir.analytics.normative_arbitration.TradeoffCertificate`, `polisyos.ir.governance.problem_frame.NormativeArbitrationPolicy`
-- Summary: Normative arbitration result data model.
+- Summary: Represent a proposal-versus-baseline normative arbitration result.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -15316,7 +15342,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.normative_arbitration.NormativeAuditStatus`
-- Summary: Rights audit entry data model.
+- Summary: Record a right's reported comparison status for one stakeholder.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -15339,7 +15365,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: —
-- Summary: Stakeholder utility summary data model.
+- Summary: Record one stakeholder's supplied baseline and proposal utility values.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -20674,7 +20700,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.transportability.SNodeOrigin`, `polisyos.ir.analytics.transportability.SNodeRole`
-- Summary: S node implementation.
+- Summary: Describe a variable's source-to-target context difference in a selection diagram.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -21536,9 +21562,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.analytics.uncertainty.NumericPolicySpec` { #polisyos-ir-analytics-uncertainty-numericpolicyspec }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `package_facade`
 - Current version: `—`
-- Exported from: —
+- Exported from: `polisyos.ir.analytics:NumericPolicySpec`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.uncertainty.NumericToleranceMode`
@@ -25782,96 +25808,6 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
 | `kind` | `~UnitKindT` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['count']]` { #polisyos-ir-kernel-units-unitspec-literal-count }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[count]` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['dimensionless']]` { #polisyos-ir-kernel-units-unitspec-literal-dimensionless }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[dimensionless]` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['duration']]` { #polisyos-ir-kernel-units-unitspec-literal-duration }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[duration]` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['generic']]` { #polisyos-ir-kernel-units-unitspec-literal-generic }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[generic]` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['money']]` { #polisyos-ir-kernel-units-unitspec-literal-money }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[money]` | `yes` | `—` | — |
-
-### `polisyos.ir.kernel.units.UnitSpec[Literal['rate']]` { #polisyos-ir-kernel-units-unitspec-literal-rate }
-
-- Kind: `pydantic_model`
-- Public status: `internal`
-- Current version: `—`
-- Exported from: —
-- ABI snapshot: `—` / `—`
-- Compatibility mode: `—`
-- References: —
-- Summary: Unit spec data model.
-
-| Field | Type | Required | Default | IR refs |
-| ----- | ---- | -------- | ------- | ------- |
-| `kind` | `Literal[rate]` | `yes` | `—` | — |
 
 ### `polisyos.ir.kernel.units.UnitsRegistry` { #polisyos-ir-kernel-units-unitsregistry }
 
@@ -31204,7 +31140,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.model_layer.queries.DataFilter`, `polisyos.ir.model_layer.queries.Pagination`, `polisyos.ir.model_layer.queries.QueryScope`
-- Summary: Data view request data model.
+- Summary: Describe a requested data view and its query constraints.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
@@ -32887,9 +32823,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.InterventionQueryRef` { #polisyos-ir-registry-refs-interventionqueryref }
 
 - Kind: `pydantic_model`
-- Public status: `package_facade`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.registry:InterventionQueryRef`
+- Exported from: `polisyos.ir.registry:InterventionQueryRef`, `polisyos.ir:InterventionQueryRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`
@@ -33805,9 +33741,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.registry.refs.StructuralCausalModelSpecRef` { #polisyos-ir-registry-refs-structuralcausalmodelspecref }
 
 - Kind: `pydantic_model`
-- Public status: `package_facade`
+- Public status: `root_facade`
 - Current version: `—`
-- Exported from: `polisyos.ir.registry:StructuralCausalModelSpecRef`
+- Exported from: `polisyos.ir.registry:StructuralCausalModelSpecRef`, `polisyos.ir:StructuralCausalModelSpecRef`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
 - References: `polisyos.ir.artifacts.contracts.ArtifactID`

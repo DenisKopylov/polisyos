@@ -1,0 +1,518 @@
+{
+  "packet_id": "FRC-01",
+  "lane": "LANE-03",
+  "status": "AUTHORED_PENDING_FINAL_QA",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "test_status": "NOT_RUN",
+  "audit_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source_ids": [
+    "B32",
+    "LA-051"
+  ],
+  "audit_reports": [
+    "05_Основания/Аудит/02_Пакеты/FRC-01.md"
+  ],
+  "source_plan_lines": [
+    3530,
+    3669
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C29_остатки:0",
+      "audit_id": "C29-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-FRC-01-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Summary не имеет права пересоздавать floor по counts.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C29_остатки.json",
+        "sha256": "18da0ccc58a68befa35143ef479f649ace1995bdb7b3f5bdf83f69928a9b43e3",
+        "json_pointer": "/findings/0"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C29_остатки:1",
+      "audit_id": "C29-G01",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-FRC-01-05",
+        "REQ-FRC-01-06"
+      ],
+      "shared_owner": "FRC-02",
+      "rationale": "Реальный bridge уже существует; full producer/reopen qualification одна, не дублирующая реализация.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C29_остатки.json",
+        "sha256": "18da0ccc58a68befa35143ef479f649ace1995bdb7b3f5bdf83f69928a9b43e3",
+        "json_pointer": "/findings/1"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C29_остатки:2",
+      "audit_id": "C29-G02",
+      "disposition": "capability",
+      "requirement_ids": [
+        "REQ-FRC-01-04",
+        "REQ-FRC-01-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Связать actual support content; optional неизвестное не фабриковать строками.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C29_остатки.json",
+        "sha256": "18da0ccc58a68befa35143ef479f649ace1995bdb7b3f5bdf83f69928a9b43e3",
+        "json_pointer": "/findings/2"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C29_остатки:3",
+      "audit_id": "C29-G03",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-FRC-01-03",
+        "REQ-FRC-01-07"
+      ],
+      "shared_owner": null,
+      "rationale": "Ограниченный temporal contract и обслуживание устаревшего characterization, не автоматическое снятие guards.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C29_остатки.json",
+        "sha256": "18da0ccc58a68befa35143ef479f649ace1995bdb7b3f5bdf83f69928a9b43e3",
+        "json_pointer": "/findings/3"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C29_остатки:4",
+      "audit_id": "C29-G04",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FRC-01-02",
+        "REQ-FRC-01-05",
+        "REQ-FRC-01-06",
+        "REQ-FRC-01-07"
+      ],
+      "shared_owner": "FRC-02",
+      "rationale": "Actual native owners и scientific scope вместо fixture claims; общий served run переиспользуется.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C29_остатки.json",
+        "sha256": "18da0ccc58a68befa35143ef479f649ace1995bdb7b3f5bdf83f69928a9b43e3",
+        "json_pointer": "/findings/4"
+      }
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0079",
+      "requirement_ids": [
+        "REQ-FRC-01-06"
+      ],
+      "disposition": "shared",
+      "rationale": "Actual owner source binding закрывается общей проверкой FRC-02.",
+      "source_ids": [
+        "B32"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0080",
+      "requirement_ids": [
+        "REQ-FRC-01-04"
+      ],
+      "disposition": "capability",
+      "rationale": "Строковые refs не заменяют persisted support content.",
+      "source_ids": [
+        "B32"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0081",
+      "requirement_ids": [
+        "REQ-FRC-01-03",
+        "REQ-FRC-01-07"
+      ],
+      "disposition": "qualify",
+      "rationale": "Сохранить реальный temporal profile; согласовать иной только по declared design, обновить stale test.",
+      "source_ids": [
+        "B32"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0082",
+      "requirement_ids": [
+        "REQ-FRC-01-02",
+        "REQ-FRC-01-05",
+        "REQ-FRC-01-06"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native proof и разные scientific quantities.",
+      "source_ids": [
+        "B32"
+      ]
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0101",
+      "requirement_ids": [
+        "REQ-FRC-01-03"
+      ],
+      "test_ids": [
+        "TEST-FRC-01-03"
+      ],
+      "rationale": "Bound aware temporal roles."
+    },
+    {
+      "inventory_id": "preserve:0102",
+      "requirement_ids": [
+        "REQ-FRC-01-01",
+        "REQ-FRC-01-02",
+        "REQ-FRC-01-05"
+      ],
+      "test_ids": [
+        "TEST-FRC-01-01",
+        "TEST-FRC-01-02",
+        "TEST-FRC-01-05"
+      ],
+      "rationale": "No default credible/floor."
+    },
+    {
+      "inventory_id": "preserve:0103",
+      "requirement_ids": [
+        "REQ-FRC-01-03",
+        "REQ-FRC-01-05",
+        "REQ-FRC-01-07"
+      ],
+      "test_ids": [
+        "TEST-FRC-01-03",
+        "TEST-FRC-01-06"
+      ],
+      "rationale": "Raw mapping is insufficient."
+    },
+    {
+      "inventory_id": "preserve:0104",
+      "requirement_ids": [
+        "REQ-FRC-01-05"
+      ],
+      "test_ids": [
+        "TEST-FRC-01-02",
+        "TEST-FRC-01-05"
+      ],
+      "rationale": "Conditional simulation-only path."
+    }
+  ],
+  "requirements": [
+    {
+      "text": "summarize_forecast_support_integrity должен сохранять описательные numerator/denominator/pass_rate, но не создавать admitted calibration pass/floor из одного равенства counts. При входном limit/floor=False и10/10 итог не может быть pass/floor=True. Для непустого согласованного набора действительных passed/floor=True записей с совместимым governed threshold/rule/scope и выполненными остальными admission conditions summary обязан сохранять pass/floor=True, в том числе95/100 при explicit threshold.90 или.95; counts не обязаны равняться denominator. Иначе admitted pass не разрешён; неоднородность или ограничение видны в issue_codes и ограниченном summary, не отменяя полезные отдельные записи.",
+      "source_ids": [
+        "LA-051"
+      ],
+      "audit_ids": [
+        "C29-R01"
+      ],
+      "id": "REQ-FRC-01-01",
+      "test_ids": [
+        "TEST-FRC-01-01"
+      ]
+    },
+    {
+      "text": "Finite estimator point/CI, nominal confidence и sample count остаются estimator-shape diagnostics, не измеренными coverage/error/числителем калибровки. Без разрешённого calibration evidence report=None остаётся blocked, имеющийся report — ограниченным; nominal0.8→0.95 без observations не улучшает empirical metrics или floor.",
+      "source_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "audit_ids": [
+        "C29-G04"
+      ],
+      "id": "REQ-FRC-01-02",
+      "test_ids": [
+        "TEST-FRC-01-02"
+      ]
+    },
+    {
+      "text": "Шесть временных ролей передаются из связанного источника без now/зашитой даты/искусственного сдвига и сравниваются на canonical admission. Для текущего bounded temporal profile сохраняются aware UTC, различимость и его порядок; missing/naive/несовместимое окно не создают record. Иной реальный дизайн требует согласованного явного расширения обоих owners, а не фальсификации timestamps.",
+      "source_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "audit_ids": [
+        "C29-G03"
+      ],
+      "id": "REQ-FRC-01-03",
+      "test_ids": [
+        "TEST-FRC-01-03"
+      ]
+    },
+    {
+      "text": "S10 support должен ссылаться на действительный producer artifact для заявленной содержательной поддержки и интервала, с тем же selected method/estimand/unit/level/source identity. Полный selected ArtifactRefModel, включая manifest_profile_sha256, должен сохраняться через producer, persisted support и fresh reader; ID-only строка допустима для отображения, не admission. URI, сочинённый из ID или суффикса /95, не может заменять разрешение содержания. Неустановленные optional source/method/sensitivity/equilibrium/distribution refs остаются None/пустыми с точным ограничением; затронутый governed tier не повышается, но доступный conditional результат сохраняется.",
+      "source_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "audit_ids": [
+        "C29-G02"
+      ],
+      "id": "REQ-FRC-01-04",
+      "test_ids": [
+        "TEST-FRC-01-04",
+        "TEST-FRC-01-06"
+      ]
+    },
+    {
+      "text": "Simulation-only/advisory и корректный предиктивный результат сохраняют useful numerical payload при отсутствии эмпирической/causal authority. Raw mapping, отсутствующая credibility, foreign N4 outcome relation либо отсутствующий evidence ref не создают calibration record/credible/floor. S10 purpose denials, EvalSafety/WMR/candidate binding и non-production роль сохраняются в actual envelope/summary consumers.",
+      "source_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "audit_ids": [
+        "C29-G01",
+        "C29-G04"
+      ],
+      "id": "REQ-FRC-01-05",
+      "test_ids": [
+        "TEST-FRC-01-02",
+        "TEST-FRC-01-03",
+        "TEST-FRC-01-05",
+        "TEST-FRC-01-06"
+      ]
+    },
+    {
+      "text": "Через существующий HTTP producer и reopened reader canonical empirical evidence loader должен передать реальные refs, method/version/rule/history/времена и полученный calibration статус в gateway/S10. Положительный путь и его отрицательные binding controls выполняются один раз в E02-I03-B с FRC-02; resolved-wrapper fixture не заменяет это свидетельство.",
+      "source_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "audit_ids": [
+        "C29-G01",
+        "C29-G02",
+        "C29-G04"
+      ],
+      "id": "REQ-FRC-01-06",
+      "test_ids": [
+        "TEST-FRC-01-06"
+      ]
+    },
+    {
+      "text": "Устаревший FRC-01 temporal characterization должен быть согласован с actual admitted boundary: отдельный отрицательный raw-map/неверное окно и положительный real producer→loader случай. Тест не требует восстановления raw bypass и не утверждает false PASS по историческому header RED; historical run evidence не переписывается.",
+      "source_ids": [
+        "B32",
+        "LA-051"
+      ],
+      "audit_ids": [
+        "C29-G03",
+        "C29-G04"
+      ],
+      "id": "REQ-FRC-01-07",
+      "test_ids": [
+        "TEST-FRC-01-03",
+        "TEST-FRC-01-06"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "native summary DTO + sibling consumer",
+      "setup": "Actual ForecastCalibrationRecord(limit,floor=False,n=10,d=10) и blocked support из C29-P16; отдельно genuine passed1row с floorTrue;95/100 с upstream pass/floorTrue и explicit threshold.90/.95; mixed pass+limit, zero denominator и разные threshold/rule/scope.",
+      "action": "Вызвать actual summarize_forecast_support_integrity и затронутый proving-ground summary consumer; переставить порядок records.",
+      "oracle": "10/10 остаётся descriptive rate1, но summary не pass/floorTrue, issue сохраняет upstream limitation. Homogeneous genuine all-pass при сохранённых compatible bindings и floorTrue обязан дать summary pass/floorTrue;95/100 при explicit threshold.90/.95 и выполненных остальных admission conditions также pass/floorTrue, не always-limit. Это сохраняет уже обоснованный upstream pass, не выводит его из counts; mixed/zero/несовместимые профили не дают общего admitted pass. Counts и purpose denials не теряются. Старый counts-only код обязан провалить limit10/10 контроль.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/runtime/quality/test_design_axes_outcome_prediction.py; proving_ground/causal_forecast_search.py summary call",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-FRC-01-01",
+      "requirement_ids": [
+        "REQ-FRC-01-01"
+      ]
+    },
+    {
+      "level": "native estimator adapter + numerical distinction",
+      "setup": "Один finite report с nominal0.8/0.95, отсутствующий report и failed diagnostic; отдельно два genuine predictive corpora при одинаковом nominal0.95: все observations внутри/вне intervals.",
+      "action": "Вызвать actual _s10_calibration_evidence_from_report и actual canonical calibration curve на соответствующем predictive корпусе.",
+      "oracle": "Report shape не создаёт empirical numerator/denominator/coverage; None blocked, failed diagnostic limit/floorFalse. Curve действительно различает coverage1/0 и ECE≈.05/.95, но эти два независимых численных контроля не связывают causal parameter CI с индивидуальными outcomes.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_frc_01.py; calibration/curve/_compute.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-FRC-01-02",
+      "requirement_ids": [
+        "REQ-FRC-01-02",
+        "REQ-FRC-01-05"
+      ]
+    },
+    {
+      "level": "native temporal boundary + test maintenance",
+      "setup": "Шесть реальных distinct aware времён из canonical admitted fixture FRC-02; изменить одно на missing/naive/equal/неверный order. Отдельно old raw mapping из test_calibration_time_roles_are_preserved_from_bound_evidence.",
+      "action": "Провести через EmpiricalCalibrationContext, _resolve_s10_empirical_evidence и S10 builder; сравнить each role после записи/readback.",
+      "oracle": "Valid роли сохраняются как те же instants в UTC, нет now/default. Raw mapping без owner admission не создаёт record; old incompatible window — negative. Equal roles честно ограничены текущим профилем, а не сдвинуты на микросекунду. Изменение admitted profile допускается только согласованным DEC-TIME.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/remediation/test_frc_01.py; calibration/forecast_bridge.py::EmpiricalCalibrationContext",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-FRC-01-03",
+      "requirement_ids": [
+        "REQ-FRC-01-03",
+        "REQ-FRC-01-05",
+        "REQ-FRC-01-07"
+      ]
+    },
+    {
+      "level": "native support-reference wiring",
+      "setup": "Два реальных persisted prediction/report artifacts с уровнями0.80 и0.95, одинаковым point; optional sensitivity/equilibrium artifact отсутствует либо другой source/method. Для одинаковых bytes создать sibling manifest profiles: valid selected/foreign default и обратную конфигурацию.",
+      "action": "Собрать support через действительный gateway, разрешить interval ref выбранным reader, затем подменить foreign artifact или убрать ссылку.",
+      "oracle": "0.80 support ссылается на реальный0.80 interval content, не всегда /95; foreign method/estimand/source ref отказан либо точно ограничен. Отсутствующий optional evidence не заменяется придуманным URI. Conditional численный payload остаётся доступным; строковое наличие ref не считается доказательством. В обеих sibling-profile конфигурациях reader потребляет только explicitly selected profile; default lookup не заменяет выбор и foreign profile не проходит.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "generation_cycle.py::_build_s10_forecast_inputs; actual predictive_calibration producer/reader",
+      "allowed_doubles_and_prohibitions": "Реальные tiny persisted artifacts разрешены. Нельзя сделать только строковый suffix test и назвать content-binding принятым.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-FRC-01-04",
+      "requirement_ids": [
+        "REQ-FRC-01-04"
+      ]
+    },
+    {
+      "level": "native typed support/envelope preservation",
+      "setup": "Simulation-only без calibration record; predictive-only bound record; unbound N4 outcome; missing counterfactual credibility.",
+      "action": "Передать через actual build_forecast_support/envelope/summary и затронутый downstream purpose check.",
+      "oracle": "Simulation-only сохраняет advisory outcome без empirical record; predictive не даёт causal/treatment/production/S11 authority. Unbound outcome не получает tier только из корректного наблюдаемого ряда. Missing credibility остаётся insufficient_history/not_established в своём профиле.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/runtime/quality/test_design_axes_outcome_prediction.py; generation_cycle.py::_s10_value_authority_boundary",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-FRC-01-05",
+      "requirement_ids": [
+        "REQ-FRC-01-05"
+      ]
+    },
+    {
+      "level": "native served create→reopen E02-I03-B",
+      "setup": "Один compatible ForecastOwner/backtest корпус и source-bound method/rule/times; действительные HTTP service create/reopen и canonical loader, согласованные с FRC-02/PCL-01.",
+      "action": "Создать и сохранить evidence/S10, переоткрыть fresh service/reader; контролируемо менять method version, rule, temporal roles, ref availability, selected manifest profile при тех же bytes или N4 relation.",
+      "oracle": "Valid report/receipt/record сохраняют measured corpus и полные profile-bearing refs/times, включая непрерывность manifest_profile_sha256. Valid selected при foreign default работает; foreign selected при valid default отказывает. Wrong bindings/unknown refs не дают pass; данные и полезный conditional прогноз остаются видимы с адресной причиной. Actual loader не заменён вручную созданной _S10ResolvedEmpiricalEvidence.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "runtime/http/services/predictive_calibration.py; существующие native acceptance tests FRC-02",
+      "allowed_doubles_and_prohibitions": "Только внешний transport/clock вне проверяемых временных фактов допускает controllable double. Forecast/calibration/CAS/loaders/S10 consumers — actual.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-FRC-01-06",
+      "requirement_ids": [
+        "REQ-FRC-01-04",
+        "REQ-FRC-01-05",
+        "REQ-FRC-01-06",
+        "REQ-FRC-01-07"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I03-A",
+    "E02-I03-B"
+  ],
+  "dependencies": [
+    {
+      "packet": "CYC-01",
+      "relation": "Реальный request/context owner, не повторная реализация."
+    },
+    {
+      "packet": "FRC-02",
+      "relation": "Accountable LA-051 bridge/served qualification; совместные gateway fields и temporal profile."
+    },
+    {
+      "packet": "PCL-01",
+      "relation": "Canonical numeric calibration/report/receipt contract; не второй расчет coverage здесь."
+    },
+    {
+      "packet": "EMP-01",
+      "relation": "Сохраняемые scope/value bounds переданы в общую summary без повышения силы."
+    }
+  ],
+  "preservation": [
+    "Bound aware temporal roles.",
+    "No default credible/floor.",
+    "Raw mapping is insufficient.",
+    "Conditional simulation-only path."
+  ],
+  "protected_distinction_ids": [
+    "LK29",
+    "LK30"
+  ],
+  "design_alignment": [
+    {
+      "source": "policy-engine/docs/system-design-decisions/policy-design-custody-time-model.md",
+      "section": "§2–5: semantic time roles, family-native contracts",
+      "application": "Разные роли времени не равны обязательной искусственной разнице instants. Сохраняется нынешний ограниченный профиль; новый дизайн расширяется семантически, не через now/подгонку дат."
+    },
+    {
+      "source": "policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "section": "K01 и K07–K08: evidence substitution boundaries",
+      "application": "Finite CI, строковый ref и арифметическая доля не заменяют measured evidence/право использования. Положительный conditional путь сохраняется; документация не повод добавить универсальный бумажный gate."
+    }
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-FRC-01-TIME",
+      "question": "Нужен ли реальному поддержанному эксперименту иной temporal profile, например совпадающие роли?",
+      "owner": "FRC-01/FRC-02 и владелец экспериментального дизайна",
+      "bounded_action": "Предъявить один конкретный дизайн и шесть семантических ролей, объяснить допустимые равенства/порядок. Выбрать сохранение текущего профиля либо versioned согласованное расширение bridge/S10 с positive/negative controls.",
+      "default": "Никаких искусственных дат; текущий профиль принимается только в его declared scope."
+    },
+    {
+      "id": "DEC-FRC-01-SUPPORT",
+      "question": "Какие optional support refs имеют реального producer/reader на выбранном forecast пути?",
+      "owner": "Gateway/ForecastOwner и затронутый S10 consumer",
+      "bounded_action": "Составить конечную таблицу source_contract/method_validity/sensitivity/equilibrium/distribution/interval: actual producer field→artifact→reader либо not_established. Реализовать доступные bindings; для отсутствующих — штатное empty+limitation, без фиктивного URI.",
+      "default": "Только реально связанный support получает более сильную роль, conditional payload не удаляется."
+    }
+  ],
+  "technical_solution": "**Summary repair:** у `outcome_prediction.py::summarize_forecast_support_integrity` оставить arithmetic totals отдельными от admitted disposition. Добавить явный pure reduction входных `calibration_status`, `floor_passed`, threshold/rule и совместимости observable scope. Для согласованной непустой группы pass может только наследоваться от всех admitted pass records; никакой формулы `numerator==denominator` для нового floor. При mixed/blocked/missing basis итог limit/blocked с конкретным issue и сохранёнными отдельными records; ограничение одного несвязанного claim не отменяет пригодность другого. Если нужен общий threshold для неоднородных групп — это новый governed aggregation contract; здесь его не изобретать. Покрытие95/100 может быть admitted pass по своему threshold, поэтому нельзя также требовать100/100 после ремонта.\n\n**Support wiring:** `_build_s10_forecast_inputs` уже получает resolved empirical projection и references. Дополнить handoff существующими producer artifacts выбранного прогноза/метода; передавать полный selected `ArtifactRefModel` в canonical loader, не `interval://hash/95`. `_s10_artifact_ref_id` возвращает только ID и теряет `manifest_profile_sha256`, поэтому годится лишь как display helper. Если нынешнее поле support допускает только строку, использовать существующее profile-bearing typed extension/locator и согласованно обновить producer/persisted reader; не восстанавливать profile по default manifest. Согласовать с BKT-01 REQ-04 (сохранение selected MetricsRef), без нового store. Проверить содержание level/estimand/source у producer boundary, затем передать связанную ссылку. Optional source_contract/method_validity/sensitivity/equilibrium/distribution поля в ForecastSupport уже nullable/списки: при отсутствии действительного evidence использовать их штатное пустое представление и existing limitation refs. Не строить отдельный assurance store и не отключать conditional forecast ради optional ref. Для governed tier, требующего interval, отсутствие binding ограничивает именно этот tier.\n\n**Времена и tests:** current temporal profile в `forecast_bridge.py` и `_bound_s10_temporal_roles` согласованно строгий. Не исправлять raw-map старый testcase возвратом bypass. Positive characterization строится через имеющийся canonical producer/loader; raw map и несовместимое окно становятся отдельными negatives. Если новый реальный дизайн допускает совпадение временных ролей, изменить named profile у обоих owners вместе после DEC-TIME, а не глобально требовать разные физические моменты для всех исследований.\n\n**Сохранённый путь:** report shape → diagnostics (не calibration); compatible forecast/history → canonical measured report/evidence → loader → gateway → S10 → summary/envelope → reopened consumer. Causal CI не становится predictive interval одной сменой имени. S10 остаётся ограниченным назначением и не заменяет EvalSafety/WMR/candidate/epoch guards.",
+  "compatibility_and_rollback": "Исторические records сохраняются со своими timestamps/provenance; новый summary отражает исходные ограничения, не меняет старые записи. Изменение summary pass — намеренный semantic fix; downstream displays/tests обновить, не присваивая summary самостоятельной authority. Удаление manufactured optional refs требует учесть readers, ожидавших непустую строку: они получают explicit missing/limitation, а не success-shaped placeholder. Версию temporal profile не менять без DEC-TIME и companion FRC-02. Rollback должен сохранять отказ ложному pass; нельзя восстанавливать count-only promotion для старого UI.",
+  "source_locators": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": 17173,
+      "last_line": 17186,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L17173-L17186"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+      "first_line": 105,
+      "last_line": 257,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py#L105-L257"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
+      "first_line": 590,
+      "last_line": 649,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/design_axes/outcome_prediction.py#L590-L649"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": 17217,
+      "last_line": 17590,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L17217-L17590"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "first_line": 17649,
+      "last_line": 17829,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/generation_cycle.py#L17649-L17829"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "first_line": 345,
+      "last_line": 366,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/forecast_bridge.py#L345-L366"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "first_line": 105,
+      "last_line": 185,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_frc_01.py#L105-L185"
+    }
+  ]
+}

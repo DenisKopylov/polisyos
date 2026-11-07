@@ -1,0 +1,210 @@
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/service.py:177-197
+  177     def run_search(
+  178         self,
+  179         *,
+  180         initial_context: dict[str, Any],
+  181         initial_candidate: dict[str, Any] | None = None,
+  182     ) -> SearchResult:
+  183         """Run the existing generation/evaluation lifecycle through this driver."""
+  184         self._pending_candidates.clear()
+  185         self._completed_candidate_ids.clear()
+  186         self._ask_iteration = 0
+  187 
+  188         run_lock = self.owner._run_lock
+  189         if not run_lock.acquire(blocking=False):
+  190             raise RuntimeError("SearchController.run is not reentrant")
+  191         try:
+  192             return self._run_locked(
+  193                 initial_context=initial_context,
+  194                 initial_candidate=initial_candidate,
+  195             )
+  196         finally:
+  197             run_lock.release()
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/service.py:199-245
+  199     def _run_locked(
+  200         self,
+  201         *,
+  202         initial_context: dict[str, Any],
+  203         initial_candidate: dict[str, Any] | None,
+  204     ) -> SearchResult:
+  205         start_time = self.owner._begin_native_run(initial_context)
+  206         stopping_reason: str | None = None
+  207         candidate_to_seed = initial_candidate
+  208 
+  209         while (
+  210             self.owner._run_state.evaluation_iterations
+  211             < self.owner._config.max_iterations_hard_limit
+  212         ):
+  213             stopping_reason = self._stopping_reason(initial_context)
+  214             if stopping_reason is not None:
+  215                 self._stop(stopping_reason)
+  216                 break
+  217 
+  218             batch, generated, stopping_reason = self._prepare_batch(
+  219                 initial_context=initial_context,
+  220                 initial_candidate=candidate_to_seed,
+  221             )
+  222             candidate_to_seed = None
+  223             if stopping_reason is not None:
+  224                 self._stop(stopping_reason)
+  225                 break
+  226 
+  227             if not batch:
+  228                 stopping_reason = self._handle_empty_generation()
+  229                 if stopping_reason is not None:
+  230                     break
+  231                 continue
+  232 
+  233             self._mark_nonempty_generation()
+  234             stopping_reason = self._evaluate_batch(
+  235                 batch=batch,
+  236                 generated=generated,
+  237                 initial_context=initial_context,
+  238             )
+  239             if stopping_reason is not None:
+  240                 break
+  241 
+  242         return self.owner._finish_native_run(
+  243             start_time=start_time,
+  244             stopping_reason=stopping_reason,
+  245         )
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/lifecycle.py:234-252
+  234     def _prepare_service_run(self) -> None:
+  235         """Ensure the ask/tell bridge has one explicit run-state owner.
+  236 
+  237         The compatibility ``run()`` path always starts a fresh state.  The
+  238         contract adapter, however, may receive several ask/tell transitions
+  239         before a full loop is invoked.  This small owner operation gives that
+  240         path a stable search identity and makes a later ask an explicit
+  241         continuation of the same state rather than an accidental new ledger.
+  242         """
+  243         if self._run_state.status in {None, SearchStatus.NOT_STARTED}:
+  244             self._run_state = SearchRunState(
+  245                 search_id=str(uuid4())[:8],
+  246                 status=SearchStatus.RUNNING,
+  247             )
+  248             self._config.stopping.reset()
+  249             self._reset_diversity_tracker(operation="prepare_service_run")
+  250             return
+  251         if self._run_state.status is not SearchStatus.RUNNING:
+  252             self._run_state.status = SearchStatus.RUNNING
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/lifecycle.py:437-551
+  437     def _begin_native_run(self, initial_context: dict[str, Any]) -> datetime:
+  438         """Initialize one native service run and seed its warm history."""
+  439         self._validate_transfer_basis()
+  440         start_time = datetime.now(UTC)
+  441         search_id = str(uuid4())[:8]
+  442         self._reset_diversity_tracker(operation="reset_diversity_tracker")
+  443         self._run_state = SearchRunState(
+  444             search_id=search_id,
+  445             status=SearchStatus.RUNNING,
+  446         )
+  447         self._config.stopping.reset()
+  448         self._refresh_budget_snapshot(initial_context)
+  449         self._run_state.training_evaluations = 0
+  450 
+  451         for eval_dict in self._config.initial_evaluations:
+  452             stage_b_result = deepcopy(eval_dict.get("stage_b_result"))
+  453             source_results = (
+  454                 stage_b_result.get("simulation_results")
+  455                 if isinstance(stage_b_result, dict)
+  456                 else None
+  457             )
+  458             assessment: ObjectiveScoreAssessment | None = None
+  459             score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+  460             obj_value = eval_dict.get("objective_value")
+  461             if isinstance(source_results, dict):
+  462                 recomputed = self._config.objective.evaluate(source_results)
+  463                 assessment = recomputed.score_assessment
+  464                 score_status = recomputed.score_status
+  465                 if (
+  466                     score_status is ObjectiveScoreStatus.AVAILABLE
+  467                     and score_assessment_matches_source(assessment, source_results)
+  468                 ):
+  469                     obj_value = assessment.value if assessment is not None else None
+  470                 else:
+  471                     if score_status is ObjectiveScoreStatus.AVAILABLE:
+  472                         score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+  473                     obj_value = eval_dict.get("objective_value")
+  474             admission = reconcile_objective_score_assessment(
+  475                 assessment,
+  476                 source_results,
+  477                 reported_status=score_status,
+  478                 reported_value=obj_value,
+  479             )
+  480             warm_candidate = deepcopy(eval_dict.get("candidate", {}))
+  481             proposal_data = eval_dict.get("candidate_proposal")
+  482             warm_proposal = (
+  483                 CandidateProposal.model_validate(proposal_data)
+  484                 if proposal_data is not None
+  485                 else None
+  486             )
+  487             if warm_proposal is not None and not candidate_payloads_equal(
+  488                 materialize_candidate_proposal(warm_proposal), warm_candidate
+  489             ):
+  490                 raise ValueError("warm_start_candidate_subject_mismatch")
+  491             warm_resolution = self._resolve_policy_evaluation_with_status(
+  492                 warm_candidate, stage_b_result or {}, candidate_proposal=warm_proposal
+  493             )
+  494             warm_vector = warm_resolution.value
+  495             warm_candidate_ref, warm_evaluation_ref, warm_verified = self._resolve_policy_source(
+  496                 warm_proposal, warm_vector, stage_b_result or {}
+  497             )
+  498             warm_policy_subject = (
+  499                 warm_proposal is not None
+  500                 and warm_proposal.strategy_context is not None
+  501                 and warm_proposal.strategy_context.policy_schema
+  502             )
+  503             if warm_resolution.status == "invalid" or (
+  504                 (warm_policy_subject or warm_vector is not None) and not warm_verified
+  505             ):
+  506                 score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
+  507                 obj_value = None
+  508                 assessment = None
+  509                 admission = reconcile_objective_score_assessment(
+  510                     None, source_results, reported_status=score_status, reported_value=None
+  511                 )
+  512             record = SearchIteration(
+  513                 iteration=-1,
+  514                 candidate=warm_candidate,
+  515                 objective_value=obj_value,
+  516                 objective_details=[],
+  517                 is_promising=eval_dict.get("is_promising", False)
+  518                 and admission.status is ObjectiveScoreStatus.AVAILABLE,
+  519                 stage_a_passed=True,
+  520                 stage_b_result=stage_b_result,
+  521                 duration_seconds=0.0,
+  522                 policy_evaluation=warm_vector,
+  523                 policy_evaluation_status=(
+  524                     "source_unverified"
+  525                     if warm_policy_subject and not warm_verified
+  526                     else warm_resolution.status
+  527                 ),
+  528                 candidate_ref=warm_candidate_ref,
+  529                 evaluation_ref=warm_evaluation_ref,
+  530                 score_status=admission.status,
+  531                 score_assessment=assessment,
+  532                 score_admission=admission,
+  533                 candidate_proposal=warm_proposal,
+  534             )
+  535             self._history.append(record)
+  536             if (
+  537                 score_status is ObjectiveScoreStatus.AVAILABLE
+  538                 and assessment is not None
+  539                 and score_assessment_matches_source(assessment, source_results)
+  540             ):
+  541                 self._run_state.training_evaluations += 1
+  542             if (
+  543                 score_status is ObjectiveScoreStatus.AVAILABLE
+  544                 and obj_value is not None
+  545                 and obj_value < self._best_objective
+  546             ):
+  547                 self._best_objective = float(obj_value)
+  548                 self._best_candidate = deepcopy(record.candidate)
+  549 
+  550         controller_logger.info(f"Starting search {search_id}")
+  551         return start_time

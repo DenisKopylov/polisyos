@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Literal
 
 import numpy as np
@@ -29,9 +29,11 @@ from polisyos.ir import (
     UncertaintyEnvelopeRef,
     WelfareSampleBundleRef,
     get_json_artifact,
+    persist_uncertainty_envelope,
 )
 from polisyos.ir.analytics import (
     DependenceStructure,
+    NumericPolicySpec,
     UncertaintyEnvelope,
     WelfareMethod,
 )
@@ -195,6 +197,7 @@ class _EnvelopeCollection:
     envelopes: dict[str, UncertaintyEnvelope]
     refs: dict[str, UncertaintyEnvelopeRef]
     calibration_source: _CalibrationCovarianceSource | None = None
+    origins: dict[str, _EnvelopeOrigin] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -217,6 +220,47 @@ class _CalibrationCovarianceSource:
     source_execution_status: Literal["matched", "not_established", "mismatch"] = "not_established"
     source_execution_limitations: tuple[str, ...] = ()
     inference_status: Literal["not_established", "curvature_only"] = "not_established"
+    selected_centers: tuple[tuple[str, float], ...] = ()
+
+
+def _reconcile_calibration_requested_inputs(
+    context: _ResolvedWelfareContext,
+    source: _CalibrationCovarianceSource | None,
+    input_envelopes: Mapping[str, UncertaintyEnvelope],
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Reconcile used calibration fields with available laws and selected centers."""
+    if source is None or not source.coordinate_covariance:
+        return (), ()
+    used = {
+        name
+        for label in context.labels
+        for name, coefficient in context.pe_sensitivity.get(label, {}).items()
+        if coefficient != 0
+    }
+    if context.ge_context.source_kind != "none":
+        used.update(context.ge_context.ge_entry_map)
+    centers = dict(source.selected_centers)
+    selected = set(centers) & used
+    missing = tuple(sorted(selected - set(input_envelopes)))
+    report_scope = set(source.field_order)
+    report_policy = NumericPolicySpec()
+
+    def center_matches(name: str) -> bool:
+        actual = input_envelopes[name].point_estimate
+        expected = centers[name]
+        if actual == expected:
+            return True
+        # Report-owned laws use the producer's fixed legacy numeric profile.
+        # An external point-only law has no such source-bound projection.
+        canonical = report_policy.canonicalize(expected)
+        return (
+            name in report_scope and canonical == actual and (canonical != 0.0 or expected == 0.0)
+        )
+
+    mismatch = tuple(
+        sorted(name for name in selected & set(input_envelopes) if not center_matches(name))
+    )
+    return missing, mismatch
 
 
 @dataclass(frozen=True)
@@ -237,7 +281,8 @@ class _CalibrationCoordinateSampler:
 class _EmpiricalRowSampler:
     param_names: tuple[str, ...]
     samples_by_name: Mapping[str, tuple[float, ...]]
-    probabilities: tuple[float, ...]
+    probabilities: np.ndarray
+    cumulative: np.ndarray | None
     dependence_note: dict[str, Any]
 
 
@@ -286,6 +331,25 @@ def _input_ref(ref: ArtifactRef | ArtifactRefModel, *, role: str) -> InputRef:
         artifact_id=ref.artifact_id,
         role=role,
         manifest_profile_sha256=ref.manifest_profile_sha256,
+    )
+
+
+def _persist_collected_envelope(
+    ctx: ExecutionContext,
+    collection: _EnvelopeCollection,
+    name: str,
+    envelope: UncertaintyEnvelope,
+) -> UncertaintyEnvelopeRef:
+    """Persist a collected envelope with the actual report origin, when known."""
+    source = collection.calibration_source
+    origin = collection.origins.get(name)
+    inputs = (
+        [_input_ref(source.report_ref, role="calibration_report")]
+        if source is not None and origin is not None and origin.source_role == "calibration_report"
+        else None
+    )
+    return persist_uncertainty_envelope(
+        _ensure_ir_artifact_store(ctx.store), envelope, inputs=inputs
     )
 
 

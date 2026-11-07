@@ -1,0 +1,87 @@
+{
+  "pass": "C25",
+  "bundle": "TRN-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C25-R01",
+      "type": "observation_timestamp_lost_during_restore",
+      "severity": "low_history_fidelity",
+      "source_ids": [
+        "B128",
+        "B131"
+      ],
+      "location": "transfer.py:316,622–637; types.py:119",
+      "evidence": [
+        "P17"
+      ],
+      "mechanism": "Serializer retains timestamp, Evaluation reconstruction omits it and defaults to current time.",
+      "preserve": "Source values, provenance and metadata already preserved.",
+      "remaining": "Restore original event time; separate restoration time and legacy/malformed status.",
+      "limits": "No timestamp-based native admission or TTL failure established."
+    },
+    {
+      "id": "C25-R02",
+      "type": "malformed_stage_a_truthiness_upgrade",
+      "severity": "medium_history_schema",
+      "source_ids": [
+        "B128",
+        "B131"
+      ],
+      "location": "transfer.py:622–637",
+      "evidence": [
+        "P18",
+        "P19"
+      ],
+      "mechanism": "Wire string false becomes bool True; real Evaluation becomes valid under declared compatible score-replay fixture.",
+      "preserve": "Real boolean false remains infeasible; native source receipt checks remain separate.",
+      "remaining": "Strict boolean parsing with addressed malformed-row rejection.",
+      "limits": "Normal typed serializer emits boolean; native CAS/GP exploit not run or claimed."
+    },
+    {
+      "id": "C25-G01",
+      "type": "reverse_benchmark_source_identity_and_split_incomplete",
+      "source_ids": [
+        "B132"
+      ],
+      "evidence": [
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "S02"
+      ],
+      "remaining": "Resolve real candidate/suite/split/selected profile or keep historical Evaluation. No production converter call established; nonpromotable preserved."
+    },
+    {
+      "id": "C25-G02",
+      "type": "native_source_and_test_qualification",
+      "source_ids": [
+        "B128",
+        "B130",
+        "B131",
+        "B132"
+      ],
+      "evidence": [
+        "S06",
+        "S07",
+        "S08",
+        "S09"
+      ],
+      "remaining": "Native Python3.14/pytest/CAS/source receipt/GP and target reevaluation unrun. Existing memory-index fixture lacks exact lookup method on one path; not an observed pytest failure."
+    },
+    {
+      "id": "C25-G03",
+      "type": "diagnostic_quota_and_admitted_corpus_policy",
+      "source_ids": [
+        "B130"
+      ],
+      "evidence": [
+        "P25"
+      ],
+      "remaining": "Distinguish bounded returned diagnostics from admissible training quota without dropping rejected evidence. Present behavior explicit diversity/visibility, not silently restored floor-quota bug."
+    }
+  ]
+}

@@ -1,0 +1,300 @@
+{
+  "pass_id": "C121",
+  "bundle": "DDM-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/ddm/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ddm/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          85
+        ]
+      ],
+      "evidence_level": "Полный read; actual root import и lazy monitor export выполнены.",
+      "git_blob": "c4e4ce09a4d3e0570a3db2a4aacd008861279236",
+      "sha256": "adbf26cc868a931b8ad4b2951558a065a52169a5d55acb3993e137d6657322fc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/ddm/integration/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ddm/integration/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          113
+        ]
+      ],
+      "evidence_level": "Полный read; actual lazy facade и identity.",
+      "git_blob": "e30838227eed2ca33a610c5a04d1c23d81407444",
+      "sha256": "426bfbc35a951ff24434e755720fc7592ec27386ce046a7db3d05d07baff62b8",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/ddm/integration/events.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ddm/integration/events.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          35
+        ]
+      ],
+      "evidence_level": "Полный read; actual forwarding одного canonical owner.",
+      "git_blob": "a487e4fc7364de5761091e969ccb5deec0ba221a",
+      "sha256": "894151bedc3046b2b41c469f15b42565818162dbd8d7a3d2d587a36ebcc9eb50",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/ddm/contracts/events.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ddm/contracts/events.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          334
+        ]
+      ],
+      "evidence_level": "Полный read334lines; actual enums/DTOs/validators/aliases и introspection. Новая CalibrationValidityProjection не выдаётся за unchanged historical field set.",
+      "git_blob": "3a9341d2730e76a8430127a81c86313b5eb46e49",
+      "sha256": "bb61dc020f9c905b7a3b47a9cec4ebdd98b002be5bb5692919bddc117a7a7ab7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/ddm/contracts/metric_budget.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ddm/contracts/metric_budget.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          47
+        ]
+      ],
+      "evidence_level": "Полный read; actual budget model, validator и legacy pickle.",
+      "git_blob": "0b01700225f1c1efe2087ad30c5106ca26b318a2",
+      "sha256": "5f607000142ec570fdbd89297ea00039b7e2b2fef6cf825753eac24e7f4a4cdc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/ddm/readiness/readiness_mapper.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ddm/readiness/readiness_mapper.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          209
+        ]
+      ],
+      "evidence_level": "Полный read209lines; actual scalar mapper и old budget alias. ReadinessPolicy остаётся здесь.",
+      "git_blob": "6be49d5fa8a9bff11bf37ec6c3f531919c11bd76",
+      "sha256": "040c993e244c868c897456429738e5140c9607eae4157cca33b70c849f9ca7d0",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/ddm/integration/monitor.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ddm/integration/monitor.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          204
+        ]
+      ],
+      "evidence_level": "Полный read204lines; actual no-registry synthetic monitor chain. Calibration/registry authority branch не квалифицирован этим запуском.",
+      "git_blob": "25778b2476217071affbb7d08a7ee47ded58bf8f",
+      "sha256": "c3c1a1eebbeccf88f59fb3a365390333a05e9d91beebe22109fa19d79f7b012c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/ddm/detectors/track_2_2_shift_adapter.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ddm/detectors/track_2_2_shift_adapter.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          63
+        ]
+      ],
+      "evidence_level": "Полный read; actual event→risk producer.",
+      "git_blob": "242e0caeac9212e0ff01512286c4b1d6e412a345",
+      "sha256": "aaaacc336c373d93a0be09940b201b9ef8a08ea0af9be100b1e51838af668f4b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/ddm/integration/incident.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ddm/integration/incident.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          114
+        ]
+      ],
+      "evidence_level": "Полный read114lines; actual data-only root cause/incident projection. Внешние действия не выполнялись.",
+      "git_blob": "f1f94f94ea63aa866998f9eb478cd5be62fd4017",
+      "sha256": "92561c5097bd0e82eb28220fdb9620164fd99236053b7fb0ba8a06183b871348",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/ddm/integration/shift_event.schema.json",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ddm/integration/shift_event.schema.json",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          104
+        ]
+      ],
+      "evidence_level": "Полный read; real Draft202012 shape/channel validation. FormatChecker создан, но installed date-time checker отсутствует; malformed date не считается проверенной schema.",
+      "git_blob": "38355dd86c1ec89b8f7cdcd1151bb1c7a7c30d99",
+      "sha256": "1bb48c1e7bd3531d8a8e81213f392f42fd91649654e41b42a8a4a2fb76045f65",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/ddm/readiness/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ddm/readiness/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          17
+        ]
+      ],
+      "evidence_level": "Полный read; forwarding budget и policy owner сохранены.",
+      "git_blob": "788acb331b692f803833e02b0d9ad4072347d76e",
+      "sha256": "cbd5315749bc31f57206b1a35b9c87e7ad066e4e43524fbece3077bfb2acbc13",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/ddm/calibration/audit.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ddm/calibration/audit.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          45
+        ]
+      ],
+      "evidence_level": "Import/type boundary read only; полный validity owner будет рассмотрен вDDM-02.",
+      "git_blob": "62c98a84866aba83d04d89478cb93decf6adbc58",
+      "sha256": "b954fecb026acfac711d01c414492e0b46b0a18f03aa9815cd886076f5e6fbbe",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ddm/integration/model_registry.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          70
+        ]
+      ],
+      "evidence_level": "Imports/type boundary only; actual authority/applicability closure не заявлен по этому диапазону.",
+      "git_blob": "212f21d3a4c8ecba723b9556b766083281f99064",
+      "sha256": "b6356224aa4a9c1a7cbefaa8cd3a50266dd716c0f96e2e9a7d9cc5c5d4553619",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/tests/unit/ddm/test_facade.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/ddm/test_facade.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          129
+        ]
+      ],
+      "evidence_level": "Полный read;4 unchanged bodies executed through AST, product imports реальные.",
+      "git_blob": "cef2125bc649a27ba562b49208afcc91397ff087",
+      "sha256": "8ec5c49f05af963762f8fdb583ce71ea6258a3ef5300bc51d51ff782a3ee4491",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/tests/unit/ddm/test_contract_compatibility.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/ddm/test_contract_compatibility.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          285
+        ]
+      ],
+      "evidence_level": "Полный read;6 unchanged bodies/15cases:14PASS,1environmentFAIL. Самогенерируемые trusted pickle tests не исторический архив.",
+      "git_blob": "c018a6638d0aefbbb8b56b6c87a0c3b9ca95f444",
+      "sha256": "e2931688daf033f9ed9b95e16a6e462bf87ce67908505c186312cdd5b2728813",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/tests/unit/ddm/test_contract_fresh_consumers.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/ddm/test_contract_fresh_consumers.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          680,
+          760
+        ]
+      ],
+      "evidence_level": "Selected test intent read; большой1197-line harness не объявлен полностью прочитанным/исполненным. Собственный малый cold-process probe помечен отдельно.",
+      "git_blob": "60452092c69b9284f21e87e0f79117e703985ee1",
+      "sha256": "1d0d22a06c28bbdd550686e99ca767fe49573041fdeb496f806fbc70ca38c7d5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          105
+        ],
+        [
+          150,
+          185
+        ]
+      ],
+      "evidence_level": "Supported runtime и test extra jsonschema[format-nongpl] прочитаны; local missing checker не source dependency defect.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

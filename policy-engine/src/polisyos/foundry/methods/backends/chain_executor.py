@@ -334,7 +334,9 @@ class _FusedJitCache:
 _FUSED_JIT_CACHE = _FusedJitCache()
 
 
-def _validate_compiled_execution_plan(chain: Any) -> None:
+def _validate_compiled_execution_plan(
+    chain: Any, *, registry: MethodRegistry | None = None
+) -> None:
     """Reconcile owned compiled plans before any execution consumer dispatches.
 
     Legacy protocol-only callers carry no compiler validation context; they do
@@ -347,9 +349,16 @@ def _validate_compiled_execution_plan(chain: Any) -> None:
     )
 
     if isinstance(chain, CompiledMethodChain):
-        reconcile_validation_context(chain)
+        reconcile_validation_context(chain, registry=registry)
     elif getattr(chain, "validation_context", None) is not None:
         raise TypeError("Compiler validation context requires a typed compiled plan")
+
+
+def _validate_node_implementation(chain: Any, node_id: UUID, method_class: type) -> None:
+    from polisyos.foundry.methods.components.composer import CompiledMethodChain
+
+    if isinstance(chain, CompiledMethodChain):
+        chain._reconcile_implementation(node_id, method_class)
 
 
 def _build_node_param_payload(
@@ -426,6 +435,7 @@ def _collect_node_inputs(
 ) -> tuple[type[FoundryMethod[Any, Mapping[str, Any]]], Any, MethodSignature, dict[str, Any]]:
     if method_class is None:
         method_class = reg.get(signature.fqn)
+    _validate_node_implementation(chain, node_id, method_class)
     if not _signature_matches(method_class, signature):
         raise MethodContractError(
             signature.fqn, "Selected method signature differs from the compiled chain"
@@ -679,7 +689,7 @@ def execute_heterogeneous_chain(
     async_node_timeout_sec: float | None = None,
 ) -> ChainExecutionResult:
     """Execute heterogeneous chain."""
-    _validate_compiled_execution_plan(chain)
+    _validate_compiled_execution_plan(chain, registry=registry)
 
     if executor_mode == "auto":
         executor_mode = LevelAwareExecutor().choose_mode(chain)

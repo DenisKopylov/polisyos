@@ -14,6 +14,7 @@ References:
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping
 from enum import Enum
 from typing import Any, Literal
 
@@ -23,7 +24,11 @@ from polisyos.ir._internal.validation import coerce_float
 from polisyos.ir.analytics._owner_admission import (
     OwnedJSONRepresentation,
     declare_model_owner,
+    declared_payload_version,
     owner_profile_for_spec,
+    project_owner_source,
+    register_owner_representations,
+    validate_owner_payload,
 )
 from polisyos.ir.analytics.rough_path_semantics import (
     PathLiftMethod,
@@ -34,8 +39,13 @@ from polisyos.ir.analytics.rough_path_semantics import (
     TemporalPathSemanticsScope,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef  # noqa: TC001
+from polisyos.ir.artifacts.contracts import ArtifactOwnerDeclaration
 from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
-from polisyos.ir.migrations.base import CompatibilityMode
+from polisyos.ir.migrations.base import (
+    CompatibilityMode,
+    IRRepresentationKey,
+    ResolvedSchemaAdmission,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     ArtifactRefModel,
@@ -53,7 +63,7 @@ _TEMPORAL_INTERVENTION_TRAJECTORY_SCHEMA_VERSION = "1.0"
 _TEMPORAL_IDENTIFICATION_CERTIFICATE_SCHEMA_NAME = "ir.temporal_identification_certificate"
 _TEMPORAL_IDENTIFICATION_CERTIFICATE_SCHEMA_VERSION = "1.0"
 _DYNAMIC_TREATMENT_REGIME_SCHEMA_NAME = "ir.dynamic_treatment_regime"
-_DYNAMIC_TREATMENT_REGIME_SCHEMA_VERSION = "1.0"
+_DYNAMIC_TREATMENT_REGIME_SCHEMA_VERSION = "1.1"
 _EFFECT_TRAJECTORY_BUNDLE_SCHEMA_NAME = "ir.effect_trajectory_bundle"
 _EFFECT_TRAJECTORY_BUNDLE_SCHEMA_VERSION = "1.0"
 
@@ -1235,6 +1245,7 @@ class DynamicTreatmentRegime(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
+    schema_version: Literal["1.0", "1.1"] = "1.0"
     time_points: tuple[int, ...] = Field(description="Sorted sequence of time indices (0-based).")
     treatment_variables: tuple[str, ...] = Field(
         description="Names of treatment variables A_0, A_1, ... in temporal order."
@@ -1257,6 +1268,17 @@ class DynamicTreatmentRegime(BaseModel):
         default=None,
         description="Linear blip coefficients ψ for LINEAR_BLIP rule.",
     )
+    decision_rule_profile: Literal[
+        "legacy_rule", "linear_q_action.v1", "linear_q_current_interactions.v1"
+    ] = "legacy_rule"
+    n_covariates: int | None = Field(default=None, ge=1)
+    stage_coefficients: tuple[tuple[float, ...], ...] | None = Field(
+        default=None,
+        description=(
+            "Per-stage full Q-model weights followed by its intercept. The selected profile "
+            "defines history/action/interaction feature order; actions compare Q(1) > Q(0)."
+        ),
+    )
     scheduled_actions: tuple[int, ...] | None = Field(
         default=None,
         description="Explicit binary action schedule for EXPLICIT_SCHEDULE rule.",
@@ -1265,6 +1287,35 @@ class DynamicTreatmentRegime(BaseModel):
 
     @model_validator(mode="after")
     def _validate_scheduled_actions(self) -> DynamicTreatmentRegime:
+        if self.decision_rule_profile == "legacy_rule":
+            if self.n_covariates is not None or self.stage_coefficients is not None:
+                raise ValueError("legacy regimes cannot carry an unselected learned rule")
+        else:
+            if self.schema_version != "1.1" or self.rule is not RegimeRule.LINEAR_BLIP:
+                raise ValueError(
+                    "learned decision profiles require manifest/payload 1.1 LINEAR_BLIP"
+                )
+            if self.n_covariates is None or self.stage_coefficients is None:
+                raise ValueError("learned decision profiles require dimensions and stage models")
+            if self.time_points != tuple(range(len(self.time_points))) or not self.time_points:
+                raise ValueError("learned decision stages must be contiguous and start at zero")
+            if len(self.stage_coefficients) != len(self.time_points):
+                raise ValueError("stage_coefficients must align with time_points")
+            if len(self.treatment_variables) != len(self.time_points):
+                raise ValueError("treatment_variables must align with learned stages")
+            for stage, coefficients in enumerate(self.stage_coefficients):
+                history_width = (stage + 1) * self.n_covariates + stage
+                interaction_width = (
+                    self.n_covariates
+                    if self.decision_rule_profile == "linear_q_current_interactions.v1"
+                    else 0
+                )
+                if len(coefficients) != history_width + 2 + interaction_width:
+                    raise ValueError(
+                        "stage model width does not match the selected feature profile"
+                    )
+                if not all(math.isfinite(value) for value in coefficients):
+                    raise ValueError("stage model coefficients must be finite")
         if self.rule is RegimeRule.EXPLICIT_SCHEDULE:
             if self.scheduled_actions is None:
                 raise ValueError("scheduled_actions are required for EXPLICIT_SCHEDULE regimes")
@@ -1542,10 +1593,14 @@ _DYNAMIC_TREATMENT_REGIME_WIRE_POLICY = (
     "polisyos.ir.analytics.dynamic_regime.DynamicTreatmentRegime.wire",
     "1",
 )
+_DYNAMIC_TREATMENT_REGIME_CURRENT_WIRE_POLICY = (
+    "polisyos.ir.analytics.dynamic_regime.DynamicTreatmentRegime.wire",
+    "2",
+)
 _DYNAMIC_TREATMENT_REGIME_REPRESENTATIONS = (
     OwnedJSONRepresentation(
         schema_name=_DYNAMIC_TREATMENT_REGIME_SCHEMA_NAME,
-        schema_version=_DYNAMIC_TREATMENT_REGIME_SCHEMA_VERSION,
+        schema_version="1.0",
         payload_version=None,
         wire_policy_ref=_DYNAMIC_TREATMENT_REGIME_WIRE_POLICY[0],
         wire_policy_revision=_DYNAMIC_TREATMENT_REGIME_WIRE_POLICY[1],
@@ -1554,13 +1609,64 @@ _DYNAMIC_TREATMENT_REGIME_REPRESENTATIONS = (
         notes=(),
         readable=True,
         writable=True,
-        current=True,
-        default_write=True,
+        current=False,
+        default_write=False,
         readable_from=(),
     ),
+    OwnedJSONRepresentation(
+        schema_name=_DYNAMIC_TREATMENT_REGIME_SCHEMA_NAME,
+        schema_version=_DYNAMIC_TREATMENT_REGIME_SCHEMA_VERSION,
+        payload_version="1.1",
+        wire_policy_ref=_DYNAMIC_TREATMENT_REGIME_CURRENT_WIRE_POLICY[0],
+        wire_policy_revision=_DYNAMIC_TREATMENT_REGIME_CURRENT_WIRE_POLICY[1],
+        profile_ref=None,
+        compatibility=CompatibilityMode.BACKWARD,
+        notes=(),
+        readable=True,
+        writable=True,
+        current=True,
+        default_write=True,
+        readable_from=(IRRepresentationKey(_DYNAMIC_TREATMENT_REGIME_SCHEMA_NAME, "1.0", None),),
+    ),
 )
-_DYNAMIC_TREATMENT_REGIME_OWNER = declare_model_owner(
-    DynamicTreatmentRegime,
+
+
+def _dynamic_regime_payload_version(payload: object) -> str | None:
+    """Keep historical versionless payloads distinct from the selected 1.1 wire."""
+    return declared_payload_version(
+        payload,
+        field_name=(
+            "schema_version"
+            if isinstance(payload, Mapping) and "schema_version" in payload
+            else None
+        ),
+    )
+
+
+def _validate_dynamic_regime_source(
+    payload: object, admission: ResolvedSchemaAdmission
+) -> DynamicTreatmentRegime:
+    return validate_owner_payload(
+        payload,
+        admission,
+        payload_version_field=(
+            "schema_version"
+            if isinstance(payload, Mapping) and "schema_version" in payload
+            else None
+        ),
+        source_parser=DynamicTreatmentRegime.model_validate,
+        expected_types=(DynamicTreatmentRegime,),
+        owner=_DYNAMIC_TREATMENT_REGIME_OWNER,
+    )
+
+
+def _project_dynamic_regime_source(
+    source: DynamicTreatmentRegime, _admission: ResolvedSchemaAdmission
+) -> DynamicTreatmentRegime:
+    return project_owner_source((DynamicTreatmentRegime,), source)
+
+
+_DYNAMIC_TREATMENT_REGIME_OWNER = ArtifactOwnerDeclaration(
     contract_id="polisyos.ir.analytics.dynamic_regime.DynamicTreatmentRegime.owner",
     dto_fqn="polisyos.ir.analytics.dynamic_regime.DynamicTreatmentRegime",
     abi_key="ir.analytics.dynamic_regime.DynamicTreatmentRegime",
@@ -1568,14 +1674,21 @@ _DYNAMIC_TREATMENT_REGIME_OWNER = declare_model_owner(
     kind="ir.dynamic_treatment_regime",
     media_type="application/json",
     purpose="dynamic_treatment_regime",
-    policy_revision="polisyos.ir.analytics.dynamic_regime.DynamicTreatmentRegime.owner.owner-admission.r1",
-    accepted_wire_policies=(_DYNAMIC_TREATMENT_REGIME_WIRE_POLICY,),
-    payload_version_field=None,
+    policy_revision="polisyos.ir.analytics.dynamic_regime.DynamicTreatmentRegime.owner.owner-admission.r2",
+    accepted_wire_policies=(
+        _DYNAMIC_TREATMENT_REGIME_WIRE_POLICY,
+        _DYNAMIC_TREATMENT_REGIME_CURRENT_WIRE_POLICY,
+    ),
+    payload_version_of=_dynamic_regime_payload_version,
+    validate_source=_validate_dynamic_regime_source,
+    project_for_consumer=_project_dynamic_regime_source,
     validate_profile=owner_profile_for_spec(
         CanonSpec(forbid_floats=False),
         profile_ref=None,
     ),
-    representations=_DYNAMIC_TREATMENT_REGIME_REPRESENTATIONS,
+)
+register_owner_representations(
+    _DYNAMIC_TREATMENT_REGIME_OWNER, _DYNAMIC_TREATMENT_REGIME_REPRESENTATIONS
 )
 
 
@@ -1713,15 +1826,32 @@ def persist_dynamic_treatment_regime(
     *,
     inputs: list[InputRef] | None = None,
     schema_name: str = _DYNAMIC_TREATMENT_REGIME_SCHEMA_NAME,
-    schema_version: str = _DYNAMIC_TREATMENT_REGIME_SCHEMA_VERSION,
+    schema_version: str | None = None,
 ) -> DynamicTreatmentRegimeRef:
     """Persist dynamic treatment regime helper."""
+    payload = regime.model_dump(mode="json")
+    selected_version = (
+        payload.get("schema_version", "1.0") if schema_version is None else schema_version
+    )
+    if (
+        payload.get("schema_version") == "1.0"
+        and payload.get("decision_rule_profile") == "legacy_rule"
+        and payload.get("n_covariates") is None
+        and payload.get("stage_coefficients") is None
+    ):
+        for field in (
+            "schema_version",
+            "decision_rule_profile",
+            "n_covariates",
+            "stage_coefficients",
+        ):
+            payload.pop(field, None)
     ref = _put_owned_json_artifact(
         store,
-        regime.model_dump(mode="json"),
+        payload,
         owner=_DYNAMIC_TREATMENT_REGIME_OWNER,
         schema_name=schema_name,
-        schema_version=schema_version,
+        schema_version=selected_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
     )

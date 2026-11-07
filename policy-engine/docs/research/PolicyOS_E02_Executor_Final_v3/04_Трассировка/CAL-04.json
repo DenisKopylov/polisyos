@@ -1,0 +1,341 @@
+{
+  "packet_id": "CAL-04",
+  "title": "Identity-safe reuse уже проверенного final snapshot",
+  "goal": "Не терять полезное последнее обновление и не выполнять повторно тождественный final forward; derivatives остаются связаны с параметрами.",
+  "work_type": "C110-R01 narrow fix; C110-G01 native qualification",
+  "preservation": [
+    "Last candidate оценивается, overshoot/NaN не вытесняют checked state.",
+    "Final weights/replica сопоставимы; final report проекции берутся из одного snapshot.",
+    "Local Hessian key и derivatives parameter-connected; histories и limited outcomes сохраняются."
+  ],
+  "technical_solution": [
+    "В finalization после candidate_selected, если выбран baseline и baseline_forward отсутствует, проверить exact pytree leaves/shape/dtype equality выбранного state и candidate, weights и final replica/objective closure identity. При finite candidate_forward и полном совпадении присвоить его selected_forward; иначе оставить existing fallback. Сравнение np.array_equal для finite host snapshots уместно вне JIT; equality loss недостаточно.",
+    "Не менять strict lower-loss tie policy. Не устранять baseline re-evaluation при final weights/step strategy: она обеспечивает сопоставимость. Shared snapshot применим к projections, не к differentiable objective closure.",
+    "Сохранить _HessianReuseKey fields и local run scope. Не строить cross-run global cache и не удалять Hessians других starts, необходимых selector. Расширить existing test_cal_04, затем один общий native wave."
+  ],
+  "owners": [
+    "src/polisyos/foundry/calibration/calibrator.py",
+    "src/polisyos/foundry/calibration/hessian.py",
+    "tests/unit/remediation/test_cal_04.py"
+  ],
+  "shared_scenarios": [
+    "E02-I10-A"
+  ],
+  "coordination": "Один writer calibrator.py вместе с CAL-02/03/06. Snapshot identity должна использовать ту же final training objective CAL-02; admission CAL-03 выполняется до report.",
+  "compatibility": "Public report schema не требуется менять для narrow fix; численные values и tie policy прежние. Historical records не пересчитывать. При сомнительной identity безопасен recompute, не reuse.",
+  "design_alignment": [
+    "[Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md#d25-epistemic-regime-architecture): полезный ограниченный numerical result сохраняется без присвоения empirical authority. [Синтез §4](../05_Основания/Исследование/design_direction.md): общий механизм вместо отдельной ветки на каждый кейс."
+  ],
+  "open_decisions": [],
+  "acceptance": "Exact stationary regression и different-point equal-loss control обязательны. Native derivatives/optax/report квалифицировать отдельно от counted scan fixture. Global optimum и процент ускорения не заявляются.",
+  "lane": "LANE-10",
+  "source_ids": [
+    "B184",
+    "B196",
+    "B203"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/CAL-04.md"
+  ],
+  "requirements": [
+    {
+      "text": "При точном совпадении выбранного state и objective identity с уже оценённым candidate final projection должна использовать его snapshot даже при scalar-loss tie.",
+      "source_ids": [
+        "B184"
+      ],
+      "audit_ids": [
+        "C110-R01"
+      ],
+      "id": "REQ-CAL-04-01",
+      "test_ids": [
+        "TEST-CAL-04-01"
+      ]
+    },
+    {
+      "text": "Равенство только loss не должно разрешать reuse другого point; tie policy сохраняет прежнее проверенное состояние, а weights/replica changes требуют сопоставимой оценки.",
+      "source_ids": [
+        "B196"
+      ],
+      "audit_ids": [
+        "C110-R01",
+        "C110-G01"
+      ],
+      "id": "REQ-CAL-04-02",
+      "test_ids": [
+        "TEST-CAL-04-01",
+        "TEST-CAL-04-02"
+      ]
+    },
+    {
+      "text": "Последний produced candidate должен конкурировать только после finite evaluation; при невозможности оценки сохраняются последний checked state и причина ограничения.",
+      "source_ids": [
+        "B196"
+      ],
+      "audit_ids": [
+        "C110-G01"
+      ],
+      "id": "REQ-CAL-04-03",
+      "test_ids": [
+        "TEST-CAL-04-02"
+      ]
+    },
+    {
+      "text": "Final Hessian переиспользуется только при полном local key match; mismatch/None вызывает расчёт, disabled — нет. Производные продолжают зависеть от переданных параметров.",
+      "source_ids": [
+        "B203"
+      ],
+      "audit_ids": [
+        "C110-G01"
+      ],
+      "id": "REQ-CAL-04-04",
+      "test_ids": [
+        "TEST-CAL-04-03"
+      ]
+    },
+    {
+      "text": "Native final report loss/components/traces должны соответствовать выбранному state/weights/replica без redundant identical scans; число calls не интерпретируется как wall-time speedup.",
+      "source_ids": [
+        "B184",
+        "B203"
+      ],
+      "audit_ids": [
+        "C110-G01"
+      ],
+      "id": "REQ-CAL-04-05",
+      "test_ids": [
+        "TEST-CAL-04-01",
+        "TEST-CAL-04-03",
+        "TEST-CAL-04-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "actual finalization regression",
+      "setup": "f=(x−1)²; baseline=candidate=0, weights=1, fixed final replica; отдельный baseline0/candidate2 equal-loss control.",
+      "action": "Измерить final forward calls и selected point.",
+      "oracle": "Identical state: один final evaluation используется для report; scalar tie разных точек сохраняет 0 и его trace, не trace2. Removing identity reuse возвращает два identical calls.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CAL-04-01",
+      "requirement_ids": [
+        "REQ-CAL-04-01",
+        "REQ-CAL-04-02",
+        "REQ-CAL-04-05"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "native optimizer/finalization",
+      "setup": "x0=0, f=(x−1)²; один SGD-equivalent controlled step 0.5, overshoot4, NaN; fixed/step seed и changed weights.",
+      "action": "Actual Calibrator witnesses плюс real optax step; ограничить budget перед final evaluation.",
+      "oracle": "0.5/loss0.25 admitted, 4/NaN не вытесняют checked0/loss1; rtol=1e-6 atol=1e-6. При невозможности оценки explicit unchecked-update diagnostic, не ложный final improvement.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CAL-04-02",
+      "requirement_ids": [
+        "REQ-CAL-04-02",
+        "REQ-CAL-04-03"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "native Hessian identity",
+      "setup": "Quartic f=x⁴, points −0.5,0.25,1; selected0.25, затем0.5.",
+      "action": "Actual native compute/reuse; mutate каждый key field из existing regression и disabled.",
+      "oracle": "Три initial Hessians, reuse без четвёртого; mismatch требует четвёртый. H(0.25)=0.75, H(0.5)=3, rtol=1e-5 atol=1e-6. Nonfinite/None key не совпадает. Detached trace mutation должен провалить derivative oracle.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CAL-04-03",
+      "requirement_ids": [
+        "REQ-CAL-04-04",
+        "REQ-CAL-04-05"
+      ],
+      "status": "NOT_RUN"
+    },
+    {
+      "level": "E02-I10-A native report",
+      "setup": "Реальный tiny run_pure_scan mechanism и report caller; no scan replacement.",
+      "action": "One/two starts → final report → readback.",
+      "oracle": "Все projections из одной выбранной identity; intentional extra stochastic replica имеет отдельную роль/seed и не удаляется ради счётчика.",
+      "expected": "positive + negative + boundary",
+      "seams": "Реальные owner/DTO/численная функция и принимаемый consumer; только фиксированные входы, isolated tmp store и управляемое время.",
+      "evidence_required": "NOT_RUN сейчас. Предъявить exact source/input/backend, command/result, actual observed values/reasons и различающий контроль; source-only/fixture не объявлять native PASS.",
+      "id": "TEST-CAL-04-04",
+      "requirement_ids": [
+        "REQ-CAL-04-05"
+      ],
+      "status": "NOT_RUN"
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "B184",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Shared forward уже есть; stationary tie теряет его.",
+      "requirement_ids": [
+        "REQ-CAL-04-01",
+        "REQ-CAL-04-05"
+      ]
+    },
+    {
+      "audit_id": "B196",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Last evaluation исправлена; сохранить comparable objective и native boundary.",
+      "requirement_ids": [
+        "REQ-CAL-04-02",
+        "REQ-CAL-04-03"
+      ]
+    },
+    {
+      "audit_id": "B203",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Local key/reuse исправлены; native derivative proof обязателен.",
+      "requirement_ids": [
+        "REQ-CAL-04-04",
+        "REQ-CAL-04-05"
+      ]
+    },
+    {
+      "audit_id": "C110-R01",
+      "disposition": "fix",
+      "shared_owner": null,
+      "rationale": "Переиспользовать по state/objective identity, не по loss.",
+      "requirement_ids": [
+        "REQ-CAL-04-01",
+        "REQ-CAL-04-02"
+      ],
+      "inventory_id": "audit-residual:C110_остатки:0"
+    },
+    {
+      "audit_id": "C110-G01",
+      "disposition": "qualify",
+      "shared_owner": null,
+      "rationale": "Existing tests частично scan-double; отдельно native route.",
+      "requirement_ids": [
+        "REQ-CAL-04-02",
+        "REQ-CAL-04-03",
+        "REQ-CAL-04-04",
+        "REQ-CAL-04-05"
+      ],
+      "inventory_id": "audit-residual:C110_остатки:1"
+    }
+  ],
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "SPECIFICATION_NOT_IMPLEMENTED",
+  "dependencies": [
+    "CAL-03"
+  ],
+  "protected_distinction_ids": [],
+  "original_source": "../05_Основания/Аудит/05_Источники/CAL-04_исходные_строки.txt",
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0306",
+      "requirement_ids": [
+        "REQ-CAL-04-01",
+        "REQ-CAL-04-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Переиспользовать по state/objective identity, не по loss."
+    },
+    {
+      "inventory_id": "remaining:0307",
+      "requirement_ids": [
+        "REQ-CAL-04-02",
+        "REQ-CAL-04-03",
+        "REQ-CAL-04-04",
+        "REQ-CAL-04-05"
+      ],
+      "disposition": "qualify",
+      "rationale": "Existing tests частично scan-double; отдельно native route."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0469",
+      "requirement_ids": [
+        "REQ-CAL-04-03"
+      ],
+      "test_ids": [
+        "TEST-CAL-04-02"
+      ],
+      "rationale": "Evaluated last candidate — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0470",
+      "requirement_ids": [
+        "REQ-CAL-04-02"
+      ],
+      "test_ids": [
+        "TEST-CAL-04-01",
+        "TEST-CAL-04-02"
+      ],
+      "rationale": "Comparable final weights/replica — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0471",
+      "requirement_ids": [
+        "REQ-CAL-04-02",
+        "REQ-CAL-04-03"
+      ],
+      "test_ids": [
+        "TEST-CAL-04-01",
+        "TEST-CAL-04-02"
+      ],
+      "rationale": "Historical checked state — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0472",
+      "requirement_ids": [
+        "REQ-CAL-04-01",
+        "REQ-CAL-04-05"
+      ],
+      "test_ids": [
+        "TEST-CAL-04-01",
+        "TEST-CAL-04-03",
+        "TEST-CAL-04-04"
+      ],
+      "rationale": "Shared final snapshot — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0473",
+      "requirement_ids": [
+        "REQ-CAL-04-04"
+      ],
+      "test_ids": [
+        "TEST-CAL-04-03"
+      ],
+      "rationale": "Parameter-connected derivative closures — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0474",
+      "requirement_ids": [
+        "REQ-CAL-04-04"
+      ],
+      "test_ids": [
+        "TEST-CAL-04-03"
+      ],
+      "rationale": "Exact local Hessian key — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    },
+    {
+      "inventory_id": "preserve:0475",
+      "requirement_ids": [
+        "REQ-CAL-04-03",
+        "REQ-CAL-04-05"
+      ],
+      "test_ids": [
+        "TEST-CAL-04-01",
+        "TEST-CAL-04-02",
+        "TEST-CAL-04-03",
+        "TEST-CAL-04-04"
+      ],
+      "rationale": "Limited results/history preservation — конкретный contract/oracle в указанных REQ/TEST; исходное поведение не снимается."
+    }
+  ]
+}

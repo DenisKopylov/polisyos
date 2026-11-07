@@ -1,0 +1,204 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          209
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан и реальные definitions исполнены",
+      "git_blob": "641fdc644857a6ac5eedf003a3fc4d2bb0f40b45",
+      "sha256": "d60ea4b569b28e64187842bb191c9541d64cf83d548f5fd2008c69d68ced66be",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/trust_scorer.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/trust_scorer.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          108
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан; actual compute и профиль его неизменённого исходного текста исполнены в isolated namespace",
+      "git_blob": "c3d6f1d9251ce44a51a90e528447bb7df4d2262b",
+      "sha256": "1cb1651302b2a0c23b0a113642f729506236e59c0049b90ec6564a2dfd7101c9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/core/evaluation/scoring.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/evaluation/scoring.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          114
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан; настоящие WeightedScorer/ThresholdMapper исполнены",
+      "git_blob": "4acee704d74d80f815c2951ca5f9a36af48f7da1",
+      "sha256": "8fbd6b25f05ec169b479a69572fdf5b6c45bb3fd54131ac33791085357bcab91",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          88,
+          123
+        ],
+        [
+          272,
+          322
+        ],
+        [
+          733,
+          834
+        ],
+        [
+          1340,
+          1762
+        ]
+      ],
+      "evidence_level": "Все указанные диапазоны прочитаны; profile, mode/result records, plan-ref reconciliation и methods1340–1751 исполнены в audit wrapper",
+      "git_blob": "bcf32f0beab30a28c36979fac4f79a5c12bca037",
+      "sha256": "b8da4c1aa45c6cd22576c34e6360fc2c34de29a4a6cfaaa9fa85cace9d51a46c",
+      "local_file": null,
+      "note": "Не полный module import; normal workflow, persistence и Scientist projection не запускались."
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/backtest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          858
+        ]
+      ],
+      "evidence_level": "Полный контракт прочитан при C31 на том же SHA; все шесть actual DTO classes исполнены вновь, JSON readback исполнен",
+      "git_blob": "00cb21226f292127497c8c818b16ff2b65081fed",
+      "sha256": "5fc6db3c90220efd194175e6a6cab7d0a11f1a526a0e4182e011d4a3b42c7480",
+      "local_file": null,
+      "note": "Owned CAS IO не исполнялся; обычный JSON файл вне checkout."
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          363
+        ],
+        [
+          535,
+          634
+        ]
+      ],
+      "evidence_level": "Полные fresh diagnostic/trust verifiers прочитаны и исполнены; matrix writer/consumer прочитан",
+      "git_blob": "74502da3834c16a0dfc1db0bbb02489747a21606",
+      "sha256": "bae5165b80e26b1ba4479512b47e78fe748528505e46989c453d27dd1ee888fe",
+      "local_file": null,
+      "note": "Профиль честно содержит audit_bkt02.TrustScorer, а не ложное native implementation name."
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          663,
+          717
+        ]
+      ],
+      "evidence_level": "Promotion readout source trace; UNRUN",
+      "git_blob": "bb3815caaf4c87f8b9c7a57a53b64d6a100ade0a",
+      "sha256": "7e66a8fa856506d6b1dc14fee18522dafa29d16b36447771faa519270c10e9af",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/outcome_sections.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          255,
+          350
+        ]
+      ],
+      "evidence_level": "Полный backtest packet-section consumer прочитан; UNRUN",
+      "git_blob": "bbd28f2218520e6cb6fdff3656b0a21ad959a483",
+      "sha256": "aa4a5d818e804807e557b0114382869d94ec8237922d9fbcebab4f697b07ad15",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tests/unit/remediation/test_bkt_02.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_bkt_02.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          495
+        ]
+      ],
+      "evidence_level": "Полный найденный regression test прочитан; native attempt BLOCKED до collection",
+      "git_blob": "d66cdebd043b59cc472ffcb345a2ac78ee18fa06",
+      "sha256": "d4f9ebc58199ab0cd4e3f8fc3f312b8fc5e20baac1539e2adc2e0f950d480afb",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/tests/unit/ir/mirror_contracts/test_backtest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/ir/mirror_contracts/test_backtest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          305
+        ]
+      ],
+      "evidence_level": "Полный контрактный test прочитан; UNRUN",
+      "git_blob": "0433c45835db9e9d5ef7d7649b293fc0b910e0d8",
+      "sha256": "3a3ccfbf9792f6c90210ef2c65d60e91491dcffcc749e9870c962e65c8ead26e",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      4084,
+      4220
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "discovery": {
+    "census": false,
+    "scope": "Numeric evaluator, sufficient statistics, actual report DTO and fresh trust consumer; found relevant native regression and mirror-contract tests"
+  }
+}

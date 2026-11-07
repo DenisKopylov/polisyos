@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import sys
@@ -29,6 +30,7 @@ from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.retry import (
     RetryPolicy,
     _build_spawn_timeout_task,
+    execute_with_retry_async,
     execute_with_retry_sync,
 )
 from polisyos.scientist.orchestration.engine.runner._activity_worker import (
@@ -58,7 +60,7 @@ def _task_supervisor_deadline(task):
 
 
 @pytest.fixture
-def current_transport_attempt(tmp_path):
+def current_transport_attempt(tmp_path, request):
     tenant_id = "tenant-timeout-transport"
     cell_id = "cell-timeout-transport"
     run_id = "R_timeout_transport_wire"
@@ -108,6 +110,9 @@ def current_transport_attempt(tmp_path):
             "nested": {"count": 1, "enabled": True},
             "values": [1.0, 0.0],
         }
+        payload_size = getattr(request, "param", None)
+        if payload_size is not None:
+            state.params["transport_payload"] = "x" * payload_size
         state_ref = store.put_json(
             state.model_dump(mode="json"),
             PutOptions(
@@ -274,22 +279,36 @@ def test_transportability_spawn_wire_binds_and_revalidates_live_attempt(
 
 
 @pytest.mark.skipif(sys.platform != "darwin", reason="native macOS spawn timeout path")
-def test_transportability_node_runs_through_spawn_worker(current_transport_attempt):
+@pytest.mark.parametrize("mode", ["sync", "async"])
+@pytest.mark.parametrize("current_transport_attempt", [64, 1024 * 1024], indirect=True)
+def test_transportability_node_runs_through_spawn_worker(current_transport_attempt, mode):
     ctx, state, _workflow, _attempt_id, _basis_ref = current_transport_attempt
 
-    outcome = execute_with_retry_sync(
-        RunTransportabilityNode(),
-        ctx,
-        state,
-        retry_policy=RetryPolicy(max_retries=0),
-        timeout_s=30.0,
-        alias=_ALIAS,
-        dispatch_params=_PARAMS,
-    )
+    kwargs = {
+        "retry_policy": RetryPolicy(max_retries=0),
+        "timeout_s": 30.0,
+        "alias": _ALIAS,
+        "dispatch_params": _PARAMS,
+    }
+    if mode == "sync":
+        outcome = execute_with_retry_sync(RunTransportabilityNode(), ctx, state, **kwargs)
+    else:
+        outcome = asyncio.run(
+            execute_with_retry_async(RunTransportabilityNode(), ctx, state, **kwargs)
+        )
 
     assert type(outcome) is NodeOutcome
     assert outcome.status in {"skip", "fail"}
     assert outcome.state.run_id == state.run_id
+    assert outcome.state.params["transport_payload"] == state.params["transport_payload"]
+    assert len(outcome.state.params["transport_payload"].encode()) in {64, 1024 * 1024}
+    from polisyos.core.canon import from_canonical_bytes
+
+    attempt = ctx.run.read_runtime_invocation_attempts()[0]
+    reread = ExperimentState.model_validate(
+        from_canonical_bytes(ctx.store.get_bytes(attempt.basis.input_state_ref))
+    )
+    assert reread.params["transport_payload"] == outcome.state.params["transport_payload"]
     trace_path = ctx.run.trace_path
     assert trace_path is not None
     durable_trace = [

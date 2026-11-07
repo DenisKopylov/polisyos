@@ -1,0 +1,381 @@
+{
+  "baseline": "immutable delivered v2",
+  "product_execution": "NOT_RUN",
+  "required_clarifications": [
+    {
+      "id": "FAC-01",
+      "title": "UDF-02: универсальный prior-file oracle не различает отказ до и после видимого replace",
+      "classification": "contract/test clarification; not a demonstrated runtime defect",
+      "severity": "medium",
+      "confidence": "high",
+      "packet_ids": [
+        "UDF-02"
+      ],
+      "related_scenarios": [
+        "E02-I07-A"
+      ],
+      "criterion_ids": [
+        "RA-03",
+        "RA-07",
+        "RA-09",
+        "DRT-07",
+        "SR-13"
+      ],
+      "current_v2_proposition": {
+        "path": "02_Пакеты/UDF-02.md",
+        "locator": "TEST-UDF-02-01 setup/oracle; REQ-UDF-02-01; §5",
+        "setup": "Unicode/NumPy/date/Path/DTO fixtures, adjacency NPZ, real Parquet, fsync/replace controlled failures.",
+        "oracle": "JSON exact legacy bytes, NPZ arrays/nnz/hashsize, Parquet rows/schema/index=False; failed atomic write сохраняет prior file и cleans temp; no output PASS до reader."
+      },
+      "shared_contract_checked": [
+        {
+          "path": "00_Общее/Общие_владельцы_и_границы_изменений.md",
+          "locator": "Atomic publication, durability и recovery; line15",
+          "proposition": "Общие atomic primitives использовать по их точному contract; видимое replace не равно подтверждённому fsync и не обещает rollback после публикации."
+        },
+        {
+          "path": "02_Пакеты/CAS-02.md",
+          "locator": "REQ-CAS-02-02 / TEST-CAS-02-02",
+          "proposition": "Pre-replace fault leaves old target; post-replace phase must honestly report visibility/durability and does not promise rollback."
+        },
+        {
+          "path": "04_Трассировка/Связь_требований_с_интеграцией.json",
+          "locator": "E02-I07-A-B01",
+          "proposition": "Shared native IO preservation does not narrow local failed-atomic-write oracle to pre-replace faults."
+        }
+      ],
+      "realistic_counterexample": "Existing atomic_write_bytes finishes file write+flush+file fsync, successfully os.replace(tmp,target), then directory os.fsync raises OSError. This is a controlled fsync failure explicitly allowed by TEST setup. New target bytes are already visible and own tmp pathname is gone. Raising does not restore old bytes; neither native owner nor shared contract promises restoration.",
+      "code_evidence": [
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/data_forge/kernel/io/atomic.py",
+          "lines": "11–31,55–63",
+          "observed": "file fsync at25, replace26, directory fsync27; except unlinks tmp and re-raises; directory fsync may propagate at61."
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/io.py",
+          "lines": "55–95",
+          "observed": "Legacy formatter calls atomic_write_text; NPZ calls atomic_write_bytes; same actual kernel owner."
+        },
+        {
+          "path": "e02_repository/policy-engine/tests/unit/remediation/test_udf_02.py",
+          "lines": "127–140",
+          "observed": "Existing monkeypatched atomic_write_text raises immediately; this demonstrates propagation, not post-replace behavior."
+        }
+      ],
+      "what_current_tests_miss": "Local generic failed-write→prior-file oracle cannot correctly accept post-replace directory-fsync failure. Existing immediate-raise unit test does not discriminate the phases. Shared CAS-02 already forbids rollback promise, so this is an internal acceptance ambiguity, not a missing global requirement or proof of runtime data loss.",
+      "impact": "A correct phase-aware implementation may falsely fail local acceptance, or an implementer may add unsafe/unnecessary rollback to satisfy it. No observed production incident/native failure is claimed.",
+      "preferred_bounded_correction": "Narrow the unchanged-prior-file assertion to failures before successful replace; separately state replace-succeeded outcome as new bytes visible, durability unestablished if directory fsync failed, using the existing error/reporting contract. Keep cleanup of own leftover temp; no rollback promise.",
+      "replacement_proposal": {
+        "target": "TEST-UDF-02-01 oracle in MD and companion JSON tests; conform any duplicated shared wording",
+        "text": "JSON exact legacy bytes, NPZ arrays/nnz/hashsize, Parquet rows/schema/index=False. Отказ до успешного replace сохраняет prior file и удаляет собственный оставшийся temp. Если replace уже успешен, новые bytes видимы; ошибка directory fsync не доказывает durability и не обещает восстановление prior file; фаза/исход различимы в existing error/reporting evidence. No output PASS до reader."
+      },
+      "alternatives": [
+        "Explicitly limit this local fault fixture to pre-replace and cite shared CAS-02 post-replace qualification; ensure no remaining blanket all-failure rollback sentence."
+      ],
+      "preservation_obligations": [
+        "Exact legacy JSON serializer and domain bytes unchanged.",
+        "NPZ decoded arrays/metadata not confused with compressed byte-equivalence.",
+        "Existing kernel atomic owner retained; no new state machine/framework mandated.",
+        "Parquet semantic profile and native fresh CAS reader remain."
+      ],
+      "discriminating_acceptance": "Two phase-injected future native tests: (1) before successful replace (write/file-fsync/replace refusal) checks old bytes plus temp cleanup; (2) replace succeeded then directory-fsync OSError checks new visible bytes, raised/recorded failure phase and no claim of old restoration/durability. Test names and evidence align with common CAS-02 contract.",
+      "sources": [
+        {
+          "criterion_id": "RA-03",
+          "source_refs": [
+            {
+              "source_id": "RA-S09",
+              "locator": "p.2 C10–C15"
+            },
+            {
+              "source_id": "RA-S08",
+              "locator": "4.1.2 note"
+            }
+          ],
+          "source_proposition": "INCOSE выделяет отдельные характеристики набора: полноту, непротиворечивость, выполнимость и валидируемость.",
+          "scope_limits": "Разные условия/версии могут объяснять разницу; противоречие нельзя объявлять по совпадению слов."
+        },
+        {
+          "criterion_id": "RA-07",
+          "source_refs": [
+            {
+              "source_id": "RA-S03",
+              "locator": "Body: verification approach and unique source"
+            },
+            {
+              "source_id": "RA-S01",
+              "locator": "C.4 Verifiability/Testability"
+            }
+          ],
+          "source_proposition": "NASA рекомендует заранее определить verification approach и уникальный источник требования; verification должно быть возможно на заявленном уровне.",
+          "scope_limits": "На стадии ТЗ нужен исполнимый план проверки, не выдуманный протокол еще не выполненного теста. Inspection/analysis могут быть корректнее runtime test."
+        },
+        {
+          "criterion_id": "RA-09",
+          "source_refs": [
+            {
+              "source_id": "RA-S13",
+              "locator": "§3 and §3.1, printed pp.6–8"
+            },
+            {
+              "source_id": "RA-S05",
+              "locator": "§3.2.6"
+            }
+          ],
+          "source_proposition": "SEI рассматривает интерфейс шире API: смысл данных, взаимодействие, время и общие ресурсы могут связывать компоненты неявно.",
+          "scope_limits": "Не навязывать все измерения каждому стыку; отметить неприменимые с причиной. Типовой transport не доказывает бизнес-семантику."
+        },
+        {
+          "criterion_id": "DRT-07",
+          "source_refs": [
+            {
+              "source_id": "DRS-10",
+              "section": "28.4 Asynchronous Commit; Caution"
+            }
+          ],
+          "source_proposition": "Инженерный критерий и предложенный тест, выведенные из указанных первичных источников; не утверждение о наличии ошибки E02.",
+          "scope_limits": "PostgreSQL — контрпример; допустима документированная потеря с RPO. Process crash, OS crash и потеря носителя не взаимозаменяемы."
+        },
+        {
+          "criterion_id": "SR-13",
+          "source_refs": [
+            {
+              "source_id": "SR-S14",
+              "sections": "Problems with protocol changes; Two-phase deployment"
+            },
+            {
+              "source_id": "SR-S16",
+              "sections": "Backups Versus Archives; Third Layer"
+            }
+          ],
+          "source_proposition": "Разделить code rollback, data recovery, compensation и forward-fix. Назвать last reversible point, доступные состояния и последствия после пересечения границы.",
+          "scope_limits": "Не все изменения должны быть обратимыми. Допустимый необратимый шаг требует честного ограничения и отдельного согласования, а не автоматического запрета."
+        }
+      ],
+      "evidence_level": "Static contract and actual code inspection only. Native/product tests NOT_RUN; no filesystem fault experiment/product execution performed.",
+      "scope_limit": "Filesystem directory-fsync behavior varies by declared platform; finding is the unconditional local proposition against existing owner ordering, not an all-platform durability mandate."
+    },
+    {
+      "id": "FAC-02",
+      "title": "CAL-01 ↔ I07-C-B01: unique-source predicate расширен в binding до source/target",
+      "classification": "cross-artifact contract/trace clarification; not a demonstrated numerical or scientific defect",
+      "severity": "low",
+      "confidence": "high for textual drift; bounded for domain admissibility",
+      "packet_ids": [
+        "CAL-01"
+      ],
+      "related_scenarios": [
+        "E02-I07-C"
+      ],
+      "related_lanes": [
+        "LANE-07"
+      ],
+      "criterion_ids": [
+        "RA-03",
+        "RA-09",
+        "RA-10"
+      ],
+      "current_v2_proposition": {
+        "path": "04_Трассировка/Связь_требований_с_интеграцией.json",
+        "locator": "E02-I07-C-B01.concrete_obligation",
+        "text": "Paired time/value/mask/metadata порядок и finite unique source/target axes проходят compiler/preflight до фактического calibration consumer."
+      },
+      "shared_contract_checked": [
+        {
+          "path": "02_Пакеты/CAL-01.md",
+          "locator": "REQ-CAL-01-01",
+          "proposition": "Preflight должен один раз проверить конечность source и target time axis и разрешить duplicate policy до interpolation/optimizer. В отсутствие уже объявленного содержательного преобразования duplicate source timestamps отклоняются; positional mode сохраняется только когда действительно выбран."
+        },
+        {
+          "path": "02_Пакеты/CAL-01.md",
+          "locator": "§5",
+          "proposition": "Explicit target axis проверяется finite и совместима с объявленной coordinate semantics; не сортировать user-requested target order скрыто."
+        },
+        {
+          "path": "02_Пакеты/CAL-01.md",
+          "locator": "TEST-CAL-01-01/02; §6–§7",
+          "proposition": "Duplicates setup is source time[0,0,1]; explicit target [.5,1.5] and native CAL02/06 consumers; historical reports immutable and semantic delta explicit."
+        },
+        {
+          "path": "00_Общее/Правила_исполнения_и_приёмки.md",
+          "locator": "E02-GREQ-01/03/07",
+          "proposition": "Meaning, common owner and linked consumer obligations must remain synchronized."
+        }
+      ],
+      "realistic_counterexample": "At the existing interpolation/query boundary, unique admitted source pairs (0,0),(1,10),(2,20) and finite explicit query axis [.5,.5,1.5] yield [5,5,15] in declared query order; repeated queries do not choose between ambiguous source samples. If the declared coordinate/model profile allows independent repeated queries, local CAL-01 does not impose target uniqueness, while the binding rejects that same input categorically. This is not a claim that every dynamical model admits repeated model-time.",
+      "code_evidence": [
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/foundry/calibration/preflight.py",
+          "lines": "63–111,230–310",
+          "observed": "linear np.interp and ffill searchsorted compute each target query; target array/order and report_time_axis are retained without target dedup."
+        },
+        {
+          "path": "e02_repository/policy-engine/src/polisyos/ir/analytics/calibration.py",
+          "lines": "410–470",
+          "observed": "time_axis list[float] has no universal target-uniqueness validator. Absence alone is not proof of domain validity."
+        }
+      ],
+      "peer_crosscheck": "Foundry/numeric reviewer checked CAL02/CAL05 and actual Calibrator.py:2431–2434,2467–2499: declared row-time order/shape is enforced, not universal uniqueness. This corroboration is peer inspection, not separately counted independent runtime evidence. Lane reviewer independently confirmed binding/local text drift.",
+      "what_current_tests_miss": "The explicit target fixture [.5,1.5] is unique, so it cannot distinguish source-only duplicate rejection from blanket source+target rejection. Full shared prose does not supply an agreed universal unique-target constraint; binding may silently strengthen domain admission.",
+      "impact": "Local and integration implementers can choose different admitted input sets, or add an unintended target dedup/rejection while believing they preserve CAL-01. No incorrect fitted result or universal scientific validity of repeated target-time is claimed.",
+      "preferred_bounded_correction": "Unify the predicate: finite source and target; source uniqueness unless declared duplicate policy; target admissibility follows explicitly declared coordinate/model contract. Preserve requested order and paired metadata. Do not introduce target uniqueness merely by binding shorthand.",
+      "replacement_proposal": {
+        "target": "E02-I07-C-B01 concrete_obligation, and any exact mirrored scenario wording",
+        "text": "Paired time/value/mask/metadata порядок и finite source/target axes проходят compiler/preflight до фактического calibration consumer; duplicate source timestamps отклоняются без объявленной содержательной duplicate policy, а explicit target axis проверяется по declared coordinate/model contract без скрытой сортировки или dedup user-requested order."
+      },
+      "alternatives": [
+        "If an actual model/profile requires strictly increasing or unique target times, name that precondition in the local REQ, affected integration profile and tests with owner rationale; do not apply it to all interpolation/query callers silently."
+      ],
+      "preservation_obligations": [
+        "Reject ambiguous duplicate source absent declared policy.",
+        "Keep source paired stable order before inferred grid and equal-length shortcut.",
+        "Keep finite-axis checks, explicit target order, positional mode, endpoint fill, support masks and unit/interval admission.",
+        "Historical reports/observations immutable; one shared preflight writer with CAL02/06.",
+        "No expansion to arbitrary scientific replicate/model-time semantics."
+      ],
+      "discriminating_acceptance": "Contract-level comparison of local and binding predicates plus a declared interpolation-query profile: repeated finite target query returns per-query values/order; duplicate source remains refused. For any model profile with stricter target rule, a separately declared negative validates that rule. Native optimizer acceptance remains the existing bounded model profile, not a newly invented one.",
+      "sources": [
+        {
+          "criterion_id": "RA-03",
+          "source_refs": [
+            {
+              "source_id": "RA-S09",
+              "locator": "p.2 C10–C15"
+            },
+            {
+              "source_id": "RA-S08",
+              "locator": "4.1.2 note"
+            }
+          ],
+          "source_proposition": "INCOSE выделяет отдельные характеристики набора: полноту, непротиворечивость, выполнимость и валидируемость.",
+          "scope_limits": "Разные условия/версии могут объяснять разницу; противоречие нельзя объявлять по совпадению слов."
+        },
+        {
+          "criterion_id": "RA-09",
+          "source_refs": [
+            {
+              "source_id": "RA-S13",
+              "locator": "§3 and §3.1, printed pp.6–8"
+            },
+            {
+              "source_id": "RA-S05",
+              "locator": "§3.2.6"
+            }
+          ],
+          "source_proposition": "SEI рассматривает интерфейс шире API: смысл данных, взаимодействие, время и общие ресурсы могут связывать компоненты неявно.",
+          "scope_limits": "Не навязывать все измерения каждому стыку; отметить неприменимые с причиной. Типовой transport не доказывает бизнес-семантику."
+        },
+        {
+          "criterion_id": "RA-10",
+          "source_refs": [
+            {
+              "source_id": "RA-S05",
+              "locator": "§§1.2–1.3, 2.1"
+            },
+            {
+              "source_id": "RA-S06",
+              "locator": "§6.3.1.2.3 and §6.3.1.3"
+            }
+          ],
+          "source_proposition": "NASA IRD задает precedence и change authority; interface changes должны учитывать обе стороны и verification inputs.",
+          "scope_limits": "Не требовать формального совета NASA. Копия допустима как явно помеченный производный snapshot, проверяемый против канона."
+        }
+      ],
+      "evidence_level": "Static contract/owner inspection and peer cross-check. Small arithmetic example is explanatory, not NumPy/JAX execution. Native/product tests NOT_RUN.",
+      "scope_limit": "Finding concerns inconsistent predicate ownership/traceability, not a mandate to support repeated time in every scientific model."
+    }
+  ],
+  "optional_clarifications": [
+    {
+      "id": "CM-001",
+      "title": "Уточнить краткую coordination map SCM, не менять согласованный подробный acceptance contract",
+      "status": "OPTIONAL_NON_BLOCKING_CLARIFICATION",
+      "severity": "low",
+      "mandatory": false,
+      "classification": "ambiguous_or_stale_coordination_mapping",
+      "criterion_ids": [
+        "RA-10"
+      ],
+      "disposition": "bounded",
+      "affected_packets": [
+        "SCM-01",
+        "SCM-02",
+        "SCM-03"
+      ],
+      "affected_lanes": [
+        "LANE-05"
+      ],
+      "affected_scenarios": [
+        "E02-I05-C"
+      ],
+      "source_refs": [
+        {
+          "source_id": "RA-S05",
+          "url": "https://www.nasa.gov/reference/appendix-l-interface-requirements-document-outline/",
+          "locator": "§§1.2–1.3,2.1",
+          "application": "Версия, приоритет и change authority у интерфейса должны быть понятны; guidance не доказывает product defect."
+        },
+        {
+          "source_id": "RA-S06",
+          "url": "https://www.nasa.gov/reference/6-3-interface-management/",
+          "locator": "§6.3.1.2.3; §6.3.1.3",
+          "application": "Изменение интерфейса согласуется с обеими сторонами и verification inputs; формальный новый совет/registry не требуется."
+        }
+      ],
+      "current_v2_proposition": "Общая карта, строка13: «SCM-03 — selected native SCM worker и causal fit». Подробные SCM §7 и LANE-05 распределяют SCM-03 closure/prepared-plan/coordinates, SCM-02 conditional-row/PSD/refit, SCM-01 twin и native selected fit→query acceptance. SCM-02 дополнительно называет worker fit owner общим с SCM-01.",
+      "evidence": [
+        {
+          "path": "00_Общее/Общие_владельцы_и_границы_изменений.md",
+          "locator": "lines3,13,27",
+          "claim": "Это координационная карта; смысловой owner не исключительный editor модуля. Native worker/causal fit у SCM-03 назван без явного разделения роли и acceptance owner."
+        },
+        {
+          "path": "01_Лейны/LANE-05.md",
+          "locator": "lines41–47",
+          "claim": "Таблица «без тройного ownership» явно разделяет три роли."
+        },
+        {
+          "path": "02_Пакеты/SCM-01.md",
+          "locator": "§7 lines158–168, especially162",
+          "claim": "Native selected fit→query acceptance принадлежит SCM-01; closure SCM-03; conditioning/refit SCM-02."
+        },
+        {
+          "path": "02_Пакеты/SCM-02.md",
+          "locator": "§7 lines177–185, especially181",
+          "claim": "Refit SCM-02; worker fit owner общий с SCM-01; не отдельный bootstrap pipeline."
+        },
+        {
+          "path": "02_Пакеты/SCM-03.md",
+          "locator": "§7 lines164–174, especially168",
+          "claim": "Closure/coordinates SCM-03; native acceptance SCM-01; sequential shared edits."
+        }
+      ],
+      "realistic_counterexample": "Координатор нового ремонта selected worker fit начинает с общей карты и приглашает SCM-03 как ответственного за этот смысловой контракт; reviewer, начавший с SCM-02 §7 или LANE-05, направляет его SCM-01/02. Оба читают действующие документы, поэтому возможен лишний круг согласования либо неверная первичная маршрутизация. Это не пример реализации, которая проходит полный v2 и вычисляет неверный результат.",
+      "preconditions": "Используется current root v2 coordination map; речь о планировании owner/review до merge, не о неизвестном runtime route или неподдержанном backend.",
+      "full_contract_check": "Общая вводная уже допускает различие технического интегратора и смыслового owner. Однако отдельное каноническое определение SCM-03 implementation role для native worker fit не найдено в прочитанных применимых общих/lane/packet contracts. Подробные роли согласованы и обязательная native acceptance не потеряна. Поэтому низкая optional clarification, не gap.",
+      "what_tests_would_miss": "Local numerical/native tests и E02-I05-C не обязаны выявлять административную путаницу краткой карты. Они по-прежнему требуют actual native fit→CAS→fresh query и не позволяют принять один closure smoke вместо native qualification. Функциональный false PASS не установлен.",
+      "impact": "Неблокирующая неоднозначность навигации и change-impact review; не доказаны неверное вычисление, потеря scientific authority или возможность обойти приёмку.",
+      "confidence": {
+        "textual_ambiguity": "high",
+        "operational_coordination_consequence": "moderate",
+        "runtime_defect": "not_established"
+      },
+      "preferred_bounded_correction": "В следующей редакции одной общей строки сохранить FIT-01 и явно назвать SCM-03 closure/prepared-plan/coordinates, SCM-02 conditional law/refit, SCM-01 native fit→query acceptance либо сослаться на таблицу LANE-05 как канон. Если у SCM-03 действительно есть отдельная implementation role для worker, назвать её и отделить от acceptance owner.",
+      "alternatives": [
+        "Добавить в общей строке только точную ссылку и приоритет подробной SCM-таблицы.",
+        "Оставить текущую редакцию без product-blocker, если coordinator явно пользуется подробным каноном; остаточная навигационная неоднозначность документируется."
+      ],
+      "discriminating_acceptance_proposal": "Документарная сверка: по общей строке и по каждой из трёх §7 один reviewer получает одинаковые meaning-owner/consumer/acceptance roles. Не добавлять новый runtime test или ownership registry.",
+      "affected_local_shared_tests": [
+        "SCM-01/02/03 existing local TEST и E02-I05-C сохраняются без изменения numerical denominator; новые тесты не требуются."
+      ],
+      "preservation_obligations": [
+        "Не переносить исходный код/модуль между owners только из-за этой заметки.",
+        "Сохранить single writer последовательность gcm_query.py/twin_network_query.py, GRF-03 canonical source reuse, SCM-02 independent replica oracle и SCM-01 selected native profile.",
+        "Не объявлять unrelated v1 defect вновь открытым."
+      ],
+      "bounded_next_step": "Parent triage: optional редакционная правка общей карты в отдельно разрешённой proposed edition; текущий v2 не менять.",
+      "product_execution": "NOT_RUN"
+    }
+  ]
+}

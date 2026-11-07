@@ -1,0 +1,226 @@
+{
+  "schema": "e02.proposed-changes.v1",
+  "base": "immutable delivered baseline",
+  "authorization": "root message 2026-11-01 after completed25packet review",
+  "status": "PROPOSED_NOT_IMPLEMENTED",
+  "product_tests": "NOT_RUN",
+  "original_requirement_test_ids_preserved": true,
+  "original_obligation_preservation_maps_unchanged": true,
+  "shared03_and_aggregate04_not_edited": true,
+  "changes": [
+    {
+      "path": "02_Пакеты/UDF-05.md",
+      "packet_id": "UDF-05",
+      "old_sha256": "193e2e542c94da6d07130f36444daab5a8a6c721063cd3bffc375abdc7668195",
+      "new_sha256": "a8eea98a6047d03467982f59b7760a17f8f404ca413825fef6675f7755b80d40",
+      "changed_ids": [
+        "REQ-UDF-05-02",
+        "TEST-UDF-05-02"
+      ],
+      "findings": [
+        "FA-01"
+      ]
+    },
+    {
+      "path": "04_Трассировка/UDF-05.json",
+      "packet_id": "UDF-05",
+      "old_sha256": "55b432e485f33617cc952c85192735febda2ba7530dd15016096ef2bab08a1b7",
+      "new_sha256": "655de8e77fe7bee789bacfc1eea942a9e8d6b54c9c615a3967a02dc4ed9facf6",
+      "changed_ids": [
+        "REQ-UDF-05-02",
+        "TEST-UDF-05-02"
+      ],
+      "findings": [
+        "FA-01"
+      ]
+    },
+    {
+      "path": "02_Пакеты/DFI-03.md",
+      "packet_id": "DFI-03",
+      "old_sha256": "62c9a9784bef9a5fa7ccce4c29a4e16dba95c67c93ad08e89696df1ee5ea6e48",
+      "new_sha256": "9b408e25c09447a1c0517e99724bb5f3d988584c4bc2fec68911c0d9d8b660dd",
+      "changed_ids": [
+        "REQ-DFI-03-02",
+        "TEST-DFI-03-02"
+      ],
+      "findings": [
+        "FA-02"
+      ]
+    },
+    {
+      "path": "04_Трассировка/DFI-03.json",
+      "packet_id": "DFI-03",
+      "old_sha256": "bea831bc86c51797db932b6bab1dbbf0ae679358f6537d2dc38262419a9d05d4",
+      "new_sha256": "00302a2614b1f5c14e01489274dfdf93d31fddc9be15142ef02cda75ebdea4a5",
+      "changed_ids": [
+        "REQ-DFI-03-02",
+        "TEST-DFI-03-02"
+      ],
+      "findings": [
+        "FA-02"
+      ]
+    },
+    {
+      "path": "02_Пакеты/SCL-01.md",
+      "packet_id": "SCL-01",
+      "old_sha256": "a5f5f9671e8f79431ba2f949400fb06a95d80ed9ba40d45ea3bdbac31fd0299a",
+      "new_sha256": "152f0a1f227dede5819998613030b8efb73ab6b49831a03ff60eb71dc689a749",
+      "changed_ids": [
+        "REQ-SCL-01-01",
+        "TEST-SCL-01-01"
+      ],
+      "findings": [
+        "FA-03"
+      ]
+    },
+    {
+      "path": "04_Трассировка/SCL-01.json",
+      "packet_id": "SCL-01",
+      "old_sha256": "bc1bf5951244cc44e9d051cb2e0f5e2ffe034d5dd84dfe8c54904ef9a1b4f647",
+      "new_sha256": "2bbb48397482c675e6d3e514ac24c0f5b630257826fd6c4e9a3d32ae50d36ae7",
+      "changed_ids": [
+        "REQ-SCL-01-01",
+        "TEST-SCL-01-01"
+      ],
+      "findings": [
+        "FA-03"
+      ]
+    },
+    {
+      "path": "02_Пакеты/FED-01.md",
+      "packet_id": "FED-01",
+      "old_sha256": "fd18e7dbd098faaa67aac193c65a8f1b517b1a0ba69c42552ea3e10c36ebc9db",
+      "new_sha256": "11a0343edb80a874d00ff8af5e5add848a69284b12ed6db3857959a889fc5b44",
+      "changed_ids": [
+        "TEST-FED-01-01",
+        "DEC-FED-01-01"
+      ],
+      "findings": [
+        "FA-04"
+      ]
+    },
+    {
+      "path": "04_Трассировка/FED-01.json",
+      "packet_id": "FED-01",
+      "old_sha256": "5d68e851781f72fdd4152cef99bb4c53453c6816c270079160e35a674f7f4f0b",
+      "new_sha256": "cfa8c87f56fbc02e5637423d1ff2dd85d201ba1bcb65159b6b149573e9b0488d",
+      "changed_ids": [
+        "TEST-FED-01-01",
+        "DEC-FED-01-01"
+      ],
+      "findings": [
+        "FA-04"
+      ]
+    },
+    {
+      "path": "02_Пакеты/EMB-01.md",
+      "packet_id": "EMB-01",
+      "old_sha256": "beba99b03e531f255d93d0318d735a125d810be4f05817ca4900840283b8b84c",
+      "new_sha256": "045f174e34103124110f41f5c6570d1bd64f42ac243f126df770bc2bd6617be6",
+      "changed_ids": [
+        "TEST-EMB-01-01"
+      ],
+      "findings": [
+        "FA-06",
+        "FA-07"
+      ]
+    },
+    {
+      "path": "04_Трассировка/EMB-01.json",
+      "packet_id": "EMB-01",
+      "old_sha256": "beaf957679e823a02c983e4bfaaa849f5cb891bec8c928050df01a7c3376ddad",
+      "new_sha256": "08b54bfe0093fe5241485c83ba0284aa0b3935d3bc026de26e0e71784674bd26",
+      "changed_ids": [
+        "TEST-EMB-01-01"
+      ],
+      "findings": [
+        "FA-06",
+        "FA-07"
+      ]
+    },
+    {
+      "path": "02_Пакеты/EMB-02.md",
+      "packet_id": "EMB-02",
+      "old_sha256": "920dce2149f604a6b2b10ca132a1b40a26bdd207939fc858476e3400a39923f8",
+      "new_sha256": "799a907f4d98ba180cc0774f3025f27731997d20b6524bf00e3557838560a9e4",
+      "changed_ids": [
+        "TEST-EMB-02-04"
+      ],
+      "findings": [
+        "FA-05"
+      ]
+    },
+    {
+      "path": "04_Трассировка/EMB-02.json",
+      "packet_id": "EMB-02",
+      "old_sha256": "1542948d517b502fc7700308f237abd168a8a8cf74f183f9f7889da8bc3fa45d",
+      "new_sha256": "8e2592a09410f3691c841c6d3a356a132d47b27061a016cdcb7cbe5fa3e72e63",
+      "changed_ids": [
+        "TEST-EMB-02-04"
+      ],
+      "findings": [
+        "FA-05"
+      ]
+    },
+    {
+      "path": "02_Пакеты/EMB-03.md",
+      "packet_id": "EMB-03",
+      "old_sha256": "8e6d6fe39800110ae582ae9aa41895aeb4404e27f2c3a30e453d448cd3cc54e2",
+      "new_sha256": "b7f78338c774d8a4bc48f73c803d6f2a39a35d254b44e5db5a5b9b0496f9d794",
+      "changed_ids": [
+        "TEST-EMB-03-02"
+      ],
+      "findings": [
+        "FA-06",
+        "FA-07"
+      ]
+    },
+    {
+      "path": "04_Трассировка/EMB-03.json",
+      "packet_id": "EMB-03",
+      "old_sha256": "9fd669d56526514f5a284d0e2fa41a65c67b41d2211370c2c6b1aabc47ec0eb1",
+      "new_sha256": "24b2f251644f6b7ea240edbd2e589537c5229a9b4954f99258f6b0bc5b900f6d",
+      "changed_ids": [
+        "TEST-EMB-03-02"
+      ],
+      "findings": [
+        "FA-06",
+        "FA-07"
+      ]
+    },
+    {
+      "path": "01_Лейны/LANE-07.md",
+      "lane_id": "LANE-07",
+      "old_sha256": "d99c9af0a8811e2be5097bee891a34ea56aa69d012c81f030018a1d754884be0",
+      "new_sha256": "fa3267d0d6aa96035eb1b0e9bb8bad600876f4b57ad2152920c40f4bd3bf03dc",
+      "findings": [
+        "FA-01",
+        "FA-04"
+      ],
+      "changed_ids": []
+    },
+    {
+      "path": "01_Лейны/LANE-08.md",
+      "lane_id": "LANE-08",
+      "old_sha256": "92183dcb6df9c6fa5ca61b4fb6474dc8add55ec9d729489d5cf5a29dba7f475e",
+      "new_sha256": "ebf6df3390e33c39d15720a6da7247548b4a5dcee171ea7dcd37dfedda4a9b3c",
+      "findings": [
+        "FA-02",
+        "FA-05",
+        "FA-06",
+        "FA-07"
+      ],
+      "changed_ids": []
+    },
+    {
+      "path": "01_Лейны/LANE-09.md",
+      "lane_id": "LANE-09",
+      "old_sha256": "82f79adab1aa022baccd10853b35c71ae108ea52a8134e84fb74c6b9676aa158",
+      "new_sha256": "04c1406e38fa04c333ebc32bc59fb40454de28a82259d45ee44fec5cbfa32d8f",
+      "findings": [
+        "FA-03"
+      ],
+      "changed_ids": []
+    }
+  ]
+}

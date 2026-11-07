@@ -34,7 +34,11 @@ from polisyos.runtime.quality.generic_simulation_admission import (
     _n5_typed_execution_content_hash,
     parse_generic_cycle_simulation_n5_execution,
 )
-from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationRequest
+from polisyos.runtime.quality.joint_simulation_horizon import (
+    HorizonSpec,
+    JointSimulationRequest,
+    NCMConditionalComparatorProfile,
+)
 from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
 
 _PRE_GENERIC_SCHEMAS = tuple(
@@ -45,6 +49,677 @@ _GENERIC_FIELDS = tuple(
     for field_name in SimulationPortObservation.model_fields
     if field_name.startswith("generic_")
 )
+
+
+async def _prepare_generic_facade_owner_case(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    with_explicit_n5_profile_axes: bool = False,
+) -> dict[str, Any]:
+    """Persist bounded candidate owners for direct-port tests, without an NL grant.
+
+    The N4 organ is produced by the existing recorded client. Context, profile,
+    source and input views use their actual codecs and owner options in an
+    authenticated fixture scope. This is a candidate fixture, not worker lease
+    admission, empirical grounding, or a numerical-success witness.
+    """
+    from polisyos.core.artifacts import ensure_ir_artifact_store, load_core_json_artifact
+    from polisyos.ir import (
+        NCMSpecRef,
+        candidate_ncm_spec_from_declaration,
+        load_ncm_spec_default_view,
+    )
+    from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        _PROFILE_CANON,
+        GenericCycleN5RequestProfileV1,
+        GenericCycleSimulationContextHandoffV1,
+        GenericCycleSimulationN5InputV1,
+        GenericCycleSimulationProfileV1,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+    from polisyos.runtime.quality.world_model_record import (
+        persist_world_model_record,
+        world_model_artifact_views,
+    )
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
+    from tests._helpers.controlled_candidate_profile import ControlledCandidateGateway
+    from tests._helpers.generic_n4_served_replay import prepare_generic_n4_served_replay
+    from tests.unit.runtime.quality.test_cycle_substrate import (
+        _authenticated_tenant_scope,
+        _TestCurrentJobExecutionOwner,
+    )
+
+    tenant_id, cell_id = "tenant-generic-facade", "cell-generic-facade"
+    source = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "bounded-source",
+        include_owner_slot_manifest=True,
+        owner_knob_dictionary={
+            "tax_relief_rate": {
+                "default": 0.1,
+                "type": "float",
+                "min": 0.0,
+                "max": 0.5,
+                "mechanism_id": "tax_relief_rate",
+                "param_path": "params.rate",
+            },
+            "procurement_shock_intensity": {
+                "default": 0.1,
+                "type": "float",
+                "min": -1.0,
+                "max": 1.0,
+                "mechanism_id": "procurement_shock_intensity",
+                "param_path": "params.intensity",
+            },
+        },
+    )
+    with ControlledCandidateGateway() as gateway:
+        prepared = await prepare_generic_n4_served_replay(
+            tmp_path=tmp_path,
+            controlled_candidate_gateway=gateway,
+            monkeypatch=monkeypatch,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            recording_mode="original_second_capture",
+            child_count=2,
+            source_root=source.root,
+        )
+    store = prepared.runtime_api_context.store
+    problem = prepared.recorded_problem
+    inputs = prepared.base_profile.context_inputs
+    world = inputs.world_model_record
+    views = world_model_artifact_views(world)
+    assert len(views.ncm_refs) == 1 and views.substrate_registry_ref is not None
+    candidate = next(
+        item
+        for item in prepared.organ_run.result.candidates
+        if item.atom.operator_kind.trinity_kind == prepared.base_profile.rule.operator_kind
+    )
+    outcome = problem.outcome_of_interest.target_variable
+    atoms = tuple(getattr(candidate, "intervention_atoms", ()) or ()) or (candidate.atom,)
+    variable_map = JointSimulationPort._joint_simulation_variable_map(
+        atoms=atoms,
+        outcome=outcome,
+        raw_hint=None,
+    )
+    job_id, run_id, source_run_id = "job-facade", "run-facade", "source-facade"
+    with _authenticated_tenant_scope(tenant_id=tenant_id, cell_id=cell_id):
+        # The base fixture uses persist_ncm_spec's default codec. The separate
+        # configured admission owner's declaration-sidecar codec is not used.
+        assert store.get_manifest(views.ncm_refs[0]).canon == CanonInfo.from_spec(
+            IRCanonSpec(forbid_floats=False)
+        )
+        assert load_ncm_spec_default_view(
+            ensure_ir_artifact_store(store),
+            NCMSpecRef.model_validate(views.ncm_refs[0].model_dump(mode="python")),
+        ) == candidate_ncm_spec_from_declaration(prepared.base_declaration)
+        assert prepared.organ_run.cycle_substrate_context.world_model_record == world
+        assert all(
+            item.atom.world_model_record_ref == world.world_model_record_id
+            for item in prepared.organ_run.result.candidates
+        )
+        world_ref = persist_world_model_record(store, world)
+        fields = prepared.root_profile.model_dump(mode="python", exclude={"content_hash"})
+        n5_fields: dict[str, Any] = {
+            "budget_ref": prepared.base_profile.n5.budget_ref,
+            "horizon": prepared.base_profile.n5.horizon,
+            "baseline_state": prepared.base_profile.n5.baseline_state,
+            "comparator_refs": prepared.base_profile.n5.comparator_refs,
+            "seed": prepared.base_profile.n5.seed,
+            "replications": prepared.base_profile.n5.replications,
+        }
+        if with_explicit_n5_profile_axes:
+            world_slots = {slot.slot_id for slot in world.policy_slot_map}
+            engine_variable_map = {
+                key: value for key, value in variable_map.items() if key in world_slots
+            }
+            if not engine_variable_map:
+                raise AssertionError("controlled generic source has no WMR-bound engine variables")
+            n5_fields.update(
+                horizon=HorizonSpec(start=0, end=0, step=1),
+                evidence_state=dict(prepared.base_profile.n5.baseline_state),
+                comparator_profile=NCMConditionalComparatorProfile(
+                    outcome_units={outcome: prepared.base_declaration.outcome_unit_id}
+                ),
+                engine_variable_map=engine_variable_map,
+            )
+        fields.update(
+            profile_id="generic-facade-owner-fixture",
+            world_model_record_ref=world_ref,
+            substrate_registry_ref=views.substrate_registry_ref,
+            selected_ncm_ref=views.ncm_refs[0],
+            context_inputs=inputs,
+            n5=GenericCycleN5RequestProfileV1(**n5_fields),
+        )
+        draft = GenericCycleSimulationProfileV1.model_construct(
+            **fields, content_hash="sha256:" + "0" * 64
+        )
+        profile = GenericCycleSimulationProfileV1.model_validate(
+            {
+                **fields,
+                "content_hash": gy_content_hash(
+                    draft.model_dump(mode="json", exclude={"content_hash"})
+                ),
+            }
+        )
+        owner = GenericCycleSimulationAdmissionOwner(profiles=(profile,), store=store)
+        context = owner.context_for_profile(profile, problem)
+        context_owner = CycleSubstrateContextArtifactOwner(
+            store=store,
+            control_store=_TestCurrentJobExecutionOwner(job_id, run_id),
+        )
+        context_ref = context_owner.persist_for_current_job(context, problem=problem)
+        # Persist a candidate profile fixture using the real owner write law;
+        # do not manufacture a VerifiedNLJobScope or claim NL execution admission.
+        profile_ref = store.put_json(
+            profile.model_dump(mode="json"),
+            owner._profile_write_options(
+                profile=profile,
+                job_id=job_id,
+                run_id=run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            ),
+            canon_spec=_PROFILE_CANON,
+            return_selected_profile=True,
+        )
+        owner.resolve_profile_historical(
+            profile_ref,
+            expected_profile=profile,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        handoff = GenericCycleSimulationContextHandoffV1(
+            context=context,
+            context_job_ref=context_ref,
+            profile=profile,
+            profile_ref=profile_ref,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        organ = replace(prepared.organ_run, cycle_substrate_context=context)
+        repository = GenerationSourceRepository(store)
+        source_ref = repository.persist_ref(
+            run_id=source_run_id,
+            expected_run_id=run_id,
+            cycle_index=0,
+            problem=problem,
+            organ=organ,
+            execution_scope="contract_testing",
+            job_id=job_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            context_job_ref=context_ref,
+            profile_ref=profile_ref,
+        )
+        input_ref = owner.persist_n5_input(
+            handoff=handoff,
+            source_ref=source_ref,
+            source_run_id=source_run_id,
+            child_profile_family_ref=None,
+            child_profile_set_ref=None,
+            problem=problem,
+            cycle_index=0,
+            candidate_id=candidate.candidate_id,
+            candidate_atom_hash=candidate.atom.content_hash,
+            outcome_variable=problem.outcome_of_interest.target_variable,
+        )
+        input_record = GenericCycleSimulationN5InputV1.model_validate(
+            load_core_json_artifact(store, input_ref)
+        )
+    return {
+        "prepared": prepared,
+        "store": store,
+        "owner": owner,
+        "problem": problem,
+        "context": context,
+        "handoff": handoff,
+        "organ": organ,
+        "candidate": candidate,
+        "source_ref": source_ref,
+        "source_run_id": source_run_id,
+        "input_ref": input_ref,
+        "input_record": input_record,
+        "tenant_id": tenant_id,
+        "cell_id": cell_id,
+    }
+
+
+def _assert_generic_facade_execution(
+    case: dict[str, Any], observation: SimulationPortObservation
+) -> Any:
+    """Reopen the actual selected execution, preserving excluded runtime values."""
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    assert observation.generic_n5_execution_ref is not None, "fully_sealed_execution_required"
+    body = observation.model_dump(mode="python")
+    body.update(
+        world_model_record=observation.world_model_record,
+        generic_n5_request_binding=observation.generic_n5_request_binding,
+    )
+    assert SimulationPortObservation.model_validate(body) == observation
+    assert observation.generic_n5_input_ref == case["input_ref"]
+    assert observation.generic_n4_source_ref == case["source_ref"]
+    assert observation.generic_context_job_ref == case["handoff"].context_job_ref
+    assert observation.generic_profile_ref == case["handoff"].profile_ref
+    assert (
+        observation.generic_profile_selection_ref == case["handoff"].profile.profile_selection_ref
+    )
+    assert observation.generic_n4_child_profile_family_ref is None
+    assert observation.generic_n4_child_profile_set_ref is None
+    execution = parse_generic_cycle_simulation_n5_execution(
+        load_core_json_artifact(case["store"], observation.generic_n5_execution_ref)
+    )
+    assert execution.status == observation.status
+    assert execution.input_ref == case["input_ref"]
+    assert execution.result_ref == observation.simulation_result_ref
+    assert execution.candidate_id == case["candidate"].candidate_id
+    assert execution.candidate_atom_hash == case["candidate"].atom.content_hash
+    assert getattr(execution, "request_binding", None) == observation.generic_n5_request_binding
+    assert (execution.job_id, execution.run_id, execution.tenant_id, execution.cell_id) == (
+        case["handoff"].job_id,
+        case["handoff"].run_id,
+        case["tenant_id"],
+        case["cell_id"],
+    )
+    assert (
+        case["owner"].resolve_n5_execution(observation.generic_n5_execution_ref, expected=execution)
+        == execution
+    )
+    return execution
+
+
+def _generic_facade_port(case: dict[str, Any]) -> JointSimulationPort:
+    return JointSimulationPort(
+        repo_root=case["prepared"].source_root,
+        artifact_store=case["store"],
+        cycle_substrate_context=case["context"],
+        generic_cycle_simulation_admission_owner=case["owner"],
+        generic_cycle_simulation_handoff=case["handoff"],
+    )
+
+
+def _call_generic_facade(
+    case: dict[str, Any], *, currentness: Any = None
+) -> SimulationPortObservation:
+    return _generic_facade_port(case)(
+        candidate=case["candidate"],
+        problem=case["problem"],
+        cycle_index=0,
+        generic_cycle_simulation_input=case["input_record"],
+        generic_cycle_simulation_input_ref=case["input_ref"],
+        generic_cycle_simulation_currentness_resolver=(
+            currentness if currentness is not None else lambda: True
+        ),
+    )
+
+
+@pytest.mark.asyncio
+async def test_generic_n5_profile_axes_reach_real_persisted_leaf_and_owner_recompute(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The selected profile axes survive the source-bound leaf and typed recompute."""
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationN5InputV1,
+        GenericCycleSimulationProfileV1,
+    )
+
+    case = await _prepare_generic_facade_owner_case(
+        tmp_path,
+        monkeypatch,
+        with_explicit_n5_profile_axes=True,
+    )
+    input_record = case["input_record"]
+    profile = input_record.profile
+    assert input_record.n5 == profile.n5
+    assert profile.n5.evidence_state == dict(profile.n5.baseline_state)
+    assert profile.n5.comparator_profile is not None
+    assert profile.n5.engine_variable_map
+
+    port = _generic_facade_port(case)
+    with tenant_scope(None, tenant_id=case["tenant_id"], cell_id=case["cell_id"]):
+        assert (
+            case["owner"].resolve_n5_input(case["input_ref"], expected=input_record) == input_record
+        )
+        source = GenerationSourceRepository(case["store"]).load(
+            case["source_ref"],
+            run_id=case["source_run_id"],
+            expected_run_id=case["handoff"].run_id,
+            expected_job_id=case["handoff"].job_id,
+            expected_tenant_id=case["tenant_id"],
+            expected_cell_id=case["cell_id"],
+            context_job_ref=case["handoff"].context_job_ref,
+            profile_ref=case["handoff"].profile_ref,
+        )
+        request = case["owner"]._recompute_n5_request(
+            input_record=input_record,
+            source=source,
+            source_candidate=case["candidate"],
+            source_context=case["context"],
+            port=port,
+        )
+        binding = GenericCycleSimulationN5RequestBindingV2.from_request(request)
+    assert request.evidence_state == profile.n5.evidence_state
+    assert request.comparator_profile == profile.n5.comparator_profile
+    assert request.engine_plan[
+        0
+    ].variable_map == JointSimulationPort._joint_simulation_variable_map(
+        atoms=tuple(getattr(case["candidate"], "intervention_atoms", ()) or ())
+        or (case["candidate"].atom,),
+        outcome=input_record.outcome_variable,
+        raw_hint=None,
+    )
+    assert binding.request_content_hash
+    assert binding.request.evidence_state == profile.n5.evidence_state
+    assert binding.request.comparator_profile == profile.n5.comparator_profile
+
+    stripped_n5 = input_record.n5.model_copy(
+        update={"evidence_state": None, "comparator_profile": None, "engine_variable_map": {}}
+    )
+    profile_fields = {
+        name: getattr(profile, name)
+        for name in type(profile).model_fields
+        if name != "content_hash"
+    }
+    profile_fields["n5"] = stripped_n5
+    stripped_profile_draft = GenericCycleSimulationProfileV1.model_construct(
+        **profile_fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    stripped_profile_body = stripped_profile_draft.model_dump(mode="json", exclude={"content_hash"})
+    stripped_profile = GenericCycleSimulationProfileV1.model_validate(
+        {
+            **stripped_profile_body,
+            "content_hash": gy_content_hash(stripped_profile_body),
+        }
+    )
+    input_fields = {
+        name: getattr(input_record, name)
+        for name in type(input_record).model_fields
+        if name != "content_hash"
+    }
+    input_fields.update(profile=stripped_profile, n5=stripped_n5)
+    stripped_input_draft = GenericCycleSimulationN5InputV1.model_construct(
+        **input_fields,
+        content_hash="sha256:" + "0" * 64,
+    )
+    stripped_input_body = stripped_input_draft.model_dump(mode="json", exclude={"content_hash"})
+    stripped_input = GenericCycleSimulationN5InputV1.model_validate(
+        {
+            **stripped_input_body,
+            "content_hash": gy_content_hash(stripped_input_body),
+        }
+    )
+    with (
+        tenant_scope(None, tenant_id=case["tenant_id"], cell_id=case["cell_id"]),
+        pytest.raises(
+            CycleSubstrateContextOwnerError,
+            match="generic_cycle_simulation_n5_input_content_mismatch",
+        ),
+    ):
+        case["owner"].resolve_n5_input(case["input_ref"], expected=stripped_input)
+
+
+@pytest.mark.asyncio
+async def test_generic_port_facade_seals_real_no_run_once_and_detects_finalizer_removal(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A real unsupported result stays blocked and has one complete owner execution."""
+    from polisyos.core.artifacts import (
+        artifact_manifest_profile_sha256,
+        read_core_json_artifact,
+    )
+    from polisyos.runtime.quality import generation_cycle as producer
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationResult,
+        verify_simulation_receipt,
+    )
+    from tests.unit.runtime.quality.test_cycle_substrate import _authenticated_tenant_scope
+
+    case = await _prepare_generic_facade_owner_case(tmp_path, monkeypatch)
+    writes: list[ArtifactRef] = []
+    persist = case["owner"].persist_n5_execution
+
+    def track_execution(**kwargs: Any) -> ArtifactRef:
+        ref = persist(**kwargs)
+        writes.append(ref)
+        return ref
+
+    monkeypatch.setattr(case["owner"], "persist_n5_execution", track_execution)
+    with _authenticated_tenant_scope(tenant_id=case["tenant_id"], cell_id=case["cell_id"]):
+        observation = _call_generic_facade(case)
+        execution = _assert_generic_facade_execution(case, observation)
+        assert writes == [observation.generic_n5_execution_ref]
+        assert observation.status == "simulation_blocked"
+        assert execution.limitation_code in observation.authority_blockers
+        assert observation.simulation_result_ref is not None
+        # The numerical consumer intentionally refuses no_run. Inspect its
+        # actual selected bytes through Core, without claiming a trajectory.
+        result_ref = observation.simulation_result_ref
+        assert result_ref.manifest_profile_sha256 is not None
+        assert case["store"].verify(result_ref).ok
+        manifest = case["store"].get_manifest(result_ref)
+        selected = read_core_json_artifact(case["store"], result_ref)
+        assert selected.selected_manifest_profile_sha256 == result_ref.manifest_profile_sha256
+        assert selected.selected_manifest_profile_sha256 == artifact_manifest_profile_sha256(
+            manifest
+        )
+        assert manifest.kind == producer.JOINT_SIMULATION_RESULT_ARTIFACT_KIND
+        assert manifest.media_type == "application/json"
+        assert manifest.artifact_schema is not None
+        assert manifest.artifact_schema.name == producer.JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA
+        result = JointSimulationResult.model_validate(selected.value)
+        assert (
+            producer._JOINT_SIMULATION_RESULT_VERSIONS[manifest.artifact_schema.version]
+            == result.schema_version
+        )
+        signed_payload = {key: value for key, value in selected.value.items() if key != "receipt"}
+        verify_simulation_receipt(result.receipt, signed_payload)
+        assert result.receipt.payload_hash == observation.simulation_ref
+        binding = observation.generic_n5_request_binding
+        assert binding is not None
+        assert result.world_model_record_content_hash == (
+            case["context"].world_model_record.content_hash
+        )
+        assert result.atom_ids == tuple(
+            atom.intervention_id for atom in binding.request.intervention_atoms
+        )
+        assert result.selected_outcomes == binding.request.selected_outcomes
+        assert result.horizon == binding.request.horizon
+        assert result.diagnostics["generic_n5_request_content_hash"] == binding.request_content_hash
+        assert result.receipt.calibration_status in {"no_run", "unsupported_coupling_gated"}
+        assert not result.trajectories
+        assert result.receipt.trajectory_count == 0
+        with pytest.raises(
+            producer.GenerationCycleError, match="joint_simulation_result_trajectory_missing"
+        ):
+            producer.load_joint_simulation_result(result_ref, store=case["store"])
+        wrong_canon = replace(_N5_TYPED_CANON, max_depth=_N5_TYPED_CANON.max_depth + 1)
+        wrong_options = replace(
+            case["owner"]._n5_execution_write_options(execution),
+            canon=CanonInfo.from_spec(wrong_canon),
+        )
+        sibling = case["store"].put_json(
+            execution.model_dump(mode="python"),
+            wrong_options,
+            canon_spec=wrong_canon,
+            return_selected_profile=True,
+        )
+        assert sibling.artifact_id == observation.generic_n5_execution_ref.artifact_id
+        assert sibling.manifest_profile_sha256 != (
+            observation.generic_n5_execution_ref.manifest_profile_sha256
+        )
+        with pytest.raises(
+            CycleSubstrateContextOwnerError,
+            match="generic_cycle_simulation_n5_execution_manifest_mismatch",
+        ):
+            case["owner"].resolve_n5_execution(sibling, expected=execution)
+        repository = GenerationSourceRepository(case["store"])
+        source_kwargs = {
+            "run_id": execution.source_run_id,
+            "expected_run_id": execution.run_id,
+            "expected_tenant_id": execution.tenant_id,
+            "expected_cell_id": execution.cell_id,
+            "context_job_ref": execution.context_job_ref,
+            "profile_ref": execution.profile_ref,
+        }
+        source = repository.load(
+            execution.n4_source_ref, expected_job_id=execution.job_id, **source_kwargs
+        )
+        assert source.generation_result == case["organ"].result
+        with pytest.raises(ValueError, match="generation_source_owner_profile_mismatch"):
+            repository.load(
+                execution.n4_source_ref,
+                expected_job_id=execution.job_id + "-wrong",
+                **source_kwargs,
+            )
+        # Removing the actual assembler preserves all ordinary N5 work but
+        # destroys the required execution linkage. The semantic oracle detects it.
+        writes.clear()
+        with monkeypatch.context() as removed:
+            removed.setattr(
+                JointSimulationPort,
+                "_finalize_generic_production",
+                lambda _port, production, **_kwargs: production.observation,
+            )
+            with pytest.raises(AssertionError, match="fully_sealed_execution_required"):
+                _assert_generic_facade_execution(case, _call_generic_facade(case))
+        assert writes == []
+        restored = _call_generic_facade(case)
+        _assert_generic_facade_execution(case, restored)
+        assert writes == [restored.generic_n5_execution_ref]
+
+
+@pytest.mark.asyncio
+async def test_generic_port_facade_seals_late_currentness_false_and_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A post-controller lease change seals a blocked execution with its exact code."""
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleError
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+    from tests.unit.runtime.quality.test_cycle_substrate import _authenticated_tenant_scope
+
+    case = await _prepare_generic_facade_owner_case(tmp_path, monkeypatch)
+    run = JointSimulationHorizonController.run
+    finished = {"value": False}
+
+    def run_then_expire(controller: Any, request: Any) -> Any:
+        result = run(controller, request)
+        finished["value"] = True
+        return result
+
+    monkeypatch.setattr(JointSimulationHorizonController, "run", run_then_expire)
+    with _authenticated_tenant_scope(tenant_id=case["tenant_id"], cell_id=case["cell_id"]):
+        for raises in (False, True):
+            finished["value"] = False
+            post_checks = 0
+            original_error = GenerationCycleError(
+                "controlled_late_lease_error", "lease read failed"
+            )
+
+            def currentness(
+                *,
+                should_raise: bool = raises,
+                error: GenerationCycleError = original_error,
+            ) -> bool:
+                nonlocal post_checks
+                if not finished["value"]:
+                    return True
+                post_checks += 1
+                if should_raise:
+                    raise error
+                return False
+
+            observation = _call_generic_facade(case, currentness=currentness)
+            execution = _assert_generic_facade_execution(case, observation)
+            expected = (
+                original_error.code
+                if raises
+                else "generic_cycle_simulation_worker_lease_not_current"
+            )
+            assert post_checks == 1
+            assert observation.status == execution.status == "simulation_blocked"
+            assert execution.limitation_code == expected
+            assert expected in observation.authority_blockers
+            assert observation.simulation_result_ref is not None
+
+
+@pytest.mark.asyncio
+async def test_generic_port_facade_seals_admitted_request_and_result_refusals(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Failures after real input admission cannot expose an unsealed binding DTO."""
+    from polisyos.runtime.quality import generation_cycle as producer
+    from tests.unit.runtime.quality.test_cycle_substrate import _authenticated_tenant_scope
+
+    case = await _prepare_generic_facade_owner_case(tmp_path, monkeypatch)
+    controls = (
+        ("state", "n5_program_state_unavailable"),
+        ("request", "generic_cycle_simulation_n5_typed_request_binding_invalid"),
+        ("result", "generic_cycle_simulation_n5_result_request_binding_invalid"),
+        ("persistence", "joint_simulation_result_persistence_failed"),
+    )
+    with _authenticated_tenant_scope(tenant_id=case["tenant_id"], cell_id=case["cell_id"]):
+        for stage, expected in controls:
+            with monkeypatch.context() as refusal:
+                if stage == "state":
+
+                    def refuse_state(*_args: Any, **_kwargs: Any) -> Any:
+                        raise ValueError("controlled_state_binding_failed")
+
+                    refusal.setattr(
+                        JointSimulationPort, "_request_with_bound_program_state", refuse_state
+                    )
+                elif stage == "request":
+
+                    def refuse_request(*_args: Any, **_kwargs: Any) -> Any:
+                        raise ValueError("controlled_request_binding_failed")
+
+                    refusal.setattr(
+                        GenericCycleSimulationN5RequestBindingV2,
+                        "from_request",
+                        classmethod(refuse_request),
+                    )
+                elif stage == "result":
+
+                    def refuse_result(*_args: Any, **_kwargs: Any) -> Any:
+                        raise producer.ProofReceiptError("controlled_result_binding_failed")
+
+                    refusal.setattr(producer, "_bind_generic_n5_request_to_result", refuse_result)
+                else:
+
+                    def refuse_persistence(*_args: Any, **_kwargs: Any) -> Any:
+                        raise producer.GenerationCycleError(
+                            "controlled_result_write", "write failed"
+                        )
+
+                    refusal.setattr(producer, "persist_joint_simulation_result", refuse_persistence)
+                observation = _call_generic_facade(case)
+                execution = _assert_generic_facade_execution(case, observation)
+            assert observation.status == execution.status == "simulation_blocked"
+            assert execution.limitation_code == expected
+            assert expected in observation.authority_blockers
+            assert observation.simulation_result_ref is None
+            detail_key, original_detail = {
+                "state": ("state_error", "controlled_state_binding_failed"),
+                "request": ("binding_error", "controlled_request_binding_failed"),
+                "result": ("binding_error", "controlled_result_binding_failed"),
+                "persistence": ("persistence_error", "controlled_result_write"),
+            }[stage]
+            assert original_detail in observation.diagnostics[detail_key]
 
 
 def test_pre_v6_history_refuses_every_supplied_generic_field_even_when_null() -> None:
@@ -359,6 +1034,30 @@ def test_v3_binding_rejects_tampered_hash_profile_and_unknown_execution_version(
         )
 
 
+def test_typed_request_binding_includes_explicit_ncm_optins_and_keeps_legacy_none_shape() -> None:
+    request = _request()
+    legacy_binding = GenericCycleSimulationN5RequestBindingV2.from_request(request)
+    legacy_body = request.model_dump(mode="json")
+    assert legacy_body["evidence_state"] is None
+    assert "comparator_profile" not in legacy_body
+
+    outcome = request.selected_outcomes[0]
+    opted_request = request.model_copy(
+        update={
+            "horizon": HorizonSpec(start=0, end=0, step=1),
+            "evidence_state": {outcome: request.baseline_state[outcome]},
+            "comparator_profile": NCMConditionalComparatorProfile(
+                outcome_units={outcome: "synthetic_unit"}
+            ),
+        }
+    )
+    opted_binding = GenericCycleSimulationN5RequestBindingV2.from_request(opted_request)
+    assert opted_binding.request_content_hash != legacy_binding.request_content_hash
+    assert opted_binding.request.evidence_state == {outcome: request.baseline_state[outcome]}
+    assert opted_binding.request.comparator_profile is not None
+    assert opted_binding.request.comparator_profile.outcome_units == {outcome: "synthetic_unit"}
+
+
 def test_generic_n5_rejects_instance_shadowing_of_canonical_port() -> None:
     """A test/custom callable cannot pass as the runtime N5 producer."""
     port = JointSimulationPort()
@@ -378,6 +1077,78 @@ def test_generic_n5_rejects_instance_shadowing_of_canonical_port() -> None:
     )
     if issue != "generic_cycle_simulation_canonical_n5_port_required":
         pytest.fail("N5 refused to reject the instance-shadowed port")
+
+
+def test_generic_n5_receiver_guard_consumes_whole_owner_configuration(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Admit the stock receiver, while real config/dispatch mutations stay refused.
+
+    This checks the receiver guard; the served native test separately establishes
+    the actual source, simulation, persistence and public-reader properties.
+    """
+    from polisyos.runtime.quality import n5_execution_basis
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _generic_n5_scope_owner_and_handoff,
+        _generic_n5_scoped_source_case,
+    )
+
+    case = _generic_n5_scoped_source_case(tmp_path, tenant_id="tenant-receiver-guard")
+    owner, handoff, _profile = _generic_n5_scope_owner_and_handoff(case)
+    port = JointSimulationPort(
+        artifact_store=case["store"],
+        cycle_substrate_context=case["context"],
+        generic_cycle_simulation_admission_owner=owner,
+        generic_cycle_simulation_handoff=handoff,
+    )
+
+    def issue() -> str | None:
+        return _generic_n5_canonical_port_issue(
+            port,
+            owner=owner,
+            handoff=handoff,
+            child_selection=None,
+            child_set_ref=None,
+            artifact_store=case["store"],
+            cycle_substrate_context=case["context"],
+        )
+
+    controller = port._controller
+    assert issue() is None
+    # Constructor-owned scratch state is not an executable override or a
+    # different numerical quantity. An instance-key allowlist conflates these.
+    controller._extra_unconsumed_diagnostic = None
+    assert issue() is None
+    del controller._extra_unconsumed_diagnostic
+
+    prepared = controller._prepared_configuration
+    original_settings = controller._settings
+    changed = original_settings.model_copy(update={"disable_coupling_gate": True})
+    try:
+        controller._settings = changed
+        assert issue() == "generic_cycle_simulation_canonical_n5_controller_required"
+        # Changing preparation and alias together must still fail the current
+        # default production quantity, rather than laundering their equality.
+        controller._prepared_configuration = prepared.model_copy(
+            update={"runtime_settings": changed}
+        )
+        assert issue() == "generic_cycle_simulation_canonical_n5_controller_required"
+    finally:
+        controller._prepared_configuration = prepared
+        controller._settings = original_settings
+    assert issue() is None
+
+    controller.__dict__["_select_engine"] = lambda _request: None
+    assert issue() == "generic_cycle_simulation_canonical_n5_controller_required"
+    del controller.__dict__["_select_engine"]
+    port.__dict__["_resolve_joint_simulation_ncm"] = lambda **_kwargs: None
+    assert issue() == "generic_cycle_simulation_canonical_n5_port_required"
+    with monkeypatch.context() as removed:
+        removed.setattr(n5_execution_basis, "_default_receiver_protocol", lambda _receiver: None)
+        assert issue() is None, "removing the real dispatch gate must defeat the refusal oracle"
+    assert issue() == "generic_cycle_simulation_canonical_n5_port_required"
+    del port.__dict__["_resolve_joint_simulation_ncm"]
+    assert issue() is None
 
 
 def test_generic_request_binding_without_source_refs_cannot_enter_n8() -> None:
@@ -589,7 +1360,6 @@ def test_generic_profile_join_refuses_v5_context_without_exact_selected_ncm_view
 
     from polisyos.core.artifacts import ensure_ir_artifact_store
     from polisyos.core.artifacts.manifest import ArtifactRef
-    from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.ir.analytics.ncm import (
         candidate_ncm_spec_from_declaration,
         persist_ncm_spec,
@@ -609,14 +1379,22 @@ def test_generic_profile_join_refuses_v5_context_without_exact_selected_ncm_view
         GenericCycleSimulationProfileV1,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
-    from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
+    from polisyos.runtime.quality.substrate_registry import (
+        DEFAULT_L2_SCHOLAR_KG_PATH,
+        persist_substrate_registry,
+    )
     from polisyos.runtime.quality.world_model_record import (
         derive_candidate_scenario_world_model_record,
         persist_world_model_record,
         world_model_artifact_views,
     )
     from tests._helpers.candidate_cycle_source_profile import (
+        _authenticated_fixture_scope,
         build_candidate_cycle_substrate_owner_fixture,
+    )
+    from tests._helpers.controlled_candidate_profile import (
+        _capture_controlled_skg_source,
+        _materialize_controlled_world_model_record,
     )
 
     def hash_model(model_type: type[Any], fields: dict[str, Any]) -> Any:
@@ -632,7 +1410,7 @@ def test_generic_profile_join_refuses_v5_context_without_exact_selected_ncm_view
     problem = fixture.resolved_context_job.problem
     tenant_id = "tenant-candidate-source-profile-fixture"
     cell_id = "cell-candidate-source-profile-fixture"
-    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+    with _authenticated_fixture_scope(tenant_id=tenant_id, cell_id=cell_id):
         registry_ref = persist_substrate_registry(
             fixture.artifact_store,
             seed_context.substrate_registry,
@@ -643,8 +1421,8 @@ def test_generic_profile_join_refuses_v5_context_without_exact_selected_ncm_view
         "profile_selection_ref": cycle_job_profile_selection_ref(problem),
         "target_world_slot": problem.candidate_lever_space.candidate_levers[0].target_slot,
         "outcome_variable": problem.outcome_of_interest.target_variable,
-        "target_unit_id": "controlled_target_unit",
-        "outcome_unit_id": "controlled_outcome_unit",
+        "target_unit_id": "synthetic_score",
+        "outcome_unit_id": "synthetic_score",
         "target_baseline": 0.0,
         "outcome_baseline": 0.0,
         "outcome_per_target_unit": 0.5,
@@ -653,14 +1431,39 @@ def test_generic_profile_join_refuses_v5_context_without_exact_selected_ncm_view
     }
     declaration = hash_model(CandidateSimulationSyntheticModelDeclarationV1, declaration_fields)
     ncm = candidate_ncm_spec_from_declaration(declaration)
-    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+    selected_skg_source = _capture_controlled_skg_source(fixture.root / DEFAULT_L2_SCHOLAR_KG_PATH)
+    with _authenticated_fixture_scope(tenant_id=tenant_id, cell_id=cell_id):
         ncm_ref = ArtifactRef.model_validate(
             persist_ncm_spec(ensure_ir_artifact_store(fixture.artifact_store), ncm).model_dump(
                 mode="python"
             )
         )
+        materialized_world = _materialize_controlled_world_model_record(
+            source_world_model_record=seed_context.world_model_record,
+            artifact_store=fixture.artifact_store,
+            tmp_path=tmp_path / "materialized-generic-profile",
+            source_root=fixture.root,
+            substrate_registry=seed_context.substrate_registry,
+            selected_registry_entry_hashes=seed_context.selected_registry_entry_hashes,
+            substrate_registry_ref=registry_ref,
+            policy_slot_ids=(declaration.target_world_slot, declaration.outcome_variable),
+            selected_skg_source=selected_skg_source,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            ncm_view_refs=(ncm_ref,),
+            candidate_baseline_state={
+                declaration.target_world_slot: declaration.target_baseline,
+                declaration.outcome_variable: declaration.outcome_baseline,
+            },
+            candidate_outcome_state_paths={
+                # Explicit scalar fixture aliases onto real GlobalState fields;
+                # no physical measurement or educational semantics are asserted.
+                declaration.target_world_slot: "market.total_demand",
+                declaration.outcome_variable: "market.total_supply",
+            },
+        )
         world = derive_candidate_scenario_world_model_record(
-            seed_context.world_model_record,
+            materialized_world,
             ncm_artifact_ref=ncm_ref,
             declaration_content_hash=declaration.content_hash,
             substrate_registry_view_ref=registry_ref,
@@ -721,6 +1524,10 @@ def test_generic_profile_join_refuses_v5_context_without_exact_selected_ncm_view
         return hash_model(GenericCycleSimulationProfileV1, fields)
 
     profile = build_profile()
+    assert profile.selected_ncm_ref.manifest_profile_sha256 is not None
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(profile,), store=fixture.artifact_store)
+    with _authenticated_fixture_scope(tenant_id=tenant_id, cell_id=cell_id):
+        owner._verify_default_ncm(profile.selected_ncm_ref)
     assert (
         context.substrate_input_content_hash != profile.context_inputs.substrate_input_content_hash
     )

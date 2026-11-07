@@ -288,3 +288,14 @@ vector. The Runtime source owner is reselected before writing. A resumed result
 without that live binding is limited; historical source artifacts remain readable
 under their independent existing rights. These rules do not make an old result
 current merely because a new run exists.
+
+## Current-request parameter bundle reuse
+
+`ResolveParametersNode` uses the same `ParameterTransfer` materializer for a newly
+selected or already admitted context-adaptive bundle. Reuse preserves its exact
+selected artifact ref and avoids another selector run, while recomputing derived
+priors, uncertainty multipliers and intervals with the current backend, draw count
+and seed before publishing a detached state branch. A transfer failure leaves
+the caller state unchanged; an empty bundle does not become runtime-ready.
+This producer repair does not establish the separate Scientist-to-native-hybrid
+SCM fit bridge or empirical applicability of the priors.

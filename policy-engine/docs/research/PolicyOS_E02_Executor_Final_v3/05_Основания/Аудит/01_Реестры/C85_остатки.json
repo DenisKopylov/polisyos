@@ -1,0 +1,76 @@
+{
+  "pass_id": "C85",
+  "bundle": "UDF-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C85-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-031"
+      ],
+      "title": "Accountable LA-031 closure требует native activation и output-profile qualification",
+      "evidence": [
+        "S01",
+        "S06",
+        "S15",
+        "P01",
+        "P03",
+        "P04"
+      ],
+      "remaining": "Повторить selected whole facade/stage consumers в supported environment с actual Parquet backend и native CAS. Сопоставить JSON bytes, NPZ arrays/metadata и Parquet profile на выбранных stages, проверить ошибки/warnings и registry activation. Объединить с LANE-07 integration, не дублировать тяжёлую инфраструктуру по каждому пакету.",
+      "limits": "10 selected bodies PASS;2 Parquet bodies действительно запускались и BLOCKED до assertions. Alias facade body UNRUN; current actual common aliases28 проверены. Сходство NPZ decoded arrays не историческая compressed-byte equivalence, native/import budget не измерен."
+    },
+    {
+      "id": "C85-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-031"
+      ],
+      "title": "Synthetic runtime seed не является выполненной bindings validation или observation authority",
+      "evidence": [
+        "S02:544–659",
+        "S04:676–764",
+        "P05"
+      ],
+      "remaining": "При lane-level integration проследить real runtime bundle consumer и purpose binding synthetic snapshot. Подтвердить, где consumer выполняет требуемую bindings validation, и сохраняет ли receipt отличие diagnostic seed от empirical observations. Использовать существующие contracts/guards, не добавлять искусственный deterministic model inventor.",
+      "limits": "Actual producer source явно записывает fabric.synthetic_multiscale_payload, input_bindings_artifact_id=None,validation=[] и consumer_required. Payload/subset функции исполнены, full producer/CAS/Foundry consumer нет. Не доказано downstream misuse; это G, не R о подмене реальных измерений."
+    },
+    {
+      "id": "C85-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-031"
+      ],
+      "title": "Compatibility lifecycle и полный caller corpus остаются ограниченными",
+      "evidence": [
+        "S03:365–418",
+        "S06",
+        "S07",
+        "P02",
+        "S17",
+        "S18",
+        "S19",
+        "S20"
+      ],
+      "remaining": "Сохранить narrow aliases и полезные common helpers до проверки подтверждённых external/internal callers. Совместить UDF-01/OBS-01/UDF-02 остатки; shared C83-R01 import isolation решать один раз. Не удалять scheduler/materialize/academic shadow/read API по названию или малому размеру.",
+      "limits": "12 builder files проверены AST census на explicit imports/no tools, но это не semantic audit всех bodies и не native import-cost measurement. LK10/LK11 source-reviewed, LK12 ранее C83 limited execution; не заявлено повторное выполнение всей защищённой инфраструктуры."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "carried_related_residuals": [
+    "C83-R01",
+    "C83-G01",
+    "C83-G02",
+    "C84-G01",
+    "C84-G02",
+    "C84-G03"
+  ],
+  "protected_distinctions": [
+    "LK10",
+    "LK11",
+    "LK12"
+  ],
+  "decision": "Canonical coherent IO/bindings owners, explicit imports и bounded serializer/diagnostic behavior подтверждены. Новый defect не установлен; accountable LA-031 closure не объявлен."
+}

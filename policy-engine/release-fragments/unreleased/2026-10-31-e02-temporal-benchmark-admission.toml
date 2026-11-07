@@ -1,0 +1,15 @@
+id = "2026-10-31-e02-temporal-benchmark-admission"
+title = "Use the canonical temporal artifact bridge and truthful benchmark admission"
+type = "fixed"
+component = "benchmarks"
+owner = "team-polisyos"
+summary = "Temporal fixtures use the existing Core-to-IR artifact-store adapter. The real CausalEngine producer exposes its selected bundle reference; benchmarks and the Scientist execution entry retain that profile through fresh readback and aggregate lineage. The Scientist consumer separates estimator and backend selection. Gold publication eligibility requires every registered case and required acceptance check; smoke errors and numerical failures remain failures."
+compatibility = "The existing bundle artifact ID remains available. The additive full reference preserves the producer-selected manifest profile; no IR schema or generated-client change is required."
+api = "Add effect_bundle_artifact_ref to temporal trajectory metadata alongside the existing ID."
+migration = "Temporal consumers should retain the full producer reference instead of reconstructing an unprofiled reference from an ID."
+limitations = "The known-law Gold run retained a DTR numerical acceptance failure. Policy preservation and transition modeling are separate repairs. Passing persistence and route controls does not establish causal validity, whole-suite publication eligibility, production provenance, or G acceptance."
+change_class = "internal"
+surface_classification = "internal: temporal result metadata and in-repository benchmark admission"
+generated_client_compatibility = "not_applicable"
+evidence = ["tests/performance/test_benchmark_phase15_cli.py", "tests/unit/foundry/methods/catalog/causal/test_causal_engine.py", "tests/unit/scientist/nodes/builtins/causal/test_run_causal_contract_execution.py"]
+migration_docs = ["src/polisyos/foundry/methods/catalog/causal/README.md"]

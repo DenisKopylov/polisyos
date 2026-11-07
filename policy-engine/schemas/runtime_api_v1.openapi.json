@@ -221,8 +221,11 @@
             "type": "string"
           },
           "receipt_phase": {
-            "const": "requested",
             "default": "requested",
+            "enum": [
+              "requested",
+              "terminal"
+            ],
             "title": "Receipt Phase",
             "type": "string"
           },
@@ -236,8 +239,11 @@
             "type": "string"
           },
           "status": {
-            "const": "accepted",
             "default": "accepted",
+            "enum": [
+              "accepted",
+              "completed"
+            ],
             "title": "Status",
             "type": "string"
           },
@@ -899,6 +905,94 @@
           "known_residuals"
         ],
         "title": "AcquisitionRoutingPayload",
+        "type": "object"
+      },
+      "AcquisitionSelectedEvaluation": {
+        "additionalProperties": false,
+        "description": "Exact evaluation occurrence selected by the verified route accumulator.",
+        "properties": {
+          "basis_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "candidate_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Candidate Content Hash",
+            "type": "string"
+          },
+          "candidate_id": {
+            "minLength": 1,
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "context_job_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "cycle_index": {
+            "minimum": 0.0,
+            "title": "Cycle Index",
+            "type": "integer"
+          },
+          "design_problem_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Design Problem Ref",
+            "type": "string"
+          },
+          "evaluation_job_id": {
+            "minLength": 1,
+            "title": "Evaluation Job Id",
+            "type": "string"
+          },
+          "evaluation_run_id": {
+            "minLength": 1,
+            "title": "Evaluation Run Id",
+            "type": "string"
+          },
+          "generation_run_id": {
+            "minLength": 1,
+            "title": "Generation Run Id",
+            "type": "string"
+          },
+          "n4_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "n5_execution_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "n5_input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "n5_result_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "world_model_record_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "World Model Record Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "candidate_id",
+          "candidate_content_hash",
+          "design_problem_ref",
+          "world_model_record_hash",
+          "evaluation_job_id",
+          "evaluation_run_id",
+          "generation_run_id",
+          "cycle_index",
+          "n4_source_ref",
+          "context_job_ref",
+          "n5_input_ref",
+          "n5_execution_ref",
+          "n5_result_ref"
+        ],
+        "title": "AcquisitionSelectedEvaluation",
         "type": "object"
       },
       "AgentPipelineAttempt": {
@@ -6286,6 +6380,549 @@
         "title": "CandidateDecisionPacketHTEProjection",
         "type": "object"
       },
+      "CandidateExperimentCurrentActionProjection": {
+        "additionalProperties": false,
+        "description": "Read-only status of the current verified candidate-experiment action.",
+        "properties": {
+          "action_generation": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action Generation"
+          },
+          "blocker_reason": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocker Reason"
+          },
+          "candidate_n5_result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CandidateExperimentN5ResultProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "coarse_phase": {
+            "anyOf": [
+              {
+                "enum": [
+                  "requested",
+                  "executing",
+                  "candidate_input_prepared",
+                  "terminal"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coarse Phase"
+          },
+          "evaluation_disposition": {
+            "default": "unknown",
+            "enum": [
+              "unknown",
+              "new",
+              "retained",
+              "blocked"
+            ],
+            "title": "Evaluation Disposition",
+            "type": "string"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "job_state": {
+            "anyOf": [
+              {
+                "enum": [
+                  "pending",
+                  "running",
+                  "completed",
+                  "failed",
+                  "cancelled"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job State"
+          },
+          "receipt_phase": {
+            "anyOf": [
+              {
+                "enum": [
+                  "requested",
+                  "executing",
+                  "outcome_selected",
+                  "candidate_input_reentry_pending",
+                  "terminal"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receipt Phase"
+          },
+          "recovery_state": {
+            "anyOf": [
+              {
+                "enum": [
+                  "none",
+                  "reentry_recovery_required",
+                  "complete"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recovery State"
+          },
+          "selected_evaluation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AcquisitionSelectedEvaluation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "selected_receipt_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "default": "unknown",
+            "enum": [
+              "unknown",
+              "in_progress",
+              "completed",
+              "blocked"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "terminal_outcome": {
+            "anyOf": [
+              {
+                "enum": [
+                  "candidate_reentry_completed",
+                  "candidate_evaluation_retained",
+                  "candidate_blocked"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Terminal Outcome"
+          }
+        },
+        "title": "CandidateExperimentCurrentActionProjection",
+        "type": "object"
+      },
+      "CandidateExperimentN5ResultProjection": {
+        "additionalProperties": false,
+        "description": "Fresh candidate-only result bound to its selected reentry terminal.",
+        "properties": {
+          "authoritative_for": {
+            "default": [
+              "api_display"
+            ],
+            "items": {
+              "const": "api_display",
+              "type": "string"
+            },
+            "title": "Authoritative For",
+            "type": "array"
+          },
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "configuration_use": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Configuration Use",
+            "type": "string"
+          },
+          "implementation_currentness": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Implementation Currentness",
+            "type": "string"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Limitations",
+            "type": "array"
+          },
+          "may_not_use_for": {
+            "default": [
+              "n5_evaluation_retention",
+              "claim_authority",
+              "publication_authority"
+            ],
+            "items": {
+              "enum": [
+                "n5_evaluation_retention",
+                "claim_authority",
+                "publication_authority"
+              ],
+              "type": "string"
+            },
+            "title": "May Not Use For",
+            "type": "array"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "reentry_receipt_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "result_body": {
+            "$ref": "#/components/schemas/RunCandidateSimulationN5ResultBody"
+          },
+          "terminal_receipt_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "terminal_receipt_ref",
+          "reentry_receipt_ref",
+          "result_body",
+          "reason_codes",
+          "limitations"
+        ],
+        "title": "CandidateExperimentN5ResultProjection",
+        "type": "object"
+      },
+      "CandidateExperimentRouteExecutionRequest": {
+        "additionalProperties": false,
+        "description": "Exact persisted decision selected for one candidate-experiment execution.",
+        "properties": {
+          "decision_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Decision Ref",
+            "type": "string"
+          },
+          "request": {
+            "$ref": "#/components/schemas/CandidateExperimentRouteMutationRequest"
+          }
+        },
+        "required": [
+          "request",
+          "decision_ref"
+        ],
+        "title": "CandidateExperimentRouteExecutionRequest",
+        "type": "object"
+      },
+      "CandidateExperimentRouteMutationRequest": {
+        "additionalProperties": false,
+        "description": "Optimistic pins only; permission and live action owners remain separate.",
+        "properties": {
+          "human_decision_record_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Human Decision Record Ref"
+          },
+          "idempotency_key": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "replay_pins": {
+            "$ref": "#/components/schemas/CandidateExperimentRouteReplayPins-Input"
+          },
+          "route_id": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Route Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "route_id",
+          "replay_pins",
+          "idempotency_key"
+        ],
+        "title": "CandidateExperimentRouteMutationRequest",
+        "type": "object"
+      },
+      "CandidateExperimentRouteProjection": {
+        "additionalProperties": false,
+        "description": "Read-only experiment proposal with unknown cost and no action authority.",
+        "properties": {
+          "action_authority": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Action Authority",
+            "type": "string"
+          },
+          "cell_id": {
+            "minLength": 1,
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "current_action": {
+            "$ref": "#/components/schemas/CandidateExperimentCurrentActionProjection"
+          },
+          "information_value": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Information Value",
+            "type": "string"
+          },
+          "monetary_cost": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Monetary Cost",
+            "type": "string"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "replay_pins": {
+            "$ref": "#/components/schemas/CandidateExperimentRouteReplayPins-Output"
+          },
+          "route_id": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Route Id",
+            "type": "string"
+          },
+          "run_id": {
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "scheduler_action": {
+            "minLength": 1,
+            "title": "Scheduler Action",
+            "type": "string"
+          },
+          "scheduler_reason": {
+            "minLength": 1,
+            "title": "Scheduler Reason",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "CandidateExperimentRouteProjection@1.0",
+            "default": "CandidateExperimentRouteProjection@1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "tenant_id": {
+            "minLength": 1,
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "cell_id",
+          "run_id",
+          "route_id",
+          "replay_pins",
+          "scheduler_action",
+          "scheduler_reason"
+        ],
+        "title": "CandidateExperimentRouteProjection",
+        "type": "object"
+      },
+      "CandidateExperimentRouteReplayPins-Input": {
+        "additionalProperties": false,
+        "description": "Exact selected source and policy views for an unknown-cost experiment.",
+        "properties": {
+          "candidate_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Candidate Digest",
+            "type": "string"
+          },
+          "compiled_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          },
+          "compiler_report_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          },
+          "configured_port_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          },
+          "planner_report_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          },
+          "policy_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          },
+          "predecessor_terminal_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Request Content Hash",
+            "type": "string"
+          },
+          "source_job_id": {
+            "minLength": 1,
+            "title": "Source Job Id",
+            "type": "string"
+          },
+          "source_payload_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Source Payload Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_job_id",
+          "source_payload_ref",
+          "request_content_hash",
+          "compiled_ref",
+          "planner_report_ref",
+          "compiler_report_ref",
+          "configured_port_source_ref",
+          "policy_ref",
+          "candidate_digest"
+        ],
+        "title": "CandidateExperimentRouteReplayPins",
+        "type": "object"
+      },
+      "CandidateExperimentRouteReplayPins-Output": {
+        "additionalProperties": false,
+        "description": "Exact selected source and policy views for an unknown-cost experiment.",
+        "properties": {
+          "candidate_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Candidate Digest",
+            "type": "string"
+          },
+          "compiled_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "compiler_report_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "configured_port_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "planner_report_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "policy_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "predecessor_terminal_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Request Content Hash",
+            "type": "string"
+          },
+          "source_job_id": {
+            "minLength": 1,
+            "title": "Source Job Id",
+            "type": "string"
+          },
+          "source_payload_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Source Payload Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_job_id",
+          "source_payload_ref",
+          "request_content_hash",
+          "compiled_ref",
+          "planner_report_ref",
+          "compiler_report_ref",
+          "configured_port_source_ref",
+          "policy_ref",
+          "candidate_digest"
+        ],
+        "title": "CandidateExperimentRouteReplayPins",
+        "type": "object"
+      },
       "CandidateLever": {
         "additionalProperties": false,
         "description": "Represent one candidate operator/instrument slot for atom binding.",
@@ -7581,6 +8218,16 @@
         "additionalProperties": false,
         "description": "Data-only evidence-class route to code-owned owner verification.",
         "properties": {
+          "build_evidence_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/_BuildIdentityArtifactSelection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "certificate_class": {
             "minLength": 1,
             "title": "Certificate Class",
@@ -12798,12 +13445,48 @@
         "title": "DataResolveResponse",
         "type": "object"
       },
-      "DataSnapshotRef": {
+      "DataSnapshotRef-Input": {
         "additionalProperties": false,
         "description": "Artifact reference for a materialized snapshot of retrieved data and its metadata.",
         "properties": {
           "artifact_id": {
             "$ref": "#/components/schemas/ArtifactID-Input"
+          },
+          "kind": {
+            "default": "fabric.data_snapshot",
+            "title": "Kind",
+            "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "DataSnapshotRef",
+        "type": "object"
+      },
+      "DataSnapshotRef-Output": {
+        "additionalProperties": false,
+        "description": "Artifact reference for a materialized snapshot of retrieved data and its metadata.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
           },
           "kind": {
             "default": "fabric.data_snapshot",
@@ -12841,7 +13524,7 @@
           "data_snapshot_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/DataSnapshotRef"
+                "$ref": "#/components/schemas/DataSnapshotRef-Input"
               },
               {
                 "type": "string"
@@ -12879,6 +13562,81 @@
           }
         },
         "title": "DataSourceBinding",
+        "type": "object"
+      },
+      "DataTrust": {
+        "additionalProperties": false,
+        "description": "L5 trust-tier content used by value promotion and substrate registration.",
+        "properties": {
+          "authority_ref": {
+            "minLength": 1,
+            "title": "Authority Ref",
+            "type": "string"
+          },
+          "max_coverage": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Coverage"
+          },
+          "min_coverage": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Coverage"
+          },
+          "promotion_floor": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promotion Floor"
+          },
+          "tier": {
+            "minLength": 1,
+            "title": "Tier",
+            "type": "string"
+          },
+          "trust_cap": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Trust Cap",
+            "type": "number"
+          },
+          "trust_multiplier": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Trust Multiplier",
+            "type": "number"
+          }
+        },
+        "required": [
+          "tier",
+          "trust_cap",
+          "trust_multiplier",
+          "authority_ref"
+        ],
+        "title": "DataTrust",
         "type": "object"
       },
       "DataViewRequestRef": {
@@ -20252,6 +21010,42 @@
         "title": "EvidenceBasis",
         "type": "object"
       },
+      "EvidenceBundleRef": {
+        "additionalProperties": false,
+        "description": "Artifact reference for the evidence bundle backing a Fabric result.",
+        "properties": {
+          "artifact_id": {
+            "type": "string"
+          },
+          "kind": {
+            "default": "fabric.evidence_bundle",
+            "title": "Kind",
+            "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
+          "media_type": {
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "EvidenceBundleRef",
+        "type": "object"
+      },
       "EvidenceNeed": {
         "additionalProperties": false,
         "description": "Represent one grounding or acquisition demand.",
@@ -25398,6 +26192,16 @@
             ],
             "title": "Replay Ref"
           },
+          "replay_selected_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "source": {
             "default": "dashboard",
             "title": "Source",
@@ -25433,6 +26237,16 @@
             ],
             "title": "Data Snapshot Ref"
           },
+          "data_snapshot_selected_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DataSnapshotRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "datasets_fetched": {
             "default": 0,
             "title": "Datasets Fetched",
@@ -25448,6 +26262,16 @@
               }
             ],
             "title": "Evidence Bundle Ref"
+          },
+          "evidence_bundle_selected_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvidenceBundleRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "input_bindings_ref": {
             "anyOf": [
@@ -25488,6 +26312,16 @@
               }
             ],
             "title": "Record Ref"
+          },
+          "record_session_selected_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "status": {
             "enum": [
@@ -29838,6 +30672,19 @@
               }
             ]
           },
+          "candidate_acquisition_intent": {
+            "anyOf": [
+              {
+                "const": "bounded_experiment_voi_unknown",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explicit opt-in for a separately authorized bounded candidate data-acquisition experiment with information value not established. Requires the limited metered budget scope, an explicit finite USD cap and independent physical authorizations before execution. Does not override an ROI rejection or grant publication authority. Omission or null does not authorize this experiment.",
+            "title": "Candidate Acquisition Intent"
+          },
           "checkpoint_policy": {
             "default": "strict",
             "enum": [
@@ -29933,7 +30780,10 @@
           "joint_interaction_candidate_intent": {
             "anyOf": [
               {
-                "const": "n4_unique_parent_source_members.v1",
+                "enum": [
+                  "n4_unique_parent_source_members.v1",
+                  "authored_joint_components.v1"
+                ],
                 "type": "string"
               },
               {
@@ -30021,6 +30871,22 @@
             "minLength": 1,
             "title": "Request",
             "type": "string"
+          },
+          "run_budget_scope": {
+            "anyOf": [
+              {
+                "enum": [
+                  "hard_total_usd",
+                  "metered_paid_producers_and_bounded_candidate"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Explicit budget scope for this new request. hard_total_usd requires an enforceable total USD ceiling. metered_paid_producers_and_bounded_candidate limits metered paid producers in USD and requires separately authorized physical candidate-work limits; total USD cost remains not established. This choice grants no execution permission. Omission or null does not authorize unpriced candidate acquisition.",
+            "title": "Run Budget Scope"
           },
           "run_budget_usd": {
             "anyOf": [
@@ -31045,6 +31911,15 @@
         "additionalProperties": false,
         "description": "Represent the target variable the value gate will estimate.",
         "properties": {
+          "conditioning_variables": {
+            "description": "Explicit candidate query conditioning, not an identified adjustment set.",
+            "items": {
+              "pattern": "^[a-z][a-z0-9_.]*$",
+              "type": "string"
+            },
+            "title": "Conditioning Variables",
+            "type": "array"
+          },
           "direction": {
             "default": "maximize",
             "enum": [
@@ -31060,10 +31935,36 @@
             "title": "Estimand",
             "type": "string"
           },
+          "measurement_unit": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Declared outcome unit; an atom binds it only to the exact world-slot owner.",
+            "title": "Measurement Unit"
+          },
           "metric_id": {
             "pattern": "^[a-z][a-z0-9_]*$",
             "title": "Metric Id",
             "type": "string"
+          },
+          "query_coordinate_status": {
+            "anyOf": [
+              {
+                "const": "candidate_proposed_unverified",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Proposed query coordinates do not establish agreement with user intent.",
+            "title": "Query Coordinate Status"
           },
           "target_variable": {
             "pattern": "^[a-z][a-z0-9_]*$",
@@ -33182,20 +34083,41 @@
             "title": "Nominal Confidence Level"
           },
           "observed_denominator": {
-            "minimum": 1.0,
-            "title": "Observed Denominator",
-            "type": "integer"
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Denominator"
           },
           "observed_hit_rate": {
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "title": "Observed Hit Rate",
-            "type": "number"
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Hit Rate"
           },
           "observed_numerator": {
-            "minimum": 0.0,
-            "title": "Observed Numerator",
-            "type": "integer"
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Numerator"
           },
           "observed_source_ref": {
             "$ref": "#/components/schemas/ArtifactRef-Output"
@@ -33244,11 +34166,12 @@
             "$ref": "#/components/schemas/PredictiveCalibrationS10Summary"
           },
           "schema_version": {
-            "default": "polisyos.runtime.predictive_calibration_association.v4",
+            "default": "polisyos.runtime.predictive_calibration_association.v5",
             "enum": [
               "polisyos.runtime.predictive_calibration_association.v2",
               "polisyos.runtime.predictive_calibration_association.v3",
-              "polisyos.runtime.predictive_calibration_association.v4"
+              "polisyos.runtime.predictive_calibration_association.v4",
+              "polisyos.runtime.predictive_calibration_association.v5"
             ],
             "title": "Schema Version",
             "type": "string"
@@ -33296,9 +34219,6 @@
           "backtest_report_ref",
           "empirical_evidence_ref",
           "uncertainty_bundle_ref",
-          "observed_numerator",
-          "observed_denominator",
-          "observed_hit_rate",
           "owner_suitability",
           "s10",
           "created_at"
@@ -33336,7 +34256,7 @@
             "$ref": "#/components/schemas/ArtifactRef-Input"
           },
           "observed_source_ref": {
-            "$ref": "#/components/schemas/DataSnapshotRef"
+            "$ref": "#/components/schemas/DataSnapshotRef-Input"
           },
           "policy_spec_ref": {
             "$ref": "#/components/schemas/ArtifactRef-Input"
@@ -33461,9 +34381,16 @@
             "type": "string"
           },
           "denominator": {
-            "minimum": 0.0,
-            "title": "Denominator",
-            "type": "integer"
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Denominator"
           },
           "forecast_tier": {
             "maxLength": 120,
@@ -33496,15 +34423,29 @@
             "title": "May Not Use For"
           },
           "numerator": {
-            "minimum": 0.0,
-            "title": "Numerator",
-            "type": "integer"
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Numerator"
           },
           "observed_pass_rate": {
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "title": "Observed Pass Rate",
-            "type": "number"
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed Pass Rate"
           },
           "outcome_binding_status": {
             "anyOf": [
@@ -33522,10 +34463,7 @@
         "required": [
           "calibration_status",
           "forecast_tier",
-          "counterfactual_credibility",
-          "numerator",
-          "denominator",
-          "observed_pass_rate"
+          "counterfactual_credibility"
         ],
         "title": "PredictiveCalibrationS10Summary",
         "type": "object"
@@ -36896,10 +37834,328 @@
         "title": "RunBoundDesignRecordBinding",
         "type": "object"
       },
+      "RunCandidateEvaluationAttemptProjection": {
+        "additionalProperties": false,
+        "description": "One owner-history-replayed local refusal, not a numerical verification.",
+        "properties": {
+          "attempt_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Attempt Ref",
+            "type": "string"
+          },
+          "candidate_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Candidate Content Hash",
+            "type": "string"
+          },
+          "candidate_id": {
+            "minLength": 1,
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "context_job_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cycle_index": {
+            "minimum": 0.0,
+            "title": "Cycle Index",
+            "type": "integer"
+          },
+          "failure_scope": {
+            "const": "candidate_local",
+            "default": "candidate_local",
+            "title": "Failure Scope",
+            "type": "string"
+          },
+          "failure_stage": {
+            "enum": [
+              "n5",
+              "n8"
+            ],
+            "title": "Failure Stage",
+            "type": "string"
+          },
+          "n4_source_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n5_execution_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n5_input_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "node_ref": {
+            "minLength": 1,
+            "title": "Node Ref",
+            "type": "string"
+          },
+          "numerical_result_verification": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Numerical Result Verification",
+            "type": "string"
+          },
+          "problem_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Problem Ref",
+            "type": "string"
+          },
+          "profile_selection_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Selection Ref"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "scope": {
+            "const": "recorded_candidate_attempt",
+            "default": "recorded_candidate_attempt",
+            "title": "Scope",
+            "type": "string"
+          },
+          "selected_method_fqn": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Method Fqn"
+          },
+          "simulation_authority_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Simulation Authority Blockers",
+            "type": "array"
+          },
+          "simulation_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Simulation Ref"
+          },
+          "simulation_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "simulation_status": {
+            "enum": [
+              "joint_simulated",
+              "simulation_pending_n5",
+              "simulation_blocked"
+            ],
+            "title": "Simulation Status",
+            "type": "string"
+          },
+          "value_authority_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Value Authority Blockers",
+            "type": "array"
+          },
+          "value_decision_grade": {
+            "anyOf": [
+              {
+                "enum": [
+                  "blocked",
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Decision Grade"
+          },
+          "value_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Ref"
+          },
+          "value_status": {
+            "enum": [
+              "value_pending_n8",
+              "value_ready",
+              "value_conditional",
+              "value_blocked"
+            ],
+            "title": "Value Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "node_ref",
+          "candidate_id",
+          "candidate_content_hash",
+          "cycle_index",
+          "problem_ref",
+          "attempt_ref",
+          "failure_stage",
+          "simulation_status",
+          "value_status"
+        ],
+        "title": "RunCandidateEvaluationAttemptProjection",
+        "type": "object"
+      },
+      "RunCandidateSimulationAcquiredOutcomeRevision": {
+        "additionalProperties": false,
+        "description": "Owner-replayed acquired outcome baseline, distinct from coefficient inference.",
+        "properties": {
+          "admitted_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "changed_field": {
+            "const": "outcome_baseline",
+            "default": "outcome_baseline",
+            "title": "Changed Field",
+            "type": "string"
+          },
+          "evaluation_decision_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "outcome_world_slot": {
+            "minLength": 1,
+            "title": "Outcome World Slot",
+            "type": "string"
+          },
+          "predicate_provenance": {
+            "const": "recomputed",
+            "default": "recomputed",
+            "title": "Predicate Provenance",
+            "type": "string"
+          },
+          "previous_basis_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "previous_declaration_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "previous_input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "previous_ncm_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "selected_basis_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_declaration_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_ncm_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "evaluation_decision_ref",
+          "previous_input_ref",
+          "selected_input_ref",
+          "previous_declaration_ref",
+          "selected_declaration_ref",
+          "previous_ncm_ref",
+          "selected_ncm_ref",
+          "previous_basis_ref",
+          "selected_basis_ref",
+          "admitted_source_ref",
+          "outcome_world_slot"
+        ],
+        "title": "RunCandidateSimulationAcquiredOutcomeRevision",
+        "type": "object"
+      },
       "RunCandidateSimulationAcquisitionContinuationProjection": {
         "additionalProperties": false,
         "description": "Typed candidate-only projection of the exact N9 continuation.",
         "properties": {
+          "acquired_outcome_revision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationAcquiredOutcomeRevision"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "authority_purpose": {
             "const": "candidate_observation_only",
             "default": "candidate_observation_only",
@@ -36945,6 +38201,16 @@
             "default": "not_established",
             "title": "Currentness Status",
             "type": "string"
+          },
+          "model_revision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationModelRevision"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "n9_certified_candidate_ids": {
             "default": [],
@@ -37045,6 +38311,30 @@
             "pattern": "^sha256:[0-9a-f]{64}$",
             "title": "Selected Profile Selection Ref",
             "type": "string"
+          },
+          "selected_simulation_authority_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Selected Simulation Authority Blockers",
+            "type": "array"
+          },
+          "selected_simulation_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "joint_simulated",
+                  "simulation_pending_n5",
+                  "simulation_blocked"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Simulation Status"
           },
           "selected_target_baseline_hash": {
             "anyOf": [
@@ -37156,6 +38446,18 @@
             "default": "not_established",
             "title": "Currentness Status",
             "type": "string"
+          },
+          "evaluation_provenance": {
+            "anyOf": [
+              {
+                "const": "new_execution",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evaluation Provenance"
           },
           "expected_origin_source_ref": {
             "anyOf": [
@@ -37279,6 +38581,16 @@
             ],
             "title": "Schema Version"
           },
+          "selected_n5_observation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationN5Observation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "terminal_outcome": {
             "enum": [
               "reentry_completed",
@@ -37323,6 +38635,16 @@
             "title": "Continuation Join Status",
             "type": "null"
           },
+          "current_cheap_consequences": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationCheapConsequences"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "current_continuation_ref": {
             "$ref": "#/components/schemas/ArtifactRef-Output"
           },
@@ -37339,6 +38661,12 @@
             "const": "retained_prior",
             "default": "retained_prior",
             "title": "Evaluation Disposition",
+            "type": "string"
+          },
+          "evaluation_provenance": {
+            "const": "retained_prior",
+            "default": "retained_prior",
+            "title": "Evaluation Provenance",
             "type": "string"
           },
           "expected_origin_source_ref": {
@@ -37398,6 +38726,16 @@
             "title": "Schema Version",
             "type": "string"
           },
+          "selected_n5_observation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationN5Observation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "source_admission_status": {
             "const": "admitted",
             "default": "admitted",
@@ -37423,6 +38761,618 @@
           "retained_evaluation"
         ],
         "title": "RunCandidateSimulationAcquisitionHistoryEntryV3",
+        "type": "object"
+      },
+      "RunCandidateSimulationAcquisitionHistoryEntryV4": {
+        "additionalProperties": false,
+        "description": "Owner-replayed candidate-only source continuation, not observed admission.",
+        "properties": {
+          "action_generation": {
+            "minimum": 1.0,
+            "title": "Action Generation",
+            "type": "integer"
+          },
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "basis_transition_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Basis Transition Content Hash",
+            "type": "string"
+          },
+          "candidate_action_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "candidate_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "context_job_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "continued_cycle_index": {
+            "minimum": 0.0,
+            "title": "Continued Cycle Index",
+            "type": "integer"
+          },
+          "continued_generation_run_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Continued Generation Run Content Hash",
+            "type": "string"
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "data_snapshot_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Limitations",
+            "type": "array"
+          },
+          "model_declaration_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "n4_source_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n5_execution_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n5_input_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n5_result_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ncm_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "observed_admission": {
+            "const": false,
+            "default": false,
+            "title": "Observed Admission",
+            "type": "boolean"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "reentry_receipt_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "route_id": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Route Id",
+            "type": "string"
+          },
+          "route_receipt_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.run_candidate_simulation_acquisition_history.v4",
+            "default": "policyos.runtime.run_candidate_simulation_acquisition_history.v4",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "simulation_authority_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Simulation Authority Blockers",
+            "type": "array"
+          },
+          "simulation_status": {
+            "enum": [
+              "joint_simulated",
+              "simulation_pending_n5",
+              "simulation_blocked"
+            ],
+            "title": "Simulation Status",
+            "type": "string"
+          },
+          "source_cycle_index": {
+            "minimum": 0.0,
+            "title": "Source Cycle Index",
+            "type": "integer"
+          },
+          "source_generation_run_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Source Generation Run Content Hash",
+            "type": "string"
+          },
+          "terminal_outcome": {
+            "const": "candidate_reentry_completed",
+            "default": "candidate_reentry_completed",
+            "title": "Terminal Outcome",
+            "type": "string"
+          },
+          "world_model_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "route_receipt_ref",
+          "reentry_receipt_ref",
+          "route_id",
+          "action_generation",
+          "candidate_action_ref",
+          "candidate_source_ref",
+          "data_snapshot_ref",
+          "world_model_ref",
+          "context_job_ref",
+          "model_declaration_ref",
+          "ncm_ref",
+          "simulation_status",
+          "source_cycle_index",
+          "continued_cycle_index",
+          "source_generation_run_content_hash",
+          "continued_generation_run_content_hash",
+          "basis_transition_content_hash",
+          "limitations"
+        ],
+        "title": "RunCandidateSimulationAcquisitionHistoryEntryV4",
+        "type": "object"
+      },
+      "RunCandidateSimulationAcquisitionHistoryEntryV5": {
+        "additionalProperties": false,
+        "description": "Verified candidate terminal and historical frontier, without admission authority.",
+        "properties": {
+          "action_generation": {
+            "minimum": 1.0,
+            "title": "Action Generation",
+            "type": "integer"
+          },
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "candidate_action_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "candidate_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "comparison_reason_codes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Comparison Reason Codes",
+            "type": "array"
+          },
+          "comparison_result": {
+            "enum": [
+              "equivalent",
+              "different",
+              "not_established"
+            ],
+            "title": "Comparison Result",
+            "type": "string"
+          },
+          "current_basis_limitations": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Current Basis Limitations",
+            "type": "array"
+          },
+          "current_basis_provenance": {
+            "enum": [
+              "recomputed",
+              "not_established"
+            ],
+            "title": "Current Basis Provenance",
+            "type": "string"
+          },
+          "current_basis_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "current_cheap_consequences": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationCheapConsequences"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_continuation_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "evaluation_decision_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "evaluation_provenance": {
+            "enum": [
+              "new_execution",
+              "retained_prior",
+              "not_established"
+            ],
+            "title": "Evaluation Provenance",
+            "type": "string"
+          },
+          "frontier_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Frontier Ref",
+            "type": "string"
+          },
+          "frontier_revision": {
+            "minimum": 1.0,
+            "title": "Frontier Revision",
+            "type": "integer"
+          },
+          "frontier_selection": {
+            "enum": [
+              "selected",
+              "superseded"
+            ],
+            "title": "Frontier Selection",
+            "type": "string"
+          },
+          "observed_admission": {
+            "const": false,
+            "default": false,
+            "title": "Observed Admission",
+            "type": "boolean"
+          },
+          "predicate_provenance": {
+            "enum": [
+              "recomputed",
+              "not_established"
+            ],
+            "title": "Predicate Provenance",
+            "type": "string"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "reentry": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationAcquisitionHistoryEntryV4"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "route_id": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Route Id",
+            "type": "string"
+          },
+          "route_receipt_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.run_candidate_simulation_acquisition_history.v5",
+            "default": "policyos.runtime.run_candidate_simulation_acquisition_history.v5",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "selected_basis_limitations": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Selected Basis Limitations",
+            "type": "array"
+          },
+          "selected_basis_provenance": {
+            "enum": [
+              "recomputed",
+              "not_established"
+            ],
+            "title": "Selected Basis Provenance",
+            "type": "string"
+          },
+          "selected_basis_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_basis_role": {
+            "enum": [
+              "evaluated",
+              "blocked"
+            ],
+            "title": "Selected Basis Role",
+            "type": "string"
+          },
+          "selected_evaluation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationRetainedEvaluation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "selected_evaluation_witness_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_n5_observation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationN5Observation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "terminal_outcome": {
+            "enum": [
+              "candidate_reentry_completed",
+              "candidate_evaluation_retained"
+            ],
+            "title": "Terminal Outcome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "route_receipt_ref",
+          "route_id",
+          "action_generation",
+          "terminal_outcome",
+          "candidate_action_ref",
+          "candidate_source_ref",
+          "evaluation_decision_ref",
+          "current_basis_ref",
+          "selected_basis_ref",
+          "selected_evaluation_witness_ref",
+          "comparison_result",
+          "predicate_provenance",
+          "selected_basis_role",
+          "current_basis_provenance",
+          "selected_basis_provenance",
+          "current_basis_limitations",
+          "selected_basis_limitations",
+          "frontier_ref",
+          "frontier_revision",
+          "frontier_selection",
+          "evaluation_provenance"
+        ],
+        "title": "RunCandidateSimulationAcquisitionHistoryEntryV5",
+        "type": "object"
+      },
+      "RunCandidateSimulationCheapConsequences": {
+        "additionalProperties": false,
+        "description": "Verified cheap reactions at a recorded action, without a new N5 occurrence.",
+        "properties": {
+          "candidate_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Candidate Content Hash",
+            "type": "string"
+          },
+          "candidate_id": {
+            "minLength": 1,
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "current_planner_report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "grounding_current_valid": {
+            "title": "Grounding Current Valid",
+            "type": "boolean"
+          },
+          "grounding_status": {
+            "enum": [
+              "current_valid",
+              "grounded_shadow",
+              "grounding_gap",
+              "grounding_failed",
+              "grounding_unavailable"
+            ],
+            "title": "Grounding Status",
+            "type": "string"
+          },
+          "numerical_provenance": {
+            "const": "retained_prior",
+            "default": "retained_prior",
+            "title": "Numerical Provenance",
+            "type": "string"
+          },
+          "refinement_decision": {
+            "enum": [
+              "refine",
+              "acquire",
+              "reframe",
+              "decompose",
+              "human_decision",
+              "abstain",
+              "block_candidate",
+              "stop"
+            ],
+            "title": "Refinement Decision",
+            "type": "string"
+          },
+          "scope": {
+            "const": "current_cheap_consequences_at_recorded_action",
+            "default": "current_cheap_consequences_at_recorded_action",
+            "title": "Scope",
+            "type": "string"
+          },
+          "search_iteration_status": {
+            "enum": [
+              "blocked",
+              "blocked_no_retry",
+              "governance_required",
+              "acquisition_required",
+              "abstained",
+              "stopped",
+              "refined_shadow"
+            ],
+            "title": "Search Iteration Status",
+            "type": "string"
+          },
+          "source_cycle_index": {
+            "minimum": 0.0,
+            "title": "Source Cycle Index",
+            "type": "integer"
+          },
+          "terminal_kind": {
+            "enum": [
+              "a_spec_gap",
+              "tool_failure",
+              "composition_invalid",
+              "recursive_blocked",
+              "search_ceiling_repair_required",
+              "human_decision_required",
+              "acquisition_required",
+              "budget_exhausted",
+              "frontier_stable",
+              "grounded_admissible",
+              "grounded_partial_admissible",
+              "grounded_abstention"
+            ],
+            "title": "Terminal Kind",
+            "type": "string"
+          },
+          "value_authority_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Value Authority Blockers",
+            "type": "array"
+          },
+          "value_decision_grade": {
+            "anyOf": [
+              {
+                "enum": [
+                  "blocked",
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Decision Grade"
+          },
+          "value_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Ref"
+          },
+          "value_status": {
+            "enum": [
+              "value_pending_n8",
+              "value_ready",
+              "value_conditional",
+              "value_blocked"
+            ],
+            "title": "Value Status",
+            "type": "string"
+          },
+          "voi_next_action": {
+            "enum": [
+              "advance",
+              "stop",
+              "escalate",
+              "blocked"
+            ],
+            "title": "Voi Next Action",
+            "type": "string"
+          },
+          "voi_reason": {
+            "minLength": 1,
+            "title": "Voi Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_cycle_index",
+          "candidate_id",
+          "candidate_content_hash",
+          "grounding_status",
+          "grounding_current_valid",
+          "value_status",
+          "voi_next_action",
+          "voi_reason",
+          "terminal_kind",
+          "refinement_decision",
+          "search_iteration_status"
+        ],
+        "title": "RunCandidateSimulationCheapConsequences",
         "type": "object"
       },
       "RunCandidateSimulationChildProfileBinding": {
@@ -37596,6 +39546,57 @@
         "additionalProperties": false,
         "description": "One current candidate occurrence after append-only N6 continuation.",
         "properties": {
+          "candidate_basis_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Basis Content Hash"
+          },
+          "candidate_basis_cycle_index": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Basis Cycle Index"
+          },
+          "candidate_basis_limitation_code": {
+            "anyOf": [
+              {
+                "const": "candidate_source_basis_prior_occurrence_not_revalidated",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Basis Limitation Code"
+          },
+          "candidate_basis_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "prior_basis_not_revalidated",
+                  "recorded_on_selected_basis"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Basis Status"
+          },
           "candidate_id": {
             "minLength": 1,
             "title": "Candidate Id",
@@ -37625,6 +39626,87 @@
             "title": "Front",
             "type": "string"
           },
+          "historical_certified_by_n9": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Historical Certified By N9"
+          },
+          "historical_front": {
+            "anyOf": [
+              {
+                "enum": [
+                  "decision",
+                  "research",
+                  "quarantine",
+                  "portfolio"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Historical Front"
+          },
+          "historical_value_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Historical Value Blockers",
+            "type": "array"
+          },
+          "historical_value_decision_grade": {
+            "anyOf": [
+              {
+                "enum": [
+                  "blocked",
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Historical Value Decision Grade"
+          },
+          "historical_value_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Historical Value Ref"
+          },
+          "historical_value_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "value_pending_n8",
+                  "value_ready",
+                  "value_conditional",
+                  "value_blocked"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Historical Value Status"
+          },
           "source_content_hash": {
             "anyOf": [
               {
@@ -37636,6 +39718,59 @@
               }
             ],
             "title": "Source Content Hash"
+          },
+          "value_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Value Blockers",
+            "type": "array"
+          },
+          "value_decision_grade": {
+            "anyOf": [
+              {
+                "enum": [
+                  "blocked",
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Decision Grade"
+          },
+          "value_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Ref"
+          },
+          "value_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "value_pending_n8",
+                  "value_ready",
+                  "value_conditional",
+                  "value_blocked"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Status"
           }
         },
         "required": [
@@ -37646,6 +39781,76 @@
           "certified_by_n9"
         ],
         "title": "RunCandidateSimulationCurrentOccurrence",
+        "type": "object"
+      },
+      "RunCandidateSimulationModelRevision": {
+        "additionalProperties": false,
+        "description": "A replayed coefficient-only candidate model change, not new empirical evidence.",
+        "properties": {
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "changed_field": {
+            "const": "outcome_per_target_unit",
+            "default": "outcome_per_target_unit",
+            "title": "Changed Field",
+            "type": "string"
+          },
+          "evaluation_decision_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "predicate_provenance": {
+            "const": "recomputed",
+            "default": "recomputed",
+            "title": "Predicate Provenance",
+            "type": "string"
+          },
+          "previous_basis_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "previous_declaration_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "previous_input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "previous_ncm_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "selected_basis_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_declaration_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_ncm_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "evaluation_decision_ref",
+          "previous_input_ref",
+          "selected_input_ref",
+          "previous_declaration_ref",
+          "selected_declaration_ref",
+          "previous_ncm_ref",
+          "selected_ncm_ref",
+          "previous_basis_ref",
+          "selected_basis_ref"
+        ],
+        "title": "RunCandidateSimulationModelRevision",
         "type": "object"
       },
       "RunCandidateSimulationN5Observation": {
@@ -37794,6 +39999,16 @@
               }
             ]
           },
+          "n5_execution_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "n5_input_ref": {
             "anyOf": [
               {
@@ -37808,6 +40023,38 @@
             "anyOf": [
               {
                 "$ref": "#/components/schemas/RunN5InteractionEvidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n8_authored_joint_intent_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Authored Joint Intent Digest"
+          },
+          "n8_authored_joint_relation_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "n8_authored_joint_request_payload_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
               },
               {
                 "type": "null"
@@ -37833,6 +40080,24 @@
               }
             ],
             "title": "N8 Candidate Decision Grade"
+          },
+          "n8_candidate_derived_atom_content_hashes": {
+            "default": [],
+            "items": {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "title": "N8 Candidate Derived Atom Content Hashes",
+            "type": "array"
+          },
+          "n8_candidate_derived_atom_ids": {
+            "default": [],
+            "items": {
+              "pattern": "^atom_[a-f0-9]{16}$",
+              "type": "string"
+            },
+            "title": "N8 Candidate Derived Atom Ids",
+            "type": "array"
           },
           "n8_candidate_joint_selection_content_hash": {
             "anyOf": [
@@ -37878,6 +40143,7 @@
               {
                 "enum": [
                   "hypothetical_all_unique_n4_source_members",
+                  "authored_materialized_n4_source_members",
                   "not_established"
                 ],
                 "type": "string"
@@ -38117,7 +40383,8 @@
                 "enum": [
                   "n4_source_candidates_are_alternatives_not_authored_compound_design",
                   "legacy_selection_receipt_has_no_composition_basis",
-                  "parent_joint_candidate_source_selection_not_established"
+                  "parent_joint_candidate_source_selection_not_established",
+                  "authored_candidate_coupling_not_established"
                 ],
                 "type": "string"
               },
@@ -38130,7 +40397,10 @@
           "n8_policy_composition_status": {
             "anyOf": [
               {
-                "const": "not_established",
+                "enum": [
+                  "not_established",
+                  "authored_candidate"
+                ],
                 "type": "string"
               },
               {
@@ -38138,6 +40408,18 @@
               }
             ],
             "title": "N8 Policy Composition Status"
+          },
+          "n8_selected_member_relationship": {
+            "anyOf": [
+              {
+                "const": "joint_components",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N8 Selected Member Relationship"
           },
           "n8_source_candidate_relationship": {
             "anyOf": [
@@ -38208,6 +40490,49 @@
             "title": "Replication Seeds",
             "type": "array"
           },
+          "result_body": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationN5ResultBody"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result_body_limitation_code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "candidate_n5_result_body_request_binding_not_established",
+                  "candidate_n5_result_body_selected_manifest_view_not_established",
+                  "candidate_n5_result_body_execution_not_successful",
+                  "candidate_n5_result_body_content_refused"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Body Limitation Code"
+          },
+          "result_body_status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_applicable",
+                  "resolved",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Body Status"
+          },
           "selected_outcomes": {
             "default": [],
             "items": {
@@ -38265,6 +40590,161 @@
           "status"
         ],
         "title": "RunCandidateSimulationN5Observation",
+        "type": "object"
+      },
+      "RunCandidateSimulationN5ResultBody": {
+        "additionalProperties": false,
+        "description": "Typed N5 result body for one configured candidate observation.",
+        "properties": {
+          "artifact_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "artifact_schema_name": {
+            "const": "policyos.runtime.n5.joint_simulation_result",
+            "title": "Artifact Schema Name",
+            "type": "string"
+          },
+          "artifact_schema_version": {
+            "enum": [
+              "1.0.0",
+              "2.0.0",
+              "3.0.0",
+              "4.0.0",
+              "5.0.0"
+            ],
+            "title": "Artifact Schema Version",
+            "type": "string"
+          },
+          "atom_ids": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Atom Ids",
+            "type": "array"
+          },
+          "authority_purpose": {
+            "const": "candidate_scenario_n5_only",
+            "default": "candidate_scenario_n5_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "candidate_status": {
+            "const": "candidate_unverified",
+            "default": "candidate_unverified",
+            "title": "Candidate Status",
+            "type": "string"
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "horizon": {
+            "$ref": "#/components/schemas/RunGenericCycleSimulationN5Horizon"
+          },
+          "model_declaration_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outcome_units": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Outcome Units",
+            "type": "object"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "result_schema_version": {
+            "enum": [
+              "policyos.runtime.joint_simulation_horizon.v1",
+              "policyos.runtime.joint_simulation_horizon.v2",
+              "policyos.runtime.joint_simulation_horizon.v3",
+              "policyos.runtime.joint_simulation_horizon.v4",
+              "policyos.runtime.joint_simulation_horizon.v5"
+            ],
+            "title": "Result Schema Version",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.run_candidate_simulation_n5_result_body.v1",
+            "default": "policyos.runtime.run_candidate_simulation_n5_result_body.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "selected_manifest_profile_sha256": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Selected Manifest Profile Sha256",
+            "type": "string"
+          },
+          "selected_outcomes": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Selected Outcomes",
+            "type": "array"
+          },
+          "trajectories": {
+            "items": {
+              "$ref": "#/components/schemas/RunGenericCycleSimulationN5Trajectory"
+            },
+            "minItems": 1,
+            "title": "Trajectories",
+            "type": "array"
+          },
+          "uncertainty_kind": {
+            "const": "K_sim",
+            "default": "K_sim",
+            "title": "Uncertainty Kind",
+            "type": "string"
+          },
+          "unit_provenance": {
+            "default": "not_established",
+            "enum": [
+              "declared_candidate_model",
+              "not_established"
+            ],
+            "title": "Unit Provenance",
+            "type": "string"
+          },
+          "world_model_record_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "World Model Record Content Hash",
+            "type": "string"
+          },
+          "world_model_record_ref": {
+            "minLength": 1,
+            "title": "World Model Record Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_ref",
+          "artifact_schema_name",
+          "artifact_schema_version",
+          "result_schema_version",
+          "selected_manifest_profile_sha256",
+          "world_model_record_ref",
+          "world_model_record_content_hash",
+          "atom_ids",
+          "selected_outcomes",
+          "horizon",
+          "trajectories"
+        ],
+        "title": "RunCandidateSimulationN5ResultBody",
         "type": "object"
       },
       "RunCandidateSimulationN8ChildSourceBinding": {
@@ -38366,6 +40846,12 @@
                 },
                 {
                   "$ref": "#/components/schemas/RunCandidateSimulationAcquisitionHistoryEntryV3"
+                },
+                {
+                  "$ref": "#/components/schemas/RunCandidateSimulationAcquisitionHistoryEntryV4"
+                },
+                {
+                  "$ref": "#/components/schemas/RunCandidateSimulationAcquisitionHistoryEntryV5"
                 }
               ]
             },
@@ -38403,6 +40889,36 @@
             "default": "candidate_observation_only",
             "title": "Authority Purpose",
             "type": "string"
+          },
+          "candidate_evaluation_attempts": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunCandidateEvaluationAttemptProjection"
+            },
+            "title": "Candidate Evaluation Attempts",
+            "type": "array"
+          },
+          "candidate_evaluation_attempts_limitation_code": {
+            "anyOf": [
+              {
+                "const": "candidate_attempt_context_history_not_established",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Evaluation Attempts Limitation Code"
+          },
+          "candidate_source_current_projection": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSourceCurrentProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "limitation_code": {
             "anyOf": [
@@ -38712,6 +41228,332 @@
         "title": "RunCandidateSimulationRetainedEvaluation",
         "type": "object"
       },
+      "RunCandidateSourceCurrentProjection": {
+        "additionalProperties": false,
+        "description": "One reopened candidate-basis fold; no deployment or publication authority.",
+        "properties": {
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "basis_cycle_index": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basis Cycle Index"
+          },
+          "basis_transition_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basis Transition Content Hash"
+          },
+          "certified_candidate_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Certified Candidate Ids",
+            "type": "array"
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "fronts": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationContinuationFronts"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "generation_run_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generation Run Content Hash"
+          },
+          "issues": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
+          "occurrences": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunCandidateSimulationCurrentOccurrence"
+            },
+            "title": "Occurrences",
+            "type": "array"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "status": {
+            "enum": [
+              "resolved",
+              "not_established"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "RunCandidateSourceCurrentProjection",
+        "type": "object"
+      },
+      "RunCandidateValueMethodProjection": {
+        "additionalProperties": false,
+        "description": "Source-row method evidence alongside a separately qualified simulation.",
+        "properties": {
+          "assignment_provenance": {
+            "const": "consumer_asserted",
+            "default": "consumer_asserted",
+            "title": "Assignment Provenance",
+            "type": "string"
+          },
+          "authority_purpose": {
+            "const": "candidate_source_rows_only",
+            "default": "candidate_source_rows_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "discovery_limitations": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Discovery Limitations",
+            "type": "array"
+          },
+          "failure_kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "input_refused",
+                  "environment_unavailable",
+                  "not_established"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure Kind"
+          },
+          "limitation_codes": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Limitation Codes",
+            "type": "array"
+          },
+          "measurement_unit": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measurement Unit"
+          },
+          "method_selection_receipt_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "native_report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "point_estimate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Point Estimate"
+          },
+          "production_value_eligible": {
+            "const": false,
+            "default": false,
+            "title": "Production Value Eligible",
+            "type": "boolean"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "record_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "run_basis_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "selected_method_fqn": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selected Method Fqn"
+          },
+          "source_request_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_time_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Source Time Status",
+            "type": "string"
+          },
+          "statistical_interval": {
+            "anyOf": [
+              {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statistical Interval"
+          },
+          "status": {
+            "enum": [
+              "completed",
+              "refused",
+              "not_established"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "value_outer_set": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ValueOuterSet"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "limitation_codes"
+        ],
+        "title": "RunCandidateValueMethodProjection",
+        "type": "object"
+      },
       "RunCompareResponse": {
         "additionalProperties": false,
         "description": "Response envelope returned by the run comparison endpoint.",
@@ -38874,9 +41716,13 @@
                 "$ref": "#/components/schemas/RunCandidateSimulationProjection"
               },
               {
+                "$ref": "#/components/schemas/RunFailedCandidateSimulationProjection"
+              },
+              {
                 "type": "null"
               }
-            ]
+            ],
+            "title": "Candidate Simulation"
           },
           "capability_manifest_ref": {
             "anyOf": [
@@ -39785,6 +42631,133 @@
         "title": "RunEvidencePromotionView",
         "type": "object"
       },
+      "RunFailedCandidateSimulationProjection": {
+        "additionalProperties": false,
+        "description": "Candidate-only N5 evidence retained when a later cycle stage fails.",
+        "properties": {
+          "artifact_status": {
+            "enum": [
+              "resolved",
+              "not_established"
+            ],
+            "title": "Artifact Status",
+            "type": "string"
+          },
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "cycle_completed": {
+            "const": false,
+            "default": false,
+            "title": "Cycle Completed",
+            "type": "boolean"
+          },
+          "cycle_index": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cycle Index"
+          },
+          "failed_stage": {
+            "anyOf": [
+              {
+                "enum": [
+                  "value_projection",
+                  "revision"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failed Stage"
+          },
+          "failure_source": {
+            "const": "same_control_job",
+            "default": "same_control_job",
+            "title": "Failure Source",
+            "type": "string"
+          },
+          "limitation_code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "candidate_n5_output_not_established",
+                  "candidate_n5_output_ambiguous"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limitation Code"
+          },
+          "n5_observations": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunCandidateSimulationN5Observation"
+            },
+            "title": "N5 Observations",
+            "type": "array"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "run_id": {
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.run_failed_candidate_simulation_projection.v1",
+            "default": "policyos.runtime.run_failed_candidate_simulation_projection.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Content Hash"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "run_id",
+          "artifact_status"
+        ],
+        "title": "RunFailedCandidateSimulationProjection",
+        "type": "object"
+      },
       "RunFeedbackResponse": {
         "additionalProperties": false,
         "description": "Response envelope returned by the run feedback endpoint.",
@@ -40075,6 +43048,16 @@
             "minLength": 1,
             "title": "Candidate Id",
             "type": "string"
+          },
+          "candidate_value_method": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateValueMethodProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "child_profile_family_ref": {
             "anyOf": [
@@ -40434,7 +43417,8 @@
               "1.0.0",
               "2.0.0",
               "3.0.0",
-              "4.0.0"
+              "4.0.0",
+              "5.0.0"
             ],
             "title": "Artifact Schema Version",
             "type": "string"
@@ -40479,7 +43463,8 @@
               "policyos.runtime.joint_simulation_horizon.v1",
               "policyos.runtime.joint_simulation_horizon.v2",
               "policyos.runtime.joint_simulation_horizon.v3",
-              "policyos.runtime.joint_simulation_horizon.v4"
+              "policyos.runtime.joint_simulation_horizon.v4",
+              "policyos.runtime.joint_simulation_horizon.v5"
             ],
             "title": "Result Schema Version",
             "type": "string"
@@ -40815,6 +43800,26 @@
             "default": "cycle_input_candidate_only",
             "title": "Authority Purpose",
             "type": "string"
+          },
+          "candidate_evaluation_attempts": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunCandidateEvaluationAttemptProjection"
+            },
+            "title": "Candidate Evaluation Attempts",
+            "type": "array"
+          },
+          "candidate_evaluation_attempts_limitation_code": {
+            "anyOf": [
+              {
+                "const": "candidate_attempt_context_history_not_established",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Evaluation Attempts Limitation Code"
           },
           "child_profile_bindings": {
             "default": [],
@@ -41373,7 +44378,8 @@
               "policyos.runtime.joint_simulation_horizon.v1",
               "policyos.runtime.joint_simulation_horizon.v2",
               "policyos.runtime.joint_simulation_horizon.v3",
-              "policyos.runtime.joint_simulation_horizon.v4"
+              "policyos.runtime.joint_simulation_horizon.v4",
+              "policyos.runtime.joint_simulation_horizon.v5"
             ],
             "title": "Schema Version",
             "type": "string"
@@ -42782,6 +45788,66 @@
             ],
             "title": "Budget Stop Node Ref"
           },
+          "capacity_limitation_code": {
+            "anyOf": [
+              {
+                "const": "physical_need_not_established",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Limitation Code"
+          },
+          "capacity_pending_child_index": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Pending Child Index"
+          },
+          "capacity_pending_child_node_ref": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Pending Child Node Ref"
+          },
+          "capacity_source_content_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Source Content Hash"
+          },
+          "capacity_stop_parent_node_ref": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity Stop Parent Node Ref"
+          },
           "completed_design_refs": {
             "default": [],
             "items": {
@@ -42829,7 +45895,8 @@
             "default": "policyos.runtime.recursive_cycle_checkpoint.v1",
             "enum": [
               "policyos.runtime.recursive_cycle_checkpoint.v1",
-              "policyos.runtime.recursive_cycle_checkpoint.v2"
+              "policyos.runtime.recursive_cycle_checkpoint.v2",
+              "policyos.runtime.recursive_cycle_checkpoint.v3"
             ],
             "title": "Schema Version",
             "type": "string"
@@ -47681,6 +50748,163 @@
         "title": "ValueGatePayload",
         "type": "object"
       },
+      "ValueOuterSet": {
+        "additionalProperties": false,
+        "description": "Canonical typed carrier for set-valued value over policy-design worlds.\n\nOptional statistical endpoints preserve an estimator's reported uncertainty\nseparately from the identification set. They are descriptive evidence only:\nidentification, comparison, and promotion continue to use ``lower`` and\n``upper``.",
+        "properties": {
+          "assumption_status": {
+            "enum": [
+              "declared",
+              "externally_supported",
+              "stress_tested",
+              "violated",
+              "out_of_scope"
+            ],
+            "title": "Assumption Status",
+            "type": "string"
+          },
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Assumptions",
+            "type": "array"
+          },
+          "calibration_scope": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Calibration Scope",
+            "type": "object"
+          },
+          "coordinates": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Coordinates",
+            "type": "array"
+          },
+          "data_trust": {
+            "$ref": "#/components/schemas/DataTrust"
+          },
+          "epoch": {
+            "minLength": 1,
+            "title": "Epoch",
+            "type": "string"
+          },
+          "identification_status": {
+            "enum": [
+              "point",
+              "partial",
+              "proxy",
+              "blocked"
+            ],
+            "title": "Identification Status",
+            "type": "string"
+          },
+          "lower": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Lower",
+            "type": "array"
+          },
+          "representation": {
+            "enum": [
+              "interval_box",
+              "polytope_support_functions",
+              "scenario_set",
+              "unknown"
+            ],
+            "title": "Representation",
+            "type": "string"
+          },
+          "representation_status": {
+            "enum": [
+              "certified",
+              "search_only",
+              "unknown"
+            ],
+            "title": "Representation Status",
+            "type": "string"
+          },
+          "solver_time_budget_ms": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Solver Time Budget Ms"
+          },
+          "statistical_lower": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Source-reported statistical interval lower endpoints, separate from identification bounds and not used to authorize promotion.",
+            "title": "Statistical Lower"
+          },
+          "statistical_upper": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Source-reported statistical interval upper endpoints, separate from identification bounds and not used to authorize promotion.",
+            "title": "Statistical Upper"
+          },
+          "upper": {
+            "items": {
+              "type": "number"
+            },
+            "title": "Upper",
+            "type": "array"
+          },
+          "width": {
+            "description": "Return derived interval widths per coordinate.",
+            "items": {
+              "type": "number"
+            },
+            "readOnly": true,
+            "title": "Width",
+            "type": "array"
+          },
+          "world_model_record_ref": {
+            "minLength": 1,
+            "title": "World Model Record Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "representation",
+          "identification_status",
+          "assumption_status",
+          "data_trust",
+          "world_model_record_ref",
+          "epoch",
+          "representation_status",
+          "width"
+        ],
+        "title": "ValueOuterSet",
+        "type": "object"
+      },
       "ValueRefusalCode": {
         "description": "Why a value is refused. Every code is a property of the VALUE, never of effort.",
         "enum": [
@@ -47869,7 +51093,7 @@
           "data_snapshot_ref": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/DataSnapshotRef"
+                "$ref": "#/components/schemas/DataSnapshotRef-Input"
               },
               {
                 "type": "string"
@@ -48156,10 +51380,53 @@
         "title": "WorkflowRunRequest",
         "type": "object"
       },
+      "_BuildIdentityArtifactSelection": {
+        "additionalProperties": false,
+        "description": "Ledger-owned wire selector decoded by the canonical Core artifact owner.",
+        "properties": {
+          "artifact_id": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "runtime.quality.confidence_ledger.build_identity",
+            "title": "Kind",
+            "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Manifest Profile Sha256",
+            "type": "string"
+          },
+          "media_type": {
+            "const": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "kind",
+          "media_type",
+          "manifest_profile_sha256"
+        ],
+        "title": "_BuildIdentityArtifactSelection",
+        "type": "object"
+      },
       "_QualifiedOutcomeOfInterestV3": {
         "additionalProperties": false,
         "description": "Nested v3 outcome contract for exact qualified canonical identifiers.",
         "properties": {
+          "conditioning_variables": {
+            "description": "Explicit candidate query conditioning, not an identified adjustment set.",
+            "items": {
+              "pattern": "^[a-z][a-z0-9_.]*$",
+              "type": "string"
+            },
+            "title": "Conditioning Variables",
+            "type": "array"
+          },
           "direction": {
             "default": "maximize",
             "enum": [
@@ -48175,10 +51442,36 @@
             "title": "Estimand",
             "type": "string"
           },
+          "measurement_unit": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Declared outcome unit; an atom binds it only to the exact world-slot owner.",
+            "title": "Measurement Unit"
+          },
           "metric_id": {
             "pattern": "^[a-z][a-z0-9_]*$",
             "title": "Metric Id",
             "type": "string"
+          },
+          "query_coordinate_status": {
+            "anyOf": [
+              {
+                "const": "candidate_proposed_unverified",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Proposed query coordinates do not establish agreement with user intent.",
+            "title": "Query Coordinate Status"
           },
           "target_variable": {
             "pattern": "^[a-z][a-z0-9_.]*$",
@@ -52396,8 +55689,8 @@
               "application/json": {
                 "examples": {
                   "limited_not_measured_candidate": {
-                    "description": "Generated through the canonical Core byte/manifest reader and predictive-coverage projector from a controlled in-memory report fixture. Its digest is content-derived; the fixture is not stored production source, measurement, authority, issuer, publication, or currentness evidence.",
-                    "summary": "Limited diagnostic with a producer-reachable no-interval scenario",
+                    "description": "Generated through the canonical Core byte/manifest reader and predictive-coverage projector from a controlled in-memory report fixture. Its digest is content-derived, but the report rows are not reconciled to selected forecast and held-out source values. The projector withholds all quantitative scenarios. The fixture is not stored production source, measurement, authority, issuer, publication, or currentness evidence.",
+                    "summary": "Unmeasured diagnostic with unreconciled report rows",
                     "value": {
                       "assessment": "limited",
                       "canon_read_status": "declared_bytes_conformant",
@@ -52414,22 +55707,10 @@
                       "measurement_status": "not_measured",
                       "metric": "predictive_interval_coverage",
                       "producer_attestation_status": "not_established",
-                      "reason_code": "no_evaluated_intervals",
+                      "reason_code": "unsupported_report_scope",
                       "s10_metric_mapping_status": "not_established",
                       "s10_threshold_status": "not_established",
-                      "scenarios": [
-                        {
-                          "interval_available_count": 0,
-                          "interval_evaluated_count": 0,
-                          "interval_hit_count": 0,
-                          "interval_requested_count": 1,
-                          "interval_type": "prediction",
-                          "metric_name": "outcome",
-                          "nominal_confidence_level": 0.9,
-                          "observed_hit_rate": null,
-                          "scenario_id": "openapi-no-intervals"
-                        }
-                      ],
+                      "scenarios": [],
                       "source_artifact_id": "sha256:0842d275aa73d47d96580633444cc0a3b11697f86520fcf155c2ab7c7a33f047",
                       "source_manifest_profile_sha256": "sha256:7bdf7798abb83b6463e4b672f4b388730f442965f1fef930d3504b1eeef7f123",
                       "source_materialization": "reader_materialized",
@@ -61090,6 +64371,32 @@
               }
             },
             "description": "Requested representation is not supported for this resource."
+          },
+          "409": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "The cancellation identity conflicts with the current job attempt or disposition.",
+                    "value": {
+                      "code": "conflict",
+                      "detail": "conflict while processing request.",
+                      "error": "conflict",
+                      "instance": "/api/v1/control/jobs/{job_id}/cancel",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 409,
+                      "status_code": 409,
+                      "title": "Conflict",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "The cancellation identity conflicts with the current job attempt or disposition."
           },
           "422": {
             "content": {
@@ -82521,6 +85828,832 @@
         ]
       }
     },
+    "/api/v1/runs/{run_id}/candidate-acquisition-experiment": {
+      "get": {
+        "operationId": "get_run_candidate_acquisition_experiment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "candidate_policy_documentation_fixture": {
+                    "description": "Documentation-only selected-ref fixture; these illustrative hashes are not verified source evidence or a permission. The live reader reopens the signed completed source and selected policy. No action or publication is authorized.",
+                    "summary": "Candidate policy with unestablished cost and information value",
+                    "value": {
+                      "action_authority": "not_established",
+                      "cell_id": "example-cell",
+                      "current_action": {
+                        "action_generation": null,
+                        "blocker_reason": null,
+                        "coarse_phase": null,
+                        "evaluation_disposition": "unknown",
+                        "job_id": null,
+                        "job_state": null,
+                        "receipt_phase": null,
+                        "recovery_state": null,
+                        "selected_evaluation": null,
+                        "selected_receipt_ref": null,
+                        "status": "unknown",
+                        "terminal_outcome": null
+                      },
+                      "information_value": "not_established",
+                      "monetary_cost": "not_established",
+                      "publication_authority": false,
+                      "replay_pins": {
+                        "candidate_digest": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+                        "compiled_ref": {
+                          "artifact_id": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                          "kind": "runtime.compiled_recursive_generation_cycle",
+                          "manifest_profile_sha256": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                          "media_type": "application/json"
+                        },
+                        "compiler_report_ref": {
+                          "artifact_id": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+                          "kind": "runtime.data_requirement_compilation_report",
+                          "manifest_profile_sha256": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                          "media_type": "application/json"
+                        },
+                        "configured_port_source_ref": {
+                          "artifact_id": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+                          "kind": "runtime.quality.n7_configured_candidate_port_source",
+                          "manifest_profile_sha256": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                          "media_type": "application/json"
+                        },
+                        "planner_report_ref": {
+                          "artifact_id": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+                          "kind": "runtime.acquisition_planner_report",
+                          "manifest_profile_sha256": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                          "media_type": "application/json"
+                        },
+                        "policy_ref": {
+                          "artifact_id": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+                          "kind": "runtime_quality.candidate_unpriced_acquisition_policy",
+                          "manifest_profile_sha256": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                          "media_type": "application/json"
+                        },
+                        "request_content_hash": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+                        "source_job_id": "example-completed-source-job",
+                        "source_payload_ref": "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+                      },
+                      "route_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "run_id": "example-candidate-run",
+                      "scheduler_action": "reject",
+                      "scheduler_reason": "roi_below_threshold",
+                      "schema_version": "CandidateExperimentRouteProjection@1.0",
+                      "tenant_id": "example-tenant"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateExperimentRouteProjection"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Run Candidate Acquisition Experiment",
+        "tags": [
+          "runtime-acquisition-routes"
+        ],
+        "x-polisyos-action-permission": "runs.review",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "resource_kind": "runtime.acquisition_route",
+          "source": "tenant_collection"
+        }
+      }
+    },
+    "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request": {
+      "post": {
+        "operationId": "request_run_candidate_acquisition_experiment_decision",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "route_id",
+            "required": true,
+            "schema": {
+              "title": "Route Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CandidateExperimentRouteMutationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "request_run_candidate_acquisition_experiment_decision response example",
+                    "value": {
+                      "authority_decision_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                      "human_decision_request": {
+                        "request_ref": "pdc://human-decision/candidate-example"
+                      },
+                      "outcome": "decision_required",
+                      "route_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "run_id": "example-candidate-run",
+                      "world_growth": "not_established"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/AcquisitionDecisionRequestResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Request Run Candidate Acquisition Experiment Decision",
+        "tags": [
+          "runtime-acquisition-routes"
+        ],
+        "x-polisyos-action-permission": "evidence.acquire",
+        "x-polisyos-resource-binding": {
+          "required_selector_fields": [
+            "route_id",
+            "replay_pins",
+            "idempotency_key"
+          ],
+          "resource_kind": "runtime.evidence.acquisition.candidate_experiment",
+          "selector_fields": [
+            "route_id",
+            "replay_pins",
+            "idempotency_key",
+            "human_decision_record_ref"
+          ],
+          "source": "request_composite"
+        },
+        "x-polisyos-step-up-class": "acquisition_approval"
+      }
+    },
+    "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute": {
+      "post": {
+        "description": "Queue a candidate experiment from its exact request and PA2 decision ref.",
+        "operationId": "execute_run_candidate_acquisition_experiment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "route_id",
+            "required": true,
+            "schema": {
+              "title": "Route Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CandidateExperimentRouteExecutionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "authority_decision_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                  "job_id": "candidate-experiment-job-example",
+                  "receipt_phase": "requested",
+                  "route_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "run_id": "run-example",
+                  "status": "accepted",
+                  "world_growth": "not_established"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/AcquisitionExecutionResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Execute Run Candidate Acquisition Experiment",
+        "tags": [
+          "runtime-acquisition-routes"
+        ],
+        "x-polisyos-action-permission": "evidence.acquire",
+        "x-polisyos-resource-binding": {
+          "required_selector_fields": [
+            "request",
+            "decision_ref"
+          ],
+          "resource_kind": "runtime.evidence.acquisition.candidate_experiment",
+          "selector_fields": [
+            "request",
+            "decision_ref"
+          ],
+          "source": "request_composite"
+        },
+        "x-polisyos-step-up-class": "acquisition_approval"
+      }
+    },
     "/api/v1/runs/{run_id}/case-inspection": {
       "get": {
         "operationId": "get_case_inspection",
@@ -89196,8 +93329,8 @@
               "application/json": {
                 "examples": {
                   "controlled_insufficient_history_candidate": {
-                    "description": "Typed through the current predictive-calibration response and status owner. All artifact identifiers are deterministic example handles without selected manifest profiles; the response is not persisted or reopenable evidence. The required 0/1 and S10 0/0 count slots are structural fixture values, not observations. This example asserts no POST outcome, currentness, issuer, population, causal, publication, or policy-selection authority.",
-                    "summary": "Limited candidate with insufficient history",
+                    "description": "Typed through the current predictive-calibration response and status owner. All artifact and manifest-profile identifiers are deterministic synthetic example handles matching the selected-reference wire shape; they establish no stored profile or provenance. The response is not persisted or reopenable evidence. Observed counts and hit rate are null because the empirical source is not established; S10 is blocked and carries the source limitation. This example asserts no POST outcome, currentness, issuer, population, causal, publication, or policy-selection authority.",
+                    "summary": "Limited candidate with unavailable observations",
                     "value": {
                       "association": {
                         "assessment": "limited",
@@ -89205,16 +93338,19 @@
                         "backtest_report_ref": {
                           "artifact_id": "sha256:3d0410259487701c0d673d290da294f15ada6090f5f5a8561bc119cefb22e9c9",
                           "kind": "ir.backtest_report",
+                          "manifest_profile_sha256": "sha256:6dbc5ae2dc757d755504fa709f0a417e8b7b09f41f2bcdf52683726934022ef8",
                           "media_type": "application/json"
                         },
                         "calibration_rule_ref": {
                           "artifact_id": "sha256:b8e46f3510f43975197376c9ec17e9cac6783b68596dcdbd8931c9e0e02705ce",
                           "kind": "ir.forecast_calibration_rule",
+                          "manifest_profile_sha256": "sha256:d78642c09f5c60829c0d7f6d75a4004fd33e8499cd282109a2642b00351f7d5c",
                           "media_type": "application/json"
                         },
                         "candidate_source_ref": {
                           "artifact_id": "sha256:e6744760dafef325b3e2547e1ef4f67b83de9f4239a9b606e6b114f5441de924",
                           "kind": "runtime.quality.n4_candidate_scenario_source",
+                          "manifest_profile_sha256": "sha256:103535760af622161120611b7929277737c60405c043c91c302ab4ca64fb3953",
                           "media_type": "application/json"
                         },
                         "cell_id": "cell-openapi-fixture",
@@ -89224,11 +93360,12 @@
                         "empirical_evidence_ref": {
                           "artifact_id": "sha256:61701c56c630cd82a3adab0f83ae8c7e77a97f4b076dce1a94fc8df582b0bb01",
                           "kind": "runtime.empirical_calibration_evidence",
+                          "manifest_profile_sha256": "sha256:0b6dbe3e778d481be36851b51d5caf64ed693608374e2d4c57c9476c8937d1c5",
                           "media_type": "application/json"
                         },
                         "event_id": "evt_predictive_calibration_openapi_fixture",
                         "evidence_reason_codes": [
-                          "explicit_context_missing"
+                          "backtest_source_not_established"
                         ],
                         "forecast_profile_member_ref": null,
                         "intent_id": "openapi-calibration-fixture",
@@ -89255,21 +93392,24 @@
                         "model_spec_ref": {
                           "artifact_id": "sha256:b3308c2d6acbb6a75cd1ef85b0578b7b768ad118042750fd9c47ed2ce30454d0",
                           "kind": "ir.model_spec",
+                          "manifest_profile_sha256": "sha256:f88e90c48f3de2993a1a9a6faf1dc606278df66a841e4a3147fcbc89eb36e956",
                           "media_type": "application/json"
                         },
                         "nominal_confidence_level": null,
-                        "observed_denominator": 1,
-                        "observed_hit_rate": 0.0,
-                        "observed_numerator": 0,
+                        "observed_denominator": null,
+                        "observed_hit_rate": null,
+                        "observed_numerator": null,
                         "observed_source_ref": {
                           "artifact_id": "sha256:ec5cea237c90ae1ae41e736820125c17d0fe0b70ce1980a4f4ee3e828ec83d1c",
                           "kind": "fabric.data_snapshot",
+                          "manifest_profile_sha256": "sha256:ac5109435fc024443261e7606b73882a150b5d3b07d006ea8b8bae92477095d0",
                           "media_type": "application/json"
                         },
                         "owner_suitability": "limited",
                         "policy_spec_ref": {
                           "artifact_id": "sha256:bc0a68b877e18144b302870188e195b7c55813ed0a82eea61fc8d61e9a822ddf",
                           "kind": "ir.policy_spec",
+                          "manifest_profile_sha256": "sha256:3d050ee43b9162f227614e5e496a2fa1e40068209315a334edd7f40856331168",
                           "media_type": "application/json"
                         },
                         "population_scope_status": "not_established",
@@ -89279,6 +93419,7 @@
                         "run_manifest_ref": {
                           "artifact_id": "sha256:cbaa6d8bd89cf165030f66588bcd3f9fbad0bb1b818ee3583248f72b7670c627",
                           "kind": "ir.run_manifest",
+                          "manifest_profile_sha256": "sha256:0c31040411495124ee83f972bbf33c58ccf697cebc510eb9e878c85d2270225f",
                           "media_type": "application/json"
                         },
                         "s10": {
@@ -89317,12 +93458,13 @@
                             "source_authority": "deterministic_producer"
                           },
                           "calibration_record_ref": null,
-                          "calibration_status": "insufficient_history",
+                          "calibration_status": "blocked",
                           "counterfactual_credibility": "not_established",
-                          "denominator": 0,
+                          "denominator": null,
                           "forecast_tier": "blocked",
                           "limitation_refs": [
-                            "s10://calibration/fail-closed/n4_outcome_target_binding_not_established"
+                            "s10://calibration/fail-closed/n4_outcome_target_binding_not_established",
+                            "s10://calibration/fail-closed/backtest_source_not_established"
                           ],
                           "may_not_use_for": [
                             "production_recommendation",
@@ -89342,23 +93484,25 @@
                             "s10_authority",
                             "treatment_assignment_authority"
                           ],
-                          "numerator": 0,
-                          "observed_pass_rate": 0.0,
+                          "numerator": null,
+                          "observed_pass_rate": null,
                           "outcome_binding_status": "not_established"
                         },
-                        "schema_version": "polisyos.runtime.predictive_calibration_association.v4",
+                        "schema_version": "polisyos.runtime.predictive_calibration_association.v5",
                         "source_time_status": "not_established",
                         "tenant_id": "tenant-openapi-fixture",
                         "uncertainty_bundle_ref": {
                           "artifact_id": "sha256:bfef8cbd1fa1885d29dcba7e427433bc8ff2ff28d6b19d9c5f7a8d6584828119",
                           "kind": "ir.uncertainty_bundle",
+                          "manifest_profile_sha256": "sha256:8f1422578e6bdf7b7c2ca3083a503f18747af1863f22eaa69b0e3e3e7f05f125",
                           "media_type": "application/json"
                         },
                         "value_data_profile_ref": null
                       },
                       "association_ref": {
-                        "artifact_id": "sha256:46f9bf64037218384dc84be5f3ace8a11a6417b293d7199373280729cf73baa1",
+                        "artifact_id": "sha256:3a346978005e9835cea7b118735ee527a7cbf2c1750e0d1a7298f924c86e3fce",
                         "kind": "runtime.predictive_calibration_association",
+                        "manifest_profile_sha256": "sha256:b1d0cb814032df92761738032cbb79dba46927f9b56ea2753eba814c1336ef91",
                         "media_type": "application/json"
                       },
                       "meta": {
@@ -89605,8 +93749,8 @@
               "application/json": {
                 "examples": {
                   "controlled_insufficient_history_candidate": {
-                    "description": "Typed through the current predictive-calibration response and status owner. All artifact identifiers are deterministic example handles without selected manifest profiles; the response is not persisted or reopenable evidence. The required 0/1 and S10 0/0 count slots are structural fixture values, not observations. This example asserts no POST outcome, currentness, issuer, population, causal, publication, or policy-selection authority.",
-                    "summary": "Limited candidate with insufficient history",
+                    "description": "Typed through the current predictive-calibration response and status owner. All artifact and manifest-profile identifiers are deterministic synthetic example handles matching the selected-reference wire shape; they establish no stored profile or provenance. The response is not persisted or reopenable evidence. Observed counts and hit rate are null because the empirical source is not established; S10 is blocked and carries the source limitation. This example asserts no POST outcome, currentness, issuer, population, causal, publication, or policy-selection authority.",
+                    "summary": "Limited candidate with unavailable observations",
                     "value": {
                       "association": {
                         "assessment": "limited",
@@ -89614,16 +93758,19 @@
                         "backtest_report_ref": {
                           "artifact_id": "sha256:3d0410259487701c0d673d290da294f15ada6090f5f5a8561bc119cefb22e9c9",
                           "kind": "ir.backtest_report",
+                          "manifest_profile_sha256": "sha256:6dbc5ae2dc757d755504fa709f0a417e8b7b09f41f2bcdf52683726934022ef8",
                           "media_type": "application/json"
                         },
                         "calibration_rule_ref": {
                           "artifact_id": "sha256:b8e46f3510f43975197376c9ec17e9cac6783b68596dcdbd8931c9e0e02705ce",
                           "kind": "ir.forecast_calibration_rule",
+                          "manifest_profile_sha256": "sha256:d78642c09f5c60829c0d7f6d75a4004fd33e8499cd282109a2642b00351f7d5c",
                           "media_type": "application/json"
                         },
                         "candidate_source_ref": {
                           "artifact_id": "sha256:e6744760dafef325b3e2547e1ef4f67b83de9f4239a9b606e6b114f5441de924",
                           "kind": "runtime.quality.n4_candidate_scenario_source",
+                          "manifest_profile_sha256": "sha256:103535760af622161120611b7929277737c60405c043c91c302ab4ca64fb3953",
                           "media_type": "application/json"
                         },
                         "cell_id": "cell-openapi-fixture",
@@ -89633,11 +93780,12 @@
                         "empirical_evidence_ref": {
                           "artifact_id": "sha256:61701c56c630cd82a3adab0f83ae8c7e77a97f4b076dce1a94fc8df582b0bb01",
                           "kind": "runtime.empirical_calibration_evidence",
+                          "manifest_profile_sha256": "sha256:0b6dbe3e778d481be36851b51d5caf64ed693608374e2d4c57c9476c8937d1c5",
                           "media_type": "application/json"
                         },
                         "event_id": "evt_predictive_calibration_openapi_fixture",
                         "evidence_reason_codes": [
-                          "explicit_context_missing"
+                          "backtest_source_not_established"
                         ],
                         "forecast_profile_member_ref": null,
                         "intent_id": "openapi-calibration-fixture",
@@ -89664,21 +93812,24 @@
                         "model_spec_ref": {
                           "artifact_id": "sha256:b3308c2d6acbb6a75cd1ef85b0578b7b768ad118042750fd9c47ed2ce30454d0",
                           "kind": "ir.model_spec",
+                          "manifest_profile_sha256": "sha256:f88e90c48f3de2993a1a9a6faf1dc606278df66a841e4a3147fcbc89eb36e956",
                           "media_type": "application/json"
                         },
                         "nominal_confidence_level": null,
-                        "observed_denominator": 1,
-                        "observed_hit_rate": 0.0,
-                        "observed_numerator": 0,
+                        "observed_denominator": null,
+                        "observed_hit_rate": null,
+                        "observed_numerator": null,
                         "observed_source_ref": {
                           "artifact_id": "sha256:ec5cea237c90ae1ae41e736820125c17d0fe0b70ce1980a4f4ee3e828ec83d1c",
                           "kind": "fabric.data_snapshot",
+                          "manifest_profile_sha256": "sha256:ac5109435fc024443261e7606b73882a150b5d3b07d006ea8b8bae92477095d0",
                           "media_type": "application/json"
                         },
                         "owner_suitability": "limited",
                         "policy_spec_ref": {
                           "artifact_id": "sha256:bc0a68b877e18144b302870188e195b7c55813ed0a82eea61fc8d61e9a822ddf",
                           "kind": "ir.policy_spec",
+                          "manifest_profile_sha256": "sha256:3d050ee43b9162f227614e5e496a2fa1e40068209315a334edd7f40856331168",
                           "media_type": "application/json"
                         },
                         "population_scope_status": "not_established",
@@ -89688,6 +93839,7 @@
                         "run_manifest_ref": {
                           "artifact_id": "sha256:cbaa6d8bd89cf165030f66588bcd3f9fbad0bb1b818ee3583248f72b7670c627",
                           "kind": "ir.run_manifest",
+                          "manifest_profile_sha256": "sha256:0c31040411495124ee83f972bbf33c58ccf697cebc510eb9e878c85d2270225f",
                           "media_type": "application/json"
                         },
                         "s10": {
@@ -89726,12 +93878,13 @@
                             "source_authority": "deterministic_producer"
                           },
                           "calibration_record_ref": null,
-                          "calibration_status": "insufficient_history",
+                          "calibration_status": "blocked",
                           "counterfactual_credibility": "not_established",
-                          "denominator": 0,
+                          "denominator": null,
                           "forecast_tier": "blocked",
                           "limitation_refs": [
-                            "s10://calibration/fail-closed/n4_outcome_target_binding_not_established"
+                            "s10://calibration/fail-closed/n4_outcome_target_binding_not_established",
+                            "s10://calibration/fail-closed/backtest_source_not_established"
                           ],
                           "may_not_use_for": [
                             "production_recommendation",
@@ -89751,23 +93904,25 @@
                             "s10_authority",
                             "treatment_assignment_authority"
                           ],
-                          "numerator": 0,
-                          "observed_pass_rate": 0.0,
+                          "numerator": null,
+                          "observed_pass_rate": null,
                           "outcome_binding_status": "not_established"
                         },
-                        "schema_version": "polisyos.runtime.predictive_calibration_association.v4",
+                        "schema_version": "polisyos.runtime.predictive_calibration_association.v5",
                         "source_time_status": "not_established",
                         "tenant_id": "tenant-openapi-fixture",
                         "uncertainty_bundle_ref": {
                           "artifact_id": "sha256:bfef8cbd1fa1885d29dcba7e427433bc8ff2ff28d6b19d9c5f7a8d6584828119",
                           "kind": "ir.uncertainty_bundle",
+                          "manifest_profile_sha256": "sha256:8f1422578e6bdf7b7c2ca3083a503f18747af1863f22eaa69b0e3e3e7f05f125",
                           "media_type": "application/json"
                         },
                         "value_data_profile_ref": null
                       },
                       "association_ref": {
-                        "artifact_id": "sha256:46f9bf64037218384dc84be5f3ace8a11a6417b293d7199373280729cf73baa1",
+                        "artifact_id": "sha256:3a346978005e9835cea7b118735ee527a7cbf2c1750e0d1a7298f924c86e3fce",
                         "kind": "runtime.predictive_calibration_association",
+                        "manifest_profile_sha256": "sha256:b1d0cb814032df92761738032cbb79dba46927f9b56ea2753eba814c1336ef91",
                         "media_type": "application/json"
                       },
                       "meta": {

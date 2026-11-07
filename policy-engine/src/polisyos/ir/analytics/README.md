@@ -16,6 +16,8 @@ specialized surfaces remain in their defining modules.
 
 - [`__init__.py`](./__init__.py) — curated lazy facade for the most common analytics import paths.
 - [`causal.py`](./causal.py) — core effect-report surface, diagnostics, and refutations.
+- [`causal_graph.py`](./causal_graph.py) — immutable graph admission, lossless relation
+  transport and the public experimental `expand_temporal_graph` finite ancestor adapter.
 - [`dynamic_regime.py`](./dynamic_regime.py) — continuous-time query contracts, trajectory bundles, and runtime support gates.
 - [`hte.py`](./hte.py) — heterogeneous effects, feature importance, and targeting outputs.
 - [`recourse_manifold.py`](./recourse_manifold.py) — typed causal recourse queries, intervention-cost manifolds, proof bundles, and feasibility certificates for Stage 13.4.
@@ -86,6 +88,38 @@ available without dropping a caller-supplied selected view.
 ## Causal report CAS persistence
 
 `persist_causal_effect_report` preserves historical default-reference behavior when `return_selected_profile` is omitted or `False`; the default view is profileless, while a write differing from that view may return its selected profile. Pass `True` when a downstream join must bind the exact profile selected by the report write; the typed helper returns that same-write CAS result and does not infer a profile from a later read. A non-boolean value is rejected, and stores without selected-profile write support fail closed. This option changes the reference returned to the caller, not the causal-report payload or schema.
+
+Fresh native report projections reuse the existing exact numeric policy when
+ordinary rounding would change the emitted point, interval or open confidence
+level. Persisted older envelopes retain their recorded rounding policy. These
+projections remain non-gating numerical candidates.
+
+`CausalModelEnsemble.to_uncertainty_envelope` preserves pooled fixed-model
+median/percentiles as a heuristic range with unknown distribution family, no CI
+level and no gate eligibility. Selected member limitations and structural pooling
+weights remain visible; they do not establish an estimator sampling distribution.
+
+Direct Kuzu export is a simple-relation upsert in an exclusively accessed target:
+incoming collisions, legacy schemas without `payload_json`, and existing target
+multiplicity are refused before any write. The additive schema helper upgrades
+old tables without inventing old payloads. Use the existing bulk materializer for
+lossless mixed/parallel occurrences; unsupported incremental bulk mode refuses.
+NetworkX, Kuzu and other backend qualification are separate profiles.
+
+Finite temporal expansion declares its time unit, required initial coordinates
+and source selection; it does not license static consumers to ignore lag or
+complete a PAG arbitrarily. The actual observation/fit/query bridge and its
+explicit-call boundary are documented in the
+[causal catalog](../../foundry/methods/catalog/causal/README.md#explicit-finite-temporal-fit).
+
+## NCM source views
+
+`persist_ncm_spec` returns its exact selected manifest even when it writes the
+default NCM codec. `load_ncm_spec_default_view` admits that full reference by
+checking the actual owner codec inside the frozen manifest/byte read. A selector
+is an address, not evidence of a different source. Declaration-sidecar codecs
+still require `load_ncm_spec_selected_view` with its exact tenant, cell and
+declaration context. Dropping a selector does not establish either source.
 
 ## Structural model schema compatibility
 
@@ -398,3 +432,24 @@ binds reads to the exact owner row and canonical profile, and returns the same
 strict DTO type. References carried inside reports and certificates are
 preserved as typed payload data; the owner does not enumerate resource IDs or
 claim those resources exist.
+
+## Native backtest reads
+
+`load_backtest_report` refuses selected native trajectory reports because IR
+cannot verify their Foundry execution. `load_backtest_report_candidate` admits
+the typed report bytes for a higher-layer verifier; it is not an authority or
+prediction-verification result. Scientist's guarded report reader performs the
+native trajectory and workflow checks before its consumers use the report.
+
+## Learned dynamic decision profiles
+
+`DynamicTreatmentRegime` 1.1 binds a versioned Q feature-layout profile, the
+covariate dimension and every stage's full finite weights/intercept. It uses the
+existing `LINEAR_BLIP` rule; the profile distinguishes action-only models from
+action × current-covariate models. The existing owner validates and persists
+manifest/payload 1.1 together. Versionless manifest 1.0 artifacts remain
+readable through an explicit backward route and retain their original wire when
+written; they acquire no learned-rule guarantee. A historical `linear_blip`
+without a selected model profile is readable but cannot be executed as an
+invented constant policy. The artifact records a program, not evidence of its
+optimality or causal authority.

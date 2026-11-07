@@ -26,6 +26,8 @@ governance, and publishes replayable decision artifacts across the `ir`,
 ## Public API
 
 - `run_experiment(...)` in [`api.py`](api.py): top-level execution entrypoint used by the package facade
+  Its optional `on_run_finalized` callback receives the selected run-manifest
+  reference produced by the actual workflow, while the returned state shape is unchanged.
 - `ExperimentState` in [`orchestration/engine/state.py`](orchestration/engine/state.py): boundary model passed across nodes and checkpoints
 - Workflow launchers in [`orchestration/workflows/builder.py`](orchestration/workflows/builder.py): `run_default_workflow(...)`, `run_causal_full_workflow(...)`, `run_policy_verified_workflow(...)`, `run_policy_design_workflow(...)`, and `run_discovery_workflow(...)`
 - Workflow specs in [`orchestration/workflows/`](orchestration/workflows/): inspect builtin DAG layouts before changing routing or nodes

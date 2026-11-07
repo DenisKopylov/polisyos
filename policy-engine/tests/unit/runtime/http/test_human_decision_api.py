@@ -29,14 +29,18 @@ def _isolated_catalog_input(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> 
     catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
     original = substrate_registry.default_substrate_catalog_paths
     startup_root = Path.cwd().resolve()
+
+    def isolated_catalog_paths(repo_root: Path, *, source_owner_root: Path | None = None):
+        """Keep owner-specific paths while redirecting this test runtime's L1 catalog."""
+        paths = original(repo_root, source_owner_root=source_owner_root)
+        if Path(repo_root).resolve() == startup_root:
+            return replace(paths, l1_dcat_path=catalog_root / "catalog.duckdb")
+        return paths
+
     monkeypatch.setattr(
         substrate_registry,
         "default_substrate_catalog_paths",
-        lambda root: (
-            replace(original(root), l1_dcat_path=catalog_root / "catalog.duckdb")
-            if Path(root).resolve() == startup_root
-            else original(root)
-        ),
+        isolated_catalog_paths,
     )
 
 

@@ -686,75 +686,44 @@ def _assert_gateway_blocked(
 
 def _assert_evidence_binding(
     store: FileSystemCAS,
-    record: Any,
+    evidence: Any,
     evidence_ref: Any,
 ) -> None:
     """Require typed identity, manifest schema, bytes, and non-synthetic refs."""
 
-    source_ref = record.empirical_evidence_ref
-    assert source_ref.artifact_id == evidence_ref.artifact_id
-    assert source_ref.kind == "ir.empirical_calibration_evidence"
-    assert source_ref.media_type == "application/json"
+    assert evidence_ref.kind == "ir.empirical_calibration_evidence"
+    assert evidence_ref.media_type == "application/json"
     manifest = store.get_manifest(evidence_ref.artifact_id)
-    assert manifest.kind == source_ref.kind
-    assert manifest.media_type == source_ref.media_type
+    assert manifest.kind == evidence_ref.kind
+    assert manifest.media_type == evidence_ref.media_type
     assert manifest.artifact_schema is not None
     assert manifest.artifact_schema.name == ("polisyos.calibration.empirical_calibration_evidence")
     assert manifest.artifact_schema.version == _bridge().EVIDENCE_SCHEMA_VERSION
     assert manifest.integrity.sha256 == evidence_ref.artifact_id.hex
     evidence_bytes = store.get_bytes(evidence_ref.artifact_id)
     assert hashlib.sha256(evidence_bytes).hexdigest() == evidence_ref.artifact_id.hex
-    evidence = _bridge().load_empirical_calibration_evidence(store, evidence_ref)
-    assert _ref_artifact_id(record.observed_outcome_ref) == str(
-        evidence.observed_outcome_ref.artifact_id
-    )
-    assert _ref_artifact_id(record.prediction_ref) == str(evidence.prediction_ref.artifact_id)
-    assert _ref_artifact_id(record.historical_implementation_ref) == str(
-        evidence.report_ref.artifact_id
-    )
-    assert _ref_artifact_id(record.evaluation_design_ref) == str(
-        evidence.evaluation_design_ref.artifact_id
-    )
-    assert _ref_artifact_id(record.credible_evaluation_evidence_ref) == str(
-        evidence.credible_evaluation_evidence_ref.artifact_id
-    )
-    assert _ref_artifact_id(record.calibration_threshold_ref) == str(
-        evidence.calibration_threshold_ref.artifact_id
-    )
-    assert tuple(_ref_artifact_id(ref) for ref in record.source_lineage_refs) == tuple(
-        str(ref.artifact_id) for ref in evidence.source_lineage_refs
-    )
-    assert tuple(_ref_artifact_id(ref) for ref in record.method_lineage_refs) == tuple(
-        str(ref.artifact_id) for ref in evidence.method_lineage_refs
-    )
+    assert _bridge().load_empirical_calibration_evidence(store, evidence_ref) == evidence
     source_values = (
-        source_ref,
-        record.observed_outcome_ref,
-        record.prediction_ref,
-        record.historical_implementation_ref,
-        record.evaluation_design_ref,
-        record.credible_evaluation_evidence_ref,
-        record.calibration_threshold_ref,
-        *record.source_lineage_refs,
-        *record.method_lineage_refs,
+        evidence_ref,
+        evidence.observed_outcome_ref,
+        evidence.prediction_ref,
+        evidence.report_ref,
+        evidence.evaluation_design_ref,
+        evidence.credible_evaluation_evidence_ref,
+        evidence.calibration_threshold_ref,
+        *evidence.source_lineage_refs,
+        *evidence.method_lineage_refs,
     )
     assert all(
-        not (str(value).startswith("s10://") or str(getattr(value, "uri", "")).startswith("s10://"))
+        value is not None and str(value.artifact_id).startswith("sha256:")
         for value in source_values
     )
-
-
-def _ref_artifact_id(value: Any) -> str:
-    """Normalize a typed artifact ref or legacy string field to its CAS id."""
-
-    artifact_id = getattr(value, "artifact_id", None)
-    return str(artifact_id) if artifact_id is not None else str(value)
 
 
 def test_same_ets_shape_with_different_held_out_observations_changes_s10_suitability(
     tmp_path: Path,
 ) -> None:
-    """Real observations, not estimator shape, determine S10 suitability."""
+    """Different row arithmetic remains limited without source reconciliation."""
 
     (
         passing_store,
@@ -773,7 +742,7 @@ def test_same_ets_shape_with_different_held_out_observations_changes_s10_suitabi
         limited_store,
         _limited_report,
         limited_ref,
-        _limited,
+        limited_evidence,
         _,
     ) = _persist_loaded_evidence(
         tmp_path,
@@ -794,38 +763,33 @@ def test_same_ets_shape_with_different_held_out_observations_changes_s10_suitabi
         evidence_ref=limited_ref,
         resolver=limited_resolver,
     )
-    assert passing["forecast_support"].forecast_tier == "observable_calibrated"
-    assert limited["forecast_support"].forecast_tier != (passing["forecast_support"].forecast_tier)
-    record = passing["forecast_calibration_record"]
-    limited_record = limited["forecast_calibration_record"]
-    assert record is not None
-    assert limited_record is not None
-    assert record.calibration_status == "pass"
-    assert record.counterfactual_credibility == "not_established"
-    assert record.numerator == 2
-    assert record.denominator == 2
-    assert limited_record.numerator == 1
-    assert limited_record.denominator == 2
-    assert limited_record.calibration_status != "pass"
+    assert passing["forecast_support"].forecast_tier == "blocked"
+    assert limited["forecast_support"].forecast_tier == "blocked"
+    assert passing["forecast_calibration_record"] is None
+    assert limited["forecast_calibration_record"] is None
+    assert passing_evidence.recomputed_numerator == 2
+    assert passing_evidence.recomputed_denominator == 2
+    assert limited_evidence.recomputed_numerator == 1
+    assert limited_evidence.recomputed_denominator == 2
+    assert "backtest_source_not_established" in (
+        passing["forecast_support"].forecast_authority_disposition_reason
+    )
     assert passing_resolver.trace[-1]["event"] == "loaded"
     assert limited_resolver.trace[-1]["event"] == "loaded"
-    _assert_evidence_binding(passing_store, record, passing_ref)
-    assert str(record.empirical_evidence_ref.artifact_id) == str(passing_ref.artifact_id)
-    assert record.prediction_time == passing_evidence.prediction_time
-    assert record.observation_time == passing_evidence.observation_time
-    assert record.policy_effective_time == passing_evidence.policy_effective_time
-    assert record.data_valid_time == passing_evidence.data_valid_time
-    assert record.calibration_window_start == passing_evidence.calibration_window_start
-    assert record.calibration_window_end == passing_evidence.calibration_window_end
+    _assert_evidence_binding(passing_store, passing_evidence, passing_ref)
+    _assert_evidence_binding(limited_store, limited_evidence, limited_ref)
+    assert "s10://calibration/fail-closed/backtest_source_not_established" in (
+        passing["forecast_support"].s6_limitation_refs
+    )
     assert (
         len(
             {
-                record.prediction_time,
-                record.observation_time,
-                record.policy_effective_time,
-                record.data_valid_time,
-                record.calibration_window_start,
-                record.calibration_window_end,
+                passing_evidence.prediction_time,
+                passing_evidence.observation_time,
+                passing_evidence.policy_effective_time,
+                passing_evidence.data_valid_time,
+                passing_evidence.calibration_window_start,
+                passing_evidence.calibration_window_end,
             }
         )
         == 6
@@ -877,18 +841,21 @@ def test_nominal_confidence_only_does_not_change_s10_suitability(
     assert low["forecast_support"].forecast_tier == high["forecast_support"].forecast_tier
     low_record = low.get("forecast_calibration_record")
     high_record = high.get("forecast_calibration_record")
-    assert low_record is not None
-    assert high_record is not None
-    assert low_record.numerator == high_record.numerator == 1
-    assert low_record.denominator == high_record.denominator == 2
-    assert low_record.pass_rate == high_record.pass_rate == pytest.approx(0.5)
-    assert low_record.calibration_status == high_record.calibration_status
+    assert low_record is None
+    assert high_record is None
+    assert low_evidence.recomputed_numerator == high_evidence.recomputed_numerator == 1
+    assert low_evidence.recomputed_denominator == high_evidence.recomputed_denominator == 2
+    assert (
+        low_evidence.recomputed_pass_rate
+        == high_evidence.recomputed_pass_rate
+        == pytest.approx(0.5)
+    )
     assert low_resolver.trace[-1]["event"] == "loaded"
     assert high_resolver.trace[-1]["event"] == "loaded"
     assert low_resolver.trace[-1]["nominal_confidence_level"] == pytest.approx(0.80)
     assert high_resolver.trace[-1]["nominal_confidence_level"] == pytest.approx(0.95)
-    _assert_evidence_binding(low_store, low_record, low_ref)
-    _assert_evidence_binding(high_store, high_record, high_ref)
+    _assert_evidence_binding(low_store, low_evidence, low_ref)
+    _assert_evidence_binding(high_store, high_evidence, high_ref)
 
 
 def test_legacy_v1_0_evidence_loads_without_nominal_and_preserves_cas_bytes(
@@ -971,8 +938,11 @@ def test_predictive_denials_and_non_causal_family_survive_s10_projection(
         "observable_subset_calibration",
     }
     record = result.get("forecast_calibration_record")
-    assert record is not None
-    assert set(record.may_not_use_for) >= PREDICTIVE_AUTHORITY_DENIALS
+    assert record is None
+    assert (
+        "s10://calibration/fail-closed/backtest_source_not_established"
+        in support.s6_limitation_refs
+    )
     assert resolver.trace[-1]["event"] == "loaded"
 
 
@@ -1191,7 +1161,7 @@ def test_raw_causal_effect_report_remains_non_positive_characterization() -> Non
 def test_n4_outcome_forecast_keeps_predictive_grade_but_blocks_unbound_metric_tier(
     tmp_path: Path,
 ) -> None:
-    """A valid series calibration cannot be relabeled as an N4 outcome calibration."""
+    """Both the source and N4 outcome remain limited in the forecast projection."""
     from types import SimpleNamespace
 
     from polisyos.runtime.quality.design_generation import N4CandidateScenarioProposalCandidate
@@ -1232,20 +1202,20 @@ def test_n4_outcome_forecast_keeps_predictive_grade_but_blocks_unbound_metric_ti
         selected_method_fqn=METHOD_FQN,
     )
     record = n4_result["forecast_calibration_record"]
-    assert record is not None
-    assert evidence.usable_for_calibration is True
-    assert evidence.floor_passed is True
-    assert record.calibration_status == "pass"
-    assert record.numerator == evidence.recomputed_numerator == 2
-    assert record.denominator == evidence.recomputed_denominator == 2
+    assert record is None
+    assert evidence.usable_for_calibration is False
+    assert evidence.floor_passed is False
+    assert evidence.recomputed_numerator == 2
+    assert evidence.recomputed_denominator == 2
     support = n4_result["forecast_support"]
     assert support.forecast_tier == "blocked"
     assert support.limitation_refs == [
         "s10://calibration/fail-closed/n4_outcome_target_binding_not_established"
     ]
-    assert support.s6_limitation_refs == support.limitation_refs
+    assert set(support.limitation_refs) <= set(support.s6_limitation_refs)
+    assert "backtest_source_not_established" in support.forecast_authority_disposition_reason
 
-    # The same CAS evidence remains valid for its standalone scientific scope.
+    # The same evidence is also limited outside the N4 outcome scope.
     standalone = _produce_forecast_inputs(store=store, evidence_ref=evidence_ref)
-    assert standalone["forecast_calibration_record"].calibration_status == "pass"
-    assert standalone["forecast_support"].forecast_tier == "observable_calibrated"
+    assert standalone["forecast_calibration_record"] is None
+    assert standalone["forecast_support"].forecast_tier == "blocked"

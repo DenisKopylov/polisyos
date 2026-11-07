@@ -1640,6 +1640,60 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/runs/{run_id}/candidate-acquisition-experiment": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Run Candidate Acquisition Experiment */
+    get: operations["get_run_candidate_acquisition_experiment"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Request Run Candidate Acquisition Experiment Decision */
+    post: operations["request_run_candidate_acquisition_experiment_decision"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Execute Run Candidate Acquisition Experiment
+     * @description Queue a candidate experiment from its exact request and PA2 decision ref.
+     */
+    post: operations["execute_run_candidate_acquisition_experiment"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/runs/{run_id}/case-inspection": {
     parameters: {
       query?: never;
@@ -2257,9 +2311,9 @@ export interface components {
       /**
        * Receipt Phase
        * @default requested
-       * @constant
+       * @enum {string}
        */
-      receipt_phase: "requested";
+      receipt_phase: "requested" | "terminal";
       /** Route Id */
       route_id: string;
       /** Run Id */
@@ -2267,9 +2321,9 @@ export interface components {
       /**
        * Status
        * @default accepted
-       * @constant
+       * @enum {string}
        */
-      status: "accepted";
+      status: "accepted" | "completed";
       /**
        * World Growth
        * @default not_established
@@ -2569,6 +2623,34 @@ export interface components {
       recorded_rederive_inputs: {
         [key: string]: components["schemas"]["ProjectionJsonValue"];
       };
+    };
+    /**
+     * AcquisitionSelectedEvaluation
+     * @description Exact evaluation occurrence selected by the verified route accumulator.
+     */
+    AcquisitionSelectedEvaluation: {
+      basis_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /** Candidate Content Hash */
+      candidate_content_hash: string;
+      /** Candidate Id */
+      candidate_id: string;
+      context_job_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Cycle Index */
+      cycle_index: number;
+      /** Design Problem Ref */
+      design_problem_ref: string;
+      /** Evaluation Job Id */
+      evaluation_job_id: string;
+      /** Evaluation Run Id */
+      evaluation_run_id: string;
+      /** Generation Run Id */
+      generation_run_id: string;
+      n4_source_ref: components["schemas"]["ArtifactRef-Output"];
+      n5_execution_ref: components["schemas"]["ArtifactRef-Output"];
+      n5_input_ref: components["schemas"]["ArtifactRef-Output"];
+      n5_result_ref: components["schemas"]["ArtifactRef-Output"];
+      /** World Model Record Hash */
+      world_model_record_hash: string;
     };
     /**
      * AgentPipelineAttempt
@@ -4797,6 +4879,240 @@ export interface components {
       source?: components["schemas"]["CompletedMethodHTESource"] | null;
     };
     /**
+     * CandidateExperimentCurrentActionProjection
+     * @description Read-only status of the current verified candidate-experiment action.
+     */
+    CandidateExperimentCurrentActionProjection: {
+      /** Action Generation */
+      action_generation?: number | null;
+      /** Blocker Reason */
+      blocker_reason?: string | null;
+      candidate_n5_result?:
+        | components["schemas"]["CandidateExperimentN5ResultProjection"]
+        | null;
+      /** Coarse Phase */
+      coarse_phase?:
+        | ("requested" | "executing" | "candidate_input_prepared" | "terminal")
+        | null;
+      /**
+       * Evaluation Disposition
+       * @default unknown
+       * @enum {string}
+       */
+      evaluation_disposition: "unknown" | "new" | "retained" | "blocked";
+      /** Job Id */
+      job_id?: string | null;
+      /** Job State */
+      job_state?:
+        | ("pending" | "running" | "completed" | "failed" | "cancelled")
+        | null;
+      /** Receipt Phase */
+      receipt_phase?:
+        | (
+            | "requested"
+            | "executing"
+            | "outcome_selected"
+            | "candidate_input_reentry_pending"
+            | "terminal"
+          )
+        | null;
+      /** Recovery State */
+      recovery_state?:
+        | ("none" | "reentry_recovery_required" | "complete")
+        | null;
+      selected_evaluation?:
+        | components["schemas"]["AcquisitionSelectedEvaluation"]
+        | null;
+      selected_receipt_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /**
+       * Status
+       * @default unknown
+       * @enum {string}
+       */
+      status: "unknown" | "in_progress" | "completed" | "blocked";
+      /** Terminal Outcome */
+      terminal_outcome?:
+        | (
+            | "candidate_reentry_completed"
+            | "candidate_evaluation_retained"
+            | "candidate_blocked"
+          )
+        | null;
+    };
+    /**
+     * CandidateExperimentN5ResultProjection
+     * @description Fresh candidate-only result bound to its selected reentry terminal.
+     */
+    CandidateExperimentN5ResultProjection: {
+      /**
+       * Authoritative For
+       * @default [
+       *       "api_display"
+       *     ]
+       */
+      authoritative_for: "api_display"[];
+      /**
+       * Authority Purpose
+       * @default candidate_observation_only
+       * @constant
+       */
+      authority_purpose: "candidate_observation_only";
+      /**
+       * Configuration Use
+       * @default not_established
+       * @constant
+       */
+      configuration_use: "not_established";
+      /**
+       * Implementation Currentness
+       * @default not_established
+       * @constant
+       */
+      implementation_currentness: "not_established";
+      /** Limitations */
+      limitations: string[];
+      /**
+       * May Not Use For
+       * @default [
+       *       "n5_evaluation_retention",
+       *       "claim_authority",
+       *       "publication_authority"
+       *     ]
+       */
+      may_not_use_for: (
+        | "n5_evaluation_retention"
+        | "claim_authority"
+        | "publication_authority"
+      )[];
+      /**
+       * Publication Authority
+       * @default false
+       * @constant
+       */
+      publication_authority: false;
+      /** Reason Codes */
+      reason_codes: string[];
+      reentry_receipt_ref: components["schemas"]["ArtifactRef-Output"];
+      result_body: components["schemas"]["RunCandidateSimulationN5ResultBody"];
+      terminal_receipt_ref: components["schemas"]["ArtifactRef-Output"];
+    };
+    /**
+     * CandidateExperimentRouteExecutionRequest
+     * @description Exact persisted decision selected for one candidate-experiment execution.
+     */
+    CandidateExperimentRouteExecutionRequest: {
+      /** Decision Ref */
+      decision_ref: string;
+      request: components["schemas"]["CandidateExperimentRouteMutationRequest"];
+    };
+    /**
+     * CandidateExperimentRouteMutationRequest
+     * @description Optimistic pins only; permission and live action owners remain separate.
+     */
+    CandidateExperimentRouteMutationRequest: {
+      /** Human Decision Record Ref */
+      human_decision_record_ref?: string | null;
+      /** Idempotency Key */
+      idempotency_key: string;
+      replay_pins: components["schemas"]["CandidateExperimentRouteReplayPins-Input"];
+      /** Route Id */
+      route_id: string;
+    };
+    /**
+     * CandidateExperimentRouteProjection
+     * @description Read-only experiment proposal with unknown cost and no action authority.
+     */
+    CandidateExperimentRouteProjection: {
+      /**
+       * Action Authority
+       * @default not_established
+       * @constant
+       */
+      action_authority: "not_established";
+      /** Cell Id */
+      cell_id: string;
+      current_action?: components["schemas"]["CandidateExperimentCurrentActionProjection"];
+      /**
+       * Information Value
+       * @default not_established
+       * @constant
+       */
+      information_value: "not_established";
+      /**
+       * Monetary Cost
+       * @default not_established
+       * @constant
+       */
+      monetary_cost: "not_established";
+      /**
+       * Publication Authority
+       * @default false
+       * @constant
+       */
+      publication_authority: false;
+      replay_pins: components["schemas"]["CandidateExperimentRouteReplayPins-Output"];
+      /** Route Id */
+      route_id: string;
+      /** Run Id */
+      run_id: string;
+      /** Scheduler Action */
+      scheduler_action: string;
+      /** Scheduler Reason */
+      scheduler_reason: string;
+      /**
+       * Schema Version
+       * @default CandidateExperimentRouteProjection@1.0
+       * @constant
+       */
+      schema_version: "CandidateExperimentRouteProjection@1.0";
+      /** Tenant Id */
+      tenant_id: string;
+    };
+    /**
+     * CandidateExperimentRouteReplayPins
+     * @description Exact selected source and policy views for an unknown-cost experiment.
+     */
+    "CandidateExperimentRouteReplayPins-Input": {
+      /** Candidate Digest */
+      candidate_digest: string;
+      compiled_ref: components["schemas"]["ArtifactRef-Input"];
+      compiler_report_ref: components["schemas"]["ArtifactRef-Input"];
+      configured_port_source_ref: components["schemas"]["ArtifactRef-Input"];
+      planner_report_ref: components["schemas"]["ArtifactRef-Input"];
+      policy_ref: components["schemas"]["ArtifactRef-Input"];
+      predecessor_terminal_ref?:
+        | components["schemas"]["ArtifactRef-Input"]
+        | null;
+      /** Request Content Hash */
+      request_content_hash: string;
+      /** Source Job Id */
+      source_job_id: string;
+      /** Source Payload Ref */
+      source_payload_ref: string;
+    };
+    /**
+     * CandidateExperimentRouteReplayPins
+     * @description Exact selected source and policy views for an unknown-cost experiment.
+     */
+    "CandidateExperimentRouteReplayPins-Output": {
+      /** Candidate Digest */
+      candidate_digest: string;
+      compiled_ref: components["schemas"]["ArtifactRef-Output"];
+      compiler_report_ref: components["schemas"]["ArtifactRef-Output"];
+      configured_port_source_ref: components["schemas"]["ArtifactRef-Output"];
+      planner_report_ref: components["schemas"]["ArtifactRef-Output"];
+      policy_ref: components["schemas"]["ArtifactRef-Output"];
+      predecessor_terminal_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      /** Request Content Hash */
+      request_content_hash: string;
+      /** Source Job Id */
+      source_job_id: string;
+      /** Source Payload Ref */
+      source_payload_ref: string;
+    };
+    /**
      * CandidateLever
      * @description Represent one candidate operator/instrument slot for atom binding.
      */
@@ -5375,6 +5691,9 @@ export interface components {
      * @description Data-only evidence-class route to code-owned owner verification.
      */
     CertificateClassRoute: {
+      build_evidence_ref?:
+        | components["schemas"]["_BuildIdentityArtifactSelection"]
+        | null;
       /** Certificate Class */
       certificate_class: string;
       certificate_role: components["schemas"]["CertificateRole"];
@@ -7507,7 +7826,7 @@ export interface components {
      * DataSnapshotRef
      * @description Artifact reference for a materialized snapshot of retrieved data and its metadata.
      */
-    DataSnapshotRef: {
+    "DataSnapshotRef-Input": {
       artifact_id: components["schemas"]["ArtifactID-Input"];
       /**
        * Kind
@@ -7523,13 +7842,32 @@ export interface components {
       media_type?: string;
     };
     /**
+     * DataSnapshotRef
+     * @description Artifact reference for a materialized snapshot of retrieved data and its metadata.
+     */
+    "DataSnapshotRef-Output": {
+      artifact_id: string;
+      /**
+       * Kind
+       * @default fabric.data_snapshot
+       */
+      kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
+      /**
+       * Media Type
+       * @default application/json
+       */
+      media_type: string;
+    };
+    /**
      * DataSourceBinding
      * @description Select an existing source, retaining exact typed profiles when provided.
      */
     DataSourceBinding: {
       /** Data Snapshot Ref */
       data_snapshot_ref?:
-        | components["schemas"]["DataSnapshotRef"]
+        | components["schemas"]["DataSnapshotRef-Input"]
         | string
         | null;
       /** Data View Request Ref */
@@ -7539,6 +7877,26 @@ export interface components {
         | components["schemas"]["FoundryInputBindingsRef"]
         | string
         | null;
+    };
+    /**
+     * DataTrust
+     * @description L5 trust-tier content used by value promotion and substrate registration.
+     */
+    DataTrust: {
+      /** Authority Ref */
+      authority_ref: string;
+      /** Max Coverage */
+      max_coverage?: number | null;
+      /** Min Coverage */
+      min_coverage?: number | null;
+      /** Promotion Floor */
+      promotion_floor?: number | null;
+      /** Tier */
+      tier: string;
+      /** Trust Cap */
+      trust_cap: number;
+      /** Trust Multiplier */
+      trust_multiplier: number;
     };
     /**
      * DataViewRequestRef
@@ -10552,6 +10910,25 @@ export interface components {
       producer_roots?: unknown[];
     };
     /**
+     * EvidenceBundleRef
+     * @description Artifact reference for the evidence bundle backing a Fabric result.
+     */
+    EvidenceBundleRef: {
+      artifact_id: string;
+      /**
+       * Kind
+       * @default fabric.evidence_bundle
+       */
+      kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
+      /**
+       * Media Type
+       * @default application/json
+       */
+      media_type: string;
+    };
+    /**
      * EvidenceNeed
      * @description Represent one grounding or acquisition demand.
      */
@@ -12825,6 +13202,7 @@ export interface components {
       record_mode?: boolean;
       /** Replay Ref */
       replay_ref?: string | null;
+      replay_selected_ref?: components["schemas"]["ArtifactRef-Input"] | null;
       /**
        * Source
        * @default dashboard
@@ -12840,6 +13218,9 @@ export interface components {
       cursor_ref?: string | null;
       /** Data Snapshot Ref */
       data_snapshot_ref?: string | null;
+      data_snapshot_selected_ref?:
+        | components["schemas"]["DataSnapshotRef-Output"]
+        | null;
       /**
        * Datasets Fetched
        * @default 0
@@ -12847,6 +13228,9 @@ export interface components {
       datasets_fetched: number;
       /** Evidence Bundle Ref */
       evidence_bundle_ref?: string | null;
+      evidence_bundle_selected_ref?:
+        | components["schemas"]["EvidenceBundleRef"]
+        | null;
       /** Input Bindings Ref */
       input_bindings_ref?: string | null;
       /** Message */
@@ -12856,6 +13240,9 @@ export interface components {
       mode_effective?: string | null;
       /** Record Ref */
       record_ref?: string | null;
+      record_session_selected_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
       /**
        * Status
        * @enum {string}
@@ -14914,6 +15301,11 @@ export interface components {
     NaturalLanguageRunRequest: {
       calibration_rule_ref?: components["schemas"]["ArtifactRef-Input"] | null;
       /**
+       * Candidate Acquisition Intent
+       * @description Explicit opt-in for a separately authorized bounded candidate data-acquisition experiment with information value not established. Requires the limited metered budget scope, an explicit finite USD cap and independent physical authorizations before execution. Does not override an ROI rejection or grant publication authority. Omission or null does not authorize this experiment.
+       */
+      candidate_acquisition_intent?: "bounded_experiment_voi_unknown" | null;
+      /**
        * Checkpoint Policy
        * @default strict
        * @enum {string}
@@ -14946,7 +15338,10 @@ export interface components {
       }[];
       /** Joint Interaction Candidate Intent */
       joint_interaction_candidate_intent?:
-        | "n4_unique_parent_source_members.v1"
+        | (
+            | "n4_unique_parent_source_members.v1"
+            | "authored_joint_components.v1"
+          )
         | null;
       /** Llm Model */
       llm_model?: string | null;
@@ -14969,6 +15364,13 @@ export interface components {
       policy_spec_ref?: components["schemas"]["ArtifactRef-Input"] | null;
       /** Request */
       request: string;
+      /**
+       * Run Budget Scope
+       * @description Explicit budget scope for this new request. hard_total_usd requires an enforceable total USD ceiling. metered_paid_producers_and_bounded_candidate limits metered paid producers in USD and requires separately authorized physical candidate-work limits; total USD cost remains not established. This choice grants no execution permission. Omission or null does not authorize unpriced candidate acquisition.
+       */
+      run_budget_scope?:
+        | ("hard_total_usd" | "metered_paid_producers_and_bounded_candidate")
+        | null;
       /** Run Budget Usd */
       run_budget_usd?: number | null;
       /** Stop Criteria */
@@ -15417,6 +15819,11 @@ export interface components {
      */
     OutcomeOfInterest: {
       /**
+       * Conditioning Variables
+       * @description Explicit candidate query conditioning, not an identified adjustment set.
+       */
+      conditioning_variables?: string[];
+      /**
        * Direction
        * @default maximize
        * @enum {string}
@@ -15424,8 +15831,18 @@ export interface components {
       direction: "maximize" | "minimize" | "maintain_range";
       /** Estimand */
       estimand: string;
+      /**
+       * Measurement Unit
+       * @description Declared outcome unit; an atom binds it only to the exact world-slot owner.
+       */
+      measurement_unit?: string | null;
       /** Metric Id */
       metric_id: string;
+      /**
+       * Query Coordinate Status
+       * @description Proposed query coordinates do not establish agreement with user intent.
+       */
+      query_coordinate_status?: "candidate_proposed_unverified" | null;
       /** Target Variable */
       target_variable: string;
     };
@@ -16424,11 +16841,11 @@ export interface components {
       /** Nominal Confidence Level */
       nominal_confidence_level?: number | null;
       /** Observed Denominator */
-      observed_denominator: number;
+      observed_denominator?: number | null;
       /** Observed Hit Rate */
-      observed_hit_rate: number;
+      observed_hit_rate?: number | null;
       /** Observed Numerator */
-      observed_numerator: number;
+      observed_numerator?: number | null;
       observed_source_ref: components["schemas"]["ArtifactRef-Output"];
       /**
        * Owner Suitability
@@ -16456,13 +16873,14 @@ export interface components {
       s10: components["schemas"]["PredictiveCalibrationS10Summary"];
       /**
        * Schema Version
-       * @default polisyos.runtime.predictive_calibration_association.v4
+       * @default polisyos.runtime.predictive_calibration_association.v5
        * @enum {string}
        */
       schema_version:
         | "polisyos.runtime.predictive_calibration_association.v2"
         | "polisyos.runtime.predictive_calibration_association.v3"
-        | "polisyos.runtime.predictive_calibration_association.v4";
+        | "polisyos.runtime.predictive_calibration_association.v4"
+        | "polisyos.runtime.predictive_calibration_association.v5";
       /**
        * Source Time Status
        * @default not_established
@@ -16489,7 +16907,7 @@ export interface components {
       intent_id: string;
       method_params: components["schemas"]["ForecastMethodParams"];
       model_spec_ref: components["schemas"]["ArtifactRef-Input"];
-      observed_source_ref: components["schemas"]["DataSnapshotRef"];
+      observed_source_ref: components["schemas"]["DataSnapshotRef-Input"];
       policy_spec_ref: components["schemas"]["ArtifactRef-Input"];
       /** Seed */
       seed: number;
@@ -16536,7 +16954,7 @@ export interface components {
        */
       counterfactual_credibility: "not_established";
       /** Denominator */
-      denominator: number;
+      denominator?: number | null;
       /** Forecast Tier */
       forecast_tier: string;
       /**
@@ -16547,9 +16965,9 @@ export interface components {
       /** May Not Use For */
       may_not_use_for?: string[] | null;
       /** Numerator */
-      numerator: number;
+      numerator?: number | null;
       /** Observed Pass Rate */
-      observed_pass_rate: number;
+      observed_pass_rate?: number | null;
       /** Outcome Binding Status */
       outcome_binding_status?: "not_established" | null;
     };
@@ -17964,10 +18382,146 @@ export interface components {
       tenant_id: string;
     };
     /**
+     * RunCandidateEvaluationAttemptProjection
+     * @description One owner-history-replayed local refusal, not a numerical verification.
+     */
+    RunCandidateEvaluationAttemptProjection: {
+      /** Attempt Ref */
+      attempt_ref: string;
+      /** Candidate Content Hash */
+      candidate_content_hash: string;
+      /** Candidate Id */
+      candidate_id: string;
+      context_job_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /** Cycle Index */
+      cycle_index: number;
+      /**
+       * Failure Scope
+       * @default candidate_local
+       * @constant
+       */
+      failure_scope: "candidate_local";
+      /**
+       * Failure Stage
+       * @enum {string}
+       */
+      failure_stage: "n5" | "n8";
+      n4_source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      n5_execution_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      n5_input_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /** Node Ref */
+      node_ref: string;
+      /**
+       * Numerical Result Verification
+       * @default not_established
+       * @constant
+       */
+      numerical_result_verification: "not_established";
+      /** Problem Ref */
+      problem_ref: string;
+      /** Profile Selection Ref */
+      profile_selection_ref?: string | null;
+      /**
+       * Publication Authority
+       * @default false
+       * @constant
+       */
+      publication_authority: false;
+      /**
+       * Scope
+       * @default recorded_candidate_attempt
+       * @constant
+       */
+      scope: "recorded_candidate_attempt";
+      /** Selected Method Fqn */
+      selected_method_fqn?: string | null;
+      /**
+       * Simulation Authority Blockers
+       * @default []
+       */
+      simulation_authority_blockers: string[];
+      /** Simulation Ref */
+      simulation_ref?: string | null;
+      simulation_result_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      /**
+       * Simulation Status
+       * @enum {string}
+       */
+      simulation_status:
+        | "joint_simulated"
+        | "simulation_pending_n5"
+        | "simulation_blocked";
+      /**
+       * Value Authority Blockers
+       * @default []
+       */
+      value_authority_blockers: string[];
+      /** Value Decision Grade */
+      value_decision_grade?: ("blocked" | "low" | "medium" | "high") | null;
+      /** Value Ref */
+      value_ref?: string | null;
+      /**
+       * Value Status
+       * @enum {string}
+       */
+      value_status:
+        | "value_pending_n8"
+        | "value_ready"
+        | "value_conditional"
+        | "value_blocked";
+    };
+    /**
+     * RunCandidateSimulationAcquiredOutcomeRevision
+     * @description Owner-replayed acquired outcome baseline, distinct from coefficient inference.
+     */
+    RunCandidateSimulationAcquiredOutcomeRevision: {
+      admitted_source_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Authority Purpose
+       * @default candidate_observation_only
+       * @constant
+       */
+      authority_purpose: "candidate_observation_only";
+      /**
+       * Changed Field
+       * @default outcome_baseline
+       * @constant
+       */
+      changed_field: "outcome_baseline";
+      evaluation_decision_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Outcome World Slot */
+      outcome_world_slot: string;
+      /**
+       * Predicate Provenance
+       * @default recomputed
+       * @constant
+       */
+      predicate_provenance: "recomputed";
+      previous_basis_ref: components["schemas"]["ArtifactRef-Output"];
+      previous_declaration_ref: components["schemas"]["ArtifactRef-Output"];
+      previous_input_ref: components["schemas"]["ArtifactRef-Output"];
+      previous_ncm_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Publication Authority
+       * @default false
+       * @constant
+       */
+      publication_authority: false;
+      selected_basis_ref: components["schemas"]["ArtifactRef-Output"];
+      selected_declaration_ref: components["schemas"]["ArtifactRef-Output"];
+      selected_input_ref: components["schemas"]["ArtifactRef-Output"];
+      selected_ncm_ref: components["schemas"]["ArtifactRef-Output"];
+    };
+    /**
      * RunCandidateSimulationAcquisitionContinuationProjection
      * @description Typed candidate-only projection of the exact N9 continuation.
      */
     RunCandidateSimulationAcquisitionContinuationProjection: {
+      acquired_outcome_revision?:
+        | components["schemas"]["RunCandidateSimulationAcquiredOutcomeRevision"]
+        | null;
       /**
        * Authority Purpose
        * @default candidate_observation_only
@@ -17994,6 +18548,9 @@ export interface components {
        * @constant
        */
       currentness_status: "not_established";
+      model_revision?:
+        | components["schemas"]["RunCandidateSimulationModelRevision"]
+        | null;
       /**
        * N9 Certified Candidate Ids
        * @default []
@@ -18033,6 +18590,15 @@ export interface components {
       selected_profile_content_hash: string;
       /** Selected Profile Selection Ref */
       selected_profile_selection_ref: string;
+      /**
+       * Selected Simulation Authority Blockers
+       * @default []
+       */
+      selected_simulation_authority_blockers: string[];
+      /** Selected Simulation Status */
+      selected_simulation_status?:
+        | ("joint_simulated" | "simulation_pending_n5" | "simulation_blocked")
+        | null;
       /** Selected Target Baseline Hash */
       selected_target_baseline_hash?: string | null;
       /** Selected Target World Slot */
@@ -18079,6 +18645,8 @@ export interface components {
        * @constant
        */
       currentness_status: "not_established";
+      /** Evaluation Provenance */
+      evaluation_provenance?: "new_execution" | null;
       expected_origin_source_ref?:
         | components["schemas"]["ArtifactRef-Output"]
         | null;
@@ -18116,6 +18684,9 @@ export interface components {
       schema_version?:
         | "policyos.runtime.run_candidate_simulation_acquisition_history.v2"
         | null;
+      selected_n5_observation?:
+        | components["schemas"]["RunCandidateSimulationN5Observation"]
+        | null;
       /**
        * Terminal Outcome
        * @enum {string}
@@ -18143,6 +18714,9 @@ export interface components {
       continuation?: null;
       /** Continuation Join Status */
       continuation_join_status?: null;
+      current_cheap_consequences?:
+        | components["schemas"]["RunCandidateSimulationCheapConsequences"]
+        | null;
       current_continuation_ref: components["schemas"]["ArtifactRef-Output"];
       /**
        * Currentness Status
@@ -18157,6 +18731,12 @@ export interface components {
        * @constant
        */
       evaluation_disposition: "retained_prior";
+      /**
+       * Evaluation Provenance
+       * @default retained_prior
+       * @constant
+       */
+      evaluation_provenance: "retained_prior";
       /** Expected Origin Source Ref */
       expected_origin_source_ref?: null;
       growth_receipt_ref: components["schemas"]["ArtifactRef-Output"];
@@ -18189,6 +18769,9 @@ export interface components {
        * @constant
        */
       schema_version: "policyos.runtime.run_candidate_simulation_acquisition_history.v3";
+      selected_n5_observation?:
+        | components["schemas"]["RunCandidateSimulationN5Observation"]
+        | null;
       /**
        * Source Admission Status
        * @default admitted
@@ -18200,6 +18783,316 @@ export interface components {
        * @constant
        */
       terminal_outcome: "source_admitted_evaluation_retained";
+    };
+    /**
+     * RunCandidateSimulationAcquisitionHistoryEntryV4
+     * @description Owner-replayed candidate-only source continuation, not observed admission.
+     */
+    RunCandidateSimulationAcquisitionHistoryEntryV4: {
+      /** Action Generation */
+      action_generation: number;
+      /**
+       * Authority Purpose
+       * @default candidate_observation_only
+       * @constant
+       */
+      authority_purpose: "candidate_observation_only";
+      /** Basis Transition Content Hash */
+      basis_transition_content_hash: string;
+      candidate_action_ref: components["schemas"]["ArtifactRef-Output"];
+      candidate_source_ref: components["schemas"]["ArtifactRef-Output"];
+      context_job_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Continued Cycle Index */
+      continued_cycle_index: number;
+      /** Continued Generation Run Content Hash */
+      continued_generation_run_content_hash: string;
+      /**
+       * Currentness Status
+       * @default not_established
+       * @constant
+       */
+      currentness_status: "not_established";
+      data_snapshot_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Limitations */
+      limitations: string[];
+      model_declaration_ref: components["schemas"]["ArtifactRef-Output"];
+      n4_source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      n5_execution_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      n5_input_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      n5_result_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      ncm_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Observed Admission
+       * @default false
+       * @constant
+       */
+      observed_admission: false;
+      /**
+       * Publication Authority
+       * @default false
+       * @constant
+       */
+      publication_authority: false;
+      reentry_receipt_ref: components["schemas"]["ArtifactRef-Output"];
+      /** Route Id */
+      route_id: string;
+      route_receipt_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Schema Version
+       * @default policyos.runtime.run_candidate_simulation_acquisition_history.v4
+       * @constant
+       */
+      schema_version: "policyos.runtime.run_candidate_simulation_acquisition_history.v4";
+      /**
+       * Simulation Authority Blockers
+       * @default []
+       */
+      simulation_authority_blockers: string[];
+      /**
+       * Simulation Status
+       * @enum {string}
+       */
+      simulation_status:
+        | "joint_simulated"
+        | "simulation_pending_n5"
+        | "simulation_blocked";
+      /** Source Cycle Index */
+      source_cycle_index: number;
+      /** Source Generation Run Content Hash */
+      source_generation_run_content_hash: string;
+      /**
+       * Terminal Outcome
+       * @default candidate_reentry_completed
+       * @constant
+       */
+      terminal_outcome: "candidate_reentry_completed";
+      world_model_ref: components["schemas"]["ArtifactRef-Output"];
+    };
+    /**
+     * RunCandidateSimulationAcquisitionHistoryEntryV5
+     * @description Verified candidate terminal and historical frontier, without admission authority.
+     */
+    RunCandidateSimulationAcquisitionHistoryEntryV5: {
+      /** Action Generation */
+      action_generation: number;
+      /**
+       * Authority Purpose
+       * @default candidate_observation_only
+       * @constant
+       */
+      authority_purpose: "candidate_observation_only";
+      candidate_action_ref: components["schemas"]["ArtifactRef-Output"];
+      candidate_source_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Comparison Reason Codes
+       * @default []
+       */
+      comparison_reason_codes: string[];
+      /**
+       * Comparison Result
+       * @enum {string}
+       */
+      comparison_result: "equivalent" | "different" | "not_established";
+      /** Current Basis Limitations */
+      current_basis_limitations: string[];
+      /**
+       * Current Basis Provenance
+       * @enum {string}
+       */
+      current_basis_provenance: "recomputed" | "not_established";
+      current_basis_ref: components["schemas"]["ArtifactRef-Output"];
+      current_cheap_consequences?:
+        | components["schemas"]["RunCandidateSimulationCheapConsequences"]
+        | null;
+      current_continuation_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      /**
+       * Currentness Status
+       * @default not_established
+       * @constant
+       */
+      currentness_status: "not_established";
+      evaluation_decision_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Evaluation Provenance
+       * @enum {string}
+       */
+      evaluation_provenance:
+        | "new_execution"
+        | "retained_prior"
+        | "not_established";
+      /** Frontier Ref */
+      frontier_ref: string;
+      /** Frontier Revision */
+      frontier_revision: number;
+      /**
+       * Frontier Selection
+       * @enum {string}
+       */
+      frontier_selection: "selected" | "superseded";
+      /**
+       * Observed Admission
+       * @default false
+       * @constant
+       */
+      observed_admission: false;
+      /**
+       * Predicate Provenance
+       * @enum {string}
+       */
+      predicate_provenance: "recomputed" | "not_established";
+      /**
+       * Publication Authority
+       * @default false
+       * @constant
+       */
+      publication_authority: false;
+      reentry?:
+        | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"]
+        | null;
+      /** Route Id */
+      route_id: string;
+      route_receipt_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Schema Version
+       * @default policyos.runtime.run_candidate_simulation_acquisition_history.v5
+       * @constant
+       */
+      schema_version: "policyos.runtime.run_candidate_simulation_acquisition_history.v5";
+      /** Selected Basis Limitations */
+      selected_basis_limitations: string[];
+      /**
+       * Selected Basis Provenance
+       * @enum {string}
+       */
+      selected_basis_provenance: "recomputed" | "not_established";
+      selected_basis_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Selected Basis Role
+       * @enum {string}
+       */
+      selected_basis_role: "evaluated" | "blocked";
+      selected_evaluation?:
+        | components["schemas"]["RunCandidateSimulationRetainedEvaluation"]
+        | null;
+      selected_evaluation_witness_ref: components["schemas"]["ArtifactRef-Output"];
+      selected_n5_observation?:
+        | components["schemas"]["RunCandidateSimulationN5Observation"]
+        | null;
+      /**
+       * Terminal Outcome
+       * @enum {string}
+       */
+      terminal_outcome:
+        | "candidate_reentry_completed"
+        | "candidate_evaluation_retained";
+    };
+    /**
+     * RunCandidateSimulationCheapConsequences
+     * @description Verified cheap reactions at a recorded action, without a new N5 occurrence.
+     */
+    RunCandidateSimulationCheapConsequences: {
+      /** Candidate Content Hash */
+      candidate_content_hash: string;
+      /** Candidate Id */
+      candidate_id: string;
+      current_planner_report_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      /** Grounding Current Valid */
+      grounding_current_valid: boolean;
+      /**
+       * Grounding Status
+       * @enum {string}
+       */
+      grounding_status:
+        | "current_valid"
+        | "grounded_shadow"
+        | "grounding_gap"
+        | "grounding_failed"
+        | "grounding_unavailable";
+      /**
+       * Numerical Provenance
+       * @default retained_prior
+       * @constant
+       */
+      numerical_provenance: "retained_prior";
+      /**
+       * Refinement Decision
+       * @enum {string}
+       */
+      refinement_decision:
+        | "refine"
+        | "acquire"
+        | "reframe"
+        | "decompose"
+        | "human_decision"
+        | "abstain"
+        | "block_candidate"
+        | "stop";
+      /**
+       * Scope
+       * @default current_cheap_consequences_at_recorded_action
+       * @constant
+       */
+      scope: "current_cheap_consequences_at_recorded_action";
+      /**
+       * Search Iteration Status
+       * @enum {string}
+       */
+      search_iteration_status:
+        | "blocked"
+        | "blocked_no_retry"
+        | "governance_required"
+        | "acquisition_required"
+        | "abstained"
+        | "stopped"
+        | "refined_shadow";
+      /** Source Cycle Index */
+      source_cycle_index: number;
+      /**
+       * Terminal Kind
+       * @enum {string}
+       */
+      terminal_kind:
+        | "a_spec_gap"
+        | "tool_failure"
+        | "composition_invalid"
+        | "recursive_blocked"
+        | "search_ceiling_repair_required"
+        | "human_decision_required"
+        | "acquisition_required"
+        | "budget_exhausted"
+        | "frontier_stable"
+        | "grounded_admissible"
+        | "grounded_partial_admissible"
+        | "grounded_abstention";
+      /**
+       * Value Authority Blockers
+       * @default []
+       */
+      value_authority_blockers: string[];
+      /** Value Decision Grade */
+      value_decision_grade?: ("blocked" | "low" | "medium" | "high") | null;
+      /** Value Ref */
+      value_ref?: string | null;
+      /**
+       * Value Status
+       * @enum {string}
+       */
+      value_status:
+        | "value_pending_n8"
+        | "value_ready"
+        | "value_conditional"
+        | "value_blocked";
+      /**
+       * Voi Next Action
+       * @enum {string}
+       */
+      voi_next_action: "advance" | "stop" | "escalate" | "blocked";
+      /** Voi Reason */
+      voi_reason: string;
     };
     /**
      * RunCandidateSimulationChildProfileBinding
@@ -18265,6 +19158,18 @@ export interface components {
      * @description One current candidate occurrence after append-only N6 continuation.
      */
     RunCandidateSimulationCurrentOccurrence: {
+      /** Candidate Basis Content Hash */
+      candidate_basis_content_hash?: string | null;
+      /** Candidate Basis Cycle Index */
+      candidate_basis_cycle_index?: number | null;
+      /** Candidate Basis Limitation Code */
+      candidate_basis_limitation_code?:
+        | "candidate_source_basis_prior_occurrence_not_revalidated"
+        | null;
+      /** Candidate Basis Status */
+      candidate_basis_status?:
+        | ("prior_basis_not_revalidated" | "recorded_on_selected_basis")
+        | null;
       /** Candidate Id */
       candidate_id: string;
       /** Certified By N9 */
@@ -18278,8 +19183,91 @@ export interface components {
        * @enum {string}
        */
       front: "decision" | "research" | "quarantine" | "portfolio";
+      /** Historical Certified By N9 */
+      historical_certified_by_n9?: boolean | null;
+      /** Historical Front */
+      historical_front?:
+        | ("decision" | "research" | "quarantine" | "portfolio")
+        | null;
+      /**
+       * Historical Value Blockers
+       * @default []
+       */
+      historical_value_blockers: string[];
+      /** Historical Value Decision Grade */
+      historical_value_decision_grade?:
+        | ("blocked" | "low" | "medium" | "high")
+        | null;
+      /** Historical Value Ref */
+      historical_value_ref?: string | null;
+      /** Historical Value Status */
+      historical_value_status?:
+        | (
+            | "value_pending_n8"
+            | "value_ready"
+            | "value_conditional"
+            | "value_blocked"
+          )
+        | null;
       /** Source Content Hash */
       source_content_hash?: string | null;
+      /**
+       * Value Blockers
+       * @default []
+       */
+      value_blockers: string[];
+      /** Value Decision Grade */
+      value_decision_grade?: ("blocked" | "low" | "medium" | "high") | null;
+      /** Value Ref */
+      value_ref?: string | null;
+      /** Value Status */
+      value_status?:
+        | (
+            | "value_pending_n8"
+            | "value_ready"
+            | "value_conditional"
+            | "value_blocked"
+          )
+        | null;
+    };
+    /**
+     * RunCandidateSimulationModelRevision
+     * @description A replayed coefficient-only candidate model change, not new empirical evidence.
+     */
+    RunCandidateSimulationModelRevision: {
+      /**
+       * Authority Purpose
+       * @default candidate_observation_only
+       * @constant
+       */
+      authority_purpose: "candidate_observation_only";
+      /**
+       * Changed Field
+       * @default outcome_per_target_unit
+       * @constant
+       */
+      changed_field: "outcome_per_target_unit";
+      evaluation_decision_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Predicate Provenance
+       * @default recomputed
+       * @constant
+       */
+      predicate_provenance: "recomputed";
+      previous_basis_ref: components["schemas"]["ArtifactRef-Output"];
+      previous_declaration_ref: components["schemas"]["ArtifactRef-Output"];
+      previous_input_ref: components["schemas"]["ArtifactRef-Output"];
+      previous_ncm_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Publication Authority
+       * @default false
+       * @constant
+       */
+      publication_authority: false;
+      selected_basis_ref: components["schemas"]["ArtifactRef-Output"];
+      selected_declaration_ref: components["schemas"]["ArtifactRef-Output"];
+      selected_input_ref: components["schemas"]["ArtifactRef-Output"];
+      selected_ncm_ref: components["schemas"]["ArtifactRef-Output"];
     };
     /**
      * RunCandidateSimulationN5Observation
@@ -18325,9 +19313,18 @@ export interface components {
       /** Lineage Status */
       lineage_status?: ("resolved" | "not_established") | null;
       n4_source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      n5_execution_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       n5_input_ref?: components["schemas"]["ArtifactRef-Output"] | null;
       n5_interaction_evidence?:
         | components["schemas"]["RunN5InteractionEvidence"]
+        | null;
+      /** N8 Authored Joint Intent Digest */
+      n8_authored_joint_intent_digest?: string | null;
+      n8_authored_joint_relation_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      n8_authored_joint_request_payload_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
         | null;
       /**
        * N8 Authority Blockers
@@ -18336,6 +19333,16 @@ export interface components {
       n8_authority_blockers: string[];
       /** N8 Candidate Decision Grade */
       n8_candidate_decision_grade?: "low" | null;
+      /**
+       * N8 Candidate Derived Atom Content Hashes
+       * @default []
+       */
+      n8_candidate_derived_atom_content_hashes: string[];
+      /**
+       * N8 Candidate Derived Atom Ids
+       * @default []
+       */
+      n8_candidate_derived_atom_ids: string[];
       /** N8 Candidate Joint Selection Content Hash */
       n8_candidate_joint_selection_content_hash?: string | null;
       /** N8 Candidate Joint Selection Limitation Code */
@@ -18348,7 +19355,11 @@ export interface components {
         | null;
       /** N8 Candidate Member Basis */
       n8_candidate_member_basis?:
-        | ("hypothetical_all_unique_n4_source_members" | "not_established")
+        | (
+            | "hypothetical_all_unique_n4_source_members"
+            | "authored_materialized_n4_source_members"
+            | "not_established"
+          )
         | null;
       /**
        * N8 Candidate Parent Atom Content Hashes
@@ -18436,10 +19447,15 @@ export interface components {
             | "n4_source_candidates_are_alternatives_not_authored_compound_design"
             | "legacy_selection_receipt_has_no_composition_basis"
             | "parent_joint_candidate_source_selection_not_established"
+            | "authored_candidate_coupling_not_established"
           )
         | null;
       /** N8 Policy Composition Status */
-      n8_policy_composition_status?: "not_established" | null;
+      n8_policy_composition_status?:
+        | ("not_established" | "authored_candidate")
+        | null;
+      /** N8 Selected Member Relationship */
+      n8_selected_member_relationship?: "joint_components" | null;
       /** N8 Source Candidate Relationship */
       n8_source_candidate_relationship?:
         | ("alternatives" | "not_established")
@@ -18464,6 +19480,22 @@ export interface components {
        * @default []
        */
       replication_seeds: number[];
+      result_body?:
+        | components["schemas"]["RunCandidateSimulationN5ResultBody"]
+        | null;
+      /** Result Body Limitation Code */
+      result_body_limitation_code?:
+        | (
+            | "candidate_n5_result_body_request_binding_not_established"
+            | "candidate_n5_result_body_selected_manifest_view_not_established"
+            | "candidate_n5_result_body_execution_not_successful"
+            | "candidate_n5_result_body_content_refused"
+          )
+        | null;
+      /** Result Body Status */
+      result_body_status?:
+        | ("not_applicable" | "resolved" | "not_established")
+        | null;
       /**
        * Selected Outcomes
        * @default []
@@ -18484,6 +19516,95 @@ export interface components {
         | "simulation_blocked";
       /** World Model Record Content Hash */
       world_model_record_content_hash?: string | null;
+    };
+    /**
+     * RunCandidateSimulationN5ResultBody
+     * @description Typed N5 result body for one configured candidate observation.
+     */
+    RunCandidateSimulationN5ResultBody: {
+      artifact_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Artifact Schema Name
+       * @constant
+       */
+      artifact_schema_name: "policyos.runtime.n5.joint_simulation_result";
+      /**
+       * Artifact Schema Version
+       * @enum {string}
+       */
+      artifact_schema_version: "1.0.0" | "2.0.0" | "3.0.0" | "4.0.0" | "5.0.0";
+      /** Atom Ids */
+      atom_ids: string[];
+      /**
+       * Authority Purpose
+       * @default candidate_scenario_n5_only
+       * @constant
+       */
+      authority_purpose: "candidate_scenario_n5_only";
+      /**
+       * Candidate Status
+       * @default candidate_unverified
+       * @constant
+       */
+      candidate_status: "candidate_unverified";
+      /**
+       * Currentness Status
+       * @default not_established
+       * @constant
+       */
+      currentness_status: "not_established";
+      horizon: components["schemas"]["RunGenericCycleSimulationN5Horizon"];
+      model_declaration_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      /** Outcome Units */
+      outcome_units?: {
+        [key: string]: string;
+      };
+      /**
+       * Publication Authority
+       * @default false
+       * @constant
+       */
+      publication_authority: false;
+      /**
+       * Result Schema Version
+       * @enum {string}
+       */
+      result_schema_version:
+        | "policyos.runtime.joint_simulation_horizon.v1"
+        | "policyos.runtime.joint_simulation_horizon.v2"
+        | "policyos.runtime.joint_simulation_horizon.v3"
+        | "policyos.runtime.joint_simulation_horizon.v4"
+        | "policyos.runtime.joint_simulation_horizon.v5";
+      /**
+       * Schema Version
+       * @default policyos.runtime.run_candidate_simulation_n5_result_body.v1
+       * @constant
+       */
+      schema_version: "policyos.runtime.run_candidate_simulation_n5_result_body.v1";
+      /** Selected Manifest Profile Sha256 */
+      selected_manifest_profile_sha256: string;
+      /** Selected Outcomes */
+      selected_outcomes: string[];
+      /** Trajectories */
+      trajectories: components["schemas"]["RunGenericCycleSimulationN5Trajectory"][];
+      /**
+       * Uncertainty Kind
+       * @default K_sim
+       * @constant
+       */
+      uncertainty_kind: "K_sim";
+      /**
+       * Unit Provenance
+       * @default not_established
+       * @enum {string}
+       */
+      unit_provenance: "declared_candidate_model" | "not_established";
+      /** World Model Record Content Hash */
+      world_model_record_content_hash: string;
+      /** World Model Record Ref */
+      world_model_record_ref: string;
     };
     /**
      * RunCandidateSimulationN8ChildSourceBinding
@@ -18527,6 +19648,8 @@ export interface components {
       acquisition_history: (
         | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"]
         | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"]
+        | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"]
+        | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV5"]
       )[];
       /** Acquisition History Limitation Code */
       acquisition_history_limitation_code?:
@@ -18549,6 +19672,18 @@ export interface components {
        * @constant
        */
       authority_purpose: "candidate_observation_only";
+      /**
+       * Candidate Evaluation Attempts
+       * @default []
+       */
+      candidate_evaluation_attempts: components["schemas"]["RunCandidateEvaluationAttemptProjection"][];
+      /** Candidate Evaluation Attempts Limitation Code */
+      candidate_evaluation_attempts_limitation_code?:
+        | "candidate_attempt_context_history_not_established"
+        | null;
+      candidate_source_current_projection?:
+        | components["schemas"]["RunCandidateSourceCurrentProjection"]
+        | null;
       /** Limitation Code */
       limitation_code?:
         | (
@@ -18656,6 +19791,130 @@ export interface components {
       world_model_record_hash: string;
     };
     /**
+     * RunCandidateSourceCurrentProjection
+     * @description One reopened candidate-basis fold; no deployment or publication authority.
+     */
+    RunCandidateSourceCurrentProjection: {
+      /**
+       * Authority Purpose
+       * @default candidate_observation_only
+       * @constant
+       */
+      authority_purpose: "candidate_observation_only";
+      /** Basis Cycle Index */
+      basis_cycle_index?: number | null;
+      /** Basis Transition Content Hash */
+      basis_transition_content_hash?: string | null;
+      /**
+       * Certified Candidate Ids
+       * @default []
+       */
+      certified_candidate_ids: string[];
+      /**
+       * Currentness Status
+       * @default not_established
+       * @constant
+       */
+      currentness_status: "not_established";
+      fronts?:
+        | components["schemas"]["RunCandidateSimulationContinuationFronts"]
+        | null;
+      /** Generation Run Content Hash */
+      generation_run_content_hash?: string | null;
+      /**
+       * Issues
+       * @default []
+       */
+      issues: string[];
+      /**
+       * Occurrences
+       * @default []
+       */
+      occurrences: components["schemas"]["RunCandidateSimulationCurrentOccurrence"][];
+      /**
+       * Publication Authority
+       * @default false
+       * @constant
+       */
+      publication_authority: false;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "resolved" | "not_established";
+    };
+    /**
+     * RunCandidateValueMethodProjection
+     * @description Source-row method evidence alongside a separately qualified simulation.
+     */
+    RunCandidateValueMethodProjection: {
+      /**
+       * Assignment Provenance
+       * @default consumer_asserted
+       * @constant
+       */
+      assignment_provenance: "consumer_asserted";
+      /**
+       * Authority Purpose
+       * @default candidate_source_rows_only
+       * @constant
+       */
+      authority_purpose: "candidate_source_rows_only";
+      /**
+       * Discovery Limitations
+       * @default []
+       */
+      discovery_limitations: string[];
+      /** Failure Kind */
+      failure_kind?:
+        | ("input_refused" | "environment_unavailable" | "not_established")
+        | null;
+      /** Limitation Codes */
+      limitation_codes: string[];
+      /** Measurement Unit */
+      measurement_unit?: string | null;
+      method_selection_receipt_ref?:
+        | components["schemas"]["ArtifactRef-Output"]
+        | null;
+      native_report_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /** Point Estimate */
+      point_estimate?: number | null;
+      /**
+       * Production Value Eligible
+       * @default false
+       * @constant
+       */
+      production_value_eligible: false;
+      /**
+       * Publication Authority
+       * @default false
+       * @constant
+       */
+      publication_authority: false;
+      /** Reason */
+      reason?: string | null;
+      record_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      run_basis_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /** Selected Method Fqn */
+      selected_method_fqn?: string | null;
+      source_request_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+      /**
+       * Source Time Status
+       * @default not_established
+       * @constant
+       */
+      source_time_status: "not_established";
+      /** Statistical Interval */
+      statistical_interval?: [number, number] | null;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: "completed" | "refused" | "not_established";
+      value_outer_set?: components["schemas"]["ValueOuterSet"] | null;
+      value_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+    };
+    /**
      * RunCompareResponse
      * @description Response envelope returned by the run comparison endpoint.
      */
@@ -18731,8 +19990,10 @@ export interface components {
      * @description Run details public type.
      */
     RunDetails: {
+      /** Candidate Simulation */
       candidate_simulation?:
         | components["schemas"]["RunCandidateSimulationProjection"]
+        | components["schemas"]["RunFailedCandidateSimulationProjection"]
         | null;
       capability_manifest_ref?:
         | components["schemas"]["ArtifactRef-Output"]
@@ -19063,6 +20324,68 @@ export interface components {
       status: string;
     };
     /**
+     * RunFailedCandidateSimulationProjection
+     * @description Candidate-only N5 evidence retained when a later cycle stage fails.
+     */
+    RunFailedCandidateSimulationProjection: {
+      /**
+       * Artifact Status
+       * @enum {string}
+       */
+      artifact_status: "resolved" | "not_established";
+      /**
+       * Authority Purpose
+       * @default candidate_observation_only
+       * @constant
+       */
+      authority_purpose: "candidate_observation_only";
+      /**
+       * Cycle Completed
+       * @default false
+       * @constant
+       */
+      cycle_completed: false;
+      /** Cycle Index */
+      cycle_index?: number | null;
+      /** Failed Stage */
+      failed_stage?: ("value_projection" | "revision") | null;
+      /**
+       * Failure Source
+       * @default same_control_job
+       * @constant
+       */
+      failure_source: "same_control_job";
+      /** Limitation Code */
+      limitation_code?:
+        | (
+            | "candidate_n5_output_not_established"
+            | "candidate_n5_output_ambiguous"
+          )
+        | null;
+      /**
+       * N5 Observations
+       * @default []
+       */
+      n5_observations: components["schemas"]["RunCandidateSimulationN5Observation"][];
+      /**
+       * Publication Authority
+       * @default false
+       * @constant
+       */
+      publication_authority: false;
+      /** Run Id */
+      run_id: string;
+      /**
+       * Schema Version
+       * @default policyos.runtime.run_failed_candidate_simulation_projection.v1
+       * @constant
+       */
+      schema_version: "policyos.runtime.run_failed_candidate_simulation_projection.v1";
+      /** Source Content Hash */
+      source_content_hash?: string | null;
+      source_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+    };
+    /**
      * RunFeedbackResponse
      * @description Response envelope returned by the run feedback endpoint.
      */
@@ -19179,6 +20502,9 @@ export interface components {
       authority_purpose: "cycle_input_candidate_only";
       /** Candidate Id */
       candidate_id: string;
+      candidate_value_method?:
+        | components["schemas"]["RunCandidateValueMethodProjection"]
+        | null;
       child_profile_family_ref?:
         | components["schemas"]["ArtifactRef-Output"]
         | null;
@@ -19328,7 +20654,7 @@ export interface components {
        * Artifact Schema Version
        * @enum {string}
        */
-      artifact_schema_version: "1.0.0" | "2.0.0" | "3.0.0" | "4.0.0";
+      artifact_schema_version: "1.0.0" | "2.0.0" | "3.0.0" | "4.0.0" | "5.0.0";
       /** Atom Ids */
       atom_ids: string[];
       /**
@@ -19364,7 +20690,8 @@ export interface components {
         | "policyos.runtime.joint_simulation_horizon.v1"
         | "policyos.runtime.joint_simulation_horizon.v2"
         | "policyos.runtime.joint_simulation_horizon.v3"
-        | "policyos.runtime.joint_simulation_horizon.v4";
+        | "policyos.runtime.joint_simulation_horizon.v4"
+        | "policyos.runtime.joint_simulation_horizon.v5";
       /**
        * Schema Version
        * @default policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1
@@ -19535,6 +20862,15 @@ export interface components {
        * @constant
        */
       authority_purpose: "cycle_input_candidate_only";
+      /**
+       * Candidate Evaluation Attempts
+       * @default []
+       */
+      candidate_evaluation_attempts: components["schemas"]["RunCandidateEvaluationAttemptProjection"][];
+      /** Candidate Evaluation Attempts Limitation Code */
+      candidate_evaluation_attempts_limitation_code?:
+        | "candidate_attempt_context_history_not_established"
+        | null;
       /**
        * Child Profile Bindings
        * @default []
@@ -19766,7 +21102,8 @@ export interface components {
         | "policyos.runtime.joint_simulation_horizon.v1"
         | "policyos.runtime.joint_simulation_horizon.v2"
         | "policyos.runtime.joint_simulation_horizon.v3"
-        | "policyos.runtime.joint_simulation_horizon.v4";
+        | "policyos.runtime.joint_simulation_horizon.v4"
+        | "policyos.runtime.joint_simulation_horizon.v5";
     };
     /**
      * RunN5InteractionSample
@@ -20400,6 +21737,16 @@ export interface components {
     RunRecursiveCycleCheckpoint: {
       /** Budget Stop Node Ref */
       budget_stop_node_ref?: string | null;
+      /** Capacity Limitation Code */
+      capacity_limitation_code?: "physical_need_not_established" | null;
+      /** Capacity Pending Child Index */
+      capacity_pending_child_index?: number | null;
+      /** Capacity Pending Child Node Ref */
+      capacity_pending_child_node_ref?: string | null;
+      /** Capacity Source Content Hash */
+      capacity_source_content_hash?: string | null;
+      /** Capacity Stop Parent Node Ref */
+      capacity_stop_parent_node_ref?: string | null;
       /**
        * Completed Design Refs
        * @default []
@@ -20438,7 +21785,8 @@ export interface components {
        */
       schema_version:
         | "policyos.runtime.recursive_cycle_checkpoint.v1"
-        | "policyos.runtime.recursive_cycle_checkpoint.v2";
+        | "policyos.runtime.recursive_cycle_checkpoint.v2"
+        | "policyos.runtime.recursive_cycle_checkpoint.v3";
       /**
        * Status
        * @default partial
@@ -22533,6 +23881,80 @@ export interface components {
       }[];
     };
     /**
+     * ValueOuterSet
+     * @description Canonical typed carrier for set-valued value over policy-design worlds.
+     *
+     *     Optional statistical endpoints preserve an estimator's reported uncertainty
+     *     separately from the identification set. They are descriptive evidence only:
+     *     identification, comparison, and promotion continue to use ``lower`` and
+     *     ``upper``.
+     */
+    ValueOuterSet: {
+      /**
+       * Assumption Status
+       * @enum {string}
+       */
+      assumption_status:
+        | "declared"
+        | "externally_supported"
+        | "stress_tested"
+        | "violated"
+        | "out_of_scope";
+      /** Assumptions */
+      assumptions?: string[];
+      /** Calibration Scope */
+      calibration_scope?: {
+        [key: string]: string;
+      };
+      /** Coordinates */
+      coordinates?: string[];
+      data_trust: components["schemas"]["DataTrust"];
+      /** Epoch */
+      epoch: string;
+      /**
+       * Identification Status
+       * @enum {string}
+       */
+      identification_status: "point" | "partial" | "proxy" | "blocked";
+      /** Lower */
+      lower?: number[];
+      /**
+       * Representation
+       * @enum {string}
+       */
+      representation:
+        | "interval_box"
+        | "polytope_support_functions"
+        | "scenario_set"
+        | "unknown";
+      /**
+       * Representation Status
+       * @enum {string}
+       */
+      representation_status: "certified" | "search_only" | "unknown";
+      /** Solver Time Budget Ms */
+      solver_time_budget_ms?: number | null;
+      /**
+       * Statistical Lower
+       * @description Source-reported statistical interval lower endpoints, separate from identification bounds and not used to authorize promotion.
+       */
+      statistical_lower?: number[] | null;
+      /**
+       * Statistical Upper
+       * @description Source-reported statistical interval upper endpoints, separate from identification bounds and not used to authorize promotion.
+       */
+      statistical_upper?: number[] | null;
+      /** Upper */
+      upper?: number[];
+      /**
+       * Width
+       * @description Return derived interval widths per coordinate.
+       */
+      readonly width: number[];
+      /** World Model Record Ref */
+      world_model_record_ref: string;
+    };
+    /**
      * ValueRefusalCode
      * @description Why a value is refused. Every code is a property of the VALUE, never of effort.
      * @enum {string}
@@ -22623,7 +24045,7 @@ export interface components {
     WorkflowDataSourceBinding: {
       /** Data Snapshot Ref */
       data_snapshot_ref?:
-        | components["schemas"]["DataSnapshotRef"]
+        | components["schemas"]["DataSnapshotRef-Input"]
         | string
         | null;
       /** Data View Request Ref */
@@ -22719,10 +24141,35 @@ export interface components {
         | null;
     };
     /**
+     * _BuildIdentityArtifactSelection
+     * @description Ledger-owned wire selector decoded by the canonical Core artifact owner.
+     */
+    _BuildIdentityArtifactSelection: {
+      /** Artifact Id */
+      artifact_id: string;
+      /**
+       * Kind
+       * @constant
+       */
+      kind: "runtime.quality.confidence_ledger.build_identity";
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256: string;
+      /**
+       * Media Type
+       * @constant
+       */
+      media_type: "application/json";
+    };
+    /**
      * _QualifiedOutcomeOfInterestV3
      * @description Nested v3 outcome contract for exact qualified canonical identifiers.
      */
     _QualifiedOutcomeOfInterestV3: {
+      /**
+       * Conditioning Variables
+       * @description Explicit candidate query conditioning, not an identified adjustment set.
+       */
+      conditioning_variables?: string[];
       /**
        * Direction
        * @default maximize
@@ -22731,8 +24178,18 @@ export interface components {
       direction: "maximize" | "minimize" | "maintain_range";
       /** Estimand */
       estimand: string;
+      /**
+       * Measurement Unit
+       * @description Declared outcome unit; an atom binds it only to the exact world-slot owner.
+       */
+      measurement_unit?: string | null;
       /** Metric Id */
       metric_id: string;
+      /**
+       * Query Coordinate Status
+       * @description Proposed query coordinates do not establish agreement with user intent.
+       */
+      query_coordinate_status?: "candidate_proposed_unverified" | null;
       /** Target Variable */
       target_variable: string;
     };
@@ -26520,6 +27977,15 @@ export interface operations {
       };
       /** @description Requested representation is not supported for this resource. */
       406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description The cancellation identity conflicts with the current job attempt or disposition. */
+      409: {
         headers: {
           [name: string]: unknown;
         };
@@ -31522,6 +32988,285 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["RunAuthorityProjection"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  get_run_candidate_acquisition_experiment: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CandidateExperimentRouteProjection"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  request_run_candidate_acquisition_experiment_decision: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+        route_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CandidateExperimentRouteMutationRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AcquisitionDecisionRequestResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  execute_run_candidate_acquisition_experiment: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+        route_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CandidateExperimentRouteExecutionRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "authority_decision_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+           *       "job_id": "candidate-experiment-job-example",
+           *       "receipt_phase": "requested",
+           *       "route_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+           *       "run_id": "run-example",
+           *       "status": "accepted",
+           *       "world_growth": "not_established"
+           *     }
+           */
+          "application/json": components["schemas"]["AcquisitionExecutionResponse"];
         };
       };
       /** @description Malformed request payload or parameters. */

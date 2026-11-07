@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import shutil
+from collections.abc import Mapping
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -28,6 +30,8 @@ def production_admission_inputs(
     authority: Any,
     overlay_path: Path,
     epoch_history_root: Path,
+    scope_payload: Mapping[str, object] | None = None,
+    authority_purpose: str = "publication",
 ) -> dict[str, Any]:
     """Prepare owner files and semantic selectors before a real port fetch."""
     del tmp_path
@@ -44,6 +48,63 @@ def production_admission_inputs(
         destination = root / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source_root / relative, destination)
+    selected_scope = semantic_epoch.build_epoch_scope_identity(
+        schema_profile="polisyos.epoch.policy-scope.v1",
+        identity_bytes=contracts.epoch.canonical_epoch_bytes(
+            dict(scope_payload)
+            if scope_payload is not None
+            else {"domain": "public-finance", "jurisdiction": "UA"}
+        ),
+    )
+    if scope_payload is not None:
+        # A test-owned scope needs its own schema regime and provenance. The
+        # copied Ukraine-only relations must not be relabeled as another place.
+        relation_ref = store.put_json(
+            {
+                "fixture_only": True,
+                "scope_identity_ref": selected_scope.scope_identity_ref,
+                "source": "test-owned synthetic schema-regime relation",
+            },
+            artifacts.PutOptions(
+                kind="l5.schema_regime_scope_relation", media_type="application/json"
+            ),
+        )
+        regime_id = "fixture_country_year_v1"
+        regime_payload = {
+            "schema_version": "1.0",
+            "regimes": {
+                regime_id: {
+                    "schema_regime_id": regime_id,
+                    "source_version": "1.0",
+                    "effective_start": "2000-01-01",
+                    "effective_end": None,
+                    "boundary_buffer_periods": 0,
+                    "regime_id": "test_fixture",
+                    "source_id": None,
+                    "publication_regime_notes": ["Test-owned fixture; no public authority."],
+                }
+            },
+            "changepoints": [],
+        }
+        relation_payload = {
+            "schema_version": "polisyos.l5.schema-regime-scope-registry.v1",
+            "relations": [
+                {
+                    "schema_regime_id": regime_id,
+                    "scope_identity_refs": [selected_scope.scope_identity_ref],
+                    "relation_provenance_ref": relation_ref.model_dump(mode="json"),
+                    "visibility_knowledge_from": "2000-01-01T00:00:00Z",
+                    "purpose_admission_from": "2000-01-01T00:00:00Z",
+                }
+            ],
+        }
+        for relative, payload in (
+            (substrate_registry.DEFAULT_EPOCH_L5_REGIME_REGISTRY_PATH, regime_payload),
+            (substrate_registry.DEFAULT_EPOCH_L5_SCOPE_REGISTRY_PATH, relation_payload),
+        ):
+            (root / relative).write_text(
+                json.dumps(payload, sort_keys=True, separators=(",", ":")), encoding="utf-8"
+            )
     l5_paths = substrate_registry.default_substrate_catalog_paths(root)
     l5_paths.identification_mode_registry_path.write_text("{}", encoding="utf-8")
     l5_paths.schema_regime_registry_path.write_text("{}", encoding="utf-8")
@@ -93,13 +154,8 @@ def production_admission_inputs(
         "authority": authority,
         "overlay_path": overlay_path,
         "epoch_history_root": epoch_history_root,
-        "epoch_scope_identity": semantic_epoch.build_epoch_scope_identity(
-            schema_profile="polisyos.epoch.policy-scope.v1",
-            identity_bytes=contracts.epoch.canonical_epoch_bytes(
-                {"domain": "public-finance", "jurisdiction": "UA"}
-            ),
-        ),
-        "authority_purpose": "publication",
+        "epoch_scope_identity": selected_scope,
+        "authority_purpose": authority_purpose,
         "valid_effect_coordinate_evidence_ref": put(
             b"2025-01-01", kind="epoch.coordinate.valid-date.v1"
         ),
@@ -120,6 +176,8 @@ def build_production_admission_case(
     store: artifacts.FileSystemCAS | None = None,
     authority: Any = None,
     evidence: Any = None,
+    scope_payload: Mapping[str, object] | None = None,
+    authority_purpose: str = "publication",
 ) -> SimpleNamespace:
     """Prepare/sign the exact full-wrapper basis; the caller performs activation.
 
@@ -144,6 +202,8 @@ def build_production_admission_case(
         authority=authority,
         overlay_path=overlay_path,
         epoch_history_root=history_root,
+        scope_payload=scope_payload,
+        authority_purpose=authority_purpose,
     )
     call_args.update(raw_evidence_ref=evidence.raw_evidence_ref, live_source_execution=evidence)
     negative = acquisition_executor.admit_acquisition_with_production_semantic_epoch(**call_args)

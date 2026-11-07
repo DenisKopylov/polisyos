@@ -1,0 +1,320 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          827
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан. Все function definitions извлечены; фактически исполнены native_hybrid pure_step, numerical helpers и explicit polynomial helper. Selected worker, persisted verifier и metadata/registration не исполнялись.",
+      "git_blob": "edad3dfcfdafa31ef9e07e1e4a9ce9fe4194970b",
+      "sha256": "93e2e3d18b740d8d67c6e3e6e15850b804c9295b953f06b61f1f03c005428af0",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          821
+        ],
+        [
+          1020,
+          1038
+        ],
+        [
+          1128,
+          1237
+        ],
+        [
+          1238,
+          1901
+        ]
+      ],
+      "evidence_level": "Полные relevant forward/abduction helpers, effective intervention, refit entry, query owner прочитаны. Exact AST исполнен для intervention/forward и fully observed residual. Partial-evidence posterior functions 822–1019 не извлекались и не исполнялись; refit definition не вызывался.",
+      "git_blob": "b7d31cb8df8ac25a84ff61629eb6e98cf3d95266",
+      "sha256": "dadf52ccc3feea534915521431c70a0adf5c5996339d6595e44834c25270d751",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/twin_network_query.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          635
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан. Exact function bodies/whole pure_step исполнены при empty factual_condition; fully observed polynomial residual→apply отдельно. Native signature/decorator/envelope constructor не исполнялись.",
+      "git_blob": "858c24199eed73f364186e0befe1ae934efd640f",
+      "sha256": "1fc139c4f81799f801e53e1abaf6db9cbd7a7d0f2e290f42694d5bb4f9367aeb",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/structural_causal_model.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          471
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан; actual module/DTO и JSON validation исполнены. Persist/load declarations source-only, CAS не подменён.",
+      "git_blob": "1c6553c5ffef05e2a3ddec35f9b4c694c48b21e4",
+      "sha256": "48cc3cd1cd5461cd34c1a520ef2d78e0b0139578f518b747fabace9f4ff09601",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/causal_queries.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          588
+        ]
+      ],
+      "evidence_level": "Полные request/result/interval DTO и distribution bridge прочитаны; actual AST classes/functions/constants исполнены. Envelope constructor/enums explicit fixtures; estimator interval отсутствует, persistence owners не исполнялись.",
+      "git_blob": "d1d66bed3cc7c6cfdfb407d5888ee38e68e659ad",
+      "sha256": "88a47978d959d5d9386bfc31756eda150c6b4d30eb69f884e4d8f4d83d6a005f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/ir/analytics/twin_network.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/twin_network.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          245
+        ]
+      ],
+      "evidence_level": "Полные DTO/validators/envelope bridge прочитаны; actual TwinNetworkResult AST и JSON roundtrip исполнены, persistence UNRUN.",
+      "git_blob": "03b9c9adbb130df761e20debecc04f147e13841d",
+      "sha256": "d6641a8ec6d7230d25f008e1035bc65be948ca4e024449fcdf58f615b4fd9333",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          40
+        ],
+        [
+          499,
+          725
+        ]
+      ],
+      "evidence_level": "Полные SCMFitData/SCMQueryData/TwinNetworkQueryData owners и _to_numpy прочитаны/исполнены из exact AST с actual Pydantic.",
+      "git_blob": "81ba5604fd375ac6abeab193bde0d4f8c66a133a",
+      "sha256": "ece93225711e7702b9dace607ab6cf9ab4941baa56bc847e19b3f35c7e8ca44b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1204
+        ]
+      ],
+      "evidence_level": "Полный owner прочитан в свежих C48–C50 на том же SHA. C57 actual module/DTO, projection/disposition/hash заново исполняются; не новое graph completeness claim.",
+      "git_blob": "cd207643eba4a4a975beedda59d06bbe339a8105",
+      "sha256": "2facb531db2ea4bbb6361f9bd7ccf66c14a7f0213d7647b92620a879efa4db5a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_graph_projection.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/causal/_graph_projection.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          15
+        ]
+      ],
+      "evidence_level": "Полный existing facade прочитан C50; actual alias module повторно imported, native root initializer bypass declared.",
+      "git_blob": "d9331accaee19e40ec3ba63b82c9876e6991483b",
+      "sha256": "81e9c8cda63041e0c105930bdb8de719d230ccd3ce963fe48d7f8af67979d18a",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/tests/unit/remediation/test_scm_01.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_scm_01.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          396
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан; все четыре unchanged test bodies исполнены с minimal pytest/MonkeyPatch fixture.",
+      "git_blob": "2b738f28ad5bc584db3babb6f6e80ba3c289910a",
+      "sha256": "11c784be62cbe16e433ef0d8bd1f8a1f4812383670b16240452763a271e2b566",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_fit.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          212
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан; projection/hybrid/priors tests source-only, не включены в executed count C57.",
+      "git_blob": "cb33690a2a8350090067b4ce7849b07f7b09ed20",
+      "sha256": "1f62b28370093365e38e8b806b5597752cc962a18b9dc9dd33ca722b57785af9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          179
+        ]
+      ],
+      "evidence_level": "Полные actual selected fit fixture/manual helper/interventional test прочитаны. Native worker/CAS chain UNRUN. Fixture current schema1.2 отличается от stale assert S13.",
+      "git_blob": "3507bfc5e3013893d94541c6baecc03ce8b20ddb",
+      "sha256": "11fec42fb2c9fa710f39eb4416370c98115948b47baba5978390ae623c9547f4",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          316
+        ]
+      ],
+      "evidence_level": "Полные setup/helpers/native-chain test прочитаны. Один unchanged explicit-native ownership test исполнен. Selected integration test с schema1.1 source-only, не заявлен executed FAIL.",
+      "git_blob": "84740c799e69f4a4eb5199e35cade8f151e7facd",
+      "sha256": "716a15e0a93e0063a112effec1acb6f4578db2906da95f427011687bb170e761",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          434
+        ]
+      ],
+      "evidence_level": "Полный real consumer прочитан: source-bound load, method job, whole canonical output reconciliation, typed result/envelope persistence. Source-only, no mock CAS acceptance claim.",
+      "git_blob": "35398d731d114c9ca99a59e43cee1af14834dc61",
+      "sha256": "0cedf70070ff9799ecb9372583130dd6e2b8a9bfc237ea6c13f26797a10de0c3",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/ir/_internal/validation.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/_internal/validation.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          112
+        ]
+      ],
+      "evidence_level": "Actual coerce_float owner полностью прочитан, импортируется реальный helper через supported isolated module chain.",
+      "git_blob": "c7183c9845bbd9c01e7a84705ca7ef078825aa91",
+      "sha256": "e267487d810dddfe2db8ea75f148e6f69d3c4220c0460e586256f9b2cf8fb9a6",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          240,
+          302
+        ]
+      ],
+      "evidence_level": "Общий envelope owner/readset предыдущих свежих проходов; current native import фактически блокируется Python3.14 syntax at287. C57 использует явно обозначенный constructor fixture, не этот native class.",
+      "git_blob": "08f9f6daf15d0532edf1da5b171ea407ab8bb2d9",
+      "sha256": "f97f6eac54f67c3b94c74a3f1bcfb78b07f87a5debf097d6384892c51dd27dd5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          35
+        ]
+      ],
+      "evidence_level": "Supported runtime/dependency constraints прочитаны; environment probe fresh.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      6872,
+      6964
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "Свежий C57 после внешнего сохранения C56. Lost prior C57 не evidence. C50 import-only bootstrap и неизменные readsets явно переиспользованы; все заявленные проверки выполнены заново."
+}

@@ -5,12 +5,14 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from itertools import product
-from math import sqrt
+from math import isfinite, sqrt
+from statistics import pstdev
 from typing import Any, Literal
 
 import numpy as np
 import numpy.typing as npt
 
+from polisyos.common.numeric_reductions import finite_binary64_mean
 from polisyos.foundry.coupling.executor import CoupledRuntimeState
 
 SummaryRunner = Callable[[Mapping[str, float], int | None], Mapping[str, float]]
@@ -68,6 +70,63 @@ class PairedMonteCarloResult:
     standard_error_status: dict[str, Literal["estimated", "standard_error_not_estimated"]]
     paired_differences: tuple[dict[str, float], ...]
     n_replications: int
+
+    def __post_init__(self) -> None:
+        self.validate()
+
+    def validate(self) -> None:
+        """Reject an incomplete or nonfinite projection before consumption.
+
+        A frozen dataclass still contains mutable dictionaries. Consumers call
+        this boundary again instead of trusting a once-valid constructor.
+        """
+        if type(self.n_replications) is not int or self.n_replications < 1:
+            raise ValueError("n_replications must be a positive integer")
+        metrics = set(self.mean_effects)
+        if (
+            not metrics
+            or metrics != set(self.standard_errors)
+            or metrics != set(self.standard_error_status)
+        ):
+            raise ValueError("paired estimate metric sets must match")
+        if len(self.paired_differences) != self.n_replications:
+            raise ValueError("paired differences must retain every replication")
+        for difference in self.paired_differences:
+            if set(difference) != metrics:
+                raise ValueError("paired differences must retain every metric")
+            for name, value in difference.items():
+                _paired_numeric(value, metric=name, seed=None, stage="difference")
+        for name in metrics:
+            _paired_numeric(self.mean_effects[name], metric=name, seed=None, stage="mean")
+            error = self.standard_errors[name]
+            status = self.standard_error_status[name]
+            if self.n_replications == 1:
+                if error is not None or status != "standard_error_not_estimated":
+                    raise ValueError("singleton standard error must remain not estimated")
+            elif status != "estimated" or error is None:
+                raise ValueError("replicated standard error must be estimated")
+            elif _paired_numeric(error, metric=name, seed=None, stage="standard_error") < 0:
+                raise ValueError("standard errors must not be negative")
+
+
+class PairedMonteCarloNumericalError(ValueError):
+    """A requested paired endpoint or reduction is not finite binary64."""
+
+    code = "paired_monte_carlo_non_finite"
+
+    def __init__(self, *, metric: str, seed: int | None, stage: str) -> None:
+        self.details = {"metric": metric, "seed": seed, "stage": stage}
+        super().__init__(f"paired Monte Carlo {stage} must be finite for metric {metric}")
+
+
+def _paired_numeric(value: object, *, metric: str, seed: int | None, stage: str) -> float:
+    try:
+        point = float(value)
+    except (OverflowError, TypeError, ValueError) as error:
+        raise PairedMonteCarloNumericalError(metric=metric, seed=seed, stage=stage) from error
+    if not isfinite(point):
+        raise PairedMonteCarloNumericalError(metric=metric, seed=seed, stage=stage)
+    return point
 
 
 def _observed_series(
@@ -457,27 +516,38 @@ def paired_monte_carlo_effect(
     for seed in normalized_seeds:
         baseline = baseline_runner(seed)
         policy = policy_runner(seed)
-        diffs.append(
-            {
-                name: float(policy[name]) - float(baseline[name])
-                for name in normalized_metrics
-                if name in policy and name in baseline
-            }
-        )
-    if any(set(diff) != set(normalized_metrics) for diff in diffs):
-        raise ValueError("runner outputs are missing requested metric_names")
+        if any(name not in baseline or name not in policy for name in normalized_metrics):
+            raise ValueError("runner outputs are missing requested metric_names")
+        difference: dict[str, float] = {}
+        for name in normalized_metrics:
+            before = _paired_numeric(baseline[name], metric=name, seed=seed, stage="baseline")
+            after = _paired_numeric(policy[name], metric=name, seed=seed, stage="policy")
+            difference[name] = _paired_numeric(
+                after - before, metric=name, seed=seed, stage="difference"
+            )
+        diffs.append(difference)
 
     mean_effects: dict[str, float] = {}
     standard_errors: dict[str, float | None] = {}
     standard_error_status: dict[str, Literal["estimated", "standard_error_not_estimated"]] = {}
     for name in normalized_metrics:
-        values = np.asarray([diff[name] for diff in diffs], dtype=np.float64)
-        mean_effects[name] = float(np.mean(values))
-        if values.size <= 1:
+        values = [diff[name] for diff in diffs]
+        mean_effects[name] = _paired_numeric(
+            finite_binary64_mean(values), metric=name, seed=None, stage="mean"
+        )
+        if len(values) <= 1:
             standard_errors[name] = None
             standard_error_status[name] = "standard_error_not_estimated"
         else:
-            standard_errors[name] = float(np.std(values, ddof=1) / sqrt(values.size))
+            # pstdev uses the existing exact-sum standard-library owner. Dividing
+            # its population spread by sqrt(n-1) is algebraically the sample-SE,
+            # without an overflowing sample-SD or squared centered values.
+            standard_errors[name] = _paired_numeric(
+                pstdev(values) / sqrt(len(values) - 1),
+                metric=name,
+                seed=None,
+                stage="standard_error",
+            )
             standard_error_status[name] = "estimated"
     return PairedMonteCarloResult(
         mean_effects=mean_effects,
@@ -499,6 +569,7 @@ def _average_summaries(summaries: Sequence[Mapping[str, float]]) -> dict[str, fl
 
 
 __all__ = [
+    "PairedMonteCarloNumericalError",
     "PairedMonteCarloResult",
     "ParticleFilterResult",
     "QueueMLEEstimate",

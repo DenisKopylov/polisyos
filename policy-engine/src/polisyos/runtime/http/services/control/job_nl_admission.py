@@ -543,6 +543,9 @@ class ControlNLJobAdmissionMixin:
                 or not verified_nl_job_scope._was_issued_by_verified_nl_execution_owner
             ):
                 raise RuntimeError("cycle_substrate_context_verified_worker_scope_not_established")
+            # Retain the very same admitted owner for compilation and any
+            # same-attempt partial-result preservation after a later failure.
+            context.verified_nl_job_scope = verified_nl_job_scope
             context_artifact_owner = CycleSubstrateContextArtifactOwner(
                 store=self._artifact_store,
                 control_store=self._control_store,
@@ -593,9 +596,14 @@ class ControlNLJobAdmissionMixin:
                     admitted_context,
                     problem=problem,
                     verified_nl_job_scope=verified_nl_job_scope,
+                    return_selected_profile=True,
                 )
                 from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextOwnerError
 
+                if context_ref.manifest_profile_sha256 is None:
+                    raise CycleSubstrateContextOwnerError(
+                        "cycle_substrate_context_selected_profile_not_returned"
+                    )
                 try:
                     replayed = context_owner.resolve_for_current_job(
                         context_ref,
@@ -668,7 +676,6 @@ class ControlNLJobAdmissionMixin:
                 VerifiedNLJobScope,
                 cycle_job_profile_selection_ref,
             )
-            from polisyos.runtime.quality.design_problem import DesignProblem
             from polisyos.runtime.quality.generic_simulation_admission import (
                 GenericCycleSimulationAdmissionOwner,
                 GenericCycleSimulationContextHandoffV1,
@@ -708,8 +715,6 @@ class ControlNLJobAdmissionMixin:
                     verified_nl_job_scope=verified_nl_job_scope,
                     repo_root=self._repo_root,
                 )
-
-            generic_handoff_binding: dict[str, object] = {}
 
             def resolve_generic_cycle_simulation_handoff(
                 problem: DesignProblem,
@@ -762,39 +767,15 @@ class ControlNLJobAdmissionMixin:
                     if exc.code == "cycle_substrate_context_temporal_read_not_established":
                         return None
                     raise
-                generic_handoff_binding["handoff"] = handoff
-                generic_handoff_binding["problem"] = problem
                 context.start_core_attempt()
                 return handoff
 
             def assert_generic_cycle_simulation_currentness() -> bool:
-                """Replay the exact parent profile/context/family under this worker lease."""
-                handoff = generic_handoff_binding.get("handoff")
-                problem = generic_handoff_binding.get("problem")
-                if (
-                    type(handoff) is not GenericCycleSimulationContextHandoffV1
-                    or type(problem) is not DesignProblem
-                ):
-                    return False
+                """Require this worker lease; each consumer replays its current handoff."""
                 try:
-                    replayed = generic_admission_owner.resolve_handoff(
-                        handoff=handoff,
-                        problem=problem,
-                        verified_nl_job_scope=verified_nl_job_scope,
-                        context_owner=context_artifact_owner,
-                        repo_root=self._repo_root,
+                    context_artifact_owner.require_current_job_scope(
+                        verified_nl_job_scope=verified_nl_job_scope
                     )
-                    if replayed != handoff:
-                        return False
-                    if handoff.n4_child_profile_family_ref is not None:
-                        generic_admission_owner.resolve_child_profile_family(
-                            handoff.n4_child_profile_family_ref,
-                            parent_handoff=handoff,
-                            parent_problem=problem,
-                            verified_nl_job_scope=verified_nl_job_scope,
-                            context_owner=context_artifact_owner,
-                            repo_root=self._repo_root,
-                        )
                 except Exception:
                     return False
                 return True

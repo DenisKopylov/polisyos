@@ -1,0 +1,611 @@
+[
+  {
+    "source": "policy_search/coverage.json",
+    "path": "07_Техническое_review/policy_search/coverage.json",
+    "source_sha256": "d401e96f6763c7e1b5326e7b921a8525142b98affab9868985b0eac24c84fa4b",
+    "packaged_sha256": "d401e96f6763c7e1b5326e7b921a8525142b98affab9868985b0eac24c84fa4b",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/findings.json",
+    "path": "07_Техническое_review/policy_search/findings.json",
+    "source_sha256": "9ee47e37cf50f8276a348a984c4bac3c2befaa3f2625c43f53e6e99332dc0e42",
+    "packaged_sha256": "9ee47e37cf50f8276a348a984c4bac3c2befaa3f2625c43f53e6e99332dc0e42",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/independent_arithmetic.json",
+    "path": "07_Техническое_review/policy_search/independent_arithmetic.json",
+    "source_sha256": "5bba72b0279c54b9681209305e1befcb1652bfc9bf7e4e45e0a16d497560120f",
+    "packaged_sha256": "5bba72b0279c54b9681209305e1befcb1652bfc9bf7e4e45e0a16d497560120f",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/independent_arithmetic.py",
+    "path": "07_Техническое_review/policy_search/independent_arithmetic.py",
+    "source_sha256": "5ab8485a43ee964fac7d2b24f12d44efafb10672e37f11649c72622d0a1dfce8",
+    "packaged_sha256": "5ab8485a43ee964fac7d2b24f12d44efafb10672e37f11649c72622d0a1dfce8",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/lane_reviews.json",
+    "path": "07_Техническое_review/policy_search/lane_reviews.json",
+    "source_sha256": "6203303078efc60e44856d0c39ac5972f7e82210a5fc98e6540ce1b685e72a2c",
+    "packaged_sha256": "6203303078efc60e44856d0c39ac5972f7e82210a5fc98e6540ce1b685e72a2c",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/library_decisions.json",
+    "path": "07_Техническое_review/policy_search/library_decisions.json",
+    "source_sha256": "a26781caaf509b7ab0399ccdef6eba8761617ba61a7e5848878d4b2d8e9941dc",
+    "packaged_sha256": "a26781caaf509b7ab0399ccdef6eba8761617ba61a7e5848878d4b2d8e9941dc",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_ACQ-01.txt",
+    "path": "07_Техническое_review/policy_search/owners_ACQ-01.txt",
+    "source_sha256": "59f2cbce467ddc4415e37a504a3646647e456dd6ec7799bda7064963b03db140",
+    "packaged_sha256": "59f2cbce467ddc4415e37a504a3646647e456dd6ec7799bda7064963b03db140",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_CTL-01.txt",
+    "path": "07_Техническое_review/policy_search/owners_CTL-01.txt",
+    "source_sha256": "d3212450a82e3489888d5d666c9ff71a22a04e17b523b1e1df18fe9acfb15f38",
+    "packaged_sha256": "d3212450a82e3489888d5d666c9ff71a22a04e17b523b1e1df18fe9acfb15f38",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_CTL-02.txt",
+    "path": "07_Техническое_review/policy_search/owners_CTL-02.txt",
+    "source_sha256": "1919cd0f114d9a7b2590f949f25faec0969841bbc8d897b504760f3c734b77ef",
+    "packaged_sha256": "1919cd0f114d9a7b2590f949f25faec0969841bbc8d897b504760f3c734b77ef",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_CTL-03.txt",
+    "path": "07_Техническое_review/policy_search/owners_CTL-03.txt",
+    "source_sha256": "22c6fed2d7988df27e58f853b1ff3ca3e4ea9de815bcb993c1129f4eaa75f99e",
+    "packaged_sha256": "22c6fed2d7988df27e58f853b1ff3ca3e4ea9de815bcb993c1129f4eaa75f99e",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_CYC-01.txt",
+    "path": "07_Техническое_review/policy_search/owners_CYC-01.txt",
+    "source_sha256": "be651a1105377e5d2c53054ca9a14b164cd04ab45a679bad94ec8ed612ce09bf",
+    "packaged_sha256": "be651a1105377e5d2c53054ca9a14b164cd04ab45a679bad94ec8ed612ce09bf",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_CYC-02.txt",
+    "path": "07_Техническое_review/policy_search/owners_CYC-02.txt",
+    "source_sha256": "dbfc75003912e2bfdec0dab17e80b3e7e675f8fe23c9e898a510663007f36701",
+    "packaged_sha256": "dbfc75003912e2bfdec0dab17e80b3e7e675f8fe23c9e898a510663007f36701",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_CYC-03.txt",
+    "path": "07_Техническое_review/policy_search/owners_CYC-03.txt",
+    "source_sha256": "a869f9d1a9932065461657e2f6e55db12f340dd17f389d308c58057d3fd67270",
+    "packaged_sha256": "a869f9d1a9932065461657e2f6e55db12f340dd17f389d308c58057d3fd67270",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_CYC-04.txt",
+    "path": "07_Техническое_review/policy_search/owners_CYC-04.txt",
+    "source_sha256": "2ad7e4a3cda12b05726e95c3d0b3b8ba51bc8a5784acfa171cdf85357fc7637f",
+    "packaged_sha256": "2ad7e4a3cda12b05726e95c3d0b3b8ba51bc8a5784acfa171cdf85357fc7637f",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_CYC-05.txt",
+    "path": "07_Техническое_review/policy_search/owners_CYC-05.txt",
+    "source_sha256": "e66c7d4c2b84650c7db519e5c7b953ed0f3be7571f8aec4cdb8bb847fa1c8963",
+    "packaged_sha256": "e66c7d4c2b84650c7db519e5c7b953ed0f3be7571f8aec4cdb8bb847fa1c8963",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_FUN-01.txt",
+    "path": "07_Техническое_review/policy_search/owners_FUN-01.txt",
+    "source_sha256": "cca91af302e11c2ccc5e6a1ed8ffb41ddd6dcef955cf38f3b0ea6301772f423e",
+    "packaged_sha256": "cca91af302e11c2ccc5e6a1ed8ffb41ddd6dcef955cf38f3b0ea6301772f423e",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_FUN-02.txt",
+    "path": "07_Техническое_review/policy_search/owners_FUN-02.txt",
+    "source_sha256": "f756ecc3ccc7f16ee9f7c8c13ebd53805950768b69cd35e6a142e406a47e4027",
+    "packaged_sha256": "f756ecc3ccc7f16ee9f7c8c13ebd53805950768b69cd35e6a142e406a47e4027",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_FUN-03.txt",
+    "path": "07_Техническое_review/policy_search/owners_FUN-03.txt",
+    "source_sha256": "e185d67b1ab88c4926d07a5d85d0834e0379eca1f88ca3e0e3965f65d5325baf",
+    "packaged_sha256": "e185d67b1ab88c4926d07a5d85d0834e0379eca1f88ca3e0e3965f65d5325baf",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_OPT-01.txt",
+    "path": "07_Техническое_review/policy_search/owners_OPT-01.txt",
+    "source_sha256": "1696018c649a75661d7d4fdb81bcd91db475e17e1cffa3b94bc79671ccb178e4",
+    "packaged_sha256": "1696018c649a75661d7d4fdb81bcd91db475e17e1cffa3b94bc79671ccb178e4",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_OPT-02.txt",
+    "path": "07_Техническое_review/policy_search/owners_OPT-02.txt",
+    "source_sha256": "8e8b6644dde713d83ece39aff302b2f2d1f631ab407cbd3adcde51ec50190332",
+    "packaged_sha256": "8e8b6644dde713d83ece39aff302b2f2d1f631ab407cbd3adcde51ec50190332",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_OPT-03.txt",
+    "path": "07_Техническое_review/policy_search/owners_OPT-03.txt",
+    "source_sha256": "a275e29f46e33103f97d04c5bd1114dd02b357f2449284c969862a4ccad3e914",
+    "packaged_sha256": "a275e29f46e33103f97d04c5bd1114dd02b357f2449284c969862a4ccad3e914",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_OPT-04.txt",
+    "path": "07_Техническое_review/policy_search/owners_OPT-04.txt",
+    "source_sha256": "9a9d5dfca9065bfd2c97bbb96fa6e1af01a95a0113bb045b4ceabdb6dd2bde1f",
+    "packaged_sha256": "9a9d5dfca9065bfd2c97bbb96fa6e1af01a95a0113bb045b4ceabdb6dd2bde1f",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_REQ-01.txt",
+    "path": "07_Техническое_review/policy_search/owners_REQ-01.txt",
+    "source_sha256": "487474421ef93f0d54ede7dbbe7f2e3cd4d0f1e42e0fcd8d97834ca90b0945fd",
+    "packaged_sha256": "487474421ef93f0d54ede7dbbe7f2e3cd4d0f1e42e0fcd8d97834ca90b0945fd",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_SEL-01.txt",
+    "path": "07_Техническое_review/policy_search/owners_SEL-01.txt",
+    "source_sha256": "127e095957393db5c306186b9ab779442bab3d99739b0ea4e24ce18c941cb378",
+    "packaged_sha256": "127e095957393db5c306186b9ab779442bab3d99739b0ea4e24ce18c941cb378",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_SIM-01.txt",
+    "path": "07_Техническое_review/policy_search/owners_SIM-01.txt",
+    "source_sha256": "332bb3c346b989430bbf84fb688264663cde2a9b431d94f3191360bbfa9f2868",
+    "packaged_sha256": "332bb3c346b989430bbf84fb688264663cde2a9b431d94f3191360bbfa9f2868",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_SIM-02.txt",
+    "path": "07_Техническое_review/policy_search/owners_SIM-02.txt",
+    "source_sha256": "6af673c92388a577f6f45459c2a438666296209240463b2d4cbb4a334097b0ec",
+    "packaged_sha256": "6af673c92388a577f6f45459c2a438666296209240463b2d4cbb4a334097b0ec",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_SIM-03.txt",
+    "path": "07_Техническое_review/policy_search/owners_SIM-03.txt",
+    "source_sha256": "174ed64005a559eae65551e20214a4c7ff3cd4d566fd4f045b24b5726fc45290",
+    "packaged_sha256": "174ed64005a559eae65551e20214a4c7ff3cd4d566fd4f045b24b5726fc45290",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_SRV-01.txt",
+    "path": "07_Техническое_review/policy_search/owners_SRV-01.txt",
+    "source_sha256": "f69410550e7fab9f7e7570c6cdfcaef80d73a2fd98c4205ce25e6a861a99aaaa",
+    "packaged_sha256": "f69410550e7fab9f7e7570c6cdfcaef80d73a2fd98c4205ce25e6a861a99aaaa",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_SRV-03.txt",
+    "path": "07_Техническое_review/policy_search/owners_SRV-03.txt",
+    "source_sha256": "8dc96ae1c61b787d150f0cbcdf39f892fb40c3d4a68bd821de2b88b350be0dbe",
+    "packaged_sha256": "8dc96ae1c61b787d150f0cbcdf39f892fb40c3d4a68bd821de2b88b350be0dbe",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_STP-01.txt",
+    "path": "07_Техническое_review/policy_search/owners_STP-01.txt",
+    "source_sha256": "4a69228d76c767723473ccbde7852bc86c4cea4d44b8ea86e9247aa0bc479597",
+    "packaged_sha256": "4a69228d76c767723473ccbde7852bc86c4cea4d44b8ea86e9247aa0bc479597",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_TRN-01.txt",
+    "path": "07_Техническое_review/policy_search/owners_TRN-01.txt",
+    "source_sha256": "8427415f4ced9a18a49ee61fb1623a26148c60a7c5d33e43040b7d4f57a2a48c",
+    "packaged_sha256": "8427415f4ced9a18a49ee61fb1623a26148c60a7c5d33e43040b7d4f57a2a48c",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_TRN-02.txt",
+    "path": "07_Техническое_review/policy_search/owners_TRN-02.txt",
+    "source_sha256": "1cc24be22cc521975301f6a5906fb5c1b6eb1dd36c4549fa8a625e50728cdb17",
+    "packaged_sha256": "1cc24be22cc521975301f6a5906fb5c1b6eb1dd36c4549fa8a625e50728cdb17",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/owners_TRN-03.txt",
+    "path": "07_Техническое_review/policy_search/owners_TRN-03.txt",
+    "source_sha256": "aefcf7d175cfd499210632e242ca7323a1bd7982854385e694b36401ae2a8332",
+    "packaged_sha256": "aefcf7d175cfd499210632e242ca7323a1bd7982854385e694b36401ae2a8332",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/packet_reviews.json",
+    "path": "07_Техническое_review/policy_search/packet_reviews.json",
+    "source_sha256": "bbbfb52593ecf33105f2e1fd6788299cb9b00daca00f48212b13f448e916b350",
+    "packaged_sha256": "bbbfb52593ecf33105f2e1fd6788299cb9b00daca00f48212b13f448e916b350",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/proposed_changes.json",
+    "path": "07_Техническое_review/policy_search/proposed_changes.json",
+    "source_sha256": "b2fcd435fa4e4eefe22991c1dd8a9c7e0341f33c107440291be1e8b5bc69be10",
+    "packaged_sha256": "b2fcd435fa4e4eefe22991c1dd8a9c7e0341f33c107440291be1e8b5bc69be10",
+    "transformation": "none"
+  },
+  {
+    "source": "policy_search/review.md",
+    "path": "07_Техническое_review/policy_search/review.md",
+    "source_sha256": "d8e0ecf4058c927330108140f8b8c83e5ef79e2b8bb179881eaa80fc2c1b0338",
+    "packaged_sha256": "a2e891f917fa5123c3c3995a737f14f67f2d4bfb57587a2227fe2ef3c9cf7234",
+    "transformation": "Portable links and nontechnical coordination/status wording adapted; substantive review unchanged"
+  },
+  {
+    "source": "policy_search/sources.json",
+    "path": "07_Техническое_review/policy_search/sources.json",
+    "source_sha256": "4b413851e4ace69ce08a72101cf7e9f07843e5db17d9c8b4e4a94b4a9f606d03",
+    "packaged_sha256": "4b413851e4ace69ce08a72101cf7e9f07843e5db17d9c8b4e4a94b4a9f606d03",
+    "transformation": "none"
+  },
+  {
+    "source": "foundry_numeric/coverage.json",
+    "path": "07_Техническое_review/foundry_numeric/coverage.json",
+    "source_sha256": "e6faf2aeef4575d4e010b0697664e2e701ba2caf213f22bd1cabb06f69dcfceb",
+    "packaged_sha256": "e6faf2aeef4575d4e010b0697664e2e701ba2caf213f22bd1cabb06f69dcfceb",
+    "transformation": "none"
+  },
+  {
+    "source": "foundry_numeric/findings.json",
+    "path": "07_Техническое_review/foundry_numeric/findings.json",
+    "source_sha256": "66f3136404af4ad9112a6a5f510f7eacd3e384be34c6a63f70df322752f20284",
+    "packaged_sha256": "66f3136404af4ad9112a6a5f510f7eacd3e384be34c6a63f70df322752f20284",
+    "transformation": "none"
+  },
+  {
+    "source": "foundry_numeric/independent_arithmetic.json",
+    "path": "07_Техническое_review/foundry_numeric/independent_arithmetic.json",
+    "source_sha256": "52de6ef57fc4a7ef82042df455494b2cac8b01617656450e667d70ac5c7987ef",
+    "packaged_sha256": "52de6ef57fc4a7ef82042df455494b2cac8b01617656450e667d70ac5c7987ef",
+    "transformation": "none"
+  },
+  {
+    "source": "foundry_numeric/library_decisions.json",
+    "path": "07_Техническое_review/foundry_numeric/library_decisions.json",
+    "source_sha256": "e76633e7ac43b0b3fe6d388d856e772b81974f1e022ec2aea3f81e778dced0bc",
+    "packaged_sha256": "e76633e7ac43b0b3fe6d388d856e772b81974f1e022ec2aea3f81e778dced0bc",
+    "transformation": "none"
+  },
+  {
+    "source": "foundry_numeric/peer_delta_01.json",
+    "path": "07_Техническое_review/foundry_numeric/peer_delta_01.json",
+    "source_sha256": "0945f4752c7325782f5f657b5ef841e4e3499d495ca5d31497f8beb2baf9629d",
+    "packaged_sha256": "0945f4752c7325782f5f657b5ef841e4e3499d495ca5d31497f8beb2baf9629d",
+    "transformation": "none"
+  },
+  {
+    "source": "foundry_numeric/proposed_changes.json",
+    "path": "07_Техническое_review/foundry_numeric/proposed_changes.json",
+    "source_sha256": "ef47f4705194424ddaedd023f536c9b9d4d3f6f3cca6104d7da13f95bf64a39c",
+    "packaged_sha256": "ef47f4705194424ddaedd023f536c9b9d4d3f6f3cca6104d7da13f95bf64a39c",
+    "transformation": "none"
+  },
+  {
+    "source": "foundry_numeric/review.md",
+    "path": "07_Техническое_review/foundry_numeric/review.md",
+    "source_sha256": "6fed7a3e1c043fa0e83af57c34be5566c5e8a79086a5b5c21710325f8b59055d",
+    "packaged_sha256": "a860274583ef7801843df8059d71878fcf10db148965b72a6ba8ff5fca4ecefc",
+    "transformation": "Portable links and nontechnical coordination/status wording adapted; substantive review unchanged"
+  },
+  {
+    "source": "causal_statistics/arithmetic_counterexamples.json",
+    "path": "07_Техническое_review/causal_statistics/arithmetic_counterexamples.json",
+    "source_sha256": "fc5e1a96c29196cf1bd0da0496659c0474eee6153c6d5ee74873f34c7fd8fa76",
+    "packaged_sha256": "fc5e1a96c29196cf1bd0da0496659c0474eee6153c6d5ee74873f34c7fd8fa76",
+    "transformation": "none"
+  },
+  {
+    "source": "causal_statistics/coverage.json",
+    "path": "07_Техническое_review/causal_statistics/coverage.json",
+    "source_sha256": "cdc5dffe91a9f670a8ee1f21c01d332d53b9a3f83597b3c51241a999b08b647c",
+    "packaged_sha256": "cdc5dffe91a9f670a8ee1f21c01d332d53b9a3f83597b3c51241a999b08b647c",
+    "transformation": "none"
+  },
+  {
+    "source": "causal_statistics/findings.json",
+    "path": "07_Техническое_review/causal_statistics/findings.json",
+    "source_sha256": "d2ef72a51d87beb7cfb7e2ecb616b23875e44cc9498c77138a8860a00144339e",
+    "packaged_sha256": "d2ef72a51d87beb7cfb7e2ecb616b23875e44cc9498c77138a8860a00144339e",
+    "transformation": "none"
+  },
+  {
+    "source": "causal_statistics/independent_oracles.py",
+    "path": "07_Техническое_review/causal_statistics/independent_oracles.py",
+    "source_sha256": "2d31947c335f18994137a8eb4fff217646641da15140a31c333f6eedd566340e",
+    "packaged_sha256": "2d31947c335f18994137a8eb4fff217646641da15140a31c333f6eedd566340e",
+    "transformation": "none"
+  },
+  {
+    "source": "causal_statistics/library_decisions.json",
+    "path": "07_Техническое_review/causal_statistics/library_decisions.json",
+    "source_sha256": "21e9bb5620f5106f2b24d5c8398a11e4b0a9e5600a1c7eb06cb6bacc59235edb",
+    "packaged_sha256": "21e9bb5620f5106f2b24d5c8398a11e4b0a9e5600a1c7eb06cb6bacc59235edb",
+    "transformation": "none"
+  },
+  {
+    "source": "causal_statistics/proposed_changes.json",
+    "path": "07_Техническое_review/causal_statistics/proposed_changes.json",
+    "source_sha256": "19ea2cc88d463b34284c9a10fa621b4fed2de92808b3fea4cde0005673fd4687",
+    "packaged_sha256": "19ea2cc88d463b34284c9a10fa621b4fed2de92808b3fea4cde0005673fd4687",
+    "transformation": "none"
+  },
+  {
+    "source": "causal_statistics/review.md",
+    "path": "07_Техническое_review/causal_statistics/review.md",
+    "source_sha256": "69a2f3d8872c33d52edc73a7b1c62d21a2b4b08a91b95b530d8320e447810c4e",
+    "packaged_sha256": "69a2f3d8872c33d52edc73a7b1c62d21a2b4b08a91b95b530d8320e447810c4e",
+    "transformation": "none"
+  },
+  {
+    "source": "causal_statistics/review_fabric_v2.json",
+    "path": "07_Техническое_review/causal_statistics/review_fabric_v2.json",
+    "source_sha256": "e5f620f30dbc0d51a99fe0654495cdcd438a5ca85f3dfb4d4f7c47ea5d1e7282",
+    "packaged_sha256": "e5f620f30dbc0d51a99fe0654495cdcd438a5ca85f3dfb4d4f7c47ea5d1e7282",
+    "transformation": "none"
+  },
+  {
+    "source": "causal_statistics/review_fabric_v2.md",
+    "path": "07_Техническое_review/causal_statistics/review_fabric_v2.md",
+    "source_sha256": "6f201067223066e813b48b2ac8746152ac18803600622465b3904ef8f291c145",
+    "packaged_sha256": "6f201067223066e813b48b2ac8746152ac18803600622465b3904ef8f291c145",
+    "transformation": "none"
+  },
+  {
+    "source": "causal_statistics/review_foundry_arithmetic.json",
+    "path": "07_Техническое_review/causal_statistics/review_foundry_arithmetic.json",
+    "source_sha256": "14d626ee1797cd06f0afa21c2d1f9ce94bac398f36abac4cbe06f517f43d88f6",
+    "packaged_sha256": "14d626ee1797cd06f0afa21c2d1f9ce94bac398f36abac4cbe06f517f43d88f6",
+    "transformation": "none"
+  },
+  {
+    "source": "causal_statistics/review_foundry_arithmetic.py",
+    "path": "07_Техническое_review/causal_statistics/review_foundry_arithmetic.py",
+    "source_sha256": "b91aeb12e1305eb5957f20b9dd4097b8d95359a4d17c51197edc81757ccc55bb",
+    "packaged_sha256": "b91aeb12e1305eb5957f20b9dd4097b8d95359a4d17c51197edc81757ccc55bb",
+    "transformation": "none"
+  },
+  {
+    "source": "causal_statistics/review_foundry_v2.json",
+    "path": "07_Техническое_review/causal_statistics/review_foundry_v2.json",
+    "source_sha256": "766c15573836e5e47ee8de18f73b60d5f51c5e63f8aa306fa862249680b79de3",
+    "packaged_sha256": "766c15573836e5e47ee8de18f73b60d5f51c5e63f8aa306fa862249680b79de3",
+    "transformation": "none"
+  },
+  {
+    "source": "causal_statistics/review_foundry_v2.md",
+    "path": "07_Техническое_review/causal_statistics/review_foundry_v2.md",
+    "source_sha256": "7171d9b87718767f685239dce34db5bf62f49c6409683f6fe500ba928b559342",
+    "packaged_sha256": "7171d9b87718767f685239dce34db5bf62f49c6409683f6fe500ba928b559342",
+    "transformation": "none"
+  },
+  {
+    "source": "runtime_delivery/coverage.json",
+    "path": "07_Техническое_review/runtime_delivery/coverage.json",
+    "source_sha256": "840fbb705b1443dd69a4489465f8bda0aa0ed989f69762e0713727ff5e79b12c",
+    "packaged_sha256": "840fbb705b1443dd69a4489465f8bda0aa0ed989f69762e0713727ff5e79b12c",
+    "transformation": "none"
+  },
+  {
+    "source": "runtime_delivery/findings.json",
+    "path": "07_Техническое_review/runtime_delivery/findings.json",
+    "source_sha256": "96a65a6a6bdea6048a70d459a0a06e57e9a8974632812970307b6ca2b705c86b",
+    "packaged_sha256": "96a65a6a6bdea6048a70d459a0a06e57e9a8974632812970307b6ca2b705c86b",
+    "transformation": "none"
+  },
+  {
+    "source": "runtime_delivery/library_decisions.json",
+    "path": "07_Техническое_review/runtime_delivery/library_decisions.json",
+    "source_sha256": "428a1d468c194468f9ef8469ca5df9850369006282285ca0e92fc7efe0d4aaa1",
+    "packaged_sha256": "428a1d468c194468f9ef8469ca5df9850369006282285ca0e92fc7efe0d4aaa1",
+    "transformation": "none"
+  },
+  {
+    "source": "runtime_delivery/proposed_changes.json",
+    "path": "07_Техническое_review/runtime_delivery/proposed_changes.json",
+    "source_sha256": "a506ea9b2e288af55212d93b06e98cecb051d62f44883421c0703680447f7514",
+    "packaged_sha256": "a506ea9b2e288af55212d93b06e98cecb051d62f44883421c0703680447f7514",
+    "transformation": "none"
+  },
+  {
+    "source": "runtime_delivery/review.md",
+    "path": "07_Техническое_review/runtime_delivery/review.md",
+    "source_sha256": "03647579c276e9b9867abd01dbfd513dc2c62c2e96ee71419eb4898c09950963",
+    "packaged_sha256": "03647579c276e9b9867abd01dbfd513dc2c62c2e96ee71419eb4898c09950963",
+    "transformation": "none"
+  },
+  {
+    "source": "runtime_delivery/review_causal_v2.json",
+    "path": "07_Техническое_review/runtime_delivery/review_causal_v2.json",
+    "source_sha256": "467f43b608f248e39098f0ec6d01f344e5e1cff3cbb34df808468d0ed98e44d7",
+    "packaged_sha256": "467f43b608f248e39098f0ec6d01f344e5e1cff3cbb34df808468d0ed98e44d7",
+    "transformation": "none"
+  },
+  {
+    "source": "runtime_delivery/review_causal_v2.md",
+    "path": "07_Техническое_review/runtime_delivery/review_causal_v2.md",
+    "source_sha256": "ee9301eab9b0ad86496a15b0f365dd1d79e58a7dcb881c8d5fbca4abf61db25e",
+    "packaged_sha256": "ee9301eab9b0ad86496a15b0f365dd1d79e58a7dcb881c8d5fbca4abf61db25e",
+    "transformation": "none"
+  },
+  {
+    "source": "runtime_delivery/review_common_v2.json",
+    "path": "07_Техническое_review/runtime_delivery/review_common_v2.json",
+    "source_sha256": "cfe62d9fd0b53a238172cd12bd03d5af5d0b3745e016fecff6d059b38346aa04",
+    "packaged_sha256": "cfe62d9fd0b53a238172cd12bd03d5af5d0b3745e016fecff6d059b38346aa04",
+    "transformation": "none"
+  },
+  {
+    "source": "runtime_delivery/review_common_v2.md",
+    "path": "07_Техническое_review/runtime_delivery/review_common_v2.md",
+    "source_sha256": "510b125bfb752c8431fd108eb8a497f93ec4b066df26a719282087817e437760",
+    "packaged_sha256": "510b125bfb752c8431fd108eb8a497f93ec4b066df26a719282087817e437760",
+    "transformation": "none"
+  },
+  {
+    "source": "fabric_acquisition/coverage.json",
+    "path": "07_Техническое_review/fabric_acquisition/coverage.json",
+    "source_sha256": "b8adbd9449561fa83dbe11b2f8fe2246791763cb3a399fe7319242498cac5afb",
+    "packaged_sha256": "b8adbd9449561fa83dbe11b2f8fe2246791763cb3a399fe7319242498cac5afb",
+    "transformation": "none"
+  },
+  {
+    "source": "fabric_acquisition/findings.json",
+    "path": "07_Техническое_review/fabric_acquisition/findings.json",
+    "source_sha256": "d9955ad1b4c509f9ae186000af995c01e59f361cbf6a2ddd740b4aed4f6117e8",
+    "packaged_sha256": "d9955ad1b4c509f9ae186000af995c01e59f361cbf6a2ddd740b4aed4f6117e8",
+    "transformation": "none"
+  },
+  {
+    "source": "fabric_acquisition/independent_arithmetic.json",
+    "path": "07_Техническое_review/fabric_acquisition/independent_arithmetic.json",
+    "source_sha256": "0663b175d25d7b90ed1f22c370df11ab886030013866462e3e25c93d0c5e84c4",
+    "packaged_sha256": "0663b175d25d7b90ed1f22c370df11ab886030013866462e3e25c93d0c5e84c4",
+    "transformation": "none"
+  },
+  {
+    "source": "fabric_acquisition/library_decisions.json",
+    "path": "07_Техническое_review/fabric_acquisition/library_decisions.json",
+    "source_sha256": "074419364db30415bffde22af6d1eae620daaba1c04b01dda1043490d96b4e4c",
+    "packaged_sha256": "074419364db30415bffde22af6d1eae620daaba1c04b01dda1043490d96b4e4c",
+    "transformation": "none"
+  },
+  {
+    "source": "fabric_acquisition/packet_reviews.json",
+    "path": "07_Техническое_review/fabric_acquisition/packet_reviews.json",
+    "source_sha256": "251ab3a3bf9cb4a8a48cc05243f2efc31c6d35a2c213a1c5841b83180df2c173",
+    "packaged_sha256": "251ab3a3bf9cb4a8a48cc05243f2efc31c6d35a2c213a1c5841b83180df2c173",
+    "transformation": "none"
+  },
+  {
+    "source": "fabric_acquisition/packet_verdicts.json",
+    "path": "07_Техническое_review/fabric_acquisition/packet_verdicts.json",
+    "source_sha256": "8d5f24184735864784ca5d8d96fb6c5b307471cdccd623833b6075014851bfe2",
+    "packaged_sha256": "8d5f24184735864784ca5d8d96fb6c5b307471cdccd623833b6075014851bfe2",
+    "transformation": "none"
+  },
+  {
+    "source": "fabric_acquisition/proposal_validation.json",
+    "path": "07_Техническое_review/fabric_acquisition/proposal_validation.json",
+    "source_sha256": "b97ee30a25673353d1d29fbfee30a3c4897328885a6711822518b6b245d3bc73",
+    "packaged_sha256": "b97ee30a25673353d1d29fbfee30a3c4897328885a6711822518b6b245d3bc73",
+    "transformation": "none"
+  },
+  {
+    "source": "fabric_acquisition/proposed_changes.json",
+    "path": "07_Техническое_review/fabric_acquisition/proposed_changes.json",
+    "source_sha256": "64a0b1e95e5e966b6c5083415e757366fe2ad7c279e5d11d34bfbd0b9eb47934",
+    "packaged_sha256": "64a0b1e95e5e966b6c5083415e757366fe2ad7c279e5d11d34bfbd0b9eb47934",
+    "transformation": "none"
+  },
+  {
+    "source": "fabric_acquisition/review.md",
+    "path": "07_Техническое_review/fabric_acquisition/review.md",
+    "source_sha256": "2caf5257214bd03d3b0316f8151b2bb48016448a657c72584d5825de8dd82950",
+    "packaged_sha256": "2caf5257214bd03d3b0316f8151b2bb48016448a657c72584d5825de8dd82950",
+    "transformation": "none"
+  },
+  {
+    "source": "fabric_acquisition/review_policy_v2.json",
+    "path": "07_Техническое_review/fabric_acquisition/review_policy_v2.json",
+    "source_sha256": "9e2dedae9d9702049da4f1f950c334286cf492bb7b8b517e67b356d5f92073b9",
+    "packaged_sha256": "9e2dedae9d9702049da4f1f950c334286cf492bb7b8b517e67b356d5f92073b9",
+    "transformation": "none"
+  },
+  {
+    "source": "fabric_acquisition/review_policy_v2.md",
+    "path": "07_Техническое_review/fabric_acquisition/review_policy_v2.md",
+    "source_sha256": "fe43efd565c9e1993c8a31e515c59d53f8adafb5db3dccc2aa3d243701646aab",
+    "packaged_sha256": "fe43efd565c9e1993c8a31e515c59d53f8adafb5db3dccc2aa3d243701646aab",
+    "transformation": "none"
+  },
+  {
+    "source": "generalization/common_proposed_changes.json",
+    "path": "07_Техническое_review/generalization/common_proposed_changes.json",
+    "source_sha256": "9d538759856e20737cbaa5f4cecfcca3436e7db0b33f6ee83155dbcd93153cfc",
+    "packaged_sha256": "9d538759856e20737cbaa5f4cecfcca3436e7db0b33f6ee83155dbcd93153cfc",
+    "transformation": "none"
+  },
+  {
+    "source": "generalization/common_validation.json",
+    "path": "07_Техническое_review/generalization/common_validation.json",
+    "source_sha256": "49814a520def4b9323d6037cb26664414e3845351dca4236e0b065d6c8165a63",
+    "packaged_sha256": "49814a520def4b9323d6037cb26664414e3845351dca4236e0b065d6c8165a63",
+    "transformation": "none"
+  },
+  {
+    "source": "generalization/coverage.json",
+    "path": "07_Техническое_review/generalization/coverage.json",
+    "source_sha256": "fd975f9fda738f94b721f367a999227c2d25274d876a6e7748ce20795aaa93a2",
+    "packaged_sha256": "fd975f9fda738f94b721f367a999227c2d25274d876a6e7748ce20795aaa93a2",
+    "transformation": "none"
+  },
+  {
+    "source": "generalization/findings.json",
+    "path": "07_Техническое_review/generalization/findings.json",
+    "source_sha256": "63a0960bef6b2b7d24c64f2693e8310800ffbffbfacfc470e42e07940b36ba84",
+    "packaged_sha256": "63a0960bef6b2b7d24c64f2693e8310800ffbffbfacfc470e42e07940b36ba84",
+    "transformation": "none"
+  },
+  {
+    "source": "generalization/independent_capacity_oracle.json",
+    "path": "07_Техническое_review/generalization/independent_capacity_oracle.json",
+    "source_sha256": "a5149c306936a212d3987a0d702421276ffdd1d50f6b0fe1e9865e1eb8ad7c1c",
+    "packaged_sha256": "a5149c306936a212d3987a0d702421276ffdd1d50f6b0fe1e9865e1eb8ad7c1c",
+    "transformation": "none"
+  },
+  {
+    "source": "generalization/library_decisions.json",
+    "path": "07_Техническое_review/generalization/library_decisions.json",
+    "source_sha256": "45cc48f694444a982a882233ac77e627056de7c375d6f01616bd127999dba338",
+    "packaged_sha256": "45cc48f694444a982a882233ac77e627056de7c375d6f01616bd127999dba338",
+    "transformation": "none"
+  },
+  {
+    "source": "generalization/review.md",
+    "path": "07_Техническое_review/generalization/review.md",
+    "source_sha256": "80620bb8ec81789805c923970609e43150cf52ca643ebcfbd90d84be84cf7cf7",
+    "packaged_sha256": "82d4af540af68ff0998ff304eac643771bccd26c0bc32910ca3caeec701e097f",
+    "transformation": "Portable links and nontechnical coordination/status wording adapted; substantive review unchanged"
+  },
+  {
+    "source": "generalization/review_runtime_v2.json",
+    "path": "07_Техническое_review/generalization/review_runtime_v2.json",
+    "source_sha256": "7cfb37d94fcf83c6010a9dc5ca5239d78b1d730d0f301ba648f984987ea6d746",
+    "packaged_sha256": "7cfb37d94fcf83c6010a9dc5ca5239d78b1d730d0f301ba648f984987ea6d746",
+    "transformation": "none"
+  },
+  {
+    "source": "generalization/review_runtime_v2.md",
+    "path": "07_Техническое_review/generalization/review_runtime_v2.md",
+    "source_sha256": "11be83570200e64d2c2fcb778cf4c8fa7ad8570ef38d3ccb741a693ffcb0bb43",
+    "packaged_sha256": "11be83570200e64d2c2fcb778cf4c8fa7ad8570ef38d3ccb741a693ffcb0bb43",
+    "transformation": "none"
+  },
+  {
+    "source": "generalization/sources.json",
+    "path": "07_Техническое_review/generalization/sources.json",
+    "source_sha256": "0ea2a1e6873ee6df569031acc6f37d3f5020cf4fb9ee0da513833265c6e67c5b",
+    "packaged_sha256": "0ea2a1e6873ee6df569031acc6f37d3f5020cf4fb9ee0da513833265c6e67c5b",
+    "transformation": "none"
+  }
+]

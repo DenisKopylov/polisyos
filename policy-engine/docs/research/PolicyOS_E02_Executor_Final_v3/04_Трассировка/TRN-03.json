@@ -1,0 +1,479 @@
+{
+  "packet_id": "TRN-03",
+  "lane": "LANE-02",
+  "title": "Предметный context и согласованные evidence clocks",
+  "document_status": "EXECUTOR_SPEC_NOT_EXECUTED",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "source_ids": [
+    "B135",
+    "B136",
+    "B137"
+  ],
+  "audit_reports": [
+    "02_Пакеты/TRN-03.md"
+  ],
+  "audit_report_sha256": "f984372d2400762213d2df56b972cec6add2755159c4df2c7810a455b76fde77",
+  "sourceplan_lines": [
+    3301,
+    3412
+  ],
+  "practical_goal": "Полезный lesson переносится по явным фильтрам, не омолаживается чтением и одинаково объясняется в search и report после restart.",
+  "requirements": [
+    {
+      "id": "REQ-TRN-03-01",
+      "text": "Typed/JSON timestamp имеет timezone-aware contract до age arithmetic; explicit subject и live tenant ownership сохраняются.",
+      "source_ids": [
+        "B135",
+        "B136",
+        "B137"
+      ],
+      "audit_ids": [
+        "remaining:0230",
+        "remaining:0231",
+        "remaining:0235",
+        "preserve:0347",
+        "preserve:0348",
+        "preserve:0349",
+        "audit-residual:C27_остатки:1"
+      ],
+      "test_ids": [
+        "TEST-TRN-03-01"
+      ]
+    },
+    {
+      "id": "REQ-TRN-03-02",
+      "text": "Query, top_patterns и calibration lesson projection явно различают historical и current effective grade.",
+      "source_ids": [
+        "B135",
+        "B136",
+        "B137"
+      ],
+      "audit_ids": [
+        "remaining:0233",
+        "preserve:0353",
+        "audit-residual:C27_остатки:0"
+      ],
+      "test_ids": [
+        "TEST-TRN-03-02"
+      ]
+    },
+    {
+      "id": "REQ-TRN-03-03",
+      "text": "Initial transfer и target restart имеют одинаковую обоснованную evidence freshness.",
+      "source_ids": [
+        "B135",
+        "B136",
+        "B137"
+      ],
+      "audit_ids": [
+        "remaining:0234",
+        "remaining:0236",
+        "preserve:0352",
+        "preserve:0353",
+        "preserve:0355",
+        "audit-residual:C27_остатки:2",
+        "audit-residual:C27_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-TRN-03-03"
+      ]
+    },
+    {
+      "id": "REQ-TRN-03-04",
+      "text": "Квалифицировать native funnel→lesson→search и общие local/transfer predicates без лишней materialization.",
+      "source_ids": [
+        "B135",
+        "B136",
+        "B137"
+      ],
+      "audit_ids": [
+        "remaining:0231",
+        "remaining:0232",
+        "remaining:0236",
+        "preserve:0349",
+        "preserve:0350",
+        "preserve:0351",
+        "preserve:0352",
+        "preserve:0354",
+        "audit-residual:C27_остатки:3"
+      ],
+      "test_ids": [
+        "TEST-TRN-03-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-TRN-03-01",
+      "requirement_ids": [
+        "REQ-TRN-03-01"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Typed и JSON education/discovery/r, aware UTC и +03:00 того же instant; naive2020-01-01; real test tenant owner и forged authenticated label.",
+      "action": "Resolve→compute_provenance_weight→lesson query/transfer; same-scope важно для достижения age branch.",
+      "oracle": "Aware варианты дают одинаковый age; naive отказ до TypeError; defaults не затирают explicit fields; live owner определяет tenant.",
+      "expected": "Неизвестная область isolated fallback; новый subject требует согласованного context, не arbitrary override права.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-TRN-03-02",
+      "requirement_ids": [
+        "REQ-TRN-03-02"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "100-day .9/local lesson при TTL90, now fixed; cold/warm/fresh registry и persisted snapshot report.",
+      "action": "Query→top_patterns→build_calibration_report→JSON/Markdown→fresh reader.",
+      "oracle": "Тот же ref имеет current .5/low_confidence всюду либо явно historical .9 отдельно; strict .8/local query пуст; clocks объяснены.",
+      "expected": "Чтения не empirical revalidation; отсутствие возраста не превращается в current .9; старую полезную идею не удалять.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-TRN-03-03",
+      "requirement_ids": [
+        "REQ-TRN-03-03"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Новая и затем100-day карточка одной signature, selected old ref; immediate transfer→new target process; отдельное verified new assessment с source ref и invalidation.",
+      "action": "Materialize→persist target→fresh query; source anchor missing/revoked и allowed assessment update.",
+      "oracle": "Conservative path сразу и после restart .5/low_confidence; actual new assessment может создать новую связанную версию, не переписать old evidence; invalid source не materializes.",
+      "expected": "Existing conservative restart test сохраняется; .9 не восстановить простым переносом агрегатного last_seen.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    },
+    {
+      "id": "TEST-TRN-03-04",
+      "requirement_ids": [
+        "REQ-TRN-03-04"
+      ],
+      "status": "NOT_RUN",
+      "level": "native targeted contract + actual affected consumer; P-CORE/P-JAX по выбранному пути",
+      "setup": "Actual authorised source/store/profile, разрешённый .9 source fiscal→labor с weight.65; old source.5→weight.325; invalid trust/threshold/source_run; matching lower-ranked candidate.",
+      "action": "Funnel→persisted lesson→fresh registry→actual hint consumer; повторные reads и source invalidation.",
+      "oracle": "Полезный разрешённый hint доходит с source_run/origin_domain/target namespace; rejected results не создают writes; limit1 заполняется подходящим after-filter; repeated reads0 CAS writes и ≤1 daily sidecar update.",
+      "expected": "Confidence/TTL/provenance weight — внутренние правила, не probability истинности. Empirical revalidation требует конкретного source procedure, не marker/ref alone.",
+      "evidence_required": "Точный base/patch, команда и exit/skip, исходные inputs/refs, полный различающий assertion и сохранённый результат. Positive и negative выполняются на одном квалифицированном срезе.",
+      "allowed_doubles": "Допустим контролируемый внешний транспорт/LLM и временный разрешённый store; проверяемый алгоритм, identity, реальный numerical owner, сериализатор и consumer не заменяются success-shaped stubs."
+    }
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C27_остатки:0",
+      "requirement_ids": [
+        "REQ-TRN-03-02"
+      ],
+      "rationale": "Current effective grade versus raw historical.",
+      "disposition": "fix",
+      "audit_id": "C27-R01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C27_остатки:1",
+      "requirement_ids": [
+        "REQ-TRN-03-01"
+      ],
+      "rationale": "Naive refused before arithmetic.",
+      "disposition": "fix",
+      "audit_id": "C27-R02",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C27_остатки:2",
+      "requirement_ids": [
+        "REQ-TRN-03-03"
+      ],
+      "rationale": "Conservative initial projection or resolved new assessment.",
+      "disposition": "fix",
+      "audit_id": "C27-G01",
+      "shared_owner": null
+    },
+    {
+      "inventory_id": "audit-residual:C27_остатки:3",
+      "requirement_ids": [
+        "REQ-TRN-03-03",
+        "REQ-TRN-03-04"
+      ],
+      "rationale": "Actual source/access/revalidation, not confidence probability.",
+      "disposition": "qualify",
+      "audit_id": "C27-G02",
+      "shared_owner": null
+    },
+    {
+      "audit_id": "B135",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-TRN-03-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B136",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-TRN-03-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    },
+    {
+      "audit_id": "B137",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-TRN-03-02",
+        "REQ-TRN-03-03",
+        "REQ-TRN-03-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Исходный критерий покрыт указанными конкретными REQ; старое описание не объявляется текущим дефектом там, где механизм уже существует."
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0230",
+      "requirement_ids": [
+        "REQ-TRN-03-01"
+      ],
+      "rationale": "Timezone boundary.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0231",
+      "requirement_ids": [
+        "REQ-TRN-03-01",
+        "REQ-TRN-03-04"
+      ],
+      "rationale": "Actual auth/source qualification.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0232",
+      "requirement_ids": [
+        "REQ-TRN-03-04"
+      ],
+      "rationale": "Native persisted consumer.",
+      "disposition": "qualify"
+    },
+    {
+      "inventory_id": "remaining:0233",
+      "requirement_ids": [
+        "REQ-TRN-03-02"
+      ],
+      "rationale": "Historical/current labels.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0234",
+      "requirement_ids": [
+        "REQ-TRN-03-03"
+      ],
+      "rationale": "Source anchor handoff.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0235",
+      "requirement_ids": [
+        "REQ-TRN-03-01"
+      ],
+      "rationale": "All affected datetime boundaries.",
+      "disposition": "fix"
+    },
+    {
+      "inventory_id": "remaining:0236",
+      "requirement_ids": [
+        "REQ-TRN-03-03",
+        "REQ-TRN-03-04"
+      ],
+      "rationale": "Real revalidation semantics.",
+      "disposition": "qualify"
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0347",
+      "requirement_ids": [
+        "REQ-TRN-03-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: Typed/JSON timestamp имеет timezone-aware contract до age arithmetic; explicit subject и live tenant ownership сохраняются.",
+      "test_ids": [
+        "TEST-TRN-03-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0348",
+      "requirement_ids": [
+        "REQ-TRN-03-01"
+      ],
+      "rationale": "Конкретный контракт и oracle: Typed/JSON timestamp имеет timezone-aware contract до age arithmetic; explicit subject и live tenant ownership сохраняются.",
+      "test_ids": [
+        "TEST-TRN-03-01"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0349",
+      "requirement_ids": [
+        "REQ-TRN-03-01",
+        "REQ-TRN-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Typed/JSON timestamp имеет timezone-aware contract до age arithmetic; explicit subject и live tenant ownership сохраняются.; Квалифицировать native funnel→lesson→search и общие local/transfer predicates без лишней materialization.",
+      "test_ids": [
+        "TEST-TRN-03-01",
+        "TEST-TRN-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0350",
+      "requirement_ids": [
+        "REQ-TRN-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Квалифицировать native funnel→lesson→search и общие local/transfer predicates без лишней materialization.",
+      "test_ids": [
+        "TEST-TRN-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0351",
+      "requirement_ids": [
+        "REQ-TRN-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Квалифицировать native funnel→lesson→search и общие local/transfer predicates без лишней materialization.",
+      "test_ids": [
+        "TEST-TRN-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0352",
+      "requirement_ids": [
+        "REQ-TRN-03-03",
+        "REQ-TRN-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Initial transfer и target restart имеют одинаковую обоснованную evidence freshness.; Квалифицировать native funnel→lesson→search и общие local/transfer predicates без лишней materialization.",
+      "test_ids": [
+        "TEST-TRN-03-03",
+        "TEST-TRN-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0353",
+      "requirement_ids": [
+        "REQ-TRN-03-02",
+        "REQ-TRN-03-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Query, top_patterns и calibration lesson projection явно различают historical и current effective grade.; Initial transfer и target restart имеют одинаковую обоснованную evidence freshness.",
+      "test_ids": [
+        "TEST-TRN-03-02",
+        "TEST-TRN-03-03"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0354",
+      "requirement_ids": [
+        "REQ-TRN-03-04"
+      ],
+      "rationale": "Конкретный контракт и oracle: Квалифицировать native funnel→lesson→search и общие local/transfer predicates без лишней materialization.",
+      "test_ids": [
+        "TEST-TRN-03-04"
+      ]
+    },
+    {
+      "inventory_id": "preserve:0355",
+      "requirement_ids": [
+        "REQ-TRN-03-03"
+      ],
+      "rationale": "Конкретный контракт и oracle: Initial transfer и target restart имеют одинаковую обоснованную evidence freshness.",
+      "test_ids": [
+        "TEST-TRN-03-03"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I02-D",
+    "E02-X03"
+  ],
+  "dependencies": [
+    "TRN-01 использует общий aware-time contract для history; timestamp policy один, не duplicated defaults.",
+    "FUN-03 calibration report использует тот же effective lesson projection; report snapshot не новая authority.",
+    "Actual tenant/CAS owner подтверждает доступ; lesson similarity — proposal, не научное или институциональное полномочие."
+  ],
+  "preservation": [
+    "Typed/JSON subject fields preserved.",
+    "Defaults distinct, malformed/conflicting declarations refused.",
+    "Authenticated status requires live owner seam.",
+    "Threshold/trust/source-run preserved across paths.",
+    "Final quota after effective quality, no rejected materialization writes.",
+    "Source identity and target namespace distinct.",
+    "Cold/warm/fresh demotion stable for ordinary old card.",
+    "Daily access sidecar, no full snapshot write on reads.",
+    "Transfer keeps original evidence time and lower grade."
+  ],
+  "design_alignment": [
+    "[System Vision, §6 Capability Reality Bar и §5 Rule12](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md): полный producer→persisted artifact→bridge→consumer; новый совместимый ресурс проходит общий механизм. Это не запрет нового общего кода для новой семантики. [D0 B-on-A](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md), раздел «D0 — Decision: B-on-A, Shadow-First»: полезная кандидатная работа допускается без автоматического полномочия. [Stage0 §4.3 K06](../05_Основания/Архитектура/stage0-custody-kernel-ratification.md): неизвестность ограничивает затронутое действие, не всё исследование.",
+    ""
+  ],
+  "open_decisions": [],
+  "current_sources": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+      "symbol_or_anchor": "def resolve_transfer_context(",
+      "lines": [
+        352,
+        384
+      ],
+      "sha256": "25554eb9ed0c58837dfd2e9fe9cb906fea15f5abaf4a09cb8958eed3b0d30ad7",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/transfer_context.py#L352-L384"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+      "symbol_or_anchor": "def compute_provenance_weight(",
+      "lines": [
+        308,
+        340
+      ],
+      "sha256": "25554eb9ed0c58837dfd2e9fe9cb906fea15f5abaf4a09cb8958eed3b0d30ad7",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/transfer_context.py#L308-L340"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "symbol_or_anchor": "    def top_patterns(",
+      "lines": [
+        872,
+        904
+      ],
+      "sha256": "fad33246110f243d831dfaf4daefbfc4e525d9c6f32c245121d5cdcd7034ef89",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/lessons.py#L872-L904"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "symbol_or_anchor": "    def materialize_transfer(",
+      "lines": [
+        784,
+        816
+      ],
+      "sha256": "fad33246110f243d831dfaf4daefbfc4e525d9c6f32c245121d5cdcd7034ef89",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/search/lessons.py#L784-L816"
+    }
+  ],
+  "technical_solution": [
+    {
+      "requirement_id": "REQ-TRN-03-01",
+      "text": "В TransferContext/resolve_transfer_context и связанных LessonCard/IndexEntry boundary требовать timezone-aware timestamp, нормализовать offset в UTC с сохранением instant; naive new input адресно отказать. Legacy naive evidence не угадывать: explicit migration only при достоверном producer timezone, иначе unknown time/limited. Согласовать TRN-01 history event time. Current conflicting declarations остаются refusal, не silent override."
+    },
+    {
+      "requirement_id": "REQ-TRN-03-02",
+      "text": "В lessons.top_patterns и calibration_report._resolve_top_lessons использовать existing age-aware projection либо отдельные historical_confidence/trust и current_effective_* с as_of/evidence_anchor/status. Сохранить исходную0.9/local как historical, но не тем же unlabeled current полем. Snapshot projection проверяет scope/time contract, не просто raw entry copy. Actual lifecycle hints уже query_with_transfer — не переписывать исправленный consumer."
+    },
+    {
+      "requirement_id": "REQ-TRN-03-03",
+      "text": "Для selected older card при newer aggregate occurrence выбрать conservative selected-card anchor уже при materialize_transfer; это default минимальный ремонт. Если требуется использовать более свежее assessment, переносить и разрешать actual source-bound assessment ref/anchor через existing provenance, не last_seen=now. Повышение только по содержательному owner assessment, а не UUID/new timestamp. Сохранить caller-demoted grade."
+    },
+    {
+      "requirement_id": "REQ-TRN-03-04",
+      "text": "Actual orchestrator lesson producer требует terminal/AVAILABLE score по существующему контракту; record_local сохраняет source/traces. _SearchLifecycleOwner._build_lesson_hints получает query_with_transfer с current trust/provenance. Проверить source_run/domain/stage/tags/threshold до/после projection и quota после eligibility; authorized cross-domain route сохраняется. Usage daily sidecar не evidence clock и не полный CAS snapshot."
+    }
+  ]
+}

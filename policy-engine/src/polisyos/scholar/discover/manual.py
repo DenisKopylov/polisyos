@@ -88,7 +88,11 @@ def _normalize_single_source(source: SourceSpec) -> SourceSpec:
                 stage="discover",
                 source_identity=source_identity_key(source),
             )
-        locator = f"bytes.sha256_{content_hash(source.data)}"
+        locator = (
+            str(source.raw_artifact_ref.artifact_id)
+            if source.raw_artifact_ref is not None
+            else f"bytes.sha256_{content_hash(source.data)}"
+        )
         return SourceSpec(
             kind="bytes",
             canonical_url=None,
@@ -98,6 +102,7 @@ def _normalize_single_source(source: SourceSpec) -> SourceSpec:
             mime_hint=mime_hint,
             props=props,
             data=source.data,
+            raw_artifact_ref=source.raw_artifact_ref,
         )
 
     if source.kind == "url":

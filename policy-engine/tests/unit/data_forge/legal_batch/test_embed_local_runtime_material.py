@@ -272,3 +272,48 @@ def test_stats_refuses_missing_aggregate_result_row(
 
     with pytest.raises(RuntimeError, match="legal_stats_count_row_missing"):
         cli._cmd_stats(SimpleNamespace(output_dir=tmp_path))
+
+
+def test_legacy_wrapper_default_chunk_and_exception_identity(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.data_forge.domains.legal.batch import embedder
+
+    failure = RuntimeError("canonical builder failure")
+    captured: dict[str, object] = {}
+
+    def fail(**kwargs: object) -> None:
+        captured.update(kwargs)
+        raise failure
+
+    monkeypatch.setattr(embedder, "build_local_embeddings_and_indexes", fail)
+    with pytest.raises(RuntimeError) as refused:
+        embedder.build_embeddings_and_index(Path("db"), Path("out"))
+    assert refused.value is failure
+    assert captured == {
+        "db_path": Path("db"),
+        "output_dir": Path("out"),
+        "embedding_model": "intfloat/multilingual-e5-large",
+        "embedding_device": "mps",
+        "embedding_chunk_size": 2000,
+    }
+
+
+def test_legacy_backend_trap_is_rejected_without_access(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.data_forge.domains.legal.batch import embedder
+
+    class BackendTrap:
+        def __getattribute__(self, name: str) -> object:
+            raise AssertionError(f"unsupported backend was accessed: {name}")
+
+    calls: list[dict[str, object]] = []
+    monkeypatch.setattr(
+        embedder,
+        "build_local_embeddings_and_indexes",
+        lambda **kwargs: calls.append(kwargs),
+    )
+    with pytest.raises(ValueError, match="unsupported backend"):
+        embedder.build_embeddings_and_index(Path("db"), Path("out"), backend=BackendTrap())
+    assert calls == []

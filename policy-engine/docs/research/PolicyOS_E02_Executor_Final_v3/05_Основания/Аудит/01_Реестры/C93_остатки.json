@@ -1,0 +1,41 @@
+{
+  "pass_id": "C93",
+  "bundle": "DFI-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C93-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-038"
+      ],
+      "title": "Полная native эквивалентность группы по requests, bytes, errors, writes и counts не установлена",
+      "evidence": [
+        "S01–S04",
+        "S07–S13",
+        "P01–P04"
+      ],
+      "remaining": "В supported environment выполнить existing canonical leaf suites и малый общий ingest witness с actual database boundary, source-profile fixture, successful/empty/error response, budgets/bytes и expected writes/counts. Сопоставлять реальные traces, не только DTO equality или AST declarations. Использовать общую LANE-08 оснастку, если она действительно покрывает нужные consumers.",
+      "limits": "Native import остановлен транзитивным Python3.14 syntax; pytest/DuckDB отсутствуют. SQL/provenance capture, request dates, owner/context isolation реально исполнены, но это не whole native source-ingestion и не эмпирическая авторитетность данных."
+    },
+    {
+      "id": "C93-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-038"
+      ],
+      "title": "Accountable closure LA-038 и остаточные leaves относятся к DFI-02, а не автоматически закрываются этой фазой",
+      "evidence": [
+        "S05",
+        "S14",
+        "S15",
+        "P05"
+      ],
+      "remaining": "В следующем DFI-02 отдельно проверить registry/transformers/api dependencies, finite facade lifecycle/signatures, actual canonical pipeline routing и concurrent override separation. Сохранить DTO и существующие Fabric acquisition boundaries; не вводить service container.",
+      "limits": "Текущий pipeline source уже использует canonical API; здесь это только прочитанный маршрут. Два соседних API/registry modules в facade fixture синтетические; полная independence всех шести не доказана."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "Первый этап устранения broadcast подтверждён на actual dependency owners и ограниченных consumers. Новых подтверждённых R нет; native equivalence и accountable DFI-02 closure остаются."
+}

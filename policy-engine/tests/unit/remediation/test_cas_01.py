@@ -3,9 +3,13 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
+import subprocess
+import sys
 import threading
 from contextlib import contextmanager
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -24,7 +28,12 @@ from polisyos.core.artifacts.manifest import (
     ProducerInfo,
     SchemaInfo,
 )
-from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier
+from polisyos.core.artifacts.signing import (
+    Ed25519Signer,
+    Ed25519Verifier,
+    KeyPair,
+    SigningConfig,
+)
 from polisyos.core.artifacts.store import (
     ArtifactIntegrityError,
     ArtifactTransactionPendingError,
@@ -153,12 +162,14 @@ def _observe_artifact_lease_attempts(
     original_lease = coordinator.artifact_lease
 
     @contextmanager
-    def observe(artifact_id: ArtifactID, *, exclusive: bool):
+    def observe(artifact_id: ArtifactID, *, exclusive: bool, create_lock_files: bool = True):
         observation = watched.get(threading.current_thread().name)
         is_watched = observation is not None and observation[0] == artifact_id
         if is_watched:
             observation[1].set()
-        with original_lease(artifact_id, exclusive=exclusive) as lease:
+        with original_lease(
+            artifact_id, exclusive=exclusive, create_lock_files=create_lock_files
+        ) as lease:
             if is_watched:
                 observation[2].set()
             yield lease
@@ -1215,3 +1226,473 @@ def test_transfer_resolves_distinct_optional_integrity_views(tmp_path: Path) -> 
     assert target.get_manifest(optional_ref).integrity.optional == {
         "verification": "external-check-v1"
     }
+
+
+def _native_signed_store(
+    tmp_path: Path,
+) -> tuple[FileSystemCAS, SigningConfig, Ed25519Verifier]:
+    """Use real local signing, durable owner index and tenant/cell-scoped CAS."""
+    pair = KeyPair.generate()
+    key_path = tmp_path / "cas01-key.pem"
+    key_path.write_bytes(pair.private_pem())
+    key_path.chmod(0o600)
+    config = SigningConfig(
+        enabled=True,
+        sign_on_put=True,
+        sign_on_put_policy="fail",
+        private_key_env="POLISYOS_CAS01_FIXTURE_PRIVATE_KEY",
+        private_key_file_env="POLISYOS_CAS01_FIXTURE_KEY_FILE",
+        private_key_file=key_path,
+        default_identity="cas01-fixture-only",
+    )
+    verifier = Ed25519Verifier()
+    verifier.add_trusted_key(pair.public_key, key_id=pair.key_id)
+    return (
+        FileSystemCAS(tmp_path / "cas", signing_config=config).for_tenant(
+            "tenant-a", cell_id="cell-a"
+        ),
+        config,
+        verifier,
+    )
+
+
+def _native_owned_views(
+    store: FileSystemCAS,
+) -> tuple[ArtifactRef, ArtifactRef, PutOptions, PutOptions, bytes]:
+    """Publish two actual input artifacts, then two profiles of one content blob."""
+    inputs = [
+        store.put_bytes(
+            f"native basis {index}".encode(),
+            _options(f"cas.native.basis_{index}", "text/plain"),
+            return_selected_profile=True,
+        )
+        for index in (1, 2)
+    ]
+    options = [
+        replace(
+            _options(f"cas.native.view_{index}", media, producer_version=f"native-{index}"),
+            inputs=[
+                InputRef(
+                    artifact_id=basis.artifact_id,
+                    manifest_profile_sha256=basis.manifest_profile_sha256,
+                    role=f"actual_basis_{index}",
+                )
+            ],
+        )
+        for index, media, basis in zip(
+            (1, 2), ("application/octet-stream", "text/plain"), inputs, strict=True
+        )
+    ]
+    first = store.put_bytes(PAYLOAD, options[0], return_selected_profile=True)
+    default_before_second = store.get_manifest_bytes(first.artifact_id)
+    second = store.put_bytes(PAYLOAD, options[1], return_selected_profile=True)
+    return first, second, options[0], options[1], default_before_second
+
+
+def test_native_signed_views_keep_owned_inputs_and_exact_fresh_reads(tmp_path: Path) -> None:
+    """Content reuse preserves both scoped provenance views and first default bytes."""
+    store, config, verifier = _native_signed_store(tmp_path)
+    first, second, first_options, second_options, default_bytes = _native_owned_views(store)
+    assert store.get_manifest_bytes(first.artifact_id) == default_bytes
+    selected_bytes = {
+        ref.manifest_profile_sha256: store.get_manifest_bytes(ref) for ref in (first, second)
+    }
+    fresh = FileSystemCAS(store.root, signing_config=config).for_tenant(
+        "tenant-a", cell_id="cell-a"
+    )
+    assert first.artifact_id == second.artifact_id
+    assert first.manifest_profile_sha256 != second.manifest_profile_sha256
+    for ref, options in ((first, first_options), (second, second_options)):
+        assert ref.manifest_profile_sha256 is not None
+        assert fresh.get_bytes(ref) == PAYLOAD
+        _assert_manifest_profile(fresh.get_manifest(ref), options, data=PAYLOAD)
+        assert fresh.get_manifest_bytes(ref) == selected_bytes[ref.manifest_profile_sha256]
+        assert fresh.verify_signature(ref, verifier).ok is True
+    assert fresh.get_manifest_bytes(first.artifact_id) == default_bytes
+    assert fresh.get_manifest(first.artifact_id).kind == first_options.kind
+    assert fresh.put_bytes(PAYLOAD, first_options, return_selected_profile=True) == first
+    assert fresh.get_manifest_bytes(first.artifact_id) == default_bytes
+    assert fresh.get_manifest_bytes(first) == selected_bytes[first.manifest_profile_sha256]
+    assert fresh.get_manifest_bytes(second) == selected_bytes[second.manifest_profile_sha256]
+    assert len(list((store.root / "artifacts").rglob(f"{first.artifact_id.hex}.blob"))) == 1
+    for tenant, cell in (("tenant-b", "cell-a"), ("tenant-a", "cell-b")):
+        other = FileSystemCAS(store.root, signing_config=config).for_tenant(tenant, cell_id=cell)
+        for ref in (first, second):
+            with pytest.raises(PermissionError):
+                other.get_manifest(ref)
+            with pytest.raises(PermissionError):
+                other.get_bytes(ref)
+
+
+@pytest.mark.parametrize("tamper", ["blob", "size", "selected_profile"])
+def test_native_view_corruption_is_refused_without_rewriting_provenance(
+    tmp_path: Path,
+    tamper: str,
+) -> None:
+    store, config, _verifier = _native_signed_store(tmp_path)
+    first, second, _first_options, second_options, _default_bytes = _native_owned_views(store)
+    blob, default = store._paths(first.artifact_id)
+    original_default = default.read_bytes()
+    view = store._layout.view_manifest_path(second.artifact_id, second.manifest_profile_sha256)
+    if tamper == "blob":
+        blob.write_bytes(PAYLOAD + b"corrupt")
+    else:
+        manifest = json.loads(view.read_bytes())
+        if tamper == "size":
+            manifest["byte_size"] += 1
+        else:
+            manifest["kind"] = "cas.native.forged_profile"
+        view.write_text(json.dumps(manifest), encoding="utf-8")
+    corrupted = {path: path.read_bytes() for path in (blob, default, view)}
+    fresh = FileSystemCAS(store.root, signing_config=config).for_tenant(
+        "tenant-a", cell_id="cell-a"
+    )
+    with pytest.raises(ArtifactIntegrityError):
+        fresh.get_bytes(second)
+    with pytest.raises(ArtifactIntegrityError):
+        fresh.put_bytes(PAYLOAD, second_options, return_selected_profile=True)
+    assert default.read_bytes() == original_default
+    assert {path: path.read_bytes() for path in corrupted} == corrupted
+
+
+def test_observed_readonly_lease_preserves_no_create_and_missing_lock_refusal(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The repaired observer forwards False rather than hiding a readonly write."""
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = store.put_bytes(PAYLOAD, _options("cas.native.readonly", "text/plain"))
+    coordinator = store._coordinator
+    before = {
+        path.relative_to(store.root).as_posix(): path.read_bytes()
+        for path in store.root.rglob("*")
+        if path.is_file()
+    }
+    observed: list[bool] = []
+    original = coordinator.artifact_lease
+
+    @contextmanager
+    def record_create(artifact_id, *, exclusive, create_lock_files=True):
+        observed.append(create_lock_files)
+        with original(
+            artifact_id, exclusive=exclusive, create_lock_files=create_lock_files
+        ) as lease:
+            yield lease
+
+    monkeypatch.setattr(coordinator, "artifact_lease", record_create)
+    _observe_artifact_lease_attempts(coordinator, monkeypatch, {})
+    readonly = FileSystemCAS.open_existing_read_only(store.root)
+    assert readonly.get_bytes(ref) == PAYLOAD
+    assert readonly.verify(ref).ok is True
+    assert observed and not any(observed)
+    assert {
+        path.relative_to(store.root).as_posix(): path.read_bytes()
+        for path in store.root.rglob("*")
+        if path.is_file()
+    } == before
+    stripe = coordinator.lock_directory / f"stripe-{coordinator._stripe(ref.artifact_id):02d}.lock"
+    stripe.unlink()
+    from polisyos.core.artifacts.ownership import ArtifactReadOnlyUnavailableError
+
+    with pytest.raises(ArtifactReadOnlyUnavailableError):
+        readonly.get_bytes(ref)
+    assert not stripe.exists()
+
+
+def test_native_same_id_reentrance_preserves_lease_and_denies_upgrade(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    artifact_id = _synthetic_artifact_id(91)
+    coordinator = store._coordinator
+    with coordinator.artifact_lease(artifact_id, exclusive=True) as outer:
+        with coordinator.artifact_lease(artifact_id, exclusive=False) as shared:
+            assert shared is outer
+        with coordinator.artifact_lease(artifact_id, exclusive=True) as nested:
+            assert nested is outer
+        with (
+            pytest.raises(RuntimeError, match="nested_distinct_id"),
+            coordinator.artifact_lease(_synthetic_artifact_id(92), exclusive=True),
+        ):
+            pytest.fail("foreign artifact entered an active single-ID lease")
+    with (
+        coordinator.artifact_lease(artifact_id, exclusive=False),
+        pytest.raises(RuntimeError, match="lock_upgrade"),
+        coordinator.artifact_lease(artifact_id, exclusive=True),
+    ):
+        pytest.fail("shared-to-exclusive upgrade was admitted")
+
+
+@pytest.mark.parametrize("boundary", ["blob", "default", "view", "owner_pointer"])
+@pytest.mark.parametrize("phase", ["before", "after"])
+def test_native_publication_fault_keeps_prior_view_and_requires_exact_recovery(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    boundary: str,
+    phase: str,
+) -> None:
+    """Local filesystem interruptions cannot promote pending custody to success."""
+    from polisyos.core.artifacts import _atomic_write
+
+    store, config, verifier = _native_signed_store(tmp_path)
+    prior = store.put_bytes(
+        b"stable prior artifact", _options("cas.prior", "text/plain"), return_selected_profile=True
+    )
+    prior_manifest = store.get_manifest_bytes(prior)
+    basis = store.put_bytes(
+        b"real native input", _options("cas.basis", "text/plain"), return_selected_profile=True
+    )
+    options = replace(
+        _options("cas.interrupted", "text/plain"),
+        inputs=[
+            InputRef(
+                artifact_id=basis.artifact_id,
+                manifest_profile_sha256=basis.manifest_profile_sha256,
+                role="owned_input",
+            )
+        ],
+    )
+    payload = b"new artifact interrupted during publication"
+    artifact_id = ArtifactID.from_sha256_hex(hashlib.sha256(payload).hexdigest())
+    original_publish = store._publish_transaction_member
+    original_fsync = _atomic_write.fsync_directory
+    interrupted = False
+
+    def fail_once() -> None:
+        nonlocal interrupted
+        interrupted = True
+        raise OSError(f"controlled {boundary} {phase} failure")
+
+    def publish(stage_path, final_path, *, expected_sha256):
+        selected = (
+            (boundary == "blob" and final_path.suffix == ".blob")
+            or (
+                boundary == "default"
+                and final_path.name.endswith(".manifest.json")
+                and ".view." not in final_path.name
+            )
+            or (boundary == "view" and ".view." in final_path.name)
+        )
+        if selected and phase == "before" and not interrupted:
+            fail_once()
+        result = original_publish(stage_path, final_path, expected_sha256=expected_sha256)
+        if selected and phase == "after" and not interrupted:
+            fail_once()
+        return result
+
+    def fsync_directory(path: Path) -> None:
+        selected = boundary == "owner_pointer" and path == store._ownership_index.directory
+        if selected and phase == "before" and not interrupted:
+            fail_once()
+        original_fsync(path)
+        if selected and phase == "after" and not interrupted:
+            fail_once()
+
+    with monkeypatch.context() as failure:
+        failure.setattr(store, "_publish_transaction_member", publish)
+        failure.setattr(_atomic_write, "fsync_directory", fsync_directory)
+        with pytest.raises((OSError, RuntimeError), match=r"controlled|indeterminate"):
+            store.put_bytes(payload, options, return_selected_profile=True)
+    assert interrupted
+    pending = store._ownership_index._read_transaction_intent(artifact_id)
+    assert pending is not None and pending["status"] == "pending"
+    fresh = FileSystemCAS(store.root, signing_config=config).for_tenant(
+        "tenant-a", cell_id="cell-a"
+    )
+    assert fresh.get_bytes(prior) == b"stable prior artifact"
+    assert fresh.get_manifest_bytes(prior) == prior_manifest
+    with pytest.raises(ArtifactTransactionPendingError):
+        fresh.get_bytes(artifact_id)
+    foreign = FileSystemCAS(store.root, signing_config=config).for_tenant(
+        "tenant-b", cell_id="cell-b"
+    )
+    before_generation = fresh._ownership_index.evidence()["ownership_index_generation_sha256"]
+    # Do not let unrelated tenant-A input admission mask the target's pending fence.
+    foreign_options = replace(options, inputs=[])
+    with pytest.raises(ArtifactTransactionPendingError):
+        foreign.put_bytes(payload, foreign_options, return_selected_profile=True)
+    assert fresh._ownership_index._read_transaction_intent(artifact_id) == pending
+    assert (
+        fresh._ownership_index.evidence()["ownership_index_generation_sha256"] == before_generation
+    )
+    restored = fresh.put_bytes(payload, options, return_selected_profile=True)
+    assert fresh._ownership_index._read_transaction_intent(artifact_id) is None
+    assert fresh.get_bytes(restored) == payload
+    _assert_manifest_profile(fresh.get_manifest(restored), options, data=payload)
+    assert fresh.verify_signature(restored, verifier).ok is True
+    assert fresh.get_manifest_bytes(prior) == prior_manifest
+
+
+def _custody_process(request: dict[str, Any], *, interrupted: bool = False) -> dict[str, Any]:
+    """Run one small real-CAS operation in an independent interpreter."""
+    product = Path(__file__).resolve().parents[3]
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            str(product / "tests" / "_helpers" / "cas_custody_process.py"),
+            json.dumps(request),
+        ],
+        cwd=product,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=20,
+    )
+    assert result.returncode == (73 if interrupted else 0), (result.stdout, result.stderr)
+    observed = json.loads(result.stdout)
+    assert observed["pid"] != os.getpid()
+    if not interrupted:
+        assert Path(observed["store_origin"]).is_relative_to(product / "src")
+    return observed
+
+
+@pytest.mark.parametrize(
+    "boundary", ["blob", "default", "view", "owner_generation_file", "owner_pointer"]
+)
+@pytest.mark.parametrize("phase", ["before", "after"])
+def test_process_restart_reconciles_signed_views_and_owner_publication_cuts(
+    tmp_path: Path, boundary: str, phase: str
+) -> None:
+    """A stopped writer's intent stays pending until actual scoped recovery succeeds."""
+    store, config, _verifier = _native_signed_store(tmp_path)
+    first, second, _first_options, _second_options, default = _native_owned_views(store)
+    basis = store.put_bytes(
+        b"process-owned restart basis",
+        _options("cas.restart.basis", "text/plain"),
+        return_selected_profile=True,
+    )
+    payload = b"process restart must reconcile actual signed custody"
+    aid = ArtifactID.from_sha256_hex(hashlib.sha256(payload).hexdigest())
+    target = ArtifactRef(artifact_id=aid, kind="cas.restart.interrupted", media_type="text/plain")
+    expected_prior = [
+        {
+            "ref": ref.model_dump(mode="json"),
+            "payload_sha256": hashlib.sha256(PAYLOAD).hexdigest(),
+            "manifest_sha256": hashlib.sha256(store.get_manifest_bytes(ref)).hexdigest(),
+            "signature_ok": True,
+        }
+        for ref in (first, second)
+    ]
+    request = {
+        "root": str(store.root),
+        "config": config.model_dump(mode="json"),
+        "prior_refs": [ref.model_dump(mode="json") for ref in (first, second)],
+        "target_ref": target.model_dump(mode="json"),
+        "basis": InputRef(
+            artifact_id=basis.artifact_id,
+            manifest_profile_sha256=basis.manifest_profile_sha256,
+            role="owned_input",
+        ).model_dump(mode="json"),
+        "payload_hex": payload.hex(),
+    }
+    cut = _custody_process(
+        {**request, "mode": "interrupt", "boundary": boundary, "phase": phase},
+        interrupted=True,
+    )
+    assert (cut["cut"], cut["phase"]) == (boundary, phase)
+    blocked = _custody_process({**request, "mode": "read_pending"})
+    assert blocked["pid"] != cut["pid"]
+    assert blocked["target_read_code"] == "artifact_transaction_pending"
+    assert blocked["pending"]["status"] == "pending"
+    assert blocked["prior"] == expected_prior
+    assert blocked["default_sha256"] == hashlib.sha256(default).hexdigest()
+    restored = _custody_process({**request, "mode": "recover"})
+    assert restored["pid"] not in (cut["pid"], blocked["pid"])
+    assert restored["prior"] == expected_prior
+    assert restored["default_sha256"] == hashlib.sha256(default).hexdigest()
+    assert restored["target_payload_sha256"] == hashlib.sha256(payload).hexdigest()
+    assert restored["target_signature_ok"] is True
+    assert restored["pending"] is None
+    restored_ref = ArtifactRef.model_validate(restored["target_ref"])
+    manifest = ArtifactManifest.model_validate(restored["target_manifest"])
+    assert restored_ref.artifact_id == aid
+    assert restored_ref.manifest_profile_sha256 is not None
+    assert manifest.inputs == [InputRef.model_validate(request["basis"])]
+    assert manifest.producer == ProducerInfo(component="tests.cas01", version="1.0")
+    assert manifest.kind == target.kind
+    assert manifest.media_type == target.media_type
+    assert len(blocked["foreign_denied"]) == len(restored["foreign_denied"]) == 3
+
+
+@pytest.mark.parametrize("withdrawal", ["selected_view", "all_claims"])
+def test_signed_input_owner_withdrawal_after_preflight_refuses_publication(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, withdrawal: str
+) -> None:
+    """Recompute real mutable owner-generation state inside the publication lease.
+
+    The fixture administrator uses the actual index writer to withdraw a claim;
+    this does not assert a deployed public owner-revocation API exists.
+    """
+    store, config, verifier = _native_signed_store(tmp_path)
+    first, second, _first_options, _second_options, default = _native_owned_views(store)
+    basis = store.put_bytes(
+        b"withdrawable signed basis",
+        _options("cas.withdraw.basis", "text/plain"),
+        return_selected_profile=True,
+    )
+    assert store.verify_signature(basis, verifier).ok is True
+    index = store._ownership_index
+    previous_generation = index.evidence()["ownership_index_generation_sha256"]
+    original_put = store._put_blob_and_manifest_once
+    original_check = store._require_input_owners
+    checks = 0
+    revoked = False
+
+    def observe_input_check(options: PutOptions) -> None:
+        nonlocal checks
+        checks += 1
+        if os.environ.get("POLISYOS_CAS01_SKIP_INNER_OWNER_CHECK_PROBE") == "1" and checks > 1:
+            return
+        original_check(options)
+
+    def withdraw_before_publication(**kwargs):
+        nonlocal revoked
+        assert checks == 1
+        with index._lock, index._cross_instance_write_lock():
+            snapshot = index._load_snapshot()
+            payload = snapshot.payload
+            claims = payload["artifacts"][str(basis.artifact_id)]
+            if withdrawal == "all_claims":
+                payload["artifacts"].pop(str(basis.artifact_id))
+                payload["blob_readers"].pop(str(basis.artifact_id), None)
+            else:
+                remaining = [
+                    row
+                    for row in claims
+                    if row.get("manifest_profile_sha256") != basis.manifest_profile_sha256
+                ]
+                assert len(remaining) < len(claims)
+                payload["artifacts"][str(basis.artifact_id)] = remaining
+            index._write_payload(payload, previous_snapshot=snapshot)
+        revoked = True
+        return original_put(**kwargs)
+
+    monkeypatch.setattr(store, "_require_input_owners", observe_input_check)
+    monkeypatch.setattr(store, "_put_blob_and_manifest_once", withdraw_before_publication)
+    payload = b"a prior owner check is not a reusable publication permit"
+    aid = ArtifactID.from_sha256_hex(hashlib.sha256(payload).hexdigest())
+    options = replace(
+        _options("cas.withdraw.result", "text/plain"),
+        inputs=[
+            InputRef(
+                artifact_id=basis.artifact_id,
+                manifest_profile_sha256=basis.manifest_profile_sha256,
+                role="withdrawn_input",
+            )
+        ],
+    )
+    with pytest.raises(PermissionError):
+        store.put_bytes(payload, options, return_selected_profile=True)
+    assert revoked and checks == 2
+    assert index.evidence()["ownership_index_generation_sha256"] != previous_generation
+    assert not index.has_any_tenant_claim(aid)
+    assert index._read_transaction_intent(aid) is None
+    assert not store._paths(aid)[0].exists()
+    fresh = FileSystemCAS(store.root, signing_config=config).for_tenant(
+        "tenant-a", cell_id="cell-a"
+    )
+    with pytest.raises(PermissionError):
+        fresh.get_manifest(basis)
+    assert fresh.get_manifest_bytes(first.artifact_id) == default
+    for ref in (first, second):
+        assert fresh.get_bytes(ref) == PAYLOAD
+        assert fresh.verify_signature(ref, verifier).ok is True

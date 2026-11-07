@@ -12,7 +12,11 @@ from polisyos.calibration.curve import (
 )
 from polisyos.calibration.diagnostics import evaluate_binary
 from polisyos.calibration.diagnostics.adapters import to_validation_report
-from polisyos.calibration.diagnostics.continuous import evaluate_continuous
+from polisyos.calibration.diagnostics.continuous import (
+    evaluate_continuous,
+    load_continuous_evaluation,
+    persist_continuous_evaluation,
+)
 from polisyos.calibration.diagnostics.multiclass import evaluate_multiclass
 from polisyos.calibration.recalibration import (
     apply_calibrator,
@@ -34,7 +38,9 @@ __all__ = [
     "evaluate_continuous",
     "evaluate_multiclass",
     "fit_calibrator",
+    "load_continuous_evaluation",
     "load_empirical_calibration_evidence",
+    "persist_continuous_evaluation",
     "persist_empirical_calibration_evidence",
     "produce_empirical_calibration_evidence",
     "to_validation_report",

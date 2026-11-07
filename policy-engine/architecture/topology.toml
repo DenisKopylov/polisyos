@@ -281,6 +281,20 @@ category = "release_workspace"
 commit_policy = "committed_with_lifecycle"
 owner = "team-release"
 
+[[path]]
+scope = "repo_root"
+path = "dev-oracles"
+category = "source"
+commit_policy = "committed"
+owner = "team-quality"
+
+[[path]]
+scope = "repo_root"
+path = "workers"
+category = "source"
+commit_policy = "committed"
+owner = "team-runtime"
+
 # ---------------------------------------------------------------------------
 # Generated, cache, and local output umbrellas (must never be committed).
 # ---------------------------------------------------------------------------

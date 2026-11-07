@@ -88,16 +88,22 @@ if TYPE_CHECKING:
     from polisyos.foundry import MethodRouteConstraint
     from polisyos.ir.linker import LinkedIntervention
     from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioDecimalSetToRuleV2,
+        CandidateScenarioMaterializationV1,
         CandidateScenarioMaterializationV3,
         CandidateScenarioMaterializationV4,
+        CandidateScenarioNumericMaterializationV1,
+        CandidateScenarioSetToRule,
         CandidateSimulationScenarioProfile,
     )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.design_generation import (
         N4CandidateScenarioProposalCandidate,
+        ShadowGeneratedCandidate,
     )
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.generation_source import (
+        GenerationSourceHandoff,
         N4CandidateScenarioSourceRecordV1,
         N4CandidateScenarioSourceRecordV2,
         N4CandidateScenarioSourceRecordV3,
@@ -545,6 +551,44 @@ def candidate_scenario_set_to_value(
     return value
 
 
+def candidate_scenario_decimal_set_to_value(
+    rule: object,
+    *,
+    operator_kind: str,
+    parameters: Mapping[str, object],
+    linked_write_slots: Sequence[str],
+) -> Decimal:
+    """Read one declared finite decimal parameter without evaluating expressions."""
+    from polisyos.runtime.quality.candidate_simulation import CandidateScenarioDecimalSetToRuleV2
+
+    if type(rule) is not CandidateScenarioDecimalSetToRuleV2:
+        raise InterventionSubstrateError("candidate_scenario_decimal_rule_untyped")
+    if operator_kind != rule.operator_kind:
+        raise InterventionSubstrateError("candidate_scenario_operator_mismatch")
+    if set(parameters) != {rule.parameter_id, *rule.parameter_context}:
+        raise InterventionSubstrateError("candidate_scenario_parameter_set_mismatch")
+    context = {name: parameters[name] for name in rule.parameter_context}
+    if gy_content_hash(context) != gy_content_hash(rule.parameter_context):
+        raise InterventionSubstrateError("candidate_scenario_parameter_context_mismatch")
+    raw = parameters[rule.parameter_id]
+    if isinstance(raw, bool) or not isinstance(raw, (int, float, Decimal, str)):
+        raise InterventionSubstrateError("candidate_scenario_numeric_value_invalid")
+    try:
+        value = Decimal(str(raw))
+    except (ArithmeticError, ValueError) as exc:
+        raise InterventionSubstrateError("candidate_scenario_numeric_value_invalid") from exc
+    if not value.is_finite():
+        raise InterventionSubstrateError("candidate_scenario_numeric_value_non_finite")
+    native = float(value)
+    if not math.isfinite(native) or (value != 0 and native == 0):
+        raise InterventionSubstrateError("candidate_scenario_numeric_value_not_representable")
+    if value < rule.minimum or value > rule.maximum:
+        raise InterventionSubstrateError("candidate_scenario_value_outside_profile_domain")
+    if tuple(linked_write_slots) != (rule.target_world_slot,):
+        raise InterventionSubstrateError("candidate_scenario_linker_write_set_mismatch")
+    return value
+
+
 def _link_candidate_scenario_intervention(
     trinity_bundle: TrinityBundle,
     *,
@@ -611,22 +655,60 @@ def materialize_candidate_scenario_action(
     source_handoff_ref: str,
     source_handoff: object,
 ) -> object:
-    """Materialize one explicitly configured integer action for candidate N5.
+    """Preserve the strict integer profile's source-bound candidate projection."""
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationScenarioProfile
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
 
-    This is a purpose-limited projection through the existing L6 owner. It
-    does not rewrite the bundle, confer legal meaning, or alter the original
-    N4 atom/source record.
+    if type(profile) is not CandidateSimulationScenarioProfile:
+        raise InterventionSubstrateError("candidate_scenario_profile_untyped")
+    if profile.profile_selection_ref != cycle_job_profile_selection_ref(problem):
+        raise InterventionSubstrateError("candidate_scenario_profile_selection_ref_mismatch")
+    return materialize_configured_candidate_state_edit(
+        bundle,
+        profile_hash=profile.content_hash,
+        rule=profile.rule,
+        candidate=candidate,
+        intervention=intervention,
+        linked_intervention=linked_intervention,
+        problem=problem,
+        context=context,
+        context_job_ref=context_job_ref,
+        source_handoff_ref=source_handoff_ref,
+        source_handoff=source_handoff,
+    )
+
+
+def materialize_configured_candidate_state_edit(
+    bundle: InterventionSubstrateBundle,
+    *,
+    profile_hash: str,
+    rule: CandidateScenarioSetToRule | CandidateScenarioDecimalSetToRuleV2,
+    candidate: ShadowGeneratedCandidate,
+    intervention: InterventionSpec,
+    linked_intervention: LinkedIntervention,
+    problem: DesignProblem,
+    context: CycleSubstrateContext,
+    context_job_ref: str,
+    source_handoff_ref: str,
+    source_handoff: GenerationSourceHandoff,
+) -> CandidateScenarioMaterializationV1 | CandidateScenarioNumericMaterializationV1:
+    """Materialize one exact retained N4 action through the canonical L6 owner.
+
+    The caller binds its configured profile and rule; this operation verifies
+    actual source membership, the source PolicySpec/linker projection, context,
+    slot unit, bounded value and immutable original-to-derived atom mapping.
     """
 
     from polisyos.ir.linker import LinkedIntervention
     from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioDecimalSetToRuleV2,
         CandidateScenarioMaterializationV1,
-        CandidateSimulationScenarioProfile,
+        CandidateScenarioNumericMaterializationV1,
+        CandidateScenarioSetToRule,
     )
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContext,
         cycle_job_design_problem_ref,
-        cycle_job_profile_selection_ref,
         revalidate_cycle_substrate_context,
     )
     from polisyos.runtime.quality.design_generation import (
@@ -636,11 +718,12 @@ def materialize_candidate_scenario_action(
     from polisyos.runtime.quality.generation_source import GenerationSourceHandoff
     from polisyos.runtime.quality.intervention_atom_binding import (
         derive_candidate_scenario_atom,
+        derive_candidate_scenario_numeric_atom,
     )
     from polisyos.runtime.quality.world_model_record import WorldModelRecord
 
-    if type(profile) is not CandidateSimulationScenarioProfile:
-        raise InterventionSubstrateError("candidate_scenario_profile_untyped")
+    if type(rule) not in (CandidateScenarioSetToRule, CandidateScenarioDecimalSetToRuleV2):
+        raise InterventionSubstrateError("candidate_scenario_rule_untyped")
     if type(candidate) is not ShadowGeneratedCandidate:
         raise InterventionSubstrateError("candidate_scenario_candidate_untyped")
     if type(source_handoff) is not GenerationSourceHandoff:
@@ -654,8 +737,6 @@ def materialize_candidate_scenario_action(
 
     verified_bundle = verify_intervention_substrate_bundle_content_hash(bundle)
     verified_context = revalidate_cycle_substrate_context(context)
-    if profile.profile_selection_ref != cycle_job_profile_selection_ref(problem):
-        raise InterventionSubstrateError("candidate_scenario_profile_selection_ref_mismatch")
     problem_ref = cycle_job_design_problem_ref(problem)
     if verified_context.design_problem_ref != problem_ref:
         raise InterventionSubstrateError("candidate_scenario_context_problem_mismatch")
@@ -679,14 +760,33 @@ def materialize_candidate_scenario_action(
     )
     if len(candidate_source_matches) != 1:
         raise InterventionSubstrateError("candidate_scenario_intervention_not_in_n4_source")
+    source_bundle = source_handoff.trinity_bundle
+    if source_bundle is None:
+        raise InterventionSubstrateError("candidate_scenario_source_bundle_missing")
+    original_interventions = tuple(
+        item
+        for item in source_bundle.policy_spec.interventions
+        if item.intervention_id == intervention.intervention_id
+    )
+    if len(original_interventions) != 1 or original_interventions[0] != intervention:
+        raise InterventionSubstrateError("candidate_scenario_intervention_source_bytes_mismatch")
+    expected_link, _ = _link_candidate_scenario_intervention(
+        source_bundle,
+        intervention_id=intervention.intervention_id,
+        substrate_bundle=verified_bundle,
+    )
+    if linked_intervention != expected_link:
+        raise InterventionSubstrateError("candidate_scenario_linked_source_projection_mismatch")
     if candidate.atom.status != "candidate_unverified":
         raise InterventionSubstrateError("candidate_scenario_atom_not_candidate")
     if intervention.intervention_id != linked_intervention.intervention_id:
         raise InterventionSubstrateError("candidate_scenario_linked_intervention_mismatch")
-    rule = profile.rule
     if rule.operator_kind != candidate.atom.operator_kind.trinity_kind:
         raise InterventionSubstrateError("candidate_scenario_operator_mismatch")
-    value = candidate_scenario_set_to_value(
+    decimal_rule = type(rule) is CandidateScenarioDecimalSetToRuleV2
+    value = (
+        candidate_scenario_decimal_set_to_value if decimal_rule else candidate_scenario_set_to_value
+    )(
         rule,
         operator_kind=intervention.kind,
         parameters=intervention.params,
@@ -705,7 +805,12 @@ def materialize_candidate_scenario_action(
     if slot.unit is None or slot.unit != rule.unit_id:
         raise InterventionSubstrateError("candidate_scenario_world_slot_unit_mismatch")
     try:
-        derived_atom = derive_candidate_scenario_atom(
+        derive = (
+            derive_candidate_scenario_numeric_atom
+            if decimal_rule
+            else derive_candidate_scenario_atom
+        )
+        derived_atom = derive(
             candidate.atom,
             target_world_slot=rule.target_world_slot,
             value=value,
@@ -715,8 +820,12 @@ def materialize_candidate_scenario_action(
         raise InterventionSubstrateError(code, str(exc)) from exc
 
     payload = {
-        "schema_version": "policyos.runtime.candidate_scenario.materialization.v1",
-        "profile_hash": profile.content_hash,
+        "schema_version": (
+            "policyos.runtime.candidate_scenario.numeric_materialization.v1"
+            if decimal_rule
+            else "policyos.runtime.candidate_scenario.materialization.v1"
+        ),
+        "profile_hash": profile_hash,
         "problem_ref": problem_ref,
         "context_hash": verified_context.content_hash,
         "context_job_ref": context_job_ref,
@@ -732,11 +841,25 @@ def materialize_candidate_scenario_action(
         "unit_id": rule.unit_id,
         "derived_n5_atom": derived_atom,
     }
-    return CandidateScenarioMaterializationV1.model_validate(
+    model_type = CandidateScenarioMaterializationV1
+    if decimal_rule:
+        raw = intervention.params[rule.parameter_id]
+        payload["native_input_value"] = float(value)
+        payload["source_value_kind"] = (
+            "decimal"
+            if isinstance(raw, Decimal)
+            else "numeric_string"
+            if isinstance(raw, str)
+            else "float"
+            if isinstance(raw, float)
+            else "int"
+        )
+        model_type = CandidateScenarioNumericMaterializationV1
+    return model_type.model_validate(
         {
             **payload,
             "content_hash": gy_content_hash(
-                CandidateScenarioMaterializationV1.model_construct(
+                model_type.model_construct(
                     **payload,
                     content_hash="sha256:" + "0" * 64,
                 ).model_dump(mode="json", exclude={"content_hash"})

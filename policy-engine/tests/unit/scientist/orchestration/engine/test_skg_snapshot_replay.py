@@ -569,6 +569,189 @@ def test_exact_existing_descriptor_does_not_write_source_again(
         prepared.close()
 
 
+def test_retained_source_cold_warm_costs_disclose_measured_operations(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    record_testsuite_property: Callable[[str, object], None],
+) -> None:
+    """Measure one real source; counters cover named operations, not OS-wide I/O."""
+    from polisyos.data_forge.domains.academic.knowledge import skg_query
+
+    source = tmp_path / "measured-source.duckdb"
+    _seed(source, 1.25)
+    source_bytes = source.stat().st_size
+    source_sha256 = hashlib.sha256(source.read_bytes()).hexdigest()
+    store = FileSystemCAS(tmp_path / "measured-cas", ownership_enforced=False)
+    rows: list[dict[str, Any]] = []
+    operations: list[dict[str, Any]] = []
+    original_digest = skg_query._file_sha256
+    original_local_digest = skg_snapshot._require_local_file
+    original_copy = FileSystemCAS.copy_member_to
+    original_put = FileSystemCAS.put_bytes
+    original_materialize = skg_snapshot._materialize_loaded_retained_skg_snapshot
+
+    def measure_digest(path: Path) -> str:
+        started = _time.monotonic_ns()
+        result = original_digest(path)
+        elapsed = _time.monotonic_ns() - started
+        operations.append(
+            {
+                "operation": "prepared_source_digest",
+                "path": str(path),
+                "input_bytes": path.stat().st_size,
+                "sha256": result,
+                "elapsed_ns": elapsed,
+            }
+        )
+        return result
+
+    def measure_local_digest(path: Path, snapshot: Any) -> None:
+        started = _time.monotonic_ns()
+        original_local_digest(path, snapshot)
+        elapsed = _time.monotonic_ns() - started
+        operations.append(
+            {
+                "operation": "materialized_file_digest",
+                "path": str(path),
+                "input_bytes": snapshot.byte_size,
+                "sha256": snapshot.source_sha256,
+                "elapsed_ns": elapsed,
+            }
+        )
+
+    def measure_copy(target: FileSystemCAS, artifact_id: Any, member: Any, output: Any) -> Any:
+        started = _time.monotonic_ns()
+        receipt = original_copy(target, artifact_id, member, output)
+        elapsed = _time.monotonic_ns() - started
+        operations.append(
+            {
+                "operation": "verified_member_copy",
+                "artifact_ref": str(artifact_id),
+                "input_bytes": receipt.byte_size,
+                "sha256": receipt.sha256,
+                "elapsed_ns": elapsed,
+            }
+        )
+        return receipt
+
+    def measure_materialize(target: Any, snapshot: Any, *, directory: Path) -> Path:
+        started = _time.monotonic_ns()
+        result = original_materialize(target, snapshot, directory=directory)
+        elapsed = _time.monotonic_ns() - started
+        operations.append(
+            {
+                "operation": "materialize_retained_source",
+                "path": str(result),
+                "input_bytes": snapshot.byte_size,
+                "sha256": snapshot.source_sha256,
+                "elapsed_ns": elapsed,
+            }
+        )
+        return result
+
+    def measure_put(
+        target: FileSystemCAS,
+        data: bytes,
+        options: ArtifactWriteOptions,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
+        started = _time.monotonic_ns()
+        ref = original_put(target, data, options, return_selected_profile=return_selected_profile)
+        elapsed = _time.monotonic_ns() - started
+        if options.kind == "scientist.skg_source_chunk":
+            operations.append(
+                {
+                    "operation": "source_chunk_write",
+                    "artifact_ref": str(ref),
+                    "input_bytes": len(data),
+                    "sha256": hashlib.sha256(data).hexdigest(),
+                    "elapsed_ns": elapsed,
+                }
+            )
+        return ref
+
+    monkeypatch.setattr(skg_query, "_file_sha256", measure_digest)
+    monkeypatch.setattr(skg_snapshot, "_require_local_file", measure_local_digest)
+    monkeypatch.setattr(
+        skg_snapshot, "_materialize_loaded_retained_skg_snapshot", measure_materialize
+    )
+    monkeypatch.setattr(FileSystemCAS, "copy_member_to", measure_copy)
+    monkeypatch.setattr(FileSystemCAS, "put_bytes", measure_put)
+
+    def finish_phase(phase: str, started_ns: int) -> None:
+        rows.append(
+            {
+                "phase": phase,
+                "elapsed_ns": _time.monotonic_ns() - started_ns,
+                "operations": list(operations),
+            }
+        )
+        operations.clear()
+
+    started = _time.monotonic_ns()
+    prepared = SKGQuery.prepare_read(db_path=source, index_dir=tmp_path)
+    try:
+        assert _value(prepared) == 1.25
+        ref = retain_prepared_skg_read(store, prepared)
+    finally:
+        prepared.close()
+    finish_phase("capture", started)
+
+    directory = tmp_path / "measured-restored"
+    for phase in ("cold_materialization", "warm_materialization"):
+        started = _time.monotonic_ns()
+        fresh_store = FileSystemCAS(store.root, ownership_enforced=False)
+        reopened = prepare_retained_skg_read(
+            fresh_store, ref, directory=directory, index_dir=tmp_path
+        )
+        try:
+            assert reopened.source_snapshot_sha256 == source_sha256
+            assert _value(reopened) == 1.25
+        finally:
+            reopened.close()
+        finish_phase(phase, started)
+
+    capture, cold, warm = (row["operations"] for row in rows)
+    assert (
+        sum(op["input_bytes"] for op in capture if op["operation"] == "source_chunk_write")
+        == source_bytes
+    )
+    assert (
+        sum(op["input_bytes"] for op in cold if op["operation"] == "verified_member_copy")
+        == source_bytes
+    )
+    assert not any(op["operation"] == "verified_member_copy" for op in warm)
+    for restore in (cold, warm):
+        assert sum(op["operation"] == "materialize_retained_source" for op in restore) == 1
+    for row in rows:
+        assert row["elapsed_ns"] > 0
+        digests = [op for op in row["operations"] if op["operation"] == "prepared_source_digest"]
+        assert len(digests) == 1
+        assert digests[0]["input_bytes"] == source_bytes
+        assert digests[0]["sha256"] == source_sha256
+    assert (directory / f"{source_sha256}.duckdb").read_bytes() == source.read_bytes()
+    report = {
+        "workload": "One version/one parameter real DuckDB; value1.25; no production data",
+        "source": str(source),
+        "source_bytes": source_bytes,
+        "source_sha256": source_sha256,
+        "selected_descriptor": ref.model_dump(mode="json"),
+        "measurements": rows,
+        "bytes_semantics": "Input bytes to named verified operations, not physical disk traffic",
+        "timing_semantics": (
+            "Operation timers stop before observer metadata collection; "
+            "phase timers include that collection and assertions"
+        ),
+        "unresolved_by_construction": [
+            "CAS manifest/integrity reads outside the named copy operation",
+            "DuckDB internal page reads, imports, OS cache and syscall-level I/O",
+            "Production-scale representativeness, scientific applicability and latency SLO",
+        ],
+    }
+    record_testsuite_property("sta02_source_costs", json.dumps(report, sort_keys=True))
+
+
 def test_capture_refuses_actual_source_generation_replacement(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -712,6 +895,350 @@ def _workflow_fixture(
     _seed(replacement, 9.75)
     os.replace(replacement, source)
     return source, store, run, ctx, state, ref
+
+
+@pytest.mark.parametrize("changed_selector", ["context", "domain", "required"])
+def test_selected_bundle_matcher_and_real_recompute_honor_changed_request(
+    tmp_path: Path, changed_selector: str
+) -> None:
+    """External hit admission and actual resolver reject the same stale request."""
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        _, store, _, ctx, state, source_ref = _workflow_fixture(tmp_path)
+        state.inputs[SNAPSHOT_INPUT_KEY] = source_ref
+        state.params["phase15_runtime_backend"] = "numpy"
+        state = _bind_retained_workflow_input(ctx, state)
+        node = ResolveParametersNode()
+        original = node.execute(ctx, state)
+        assert original.status == "ok"
+        assert node.validate_cache_hit(ctx, original.state, original)
+        original_ref = original.state.artifacts_index[
+            ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
+        ]
+        changed = original.state.model_copy(deep=True)
+        if changed_selector == "context":
+            changed.params["target_context"] = {**_CONTEXT, "context_id": "other-context"}
+        elif changed_selector == "domain":
+            changed.params["domain"] = "monetary"
+        else:
+            changed.params["required_parameters"] = ["fiscal_multiplier", "unavailable_parameter"]
+        assert not node.validate_cache_hit(ctx, changed, original)
+        updated = node.execute(ctx, changed)
+        assert updated.status == "ok"
+        updated_ref = updated.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+        assert updated_ref != original_ref
+        bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(store), updated_ref
+        )
+        assert bundle.target_context == ContextProfile.model_validate(
+            changed.params["target_context"]
+        )
+        assert bundle.simulation_domain == changed.params["domain"]
+        assert set(changed.params["required_parameters"]).issubset(
+            set(bundle.parameters) | set(bundle.unsupported_parameters)
+        )
+        if changed_selector == "required":
+            assert "unavailable_parameter" in bundle.unsupported_parameters
+            assert "unavailable_parameter" not in bundle.parameters
+        assert bundle.parameters["fiscal_multiplier"].value == 1.25
+        assert node.validate_cache_hit(ctx, updated.state, updated)
+        assert (
+            changed.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF] == original_ref
+        )
+
+
+def test_managed_subworkflow_admits_and_reads_selected_skg_snapshot(tmp_path: Path) -> None:
+    """The real child intake binds its normalized input before the actual SKG leaf."""
+    from polisyos.core.canon import from_canonical_bytes, to_canonical_bytes
+    from polisyos.core.run.manifest import RunManifest
+    from polisyos.ir.analytics.parameters import ContextAdaptiveParameterBundleV12
+    from polisyos.scientist.orchestration.engine.child_workflow import (
+        _ChildBinding,
+        _ChildInputAdmission,
+    )
+    from polisyos.scientist.orchestration.engine.executor import WorkflowReport
+    from polisyos.scientist.orchestration.engine.sub_workflow import (
+        StateMapping,
+        SubWorkflowConfig,
+        SubWorkflowNode,
+    )
+
+    scope = AccessScope.for_service(
+        tenant_id="retained-tenant",
+        cell_id="retained-cell",
+        spiffe_id="spiffe://polisyos.test/cell/retained-cell/svc/managed-child",
+    )
+    with (
+        tenant_scope(None, tenant_id=scope.tenant_id, cell_id=scope.cell_id),
+        _access_scope_context(scope),
+    ):
+        live_path, store, run, ctx, state, source_ref = _workflow_fixture(
+            tmp_path, access_scope=scope
+        )
+        state.inputs[SNAPSHOT_INPUT_KEY] = source_ref
+        state.params["phase15_runtime_backend"] = "numpy"
+        child_registry = NodeRegistry()
+        leaf = ResolveParametersNode()
+        child_registry.register(leaf)
+        child_workflow = WorkflowSpec(
+            workflow_id="selected_skg_child",
+            nodes=[NodeInvocation(alias="resolve", node_id=leaf.spec.metadata.component_id)],
+        )
+        mappings = [
+            f"inputs.{SNAPSHOT_INPUT_KEY}",
+            f"artifacts_index.{ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF}",
+            *(
+                f"params.{key}"
+                for key in (
+                    "target_context",
+                    "required_parameters",
+                    "domain",
+                    "skg_db_path",
+                    "phase15_runtime_backend",
+                )
+            ),
+        ]
+        result_path = f"artifacts_index.{ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF}"
+        child = SubWorkflowNode(
+            SubWorkflowConfig(
+                workflow=child_workflow,
+                input_mappings=[
+                    StateMapping(source_path=path, target_path=path) for path in mappings
+                ],
+                output_mappings=[StateMapping(source_path=result_path, target_path=result_path)],
+            ),
+            child_registry,
+            alias="child",
+        )
+        registry = NodeRegistry()
+        registry.register(child)
+        workflow = WorkflowSpec(
+            workflow_id="selected_skg_parent",
+            nodes=[NodeInvocation(alias="child", node_id=child.spec.metadata.component_id)],
+        )
+        result = WorkflowExecutor(ctx, registry).execute(workflow, state)
+        assert result.report.status == "ok", result.report.model_dump_json(indent=2)
+        child_ref = next(
+            ref for ref in result.report.nodes[0].artifacts if ref.kind == "core.run_manifest"
+        )
+        fresh = FileSystemCAS(store.root).for_tenant("retained-tenant", "retained-cell")
+        assert fresh.verify(child_ref).ok
+        manifest = RunManifest.model_validate(from_canonical_bytes(fresh.get_bytes(child_ref)))
+        assert manifest.parent_run_id == run.run_manifest.run_id
+        assert manifest.status == "ok"
+        admission_ref = next(
+            ref for ref in manifest.inputs if ref.kind == "scientist.child_workflow_input_admission"
+        )
+        admission = _ChildInputAdmission.model_validate(
+            from_canonical_bytes(fresh.get_bytes(admission_ref))
+        )
+        binding = _ChildBinding.model_validate(
+            from_canonical_bytes(fresh.get_bytes(admission.binding_ref))
+        )
+        admitted = ExperimentState.model_validate(
+            from_canonical_bytes(fresh.get_bytes(admission.state_ref))
+        )
+        assert admission.child_run_id == binding.child_run_id == manifest.run_id == admitted.run_id
+        assert admission.requested_sha256 == binding.input_sha256
+        assert admission.requested_sha256 != admission.admitted_sha256
+        assert (
+            admission.admitted_sha256
+            == hashlib.sha256(
+                to_canonical_bytes(admitted.model_dump(mode="json"), CanonSpec(forbid_floats=False))
+            ).hexdigest()
+        )
+        assert admitted.inputs[SNAPSHOT_INPUT_KEY] == source_ref
+        assert admission.state_ref in manifest.inputs
+        assert admission.workflow_ref in manifest.inputs
+        snapshot = load_retained_skg_snapshot(fresh, source_ref)
+        admitted_path = Path(admitted.params["skg_db_path"])
+        assert admitted_path != live_path
+        assert admitted_path.name == f"{snapshot.source_sha256}.duckdb"
+        assert hashlib.sha256(admitted_path.read_bytes()).hexdigest() == snapshot.source_sha256
+        assert hashlib.sha256(live_path.read_bytes()).hexdigest() != snapshot.source_sha256
+        live_reader = SKGQuery.prepare_read(db_path=live_path, index_dir=tmp_path)
+        try:
+            assert _value(live_reader) == 9.75
+        finally:
+            live_reader.close()
+        bundle_ref = result.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
+        bundle = load_context_adaptive_parameter_bundle(
+            _ensure_ir_artifact_store(fresh), bundle_ref
+        )
+        assert isinstance(bundle, ContextAdaptiveParameterBundleV12)
+        assert bundle.parameters["fiscal_multiplier"].value == 1.25
+        assert bundle.selected_skg_source.descriptor_ref == source_ref
+        report_ref = next(
+            ref for ref in manifest.outputs if ref.kind == "scientist.workflow_report"
+        )
+        fresh_report = WorkflowReport.model_validate(
+            from_canonical_bytes(fresh.get_bytes(report_ref))
+        )
+        assert fresh_report.status == "ok"
+        assert [(node.alias, node.status) for node in fresh_report.nodes] == [("resolve", "ok")]
+
+
+def test_source_bound_prior_reaches_native_hybrid_fit_and_fresh_query(tmp_path: Path) -> None:
+    """A named manual research route consumes the actual selected SKG prior.
+
+    The fit is conditional on the declared graph/data and conveys no empirical
+    or institutional authority. The same physical source path has an older
+    retained 1.25 version and a newer live 9.75 version; both are actually read.
+    """
+    from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+    from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
+        ExecutorGraph,
+        ExecutorNode,
+    )
+    from polisyos.foundry.methods.catalog.causal.gcm_fit import HybridSCMFit
+    from polisyos.foundry.methods.catalog.causal.gcm_query import GCMQuery
+    from polisyos.foundry.methods.catalog.causal.protocols import SCMQueryData
+    from polisyos.foundry.methods.registry import MethodRegistry
+    from polisyos.ir.analytics.causal_graph import CausalEdge
+    from polisyos.ir.analytics.parameters import ContextAdaptiveParameterBundleV12
+    from polisyos.ir.analytics.structural_causal_model import (
+        MechanismSource,
+        load_structural_causal_model_spec,
+        persist_structural_causal_model_spec,
+    )
+    from polisyos.ir.artifacts import InputRef as IRInputRef
+
+    with tenant_scope(None, tenant_id="retained-tenant", cell_id="retained-cell"):
+        _source, store, _run, ctx, original_state, old_source_ref = _workflow_fixture(tmp_path)
+        graph = CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=["X", "fiscal_multiplier"],
+            edges=[CausalEdge(src="X", dst="fiscal_multiplier")],
+        )
+        graph_ref = persist_causal_graph_model(
+            _ensure_ir_artifact_store(store), graph, return_selected_profile=True
+        )
+        state = original_state.model_copy(deep=True)
+        state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = graph_ref
+        state.params["phase15_runtime_backend"] = "numpy"
+        old_state = state.model_copy(deep=True)
+        old_state.inputs[SNAPSHOT_INPUT_KEY] = old_source_ref
+        old_state = _bind_retained_workflow_input(ctx, old_state)
+
+        # Keep graph, target context, observations, backend and selected method
+        # fixed; only the actual selected DuckDB snapshot changes.
+        resolved = [
+            ResolveParametersNode().execute(ctx, old_state),
+            ResolveParametersNode().execute(ctx, state),
+        ]
+        assert all(item.status == "ok" for item in resolved)
+        registry = MethodRegistry.get_instance()
+        registry.register(HybridSCMFit, override=True)
+        engine = CausalEngine(registry=registry, artifact_store=store)
+        fit_node = ExecutorNode(
+            node_id="manual_native_hybrid_fit",
+            method_fqn="causal.structural.gcm_fit",
+            method_version="1.0.0",
+            params={"fit_backend": "native_hybrid", "bayes_ridge": 1e-6},
+            depends_on=(),
+            reads_slots=(),
+            writes_slots=(),
+        )
+        fit_graph = ExecutorGraph(nodes=(fit_node,), edges=(), nuisance_schedule=())
+        outputs = []
+        sources = []
+        for selected, expected_mean in zip(resolved, (1.25, 9.75), strict=True):
+            bundle_ref = selected.state.artifacts_index[
+                ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF
+            ]
+            bundle = load_context_adaptive_parameter_bundle(
+                _ensure_ir_artifact_store(store), bundle_ref
+            )
+            assert isinstance(bundle, ContextAdaptiveParameterBundleV12)
+            source_ref = bundle.selected_skg_source.descriptor_ref
+            assert source_ref.manifest_profile_sha256 is not None
+            assert bundle.parameters["fiscal_multiplier"].value == pytest.approx(expected_mean)
+            assert bundle.applicability["fiscal_multiplier"].is_applicable is True
+            multiplier = bundle.applicability["fiscal_multiplier"].uncertainty_multiplier
+            prior = selected.state.params["literature_priors"]["fiscal_multiplier"]["__intercept__"]
+            # The source CI is [1, 2]; independently translate its width to
+            # the bridge's documented 95%-normal std and source multiplier.
+            assert prior["mean"] == pytest.approx(expected_mean)
+            assert prior["std"] == pytest.approx(multiplier / 3.92)
+            assert selected.state.params["parameter_uncertainty_multipliers"][
+                "fiscal_multiplier"
+            ] == pytest.approx(multiplier)
+            fit_request = {
+                "data": [[-1.0, 0.0], [0.0, 2.0], [1.0, 0.0]],
+                "column_names": ["X", "fiscal_multiplier"],
+                "graph": graph,
+                "graph_ref": str(graph_ref.artifact_id),
+                "literature_priors": selected.state.params["literature_priors"],
+                "skg_snapshot_ref": bundle.skg_snapshot_ref,
+            }
+            # No unavailable GCM worker can be mistaken for the explicit
+            # pre-worker prior refusal on the default profile.
+            with pytest.raises(ValueError, match="does not support literature-prior"):
+                HybridSCMFit.pure_step(fit_request, {"fit_backend": "dowhy_gcm"})
+            _report, node_outputs = engine.estimate(fit_graph, fit_request)
+            assert fit_node.node_id in node_outputs
+            model = node_outputs[fit_node.node_id]["scm_spec"]
+            assert model.fit_method == "native_hybrid"
+            assert model.fit_metrics["n_hybrid_fallback"] == 0
+            mechanism = next(m for m in model.mechanisms if m.variable == "fiscal_multiplier")
+            assert mechanism.source is MechanismSource.HYBRID
+            assert mechanism.literature_prior["__intercept__"] == prior
+            # X is centered; the independently derived residual variance is
+            # 8/9 and sum(Y)=2. No production fitting helper defines expected.
+            prior_variance = (multiplier / 3.92) ** 2
+            expected_intercept = (expected_mean / prior_variance + 2 / (8 / 9)) / (
+                1 / prior_variance + 3 / (8 / 9) + 1e-6
+            )
+            assert mechanism.family_params["posterior_mean"]["__intercept__"] == pytest.approx(
+                expected_intercept, abs=1e-10
+            )
+            assert model.source_graph_ref == str(graph_ref.artifact_id)
+            assert model.skg_snapshot_ref == bundle.skg_snapshot_ref
+            refs = [
+                input_ref_from_artifact_ref(
+                    ArtifactRef.model_validate(ref.model_dump(mode="json")), role=role
+                )
+                for role, ref in (
+                    ("causal_graph", graph_ref),
+                    ("parameter_bundle", bundle_ref),
+                    ("skg_source_snapshot", source_ref),
+                )
+            ]
+            model_ref = persist_structural_causal_model_spec(
+                _ensure_ir_artifact_store(store),
+                model,
+                inputs=[IRInputRef.model_validate(ref.model_dump(mode="json")) for ref in refs],
+            )
+            fresh_store = FileSystemCAS(store.root).for_tenant("retained-tenant", "retained-cell")
+            fresh_model = load_structural_causal_model_spec(
+                _ensure_ir_artifact_store(fresh_store), model_ref
+            )
+            assert [
+                ref.model_dump(mode="json") for ref in fresh_store.get_manifest(model_ref).inputs
+            ] == [ref.model_dump(mode="json") for ref in refs]
+            fresh_bundle = load_context_adaptive_parameter_bundle(
+                _ensure_ir_artifact_store(fresh_store), bundle_ref
+            )
+            assert fresh_bundle.applicability["fiscal_multiplier"].is_applicable
+            assert fresh_bundle.selected_skg_source.descriptor_ref == source_ref
+            query = SCMQueryData(
+                scm_spec=fresh_model,
+                query={
+                    "query_type": "interventional",
+                    "treatment_variable": "X",
+                    "treatment_value": 0.0,
+                    "outcome_variable": "fiscal_multiplier",
+                    "n_samples": 2048,
+                },
+            )
+            query_result = GCMQuery.pure_step(
+                query, {"__seed__": 123, "enable_dowhy_comparison": False}
+            )["query_result"]
+            outputs.append((expected_intercept, query_result.result_mean))
+            sources.append(source_ref.model_dump(mode="json"))
+
+        assert sources[0] != sources[1]
+        assert outputs[1][0] > outputs[0][0]
+        assert outputs[1][1] > outputs[0][1]
 
 
 def _spawn_timeout_payload(task: Any) -> dict[str, Any]:

@@ -1,0 +1,210 @@
+{
+  "pass_id": "C10_SIM03",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "C10-S01",
+      "path": "policy-engine/src/polisyos/foundry/coupling/estimation.py",
+      "read_range": [
+        1,
+        390
+      ],
+      "topic": "SMMResult, PairedMonteCarloResult, finite observations, required moments, SMM loss and denominators",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/coupling/estimation.py#L1-L390",
+      "connector_citation": "turn116file0",
+      "reported_git_blob_sha": "5ee46913bd334b24612506e6319d3fd54ef0111a",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C10-S02",
+      "path": "policy-engine/src/polisyos/foundry/coupling/estimation.py",
+      "read_range": [
+        390,
+        530
+      ],
+      "topic": "paired_monte_carlo_effect and _average_summaries, actual end of file",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/coupling/estimation.py#L390-L530",
+      "connector_citation": "turn117file0",
+      "reported_git_blob_sha": "5ee46913bd334b24612506e6319d3fd54ef0111a",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C10-S03",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+      "read_range": [
+        332,
+        479
+      ],
+      "topic": "CoupledSMMEstimator params → observed dict → SMM → output",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py#L332-L479",
+      "connector_citation": "turn133file0",
+      "reported_git_blob_sha": "88e0b025e44c20f491856716044017d6275572c5",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C10-S04",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+      "read_range": [
+        400,
+        690
+      ],
+      "topic": "SMM output and CoupledPairedMonteCarloEstimator caller",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py#L400-L690",
+      "connector_citation": "turn126file0",
+      "reported_git_blob_sha": "88e0b025e44c20f491856716044017d6275572c5",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C10-S05",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "read_range": [
+        1760,
+        2175
+      ],
+      "topic": "run: effect basis not established, replication and physical-work diagnostics, numerical consumers",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L1760-L2175",
+      "connector_citation": "turn122file0",
+      "reported_git_blob_sha": "2e3e5d5ec22f886eca00fcaa78265ab0db8d4f18",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C10-S06",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "read_range": [
+        540,
+        710
+      ],
+      "topic": "sampling error finite guards and recomputation; raw replication summaries",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L540-L710",
+      "connector_citation": "turn129file0",
+      "reported_git_blob_sha": "2e3e5d5ec22f886eca00fcaa78265ab0db8d4f18",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C10-S07",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "read_range": [
+        885,
+        1035
+      ],
+      "topic": "effective evidence, physical identity, actual replicate aggregation",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L885-L1035",
+      "connector_citation": "turn131file0",
+      "reported_git_blob_sha": "2e3e5d5ec22f886eca00fcaa78265ab0db8d4f18",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C10-S08",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "read_range": [
+        4265,
+        4350
+      ],
+      "topic": "explicit baseline; seed-paired derived sampling",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L4265-L4350",
+      "connector_citation": "turn132file0",
+      "reported_git_blob_sha": "2e3e5d5ec22f886eca00fcaa78265ab0db8d4f18",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C10-S09",
+      "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "read_range": [
+        4350,
+        4880
+      ],
+      "topic": "pair effects, higher residuals, classification and bounded labels",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py#L4350-L4880",
+      "connector_citation": "turn124file0",
+      "reported_git_blob_sha": "2e3e5d5ec22f886eca00fcaa78265ab0db8d4f18",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C10-S10",
+      "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+      "read_range": [
+        1,
+        600
+      ],
+      "topic": "selected existing tests: required moments, replicas, failure expectations, evidence distinction (response truncated)",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_sim_03.py#L1-L600",
+      "connector_citation": "turn118file0",
+      "reported_git_blob_sha": "f632479a68d47778f3e38e49eec34c9522b018ce",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C10-S11",
+      "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+      "read_range": [
+        400,
+        850
+      ],
+      "topic": "selected tests: physical identity, triple interaction, cancellation and order (response truncated)",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_sim_03.py#L400-L850",
+      "connector_citation": "turn119file0",
+      "reported_git_blob_sha": "f632479a68d47778f3e38e49eec34c9522b018ce",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C10-S12",
+      "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+      "read_range": [
+        820,
+        1400
+      ],
+      "topic": "selected tests: four-atom cancellation, missing comparator, physical reuse (response truncated)",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_sim_03.py#L820-L1400",
+      "connector_citation": "turn120file0",
+      "reported_git_blob_sha": "f632479a68d47778f3e38e49eec34c9522b018ce",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C10-S13",
+      "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+      "read_range": [
+        1160,
+        1650
+      ],
+      "topic": "baseline change with fixed evidence, projected artifact/readback checks, actual file end",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_sim_03.py#L1160-L1650",
+      "connector_citation": "turn121file0",
+      "reported_git_blob_sha": "f632479a68d47778f3e38e49eec34c9522b018ce",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C10-S14",
+      "path": "policy-engine/tests/unit/foundry/coupling/test_estimation.py",
+      "read_range": [
+        1,
+        700
+      ],
+      "topic": "required/optional SMM moment denominators and actual producer contracts",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/coupling/test_estimation.py#L1-L700",
+      "connector_citation": "turn127file0",
+      "reported_git_blob_sha": "f5af612f3f33fa065fd3c8f0c4945527c5b1c802",
+      "full_blob_independently_reconstructed": false
+    },
+    {
+      "id": "C10-S15",
+      "path": "AGENTS.md",
+      "read_range": [
+        1,
+        130
+      ],
+      "topic": "repository boundaries, evidence rules, supported runtime",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/AGENTS.md#L1-L130",
+      "connector_citation": "turn128file0",
+      "reported_git_blob_sha": "5f144a27e35130b60e2c3537d97f0c7bbcda57f5",
+      "full_blob_independently_reconstructed": false
+    }
+  ],
+  "original_source": {
+    "file": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      1288,
+      1437
+    ],
+    "citation": "turn115file1"
+  },
+  "limitations": "read ranges are requested windows; truncated responses not counted as an exhaustive full-file/test census. Function bodies actually used are visible in source transcriptions. C08/C09 unchanged excerpts reused as code, not past test outcomes."
+}

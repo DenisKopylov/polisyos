@@ -7,12 +7,23 @@ ports.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from collections.abc import Iterable, Mapping
+from datetime import date
 from typing import Any, Literal, Protocol, runtime_checkable
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 
 REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION = "policyos.requirement_to_capability_query.v1"
+CAPABILITY_SOURCE_DISCOVERY_SCHEMA_VERSION = "policyos.capability_source_discovery.v1"
 
 AuthorityPosture = Literal["research", "governed_pilot", "production"]
 
@@ -128,6 +139,49 @@ class RequirementToCapabilityQuery(BaseModel):
         return _text_tuple(value)
 
 
+def candidate_source_time_coverage(
+    *,
+    query_window: RequirementTimeWindow,
+    source_start: str | None,
+    source_end: str | None,
+) -> tuple[str | None, tuple[str, ...]]:
+    """Compare declared ISO calendar intervals without inventing missing dates.
+
+    This uses the kernel's calendar-date parsing law. A malformed or inverted
+    declared interval refuses; absent bounds remain named candidate unknowns.
+    No refusal is compatibility, not proof of an observation or current release.
+    """
+
+    try:
+        q_start = date.fromisoformat(query_window.start) if query_window.start is not None else None
+        q_end = date.fromisoformat(query_window.end) if query_window.end is not None else None
+    except (TypeError, ValueError):
+        return "requirement_time_window_invalid", ()
+    if q_start is not None and q_end is not None and q_end < q_start:
+        return "requirement_time_window_inverted", ()
+    try:
+        s_start = date.fromisoformat(source_start) if source_start is not None else None
+        s_end = date.fromisoformat(source_end) if source_end is not None else None
+    except (TypeError, ValueError):
+        return "source_time_window_invalid", ()
+    if s_start is not None and s_end is not None and s_end < s_start:
+        return "source_time_window_inverted", ()
+    if (q_start is not None and s_end is not None and s_end < q_start) or (
+        q_end is not None and s_start is not None and s_start > q_end
+    ):
+        return "time_window_outside_claim", ()
+    if (q_start is not None and s_start is not None and s_start > q_start) or (
+        q_end is not None and s_end is not None and s_end < q_end
+    ):
+        return "time_window_not_covered", ()
+    unknowns: list[str] = []
+    if q_start is None or q_end is None:
+        unknowns.append("requirement_time_coverage_not_established")
+    if s_start is None or s_end is None:
+        unknowns.append("source_time_coverage_not_established")
+    return None, tuple(unknowns)
+
+
 @runtime_checkable
 class CapabilityBindingLike(Protocol):
     """Read-only binding fields required by lower-level requirement compilers."""
@@ -147,6 +201,126 @@ class CapabilityBindingLike(Protocol):
     acquisition_strategies: tuple[Mapping[str, Any], ...]
     rejected_alternatives: tuple[Mapping[str, Any], ...]
     conflict_markers: tuple[Mapping[str, Any], ...]
+
+
+class CapabilitySourceCandidate(BaseModel):
+    """A content-bound source descriptor requiring independent native admission.
+
+    The descriptor is the actual owner's complete JSON capability row. Its
+    identity check establishes which row was searched, never source truth,
+    rights, freshness, execution permission, or claim-evidence authority.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    capability_ref: str = Field(min_length=1)
+    construct_ref: str = Field(min_length=1)
+    content_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    descriptor: dict[str, Any]
+    limitations: tuple[str, ...] = Field(min_length=1)
+
+    @property
+    def source_assets(self) -> tuple[Mapping[str, Any], ...]:
+        """Return the owner's source descriptors without promoting them."""
+        return tuple(self.descriptor["source_assets"])
+
+    @property
+    def scope(self) -> Mapping[str, Any]:
+        """Return the source's declared scope, separately from the query."""
+        return self.descriptor["scope"]
+
+    @model_validator(mode="after")
+    def _bind_descriptor(self) -> CapabilitySourceCandidate:
+        if self.descriptor.get("capability_id") != self.capability_ref:
+            raise ValueError("candidate_source_descriptor_identity_mismatch")
+        if _bare_construct(self.descriptor.get("construct")) != _bare_construct(self.construct_ref):
+            raise ValueError("candidate_source_descriptor_construct_mismatch")
+        assets = self.descriptor.get("source_assets")
+        if (
+            not isinstance(assets, list | tuple)
+            or not assets
+            or any(
+                not isinstance(asset, Mapping) or not _optional_text(asset.get("ref"))
+                for asset in assets
+            )
+        ):
+            raise ValueError("candidate_source_descriptor_assets_missing")
+        if not isinstance(self.descriptor.get("scope"), Mapping):
+            raise ValueError("candidate_source_descriptor_scope_missing")
+        encoded = json.dumps(
+            self.descriptor,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
+        ).encode("utf-8")
+        if self.content_digest != "sha256:" + hashlib.sha256(encoded).hexdigest():
+            raise ValueError("candidate_source_descriptor_digest_mismatch")
+        return self
+
+
+class CapabilitySourceDiscoveryUnavailableError(RuntimeError):
+    """Declare an optional source-discovery outage without erasing claim work."""
+
+    def __init__(self, reason_code: str) -> None:
+        if not isinstance(reason_code, str) or not reason_code.strip():
+            raise ValueError("candidate_source_discovery_unavailable_reason_missing")
+        self.reason_code = reason_code.strip()
+        super().__init__(f"candidate_source_discovery_unavailable:{self.reason_code}")
+
+
+class CapabilitySourceDiscoveryResult(BaseModel):
+    """Candidate source lookup beside, never replacing, claim resolution."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.capability_source_discovery.v1"] = (
+        CAPABILITY_SOURCE_DISCOVERY_SCHEMA_VERSION
+    )
+    purpose: Literal["candidate_source_discovery"] = "candidate_source_discovery"
+    query: RequirementToCapabilityQuery
+    capability_index_ref: str = Field(min_length=1)
+    rule_version_ref: str = Field(min_length=1)
+    state: Literal["candidates_returned", "no_match"]
+    candidates: tuple[CapabilitySourceCandidate, ...] = ()
+    rejected_candidates: tuple[dict[str, Any], ...] = ()
+    limitations: tuple[str, ...] = (
+        "finite_loaded_index_slice_only",
+        "discovery_is_not_source_admission",
+        "discovery_is_not_claim_evidence",
+        "descriptor_identity_does_not_establish_external_source_provenance",
+    )
+    satisfies_claim_evidence: Literal[False] = False
+    requires_native_source_admission: Literal[True] = True
+
+    @field_serializer("query")
+    def _serialize_query(self, value: RequirementToCapabilityQuery) -> dict[str, Any]:
+        return value.model_dump(mode="json", by_alias=True)
+
+    @model_validator(mode="after")
+    def _bind_original_query(self) -> CapabilitySourceDiscoveryResult:
+        if bool(self.candidates) != (self.state == "candidates_returned"):
+            raise ValueError("candidate_source_discovery_state_mismatch")
+        refs = [candidate.capability_ref for candidate in self.candidates]
+        if len(refs) != len(set(refs)):
+            raise ValueError("candidate_source_discovery_duplicate_descriptor")
+        if any(
+            _bare_construct(candidate.construct_ref) != self.query.construct
+            for candidate in self.candidates
+        ):
+            raise ValueError("candidate_source_discovery_query_construct_mismatch")
+        return self
+
+
+@runtime_checkable
+class CapabilityCandidateDiscoveryPort(Protocol):
+    """Optional source lookup; existing authority-only resolver ports stay valid."""
+
+    def discover_sources(
+        self,
+        query: RequirementToCapabilityQuery | Mapping[str, Any],
+    ) -> CapabilitySourceDiscoveryResult:
+        """Return source candidates requiring separate native admission."""
 
 
 @runtime_checkable
@@ -239,14 +413,20 @@ def _slug(value: object) -> str:
 
 
 __all__ = [
+    "CAPABILITY_SOURCE_DISCOVERY_SCHEMA_VERSION",
     "REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION",
     "AuthorityPosture",
     "CapabilityBindingLike",
+    "CapabilityCandidateDiscoveryPort",
     "CapabilityResolverPort",
+    "CapabilitySourceCandidate",
+    "CapabilitySourceDiscoveryResult",
+    "CapabilitySourceDiscoveryUnavailableError",
     "RequirementTimeWindow",
     "RequirementToCapabilityQuery",
     "ScenarioFamilyConstructRow",
     "ScenarioFamilyConstructRows",
+    "candidate_source_time_coverage",
     "construct_for_legacy_family",
     "legacy_family_for_construct",
 ]

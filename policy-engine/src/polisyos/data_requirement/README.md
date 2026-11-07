@@ -117,3 +117,107 @@ producer to the existing N7 consumer, and `P04`/`P05` by preserving blocked and
 not-established outcomes without minting authority. Acceptance is a real N7 receipt
 whose action record contains the exact profile-required query and binding result, plus a
 candidate-proposal exclusion control.
+
+## Declared Domain and Claim Input Contracts
+
+The scenario adapter interprets `domain` and `domain_hint` as declared routing
+vocabulary. Canonical `ProblemDomain` names/values, case/separator spelling and a
+terminal `policy` suffix select the same enum. The finite vocabulary also includes
+`health`, `health care` and `образование`. It never selects a hard domain from a
+scenario ID or lexical topic. A supplied unknown label routes as `CUSTOM` with
+`unresolved` status; an absent label routes as `CUSTOM` with `not_supplied` status.
+Both retain candidate work and explicit constructs, without claiming that every
+custom domain has methodological support.
+
+Empty/non-string fields and incompatible simultaneous `domain`/`domain_hint`
+declarations raise `ScenarioDomainInputError` before grammar execution. Its code
+is `scenario_domain_input_invalid`, with `reason_code` (`domain_wrong_type`,
+`domain_empty`, or `domain_alias_conflict`) and an exact `field_path`. Equivalent
+aliases may be supplied together; two different unknown labels are not silently
+treated as the same declaration.
+
+New scenario reports retain raw domain fields, canonical value, resolution status
+and purpose under `metadata.scenario_domain_resolution`. The interpretation rule
+`policyos.data_requirement.scenario_domain.v1` joins the report rule references and
+input-content binding. The report schema remains V2; no reader retroactively adds
+this interpretation to an old report. Domain normalization is routing vocabulary,
+not source authority or proof of semantic support.
+
+Per-claim Mapping input follows the strict `ClaimRecord` contract: construct
+requirements belong in `metadata.required_constructs` or its supported metadata
+aliases. Top-level claim `required_constructs`, `required_evidence_constructs`,
+`explicit_constructs`, `construct_refs` and `construct_ref` are unsupported and
+raise `ClaimConstructDeclarationInputError` with an exact claim/field path rather
+than disappearing. This bounded contract differs from scenario-level and
+scope-profile construct declarations, which remain supported. The finite
+first-party caller census found no maintained public compiler producer requiring
+a top-level per-claim declaration; a private-helper test does not extend that API.
+
+Strict readers retain the exact source bytes of unchanged V1 and V2 reports.
+The immutable writer preserves those bytes and their content address; if a model
+was intentionally changed, it compares the semantic projection and writes new
+bytes instead of returning stale retained input. Historical reports keep their
+old basis and do not gain the new domain-rule metadata. Actual acquisition and
+N7 source admission remain separate consumers of the compiled denominator.
+
+### Candidate Source Discovery
+
+An injected resolver may implement the optional neutral
+`CapabilityCandidateDiscoveryPort.discover_sources(query)` alongside its
+existing authority `resolve(query)`. The compiler keeps the original
+`claim_evidence_closeout` query and complete binding unchanged. A typed
+`candidate_discovery` sibling records the finite loaded-index lookup, complete
+owner descriptors, their content digests, and exact query identity. It never
+satisfies claim evidence and always requires independent native source
+admission. Descriptor identity is not external source provenance, permission,
+release currency, execution approval, or model adequacy.
+
+Known population, entity, geography, and time mismatches exclude a source.
+Generic or missing query scope and missing source coverage remain named
+candidate limitations; they are not silently replaced by the source scope.
+The existing scope profile also accepts explicit `population` and
+`entity_scope` declarations. They survive the compiled query and requirement
+scope without adding domain-specific branches or claiming source authority.
+
+An absent discovery port is represented by an omitted sibling, never a
+successful no-match. A declared `CapabilitySourceDiscoveryUnavailableError`
+preserves the existing claim binding with exact unavailability reason codes.
+Malformed or mismatched discovery output refuses at the compiler boundary;
+unrelated failures are not relabeled as an outage. Historical reports with no
+sibling retain their original wire shape and exact source bytes. Consumers
+must resolve the persisted compiler report and independently admit a source;
+they cannot turn a descriptor or its hash into an admitted observation.
+
+When grammar facets are not established, explicitly declared requirements reuse
+the same canonical claim-ledger compiler. This preserves useful candidate
+needs without asserting grounded policy semantics. Canonical specs replace a
+same-family legacy projection; additional caller-only legacy families remain
+in the denominator with an aggregate `consumer_asserted` basis. A recomputed
+canonical subset cannot upgrade that tail. The report retains the grammar
+limitation and complete blocked or admitted claim binding independently.
+
+### World-Slot Requirement Joins
+
+`compiled_requirements_for_world_slot` recomputes a routing-only join from the
+existing typed specs and capability resolutions. It checks the complete spec
+binding, original query and scope profile, index, descriptor digest, declared
+source asset, target slot, and supported fetch/metric relationship. It returns
+all matching spec occurrences: zero is unresolved and more than one is
+ambiguous. Multiple source descriptors inside one spec remain available for
+later independent selected-digest admission; the helper never chooses one.
+
+A uniquely established slot declaration can reuse its canonical construct
+spec rather than create a second legacy need. The original declaration and
+source reference remain recorded. Unmapped or ambiguous declarations retain
+their legacy rows and consumer-asserted aggregate basis. Optional fetch
+`profile_id=None` remains valid. Semantic metric aliases require an actual
+owner-bound mapping; this helper does not invent equivalence for differing
+construct and metric identifiers.
+
+Candidate discovery rule v1.2 and this join share the neutral
+`candidate_source_time_coverage` predicate. It follows the kernel's ISO
+calendar-date law, compares actual dates, refuses malformed or inverted
+intervals, and requires complete coverage for known bounds. Absent bounds
+remain explicit unknowns. A source's explicit foreign jurisdiction also
+refuses. Existing claim-evidence resolution and historical report bytes retain
+their original interpretation; these candidate checks confer no authority.

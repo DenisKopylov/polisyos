@@ -145,6 +145,8 @@ def default_workflow_spec() -> WorkflowSpec:
                     "run_distributional_analysis",
                     "run_causal_evaluation",
                     "run_normative_arbitration",
+                    "run_metric_validation",
+                    "propagate_welfare",
                 ],
             ),
             NodeInvocation(
@@ -152,11 +154,18 @@ def default_workflow_spec() -> WorkflowSpec:
                 node_id="scientist.node_run_evaluator@1.0.0",
                 depends_on=["run_governance"],
             ),
+            # Evaluation changes the full governance pass context; reissue on that basis.
+            NodeInvocation(
+                alias="refresh_governance",
+                node_id="scientist.node_run_governance@1.2.0",
+                params={"replay_previous_gate_decision": True},
+                depends_on=["run_evaluator"],
+            ),
             NodeInvocation(
                 alias="build_decision_packet",
                 node_id="scientist.node_build_decision_packet@1.5.0",
                 depends_on=[
-                    "run_governance",
+                    "refresh_governance",
                     "run_causal_evaluation",
                     "run_evaluator",
                     "run_metric_validation",

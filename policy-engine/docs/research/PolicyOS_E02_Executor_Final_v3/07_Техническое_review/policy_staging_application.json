@@ -1,0 +1,121 @@
+{
+  "status": "APPLIED_EXACT_REVIEWED_BYTES",
+  "files": [
+    {
+      "source": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/FUN-03.md",
+      "target": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/FUN-03.md",
+      "before_sha256": "6833f5a3c6360320c4a5d7816d0f1fd6790e35486491da177f9e9fe2d3f318e6",
+      "after_sha256": "992b3355f65e78a3e95358bc9626b10a81ffccadec341c9802bd482cecc8433f",
+      "finding_ids": [
+        "PS-F01",
+        "PS-F07"
+      ]
+    },
+    {
+      "source": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/FUN-03.json",
+      "target": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/FUN-03.json",
+      "before_sha256": "b57cacfe7087b248336a5f571bb39dcd7f0ddbb0eb363e6ff67561bed4573310",
+      "after_sha256": "ac82c1f8596a70b77c206d16b0e223d95e82917e7040ea174569378ceb3eafbd",
+      "finding_ids": [
+        "PS-F01",
+        "PS-F07"
+      ]
+    },
+    {
+      "source": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/OPT-02.md",
+      "target": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/OPT-02.md",
+      "before_sha256": "b3057778bfdca3e4a3d76b44ff2426d3fc6a9c7194a2541f8c6d443885e529fe",
+      "after_sha256": "dc961a4c49cf01cdcbf6a7dad1726e4ff43b9dc2715d8804c534e851526db8f0",
+      "finding_ids": [
+        "PS-F03"
+      ]
+    },
+    {
+      "source": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/OPT-02.json",
+      "target": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/OPT-02.json",
+      "before_sha256": "587b1172356c6d6df12070cf70840b25524cf5dd1b914193c56143ad6fa85c13",
+      "after_sha256": "239697d9f421eaf0a1b0cb90ed04efde3858499d7133525d3ebd1274e3fd6f5c",
+      "finding_ids": [
+        "PS-F03"
+      ]
+    },
+    {
+      "source": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/SIM-03.md",
+      "target": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/SIM-03.md",
+      "before_sha256": "d7f0dbaa314c11ec906bfe3e5c6d8420b6c291da39fc4d0c6eb23c17abcd4ce4",
+      "after_sha256": "aa14bc4c7dd580eb9c50f093616aebce060449afca42b4bec141aff9b0cf0a5e",
+      "finding_ids": [
+        "PS-F04",
+        "PS-F08"
+      ]
+    },
+    {
+      "source": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/SIM-03.json",
+      "target": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/SIM-03.json",
+      "before_sha256": "5397b780ec111b0417696365a8dea17e3cc1a3ea9a498727dfd2b56d6fb5fc91",
+      "after_sha256": "00a5dcab73db7c1f62a2e05416a0b7df50307d1f99cd3e6db08bd53f6a0e710a",
+      "finding_ids": [
+        "PS-F04",
+        "PS-F08"
+      ]
+    },
+    {
+      "source": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/OPT-03.md",
+      "target": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/OPT-03.md",
+      "before_sha256": "3e35e027ab532d71189096e7063f624e0b6cbd6ffa79d89630791c78e5a12c1b",
+      "after_sha256": "ac39c763c00a38184ea26a2184b3eca6af77d3db283077810c02ba789e67320e",
+      "finding_ids": [
+        "PS-F02"
+      ]
+    },
+    {
+      "source": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/OPT-03.json",
+      "target": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/OPT-03.json",
+      "before_sha256": "9c0e63efed7a71642fe37784e6cddcb2af7efc585e28df5a04dabea97bf20e25",
+      "after_sha256": "b0311bca091c8d8a9bdaac805549bb7d2943b50062cb730eaec4c9106d1e4cae",
+      "finding_ids": [
+        "PS-F02"
+      ]
+    },
+    {
+      "source": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/TRN-01.md",
+      "target": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/TRN-01.md",
+      "before_sha256": "5d20bedd7e1011b64d09cf3c9c756651bbfb314fd9aa6b66fd875e5e190a1c2b",
+      "after_sha256": "acb63f3f975fb5c24f8da00b67b1673a232ec256c761f03fd9b820fb58efed8e",
+      "finding_ids": [
+        "PS-F02"
+      ]
+    },
+    {
+      "source": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/TRN-01.json",
+      "target": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/TRN-01.json",
+      "before_sha256": "53468e110aa9e2ecc770bc25c64de7ae8418634f7405239a244959fe8fa355b1",
+      "after_sha256": "cf3748957343529fed819e191e82ac590c7cff2e641bb9d14e205e7bb2508397",
+      "finding_ids": [
+        "PS-F02"
+      ]
+    },
+    {
+      "source": "e02_final_technical_review/policy_search/proposed_v2/01_Лейны/LANE-01.md",
+      "target": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/01_Лейны/LANE-01.md",
+      "before_sha256": "60e37988d181aaaf1054089498b34d851ea7d7fb8a97eeefc07f2f4b37367ecd",
+      "after_sha256": "8c4a9ffa024a39d88eb10f940882e653a315e8817505a5616e3c47f2122b062c",
+      "finding_ids": [
+        "PS-F04",
+        "PS-F08"
+      ]
+    },
+    {
+      "source": "e02_final_technical_review/policy_search/proposed_v2/01_Лейны/LANE-02.md",
+      "target": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/01_Лейны/LANE-02.md",
+      "before_sha256": "ca33cbf6b608d6f1398c9e46287c92d31bfa42c984826e56a6f7b727aa93f47e",
+      "after_sha256": "f32af01898b24a89803e9812697273403813e692c45c1601b33bb717a92e27b3",
+      "finding_ids": [
+        "PS-F01",
+        "PS-F02",
+        "PS-F03",
+        "PS-F07"
+      ]
+    }
+  ]
+}

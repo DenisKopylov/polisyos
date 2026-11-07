@@ -1,0 +1,313 @@
+{
+  "packet_id": "CAS-03",
+  "lane": "LANE-06",
+  "source_ids": [
+    "B152",
+    "B154",
+    "B155"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/CAS-03.md",
+    "../05_Основания/Аудит/01_Реестры/C76_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C76-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CAS-03-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Cancel проверяется внутри полного filesystem census и scope membership preparation, а не только вокруг next().",
+      "inventory_id": "audit-residual:C76_остатки:0"
+    },
+    {
+      "audit_id": "C76-R02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-CAS-03-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Dedup проверяет stop на каждом consumed duplicate; StopIteration повторно проверяет cancel/auth loss перед complete.",
+      "inventory_id": "audit-residual:C76_остатки:1"
+    },
+    {
+      "audit_id": "C76-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-CAS-03-01",
+        "REQ-CAS-03-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Реальные custody/CLI/native import. Учесть C78 correction: PEP695 поддержан Python3.12; прежнее exclusion было harness, не parser defect.",
+      "inventory_id": "audit-residual:C76_остатки:2"
+    },
+    {
+      "audit_id": "C76-G02",
+      "disposition": "capability",
+      "requirement_ids": [
+        "REQ-CAS-03-02",
+        "REQ-CAS-03-03",
+        "REQ-CAS-03-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Измерить bounded work/memory и проверить caller-owned authorizer integration; не выдавать signal primitive за полный auth lifecycle.",
+      "inventory_id": "audit-residual:C76_остатки:3"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-CAS-03-01",
+      "text": "Integrity→signature на одном immutable snapshot читает один blob и соответствующий manifest view, выполняет один локальный content integrity hash и проверяет signature именно этих bytes. Настоящий Ed25519 verifier сохраняет свои вычисления, trust/revocation/current custody; tamper/size/profile mismatch отказаны.",
+      "source_ids": [
+        "B152"
+      ],
+      "audit_ids": [
+        "C76-G01"
+      ],
+      "test_ids": [
+        "TEST-CAS-03-01"
+      ]
+    },
+    {
+      "id": "REQ-CAS-03-02",
+      "text": "Default batch census принимает cooperative stop probe из batch boundary и проверяет его до каждого filesystem scan/entry-processing и в последующих membership/visibility loops, включая recheck. После наблюдённой отмены не начинает следующую scan/member admission; возвращает aborted/cancelled с уже готовыми rows, inventory_exhausted=False. Сохраняется полная scoped canonical membership validation для успешного complete; cancellation не маскируется inventory_failed.",
+      "source_ids": [
+        "B155",
+        "B154"
+      ],
+      "audit_ids": [
+        "C76-R01",
+        "C76-G02"
+      ],
+      "test_ids": [
+        "TEST-CAS-03-02"
+      ]
+    },
+    {
+      "id": "REQ-CAS-03-03",
+      "text": "Explicit canonical-ID iterator проверяет stop перед каждым обращением к source и после возврата элемента, в том числе duplicate. _run_bounded при StopIteration проверяет cancel/auth loss до exhausted=True. Если источник в своём next() установил cancel и затем исчерпался после повторов, результат aborted/cancelled, не complete; первый finished row сохранён, новых submits нет. Seen set и report остаются честно O(N).",
+      "source_ids": [
+        "B155",
+        "B154"
+      ],
+      "audit_ids": [
+        "C76-R02",
+        "C76-G02"
+      ],
+      "test_ids": [
+        "TEST-CAS-03-03"
+      ]
+    },
+    {
+      "id": "REQ-CAS-03-04",
+      "text": "Native verify/sign batch и CLI отражают actual state, admitted/finished, inventory_exhausted и abort_reason, отдельно от item validity. Configured request authorizer вызывает BatchAuthorizationLossSignal только после фактической общей потери authorization; это прекращает admissions, не preempts уже running callbacks. Local PermissionError остаётся item ERROR, общий loss — aborted, CLI не возвращает success для незавершённого обязательного набора.",
+      "source_ids": [
+        "B154",
+        "B155"
+      ],
+      "audit_ids": [
+        "C76-G01",
+        "C76-G02"
+      ],
+      "test_ids": [
+        "TEST-CAS-03-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-CAS-03-01",
+      "requirement_ids": [
+        "REQ-CAS-03-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Реальный CAS A/B и keyring, snapshot read/hash counters; valid/invalid/revoked key fixtures через настоящую crypto.",
+      "action": "Verify selected profile, затем tamper blob, size, manifest and signature; сменить trust после первой valid проверки.",
+      "oracle": "Один локальный integrity hash и один snapshot read на операцию, verifier выполняет собственную проверку; каждый tamper/отзыв отказан. Cache по content ID не переживает trust change.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-CAS-03-02",
+      "requirement_ids": [
+        "REQ-CAS-03-02"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Default inventory с десятками shard dirs, controlled scanner ставит cancel при первом scan; отдельно cancel во время visibility и exhaustion recheck.",
+      "action": "Запустить native batch с pending_window=2; сравнить original behavior контроль; нормальный проход с unrelated tenant/signature churn.",
+      "oracle": "После обнаружения cancel ни одного нового scan/admission; уже начатый bounded syscall можно завершить. state aborted, reason cancelled, exhausted false; успешный полный проход подтверждает scope membership, нарушение canonical names отказано, unrelated churn не ломает complete.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-CAS-03-03",
+      "requirement_ids": [
+        "REQ-CAS-03-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Explicit generator: первый ID завершён, при следующем запросе ставит cancel и выдаёт до200 одинаковых ID; отдельный endless duplicates source, отдельный empty/end source setting cancel.",
+      "action": "Verify/sign с window1; измерить next calls и submits, затем нормальный finite dedup case.",
+      "oracle": "После первого наблюдения cancel source больше не читается; в отличие от прежних200 consumed не more than текущий in-flight next; admitted=finished=1 в базовом case, preserved row, exhausted false, aborted/cancelled. Нормальные duplicates без cancel не создают повторные callbacks.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-CAS-03-04",
+      "requirement_ids": [
+        "REQ-CAS-03-04"
+      ],
+      "level": "native CAS + configured request scope + CLI",
+      "setup": "Полные imports на P-CORE; реальный owner/trust route, local failing item и authorizer-loss barrier; small batch.",
+      "action": "Valid/unsigned/invalid/revoked/local error, global loss mid-flight, CLI JSON/text; измерить peak pending и отдельно N-dependent report/seen bytes.",
+      "oracle": "Typed row outcomes и report state совпадают в API/CLI; nonzero для failed mandatory completion. Pending≤declared window; no post-loss admissions; running results сохраняются. Evidence не утверждает O(1)total memory или preemption; authorizer источник установлен явно.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-D"
+  ],
+  "dependencies": [
+    "CAS-01"
+  ],
+  "preservation": [
+    "Integrity/signature используют один immutable проверенный snapshot; один локальный integrity hash не отменяет самостоятельный hash криптографического verifier.",
+    "Local ERROR не теряет независимые результаты; общий отказ/отмена дают partial/aborted, а не valid complete; BaseException не поглощается.",
+    "Bounded pending и context propagation; request-owned authorization-loss signal только прекращает новые admissions, не является authorizer.",
+    "Default census проверяет canonical membership активного scope; unrelated tenant/signature churn не равен membership change."
+  ],
+  "design_alignment": [
+    "Отмена — operational disposition, не научная/криптографическая invalidity; завершённость и достоверность отдельны.",
+    "Сохраняем scoped owner authority и текущий trust lifecycle; bounded pending не выдаём за бесплатное масштабирование."
+  ],
+  "open_decisions": [
+    "Выбрать private cancellation propagation форму после чтения всех scanner callers; сохранить existing public status vocabulary.",
+    "Определить actual request-scope authorizer owner для native G02. Если route отсутствует, реализовать узкое явное caller wiring либо оставить capability недоказанной; одного signal test недостаточно."
+  ],
+  "source_obligations": [
+    "B152: reuse доверенного locally verified bytes-view без нового пути чтения и без внешнего checksum-as-proof; trust/revocation проверять текущие, не global validity cache.",
+    "B154: local fault→typed item ERROR, global failure→aborted с сохранением завершённых rows; CLI не делает completeness из legacy report.ok.",
+    "B155: ограничить consumption и pending, включая скрытые подготовительные loops; full report/seen set по-прежнему O(N), whole blob snapshot занимает bytes(payload)."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/core/artifacts/store.py: _iter_canonical_artifact_ids, _capture_inventory_member_paths, _capture_default_inventory_state, _authenticated_default_inventory_cursor",
+    "policy-engine/src/polisyos/core/artifacts/_signature_ops.py: _run_bounded, _run_in_context, verify_signature",
+    "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py: verified snapshot preparation",
+    "policy-engine/src/polisyos/core/artifacts/batch_control.py: BatchAuthorizationLossSignal",
+    "policy-engine/src/polisyos/core/components/_cli_crypto.py: batch CLI report presentation"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_cas_03.py",
+    "policy-engine/tests/unit/remediation/test_b154_batch_completion.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0261",
+      "requirement_ids": [
+        "REQ-CAS-03-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Cancel проверяется внутри полного filesystem census и scope membership preparation, а не только вокруг next()."
+    },
+    {
+      "inventory_id": "remaining:0262",
+      "requirement_ids": [
+        "REQ-CAS-03-03"
+      ],
+      "disposition": "fix",
+      "rationale": "Dedup проверяет stop на каждом consumed duplicate; StopIteration повторно проверяет cancel/auth loss перед complete."
+    },
+    {
+      "inventory_id": "remaining:0263",
+      "requirement_ids": [
+        "REQ-CAS-03-01",
+        "REQ-CAS-03-04"
+      ],
+      "disposition": "qualify",
+      "rationale": "Реальные custody/CLI/native import. Учесть C78 correction: PEP695 поддержан Python3.12; прежнее exclusion было harness, не parser defect."
+    },
+    {
+      "inventory_id": "remaining:0264",
+      "requirement_ids": [
+        "REQ-CAS-03-02",
+        "REQ-CAS-03-03",
+        "REQ-CAS-03-04"
+      ],
+      "disposition": "capability",
+      "rationale": "Измерить bounded work/memory и проверить caller-owned authorizer integration; не выдавать signal primitive за полный auth lifecycle."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0387",
+      "requirement_ids": [
+        "REQ-CAS-03-01"
+      ],
+      "test_ids": [
+        "TEST-CAS-03-01"
+      ],
+      "rationale": "Exact immutable snapshot — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0388",
+      "requirement_ids": [
+        "REQ-CAS-03-01"
+      ],
+      "test_ids": [
+        "TEST-CAS-03-01"
+      ],
+      "rationale": "One local integrity digest и actual cryptographic input checks — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0389",
+      "requirement_ids": [
+        "REQ-CAS-03-02",
+        "REQ-CAS-03-03"
+      ],
+      "test_ids": [
+        "TEST-CAS-03-02",
+        "TEST-CAS-03-03"
+      ],
+      "rationale": "Local ERROR и explicit partial/aborted reports — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0390",
+      "requirement_ids": [
+        "REQ-CAS-03-02",
+        "REQ-CAS-03-03"
+      ],
+      "test_ids": [
+        "TEST-CAS-03-02",
+        "TEST-CAS-03-03"
+      ],
+      "rationale": "Bounded pending window — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0391",
+      "requirement_ids": [
+        "REQ-CAS-03-02",
+        "REQ-CAS-03-03",
+        "REQ-CAS-03-04"
+      ],
+      "test_ids": [
+        "TEST-CAS-03-02",
+        "TEST-CAS-03-03",
+        "TEST-CAS-03-04"
+      ],
+      "rationale": "Caller-owned authorization loss и worker context — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0392",
+      "requirement_ids": [
+        "REQ-CAS-03-02"
+      ],
+      "test_ids": [
+        "TEST-CAS-03-02"
+      ],
+      "rationale": "Scoped inventory reconciliation — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

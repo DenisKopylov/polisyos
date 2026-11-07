@@ -5,6 +5,7 @@ from copy import deepcopy
 
 import pytest
 
+from polisyos.core.artifacts import ensure_ir_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.registry import RegistryBundlePayload
@@ -26,7 +27,7 @@ from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.loading.norm_pack import NormPack
 from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.trinity import TrinityBundle, persist_trinity_bundle_artifact
 from polisyos.scientist.nodes.builtins.governance.governance_gate_requests import (
     _REPLAY_INPUT_CONTRACTS,
     _create_gate_request,
@@ -174,27 +175,21 @@ def test_gate_request_persists_context_and_scopes_identity_to_phase_and_iteratio
         tmp_path,
         run_id="R_gate_request_context",
     )
-    trinity_ref = store.put_json(
-        TrinityBundle(
-            problem_frame=ProblemFrame(
-                problem_id="gate_request_context",
-                domain=ProblemDomain.SOCIAL,
+    trinity_ref = ArtifactRef.model_validate(
+        persist_trinity_bundle_artifact(
+            ensure_ir_artifact_store(store),
+            TrinityBundle(
+                problem_frame=ProblemFrame(
+                    problem_id="gate_request_context",
+                    domain=ProblemDomain.SOCIAL,
+                ),
+                policy_spec=PolicySpec(policy_id="gate_request_context"),
+                model_spec=ModelSpec(
+                    model_id="gate_request_context",
+                    data_snapshot_ref="sha256:" + "c" * 64,
+                ),
             ),
-            policy_spec=PolicySpec(policy_id="gate_request_context"),
-            model_spec=ModelSpec(
-                model_id="gate_request_context",
-                data_snapshot_ref="sha256:" + "c" * 64,
-            ),
-        ),
-        PutOptions(
-            kind=TrinityBundle.ARTIFACT_KIND,
-            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
-            schema=SchemaInfo(
-                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
-                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
-            ),
-        ),
-        return_selected_profile=True,
+        ).model_dump(mode="json")
     )
     metrics_ref = store.put_json(
         Metrics(
@@ -724,7 +719,7 @@ def test_malformed_human_review_request_is_replaced_and_persisted_pair_is_reused
 
 
 def test_initial_gate_decision_requires_a_current_persisted_request(tmp_path) -> None:
-    _, ctx, protocol, _ = _build_gate_context(
+    store, ctx, protocol, _ = _build_gate_context(
         tmp_path,
         run_id="R_gate_decision_binding",
     )
@@ -781,6 +776,13 @@ def test_initial_gate_decision_requires_a_current_persisted_request(tmp_path) ->
     )
     assert approved == "approve"
     assert state.params["gate_decision_typed"]["request_id"] == gate_request["request_id"]
+    decision_ref = ArtifactRef.model_validate(state.params["gate_decision_ref"])
+    request_ref = ArtifactRef.model_validate(state.params["gate_request_ref"])
+    assert decision_ref.manifest_profile_sha256 is not None
+    assert request_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest(decision_ref).inputs[0].manifest_profile_sha256 == (
+        request_ref.manifest_profile_sha256
+    )
 
 
 def test_cross_run_gate_request_is_regenerated_before_decision_admission(tmp_path) -> None:

@@ -1,0 +1,59 @@
+{
+  "pass_id": "C125",
+  "bundle": "HYG-02",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C125-G01",
+      "kind": "qualification_gap",
+      "severity": "low",
+      "title": "Не завершено узкое retirement решение для evidence _shim",
+      "evidence": [
+        "P03",
+        "P05",
+        "P06",
+        "S01",
+        "S02"
+      ],
+      "remaining": "На основе finite census завершить решение для точного helper file и3names, включая unsupported/computed/external/package obligations. Если необходимого caller нет, убрать точный helper с negative/import guards; не переносить logic и не создавать общий shim framework.",
+      "limits": "Helper всё ещё существует; finite tracked scan не нашёл active static imports/calls по3names, кроме definition/export. Empty evidence manifest и неиспользуемое имя не являются universal no-client proof. Живые claims/provenance остаются."
+    },
+    {
+      "id": "C125-G02",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Governance aliases ещё обслуживают конкретный facade и tests",
+      "evidence": [
+        "P05",
+        "S05",
+        "S06",
+        "S07",
+        "S08:86–89",
+        "S08:114–117",
+        "S26"
+      ],
+      "remaining": "При принятом lifecycle решении переключить существующий Scientist passes facade на Core Legal/Safety, мигрировать подтверждённые config/plugin/monkeypatch consumers, затем менять alias identity tests на negative tests. Пока поддержка нужна — сохранить narrow forwarding с конкретным условием завершения.",
+      "limits": "Current root facade2relative imports и3test imports фактически найдены. Canonical builtin factories уже используют Core. Широкое удаление passes или произвольная дата sunset недопустимы; PHASE44 metadata date не относится к этим aliases."
+    },
+    {
+      "id": "C125-G03",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Lex retirement подтверждён адресно; full read/access/provenance qualification остаётся",
+      "evidence": [
+        "P01",
+        "P02",
+        "P04",
+        "S14",
+        "S15:389–448",
+        "S22:1–47",
+        "S25"
+      ],
+      "remaining": "В supported native profile выполнить existing subprocess/Fabric→Lex reader result tests с actual Parquet, историческими manifest bytes, access/provenance context и distribution inventory. Не возвращать retired Lex alias ради старого missing test selector.",
+      "limits": "lex.factlog отсутствует и exact native negative import подтверждён; caller использует Fabric. Bounded reader сохраняет requested columns/data under adapter, но не доказывает actual Parquet, locks, hash/provenance authority или authorization. Missing segment намеренно пропускается readable-segment reader; это не новый доказанный regression от alias migration."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "LA-018 address retirement и protected roots bounded подтверждены; LA-008/009 остатки lifecycle/compatibility, native chain G03. Новых R нет."
+}

@@ -1,0 +1,16 @@
+id = "2026-10-31-scientist-checkpoint-lifecycle"
+title = "Resume Scientist checkpoints through the persisted Core lifecycle"
+type = "fixed"
+component = "scientist"
+owner = "team-polisyos"
+summary = "Residual checkpoint execution explicitly reopens the persisted incomplete Core run instead of starting another lifecycle. Scientist default registry construction retains the selected manifest profiles, and completed checkpoint readback opens no runtime writer."
+evidence = ["tests/integration/scientist/test_workflow_reliability_scenarios.py", "tests/integration/scientist/test_checkpoint_resume.py", "tests/unit/scientist/orchestration/workflows/test_builder_pinning.py", "tests/unit/scientist/orchestration/engine/test_checkpoint.py"]
+compatibility = "Terminal runs remain closed. Corrupt, missing, mismatched and unprofiled registry owners remain refused before residual node execution. Context construction adds an optional internal resume_run_dir keyword."
+change_class = "internal"
+surface_classification = "internal: Scientist workflow context assembly and checkpoint recovery"
+migration = "No persisted schema changes or automatic upgrade of legacy unprofiled registry refs. Existing Core lifecycle and selected-profile admission requirements remain in force."
+limitations = "This repairs software checkpoint recovery and fixture lifecycle setup. It grants no publication, policy, scientific or external-custody authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

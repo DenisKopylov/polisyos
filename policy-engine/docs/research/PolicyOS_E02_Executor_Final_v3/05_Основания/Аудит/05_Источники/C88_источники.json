@@ -1,0 +1,265 @@
+{
+  "pass_id": "C88",
+  "bundle": "UDF-05",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          467
+        ]
+      ],
+      "evidence_level": "Полный reader прочитан и whole actual module исполнен. Layout/array/merge/public scalar/aggregate paths actual; Core initializer seam явный.",
+      "git_blob": "9e58c03c5c6dff95d3f3a832bdd706043ce4c876",
+      "sha256": "336db8edc8bc61bfb96da8113045dca52e8241493f7596183fca0830d1863ebb",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1057
+        ]
+      ],
+      "evidence_level": "Полный inventory owner прочитан. Whole module импортирован; historical resolver, role projections, claims и selected post-resolution boundaries исполнены. Native producer/receipt/CAS resolve не выполнялись.",
+      "git_blob": "4d14156ff45da8e1b1c1f6c9363766ab741a4b09",
+      "sha256": "7173f64b3e24afecd43fa1d92d2478fbd2fd888bbe86ac8e6622439c76850068",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          115
+        ],
+        [
+          200,
+          235
+        ],
+        [
+          894,
+          1080
+        ],
+        [
+          1381,
+          1441
+        ]
+      ],
+      "evidence_level": "Полные relevant verified-stage admission/bytes/candidate wrapper/static-aging forwarding прочитаны; actual whole module импортирован. Historical facade исполнен, candidate CAS wrapper только source evidence.",
+      "git_blob": "a3ef27d1af21361cfc4467f9d646f4df218a279c",
+      "sha256": "cb9735fb4c27d1a8a59c388ac0b56de8ec3bc446cac3a83badfdc54f2a972fb5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/static_aging.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/static_aging.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          50
+        ]
+      ],
+      "evidence_level": "Полный pure consumer прочитан и исполнен; full Foundry evaluation не запускалась.",
+      "git_blob": "5c09119340646d2b61cbdbc7ec7dee014414f46f",
+      "sha256": "b41eef2e01aa7291c770fd81b593bd750c444faac5439f4aed1b3e22f6c3899b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          314
+        ]
+      ],
+      "evidence_level": "Полный generation primitive прочитан и импортирован. Current/changed/malformed/duplicate controls исполнены; caller-owned denominator сохранён.",
+      "git_blob": "672dc970ef1e2ee1daa8fe1d94e0f49de562c2f6",
+      "sha256": "5036e343aa67a6b2989bb003c3513f36d0b20e6ce59f86f91144c2daca79f343",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography_inventory.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/builders/demography_inventory.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          64
+        ]
+      ],
+      "evidence_level": "Полный actual opt-in producer adapter прочитан. Native builder/orchestrator invocation UNRUN; никакого fetch/rebuild не было.",
+      "git_blob": "a3f3a67439b408f83199f587f366919c5b957a2b",
+      "sha256": "4e861a188988df1fe9451e6cf0bb852dce52cf1d66aeba64110c44d4e657ee63",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/tests/unit/remediation/test_udf_05.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_udf_05.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          547
+        ]
+      ],
+      "evidence_level": "Полные 21 existing bodies прочитаны и unchanged исполнены, включая parametrized layouts, malformed inputs, directories и symlinks. pytest compatibility helper, не native pytest.",
+      "git_blob": "42cf4b9762659d6f4e2b8a8d22ba3dccfdca7fe3",
+      "sha256": "312efbcad55566f9f73065c367bf078c8d5bc9929af8de73b4c775116e03a26e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          222
+        ]
+      ],
+      "evidence_level": "Полные 5 existing bodies прочитаны и unchanged исполнены. Captured historical bytes/legacy entrant projection/pure state composition проверены.",
+      "git_blob": "1f27ea1f7e7cd2157344c9745a96c5f5db424d4e",
+      "sha256": "a08dcbee73733cc7a492f10e62e15a25eda0a66b6d5ed77d75c40786036f6f95",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          330
+        ],
+        [
+          642,
+          716
+        ],
+        [
+          1000,
+          1008
+        ]
+      ],
+      "evidence_level": "Прочитаны producer helpers и выбранные pure tests. Только 5 test bodies (schema constants, finite/nonfinite projections, detached historical projection, fact provenance) исполнены unchanged AST; native CAS/inventory integration corpus не исполнен и не объявлен полностью прочитанным.",
+      "git_blob": "4d00b4d39dd406a2eb9720b57f9706cfa02b9a0d",
+      "sha256": "76e5ba88eed68583219688f401a915469a3a1b93d63eebac40634dda1a40bd49",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/README.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/ukraine/demography/README.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          114
+        ]
+      ],
+      "evidence_level": "Полный published contract прочитан: layout selection, candidate-only source inventory, legacy-limited adapter, evidence DTO v2, projection immutability и profile distinctions.",
+      "git_blob": "d097c236bda40d34ba6cae775ef7974575cf06b7",
+      "sha256": "a95f5a1658848e40a3d1d05a0dbda44bcc39808072594f4c94d13813e5bbd413",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/tests/_data/data_forge/ukraine_shadow/baseline/demography/targets.json",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/_data/data_forge/ukraine_shadow/baseline/demography/targets.json",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          9
+        ]
+      ],
+      "evidence_level": "Полная readonly repository fixture прочитана; используется существующим detached-projection тестом. Это синтетический fixture, не эмпирическая демография.",
+      "git_blob": "b7c86316bdc85820208a4b7c5ed555d792348f85",
+      "sha256": "72a4c506473001c2ad1ef4d284a98d1832e965b9477db0abb31fc489a757360f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/tests/_data/data_forge/ukraine_shadow/baseline/demography/transition_priors.json",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/_data/data_forge/ukraine_shadow/baseline/demography/transition_priors.json",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          10
+        ]
+      ],
+      "evidence_level": "Полная readonly repository fixture прочитана, без изменения.",
+      "git_blob": "48d02b5566352b9fb2c098e2e4b6184fc13cbcc7",
+      "sha256": "7d1289b4846f3fcf5c6fc64b900fa236003213ff4b2f7dbc2666014bd7125928",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/tests/_data/data_forge/ukraine_shadow/baseline/demography/donor_pool.json",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/_data/data_forge/ukraine_shadow/baseline/demography/donor_pool.json",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          5
+        ]
+      ],
+      "evidence_level": "Полная readonly repository fixture прочитана, без изменения.",
+      "git_blob": "10cff2c1d8ec6d1c0d120f1b9f6983809a8f5b82",
+      "sha256": "78c8719153395f1fcb302bfcf08ef46fe1a5667e9f84c51739c9e04f21f91bb9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          30
+        ]
+      ],
+      "evidence_level": "Supported Python/dependency constraints source-qualified C83–C87. Actual окружение ниже supported Python и с иной Pydantic; не native certification.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

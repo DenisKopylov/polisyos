@@ -178,9 +178,12 @@ def _cmd_sign(args: Any) -> int:
         else:
             print(
                 f"signed={report.signed} skipped={report.skipped} "
-                f"errors={report.errors} total={report.total}"
+                f"errors={report.errors} total={report.total} "
+                f"state={report.state} admitted={report.admitted} finished={report.finished} "
+                f"inventory_exhausted={report.inventory_exhausted} "
+                f"abort_reason={report.abort_reason}"
             )
-        return 0 if report.errors == 0 else 1
+        return 0 if report.errors == 0 and report.state == "complete" else 1
 
     try:
         artifact_id = _normalize_artifact_ref(args.artifact_ref)
@@ -249,12 +252,20 @@ def _cmd_verify(args: Any) -> int:
                     f"untrusted={report.untrusted} revoked={report.revoked} "
                     f"errors={report.errors} total={report.total}"
                 ]
-                if report.state is not None:
-                    lines.append(f"state={report.state}")
+                lines.extend(
+                    f"{name}={getattr(report, name)}"
+                    for name in ("state", "admitted", "finished", "inventory_exhausted")
+                )
                 if report.abort_reason is not None:
                     lines.append(f"abort_reason={report.abort_reason}")
                 print("\n".join(lines))
-        if report.invalid or report.untrusted or report.revoked or report.errors:
+        if (
+            report.state != "complete"
+            or report.invalid
+            or report.untrusted
+            or report.revoked
+            or report.errors
+        ):
             return 1
         if args.fail_unsigned and report.unsigned:
             return 1

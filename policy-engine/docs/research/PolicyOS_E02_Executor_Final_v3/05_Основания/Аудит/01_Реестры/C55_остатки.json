@@ -1,0 +1,68 @@
+{
+  "pass": "C55",
+  "bundle": "CAU-04",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C55-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B212",
+        "B213"
+      ],
+      "title": "Нативная двухсредовая цепочка и реальные DoWhy API не исполнены",
+      "evidence": [
+        "S01–S04",
+        "S08",
+        "S10–S14",
+        "P01–P07",
+        "environment.json",
+        "native_attempt.log",
+        "native_adapter_import.log",
+        "worker_native_attempt.log"
+      ],
+      "remaining": "В поддержанных средах выполнить существующие non-skipping worker oracle tests и Python3.14 parent job/CAS/fresh-reader tests. Подтвердить actual identify/estimate arguments, confidence level, observed installed distribution inventory и source-bound persisted point-only/interval. Не заменять backend fixture или stub estimator.",
+      "limits": "Pytest/DoWhy/Statsmodels/frozen worker environment отсутствуют; приложение требует Python3.14. 13 bodies/24 cases — isolated AST/standalone helpers, не native full suite. Config/lock/source существуют, но не являются исполнением."
+    },
+    {
+      "id": "C55-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B213"
+      ],
+      "title": "Legacy recorder не квалифицирует NIE и произвольные contrast/population",
+      "evidence": [
+        "S01:207–426",
+        "S01:429–531",
+        "S03:69–151",
+        "S09",
+        "S13",
+        "P01",
+        "P03"
+      ],
+      "remaining": "Сохранять selected production allowlist ATE/backdoor linear/0→1/ate/95% и явные capability refusals. Legacy-inprocess совместимость отдельно квалифицировать только для реально используемых поддержанных запросов; если её расширяют/предлагают как production profile, сначала связать actual contrast/target/API/version. Не объявлять NIE готовым на основании recorder labels.",
+      "limits": "Legacy передаёт estimand в constructor/identify, но estimate_effect получает лишь method_name и confidence_intervals. Текущий выбранный worker не использует этот broad path; отсутствие полноценного NIE не классифицировано новым product R. Исторический migration/FQN статус принадлежит следующему CAU-05."
+    },
+    {
+      "id": "C55-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B212",
+        "B213"
+      ],
+      "title": "Численный candidate и content binding не доказывают causal identification или coverage",
+      "evidence": [
+        "S03:69–151",
+        "S07:541–752",
+        "S08:462–615",
+        "S12",
+        "P05–P07"
+      ],
+      "remaining": "Перед scientific use обосновывать actual graph/estimand/target/adjustment/IID/full-rank/constant-effect/Gaussian assumptions отдельно; сохранить non-gating projection. Выполнить existing bounded synthetic oracle/coverage, но не переносить её автоматически на real data, mediation и иные estimators.",
+      "limits": "Synthetic response/version inventory в C55 — только validator fixture, не installation или statistical witness. Full report reconciliation не заменяет source admission. Point-only wide heuristic failure envelope не является доверительным интервалом."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "B212 полезная point сохранена без epsilon-CI; B213 выбранный профиль реально ограничен и связан в коде. Bounded DTO/validator/consumer checks подтверждены; native DoWhy/CAS и scientific qualification остаются G, нового R не подтверждено."
+}

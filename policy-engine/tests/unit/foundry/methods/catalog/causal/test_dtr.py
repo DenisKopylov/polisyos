@@ -169,20 +169,24 @@ class TestALearningDTR:
 
 
 class TestOutcomeWeightedLearning:
-    def test_returns_success(self):
+    def test_unrepresented_svc_policy_is_not_decision_grade(self):
         data = _make_dtr_data(n_units=300)
         result = OutcomeWeightedLearning.pure_step(data, {"n_bootstrap": 40})
-        assert result["report"].status == EstimationStatus.SUCCESS
+        assert result["report"].status == EstimationStatus.ASSUMPTION_FAILED
+        assert "unsupported_owl_policy_projection" in result["report"].status_reason
+        assert result["envelope"].gate_eligible is False
 
-    def test_returns_dtr_result(self):
+    def test_does_not_replace_the_learned_svc_with_a_majority_constant(self):
         data = _make_dtr_data(n_units=300)
         result = OutcomeWeightedLearning.pure_step(data, {"n_bootstrap": 40})
-        assert isinstance(result["dtr_result"], DTRResult)
+        assert result["dtr_result"] is None
+        assert result["report"].metadata["policy_projection_status"] == "not_established"
 
-    def test_value_estimate_finite(self):
+    def test_retains_finite_learning_value_only_as_candidate_diagnostic(self):
         data = _make_dtr_data(n_units=300)
-        dtr = OutcomeWeightedLearning.pure_step(data, {"n_bootstrap": 40})["dtr_result"]
-        assert np.isfinite(dtr.value_estimate)
+        result = OutcomeWeightedLearning.pure_step(data, {"n_bootstrap": 40})
+        assert np.isfinite(result["report"].metadata["candidate_value_estimate"])
+        assert result["report"].point_estimate is None
 
     def test_failure_on_tiny_data(self):
         tiny = DynamicTreatmentData(
@@ -249,12 +253,17 @@ class TestDoublyRobustDTR:
 # ---------------------------------------------------------------------------
 
 
-def test_all_four_methods_run_successfully():
-    """Quick smoke: all four DTR methods complete without error."""
+def test_dtr_methods_return_only_represented_policies_as_success():
+    """Learning alone cannot authorize an unrepresented executable policy."""
     data = _make_dtr_data(n_units=200)
     for cls in [QLearningDTR, ALearningDTR, OutcomeWeightedLearning, DoublyRobustDTR]:
         result = cls.pure_step(data, {"n_bootstrap": 40})
-        assert result["report"].status == EstimationStatus.SUCCESS, (
+        expected = (
+            EstimationStatus.ASSUMPTION_FAILED
+            if cls is OutcomeWeightedLearning
+            else EstimationStatus.SUCCESS
+        )
+        assert result["report"].status == expected, (
             f"{cls.__name__} returned {result['report'].status}"
         )
 

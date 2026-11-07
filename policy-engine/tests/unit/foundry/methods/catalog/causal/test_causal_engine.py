@@ -2273,10 +2273,13 @@ class TestCausalEngineTemporal:
 
         assert trajectory.effect_bundle is not None
         assert "effect_bundle_artifact_id" in trajectory.metadata
-        bundle_ref = EffectTrajectoryBundleRef(
-            artifact_id=trajectory.metadata["effect_bundle_artifact_id"]
+        bundle_ref = EffectTrajectoryBundleRef.model_validate(
+            trajectory.metadata["effect_bundle_artifact_ref"]
         )
-        restored = load_effect_trajectory_bundle(_ensure_ir_artifact_store(store), bundle_ref)
+        assert str(bundle_ref.artifact_id) == trajectory.metadata["effect_bundle_artifact_id"]
+        assert bundle_ref.manifest_profile_sha256
+        fresh_store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas"))
+        restored = load_effect_trajectory_bundle(fresh_store, bundle_ref)
         assert restored.query_ref.kind == "ir.continuous_time_query"
         assert restored.trajectory_ref.kind == "ir.temporal_trajectory"
         assert restored.confidence_band_ref.kind == "ir.temporal_confidence_band"
@@ -2305,6 +2308,23 @@ class TestCausalEngineTemporal:
             is DynamicSemanticsFamily.LOCAL_INDEPENDENCE_GRAPH
         )
         assert proof.dynamic_semantics.reduction_status is DynamicReductionStatus.BLOCKED
+
+        from polisyos.core.artifacts import PutOptions
+        from polisyos.ir.model_layer.canon import CanonViolation
+
+        foreign_ref = store.put_bytes(
+            store.get_bytes(bundle_ref),
+            PutOptions(kind="benchmark.foreign_temporal_bundle", media_type="application/json"),
+            return_selected_profile=True,
+        )
+        assert str(foreign_ref.artifact_id) == str(bundle_ref.artifact_id)
+        assert foreign_ref.manifest_profile_sha256 != bundle_ref.manifest_profile_sha256
+        foreign_profile_ref = bundle_ref.model_copy(
+            update={"manifest_profile_sha256": foreign_ref.manifest_profile_sha256}
+        )
+        with pytest.raises(CanonViolation):
+            load_effect_trajectory_bundle(fresh_store, foreign_profile_ref)
+        assert load_effect_trajectory_bundle(fresh_store, bundle_ref) == restored
 
     def test_identify_continuous_time_query_marks_validated_local_independence(self):
         engine = CausalEngine(registry=None, knowledge_base=None)

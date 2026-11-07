@@ -12,6 +12,7 @@ from polisyos.ir.analytics.causal import (
     PlaceboResult,
 )
 
+from ._econml_adapter import build_hte_data
 from ._registry_boot import register_causal_methods
 from .advanced_designs import (
     BunchingEstimator,
@@ -191,7 +192,7 @@ from .query_preservation import (
     update_query_preservation_cache,
 )
 from .query_validator import CausalQueryValidator
-from .rdd import RegressionDiscontinuity
+from .rdd import KernelHC0RegressionDiscontinuity, RegressionDiscontinuity
 from .recourse_manifold import (
     DiscreteActionAtlas,
     PlannerOptions,
@@ -285,6 +286,7 @@ def ensure_causal_methods_registered(registry: MethodRegistry | None = None) -> 
 
 
 __all__ = [
+    "build_hte_data",
     "CausalEffectReport",
     "CausalMethod",
     "DiagnosticTest",
@@ -311,6 +313,7 @@ __all__ = [
     "StandardDifferenceInDifferences",
     "StaggeredDifferenceInDifferences",
     "RegressionDiscontinuity",
+    "KernelHC0RegressionDiscontinuity",
     "StructuralTimeSeries",
     "TemporalTrajectoryResult",
     "TemporalBackendTarget",

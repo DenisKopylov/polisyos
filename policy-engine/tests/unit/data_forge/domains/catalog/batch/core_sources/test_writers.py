@@ -1,6 +1,11 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
+import subprocess
+import sys
+from datetime import UTC, datetime
 from pathlib import Path
 
 import duckdb
@@ -14,6 +19,7 @@ from polisyos.data_forge.domains.catalog.batch.core_sources import (
     loaders,
     registry,
     transformers,
+    validators,
     writers,
 )
 
@@ -22,8 +28,54 @@ def test_core_sources_writers_keep_memory_limit_formatting() -> None:
     assert writers._format_duckdb_memory_limit(1024 * 1024 * 1024) == "1024MB"
 
 
-def test_insert_generic_observations_uses_request_scoped_batch_size(monkeypatch) -> None:
-    connection = duckdb.connect(":memory:")
+def test_canonical_leaves_work_before_legacy_facade_in_fresh_process() -> None:
+    script = """
+import sys
+import duckdb
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import ObservationPlan
+from polisyos.data_forge.domains.catalog.batch.core_sources import loaders, registry, validators, writers
+
+facade_name = "polisyos.data_forge.domains.catalog.batch.core_sources_ingest"
+assert facade_name not in sys.modules
+plan = ObservationPlan(
+    dataset_id="fixture", source="worldbank", raw_variable="value", canonical_var="gdp",
+    connector_id="worldbank.wdi", profile_id="worldbank_wdi", request_dataset_id="WDI",
+    default_filters={}, update_frequency="annual",
+)
+requests = validators._chunked_observation_requests(
+    plan=plan, filters=(), source="worldbank", start_year=2020, end_year=2020,
+)
+assert len(requests) == 1 and requests[0].dataset_id == "WDI"
+assert (requests[0].date_start.year, requests[0].date_end.year) == (2020, 2020)
+assert loaders._bulk_country_values("ilo", ("UA",)) == ["UKR"]
+with duckdb.connect(":memory:") as connection:
+    registry._ensure_registry_tables(connection)
+    rows = [{"country_code": "UA", "year": 2020, "value": 3.5}]
+    initial = writers._insert_generic_observations(con=connection, plan=plan, rows=rows)
+    assert (initial.attempted, initial.inserted, initial.replaced) == (1, 1, 0)
+    observation_id = connection.execute("SELECT observation_id FROM ds_observations").fetchone()[0]
+    assert loaders._existing_observation_ids(connection, [observation_id]) == {observation_id}
+    assert facade_name not in sys.modules
+    from polisyos.data_forge.domains.catalog.batch import core_sources_ingest as facade
+    facade._unregistered_dependency = object()
+    facade._sync_implementation_globals()
+    assert all("_unregistered_dependency" not in leaf.__dict__ for leaf in (writers, validators, loaders))
+    repeated = writers._insert_generic_observations(con=connection, plan=plan, rows=rows)
+    assert (repeated.attempted, repeated.inserted, repeated.replaced) == (1, 0, 1)
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_insert_generic_observations_uses_request_scoped_batch_size(monkeypatch, tmp_path) -> None:
+    database = tmp_path / "observations.duckdb"
+    connection = duckdb.connect(str(database))
     registry._ensure_registry_tables(connection)
     chunk_lengths: list[int] = []
     original_chunker = loaders._iter_chunked_values
@@ -33,7 +85,6 @@ def test_insert_generic_observations_uses_request_scoped_batch_size(monkeypatch)
             chunk_lengths.append(len(chunk))
             yield chunk
 
-    monkeypatch.setattr(writers, "_iter_chunked_values", _record_chunks)
     plan = ObservationPlan(
         dataset_id="dataset",
         source="worldbank",
@@ -42,31 +93,100 @@ def test_insert_generic_observations_uses_request_scoped_batch_size(monkeypatch)
         connector_id="worldbank.wdi",
         profile_id="worldbank_wdi",
         request_dataset_id="NY.GDP.MKTP.CD",
-        default_filters={},
+        default_filters={"sex": ["T"], "unit": ["USD"]},
         update_frequency="annual",
     )
     rows = [
-        {"country_code": "UA", "year": 2020, "value": float(index), "partner": f"P{index}"}
+        {
+            "country_code": "UA",
+            "year": 2020,
+            "value": float(index),
+            "partner": f"P{index}",
+            "sex": "T",
+            "unit": "USD",
+        }
         for index in range(5)
     ]
+    requests = validators._chunked_observation_requests(
+        plan=plan,
+        filters=tuple((key, tuple(value)) for key, value in plan.default_filters.items()),
+        source=plan.source,
+        start_year=2020,
+        end_year=2020,
+    )
+    assert len(requests) == 1
+    assert requests[0].dataset_id == "NY.GDP.MKTP.CD"
+    assert requests[0].filters == (("sex", ("T",)), ("unit", ("USD",)))
+    assert requests[0].date_start == datetime(2020, 1, 1, tzinfo=UTC)
+    assert requests[0].date_end == datetime(2020, 12, 31, tzinfo=UTC)
     context = CoreSourcesCompatibilityContext(
         {(writers.__name__, "_OBSERVATION_INSERT_BATCH_SIZE"): 2}
     )
 
     try:
+        connection.execute("BEGIN TRANSACTION")
+        existing = writers._insert_generic_observations(
+            con=connection,
+            plan=plan,
+            rows=[{**rows[0], "value": -1.0}],
+            acquisition_method="earlier",
+        )
+        assert (existing.attempted, existing.inserted, existing.replaced) == (1, 1, 0)
+        monkeypatch.setattr(writers, "_iter_chunked_values", _record_chunks)
         with bind_core_sources_compatibility_context(context):
             stats = writers._insert_generic_observations(
                 con=connection,
                 plan=plan,
                 rows=rows,
+                acquisition_method="connector",
+                source_watermark="fixture-watermark",
+                dataset_version="fixture-v2",
             )
 
+        connection.execute("COMMIT")
         assert chunk_lengths == [2, 2, 1]
-        assert stats.attempted == stats.inserted == 5
-        assert stats.replaced == 0
-        assert connection.execute("SELECT COUNT(*) FROM ds_observations").fetchone()[0] == 5
+        assert (stats.attempted, stats.inserted, stats.replaced) == (5, 4, 1)
     finally:
         connection.close()
+
+    expected = []
+    for index in range(5):
+        condition = json.dumps(
+            {"partner": f"P{index}", "sex": "T", "unit": "USD"},
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        condition_digest = hashlib.sha256(condition.encode()).hexdigest()[:12]
+        identity = f"dataset|value|gdp|UA|2020|None|None|{condition_digest}"
+        observation_id = hashlib.sha256(identity.encode()).hexdigest()[:24]
+        expected.append(
+            (
+                observation_id,
+                "dataset",
+                "value",
+                "gdp",
+                "UA",
+                2020,
+                None,
+                None,
+                float(index),
+                condition,
+                "connector",
+                "fixture-watermark",
+                "fixture-v2",
+            )
+        )
+    with duckdb.connect(str(database), read_only=True) as fresh:
+        actual = fresh.execute(
+            "SELECT observation_id, dataset_id, raw_variable, canonical_var, country_code, "
+            "year, survey_year, wave, value, condition_json, acquisition_method, "
+            "source_watermark, dataset_version FROM ds_observations ORDER BY condition_json"
+        ).fetchall()
+        assert actual == expected
+        assert len({row[0] for row in actual}) == 5
+        assert loaders._existing_observation_ids(fresh, [row[0] for row in expected]) == {
+            row[0] for row in expected
+        }
 
 
 def test_writer_resolves_transformer_dependency_without_facade_bootstrap(monkeypatch) -> None:

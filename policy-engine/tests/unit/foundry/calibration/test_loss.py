@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import jax.numpy as jnp
+import numpy as np
 import numpy.testing as npt
+import pytest
 
 from polisyos.foundry.calibration.loss import (
     _huber,
@@ -57,6 +59,22 @@ class TestReduceWeightedLoss:
         pointwise = jnp.array([1.0, 2.0], dtype=jnp.float32)
         assert jnp.isinf(reduce_weighted_loss(pointwise, jnp.array([1.0, -1.0]), epsilon=1e-8))
         assert jnp.isinf(reduce_weighted_loss(pointwise, jnp.array([1.0, jnp.nan]), epsilon=1e-8))
+
+    @pytest.mark.parametrize("magnitude", [1.0, 1e-9])
+    @pytest.mark.parametrize("epsilon", [1e-8, 1.0])
+    def test_positive_quality_scale_cannot_erase_weighted_mean(self, magnitude, epsilon) -> None:
+        actual = reduce_weighted_loss(
+            jnp.asarray([1.0, 4.0], dtype=jnp.float32),
+            jnp.asarray([magnitude, magnitude], dtype=jnp.float32),
+            epsilon=epsilon,
+        )
+        npt.assert_allclose(actual, 2.5, rtol=1e-6, atol=1e-6)
+
+    def test_finite_weighted_mean_does_not_overflow_its_numerator(self) -> None:
+        values = jnp.asarray([3e38, 3e38], dtype=jnp.float32)
+        actual = reduce_weighted_loss(values, jnp.ones(2, dtype=jnp.float32))
+        assert bool(jnp.isfinite(actual))
+        npt.assert_allclose(actual, np.float32(3e38), rtol=1e-6, atol=0)
 
 
 class TestLossComponents:

@@ -701,6 +701,12 @@ class NormativeValueScheduleOwner:
                 TypeAdapter(
                     GenerationCycleRun.model_fields["schema_version"].annotation
                 ).validate_python(manifest_schema)
+                source_run = GenerationCycleRun.model_validate(payload)
+                if source_run.basis_transitions:
+                    raise P20NormativeChoiceError(
+                        "p20_normative_generation_history_invalid",
+                        code="p20_normative_generation_history_invalid",
+                    )
                 history_issues = validate_generation_cycle_run_history(payload)
                 if history_issues:
                     raise P20NormativeChoiceError(

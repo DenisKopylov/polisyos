@@ -1,0 +1,249 @@
+{
+  "packet_id": "PLG-01",
+  "lane": "LANE-04",
+  "source_ids": [
+    "LA-022"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/PLG-01.md",
+    "../05_Основания/Аудит/01_Реестры/C39_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C39-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-PLG-01-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Validate factory result до append/register и source-qualified error isolation; object()/None не блокирует later-good.",
+      "inventory_id": "audit-residual:C39_остатки:0"
+    },
+    {
+      "audit_id": "C39-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-PLG-01-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Native builtin Economics и declared installed entrypoint actual state/consumer, не fixture metadata.",
+      "inventory_id": "audit-residual:C39_остатки:1"
+    },
+    {
+      "audit_id": "C39-G02",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-PLG-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Prefix retirement/dependency ordering требуют declarations/caller decision; не менять hooks автоматически.",
+      "inventory_id": "audit-residual:C39_остатки:2"
+    },
+    {
+      "audit_id": "C39-G03",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-PLG-01-02",
+        "REQ-PLG-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Сохранить separate Domain ABI; Components bridge только при реальном contract, discovery не security/scientific proof.",
+      "inventory_id": "audit-residual:C39_остатки:3"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-PLG-01-01",
+      "text": "Directory и prefix factory результаты проходят общий domain-candidate validation внутри existing per-source try до включения в candidates: isinstance DomainPlugin и пригодная metadata для registry. Неверный object()/None/ошибочная metadata дают diagnostic с source/type без повторного небезопасного обращения к metadata и продолжают следующий source. Registry не получает частичный malformed entry; valid earlier/later plugins и deterministic duplicate winner сохраняются. BaseException не поглощать.",
+      "source_ids": [
+        "LA-022"
+      ],
+      "audit_ids": [
+        "C39-R01"
+      ],
+      "test_ids": [
+        "TEST-PLG-01-01"
+      ]
+    },
+    {
+      "id": "REQ-PLG-01-02",
+      "text": "Native auto_discover→registry.get→actual Economics initial state/ordinary run и declared entrypoint сохраняют group/ABI, selected n_agents/max_agents/seed. Lazy hooks: get загружает один plugin один раз, failed on_load не marked loaded, filters не загружают, unregister dependency при живом dependent отказан. Import failure остаётся видимым, не success-shaped empty plugin.",
+      "source_ids": [
+        "LA-022"
+      ],
+      "audit_ids": [
+        "C39-G01",
+        "C39-G03"
+      ],
+      "test_ids": [
+        "TEST-PLG-01-02"
+      ]
+    },
+    {
+      "id": "REQ-PLG-01-03",
+      "text": "Finite inventory known installed prefix/dev/entrypoint consumers определяет declarations и support window. До retirement prefix path честно остаётся; child-before-parent current one-pass получает warning и не auto-retried, если порядок не объявлен поддержанным. При реальной необходимости retry/topological registration расширять existing adapter с явным missing/cycle disposition, без implicit on_load dependency hooks. Components integration не заявлять без существующего конкретного bridge.",
+      "source_ids": [
+        "LA-022"
+      ],
+      "audit_ids": [
+        "C39-G02",
+        "C39-G03"
+      ],
+      "test_ids": [
+        "TEST-PLG-01-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-PLG-01-01",
+      "requirement_ids": [
+        "REQ-PLG-01-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Own dev a_bad/plugin.py возвращает object(), z_good valid; prefix factory None→valid; bad metadata и import exception; duplicate alpha/zeta.",
+      "action": "Actual Core load→domain discovery→auto_register.",
+      "oracle": "bad source diagnostic содержит source/reason; later-good зарегистрирован и usable; earlier valid сохраняется, no half entry. Duplicate deterministic first winner с warning. Missing/non-directory root empty, arbitrary sibling не scanned; cleanup sys.modules.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-PLG-01-02",
+      "requirement_ids": [
+        "REQ-PLG-01-02"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Native builtin Economics и один declared installed test distribution в уже подготовленном packaging environment; actual registry/state.",
+      "action": "Simulator initialize/run; lifecycle get twice/fail then retry/unregister/filter.",
+      "oracle": "Actual state dimensions/seed and ordinary outcome пригодны; load exactly once after success, failed load not latched, filters0hooks; dependency guard intact. Domain ABI не заменён method ABI.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-PLG-01-03",
+      "requirement_ids": [
+        "REQ-PLG-01-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Known consumers declaration/census, child-before-parent fixture и explicit prefix opt-in support state.",
+      "action": "Reproduce one-pass behavior; declared ordering positive; evaluate retirement docs/config paths.",
+      "oracle": "Operational limitation видна, не названа topo loader. Supported declarations load; no unapproved prefix removal or environment-wide imports. No implicit security/certificate claim.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I04-C"
+  ],
+  "dependencies": [],
+  "preservation": [
+    "Group polisyos.plugins и DomainPlugin state/mechanism/reward/objective/observation/lifecycle ABI, отдельный PluginRegistry.",
+    "Core list_entry_points/load_module_from_file/discovery_module_name, deterministic source order и first duplicate winner.",
+    "Уже зарегистрированные valid plugins и lazy load/unload/dependency guards; discovery не sandbox/empirical authority."
+  ],
+  "design_alignment": [
+    "Новый совместимый plugin проходит общий admission и существующий runtime registry без case-specific routing.",
+    "Source load availability отделена от model authority; useful valid plugin не теряется из-за соседнего invalid source."
+  ],
+  "open_decisions": [],
+  "source_obligations": [
+    "LA-022: shared loading уже подключено; не менять группу на polisyos.foundry_methods или polisyos.components.",
+    "Prefix scan ещё существует: перейти к declarations только после finite consumer map; one-pass registration не topological loader.",
+    "LK08: DomainPlugin не pure_step; create_simple_plugin seed ABI не менять под relocation без отдельного key-profile теста."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/foundry/plugins/discovery.py: _discover_installed_plugins, _discover_directory_plugins, auto_register_plugins",
+    "policy-engine/src/polisyos/foundry/plugins/core.py: DomainPlugin, PluginRegistry.register/get/unregister",
+    "policy-engine/src/polisyos/core/discovery/base.py: list_entry_points, load_module_from_file",
+    "policy-engine/src/polisyos/foundry/plugins/api.py: PolisySimulator auto_discover"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_plg_01.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0398",
+      "requirement_ids": [
+        "REQ-PLG-01-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Validate factory result до append/register и source-qualified error isolation; object()/None не блокирует later-good."
+    },
+    {
+      "inventory_id": "remaining:0399",
+      "requirement_ids": [
+        "REQ-PLG-01-02"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native builtin Economics и declared installed entrypoint actual state/consumer, не fixture metadata."
+    },
+    {
+      "inventory_id": "remaining:0400",
+      "requirement_ids": [
+        "REQ-PLG-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Prefix retirement/dependency ordering требуют declarations/caller decision; не менять hooks автоматически."
+    },
+    {
+      "inventory_id": "remaining:0401",
+      "requirement_ids": [
+        "REQ-PLG-01-02",
+        "REQ-PLG-01-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Сохранить separate Domain ABI; Components bridge только при реальном contract, discovery не security/scientific proof."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0643",
+      "requirement_ids": [
+        "REQ-PLG-01-02",
+        "REQ-PLG-01-03"
+      ],
+      "test_ids": [
+        "TEST-PLG-01-02",
+        "TEST-PLG-01-03"
+      ],
+      "rationale": "Domain group and lifecycle — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0644",
+      "requirement_ids": [
+        "REQ-PLG-01-01"
+      ],
+      "test_ids": [
+        "TEST-PLG-01-01"
+      ],
+      "rationale": "Core shared file/entrypoint loading — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0645",
+      "requirement_ids": [
+        "REQ-PLG-01-01",
+        "REQ-PLG-01-02"
+      ],
+      "test_ids": [
+        "TEST-PLG-01-01",
+        "TEST-PLG-01-02"
+      ],
+      "rationale": "Deterministic order and duplicate winner — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0646",
+      "requirement_ids": [
+        "REQ-PLG-01-01",
+        "REQ-PLG-01-02"
+      ],
+      "test_ids": [
+        "TEST-PLG-01-01",
+        "TEST-PLG-01-02"
+      ],
+      "rationale": "Useful valid plugins and existing registry — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}
+

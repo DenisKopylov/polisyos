@@ -1,0 +1,1078 @@
+{
+  "kind": "bounded_decision_register",
+  "meaning": "Lossless navigation over decisions already specified in packets, not additional work. A decision blocks only its stated dependent acceptance branch. Native qualification and institutional authorization are separate.",
+  "count": 102,
+  "decisions": [
+    {
+      "packet_id": "CYC-01",
+      "lane": "LANE-01",
+      "packet_path": "02_Пакеты/CYC-01.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-CYC-01-01",
+        "question": "Какой второй содержательно отличный случай доступен через имеющийся ресурсный/модельный контракт?",
+        "owner": "Исполнитель CYC-01 с предметным reviewer; назначенный проектом координатор сквозного сценария E02-X03 «второй содержательно иной случай»",
+        "options": [
+          "Совместимый существующий profile/resource: только данные/регистрация.",
+          "Нужна отсутствующая общая семантика: минимально расширить существующий owner и предъявить повторное использование.",
+          "Доступного основания нет: сохранить полезный candidate/план получения, не заявлять portability PASS."
+        ],
+        "selection_evidence": "Реальный catalog/resource manifest, exact model/outcome/unit, независимый oracle, список case-specific подготовки.",
+        "required_output": "До TEST-06 выбрать один вариант и вход; результат/ограничение/конкретный следующий общий механизм. Не блокирует TEST-01–05 и bounded repair acceptance."
+      }
+    },
+    {
+      "packet_id": "REQ-01",
+      "lane": "LANE-01",
+      "packet_path": "02_Пакеты/REQ-01.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-REQ-01-01",
+        "question": "Как текущий grammar/resolver потребляет CUSTOM и отсутствие domain без потери explicit requirement?",
+        "owner": "REQ-01; ACQ-01 подтверждает N7 error/continuation surface",
+        "options": [
+          "CUSTOM + raw/status metadata, explicit constructs/scope продолжаются — предпочтительный путь.",
+          "Typed adapter refusal только для отсутствующей indispensable semantics, с сохранённым candidate/report и точным запросом; не blanket unknown-domain refusal."
+        ],
+        "selection_evidence": "Actual PolicyGrammarCompiler/compiled report для neutral unknown и явно заданного construct; existing ProblemDomain.CUSTOM escape hatch.",
+        "required_output": "До merge domain fix закрепить один exact contract, rule version и TEST-01/02/08; explicit alias fix и finite cleanup проверки не ждут всемирного semantic решения."
+      }
+    },
+    {
+      "packet_id": "REQ-01",
+      "lane": "LANE-01",
+      "packet_path": "02_Пакеты/REQ-01.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-REQ-01-02",
+        "question": "Входит ли top-level required_constructs у Mapping claim в фактически поддержанный producer contract?",
+        "owner": "REQ-01 compiler owner",
+        "options": [
+          "Да: перенести без потери в canonical record, reject conflicting aliases.",
+          "Нет: сохранить metadata contract и сделать unsupported top-level input явным."
+        ],
+        "selection_evidence": "Конечные first-party producers + публичные DTO/schema + actual compile trace, не private helper поведение.",
+        "required_output": "Именованный перечень producer scope и выбранный поддержанный shape с TEST-07; не оставлять «разобраться вообще»."
+      }
+    },
+    {
+      "packet_id": "CYC-05",
+      "lane": "LANE-01",
+      "packet_path": "02_Пакеты/CYC-05.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-CYC-05-01",
+        "question": "Какой реально поддержанный deployment профиль и существующий issuer appointment дают конечный положительный structural contract?",
+        "owner": "CYC-05 совместно с LANE-12 producer/identity owner",
+        "options": [
+          "Source-checkout профиль с полным build/census artifact и canonical loaded baseline.",
+          "Installed distribution профиль с verified package manifest, declared build census и loaded binding."
+        ],
+        "selection_evidence": "Найденные actual build outputs, назначенный purpose/issuer и возможность проверить весь relevant denominator; не только наличие json.",
+        "required_output": "Один именованный профиль, versioned artifact/issuer interface, valid positive и invalidation tests; отсутствие appointment оформляется точным внешним предусловием, а bridge/consumer всё равно реализуются и проверяются на допустимом тестовом principal"
+      }
+    },
+    {
+      "packet_id": "SIM-03",
+      "lane": "LANE-01",
+      "packet_path": "02_Пакеты/SIM-03.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-SIM-03-01",
+        "question": "Каков ограниченный numerical tolerance profile для noninteger/unit-rescaling fixtures и поддержанного NCM backend?",
+        "owner": "SIM-03, согласование numerical owner",
+        "options": [
+          "analytic absolute bound из float dtype, числа операций и scale с отдельно заданными единицами",
+          "существующий model-specific numerical error contract, если его assumptions совпадают"
+        ],
+        "selection_evidence": "До execution зафиксировать dtype, model expression, units, horizon, sample count и независимый high-precision/algebraic oracle; выбирать минимальную обоснованную bound, не cutoff по удобному observed output. Stochastic significance требует отдельного inference profile, не numerical tolerance",
+        "required_output": "Таблица fixture→formula/input→exact expected→derived bound и различающий mutation. Пока profile не выбран, соответствующие scale cases BLOCKED/NOT_RUN, packet не принят; integer additive/interaction controls уже полностью определены"
+      }
+    },
+    {
+      "packet_id": "SIM-03",
+      "lane": "LANE-01",
+      "packet_path": "02_Пакеты/SIM-03.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-SIM-03-02",
+        "question": "Каков bounded interval estimand и совместимая unavailable projection для native NCM summary после deterministic quantile repair?",
+        "owner": "SIM-03 / existing NCM numerical-summary owner и actual interval consumers; согласование с общим CAU-01 confidence-domain правилом, без нового framework",
+        "options": [
+          "Сохранить legacy numeric summary только как явно неквалифицированную descriptive projection, добавив существующий limitation/status boundary",
+          "Versioned summary с nullable/unavailable interval и объявленным Monte Carlo error profile при достаточном основании; mean/trajectory/n сохраняются"
+        ],
+        "selection_evidence": "Actual consumer/DTO census: где CI читается и где используется только mean; существующие n_samples1, std ddof0 и sampling assumptions; precision для confidence0.50/0.80/0.95/0.99, nextafter(1,0) и tiny positive levels; legacy reader/version migration и независимый CDF/erfc residual",
+        "required_output": "Один bounded interval definition, sample-variance/singleton policy, поддержанный numerical confidence profile и versioned/legacy-unqualified projection. Для n1 или tiny confidence, когда float tail округляется к0.5 и positive quantile не различим, interval не квалифицирован, но где contract позволяет mean/trajectory/n и paired endpoint сохраняются. Если текущая schema не умеет unavailable interval, выбрать явную compatibility/versioned projection, не unconditional отказ всей simulation. Deterministic inverse-normal устраняет auxiliary random work, но сам не доказывает coverage; не менять весь inference framework"
+      }
+    },
+    {
+      "packet_id": "OPT-01",
+      "lane": "LANE-02",
+      "packet_path": "02_Пакеты/OPT-01.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-OPT-01-01",
+        "question": "Какой фискальный профиль и преобразование действительно поддержаны текущим producer?",
+        "owner": "OPT-01 с владельцем measurement law",
+        "options": [
+          "direct period-deficit с явно связанными units/period",
+          "вычисление из stock transitions при наличии всех входов закона",
+          "stock-only остаётся not_established"
+        ],
+        "selection_evidence": "Схема actual producer, единицы, период и различающий source→consumer fixture",
+        "required_output": "Версионированный adapter contract и два действительно эквивалентных представления; без научного утверждения по одному имени ключа"
+      }
+    },
+    {
+      "packet_id": "OPT-03",
+      "lane": "LANE-02",
+      "packet_path": "02_Пакеты/OPT-03.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-OPT-03-01",
+        "question": "Как source verifier воспроизводит genuinely conditioned fit basis?",
+        "owner": "OPT-03 и existing fit-basis verifier",
+        "options": [
+          "версионированная проверяемая continuation lineage с replay исходного fit и append",
+          "явный bounded full-refit перед выдачей reusable source result"
+        ],
+        "selection_evidence": "Native posterior/fingerprint replay, поддержанный backend serialization, измеренные время/память и совместимость readers",
+        "required_output": "Один выбранный profile, DTO/version migration и positive/negative e2e; до выбора conditioned reuse остаётся NOT_RUN/unsupported, а candidate exploration допустима"
+      }
+    },
+    {
+      "packet_id": "OPT-03",
+      "lane": "LANE-02",
+      "packet_path": "02_Пакеты/OPT-03.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-OPT-03-02",
+        "question": "Нужен ли отдельный bounded measured_observation reuse profile независимо от того, успел ли source proposer обучить GP?",
+        "owner": "OPT-03 с OPT-02 actual observation admission и TRN-01 WarmStartBridge",
+        "options": [
+          "Сохранить только нынешний fitted-native-GP historical profile и честно ограничить reusable-search claim",
+          "Отдельно квалифицировать strategy-neutral verified measurement reuse; source predictions/model continuation сохраняют более сильный fitted-basis contract"
+        ],
+        "selection_evidence": "Actual MethodJob source outcome/selected receipt, objective/units/direction/data/split/tenant/space/replica guards; whole-current vs persist/fresh-warm eligibility; measured evaluation/fit costs. Proposer strategy сама по себе не measurement validity, но syntactic ID/self-asserted score также не evidence",
+        "required_output": "Либо явный bounded scope без нового profile, либо отдельная согласованная capability specification/profile version и discriminating positive/negative tests: cold Sobol/random actual measurement before/after restart, same measured corpus once, wrong units/split/tenant/data rejected, prediction-only value не observation, target GP fit собственный. Никакого mandatory ослабления existing fitted-native guard или превращения cold source в fitted; новые tests/profile принимаются отдельно, текущий local repair не блокируются"
+      }
+    },
+    {
+      "packet_id": "FUN-03",
+      "lane": "LANE-02",
+      "packet_path": "02_Пакеты/FUN-03.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-FUN-03-01",
+        "question": "Какой уже реализованный selected method/source profile квалифицирует первый blueprint assessment?",
+        "owner": "FUN-03 с existing uncertainty/method owner",
+        "options": [
+          "существующий RuntimeHTE completion profile с полным selected method basis",
+          "другой already-supported source-owned method с точным inference contract"
+        ],
+        "selection_evidence": "Actual method ABI/input/profile refs, units/population/contrast, independent numerical oracle и complete task admission",
+        "required_output": "Один bounded positive fixture с формулой/данными/expected assessment и negative basis mutation до execution; не выдумывать универсальную0.1"
+      }
+    },
+    {
+      "packet_id": "FUN-03",
+      "lane": "LANE-02",
+      "packet_path": "02_Пакеты/FUN-03.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-FUN-03-02",
+        "question": "Какой назначенный protected promotion writer и issuer обслуживает L6?",
+        "owner": "FUN-03 и existing promotion authority owner",
+        "options": [
+          "адаптация существующего typed issuer/commit port",
+          "минимальное расширение существующего writer если port отсутствует"
+        ],
+        "selection_evidence": "Caller/owner census, назначение test principal, текущий revoke serialization и predecessor operation",
+        "required_output": "Точный symbol/interface, единственный owner, permit schema и commit/revoke linearization test до реализации; отсутствие port означает capability work, не снятие normal gate"
+      }
+    },
+    {
+      "packet_id": "FUN-03",
+      "lane": "LANE-02",
+      "packet_path": "02_Пакеты/FUN-03.md",
+      "ordinal_within_packet": 3,
+      "decision": {
+        "id": "DEC-FUN-03-03",
+        "question": "Какой operational estimand и sampling/qualification contract обслуживает calibration acceptance, и как мигрируют все consumers?",
+        "owner": "FUN-03 / existing CorrelationTracker с owners calibration_report, cold_start и funnel routing",
+        "options": [
+          "FOR=FN/(FN+TN) как вероятность полезного результата среди rejected с явным названием и обоснованной tolerance",
+          "FNR=FN/(TP+FN) как доля потерянных actual positives при подходящем representative accepted/rejected audit",
+          "descriptive observed metrics без population qualification, пока evidence/design недостаточны"
+        ],
+        "selection_evidence": "Purpose исходного фильтра и cost of missed/useful expensive evaluation; source-bound gate/truth labels; target population/cohort/inclusion design, независимость либо обоснованная correction для selective/adaptive labels; выбранная tolerance/confidence/power и реальный stage-B audit budget; census прямого tracker, wrapper, report/Markdown, cold-start, routing/drift и snapshot consumers",
+        "required_output": "Один versioned metric contract с TP/FP/FN/TN и eligible/missing counts, window/cohort, definition/purpose, descriptive value vs qualification, выбранным interval/design и cost limit; migration/legacy projection без переписывания старых bytes/значений и явный положительный qualified fixture, если такой claim нужен. FDR/precision/FOR не называются FPR/TPR/FNR; observed0 при n>0 сам по себе не PASS population criterion. При невозможном audit бюджете — insufficient_evidence, без бесконечного сбора и без остановки независимой exploration"
+      }
+    },
+    {
+      "packet_id": "EMP-01",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/EMP-01.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-EMP-01-NUMERIC",
+        "question": "Какой существующий persisted profile/version владеет изменением width semantics?",
+        "owner": "ValueOuterSet и реальный artifact/profile owner, reviewer совместимости",
+        "bounded_action": "Проследить все writers/from_persisted_payload consumers и заморозить конечные genuine old fixtures; выбрать existing versioned profile либо минимальное explicit version field. Сдать карту old/new read/write и distinguishing checksum controls до изменения serializer.",
+        "default": "Не менять старые bytes и не угадывать version; локальная numerical правка не принимается без совместимого reader решения."
+      }
+    },
+    {
+      "packet_id": "EMP-01",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/EMP-01.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-EMP-01-SCOPE",
+        "question": "Какие population/entity/time/regime координаты реально представлены выбранным источником?",
+        "owner": "Gateway и настоящий measurement/catalog producer",
+        "bounded_action": "На одном поддержанном источнике проверить полный mapping полей, одну содержательную смену scope и один неподдержанный срез. Выдать таблицу mapping и реализованный общий handoff либо точную объявленную границу плюс конкретный недостающий producer field. Не подменять отсутствие mapping произвольным fixture ключом.",
+        "default": "Country-only candidate сохраняет объявленный ограниченный scope; иной запрошенный scope не заменяется им молча."
+      }
+    },
+    {
+      "packet_id": "FRC-01",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/FRC-01.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-FRC-01-TIME",
+        "question": "Нужен ли реальному поддержанному эксперименту иной temporal profile, например совпадающие роли?",
+        "owner": "FRC-01/FRC-02 и владелец экспериментального дизайна",
+        "bounded_action": "Предъявить один конкретный дизайн и шесть семантических ролей, объяснить допустимые равенства/порядок. Выбрать сохранение текущего профиля либо versioned согласованное расширение bridge/S10 с positive/negative controls.",
+        "default": "Никаких искусственных дат; текущий профиль принимается только в его declared scope."
+      }
+    },
+    {
+      "packet_id": "FRC-01",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/FRC-01.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-FRC-01-SUPPORT",
+        "question": "Какие optional support refs имеют реального producer/reader на выбранном forecast пути?",
+        "owner": "Gateway/ForecastOwner и затронутый S10 consumer",
+        "bounded_action": "Составить конечную таблицу source_contract/method_validity/sensitivity/equilibrium/distribution/interval: actual producer field→artifact→reader либо not_established. Реализовать доступные bindings; для отсутствующих — штатное empty+limitation, без фиктивного URI.",
+        "default": "Только реально связанный support получает более сильную роль, conditional payload не удаляется."
+      }
+    },
+    {
+      "packet_id": "PCL-01",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/PCL-01.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-PCL-01-BOUNDARY",
+        "question": "Где actual serialized CalibrationDiagnosticsReport имеет известный output contract?",
+        "owner": "Dispatcher/serialization owner вместе с canonical calibration owner",
+        "bounded_action": "Проследить actual producers и output-slot metadata до merge и telemetry; выбрать существующий contract-carrying seam. Сдать одну реализованную нормализацию и native controlled producer path; если production caller не найден, явно ограничить claim generic contract acceptance, не утверждать production prevalence.",
+        "default": "Не распознавать authority по произвольному task label и не оставлять positive sidecar как fallback после invalid expected report."
+      }
+    },
+    {
+      "packet_id": "PCL-01",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/PCL-01.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-PCL-01-ALIAS",
+        "question": "Завершилось ли поддерживаемое окно Scientist calibration_curve alias?",
+        "owner": "Public API/release owner; технический reviewer",
+        "bounded_action": "Сдать TEST-07 census, публичный статус и доступное внешнее подтверждение; выбрать retain с названным основанием либо retirement точного адреса. Дату не назначать произвольно.",
+        "default": "Alias поддерживается, identity-only test сохраняется; numerical repair сдаётся независимо."
+      }
+    },
+    {
+      "packet_id": "FRC-02",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/FRC-02.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-FRC-02-COUNTS",
+        "question": "Какие textual integers действительно входят в поддержанный historical contract?",
+        "owner": "Calibration bridge/release owner",
+        "bounded_action": "Проверить retained report fixtures/schema/callers; выбрать и протестировать конечную grammar. По умолчанию только неотрицательная decimal integer запись, не float parsing. Зафиксировать intentional отказ неподдержанным coercions.",
+        "default": "Дробные/negative/nonfinite/bool не принимаются независимо от legacy решения."
+      }
+    },
+    {
+      "packet_id": "FRC-02",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/FRC-02.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-FRC-02-RELATION",
+        "question": "Какой existing source/profile owner несёт проверяемое N4 outcome↔observed relation?",
+        "owner": "Selected source/profile owner и S10 reviewer",
+        "bounded_action": "Проследить actual N4 source/profile/member schemas; выбрать existing relation projection либо минимальное versioned расширение. Сдать schema/path map, один содержательный positive и второй совместимый case, mismatch/fresh-read controls. Не оставлять как общее исследование без результата.",
+        "default": "Series record доступен; outcome-calibrated tier ограничен без применимой relation. Нельзя снять N4 guard только по равенству metric names."
+      }
+    },
+    {
+      "packet_id": "FRC-02",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/FRC-02.md",
+      "ordinal_within_packet": 3,
+      "decision": {
+        "id": "DEC-FRC-02-EXPERIMENT",
+        "question": "Какое конкретное научное утверждение требуется сверх конечного measured screening?",
+        "owner": "Domain/method reviewer",
+        "bounded_action": "Назвать estimand, source/sample/horizon и protocol; выбрать имеющийся доступный corpus и baseline. Если external corpus недоступен, предъявить scoped software result и точный qualification gap без фиктивного authority.",
+        "default": "Predictive-only conditional result, никаких causal/production claims."
+      }
+    },
+    {
+      "packet_id": "BKT-01",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/BKT-01.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-BKT-01-VIEW",
+        "question": "Какой existing source/feature profile несёт availability и derived parents?",
+        "owner": "Fabric/source и Scientist backtesting owners",
+        "bounded_action": "Census только actual input-binding/source/profile/feature routes; выбрать имеющийся contract либо минимальное typed расширение. Сдать field-role/dependency map и TEST01–02 с known-ahead positive и leaked-derived negative.",
+        "default": "Неклассифицированные post-cutoff outcome-derived данные не доступны admitted replay; допустимый known-prefix остаётся полезен."
+      }
+    },
+    {
+      "packet_id": "BKT-01",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/BKT-01.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-BKT-01-PROJECTION",
+        "question": "Какой существующий numerical owner агрегирует совместимые replica trajectories?",
+        "owner": "Foundry numerical и Scientist owners",
+        "bounded_action": "Найти актуальный trajectory/draw summary контракт и выбрать один поддержанный aligned outcome case; реализовать coordinate-wise projection с original refs, TEST08–09. Если compatible owner отсутствует, добавить минимальную общую projection функцию у numerical owner, не новый runtime service.",
+        "default": "Честный unsupported плюс полный cohort; n1 supported. Не считать это завершением requested useful multi-run capability."
+      }
+    },
+    {
+      "packet_id": "BKT-01",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/BKT-01.md",
+      "ordinal_within_packet": 3,
+      "decision": {
+        "id": "DEC-BKT-01-BUDGET",
+        "question": "Где actual replica route проходит существующее budget admission и accounting?",
+        "owner": "Runtime execution owner",
+        "bounded_action": "Проследить native request до actual budget gate, предъявить pre-dispatch refusal и known/unknown cost projection. Если gate отсутствует на этом route, подключить существующий owner, не вводить локальную имитацию счётчика.",
+        "default": "Не обещать budget compliance по числу requests; явно ограничить unattended multi-run до принятого admission."
+      }
+    },
+    {
+      "packet_id": "BKT-02",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/BKT-02.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-BKT-02-RANGE",
+        "question": "Достаточно ли explicit unavailable sufficient statistic или нужен scaled-statistics schema?",
+        "owner": "Evaluator/IR report owners и numerical reviewer",
+        "bounded_action": "Сравнить actual aggregate consumers и existing schema. Выбрать minimal limitation+retained rows как default; если нужен incremental extreme-range micro, добавить versioned scaled statistics и независимую reconciliation. Оба варианта обязаны пройти TEST01–02 без data loss/false trust.",
+        "default": "Не обещать полный numeric support там, где float summary непредставима; useful rows и finite metrics сохраняются."
+      }
+    },
+    {
+      "packet_id": "BKT-02",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/BKT-02.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-BKT-02-POOL",
+        "question": "Какая existing metadata/typed contract задаёт сравнимые quantities и веса?",
+        "owner": "Backtest plan/domain owner",
+        "bounded_action": "Проследить target definitions/units из BKT-01 до report, выбрать grouping/conversion policy; сдать один same-quantity converted positive и incompatible negative. Не требовать универсальной онтологии всех измерений.",
+        "default": "Необоснованное cross-quantity pooling ограничено, per-scenario/per-quantity numerical results доступны."
+      }
+    },
+    {
+      "packet_id": "BKT-03",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/BKT-03.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-BKT-03-SCALE",
+        "question": "Сохранить ограниченный unit-domain floor или перейти к scale-aware predicate?",
+        "owner": "Numerical/statistical method owner",
+        "bounded_action": "Исполнить ordinary/tiny/unit-converted/cancellation matrix, выбрать policy по заявленному supported domain. Сдать exact predicate, reason semantics, version/read compatibility и зеркальную independent IR проверку. Не ослаблять floor без численной/научной аргументации.",
+        "default": "Current floor остаётся явной numerical limitation, не доказанной zero variance; cancellation fix сдаётся независимо."
+      }
+    },
+    {
+      "packet_id": "BKT-03",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/BKT-03.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-BKT-03-SCOPE",
+        "question": "Какие assumptions и orientation доступны для конкретного backtest?",
+        "owner": "Selected study/domain owner",
+        "bounded_action": "Зафиксировать metric definition/units, repeated-unit/time dependence, effective-n basis, multiplicity и population scope для одного intended claim. Недостающие поля перечислить конкретно; не требовать универсальной методологии всех будущих задач.",
+        "default": "Descriptive magnitude/sign доступны, inferential/directional claims ограничены неизвестными основаниями."
+      }
+    },
+    {
+      "packet_id": "BKT-04",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/BKT-04.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-BKT-04-CALLER",
+        "question": "Кто фактически потребляет generic CV/bootstrap как measurement?",
+        "owner": "Scientist backtesting/public API owner",
+        "bounded_action": "Finite census exact imports/calls/public facade/config и объявленного intended usage; выбрать actual caller с shape/metric policy либо supported public-only status. Сдать конкретный route и TEST07; не объявлять отсутствующими dynamic callers без evidence.",
+        "default": "Public helper supported, runtime activation not established; никакой forced global hook."
+      }
+    },
+    {
+      "packet_id": "BKT-04",
+      "lane": "LANE-03",
+      "packet_path": "02_Пакеты/BKT-04.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-BKT-04-SAMPLING",
+        "question": "Обосновано ли iid resampling для выбранной observation unit?",
+        "owner": "Selected study/method owner",
+        "bounded_action": "Назвать unit, dependence/effective-n и confidence target; iid оставить при обосновании, иначе выбрать existing block/cluster method с distinguishing dependent control. Недоступная domain evidence остаётся qualification gap.",
+        "default": "Численный bootstrap conditional, без empirical coverage/causal/population authority."
+      }
+    },
+    {
+      "packet_id": "FRY-01",
+      "lane": "LANE-04",
+      "packet_path": "02_Пакеты/FRY-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "Нужен source-qualified historical RNG corpus для полной declared backward support; synthetic v1 sample не весь production corpus."
+    },
+    {
+      "packet_id": "FRY-01",
+      "lane": "LANE-04",
+      "packet_path": "02_Пакеты/FRY-01.md",
+      "ordinal_within_packet": 2,
+      "decision": "Предметная применимость IC assumptions определяется выбранной задачей отдельно от native mechanical PASS."
+    },
+    {
+      "packet_id": "FRY-03",
+      "lane": "LANE-04",
+      "packet_path": "02_Пакеты/FRY-03.md",
+      "ordinal_within_packet": 1,
+      "decision": "При конкретном применении определить signed tax base и units/time-step; без решения conditional law явно ограничена, но native repair не блокируется."
+    },
+    {
+      "packet_id": "ECO-01",
+      "lane": "LANE-04",
+      "packet_path": "02_Пакеты/ECO-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "Для конкретного реального use-case отдельно выбрать currency/time/population mapping и calibration evidence; это не блокирует native сохранение existing profiles."
+    },
+    {
+      "packet_id": "PLG-02",
+      "lane": "LANE-04",
+      "packet_path": "02_Пакеты/PLG-02.md",
+      "ordinal_within_packet": 1,
+      "decision": "Выбрать minimal status-vs-role API расширение после caller census; exact legacy fallback должен быть unqualified и проверяться отдельным negative test."
+    },
+    {
+      "packet_id": "PLG-03",
+      "lane": "LANE-04",
+      "packet_path": "02_Пакеты/PLG-03.md",
+      "ordinal_within_packet": 1,
+      "decision": "Если проект требует HARD training сейчас, выбрать полноценный action/likelihood contract вместо предложенного scoped refusal и предъявить native oracle до признания поддержки. Без такого выбора безопасный executable default — honest unsupported."
+    },
+    {
+      "packet_id": "PLG-03",
+      "lane": "LANE-04",
+      "packet_path": "02_Пакеты/PLG-03.md",
+      "ordinal_within_packet": 2,
+      "decision": "Предпочтительный HARD training refusal снимает неподдержанный семантический claim, но не закрывает полную HARD training capability. Release notes обязаны раскрыть потенциальное функциональное сужение; это не постоянный архитектурный запрет. Владелец может выбрать ограниченную реализацию общего action/likelihood контракта с native oracle; HARD evaluation и реальные fluid/relaxed updates сохраняются."
+    },
+    {
+      "packet_id": "CMP-01",
+      "lane": "LANE-04",
+      "packet_path": "02_Пакеты/CMP-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "G02 обязательный выход: таблица actual persisted route и PASS witness, либо минимальный versioned owner patch с тем же witness; blanket 'нужно исследовать' не приёмка."
+    },
+    {
+      "packet_id": "CMP-01",
+      "lane": "LANE-04",
+      "packet_path": "02_Пакеты/CMP-01.md",
+      "ordinal_within_packet": 2,
+      "decision": "Optional backend список фиксируется по actual runtime/lock; отсутствующие environments остаются NOT_RUN без установки."
+    },
+    {
+      "packet_id": "JIT-01",
+      "lane": "LANE-04",
+      "packet_path": "02_Пакеты/JIT-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "G02 bounded decision: предъявить actual downstream dtype/trace/allocation observations и выбрать no-code documented supported profile либо existing abstract/lazy boundary repair; нельзя закрыть gap лишь source чтением."
+    },
+    {
+      "packet_id": "GRF-01",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/GRF-01.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-GRF-01-PACKAGING",
+        "question": "Есть ли поддержанный exact-filename consumer трёх retired siblings?",
+        "owner": "Causal public API/release owner",
+        "bounded_action": "TEST06 finite census + declared external support window; если есть supported caller, мигрировать его к package API и проверить installed distribution. Если нет — зафиксировать bounded scope, не обещать глобальное отсутствие динамических путей.",
+        "default": "Сохраняются настоящие packages, пустые siblings не восстанавливаются."
+      }
+    },
+    {
+      "packet_id": "GRF-01",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/GRF-01.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-GRF-01-SCOPE",
+        "question": "Какое основание causal graph необходимо для выбранного пользовательского claim?",
+        "owner": "Selected graph/study owner",
+        "bounded_action": "Для одного intended use назвать graph hypothesis/revision, observations/assumptions и estimand scope; показать conditional positive и foreign-binding negative в TEST07. Не требовать универсального causal model inventor.",
+        "default": "Полезный structural conditional result с explicit empirical unknowns."
+      }
+    },
+    {
+      "packet_id": "GRF-02",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/GRF-02.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-GRF-02-KUZU",
+        "question": "Есть ли реальный supported connection-only lossless incremental caller?",
+        "owner": "Graphadapter/Kuzu schema owner",
+        "bounded_action": "Конечный census actual callers/contracts. По умолчанию simple-only preflight и existing bulk route. Если подтверждён caller incremental multigraph, определить occurrence identity, graph scope, transaction/idempotence и schema migration; TEST-01/02 обязательно native.",
+        "default": "Отказывать ambiguous direct export до первой записи; mixed export остаётся полезным через existing bulk."
+      }
+    },
+    {
+      "packet_id": "GRF-02",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/GRF-02.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-GRF-02-SCALE",
+        "question": "Какой реальный query workload требует performancequalification?",
+        "owner": "Static causal query owner",
+        "bounded_action": "Выбрать finite representative sizes/query count/backend, cold/warm benchmark с output equivalence и peak RSS. Сдать числа и границы, не вводить произвольную цель ускорения.",
+        "default": "Принять устранение лишней внутренней подготовки отдельно от неизмеренного системного ускорения."
+      }
+    },
+    {
+      "packet_id": "GRF-03",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/GRF-03.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-GRF-03-TEMPORAL",
+        "question": "Какой actual temporal consumer нужен для одного полезного запроса?",
+        "owner": "Graph/model и selected temporal method owner",
+        "bounded_action": "Finite census текущих temporal methods/data contracts; выбрать existing consumer либо минимальную finite expansion у existing owner. Сдать profile/lag/time/initial mapping и TEST06–07; если empirical source недоступен, mechanism acceptance и practical limitation отдельно.",
+        "default": "Static refusal сохраняется; ручной8-node graph не считается готовым adapter."
+      }
+    },
+    {
+      "packet_id": "GRF-03",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/GRF-03.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-GRF-03-PARTIAL",
+        "question": "Требуется ли family-level inference или достаточно явной conditional hypothesis?",
+        "owner": "Causal identification/study owner",
+        "bounded_action": "Назвать intended query/family и available algorithm, проверить coverage supported profile; выбрать qualified family output либо per-hypothesis limited result с source binding. Сдать TEST08 и exact unsupported scope, не обещать общую PAG completeness.",
+        "default": "Unknown marks не превращаются в arbitrary DAG; source и useful conditional research output сохраняются."
+      }
+    },
+    {
+      "packet_id": "API-01",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/API-01.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-API-01-WINDOW",
+        "question": "Какие compatibility bindings допускается снять и когда?",
+        "owner": "Public API/release owner",
+        "bounded_action": "TEST06 named finite census+actual support declaration; выбрать retain либо точечный retirement с caller/FQN/docs/monkeypatch acceptance. Недоступные external сведения честно ограничивают решение.",
+        "default": "Восемь declared direct-only bindings сохраняются, public2/9 неизменны."
+      }
+    },
+    {
+      "packet_id": "CAU-01",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/CAU-01.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-CAU-01-LABEL",
+        "question": "Есть ли заявленные callers с mixed/custom scalar labels за пределами normal string/int?",
+        "owner": "Исполнитель CAU-01 и reviewer публичного input contract",
+        "bounded_action": "Проверить actual callers/tests и сериализуемый тип unit_ids/cluster_var; перечислить поддерживаемые классы. Если нужен новый scalar тип, предложить общее правило identity и различающий тест. Не принимать arbitrary object equality молча.",
+        "default": "Missing/non-reflexive labels отклоняются; нормальные string/int сохраняются; выбор не блокирует ремонт NaN."
+      }
+    },
+    {
+      "packet_id": "CAU-01",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/CAU-01.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-CAU-01-INFERENCE",
+        "question": "Требуется ли finite-cluster процедура конкретному реальному дизайну?",
+        "owner": "Владелец научного профиля/технический reviewer, без выдуманного имени",
+        "bounded_action": "Предъявить независимую единицу, предпосылки и требуемый estimand; выбрать существующую поддержанную процедуру либо явно ограничить normal CR0. Новый метод — отдельный обоснованный scope.",
+        "default": "Существующий large-unit normal CR0 остаётся кандидатом с limitation, без finite-cluster guarantee."
+      }
+    },
+    {
+      "packet_id": "CAU-02",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/CAU-02.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-CAU-02-DESIGN",
+        "question": "Применим ли independent-unit pointwise theta_sel к выбранным данным?",
+        "owner": "DiD method/study reviewer",
+        "bounded_action": "Зафиксировать target/horizon/cohorts, sampling/assignment clusters/shared shocks, anticipation и identification assumptions. При несовместимости выбрать конкретный existing qualified method либо ограниченный point-only/conditional результат; более широкая inference отдельное bounded extension с oracle.",
+        "default": "Current scope large independent units/pointwise scalar; finite-cluster/simultaneous guarantees не заявляются."
+      }
+    },
+    {
+      "packet_id": "CAU-03",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/CAU-03.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-CAU-03-PROFILE",
+        "question": "Нужен ли профиль шире текущего sharp/fixed-bandwidth/q=p+1/HC0?",
+        "owner": "RDD numerical/methodological reviewer",
+        "bounded_action": "Назвать конкретный requested design; если шире — выбрать primary methodological/maintained reference с matching settings, сравнить formulas/point/SE и новый independent DGP. Не расширять silently. Если текущего профиля достаточно, preserve и квалифицировать его assumptions.",
+        "default": "Current bounded profile, no fuzzy/cluster/masspoint/data-driven selector guarantee."
+      }
+    },
+    {
+      "packet_id": "CAU-03",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/CAU-03.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-CAU-03-VARIANCE-V2",
+        "question": "Как назвать/version new selected kernel-HC0 profile и legacy weighted-residual compatibility, когда менять default?",
+        "owner": "CAU-03 numerical owner + report compatibility reviewer",
+        "bounded_action": "Проверить actual consumers/historical schema, зафиксировать explicit profile selector и reader mapping; существующие historical outputs не изменять. Новый profile не объявлять implemented.",
+        "acceptance": "TEST-CAU-03-02/06/08, named migration decision before default cutover."
+      }
+    },
+    {
+      "packet_id": "CAU-04",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/CAU-04.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-CAU-04-LEGACY",
+        "question": "Есть ли фактический потребитель broad legacy вне selected ATE?",
+        "owner": "CAU-04 с CAU-05 lifecycle reviewer",
+        "bounded_action": "Проверить tracked callers, declared support и доступные genuine artifacts. Для найденного профиля выбрать actual API qualification либо explicit migration/refusal; предъявить конкретные cases и boundaries.",
+        "default": "Selected ATE остаётся supported; legacy NIE не получает production claim без numerical witness."
+      }
+    },
+    {
+      "packet_id": "CAU-05",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/CAU-05.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-CAU-05-REPLAY",
+        "question": "Какие frozen plan/schema/FQN версии действительно поддерживаются и каким reader?",
+        "owner": "DiD lifecycle owner и actual persisted-plan owner",
+        "bounded_action": "Сдать finite census, доступные genuine fixtures и таблицу supported/retired/unknown. Для supported scope расширить existing reader минимальным versioned mapping и actual replay test; иначе документировать direct-import-only support и actionable migration, не заявляя original broad replay исполненным.",
+        "default": "Dedicated new planning; direct adapter сохранён; unknown external history не считается доказанно отсутствующей."
+      }
+    },
+    {
+      "packet_id": "SCM-01",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/SCM-01.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-SCM-01-CLOSURE",
+        "question": "Какие declared law dependencies должен включать current supported posterior scope?",
+        "owner": "SCM-03 — единственный writer common closure/prepared-plan API; SCM-02 reviewer conditional-law, SCM-01 twin consumer",
+        "bounded_action": "Сопоставить finite profiles independent Gaussian, aligned empirical roots и fully observed polynomial residual; задать один closure interface с двумя arm scopes и evidence dependencies. Проверить irrelevant removal, needed ancestor и auxiliary observed joint-root controls.",
+        "default": "Не исключать зависимость только по отсутствию DAG edge; unsupported law остаётся conservative/limited, не exact."
+      }
+    },
+    {
+      "packet_id": "SCM-02",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/SCM-02.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-SCM-02-PSD",
+        "question": "Какое нормированное factor representation сохраняет current public covariance contract и exact factual controls?",
+        "owner": "SCM-02 — conditional-row/PSD writer с независимым numerical reviewer",
+        "bounded_action": "Сравнить standardized-noise SVD factor с существующим covariance path на analytic2node, singular/full-factual и rescaled fixtures. Выбрать одно внутреннее representation с задокументированным epsilon/rank criterion, не внешний новый API.",
+        "default": "Никакого absolute covariance cutoff или artificial jitter; positive represented law сохраняется."
+      }
+    },
+    {
+      "packet_id": "SCM-03",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/SCM-03.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-SCM-03-REPLAY",
+        "question": "Как закрепить исправленную posterior coordinate policy в existing replay provenance?",
+        "owner": "SCM-03 — canonical stream coordinates writer; SCM-02 numerical reviewer",
+        "bounded_action": "Проверить current schema/stream version fields и downstream readers; выбрать существующий computation-profile marker или минимальное versioned extension. Зафиксировать same-runtime tolerance, changed draws и unchanged target law, genuine historical bytes не менять.",
+        "default": "Canonical within accepted runtime; не обещать equivalence исторических draws или cross-version BLAS."
+      }
+    },
+    {
+      "packet_id": "FIT-01",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/FIT-01.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-FIT-01-RESOURCE",
+        "question": "Даёт ли новая внутренняя параллельность полезный выигрыш на заявленном workload?",
+        "owner": "Владельцы tmle_core и существующего LocalWorkerPool; технический reviewer",
+        "bounded_action": "Сдать TEST-07 таблицу cold/warm отдельно, сравнить одинаковый scientific plan и memory/wait cost. Выбрать сохранение serial-inner либо отдельное расширение admission с показанным отсутствием cyclic wait.",
+        "default": "Serial folds inside admitted job; это допустимый результат, не незавершённый обязательный fan-out."
+      }
+    },
+    {
+      "packet_id": "FIT-01",
+      "lane": "LANE-05",
+      "packet_path": "02_Пакеты/FIT-01.md",
+      "ordinal_within_packet": 2,
+      "decision": {
+        "id": "DEC-FIT-01-SCIENTIFIC",
+        "question": "Для какого реального inference profile заявляется применимость?",
+        "owner": "Владелец scientific use case",
+        "bounded_action": "Назвать independence/positivity/outcome basis и реальный consumer; synthetic binary pilot не переносить на неизвестный профиль. При отсутствии оснований сохранить conditional candidate и ограничение.",
+        "default": "Квалификация механизма не создаёт эмпирической или институциональной authority."
+      }
+    },
+    {
+      "packet_id": "STA-02",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/STA-02.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-STA-02-01: владелец causal consumer выбирает один поддержанный manual/hybrid route по текущим API. Выход — field-by-field mapping + executable positive/unsupported controls; отсутствие native backend блокирует этот witness, не R01 repair."
+    },
+    {
+      "packet_id": "EXE-01",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/EXE-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-EXE-01-01: выбрать transport callback adapter либо receipt signal по меньшей изменяемой поверхности после чтения полного helper. Обязательный выход одинаков: no wait before release в controlled race, bounded arbitrary callbacks, cancellation/shutdown invariants."
+    },
+    {
+      "packet_id": "RES-01",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/RES-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-RES-01-01: actual consumer census определяет поддержку list/null grammar. Выход до acceptance — finite table path/type/null semantics + tests; не объявлять arbitrary JSON graph поддержанным."
+    },
+    {
+      "packet_id": "RES-01",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/RES-01.md",
+      "ordinal_within_packet": 2,
+      "decision": "DEC-RES-01-02: tail выбирается только по measurement; отсутствие tail не дефект при выполненном exact-dedupe контракте."
+    },
+    {
+      "packet_id": "RES-03",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/RES-03.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-RES-03-01: после одной real same-leaf trace выбрать no-code existing reader, projection wiring или typed partial extension у existing cycle owner. Выход обязателен: exact ref→fresh public result/error; отсутствие supported N5 environment означает NOT_RUN именно этого witness, не закрытие G02."
+    },
+    {
+      "packet_id": "RUN-03",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/RUN-03.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-RUN-03-01: выбрать load-bearing category representation у current NodeError/classifier по actual producer. Выход — таблица return/raise/IPC equivalence и legacy handling; если same-cause route отсутствует, ограничить claim, не объявить глобальный parity PASS."
+    },
+    {
+      "packet_id": "DUR-01",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/DUR-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-DUR-01-01: release owner объявляет поддержанные filesystem/coordination profiles и trusted recovery source. Выход — исполнимая restore процедура и witness; без источника blocked только restore claim, известный ack fix выполняется."
+    },
+    {
+      "packet_id": "DUR-02",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/DUR-02.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-DUR-02-01: выбрать один поддержанный primary/local pair и operation evidence для reconciliation. Выход — real completed/remaining/ambiguous table и positive continuation witness. Внешний непримиримый effect блокирует только соответствующее продолжение."
+    },
+    {
+      "packet_id": "CAS-01",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/CAS-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "До native квалификации назвать поддержанный filesystem и допустимый recovery/quarantine owner. Без этого G03 остаётся открытым operational limitation, не скрытым PASS."
+    },
+    {
+      "packet_id": "CAS-02",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/CAS-02.md",
+      "ordinal_within_packet": 1,
+      "decision": "Согласовать канал передачи retained generation path и bounded retention policy; отсутствие автоматического cleanup допустимо, потеря чужих данных — нет."
+    },
+    {
+      "packet_id": "CAS-02",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/CAS-02.md",
+      "ordinal_within_packet": 2,
+      "decision": "Для fsync после replace зафиксировать существующий error/report surface и поддержанный filesystem; не изобретать гарантированный rollback."
+    },
+    {
+      "packet_id": "CAS-03",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/CAS-03.md",
+      "ordinal_within_packet": 1,
+      "decision": "Выбрать private cancellation propagation форму после чтения всех scanner callers; сохранить existing public status vocabulary."
+    },
+    {
+      "packet_id": "CAS-03",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/CAS-03.md",
+      "ordinal_within_packet": 2,
+      "decision": "Определить actual request-scope authorizer owner для native G02. Если route отсутствует, реализовать узкое явное caller wiring либо оставить capability недоказанной; одного signal test недостаточно."
+    },
+    {
+      "packet_id": "REP-01",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/REP-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "Зафиксировать реально поддержанные historical manifest версии и окно old module support; нет evidence — сохранить compatibility, не удалять."
+    },
+    {
+      "packet_id": "REP-01",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/REP-01.md",
+      "ordinal_within_packet": 2,
+      "decision": "CI-bounded scientific interpretation требует отдельного domain oracle, не переименования existing tolerance calculation."
+    },
+    {
+      "packet_id": "CAN-01",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/CAN-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "Назвать supported historical corpus и решить, нужен ли alias candidate consumer; если реального корпуса нет, не заявлять blanket compatibility."
+    },
+    {
+      "packet_id": "CAN-01",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/CAN-01.md",
+      "ordinal_within_packet": 2,
+      "decision": "Обновление двух expectations требует явного записанного behavior-delta решения; просто сделать suite green не acceptance."
+    },
+    {
+      "packet_id": "MIG-01",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/MIG-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "Если cleanup сам запрещён OS, выбрать приоритет diagnostic/exception chaining без сокрытия исходного отказа; document residual path."
+    },
+    {
+      "packet_id": "MIG-01",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/MIG-01.md",
+      "ordinal_within_packet": 2,
+      "decision": "Retirement error/tuple/auto_migrate только отдельным compatibility решением; в этом пакете default — сохранить."
+    },
+    {
+      "packet_id": "MIG-02",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/MIG-02.md",
+      "ordinal_within_packet": 1,
+      "decision": "Зафиксировать supported historical layouts и CWD/root binding; при недоступном corpus G03 остаётся qualified limitation."
+    },
+    {
+      "packet_id": "MIG-02",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/MIG-02.md",
+      "ordinal_within_packet": 2,
+      "decision": "Shared cleanup evidence требует принятого MIG-01 patch; native happy path MIG-02 не закрывает его сам."
+    },
+    {
+      "packet_id": "MIG-04",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/MIG-04.md",
+      "ordinal_within_packet": 1,
+      "decision": "Получить supported historical profiles; если нет, bounded matrix не заявлять полным historical PASS."
+    },
+    {
+      "packet_id": "MIG-04",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/MIG-04.md",
+      "ordinal_within_packet": 2,
+      "decision": "Решить, требуется ли optional target validation реальному consumer; по умолчанию сохранить честный format-only контракт, без forced stricter default."
+    },
+    {
+      "packet_id": "MIG-05",
+      "lane": "LANE-06",
+      "packet_path": "02_Пакеты/MIG-05.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-MIG-05-01: inventory supported external callbacks/historical inputs определяет release owner перед acceptance. Выход: конечный список import paths, payload hashes и unsupported scope. Отсутствующий внешний corpus блокирует только соответствующий compatibility claim, не узкий fingerprint fix."
+    },
+    {
+      "packet_id": "FED-01",
+      "lane": "LANE-07",
+      "packet_path": "02_Пакеты/FED-01.md",
+      "ordinal_within_packet": 1,
+      "decision": {
+        "id": "DEC-FED-01-01",
+        "status": "owner_decided_algorithm_optimization_open",
+        "owner": "src/polisyos/common/numeric_reductions.py",
+        "owner_status": "proposed_new_not_existing",
+        "implementation_owner": "FED-01",
+        "consumers": [
+          "FED-01",
+          "UQS-01"
+        ],
+        "required_output": "One shared finite_binary64_mean/midpoint API, first qualify a finite Python-binary64 wrapper over CPython3.14 statistics.mean against independent rational oracles and measured representative group cost. Custom accumulator only with documented correctness/performance rationale; no per-domain duplicate or unconditional Fraction per row.",
+        "criteria": "Preserve finite overflow/subnormal/cancellation, empty/admission and source provenance semantics. Do not substitute fmean/median blindly. Optimized path requires correctness-preserving fallback; no upward Fabric import and no new dependency."
+      }
+    },
+    {
+      "packet_id": "CAL-02",
+      "lane": "LANE-10",
+      "packet_path": "02_Пакеты/CAL-02.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-CAL-02-01: проверить callers unlabelled и явно full-data calibration. Выход — конечная таблица supported fit-role→source labels→report meaning. Если full-data caller отсутствует, не строить новый режим; если есть, согласовать named profile, не скрывать train/validation leakage. Это не блокирует scale fix."
+    },
+    {
+      "packet_id": "CAL-06",
+      "lane": "LANE-10",
+      "packet_path": "02_Пакеты/CAL-06.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-CAL-06-01: finite census CalibrationReport readers/schema validators, затем решение additive field with new profile либо schema version. Критерии: не менять legacy complete meaning, сохранять exact scope, fresh reader rejection для неизвестного profile; выход — migration table и roundtrip fixtures."
+    },
+    {
+      "packet_id": "UQS-01",
+      "lane": "LANE-10",
+      "packet_path": "02_Пакеты/UQS-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-UQS-01-01: finite producer/ref census для independent units и prior reuse. Выход: accepted predicate map+minimal positive route либо точный missing contract с планом; независимость не выводится из разных UUID/bytes."
+    },
+    {
+      "packet_id": "UQP-01",
+      "lane": "LANE-10",
+      "packet_path": "02_Пакеты/UQP-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-UQP-01-01: по фактическому model/backend contract выбрать consistent coercion+declared domain либо stricter requested-precision refusal. Выход — dtype table, acceptance thresholds и compatibility note; rounding само по себе не defect."
+    },
+    {
+      "packet_id": "UQP-03",
+      "lane": "LANE-10",
+      "packet_path": "02_Пакеты/UQP-03.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-UQP-03-01: finite consumer census выбирает width-only profile или дополнительный требуемый functional precision profile. Выход — version/alias table, exact stopping object, tests и отдельная statistical validation scope; precision claim без выбранного плана запрещён."
+    },
+    {
+      "packet_id": "DOE-01",
+      "lane": "LANE-10",
+      "packet_path": "02_Пакеты/DOE-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-DOE-01-01: finite caller/storage census, выбрать existing artifact handoff либо точный missing adapter. Выход — producer/consumer diagram и minimal acceptance fixture. Не считать отсутствие найденного caller универсальным system failure."
+    },
+    {
+      "packet_id": "DOE-02",
+      "lane": "LANE-10",
+      "packet_path": "02_Пакеты/DOE-02.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-DOE-02-01: bounded inventory existing artifact writer/readers и RNG stages, выбрать minimal context binding. Если missing source owner, сохранить gap и дать конкретный adapter proposal; bare-array test не доказывает production mismatch."
+    },
+    {
+      "packet_id": "DOE-03",
+      "lane": "LANE-10",
+      "packet_path": "02_Пакеты/DOE-03.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-DOE-03-01: actual PCA consumer задаёт units/metric/ranking assumptions и partial-output scope; выход короткая declared contract table, не всеобщая normalization policy. Missingness correction требует предметного основания и не блокирует narrow limitation fix."
+    },
+    {
+      "packet_id": "STR-01",
+      "lane": "LANE-10",
+      "packet_path": "02_Пакеты/STR-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-STR-01-01: finite selected-intent producer census; выбрать existing reference and validation predicate. Выход minimal positive source→fresh score path либо exact missing contract; не заявлять создание authority через один replay."
+    },
+    {
+      "packet_id": "BER-01",
+      "lane": "LANE-11",
+      "packet_path": "02_Пакеты/BER-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-BER-01-01: existing display/confidence owner выбирает alias-only N/A либо conservative limited policy; выход truth table с неизменным claim budget и distinction effective estimator count. Не создавать synthetic disagreement."
+    },
+    {
+      "packet_id": "DDM-01",
+      "lane": "LANE-11",
+      "packet_path": "02_Пакеты/DDM-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-DDM-01-01: inventory обнаруженных plugin/FQN/historical readers; определить поддерживаемое окно forwarding и evidence для retirement. Если historical corpus недоступен, bounded fixture qualification с точной границей, не invented PASS."
+    },
+    {
+      "packet_id": "DDM-02",
+      "lane": "LANE-11",
+      "packet_path": "02_Пакеты/DDM-02.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-DDM-02-01: source inventory должен ответить, существует ли producer с needed selection/coverage/currentness. Варианты: wire existing adequate owner; extend existing persisted event owner с явным predicate; отдельное предложение отсутствующей общей способности. Критерий выбора — независимо проверяемый source predicate, не форма payload. Без достаточного authority не открывать final grant; сохранить bounded outputs."
+    },
+    {
+      "packet_id": "DDM-02",
+      "lane": "LANE-11",
+      "packet_path": "02_Пакеты/DDM-02.md",
+      "ordinal_within_packet": 2,
+      "decision": "DEC-DDM-02-02: определить supported policy compatibility profiles и legitimate freshness/label-delay source. Default сегодня известен, но unknown version не интерпретировать как default. Выход — маленькая typed version/binding mapping с legacy read semantics; не универсальный DSL и не вымышленный institutional signoff."
+    },
+    {
+      "packet_id": "LEX-01",
+      "lane": "LANE-11",
+      "packet_path": "02_Пакеты/LEX-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-LEX-01-01: finite fingerprint/report reader census; выбрать internal-only slash fix с explicit typed-fingerprint follow-through либо versioned typed path identity. Критерии: no boundary/type collision, immutable historical bytes, fresh reconciliation поддерживает declared profile."
+    },
+    {
+      "packet_id": "DFK-01",
+      "lane": "LANE-12",
+      "packet_path": "02_Пакеты/DFK-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-DFK-01-01/02/03: separate finite outcome for DTO file, descriptor, pipeline alias. Required outputs: caller evidence/exclusions, supported external obligation, chosen action, owner and objective exit condition; unknown obligation remains named, no invented sunset."
+    },
+    {
+      "packet_id": "HYG-02",
+      "lane": "LANE-12",
+      "packet_path": "02_Пакеты/HYG-02.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-HYG-02-01: helper finite census and exact external obligations; DEC-HYG-02-02: governance supported window after actual facade/config migration. Outputs include changed consumers and negative-test activation criteria; no historical date guessed."
+    },
+    {
+      "packet_id": "HYG-04",
+      "lane": "LANE-12",
+      "packet_path": "02_Пакеты/HYG-04.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-HYG-04-01: benchmark3aliases finite migration/exit table; DEC-HYG-04-02: exact external setup/URL obligations and late-demo consumer scope. Each has source evidence, selected action, acceptance; not all delayed by one unknown external caller."
+    },
+    {
+      "packet_id": "CLI-01",
+      "lane": "LANE-12",
+      "packet_path": "02_Пакеты/CLI-01.md",
+      "ordinal_within_packet": 1,
+      "decision": "DEC-CLI-01-01: finite external/filesystem raw-import census; choose migration instruction or narrow supported bridge only for actual obligation, no universal-client promise. AST checker dynamic loading policy bounded to actual package needs."
+    }
+  ]
+}

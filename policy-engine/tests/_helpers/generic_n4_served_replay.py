@@ -7,8 +7,9 @@ import dataclasses
 import json
 import math
 import uuid
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
+from decimal import Decimal
 from pathlib import Path
 from typing import Any, Literal
 
@@ -23,8 +24,10 @@ from tests._helpers.controlled_candidate_profile import (
     _controlled_direct_ncm_outcome_state_paths,
     _controlled_procurement_recording,
     _current_compiler_problem,
+    _materialize_controlled_world_model_build,
     _materialize_controlled_world_model_record,
     _validate_controlled_skg_source,
+    synthetic_controlled_candidate_provider_profile,
 )
 from tests._helpers.controlled_candidate_profile import (
     _seed_controlled_selected_skg_source as _build_candidate_only_skg_source,
@@ -64,6 +67,15 @@ _RECORDING_ID = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
 _ORIGINAL_SECOND_CAPTURE_RECORDING_ID = "gy_n4_replay_20260704_095710_425807_7bf5552df372"
 _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH = (
     "sha256:107f896fb1fd1c37170b74c88726c07169277d05d3ec5459ceb360919e692cb1"
+)
+_FISCAL_TAX_SCOPE_SOURCE = (
+    "For Ukraine (UKR) in 2024, using 2024 data as of 2024-12-31, assess a fiscal "
+    "candidate that explicitly sets global.tax_rate to the declared rate, rather than "
+    "multiplying a monetary balance. Maximize the hypothetical government.balance "
+    "outcome, measured in USD, for Ukrainian fiscal analysts."
+)
+_FISCAL_TAX_CANDIDATE_SOURCE = (
+    "All proposals remain candidate-only until independent evidence supports any measured effect."
 )
 _CANDIDATE_SCM_OVERRIDE_FIELDS = frozenset(
     {
@@ -105,6 +117,52 @@ def _validated_candidate_scm_overrides_by_child(
             raise ValueError("controlled_candidate_scm_child_index_out_of_range")
         result[index] = _validated_candidate_scm_overrides(fields)
     return result
+
+
+def _selected_child_n5_baseline(
+    baseline_state: Mapping[str, float],
+    *,
+    target_world_slot: str,
+    outcome_variable: str,
+    overrides: Mapping[str, float],
+) -> dict[str, float]:
+    """Build one synthetic child baseline from its declared target and outcome."""
+    selected_variables = {target_world_slot, outcome_variable}
+    selected = {
+        name: float(value) for name, value in baseline_state.items() if name in selected_variables
+    }
+    selected.setdefault(target_world_slot, 0.0)
+    selected.setdefault(outcome_variable, 0.0)
+    if "target_baseline" in overrides:
+        selected[target_world_slot] = overrides["target_baseline"]
+    if "outcome_baseline" in overrides:
+        selected[outcome_variable] = overrides["outcome_baseline"]
+    return selected
+
+
+def _ncm_declared_variables(ncm_spec: Any) -> set[str]:
+    """Match NCMQueryData's model-variable set for this selected test NCM."""
+    known = set(ncm_spec.endogenous_vars)
+    if ncm_spec.scm_spec is not None:
+        known.update(ncm_spec.scm_spec.graph.nodes)
+    if not known:
+        for equation in ncm_spec.structural_equations:
+            known.add(equation.variable)
+            known.update(equation.parents)
+    if not known:
+        raise ValueError("controlled_n4_selected_ncm_declared_variables_missing")
+    return known
+
+
+def _require_child_ncm_scope(
+    ncm_spec: Any,
+    *,
+    target_world_slot: str,
+    outcome_variable: str,
+) -> None:
+    """Refuse fixture drift beyond this declaration's exact two-node NCM."""
+    if _ncm_declared_variables(ncm_spec) != {target_world_slot, outcome_variable}:
+        raise ValueError("controlled_n4_selected_ncm_model_scope_unexpected")
 
 
 def _source_recorded_n4_retry_inputs(recording: dict[str, Any]) -> dict[str, int]:
@@ -303,6 +361,23 @@ def _original_second_capture_candidate_semantics(
     return observed
 
 
+def _grounding_disposition_diagnostic(
+    result: Any,
+) -> tuple[tuple[str, str, str, str | None, str | None, dict[str, Any] | None], ...]:
+    """Keep exact fixture refusals visible without dumping generated payloads."""
+    return tuple(
+        (
+            row.proposal_id,
+            str(row.disposition),
+            row.selected_relation,
+            row.cg2_reason,
+            row.cg3_reason,
+            row.rejected_cause,
+        )
+        for row in result.grounding_dispositions
+    )
+
+
 def _assert_original_second_capture_generation_result(
     result: Any,
     *,
@@ -326,8 +401,13 @@ def _assert_original_second_capture_generation_result(
             raise AssertionError("original_second_capture_diversity_contract_mismatch")
     summary = result.grounding_disposition_summary
     for field, value in expected["grounding_disposition_summary"].items():
-        if not _contract_value_matches(getattr(summary, field), value):
-            raise AssertionError("original_second_capture_summary_contract_mismatch")
+        observed = getattr(summary, field)
+        if not _contract_value_matches(observed, value):
+            raise AssertionError(
+                "original_second_capture_summary_contract_mismatch:"
+                f"field={field};expected={value!r};observed={observed!r};"
+                f"dispositions={_grounding_disposition_diagnostic(result)!r}"
+            )
 
     observed_dispositions: dict[str, str] = {}
     disposition_candidate_ids_by_proposal: dict[str, str] = {}
@@ -478,28 +558,107 @@ def _two_child_recording(recording: dict[str, Any], *, outcome_variable: str) ->
 
 
 def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) -> dict[str, Any]:
-    """Derive a three-child controlled recording from its selected recorded source."""
+    """Derive source-aligned three-action stages from the immutable recorded source."""
     from polisyos.pdc import gy_content_hash
 
     source_recording_id = str(recording["recording_id"])
     source_recording_content_hash = str(recording["recording_content_hash"])
+    del outcome_variable
     controlled = _controlled_procurement_recording(
         recording,
-        outcome_variable=outcome_variable,
+        outcome_variable="cells.output",
     )
     responses = controlled["responses"]
     if not isinstance(responses, list):
         raise AssertionError("controlled_recording_responses_not_list")
-    # The source problem declares labor_market on agents_is_employed, but it
-    # does not declare credit_guarantee. Adapt the recorded third proposal into
-    # a synthetic candidate for the existing lever so this fixture exercises
-    # the complete source-bound child path without adding a lever or claiming
-    # evidence.
+    # The source recording proposes credit_guarantee, which is not in the
+    # tracked L6 owner. Adapt that third proposal into a candidate-only budget
+    # action using the existing owner binding. This fixture asserts no law
+    # authority or empirical downstream effect.
     expected_kinds = {
-        "labor_market",
+        "budget_allocation_multiplier",
         "tax_relief_rate",
         "procurement_shock_intensity",
     }
+    draft_response = responses[0]
+    if not isinstance(draft_response, dict) or draft_response.get("status") != "success":
+        raise AssertionError("controlled_recording_draft_response_not_successful")
+    draft_raw = draft_response.get("raw_response")
+    if not isinstance(draft_raw, str):
+        raise AssertionError("controlled_recording_draft_response_bytes_missing")
+    draft_payload = json.loads(draft_raw)
+    draft_interventions = draft_payload.get("interventions")
+    if not isinstance(draft_interventions, list):
+        raise AssertionError("controlled_recording_draft_interventions_missing")
+    draft_procurement = [
+        row
+        for row in draft_interventions
+        if isinstance(row, dict) and row.get("mechanism_type") == "procurement_shock_intensity"
+    ]
+    draft_guarantee = [
+        row
+        for row in draft_interventions
+        if isinstance(row, dict) and row.get("mechanism_type") == "credit_guarantee"
+    ]
+    if len(draft_procurement) != 1 or len(draft_guarantee) != 1:
+        raise AssertionError("controlled_recording_draft_source_candidates_not_unique")
+    draft_procurement[0]["parameters"] = {
+        "intensity": 1,
+        "target_world_slot": "cells.distress_score",
+        "sign": "decrease",
+        "outcome_slots": ["cells.output"],
+        "effect_path": [
+            "procurement_shock_intensity",
+            "cells.distress_score",
+            "cells.output",
+        ],
+        "estimand": "average_treatment_effect",
+    }
+    draft_guarantee[0].update(
+        {
+            "name": "Tracked Budget Allocation Multiplier",
+            "description": (
+                "A candidate-only direct budget action on government.balance; its downstream "
+                "effect remains unverified."
+            ),
+            "mechanism_type": "budget_allocation_multiplier",
+            "parameters": {
+                "multiplier": 0.5,
+                "target_world_slot": "government.balance",
+                "sign": "increase",
+                "outcome_slots": ["government.balance"],
+                "effect_path": [
+                    "budget_allocation_multiplier",
+                    "government.balance",
+                    "government.balance",
+                ],
+                "estimand": "average_treatment_effect",
+            },
+            "rationale": (
+                "This is a tracked candidate action for simulation only; no causal effect or "
+                "policy authority is established."
+            ),
+        }
+    )
+    if {row.get("mechanism_type") for row in draft_interventions if isinstance(row, dict)} != (
+        expected_kinds
+    ):
+        raise AssertionError("controlled_recording_draft_three_child_interventions_changed")
+    draft_payload["narrative"] = (
+        "A candidate-only source package combines the recorded tax and procurement actions "
+        "with the tracked budget allocation multiplier. The actions are simulation inputs; "
+        "their effects, coupling, and legal authority are not established."
+    )
+    draft_payload["rationale"] = (
+        "The controlled source package preserves three separately tracked direct actions for "
+        "candidate simulation. Their target, sign, outcome, path, and estimand fields remain "
+        "candidate assertions; no downstream effect is treated as established."
+    )
+    draft_payload["alternatives_considered"] = []
+    rewritten_draft = json.dumps(draft_payload, sort_keys=True, separators=(",", ":"))
+    draft_response["raw_response"] = rewritten_draft
+    draft_response["raw_response_hash"] = gy_content_hash(rewritten_draft)
+
     for response_index in (4, 8):
         response = responses[response_index]
         if not isinstance(response, dict):
@@ -509,49 +668,74 @@ def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) 
             raise AssertionError("controlled_recording_response_bytes_missing")
         payload = json.loads(raw)
         interventions = payload["policy_spec"]["interventions"]
+        procurement = [
+            row for row in interventions if row.get("kind") == "procurement_shock_intensity"
+        ]
+        if len(procurement) != 1:
+            raise AssertionError("controlled_recording_procurement_candidate_missing")
+        procurement[0]["notes"] = [
+            "Candidate-only direct procurement shock on cells.distress_score; cells.output "
+            "is a candidate outcome path, not empirical effect evidence."
+        ]
+        procurement[0]["params"] = {
+            "effect_path": [
+                "procurement_shock_intensity",
+                "cells.distress_score",
+                "cells.output",
+            ],
+            "estimand": "average_treatment_effect",
+            "intensity": "1",
+            "outcome_slots": ["cells.output"],
+            "sign": "decrease",
+            "target_world_slot": "cells.distress_score",
+        }
+        parameters = payload["policy_spec"].get("parameters")
+        if not isinstance(parameters, list):
+            raise AssertionError("controlled_recording_parameters_not_list")
+        procurement_parameters = [
+            row
+            for row in parameters
+            if isinstance(row, dict)
+            and row.get("intervention_id") == procurement[0].get("intervention_id")
+            and row.get("param_path") == "intensity"
+        ]
+        if len(procurement_parameters) != 1:
+            raise AssertionError("controlled_recording_procurement_parameter_missing")
+        procurement_parameters[0]["default_value"] = "1"
         third = [row for row in interventions if row.get("kind") == "credit_guarantee"]
         if len(third) != 1:
             raise AssertionError("controlled_recording_third_candidate_missing")
         source_intervention_id = third[0].get("intervention_id")
-        synthetic_intervention_id = f"synthetic_labor_market_retention_{response_index}"
+        synthetic_intervention_id = f"synthetic_budget_allocation_{response_index}"
         if not isinstance(source_intervention_id, str) or not source_intervention_id:
             raise AssertionError("controlled_recording_third_candidate_identity_missing")
         third[0].update(
             {
-                "description": (
-                    "A synthetic labor-market retention candidate adapted to the "
-                    "parent's already-declared lever."
-                ),
                 "intervention_id": synthetic_intervention_id,
-                "kind": "labor_market",
-                "name": "Synthetic labor-market employment-retention candidate",
+                "kind": "budget_allocation_multiplier",
                 "notes": [
-                    "Synthetic candidate adapted to the already-declared labor_market "
-                    "lever; no empirical effect or authority is asserted."
+                    "Candidate-only budget action bound to the tracked owner mechanism "
+                    "and direct government.balance slot. The downstream effect remains "
+                    "unverified; no law authority or empirical effect is asserted."
                 ],
                 "params": {
-                    "effect_path": ["agents.is_employed", "employment_retention"],
+                    "effect_path": [
+                        "budget_allocation_multiplier",
+                        "government.balance",
+                        "government.balance",
+                    ],
                     "estimand": "average_treatment_effect",
-                    "employment_threshold": "0.5",
-                    "outcome_slots": ["employment_retention"],
+                    "multiplier": "0.5",
+                    "outcome_slots": ["government.balance"],
                     "sign": "increase",
-                    "target_world_slot": "agents.is_employed",
+                    "target_world_slot": "government.balance",
                 },
-                "rationale": (
-                    "This controlled candidate exercises the declared labor-market "
-                    "lever in a synthetic replay. It does not assert an empirical "
-                    "effect, source evidence, or authority."
-                ),
-                "target_population": "Synthetic industrial MSME test population",
             }
         )
         payload["policy_spec"]["description"] = (
             "Synthetic three-intervention candidate combining tax relief, procurement "
-            "stabilization, and the already-declared labor-market retention lever."
+            "stabilization, and the tracked budget allocation multiplier owner action."
         )
-        parameters = payload["policy_spec"].get("parameters")
-        if not isinstance(parameters, list):
-            raise AssertionError("controlled_recording_parameters_not_list")
         if not any(
             isinstance(parameter, dict)
             and parameter.get("intervention_id") == source_intervention_id
@@ -570,10 +754,10 @@ def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) 
             {
                 "default_value": "0.5",
                 "intervention_id": synthetic_intervention_id,
-                "max_value": "1.0",
+                "max_value": "2.0",
                 "min_value": "0.0",
-                "param_id": "employment_threshold",
-                "param_path": "employment_threshold",
+                "param_id": "multiplier",
+                "param_path": "multiplier",
             }
         )
         model_spec = payload.get("model_spec")
@@ -586,13 +770,11 @@ def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) 
                     if "credit_guarantee" in str(assumption.get("assumption_id", "")):
                         assumption.update(
                             {
-                                "assumption_id": (
-                                    f"synthetic_labor_market_candidate_{response_index}"
-                                ),
+                                "assumption_id": f"synthetic_budget_candidate_{response_index}",
                                 "description": (
-                                    "The labor-market candidate is a synthetic test input "
-                                    "adapted to an existing declared lever; no empirical "
-                                    "effect or authority is asserted."
+                                    "The budget candidate is a synthetic test input bound "
+                                    "to the tracked L6 owner action. Its downstream effect "
+                                    "is unverified, and no law authority is asserted."
                                 ),
                             }
                         )
@@ -601,6 +783,115 @@ def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) 
         response["raw_response_hash"] = gy_content_hash(rewritten)
         if {row.get("kind") for row in interventions} != expected_kinds:
             raise AssertionError("controlled_recording_three_child_interventions_changed")
+
+    critic_response = responses[9]
+    if not isinstance(critic_response, dict) or critic_response.get("status") != "success":
+        raise AssertionError("controlled_recording_critic_response_not_successful")
+    critic_raw = critic_response.get("raw_response")
+    if not isinstance(critic_raw, str):
+        raise AssertionError("controlled_recording_critic_response_bytes_missing")
+    critic_payload = json.loads(critic_raw)
+    critic_issues = critic_payload.get("issues")
+    if not isinstance(critic_issues, list):
+        raise AssertionError("controlled_recording_critic_issues_missing")
+    source_issues_by_id: dict[str, dict[str, Any]] = {}
+    for issue in critic_issues:
+        if not isinstance(issue, dict) or not isinstance(issue.get("issue_id"), str):
+            continue
+        issue_id = issue["issue_id"]
+        if issue_id in source_issues_by_id:
+            raise AssertionError("controlled_recording_critic_issue_id_not_unique:" + issue_id)
+        source_issues_by_id[issue_id] = issue
+    expected_replaced_issue_sources = {
+        "COMPLIANCE-001": (
+            "COMPLIANCE",
+            "policy_spec.interventions[2].kind",
+            (
+                "msme_working_capital_guarantee",
+                "kind='credit_guarantee'",
+                "not listed in the ProblemFrame's allowed_operator_kinds",
+            ),
+        ),
+        "ALIGNMENT-001": (
+            "ALIGNMENT",
+            "policy_spec.interventions[2].params",
+            (
+                "none of the interventions explicitly include a fiscal cap",
+                "A credit guarantee without an exposure cap directly creates unbounded contingent liability",
+            ),
+        ),
+        "FEASIBILITY-001": (
+            "FEASIBILITY",
+            "policy_spec.interventions[2].target",
+            (
+                "The credit guarantee intervention targets all agents via predicate id == all",
+                "increase fiscal exposure",
+            ),
+        ),
+        "COMPLETENESS-001": (
+            "COMPLETENESS",
+            "policy_spec.interventions",
+            ("budget_allocation_multiplier", "not utilized"),
+        ),
+    }
+    for issue_id, (category, location, message_markers) in expected_replaced_issue_sources.items():
+        issue = source_issues_by_id.get(issue_id)
+        message = issue.get("message") if issue is not None else None
+        if (
+            issue is None
+            or issue.get("category") != category
+            or issue.get("location") != location
+            or not isinstance(message, str)
+            or any(marker not in message for marker in message_markers)
+        ):
+            raise AssertionError("controlled_recording_replaced_critic_source_mismatch:" + issue_id)
+
+    formalizer_payload = json.loads(responses[8]["raw_response"])
+    formalizer_actions = formalizer_payload["policy_spec"]["interventions"]
+    budget_actions = [
+        row
+        for row in formalizer_actions
+        if isinstance(row, dict) and row.get("kind") == "budget_allocation_multiplier"
+    ]
+    budget_params = budget_actions[0].get("params") if len(budget_actions) == 1 else None
+    budget_notes = budget_actions[0].get("notes") if len(budget_actions) == 1 else None
+    if (
+        not isinstance(budget_params, dict)
+        or budget_params.get("target_world_slot") != "government.balance"
+        or budget_params.get("multiplier") != "0.5"
+        or not isinstance(budget_notes, list)
+        or not any("candidate-only" in str(note).casefold() for note in budget_notes)
+    ):
+        raise AssertionError("controlled_recording_budget_candidate_body_not_established")
+
+    alignment_issue = dict(source_issues_by_id["ALIGNMENT-001"])
+    alignment_message = str(alignment_issue["message"])
+    guarantee_liability_clause = " A credit guarantee without an exposure cap directly creates unbounded contingent liability."
+    if (
+        guarantee_liability_clause not in alignment_message
+        or "none of the interventions explicitly include a fiscal cap" not in alignment_message
+    ):
+        raise AssertionError("controlled_recording_alignment_source_clause_not_established")
+    alignment_issue["message"] = alignment_message.replace(guarantee_liability_clause, "")
+    if "credit guarantee" in str(alignment_issue["message"]).casefold():
+        raise AssertionError("controlled_recording_alignment_retained_removed_action_claim")
+    alignment_issue["location"] = "policy_spec.interventions"
+    alignment_issue["suggestion"] = (
+        "Consider an explicit fiscal cap, budget ceiling, or cost-limiting parameter for the "
+        "candidate package; this candidate-only budget action does not establish a binding cap."
+    )
+    adapted_issue_ids = {"ALIGNMENT-001"}
+    removed_issue_ids = {"COMPLIANCE-001", "FEASIBILITY-001", "COMPLETENESS-001"}
+    critic_payload["issues"] = [
+        alignment_issue
+        if isinstance(issue, dict) and issue.get("issue_id") in adapted_issue_ids
+        else issue
+        for issue in critic_issues
+        if not isinstance(issue, dict) or issue.get("issue_id") not in removed_issue_ids
+    ]
+    rewritten_critic = json.dumps(critic_payload, sort_keys=True, separators=(",", ":"))
+    critic_response["raw_response"] = rewritten_critic
+    critic_response["raw_response_hash"] = gy_content_hash(rewritten_critic)
 
     fixture_id = (
         "synthetic_three_n4_children_"
@@ -720,6 +1011,508 @@ def _seed_controlled_selected_skg_source(
     )
 
 
+def _source_component_rule_spec(organ_run: Any, child: Any) -> dict[str, Any]:
+    """Select a declared PolicySpec parameter domain, never infer one from its value."""
+    matches = tuple(
+        candidate
+        for candidate in organ_run.result.candidates
+        if candidate.atom.content_hash in child.source_atom_refs
+    )
+    bundle = organ_run.trinity_bundle
+    if len(matches) != 1 or bundle is None:
+        raise ValueError("controlled_component_source_not_unique")
+    intervention_id = matches[0].atom.intervention_id
+    interventions = tuple(
+        item for item in bundle.policy_spec.interventions if item.intervention_id == intervention_id
+    )
+    parameters = tuple(
+        item for item in bundle.policy_spec.parameters if item.intervention_id == intervention_id
+    )
+    if len(interventions) != 1 or len(parameters) != 1:
+        raise ValueError("controlled_component_parameter_domain_not_unique")
+    spec = parameters[0]
+    parameter_id = spec.param_path.removeprefix("params.")
+    if "." in parameter_id or parameter_id not in interventions[0].params:
+        raise ValueError("controlled_component_parameter_path_not_atomic")
+    if spec.min_value is None or spec.max_value is None:
+        raise ValueError("controlled_component_parameter_bounds_missing")
+    return {
+        "parameter_id": parameter_id,
+        "minimum": Decimal(str(spec.min_value)),
+        "maximum": Decimal(str(spec.max_value)),
+        "parameter_context": {
+            name: value for name, value in interventions[0].params.items() if name != parameter_id
+        },
+    }
+
+
+def _replace_recording_response_payload(
+    recording: dict[str, Any],
+    *,
+    response_index: int,
+    payload: dict[str, Any],
+) -> str:
+    """Replace one synthetic response and return its recomputed content hash."""
+    responses = recording.get("responses")
+    if not isinstance(responses, list) or not 0 <= response_index < len(responses):
+        raise ValueError("child_provider_response_index_not_established")
+    response = responses[response_index]
+    if not isinstance(response, dict) or response.get("status") != "success":
+        raise ValueError("child_provider_source_response_not_successful")
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    response["raw_response"] = encoded
+    response["raw_llm_response"] = copy.deepcopy(payload)
+    response_hash = gy_content_hash(encoded)
+    response["raw_response_hash"] = response_hash
+    return response_hash
+
+
+def _bind_child_formalizer_frame(
+    formalizer_payload: dict[str, Any],
+    *,
+    child_problem: Any,
+) -> None:
+    """Bind child identity and narrative while preserving the typed source domain."""
+    problem_frame = formalizer_payload.get("problem_frame")
+    if not isinstance(problem_frame, dict):
+        raise ValueError("child_provider_problem_frame_not_established")
+    problem_frame["problem_id"] = str(child_problem.design_problem_id)
+    problem_frame["narrative"] = child_problem.problem_statement
+
+
+def _child_conditioned_synthetic_provider_profile(
+    *,
+    source_recording: dict[str, Any],
+    base_controlled_recording: dict[str, Any],
+    organ_run: Any,
+    parent_problem: Any,
+    child: Any,
+    child_profile_selection_ref: str,
+    evidence_root: Path,
+):
+    """Build a source-atom-bound synthetic N4 profile for one admitted child.
+
+    The immutable recorded capture remains the lineage root. This fixture derives
+    new stage responses from the exact child atom and its declared intervention
+    and parameter specification; the derived responses are candidate-only inputs.
+    """
+    from polisyos.runtime.quality.cycle_substrate import (
+        cycle_job_design_problem_ref,
+        generic_n4_child_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.design_generation import GenerationUnderAResult
+
+    if (
+        type(organ_run.result) is not GenerationUnderAResult
+        or organ_run.trinity_bundle is None
+        or type(child.source_atom_refs) is not tuple
+        or len(child.source_atom_refs) != 1
+        or not isinstance(child_profile_selection_ref, str)
+        or not child_profile_selection_ref.startswith("sha256:")
+    ):
+        raise ValueError("child_provider_source_atom_join_not_established")
+    source_result = organ_run.result
+    source_result_ref = gy_content_hash(source_result.model_dump(mode="json"))
+    parent_problem_ref = cycle_job_design_problem_ref(parent_problem)
+    if (
+        source_result.design_problem_ref != parent_problem_ref
+        or child.source_result_ref != source_result_ref
+        or generic_n4_child_profile_selection_ref(
+            child.problem,
+            parent_problem_ref=parent_problem_ref,
+            source_result_ref=child.source_result_ref,
+            source_atom_refs=child.source_atom_refs,
+            semantic_ref=child.semantic_ref,
+        )
+        != child_profile_selection_ref
+    ):
+        raise ValueError("child_provider_source_result_ref_mismatch")
+    source_atom_refs = tuple(sorted(str(ref) for ref in child.source_atom_refs))
+    if len(source_atom_refs) != 1:
+        raise ValueError("child_provider_source_atom_ref_not_unique")
+    candidates = tuple(
+        row for row in source_result.candidates if row.atom.content_hash in source_atom_refs
+    )
+    if len(candidates) != 1:
+        raise ValueError("child_provider_source_atom_candidate_not_unique")
+    candidate = candidates[0]
+    atom = candidate.atom
+    operator_kind = str(
+        getattr(atom.operator_kind.trinity_kind, "value", atom.operator_kind.trinity_kind)
+    )
+    target_slots = tuple(sorted(str(slot) for slot in atom.target_world_slots))
+    child_levers = tuple(child.problem.candidate_lever_space.candidate_levers)
+    if len(child_levers) != 1:
+        raise ValueError("child_provider_child_lever_not_unique")
+    (lever,) = child_levers
+    if lever.operator_kind != operator_kind or target_slots != (lever.target_slot,):
+        raise ValueError("child_provider_child_lever_atom_mismatch")
+
+    bundle = organ_run.trinity_bundle
+    intervention_id = str(atom.intervention_id)
+    interventions = tuple(
+        row for row in bundle.policy_spec.interventions if row.intervention_id == intervention_id
+    )
+    parameters = tuple(
+        row for row in bundle.policy_spec.parameters if row.intervention_id == intervention_id
+    )
+    if len(interventions) != 1 or len(parameters) != 1:
+        raise ValueError("child_provider_original_intervention_parameter_not_unique")
+    intervention = interventions[0]
+    parameter = parameters[0]
+    if (
+        str(getattr(intervention.kind, "value", intervention.kind)) != operator_kind
+        or parameter.param_path.startswith("params.")
+        or "." in parameter.param_path
+        or parameter.min_value is None
+        or parameter.max_value is None
+    ):
+        raise ValueError("child_provider_original_component_spec_not_atomic")
+    atom_params = dict(atom.direct_effect_bundle.params)
+    intervention_params = dict(intervention.params)
+    if atom_params != intervention_params:
+        raise ValueError("child_provider_atom_original_intervention_params_mismatch")
+
+    source_formalizer = source_recording["responses"][8]
+    source_draft = source_recording["responses"][0]
+    source_multipass = source_recording["responses"][1]
+    source_critic = source_recording["responses"][9]
+    if any(
+        not isinstance(row, dict) or row.get("status") != "success"
+        for row in (source_formalizer, source_draft, source_multipass, source_critic)
+    ):
+        raise ValueError("child_provider_parent_stage_response_not_successful")
+    formalizer_payload = json.loads(source_formalizer["raw_response"])
+    policy_payload = formalizer_payload.get("policy_spec")
+    if not isinstance(policy_payload, dict):
+        raise ValueError("child_provider_original_policy_spec_not_established")
+    raw_interventions = policy_payload.get("interventions")
+    raw_parameters = policy_payload.get("parameters")
+    if not isinstance(raw_interventions, list) or not isinstance(raw_parameters, list):
+        raise ValueError("child_provider_original_policy_members_not_established")
+    raw_intervention_rows = tuple(
+        row
+        for row in raw_interventions
+        if isinstance(row, dict) and row.get("intervention_id") == intervention_id
+    )
+    raw_parameter_rows = tuple(
+        row
+        for row in raw_parameters
+        if isinstance(row, dict) and row.get("intervention_id") == intervention_id
+    )
+    if len(raw_intervention_rows) != 1 or len(raw_parameter_rows) != 1:
+        raise ValueError("child_provider_original_wire_member_not_unique")
+    raw_intervention = raw_intervention_rows[0]
+    raw_parameter = raw_parameter_rows[0]
+    if (
+        raw_intervention.get("kind") != operator_kind
+        or raw_intervention.get("params") != intervention_params
+        or raw_intervention.get("params", {}).get("target_world_slot") != lever.target_slot
+        or raw_parameter.get("param_id") != parameter.param_id
+        or raw_parameter.get("param_path") != parameter.param_path
+        or Decimal(str(raw_parameter.get("default_value"))) != Decimal(str(parameter.default_value))
+        or Decimal(str(raw_parameter.get("min_value"))) != Decimal(str(parameter.min_value))
+        or Decimal(str(raw_parameter.get("max_value"))) != Decimal(str(parameter.max_value))
+    ):
+        raise ValueError("child_provider_original_wire_semantics_mismatch")
+
+    draft_payload = json.loads(source_draft["raw_response"])
+    draft_interventions = draft_payload.get("interventions")
+    if not isinstance(draft_interventions, list):
+        raise ValueError("child_provider_original_draft_interventions_missing")
+    parameter_name = parameter.param_path
+    draft_matches = tuple(
+        (index, row)
+        for index, row in enumerate(draft_interventions)
+        if isinstance(row, dict)
+        and row.get("mechanism_type") == operator_kind
+        and isinstance(row.get("parameters"), dict)
+        and row["parameters"].get("target_world_slot") == lever.target_slot
+        and Decimal(str(row["parameters"].get(parameter_name)))
+        == Decimal(str(parameter.default_value))
+    )
+    if len(draft_matches) != 1:
+        raise ValueError("child_provider_original_draft_candidate_not_unique")
+    source_draft_index, selected_draft = draft_matches[0]
+    draft_name = selected_draft.get("name")
+    if not isinstance(draft_name, str) or not draft_name:
+        raise ValueError("child_provider_original_draft_candidate_name_missing")
+
+    child_problem = child.problem
+    child_problem_ref = cycle_job_design_problem_ref(child_problem)
+    child_frame_id = str(child_problem.design_problem_id)
+    formalizer_index = raw_interventions.index(raw_intervention)
+
+    child_recording = copy.deepcopy(base_controlled_recording)
+    source_response_hashes = {
+        "draft": source_draft["raw_response_hash"],
+        "drafter_multipass": source_multipass["raw_response_hash"],
+        "drafter_consolidation": source_draft["raw_response_hash"],
+        "formalizer": source_formalizer["raw_response_hash"],
+        "critic": source_critic["raw_response_hash"],
+    }
+    source_stage_indexes = (
+        (0, source_draft["raw_response_hash"]),
+        (1, source_multipass["raw_response_hash"]),
+        (8, source_formalizer["raw_response_hash"]),
+        (9, source_critic["raw_response_hash"]),
+    )
+    if any(
+        child_recording["responses"][index]["raw_response_hash"] != source_hash
+        for index, source_hash in source_stage_indexes
+    ):
+        raise ValueError("child_provider_base_stage_not_source_identical")
+
+    draft_payload["draft_id"] = (
+        "synthetic_child_" + child_profile_selection_ref.removeprefix("sha256:")[:16]
+    )
+    draft_payload["problem_frame_ref"] = child_frame_id
+    draft_payload["narrative"] = str(selected_draft.get("description") or draft_name)
+    draft_payload["rationale"] = (
+        str(selected_draft.get("rationale") or "")
+        + " Synthetic child response derived from the exact parent source atom; "
+        "effect and authority remain unestablished."
+    ).strip()
+    draft_payload["interventions"] = [copy.deepcopy(selected_draft)]
+    draft_payload["alternatives_considered"] = []
+    draft_payload.pop("confidence", None)
+    draft_hash = _replace_recording_response_payload(
+        child_recording,
+        response_index=0,
+        payload=draft_payload,
+    )
+
+    multipass_payload = json.loads(source_multipass["raw_response"])
+    findings = multipass_payload.get("findings")
+    if not isinstance(findings, list):
+        raise ValueError("child_provider_original_multipass_findings_missing")
+    sibling_names = {
+        str(row.get("name"))
+        for row in draft_interventions
+        if isinstance(row, dict) and row.get("name") and row.get("name") != draft_name
+    }
+    selected_findings = []
+    for finding in findings:
+        if (
+            not isinstance(finding, dict)
+            or finding.get("affected_intervention") != draft_name
+            or finding.get("anchor") != f"intervention:{source_draft_index}"
+        ):
+            continue
+        description = str(finding.get("description") or "")
+        suggestion = str(finding.get("suggested_fix") or "")
+        if any(name.lower() in f"{description} {suggestion}".lower() for name in sibling_names):
+            continue
+        selected = copy.deepcopy(finding)
+        selected["anchor"] = "intervention:0"
+        selected_findings.append(selected)
+    multipass_payload["findings"] = selected_findings
+    multipass_payload.pop("confidence_adjustment", None)
+    multipass_hash = _replace_recording_response_payload(
+        child_recording,
+        response_index=1,
+        payload=multipass_payload,
+    )
+
+    _bind_child_formalizer_frame(formalizer_payload, child_problem=child_problem)
+    policy_payload["interventions"] = [copy.deepcopy(raw_intervention)]
+    policy_payload["parameters"] = [copy.deepcopy(raw_parameter)]
+    policy_payload["description"] = str(selected_draft.get("description") or draft_name)
+    if "problem_frame_ref" in policy_payload:
+        policy_payload["problem_frame_ref"] = child_frame_id
+    model_payload = formalizer_payload.get("model_spec")
+    if not isinstance(model_payload, dict):
+        raise ValueError("child_provider_model_spec_not_established")
+    # Parent-level assumptions are not projected to the child candidate.
+    model_payload["assumptions"] = []
+    formalizer_hash = _replace_recording_response_payload(
+        child_recording,
+        response_index=8,
+        payload=formalizer_payload,
+    )
+
+    critic_payload = json.loads(source_critic["raw_response"])
+    issues = critic_payload.get("issues")
+    if not isinstance(issues, list):
+        raise ValueError("child_provider_original_critic_issues_missing")
+    projected_issues = []
+    sibling_ids = {
+        str(row.get("intervention_id"))
+        for row in raw_interventions
+        if isinstance(row, dict) and row.get("intervention_id") != intervention_id
+    }
+    sibling_names_lower = {name.lower() for name in sibling_names}
+    for issue in issues:
+        if not isinstance(issue, dict):
+            continue
+        location = str(issue.get("location") or "")
+        selected_path = f"policy_spec.interventions[{formalizer_index}]"
+        is_child_issue = location == selected_path or location.startswith(selected_path + ".")
+        is_shared_model_issue = location.startswith("model_spec.")
+        if not (is_child_issue or is_shared_model_issue):
+            continue
+        text = " ".join(
+            str(issue.get(key) or "") for key in ("message", "suggestion", "location")
+        ).lower()
+        if any(sibling_id.lower() in text for sibling_id in sibling_ids) or any(
+            sibling_name in text for sibling_name in sibling_names_lower
+        ):
+            continue
+        selected_issue = copy.deepcopy(issue)
+        selected_issue["issue_id"] = (
+            "child_"
+            + child_profile_selection_ref.removeprefix("sha256:")[:10]
+            + "_"
+            + str(issue.get("issue_id") or "issue")
+        )
+        if is_child_issue:
+            selected_issue["location"] = (
+                "policy_spec.interventions[0]" + location[len(selected_path) :]
+            )
+        projected_issues.append(selected_issue)
+    critic_payload["issues"] = projected_issues
+    critic_payload["report_id"] = (
+        "synthetic-child-critic-" + child_profile_selection_ref.removeprefix("sha256:")[:16]
+    )
+    critic_payload["problem_frame_ref"] = child_frame_id
+    critic_payload["ir_ref"] = gy_content_hash(formalizer_payload)
+    critic_payload["reflexion_hint"] = (
+        "Synthetic child critique projection: sibling-specific findings and parent-wide "
+        "scores are not carried into this child view."
+    )
+    for score_name in ("alignment_score", "completeness_score", "overall_quality"):
+        critic_payload.pop(score_name, None)
+    critic_hash = _replace_recording_response_payload(
+        child_recording,
+        response_index=9,
+        payload=critic_payload,
+    )
+
+    child_fixture_id = (
+        "synthetic_n4_child_" + child_profile_selection_ref.removeprefix("sha256:")[:20]
+    )
+    child_recording.update(
+        {
+            "fixture_id": child_fixture_id,
+            "recording_id": child_fixture_id,
+            "recording_source": "synthetic_child_conditioned_stage_projection",
+            "derived_from_recording_id": source_recording["recording_id"],
+            "derived_from_content_hash": source_recording["recording_content_hash"],
+            "parent_synthetic_recording_id": base_controlled_recording.get("recording_id"),
+            "parent_synthetic_recording_content_hash": base_controlled_recording.get(
+                "recording_content_hash"
+            ),
+            "child_problem_ref": child_problem_ref,
+            "child_profile_selection_ref": child_profile_selection_ref,
+            "child_source_result_ref": source_result_ref,
+            "child_source_atom_refs": list(source_atom_refs),
+            "child_intervention_id": intervention_id,
+            "child_parameter_spec": parameter.model_dump(mode="json"),
+            "child_original_formalizer_intervention": copy.deepcopy(raw_intervention),
+            "child_original_formalizer_parameter": copy.deepcopy(raw_parameter),
+            "child_parent_response_hashes": source_response_hashes,
+            "child_projected_response_hashes": {
+                "draft": draft_hash,
+                "drafter_multipass": multipass_hash,
+                "drafter_consolidation": draft_hash,
+                "formalizer": formalizer_hash,
+                "critic": critic_hash,
+            },
+            "child_projection_basis": (
+                "exact_owner_child_source_atom_to_original_intervention_and_parameter_spec"
+            ),
+            "authority": "candidate_only_not_external_evidence",
+        }
+    )
+    child_recording["recording_content_hash"] = gy_content_hash(
+        {key: value for key, value in child_recording.items() if key != "recording_content_hash"}
+    )
+    n4_contract._validate_recording_fixture(child_recording)  # type: ignore[arg-type]
+
+    provider_profile = synthetic_controlled_candidate_provider_profile(
+        source_recording,
+        child_recording,
+        problem=child_problem,
+        evidence_root=evidence_root,
+    )
+    provider_profile = dataclasses.replace(
+        provider_profile,
+        profile_selection_ref=child_profile_selection_ref,
+    )
+    projection_root = evidence_root / "child-projections"
+    projection_root.mkdir(parents=True, exist_ok=True)
+    projection_path = projection_root / (
+        child_profile_selection_ref.removeprefix("sha256:") + ".json"
+    )
+    with projection_path.open("x", encoding="utf-8") as stream:
+        stream.write(json.dumps(child_recording, sort_keys=True, indent=2) + "\n")
+    return provider_profile
+
+
+def _child_conditioned_provider_profile_bindings(
+    *,
+    parent_problem: Any,
+    children: Sequence[Any],
+    child_profiles_by_selection_ref: Mapping[str, Any],
+) -> dict[str, tuple[str, Any]]:
+    """Bind admitted actual child subjects to their selected prepared profiles."""
+    from polisyos.runtime.quality.cycle_substrate import (
+        cycle_job_design_problem_ref,
+        generic_n4_child_profile_selection_ref,
+    )
+
+    parent_problem_ref = cycle_job_design_problem_ref(parent_problem)
+    bindings: dict[str, tuple[str, Any]] = {}
+    for child in children:
+        selection_ref = generic_n4_child_profile_selection_ref(
+            child.problem,
+            parent_problem_ref=parent_problem_ref,
+            source_result_ref=child.source_result_ref,
+            source_atom_refs=child.source_atom_refs,
+            semantic_ref=child.semantic_ref,
+        )
+        profile = child_profiles_by_selection_ref.get(selection_ref)
+        if profile is None or profile.profile_selection_ref != selection_ref:
+            raise ValueError("child_conditioned_provider_selection_not_admitted")
+        subject_ref = cycle_job_design_problem_ref(child.problem)
+        if subject_ref in bindings:
+            raise ValueError("child_conditioned_provider_problem_ref_not_unique")
+        bindings[subject_ref] = (selection_ref, profile)
+    if len(bindings) != len(children):
+        raise ValueError("child_conditioned_provider_binding_family_incomplete")
+    return bindings
+
+
+def _complete_child_conditioned_provider_request(
+    *,
+    subject_ref: str,
+    request: dict[str, Any],
+    raw_request: bytes,
+    compiled_problem_ref: str | None,
+    parent_completion: Callable[..., dict[str, Any]],
+    child_profiles_by_problem_ref: Mapping[str, tuple[str, Any]],
+    child_keys: Sequence[str],
+) -> dict[str, Any]:
+    """Route one canonical child subject to its exact selected profile."""
+    if subject_ref != compiled_problem_ref:
+        raise ValueError("child_conditioned_provider_subject_not_admitted")
+    child_entry = child_profiles_by_problem_ref.get(subject_ref)
+    if child_entry is None:
+        return parent_completion(
+            request,
+            raw_request=raw_request,
+            compiled_problem_ref=compiled_problem_ref,
+        )
+    child_key, child_profile = child_entry
+    if child_key not in set(child_keys) or child_profile.profile_selection_ref != child_key:
+        raise ValueError("child_conditioned_provider_selection_not_admitted")
+    return child_profile.completion(
+        request,
+        raw_request=raw_request,
+        compiled_problem_ref=compiled_problem_ref,
+    )
+
+
 def _generic_profile_for_selection(
     *,
     tmp_path: Path,
@@ -737,8 +1530,10 @@ def _generic_profile_for_selection(
     tenant_id: str,
     cell_id: str,
     candidate_scm_overrides: dict[str, float] | None = None,
+    include_cyclic_ncm_alternative: bool = False,
+    component_rule_spec: dict[str, Any] | None = None,
 ):
-    """Build a typed candidate-only profile and persist its exact WMRv2/NCM basis."""
+    """Build a profile from declared models, retaining every chosen CAS alternative."""
     from polisyos.core.artifacts import ensure_ir_artifact_store
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.security.tenant_context import tenant_scope
@@ -748,12 +1543,15 @@ def _generic_profile_for_selection(
     )
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioDecimalSetToRuleV2,
         CandidateScenarioSetToRule,
         CandidateSimulationScenarioProfile,
         candidate_simulation_profile_ref,
     )
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleN5RequestProfileV1,
+        GenericCycleN5RequestProfileV2,
+        GenericCycleN5RequestProfileV3,
         GenericCycleSimulationProfileV1,
     )
     from polisyos.runtime.quality.world_model_record import (
@@ -768,18 +1566,30 @@ def _generic_profile_for_selection(
         else _validated_candidate_scm_overrides(candidate_scm_overrides)
     )
     outcome_variable = base_declaration.outcome_variable
-    baseline_state = {key: float(value) for key, value in base_profile.n5.baseline_state.items()}
-    baseline_state.setdefault(target_world_slot, 0.0)
-    baseline_state.setdefault(outcome_variable, 0.0)
-    if "target_baseline" in overrides:
-        baseline_state[target_world_slot] = overrides["target_baseline"]
-    if "outcome_baseline" in overrides:
-        baseline_state[outcome_variable] = overrides["outcome_baseline"]
+    baseline_state = _selected_child_n5_baseline(
+        base_profile.n5.baseline_state,
+        target_world_slot=target_world_slot,
+        outcome_variable=outcome_variable,
+        overrides=overrides,
+    )
+    selected_target = next(
+        (
+            slot
+            for slot in base_profile.context_inputs.world_model_record.policy_slot_map
+            if slot.slot_id == target_world_slot
+        ),
+        None,
+    )
+    target_unit_id = (
+        selected_target.unit
+        if selected_target is not None and selected_target.unit is not None
+        else base_profile.rule.unit_id
+    )
     rule = CandidateScenarioSetToRule(
         operator_kind=operator_kind,
         parameter_id="controlled_value",
         target_world_slot=target_world_slot,
-        unit_id=base_profile.rule.unit_id,
+        unit_id=target_unit_id,
         minimum=base_profile.rule.minimum,
         maximum=base_profile.rule.maximum,
     )
@@ -820,9 +1630,48 @@ def _generic_profile_for_selection(
         hash_fn=gy_content_hash,
     )
     ncm = candidate_ncm_spec_from_declaration(declaration)
+    _require_child_ncm_scope(
+        ncm,
+        target_world_slot=target_world_slot,
+        outcome_variable=outcome_variable,
+    )
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         ncm_ref = persist_ncm_spec(ensure_ir_artifact_store(store), ncm)
         ncm_ref = ArtifactRef.model_validate(ncm_ref.model_dump(mode="python"))
+        ncm_plan_refs = (ncm_ref,)
+        if include_cyclic_ncm_alternative:
+            # A real competing model has an outcome→target feedback edge in
+            # addition to the target→outcome edge. Normal Horizon eligibility,
+            # not this producer, must reject its unsupported cyclic contour.
+            cyclic_fields = ncm.model_dump(mode="python")
+            cyclic_fields.update(
+                {
+                    "is_acyclic": False,
+                    "scm_spec": None,
+                    "fit_method": "declared_candidate_feedback_alternative",
+                    "structural_equations": [
+                        equation.model_copy(
+                            update={
+                                "parents": [outcome_variable],
+                                "equation_params": {
+                                    **equation.equation_params,
+                                    "coefficients": {outcome_variable: 0.1},
+                                },
+                                "is_recursive": False,
+                            }
+                        )
+                        if equation.variable == target_world_slot
+                        else equation.model_copy(update={"is_recursive": False})
+                        for equation in ncm.structural_equations
+                    ],
+                }
+            )
+            cyclic = type(ncm).model_validate(cyclic_fields)
+            cyclic_ref = persist_ncm_spec(ensure_ir_artifact_store(store), cyclic)
+            ncm_plan_refs = (
+                ArtifactRef.model_validate(cyclic_ref.model_dump(mode="python")),
+                ncm_ref,
+            )
 
     base_context_inputs = base_profile.context_inputs
     base_world = base_context_inputs.world_model_record
@@ -843,9 +1692,13 @@ def _generic_profile_for_selection(
         selected_skg_source=selected_skg_source,
         tenant_id=tenant_id,
         cell_id=cell_id,
-        ncm_view_refs=(ncm_ref,),
+        ncm_view_refs=ncm_plan_refs,
         candidate_baseline_state=candidate_n5.baseline_state,
         candidate_outcome_state_paths=_controlled_direct_ncm_outcome_state_paths(outcome_variable),
+        candidate_model_unit_ids={
+            target_world_slot: declaration.target_unit_id,
+            outcome_variable: declaration.outcome_unit_id,
+        },
     )
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         world = derive_candidate_scenario_world_model_record(
@@ -854,20 +1707,36 @@ def _generic_profile_for_selection(
             declaration_content_hash=declaration.content_hash,
             substrate_registry_view_ref=substrate_registry_ref,
         )
-        world_ref = persist_world_model_record(store, world)
+        world_ref = persist_world_model_record(store, world, return_selected_profile=True)
         world_ref = ArtifactRef.model_validate(world_ref.model_dump(mode="python"))
         if load_world_model_record(store, world_ref) != world:
             raise ValueError("controlled_generic_profile_wmr_readback_mismatch")
 
     context_inputs = base_context_inputs.model_copy(update={"world_model_record": world})
-    generic_n5 = GenericCycleN5RequestProfileV1(
-        budget_ref=base_profile.n5.budget_ref,
-        horizon=base_profile.n5.horizon,
-        baseline_state=baseline_state,
-        comparator_refs=base_profile.n5.comparator_refs,
-        seed=base_profile.n5.seed,
-        replications=base_profile.n5.replications,
-    )
+    n5_fields = {
+        "budget_ref": base_profile.n5.budget_ref,
+        "horizon": base_profile.n5.horizon,
+        "baseline_state": baseline_state,
+        "comparator_refs": base_profile.n5.comparator_refs,
+        "seed": base_profile.n5.seed,
+        "replications": base_profile.n5.replications,
+    }
+    if component_rule_spec is not None:
+        component_rule = CandidateScenarioDecimalSetToRuleV2(
+            operator_kind=operator_kind,
+            target_world_slot=target_world_slot,
+            unit_id=target_unit_id,
+            **component_rule_spec,
+        )
+        generic_n5 = GenericCycleN5RequestProfileV3(
+            **n5_fields, ncm_plan_refs=ncm_plan_refs, component_rules=(component_rule,)
+        )
+    else:
+        generic_n5 = (
+            GenericCycleN5RequestProfileV2(**n5_fields, ncm_plan_refs=ncm_plan_refs)
+            if include_cyclic_ncm_alternative
+            else GenericCycleN5RequestProfileV1(**n5_fields)
+        )
     profile_fields = {
         "profile_id": profile_id,
         "profile_selection_ref": profile_selection_ref,
@@ -893,6 +1762,298 @@ def _generic_profile_for_selection(
     )
 
 
+def _declared_additive_joint_root_fields(
+    *,
+    root_fields: dict[str, Any],
+    child_profiles: tuple[Any, ...],
+    store: Any,
+    selected_skg_source: ControlledSKGSourceSelection,
+    tmp_path: Path,
+    source_root: Path | None,
+    tenant_id: str,
+    cell_id: str,
+    numeric_model: Literal["additive", "cubic_binary64"] = "additive",
+) -> dict[str, Any]:
+    """Declare one controlled candidate fixture SCM over the exact component slots.
+
+    The default additive mode retains the existing fixture equation. The
+    opt-in cubic mode uses the exact three configured source parameters and an
+    explicitly synthetic polynomial; neither mode infers child effects,
+    empirical calibration, coupling, or child-to-parent refinement.
+    """
+    from polisyos.core.artifacts import ArtifactRef, ensure_ir_artifact_store
+    from polisyos.ir.analytics.ncm import (
+        ExogenousSpec,
+        NCMSpec,
+        StructuralEquation,
+        persist_ncm_spec,
+    )
+    from polisyos.runtime.quality.generic_simulation_admission import GenericCycleN5RequestProfileV3
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        NCMConditionalComparatorProfile,
+    )
+    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+
+    if numeric_model not in {"additive", "cubic_binary64"}:
+        raise ValueError("controlled_joint_numeric_model_invalid")
+    first = child_profiles[0]
+    rules = tuple(rule for profile in child_profiles for rule in profile.n5.component_rules)
+    targets = tuple(rule.target_world_slot for rule in rules)
+    if len(targets) != len(set(targets)):
+        raise ValueError("controlled_joint_target_not_unique")
+    if numeric_model == "cubic_binary64" and (
+        len(rules) != 3 or len(targets) != 3 or len(first.n5.horizon.steps()) != 1
+    ):
+        raise ValueError("controlled_joint_cubic_profile_requires_three_one_step_components")
+    source_model = first.context_inputs.world_model_record
+    # Child profiles retain the original candidate baseline plus their own target.
+    # The declared model outcome is the common variable selected in every child.
+    all_target_slots = {rule.target_world_slot for rule in rules}
+    outcome_candidates = (
+        set.intersection(*(set(profile.n5.baseline_state) for profile in child_profiles))
+        - all_target_slots
+    )
+    if len(outcome_candidates) != 1:
+        raise ValueError("controlled_joint_outcome_not_unique")
+    outcome = next(iter(outcome_candidates))
+    baseline = dict.fromkeys(targets, 0.0)
+    baseline[outcome] = float(first.n5.baseline_state[outcome])
+    engine_variable_map: dict[str, str] = {}
+    model_targets = targets
+    model_outcome = outcome
+    if numeric_model == "cubic_binary64":
+        engine_variable_map = {target: f"input_{index}" for index, target in enumerate(targets)}
+        engine_variable_map[outcome] = "response"
+        model_targets = tuple(engine_variable_map[target] for target in targets)
+        model_outcome = "response"
+    ncm = NCMSpec(
+        endogenous_vars=[*model_targets, model_outcome],
+        exogenous_specs=[
+            ExogenousSpec(
+                variable=f"U_{variable}",
+                associated_endogenous=variable,
+                distribution_params={
+                    "mean": 0.0,
+                    "std": 0.01 if variable == model_outcome else 0.0,
+                },
+            )
+            for variable in (*model_targets, model_outcome)
+        ],
+        structural_equations=[
+            StructuralEquation(
+                variable=variable,
+                exogenous=f"U_{variable}",
+                equation_type="linear",
+                equation_params={"intercept": 0.0, "coefficients": {}},
+            )
+            for variable in model_targets
+        ]
+        + [
+            StructuralEquation(
+                variable=model_outcome,
+                parents=list(model_targets),
+                exogenous=f"U_{model_outcome}",
+                equation_type=("nonlinear" if numeric_model == "cubic_binary64" else "linear"),
+                equation_params=(
+                    {"noise_expression": "u + 8 * input_0 * input_1 * input_2"}
+                    if numeric_model == "cubic_binary64"
+                    else {
+                        "intercept": baseline[outcome],
+                        "coefficients": dict.fromkeys(targets, 0.5),
+                    }
+                ),
+            )
+        ],
+        is_acyclic=True,
+        fit_method=(
+            "declared_cubic_joint_candidate_fixture_not_empirical"
+            if numeric_model == "cubic_binary64"
+            else "declared_additive_joint_candidate_fixture_not_empirical"
+        ),
+    )
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        ncm_ref = ArtifactRef.model_validate(
+            persist_ncm_spec(ensure_ir_artifact_store(store), ncm).model_dump(mode="python")
+        )
+    views = world_model_artifact_views(source_model)
+    units = {slot.slot_id: slot.unit for slot in source_model.policy_slot_map}
+    declared_units = {rule.target_world_slot: rule.unit_id for rule in rules}
+    declared_units[outcome] = units[outcome]
+    if numeric_model == "cubic_binary64" and (
+        not isinstance(units[outcome], str) or not units[outcome].strip()
+    ):
+        raise ValueError("controlled_joint_cubic_outcome_unit_missing")
+    built = _materialize_controlled_world_model_build(
+        source_world_model_record=source_model,
+        artifact_store=store,
+        tmp_path=tmp_path / "declared-joint-model",
+        source_root=source_root,
+        substrate_registry=first.context_inputs.substrate_registry,
+        selected_registry_entry_hashes=first.context_inputs.selected_registry_entry_hashes,
+        substrate_registry_ref=views.substrate_registry_ref,
+        policy_slot_ids=tuple(
+            dict.fromkeys(
+                [*(slot.slot_id for slot in source_model.policy_slot_map), *targets, outcome]
+            )
+        ),
+        selected_skg_source=selected_skg_source,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        ncm_view_refs=(ncm_ref,),
+        candidate_baseline_state=baseline,
+        candidate_outcome_state_paths=_controlled_direct_ncm_outcome_state_paths(outcome),
+        candidate_model_unit_ids=declared_units,
+    )
+    n5_fields = first.n5.model_dump(
+        mode="python", exclude={"schema_version", "component_rules", "ncm_plan_refs"}
+    )
+    n5_fields["baseline_state"] = baseline
+    if numeric_model == "cubic_binary64":
+        n5_fields.update(
+            {
+                "evidence_state": dict(baseline),
+                "comparator_profile": NCMConditionalComparatorProfile(
+                    outcome_units={outcome: units[outcome]}
+                ),
+                "engine_variable_map": engine_variable_map,
+            }
+        )
+    return {
+        **root_fields,
+        "world_model_record_ref": built.record_ref,
+        "selected_ncm_ref": ncm_ref,
+        "context_inputs": first.context_inputs.model_copy(
+            update={"world_model_record": built.record}
+        ),
+        "n5": GenericCycleN5RequestProfileV3(
+            **n5_fields, ncm_plan_refs=(ncm_ref,), component_rules=rules
+        ),
+    }
+
+
+def _declared_generic_component_knobs(recording_mode: str) -> dict[str, dict[str, object]]:
+    """Declare bounded candidate fixture domains in the existing L6 source owner."""
+    if recording_mode == "served_wdi_global_scalar":
+        return {
+            "budget_allocation_multiplier": {
+                "default": 1.0,
+                "type": "float",
+                "min": 1.0,
+                "max": 2.0,
+                "mechanism_id": "budget_allocation_multiplier",
+                "param_path": "params.multiplier",
+            }
+        }
+    knobs = {
+        "budget_allocation_multiplier": {
+            "default": 1.0,
+            "type": "float",
+            "min": 0.0,
+            "max": 2.0,
+            "mechanism_id": "budget_allocation_multiplier",
+            "param_path": "params.multiplier",
+        },
+        "tax_relief_rate": {
+            "default": 0.1,
+            "type": "float",
+            "min": 0.0,
+            "max": 0.5,
+            "mechanism_id": "tax_relief_rate",
+            "param_path": "params.rate",
+        },
+        "procurement_shock_intensity": {
+            "default": 0.1,
+            "type": "float",
+            "min": -1.0,
+            "max": 1.0,
+            "mechanism_id": "procurement_shock_intensity",
+            "param_path": "params.intensity",
+        },
+    }
+    return (
+        {"tax_relief_rate": knobs["tax_relief_rate"]}
+        if recording_mode == "served_tax_global_scalar"
+        else knobs
+    )
+
+
+def _declared_fiscal_tax_problem(problem: Any) -> Any:
+    """Declare a second scalar question with compatible source/target units."""
+    payload = problem.model_dump(mode="json")
+    payload.update(
+        {
+            "problem_statement": "Assess a candidate direct tax-rate setting against fiscal balance.",
+            "domain": "fiscal",
+            "constraints": [
+                {
+                    "constraint_id": "fiscal_tax_scope",
+                    "description": "Use the requested Ukraine 2024 fiscal direct-set scenario.",
+                    "hard": True,
+                    "admissibility_basis": "request_text",
+                    "source_text": _FISCAL_TAX_SCOPE_SOURCE,
+                },
+                {
+                    "constraint_id": "no_authority_without_a",
+                    "description": "Keep the scenario candidate-only.",
+                    "hard": True,
+                    "admissibility_basis": "request_text",
+                    "source_text": _FISCAL_TAX_CANDIDATE_SOURCE,
+                },
+            ],
+            "stakeholders": [
+                {
+                    "stakeholder_id": "fiscal_analysts",
+                    "name": "Ukrainian fiscal analysts",
+                    "role": "reviewer",
+                }
+            ],
+            "candidate_lever_space": {
+                "allowed_operator_kinds": ["tax_relief_rate"],
+                "candidate_levers": [
+                    {
+                        "lever_id": "fiscal_direct_tax_rate",
+                        "operator_kind": "tax_relief_rate",
+                        "instrument": "Explicit candidate tax-rate set-to rule",
+                        "target_slot": "global.tax_rate",
+                    }
+                ],
+            },
+        }
+    )
+    payload["nl_provenance"].update(
+        {
+            "raw_request": _FISCAL_TAX_SCOPE_SOURCE + " " + _FISCAL_TAX_CANDIDATE_SOURCE,
+            "source_surface": "runtime.control.nl_request",
+        }
+    )
+    payload["jurisdiction_time"].update(
+        {
+            "region": "UKR",
+            "valid_time": "2024",
+            "as_of": "2024-12-31",
+            "policy_time": "2024",
+            "data_time": "2024",
+        }
+    )
+    payload["objectives"][0].update(
+        {
+            "objective_id": "fiscal_balance",
+            "description": "Maximize the hypothetical government balance in USD.",
+            "metric_id": "fiscal_balance",
+            "direction": "maximize",
+        }
+    )
+    payload["outcome_of_interest"].update(
+        {
+            "target_variable": "government.balance",
+            "metric_id": "fiscal_balance",
+            "estimand": "Hypothetical effect of a directly set tax rate on government balance.",
+            "direction": "maximize",
+        }
+    )
+    return type(problem).model_validate(payload)
+
+
 async def prepare_generic_n4_served_replay(
     *,
     tmp_path: Path,
@@ -903,7 +2064,10 @@ async def prepare_generic_n4_served_replay(
     recording_id: str = _RECORDING_ID,
     child_count: int = 2,
     recording_mode: Literal[
-        "controlled_overlay", "original_second_capture", "served_wdi_global_scalar"
+        "controlled_overlay",
+        "original_second_capture",
+        "served_wdi_global_scalar",
+        "served_tax_global_scalar",
     ] = "controlled_overlay",
     runtime_api_context: Any | None = None,
     catalog_serving_source: CatalogServingSourcePaths | None = None,
@@ -911,12 +2075,19 @@ async def prepare_generic_n4_served_replay(
     phase_callback: Any | None = None,
     candidate_scm_overrides_by_child_index: dict[int, dict[str, float]] | None = None,
     source_root: Path | None = None,
+    include_cyclic_ncm_alternative: bool = False,
+    materialize_source_parameters: bool = False,
+    joint_numeric_model: Literal["additive", "cubic_binary64"] = "additive",
+    synthetic_settled_provider: bool = False,
+    condition_synthetic_provider_on_child_sources: bool = False,
+    raw_request_override: str | None = None,
 ) -> PreparedGenericN4ServedReplay:
     """Derive a source-bound N4 child family and all typed profiles for a served app.
 
     Controlled-overlay mode retains the existing altered-fixture controls. The
-    served-WDI mode reuses the existing fiscal candidate-only recording with one
-    global ``government.balance`` lever and a global ``global.tax_rate`` outcome.
+    served-tax mode declares a second fiscal direct tax-rate question with ratio
+    target units and a ``government.balance`` USD outcome. The older served-WDI
+    mode remains its separately bounded fixture, not the direct-set tax witness.
     The original-second-capture mode leaves its pinned source bytes unchanged and
     preserves all three dispositions under the min-three diversity gate. Historical
     parent scope remains not established; no mode establishes institutional
@@ -957,6 +2128,51 @@ async def prepare_generic_n4_served_replay(
     )
     from tests._helpers.runtime_http import _valid_intake_for_mode
 
+    if any(
+        type(value) is not bool
+        for value in (
+            include_cyclic_ncm_alternative,
+            materialize_source_parameters,
+            synthetic_settled_provider,
+            condition_synthetic_provider_on_child_sources,
+        )
+    ):
+        raise TypeError("controlled_generic_ncm_profile_selector_invalid")
+    if type(joint_numeric_model) is not str or joint_numeric_model not in {
+        "additive",
+        "cubic_binary64",
+    }:
+        raise TypeError("controlled_generic_joint_numeric_model_invalid")
+    if joint_numeric_model == "cubic_binary64" and (
+        not materialize_source_parameters or child_count != 3
+    ):
+        raise ValueError("controlled_generic_cubic_model_requires_three_materialized_children")
+    child_conditioned_scope = (
+        recording_mode == "original_second_capture" and child_count == 2
+    ) or (recording_mode == "controlled_overlay" and child_count == 3)
+    if condition_synthetic_provider_on_child_sources and (
+        not child_conditioned_scope
+        or not materialize_source_parameters
+        or not synthetic_settled_provider
+    ):
+        raise ValueError("child_conditioned_synthetic_provider_scope_invalid")
+    if raw_request_override is not None and (
+        type(raw_request_override) is not str or not raw_request_override.strip()
+    ):
+        raise ValueError("controlled_n4_raw_request_override_invalid")
+    if materialize_source_parameters and source_root is None:
+        # Choose and produce the admitted tiny input root before seeding any
+        # selected source. The opt-in must not silently read the production
+        # checkout's full catalog just because a caller omitted a path.
+        from tests._helpers.candidate_cycle_source_profile import (
+            build_candidate_cycle_substrate_route_inputs,
+        )
+
+        source_root = build_candidate_cycle_substrate_route_inputs(
+            tmp_path / "generic-v3-selected-source",
+            include_owner_slot_manifest=True,
+            owner_knob_dictionary=_declared_generic_component_knobs(recording_mode),
+        ).root
     selected_source_root = (
         Path(source_root).resolve(strict=True) if source_root is not None else None
     )
@@ -1046,6 +2262,16 @@ async def prepare_generic_n4_served_replay(
             )
         else:
             raise ValueError("controlled_n4_child_count_unsupported")
+    elif recording_mode == "served_tax_global_scalar":
+        if recording_id != _RECORDING_ID or child_count != 1:
+            raise ValueError("served_tax_global_scalar_selector_or_child_count_mismatch")
+        source_recording = next(
+            item for item in source_recordings if item.get("design_problem_id") == recording_id
+        )
+        recording = copy.deepcopy(source_recording)
+        recorded_problem_override = _declared_fiscal_tax_problem(
+            _current_compiler_problem(source_recording)
+        )
     elif recording_mode == "served_wdi_global_scalar":
         if recording_id != _RECORDING_ID or child_count != 1:
             raise ValueError("served_wdi_global_scalar_selector_or_child_count_mismatch")
@@ -1086,9 +2312,58 @@ async def prepare_generic_n4_served_replay(
         or recording.get("derived_from_content_hash") != source_recording_content_hash
     ):
         raise AssertionError("served_wdi_global_scalar_recording_source_lineage_mismatch")
-    if recording_mode == "original_second_capture" and recording != source_recording_snapshot:
+    if recording_mode in {"original_second_capture", "served_tax_global_scalar"} and (
+        recording != source_recording_snapshot
+    ):
         raise AssertionError("original_second_capture_recording_was_mutated")
     recorded_problem = recorded_problem_override or _current_compiler_problem(recording)
+    if raw_request_override is not None:
+        request_scope = (
+            recording_mode == "controlled_overlay"
+            and child_count == 3
+            and materialize_source_parameters
+            and synthetic_settled_provider
+            and condition_synthetic_provider_on_child_sources
+        )
+        normalized_request = raw_request_override.casefold()
+        required_request_markers = (
+            "tax_relief_rate",
+            "procurement_shock_intensity",
+            "budget_allocation_multiplier",
+            "together",
+            "joint candidate",
+            "simulation",
+            "candidate-only",
+            "does not establish policy authority",
+        )
+        candidate_only_constraints = tuple(
+            constraint
+            for constraint in recorded_problem.constraints
+            if constraint.constraint_id == "no_authority_without_a"
+        )
+        if (
+            not request_scope
+            or any(marker not in normalized_request for marker in required_request_markers)
+            or len(candidate_only_constraints) != 1
+            or not isinstance(candidate_only_constraints[0].source_text, str)
+            or candidate_only_constraints[0].source_text not in raw_request_override
+        ):
+            raise ValueError("controlled_n4_raw_request_override_scope_mismatch")
+        problem_payload = recorded_problem.model_dump(mode="python")
+        provenance_payload = recorded_problem.nl_provenance.model_dump(mode="python")
+        provenance_payload.update(
+            {
+                "raw_request": raw_request_override,
+                "source_surface": "runtime.control.nl_request",
+            }
+        )
+        problem_payload.update(
+            {
+                "problem_statement": raw_request_override,
+                "nl_provenance": provenance_payload,
+            }
+        )
+        recorded_problem = type(recorded_problem).model_validate(problem_payload)
     if runtime_hints_overlay:
         recorded_problem = recorded_problem.model_copy(
             update={
@@ -1101,10 +2376,58 @@ async def prepare_generic_n4_served_replay(
         recorded_problem = type(recorded_problem).model_validate(
             recorded_problem.model_dump(mode="python")
         )
+    provider_profile = None
+    declared_recording: dict[str, Any] | None = None
+    if synthetic_settled_provider:
+        declared_recording = copy.deepcopy(recording)
+        if recording_mode in {"original_second_capture", "served_tax_global_scalar"}:
+            # Returned stage bodies remain exact selected source bodies. This
+            # new profile declares successful stage functions and new test usage;
+            # it never reprices the capture's genuinely unknown failed calls.
+            fixture_id = (
+                "synthetic_generic_stages_"
+                + str(recording["recording_content_hash"]).removeprefix("sha256:")[:20]
+            )
+            declared_recording.update(
+                {
+                    "fixture_id": fixture_id,
+                    "recording_id": fixture_id,
+                    "recording_source": "synthetic_stage_functions_from_recorded_capture",
+                    "derived_from_recording_id": source_recording_id,
+                    "derived_from_content_hash": source_recording_content_hash,
+                }
+            )
+            declared_recording["recording_content_hash"] = gy_content_hash(
+                {
+                    name: value
+                    for name, value in declared_recording.items()
+                    if name != "recording_content_hash"
+                }
+            )
+        provider_profile = synthetic_controlled_candidate_provider_profile(
+            source_recording,
+            declared_recording,
+            problem=recorded_problem,
+            evidence_root=tmp_path / "synthetic-stage-exchanges",
+        )
     controlled_candidate_gateway.set_fixture(
         copy.deepcopy(recording) if recording_mode == "original_second_capture" else recording,
         problem=recorded_problem,
+        provider_profile=provider_profile,
     )
+    if provider_profile is not None:
+        from polisyos.runtime.http.services.control import generation_cycle as compiler_owner
+
+        original_compiler = compiler_owner.build_design_problem_from_nl_request
+
+        async def compile_and_bind_actual_profile(**kwargs: Any) -> Any:
+            problem = await original_compiler(**kwargs)
+            controlled_candidate_gateway.admit_compiled_problem(problem)
+            return problem
+
+        monkeypatch.setattr(
+            compiler_owner, "build_design_problem_from_nl_request", compile_and_bind_actual_profile
+        )
     model_id = str(recording["model_id"])
     cas_root = tmp_path / ".polisyos"
     if runtime_api_context is None:
@@ -1125,7 +2448,22 @@ async def prepare_generic_n4_served_replay(
     selected_skg_snapshot_ref = selected_skg_source.snapshot_ref
     source_identity_checkpoints = [_validate_controlled_skg_source(selected_skg_source).sha256]
     profile_rule = {}
-    if recording_mode == "served_wdi_global_scalar":
+    if recording_mode == "served_tax_global_scalar":
+        from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+
+        tax_slot = DEFAULT_SLOT_REGISTRY.slots["global.tax_rate"]
+        assert tax_slot.unit is not None
+        profile_rule = {
+            "rule_operator_kind": "tax_relief_rate",
+            "rule_parameter_id": "rate",
+            "rule_target_world_slot": "global.tax_rate",
+            "rule_unit_id": tax_slot.unit.unit_id,
+            "rule_minimum": 0,
+            "rule_maximum": 1,
+            "target_baseline": 0.3,
+            "outcome_baseline": 100.0,
+        }
+    elif recording_mode == "served_wdi_global_scalar":
         from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
 
         balance_slot = DEFAULT_SLOT_REGISTRY.slots.get("government.balance")
@@ -1403,7 +2741,12 @@ async def prepare_generic_n4_served_replay(
         len(children) != child_count
         or len({child.semantic_ref for child in children}) != child_count
     ):
-        raise AssertionError("controlled_n4_child_family_not_complete_and_distinct")
+        raise AssertionError(
+            "controlled_n4_child_family_not_complete_and_distinct:"
+            f"expected={child_count};observed={len(children)};"
+            f"summary={generation_result.grounding_disposition_summary.model_dump(mode='json')!r};"
+            f"dispositions={_grounding_disposition_diagnostic(generation_result)!r}"
+        )
     if recording_mode == "original_second_capture":
         if original_candidate_semantics is None:
             raise AssertionError("original_second_capture_candidate_contract_not_loaded")
@@ -1436,6 +2779,76 @@ async def prepare_generic_n4_served_replay(
             semantic_ref=children[0].semantic_ref,
         )
 
+    if condition_synthetic_provider_on_child_sources:
+        from polisyos.scientist.orchestration.llm._n4_request import _read_payload
+        from tests._helpers.controlled_candidate_profile import (
+            SyntheticCandidateProviderProfile,
+        )
+
+        if (
+            type(provider_profile) is not SyntheticCandidateProviderProfile
+            or declared_recording is None
+        ):
+            raise AssertionError("child_conditioned_synthetic_provider_profile_missing")
+        child_source_recording = (
+            declared_recording
+            if recording_mode == "controlled_overlay" and child_count == 3
+            else source_recording
+        )
+        if child_source_recording is declared_recording and (
+            child_source_recording.get("derived_from_recording_id") != source_recording_id
+            or child_source_recording.get("derived_from_content_hash")
+            != source_recording_content_hash
+        ):
+            raise AssertionError("child_conditioned_overlay_lineage_not_established")
+        child_profiles_by_selection_ref = {}
+        for child, child_key in zip(children, child_keys, strict=True):
+            child_profile = _child_conditioned_synthetic_provider_profile(
+                source_recording=child_source_recording,
+                base_controlled_recording=declared_recording,
+                organ_run=organ_run,
+                parent_problem=recorded_problem,
+                child=child,
+                child_profile_selection_ref=child_key,
+                evidence_root=tmp_path / "synthetic-stage-exchanges",
+            )
+            if child_profile.profile_selection_ref != child_key:
+                raise AssertionError("child_conditioned_provider_selection_ref_mismatch")
+            if child_key in child_profiles_by_selection_ref:
+                raise AssertionError("child_conditioned_provider_selection_ref_not_unique")
+            child_profiles_by_selection_ref[child_key] = child_profile
+
+        child_profiles_by_problem_ref: dict[str, tuple[str, Any]] = {}
+
+        parent_completion = provider_profile.completion
+
+        def complete_for_exact_child_source(
+            request: dict[str, Any],
+            *,
+            raw_request: bytes,
+            compiled_problem_ref: str | None,
+        ) -> dict[str, Any]:
+            request_context = _read_payload(request)
+            return _complete_child_conditioned_provider_request(
+                subject_ref=request_context["subject_ref"],
+                request=request,
+                raw_request=raw_request,
+                compiled_problem_ref=compiled_problem_ref,
+                parent_completion=parent_completion,
+                child_profiles_by_problem_ref=child_profiles_by_problem_ref,
+                child_keys=child_keys,
+            )
+
+        # Keep the root provider's normal behavior while routing only an
+        # already-admitted child subject to its derived source profile.
+        provider_profile = dataclasses.replace(provider_profile)
+        object.__setattr__(provider_profile, "completion", complete_for_exact_child_source)
+        controlled_candidate_gateway.set_fixture(
+            copy.deepcopy(recording),
+            problem=recorded_problem,
+            provider_profile=provider_profile,
+        )
+
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         substrate_registry_ref = persist_substrate_registry(
             runtime_api_context.store,
@@ -1463,6 +2876,12 @@ async def prepare_generic_n4_served_replay(
                 tenant_id=tenant_id,
                 cell_id=cell_id,
                 candidate_scm_overrides=candidate_scm_overrides.get(index),
+                include_cyclic_ncm_alternative=include_cyclic_ncm_alternative,
+                component_rule_spec=(
+                    _source_component_rule_spec(organ_run, child)
+                    if materialize_source_parameters
+                    else None
+                ),
             )
         )
         source_identity_checkpoints.append(
@@ -1474,10 +2893,15 @@ async def prepare_generic_n4_served_replay(
         for profile in generic_child_profiles
     ):
         raise AssertionError("controlled_n4_child_profiles_lost_selected_source")
-    root_fields = generic_child_profiles[0].model_dump(
-        mode="python",
-        exclude={"content_hash"},
-    )
+    # Keep nested refs/context/N5 typed during provisional hash construction.
+    # model_dump(mode="python") makes dictionaries that an unvalidated draft
+    # cannot serialize through their declared model fields without warnings.
+    template = generic_child_profiles[0]
+    root_fields = {
+        name: getattr(template, name)
+        for name in type(template).model_fields
+        if name != "content_hash"
+    }
     root_fields.update(
         {
             "profile_id": "v6-generic-root",
@@ -1485,6 +2909,18 @@ async def prepare_generic_n4_served_replay(
             "profile_selection_kind": "problem",
         }
     )
+    if materialize_source_parameters and len(generic_child_profiles) > 1:
+        root_fields = _declared_additive_joint_root_fields(
+            root_fields=root_fields,
+            child_profiles=generic_child_profiles,
+            store=runtime_api_context.store,
+            selected_skg_source=selected_skg_source,
+            tmp_path=tmp_path,
+            source_root=selected_source_root,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            numeric_model=joint_numeric_model,
+        )
     root_profile = _hashed_model(
         type(generic_child_profiles[0]),
         root_fields,
@@ -1499,6 +2935,31 @@ async def prepare_generic_n4_served_replay(
         for profile in generic_profiles
     ):
         raise AssertionError("controlled_n4_complete_profile_set_lost_selected_source")
+    if provider_profile is not None:
+        controlled_candidate_gateway.configure_child_profile_selections(child_keys)
+        canonical_derive = design_generation.derive_n4_candidate_child_problems
+
+        def derive_and_bind_actual_family(problem: Any, result: Any, *, model_id: str) -> Any:
+            actual_children = canonical_derive(problem, result, model_id=model_id)
+            if controlled_candidate_gateway.has_compiled_root(problem):
+                controlled_candidate_gateway.admit_actual_child_family(
+                    parent_problem=problem,
+                    root_result=result,
+                    children=actual_children,
+                )
+                if condition_synthetic_provider_on_child_sources:
+                    actual_bindings = _child_conditioned_provider_profile_bindings(
+                        parent_problem=problem,
+                        children=actual_children,
+                        child_profiles_by_selection_ref=child_profiles_by_selection_ref,
+                    )
+                    child_profiles_by_problem_ref.clear()
+                    child_profiles_by_problem_ref.update(actual_bindings)
+            return actual_children
+
+        monkeypatch.setattr(
+            design_generation, "derive_n4_candidate_child_problems", derive_and_bind_actual_family
+        )
     request_json = {
         "request": recorded_problem.nl_provenance.raw_request,
         "llm_model": model_id,

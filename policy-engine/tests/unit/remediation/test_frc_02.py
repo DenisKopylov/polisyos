@@ -185,8 +185,9 @@ def test_no_plan_refs_preserve_existing_report_compatibility(
     assert policy_spec_ref is None
     assert persisted.model_spec_ref is None
     assert persisted.policy_spec_ref is None
-    assert persisted.degraded is False
-    assert persisted.degraded_reasons == []
+    assert persisted.degraded is True
+    assert "backtest_source_not_established" in persisted.degraded_reasons
+    assert not persisted.trust_eligible
 
 
 def test_different_plan_ref_pairs_fail_closed_in_persisted_report(

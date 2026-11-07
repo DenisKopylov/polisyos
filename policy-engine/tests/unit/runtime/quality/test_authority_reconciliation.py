@@ -2244,3 +2244,79 @@ def test_malformed_artifact_ref_error_text_is_not_exposed(tmp_path) -> None:
     assert owner_marker not in str(refusal.value)
     assert owner_marker not in repr(refusal.value.details)
     assert owner_marker not in "".join(traceback.format_exception(refusal.value))
+
+
+def test_candidate_terminal_writer_recovers_saved_cas_event_idempotently(tmp_path) -> None:
+    """Resume a saved typed terminal at the writer boundary without repeating work."""
+    from polisyos.runtime.http.services.control.artifacts import (
+        _recover_candidate_terminal_authority_artifact,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateRouteLoopReceipt,
+    )
+    from tests._helpers.candidate_terminal_recovery import candidate_terminal_writer_inputs
+
+    store, event_log = _stores(tmp_path)
+
+    def selected(kind: str, digit: str) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id=ArtifactID.model_validate("sha256:" + digit * 64),
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "f" * 64,
+        )
+
+    action = selected("runtime_quality.acquisition_candidate_action_receipt", "1")
+    decision = selected("runtime_quality.acquisition_evaluation_decision", "2")
+    basis = selected("runtime_quality.acquisition_evaluation_basis", "3")
+    reentry = selected("runtime_quality.candidate_source_reentry_receipt", "4")
+    terminal = AcquisitionCandidateRouteLoopReceipt(
+        receipt_id="candidate-terminal-recovery",
+        tenant_id="tenant-1",
+        cell_id="cell-a",
+        run_id="run-wave-2",
+        source_job_id="source-job",
+        route_id="sha256:" + "a" * 64,
+        action_generation=1,
+        job_id="job-wave-2",
+        compiled_ref="sha256:" + "b" * 64,
+        planner_report_hash="sha256:" + "c" * 64,
+        cost_basis_hash="sha256:" + "d" * 64,
+        decision_ref="sha256:" + "e" * 64,
+        terminal_outcome="candidate_reentry_completed",
+        predecessor_receipt_ref="sha256:" + "0" * 64,
+        owner_receipt_refs=(str(action.artifact_id), str(decision.artifact_id)),
+        candidate_action_ref=action,
+        candidate_reentry_ref=reentry,
+        evaluation_decision_ref=decision,
+        selected_basis_ref=basis,
+        selected_evaluation_witness_ref=reentry,
+        selected_evaluation=None,
+        generated_at=datetime(2026, 8, 28, 12, tzinfo=UTC),
+    )
+    payload = terminal.model_dump(mode="json")
+    opts, context = candidate_terminal_writer_inputs(terminal)
+    orphan = write_authority_artifact(store, payload, opts, **context)
+    assert event_log.list_events(run_id=terminal.run_id, job_id=terminal.job_id) == []
+    recovered = _recover_candidate_terminal_authority_artifact(
+        store, event_log, terminal, opts, **context
+    )
+    assert recovered.cas_ref == orphan.cas_ref
+    assert recovered.cas_ref.manifest_profile_sha256 is not None
+    assert len(event_log.list_events(run_id=terminal.run_id, job_id=terminal.job_id)) == 1
+    repeated = _recover_candidate_terminal_authority_artifact(
+        store, event_log, terminal, opts, **context
+    )
+    assert repeated == recovered
+    assert len(event_log.list_events(run_id=terminal.run_id, job_id=terminal.job_id)) == 1
+    for changed in (
+        {"job_id": "foreign-job"},
+        {"event_id": "evt_acquisition_1_loop_terminal_" + "0" * 64},
+        {"phase": "wrong_phase"},
+        {"same_input_closure": {**context["same_input_closure"], "closure_sha256": "f" * 64}},
+    ):
+        with pytest.raises(ValueError, match="candidate_terminal_recovery_writer_identity_invalid"):
+            _recover_candidate_terminal_authority_artifact(
+                store, event_log, terminal, opts, **{**context, **changed}
+            )
+    assert len(event_log.list_events(run_id=terminal.run_id, job_id=terminal.job_id)) == 1

@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import concurrent.futures
 import gc
+import inspect
 import subprocess
 import sys
 import threading
@@ -240,6 +241,149 @@ def test_run_coro_sync_works_inside_running_loop() -> None:
         return run_coro_sync(asyncio.sleep(0.01, result=11))
 
     assert asyncio.run(_wrapper()) == 11
+
+
+@pytest.mark.asyncio
+async def test_run_coro_sync_closes_only_fresh_coroutine_on_actual_backpressure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A rejected fresh coroutine never starts; another loop-owned task survives."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=0)
+    started = threading.Event()
+    release = threading.Event()
+    calls: list[str] = []
+    task_release = asyncio.Event()
+
+    def hold_worker() -> None:
+        started.set()
+        assert release.wait(timeout=3)
+
+    async def rejected_body() -> None:
+        calls.append("body")
+
+    async def owned_body() -> str:
+        await task_release.wait()
+        return "owned task continued"
+
+    async def suspended_body() -> None:
+        await asyncio.sleep(0)
+
+    class OwnedAwaitable:
+        close_calls = 0
+
+        def __await__(self):
+            return task.__await__()
+
+        def close(self) -> None:
+            self.close_calls += 1
+
+    monkeypatch.setattr(async_tools, "_get_shared_executor", lambda: executor)
+    work = executor.submit(hold_worker)
+    task = asyncio.create_task(owned_body())
+    await asyncio.sleep(0)
+    rejected = rejected_body()
+    suspended = suspended_body()
+    suspended.send(None)
+    future = asyncio.get_running_loop().create_future()
+    wrapper = OwnedAwaitable()
+    try:
+        assert started.wait(timeout=2)
+        with pytest.raises(async_tools.SharedExecutorBackpressureError) as refusal:
+            run_coro_sync(rejected)
+        assert refusal.value.code == "shared_executor_queue_full"
+        assert inspect.getcoroutinestate(rejected) == inspect.CORO_CLOSED
+        assert rejected.cr_frame is None and calls == []
+        with pytest.raises(async_tools.SharedExecutorBackpressureError):
+            run_coro_sync(task)
+        assert not task.done() and not task.cancelled()
+        with pytest.raises(async_tools.SharedExecutorBackpressureError):
+            run_coro_sync(future)
+        assert not future.done() and not future.cancelled()
+        with pytest.raises(async_tools.SharedExecutorBackpressureError):
+            run_coro_sync(suspended)
+        assert inspect.getcoroutinestate(suspended) == inspect.CORO_SUSPENDED
+        with pytest.raises(async_tools.SharedExecutorBackpressureError):
+            run_coro_sync(wrapper)
+        assert wrapper.close_calls == 0
+        future.set_result("owned future continued")
+        assert await future == "owned future continued"
+        task_release.set()
+        assert await task == "owned task continued"
+    finally:
+        if inspect.getcoroutinestate(rejected) != inspect.CORO_CLOSED:
+            rejected.close()
+        suspended.close()
+        task_release.set()
+        release.set()
+        work.result(timeout=3)
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+def test_run_coro_sync_closes_fresh_coroutine_on_actual_nested_reentrancy(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A nested refusal belongs to the producer worker and starts no inner body."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=0)
+    monkeypatch.setattr(async_tools, "_get_shared_executor", lambda: executor)
+    calls: list[str] = []
+
+    async def rejected_body() -> None:
+        calls.append("body")
+
+    async def inside_worker_loop() -> tuple[str, bool]:
+        rejected = rejected_body()
+        try:
+            with pytest.raises(async_tools.SharedExecutorReentrancyError):
+                run_coro_sync(rejected)
+            return inspect.getcoroutinestate(rejected), rejected.cr_frame is None
+        finally:
+            if inspect.getcoroutinestate(rejected) != inspect.CORO_CLOSED:
+                rejected.close()
+
+    try:
+        state, no_frame = executor.submit(lambda: asyncio.run(inside_worker_loop())).result(
+            timeout=3
+        )
+        assert (state, no_frame, calls) == (inspect.CORO_CLOSED, True, [])
+    finally:
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+@pytest.mark.asyncio
+async def test_run_coro_sync_keeps_admitted_ownership_and_original_body_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A typed error raised after admission is not mistaken for a submit refusal."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=0)
+    monkeypatch.setattr(async_tools, "_get_shared_executor", lambda: executor)
+    calls: list[str] = []
+    error = async_tools.SharedExecutorBackpressureError(queue_depth=4, queue_capacity=5, capacity=6)
+
+    async def admitted_body(*, fail: bool) -> str:
+        calls.append("body")
+        try:
+            if fail:
+                raise error
+            return "accepted"
+        finally:
+            calls.append("finally")
+
+    try:
+        assert run_coro_sync(admitted_body(fail=False)) == "accepted"
+        with executor._capacity_changed:
+            assert executor._capacity_changed.wait_for(lambda: executor._outstanding_jobs == 0, 2)
+        with pytest.raises(async_tools.SharedExecutorBackpressureError) as captured:
+            run_coro_sync(admitted_body(fail=True))
+        assert captured.value is error
+        assert calls == ["body", "finally", "body", "finally"]
+    finally:
+        executor.shutdown(wait=True, cancel_futures=True)
 
 
 def test_run_coro_sync_preserves_context_inside_running_loop() -> None:
@@ -1238,3 +1382,349 @@ async def test_unbounded_and_float_timeout_are_rejected_before_admission() -> No
     with pytest.raises(ValueError, match="unbounded cannot be combined"):
         await run_blocking_async(calls.append, 42, unbounded=True, timeout_seconds=1)
     assert calls == []
+
+
+@pytest.mark.asyncio
+async def test_shared_future_async_adapter_transfers_result_error_and_generic_fallback() -> None:
+    """The owned transport and a regular Future preserve actual result semantics."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=1)
+    ordinary = concurrent.futures.Future()
+    ordinary.set_result("ordinary")
+    original_error = ValueError("original producer error")
+
+    def fail() -> None:
+        raise original_error
+
+    try:
+        assert await async_tools.wrap_shared_executor_future(executor.submit(lambda: 42)) == 42
+        with executor._capacity_changed:
+            assert executor._capacity_changed.wait_for(lambda: executor._outstanding_jobs == 0, 2)
+        with pytest.raises(ValueError) as captured:
+            await async_tools.wrap_shared_executor_future(executor.submit(fail))
+        assert captured.value is original_error
+        assert await async_tools.wrap_shared_executor_future(ordinary) == "ordinary"
+
+        for original, converted in (
+            (concurrent.futures.CancelledError("inner"), asyncio.CancelledError),
+            (concurrent.futures.InvalidStateError("inner"), asyncio.InvalidStateError),
+        ):
+            with executor._capacity_changed:
+                assert executor._capacity_changed.wait_for(
+                    lambda: executor._outstanding_jobs == 0, 2
+                )
+
+            def fail_with_original(error: BaseException = original) -> None:
+                raise error
+
+            with pytest.raises(converted, match="inner"):
+                await async_tools.wrap_shared_executor_future(executor.submit(fail_with_original))
+    finally:
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+@pytest.mark.asyncio
+async def test_shared_future_async_adapter_cancellation_preserves_physical_reservation() -> None:
+    """A cancelled queued Future cannot run, and does not release its slot early."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=1)
+    started = threading.Event()
+    release = threading.Event()
+    calls: list[str] = []
+
+    def block() -> None:
+        started.set()
+        assert release.wait(timeout=3)
+
+    running = executor.submit(block)
+    try:
+        assert started.wait(timeout=2)
+        queued = executor.submit(calls.append, "must-not-run")
+        target = async_tools.wrap_shared_executor_future(queued)
+        target.cancel()
+        await asyncio.sleep(0)
+        assert target.cancelled()
+        with executor._admission_lock:
+            assert executor._physical_workers == 1 and executor._outstanding_jobs == 2
+        assert calls == []
+    finally:
+        release.set()
+        running.result(timeout=2)
+        executor.shutdown(wait=True, cancel_futures=True)
+    assert queued.cancelled() and calls == [] and executor._outstanding_jobs == 0
+
+
+@pytest.mark.asyncio
+async def test_async_waiter_cancel_never_waits_for_pre_attached_user_callback() -> None:
+    """The source's queued slot owns callbacks after cancellation is requested."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=1)
+    started = threading.Event()
+    release = threading.Event()
+    heartbeat = threading.Event()
+    forced_release = threading.Event()
+    callback_finished = threading.Event()
+    seen: list[str] = []
+    callback_threads: list[int] = []
+
+    def block() -> None:
+        started.set()
+        assert release.wait(timeout=3)
+
+    def callback(_future: concurrent.futures.Future[object]) -> None:
+        seen.append("callback")
+        callback_threads.append(threading.get_ident())
+        callback_finished.set()
+
+    def watchdog() -> None:
+        if not heartbeat.wait(timeout=0.5):
+            forced_release.set()
+            release.set()
+
+    running = executor.submit(block)
+    assert started.wait(timeout=2)
+    queued = executor.submit(seen.append, "must-not-run")
+    queued.add_done_callback(callback)
+    target = async_tools.wrap_shared_executor_future(queued)
+    watcher = threading.Thread(target=watchdog)
+    watcher.start()
+    target.cancel()
+    asyncio.get_running_loop().call_soon(heartbeat.set)
+    try:
+        await asyncio.sleep(0)
+        assert heartbeat.is_set() and not forced_release.is_set()
+        assert target.cancelled() and not queued.done() and seen == []
+        with executor._admission_lock:
+            assert executor._physical_workers == 1 and executor._outstanding_jobs == 2
+    finally:
+        release.set()
+        watcher.join(timeout=2)
+        running.result(timeout=2)
+        assert callback_finished.wait(timeout=2)
+        executor.shutdown(wait=True, cancel_futures=True)
+    assert queued.cancelled() and seen == ["callback"]
+    assert callback_threads and callback_threads[0] != threading.get_ident()
+    assert executor._outstanding_jobs == 0
+
+
+def test_async_cancel_request_and_worker_start_have_one_winner() -> None:
+    """Every accepted request prevents the callable; a started one keeps its result."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=1)
+    try:
+        for index in range(100):
+            calls: list[int] = []
+
+            def invoke(value: int = index, recorded: list[int] = calls) -> int:
+                recorded.append(value)
+                return value
+
+            future = executor.submit(invoke)
+            accepted = async_tools.request_shared_executor_cancellation(future)
+            if accepted:
+                with pytest.raises(concurrent.futures.CancelledError):
+                    future.result(timeout=2)
+                assert calls == []
+            else:
+                assert future.result(timeout=2) == index
+                assert calls == [index]
+            with executor._capacity_changed:
+                assert executor._capacity_changed.wait_for(
+                    lambda: executor._outstanding_jobs == 0, 2
+                )
+    finally:
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+def test_async_cancel_request_refuses_to_claim_a_running_worker_stopped() -> None:
+    """A started producer remains physically owned and can deliver its result."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=0)
+    started = threading.Event()
+    release = threading.Event()
+
+    def work() -> int:
+        started.set()
+        assert release.wait(timeout=3)
+        return 42
+
+    future = executor.submit(work)
+    try:
+        assert started.wait(timeout=2)
+        assert async_tools.request_shared_executor_cancellation(future) is False
+        assert future.running() and not future.cancelled()
+        with executor._admission_lock:
+            assert executor._physical_workers == 1 and executor._outstanding_jobs == 1
+    finally:
+        release.set()
+        assert future.result(timeout=2) == 42
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+def test_async_cancel_request_cannot_claim_a_worker_that_finishes_during_inspection(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Completion between state reads cannot turn executed work into not-started."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=0)
+    started = threading.Event()
+    release = threading.Event()
+    calls: list[str] = []
+
+    def work() -> int:
+        started.set()
+        assert release.wait(timeout=3)
+        calls.append("executed")
+        return 42
+
+    future = executor.submit(work)
+    assert started.wait(timeout=2)
+    original_done = future.done
+    inspection_count = 0
+
+    def finish_between_reads() -> bool:
+        nonlocal inspection_count
+        observed = original_done()
+        if inspection_count == 0 and not observed:
+            inspection_count += 1
+            release.set()
+            limit = time.monotonic() + 0.1
+            while not original_done() and time.monotonic() < limit:
+                time.sleep(0.001)
+        return observed
+
+    monkeypatch.setattr(future, "done", finish_between_reads)
+    try:
+        assert async_tools.request_shared_executor_cancellation(future) is False
+        assert future.result(timeout=2) == 42 and calls == ["executed"]
+    finally:
+        release.set()
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+@pytest.mark.asyncio
+async def test_requested_cancel_survives_shutdown_before_worker_acknowledgment() -> None:
+    """Shutdown of the queued worker still acknowledges cancellation and its callback."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=1)
+    started = threading.Event()
+    release = threading.Event()
+    shutdown_done = threading.Event()
+    seen: list[str] = []
+
+    def block() -> None:
+        started.set()
+        assert release.wait(timeout=3)
+
+    def shutdown() -> None:
+        try:
+            executor.shutdown(wait=True, cancel_futures=True)
+        finally:
+            shutdown_done.set()
+
+    running = executor.submit(block)
+    assert started.wait(timeout=2)
+    queued = executor.submit(seen.append, "must-not-run")
+    queued.add_done_callback(lambda _future: seen.append("callback"))
+    target = async_tools.wrap_shared_executor_future(queued)
+    target.cancel()
+    await asyncio.sleep(0)
+    shutdown_thread = threading.Thread(target=shutdown)
+    shutdown_thread.start()
+    try:
+        # Shutdown runs off-loop and must not claim the running owner's slot.
+        await asyncio.sleep(0.02)
+        assert not shutdown_done.is_set() and seen == []
+        with executor._admission_lock:
+            assert executor._physical_workers == 1 and executor._outstanding_jobs >= 1
+    finally:
+        release.set()
+        shutdown_thread.join(timeout=3)
+        running.result(timeout=2)
+    assert shutdown_done.is_set() and not shutdown_thread.is_alive()
+    assert queued.cancelled() and seen == ["callback"]
+    assert executor._outstanding_jobs == 0
+
+
+def test_requested_cancel_with_closed_loop_releases_source_and_callbacks() -> None:
+    """Closed-loop delivery cannot keep a requested queued cancellation alive."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=1)
+    started = threading.Event()
+    release = threading.Event()
+    callback_finished = threading.Event()
+    seen: list[str] = []
+
+    def block() -> None:
+        started.set()
+        assert release.wait(timeout=3)
+
+    def callback(_future: concurrent.futures.Future[object]) -> None:
+        seen.append("callback")
+        callback_finished.set()
+
+    running = executor.submit(block)
+    assert started.wait(timeout=2)
+    queued = executor.submit(seen.append, "must-not-run")
+    queued.add_done_callback(callback)
+    loop = asyncio.new_event_loop()
+    target = async_tools.wrap_shared_executor_future(queued, loop=loop)
+    target_ref = weakref.ref(target)
+    loop_ref = weakref.ref(loop)
+    assert async_tools.request_shared_executor_cancellation(queued)
+    loop.close()
+    del loop, target
+    try:
+        release.set()
+        running.result(timeout=2)
+        assert callback_finished.wait(timeout=2)
+        with executor._capacity_changed:
+            assert executor._capacity_changed.wait_for(lambda: executor._outstanding_jobs == 0, 2)
+        gc.collect()
+        assert queued.cancelled() and seen == ["callback"]
+        assert target_ref() is None and loop_ref() is None
+    finally:
+        release.set()
+        executor.shutdown(wait=True, cancel_futures=True)
+
+
+def test_shared_future_async_adapter_closed_loop_does_not_retain_destination() -> None:
+    """Finishing after loop close drops delivery and releases captured loop state."""
+    from polisyos.common import async_tools
+
+    executor = async_tools._SharedExecutor(max_workers=1, max_queued=0)
+    release = threading.Event()
+    started = threading.Event()
+
+    def block() -> int:
+        started.set()
+        assert release.wait(timeout=3)
+        return 42
+
+    source = executor.submit(block)
+    assert started.wait(timeout=2)
+    loop = asyncio.new_event_loop()
+    target = async_tools.wrap_shared_executor_future(source, loop=loop)
+    target_ref = weakref.ref(target)
+    loop_ref = weakref.ref(loop)
+    loop.close()
+    del target, loop
+    try:
+        release.set()
+        assert source.result(timeout=2) == 42
+        with executor._capacity_changed:
+            assert executor._capacity_changed.wait_for(lambda: executor._outstanding_jobs == 0, 2)
+        gc.collect()
+        assert target_ref() is None and loop_ref() is None
+        assert executor.submit(lambda: 7).result(timeout=2) == 7
+    finally:
+        release.set()
+        executor.shutdown(wait=True, cancel_futures=True)

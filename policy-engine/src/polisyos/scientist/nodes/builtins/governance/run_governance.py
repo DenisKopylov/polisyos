@@ -146,6 +146,9 @@ from .governance_gate_requests import (
     _resolve_cached_gate_request as _resolve_cached_gate_request,
 )
 from .governance_gate_requests import (
+    _resolve_previous_gate_decision as _resolve_previous_gate_decision,
+)
+from .governance_gate_requests import (
     _serialize_gate_request_ref as _serialize_gate_request_ref,
 )
 from .governance_gate_requests import (
@@ -177,6 +180,7 @@ _SPEC = NodeSpec(
         "params.gate_request_ref",
         "params.gate_decision",
         "params.gate_decision_typed",
+        "params.gate_decision_ref",
         "params.gate_escalated",
         "params.gate_iteration",
         "params.human_review_request",
@@ -241,6 +245,7 @@ class RunGovernanceNode:
     """Governance node with typed Human Gate protocol."""
 
     default_verdict: Literal["approve", "needs_revision", "reject", "human_gate"] = "approve"
+    replay_previous_gate_decision: bool = False
 
     @property
     def spec(self) -> NodeSpec:
@@ -250,7 +255,10 @@ class RunGovernanceNode:
         if not params:
             return self
         verdict = params.get("default_verdict", self.default_verdict)
-        return replace(self, default_verdict=str(verdict))
+        replay = params.get("replay_previous_gate_decision", self.replay_previous_gate_decision)
+        if type(replay) is not bool:
+            raise ValueError("replay_previous_gate_decision must be a boolean")
+        return replace(self, default_verdict=str(verdict), replay_previous_gate_decision=replay)
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         state = project_policy_promotion_state(
@@ -260,6 +268,7 @@ class RunGovernanceNode:
         )
         events: list[NodeEvent] = []
         issues: list[dict[str, Any]] = []
+        persisted_gate_decisions: list[ArtifactRef] = []
         try:
             pii_scan_results = _extract_pii_scan_results(ctx, state)
         except _GOVERNANCE_HELPER_ERRORS as exc:
@@ -298,6 +307,8 @@ class RunGovernanceNode:
                 verdict=self.default_verdict,
                 issues=issues,
                 events=events,
+                replay_previous_gate_decision=self.replay_previous_gate_decision,
+                persisted_decision_refs=persisted_gate_decisions,
             )
         except _GOVERNANCE_HELPER_ERRORS as exc:
             return NodeOutcome(
@@ -412,7 +423,7 @@ class RunGovernanceNode:
         new_state.reports_index[REPORT_GOVERNANCE_REPORT_REF] = report_ref
 
         events.append(NodeEvent(level="info", message=f"Governance verdict: {verdict}"))
-        artifacts = [report_ref]
+        artifacts: list[ArtifactRef] = [report_ref, *persisted_gate_decisions]
         if report.links.claims_ref is not None:
             artifacts.append(report.links.claims_ref)
         return NodeOutcome(status="ok", state=new_state, artifacts=artifacts, events=events)
@@ -426,6 +437,8 @@ def _handle_initial_gate_request(
     verdict: str,
     issues: list[dict[str, Any]],
     events: list[NodeEvent],
+    replay_previous_gate_decision: bool = False,
+    persisted_decision_refs: list[ArtifactRef] | None = None,
 ) -> str:
     require_human_gate = bool(state.params.get("require_human_gate"))
     raw_gate_decision = state.params.get("gate_decision")
@@ -438,6 +451,45 @@ def _handle_initial_gate_request(
         spec=_gate_request_spec(ctx=ctx, state=state),
     )
     gate_request, gate_request_ref = gate_request_pair or (None, None)
+
+    if replay_previous_gate_decision:
+        if raw_gate_decision is not None:
+            # A new caller-supplied decision is not part of the prior producer's
+            # admitted output. This refresh can only replay that exact decision.
+            state.params.pop("gate_decision", None)
+            replay_status, previous_decision = "not_established", None
+        else:
+            replay_status, previous_decision = _resolve_previous_gate_decision(
+                ctx=ctx, state=state, request=gate_request, request_ref=gate_request_ref
+            )
+        if replay_status == "not_established":
+            if gate_request is None:
+                gate_request, gate_request_ref = _create_gate_request(
+                    ctx=ctx, protocol=protocol, state=state
+                )
+                state.params["gate_request"] = gate_request.model_dump(mode="json")
+                if gate_request_ref is not None:
+                    state.params["gate_request_ref"] = _serialize_gate_request_ref(gate_request_ref)
+            issues.append(
+                {
+                    "code": "gate.decision.replay_not_established",
+                    "message": "The previous gate decision and current request could not be revalidated.",
+                }
+            )
+            events.append(
+                NodeEvent(
+                    level="warn",
+                    code="GATE_DECISION_REPLAY_NOT_ESTABLISHED",
+                    message="A current owner-linked gate decision was not established.",
+                )
+            )
+            return "human_gate"
+        if replay_status == "current" and previous_decision is not None:
+            if previous_decision.verdict in {GateVerdict.REJECT, GateVerdict.TIMEOUT}:
+                return "reject"
+            if previous_decision.verdict == GateVerdict.APPROVE:
+                return "approve"
+            return "human_gate"
 
     if require_human_gate and raw_gate_decision is None:
         if gate_request is None:
@@ -490,6 +542,7 @@ def _handle_initial_gate_request(
             verdict=verdict,
             issues=issues,
             events=events,
+            persisted_decision_refs=persisted_decision_refs,
         )
     return verdict
 
@@ -505,6 +558,7 @@ def _handle_gate_decision(
     verdict: str,
     issues: list[dict[str, Any]],
     events: list[NodeEvent],
+    persisted_decision_refs: list[ArtifactRef] | None = None,
 ) -> str:
     decision = _parse_gate_decision(
         raw_gate_decision,
@@ -535,7 +589,10 @@ def _handle_gate_decision(
         state.params.pop("gate_decision", None)
         return "human_gate"
 
-    protocol.persist_decision(decision, request_ref=gate_request_ref)
+    decision_ref = protocol.persist_decision(decision, request_ref=gate_request_ref)
+    state.params["gate_decision_ref"] = decision_ref.model_dump(mode="json")
+    if persisted_decision_refs is not None:
+        persisted_decision_refs.append(decision_ref)
     state.params["gate_decision_typed"] = decision.model_dump(mode="json")
     state.params.pop("gate_decision", None)
 
@@ -591,8 +648,10 @@ def _apply_governance_check_outcomes(
             pass_state=checks.pass_state,
             events=events,
         )
-        typed_gate_decision = _parse_typed_gate_decision(state.params.get("gate_decision_typed"))
-        if typed_gate_decision is None:
+        # The review request has its own subject and admission contract. A
+        # decision for the separate governance gate, including a typed marker,
+        # cannot resolve it. Preserve an existing rejection while it is pending.
+        if verdict != "reject":
             verdict = "human_gate"
     if governance_issues:
         issues.extend([_issue_to_payload(issue) for issue in governance_issues])
@@ -736,17 +795,6 @@ def _apply_phase2_governance_tail(
             )
         )
     return verdict
-
-
-def _parse_typed_gate_decision(raw: Any) -> GateDecision | None:
-    if isinstance(raw, GateDecision):
-        return raw
-    if isinstance(raw, dict):
-        try:
-            return GateDecision.model_validate(raw)
-        except _GOVERNANCE_HELPER_ERRORS:
-            return None
-    return None
 
 
 def _parse_gate_decision(

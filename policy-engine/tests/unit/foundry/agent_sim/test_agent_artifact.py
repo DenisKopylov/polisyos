@@ -20,7 +20,8 @@ import jax
 import jax.numpy as jnp
 import pytest
 
-from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
@@ -399,6 +400,114 @@ def test_generic_cas_writer_stores_finite_metrics_without_mutating_runtime_artif
         assert payload["training_profile"] == TrainingProfileDescriptor().to_manifest_dict()
     else:
         assert "training_profile" not in payload
+
+
+def test_policy_artifact_preserves_selected_weights_view_across_tenants(
+    sample_artifact: AgentPolicyArtifact, tmp_path
+) -> None:
+    """Identical weights keep owner-selected lineage through a fresh reader."""
+    root = tmp_path / "selected-policy"
+    first = FileSystemCAS(root).for_tenant("first", cell_id="one")
+    second = FileSystemCAS(root).for_tenant("second", cell_id="two")
+    first_weights, first_manifest = store_policy_artifact(first, sample_artifact)
+    second_weights, second_manifest = store_policy_artifact(second, sample_artifact)
+    assert first_weights.artifact_id == second_weights.artifact_id
+    assert first_weights.manifest_profile_sha256 != second_weights.manifest_profile_sha256
+    assert first_manifest.artifact_id == second_manifest.artifact_id
+    assert first_manifest.manifest_profile_sha256 != second_manifest.manifest_profile_sha256
+    selected = second.get_manifest(second_manifest)
+    assert selected.inputs == [
+        InputRef(
+            artifact_id=second_weights.artifact_id,
+            role="weights",
+            manifest_profile_sha256=second_weights.manifest_profile_sha256,
+        )
+    ]
+    fresh = FileSystemCAS(root).for_tenant("second", cell_id="two")
+    assert (
+        _load_artifact_from_cas(fresh, second_manifest).weights_bytes
+        == sample_artifact.weights_bytes
+    )
+
+    # Removing the selected manifest view picks the first owner's view and is
+    # refused; a hash of the same bytes is not a replacement owner capability.
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+
+    with pytest.raises(ArtifactOwnershipError):
+        _load_artifact_from_cas(fresh, second_manifest.artifact_id)
+
+
+@pytest.mark.parametrize("reference_kind", ["string", "selected-ref"])
+def test_public_policy_reader_normalizes_strings_and_preserves_exact_selected_ref(
+    sample_artifact: AgentPolicyArtifact, tmp_path, monkeypatch, reference_kind: str
+) -> None:
+    """Public string compatibility does not widen the ArtifactStore read protocol."""
+    store = FileSystemCAS(tmp_path / "typed-reader")
+    if reference_kind == "selected-ref":
+        store_policy_artifact(store.for_tenant("first", cell_id="one"), sample_artifact)
+        store = store.for_tenant("second", cell_id="two")
+    _weights, selected = store_policy_artifact(store, sample_artifact)
+    received = []
+    real_manifest = store.get_manifest
+
+    def typed_manifest(reference):
+        assert isinstance(reference, (ArtifactRef, ArtifactID)), "reader only promises typed refs"
+        received.append(reference)
+        return real_manifest(reference)
+
+    monkeypatch.setattr(store, "get_manifest", typed_manifest)
+    argument = str(selected.artifact_id) if reference_kind == "string" else selected
+    loaded = _load_artifact_from_cas(store, argument)
+    assert loaded.weights_bytes == sample_artifact.weights_bytes
+    manifest_reads = [
+        reference
+        for reference in received
+        if (reference.artifact_id if isinstance(reference, ArtifactRef) else reference)
+        == selected.artifact_id
+    ]
+    assert len(manifest_reads) >= 2
+    if reference_kind == "selected-ref":
+        assert selected.manifest_profile_sha256 is not None
+        assert all(
+            isinstance(reference, ArtifactRef)
+            and reference.manifest_profile_sha256 == selected.manifest_profile_sha256
+            for reference in manifest_reads
+        ), manifest_reads
+    else:
+        # The core JSON reader may resolve a typed default manifest profile;
+        # the public string itself must not cross the store's typed boundary.
+        assert any(isinstance(reference, ArtifactID) for reference in manifest_reads)
+
+
+@pytest.mark.parametrize("corrupt", ["wrong-content", "duplicate"])
+def test_policy_artifact_rejects_inconsistent_weights_lineage(
+    sample_artifact: AgentPolicyArtifact, tmp_path, corrupt: str
+) -> None:
+    """A valid CAS manifest cannot override the policy's content-bound weights."""
+    store = FileSystemCAS(tmp_path / corrupt)
+    weights, manifest = store_policy_artifact(store, sample_artifact)
+    payload = from_canonical_bytes(store.get_bytes(manifest))
+    metadata = store.get_manifest(manifest)
+    edges = list(metadata.inputs)
+    if corrupt == "wrong-content":
+        other = store.put_bytes(
+            b"different weights",
+            PutOptions(kind="foundry.agent_policy", media_type="application/octet-stream"),
+        )
+        edges = [InputRef(artifact_id=other.artifact_id, role="weights")]
+    else:
+        edges.append(InputRef(artifact_id=weights.artifact_id, role="weights"))
+    corrupt_manifest = store.put_json(
+        payload,
+        PutOptions(
+            kind=metadata.kind,
+            media_type=metadata.media_type,
+            schema=metadata.artifact_schema,
+            inputs=edges,
+        ),
+    )
+    with pytest.raises(ValueError, match="weights lineage"):
+        _load_artifact_from_cas(store, corrupt_manifest)
 
 
 def _bad_storage_values(field_type: type) -> tuple[tuple[object, type[Exception], str, str], ...]:

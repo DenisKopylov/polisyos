@@ -236,3 +236,27 @@ Supported filters:
 
 The JSON report includes both matching entries and summary groupings by actor,
 tenant, operation, outcome, and touched resources.
+
+## Source-execution bootstrap boundary
+
+`tools/authority` selects the committed `tools/authority_bootstrap.py` launcher.
+The host records selected source execution and hands the captured runner to the
+existing confidence-ledger owner. A recorded module, a matching source hash, or
+a successful command is not itself an authority verdict. Locked-wheel Python
+member selection remains distinct from provider, native, installer-state, and
+through-use qualification.
+
+The `diagnose` mode reports the owner diagnostic and observed provider-source
+selection. If source selection or capture is unavailable, its profile has
+`authority=false` and the owner status is `not_established`; diagnostic exit 0
+only means the report was produced. Candidate test work can continue with that
+declared limitation. Preserve the failed or unavailable diagnostic rather than
+promoting it into a positive protected-action, publication, or custody claim.
+The `test` mode explicitly loads the required pytest plugins with automatic
+third-party plugin loading disabled; explicit loading does not qualify plugin
+authority.
+
+This section records the launcher contract from source inspection. It does not
+claim a fresh installed/native execution or close the remaining qualification
+boundaries. The source pin at the top of this page applies to the earlier
+runtime operations review, not this additional bootstrap description.

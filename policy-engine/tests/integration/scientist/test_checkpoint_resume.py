@@ -9,12 +9,21 @@ import json
 import logging
 import multiprocessing
 import os
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Literal
 
 import pytest
+from _helpers.run_lifecycle import (
+    ExpectedRunInterruption,
+    interrupt_before_finalize,
+    interrupt_before_finalize_async,
+)
 
+from polisyos.core.artifacts import ProducerInfo, PutOptions
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import (
@@ -25,12 +34,20 @@ from polisyos.core.components import (
 )
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.core.security.access_scope import AccessScope
+from polisyos.core.security.identity import PIIAccessLevel, PolicyOSRole
+from polisyos.core.security.tenant_context import (
+    get_current_access_scope_or_none,
+    reset_current_access_scope,
+    set_current_access_scope,
+    tenant_scope,
+)
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
     CheckpointError,
     _build_resume_workflow_spec,
+    acquire_run_lock,
     compute_workflow_fingerprint,
     load_checkpoint,
     load_checkpoint_head,
@@ -82,6 +99,7 @@ class StepOneNode:
     _spec = NodeSpec(
         metadata=_meta("scientist.node_step_one@1.0.0", "StepOne"),
         state_reads=["params.seed"],
+        state_writes=["params.step1"],
     )
 
     @property
@@ -100,6 +118,7 @@ class StepTwoNode:
     _spec = NodeSpec(
         metadata=_meta("scientist.node_step_two@1.0.0", "StepTwo"),
         state_reads=["params.step1"],
+        state_writes=["params.step2"],
     )
 
     @property
@@ -119,6 +138,7 @@ class FlakyFinalNode:
     _spec = NodeSpec(
         metadata=_meta("scientist.node_flaky_final@1.0.0", "FlakyFinal"),
         state_reads=["params.step2"],
+        state_writes=["params.final"],
     )
 
     @property
@@ -182,6 +202,7 @@ class FlakyAfterParallelNode:
     _spec = NodeSpec(
         metadata=_meta("scientist.node_parallel_final@1.0.0", "ParallelFinal"),
         state_reads=["params.left", "params.right"],
+        state_writes=["params.final"],
     )
 
     @property
@@ -243,6 +264,233 @@ def _workflow() -> WorkflowSpec:
     )
 
 
+class _OnceAuditNode:
+    """Observe a real node invocation across fresh process boundaries."""
+
+    def __init__(self, node: Any, log_path: str) -> None:
+        self.node = node
+        self.spec = node.spec.model_copy(
+            update={"state_writes": [*node.spec.state_writes, "artifacts_index"]}
+        )
+        self.log_path = log_path
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        with open(self.log_path, "a", encoding="utf-8") as handle:
+            handle.write(f"{self.spec.metadata.component_id}\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        outcome = self.node.execute(ctx, state)
+        if outcome.status != "ok":
+            return outcome
+        key = str(self.spec.metadata.component_id)
+        ref = ctx.store.put_json(
+            {"node": key},
+            PutOptions(
+                kind="scientist.test_resume_value",
+                media_type="application/json",
+                producer=ProducerInfo(component="tests.resume", version="1.0.0"),
+            ),
+            return_selected_profile=True,
+        )
+        outcome.state.artifacts_index[key] = ref
+        outcome.artifacts.append(ref)
+        return outcome
+
+
+def _once_registry(log_path: str) -> NodeRegistry:
+    registry = NodeRegistry()
+    for node in (StepOneNode(), StepTwoNode(), FlakyFinalNode()):
+        registry.register(_OnceAuditNode(node, log_path))
+    return registry
+
+
+def _double_resume_worker(root: str, stage: int, queue: Any) -> None:
+    """Stop after an actual accepted checkpoint or finish the real resume."""
+    os.environ["POLISYOS_RUNNER_BACKEND"] = "local"
+    store = FileSystemCAS(Path(root))
+    run_id = "R_res01_two_stops"
+    workflow = _workflow()
+    registry = _once_registry(str(Path(root) / "invocations.txt"))
+    FlakyFinalNode.fail_once = False
+    if stage == 0:
+        ctx, bundle = _context(store, run_id)
+
+        class FirstStop(CASCheckpointHook):
+            def on_node_complete(self, **kwargs: Any) -> Any:
+                result = super().on_node_complete(**kwargs)
+                if kwargs["alias"] == "step1":
+                    os._exit(71)
+                return result
+
+        lock = acquire_run_lock(Path(root) / "runs" / run_id, run_id=run_id, mode="execute")
+        try:
+            WorkflowExecutor(
+                ctx,
+                registry,
+                checkpoint_hook=FirstStop(store=store, run_dir=Path(root) / "runs" / run_id),
+            ).execute(
+                workflow,
+                ExperimentState(
+                    run_id=run_id, inputs={"registry_bundle_ref": bundle}, params={"seed": 7}
+                ),
+            )
+        finally:
+            lock.release()
+    elif stage == 1:
+        original = CASCheckpointHook.on_node_complete_async
+
+        async def stop_after_second(self: Any, **kwargs: Any) -> Any:
+            result = await original(self, **kwargs)
+            if kwargs["alias"] == "step2":
+                os._exit(72)
+            return result
+
+        CASCheckpointHook.on_node_complete_async = stop_after_second  # type: ignore[method-assign]
+        resume_from_checkpoint(store, run_id, workflow=workflow, registry=registry)
+    elif stage == 2:
+        result = resume_from_checkpoint(store, run_id, workflow=workflow, registry=registry)
+        queue.put(
+            {
+                "status": result.report.status,
+                "state": result.state.params,
+                "registry_ref": result.state.inputs["registry_bundle_ref"].model_dump(mode="json"),
+                "saved_refs": {
+                    key: ref.model_dump(mode="json")
+                    for key, ref in result.state.artifacts_index.items()
+                },
+                "node_output_refs": [
+                    ref.model_dump(mode="json")
+                    for node in result.report.nodes
+                    for ref in node.artifacts
+                ],
+            }
+        )
+    else:
+        resolved = resolve_latest_checkpoint(store, run_id)
+        assert resolved is not None
+        registry_ref = ExperimentState.model_validate(resolved[1].state).inputs[
+            "registry_bundle_ref"
+        ]
+        control_id = "R_res01_uninterrupted_control"
+        run = RunContext.start(store, registry_ref, run_id=control_id)
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("res01.control"))
+        result = WorkflowExecutor(
+            ctx, _once_registry(str(Path(root) / "control_invocations.txt"))
+        ).execute(
+            workflow,
+            ExperimentState(
+                run_id=control_id, inputs={"registry_bundle_ref": registry_ref}, params={"seed": 7}
+            ),
+        )
+        queue.put(
+            {
+                "status": result.report.status,
+                "state": result.state.params,
+                "registry_ref": result.state.inputs["registry_bundle_ref"].model_dump(mode="json"),
+                "saved_refs": {
+                    key: ref.model_dump(mode="json")
+                    for key, ref in result.state.artifacts_index.items()
+                },
+                "node_output_refs": [
+                    ref.model_dump(mode="json")
+                    for node in result.report.nodes
+                    for ref in node.artifacts
+                ],
+            }
+        )
+
+
+def test_two_fresh_resumes_execute_each_node_once(tmp_path: Path) -> None:
+    """A/B/C keep the original workflow identity across two real process stops."""
+    root = tmp_path / "cas"
+    process_context = multiprocessing.get_context("spawn")
+    queue = process_context.Queue()
+    workflow = _workflow()
+    fingerprints: list[str] = []
+    retained_refs: dict[str, ArtifactRef] = {}
+    for stage, expected_exit in ((0, 71), (1, 72), (2, 0)):
+        child = process_context.Process(
+            target=_double_resume_worker, args=(str(root), stage, queue)
+        )
+        try:
+            child.start()
+            child.join(timeout=60)
+            assert child.exitcode == expected_exit
+        finally:
+            if child.is_alive():
+                child.terminate()
+                child.join(timeout=5)
+        resolved = resolve_latest_checkpoint(FileSystemCAS(root), "R_res01_two_stops")
+        assert resolved is not None
+        head, checkpoint = resolved
+        assert checkpoint.metadata.origin_workflow_fingerprint == compute_workflow_fingerprint(
+            workflow
+        )
+        fingerprints.append(checkpoint.metadata.workflow_fingerprint)
+        assert checkpoint.metadata.completed_nodes == ["step1", "step2", "final"][: stage + 1]
+        checkpoint_state = ExperimentState.model_validate(
+            materialize_checkpoint_state(FileSystemCAS(root), head.checkpoint_ref)
+        )
+        current_refs = checkpoint_state.artifacts_index
+        assert len(current_refs) == stage + 1
+        assert all(current_refs[key] == ref for key, ref in retained_refs.items())
+        for ref in current_refs.values():
+            assert ref.manifest_profile_sha256 is not None
+            assert FileSystemCAS(root).verify(ref).ok
+            assert FileSystemCAS(root).get_bytes(ref)
+        retained_refs = dict(current_refs)
+    observed = queue.get(timeout=5)
+    queue.close()
+    assert observed["status"] == "ok"
+    assert len(observed["saved_refs"]) == 3
+    assert observed["state"] == {"seed": 7, "step1": 1, "step2": 2, "final": True}
+    assert fingerprints == [
+        compute_workflow_fingerprint(workflow),
+        compute_workflow_fingerprint(
+            _build_resume_workflow_spec(workflow, completed_nodes=["step1"])
+        ),
+        compute_workflow_fingerprint(
+            _build_resume_workflow_spec(workflow, completed_nodes=["step1", "step2"])
+        ),
+    ]
+    events = (root / "invocations.txt").read_text(encoding="utf-8").splitlines()
+    assert events == [str(inv.node_id) for inv in workflow.nodes]
+
+    class PoisonRegistry:
+        def get(self, _node_id: Any) -> Any:
+            raise AssertionError("completed reopen must not look up a node")
+
+    reopened = resume_from_checkpoint(
+        FileSystemCAS(root), "R_res01_two_stops", workflow=workflow, registry=PoisonRegistry()
+    )
+    assert reopened.report.status == "ok" and reopened.report.nodes == []
+    assert (root / "invocations.txt").read_text(encoding="utf-8").splitlines() == events
+    control_queue = process_context.Queue()
+    control = process_context.Process(
+        target=_double_resume_worker, args=(str(root), 3, control_queue)
+    )
+    try:
+        control.start()
+        control.join(timeout=60)
+        assert control.exitcode == 0
+        control_observed = control_queue.get(timeout=5)
+        assert control_observed["status"] == observed["status"]
+        assert control_observed["state"] == observed["state"]
+        assert control_observed["registry_ref"] == observed["registry_ref"]
+        assert set(control_observed["saved_refs"]) == set(observed["saved_refs"])
+        for key, ref in observed["saved_refs"].items():
+            expected_ref = ArtifactRef.model_validate(ref)
+            control_ref = ArtifactRef.model_validate(control_observed["saved_refs"][key])
+            assert FileSystemCAS(root).get_bytes(expected_ref) == FileSystemCAS(root).get_bytes(
+                control_ref
+            )
+    finally:
+        if control.is_alive():
+            control.terminate()
+            control.join(timeout=5)
+        control_queue.close()
+
+
 def _parallel_workflow() -> WorkflowSpec:
     return WorkflowSpec(
         workflow_id="wf_parallel_checkpoint_resume",
@@ -266,6 +514,25 @@ def _parallel_workflow() -> WorkflowSpec:
     )
 
 
+@contextmanager
+def _scoped_owner(tenant_id: str, cell_id: str) -> Iterator[None]:
+    scope = AccessScope(
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        principal_type="user",
+        user_sub="checkpoint-test",
+        roles=frozenset({PolicyOSRole.ADMIN}),
+        max_pii_tier=PIIAccessLevel.NONE,
+        mfa_verified=True,
+    )
+    token = set_current_access_scope(scope)
+    try:
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            yield
+    finally:
+        reset_current_access_scope(token)
+
+
 def _context(
     store: FileSystemCAS,
     run_id: str,
@@ -273,13 +540,14 @@ def _context(
     tenant_id: str | None = None,
     cell_id: str | None = None,
 ) -> tuple[ExecutionContext, object]:
-    bundle = build_default_registry_bundle(store)
+    bundle = build_default_registry_bundle(store, return_selected_profile=True)
     run = RunContext.start(
         store=store,
         registry_bundle=bundle.bundle_ref,
         run_id=run_id,
         tenant_id=tenant_id,
         cell_id=cell_id,
+        access_scope=get_current_access_scope_or_none(),
     )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("checkpoint_resume_test"))
     return ctx, bundle.bundle_ref
@@ -322,8 +590,10 @@ def test_resume_uses_checkpoint_cache_refs_when_trace_is_truncated(tmp_path: Pat
         checkpoint_policy="strict",
     )
 
-    first = WorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(workflow, state)
-    assert first.report.status == "fail"
+    interrupt_before_finalize(
+        ctx.run,
+        lambda: WorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(workflow, state),
+    )
     assert StepOneNode.calls == 1
     assert StepTwoNode.calls == 1
     assert FlakyFinalNode.calls == 1
@@ -370,10 +640,10 @@ def test_resume_rejects_mismatched_tenant_or_cell_before_protected_action(
     FlakyFinalNode.calls = 0
     FlakyFinalNode.fail_once = True
 
-    store = FileSystemCAS(tmp_path)
+    store = FileSystemCAS(tmp_path).with_ambient_ownership_enforcement()
     workflow = _workflow()
     run_id = "R_checkpoint_tenant_scope"
-    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+    with _scoped_owner("tenant-a", "cell-a"):
         ctx, bundle_ref = _context(
             store,
             run_id,
@@ -390,9 +660,12 @@ def test_resume_rejects_mismatched_tenant_or_cell_before_protected_action(
             run_dir=tmp_path / "runs" / run_id,
             checkpoint_policy="strict",
         )
-        first = WorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(workflow, state)
-
-    assert first.report.status == "fail"
+        interrupt_before_finalize(
+            ctx.run,
+            lambda: WorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(
+                workflow, state
+            ),
+        )
     protected_calls_before = (
         StepOneNode.calls,
         StepTwoNode.calls,
@@ -401,9 +674,13 @@ def test_resume_rejects_mismatched_tenant_or_cell_before_protected_action(
     trace_path = tmp_path / "runs" / run_id / "trace.jsonl"
     trace_before = trace_path.read_bytes()
 
+    # The supported owned store refuses the foreign scope before checkpoint bytes are read.
     with (
-        tenant_scope(None, tenant_id=resume_tenant_id, cell_id=resume_cell_id),
-        pytest.raises(CheckpointError, match="scope mismatch"),
+        _scoped_owner(resume_tenant_id, resume_cell_id),
+        pytest.raises(
+            ArtifactOwnershipError,
+            match=f"{resume_tenant_id}/{resume_cell_id} for read_raw_manifest",
+        ),
     ):
         resume_from_checkpoint(
             store,
@@ -421,7 +698,7 @@ def test_resume_rejects_mismatched_tenant_or_cell_before_protected_action(
     ) == protected_calls_before
     assert trace_path.read_bytes() == trace_before
 
-    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+    with _scoped_owner("tenant-a", "cell-a"):
         resumed = resume_from_checkpoint(
             store,
             run_id,
@@ -465,8 +742,10 @@ def test_resume_falls_back_to_local_runner_when_distributed_backend_is_configure
         checkpoint_policy="strict",
     )
 
-    first = WorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(workflow, state)
-    assert first.report.status == "fail"
+    interrupt_before_finalize(
+        ctx.run,
+        lambda: WorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(workflow, state),
+    )
     assert StepOneNode.calls == 1
     assert StepTwoNode.calls == 1
     assert FlakyFinalNode.calls == 1
@@ -518,8 +797,10 @@ def test_resume_uses_configured_distributed_runner_with_pruned_workflow(
         checkpoint_policy="strict",
     )
 
-    first = WorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(workflow, state)
-    assert first.report.status == "fail"
+    interrupt_before_finalize(
+        ctx.run,
+        lambda: WorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(workflow, state),
+    )
     assert StepOneNode.calls == 1
     assert StepTwoNode.calls == 1
     assert FlakyFinalNode.calls == 1
@@ -609,12 +890,12 @@ async def test_async_executor_resume_uses_checkpoint_cache_refs_when_trace_is_tr
         checkpoint_policy="strict",
     )
 
-    first = await AsyncWorkflowExecutor(
-        ctx,
-        _registry(),
-        checkpoint_hook=hook,
-    ).execute(workflow, state)
-    assert first.report.status == "fail"
+    await interrupt_before_finalize_async(
+        ctx.run,
+        lambda: AsyncWorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(
+            workflow, state
+        ),
+    )
     assert StepOneNode.calls == 1
     assert StepTwoNode.calls == 1
     assert FlakyFinalNode.calls == 1
@@ -866,13 +1147,15 @@ async def test_async_executor_parallel_tier_checkpoints_merged_state_for_resume(
         checkpoint_policy="strict",
     )
 
-    first = await AsyncWorkflowExecutor(
-        ctx,
-        _parallel_registry(),
-        checkpoint_hook=hook,
-        max_parallelism=2,
-    ).execute(workflow, state)
-    assert first.report.status == "fail"
+    await interrupt_before_finalize_async(
+        ctx.run,
+        lambda: AsyncWorkflowExecutor(
+            ctx,
+            _parallel_registry(),
+            checkpoint_hook=hook,
+            max_parallelism=2,
+        ).execute(workflow, state),
+    )
     assert ParallelLeftNode.calls == 1
     assert ParallelRightNode.calls == 1
     assert FlakyAfterParallelNode.calls == 1
@@ -1016,6 +1299,7 @@ def _seed_parallel_checkpoint(
     assert checkpoint.state is not None
     assert checkpoint.metadata.completed_nodes == ["seed"]
     assert checkpoint.state["params"] == {"seed": 29, "step1": 1}
+    ctx.run.suspend_for_resume()
     return ctx, bundle_ref, seeded.state
 
 
@@ -1030,12 +1314,12 @@ def _install_b73_left_frontier_removal() -> dict[str, Any]:
 
     module_path = Path(executor_module.__file__).resolve()
     class_path = Path(inspect.getsourcefile(executor_class) or "").resolve()
-    code_path = Path(executor_class.execute.__code__.co_filename).resolve()
+    code_path = Path(executor_class._execute_admitted.__code__.co_filename).resolve()
     if class_path != module_path or code_path != module_path:
         raise AssertionError("B73 removal probe executor source origin changed")
     source_bytes = module_path.read_bytes()
     source_sha256 = hashlib.sha256(source_bytes).hexdigest()
-    if source_sha256 != ("df4857a73b177854553f244612779a43ca377dabbff986c2feda4db576220c45"):
+    if source_sha256 != ("d32c9066207047c5a6341e4c6347442923dcf4b42c6513ef41e7160223ee0351"):
         raise AssertionError("B73 removal probe executor source digest changed")
 
     source_tree = ast.parse(source_bytes.decode("utf-8"), filename=str(module_path))
@@ -1049,7 +1333,7 @@ def _install_b73_left_frontier_removal() -> dict[str, Any]:
     execute_methods = [
         node
         for node in executor_classes[0].body
-        if isinstance(node, ast.AsyncFunctionDef) and node.name == "execute"
+        if isinstance(node, ast.AsyncFunctionDef) and node.name == "_execute_admitted"
     ]
     if len(execute_methods) != 1 or execute_methods[0].decorator_list:
         raise AssertionError("B73 removal probe found an unexpected execute method")
@@ -1133,15 +1417,15 @@ def _install_b73_left_frontier_removal() -> dict[str, Any]:
         compile(compiled_module, filename=str(module_path), mode="exec"),
         namespace,
     )
-    replacement = namespace.get("execute")
+    replacement = namespace.get("_execute_admitted")
     if replacement is None or not inspect.iscoroutinefunction(replacement):
         raise AssertionError("B73 removal probe did not compile the async owner method")
     if Path(replacement.__code__.co_filename).resolve() != module_path:
         raise AssertionError("B73 removal probe replacement lost source identity")
-    executor_class.execute = replacement
+    executor_class._execute_admitted = replacement
     return {
         "source_sha256": source_sha256,
-        "method": "AsyncWorkflowExecutor.execute",
+        "method": "AsyncWorkflowExecutor._execute_admitted",
         "original_expression": "completed_nodes.extend(tier_completed)",
         "mutated_expression": mutated_expression,
         "mutant_installed": True,
@@ -1174,7 +1458,11 @@ def _b73_pause_writer_at_owner_phase(
     if remove_left_from_frontier:
         if cut != "after_artifact_before_head":
             raise AssertionError("B73 removal probe is limited to the first publication cut")
-        mutation_receipt = _install_b73_left_frontier_removal()
+        try:
+            mutation_receipt = _install_b73_left_frontier_removal()
+        except Exception as exc:
+            phase_queue.put({"phase": "probe_error", "error": repr(exc)})
+            raise
 
     if cut == "after_artifact_before_head":
         original_update_head = checkpoint_module.update_checkpoint_head
@@ -1288,6 +1576,21 @@ def _assert_tier_cache_entries_bind_node_identity_and_content(
     return tuple(sorted(observed_aliases))
 
 
+def _cache_hit_aliases(cas_root: str, run_id: str) -> list[str]:
+    trace_records = [
+        json.loads(line)
+        for line in (Path(cas_root) / "runs" / run_id / "trace.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+        if line.strip()
+    ]
+    return sorted(
+        record["phase"].removeprefix("scientist.node.")
+        for record in trace_records
+        if record["event"] == "NODE_CACHE_HIT"
+    )
+
+
 def _b73_fresh_reader_then_resume(
     cas_root: str,
     run_id: str,
@@ -1342,6 +1645,8 @@ def _b73_fresh_reader_then_resume(
             "pid": os.getpid(),
             "before_resume": before_resume,
             "report_status": resumed.report.status,
+            "resumed_aliases": [record.alias for record in resumed.report.nodes],
+            "cache_hit_aliases": _cache_hit_aliases(cas_root, run_id),
             "resumed_params": dict(resumed.state.params),
             "peer_calls": [ParallelLeftNode.calls, ParallelRightNode.calls],
             "final_calls": FlakyAfterParallelNode.calls,
@@ -1401,9 +1706,9 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
             if remove_left_for_cut:
                 assert observed["mutation_receipt"] == {
                     "source_sha256": (
-                        "df4857a73b177854553f244612779a43ca377dabbff986c2feda4db576220c45"
+                        "d32c9066207047c5a6341e4c6347442923dcf4b42c6513ef41e7160223ee0351"
                     ),
-                    "method": "AsyncWorkflowExecutor.execute",
+                    "method": "AsyncWorkflowExecutor._execute_admitted",
                     "original_expression": "completed_nodes.extend(tier_completed)",
                     "mutated_expression": (
                         "completed_nodes.extend(("
@@ -1450,7 +1755,8 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
                 )
                 assert uncommitted.metadata.completed_nodes == ["seed", "left", "right"]
                 expected_before_resume = ["seed"]
-                expected_peer_calls = [1, 1]
+                expected_resumed_aliases = ["left", "right", "final"]
+                expected_cache_hits = ["left", "right"]
             else:
                 current_head = load_checkpoint_head(run_dir)
                 assert current_head is not None
@@ -1458,7 +1764,8 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
                 assert current_head.sequence_number == observed["sequence_number"]
                 assert str(observed_ref.artifact_id) not in history_refs
                 expected_before_resume = ["seed", "left", "right"]
-                expected_peer_calls = [0, 0]
+                expected_resumed_aliases = ["final"]
+                expected_cache_hits = []
 
             writer.terminate()
             writer.join(timeout=5)
@@ -1522,7 +1829,11 @@ def test_seeded_checkpoint_publication_cuts_reopen_old_or_complete_frontier(
             "right": 2,
             "final": True,
         }
-        assert result["peer_calls"] == expected_peer_calls
+        # Head publication controls the residual plan. Verified trace-cache replay
+        # can avoid producer calls for residual peers without promoting the staged head.
+        assert result["resumed_aliases"] == expected_resumed_aliases
+        assert result["cache_hit_aliases"] == expected_cache_hits
+        assert result["peer_calls"] == [0, 0]
         assert result["final_calls"] == 1
 
 
@@ -1546,14 +1857,30 @@ def _b73_failure_policy_writer(
     store = FileSystemCAS(Path(cas_root))
     bundle_ref = ArtifactRef.model_validate(bundle_ref_payload)
     workflow = _seeded_parallel_workflow(error_policy=error_policy)
-    first = resume_from_checkpoint(
-        store,
-        run_id,
-        workflow=workflow,
-        registry=_seeded_parallel_registry(right_node=FailOnceParallelRightNode()),
-        registry_bundle_ref=bundle_ref,
-        checkpoint_policy="strict",
-    )
+    terminal_status: str | None = None
+    original_finalize = RunContext.finalize
+
+    def interrupt_failed_finalize(
+        run: RunContext, status: str = "ok", **_kwargs: Any
+    ) -> ArtifactRef:
+        nonlocal terminal_status
+        assert run.run_manifest.run_id == run_id
+        terminal_status = status
+        raise ExpectedRunInterruption
+
+    RunContext.finalize = interrupt_failed_finalize
+    try:
+        with pytest.raises(ExpectedRunInterruption):
+            resume_from_checkpoint(
+                store,
+                run_id,
+                workflow=workflow,
+                registry=_seeded_parallel_registry(right_node=FailOnceParallelRightNode()),
+                registry_bundle_ref=bundle_ref,
+                checkpoint_policy="strict",
+            )
+    finally:
+        RunContext.finalize = original_finalize
     resolved = resolve_latest_checkpoint(store, run_id)
     if resolved is None:
         raise AssertionError("writer did not resolve a checkpoint after first attempt")
@@ -1563,7 +1890,7 @@ def _b73_failure_policy_writer(
     result_queue.put(
         {
             "pid": os.getpid(),
-            "report_status": first.report.status,
+            "report_status": terminal_status,
             "sequence_number": head.sequence_number,
             "checkpoint_ref": str(head.checkpoint_ref.artifact_id),
             "completed_nodes": list(checkpoint.metadata.completed_nodes),
@@ -1645,6 +1972,8 @@ def _b73_failure_policy_fresh_reader(
                 "origin_workflow_fingerprint": (checkpoint.metadata.origin_workflow_fingerprint),
             },
             "report_status": resumed.report.status,
+            "resumed_aliases": [record.alias for record in resumed.report.nodes],
+            "cache_hit_aliases": _cache_hit_aliases(cas_root, run_id),
             "resumed_params": dict(resumed.state.params),
             "peer_calls": [ParallelLeftNode.calls, FailOnceParallelRightNode.calls],
             "final_calls": FlakyAfterParallelNode.calls,
@@ -1754,7 +2083,11 @@ def test_parallel_resume_fail_fast_rolls_back_and_continue_commits_only_successf
             "right": 2,
             "final": True,
         }
-        assert retried["peer_calls"] == ([1, 1] if error_policy == "fail_fast" else [0, 1])
+        assert retried["resumed_aliases"] == (
+            ["left", "right", "final"] if error_policy == "fail_fast" else ["right", "final"]
+        )
+        assert retried["cache_hit_aliases"] == (["left"] if error_policy == "fail_fast" else [])
+        assert retried["peer_calls"] == [0, 1]
         assert retried["final_calls"] == 1
         if error_policy == "fail_fast":
             assert before["completed_nodes"] == ["seed"]

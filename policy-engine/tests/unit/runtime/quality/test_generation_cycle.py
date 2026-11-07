@@ -3338,8 +3338,14 @@ def _owner_program_graph_n5_witness(
                 _put_snapshot_with_selected_blob_view,
             )
         with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
-            graph_plan = _program_graph_plan(case_root, store=store).model_copy(
-                update={"variable_map": {"firm_survival": "agents.income"}}
+            graph_plan = _program_graph_plan(case_root, store=store)
+            graph_plan = graph_plan.model_copy(
+                update={
+                    "variable_map": {"firm_survival": "agents.income"},
+                    "outcome_aggregations": {
+                        "firm_survival": graph_plan.outcome_aggregations["mean_income"]
+                    },
+                }
             )
             if select_program_graph_view:
                 graph_manifest = store.get_manifest(graph_plan.program_graph_ref)
@@ -5632,7 +5638,8 @@ def test_joint_port_blocks_context_selected_ncm_owned_by_another_tenant(tmp_path
         diagnostic = observation.diagnostics["request_builder_error"]
         assert "read_manifest" in diagnostic
         assert "tenant-n5-foreign/cell-n5-owner" in diagnostic
-        assert "tenant-n5-owner/cell-n5-owner" in diagnostic
+        # A refusal can name the requesting scope without disclosing ownership.
+        assert "tenant-n5-owner/cell-n5-owner" not in diagnostic
         assert observation.world_model_record is context.world_model_record
     finally:
         store.close()
@@ -5682,13 +5689,38 @@ def test_joint_port_blocks_selected_ncm_with_mismatched_manifest_schema(
 ) -> None:
     """Matching bytes with an unsupported NCM manifest schema cannot enter N5."""
 
+    from polisyos.core.artifacts import ProducerInfo, SchemaInfo
     from polisyos.core.security.tenant_context import tenant_scope
 
-    store, _expected, ncm_ref = _runtime_ncm_fixture_store(tmp_path, schema_version="2.0")
+    store, _expected, stored_ref = _runtime_ncm_fixture_store(tmp_path)
     try:
         problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
-            ncm_ref, artifact_store=store, tmp_path=tmp_path
+            stored_ref, artifact_store=store, tmp_path=tmp_path
         )
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            manifest = store.get_manifest(stored_ref)
+            original_wire = store.get_bytes(stored_ref)
+            # The IR owner correctly refuses an unregistered schema at write
+            # time. A real opaque Core view supplies this adversarial input;
+            # it is not represented as an owner-produced WMR or NCM view.
+            wrong_ref = store.put_bytes(
+                original_wire,
+                ArtifactWriteOptions(
+                    kind=stored_ref.kind,
+                    media_type=stored_ref.media_type,
+                    schema=SchemaInfo(name="ir.ncm_spec", version="2.0"),
+                    producer=ProducerInfo(component=__name__, version="fixture"),
+                    canon=manifest.canon,
+                    tenant_context=manifest.tenant_context,
+                ),
+                return_selected_profile=True,
+            )
+            assert wrong_ref.artifact_id == stored_ref.artifact_id
+            assert wrong_ref.manifest_profile_sha256 is not None
+            assert store.get_bytes(wrong_ref) == original_wire
+            assert store.get_manifest(wrong_ref).artifact_schema.version == "2.0"
+        wrong_world = _record_with_selected_ncm_view(context.world_model_record, wrong_ref)
+        context, candidate = _rebind_owner_cycle_record(context, candidate, wrong_world)
         port = JointSimulationPort(
             repo_root=tmp_path / "empty-repo",
             cycle_substrate_context=context,
@@ -7508,11 +7540,10 @@ def test_generation_cycle_revision_scope_preserves_problem_population_and_model(
         ) != generation_cycle_module._generation_cycle_revision_problem_scope_projection(changed)
 
 
-@_requires_owner_catalog
 def test_cycle_context_revision_rejects_changed_problem_scope() -> None:
     """Population, model, and jurisdiction edits cannot ride an N6 hint rebind."""
 
-    problem, context, _candidate = _canonical_strict_world_case()
+    problem, context = _lane0_cycle_context()
     controller = GenerationCycleController(cycle_substrate_context=context)
     revised = problem.model_copy(
         update={
@@ -7600,7 +7631,6 @@ def test_cycle_context_revision_rejects_stale_context_content() -> None:
 
 
 @pytest.mark.asyncio
-@_requires_owner_catalog
 async def test_cycle_context_revision_refuses_without_verified_job_scope(
     tmp_path: Path,
 ) -> None:
@@ -7616,9 +7646,23 @@ async def test_cycle_context_revision_refuses_without_verified_job_scope(
     )
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContextArtifactOwner,
+        build_cycle_substrate_context,
     )
 
-    problem, context, _candidate = _canonical_strict_world_case()
+    problem, context = _lane0_cycle_context()
+    context = build_cycle_substrate_context(
+        design_problem_ref=context.design_problem_ref,
+        domain=context.domain,
+        substrate_registry=context.substrate_registry,
+        selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+        world_model_record=context.world_model_record,
+        intervention_substrate=context.intervention_substrate,
+        candidate_levers=(),
+        transport_context=context.transport_context,
+        source_pack_content_hash=context.source_pack_content_hash,
+        substrate_input_content_hash=context.substrate_input_content_hash,
+        source_profile=context.source_profile,
+    )
     artifact_store = FileSystemCAS(
         tmp_path / "cycle-context-foreign-job-cas",
         ownership_enforced=True,
@@ -9563,6 +9607,272 @@ async def test_terminal_projection_preserves_stop_budget_and_abstention(
     )
 
 
+def test_value_gate_receipt_replays_persisted_outer_set_width_checksum() -> None:
+    """Persisted checksums, typed values, and live mappings retain distinct input paths."""
+
+    receipt = _ready_value_observation("candidate_value_outer_set_replay").value_receipt
+    assert receipt is not None
+    persisted = receipt.model_dump(mode="json")
+    assert persisted["value_outer_set"]["width"] == [0.0]
+
+    reopened = ValueGateReceipt.model_validate(persisted)
+    assert reopened == receipt
+
+    typed_outer_set = {
+        **persisted,
+        "value_outer_set": receipt.value_outer_set,
+    }
+    assert ValueGateReceipt.model_validate(typed_outer_set) == receipt
+
+    live_mapping = copy.deepcopy(persisted)
+    live_mapping["value_outer_set"].pop("width")
+    assert ValueGateReceipt.model_validate(live_mapping) == receipt
+
+    wrong_width = copy.deepcopy(persisted)
+    wrong_width["value_outer_set"]["width"] = [0.1]
+    with pytest.raises(ValueError, match="value_outer_set_width_tampered"):
+        ValueGateReceipt.model_validate(wrong_width)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("grounding_port", "value_port", "expected_terminal"),
+    [
+        (_StableShadowGrounding, _ReadyValuePort, "frontier_stable"),
+        (_StableShadowGrounding, _BudgetExhaustedValuePort, "budget_exhausted"),
+        (_StableShadowGrounding, PendingN8ValuePort, "grounded_abstention"),
+    ],
+    ids=("frontier-stable", "budget-exhausted", "grounded-abstention"),
+)
+async def test_terminal_history_is_persisted_and_visible_without_currentness(
+    tmp_path: Path,
+    grounding_port: type[Any],
+    value_port: type[Any],
+    expected_terminal: str,
+) -> None:
+    """Actual N6 stop rows survive CAS, compiled-run replay, and the route DTO."""
+
+    from polisyos.core.artifacts import read_core_json_artifact
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.contracts.runtime import RunGenericCycleSimulationProjection
+    from polisyos.runtime.http.routes.runs import _generic_n6_cycle_history_fields
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+        CompiledRecursiveGenerationCycleRun,
+    )
+    from polisyos.runtime.quality.design_axes.coupling_composition import (
+        derive_recursive_design_graph,
+    )
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RecursiveCycleBudget,
+        RecursiveGenerationCycleController,
+    )
+
+    problem = _problem(f"b29_terminal_history_{expected_terminal}")
+    root_ref = f"design://b29/terminal-history/{expected_terminal}"
+    graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="repo://policyos/test/cyc05-terminal-history",
+    )
+
+    def cycle_controller_factory(
+        _node_ref: str,
+        _problem_input: DesignProblem,
+    ) -> GenerationCycleController:
+        return GenerationCycleController(
+            generation_port=_CounterexampleAwareGenerator(),
+            grounding_port=grounding_port(),
+            value_port=value_port(),
+        )
+
+    cas_path = tmp_path / f"cyc05-{expected_terminal}-cas"
+    writer = FileSystemCAS(cas_path)
+    recursive_controller = RecursiveGenerationCycleController.for_contract_testing(
+        cycle_controller_factory=cycle_controller_factory,
+        repo_root=REPO_ROOT,
+        artifact_store=writer,
+    )
+    recursive_run = await recursive_controller.run(
+        graph,
+        problems_by_node={root_ref: problem},
+        budget_state=_budget(),
+        recursive_budget=RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        ),
+    )
+    assert recursive_run.terminal.kind.value == expected_terminal
+    assert len(recursive_run.leaf_nodes) == 1
+    assert recursive_run.leaf_nodes[0].cycle_run is not None
+
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    compiled_payload = {
+        "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+        "design_problem_ref": problem_ref,
+        "design_problem": problem.model_dump(mode="json"),
+        "cycle_substrate_context_ref": None,
+        "recursive_run": recursive_run.model_dump(mode="json", exclude={"leaf_nodes"}),
+    }
+    compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+        {
+            **compiled_payload,
+            "recursive_run": recursive_run,
+            "content_hash": gy_content_hash(compiled_payload),
+        }
+    )
+    compiled_ref = writer.put_json(
+        compiled.model_dump(mode="json"),
+        ArtifactWriteOptions(
+            kind="runtime.compiled_recursive_generation_cycle",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+                version="1.0",
+            ),
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+    reader = FileSystemCAS(cas_path)
+    assert reader is not writer
+    assert reader.verify(compiled_ref).ok
+    persisted = read_core_json_artifact(reader, compiled_ref).value
+    reopened = CompiledRecursiveGenerationCycleRun.model_validate(persisted)
+    history_fields = _generic_n6_cycle_history_fields(reopened.recursive_run)
+    projection = RunGenericCycleSimulationProjection.model_validate(
+        {
+            "schema_version": "policyos.runtime.run_generic_cycle_simulation_projection.v3",
+            "run_id": reopened.recursive_run.run_id,
+            "artifact_status": "resolved",
+            "source_ref": compiled_ref,
+            "source_content_hash": reopened.content_hash,
+            "child_profile_status": "not_attempted",
+            **history_fields,
+        }
+    )
+
+    assert projection.n6_cycle_history_status == "resolved"
+    assert projection.currentness_status == "not_established"
+    assert projection.authority_purpose == "cycle_input_candidate_only"
+    assert projection.publication_authority is False
+    assert len(projection.n6_cycle_history) == 1
+    history = projection.n6_cycle_history[0]
+    assert history.terminal_kind == expected_terminal
+    assert history.refinement_decision == (
+        "abstain" if expected_terminal == "grounded_abstention" else "stop"
+    )
+    assert history.search_iteration_status == (
+        "abstained" if expected_terminal == "grounded_abstention" else "stopped"
+    )
+    if expected_terminal == "budget_exhausted":
+        assert history.value_authority_blockers == ("budget_exhausted_for_next_level",)
+
+    history_model = core_contracts.RunGenericCycleSimulationN6CycleHistoryEntry
+    decision_mutation = history.model_dump(mode="json")
+    decision_mutation["refinement_decision"] = (
+        "abstain" if history.refinement_decision == "stop" else "stop"
+    )
+    with pytest.raises(ValueError, match="run_generic_n6_stop_projection_mismatch"):
+        history_model.model_validate(decision_mutation)
+
+    status_mutation = history.model_dump(mode="json")
+    status_mutation["search_iteration_status"] = (
+        "abstained" if history.search_iteration_status == "stopped" else "stopped"
+    )
+    with pytest.raises(ValueError, match="run_generic_n6_stop_projection_mismatch"):
+        history_model.model_validate(status_mutation)
+
+
+def test_historical_partial_terminal_row_remains_candidate_only(tmp_path: Path) -> None:
+    """The typed history consumer keeps a partial stop distinct without minting authority."""
+
+    from polisyos.core.artifacts import read_core_json_artifact
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.contracts.runtime import RunGenericCycleSimulationProjection
+    from polisyos.pdc import SearchTerminalKind, SearchTerminalState
+
+    partial_terminal = SearchTerminalState(
+        kind=SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE,
+        reason="Historical partial result; current deployment authority is not established.",
+    )
+    history = core_contracts.RunGenericCycleSimulationN6CycleHistoryEntry.model_validate(
+        {
+            "node_ref": "design://b29/historical-partial",
+            "cycle_index": 0,
+            "design_problem_ref": "sha256:" + "1" * 64,
+            "selected_candidate_ref": "candidate://historical-partial",
+            "selected_candidate_content_hash": "sha256:" + "2" * 64,
+            "generation_cycle_run_terminal_status": "completed",
+            "terminal_kind": partial_terminal.kind.value,
+            "refinement_decision": core_contracts.n6_stop_projection_decision(
+                partial_terminal.kind.value
+            ),
+            "search_iteration_status": "stopped",
+            "grounding_status": "grounded_shadow",
+            "grounding_current_valid": False,
+            "value_status": "value_conditional",
+            "value_decision_grade": "low",
+            "value_authority_blockers": ("interaction_sampling_not_established",),
+            "voi_next_action": "stop",
+        }
+    )
+
+    cas_path = tmp_path / "cyc05-historical-partial-cas"
+    writer = FileSystemCAS(cas_path)
+    history_ref = writer.put_json(
+        history.model_dump(mode="json"),
+        ArtifactWriteOptions(
+            kind="test.e02.cyc05.historical_n6_history_row",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.runtime.RunGenericCycleSimulationN6CycleHistoryEntry",
+                version="1.0",
+            ),
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    reader = FileSystemCAS(cas_path)
+    assert reader is not writer
+    assert reader.verify(history_ref).ok
+    reopened = core_contracts.RunGenericCycleSimulationN6CycleHistoryEntry.model_validate(
+        read_core_json_artifact(reader, history_ref).value
+    )
+    projection = RunGenericCycleSimulationProjection.model_validate(
+        {
+            "schema_version": "policyos.runtime.run_generic_cycle_simulation_projection.v3",
+            "run_id": "historical-partial-candidate-only",
+            "artifact_status": "resolved",
+            "source_ref": history_ref,
+            "source_content_hash": gy_content_hash(history.model_dump(mode="json")),
+            "child_profile_status": "not_attempted",
+            "n6_cycle_history_status": "resolved",
+            "n6_cycle_history": (reopened,),
+        }
+    )
+    reopened_projection = RunGenericCycleSimulationProjection.model_validate(
+        projection.model_dump(mode="json")
+    )
+
+    assert reopened_projection.currentness_status == "not_established"
+    assert reopened_projection.authority_purpose == "cycle_input_candidate_only"
+    assert reopened_projection.publication_authority is False
+    assert len(reopened_projection.n6_cycle_history) == 1
+    projected_partial = reopened_projection.n6_cycle_history[0]
+    assert projected_partial.terminal_kind == "grounded_partial_admissible"
+    assert projected_partial.refinement_decision == "stop"
+    assert projected_partial.search_iteration_status == "stopped"
+    assert projected_partial.grounding_current_valid is False
+    assert projected_partial.value_status == "value_conditional"
+    # This is a typed historical DTO control, not evidence that the present N6
+    # controller produced a partial terminal or that it is deployment-current.
+
+
 @pytest.mark.asyncio
 async def test_voi_scheduler_changes_next_action_under_varying_budget_and_terminal() -> None:
     controller = GenerationCycleController(
@@ -11370,7 +11680,10 @@ async def test_n7_unscheduled_source_gap_stays_uncosted_candidate(
     n7_complete_catalog_source: tuple[Path, Any],
 ) -> None:
     """An unscheduled source gap remains a candidate, without a fabricated cost."""
-    from polisyos.runtime.quality.acquisition_planner import load_acquisition_planner_report
+    from polisyos.runtime.quality.acquisition_planner import (
+        bind_acquisition_planner_report,
+        load_acquisition_planner_report,
+    )
 
     source_root, catalog_source = n7_complete_catalog_source
     controller = GenerationCycleController(
@@ -11404,6 +11717,57 @@ async def test_n7_unscheduled_source_gap_stays_uncosted_candidate(
     )
     assert len(report.acquisition_records) == 1
     assert source_gap.requirement_gap_id in report.acquisition_records[0].scenario_requirement_refs
+    assert generation_cycle_module._n7_generic_fallback_source_record_matches(
+        source_gap, report.acquisition_records[0]
+    )
+    assert report.planning_context_hash is not None
+    valid_record = report.acquisition_records[0]
+    malformed_duplicates = (
+        valid_record.model_copy(
+            update={
+                "acquisition_id": valid_record.acquisition_id + ":wrong-data-family",
+                "requirement_family": "policy_requirement",
+            }
+        ),
+        valid_record.model_copy(
+            update={
+                "acquisition_id": valid_record.acquisition_id + ":missing-compiled-ref",
+                "compiled_requirement_ref": None,
+            }
+        ),
+        valid_record.model_copy(
+            update={
+                "acquisition_id": valid_record.acquisition_id + ":missing-family-ref",
+                "missing_requirement_fields": tuple(
+                    field
+                    for field in valid_record.missing_requirement_fields
+                    if field != "required_data_family:firm_survival"
+                ),
+            }
+        ),
+    )
+    for malformed in malformed_duplicates:
+        assert source_gap.requirement_gap_id in malformed.scenario_requirement_refs
+        assert not generation_cycle_module._n7_generic_fallback_source_record_matches(
+            source_gap, malformed
+        )
+        malformed_report = report.model_copy(
+            update={
+                "acquisition_records": (*report.acquisition_records, malformed),
+                "planning_context_hash": None,
+                "planning_binding_hash": None,
+            }
+        )
+        malformed_report = bind_acquisition_planner_report(
+            malformed_report,
+            planning_context_hash=report.planning_context_hash,
+        )
+        malformed_cycle_payload = cycle.model_dump(mode="json")
+        malformed_cycle_payload["acquisition_routing_report"] = malformed_report.model_dump(
+            mode="json"
+        )
+        with pytest.raises(ValueError, match="acquisition_route_requirement_mismatch"):
+            generation_cycle_module.GenerationCycleRecord.model_validate(malformed_cycle_payload)
     assert cycle.counterexample.diagnostic.code == (
         "n6.acquisition.n7_execution_scope_not_established"
     )
@@ -11489,18 +11853,77 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.data_requirement import DataRequirementCompilationReport
+    from polisyos.runtime.quality.acquisition_planner import (
+        load_acquisition_planner_report,
+        validate_persisted_data_requirement_compilation_report,
+    )
     from tests._helpers.semantic_epoch_native import _real_epoch_scenario
     from tests.unit.runtime.quality.test_acquisition_executor import (
         _activate_real_epoch_scenario,
     )
 
     problem = _problem("ds15_active_overlay_reentry")
+    source_cas_path = tmp_path / ".tmp/active-overlay-n7-cas"
+    source_store = FileSystemCAS(source_cas_path)
     controller = GenerationCycleController(
         generation_port=_CgfGenerationPort(target_world_slots=("cells.distress_score",)),
         value_port=_OverlayDataGapValuePort(),
+        authority_scope="contract_testing",
+        repo_root=REPO_ROOT,
+        artifact_store=source_store,
     )
     source_run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
     source_cycle = source_run.cycles[0]
+    assert source_cycle.acquisition_routing_report is not None, (
+        source_cycle.counterexample.diagnostic.model_dump(mode="json")
+    )
+    assert source_cycle.acquisition_routing_report_ref is not None
+    source_gap = source_cycle.value_port.acquisition_requirement
+    assert source_gap is not None
+    assert source_gap.metadata["availability"]["variable_id"] == "cells.distress_score"
+
+    fresh_source_store = FileSystemCAS.open_existing_read_only(source_cas_path)
+    persisted_report = load_acquisition_planner_report(
+        fresh_source_store,
+        source_cycle.acquisition_routing_report_ref,
+    )
+    assert persisted_report == source_cycle.acquisition_routing_report
+    basis_binding = persisted_report.requirement_basis_binding
+    assert basis_binding is not None
+    assert (
+        validate_persisted_data_requirement_compilation_report(
+            fresh_source_store,
+            basis_binding,
+            require_selected_writer_profile=True,
+        )
+        == ()
+    )
+    compiler_report = DataRequirementCompilationReport.model_validate(
+        load_core_json_artifact(fresh_source_store, basis_binding.compiler_report_ref)
+    )
+    assert compiler_report.scenario_id == problem.design_problem_id
+    matching_records = tuple(
+        row
+        for row in persisted_report.acquisition_records
+        if source_gap.requirement_gap_id in row.scenario_requirement_refs
+    )
+    assert len(matching_records) == 1
+    distress_record = matching_records[0]
+    assert distress_record.compiled_requirement_ref is not None
+    assert distress_record.missing_requirement_fields == (
+        "required_data_family:cells.distress_score",
+    )
+    matching_specs = tuple(
+        spec
+        for spec in compiler_report.specs
+        if spec.requirement_id == distress_record.compiled_requirement_ref
+    )
+    assert len(matching_specs) == 1
+    assert matching_specs[0].required_data_families == ("cells.distress_score",)
+    assert source_cycle.acquisition_receipt is None
+
     scenario = _real_epoch_scenario(tmp_path / "epoch")
     _production, activated = _activate_real_epoch_scenario(scenario)
     observation_projection = scenario.overlay.read_activated_semantic_epoch_observations(
@@ -13743,6 +14166,27 @@ def test_n7_malformed_construct_alias_is_typed_refused(
 
     assert raised.value.code == "n7_cycle_substrate_context_invalid"
     assert "profile_constructs_wrong_type" in str(raised.value)
+
+
+@pytest.mark.parametrize(
+    ("domain", "reason"),
+    [("", "domain_empty"), (None, "domain_wrong_type")],
+)
+def test_n7_reports_compiler_domain_refusal_without_changing_candidate_request(
+    domain: object,
+    reason: str,
+) -> None:
+    """Malformed internal domain input remains an addressable compiler refusal."""
+    problem = _problem("n7_invalid_domain").model_copy(update={"domain": domain})
+    request = {"required_data_families": ["production_msme_panel"]}
+    with pytest.raises(generation_cycle_module.GenerationCycleError) as raised:
+        GenerationCycleController(authority_scope="contract_testing")._n7_data_requirement_basis(
+            problem, acquisition_request=request
+        )
+    assert raised.value.code == "n7_scenario_domain_invalid"
+    assert raised.value.source_refusal_code == "scenario_domain_input_invalid"
+    assert f"scenario_domain_input_invalid:{reason}:domain" in str(raised.value)
+    assert request == {"required_data_families": ["production_msme_panel"]}
 
 
 def test_n7_candidate_only_proposal_does_not_suppress_scope_fallback() -> None:

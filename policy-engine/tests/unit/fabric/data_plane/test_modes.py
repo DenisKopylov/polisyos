@@ -25,6 +25,31 @@ def _fake_evidence_ref() -> SimpleNamespace:
     return SimpleNamespace(artifact_id=SimpleNamespace(hex="evidence-ref"))
 
 
+def _use_lifecycle_stream_profile(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep legacy transport-wiring fixtures outside source-owned dedupe claims."""
+    from dataclasses import replace
+
+    from polisyos.fabric.data_plane import modes
+    from polisyos.fabric.quality.processing_guarantees import (
+        IdempotencyDedupePolicy,
+        ProcessingGuarantee,
+        ProcessingGuaranteeContract,
+    )
+
+    original_options = modes._stream_runtime_options_from_manifest
+
+    def lifecycle_options(*args: Any, **kwargs: Any):
+        return replace(
+            original_options(*args, **kwargs),
+            processing_contract=ProcessingGuaranteeContract(
+                guarantee=ProcessingGuarantee.AT_LEAST_ONCE,
+                idempotency=IdempotencyDedupePolicy(enabled=False),
+            ),
+        )
+
+    monkeypatch.setattr(modes, "_stream_runtime_options_from_manifest", lifecycle_options)
+
+
 def test_cursor_aware_registry_preserves_omitted_and_explicit_arguments() -> None:
     """Default-valued arguments retain presence when forwarded to the owner."""
     from polisyos.fabric.data_plane.modes import (
@@ -46,7 +71,7 @@ def test_cursor_aware_registry_preserves_omitted_and_explicit_arguments() -> Non
             connection_calls.append((args, dict(kwargs)))
             return object()
 
-    proxy = _CursorAwareRegistry(cast("_BatchConnectorRegistry", RecordingRegistry()), {})
+    proxy = _CursorAwareRegistry(cast("_BatchConnectorRegistry", RecordingRegistry()), {}, {})
     proxy.get("omitted")
     proxy.get(
         "explicit-defaults",
@@ -133,7 +158,7 @@ def test_cursor_aware_registry_keeps_narrow_sibling_defaults_compatible() -> Non
             del connector_id
             return object()
 
-    proxy = _CursorAwareRegistry(cast("_BatchConnectorRegistry", NarrowSiblingRegistry()), {})
+    proxy = _CursorAwareRegistry(cast("_BatchConnectorRegistry", NarrowSiblingRegistry()), {}, {})
     proxy.get("sibling")
     asyncio.run(proxy.get_connection("sibling"))
 
@@ -457,13 +482,35 @@ class _ReplayStoreStub:
     def __init__(self, store: object) -> None:
         self._store = store
 
-    def save_record_session(self, session: object) -> SimpleNamespace:
-        del session
-        return SimpleNamespace(artifact_id=ArtifactID.model_validate("sha256:" + "b" * 64))
+    def save_record_session(self, session: object, **kwargs: object):
+        from polisyos.core.artifacts import PutOptions, SchemaInfo
+
+        del session, kwargs
+        return self._store.put_json(
+            {"session_id": "bridge-record"},
+            PutOptions(
+                kind="fabric.record_session",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.fabric.RecordSession", version="2.0"),
+            ),
+            return_selected_profile=True,
+        )
+
+    def resolve_record_session_ref(self, selector: object):
+        from polisyos.core.artifacts import ArtifactRef
+
+        return ArtifactRef(
+            artifact_id=ArtifactID.model_validate(selector),
+            kind="fabric.record_session",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "a" * 64,
+        )
 
     def load_record_session(self, artifact_id: object) -> object:
+        from polisyos.fabric.data_plane.replay_store import RecordSession
+
         del artifact_id
-        return {"session": "replay"}
+        return RecordSession(session_id="replay")
 
     def build_replay_fixture_dir(self, session: object, fixture_dir: object) -> None:
         del session, fixture_dir
@@ -546,7 +593,8 @@ def test_run_record_mode_uses_shared_blocking_bridge(
     else:
         assert observed_config is connection_config_input
     assert result.mode_effective == "record"
-    assert record_ref == "sha256:" + "b" * 64
+    assert record_ref == str(result.record_session_selected_ref.artifact_id)
+    assert result.record_session_ref == record_ref
 
 
 @pytest.mark.parametrize("config_kind", ["mapping", "subclass", "none"])
@@ -754,8 +802,11 @@ def _make_real_replay_case(tmp_path, fixture_body: bytes | None):
             )
 
     class _Registry:
-        def get(self, requested_connector_id: str) -> _HTTPFixtureConnector:
+        def get(
+            self, requested_connector_id: str, *, enable_cache: bool = True
+        ) -> _HTTPFixtureConnector:
             assert requested_connector_id == connector_id
+            assert not enable_cache
             return _HTTPFixtureConnector()
 
         async def get_connection(
@@ -912,12 +963,16 @@ def test_run_streaming_windowed_legacy_path_uses_async_store_adapter(
     from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
     from polisyos.fabric.data_plane import modes as modes_mod
 
+    _use_lifecycle_stream_profile(monkeypatch)
+
     seen_kinds: list[str] = []
     original_put_json = AsyncArtifactStoreAdapter.put_json
 
-    async def _tracked_put_json(self, obj: object, opts: Any, canon_spec: Any = None):
+    async def _tracked_put_json(
+        self, obj: object, opts: Any, canon_spec: Any = None, **kwargs: Any
+    ):
         seen_kinds.append(str(opts.kind))
-        return await original_put_json(self, obj, opts, canon_spec=canon_spec)
+        return await original_put_json(self, obj, opts, canon_spec=canon_spec, **kwargs)
 
     async def _fake_fetch_stream_for_dataset_async(
         **kwargs: Any,
@@ -965,12 +1020,16 @@ def test_run_streaming_windowed_persists_manifest_and_snapshot_via_async_store_a
     from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
     from polisyos.fabric.data_plane import modes as modes_mod
 
+    _use_lifecycle_stream_profile(monkeypatch)
+
     seen_kinds: list[str] = []
     original_put_json = AsyncArtifactStoreAdapter.put_json
 
-    async def _tracked_put_json(self, obj: object, opts: Any, canon_spec: Any = None):
+    async def _tracked_put_json(
+        self, obj: object, opts: Any, canon_spec: Any = None, **kwargs: Any
+    ):
         seen_kinds.append(str(opts.kind))
-        return await original_put_json(self, obj, opts, canon_spec=canon_spec)
+        return await original_put_json(self, obj, opts, canon_spec=canon_spec, **kwargs)
 
     async def _fake_fetch_stream_for_dataset_async(
         **kwargs: Any,
@@ -1017,6 +1076,8 @@ def test_run_streaming_windowed_legacy_path_uses_async_fetch_helper(
     tmp_path,
 ) -> None:
     from polisyos.fabric.data_plane import modes as modes_mod
+
+    _use_lifecycle_stream_profile(monkeypatch)
 
     async_calls: list[tuple[str, str]] = []
 
@@ -1467,18 +1528,23 @@ def test_run_streaming_windowed_consumes_registered_and_legacy_result_summaries(
     from polisyos.fabric.data_plane import modes as modes_mod
     from polisyos.fabric.data_plane import streaming as streaming_mod
     from polisyos.fabric.data_plane.streaming import StreamDatasetRunResult
+    from polisyos.fabric.ingestion.source_collection import source_namespace
+
+    _use_lifecycle_stream_profile(monkeypatch)
 
     captured_manifests: list[dict[str, object]] = []
     registry = object()
     monkeypatch.setattr(
         modes_mod,
         "_resolve_ingestion_dependencies",
-        lambda _dependencies: SimpleNamespace(registry=registry),
+        lambda _dependencies: SimpleNamespace(registry=registry, source_progress_readers=()),
     )
     monkeypatch.setattr(
         modes_mod,
         "_resolve_mode_sidecar_scope",
-        lambda *_args, **_kwargs: SimpleNamespace(cursor_index_root=tmp_path / "cursor"),
+        lambda *_args, **_kwargs: SimpleNamespace(
+            cursor_index_root=tmp_path / "cursor", tenant_id=None
+        ),
     )
     monkeypatch.setattr(modes_mod, "_resolve_mode_store", lambda *_args, **_kwargs: object())
     monkeypatch.setattr(
@@ -1528,6 +1594,15 @@ def test_run_streaming_windowed_consumes_registered_and_legacy_result_summaries(
         )
 
     monkeypatch.setattr(streaming_mod, "process_stream_dataset", _registered_result)
+    # This test isolates summary composition. Selected-basis admission is
+    # exercised with actual produced windows in test_streaming_reads.py.
+    admitted_windows: list[object] = []
+
+    def _admit_window(_store: object, selected_ref: object) -> dict[str, object]:
+        admitted_windows.append(selected_ref)
+        return {}
+
+    monkeypatch.setattr(streaming_mod, "read_stream_window", _admit_window)
     monkeypatch.setattr(
         modes_mod,
         "_run_legacy_stream_dataset_from_fetch_async",
@@ -1571,6 +1646,7 @@ def test_run_streaming_windowed_consumes_registered_and_legacy_result_summaries(
 
     assert result.mode_effective == "streaming_windowed"
     assert result.warnings == ["registered result", "legacy result"]
+    assert len(admitted_windows) == 3
     assert result.cursor_ref == "legacy-cursor"
     assert captured_manifests == [
         {
@@ -1585,6 +1661,17 @@ def test_run_streaming_windowed_consumes_registered_and_legacy_result_summaries(
             "total_windows": 3,
             "total_cdc_events": 1,
             "quarantined_rows": 3,
+            "source_progress_scopes": {
+                source_namespace("registered.stream", "events"): {
+                    "status": "not_established",
+                    "admission_scope": "candidate_only",
+                },
+                source_namespace("legacy.stream", "events"): {
+                    "status": "not_established",
+                    "admission_scope": "candidate_only",
+                },
+            },
+            "production_currentness": "not_established",
         }
     ]
 

@@ -1,0 +1,338 @@
+[
+  {
+    "packet": "CYC-01",
+    "lane": "LANE-01",
+    "verdict": "bounded qualification",
+    "technical_reasoning": "Правильная точка ремонта — ordinary HTTP/job→postcompile leaf context→existing generation cycle/N5. Нельзя заполнять producer-required context caller constants или проходить только preconfigured test entry. Сохранять existing compiler/gateway, не вводить universal request engine.",
+    "capability_and_free_grow": "Полезность — один фактический модельный расчёт обычного запроса и сохранённые ограничения. Второй materially different profile должен изменить variable/outcome/time/model resource, а не UUID. Подготовка fixtures раскрывается; compatible resource через общий путь, не case dispatch.",
+    "test_validity": "Served fixture сейчас наблюдает настоящий producer, но selected candidate-only path имеет N8/N9 traps: это полезный N5 witness, не full N8/N9 acceptance. Проверить ordinary request без специального safety_attempt_context, then fresh N5/N8 reader на разрешённом conditional path. Always-refuse не проходит positive.",
+    "cost_and_library_decision": "Переиспользовать HTTP/compiler/N5 tests; lightweight transport/LLM double допустим, numeric/source owner — нет. Не запускать весь CI на каждую ветвь.",
+    "preservation_and_limits": "Loaded model и request basis связаны; synthetic K_sim не empirical forecast и не authority. Actual actor/tenant prerequisites нельзя обойти ради green.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "REQ-01",
+    "lane": "LANE-01",
+    "verdict": "retain",
+    "technical_reasoning": "Общий normalizer вместо локальных alias tables — верно. Unknown domain сохраняется CUSTOM/raw, а не education_policy→fiscal default. Compiler-bound requirement set требует census top-level constructs и DEC, не произвольного счётчика user syntax.",
+    "capability_and_free_grow": "Способность — принять новый смысл без переименования в известный домен, сохранить unresolved и позволить resolver получить ресурс. Это open-world input representation, не обещание универсального метода для любого текста.",
+    "test_validity": "Тестировать absent/custom/explicit-domain, эквивалентные aliases, unknown_construct и raw spec unbound. Неправильный normalizer, всегда выдающий CUSTOM, проходит unknown-negative, но ломает supported positive; обе ветви нужны. Independent intent fixture должен отличать label от semantic denominator.",
+    "cost_and_library_decision": "Existing compiler/types/resolver достаточно; NLP framework/library swap не решает ontology/denominator. Normalize once на ownership boundary.",
+    "preservation_and_limits": "Не превращать unresolved в silent empty requirements; не запретить useful partial interpretation. Source/status counts и pre-existing compiler semantics сохранять.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "CYC-03",
+    "lane": "LANE-01",
+    "verdict": "retain",
+    "technical_reasoning": "Сильный contract: full semantic basis для numerical reuse, current cheap gates для каждого re-entry. Grammar hints — не semantic basis; current occurrence должен обновляться даже при worsening, immutable historical result остаётся доступным.",
+    "capability_and_free_grow": "A→B→B→B→C демонстрирует развитие знания без лишнего вычисления на равном B и без stale reuse по C. Переносимая replica требует собственных source refs, не same hash as proof.",
+    "test_validity": "Содержательный oracle — measured producer-call counts плюс unchanged raw result и changed current decision. Wrong whole-ticket cache может пройти numerical equality, поэтому повторить budget/access/epoch gate при unchanged B; perturb one true basis field triggers actual reexecution.",
+    "cost_and_library_decision": "Один existing basis/cache owner дешевле второго planner cache. Counter дорогой работы отделён от current validation calls.",
+    "preservation_and_limits": "Нельзя history overwrite или объявить latest=best ever. Authority unknown ограничивает dependent act, не читабельность истории.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "ACQ-01",
+    "lane": "LANE-01",
+    "verdict": "bounded qualification",
+    "technical_reasoning": "Actual requirement/planner refs→selected source reread/admission→DataForge/Fabric/Foundry WMR→N5 — правильная producer chain. Multirow source требует units/time/population/aggregation; брать первую строку или mean arbitrary vector недопустимо.",
+    "capability_and_free_grow": "Новый compatible resource должен изменить исполняемую модель/оценку через contract. Второй domain LA-046 нужен для transfer; нельзя считать новый source label при прежнем hardcoded coefficient свободным ростом.",
+    "test_validity": "Сохранять actual CAS/owner read, сравнить values/model lineage before/after acquisition. Concurrent stale completion не publish current; malformed source не уничтожает независимый useful branch. Oracle formula следует из fixture rows и law, не product adapter.",
+    "cost_and_library_decision": "Bound acquisition calls/bytes/rows; no paid provider required. Existing bridges лучше нового data bus. Изначально согласованный cost budget общий, retry не бесплатен.",
+    "preservation_and_limits": "Источник доступен только authorised test tenant; source admission не автоматически empirical transportability. Missing aggregation — explicit unresolved.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "CYC-04",
+    "lane": "LANE-01",
+    "verdict": "retain",
+    "technical_reasoning": "Правильно различены late candidate-local failure с bounded next viable candidate и global resource/authority failure. SIM01 alternate engine — иной уровень fallback, дублировать queue owner не надо. Value of information должен учитывать реальные cost/origin и declared reserve.",
+    "capability_and_free_grow": "Полезность — система продолжает подходящий следующий шаг вместо stale winner или тотального отказа. Рабочая alternative и информативный probe под ресурсом показывают инициативу, но не научную optimality произвольного ROI.",
+    "test_validity": "Positive late-failure→second candidate, negative global cap→zero extra work; mutate both later N5/N8 eligibility и value-proxy. Always choose first/always explore/always stop должны различаться. Cost source отсутствует — не выдумывать0USD.",
+    "cost_and_library_decision": "Bounded queue/candidate scan, explicit exploration reserve only if configured. Не привлекать reinforcement-learning planner для локального selection repair.",
+    "preservation_and_limits": "Нет automatic cap bypass; уже произведённый useful result и continuation reason сохраняются; measured wall time и monetary estimate не взаимозаменяемы.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "CYC-02",
+    "lane": "LANE-01",
+    "verdict": "bounded qualification",
+    "technical_reasoning": "Legacy N5 v1–3 read и fresh conditional N8 view заслуживают отдельной acceptance, а не переписывания legacy serializer. Unsupported interaction marker и selected-view signature repair сохраняют честную ограниченность.",
+    "capability_and_free_grow": "Полезный conditional result должен доходить до пользователя даже без empirical/authority upgrade. Same-data fresh consumer доказывает custody+presentation, но не causality модели.",
+    "test_validity": "Пройти actual persisted current/legacy result и процесс без shared in-memory objects. Wrong view deriving all values from latest caller context не поймается roundtrip одного объекта; менять context/selected ref и перечитывать old snapshot.",
+    "cost_and_library_decision": "Existing projection/reader reuse; нет причины мигрировать все artifacts или numerical engine.",
+    "preservation_and_limits": "No empirical/N9 inference из K_sim. Missing/unsupported поле остаётся structured limitation, не fabricated0.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "CYC-05",
+    "lane": "LANE-01",
+    "verdict": "bounded qualification",
+    "technical_reasoning": "Child-denominator/cost/frontier stop contracts и actual build readiness issuer — правильное разделение. Authored compound требует joint SIM03, alternatives не compound. Existing confidence_ledger назначает evidence; self-manifest/PASS constant не issuer.",
+    "capability_and_free_grow": "Способность — сохранить полезный partial frontier, объяснить ресурсную остановку и иметь действительный технический readiness route. Это не mandatory policy enactment и не institutional authority.",
+    "test_validity": "Положительный loaded-build issuer→current verifier, negative stale/unappointed/changed baseline; budget refusal сохраняет child result, не success empty frontier. Joint authored alternatives различить по model result, не двум merged JSONs. Базовый dependency LANE12 сохраняется.",
+    "cost_and_library_decision": "Exact small child census, actual calls/time resource. Не превращать каждую tiny change в distributed attestation service.",
+    "preservation_and_limits": "Budget stop vs abstain vs scientific exhaustion различны; readiness permit не FUN03 promotion permit.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "SIM-01",
+    "lane": "LANE-01",
+    "verdict": "retain",
+    "technical_reasoning": "Engine-owned required input validation до selection и exact supported plan identity — точный repair. Optional defaults должны оставаться optional; missing required vector нельзя прятать generated0 или exception broad fallback.",
+    "capability_and_free_grow": "Fallback полезен только если alternate actual producer вычисляет тот же declared estimand, а не выдаёт произвольную finite scalar. Модель/units/horizon obligations должны пережить смену engine.",
+    "test_validity": "Primary unavailable + actual supported alternate positive; missing required input before expensive call; wrong alternate estimand rejected. Реальный registry/plan resolver и producer не stub. Cases with valid optional omission не должны отказываться.",
+    "cost_and_library_decision": "Cheap validation экономит expensive native work; existing engine registry достаточен. Не делать universal vector-default framework.",
+    "preservation_and_limits": "No engine choice based on fixture ID. Caller supplied ref не proof numerical compatibility; unsupported path остаётся addressable.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "SIM-02",
+    "lane": "LANE-01",
+    "verdict": "retain",
+    "technical_reasoning": "Typed resolved path tokens устраняют смешение listindex и mappingkey. .0/.00/+0 aliases и negative list index нуждаются в canonical resolution, но dictionary string keys сохраняются. Temporal coordinates и aggregation law — input semantics, не scalar fallback.",
+    "capability_and_free_grow": "Общая path/temporal семантика позволяет новым compatible models работать без ручных case branches; actual selected simulation plan исполняется единожды, cause/result сохраняются.",
+    "test_validity": "Mutation equivalent alias conflicting writes, list negative alias, dictionary key0, horizon mismatch, sparse time без hold-last. Actual engine exception/cause through retained result. Wrong deep copy / last-write implementation различить shared alias and original snapshot invariance.",
+    "cost_and_library_decision": "Typed narrow updates лучше deepcopy entire runtime object. Stable finite checks до/после numerical operations; no generic temporal imputation library needed.",
+    "preservation_and_limits": "Не превращать failed model в estimated0; нет arbitrary mean of vector. Existing legitimate scalar mapping и optional defaults сохранять.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "SIM-03",
+    "lane": "LANE-01",
+    "verdict": "targeted revision",
+    "technical_reasoning": "Delivered finite paired endpoint/mean/SE boundaries, SMM uniqueness before dict, local physical cache и full joint residual — сильные решения. Детерминированный integer NCM independent oracle точен, но actual seed-sensitive numeric witness отсутствует в конкретном positive fixture (PS-F04). Дополнительно PS-F08: native NCM summary оценивает normal quantile100000 global draws на каждый call; заменить узко детерминированным inverse-normal и отдельно ограничить interval qualification.",
+    "capability_and_free_grow": "Доказуемая capability: supported model-bound conditional contrast, actual compound effect и typed uncertainty, не universal causal truth. Seed-sensitive extension делает replicated numerical path переносимее; arbitrary nonzero-SE inference пока unsupported.",
+    "test_validity": "Сохранить exact no-op0/A2/B3/joint9/residual4, additive5, third-order1; helper differences[1,3]→mean2/SE1. Добавить actual varied noise and pairing trace, first-seed replay и baseline permutation mutations; counts alone недостаточны. Добавить ambient RNG isolation, same-request CI replay и no-extra-quantile-draw controls; singleton/ddof scope не объявлять автоматически исправленным.",
+    "cost_and_library_decision": "Existing NCM/paired helper/SMM owners, no new simulator. Bound sample work, distinguish physical cache reuse vs independent samples. float64 verified, general tolerance DEC predeclared.",
+    "preservation_and_limits": "Positive SE не magically additive; 4+ aggregate residual не полная interaction decomposition. n1 SE=None и incomplete planned/completed denominator сохранить.",
+    "findings": [
+      "PS-F04",
+      "PS-F08"
+    ],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "SEL-01",
+    "lane": "LANE-01",
+    "verdict": "retain",
+    "technical_reasoning": "Lexical category/technical ID не должны становиться hard modality filter. Правильно объяснять первый реально различающий lexicographic rank key и сохранять full excluded denominator до topk.",
+    "capability_and_free_grow": "Новые compatible methods/resources допускаются по contracts, не красивому name. Singleton допустим; absence alternatives — limitation, не automatic refusal.",
+    "test_validity": "Полезны actual singleton и скрытый eligible member за topk controls. Wrong reason от последнего score-key поймать ties-prefix example; wrong prefilter lexicalcategory поймать semanticallycompatible differentlynamed method. Downstream actual value consumer обязателен.",
+    "cost_and_library_decision": "Existing registry/ranker cheap; no recommender/embedding framework. Full census bounded registered catalog, не весь мир.",
+    "preservation_and_limits": "Не создавать generic unit converter под selection; units/admission остаются owners. Excluded reasons source-bound, rank не epistemic proof.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "CTL-01",
+    "lane": "LANE-02",
+    "verdict": "retain",
+    "technical_reasoning": "Привязка к run/generation и финализация после error/cancel принадлежат существующему lifecycle owner. Уже полученная работа, её стоимость и исходная ошибка должны сохраняться. Ограниченное число пустых proposals означает остановку генератора, а не научную сходимость.",
+    "capability_and_free_grow": "Способность — завершить одно исследование и начать другое без попадания позднего tell в чужое состояние. Положительный допустимый ответ своего run также должен приниматься: изоляцию нельзя реализовать отбрасыванием всех ответов.",
+    "test_validity": "Нужны синхронизированные controls: старый pending tell после нового run, отмена после evaluation, ошибка при cleanup и повторные пустые proposals. Проверять actual history, incurred cost и исходную exception, а не только terminal status.",
+    "cost_and_library_decision": "Небольшие owned snapshots, подготовка вне lock и короткий commit достаточны. Model-based Hypothesis sequences дополняют, но не заменяют race barriers и actual consumer.",
+    "preservation_and_limits": "Не терять затраченную работу при сбое финализации; не зацикливать idle loop. Термин exhaustion согласовать с PS-F03.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "CTL-03",
+    "lane": "LANE-02",
+    "verdict": "retain",
+    "technical_reasoning": "Разделение sentinel quota, stage-B denominator и обычных optimization iterations корректно. Общий work cap учитывает все исполненные оценки. Invalid typed assessment нельзя превращать в legacy missing и принимать удобный scalar.",
+    "capability_and_free_grow": "Поиск расходует бюджет на новую работу, а не считает warm history новыми evaluations. Sentinel остаётся полезным контрольным примером, но не обучающей строкой или автоматически promotable candidate.",
+    "test_validity": "Через настоящий dispatcher проверить warm rows, sentinel work, invalid typed finite scalar и допустимый legacy fallback. Oracle считает фактические вызовы и training rows; общий cap запрещает скрытый дополнительный dispatch.",
+    "cost_and_library_decision": "Один existing budget owner и строгая validation до дорогого evaluator достаточны. Новый scheduler не нужен; boolean не следует принимать за числовой budget.",
+    "preservation_and_limits": "Нельзя сделать sentinel бесплатным через обычный iteration counter. Калибровочная гарантия пропуска полезных кандидатов относится к FUN-03, а не к счётчику работы.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "SRV-01",
+    "lane": "LANE-02",
+    "verdict": "retain",
+    "technical_reasoning": "Переход pending→applying→completed с prepare/commit на одном owner устраняет double tell. Immutable delta готовится вне lock; проверка current state и commit выполняются вместе. Внешние callbacks под lock не нужны.",
+    "capability_and_free_grow": "Goal и SearchSpace реального request должны дойти до поиска. Повтор tell идемпотентен, foreign-run ответ не применяется, допустимый поздний ответ своего run не теряется.",
+    "test_validity": "Положительный service/evaluator путь, competing tells, prepare failure и reentrant callback проверять по history, objective и cost exactly once. Одного pending_count=0 недостаточно: он допускает двойное применение результата.",
+    "cost_and_library_decision": "Leaf contracts, lazy imports и сохранённые aliases лучше нового transaction framework. Lightweight facade не должен загружать тяжёлый GP stack без необходимости.",
+    "preservation_and_limits": "Сохранить исторические import/module addresses и смысл входной цели. Pending reservation сама по себе не является external-effect transaction или authority.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "SRV-03",
+    "lane": "LANE-02",
+    "verdict": "bounded qualification",
+    "technical_reasoning": "Role metadata должна пройти codec→BenchmarkEvaluation→history. Actual SearchLoopRunner partial persistence/resume закрывает LA-015 содержательно, не новым именем DTO. Reserved semantic field удалять только по конкретному codec contract.",
+    "capability_and_free_grow": "Обычный candidate и sentinel проходят настоящего producer, но sentinel не получает promotion eligibility. Сохранённая история должна быть полезна после restart, а не только живому объекту.",
+    "test_validity": "Нужны actual MethodJob/codec positive, подмена роли sentinel, ошибка посреди run после оплаченной evaluation и fresh resume. Самостоятельно выданный warm label не заменяет selected source qualification; перед cutover нужен caller census.",
+    "cost_and_library_decision": "Использовать текущие runner, persistence и role envelope. Второй lifecycle registry лишь увеличит риск рассогласования; дорогой partial result производится один раз.",
+    "preservation_and_limits": "CTL-01 не закрывает LA-015 целиком. Сохранить исходную ошибку и различие eligible/noneligible history.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "CTL-02",
+    "lane": "LANE-02",
+    "verdict": "retain",
+    "technical_reasoning": "Raw subject identity не должна терять предметные date/timestamp поля под видом volatile metadata. Исключения принадлежат явному envelope contract. Staged RNG/Sobol/base-state validation до commit сохраняет живое состояние при отказе.",
+    "capability_and_free_grow": "Whole/split replay позволяет действительно продолжить вычисление. Изменение семантической даты должно менять identity; неизвестная schema не становится current-compatible лишь потому, что JSON удалось прочитать.",
+    "test_validity": "Проверить RNG cursor625, finite Gaussian cache, malformed snapshot поверх действующего state, equality следующего proposal и subject-date mutation. Только fresh empty owner не обнаруживает уничтожение прежнего состояния при неудачном restore.",
+    "cost_and_library_decision": "Сохранить stdlib RNG и SciPy Sobol; incremental generation/fast_forward не повторяют весь prefix на каждом шаге. Arbitrary prefix не получает автоматически power-of-two QMC balance guarantee.",
+    "preservation_and_limits": "Unknown fields не удалять молча из identity. CTL-02 владеет base restore, OPT-03 — GP staging поверх него, без второго RNG codec.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "STP-01",
+    "lane": "LANE-02",
+    "verdict": "retain",
+    "technical_reasoning": "Атомарное принятие metric+embedding и численно устойчивые plateau/cosine проверки соответствуют root cause. Drafter использует current admitted observation; отвергнутый embedding не должен влиять на будущую остановку.",
+    "capability_and_free_grow": "Полезная остановка по эвристической стабильности или ресурсу сохраняется, но не объявляется доказательством глобального оптимума. Недоступная метрика ограничивает конкретный вывод, а не обязательно всё исследование.",
+    "test_validity": "Проверить extreme magnitudes, zero vector, NaN, stale/current drafter и деление на малый scale. Always-stop должен провалить улучшающийся positive case, always-continue — обязательный resource stop.",
+    "cost_and_library_decision": "Масштабно-устойчивая algebra из stdlib/NumPy достаточна; отдельная stopping library не нужна. Property cases полезны как дополнение маленьким exact counterexamples.",
+    "preservation_and_limits": "Threshold и heuristic profile версионировать; budget, heuristic stop и producer unavailability имеют разные причины.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "OPT-01",
+    "lane": "LANE-02",
+    "verdict": "retain",
+    "technical_reasoning": "Полная неизменяемая coordinate schema (metric/split/unit/direction) до dominance и реальный registry после round-trip — правильное решение. Исправленный strict skyline следует квалифицировать независимым slow oracle, не переписывать. Fiscal stock/flow DEC не должен объявлять разные quantities конфликтом.",
+    "capability_and_free_grow": "Из измерений получается полезный partial Pareto front, а не claim «все политики рассмотрены». Новые objectives входят через явный measurement law/resource, не через совпадение ключей.",
+    "test_validity": "Сетка, permutations, ties, partial inputs и caller alias mutations хорошо различают неверный comparator. Delivered TEST06 уже содержит 3D exact28 против bbox1000 и actual ranking consumer; повторная находка снята. Источник split/units должен быть настоящим.",
+    "cost_and_library_decision": "Сохранить быстрый skyline и точный 2D union. Если consumer действительно требует higher-dimensional exact HV, использовать уже locked pymoo/BoTorch (PS-L06), не новый алгоритм. Обязательного unit-library rewrite нет.",
+    "preservation_and_limits": "Frozen DTO не делает вложенные dict неизменяемыми: копировать только маленький contract. Reference входит в comparison basis; динамический reference не даёт сравнимого cross-run improvement.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "OPT-02",
+    "lane": "LANE-02",
+    "verdict": "targeted revision",
+    "technical_reasoning": "Canonical actual params до training, typed fallback и source-bound MethodJob route корректны. Дополнить pending-only identity denominator и различить bounded proposal failure от доказанного finite-domain exhaustion (PS-F03).",
+    "capability_and_free_grow": "Поиск должен выдавать реальные различные typed actions, сохраняя оправданные независимые stochastic replications. Отсутствующий GP backend не должен выключать exploration.",
+    "test_validity": "Binary batch необходим, но case99/100 и completed history обнаруживают ложный exhausted. Нужны actual mixed/log/category SearchSpace и method source; syntactic artifact ID сам по себе не measurement.",
+    "cost_and_library_decision": "Для маленького finite domain доступен existing BoTorch discrete optimizer. Полный перебор большого mixed domain не требуется. LogEI experiment из PS-L02 — optional, не prerequisite этого repair.",
+    "preservation_and_limits": "Continuous не округлять без принятого tolerance. Unitless candidate остаётся exploratory без GP admission; unit/closed-holdout guards сохраняются.",
+    "findings": [
+      "PS-F03"
+    ],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "OPT-03",
+    "lane": "LANE-02",
+    "verdict": "retain with separate bounded redesign decision",
+    "technical_reasoning": "Исправление cap1/recent_n=0 и atomic GP staging точны. Уже существующая learned-state проверка сильна: настоящий RBF/ConstantMean, независимый NumPy Cholesky и removal mutations для model/transform. Conditioned-fit lineage/full-refit DEC необходим.",
+    "capability_and_free_grow": "Нынешний fitted-native profile квалифицируется самостоятельно. Strategy-neutral measured-observation reuse PS-F02 — отдельная opt-in capability; она не ослабляет guard и не блокирует текущий local DoD. Измерение и surrogate prediction — разные сущности.",
+    "test_validity": "Сохранить 8→9→12 append, modified-prefix refit, scheduled boundary, failed restore поверх live state и actual posterior. Fresh source verifier принимает только воспроизводимый continuation profile либо явно ограниченный full refit.",
+    "cost_and_library_decision": "Стоимость dense GP ограничена cap и измеряется. Новый GP framework не нужен. Replay исходного fit может быть дорогим; отдельный measurement profile при выборе способен избежать ненужного source-fit replay, но target fit учитывается.",
+    "preservation_and_limits": "Cold rows не переименовываются в fitted sources. Валидность model state не заменяет валидность source measurement.",
+    "findings": [
+      "PS-F02"
+    ],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "OPT-04",
+    "lane": "LANE-02",
+    "verdict": "retain",
+    "technical_reasoning": "Сравнение objective basis до incumbent number, настоящее измерение initial baseline и multiprocess stable flock + atomic pointer соответствуют проблеме. Permissive source stub не квалифицирует действительную оценку.",
+    "capability_and_free_grow": "Champion выбирается по одному понятному comparison contract. Цель может измениться через явный transition/reevaluation; stale incumbent не переносится молча. Это технический результат, не institutional policy act.",
+    "test_validity": "Нужны competing-process barrier, stale basis, finite actual score positive и fresh pointer reader. Missing baseline вызывает measurement, не invented zero. Atomic rename без serialization проходит single-process case, но не lost-update control.",
+    "cost_and_library_decision": "Local POSIX file owner достаточен для заявленного профиля. Distributed DB/lock нужен только при иной архитектурной потребности; fsync требуется отдельно, если заявлена crash durability.",
+    "preservation_and_limits": "Стабильный lock inode отделён от заменяемого pointer; same-filesystem replace. Windows/NFS не считаются квалифицированными. FUN-03 permit не равен champion lock.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "FUN-01",
+    "lane": "LANE-02",
+    "verdict": "retain",
+    "technical_reasoning": "Immutable numerical source cache и fresh gate каждого attempt разделены правильно. Изменение basis создаёт linked successor; terminal old attempt не открывается заново. Полная lineage предотвращает подмену истории.",
+    "capability_and_free_grow": "Система экономит фактические same-basis computations и продолжает работу после нового evidence/access/budget. Cached number не отменяет current policy.",
+    "test_validity": "Full-versus-bound A/B проверяется по actual work/cost. Изменить gate при том же numerical basis, создать successor после terminal и испортить source ref. Whole-ticket cache может сохранить число, но обязан провалить fresh-gate control.",
+    "cost_and_library_decision": "Переиспользовать exact immutable refs; численные вычисления считать отдельно от cheap gate reads. Второй attempt ledger не нужен.",
+    "preservation_and_limits": "Оплаченная partial work сохраняется в accounting. Reuse не является новым независимым наблюдением; исторический результат остаётся читаемым.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "FUN-02",
+    "lane": "LANE-02",
+    "verdict": "retain",
+    "technical_reasoning": "Изоляция маленьких config mappings без deepcopy services, реальные reduced/full executions и различение interval origin — разумное решение. Empty, partial и настоящий zero сохраняют разные значения; ratio устойчив к крайним масштабам.",
+    "capability_and_free_grow": "Более дешёвая оценка полезна, но reduced не автоматически эквивалентна full quality. Method-issued interval и heuristic proxy должны иметь разные semantic labels.",
+    "test_validity": "Проверить native reduced/full work counters, caller config mutation, zero denominator/observed zero, max/subnormal ratio0.5 и настоящую method CI. Success-shaped stub не доказывает уменьшение работы.",
+    "cost_and_library_decision": "Existing math.frexp/ldexp достаточно для нужного ratio. Новая bootstrap library не требуется без inference contract. Cost должен иметь фактический источник, не фиксированный USD label.",
+    "preservation_and_limits": "Нельзя выдавать сгенерированный interval за empirical uncertainty без sampling assumptions. Ownership config не требует копировать datasets.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "FUN-03",
+    "lane": "LANE-02",
+    "verdict": "targeted revision",
+    "technical_reasoning": "Same-basis method source→current knowledge и appointed permit→protected writer архитектурно верны. Но calibration metric definitions/populations и explicit-zero carrier selection пропущены (PS-F01/07). Нужен единый versioned contract и согласованная migration.",
+    "capability_and_free_grow": "Exploration остаётся полезной при insufficient calibration. Разрешённый normal route действительно даёт один effect; unknown/revoked permit — ни одного. Statistical PASS не authority, а permission не evidence качества.",
+    "test_validity": "Сохранить first assessment, contested/late history и normal/revoke race. Добавить четыре confusion cells, selective-label controls, observed0 отдельно от qualified n=5 и zero с отличающимся fallback. Одних ranks x=1..5 недостаточно.",
+    "cost_and_library_decision": "Existing tracker и SciPy подходят при заявленных assumptions. Audit stage-B work входит в общий budget. Новый truth registry/issuer и произвольный минимум samples не нужны.",
+    "preservation_and_limits": "FOR может быть намеренной operational metric: сначала DEC purpose, затем definition/threshold. Historical semantics, wrappers, burn-in, report и drift мигрируют вместе; negative values разрешаются только существующим concrete profile.",
+    "findings": [
+      "PS-F01",
+      "PS-F07"
+    ],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "TRN-01",
+    "lane": "LANE-02",
+    "verdict": "retain with separate bounded redesign decision",
+    "technical_reasoning": "Восстановление timestamp/strict boolean, отдельные diagnostic/admitted quotas и actual source bridge корректны. Неиспользуемый benchmark converter не нужно активировать ради coverage; raw objective/split/profile нельзя фабриковать.",
+    "capability_and_free_grow": "Совместимая численная история reusable; несовместимая идея полезна через новую target evaluation. Более широкий measured-observation reuse PS-F02 — отдельный профиль, не отмена текущего fitted-native guard.",
+    "test_validity": "Actual register→CAS→fresh bridge, время2001, false против string false, MIN/MAX round-robin, valid row после invalid и изменения target units/tenant/split. Hint не переносит старый score: новая evaluation имеет новый source ref.",
+    "cost_and_library_decision": "Bounded refill сохраняет обе quotas; diagnostic cache не training corpus. Непригодные строки видимы с причиной, но не считаются numeric observations.",
+    "preservation_and_limits": "Сохранить diversity; не отбирать только лучшие строки. Совпавший fingerprint не позволяет обойти source admission.",
+    "findings": [
+      "PS-F02"
+    ],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "TRN-02",
+    "lane": "LANE-02",
+    "verdict": "retain",
+    "technical_reasoning": "Bounded compatible ANN refill, exact-selected-ref cache custody и atomic native generation образуют разумную систему. Candidate generation строится до publish; external native graph loading по умолчанию закрыт.",
+    "capability_and_free_grow": "Полезный hit должен происходить из actual portable source artifact. Третий compatible record за двумя incompatible находится при достаточном scan budget; это не обещание exhaustive ANN recall.",
+    "test_validity": "Настоящий HNSW add частично изменяет native state перед injected failure; rollback/poison проверяются после этого. Fresh portable process и actual target consumer обязательны. Old/new/old selected refs и current access checks не заменяются cache hit.",
+    "cost_and_library_decision": "32MiB означает retained payload, не RSS. Snapshot-per-add measurement уже есть в baseline; batch optimization только условное продолжение PS-L07. HNSW0.8 sdist/Python3.14 native availability не квалифицирована.",
+    "preservation_and_limits": "Обычный query не rebuild. Reserved metadata/cycles guards и default graph trust не ослабляются. Exact history ref читается напрямую, не новым ANN lookup.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  },
+  {
+    "packet": "TRN-03",
+    "lane": "LANE-02",
+    "verdict": "retain",
+    "technical_reasoning": "Aware-UTC boundary, одинаковый effective grade в query/report и evidence age вместо access age — точный repair. Naive time нельзя угадывать как UTC; отсутствующее historical time остаётся unknown.",
+    "capability_and_free_grow": "Lesson переносится по context/tenant/source filters и не омолаживается чтением. Evidence clock меняет настоящее новое assessment, не cache hit.",
+    "test_validity": "Fresh restart с контролируемым clock на границе TTL; старое event time при новом access time; query/report equality; повторное чтение без reassessment. Now-on-restore мутант должен провалить fixture2001.",
+    "cost_and_library_decision": "Существующих time/filter/lesson owners достаточно. TTL — versioned heuristic, не ML probability; filter до materialization экономит IO и сохраняет admission boundaries.",
+    "preservation_and_limits": "Grade/age не является калиброванной вероятностью истины. Историю не удалять автоматически; incompatible idea может пройти разрешённую target reevaluation.",
+    "findings": [],
+    "product_tests": "NOT_RUN"
+  }
+]

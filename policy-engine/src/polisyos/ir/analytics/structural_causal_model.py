@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from collections.abc import Mapping
 from enum import Enum
 from typing import Any, Literal
@@ -110,19 +111,42 @@ class SCMTrainingRows(BaseModel):
         expected_ids = [f"{self.source_ref.artifact_id}:{i}" for i in range(len(data))]
         if self.row_ids != expected_ids:
             raise ValueError("training row IDs must bind exact ordered source artifact rows")
-        if self.data_sha256 != _payload_digest({"columns": self.columns, "rows": self.rows}):
-            raise ValueError("training matrix content hash mismatch")
-        if self.row_sha256 != _payload_digest(self.row_ids):
-            raise ValueError("training row identity hash mismatch")
-        if self.graph_sha256 != _payload_digest(self.graph_payload):
-            raise ValueError("training graph content hash mismatch")
+        # The worker hashes the source's exact JSON numeric primitives.  Pydantic
+        # normalizes the typed ``rows`` to floats, so hash the retained source
+        # representation after proving the conversion preserved every value.
+        raw_rows = self.fit_input.get("data")
         if (
-            self.fit_input.get("data") != self.rows
+            not isinstance(raw_rows, list)
+            or len(raw_rows) != len(self.rows)
             or self.fit_input.get("column_names") != self.columns
         ):
             raise ValueError(
                 "retained fit input must contain the exact training matrix and columns"
             )
+        for raw_row, projected_row in zip(raw_rows, self.rows, strict=True):
+            if not isinstance(raw_row, list) or len(raw_row) != len(projected_row):
+                raise ValueError(
+                    "retained fit input must contain the exact training matrix and columns"
+                )
+            for raw, projected in zip(raw_row, projected_row, strict=True):
+                if (
+                    type(raw) not in (int, float)
+                    or (type(raw) is float and not math.isfinite(raw))
+                    or raw != projected
+                    or (
+                        raw == 0.0
+                        and math.copysign(1.0, float(raw)) != math.copysign(1.0, projected)
+                    )
+                ):
+                    raise ValueError(
+                        "retained fit input must contain the exact training matrix and columns"
+                    )
+        if self.data_sha256 != _payload_digest({"columns": self.columns, "rows": raw_rows}):
+            raise ValueError("training matrix content hash mismatch")
+        if self.row_sha256 != _payload_digest(self.row_ids):
+            raise ValueError("training row identity hash mismatch")
+        if self.graph_sha256 != _payload_digest(self.graph_payload):
+            raise ValueError("training graph content hash mismatch")
         return self
 
 

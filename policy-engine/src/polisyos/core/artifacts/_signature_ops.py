@@ -8,6 +8,7 @@ from contextvars import Context, copy_context
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal, Protocol
 
+from .batch_control import _BatchStopRequestedError, _probe_batch_stop, _raise_if_batch_stopped
 from .signing import (
     ArtifactSigningResult,
     BulkSigningReport,
@@ -105,6 +106,7 @@ def _run_bounded(
     pending_window: int | None,
     cancel_event: threading.Event | None,
     authorization_loss_signal: BatchAuthorizationLossSignal | None = None,
+    stop_probe: Callable[[], None] | None = None,
 ) -> _BoundedRun:
     """Run item callbacks with bounded inventory consumption and cancellation.
 
@@ -122,29 +124,36 @@ def _run_bounded(
     window = _pending_window(max_workers, pending_window)
     length_hint = _source_length_hint(artifact_ids)
 
+    def observed_stop() -> bool:
+        nonlocal abort_reason
+        try:
+            _probe_batch_stop(stop_probe)
+            _raise_if_batch_stopped(cancel_event, authorization_loss_signal)
+        except _BatchStopRequestedError as stopped:
+            abort_reason = stopped.reason
+        except Exception:
+            abort_reason = "inventory_failed"
+        return abort_reason is not None
+
     def fill_window(executor: ThreadPoolExecutor) -> None:
         nonlocal abort_reason, exhausted, next_index
         while not exhausted and abort_reason is None and len(pending) < window:
-            if cancel_event is not None and cancel_event.is_set():
-                abort_reason = "cancelled"
-                return
-            if authorization_loss_signal is not None and authorization_loss_signal.is_set():
-                abort_reason = "authorization_lost"
+            if observed_stop():
                 return
             try:
                 artifact_id = next(iterator)
             except StopIteration:
-                exhausted = True
+                if not observed_stop():
+                    exhausted = True
+                return
+            except _BatchStopRequestedError as stopped:
+                abort_reason = stopped.reason
                 return
             except Exception:
                 # A failed inventory is not evidence that the source ended.
                 abort_reason = "inventory_failed"
                 return
-            if cancel_event is not None and cancel_event.is_set():
-                abort_reason = "cancelled"
-                return
-            if authorization_loss_signal is not None and authorization_loss_signal.is_set():
-                abort_reason = "authorization_lost"
+            if observed_stop():
                 return
             task_context = copy_context()
 
@@ -183,14 +192,8 @@ def _run_bounded(
                     # therefore identifies infrastructure failure, not an
                     # item disposition. Preserve every other finished row.
                     abort_reason = "executor_failed"
-                if abort_reason is None and cancel_event is not None and cancel_event.is_set():
-                    abort_reason = "cancelled"
-                if (
-                    abort_reason is None
-                    and authorization_loss_signal is not None
-                    and authorization_loss_signal.is_set()
-                ):
-                    abort_reason = "authorization_lost"
+                if abort_reason is None:
+                    observed_stop()
             fill_window(executor)
 
     return _BoundedRun(
@@ -431,6 +434,7 @@ def verify_all_signatures(
     pending_window: int | None = None,
     cancel_event: threading.Event | None = None,
     authorization_loss_signal: BatchAuthorizationLossSignal | None = None,
+    stop_probe: Callable[[], None] | None = None,
 ) -> BulkVerificationReport:
     """Verify many detached signatures concurrently and summarize statuses."""
 
@@ -451,6 +455,7 @@ def verify_all_signatures(
         pending_window=pending_window,
         cancel_event=cancel_event,
         authorization_loss_signal=authorization_loss_signal,
+        stop_probe=stop_probe,
     )
     details = [result for _index, result in sorted(run.indexed, key=lambda item: item[0])]
     if run.abort_reason is not None:

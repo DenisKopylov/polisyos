@@ -27,6 +27,9 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionRouteListResponse,
     AcquisitionRouteMutationRequest,
     AcquisitionRouteProjection,
+    CandidateExperimentRouteExecutionRequest,
+    CandidateExperimentRouteMutationRequest,
+    CandidateExperimentRouteProjection,
 )
 from polisyos.runtime.http.step_up import StepUpClass, require_step_up
 
@@ -74,6 +77,32 @@ _MUTATION_AUTHZ = require_action_permission(
     ),
 )
 _MUTATION_STEP_UP = require_step_up(StepUpClass.ACQUISITION_APPROVAL)
+_CANDIDATE_EXPERIMENT_MUTATION_AUTHZ = require_action_permission(
+    RuntimePermission.EVIDENCE_ACQUIRE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.REQUEST_COMPOSITE,
+        resource_kind="runtime.evidence.acquisition.candidate_experiment",
+        selector_fields=tuple(CandidateExperimentRouteMutationRequest.model_fields),
+        required_selector_fields=tuple(
+            name
+            for name, field in CandidateExperimentRouteMutationRequest.model_fields.items()
+            if field.is_required()
+        ),
+    ),
+)
+_CANDIDATE_EXPERIMENT_EXECUTION_AUTHZ = require_action_permission(
+    RuntimePermission.EVIDENCE_ACQUIRE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.REQUEST_COMPOSITE,
+        resource_kind="runtime.evidence.acquisition.candidate_experiment",
+        selector_fields=tuple(CandidateExperimentRouteExecutionRequest.model_fields),
+        required_selector_fields=tuple(
+            name
+            for name, field in CandidateExperimentRouteExecutionRequest.model_fields.items()
+            if field.is_required()
+        ),
+    ),
+)
 _Service = Annotated[AcquisitionActionService, Depends(get_acquisition_action_service)]
 
 
@@ -105,13 +134,41 @@ def _bound_proof(request: Request) -> BoundActionPermissionVerification:
     return proof
 
 
+def _candidate_experiment_bound_proof(
+    request: Request,
+) -> BoundActionPermissionVerification:
+    proof = _CANDIDATE_EXPERIMENT_MUTATION_AUTHZ(request)
+    if type(proof) is not BoundActionPermissionVerification:
+        raise forbidden(
+            "Candidate-experiment mutation lacks its frozen request binding",
+            code="authorization_binding_context_missing",
+        )
+    return proof
+
+
+def _candidate_experiment_execution_bound_proof(
+    request: Request,
+) -> BoundActionPermissionVerification:
+    proof = _CANDIDATE_EXPERIMENT_EXECUTION_AUTHZ(request)
+    if type(proof) is not BoundActionPermissionVerification:
+        raise forbidden(
+            "Candidate-experiment execution lacks its frozen request binding",
+            code="authorization_binding_context_missing",
+        )
+    return proof
+
+
 def _raise_service_error(exc: AcquisitionActionServiceError) -> None:
     code = exc.code
     if code in {
         "acquisition_authority_producer_missing",
         "acquisition_execution_bridge_missing",
+        "candidate_experiment_n5_result_storage_unavailable",
+        "candidate_experiment_current_action_head_not_established",
     }:
         raise service_unavailable("Acquisition producer is unavailable", code=code) from exc
+    if code == "candidate_experiment_n5_result_scope_refused":
+        raise forbidden("The selected candidate result is not accessible", code=code) from exc
     if code in {
         "source_job_not_completed",
         "acquisition_route_not_current",
@@ -159,6 +216,117 @@ def get_run_acquisition_route(
             cell_id=cell_id,
             run_id=run_id,
             route_id=route_id,
+        )
+    except AcquisitionActionServiceError as exc:
+        _raise_service_error(exc)
+
+
+@router.get(
+    "/{run_id}/candidate-acquisition-experiment",
+    response_model=CandidateExperimentRouteProjection,
+    operation_id="get_run_candidate_acquisition_experiment",
+    dependencies=[Depends(_GET_AUTHZ)],
+)
+def get_run_candidate_acquisition_experiment(
+    run_id: str,
+    request: Request,
+    service: _Service,
+) -> CandidateExperimentRouteProjection:
+    tenant_id, cell_id, _ = _scope(request)
+    set_authz_resource(request, tenant_id=tenant_id, kind="runtime.acquisition_route")
+    try:
+        return service.get_candidate_experiment_route(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+        )
+    except AcquisitionActionServiceError as exc:
+        _raise_service_error(exc)
+
+
+@router.post(
+    "/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request",
+    response_model=AcquisitionDecisionRequestResponse,
+    operation_id="request_run_candidate_acquisition_experiment_decision",
+    dependencies=[
+        Depends(_CANDIDATE_EXPERIMENT_MUTATION_AUTHZ),
+        Depends(_MUTATION_STEP_UP),
+    ],
+)
+def request_run_candidate_acquisition_experiment_decision(
+    run_id: str,
+    route_id: str,
+    body: CandidateExperimentRouteMutationRequest,
+    request: Request,
+    service: _Service,
+) -> AcquisitionDecisionRequestResponse:
+    tenant_id, cell_id, _ = _scope(request)
+    set_authz_resource(
+        request,
+        tenant_id=tenant_id,
+        kind="runtime.evidence.acquisition.candidate_experiment",
+    )
+    try:
+        return service.request_candidate_experiment_decision(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            route_id=route_id,
+            request=body,
+            bound_permission=_candidate_experiment_bound_proof(request),
+        )
+    except AcquisitionActionServiceError as exc:
+        _raise_service_error(exc)
+
+
+@router.post(
+    "/{run_id}/candidate-acquisition-experiment/{route_id}/execute",
+    response_model=AcquisitionExecutionResponse,
+    operation_id="execute_run_candidate_acquisition_experiment",
+    responses={
+        200: {
+            "content": {
+                "application/json": {
+                    "example": AcquisitionExecutionResponse(
+                        run_id="run-example",
+                        route_id="sha256:" + "a" * 64,
+                        job_id="candidate-experiment-job-example",
+                        authority_decision_ref="sha256:" + "b" * 64,
+                    ).model_dump(mode="json")
+                }
+            }
+        }
+    },
+    dependencies=[
+        Depends(_CANDIDATE_EXPERIMENT_EXECUTION_AUTHZ),
+        Depends(_MUTATION_STEP_UP),
+    ],
+)
+def execute_run_candidate_acquisition_experiment(
+    run_id: str,
+    route_id: str,
+    body: CandidateExperimentRouteExecutionRequest,
+    request: Request,
+    service: _Service,
+) -> AcquisitionExecutionResponse:
+    """Queue a candidate experiment from its exact request and PA2 decision ref."""
+    tenant_id, cell_id, principal = _scope(request)
+    set_authz_resource(
+        request,
+        tenant_id=tenant_id,
+        kind="runtime.evidence.acquisition.candidate_experiment",
+    )
+    _candidate_experiment_execution_bound_proof(request)
+    try:
+        return service.execute_candidate_experiment(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            route_id=route_id,
+            request=body.request,
+            decision_ref=body.decision_ref,
+            request_id=ensure_request_id(request),
+            principal=principal,
         )
     except AcquisitionActionServiceError as exc:
         _raise_service_error(exc)

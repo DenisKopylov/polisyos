@@ -1,0 +1,267 @@
+{
+  "packet_id": "DFI-01",
+  "lane": "LANE-08",
+  "source_ids": [
+    "LA-038"
+  ],
+  "protected_distinction_ids": [
+    "LK19"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/DFI-01.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "work_types": "preserve + native qualification",
+  "practical_goal": "Writer/validator/loader используют явных владельцев и дают тот же полезный ingest результат без bootstrap старого фасада.",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C93_остатки:0",
+      "audit_id": "C93-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-DFI-01-01",
+        "REQ-DFI-01-02",
+        "REQ-DFI-01-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Native trace parity с actualDB, не AST/SQL capture alone."
+    },
+    {
+      "inventory_id": "audit-residual:C93_остатки:1",
+      "audit_id": "C93-G02",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-DFI-01-04"
+      ],
+      "shared_owner": "DFI-02",
+      "rationale": "Accountablephase2 owner; current canonical cutover preserve."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-DFI-01-01",
+      "text": "Canonical writers/validators/loaders должны работать до legacy facade import, разрешать dependencies через конечные owner bindings и не менять globals соседнего leaf. DTO owners и signature/substitution contracts сохраняются.",
+      "source_ids": [
+        "LA-038"
+      ],
+      "audit_ids": [
+        "C93-G01"
+      ],
+      "test_ids": [
+        "TEST-DFI-01-01"
+      ]
+    },
+    {
+      "id": "REQ-DFI-01-02",
+      "text": "Request-scoped compatibility context должен copy/freeze mapping и гарантировать nested reset, async/thread isolation и cleanup cancellation без снятия bindings живого sibling.",
+      "source_ids": [
+        "LA-038"
+      ],
+      "audit_ids": [
+        "C93-G01"
+      ],
+      "test_ids": [
+        "TEST-DFI-01-02"
+      ]
+    },
+    {
+      "id": "REQ-DFI-01-03",
+      "text": "Native writer/validator/loader trace parity должна сохранять source profiles, filters/dates, bytes/error/empty semantics, condition-aware IDs, provenance, SQL writes/chunks и attempted/inserted/replaced counts.",
+      "source_ids": [
+        "LA-038"
+      ],
+      "audit_ids": [
+        "C93-G01"
+      ],
+      "test_ids": [
+        "TEST-DFI-01-03"
+      ]
+    },
+    {
+      "id": "REQ-DFI-01-04",
+      "text": "LA-038 phase1 closure должна передать DFI-02 реальные bindings/caller contracts и shared evidence; не объявлять все 6leaves независимыми по первым 3.",
+      "source_ids": [
+        "LA-038"
+      ],
+      "audit_ids": [
+        "C93-G02"
+      ],
+      "test_ids": [
+        "TEST-DFI-01-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-DFI-01-01",
+      "requirement_ids": [
+        "REQ-DFI-01-01"
+      ],
+      "level": "native unit / integration",
+      "setup": "Fresh subprocess, canonical leaf tests; two actual owners с одноимённой dependency; unknown facade attribute.",
+      "action": "Вызвать writer/validator/loader напрямую, затем facade и повторить canonical call.",
+      "oracle": "Actual owner используется; no arbitrary broadcast; unknown attribute не появился в leaves; current owner substitution не overwritten соседним вызовом.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не synthetic соседние modules для native independence claim; actual three leaves required.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-DFI-01-02",
+      "requirement_ids": [
+        "REQ-DFI-01-02"
+      ],
+      "level": "native unit / integration",
+      "setup": "Две concurrent invocations A/B с разными permitted overrides, nested scope, sync bridge worker thread и cancelA.",
+      "action": "Actual bind_core_sources_compatibility_context и facade/canonical consumers.",
+      "oracle": "A/B получают собственные expected dependencies; outer restored после nested; B жив после cancelA; original mapping mutation не меняет scope.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Developer override не authority predicate; не добавлять service container.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-DFI-01-03",
+      "requirement_ids": [
+        "REQ-DFI-01-03"
+      ],
+      "level": "native unit / integration",
+      "setup": "Tiny real DB, пять different condition rows, chunk2, known existing row; successful/empty/error controlled connector.",
+      "action": "Actual ObservationPlan→normalize→ID→lookup→writer transaction→fresh DB read, validator FetchRequest.",
+      "oracle": "Distinct IDs/provenance retained, chunks2/2/1 где chosen config, exact 13-field payload; duplicate existing handling reflected counts; real commit/readback agrees. Filters/date window и budgets unchanged.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Connector fake allowed; DB/actual writer/normalizer не capture-only для acceptance.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-DFI-01-04",
+      "requirement_ids": [
+        "REQ-DFI-01-04"
+      ],
+      "level": "native unit / integration",
+      "setup": "Общий native E02-I08-A corpus и confirmed caller inventory.",
+      "action": "Сопоставить phase evidence с DFI-02 remaining group/pipeline.",
+      "oracle": "Actual Fabric lease/profile boundaries preserved, no second HTTP; finalLA038status только после обеих групп и DFI02 residuals.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Source-only callsite не native pipeline PASS.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I08-A"
+  ],
+  "dependencies": [
+    "DFI-02 accountable LA-038/shared facade mutex",
+    "DFK-02 rich filters; E02-I08-A один actual ingest witness"
+  ],
+  "preservation": [
+    "Existing contracts/DTO",
+    "Finite owner bindings",
+    "Request-scoped immutable context",
+    "No global broadcast",
+    "Actual request/ID/provenance/chunk/count behavior",
+    "Existing Fabric boundary"
+  ],
+  "design_alignment": [
+    "[Vision §3, §6–§7, §11](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md) — существующий owner, реально подключённый consumer, совместимые новые ресурсы через общий контракт; не бесконечный реестр вместо работы. [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md) — candidate/conditional вычисление не равно эмпирической или институциональной authority.",
+    "Один contract owner с конечными bindings расширяем без глобального контейнера. Новая source semantics допускаетновый adapter, но reusable transport/profile boundary Fabric неподменяется."
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0441",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-DFI-01-01",
+        "REQ-DFI-01-02",
+        "REQ-DFI-01-03"
+      ],
+      "rationale": "Native trace parity с actualDB, не AST/SQL capture alone."
+    },
+    {
+      "inventory_id": "remaining:0442",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-DFI-01-04"
+      ],
+      "rationale": "Accountablephase2 owner; current canonical cutover preserve."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0715",
+      "requirement_ids": [
+        "REQ-DFI-01-01",
+        "REQ-DFI-01-03"
+      ],
+      "test_ids": [
+        "TEST-DFI-01-01",
+        "TEST-DFI-01-03"
+      ],
+      "rationale": "Existing DTOcontracts."
+    },
+    {
+      "inventory_id": "preserve:0716",
+      "requirement_ids": [
+        "REQ-DFI-01-01"
+      ],
+      "test_ids": [
+        "TEST-DFI-01-01"
+      ],
+      "rationale": "Finiteownerbindings."
+    },
+    {
+      "inventory_id": "preserve:0717",
+      "requirement_ids": [
+        "REQ-DFI-01-02"
+      ],
+      "test_ids": [
+        "TEST-DFI-01-02"
+      ],
+      "rationale": "Immutable scopedcontext."
+    },
+    {
+      "inventory_id": "preserve:0718",
+      "requirement_ids": [
+        "REQ-DFI-01-01",
+        "REQ-DFI-01-02"
+      ],
+      "test_ids": [
+        "TEST-DFI-01-01",
+        "TEST-DFI-01-02"
+      ],
+      "rationale": "No global broadcast."
+    },
+    {
+      "inventory_id": "preserve:0719",
+      "requirement_ids": [
+        "REQ-DFI-01-03"
+      ],
+      "test_ids": [
+        "TEST-DFI-01-03"
+      ],
+      "rationale": "Requests/IDs/provenance/chunks/counts."
+    },
+    {
+      "inventory_id": "preserve:0720",
+      "requirement_ids": [
+        "REQ-DFI-01-03",
+        "REQ-DFI-01-04"
+      ],
+      "test_ids": [
+        "TEST-DFI-01-03",
+        "TEST-DFI-01-04"
+      ],
+      "rationale": "Fabric acquisitionboundary."
+    }
+  ],
+  "owners": [
+    "src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+    "src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+    "src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py"
+  ]
+}

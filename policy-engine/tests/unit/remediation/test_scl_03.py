@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import socket
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
@@ -20,11 +21,16 @@ from polisyos.core.contracts.scholar import (
     ResearchIntent,
     SourceSpec,
 )
-from polisyos.scholar.api import enrich_topic
+from polisyos.scholar.api import (
+    _seed_sources_from_web_bundle,
+    _source_spec_from_snapshot,
+    enrich_topic,
+)
 from polisyos.scholar.discover.http_fetch import fetch_url
+from polisyos.scholar.discover.manual import normalize_seed_sources
 from polisyos.scholar.orchestrator.errors import ScholarAcquireError
 from polisyos.scholar.search.cache import UrlFetchCache
-from polisyos.scholar.search.fetcher import source_id_from_url
+from polisyos.scholar.search.fetcher import fetch_open_page, source_id_from_url
 from polisyos.scholar.search.models import (
     FetchResult,
     QueryGraph,
@@ -297,6 +303,321 @@ def test_source_metadata_carries_raw_binding_license_and_fetch_profile(tmp_path:
     assert source.fetch_profile == FETCH_PROFILE
 
 
+@pytest.mark.parametrize("deny_selected", [False, True])
+def test_normalized_snapshot_rechecks_selected_view_before_docs_publication(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    deny_selected: bool,
+) -> None:
+    """A selected view survives discover and is reread by the real acquire stage."""
+    from polisyos.core.artifacts import ArtifactWriteOptions, ProducerInfo, SchemaInfo
+
+    cas = FileSystemCAS(tmp_path / "cas")
+    # Establish a different default manifest for exactly the same bytes. An ID-only
+    # read cannot establish that the selected Scholar view remains available.
+    default_ref = cas.put_bytes(
+        SNAPSHOT_V1,
+        ArtifactWriteOptions(
+            kind="fixture.manual_payload",
+            media_type="text/plain",
+            schema=SchemaInfo(name="fixture.manual_payload", version="1.0"),
+            producer=ProducerInfo(component="fixture.manual", version="1.0.0"),
+        ),
+    )
+    fetched = _write_snapshot(cas=cas, index_path=tmp_path / "cache.json", payload=SNAPSHOT_V1)
+    selected_ref = fetched.raw_artifact_ref
+    assert selected_ref is not None
+    assert default_ref.artifact_id == selected_ref.artifact_id
+    assert default_ref.manifest_profile_sha256 != selected_ref.manifest_profile_sha256
+    seed = _source_spec_from_snapshot(_source(fetched), cas=cas)
+    normalized = normalize_seed_sources([seed])[0]
+    assert normalized.raw_artifact_ref == selected_ref
+    assert normalized.props == seed.props
+    assert normalized.data == seed.data
+
+    original_get_bytes = cas.get_bytes
+    selected_reads: list[ArtifactRef] = []
+
+    def _read(reference: object, **kwargs: object) -> bytes:
+        if reference == selected_ref:
+            selected_reads.append(reference)
+            if deny_selected:
+                raise PermissionError("selected view withdrawn after API preflight")
+        return original_get_bytes(reference, **kwargs)
+
+    monkeypatch.setattr(cas, "get_bytes", _read)
+    intent = ResearchIntent(domain="labor", topic="selected source", seed_sources=[seed])
+    if deny_selected:
+        with pytest.raises(ScholarAcquireError, match="selected raw artifact view is unavailable"):
+            enrich_topic(cas=cas, fact_log_root=tmp_path / "facts", intent=intent)
+        assert selected_reads == [selected_ref]
+        assert all(
+            cas.get_manifest(item).kind != "fabric.world.doc_meta"
+            for item in cas.iter_artifact_ids()
+        )
+    else:
+        result = enrich_topic(cas=cas, fact_log_root=tmp_path / "facts", intent=intent)
+        assert selected_reads == [selected_ref]
+        assert result.report.docs["count"] == 1
+
+
+@pytest.mark.parametrize("corruption", ["payload", "digest", "size", "selected_profile"])
+def test_normalized_snapshot_mismatch_refusal_matches_direct_acquisition(
+    tmp_path: Path, corruption: str
+) -> None:
+    """The same selected-source refusal reaches direct and whole native routes."""
+    from polisyos.scholar.orchestrator.enrich import _acquire_bytes
+
+    cas = FileSystemCAS(tmp_path / "cas")
+    fetched = _write_snapshot(cas=cas, index_path=tmp_path / "cache.json", payload=SNAPSHOT_V1)
+    seed = _source_spec_from_snapshot(_source(fetched), cas=cas)
+    updates: dict[str, object] = {}
+    if corruption == "payload":
+        updates["data"] = SNAPSHOT_V2
+    elif corruption == "digest":
+        updates["props"] = {**seed.props, "content_sha256": SNAPSHOT_V2_SHA256}
+    elif corruption == "size":
+        updates["props"] = {**seed.props, "byte_size": str(len(SNAPSHOT_V1) + 1)}
+    else:
+        assert seed.raw_artifact_ref is not None
+        updates["raw_artifact_ref"] = seed.raw_artifact_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "e" * 64}
+        )
+    invalid = seed.model_copy(update=updates)
+    normalized = normalize_seed_sources([invalid])[0]
+    with pytest.raises(ScholarAcquireError) as direct:
+        _acquire_bytes(normalized, cas=cas, max_bytes=4096)
+    with pytest.raises(ScholarAcquireError) as whole:
+        enrich_topic(
+            cas=cas,
+            fact_log_root=tmp_path / "facts",
+            intent=ResearchIntent(domain="labor", topic="invalid snapshot", seed_sources=[invalid]),
+        )
+    assert str(whole.value) == str(direct.value)
+    assert whole.value.details == direct.value.details
+    assert all(
+        cas.get_manifest(item).kind != "fabric.world.doc_meta" for item in cas.iter_artifact_ids()
+    )
+
+
+@pytest.mark.parametrize("cache_backed", [False, True])
+@pytest.mark.parametrize(("timeout_s", "user_agent"), [(3.0, "scl03-a/1"), (4.0, "scl03-b/2")])
+def test_actual_fetch_profile_survives_metadata_and_seed_handoff(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    cache_backed: bool,
+    timeout_s: float,
+    user_agent: str,
+) -> None:
+    """Actual producer arguments, not a synthetic FetchResult, bind provenance."""
+    import asyncio
+
+    cas = FileSystemCAS(tmp_path / "cas")
+    cache_path = tmp_path / "cache.json"
+    cache = UrlFetchCache(index_path=cache_path, cas=cas)
+    constraints = SearchConstraints(
+        allowed_domains=["agency.gov"],
+        allowed_content_types=["text/plain"],
+        locale="en-GB",
+    )
+    calls: list[tuple[object, ...]] = []
+
+    def _transport(*args: object) -> tuple[bytes, str, str, dict[str, str], list[str]]:
+        calls.append(args)
+        return SNAPSHOT_V1, FINAL_URL, "text/plain", {}, [SOURCE_URL, FINAL_URL]
+
+    monkeypatch.setattr("polisyos.scholar.search.fetcher._fetch_url_bytes_sync", _transport)
+    monkeypatch.setattr(
+        "polisyos.scholar.search.security.socket.getaddrinfo",
+        lambda *args, **kwargs: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("93.184.216.34", 443))
+        ],
+    )
+    fetched = asyncio.run(
+        fetch_open_page(
+            SOURCE_URL,
+            constraints=constraints,
+            cache=cache if cache_backed else None,
+            timeout_s=timeout_s,
+            user_agent=user_agent,
+            max_bytes=4096,
+        )
+    )
+    assert len(calls) == 1
+    assert calls[0][0] == SOURCE_URL
+    assert calls[0][1] == constraints
+    assert calls[0][3:] == (timeout_s, user_agent, 4096)
+    expected = {
+        "profile_version": "1.0",
+        "transport": "polisyos.scholar.discover.transport",
+        "transport_version": "1.0",
+        "constraints": constraints.model_dump(mode="json"),
+        "max_bytes": 4096,
+        "timeout_s": timeout_s,
+        "user_agent": user_agent,
+    }
+    assert fetched.fetch_profile == expected
+    assert fetched.byte_size == len(SNAPSHOT_V1)
+    if not cache_backed:
+        # Persist the real result solely to exercise the ordinary metadata handoff.
+        # The producer assertions above already cover the no-cache route.
+        cache.put(fetched, raw_bytes=SNAPSHOT_V1)
+    restored_cache = UrlFetchCache(index_path=cache_path, cas=cas)
+    restored = restored_cache.get(SOURCE_URL)
+    assert restored is not None
+    assert restored.fetch_profile == expected
+    source = _source(restored.to_fetch_result())
+    seed = _seed_sources_from_web_bundle(
+        _bundle(source), cas=cas, cache=restored_cache, max_docs=1
+    )[0]
+    assert seed.raw_artifact_ref == fetched.raw_artifact_ref
+    assert json.loads(seed.props["fetch_profile"]) == expected
+    assert seed.props["fetch_profile_status"] == "recorded"
+    assert seed.props["byte_size"] == str(len(SNAPSHOT_V1))
+
+
+@pytest.mark.parametrize("same_bytes", [False, True])
+def test_historical_snapshot_does_not_inherit_later_cache_provenance(
+    tmp_path: Path,
+    same_bytes: bool,
+) -> None:
+    """Neither same URL nor same bytes establish the same acquisition facts."""
+    from datetime import timedelta
+
+    cas = FileSystemCAS(tmp_path / "cas")
+    index = tmp_path / "cache.json"
+    v1 = _write_snapshot(cas=cas, index_path=index, payload=SNAPSHOT_V1)
+    historical = _source(v1).model_copy(
+        update={
+            "fetch_profile": {},
+            "redirect_chain": [],
+            "final_url": None,
+            "etag": None,
+            "last_modified": None,
+            "lineage_parent_artifact_id": None,
+            "refresh_reason": None,
+            "license": "public-web",
+        }
+    )
+    cache = UrlFetchCache(index_path=index, cas=cas)
+    later = FetchResult(
+        url=SOURCE_URL,
+        final_url="https://agency.gov/later-acquisition",
+        text=(SNAPSHOT_V1 if same_bytes else SNAPSHOT_V2).decode(),
+        content_type="text/plain",
+        fetched_at=v1.fetched_at + timedelta(seconds=1),
+        status="ok",
+        etag="later-only",
+        redirect_chain=[SOURCE_URL, "https://agency.gov/later-acquisition"],
+        content_sha256=hashlib.sha256(SNAPSHOT_V1 if same_bytes else SNAPSHOT_V2).hexdigest(),
+        fetch_profile={"later-only": "not-historical"},
+        license="CC0",
+    )
+    cache.put(later, raw_bytes=SNAPSHOT_V1 if same_bytes else SNAPSHOT_V2)
+    seed = _source_spec_from_snapshot(historical, cas=cas, cache=cache)
+    assert seed.data == SNAPSHOT_V1
+    assert seed.raw_artifact_ref == v1.raw_artifact_ref
+    assert json.loads(seed.props["fetch_profile"]) == {}
+    assert seed.props["fetch_profile_status"] == "unknown"
+    assert json.loads(seed.props["redirect_chain"]) == []
+    assert seed.props["final_url"] == SOURCE_URL
+    assert seed.license == "public-web"
+    assert "etag" not in seed.props
+    assert "last_modified" not in seed.props
+    assert "lineage_parent_artifact_id" not in seed.props
+    assert "refresh_reason" not in seed.props
+
+
+def test_same_selected_acquisition_can_supply_saved_profile(tmp_path: Path) -> None:
+    """Exact selected identity and acquisition keep legitimate cache fallback."""
+    cas = FileSystemCAS(tmp_path / "cas")
+    index = tmp_path / "cache.json"
+    fetched = _write_snapshot(cas=cas, index_path=index, payload=SNAPSHOT_V1)
+    source = _source(fetched).model_copy(update={"fetch_profile": {}})
+    seed = _source_spec_from_snapshot(
+        source, cas=cas, cache=UrlFetchCache(index_path=index, cas=cas)
+    )
+    assert json.loads(seed.props["fetch_profile"]) == FETCH_PROFILE
+
+
+@pytest.mark.parametrize(("budget", "count"), [({"max_docs": 1}, 1), ({"max_bytes_total": 1}, 0)])
+def test_real_manual_bytes_enrichment_preserves_document_and_total_byte_limits(
+    tmp_path: Path, budget: dict[str, int], count: int
+) -> None:
+    """Manual bytes remain useful without CAS references, under actual budgets."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.contracts.scholar import BudgetsV1, KnowledgeBundlePayloadV1
+
+    cas = FileSystemCAS(tmp_path / "cas")
+    intent = ResearchIntent(
+        domain="labor",
+        topic="manual source limits",
+        seed_sources=[
+            SourceSpec(
+                kind="bytes",
+                data=payload,
+                license="CC-BY-4.0",
+                mime_hint="text/plain",
+                source_locator=f"bytes.sha256_{hashlib.sha256(payload).hexdigest()}",
+            )
+            for payload in (SNAPSHOT_V1, SNAPSHOT_V2)
+        ],
+        budgets_v1=BudgetsV1(**budget),
+    )
+    result = enrich_topic(cas=cas, fact_log_root=tmp_path / "facts", intent=intent)
+    fresh = FileSystemCAS(cas.root)
+    knowledge = KnowledgeBundlePayloadV1.model_validate(
+        load_core_json_artifact(fresh, result.knowledge_bundle_ref)
+    )
+    assert result.report.docs["count"] == count
+    assert len(knowledge.doc_version_ids) == count
+    if count == 0:
+        assert result.report.notes == ["stopped:max_bytes_total"]
+
+
+def test_physically_corrupt_snapshot_is_refused_without_losing_an_independent_document(
+    tmp_path: Path,
+) -> None:
+    """Raw corruption cannot become knowledge or trigger a hidden network fallback."""
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    cas = FileSystemCAS(tmp_path / "cas")
+    independent = enrich_topic(
+        cas=cas,
+        fact_log_root=tmp_path / "independent-facts",
+        intent=ResearchIntent(
+            domain="labor",
+            topic="independent source",
+            seed_sources=[
+                SourceSpec(
+                    kind="bytes",
+                    data=b"Independent useful document.",
+                    source_locator="manual.independent",
+                    license="CC-BY-4.0",
+                    mime_hint="text/plain",
+                )
+            ],
+        ),
+    )
+    before = load_core_json_artifact(cas, independent.knowledge_bundle_ref)
+    fetched = _write_snapshot(cas=cas, index_path=tmp_path / "cache.json", payload=SNAPSHOT_V1)
+    selected_ref = fetched.raw_artifact_ref
+    assert selected_ref is not None
+    service = _FixtureSearchService(_bundle(_source(fetched)), cas=cas)
+    blob_path, _ = cas._paths(selected_ref.artifact_id)
+    blob_path.write_bytes(b"corrupt raw snapshot")
+    with pytest.raises(ScholarAcquireError, match="source-content verification") as caught:
+        enrich_topic(
+            cas=cas,
+            fact_log_root=tmp_path / "invalid-facts",
+            intent=ResearchIntent(domain="labor", topic="employment policy"),
+            web_search_service=service,
+        )
+    assert any("source_artifact_unavailable" in item for item in caught.value.details["violations"])
+    fresh = FileSystemCAS(cas.root)
+    assert load_core_json_artifact(fresh, independent.knowledge_bundle_ref) == before
+
+
 def test_web_bootstrap_hands_cached_snapshot_to_enrich_without_second_url_fetch(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
@@ -476,7 +797,9 @@ def test_manual_url_seed_keeps_scl01_raw_transport_and_mime(
     )
     monkeypatch.setattr(
         "polisyos.scholar.search.security.socket.getaddrinfo",
-        lambda *args, **kwargs: [(None, None, None, None, ("93.184.216.34", 443))],
+        lambda *args, **kwargs: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("93.184.216.34", 443))
+        ],
     )
     source = SourceSpec(
         kind="url",
@@ -502,7 +825,9 @@ def test_manual_url_seed_keeps_scl01_raw_transport_and_mime(
 def test_manual_url_seed_keeps_scl01_private_network_guard(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         "polisyos.scholar.search.security.socket.getaddrinfo",
-        lambda *args, **kwargs: [(None, None, None, None, ("127.0.0.1", 80))],
+        lambda *args, **kwargs: [
+            (socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP, "", ("127.0.0.1", 80))
+        ],
     )
     source = SourceSpec(
         kind="url",

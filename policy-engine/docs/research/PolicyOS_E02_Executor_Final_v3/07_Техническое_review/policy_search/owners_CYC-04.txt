@@ -1,0 +1,184 @@
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/generation_cycle.py:13562-13594
+13562     def _joint_value_node_impl(self, state: dict[str, Any]) -> dict[str, Any]:
+13563         candidate = state["selected_candidate"]
+13564         problem = state["problem"]
+13565         cycle_index = int(state["cycle_index"])
+13566         candidate_id = _candidate_id(candidate)
+13567         candidate_hash = _candidate_content_hash(candidate)
+13568         self._n7_candidate_bindings[(candidate_id, candidate_hash)] = candidate
+13569         proxy_score, voi_estimate = state["rankings"].get(candidate_id, (0.0, 0.0))
+13570         schedule = self._schedule_candidate_for_execution(
+13571             candidate_id=candidate_id,
+13572             proxy_score=proxy_score,
+13573             voi_estimate=voi_estimate,
+13574             budget_state=state["budget_state"],
+13575         )
+13576         if not _scheduler_allows_candidate_n5(
+13577             schedule,
+13578             configured=self._candidate_simulation_handoff is not None,
+13579         ):
+13580             simulation, value = _scheduler_blocked_observations(candidate_id, schedule)
+13581             return {
+13582                 **state,
+13583                 "simulation": simulation,
+13584                 "value_port": value,
+13585                 "execution_schedule": schedule,
+13586             }
+13587         if self._candidate_simulation_handoff is not None:
+13588             simulation = self._run_configured_candidate_scenario_n5(
+13589                 candidate=candidate,
+13590                 problem=problem,
+13591                 cycle_index=cycle_index,
+13592             )
+13593             simulation = self._bind_cycle_context_job_ref_to_simulation(simulation)
+13594             value = _configured_candidate_value_observation(candidate_id, simulation)
+
+### e02_repository/policy-engine/src/polisyos/runtime/quality/generation_cycle.py:18979-19011
+18979 def _grounded_candidate_for_evaluation(
+18980     *,
+18981     candidates: Sequence[object],
+18982     grounding_by_candidate: Mapping[str, CandidateGroundingObservation],
+18983     rankings: Mapping[str, tuple[float, float]],
+18984     fallback: object,
+18985 ) -> object:
+18986     """Select the highest-information candidate that passed grounding.
+18987 
+18988     The original generated order is the final tie-breaker, so a missing VOI
+18989     ranking never becomes a fabricated priority.  If no candidate passed
+18990     grounding, retain the original selection to preserve its typed blocker in
+18991     the normal cycle record.
+18992     """
+18993 
+18994     eligible: list[tuple[int, object]] = []
+18995     for index, candidate in enumerate(candidates):
+18996         grounding = grounding_by_candidate.get(_candidate_id(candidate))
+18997         if grounding is not None and _grounding_allows_joint_evaluation(grounding):
+18998             eligible.append((index, candidate))
+18999     if not eligible:
+19000         return fallback
+19001     return max(
+19002         eligible,
+19003         key=lambda row: (
+19004             rankings.get(_candidate_id(row[1]), (0.0, 0.0))[1],
+19005             rankings.get(_candidate_id(row[1]), (0.0, 0.0))[0],
+19006             -row[0],
+19007         ),
+19008     )[1]
+19009 
+19010 
+19011 def _grounding_unavailable(
+
+### e02_repository/policy-engine/src/polisyos/scientist/methods/search/voi_scheduler.py:890-941
+  890     def _recommended_action(
+  891         self,
+  892         *,
+  893         next_level: int | None,
+  894         pareto_position: str,
+  895         budget_remaining: BudgetState,
+  896         estimated_cost: Decimal,
+  897         timeout_risk: float,
+  898         expected_improvement_per_usd: float,
+  899         expected_information_gain: float,
+  900         is_sentinel: bool,
+  901         reserved_calibration_budget_usd: float,
+  902         scheduler_mode: str,
+  903     ) -> tuple[Literal["advance", "defer", "reject", "retry_cheaper"], str]:
+  904         del scheduler_mode
+  905         recommended_action: Literal["advance", "defer", "reject", "retry_cheaper"] = "advance"
+  906         reason = "advance_by_voi"
+  907         if pareto_position == "dominated" and not is_sentinel:
+  908             recommended_action = "reject"
+  909             reason = "dominated_candidate"
+  910         elif next_level is not None and budget_remaining.would_exceed(
+  911             self._budget_key,
+  912             estimated_cost,
+  913         ):
+  914             recommended_action = "defer"
+  915             reason = "budget_exhausted_for_next_level"
+  916         elif (
+  917             not is_sentinel
+  918             and next_level is not None
+  919             and next_level >= 4
+  920             and self._violates_calibration_reserve(
+  921                 budget_remaining=budget_remaining,
+  922                 estimated_cost=estimated_cost,
+  923                 reserved_calibration_budget_usd=reserved_calibration_budget_usd,
+  924             )
+  925         ):
+  926             recommended_action = "defer"
+  927             reason = "reserved_calibration_budget"
+  928         elif (
+  929             next_level is not None
+  930             and next_level >= 4
+  931             and timeout_risk >= self._timeout_risk_threshold
+  932         ):
+  933             recommended_action = "retry_cheaper"
+  934             reason = "high_timeout_risk"
+  935         elif expected_improvement_per_usd < self._min_roi_threshold:
+  936             if expected_information_gain > 0.0:
+  937                 reason = "advance_by_information_value"
+  938             else:
+  939                 recommended_action = "reject"
+  940                 reason = "roi_below_threshold"
+  941         return recommended_action, reason
+
+### e02_repository/policy-engine/src/polisyos/scientist/orchestration/engine/producer_budget.py:122-179
+  122 class ProducerBudgetObserver:
+  123     """Reconcile one existing budget state against one exact durable run owner.
+  124 
+  125     The caller supplies the admitted run binding and configured run cap. The
+  126     source is re-opened for every admission. A detached or request-supplied view
+  127     cannot be substituted for this observer or renew its source basis.
+  128     """
+  129 
+  130     def __init__(
+  131         self,
+  132         *,
+  133         settlement_store: BudgetMiddleware,
+  134         producer_run_binding: BudgetLedgerProducerRunBinding,
+  135         budget_state: BudgetState,
+  136     ) -> None:
+  137         if type(settlement_store) is not BudgetMiddleware:
+  138             raise TypeError("control_nl_budget_settlement_store_invalid")
+  139         if type(producer_run_binding) is not BudgetLedgerProducerRunBinding:
+  140             raise TypeError("control_nl_budget_run_binding_invalid")
+  141         if type(budget_state) is not BudgetState:
+  142             raise TypeError("control_nl_budget_state_invalid")
+  143         self._store = settlement_store
+  144         self._binding = producer_run_binding
+  145         self._state = budget_state
+  146         self._limit = self._current_limit().model_copy(deep=True)
+  147         self._owner = settlement_store.settlement_owner_identity
+  148         self._last_reconciled_total = Decimal(0)
+  149         self._last_checked: ProducerBudgetObservation | None = None
+  150         self._lock = threading.RLock()
+  151 
+  152     @property
+  153     def configured_limit_usd(self) -> Decimal:
+  154         """Return the captured configured allocation, without asserting current spend."""
+  155         return self._limit.max_usd
+  156 
+  157     @property
+  158     def last_checked(self) -> ProducerBudgetObservation | None:
+  159         """Return the last checked source view without refreshing its identity."""
+  160         with self._lock:
+  161             return self._last_checked
+  162 
+  163     def require_bound_state(self, current_state: BudgetState) -> None:
+  164         """Check invocation identity/configuration without inventing a spend read."""
+  165         with self._lock:
+  166             if current_state is not self._state or type(current_state) is not BudgetState:
+  167                 raise ProducerBudgetSourceError("control_nl_budget_state_binding_mismatch")
+  168             if self._current_limit() != self._limit:
+  169                 raise ProducerBudgetSourceError("control_nl_budget_run_limit_changed")
+  170 
+  171     def __call__(self, current_state: BudgetState) -> None:
+  172         """Preserve the existing scheduler's None-returning callback contract."""
+  173         self.require_bound_state(current_state)
+  174         with self._lock:
+  175             if self._current_limit() != self._limit:
+  176                 raise ProducerBudgetSourceError("control_nl_budget_run_limit_changed")
+  177             # The scheduler can independently enforce a configured zero ceiling;
+  178             # no missing event is converted into a known-zero spend projection.
+  179             if self._limit.max_usd <= Decimal(0):

@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
+import time
 
 import pytest
 
@@ -383,3 +385,144 @@ async def test_legacy_search_keeps_public_provider_error_text():
     assert provider_name == "failing"
     assert hits == []
     assert error == "failing: boom"
+
+
+class _DeadlineClock:
+    def __init__(self) -> None:
+        self.now = 100.0
+
+    def __call__(self) -> float:
+        return self.now
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("elapsed", [0.25, 1.0, 2.0])
+async def test_failover_checks_absolute_deadline_before_every_provider(monkeypatch, elapsed):
+    clock = _DeadlineClock()
+    calls: list[tuple[str, float]] = []
+
+    class _First:
+        name = "first"
+
+        async def search(self, query, *, constraints, max_results, timeout_s):
+            calls.append((self.name, timeout_s))
+            clock.now += elapsed
+            return []
+
+    class _Second(_WorkingProvider):
+        async def search(self, query, *, constraints, max_results, timeout_s):
+            calls.append((self.name, timeout_s))
+            return await super().search(
+                query, constraints=constraints, max_results=max_results, timeout_s=timeout_s
+            )
+
+    monkeypatch.setattr(provider_module, "monotonic", clock, raising=False)
+    policy = ProviderFailoverPolicy([_First(), _Second()])
+    provider, hits, error, attempts = await policy.search_with_attempts(
+        "minimum wage",
+        constraints=SearchConstraints(),
+        max_results=5,
+        timeout_s=5,
+        deadline=101.0,
+    )
+
+    if elapsed < 1.0:
+        assert calls == [("first", 1.0), ("working", 0.75)]
+        assert provider == "working"
+        assert len(hits) == 1
+        assert error is None
+        assert [item.provider for item in attempts] == ["first", "working"]
+    else:
+        assert calls == [("first", 1.0)]
+        assert provider == "first"
+        assert hits == []
+        assert error == "stopped:max_wall_time_s"
+        assert [item.provider for item in attempts] == ["first"]
+        assert attempts[0].reason == "not_established"
+
+
+@pytest.mark.asyncio
+async def test_failover_expired_deadline_does_not_fabricate_an_attempt(monkeypatch):
+    calls: list[str] = []
+    monkeypatch.setattr(provider_module, "monotonic", lambda: 100.0, raising=False)
+    policy = ProviderFailoverPolicy([_EmptyProvider(calls)])
+    provider, hits, error, attempts = await policy.search_with_attempts(
+        "minimum wage",
+        constraints=SearchConstraints(),
+        max_results=5,
+        timeout_s=5,
+        deadline=100.0,
+    )
+    assert provider == "empty"
+    assert calls == []
+    assert hits == []
+    assert attempts == []
+    assert error == "stopped:max_wall_time_s"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("wall_budget", [0.01, 0.5])
+async def test_failover_hard_timeout_cancels_attempt_and_keeps_allowed_fallback(wall_budget):
+    cancelled: list[str] = []
+
+    class _HangingProvider:
+        name = "hanging"
+
+        async def search(self, query, *, constraints, max_results, timeout_s):
+            try:
+                await asyncio.Event().wait()
+            finally:
+                cancelled.append(self.name)
+
+    policy = ProviderFailoverPolicy([_HangingProvider(), _WorkingProvider()])
+    async with asyncio.timeout(1):
+        provider, hits, error, attempts = await policy.search_with_attempts(
+            "minimum wage",
+            constraints=SearchConstraints(),
+            max_results=5,
+            timeout_s=0.01,
+            deadline=time.monotonic() + wall_budget,
+        )
+    assert cancelled == ["hanging"]
+    assert attempts[0].outcome == "error"
+    assert attempts[0].error_type == "timeout_error"
+    if wall_budget == 0.5:
+        assert provider == "working"
+        assert len(hits) == 1
+        assert error is None
+        assert attempts[1].outcome == "returned_hits"
+    else:
+        assert provider == "hanging"
+        assert hits == []
+        assert error == "stopped:max_wall_time_s"
+        assert len(attempts) == 1
+
+
+@pytest.mark.asyncio
+async def test_failover_caller_cancellation_does_not_start_fallback():
+    started = asyncio.Event()
+    calls: list[str] = []
+
+    class _HangingProvider:
+        name = "hanging"
+
+        async def search(self, query, *, constraints, max_results, timeout_s):
+            calls.append(self.name)
+            started.set()
+            await asyncio.Event().wait()
+
+    policy = ProviderFailoverPolicy([_HangingProvider(), _RecordingWorkingProvider(calls)])
+    task = asyncio.create_task(
+        policy.search_with_attempts(
+            "minimum wage",
+            constraints=SearchConstraints(),
+            max_results=5,
+            timeout_s=5,
+            deadline=time.monotonic() + 10,
+        )
+    )
+    await started.wait()
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    assert calls == ["hanging"]

@@ -1,0 +1,347 @@
+{
+  "packet_id": "LLM-01",
+  "lane": "LANE-09",
+  "source_ids": [
+    "B64",
+    "B65",
+    "B66"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/LLM-01.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "title": "Ответ и обязательный учёт переживают отказ optional telemetry",
+  "practical_goal": "Сохранить полезный provider response и точный расход даже при отказе необязательной наблюдаемости; не расходовать повторно из-за экспортного сбоя.",
+  "work_types": "fix + preserve + lifecycle qualification",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C106_остатки:0",
+      "audit_id": "C106-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-LLM-01-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Изолировать optional export и сохранить обязательный post-record в sync/async."
+    },
+    {
+      "inventory_id": "audit-residual:C106_остатки:1",
+      "audit_id": "C106-R02",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-LLM-01-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Safe span boundary сохраняет response и primary mandatory/provider error."
+    },
+    {
+      "inventory_id": "audit-residual:C106_остатки:2",
+      "audit_id": "C106-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-LLM-01-03",
+        "REQ-LLM-01-04",
+        "REQ-LLM-01-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Native supported backend/interface и actual unresolved-outcome→admission lifecycle. Shared fallback repair C107-G02 также принадлежит LLM-01, не двойной writer."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-LLM-01-01",
+      "text": "Optional latency/cost histogram failure в LLMBudgetEnforcer не должен скрывать успешно полученный response, препятствовать обязательному post_record или запускать повторный provider. Async generate и sync invoke должны сохранить actual settlement и local budget projection; optional degradation наблюдаема отдельно.",
+      "source_ids": [
+        "B65"
+      ],
+      "audit_ids": [
+        "C106-R01"
+      ],
+      "test_ids": [
+        "TEST-LLM-01-01"
+      ]
+    },
+    {
+      "id": "REQ-LLM-01-02",
+      "text": "Optional span attribute/status/record_exception/context-manager failure не должен менять success response или верхний тип mandatory accounting/security/settlement ошибки. LLMAccountingError должен сохранить response и original cause; отказ только telemetry не переобозначается как provider failure.",
+      "source_ids": [
+        "B65"
+      ],
+      "audit_ids": [
+        "C106-R02"
+      ],
+      "test_ids": [
+        "TEST-LLM-01-02"
+      ]
+    },
+    {
+      "id": "REQ-LLM-01-03",
+      "text": "Обязательный accounting отказ либо unknown amount остаётся различимым от отсутствовавшего provider call; actual runtime spending owner должен удержать следующий расход согласно текущему unresolved-outcome правилу до reconciliation, не превращая unknown в zero или проглатывая ошибку.",
+      "source_ids": [
+        "B65",
+        "B66"
+      ],
+      "audit_ids": [
+        "C106-G01"
+      ],
+      "test_ids": [
+        "TEST-LLM-01-03"
+      ]
+    },
+    {
+      "id": "REQ-LLM-01-04",
+      "text": "Поддержанные named/positional prompt нормализуются один раз; совместимый дубль не дублируется, конфликт отказывает до transport. User/system/messages и действующий sanitizer contract сохраняются; неподдержанная форма не переинтерпретируется в новый смысл.",
+      "source_ids": [
+        "B64"
+      ],
+      "audit_ids": [
+        "C106-G01"
+      ],
+      "test_ids": [
+        "TEST-LLM-01-04"
+      ]
+    },
+    {
+      "id": "REQ-LLM-01-05",
+      "text": "Actual factory miss+2hits должны дать один physical event и отдельные consumer reuse events/receipts с original usage и нулевым provider increment для hits. Expiry создаёт новый charge; forged marker/invalid origin proof не создаёт committed reuse, а missing usage сохраняет unknown.",
+      "source_ids": [
+        "B66"
+      ],
+      "audit_ids": [],
+      "test_ids": [
+        "TEST-LLM-01-05"
+      ]
+    },
+    {
+      "id": "REQ-LLM-01-06",
+      "text": "Штатный fallback PolicyOSTracer при supported no-OTel profile должен принимать те же используемые start_as_current_span keywords, что основной tracer, включая kind/record_exception/set_status_on_exception, и не требовать тестового shim. Native configured observability и fallback проверяются раздельно; detailed scope/concurrency остаётся LLM-02.",
+      "source_ids": [
+        "B65"
+      ],
+      "audit_ids": [
+        "C106-G01",
+        "C107-G02"
+      ],
+      "test_ids": [
+        "TEST-LLM-01-06"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-LLM-01-01",
+      "requirement_ids": [
+        "REQ-LLM-01-01"
+      ],
+      "level": "native unit + actual wrapper composition",
+      "setup": "Real LLMBudgetEnforcer с actual inner traced client и FileBudgetLedger; controlled provider cost0.02; отдельно throwing latency и cost sinks.",
+      "action": "Выполнить async generate и sync invoke; повторить без sink failure.",
+      "oracle": "1 provider, ответ доступен; durable ledger и local spent=0.02, reservation released; degraded diagnostic; нет second dispatch. Mandatory audit failure не swallowed.",
+      "expected": "Positive полезный ответ при optional sink fault; старый code скрывает return.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Provider/sinks doubles разрешены; реальны wrapper/accounting/ledger. Нельзя заменить _post_record или судить только по inner charge."
+    },
+    {
+      "id": "TEST-LLM-01-02",
+      "requirement_ids": [
+        "REQ-LLM-01-02"
+      ],
+      "level": "native tracing boundaries",
+      "setup": "Configured tracer поочерёдно throws on attribute, status, record_exception, enter/exit; provider success/error и mandatory callback error.",
+      "action": "Вызвать real TracedLLMClient и проверить результат/exception.",
+      "oracle": "Success response сохранён; accounting ошибка остаётся LLMAccountingError с тем же response/cause; provider ValueError остаётся primary. Optional span faults только degraded. Обязательная failure не исчезает из-за safe-span handling.",
+      "expected": "Positive и negative сохранение семантики; старый attribute/status reproducer различающий.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Failing tracer допустим и явно не production-frequency claim; не подменять клиент или mandatory callback success."
+    },
+    {
+      "id": "TEST-LLM-01-03",
+      "requirement_ids": [
+        "REQ-LLM-01-03"
+      ],
+      "level": "native runtime owner / ledger lifecycle",
+      "setup": "Actual scoped producer admission, settlement store и budget owner; provider получил ответ, required accounting падает/amount unknown; сохранённое намерение и record.",
+      "action": "Попытаться начать следующую генерацию тем же run до reconciliation, затем выполнить existing reconciliation/replay и разрешённый retry.",
+      "oracle": "До разрешённого settlement owner не выдаёт uncontrolled spend; response/cause/unknown record сохранены, не synthetic zero. После корректного reconciliation допуск восстанавливается один раз без double charge.",
+      "expected": "Lifecycle qualification с positive recovery; product repair только если real path не соответствует правилу.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Transport fake разрешён; gate/store/reconciliation реальные. Нельзя ограничиться DTO unknown или handwritten gate."
+    },
+    {
+      "id": "TEST-LLM-01-04",
+      "requirement_ids": [
+        "REQ-LLM-01-04"
+      ],
+      "level": "native interface/sanitizer characterization",
+      "setup": "Prompt-capable provider и actual Gateway preparation; named/positional/equal duplicate/conflict/user/system/messages; sanitizer on/off fixtures без секретов.",
+      "action": "Вызвать реальные normalization+transport boundaries.",
+      "oracle": "Supported prompt передан один раз; conflict0calls; user/system/messages сохраняют declared transformation; sanitizer change не выдаётся equivalent.",
+      "expected": "Positive supported inputs и explicit rejection unsupported.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Provider spy allowed; не arbitrary kwargs acceptance и не новый interface для всех providers."
+    },
+    {
+      "id": "TEST-LLM-01-05",
+      "requirement_ids": [
+        "REQ-LLM-01-05"
+      ],
+      "level": "native factory→real ledger integration",
+      "setup": "Actual create_traced_gateway_client/cache/normalizer/tracer/FileBudgetLedger; single controlled endpoint и deterministic reply.",
+      "action": "Miss+2hits, expiry+miss, raw=None/missing usage и damaged origin/proof variants.",
+      "oracle": "1call и 3unique events на первой серии, billable increments0.02/0/0; expiry total0.04. Original tokens/request_id retained как provenance. Damaged authority не committed; unknown не нулевая сеть.",
+      "expected": "Полезный cached response и корректный учёт; fixed provider price synthetic.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Fake _post_json разрешён; factory/CAS or filesystem ledger/cache/Core proofs реальные. Sanitizer configuration зафиксировать."
+    },
+    {
+      "id": "TEST-LLM-01-06",
+      "requirement_ids": [
+        "REQ-LLM-01-06"
+      ],
+      "level": "native profile qualification",
+      "setup": "Supported Python3.14 и declared dependencies; standard optional OTel profile, отдельно no-OTel fallback import.",
+      "action": "Запустить actual factory/traced path с используемыми keywords; existing cache/accounting suites плюс LLM-02 consumption.",
+      "oracle": "Нет pre-assertion TypeError(kind); body assertions реально выполнены. Configured backend error не маскирует result; оба profiles честно отмечены RUN/BLOCKED/N/A.",
+      "expected": "Shared compatibility repair положительно потребляется LLM-02.",
+      "evidence_required": "NOT_RUN: исполнитель предъявляет actual command, runtime/commit, exit code, полный log и fixture/input hashes; oracle assertions и scope doubles отдельно.",
+      "status": "NOT_RUN",
+      "doubles": "Не install/monkeypatch tracer signature; actual fallback owner, optional exporter can be local controlled sink."
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I09-B"
+  ],
+  "dependencies": [
+    "LLM-02 shared writer mutex and E02-I09-B"
+  ],
+  "preservation": [
+    "Однократная prompt normalization и conflict-before-provider",
+    "Guarded call/error metrics",
+    "Mandatory accounting error с response",
+    "Origin usage отдельно от current billable increment",
+    "Core owner-bound reuse proof, не raw marker",
+    "Unique reuse event IDs и exact origin receipts",
+    "Expiry новый charge и unknown не zero"
+  ],
+  "design_alignment": [
+    "Vision §3,6,7; honest diagnostics substrate; no new finance subsystem"
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0130",
+      "requirement_ids": [
+        "REQ-LLM-01-01"
+      ],
+      "disposition": "fix",
+      "rationale": "Изолировать optional export и сохранить обязательный post-record в sync/async."
+    },
+    {
+      "inventory_id": "remaining:0131",
+      "requirement_ids": [
+        "REQ-LLM-01-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Safe span boundary сохраняет response и primary mandatory/provider error."
+    },
+    {
+      "inventory_id": "remaining:0132",
+      "requirement_ids": [
+        "REQ-LLM-01-03",
+        "REQ-LLM-01-04",
+        "REQ-LLM-01-06"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native supported backend/interface и actual unresolved-outcome→admission lifecycle. Shared fallback repair C107-G02 также принадлежит LLM-01, не двойной writer."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0185",
+      "requirement_ids": [
+        "REQ-LLM-01-04"
+      ],
+      "test_ids": [
+        "TEST-LLM-01-04"
+      ],
+      "rationale": "Prompt normalization/conflict до provider."
+    },
+    {
+      "inventory_id": "preserve:0186",
+      "requirement_ids": [
+        "REQ-LLM-01-01",
+        "REQ-LLM-01-02"
+      ],
+      "test_ids": [
+        "TEST-LLM-01-01",
+        "TEST-LLM-01-02"
+      ],
+      "rationale": "Existing guarded call/error metrics сохранены и расширены на uncovered sinks."
+    },
+    {
+      "inventory_id": "preserve:0187",
+      "requirement_ids": [
+        "REQ-LLM-01-02",
+        "REQ-LLM-01-03"
+      ],
+      "test_ids": [
+        "TEST-LLM-01-02",
+        "TEST-LLM-01-03"
+      ],
+      "rationale": "Typed mandatory accounting failure retains response."
+    },
+    {
+      "inventory_id": "preserve:0188",
+      "requirement_ids": [
+        "REQ-LLM-01-05"
+      ],
+      "test_ids": [
+        "TEST-LLM-01-05"
+      ],
+      "rationale": "Origin usage отдельно от current increment."
+    },
+    {
+      "inventory_id": "preserve:0189",
+      "requirement_ids": [
+        "REQ-LLM-01-05"
+      ],
+      "test_ids": [
+        "TEST-LLM-01-05"
+      ],
+      "rationale": "Core proof, не untrusted raw marker."
+    },
+    {
+      "inventory_id": "preserve:0190",
+      "requirement_ids": [
+        "REQ-LLM-01-05"
+      ],
+      "test_ids": [
+        "TEST-LLM-01-05"
+      ],
+      "rationale": "Unique events и exact origin receipts."
+    },
+    {
+      "inventory_id": "preserve:0191",
+      "requirement_ids": [
+        "REQ-LLM-01-03",
+        "REQ-LLM-01-05"
+      ],
+      "test_ids": [
+        "TEST-LLM-01-03",
+        "TEST-LLM-01-05"
+      ],
+      "rationale": "Expiry fresh charge, unknown amount не zero."
+    }
+  ],
+  "owners": [
+    "src/polisyos/scientist/orchestration/llm/budget_enforcer.py::generate/invoke/_post_record",
+    "src/polisyos/core/llm/traced_client.py::_record_tokens/generate",
+    "src/polisyos/core/observability/__init__.py::PolicyOSTracer"
+  ]
+}

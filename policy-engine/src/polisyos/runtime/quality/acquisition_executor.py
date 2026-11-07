@@ -15,7 +15,7 @@ import re
 import time
 from collections.abc import Mapping, Sequence
 from contextlib import ExitStack
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
@@ -36,6 +36,9 @@ if TYPE_CHECKING:
 
     from polisyos.runtime.http.services.control_registry_providers import (
         ControlRegistryProviders,
+    )
+    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+        CandidateUnpricedLiveContext,
     )
     from polisyos.runtime.quality.epoch_deployment import EpochDeployment
     from polisyos.runtime.quality.semantic_epoch import (
@@ -690,6 +693,7 @@ class _LiveHTTPExecutionObserver:
                 kind="fabric.acquisition.raw_evidence",
                 media_type="application/json",
             ),
+            return_selected_profile=True,
         )
         self.raw_evidence_ref = raw_ref
         self.raw_artifact_ref = raw_artifact_ref
@@ -719,27 +723,28 @@ class _LiveHTTPExecutionObserver:
         return elapsed
 
 
-def execute_live_catalog_acquisition(
+@dataclass(frozen=True, slots=True)
+class _PreparedLiveCatalogAuthorization:
+    """Owner-derived request facts shared by preparation and live execution."""
+
+    resolved: ResolvedAcquisitionAuthority
+    profile: Any
+    connection_config: Any
+    family_receipt: object
+    request: dict[str, Any]
+    schema_contract: dict[str, Any]
+    authorization: fabric_data_plane.LiveExecutionAuthorization
+
+
+def _prepare_live_catalog_authorization(
     *,
     authority: _CanonicalAuthority,
     entry_id: str,
     attempt_id: str,
     constraints: LiveCatalogExecutionConstraints,
-    journal_path: Path,
-    cas_root: Path,
-    artifact_store: ArtifactStore | None = None,
-    cache_namespace: str | None = None,
     registry_providers: ControlRegistryProviders | None = None,
-) -> LiveSourceExecutionEvidence:
-    """Execute one catalog-owned variable through Fabric and return quarantine evidence.
-
-    The function does not admit observations.  It creates the exact raw journal/CAS
-    carrier and Fabric snapshot required by the independent passport owner.
-    The supplied store remains the writer for Fabric ingestion and its snapshot.
-    It must address ``cas_root`` because connector-cache payloads use that store.
-    ``cache_namespace`` scopes the cache index independently per governed route.
-    """
-
+) -> _PreparedLiveCatalogAuthorization:
+    """Reopen the real source and derive a bounded authorization without I/O effects."""
     from polisyos.runtime.http.services.control_registry_providers import (
         resolve_control_registry_providers,
     )
@@ -752,14 +757,10 @@ def execute_live_catalog_acquisition(
     _require_constraints_within_authority_scope(entry, constraints)
     if registration.connector_id != "worldbank.wdi":
         raise LiveAcquisitionExecutionError(
-            "live_connector_family_not_implemented",
-            registration.connector_id,
+            "live_connector_family_not_implemented", registration.connector_id
         )
     if resolved.license_disposition.value != "admissible_open":
-        raise LiveAcquisitionExecutionError(
-            "live_license_not_admissible",
-            resolved.license_id,
-        )
+        raise LiveAcquisitionExecutionError("live_license_not_admissible", resolved.license_id)
     providers = (
         registry_providers
         if registry_providers is not None
@@ -768,50 +769,36 @@ def execute_live_catalog_acquisition(
     profile = providers.source_profiles.get(registration.source_profile_id)
     if profile is None:
         raise LiveAcquisitionExecutionError(
-            "live_source_profile_unresolved",
-            registration.source_profile_id,
+            "live_source_profile_unresolved", registration.source_profile_id
         )
     if not profile.base_url.startswith("https://"):
-        raise LiveAcquisitionExecutionError(
-            "live_profile_transport_not_https",
-            profile.profile_id,
-        )
-
+        raise LiveAcquisitionExecutionError("live_profile_transport_not_https", profile.profile_id)
     try:
         harness_receipt = ResolvedLiveHarnessReceipt.model_validate(
             authority.resolve_live_harness_receipt(entry_id, attempt_id)
         )
     except Exception as exc:
         raise LiveAcquisitionExecutionError(
-            "live_harness_receipt_unresolved",
-            type(exc).__name__,
+            "live_harness_receipt_unresolved", type(exc).__name__
         ) from exc
-    base_connection_config = resolve_connection_config(profile)
+    connection_config = resolve_connection_config(profile)
     if harness_receipt.source_profile_family != str(profile.connector_family):
         raise LiveAcquisitionExecutionError(
-            "live_harness_profile_family_drift",
-            harness_receipt.source_profile_family,
+            "live_harness_profile_family_drift", harness_receipt.source_profile_family
         )
     if harness_receipt.connection_config_content_sha256 != content_sha256(
-        base_connection_config.to_dict(redact=True)
+        connection_config.to_dict(redact=True)
     ):
         raise LiveAcquisitionExecutionError(
-            "live_harness_connection_config_drift",
-            profile.profile_id,
+            "live_harness_connection_config_drift", profile.profile_id
         )
     dry_run_request = FetchRequest(dataset_id=registration.request_dataset_id)
     if harness_receipt.fetch_request_key != dry_run_request.request_key:
         raise LiveAcquisitionExecutionError(
-            "live_harness_fetch_request_drift",
-            registration.request_dataset_id,
+            "live_harness_fetch_request_drift", registration.request_dataset_id
         )
     family_receipt = harness_receipt.family_receipt
-
-    baseline_before_sha256 = resolved.baseline_content_sha256
-    request = _live_request_projection(
-        resolved,
-        constraints=constraints,
-    )
+    request = _live_request_projection(resolved, constraints=constraints)
     schema_contract = entry.schema_projection()
     authorization = fabric_data_plane.build_live_execution_authorization(
         attempt_id=attempt_id,
@@ -820,13 +807,100 @@ def execute_live_catalog_acquisition(
         request=request,
         schema_contract=schema_contract,
         source_profile=profile,
-        baseline_sha256=baseline_before_sha256,
+        baseline_sha256=resolved.baseline_content_sha256,
         family_receipt=family_receipt,
         timeout_cap_seconds=constraints.timeout_cap_seconds,
         heartbeat_cap_seconds=constraints.heartbeat_cap_seconds,
         max_response_bytes=constraints.max_response_bytes,
         max_decompressed_bytes=constraints.max_decompressed_bytes,
     )
+    return _PreparedLiveCatalogAuthorization(
+        resolved=resolved,
+        profile=profile,
+        connection_config=connection_config,
+        family_receipt=family_receipt,
+        request=request,
+        schema_contract=schema_contract,
+        authorization=authorization,
+    )
+
+
+def execute_live_catalog_acquisition(
+    *,
+    authority: _CanonicalAuthority,
+    entry_id: str,
+    attempt_id: str,
+    constraints: LiveCatalogExecutionConstraints,
+    journal_path: Path,
+    cas_root: Path,
+    artifact_store: ArtifactStore | None = None,
+    cache_namespace: str | None = None,
+    registry_providers: ControlRegistryProviders | None = None,
+    candidate_unpriced_context: CandidateUnpricedLiveContext | None = None,
+) -> LiveSourceExecutionEvidence:
+    """Execute one catalog-owned variable through Fabric and return quarantine evidence.
+
+    The function does not admit observations.  It creates the exact raw journal/CAS
+    carrier and Fabric snapshot required by the independent passport owner.
+    The supplied store remains the writer for Fabric ingestion and its snapshot.
+    It must address ``cas_root`` because connector-cache payloads use that store.
+    ``cache_namespace`` scopes the cache index independently per governed route.
+    """
+
+    if candidate_unpriced_context is not None:
+        from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+        from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+            CandidateUnpricedLiveContext,
+        )
+
+        if (
+            type(candidate_unpriced_context) is not CandidateUnpricedLiveContext
+            or type(candidate_unpriced_context.control_service) is not ControlPlaneService
+            or (
+                registry_providers is not None
+                and registry_providers
+                is not candidate_unpriced_context.control_service._registry_providers
+            )
+        ):
+            raise LiveAcquisitionExecutionError("candidate_unpriced_context_untyped")
+        registry_providers = candidate_unpriced_context.control_service._registry_providers
+
+    prepared = _prepare_live_catalog_authorization(
+        authority=authority,
+        entry_id=entry_id,
+        attempt_id=attempt_id,
+        constraints=constraints,
+        registry_providers=registry_providers,
+    )
+    resolved = prepared.resolved
+    registration = resolved.registration
+    profile = prepared.profile
+    base_connection_config = prepared.connection_config
+    family_receipt = prepared.family_receipt
+    request = prepared.request
+    schema_contract = prepared.schema_contract
+    authorization = prepared.authorization
+    baseline_before_sha256 = resolved.baseline_content_sha256
+    if candidate_unpriced_context is not None:
+        from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+            reconcile_candidate_unpriced_work,
+        )
+
+        reconcile_candidate_unpriced_work(
+            control_service=candidate_unpriced_context.control_service,
+            scope=candidate_unpriced_context.scope,
+            policy_ref=candidate_unpriced_context.policy_ref,
+            action_phase_ref=candidate_unpriced_context.action_phase_ref,
+            live_authorization=authorization,
+            budget_observer=candidate_unpriced_context.budget_observer,
+            budget_state=candidate_unpriced_context.budget_state,
+            experiment_origin=candidate_unpriced_context.experiment_origin,
+        )
+        # Legacy unpriced contexts remain closed. The explicit V5 experiment
+        # path is admitted only when its typed current origin was independently
+        # reconciled above; this does not establish a per-call USD reservation.
+        if candidate_unpriced_context.experiment_origin is None:
+            raise LiveAcquisitionExecutionError("candidate_unpriced_budget_scope_not_established")
     if artifact_store is None:
         raise LiveAcquisitionExecutionError("live_runtime_artifact_store_required")
     journal = fabric_data_plane.AppendOnlyEvidenceJournal(journal_path)
@@ -1096,6 +1170,7 @@ def _execute_authorized_live_acquisition(
         raw_evidence_ref=observer.raw_evidence_ref,
         transport_trace=transport_trace,
         raw_artifact_id=observer.raw_artifact_ref.artifact_id,
+        raw_artifact_ref=observer.raw_artifact_ref,
         evidence_bundle_ref=ingestion_result.evidence_bundle_ref,
         data_snapshot_ref=ingestion_result.data_snapshot_ref,
         normalized_data_artifact_id=snapshot.data_ref.artifact_id,
@@ -1733,11 +1808,7 @@ def build_admission_passport(
         authority_ref=resolved.l5_trust.authority_ref,
         owner_ref=resolved.l5_trust.owner_ref,
     )
-    observation_class = (
-        ObservationProvenanceClass.PROXY
-        if resolved.field_binding.is_proxy
-        else ObservationProvenanceClass.OBSERVED
-    )
+    observation_class = data_forge_read_api.catalog.resolve_source_observation_class(resolved)
     body_sha = f"sha256:{hashlib.sha256(body).hexdigest()}"
     dataset_version = (
         live_source_execution.normalized_result_content_sha256
@@ -2015,10 +2086,13 @@ def admit_acquisition_with_production_semantic_epoch(
     facet_source_refs: Mapping[str, ArtifactRef],
     live_source_execution: LiveSourceExecutionEvidence | None = None,
     epoch_deployment: EpochDeployment | None = None,
+    source_owner_root: Path | None = None,
 ) -> ActivatedSemanticEpochAdmissionReceipt | PersistedSemanticEpochProductionReceipt:
     """Compose and invoke the production epoch adapter without policy self-admission.
 
-    Operational paths and evidence selectors are explicit inputs.  All semantic
+    Operational paths and evidence selectors are explicit inputs. An optional
+    source-owner root selects the existing L5 data owner separately from the
+    code checkout; it does not by itself grant authority. All semantic
     coordinate digests are independently recomputed. A factory-produced
     deployment may supply the existing native policy producer and verifier;
     absent deployment or owner retains the unallocated refusal.
@@ -2032,11 +2106,21 @@ def admit_acquisition_with_production_semantic_epoch(
     )
     from polisyos.runtime.quality.substrate_registry import (
         DEFAULT_L3_LEX_KG_PATH,
+        current_catalog_serving_source,
         default_substrate_catalog_paths,
         load_l5_catalog_authority,
     )
 
     root = repo_root.resolve()
+    # Data ownership follows the serving source; epoch registries stay code-root owned.
+    effective_source_owner_root = source_owner_root
+    active_catalog_source = current_catalog_serving_source()
+    if (
+        effective_source_owner_root is None
+        and active_catalog_source is not None
+        and active_catalog_source.repo_root == root
+    ):
+        effective_source_owner_root = active_catalog_source.source_owner_root
     boundary_path = (
         root / "architecture/policy_design_case/layer3_gy_epoch_boundary_source_registry.json"
     )
@@ -2052,7 +2136,15 @@ def admit_acquisition_with_production_semantic_epoch(
                 "resolver_unavailable",
                 "semantic facet source-binding denominator differs",
             )
-        l5_owner = load_l5_catalog_authority(default_substrate_catalog_paths(root), repo_root=root)
+        l5_paths = default_substrate_catalog_paths(
+            root,
+            source_owner_root=effective_source_owner_root,
+        )
+        l5_owner = load_l5_catalog_authority(
+            l5_paths,
+            repo_root=root,
+            source_owner_root=effective_source_owner_root,
+        )
         from polisyos.lex.knowledge import LegalKnowledgeStore
 
         lex_path = root / DEFAULT_L3_LEX_KG_PATH
@@ -2434,6 +2526,11 @@ def revalidate_admission_passport(
         or resolved.entry.source_lane != passport.source_lane
     ):
         raise ValueError("acquisition_authority_drift")
+    if (
+        data_forge_read_api.catalog.resolve_source_observation_class(resolved)
+        is not passport.observation_class
+    ):
+        raise ValueError("source_provenance_drift")
     if passport.source_lane == "live_fetch":
         if passport.live_source_execution is None:
             raise ValueError("live_source_execution_evidence_required")

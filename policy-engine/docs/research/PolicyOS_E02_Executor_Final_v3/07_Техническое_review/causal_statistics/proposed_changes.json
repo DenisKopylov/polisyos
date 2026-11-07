@@ -1,0 +1,227 @@
+{
+  "status": "PROPOSED_SPEC_ONLY_PENDING_INDEPENDENT_REVIEW",
+  "date": "2026-11-01",
+  "authorized_scope": "Root requested five affected packet MD/JSON and two assigned lane overviews; no product, baseline, shared03 or aggregate04 edits",
+  "findings": [
+    "CS-001",
+    "CS-002",
+    "CS-003",
+    "CS-004",
+    "CS-005",
+    "CS-006"
+  ],
+  "files": [
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/CAU-03.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAU-03.md",
+      "finding_ids": [
+        "CS-001"
+      ],
+      "requirement_ids": [
+        "REQ-CAU-03-02",
+        "REQ-CAU-03-05"
+      ],
+      "test_ids": [
+        "TEST-CAU-03-02",
+        "TEST-CAU-03-08"
+      ],
+      "old_sha256": "42e0a6b3db86ebb7129a057893854355dd5fa83533ddc5a1ba37da25607a57b8",
+      "new_sha256": "32649aa29d84f4d0abb3aa0afb03360e29055c78b2ed402c242c0065e8ccfd92",
+      "status": "PROPOSED_SPEC_ONLY_PRODUCT_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/CAU-03.json",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAU-03.json",
+      "finding_ids": [
+        "CS-001"
+      ],
+      "requirement_ids": [
+        "REQ-CAU-03-02",
+        "REQ-CAU-03-05"
+      ],
+      "test_ids": [
+        "TEST-CAU-03-02",
+        "TEST-CAU-03-08"
+      ],
+      "old_sha256": "78aab12423191f9ccafe68db916c2b0163295f7a4b9d188d2706c1211d301298",
+      "new_sha256": "8e26e424e078172d1cb5e1e725f149f4b2979d2d83e8a884891cd34b812900d7",
+      "status": "PROPOSED_SPEC_ONLY_PRODUCT_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/CAU-04.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/CAU-04.md",
+      "finding_ids": [
+        "CS-002"
+      ],
+      "requirement_ids": [
+        "REQ-CAU-04-05",
+        "REQ-CAU-04-02"
+      ],
+      "test_ids": [
+        "TEST-CAU-04-02",
+        "TEST-CAU-04-08"
+      ],
+      "old_sha256": "5c6e4fca86f1948f759b53f19caab0cf56a0f89f368d0b734a7919a7c0ff3f76",
+      "new_sha256": "407c656e4a44d1fefa767f2c3756bba405b8e4ed509e7d428f7cb714e3327783",
+      "status": "PROPOSED_SPEC_ONLY_PRODUCT_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/CAU-04.json",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/CAU-04.json",
+      "finding_ids": [
+        "CS-002"
+      ],
+      "requirement_ids": [
+        "REQ-CAU-04-05",
+        "REQ-CAU-04-02"
+      ],
+      "test_ids": [
+        "TEST-CAU-04-02",
+        "TEST-CAU-04-08"
+      ],
+      "old_sha256": "5f2ee237428ce1d95e6823675a630583a8fa80ada9dfac79be60a1ae40f11b26",
+      "new_sha256": "004b25230cf6cae317ce7554eae938871c46c8517a57128321348b585b610915",
+      "status": "PROPOSED_SPEC_ONLY_PRODUCT_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/FIT-01.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/FIT-01.md",
+      "finding_ids": [
+        "CS-003"
+      ],
+      "requirement_ids": [
+        "REQ-FIT-01-08",
+        "REQ-FIT-01-02"
+      ],
+      "test_ids": [
+        "TEST-FIT-01-10"
+      ],
+      "old_sha256": "0b2d6d2ae529f0c7f9b77dea8d8b0ec15e3c2dd151401daec856574033c410dd",
+      "new_sha256": "ac4b636b2db998d6a49f55514194351ac58160b0b366ddffe92f911b8f8ae611",
+      "status": "PROPOSED_SPEC_ONLY_PRODUCT_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/FIT-01.json",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/FIT-01.json",
+      "finding_ids": [
+        "CS-003"
+      ],
+      "requirement_ids": [
+        "REQ-FIT-01-08",
+        "REQ-FIT-01-02"
+      ],
+      "test_ids": [
+        "TEST-FIT-01-10"
+      ],
+      "old_sha256": "faf83b3483f896f12959e6b44036a33a7537a201603b1b3a1245f64d5b9962ea",
+      "new_sha256": "ebfe9b071643ca9cfe391c01daad119cdb4ee97be92c1f163915139fc2ed4544",
+      "status": "PROPOSED_SPEC_ONLY_PRODUCT_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/DDM-02.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/DDM-02.md",
+      "finding_ids": [
+        "CS-004"
+      ],
+      "requirement_ids": [
+        "REQ-DDM-02-06",
+        "REQ-DDM-02-03"
+      ],
+      "test_ids": [
+        "TEST-DDM-02-08"
+      ],
+      "old_sha256": "8ea6fdd3d48d89903a466409b722c7060d1812c775d23bfd167c8bfa9bd75f4a",
+      "new_sha256": "64d77f00860f16e2f6e9a06024ebd7963833225b2bf348dc3b6935a9c1b53e0d",
+      "status": "PROPOSED_SPEC_ONLY_PRODUCT_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/DDM-02.json",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/DDM-02.json",
+      "finding_ids": [
+        "CS-004"
+      ],
+      "requirement_ids": [
+        "REQ-DDM-02-06",
+        "REQ-DDM-02-03"
+      ],
+      "test_ids": [
+        "TEST-DDM-02-08"
+      ],
+      "old_sha256": "c4d549a2647029719133677cf95e311d49c0578a7ce98eaa5a4ca15d80facb2e",
+      "new_sha256": "7bbf7c4b08c8b8485b26c19f93fbba6f1ee4a342ba4493b885131d15e29ecfc8",
+      "status": "PROPOSED_SPEC_ONLY_PRODUCT_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/SCM-02.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/SCM-02.md",
+      "finding_ids": [
+        "CS-005"
+      ],
+      "requirement_ids": [
+        "REQ-SCM-02-07",
+        "REQ-SCM-02-08"
+      ],
+      "test_ids": [
+        "TEST-SCM-02-10"
+      ],
+      "old_sha256": "16de4d89d8a60c2bacb0cf9937978ce7133f0c9b423062ace07c952a5ba5c36e",
+      "new_sha256": "442a1b178533d695191df5d202bd5dcbc69d06130bac57b5293d51265570e7af",
+      "status": "PROPOSED_SPEC_ONLY_PRODUCT_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/SCM-02.json",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/SCM-02.json",
+      "finding_ids": [
+        "CS-005"
+      ],
+      "requirement_ids": [
+        "REQ-SCM-02-07",
+        "REQ-SCM-02-08"
+      ],
+      "test_ids": [
+        "TEST-SCM-02-10"
+      ],
+      "old_sha256": "e0615d776113370ef91eef1109e64dde5d1635e8ae7d71d238aa8feccc017e9c",
+      "new_sha256": "1bad193f324ce2b4c4e5c95adc09d4d92005294369c6e6753c1e6799aed5efc9",
+      "status": "PROPOSED_SPEC_ONLY_PRODUCT_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/01_Лейны/LANE-05.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-05.md",
+      "finding_ids": [
+        "CS-001",
+        "CS-002",
+        "CS-003",
+        "CS-005",
+        "CS-006"
+      ],
+      "requirement_ids": [],
+      "test_ids": [],
+      "old_sha256": "c7a22698e3d83f6d0c93d3aecc4d2dc4fb3b9a30dc9a2a3338cf6debfc9be174",
+      "new_sha256": "fc111556b51776ced9f2f7198d10ad01bfbd58c3aab1d62186be967663bba229",
+      "status": "PROPOSED_SPEC_ONLY_PRODUCT_NOT_RUN"
+    },
+    {
+      "path": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/01_Лейны/LANE-11.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-11.md",
+      "finding_ids": [
+        "CS-004"
+      ],
+      "requirement_ids": [],
+      "test_ids": [],
+      "old_sha256": "f93c1e7d3dfa855d8bf4d7298baf5b4858ca2e1dcfbd3509e9f68bdd0494e587",
+      "new_sha256": "21706b5c7de0d010311eda7228baf81df89571e19173652daccfd628adfd12d6",
+      "status": "PROPOSED_SPEC_ONLY_PRODUCT_NOT_RUN"
+    }
+  ],
+  "preserved": "All existing REQ/TEST IDs, source_ids/residual_dispositions/obligation_dispositions/preservation_bindings/source_locators/original_source values retained; five new tests and local requirement-test edges added",
+  "new_tests": [
+    "TEST-CAU-03-08",
+    "TEST-CAU-04-08",
+    "TEST-FIT-01-10",
+    "TEST-DDM-02-08",
+    "TEST-SCM-02-10"
+  ],
+  "aggregate_mapping_status": "Root/shared owner must update aggregate maps/counts and shared integration assertions; intentionally not edited here",
+  "product_tests": "NOT_RUN"
+}

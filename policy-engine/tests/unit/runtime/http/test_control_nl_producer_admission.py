@@ -293,9 +293,13 @@ async def test_actual_begin_receipt_with_lost_attempt_is_refused_before_dispatch
 
     def lose_attempt(*args: Any, **kwargs: Any) -> Any:
         token = middleware._producer_attempt_scope.set(None)
+        # Remove the upstream spend-admission guard to keep the independent
+        # producer-basis negative control exercised with an actual bad receipt.
+        admission_token = middleware._scoped_producer_begin.set(None)
         try:
             return actual_begin(*args, **kwargs)
         finally:
+            middleware._scoped_producer_begin.reset(admission_token)
             middleware._producer_attempt_scope.reset(token)
 
     monkeypatch.setattr(middleware, "begin_producer_event_safe", lose_attempt)
@@ -338,3 +342,52 @@ async def test_actual_begin_receipt_with_lost_attempt_is_refused_before_dispatch
     assert len(rows) == 1 and rows[0].status == "pending"
     assert rows[0].run_binding == _binding() and rows[0].control_job_attempt is None
     assert not persisted and basis.closed_snapshot() == (False, ())
+
+
+@pytest.mark.asyncio
+async def test_scoped_spend_admission_refuses_a_lost_attempt_before_any_write_or_dispatch(
+    monkeypatch: Any, tmp_path: Path
+) -> None:
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "job.sqlite3")
+    _create_job(store, known=True)
+    leased = store.lease_next_job(worker_id="worker-a", lease_seconds=30)
+    assert leased is not None
+    ledger_path = tmp_path / "lost-attempt.json"
+    middleware = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+    actual_begin = middleware.begin_producer_event_safe
+
+    def lose_attempt(*args: Any, **kwargs: Any) -> Any:
+        token = middleware._producer_attempt_scope.set(None)
+        try:
+            return actual_begin(*args, **kwargs)
+        finally:
+            middleware._producer_attempt_scope.reset(token)
+
+    monkeypatch.setattr(middleware, "begin_producer_event_safe", lose_attempt)
+    with store.job_execution_fence(job_id="job-a", worker_id="worker-a", attempt=leased.attempt):
+        admission = store.current_execution_job_admission()
+        with (
+            middleware.producer_run_binding_scope(_binding(), control_job_attempt=1),
+            _gateway_cache_reuse_scope(
+                authorizer=None,
+                principal=None,
+                context=None,
+                cache=None,
+                run_id="run-a",
+                settlement_store=middleware,
+                reuse_guard=lambda operation: operation(),
+                validate_admission=lambda: store.verify_llm_producer_admission(expected=admission),
+            ),
+        ):
+            client = create_traced_gateway_client(
+                model_name="simulated-qwen",
+                config=GatewayLLMConfig(
+                    base_url="http://fixture.invalid", api_key="fixture", cache_maxsize=0
+                ),
+            )
+            assert client is not None
+            with pytest.raises(LLMSettlementOwnershipError, match="scope_closed"):
+                await client.generate(user="same", temperature=0)
+            assert not client.unwrap().calls
+    assert not FileBudgetLedger(ledger_path).snapshot().producer_settlements

@@ -60,7 +60,7 @@ def _write_snapshots(root: Path, module: str, models: list[dict]) -> None:
     )
 
 
-def _run_abi_diff(tmp_path: Path, baseline: Path, current: Path) -> dict:
+def _run_abi_diff_cli(tmp_path: Path, baseline: Path, current: Path) -> tuple[int, dict]:
     report_path = tmp_path / "report.json"
     repo_root = Path(__file__).resolve().parents[2]
     script_candidates = (
@@ -74,7 +74,7 @@ def _run_abi_diff(tmp_path: Path, baseline: Path, current: Path) -> dict:
             "ABI diff script not found. Checked: "
             + ", ".join(str(candidate) for candidate in script_candidates)
         )
-    subprocess.run(
+    result = subprocess.run(
         [
             sys.executable,
             str(script),
@@ -90,7 +90,47 @@ def _run_abi_diff(tmp_path: Path, baseline: Path, current: Path) -> dict:
         check=False,
         cwd=str(repo_root),
     )
-    return json.loads(report_path.read_text("utf-8"))
+    return result.returncode, json.loads(report_path.read_text("utf-8"))
+
+
+def _run_abi_diff(tmp_path: Path, baseline: Path, current: Path) -> dict:
+    _, report = _run_abi_diff_cli(tmp_path, baseline, current)
+    return report
+
+
+def _write_scientist_breaking_pair(
+    baseline: Path,
+    current: Path,
+    *,
+    priority: str,
+    current_version: str,
+) -> None:
+    base_schema = {
+        "type": "object",
+        "properties": {"payload": {"type": "string"}},
+        "required": ["payload"],
+    }
+    current_schema = {
+        "type": "object",
+        "properties": {"payload": {"type": "integer"}},
+        "required": ["payload"],
+    }
+    for root, schema, version in (
+        (baseline, base_schema, "1.0"),
+        (current, current_schema, current_version),
+    ):
+        _write_snapshots(
+            root,
+            "scientist",
+            [
+                {
+                    "abi_key": "propagation_report_v1_3",
+                    "schema": schema,
+                    "schema_version": version,
+                    "priority": priority,
+                }
+            ],
+        )
 
 
 def test_strict_optional_property_addition_is_breaking(tmp_path: Path) -> None:
@@ -277,3 +317,110 @@ def test_alias_match_reports_model_renamed(tmp_path: Path) -> None:
 
     report = _run_abi_diff(tmp_path, baseline, current)
     assert any(change["kind"] == "model_renamed" for change in report["changes"])
+
+
+def test_scientist_p1_breaking_change_is_reported_as_warning(tmp_path: Path) -> None:
+    baseline = tmp_path / "baseline"
+    current = tmp_path / "current"
+    _write_scientist_breaking_pair(
+        baseline,
+        current,
+        priority="p1",
+        current_version="1.0",
+    )
+
+    exit_code, report = _run_abi_diff_cli(tmp_path, baseline, current)
+
+    assert exit_code == 0
+    assert report["verdict"] == "WARN"
+    assert report["version_errors"] == []
+    assert any(
+        change["module"] == "scientist"
+        and change["kind"] == "property_type_changed"
+        and change["breaking"]
+        for change in report["changes"]
+    )
+    assert any("priority p1" in warning for warning in report["warnings"])
+
+
+def test_scientist_p0_breaking_change_with_major_bump_is_non_blocking(
+    tmp_path: Path,
+) -> None:
+    baseline = tmp_path / "baseline"
+    current = tmp_path / "current"
+    _write_scientist_breaking_pair(
+        baseline,
+        current,
+        priority="p0",
+        current_version="2.0",
+    )
+
+    exit_code, report = _run_abi_diff_cli(tmp_path, baseline, current)
+
+    assert exit_code == 0
+    assert report["verdict"] == "WARN"
+    assert report["version_errors"] == []
+    assert report["baseline_versions"] == {"scientist:propagation_report_v1_3": "1.0"}
+    assert report["current_versions"] == {"scientist:propagation_report_v1_3": "2.0"}
+    assert any(
+        change["module"] == "scientist"
+        and change["kind"] == "property_type_changed"
+        and change["breaking"]
+        for change in report["changes"]
+    )
+
+
+def test_scientist_p0_breaking_change_without_major_bump_fails(tmp_path: Path) -> None:
+    baseline = tmp_path / "baseline"
+    current = tmp_path / "current"
+    _write_scientist_breaking_pair(
+        baseline,
+        current,
+        priority="p0",
+        current_version="1.0",
+    )
+
+    exit_code, report = _run_abi_diff_cli(tmp_path, baseline, current)
+
+    assert exit_code == 1
+    assert report["verdict"] == "FAIL"
+    assert any("major version not bumped" in error for error in report["version_errors"])
+    assert any(
+        change["module"] == "scientist"
+        and change["kind"] == "property_type_changed"
+        and change["breaking"]
+        for change in report["changes"]
+    )
+
+
+def test_future_manifest_family_is_discovered_from_empty_baseline(tmp_path: Path) -> None:
+    baseline = tmp_path / "baseline"
+    current = tmp_path / "current"
+    schema = {
+        "type": "object",
+        "properties": {"payload": {"type": "string"}},
+        "required": ["payload"],
+    }
+
+    _write_snapshots(
+        current,
+        "future_family",
+        [
+            {
+                "abi_key": "future_contract",
+                "schema": schema,
+                "schema_version": "1.0",
+                "priority": "p1",
+            }
+        ],
+    )
+
+    report = _run_abi_diff(tmp_path, baseline, current)
+
+    assert report["verdict"] == "PASS"
+    assert any(
+        change["module"] == "future_family"
+        and change["model"] == "future_contract"
+        and change["kind"] == "model_added"
+        for change in report["changes"]
+    )

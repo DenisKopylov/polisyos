@@ -22,6 +22,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.protocol import RootedArtifactStore, matches_runtime_protocol
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.foundry import validate_source_bound_gcm_spec
 from polisyos.foundry.methods.catalog import (
     ensure_all_methods_registered as ensure_causal_methods_registered,
 )
@@ -60,6 +61,7 @@ from polisyos.ir.registry.refs import (
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
 from polisyos.scientist.nodes.builtins import errors as node_errors
+from polisyos.scientist.nodes.builtins.causal.run_causal_queries import _load_bound_query_result
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENSEMBLE_ENVELOPE_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
@@ -392,6 +394,8 @@ def _run_member_query(
     query: CausalQuery,
     scm_spec: StructuralCausalModelSpec,
     seed: int,
+    scm_ref: ArtifactRef | None = None,
+    lineage_refs: list[InputRef] | None = None,
 ) -> CausalQueryResult:
     store = ctx.store
     if not matches_runtime_protocol(store, RootedArtifactStore):
@@ -399,12 +403,27 @@ def _run_member_query(
     cas_root = store.root
     if not isinstance(cas_root, Path):
         raise RuntimeError("causal_ensemble_rooted_store_required")
+    if scm_ref is None:
+        persisted = persist_structural_causal_model_spec(_ensure_ir_artifact_store(store), scm_spec)
+        scm_ref = ArtifactRef.model_validate(persisted.model_dump(mode="json"))
+    selected = StructuralCausalModelSpecRef.from_selected_write(scm_ref.model_dump(mode="json"))
+    loaded = load_structural_causal_model_spec(_ensure_ir_artifact_store(store), selected)
+    if loaded.model_dump(mode="json") != scm_spec.model_dump(mode="json"):
+        raise ValueError("causal ensemble SCM materialization/source mismatch")
+    if (
+        scm_spec.source_graph is not None
+        and "temporal_observation_binding" in scm_spec.source_graph.metadata
+    ):
+        validate_source_bound_gcm_spec(scm_spec, store, scm_ref=selected)
+    else:
+        validate_source_bound_gcm_spec(scm_spec, store)
     method_state = SCMQueryData(scm_spec=scm_spec, query=query)
     result = run_job(
         JobSpec(
             job_kind="method",
             method_fqn=_METHOD_FQN,
             method_params={},
+            input_refs={"scm_spec": scm_ref},
             seed=seed,
         ),
         cas_root=cas_root,
@@ -412,10 +431,17 @@ def _run_member_query(
     )
     if result.issues:
         raise RuntimeError(f"gcm_query issues={result.issues}")
-    output = result.final_state if isinstance(result.final_state, Mapping) else {}
-    if "query_result" not in output:
-        raise RuntimeError("gcm_query output missing query_result")
-    return CausalQueryResult.model_validate(output["query_result"])
+    query_result = _load_bound_query_result(ctx, result, query, scm_ref)
+    if lineage_refs is not None:
+        assert isinstance(result.method_result_ref, ArtifactRef)
+        lineage_refs.append(
+            input_ref_from_artifact_ref(result.method_result_ref, role="method_result")
+        )
+        if result.method_evidence_ref is not None:
+            lineage_refs.append(
+                input_ref_from_artifact_ref(result.method_evidence_ref, role="method_evidence")
+            )
+    return query_result
 
 
 def _build_consensus_graph(
@@ -620,11 +646,18 @@ class RunCausalEnsembleNode:
                     else int(seed_base + idx)
                 )
                 try:
+                    member_inputs: list[InputRef] = []
                     query_result = _run_member_query(
                         ctx=ctx,
                         query=query,
                         scm_spec=scm_spec,
                         seed=member_seed,
+                        scm_ref=scm_ref,
+                        lineage_refs=member_inputs,
+                    )
+                    input_refs.extend(
+                        item.model_copy(update={"role": f"member_{idx}.{item.role}"})
+                        for item in member_inputs
                     )
                 except _CAUSAL_ENSEMBLE_RUNTIME_ERRORS as exc:
                     return NodeOutcome(
@@ -643,6 +676,33 @@ class RunCausalEnsembleNode:
                     )
                     query_result = load_causal_query_result(
                         _ensure_ir_artifact_store(ctx.store), query_result_ref
+                    )
+                    result_manifest = ctx.store.get_manifest(
+                        ArtifactRef.model_validate(query_result_ref.model_dump(mode="json"))
+                    )
+                    source_inputs = [
+                        item
+                        for item in result_manifest.inputs
+                        if item.role == "structural_causal_model_spec"
+                    ]
+                    if len(source_inputs) != 1 or (
+                        source_inputs[0].artifact_id != scm_ref.artifact_id
+                        or source_inputs[0].manifest_profile_sha256
+                        != scm_ref.manifest_profile_sha256
+                    ):
+                        raise ValueError("causal ensemble result lacks its selected SCM binding")
+                    if (
+                        scm_spec.source_graph is not None
+                        and "temporal_observation_binding" in scm_spec.source_graph.metadata
+                    ):
+                        validate_source_bound_gcm_spec(scm_spec, ctx.store, scm_ref=scm_ref)
+                    else:
+                        validate_source_bound_gcm_spec(scm_spec, ctx.store)
+                    input_refs.append(
+                        input_ref_from_artifact_ref(
+                            ArtifactRef.model_validate(query_result_ref.model_dump(mode="json")),
+                            role=f"member_{idx}.query_result",
+                        )
                     )
                 except _CAUSAL_ENSEMBLE_RUNTIME_ERRORS as exc:
                     return NodeOutcome(
@@ -805,11 +865,19 @@ class RunCausalEnsembleNode:
                     "contrast_arms_match": True,
                 }
             )
-        member_gate_eligible = all(
-            bool(item.query_result.metadata.get("abduction_gate_eligible", True))
-            and not item.query_result.metadata.get("declared_root_hypothesis")
-            for item in normalized_members
-        )
+        member_envelopes = [
+            item.query_result.to_uncertainty_envelope() for item in normalized_members
+        ]
+        member_gate_eligible = all(item.gate_eligible for item in member_envelopes)
+        envelope_metadata["member_semantics"] = [
+            {
+                "distribution_family": item.distribution_family.value,
+                "interval_semantics": item.interval_semantics.value,
+                "gate_eligible": item.gate_eligible,
+                "metadata": dict(item.metadata),
+            }
+            for item in member_envelopes
+        ]
         if not member_gate_eligible:
             envelope_metadata["member_gate_eligible"] = False
         envelope = envelope.model_copy(

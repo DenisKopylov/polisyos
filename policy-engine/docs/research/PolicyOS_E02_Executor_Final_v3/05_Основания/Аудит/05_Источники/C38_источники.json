@@ -1,0 +1,431 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/economics/baselines.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          42
+        ]
+      ],
+      "evidence_level": "Полный canonical baseline прочитан; actual function исполнена с NumPy-as-jnp и actual guard body",
+      "git_blob": "77c803bca19be9689906cb5c92ed6f824c5fe45c",
+      "sha256": "85f12a1ef624ba4fd96c08b0874e27d5dc3a0b65c0ce5663d7484f61793c36d3",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/foundry/methods/_internal/loss.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/_internal/loss.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          7
+        ]
+      ],
+      "evidence_level": "Полный internal facade исполнен с actual baseline object в controlled namespace",
+      "git_blob": "7654932a01fc820be523717e5247b71733566e89",
+      "sha256": "e32770ae2079f857c3be2718189b3747f5e374c901f25015437d949fe14b77f0",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/foundry/methods/loss.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/loss.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          5
+        ]
+      ],
+      "evidence_level": "Полный public facade исполнен через actual reexport helper",
+      "git_blob": "adb22c1032cdbf559fecad96dbe5a1e4eaf08be9",
+      "sha256": "23c1070b37ee54a5a6af6ddeede0b0c833d0bfd30df66d4a6714564238b343ef",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/foundry/methods/_internal/reexport.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/_internal/reexport.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          26
+        ]
+      ],
+      "evidence_level": "Полный actual helper прочитан и исполнен",
+      "git_blob": "6e828dfe4980afc16ecbef238125f3ae6838e059",
+      "sha256": "b5d5664db4f23c708b96c8b0bcc9aa73e399d822c0d46c6aafaca748fc57bdab",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/foundry/execute/_internal/numeric/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/execute/_internal/numeric/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          210
+        ],
+        [
+          230,
+          232
+        ]
+      ],
+      "evidence_level": "Прочитаны numeric helpers; исполнены только actual finite_loss_or_inf и is_jax_tracer с NumPy/Tracer seams",
+      "git_blob": "505d43b68c00227f9278caec9fd2cc87ab479bba",
+      "sha256": "8f00616c33fc197a357aad04d301bdf5ad88fe6955c1ae6c44af337ebf35a9f9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/foundry/runtime/numeric.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/runtime/numeric.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          43
+        ]
+      ],
+      "evidence_level": "Полный public numeric facade прочитан; normal import UNRUN",
+      "git_blob": "6acaa921a23f6dc57f5eeb314a92b3c456d6d791",
+      "sha256": "08306248559ab1a622d20b00dbb8aeec9b4d1f0c279022ec35575ddef35cd220",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/economics/mechanisms.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          185
+        ]
+      ],
+      "evidence_level": "Полные plugin laws прочитаны; exact class/method definitions исполнены с NumPy/scripted RNG/replace-state seams",
+      "git_blob": "7d17796793224072eaaf56d8f928b582833e254e",
+      "sha256": "fee306f84dd909ea4542d4f25296257c9b8941d8f98004f22c0c4456883ff7c1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/economics/state.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          221
+        ]
+      ],
+      "evidence_level": "Полный EconomicState/agent/aggregate contract прочитан; native chex state/Gini refresh не исполнены",
+      "git_blob": "ee5b613dff2807accca1faa3ee940322b8dbc760",
+      "sha256": "964e1d9dfdea573df4201263d6a5346fd6d42b40f3074ea59a10b4cd285676da",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/objectives.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/economics/objectives.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          150
+        ]
+      ],
+      "evidence_level": "Полные objective definitions прочитаны; исполнен только actual GDPObjective",
+      "git_blob": "c8966fa5ead8349a83df72b82ece7c36b6fe97e1",
+      "sha256": "71a89f0b55eac0d420ee74db09f06f23d8174c93e79428a4929e5181726b25fa",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/economics/plugin.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          220
+        ]
+      ],
+      "evidence_level": "Полный plugin producer/factory/consumer wiring прочитан; native registration/factory UNRUN",
+      "git_blob": "f6f05130cadf4397129a3c4a0ed11320e70d68e2",
+      "sha256": "ff61358038184967b9039d8cc0e6bd05bf653e0ba26124ac37182aa4c9db08c5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/economics/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          39
+        ]
+      ],
+      "evidence_level": "Полный package export surface прочитан; fresh-import side effects не проверены исполнением",
+      "git_blob": "9cf035d9df503648206db093775a640e67c9ff32",
+      "sha256": "7a091edee34d6d83491a46698481739d9dd9c3787360de7d69b2a3d9f06ef963",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/foundry/plugins/economics/README.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/economics/README.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          109
+        ]
+      ],
+      "evidence_level": "Полная существующая profile/units/clock/accounting таблица прочитана; научной валидацией не считается",
+      "git_blob": "30b6929ef99aed9673ae90354f676b78d3e66b81",
+      "sha256": "a28c1d3f98e1a72d0011a46b73c6d615678cd9223055fc67c81fe85a0cce0b6b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/foundry/plugins/composite.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/composite.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          317,
+          530
+        ]
+      ],
+      "evidence_level": "Полный ordinary step и выбранная часть selected-Gini branch прочитаны; только class shell/init/ordinary step 317–376 извлечены, step исполнен с fixtures, selected-Gini UNRUN",
+      "git_blob": "4d1c3ab75ff32dd60a6b4815f20d8cc949a5b12e",
+      "sha256": "1ee1cd50bdc99b036d4ab190cbff99e24751c46b35358f34f40f2792cbde517c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          149
+        ]
+      ],
+      "evidence_level": "Полный actual native-owner source прочитан; definitions повторно исполнены с NumPy seam, не JAX",
+      "git_blob": "3e310064e1301fc6d773514c665c6df540134766",
+      "sha256": "0e048675e3a559a625e0f2fb0431926749b9ae7eabb6353e93f57148d8c6c7f5",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/foundry/execute/mechanisms/labor.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/execute/mechanisms/labor.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          95
+        ]
+      ],
+      "evidence_level": "Полный actual native-owner source прочитан; definitions повторно исполнены со scripted RNG",
+      "git_blob": "d0b62fb3db97cf47bed6f35cee38a97d7ed22c10",
+      "sha256": "c69d8d1e4c672a41f6eef1a4e752c1dd3bf1b9aaf2dfc06183ab1e4208bf1875",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/src/polisyos/foundry/contracts/mechanism.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/contracts/mechanism.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          54
+        ]
+      ],
+      "evidence_level": "Полный PatchMap contract прочитан; definitions исполнены с eqx.Module=object",
+      "git_blob": "d0babaa5ed9340d104c425c69f960a08f17704c1",
+      "sha256": "d0bc6ae0ff0a94127518cf8a4ad02f354e586704be3e8aea9ef5b8e2c0db5514",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/src/polisyos/foundry/contracts/fidelity.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/contracts/fidelity.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          11
+        ]
+      ],
+      "evidence_level": "Полный enum прочитан и исполнен",
+      "git_blob": "8ccd4ccccddba9edfdcf6d483c82a323264ffb59",
+      "sha256": "199447bcebf51ddf7c91c3f0f65b40c9b987ed832cb5a533a0f78cd6f9e027bd",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S18",
+      "path": "policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/reference/foundry/economic-baseline-profile.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          69
+        ]
+      ],
+      "evidence_level": "Полный historical profile/acceptance scope прочитан; прежние closure/native receipts не перенесены как текущий PASS",
+      "git_blob": "6a68e4d10377c4a49b8024b9b2d073b63177ad49",
+      "sha256": "8bde41bddd99586bfc8da91039ea08614e649a36f7b1a9b2a961ea41529c9b03",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S19",
+      "path": "policy-engine/tests/unit/remediation/test_eco_01.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_eco_01.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          148
+        ]
+      ],
+      "evidence_level": "Полный найденный original-package test прочитан; native attempt BLOCKED",
+      "git_blob": "93aa19a4ddcb8b226d99fe038d7644106e8b8768",
+      "sha256": "7d7e963b08694de88700526de1d15bca4d2e231a034969ec548d62181d84502d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S20",
+      "path": "policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/plugins/test_historical_income_baseline.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          116
+        ]
+      ],
+      "evidence_level": "Полный native formula/guard/import-side-effect test прочитан; native attempt BLOCKED",
+      "git_blob": "e7c9601aa273822e5a5f050bdb6f17ca4f0fadb7",
+      "sha256": "fb2bd027688ad5688132d2673e9c2e52005bd876e258b9a04f49fbb7e307a9bf",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S21",
+      "path": "policy-engine/tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/plugins/test_economic_profile_consumers.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          233
+        ]
+      ],
+      "evidence_level": "Полный actual registered/composite consumer test прочитан; native attempt BLOCKED",
+      "git_blob": "a309d686b83179652d93c31bda1153cd56f180b0",
+      "sha256": "45de157284f38de32d11f33ec0537bd7ce4859095a64ee4d765562c202554e6b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S22",
+      "path": "policy-engine/tests/unit/foundry/plugins/test_economic_profiles.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/plugins/test_economic_profiles.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          386
+        ]
+      ],
+      "evidence_level": "Полные matched/divergent/native profile tests прочитаны; UNRUN",
+      "git_blob": "858b9303ade552eebd0964bc1842f3a3b67032b2",
+      "sha256": "dc8415c4f765073986a7bc64304360a15a181f1b73b49f315c0dd8d303c37a6d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S23",
+      "path": "policy-engine/tests/unit/foundry/plugins/test_economics_dtype.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/plugins/test_economics_dtype.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          206
+        ]
+      ],
+      "evidence_level": "Полные native dtype/conditional-state tests прочитаны; UNRUN",
+      "git_blob": "6af0896c69be6f13b26c356ed4af3e97f1abdd20",
+      "sha256": "e042b779fbb155a4b4009690820bcd5c0de12ead0b84f4bc8013b295786ef4df",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S24",
+      "path": "policy-engine/tests/unit/foundry/analysis/test_loss_numeric.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/analysis/test_loss_numeric.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          28
+        ]
+      ],
+      "evidence_level": "Полный существующий numeric consumer test прочитан; UNRUN",
+      "git_blob": "6aa58c220f6da4e580e1bf1ce49038cc69ad5e77",
+      "sha256": "eb366867cb37d7c3f5a8e440be171eb98cdc91f5bcdd85a132a30be655012f39",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      4711,
+      4892
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "discovery": {
+    "census": false,
+    "log": "04_Проверки/C38_ECO01/callsite_discovery.log",
+    "scope": "Exact-symbol search по src/tests и полное чтение найденных substantive tests. Dynamic external/config/FQN census не заявлен; исторический полный census не переаттестован."
+  }
+}

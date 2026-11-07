@@ -1,0 +1,79 @@
+[
+  {
+    "id": "C07-R1",
+    "source_ids": [
+      "B30"
+    ],
+    "kind": "unimplemented_positive_currentness_bridge_observed_in_source",
+    "owner": "runtime/quality/confidence_ledger.py::inspect_packaged_deployment_identity → observe_n6_deployment_currentness",
+    "finding": "Readiness unconditionally returns UNRUN and three unappointed-issuer limitations; matching identities do not make the current N6 route current/PASS.",
+    "preserve": [
+      "Candidate work under declared limitation",
+      "Existing loaded identity owner and currentness distinction",
+      "No source/file-presence laundering into authority"
+    ],
+    "remaining": "Bind the real supported build/deployment issuer and structural predicate using existing owners; qualified positive/negative currentness chain. Do not replace UNRUN with PASS.",
+    "native_status": "UNRUN",
+    "report": "02_Пакеты/CYC-05.md"
+  },
+  {
+    "id": "C07-V1",
+    "source_ids": [
+      "B15"
+    ],
+    "kind": "missing_current_composed_execution_evidence",
+    "owner": "HTTP generation service, recursive controller, existing served two-child test",
+    "finding": "Visible limits, source-derived child roster and graph are present; native test has not been executed in this audit.",
+    "preserve": [
+      "Complete child denominator",
+      "Requested/effective caps and reason",
+      "Proposal-only not_applied status",
+      "Persisted child results"
+    ],
+    "remaining": "Run existing meaningful-two-child POST/worker/N5/GET control and one budget stop after the first child; preserve exact source/profile/result bindings.",
+    "native_status": "UNRUN",
+    "report": "02_Пакеты/CYC-05.md"
+  },
+  {
+    "id": "C07-V2",
+    "source_ids": [
+      "B29"
+    ],
+    "kind": "consumer_acceptance_not_reestablished",
+    "owner": "N6 terminal/refinement/search history and served consumers",
+    "finding": "Producer stop-vs-abstain repaired and bounded branches agree; full DTO/persistence/UI chain unrun.",
+    "preserve": [
+      "Full terminal partition",
+      "Budget reason distinct from epistemic outcome",
+      "Historical bytes not rewritten"
+    ],
+    "remaining": "Real persisted round-trip for stable/partial/budget/abstention plus corruption of only sibling projection; inspect actual visible consumer.",
+    "native_status": "UNRUN",
+    "report": "02_Пакеты/CYC-05.md"
+  },
+  {
+    "id": "C07-L1",
+    "source_ids": [
+      "B15"
+    ],
+    "kind": "goal_boundary_not_automatically_a_bug",
+    "owner": "LLM-authored decomposition and existing source/coupling owners",
+    "finding": "Source alternatives and hypothetical joint diagnostic do not establish an authored compound design.",
+    "remaining": "When developing compound design, preserve explicit roles/coupling/refinement from actual authored plan; no universal deterministic planner mandated.",
+    "native_status": "UNRUN",
+    "report": "02_Пакеты/CYC-05.md"
+  },
+  {
+    "id": "C07-V3",
+    "source_ids": [
+      "B15",
+      "B29"
+    ],
+    "kind": "standalone_leaf_vs_enclosing_budget_evidence_boundary",
+    "owner": "GenerationCycleRun plus CompiledRecursiveGenerationCycleRun budget resolution",
+    "finding": "Standalone N6 lacks max_cycles; safety-cap history validator reconciles shape, not exact numeric cap. Enclosing HTTP artifact retains budget resolution.",
+    "remaining": "Compare actual attempted work against enclosing effective budget in the native chain; do not infer global budget bypass.",
+    "native_status": "UNRUN",
+    "report": "02_Пакеты/CYC-05.md"
+  }
+]

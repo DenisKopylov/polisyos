@@ -371,27 +371,9 @@ class SlotLinker:
                 ),
             )
 
-        matched_sources: dict[str, str] = {}
-
-        def augment(target_name: str, seen_sources: set[str]) -> bool:
-            """Find an augmenting path for one target in the bounded graph."""
-            for src_slot, _compat in candidate_edges[target_name]:
-                src_name = src_slot.name
-                if src_name in seen_sources:
-                    continue
-                seen_sources.add(src_name)
-                previous_target = matched_sources.get(src_name)
-                if previous_target is None or augment(previous_target, seen_sources):
-                    matched_sources[src_name] = target_name
-                    return True
-            return False
-
-        for target_name in target_inputs:
-            augment(target_name, set())
-
-        matched_targets = {
-            target_name: source_name for source_name, target_name in matched_sources.items()
-        }
+        matched_targets = _optimal_assignment(
+            candidate_edges, target_inputs, prefer_exact_names=self._config.prefer_exact_names
+        )
         bindings: list[SlotBinding] = []
 
         for tgt_name, tgt_slot in target_inputs.items():
@@ -413,19 +395,21 @@ class SlotLinker:
             )
             bindings.append(binding)
 
-            exact_name = self._config.prefer_exact_names and src_name == tgt_name
+            exact_name = self._config.prefer_exact_names and matched_source == tgt_name
             if not exact_name:
-                warnings.append(f"Auto-linked: {src_name} -> {tgt_name}")
+                warnings.append(f"Auto-linked: {matched_source} -> {tgt_name}")
             warnings.extend(_conversion_warnings(binding, src_slot, tgt_slot, self._config))
             warnings.extend(compat.warnings)
 
             if len(candidate_edges[tgt_name]) > 1 and not exact_name:
                 others = sorted(
-                    slot.name for slot, _ in candidate_edges[tgt_name] if slot.name != src_name
+                    slot.name
+                    for slot, _ in candidate_edges[tgt_name]
+                    if slot.name != matched_source
                 )
                 if others:
                     warnings.append(
-                        f"Multiple compatible sources for '{tgt_name}': used '{src_name}', "
+                        f"Multiple compatible sources for '{tgt_name}': used '{matched_source}', "
                         f"also available: {others}"
                     )
 
@@ -622,6 +606,75 @@ def _candidate_sort_key(
         -score[4],
         source_slot.name,
     )
+
+
+def _optimal_assignment(
+    candidate_edges: Mapping[str, Sequence[tuple[SlotSpec, SlotCompatibility]]],
+    target_inputs: Mapping[str, SlotSpec],
+    *,
+    prefer_exact_names: bool,
+) -> dict[str, str]:
+    """Find maximum coverage, then minimum lexicographic residual-path cost.
+
+    Successive shortest augmenting paths retain maximum cardinality without
+    making a local preference irrevocable. Tuple costs preserve the five
+    existing score priorities exactly; no floating weighting or dependency is
+    required. Final per-target components select sorted(target, source) ties.
+    Bellman-Ford admits negative reverse costs when an earlier pair is moved.
+    """
+    targets = sorted(target_inputs)
+    sources = sorted({slot.name for edges in candidate_edges.values() for slot, _ in edges})
+    source_ranks = {name: rank for rank, name in enumerate(sources)}
+    zero = (0,) * (5 + len(targets))
+    costs: dict[tuple[str, str], tuple[int, ...]] = {}
+    for index, target in enumerate(targets):
+        for source, compatibility in candidate_edges[target]:
+            score = _score_candidate(
+                source, target_inputs[target], compatibility, prefer_exact_names=prefer_exact_names
+            )
+            tie = [0] * len(targets)
+            tie[index] = source_ranks[source.name] - len(sources) - 1
+            costs[target, source.name] = tuple(-part for part in score) + tuple(tie)
+
+    matched_targets: dict[str, str] = {}
+    matched_sources: dict[str, str] = {}
+    while True:
+        target_cost = {target: zero for target in targets if target not in matched_targets}
+        source_cost: dict[str, tuple[int, ...]] = {}
+        previous_source: dict[str, str] = {}
+        for _ in range(len(targets) + len(sources)):
+            changed = False
+            for (target, source), edge_cost in costs.items():
+                if target not in target_cost or matched_targets.get(target) == source:
+                    continue
+                cost = tuple(a + b for a, b in zip(target_cost[target], edge_cost, strict=True))
+                if source not in source_cost or cost < source_cost[source]:
+                    source_cost[source] = cost
+                    previous_source[source] = target
+                    changed = True
+            for source, target in matched_sources.items():
+                if source not in source_cost:
+                    continue
+                cost = tuple(
+                    a - b for a, b in zip(source_cost[source], costs[target, source], strict=True)
+                )
+                if target not in target_cost or cost < target_cost[target]:
+                    target_cost[target] = cost
+                    changed = True
+            if not changed:
+                break
+        available = [source for source in source_cost if source not in matched_sources]
+        if not available:
+            return matched_targets
+        source = min(available, key=lambda name: (source_cost[name], name))
+        while True:
+            target = previous_source[source]
+            old_source = matched_targets.get(target)
+            matched_targets[target] = source
+            matched_sources[source] = target
+            if old_source is None:
+                break
+            source = old_source
 
 
 def _select_best_candidate(

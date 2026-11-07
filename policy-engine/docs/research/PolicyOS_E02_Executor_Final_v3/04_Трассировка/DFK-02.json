@@ -1,0 +1,293 @@
+{
+  "packet_id": "DFK-02",
+  "lane": "LANE-08",
+  "source_ids": [
+    "LA-028"
+  ],
+  "protected_distinction_ids": [
+    "LK19",
+    "LK20"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/DFK-02.md"
+  ],
+  "base_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "status": "specification_NOT_IMPLEMENTED_NOT_RUN",
+  "work_types": "fix + migration cleanup + native qualification",
+  "practical_goal": "Полный source policy имеет один текущий owner, а metadata-only catalog вопрос не требует отсутствующего executable connector.",
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C92_остатки:0",
+      "audit_id": "C92-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-DFK-02-01"
+      ],
+      "shared_owner": null,
+      "rationale": "Predicate отделён от executable projection, connector guard сохранён."
+    },
+    {
+      "inventory_id": "audit-residual:C92_остатки:1",
+      "audit_id": "C92-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-DFK-02-03",
+        "REQ-DFK-02-04"
+      ],
+      "shared_owner": null,
+      "rationale": "Native current published producer/consumer, shared lane witness."
+    },
+    {
+      "inventory_id": "audit-residual:C92_остатки:2",
+      "audit_id": "C92-G02",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-DFK-02-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Убрать redundant literals при сохранённой effective canonical policy, не объявлять второй active authority."
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-DFK-02-01",
+      "text": "Catalog entry profile predicate должен непосредственно использовать shared source_included_in_run_profile, не executable projection. Catalog-only запись без connector допускается там, где общая policy её выбирает; to_module_spec и actual execution по-прежнему требуют connector.",
+      "source_ids": [
+        "LA-028"
+      ],
+      "audit_ids": [
+        "C92-R01"
+      ],
+      "test_ids": [
+        "TEST-DFK-02-01"
+      ]
+    },
+    {
+      "id": "REQ-DFK-02-02",
+      "text": "Named compatibility catalog exports должны вычисляться из canonical source-ID views без создания ручных duplicate literals, сохраняя ordered full fields, asset/stage IDs, default/empty distinction и strict YAML admission.",
+      "source_ids": [
+        "LA-028"
+      ],
+      "audit_ids": [
+        "C92-G02"
+      ],
+      "test_ids": [
+        "TEST-DFK-02-02"
+      ]
+    },
+    {
+      "id": "REQ-DFK-02-03",
+      "text": "Mandatory seed closure должно использовать registered rows и сохранять enabled/present/acyclic policy с cross-wave dependencies; disabled/missing/cyclic seed не включается молча и не оставляет исполняемый dependent без seed.",
+      "source_ids": [
+        "LA-028"
+      ],
+      "audit_ids": [
+        "C92-G01"
+      ],
+      "test_ids": [
+        "TEST-DFK-02-03"
+      ]
+    },
+    {
+      "id": "REQ-DFK-02-04",
+      "text": "Native published catalog→warm/fresh Fabric consumer должен замечать same-ID policy byte change при неизменном stat, требовать current producer reissue и сохранять index при denied seed/connector.",
+      "source_ids": [
+        "LA-028"
+      ],
+      "audit_ids": [
+        "C92-G01"
+      ],
+      "test_ids": [
+        "TEST-DFK-02-04"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-DFK-02-01",
+      "requirement_ids": [
+        "REQ-DFK-02-01"
+      ],
+      "level": "native unit / integration",
+      "setup": "Custom YAML catalog-only omitted connector, disabled entry, unknown profile; штатный full catalog.",
+      "action": "Сравнить entry/batch/shared selector; отдельно execution projection.",
+      "oracle": "prod_full/catalog_refresh parity=True для enabled catalog entry; unknown profile typed refusal; disabled=False; to_module_spec без connector продолжает connector_identity_missing.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не fake projection или изменение field defaults ради parity.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-DFK-02-02",
+      "requirement_ids": [
+        "REQ-DFK-02-02"
+      ],
+      "level": "native unit / integration",
+      "setup": "Штатные 35 records и custom rich filters; duplicate keys/IDs, string bool, alias conflicts; None/().",
+      "action": "Reload family modules, compare all model_dump fields и assets; contract-only import в fresh process.",
+      "oracle": "Все поля/порядок/IDs прежние; нет 35 redundant constructors; strict invalid отказ; explicit empty не default; contract-only import нечитает YAML до explicit view access.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Настоящий YAML/Pydantic/loader; не golden только lossy ModuleSpec.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-DFK-02-03",
+      "requirement_ids": [
+        "REQ-DFK-02-03"
+      ],
+      "level": "native unit / integration",
+      "setup": "6 profiles×waves, missing/disabled/cycle, selected counterfeit copy sameID; explicit empty и unknown profile.",
+      "action": "Actual registry/module/batch selection.",
+      "oracle": "Одинаковый ordered resolved set, обязательный enabled seed может пересечь wave filter; typed reasons; подложенные selected fields не заменяют registered owner.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Не удалять реальные Fabric connectors или переписывать source family transport.",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "TEST-DFK-02-04",
+      "requirement_ids": [
+        "REQ-DFK-02-04"
+      ],
+      "level": "native unit / integration",
+      "setup": "Actual config/registry/source profile, tiny published catalog DB/receipt; same-size/mtime policy modification и valid reissue.",
+      "action": "Existing public/Fabric full-pipeline route; warm reader затем fresh reader.",
+      "oracle": "Оба reader видят effective changed policy; old receipt не stale authoritative; после valid reissue useful resolve. Disabled seed/wrong connector отказ без index mutation.",
+      "expected": "Сохранённый положительный результат и точные отрицательные/граничные исходы описаны oracle; old-defect/removal control обязан различать механизм.",
+      "evidence_required": "NOT_RUN: actual command, supported runtime/profile, commit, exit/log, input/selected-artifact hashes и assertions; doubles scope отдельно.",
+      "doubles": "Controlled source endpoints; real DB/receipts/currentness, не selected-method state fixture.",
+      "status": "NOT_RUN"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I08-A"
+  ],
+  "dependencies": [
+    "DFI-01/02 actual ingest consumers; общий E02-I08-A",
+    "LK19/LK20; source registry writer freeze before integration"
+  ],
+  "preservation": [
+    "35-row ordered full-field projection",
+    "Shared fail-closed seed selection",
+    "Strict YAML/bool/identity admission",
+    "Explicit empty/default",
+    "Existing asset/stage IDs",
+    "Fresh full-registry comparison/connector join",
+    "LK19/LK20 boundaries"
+  ],
+  "design_alignment": [
+    "[Vision §3, §6–§7, §11](../05_Основания/Архитектура/universal-policy-design-system-vision-and-organizing-rules.md) — существующий owner, реально подключённый consumer, совместимые новые ресурсы через общий контракт; не бесконечный реестр вместо работы. [Target Architecture D2.5](../05_Основания/Архитектура/universal-policy-design-target-architecture-and-gap.md) — candidate/conditional вычисление не равно эмпирической или институциональной authority.",
+    "Новый совместимый source подключается полным registry record и existing connector contract, не orchestration branch. Unknown source authority не отменяет полезный catalog discovery; отдельный executable request требует своего connector/admission."
+  ],
+  "open_decisions": [],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0410",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-DFK-02-01"
+      ],
+      "rationale": "Predicate отделён от executable projection, connector guard сохранён."
+    },
+    {
+      "inventory_id": "remaining:0411",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-DFK-02-03",
+        "REQ-DFK-02-04"
+      ],
+      "rationale": "Native current published producer/consumer, shared lane witness."
+    },
+    {
+      "inventory_id": "remaining:0412",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-DFK-02-02"
+      ],
+      "rationale": "Убрать redundant literals при сохранённой effective canonical policy, не объявлять второй active authority."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0660",
+      "requirement_ids": [
+        "REQ-DFK-02-02"
+      ],
+      "test_ids": [
+        "TEST-DFK-02-02"
+      ],
+      "rationale": "Full-field ordered projection."
+    },
+    {
+      "inventory_id": "preserve:0661",
+      "requirement_ids": [
+        "REQ-DFK-02-03"
+      ],
+      "test_ids": [
+        "TEST-DFK-02-03"
+      ],
+      "rationale": "Fail-closed seed selection."
+    },
+    {
+      "inventory_id": "preserve:0662",
+      "requirement_ids": [
+        "REQ-DFK-02-02"
+      ],
+      "test_ids": [
+        "TEST-DFK-02-02"
+      ],
+      "rationale": "Strict YAML types/identity."
+    },
+    {
+      "inventory_id": "preserve:0663",
+      "requirement_ids": [
+        "REQ-DFK-02-02",
+        "REQ-DFK-02-03"
+      ],
+      "test_ids": [
+        "TEST-DFK-02-02",
+        "TEST-DFK-02-03"
+      ],
+      "rationale": "Explicitempty/default."
+    },
+    {
+      "inventory_id": "preserve:0664",
+      "requirement_ids": [
+        "REQ-DFK-02-02"
+      ],
+      "test_ids": [
+        "TEST-DFK-02-02"
+      ],
+      "rationale": "Assets/stagesIDs retained."
+    },
+    {
+      "inventory_id": "preserve:0665",
+      "requirement_ids": [
+        "REQ-DFK-02-04"
+      ],
+      "test_ids": [
+        "TEST-DFK-02-04"
+      ],
+      "rationale": "Fresh registry/connector binding."
+    },
+    {
+      "inventory_id": "preserve:0666",
+      "requirement_ids": [
+        "REQ-DFK-02-03",
+        "REQ-DFK-02-04"
+      ],
+      "test_ids": [
+        "TEST-DFK-02-03",
+        "TEST-DFK-02-04"
+      ],
+      "rationale": "Catalog not acquisition; hash not authority."
+    }
+  ],
+  "owners": [
+    "src/polisyos/data_forge/domains/catalog/registry.py",
+    "src/polisyos/data_forge/domains/catalog/selection.py",
+    "src/polisyos/data_forge/domains/catalog/source_modules.py",
+    "src/polisyos/fabric/retrieval/service.py"
+  ]
+}

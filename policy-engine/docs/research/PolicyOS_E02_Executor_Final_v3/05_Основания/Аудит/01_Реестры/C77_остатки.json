@@ -1,0 +1,69 @@
+{
+  "pass_id": "C77",
+  "bundle": "REP-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C77-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-033"
+      ],
+      "title": "Native persisted replay/resume и сборка остаются отдельной приёмкой",
+      "evidence": [
+        "S04:201–336",
+        "S08:194–406",
+        "S14:122–204",
+        "P02",
+        "P04"
+      ],
+      "remaining": "На supported runtime исполнить existing full import/compatibility tests, persisted --check-only, native small replay/resume с оставшимся узлом и fresh checkpoint head; bundle import/export и wheel объединить с CP6. Сохранить исторические bytes и actual owner/codec-profile admission.",
+      "limits": "Native root действительно проверен. Canonical definitions, CLI check-only, dependency graph и local files исполнены с explicit loader/factory/custody seams. Actual native replay backend, remaining-node resume и full installed graph не исполнены. Это не установленный product failure."
+    },
+    {
+      "id": "C77-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-033"
+      ],
+      "title": "Retirement compatibility адреса требует реального окна поддержки",
+      "evidence": [
+        "S01:1–98",
+        "S02:1–54",
+        "S06:282–316",
+        "S07:24–26",
+        "P01",
+        "P06",
+        "literal_consumer_census.json"
+      ],
+      "remaining": "Сохранить20 supported module exports до согласованного окна. Проверить downstream FQN/monkeypatch/import-path consumers и документацию перед отдельным retirement решением; root10 не расширять и не удалять вместе с shim.",
+      "limits": "3009 tracked source/benchmark/dynamic files дают0 exact old literal. Это не полный dynamic composition, external downstream или production usage census. Наличие совместимой оболочки сейчас не дефект и не незаконченный обязательный delete."
+    },
+    {
+      "id": "C77-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-033"
+      ],
+      "title": "Доступность replay API не равна semantic replay или исторической миграции",
+      "evidence": [
+        "S03:451–575",
+        "S03:724–806",
+        "S11:1–54",
+        "S12:316–482",
+        "S13:1–178",
+        "P03",
+        "P04",
+        "P05"
+      ],
+      "remaining": "Различать snapshot availability, actual re-execution, bit-exact/CI-bounded/skip и полномочие downstream claim. LK15: сохранять RunManifest schema1.0 и самостоятельный runtime.quality.replay; для настоящих старых артефактов нужен source-qualified historical corpus, а не замена Core DTO по сходству имени.",
+      "limits": "Synthetic complete role graph не настоящий валидный научный workflow. Bit-exact здесь сравнивает refs, skip явен; CI-bounded branch не исполнялась и не квалифицирована как empirical CI. Actual writer/reader сохранён на новом local sample; external old-run corpus не проверен."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "protected_distinctions": [
+    "LK15"
+  ],
+  "decision": "Direct owner migration реализована; новый product defect не установлен. Native activation/package и retirement qualification остаются."
+}

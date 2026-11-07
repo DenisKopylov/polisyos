@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import Any, get_args
+from typing import TYPE_CHECKING, Any, get_args
 
 from polisyos.core.contracts import DataNeed
 from polisyos.data_requirement import (
@@ -12,8 +12,12 @@ from polisyos.data_requirement import (
     DataRequirementSpec,
 )
 
+if TYPE_CHECKING:
+    from polisyos.core.contracts import FetchPlan
+
 FABRIC_DATA_REQUIREMENT_BINDINGS_SCHEMA_VERSION = "policyos.fabric.data_requirement_bindings.v1"
 CATALOG_DATA_NEED_PROJECTION_SCHEMA_VERSION = "policyos.fabric.catalog_data_need_projection.v1"
+_CATALOG_SOURCE_CANDIDATE_PROJECTION_VERSION = "policyos.fabric.catalog_data_need_projection.v2"
 
 _CATALOG_REQUEST_ENVELOPE_FIELDS = frozenset(
     {
@@ -78,6 +82,8 @@ def project_data_requirement_to_catalog_needs(
         "time_role",
         "granularity",
         "unrepresented_fields",
+        "population",
+        "entity_scope",
     }
     unknown_profile_fields = sorted(set(profile) - profile_fields)
     raw_unrepresented_fields = profile.get("unrepresented_fields", ())
@@ -128,7 +134,7 @@ def project_data_requirement_to_catalog_needs(
                 field=field,
                 profile_id=profile_id,
             )
-    for field in ("time_role", "granularity"):
+    for field in ("time_role", "granularity", "population", "entity_scope"):
         value = profile.get(field)
         if value is not None and (not isinstance(value, str) or not value.strip()):
             return (), _catalog_projection_refusal(
@@ -136,6 +142,12 @@ def project_data_requirement_to_catalog_needs(
                 field=field,
                 profile_id=profile_id,
             )
+    if profile.get("population") is not None and (
+        profile["population"] != requirement.scope.population
+    ):
+        return (), _catalog_projection_refusal(
+            "scope_profile_population_conflict", profile_id=profile_id
+        )
     for field in ("required_constructs", "candidate_construct_proposals"):
         value = profile.get(field, ())
         if not isinstance(value, Sequence) or isinstance(value, str | bytes | bytearray):
@@ -275,6 +287,28 @@ def project_data_requirement_to_catalog_needs(
                 "capability_resolution_time_window_mismatch",
                 profile_id=profile_id,
             )
+        if profile.get("population") is not None and (
+            profile["population"] != requirement.scope.population
+            or resolution.query.population_filter.get("type") != profile["population"]
+        ):
+            return (), _catalog_projection_refusal(
+                "capability_resolution_population_mismatch", profile_id=profile_id
+            )
+        if profile.get("entity_scope") is not None and (
+            resolution.query.entity_scope != profile["entity_scope"]
+        ):
+            return (), _catalog_projection_refusal(
+                "capability_resolution_entity_scope_mismatch", profile_id=profile_id
+            )
+
+    try:
+        candidate_metrics, candidate_sources, discovery_limitations, discovery_present = (
+            _catalog_source_candidate_projection(matching_resolutions)
+        )
+    except ValueError:
+        return (), _catalog_projection_refusal(
+            "candidate_source_fetch_binding_invalid", profile_id=profile_id
+        )
 
     request_context = payload.get("catalog_request_context")
     if request_context is not None and not isinstance(request_context, Mapping):
@@ -313,9 +347,16 @@ def project_data_requirement_to_catalog_needs(
             profile_id=profile_id,
         )
 
+    requested_metrics = tuple(
+        dict.fromkeys(
+            metric
+            for family in requirement.required_data_families
+            for metric in candidate_metrics.get(family.casefold(), (family,))
+        )
+    )
     needs = tuple(
         DataNeed(
-            metric=family,
+            metric=metric,
             geography=geography,
             time_start=time_start,
             time_end=time_end,
@@ -323,7 +364,7 @@ def project_data_requirement_to_catalog_needs(
             quality_min=requirement.quality_minima.min_quality_score,
             purpose="n7_catalog_candidate_resolution",
         )
-        for family in requirement.required_data_families
+        for metric in requested_metrics
     )
     mapped_paths = {
         "required_data_families",
@@ -339,6 +380,8 @@ def project_data_requirement_to_catalog_needs(
         "metadata.scope_profile.granularity",
         "metadata.scope_profile.required_constructs",
         "metadata.scope_profile.candidate_construct_proposals",
+        "metadata.scope_profile.population",
+        "metadata.scope_profile.entity_scope",
     }
     unrepresented = sorted(
         path
@@ -358,8 +401,13 @@ def project_data_requirement_to_catalog_needs(
         limitations.append("geography_not_established")
     if unrepresented:
         limitations.append("compiled_requirement_fields_not_enforced_by_catalog_query")
+    limitations.extend(discovery_limitations)
     report = {
-        "schema_version": CATALOG_DATA_NEED_PROJECTION_SCHEMA_VERSION,
+        "schema_version": (
+            _CATALOG_SOURCE_CANDIDATE_PROJECTION_VERSION
+            if discovery_present
+            else CATALOG_DATA_NEED_PROJECTION_SCHEMA_VERSION
+        ),
         "disposition": "candidate_only",
         "authority_status": "not_established",
         "requirement_id": requirement.requirement_id,
@@ -391,7 +439,176 @@ def project_data_requirement_to_catalog_needs(
         "availability_status": "not_established_at_catalog_boundary",
         "limitations": limitations,
     }
+    if profile.get("entity_scope") is not None:
+        report["source_scope"]["entity_scope"] = profile["entity_scope"]
+    if discovery_present:
+        report["candidate_source_constraints"] = candidate_sources
+        report["candidate_discovery_satisfies_claim_evidence"] = False
+        report["candidate_discovery_requires_native_source_admission"] = True
     return needs, report
+
+
+def _catalog_source_candidate_projection(
+    resolutions: Sequence[CapabilityRequirementResolution],
+) -> tuple[dict[str, tuple[str, ...]], list[dict[str, Any]], list[str], bool]:
+    """Project exact governed descriptors, without borrowing their claim authority."""
+
+    metrics: dict[str, list[str]] = {}
+    sources: list[dict[str, Any]] = []
+    limitations: list[str] = []
+    present = False
+    for resolution in resolutions:
+        discovery = resolution.candidate_discovery
+        if discovery is None:
+            continue
+        present = True
+        limitations.extend(discovery.limitations)
+        if discovery.state == "no_match":
+            limitations.append("candidate_source_discovery_no_match")
+        for candidate in discovery.candidates:
+            family = resolution.query.source_family_alias
+            if family is None:
+                continue
+            for asset in candidate.source_assets:
+                metadata = asset.get("metadata", {})
+                metadata = metadata if isinstance(metadata, Mapping) else {}
+                binding = metadata.get("catalog_fetch_binding")
+                if binding is not None and (
+                    not isinstance(binding, Mapping)
+                    or set(binding) != {"metric_id", "connector_id", "dataset_id", "profile_id"}
+                    or any(
+                        not isinstance(binding[field], str) or not binding[field].strip()
+                        for field in ("metric_id", "connector_id", "dataset_id")
+                    )
+                    or (
+                        binding["profile_id"] is not None
+                        and (
+                            not isinstance(binding["profile_id"], str)
+                            or not binding["profile_id"].strip()
+                        )
+                    )
+                ):
+                    raise ValueError("candidate_source_fetch_binding_invalid")
+                metric = binding["metric_id"] if binding is not None else resolution.query.construct
+                if binding is not None:
+                    metrics.setdefault(family.casefold(), []).append(metric)
+                else:
+                    # Inventory is not an executable source selection. Preserve
+                    # legacy family search until an actual binding is declared.
+                    limitations.append("candidate_catalog_fetch_binding_not_established")
+                sources.append(
+                    {
+                        "requirement_id": resolution.query.requirement_id,
+                        "query": resolution.query.model_dump(mode="json", by_alias=True),
+                        "capability_index_ref": discovery.capability_index_ref,
+                        "rule_version_ref": discovery.rule_version_ref,
+                        "capability_ref": candidate.capability_ref,
+                        "construct_ref": candidate.construct_ref,
+                        "required_construct": resolution.query.construct,
+                        "content_digest": candidate.content_digest,
+                        "source_asset_ref": asset["ref"],
+                        "source_family_alias": family,
+                        "metric_id": metric,
+                        "catalog_fetch_binding": dict(binding)
+                        if isinstance(binding, Mapping)
+                        else None,
+                        "catalog_fetch_binding_status": "declared_candidate"
+                        if binding is not None
+                        else "not_established",
+                        "declared_scope": dict(candidate.scope),
+                        "source_semantics": dict(metadata),
+                        "limitations": list(candidate.limitations),
+                        "satisfies_claim_evidence": False,
+                        "requires_native_source_admission": True,
+                    }
+                )
+    return (
+        {family: tuple(dict.fromkeys(values)) for family, values in metrics.items()},
+        sources,
+        list(dict.fromkeys(limitations)),
+        present,
+    )
+
+
+def validate_catalog_candidate_fetch_plans(
+    *,
+    requirement_projection: Mapping[str, Any],
+    fetch_plans: Sequence[FetchPlan],
+    allow_fallback: bool = False,
+) -> None:
+    """Require selected candidate plans to use the declared source before fetching.
+
+    This checks plan identity, not source permission, units, population adequacy,
+    currentness, or observation authority. Those remain native admission duties.
+    Legacy projections without a candidate-discovery result retain their route.
+
+    Args:
+        requirement_projection: Projection recomputed from the compiler result.
+        fetch_plans: Actual Catalog plans about to be physically executed.
+        allow_fallback: Whether the actual executor may dispatch fallback targets.
+
+    Raises:
+        ValueError: A plan or fallback does not match any declared source for its metric.
+    """
+
+    raw_constraints = requirement_projection.get("candidate_source_constraints")
+    if raw_constraints is None:
+        return
+    if not isinstance(raw_constraints, list):
+        raise ValueError("catalog_candidate_source_constraints_invalid")
+    by_metric: dict[str, list[Mapping[str, Any]]] = {}
+    for constraint in raw_constraints:
+        if not isinstance(constraint, Mapping):
+            raise ValueError("catalog_candidate_source_constraint_invalid")
+        if (
+            constraint.get("catalog_fetch_binding_status") == "not_established"
+            and constraint.get("catalog_fetch_binding") is None
+        ):
+            continue
+        metric = _catalog_text(constraint.get("metric_id"))
+        if not metric:
+            raise ValueError("catalog_candidate_source_metric_missing")
+        by_metric.setdefault(metric, []).append(constraint)
+    requested_metrics = {
+        _catalog_text(need.get("metric"))
+        for need in requirement_projection.get("mapped_data_needs", ())
+        if isinstance(need, Mapping)
+    }
+
+    def validate_target(*, metric: str, connector: str, dataset: str, profile: str | None) -> None:
+        if metric not in requested_metrics:
+            raise ValueError("catalog_candidate_source_plan_metric_mismatch")
+        constraints = by_metric.get(metric)
+        if constraints is None:
+            return
+        actual = {
+            "metric_id": metric,
+            "connector_id": connector,
+            "dataset_id": dataset,
+            "profile_id": profile,
+        }
+        if not any(constraint.get("catalog_fetch_binding") == actual for constraint in constraints):
+            raise ValueError("catalog_candidate_source_fetch_binding_mismatch")
+
+    for plan in fetch_plans:
+        validate_target(
+            metric=plan.metric_id,
+            connector=plan.connector_id,
+            dataset=plan.dataset_id,
+            profile=plan.profile_id,
+        )
+        for fallback in plan.fallbacks if allow_fallback else ():
+            # A fallback belongs to this same requested metric occurrence.
+            if fallback.metric_id not in {None, plan.metric_id}:
+                if plan.metric_id in by_metric:
+                    raise ValueError("catalog_candidate_source_fallback_metric_mismatch")
+                continue
+            validate_target(
+                metric=plan.metric_id,
+                connector=fallback.connector_id,
+                dataset=fallback.dataset_id,
+                profile=fallback.profile_id,
+            )
 
 
 def _catalog_projection_resolutions(
@@ -860,4 +1077,5 @@ __all__ = [
     "FABRIC_DATA_REQUIREMENT_BINDINGS_SCHEMA_VERSION",
     "build_source_contract_requirement_bindings",
     "project_data_requirement_to_catalog_needs",
+    "validate_catalog_candidate_fetch_plans",
 ]

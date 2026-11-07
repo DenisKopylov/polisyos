@@ -1,0 +1,744 @@
+{
+  "schema": "e02.peer-review.v1",
+  "reviewer": "fabric_acquisition",
+  "target": "policy_search/proposed_v2",
+  "status": "ACCEPT_SPECIFICATION_NOT_NATIVE_ACCEPTANCE",
+  "repository_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "manifest_path": "e02_final_technical_review/policy_search/proposed_changes.json",
+  "manifest_sha256": "b2fcd435fa4e4eefe22991c1dd8a9c7e0341f33c107440291be1e8b5bc69be10",
+  "scope": {
+    "proposal_files": 12,
+    "full_markdown_packets": 5,
+    "full_lane_overviews": 2,
+    "fully_parsed_companion_json": 5,
+    "requirements": 22,
+    "tests": 22,
+    "new_decisions": [
+      "DEC-FUN-03-03",
+      "DEC-SIM-03-02",
+      "DEC-OPT-03-02"
+    ],
+    "source_read_records": 22,
+    "unique_source_files": 18,
+    "method": "All proposed Markdown and all baseline→v2 changed hunks read, including final PS-F08/seed delta; full JSON parsed and exact normative dedup against MD plus unique metadata/DEC reviewed; source/test ranges only, not whole repository."
+  },
+  "document_validation": {
+    "status": "PASS",
+    "errors": [],
+    "all_original_ids_and_obligation_preservation_maps_unchanged": true,
+    "md_json_normative_mirror": true,
+    "product_tests": "NOT_RUN"
+  },
+  "files": [
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/FUN-03.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/FUN-03.md",
+      "old_sha256": "6833f5a3c6360320c4a5d7816d0f1fd6790e35486491da177f9e9fe2d3f318e6",
+      "new_sha256": "992b3355f65e78a3e95358bc9626b10a81ffccadec341c9802bd482cecc8433f",
+      "line_count": 157,
+      "read_scope": "Full proposed Markdown/overview; complete baseline→v2 diff"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/FUN-03.json",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/FUN-03.json",
+      "old_sha256": "b57cacfe7087b248336a5f571bb39dcd7f0ddbb0eb363e6ff67561bed4573310",
+      "new_sha256": "ac82c1f8596a70b77c206d16b0e223d95e82917e7040ea174569378ceb3eafbd",
+      "line_count": 530,
+      "read_scope": "Full JSON parsed; normative strings/solutions exactly matched to fully read MD, unique metadata/decisions inspected; all changed JSON paths and unchanged obligation/preservation maps compared"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/OPT-02.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/OPT-02.md",
+      "old_sha256": "b3057778bfdca3e4a3d76b44ff2426d3fc6a9c7194a2541f8c6d443885e529fe",
+      "new_sha256": "dc961a4c49cf01cdcbf6a7dad1726e4ff43b9dc2715d8804c534e851526db8f0",
+      "line_count": 146,
+      "read_scope": "Full proposed Markdown/overview; complete baseline→v2 diff"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/OPT-02.json",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/OPT-02.json",
+      "old_sha256": "587b1172356c6d6df12070cf70840b25524cf5dd1b914193c56143ad6fa85c13",
+      "new_sha256": "239697d9f421eaf0a1b0cb90ed04efde3858499d7133525d3ebd1274e3fd6f5c",
+      "line_count": 458,
+      "read_scope": "Full JSON parsed; normative strings/solutions exactly matched to fully read MD, unique metadata/decisions inspected; all changed JSON paths and unchanged obligation/preservation maps compared"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/SIM-03.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/SIM-03.md",
+      "old_sha256": "d7f0dbaa314c11ec906bfe3e5c6d8420b6c291da39fc4d0c6eb23c17abcd4ce4",
+      "new_sha256": "aa14bc4c7dd580eb9c50f093616aebce060449afca42b4bec141aff9b0cf0a5e",
+      "line_count": 205,
+      "read_scope": "Full proposed Markdown/overview; complete baseline→v2 diff"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/SIM-03.json",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/SIM-03.json",
+      "old_sha256": "5397b780ec111b0417696365a8dea17e3cc1a3ea9a498727dfd2b56d6fb5fc91",
+      "new_sha256": "00a5dcab73db7c1f62a2e05416a0b7df50307d1f99cd3e6db08bd53f6a0e710a",
+      "line_count": 717,
+      "read_scope": "Full JSON parsed; normative strings/solutions exactly matched to fully read MD, unique metadata/decisions inspected; all changed JSON paths and unchanged obligation/preservation maps compared"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/OPT-03.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/OPT-03.md",
+      "old_sha256": "3e35e027ab532d71189096e7063f624e0b6cbd6ffa79d89630791c78e5a12c1b",
+      "new_sha256": "ac39c763c00a38184ea26a2184b3eca6af77d3db283077810c02ba789e67320e",
+      "line_count": 140,
+      "read_scope": "Full proposed Markdown/overview; complete baseline→v2 diff"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/OPT-03.json",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/OPT-03.json",
+      "old_sha256": "9c0e63efed7a71642fe37784e6cddcb2af7efc585e28df5a04dabea97bf20e25",
+      "new_sha256": "b0311bca091c8d8a9bdaac805549bb7d2943b50062cb730eaec4c9106d1e4cae",
+      "line_count": 400,
+      "read_scope": "Full JSON parsed; normative strings/solutions exactly matched to fully read MD, unique metadata/decisions inspected; all changed JSON paths and unchanged obligation/preservation maps compared"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/TRN-01.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/02_Пакеты/TRN-01.md",
+      "old_sha256": "5d20bedd7e1011b64d09cf3c9c756651bbfb314fd9aa6b66fd875e5e190a1c2b",
+      "new_sha256": "acb63f3f975fb5c24f8da00b67b1673a232ec256c761f03fd9b820fb58efed8e",
+      "line_count": 149,
+      "read_scope": "Full proposed Markdown/overview; complete baseline→v2 diff"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/TRN-01.json",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/04_Трассировка/TRN-01.json",
+      "old_sha256": "53468e110aa9e2ecc770bc25c64de7ae8418634f7405239a244959fe8fa355b1",
+      "new_sha256": "cf3748957343529fed819e191e82ac590c7cff2e641bb9d14e205e7bb2508397",
+      "line_count": 475,
+      "read_scope": "Full JSON parsed; normative strings/solutions exactly matched to fully read MD, unique metadata/decisions inspected; all changed JSON paths and unchanged obligation/preservation maps compared"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/01_Лейны/LANE-01.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-01.md",
+      "old_sha256": "60e37988d181aaaf1054089498b34d851ea7d7fb8a97eeefc07f2f4b37367ecd",
+      "new_sha256": "8c4a9ffa024a39d88eb10f940882e653a315e8817505a5616e3c47f2122b062c",
+      "line_count": 66,
+      "read_scope": "Full proposed Markdown/overview; complete baseline→v2 diff"
+    },
+    {
+      "path": "e02_final_technical_review/policy_search/proposed_v2/01_Лейны/LANE-02.md",
+      "baseline_path": "e02_final_technical_review/baseline/PolicyOS_E02_Executor_Specifications/01_Лейны/LANE-02.md",
+      "old_sha256": "ca33cbf6b608d6f1398c9e46287c92d31bfa42c984826e56a6f7b727aa93f47e",
+      "new_sha256": "f32af01898b24a89803e9812697273403813e692c45c1601b33bb717a92e27b3",
+      "line_count": 73,
+      "read_scope": "Full proposed Markdown/overview; complete baseline→v2 diff"
+    }
+  ],
+  "json_changes": [
+    {
+      "packet_id": "FUN-03",
+      "changed_json_paths": [
+        "/current_sources/5",
+        "/current_sources/6",
+        "/current_sources/7",
+        "/open_decisions/2",
+        "/requirements/1/text",
+        "/requirements/2/text",
+        "/technical_solution/1/text",
+        "/technical_solution/2/text",
+        "/tests/1/oracle",
+        "/tests/1/setup",
+        "/tests/2/action",
+        "/tests/2/expected",
+        "/tests/2/oracle",
+        "/tests/2/setup"
+      ]
+    },
+    {
+      "packet_id": "OPT-02",
+      "changed_json_paths": [
+        "/current_sources/4",
+        "/requirements/0/text",
+        "/technical_solution/0/text",
+        "/tests/0/action",
+        "/tests/0/expected",
+        "/tests/0/oracle",
+        "/tests/0/setup"
+      ]
+    },
+    {
+      "packet_id": "SIM-03",
+      "changed_json_paths": [
+        "/current_sources/4",
+        "/current_sources/5",
+        "/current_sources/6",
+        "/open_decisions/1",
+        "/requirements/0/text",
+        "/requirements/2/text",
+        "/technical_solution/0/text",
+        "/technical_solution/2/text",
+        "/tests/0/action",
+        "/tests/0/expected",
+        "/tests/0/oracle",
+        "/tests/0/setup",
+        "/tests/2/action",
+        "/tests/2/expected",
+        "/tests/2/oracle",
+        "/tests/2/setup"
+      ]
+    },
+    {
+      "packet_id": "OPT-03",
+      "changed_json_paths": [
+        "/open_decisions/1",
+        "/technical_solution/3/text"
+      ]
+    },
+    {
+      "packet_id": "TRN-01",
+      "changed_json_paths": [
+        "/technical_solution/2/text"
+      ]
+    }
+  ],
+  "source_read_scope": [
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/stages.py",
+      "sha256": "13a5d9b19e4966b7b18b5aa3ac74e0c7ad155b726d46a09f96268601a4ab83c2",
+      "line_count": 750,
+      "ranges": [
+        [
+          335,
+          415
+        ],
+        [
+          480,
+          545
+        ],
+        [
+          675,
+          720
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/stage_contracts.py",
+      "sha256": "00a45aa0010e6a85812602ff52a7489610da7098ceef33258b8ed6a2ad950701",
+      "line_count": 95,
+      "ranges": [
+        [
+          20,
+          90
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+      "sha256": "62c26dc393bf89d093b05be18bda03cb1ba04a9483715ab55a6866a0883d6f2f",
+      "line_count": 305,
+      "ranges": [
+        [
+          105,
+          175
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "sha256": "b01a4e6277e45b17379a75734586d16383271f8e7e41bbfe926a3dea96577502",
+      "line_count": 2313,
+      "ranges": [
+        [
+          770,
+          812
+        ],
+        [
+          2088,
+          2140
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/cold_start.py",
+      "sha256": "c0324ccd02b7de154b53b2836c772e1263c7a370ce34698925acdfaeefd810f0",
+      "line_count": 357,
+      "ranges": [
+        [
+          190,
+          230
+        ],
+        [
+          250,
+          280
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/funnel/correlation.py",
+      "sha256": "9687fc07425ebfe49f936ca225765a62288942337df6cd46e6e7724a72d86e12",
+      "line_count": 170,
+      "ranges": [
+        [
+          75,
+          115
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+      "sha256": "6db900ee270a88ef20f9b5c000eb5b612417ce96be2781aab109ea279eb2a948",
+      "line_count": 1150,
+      "ranges": [
+        [
+          70,
+          155
+        ],
+        [
+          820,
+          910
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "51635c530d94f185049a559016fa92c3e98da2cae4452ccc342162228b195c15",
+      "line_count": 1679,
+      "ranges": [
+        [
+          880,
+          1010
+        ],
+        [
+          1595,
+          1655
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+      "sha256": "d2533274a274f4418f2d65dc1a820270676ca96749bd966d45ceeabac5ba6ad9",
+      "line_count": 126,
+      "ranges": [
+        [
+          75,
+          126
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "51635c530d94f185049a559016fa92c3e98da2cae4452ccc342162228b195c15",
+      "line_count": 1679,
+      "ranges": [
+        [
+          230,
+          320
+        ],
+        [
+          1190,
+          1275
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "sha256": "f933be68848e16cc3cc1b7757d5434d89a68a158b6cb3633c8d33e5576203bd1",
+      "line_count": 1412,
+      "ranges": [
+        [
+          420,
+          515
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+      "sha256": "6db900ee270a88ef20f9b5c000eb5b612417ce96be2781aab109ea279eb2a948",
+      "line_count": 1150,
+      "ranges": [
+        [
+          691,
+          758
+        ],
+        [
+          1025,
+          1110
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_sim_03.py",
+      "sha256": "ba76c16a27f6c8dd3839115a0dbb8233a0b9a27dd36bf7ba792a70a95cd592c7",
+      "line_count": 1202,
+      "ranges": [
+        [
+          201,
+          257
+        ],
+        [
+          286,
+          327
+        ],
+        [
+          618,
+          689
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/remediation/test_fun_03.py",
+      "sha256": "4ed5107d633a1346e528a53535c99e6fb7c5c655132ad6bd26f14fcf8d3be73c",
+      "line_count": 841,
+      "ranges": [
+        [
+          190,
+          258
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "line_count": 4930,
+      "ranges": [
+        [
+          890,
+          945
+        ],
+        [
+          960,
+          1005
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+      "sha256": "f607a9e1d78157fb9e53475280b129a04c8d7400a76ad24771b0c70268038e60",
+      "line_count": 646,
+      "ranges": [
+        [
+          543,
+          640
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "sha256": "d55b032ab57826363a53548e8635821c967b0a7923215bdeb3385d679757df6b",
+      "line_count": 817,
+      "ranges": [
+        [
+          385,
+          453
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+      "sha256": "717294efd13f9a6570875c133b2a5dce0e0e0691e504d5c8b3a318b15ec834b7",
+      "line_count": 3438,
+      "ranges": [
+        [
+          2060,
+          2110
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/uv.lock",
+      "sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+      "method": "Full stdlib TOML parse; inspected package name/version only for BoTorch/GPyTorch/Torch/NumPy",
+      "packages": [
+        {
+          "name": "botorch",
+          "version": "0.16.1"
+        },
+        {
+          "name": "gpytorch",
+          "version": "1.15.1"
+        },
+        {
+          "name": "numpy",
+          "version": "2.3.5"
+        },
+        {
+          "name": "torch",
+          "version": "2.10.0"
+        }
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+      "sha256": "6db900ee270a88ef20f9b5c000eb5b612417ce96be2781aab109ea279eb2a948",
+      "line_count": 1150,
+      "ranges": [
+        [
+          1097,
+          1134
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+      "sha256": "333deedcd2d85bf4a75f58d698a0d487a8a163256609d0825f2063fb087a2454",
+      "line_count": 4930,
+      "ranges": [
+        [
+          2880,
+          2910
+        ]
+      ]
+    },
+    {
+      "path": "e02_repository/policy-engine/tests/unit/foundry/methods/catalog/causal/test_ncm_engine.py",
+      "sha256": "c82c3b48447157d6f635cdf167a1e92ba9bd81e91942dfcc21b06d5f92e2a902",
+      "line_count": 601,
+      "ranges": [
+        [
+          524,
+          560
+        ]
+      ]
+    }
+  ],
+  "conclusions": [
+    {
+      "finding": "PS-F01",
+      "packets": [
+        "FUN-03"
+      ],
+      "verdict": "ACCEPT",
+      "reason": "Actual tracker uses FDR, precision and FOR denominators under legacy FPR/TPR/FNR names. New versioned counts/metric/window/cohort contract and consumer migration directly address this. DEC selects the operational purpose rather than forcing FNR. Observed zero remains data; population qualification requires justified sampling/interval/power, not n>0. Existing rejected-label burn-in is acknowledged, while selected lessons/sentinels are not treated as representative traffic.",
+      "evidence": [
+        "stages.py:398–408,502–545,682–714",
+        "calibration_report.py:112–171",
+        "cold_start.py:190–230,250–280",
+        "funnel/orchestrator.py:781–804,2096–2134",
+        "funnel/correlation.py:83–111"
+      ]
+    },
+    {
+      "finding": "PS-F07",
+      "packets": [
+        "FUN-03"
+      ],
+      "verdict": "ACCEPT",
+      "reason": "record really selects named scores by truthiness. None-only fallback fixes zero without replacing the intended carrier or allowing invalid score profiles. Symmetric zero-versus-distinct-fallback cases catch each carrier independently; malformed inputs do not append. Snapshot extraction version and source/status/domain guards remain explicit.",
+      "evidence": [
+        "stages.py:370–396",
+        "stage_contracts.py:23–61",
+        "test_fun_03.py:234–254"
+      ]
+    },
+    {
+      "finding": "PS-F03",
+      "packets": [
+        "OPT-02"
+      ],
+      "verdict": "ACCEPT",
+      "reason": "Existing duplicate logic is pending-only; cold/batch branches bypass it and random fallback returns a new random attempt after 20 misses. Revised completed/pending measurement scope and typed search-budget exhaustion address actual paths. Finite-domain exhaustion requires a complete feasible census; genuine replicas remain allowed and continuous identity is not rounded away.",
+      "evidence": [
+        "bayesian.py:896–1006,1601–1649",
+        "test_bayesian.py:385–452",
+        "grid.py:89–126"
+      ]
+    },
+    {
+      "finding": "PS-F02",
+      "packets": [
+        "OPT-03",
+        "TRN-01"
+      ],
+      "verdict": "ACCEPT_OPTIONAL_SCOPE",
+      "reason": "The source-fitted historical guard is deliberate and verified by current accepted1/rejected3 test. The proposal does not remove that guard or rewrite its tests. Separate strategy-neutral measured-observation reuse is an optional DEC/profile, with selected actual source, objective/unit/data/split/tenant/space/replica validation; predictions and surrogate continuation remain different entities.",
+      "evidence": [
+        "bayesian_generator.py:437–507",
+        "bayesian.py:249–312,1209–1266",
+        "test_v5_search_pipeline.py:2063–2104"
+      ]
+    },
+    {
+      "finding": "PS-F04",
+      "packets": [
+        "SIM-03"
+      ],
+      "verdict": "ACCEPT_AFTER_SEED_FIX",
+      "reason": "The noise expression can use actual u and parent a through the existing nonlinear expression owner. Empty evidence leaves sampled noise active; paired worlds share the draw. Formula baseline=u, policy=2+2u, effect=2+u gives a separate algebraic oracle. Actual trace variation, first-seed/replay and pairing mutations strengthen native execution evidence, without pretending to validate a population law. Native request schedule now correctly uses seed7/replications3→7,8,9.",
+      "evidence": [
+        "ncm_engine.py:101–147,691–755,862–890,1050–1097",
+        "joint_simulation_horizon.py:902–915,2880–2907",
+        "test_sim_03.py:201–257,286–327,618–689"
+      ]
+    },
+    {
+      "finding": "PS-F08",
+      "packets": [
+        "SIM-03"
+      ],
+      "verdict": "ACCEPT",
+      "reason": "Actual NCM summary unconditionally samples 100000 global normal values for a quantile while worlds use a request-local generator. Deterministic stdlib lower-tail inverse or locked SciPy isf removes that work and RNG mutation without changing the worlds. Multiple levels defeat constant1.96; near1 defeats unstable upper-tail subtraction; tiny level and singleton/ddof0 get an explicit unqualified/versioned interval boundary without discarding usable means/endpoints. The proposal does not claim this alone establishes calibrated CI coverage.",
+      "evidence": [
+        "ncm_engine.py:1050–1097,1099–1119",
+        "joint_simulation_horizon.py:2880–2907",
+        "test_ncm_engine.py:524–559"
+      ]
+    }
+  ],
+  "resolved_findings": [
+    {
+      "id": "FA-PS-01",
+      "severity": "low",
+      "status": "RESOLVED_BY_AUTHOR_AND_INDEPENDENTLY_READ_BACK",
+      "packet": "SIM-03",
+      "test": "TEST-SIM-03-03",
+      "problem": "Initial fixture prescribed nonconsecutive seeds7,11,19 although native request schedule derives seed+index; using only the generic helper would bypass the owner under test.",
+      "resolution": "Author changed actual request to seed7/replications3→7,8,9; no new seed-list API.",
+      "evidence": "src/polisyos/runtime/quality/joint_simulation_horizon.py:902–905",
+      "initial_md_sha256": "2a0ec4ce591da291f47d9025d4a2f25db05e2b243baadddba89ac379d0e103c7",
+      "final_md_sha256": "aa14bc4c7dd580eb9c50f093616aebce060449afca42b4bec141aff9b0cf0a5e"
+    }
+  ],
+  "open_findings": [],
+  "nonblocking_execution_notes": [
+    "Existing grid.py uses points_per_dim and max_candidates truncation: its iterator being exhausted is not automatically a complete SearchSpace census. For the finite profile prove full feasible choices and no truncation; otherwise retain proposal_search_budget_exhausted. This follows the v2 rule, not a new blocker.",
+    "BoTorch optimize_acqf_discrete accepts supplied choices/unique/X_avoid; it does not establish completeness of those choices or domain effective identity. Optional backend absence need not block bounded honest search.",
+    "Noise-sensitive NCM fixture must declare the actual non-linear equation type/parent mapping and baseline a=0 intervention. Observe delegated draws; do not manufacture u from seed labels. The proposal already requires this actual producer path.",
+    "Quantile residual near1 should use a lower-tail CDF/erfc reference and a predeclared error bound, not 1-CDF cancellation. Numerical CI comparison excludes the declared elapsed-time field, not changing interval fields.",
+    "DEC-FUN-03-03 and DEC-SIM-03-02 remain bounded implementation/qualification decisions; native tests and population/inference coverage remain NOT_RUN. Optional DEC-OPT-03-02 is not a local repair prerequisite.",
+    "Root owns shared03/aggregate04 integration; this readback covers authored local files and does not certify the eventual merged archive."
+  ],
+  "primary_sources": [
+    {
+      "url": "https://botorch.readthedocs.io/en/v0.16.1/optim.html",
+      "checked": "2026-11-01",
+      "scope": "optimize_acqf_discrete API choices/unique/X_avoid, sequential q>1 and batch memory; locked0.16.1"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/python/cpython/v3.14.0/Lib/statistics.py",
+      "checked": "2026-11-01",
+      "scope": "NormalDist.inv_cdf:1155–1166; p domain0<p<1 and inverse function delegation; pinned3.14 source"
+    },
+    {
+      "url": "https://docs.python.org/3.14/library/statistics.html#statistics.NormalDist.inv_cdf",
+      "checked": "2026-11-01",
+      "scope": "NormalDist inverse CDF API; same target major/minor, current patch docs"
+    },
+    {
+      "url": "https://docs.scipy.org/doc/scipy-1.16.0/reference/generated/scipy.stats.norm.html",
+      "checked": "2026-11-01",
+      "scope": "norm.isf inverse survival API, same1.16 minor as locked1.16.3"
+    }
+  ],
+  "independent_arithmetic": {
+    "calibration_and_pairing": {
+      "zero_of_five_one_sided_95pct_upper": 0.4507197283469412,
+      "twenty_uniform_misses_99_of_100": 0.8179069375972308,
+      "FOR_FN10_TN990": 0.01,
+      "FNR_FN10_TP0": 1.0,
+      "paired_SE_differences_1_2_3": 0.5773502691896258,
+      "mispaired_SE_minus1_2_5": 1.7320508075688772
+    },
+    "quantile": {
+      "scope": "Independent host stdlib arithmetic only; no repository import, not native acceptance",
+      "python": "3.12.14",
+      "near_one_confidence": 0.9999999999999999,
+      "lower_tail_probability": 5.551115123125783e-17,
+      "unstable_upper_tail": 1.0,
+      "stable_lower_tail_z": 8.292361075813595,
+      "independent_erfc_roundtrip_probability": 5.551115123125807e-17,
+      "confidence95_z": 1.9599639845400536
+    }
+  },
+  "limitations": [
+    "No repository imports/test execution/install/provider calls/external mutations.",
+    "Only independent host Python3.12 stdlib arithmetic and document checks executed; target Python3.14/native profiles NOT_RUN.",
+    "No proposal or baseline/product edit by peer reviewer; author performed the seed correction and root-authorized PS-F08 delta.",
+    "This is targeted peer readback, not a second review of all LANE01/02 packets or historical audit."
+  ],
+  "central_application": {
+    "status": "PASS_EXACT_BYTE_EQUALITY",
+    "checked_utc_date": "2026-11-01",
+    "ledger_path": "e02_final_technical_review/cross_lane/policy_staging_application.json",
+    "ledger_sha256": "05df8721f91ed7e8e6b25a23b0c2b05829849942259a541b16d65e852dcf99b2",
+    "files": [
+      {
+        "staging": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/FUN-03.md",
+        "central": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/FUN-03.md",
+        "sha256": "992b3355f65e78a3e95358bc9626b10a81ffccadec341c9802bd482cecc8433f",
+        "exact_byte_equality": true,
+        "matches_reviewed_hash_and_application_ledger": true
+      },
+      {
+        "staging": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/FUN-03.json",
+        "central": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/FUN-03.json",
+        "sha256": "ac82c1f8596a70b77c206d16b0e223d95e82917e7040ea174569378ceb3eafbd",
+        "exact_byte_equality": true,
+        "matches_reviewed_hash_and_application_ledger": true
+      },
+      {
+        "staging": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/OPT-02.md",
+        "central": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/OPT-02.md",
+        "sha256": "dc961a4c49cf01cdcbf6a7dad1726e4ff43b9dc2715d8804c534e851526db8f0",
+        "exact_byte_equality": true,
+        "matches_reviewed_hash_and_application_ledger": true
+      },
+      {
+        "staging": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/OPT-02.json",
+        "central": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/OPT-02.json",
+        "sha256": "239697d9f421eaf0a1b0cb90ed04efde3858499d7133525d3ebd1274e3fd6f5c",
+        "exact_byte_equality": true,
+        "matches_reviewed_hash_and_application_ledger": true
+      },
+      {
+        "staging": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/SIM-03.md",
+        "central": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/SIM-03.md",
+        "sha256": "aa14bc4c7dd580eb9c50f093616aebce060449afca42b4bec141aff9b0cf0a5e",
+        "exact_byte_equality": true,
+        "matches_reviewed_hash_and_application_ledger": true
+      },
+      {
+        "staging": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/SIM-03.json",
+        "central": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/SIM-03.json",
+        "sha256": "00a5dcab73db7c1f62a2e05416a0b7df50307d1f99cd3e6db08bd53f6a0e710a",
+        "exact_byte_equality": true,
+        "matches_reviewed_hash_and_application_ledger": true
+      },
+      {
+        "staging": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/OPT-03.md",
+        "central": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/OPT-03.md",
+        "sha256": "ac39c763c00a38184ea26a2184b3eca6af77d3db283077810c02ba789e67320e",
+        "exact_byte_equality": true,
+        "matches_reviewed_hash_and_application_ledger": true
+      },
+      {
+        "staging": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/OPT-03.json",
+        "central": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/OPT-03.json",
+        "sha256": "b0311bca091c8d8a9bdaac805549bb7d2943b50062cb730eaec4c9106d1e4cae",
+        "exact_byte_equality": true,
+        "matches_reviewed_hash_and_application_ledger": true
+      },
+      {
+        "staging": "e02_final_technical_review/policy_search/proposed_v2/02_Пакеты/TRN-01.md",
+        "central": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/02_Пакеты/TRN-01.md",
+        "sha256": "acb63f3f975fb5c24f8da00b67b1673a232ec256c761f03fd9b820fb58efed8e",
+        "exact_byte_equality": true,
+        "matches_reviewed_hash_and_application_ledger": true
+      },
+      {
+        "staging": "e02_final_technical_review/policy_search/proposed_v2/04_Трассировка/TRN-01.json",
+        "central": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/04_Трассировка/TRN-01.json",
+        "sha256": "cf3748957343529fed819e191e82ac590c7cff2e641bb9d14e205e7bb2508397",
+        "exact_byte_equality": true,
+        "matches_reviewed_hash_and_application_ledger": true
+      },
+      {
+        "staging": "e02_final_technical_review/policy_search/proposed_v2/01_Лейны/LANE-01.md",
+        "central": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/01_Лейны/LANE-01.md",
+        "sha256": "8c4a9ffa024a39d88eb10f940882e653a315e8817505a5616e3c47f2122b062c",
+        "exact_byte_equality": true,
+        "matches_reviewed_hash_and_application_ledger": true
+      },
+      {
+        "staging": "e02_final_technical_review/policy_search/proposed_v2/01_Лейны/LANE-02.md",
+        "central": "e02_final_technical_review/proposed_v2/PolicyOS_E02_Executor_Specifications_v2/01_Лейны/LANE-02.md",
+        "sha256": "f32af01898b24a89803e9812697273403813e692c45c1601b33bb717a92e27b3",
+        "exact_byte_equality": true,
+        "matches_reviewed_hash_and_application_ledger": true
+      }
+    ],
+    "scope_note": "Technical readback was against author staging snapshot. After root application, all12 central files were independently byte-compared to those reviewed staging bytes. No claim is made about prior central state, shared03 or other merged artifacts."
+  }
+}

@@ -571,3 +571,62 @@ def test_b154_verification_only_abort_reason_is_rejected_by_signing_report() -> 
         abort_reason="authorization_lost",
     )
     assert report.abort_reason == "authorization_lost"  # noqa: S101
+
+
+@pytest.mark.parametrize("operation", ["verify", "sign"])
+@pytest.mark.parametrize("source_kind", ["duplicates", "empty", "exhausted", "endless"])
+def test_native_batch_stop_inside_next_never_becomes_complete(
+    tmp_path: Path, operation: str, source_kind: str
+) -> None:
+    """Real callback rows survive a stop hidden inside source exhaustion/dedup."""
+    store, signer, verifier, refs = _signed_store(tmp_path)
+    if operation == "sign":
+        refs = [
+            store.put_bytes(
+                b"cas03-stop-unsigned",
+                PutOptions(kind="cas03.stop", media_type="application/octet-stream"),
+            )
+        ]
+    cancel = threading.Event()
+    consumed = 0
+
+    def inventory():
+        nonlocal consumed
+        if source_kind != "empty":
+            consumed += 1
+            yield refs[0].artifact_id
+        consumed += 1
+        cancel.set()
+        if source_kind == "duplicates":
+            for _ in range(200):
+                yield refs[0].artifact_id
+                consumed += 1
+        elif source_kind == "endless":
+            while True:
+                yield refs[0].artifact_id
+                consumed += 1
+
+    options = {
+        "artifact_ids": inventory(),
+        "max_workers": 1,
+        "pending_window": 1,
+        "cancel_event": cancel,
+    }
+    report = (
+        store.verify_all_signatures(verifier, **options)
+        if operation == "verify"
+        else store.sign_all_artifacts(signer, only_unsigned=False, **options)
+    )
+    expected = 0 if source_kind == "empty" else 1
+    assert consumed == expected + 1, "dedup drained the source after its cancellation"
+    assert report.admitted == report.finished == expected
+    assert report.state == "aborted"
+    assert report.abort_reason == "cancelled"
+    assert report.inventory_exhausted is False
+    rows = [row for row in report.details if row.artifact_id != "<batch>"]
+    assert len(rows) == expected
+    if rows:
+        assert rows[0].artifact_id == str(refs[0].artifact_id)
+        assert rows[0].status == (
+            SignatureVerificationStatus.VALID if operation == "verify" else "signed"
+        )

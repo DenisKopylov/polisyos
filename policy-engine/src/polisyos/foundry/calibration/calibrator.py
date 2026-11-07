@@ -19,7 +19,7 @@ from contextvars import ContextVar
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from dataclasses import fields as dataclass_fields
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from functools import wraps
 from typing import Any, Literal
 
@@ -44,7 +44,10 @@ from polisyos.core.observability import (
     get_tracer,
     is_hpc_observability_enabled,
 )
-from polisyos.core.registry import load_registry_bundle_content, load_registry_bundle_payload
+from polisyos.core.registry.loader import (
+    load_registry_bundle_content,
+    load_registry_bundle_payload,
+)
 from polisyos.foundry.calibration.auxiliary import AuxLossComponent
 from polisyos.foundry.calibration.bijectors import (
     from_unconstrained,
@@ -88,6 +91,7 @@ from polisyos.foundry.calibration.measurement import (
     MeasurementAwareLossConfig,
 )
 from polisyos.foundry.calibration.preflight import (
+    _admit_target_axis,
     fetch_targets,
     prepare_targets,
     resolve_steps,
@@ -746,19 +750,25 @@ def _compute_scale_local(
     if selected.size == 0:
         return float(default_eps)
     method = target_cfg.loss.scale
-    abs_arr = np.abs(selected)
+    # Reduce bounded host float64 operands, then restore the original units.
+    # A representable mean/std must not be replaced by the no-data floor just
+    # because a float32 sum or square overflowed before the reduction.
+    selected = selected.astype(np.float64)
+    magnitude = float(np.max(np.abs(selected)))
+    normalized = selected / magnitude if magnitude > 0.0 else selected
+    abs_arr = np.abs(normalized)
     if method == "std":
-        scale = float(np.std(selected))
+        scale = float(np.std(normalized)) * magnitude
     elif method == "max":
-        scale = float(np.max(abs_arr))
+        scale = float(np.max(abs_arr)) * magnitude
     elif method == "p95":
-        scale = float(np.quantile(abs_arr, 0.95))
+        scale = float(np.quantile(abs_arr, 0.95)) * magnitude
     elif method == "none":
         scale = 1.0
     else:
-        scale = float(np.mean(abs_arr))
+        scale = float(np.mean(abs_arr)) * magnitude
     if not np.isfinite(scale):
-        return float(default_eps)
+        raise ValueError("Non-finite calibration scale for finite nonempty support")
     return float(max(scale, default_eps))
 
 
@@ -772,10 +782,16 @@ def _measurement_time_axis(values: Sequence[Any] | None) -> list[float] | None:
             continue
         text = str(value)
         try:
-            result.append(float(datetime.fromisoformat(text).date().toordinal()))
-        except ValueError:
-            result.append(float(len(result)))
-    return result
+            result.append(float(date.fromisoformat(text).toordinal()))
+        except ValueError as exc:
+            raise ValueError(
+                "Measurement time axis requires ISO dates or finite numeric labels"
+            ) from exc
+    admitted = _admit_target_axis(np.asarray(result))
+    assert admitted is not None
+    if np.any(admitted[1:] <= admitted[:-1]):
+        raise ValueError("Measurement time axis must be strictly ordered without duplicate labels")
+    return admitted.tolist()
 
 
 def _selector_key(value: Any) -> str:
@@ -843,6 +859,12 @@ def _as_float_list(values: Any) -> list[float]:
 def _as_float_matrix(values: Any) -> list[list[float]]:
     arr = np.atleast_2d(np.asarray(values, dtype=float))
     return [[float(item) for item in row] for row in arr.tolist()]
+
+
+def _diagnostic_number(value: float) -> float | str:
+    """Retain an actual nonfinite diagnostic without an invalid JSON number."""
+    number = float(value)
+    return number if np.isfinite(number) else repr(number)
 
 
 def _inspect_bundle_fidelity(bundle: StaticBundle) -> dict[str, Any]:
@@ -942,7 +964,9 @@ def _load_selected_source_model(
     ).require_value()
 
 
-def _state_values_equal(left: GlobalState, right: GlobalState) -> bool:
+def _state_values_equal(
+    left: GlobalState | Sequence[Any], right: GlobalState | Sequence[Any]
+) -> bool:
     """Compare all state leaves without stringifying device or array objects."""
     left_leaves, left_tree = jax.tree_util.tree_flatten(left)
     right_leaves, right_tree = jax.tree_util.tree_flatten(right)
@@ -1520,6 +1544,11 @@ def _persist_calibration_execution_basis(
     consumed_values = capture.get("target_values", {})
     captured_time_axes = capture.get("report_time_axes", {})
     measurement_bundle = inputs.measurement_bundle
+    measurement_specs = (
+        {item.target_id: item for item in measurement_bundle.targets}
+        if measurement_bundle is not None
+        else {}
+    )
     for target in inputs.config.targets:
         target_id = target.target_id
         comparison = report.series_comparison.get(target_id)
@@ -1568,8 +1597,12 @@ def _persist_calibration_execution_basis(
                     "split_label",
                     "identification_mode",
                     "time_grain",
+                    "period_end",
                 )
             }
+            target_spec = measurement_specs.get(target_id)
+            if target_spec is not None:
+                metadata["target_spec"] = target_spec.model_dump(mode="python")
             try:
                 measurement_digest = canonical_input_sha256(metadata)
             except (TypeError, ValueError, OverflowError):
@@ -2522,7 +2555,30 @@ class Calibrator:
                     )
             if self.inputs.controls_seq is not None and len(self.inputs.controls_seq) != steps:
                 raise ValueError("controls_seq length must match calibration steps")
+            if cfg.steps not in (None, steps):
+                raise ValueError("Measurement calibration steps must match observed row count")
+            time_axes = {
+                target.target_id: _measurement_time_axis(
+                    measurement_bundle.time_axis.get(target.target_id)
+                )
+                for target in targets
+            }
+            configured_axis = _admit_target_axis(
+                np.asarray(cfg.time_axis) if cfg.time_axis is not None else None
+            )
+            for target_id, axis in time_axes.items():
+                if axis is not None and len(axis) != steps:
+                    raise ValueError("Measurement time axis must match observed row count")
+                if configured_axis is not None and (
+                    axis is None or not np.array_equal(configured_axis, np.asarray(axis))
+                ):
+                    raise ValueError(
+                        "Configured time axis must exactly match the measurement time axis; "
+                        "an explicit upstream alignment is required"
+                    )
             scales: dict[str, float] = {}
+            fit_masks: dict[str, jax.Array] = {}
+            observed_masks: dict[str, jax.Array] = {}
             for target in targets:
                 target_id = target.target_id
                 coverage = jnp.asarray(
@@ -2534,6 +2590,7 @@ class Calibrator:
                         f"target={aligned_targets[target_id].shape}, coverage={coverage.shape}"
                     )
                 observed_mask = (coverage > 0.0) & jnp.isfinite(aligned_targets[target_id])
+                observed_masks[target_id] = observed_mask
                 labels = measurement_bundle.split_label.get(target_id)
                 if labels is None:
                     training_mask = jnp.ones_like(observed_mask, dtype=bool)
@@ -2550,6 +2607,7 @@ class Calibrator:
                     raise ValueError(
                         f"Training split for target '{target_id}' does not match target shape"
                     )
+                fit_masks[target_id] = observed_mask & training_mask
                 scales[target_id] = _compute_scale_local(
                     aligned_targets[target_id],
                     target,
@@ -2559,12 +2617,6 @@ class Calibrator:
                 scale_support[target_id] = bool(np.any(np.asarray(observed_mask & training_mask)))
                 if not scale_support[target_id]:
                     diagnostics.append(f"no_training_scale_support:{target_id}")
-            time_axes = {
-                target.target_id: _measurement_time_axis(
-                    measurement_bundle.time_axis.get(target.target_id)
-                )
-                for target in targets
-            }
 
         if self._execution_capture is not None:
             raw_target_ids = set(self.inputs.raw_targets or {})
@@ -2592,6 +2644,7 @@ class Calibrator:
             }
 
         measurement_support: dict[str, bool] = {}
+        measurement_fit_weights: dict[str, jax.Array] = {}
         if measurement_bundle is not None:
             for target in targets:
                 target_id = target.target_id
@@ -2615,13 +2668,45 @@ class Calibrator:
                         f"target={np.asarray(aligned_targets[target_id]).shape}, "
                         f"weights={quality_arr.shape}"
                     )
-                measurement_support[target_id] = bool(
-                    np.any(np.isfinite(quality_arr) & (quality_arr > 0.0))
+                if not np.all(np.isfinite(quality_arr)) or np.any(quality_arr < 0.0):
+                    raise ValueError("Measurement quality weights must be finite and nonnegative")
+                effective_mask = np.asarray(fit_masks[target_id]) & (quality_arr > 0.0)
+                # Freeze exactly the same computational support for preflight,
+                # optimizer/GradNorm and both Hessian objectives. The source
+                # bundle and its evaluation partitions remain untouched.
+                selected_quality = np.where(effective_mask, quality_arr, 0.0)
+                maximum_quality = float(np.max(selected_quality, initial=0.0))
+                normalized_quality = selected_quality / (
+                    maximum_quality if maximum_quality > 0.0 else 1.0
                 )
+                fit_weights = jnp.asarray(normalized_quality, dtype=jnp.float32)
+                backend_support = np.asarray(fit_weights > 0.0)
+                if np.any(effective_mask & ~backend_support):
+                    raise ValueError("measurement_fit_relative_weight_below_float32_resolution")
+                if np.any(backend_support):
+                    probability_support = np.asarray(fit_weights / jnp.sum(fit_weights) > 0.0)
+                    if np.any(effective_mask & ~probability_support):
+                        raise ValueError(
+                            "measurement_fit_probability_weight_below_float32_resolution"
+                        )
+                # The canonical reducer safely normalizes positive quality;
+                # residual epsilon is not a threshold that can erase support.
+                has_support = bool(np.any(backend_support))
+                fit_masks[target_id] = jnp.asarray(
+                    effective_mask if has_support else np.zeros_like(effective_mask)
+                )
+                measurement_fit_weights[target_id] = (
+                    fit_weights if has_support else jnp.zeros_like(fit_weights)
+                )
+                measurement_support[target_id] = bool(has_support)
                 if not measurement_support[target_id]:
                     diagnostics.append(f"no_effective_support:{target_id}")
+                    diagnostics.append(f"no_effective_fit_support:{target_id}")
             if not any(measurement_support.values()):
-                raise ValueError("Calibration blocked: no_effective_support for any target")
+                raise ValueError(
+                    "Calibration blocked: no_effective_fit_support "
+                    "(no_effective_support for any training target)"
+                )
 
         loss_configs = {t.target_id: t.loss for t in targets}
         target_ids = [t.target_id for t in targets]
@@ -2808,29 +2893,13 @@ class Calibrator:
                     aligned_targets[target.target_id],
                     cfg_loss,
                     scale,
+                    support_mask=fit_masks[target.target_id],
                 )
-                adapted = measurement_adapter.adapt(
-                    targets=(measurement_targets[target.target_id],),
-                    # Sample-quality is normalized within the target.  The
-                    # inter-target priority is applied by ``loss_fn`` after
-                    # this reduction so it cannot cancel in the denominator.
-                    base_weights=1.0,
-                    trust_weight=measurement_bundle.trust_weight[target.target_id],
-                    coverage_estimate=measurement_bundle.coverage_estimate[target.target_id],
-                    censoring_mask=measurement_bundle.censoring_mask.get(target.target_id),
-                    lag_days_estimate=measurement_bundle.lag_days_estimate.get(target.target_id),
-                    schema_regime_id=measurement_bundle.schema_regime_id.get(target.target_id),
-                    shock_mask=measurement_bundle.shock_mask.get(target.target_id),
-                    identification_mode=measurement_bundle.identification_mode.get(
-                        target.target_id
-                    ),
-                    config=measurement_config,
-                )
-                sample_quality = adapted.get("sample_quality_weight", adapted["effective_weight"])
                 losses.append(
                     reduce_weighted_loss(
                         pointwise,
-                        sample_quality,
+                        # Priority stays outside the normalized sample measure.
+                        measurement_fit_weights[target.target_id],
                         epsilon=cfg_loss.epsilon,
                     )
                 )
@@ -2887,12 +2956,12 @@ class Calibrator:
             (
                 total,
                 base_vec,
-                _traces,
+                traces,
                 constraint_penalty,
                 prior_penalty,
                 aux_penalty,
             ) = _forward_evaluation(u, weights_vec, step_idx)
-            aux = (base_vec, constraint_penalty, prior_penalty, aux_penalty)
+            aux = (base_vec, constraint_penalty, prior_penalty, aux_penalty, traces)
             return total, aux
 
         @jax.jit
@@ -3075,6 +3144,8 @@ class Calibrator:
             best_eval_loss = float("inf")
             best_u_state = u_state
             best_weights_state = weights_state
+            best_forward = None
+            best_replica_step = None
             patience = 0
             init_base_vec = None
             early_stop_triggered = False
@@ -3111,6 +3182,15 @@ class Calibrator:
                         best_eval_loss = loss_float
                         best_u_state = prev_u_state
                         best_weights_state = prev_weights_state
+                        best_forward = (
+                            loss_val,
+                            aux[0],
+                            aux[4],
+                            aux[1],
+                            aux[2],
+                            aux[3],
+                        )
+                        best_replica_step = step
 
                     if hpc_enabled:
                         collector.record_step(
@@ -3175,21 +3255,30 @@ class Calibrator:
                 | None
             ) = None
             candidate_loss = float("inf")
-            try:
-                candidate_forward = _forward_evaluation(
-                    u_state,
-                    weights_state,
-                    final_step_idx,
-                )
-                candidate_loss = float(candidate_forward[0])
-            except (FloatingPointError, RuntimeError, TypeError, ValueError) as exc:
-                _ms_diagnostics.append(f"Last iterate evaluation failed: {exc}")
-
             weights_comparable = np.array_equal(
                 np.asarray(best_weights_state),
                 np.asarray(weights_state),
                 equal_nan=True,
             )
+            checked_replica_comparable = cfg.seed_strategy == "fixed" or best_replica_step == 0
+            if (
+                best_forward is not None
+                and weights_comparable
+                and checked_replica_comparable
+                and _state_values_equal(best_u_state, u_state)
+            ):
+                candidate_forward = best_forward
+                candidate_loss = best_eval_loss
+            else:
+                try:
+                    candidate_forward = _forward_evaluation(
+                        u_state,
+                        weights_state,
+                        final_step_idx,
+                    )
+                    candidate_loss = float(candidate_forward[0])
+                except (FloatingPointError, RuntimeError, TypeError, ValueError) as exc:
+                    _ms_diagnostics.append(f"Last iterate evaluation failed: {exc}")
             baseline_loss = best_eval_loss
             baseline_forward: (
                 tuple[
@@ -3201,9 +3290,9 @@ class Calibrator:
                     jnp.ndarray,
                 ]
                 | None
-            ) = None
+            ) = best_forward if weights_comparable and checked_replica_comparable else None
             if np.isfinite(best_eval_loss) and (
-                not weights_comparable or cfg.seed_strategy == "step"
+                not weights_comparable or not checked_replica_comparable
             ):
                 try:
                     baseline_forward = _forward_evaluation(
@@ -3215,6 +3304,23 @@ class Calibrator:
                 except (FloatingPointError, RuntimeError, TypeError, ValueError) as exc:
                     _ms_diagnostics.append(f"Historical best re-evaluation failed: {exc}")
                     baseline_loss = float("inf")
+
+            if (
+                not np.isfinite(candidate_loss)
+                and not np.isfinite(baseline_loss)
+                and best_forward is not None
+                and checked_replica_comparable
+            ):
+                # A failed comparison cannot attach an old loss to new weights.
+                # Retain the complete previously checked objective snapshot and
+                # expose the limitation rather than losing the useful result.
+                baseline_loss = best_eval_loss
+                baseline_forward = best_forward
+                weights_state = best_weights_state
+                weights_comparable = True
+                _ms_diagnostics.append(
+                    "final_comparison_unavailable:retained_checked_snapshot_with_original_weights"
+                )
 
             selected_loss, selected_state = _select_lower_loss_state(
                 previous_loss=baseline_loss,
@@ -3258,49 +3364,74 @@ class Calibrator:
                     "identifiability": run_identifiability,
                     "hessian_reuse_key": run_hessian_key,
                     "forward": selected_forward,
+                    "checked_state": best_u_state,
+                    "checked_weights": best_weights_state,
+                    "checked_replica_step": best_replica_step,
                 }
             )
 
         # ------------------------------------------------------------------
         # Multi-start: select best run
         # ------------------------------------------------------------------
-        if len(multi_start_runs) > 1:
-            from polisyos.foundry.calibration.multi_start import (
-                SingleRunResult as _SR,
-            )
-            from polisyos.foundry.calibration.multi_start import (
-                select_best as _select_best,
-            )
+        from polisyos.foundry.calibration.multi_start import (
+            SingleRunResult as _SR,
+        )
+        from polisyos.foundry.calibration.multi_start import (
+            select_best as _select_best,
+        )
+        from polisyos.ir.analytics.calibration import MultiStartConfig
 
-            _single_results = [
-                _SR(
-                    loss=r["final_loss"],
-                    params=r["u_state"],
-                    hessian_result=r["hessian_result"],
-                    identifiability=r["identifiability"],
-                    loss_history=r["loss_history"],
-                    grad_norm_history=r["grad_norm_history"],
-                    diagnostics=r["diagnostics"],
+        _single_results = [
+            _SR(
+                loss=r["final_loss"],
+                params=r["u_state"],
+                hessian_result=r["hessian_result"],
+                identifiability=r["identifiability"],
+                loss_history=r["loss_history"],
+                grad_norm_history=r["grad_norm_history"],
+                diagnostics=r["diagnostics"],
+            )
+            for r in multi_start_runs
+        ]
+        try:
+            best_idx, selection_reason = _select_best(
+                _single_results, cfg.multi_start or MultiStartConfig(n_starts=1)
+            )
+        except ValueError as exc:
+            # A failed fit does not become a success-shaped report, but each
+            # attempted start's actual diagnostic history remains inspectable
+            # through the existing exception/lifecycle failure boundary.
+            exc.add_note(
+                "calibration_runs="
+                + repr(
+                    [
+                        {
+                            "start_index": index,
+                            "final_loss": run["final_loss"],
+                            "loss_history": run["loss_history"],
+                            "grad_norm_history": run["grad_norm_history"],
+                            "diagnostics": run["diagnostics"],
+                            "checked_parameters": [
+                                np.asarray(value).tolist() for value in run["checked_state"]
+                            ],
+                            "checked_weights": np.asarray(run["checked_weights"]).tolist(),
+                            "checked_replica_step": run["checked_replica_step"],
+                        }
+                        for index, run in enumerate(multi_start_runs)
+                    ]
                 )
-                for r in multi_start_runs
-            ]
-            best_idx, selection_reason = _select_best(_single_results, cfg.multi_start)
+            )
+            raise
+        if len(multi_start_runs) > 1:
             diagnostics.append(
                 f"Multi-start: selected run {best_idx}/{len(multi_start_runs)} ({selection_reason})"
             )
-            selected_run = multi_start_runs[best_idx]
-            u_state = selected_run["u_state"]
-            weights_state = selected_run["weights_state"]
-            loss_history = selected_run["loss_history"]
-            grad_norm_history = selected_run["grad_norm_history"]
-            diagnostics.extend(selected_run["diagnostics"])
-        else:
-            selected_run = multi_start_runs[0]
-            u_state = selected_run["u_state"]
-            weights_state = selected_run["weights_state"]
-            loss_history = selected_run["loss_history"]
-            grad_norm_history = selected_run["grad_norm_history"]
-            diagnostics.extend(selected_run["diagnostics"])
+        selected_run = multi_start_runs[best_idx]
+        u_state = selected_run["u_state"]
+        weights_state = selected_run["weights_state"]
+        loss_history = selected_run["loss_history"]
+        grad_norm_history = selected_run["grad_norm_history"]
+        diagnostics.extend(selected_run["diagnostics"])
 
         final_theta_groups = from_unconstrained(u_state, group_bijectors)
         final_theta = _expand_group_values(final_theta_groups)
@@ -3473,8 +3604,10 @@ class Calibrator:
                             non_identifiable.append(hr.param_names[idx])
 
                     condition = hr.condition_number
-                    if batch_profile is not None and not np.isfinite(condition):
-                        diagnostics.append("ordered_batch_hessian_condition_non_finite")
+                    if not np.isfinite(condition):
+                        diagnostics.append("hessian_raw_condition_non_finite")
+                        if batch_profile is not None:
+                            diagnostics.append("ordered_batch_hessian_condition_non_finite")
                     if rank < n_p:
                         diagnostics.append(f"Hessian rank deficient: {rank}/{n_p}")
                     if np.isfinite(condition) and condition > cfg.hessian.condition_warn:
@@ -3524,16 +3657,18 @@ class Calibrator:
                     for group_idx, group in enumerate(groups)
                     for handle_idx in group.handle_indices
                 }
-                complete_handle_map = set(group_by_handle) == set(
+                valid_handle_map = set(group_by_handle).issubset(
                     range(len(final_bundle.trainables))
                 ) and len(group_by_handle) == sum(len(group.handle_indices) for group in groups)
-                if not complete_handle_map:
-                    diagnostics.append("coordinate_projection_incomplete_unassigned_fields")
+                if not valid_handle_map:
+                    diagnostics.append("coordinate_projection_invalid_or_duplicate_handles")
                     coordinate_projection_status = "incomplete"
                 else:
                     field_order: list[str] = []
                     projection_rows: list[tuple[float, ...]] = []
                     for handle_idx, handle in enumerate(final_bundle.trainables):
+                        if handle_idx not in group_by_handle:
+                            continue
                         group_idx = group_by_handle[handle_idx]
                         field_name = (
                             f"{final_bundle.nodes[handle.node_index].node_id}.{handle.field_name}"
@@ -3546,7 +3681,7 @@ class Calibrator:
                         projection_rows.append(row)
                     if (
                         len(field_order) == len(set(field_order))
-                        and set(field_order) == set(calibrated_params)
+                        and set(field_order).issubset(calibrated_params)
                         and field_order
                     ):
                         coordinate_projection = CalibrationCoordinateProjection(
@@ -3571,8 +3706,23 @@ class Calibrator:
             if self._execution_capture is not None
             else None
         )
+        uncertainty_scope = (
+            coordinate_projection.field_order
+            if coordinate_projection is not None
+            and set(coordinate_projection.field_order) != set(calibrated_params)
+            else None
+        )
+        if uncertainty_scope is not None:
+            diagnostics.append(
+                "uncertainty_not_established_for_point_only_fields:"
+                + ",".join(sorted(set(calibrated_params).difference(uncertainty_scope)))
+            )
         report = CalibrationReport(
-            schema_version="2.1" if batch_profile is not None else "2.0",
+            schema_version=(
+                ("2.3" if batch_profile is not None else "2.2")
+                if uncertainty_scope is not None
+                else ("2.1" if batch_profile is not None else "2.0")
+            ),
             ordered_batch_execution=(
                 CalibrationOrderedBatchReport(
                     consumed_profile_sha256=canonical_input_sha256(batch_profile),
@@ -3596,6 +3746,7 @@ class Calibrator:
             fit_quality=fit_quality,
             uncertainties=uncertainties,
             coordinate_projection=coordinate_projection,
+            uncertainty_field_scope=uncertainty_scope,
             coordinate_projection_status=coordinate_projection_status,
             identifiability=identifiability_report,
             diagnostics=diagnostics,
@@ -3606,6 +3757,45 @@ class Calibrator:
                 "forced_override": cfg.fidelity.force_override,
                 "jax_platform": _jax_platform(),
                 "timestamp": datetime.now(UTC).isoformat(),
+                "selection_reason": selection_reason,
+                "selected_start_index": best_idx,
+                "restart_diagnostics": [
+                    {
+                        "start_index": index,
+                        "selected": index == best_idx,
+                        "loss_status": (
+                            "finite" if np.isfinite(run["final_loss"]) else "non_finite"
+                        ),
+                        "final_loss": _diagnostic_number(run["final_loss"]),
+                        "loss_history": [
+                            _diagnostic_number(value) for value in run["loss_history"]
+                        ],
+                        "grad_norm_history": [
+                            _diagnostic_number(value) for value in run["grad_norm_history"]
+                        ],
+                        "diagnostics": list(run["diagnostics"]),
+                    }
+                    for index, run in enumerate(multi_start_runs)
+                ],
+                "hessian": {
+                    "raw_condition_status": (
+                        "unavailable"
+                        if hessian_result is None
+                        else (
+                            "non_finite"
+                            if not np.isfinite(hessian_result.condition_number)
+                            else ("invalid" if hessian_result.condition_number < 0.0 else "finite")
+                        )
+                    ),
+                    "raw_condition_value": (
+                        float(hessian_result.condition_number)
+                        if hessian_result is not None
+                        and np.isfinite(hessian_result.condition_number)
+                        else None
+                    ),
+                    "method": "actual_selected_forward_hessian",
+                    "non_authoritative": True,
+                },
                 "fidelity_stats": fidelity_stats,
                 "support_status": {
                     target_id: (
@@ -3621,6 +3811,82 @@ class Calibrator:
                 },
             },
         )
+        if measurement_bundle is not None:
+            report.execution_context["measurement_target_semantics"] = {
+                target_id: {
+                    "declared_unit": measurement_targets[target_id].unit,
+                    "interval_semantics": measurement_targets[target_id].interval_semantics,
+                    "period_end": measurement_bundle.period_end.get(target_id),
+                    "unit_authority": "not_established",
+                }
+                for target_id in target_ids
+            }
+            # These metric-unit summaries are descriptive views, distinct from
+            # the training-only normalized objective. They retain evaluation
+            # observations without allowing them to alter fit support or AD.
+            fit_partitions: dict[str, Any] = {}
+            for target_id in target_ids:
+                labels = measurement_bundle.split_label.get(target_id)
+                predictions = np.asarray(series_comparison[target_id].model, dtype=np.float64)
+                observations = np.asarray(series_comparison[target_id].real, dtype=np.float64)
+                partitions: dict[str, Any] = {}
+                if labels is not None:
+                    label_values = tuple(getattr(label, "value", label) for label in labels)
+                    for label in dict.fromkeys(label_values):
+                        declared_partition = np.asarray([value == label for value in label_values])
+                        partition = declared_partition & np.asarray(observed_masks[target_id])
+                        total_rows = int(np.count_nonzero(declared_partition))
+                        count = int(np.count_nonzero(partition))
+                        contributing_count = int(
+                            np.count_nonzero(partition & np.asarray(fit_masks[target_id]))
+                        )
+                        if count:
+                            metric = _fit_metrics(predictions[partition], observations[partition])
+                            metric_values = metric.model_dump(mode="json")
+                            numeric = [metric.mse, metric.rmse, metric.mae]
+                            if metric.r2 is not None:
+                                numeric.append(metric.r2)
+                            partitions[str(label)] = (
+                                {
+                                    "status": "available",
+                                    "metric_compute_dtype": "float64",
+                                    "metrics": metric_values,
+                                    "rows": total_rows,
+                                    "observed_rows": count,
+                                    "training_rows": contributing_count,
+                                    "contributes_to_training": contributing_count > 0,
+                                }
+                                if all(np.isfinite(value) for value in numeric)
+                                else {
+                                    "status": "unavailable",
+                                    "reason": "descriptive_metric_range_exceeded",
+                                    "rows": total_rows,
+                                    "observed_rows": count,
+                                    "training_rows": contributing_count,
+                                    "contributes_to_training": contributing_count > 0,
+                                }
+                            )
+                        else:
+                            partitions[str(label)] = {
+                                "status": "unavailable",
+                                "reason": "no_observed_support",
+                                "rows": total_rows,
+                                "observed_rows": 0,
+                                "training_rows": 0,
+                                "contributes_to_training": False,
+                            }
+                fit_partitions[target_id] = {
+                    "role": "train" if labels is not None else "legacy_all_eligible",
+                    "effective_support_count": int(
+                        np.count_nonzero(np.asarray(fit_masks[target_id]))
+                    ),
+                    "sample_measure": "positive_quality_observed_training_rows",
+                    "evaluation_partitions": partitions,
+                }
+            report.execution_context["measurement_fit"] = fit_partitions
+            report.execution_context["fit_quality_scope"] = (
+                "all_aligned_rows_descriptive_float64; training objective is per_target_loss"
+            )
         if batch_profile is not None:
             report.execution_context["ordered_batch"] = {
                 "profile_kind": "ordered_scalar_mse_v1",

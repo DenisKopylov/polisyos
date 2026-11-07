@@ -24,6 +24,7 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.logger import get_logger
+from polisyos.common.numeric_reductions import finite_binary64_mean
 from polisyos.ir import (
     ArtifactRefModel,
     PosteriorPointRole,
@@ -38,6 +39,8 @@ from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     ExactnessKind,
     IntervalSemantics,
+    NumericPolicySpec,
+    NumericToleranceMode,
     ParametricFitCarrier,
     PosteriorSamplesCarrier,
     PropagationMethod,
@@ -59,6 +62,14 @@ from .covariance import (
     has_unknown_dependency,
     joint_dependency_assurance,
 )
+from .empirical import EmpiricalJointRows as _EmpiricalJointSpec
+from .empirical import (
+    empirical_indices_from_cdf as _empirical_indices_from_admitted_cdf,
+)
+from .empirical import empirical_weighted_moments, prepare_empirical_joint
+from .empirical import (
+    prepare_empirical_cdf as _normalize_empirical_weights,
+)
 from .evaluation_failures import classify_evaluation_failure
 from .protocol import PropagationResult, _validate_effective_inputs
 
@@ -66,6 +77,18 @@ logger = get_logger(__name__)
 
 _MAX_EVALUATION_ATTEMPTS = 2
 _QMC_GAUSSIAN_UNIFORM_CLIP = 1e-10
+_FLOAT32_OUTPUT_MAX = float(np.finfo(np.float32).max)
+_FLOAT32_OUTPUT_NORMAL_MIN = float(np.finfo(np.float32).tiny)
+
+
+def _output_carrier_numeric_policy(values: np.ndarray) -> NumericPolicySpec:
+    """Keep each emitted float32 row when the default decimal profile would change it."""
+    default = NumericPolicySpec()
+    for item in values:
+        value = float(item)
+        if default.canonicalize(value) != value:
+            return NumericPolicySpec(mode=NumericToleranceMode.DECIMAL_EXACT)
+    return default
 
 
 @dataclass
@@ -147,18 +170,6 @@ class _GaussianExecutionTrace:
     batches: list[dict[str, Any]]
 
 
-@dataclass(frozen=True)
-class _EmpiricalJointSpec:
-    """Describe an aligned empirical law shared by input carriers."""
-
-    names: tuple[str, ...]
-    sample_axis: str
-    sample_count: int
-    samples: Mapping[str, np.ndarray]
-    probabilities: np.ndarray
-    joint_sample_id: str | None
-
-
 class _DrawOutcomeCode(StrEnum):
     """Typed outcome classes for a Monte Carlo draw/output pair."""
 
@@ -167,6 +178,7 @@ class _DrawOutcomeCode(StrEnum):
     MISSING_OUTPUT = "missing_output"
     NON_NUMERIC_OUTPUT = "non_numeric_output"
     NON_FINITE_OUTPUT = "non_finite_output"
+    NUMERIC_RESOLUTION_LOST = "numeric_resolution_lost"
 
 
 class _DrawOutputOutcome(BaseModel):
@@ -665,72 +677,7 @@ def _build_empirical_joint_spec(
 
     if not carriers:
         return None, None
-    if len(carriers) != len(param_names):
-        return None, "incompatible_joint_law"
-
-    joint_sample_id: str | None = None
-    if len(carriers) > 1:
-        declared_ids: list[str] = []
-        for name in carriers:
-            raw_id = input_envelopes[name].metadata.get("joint_sample_id")
-            if not isinstance(raw_id, str) or not raw_id.strip():
-                return None, "unestablished_joint_law"
-            declared_ids.append(raw_id.strip())
-        if len(set(declared_ids)) != 1:
-            return None, "incompatible_joint_law"
-        joint_sample_id = declared_ids[0]
-
-    first = next(iter(carriers.values()))
-    axis = first.sample_axis.strip()
-    if not axis:
-        return None, "incompatible_joint_law"
-    sample_count = len(first.samples)
-    if sample_count < 1:
-        return None, "incompatible_joint_law"
-
-    normalized_weights: list[np.ndarray] = []
-    for carrier in carriers.values():
-        if carrier.sample_axis.strip() != axis or len(carrier.samples) != sample_count:
-            return None, "incompatible_joint_law"
-        weights = (
-            np.ones(sample_count, dtype=np.float64)
-            if carrier.weights is None
-            else np.asarray(carrier.weights, dtype=np.float64)
-        )
-        if (
-            weights.shape != (sample_count,)
-            or not np.all(np.isfinite(weights))
-            or np.any(weights < 0.0)
-        ):
-            return None, "incompatible_joint_law"
-        total = float(np.sum(weights))
-        if not math.isfinite(total) or total <= 0.0:
-            return None, "incompatible_joint_law"
-        normalized_weights.append(weights / total)
-
-    probabilities = normalized_weights[0]
-    if any(
-        not np.allclose(probabilities, weights, rtol=0.0, atol=1e-12)
-        for weights in normalized_weights[1:]
-    ):
-        return None, "incompatible_joint_law"
-
-    return (
-        _EmpiricalJointSpec(
-            names=tuple(carriers),
-            sample_axis=axis,
-            sample_count=sample_count,
-            samples={
-                # An unvalidated model-copy update can retain a caller-owned
-                # float64 ndarray.  The cached law must not alias that buffer.
-                name: np.asarray(carrier.samples, dtype=np.float64).copy()
-                for name, carrier in carriers.items()
-            },
-            probabilities=probabilities,
-            joint_sample_id=joint_sample_id,
-        ),
-        None,
-    )
+    return prepare_empirical_joint(param_names, input_envelopes)
 
 
 def _unknown_joint_results(
@@ -789,11 +736,13 @@ def _empirical_indices_from_uniform(
     uniform_samples: np.ndarray,
     probabilities: np.ndarray,
 ) -> np.ndarray:
-    """Map one QMC coordinate to aligned empirical row indices."""
-    clipped = np.clip(np.asarray(uniform_samples, dtype=np.float64), 1e-10, 1.0 - 1e-10)
-    cumulative = np.cumsum(np.asarray(probabilities, dtype=np.float64))
-    indices = np.searchsorted(cumulative, clipped, side="right")
-    return np.minimum(indices, len(probabilities) - 1)
+    """Map finite uniforms in [0, 1) to aligned empirical rows.
+
+    Zero-weight atoms are skipped, and the last positive atom owns any small
+    normalization roundoff below 1. Invalid uniform values are refused.
+    """
+    normalized, cumulative = _normalize_empirical_weights(probabilities)
+    return _empirical_indices_from_admitted_cdf(uniform_samples, normalized, cumulative)
 
 
 _NATIVE_NUMPY_SCALAR_TYPES = frozenset(np.sctypeDict.values())
@@ -1794,14 +1743,16 @@ class MonteCarloPropagator:
                         }
                     )
                 batch_samples.update({name: joint[:, i] for i, name in enumerate(param_names)})
-            shared_indices: jnp.ndarray | None = None
+            shared_indices: np.ndarray | None = None
             if empirical_spec is not None:
                 rng, shared_key = jrandom.split(rng)
-                shared_indices = jrandom.choice(
-                    shared_key,
-                    empirical_spec.sample_count,
-                    shape=(this_batch,),
-                    p=jnp.asarray(empirical_spec.probabilities, dtype=jnp.float32),
+                # The JAX uniform lattice is finite (currently float32 by default),
+                # but its draws must be mapped using the admitted float64 CDF.
+                # Casting the CDF to float32 can erase a positive source interval.
+                shared_indices = _empirical_indices_from_admitted_cdf(
+                    np.asarray(jrandom.uniform(shared_key, shape=(this_batch,))),
+                    empirical_spec.probabilities,
+                    empirical_spec.cumulative,
                 )
             for name in param_names:
                 if gaussian_spec is not None:
@@ -1809,8 +1760,7 @@ class MonteCarloPropagator:
                 env = input_envelopes[name]
                 if empirical_spec is not None and name in empirical_spec.names:
                     assert shared_indices is not None
-                    selected_indices = np.asarray(shared_indices, dtype=np.intp)
-                    batch_samples[name] = empirical_spec.samples[name][selected_indices]
+                    batch_samples[name] = empirical_spec.samples[name][shared_indices]
                     continue
                 rng, subkey = jrandom.split(rng)
                 batch_samples[name] = self._sample_from_envelope(subkey, env, this_batch)
@@ -1939,7 +1889,30 @@ class MonteCarloPropagator:
                 parsed_values[mid] = float("nan")
                 failures[mid] = (_DrawOutcomeCode.NON_FINITE_OUTPUT, None)
                 continue
-            parsed_values[mid] = value
+            if value != 0.0 and (
+                abs(value) > _FLOAT32_OUTPUT_MAX or abs(value) < _FLOAT32_OUTPUT_NORMAL_MIN
+            ):
+                with np.errstate(over="ignore", under="ignore"):
+                    projected = float(np.float32(value))
+            else:
+                projected = float(np.float32(value))
+            if not math.isfinite(projected):
+                parsed_values[mid] = float("nan")
+                failures[mid] = (
+                    _DrawOutcomeCode.NON_FINITE_OUTPUT,
+                    "float32_projection_overflow",
+                )
+                continue
+            if projected == 0.0 and value != 0.0:
+                parsed_values[mid] = float("nan")
+                failures[mid] = (
+                    _DrawOutcomeCode.NUMERIC_RESOLUTION_LOST,
+                    "float32_projection_underflow",
+                )
+                continue
+            # The stopping rule, ledger, and emitted carrier now observe the
+            # same selected float32 value, including representable subnormals.
+            parsed_values[mid] = projected
 
         for mid, value in parsed_values.items():
             sample_buffers.values[mid][sample_idx] = value
@@ -1996,11 +1969,11 @@ class MonteCarloPropagator:
             point = float(np.mean(valid))
             lo = float(np.percentile(valid, 100.0 * alpha / 2.0))
             hi = float(np.percentile(valid, 100.0 * (1.0 - alpha / 2.0)))
-            half_width = (hi - lo) / max(abs(point), 1e-12)
-            if half_width > adaptive.ci_half_width_target:
+            relative_full_width = (hi - lo) / max(abs(point), 1e-12)
+            if relative_full_width > adaptive.relative_full_width_target:
                 return False
 
-        logger.info("Adaptive MC stopping: converged after %d samples.", n_generated)
+        logger.info("Adaptive MC reached_width_target after %d samples.", n_generated)
         return True
 
     @staticmethod
@@ -2077,6 +2050,27 @@ class MonteCarloPropagator:
             )
         )
         qmc_has_full_certificate = qmc_method is not None and qmc_scrambled and qmc_replicates >= 2
+        empirical_sampling_profile: dict[str, Any] = {}
+        if any(
+            isinstance(envelope.distribution_payload, PosteriorSamplesCarrier)
+            for envelope in input_envelopes.values()
+        ):
+            empirical_sampling_profile = {
+                "algorithm": "float64_empirical_cdf_inverse_v1",
+                "uniform_backend": "jax_default_float" if qmc_method is None else "scipy_qmc",
+                "finite_uniform_lattice": True,
+                "implementation_identity_status": "producer_asserted",
+            }
+        adaptive_profile: dict[str, Any] = {}
+        if self._config.adaptive_stopping.enabled:
+            adaptive_profile = {
+                "profile": "relative_full_output_width_heuristic_v1",
+                "relative_full_width_target": (
+                    self._config.adaptive_stopping.relative_full_width_target
+                ),
+                "stop_reason": "reached_width_target" if stopped_early else "budget_exhausted",
+                "is_monte_carlo_standard_error": False,
+            }
         if input_envelope_digests is None:
             input_envelope_digests = {
                 name: _envelope_content_digest(envelope)
@@ -2104,6 +2098,59 @@ class MonteCarloPropagator:
             "sample_axis": sample_axis,
             "joint_sample_id": joint_sample_id,
         }
+        output_corpus_digest: bytes | None = None
+        output_mask_digests: dict[str, bytes] = {}
+        if (
+            actual_n_samples
+            and len(output_metric_ids) > 1
+            and len(set(output_metric_ids)) == len(output_metric_ids)
+        ):
+            # Distinguish the new realized rows from the source's declared
+            # rows, other callbacks and unequal per-output success masks.
+            corpus_hash = hashlib.sha256(b"policyos.mc.output_corpus.v1\0")
+
+            def add_corpus_part(part: bytes) -> None:
+                corpus_hash.update(struct.pack(">Q", len(part)))
+                corpus_hash.update(part)
+
+            add_corpus_part(
+                json.dumps(
+                    {
+                        "input_envelope_sha256": input_envelope_digests,
+                        "input_joint_sample_id": joint_sample_id,
+                        "sample_axis": sample_axis,
+                        "sampling_method": self._config.mc_sampling_method,
+                        "sampling_seed": self._config.mc_seed,
+                        "qmc_scramble": self._config.mc_qmc_scramble,
+                        "qmc_replicates": self._config.mc_qmc_replicates,
+                        "attempted_draw_count": actual_n_samples,
+                        "output_metric_ids": output_metric_ids,
+                    },
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                ).encode("utf-8")
+            )
+            for name in param_names:
+                add_corpus_part(name.encode("utf-8"))
+                add_corpus_part(
+                    np.asarray(input_samples[name][:actual_n_samples], dtype="<f8").tobytes()
+                )
+            for metric_id in output_metric_ids:
+                emitted = jnp.asarray(values[metric_id][:actual_n_samples], dtype=jnp.float32)
+                finite = np.asarray(jnp.isfinite(emitted), dtype=np.bool_)
+                mask = (
+                    struct.pack(">Q", len(finite))
+                    + np.packbits(finite, bitorder="little").tobytes()
+                )
+                emitted_values = np.asarray(emitted)[finite].astype("<f8", copy=False)
+                output_policy = _output_carrier_numeric_policy(emitted_values)
+                output_mask_digests[metric_id] = hashlib.sha256(mask).digest()
+                add_corpus_part(metric_id.encode("utf-8"))
+                add_corpus_part(mask)
+                add_corpus_part(output_policy.mode.value.encode("utf-8"))
+                add_corpus_part(emitted_values.tobytes())
+            output_corpus_digest = corpus_hash.digest()
         summary_dtypes: list[str] = []
         if declared_gaussian_joint:
             if gaussian_spec is None or gaussian_trace is None:
@@ -2145,8 +2192,16 @@ class MonteCarloPropagator:
                     },
                 }
             )
+        has_output_resolution_loss = any(
+            outcome.outcome_code is _DrawOutcomeCode.NUMERIC_RESOLUTION_LOST
+            or outcome.error_type == "float32_projection_overflow"
+            for record in draw_outcomes
+            for outcome in record.output_outcomes
+        )
         draw_outcome_provenance: dict[str, Any] = {
-            "schema_version": "1.1" if declared_gaussian_joint else "1.0",
+            "schema_version": (
+                "1.2" if has_output_resolution_loss else "1.1" if declared_gaussian_joint else "1.0"
+            ),
             "requested_draw_count": requested_n_samples,
             "attempted_draw_count": actual_n_samples,
             "simulation_attempt_count": evaluation_attempts.simulation_attempt_count,
@@ -2162,6 +2217,8 @@ class MonteCarloPropagator:
             "draw_identity_basis": "sampling_recipe+draw_index+sampled_input_sha256",
             "failure_records": [item.model_dump(mode="json") for item in draw_outcomes],
         }
+        if has_output_resolution_loss:
+            draw_outcome_provenance["output_numeric_profile"] = "float32_finite_support_v1"
         for metric_id in output_metric_ids:
             arr = jnp.asarray(values[metric_id][:actual_n_samples], dtype=jnp.float32)
             if declared_gaussian_joint and str(arr.dtype) not in summary_dtypes:
@@ -2226,6 +2283,10 @@ class MonteCarloPropagator:
                     "mc_n_samples": actual_n_samples,
                     "fallback_point_estimate_source": point_source,
                 }
+                if empirical_sampling_profile:
+                    failure_metadata["empirical_sampling_profile"] = empirical_sampling_profile
+                if adaptive_profile:
+                    failure_metadata["adaptive_stopping_profile"] = adaptive_profile
                 if declared_gaussian_joint:
                     failure_metadata["joint_gaussian_basis"] = "declared_non_authoritative"
                     failure_metadata["parameter_unit_binding"] = "not_established"
@@ -2306,22 +2367,56 @@ class MonteCarloPropagator:
                     ),
                 )
             else:
-                point = float(jnp.mean(valid))
+                host_values = np.asarray(valid, dtype=np.float64)
+                has_subnormal = bool(
+                    np.any(
+                        (host_values != 0.0) & (np.abs(host_values) < _FLOAT32_OUTPUT_NORMAL_MIN)
+                    )
+                )
+                numeric_policy = _output_carrier_numeric_policy(host_values)
                 distribution_payload = PosteriorSamplesCarrier(
-                    samples=tuple(float(value) for value in np.asarray(valid, dtype=np.float64)),
+                    samples=tuple(float(value) for value in host_values),
                     sample_axis=sample_axis,
                 )
-                if qmc_method is not None and not qmc_has_full_certificate:
-                    lo = float(jnp.min(valid))
-                    hi = float(jnp.max(valid))
-                else:
-                    lo = float(jnp.percentile(valid, 100.0 * alpha / 2.0))
-                    hi = float(jnp.percentile(valid, 100.0 * (1.0 - alpha / 2.0)))
+                use_host_summary = has_subnormal
+                if not use_host_summary:
+                    point = float(jnp.mean(valid))
+                    std = float(jnp.std(valid))
+                    if qmc_method is not None and not qmc_has_full_certificate:
+                        lo = float(jnp.min(valid))
+                        hi = float(jnp.max(valid))
+                    else:
+                        lo = float(jnp.percentile(valid, 100.0 * alpha / 2.0))
+                        hi = float(jnp.percentile(valid, 100.0 * (1.0 - alpha / 2.0)))
+                    use_host_summary = not all(math.isfinite(item) for item in (point, std, lo, hi))
+                    nonconstant = bool(np.any(host_values != host_values[0]))
+                    if nonconstant and std == 0.0:
+                        use_host_summary = True
+                    if not nonconstant and (
+                        point != host_values[0]
+                        or std != 0.0
+                        or lo != host_values[0]
+                        or hi != host_values[0]
+                    ):
+                        use_host_summary = True
+                if use_host_summary:
+                    # Retain the actual float32 rows when device arithmetic
+                    # overflows or flushes their reduction. Reuse the existing
+                    # finite host owners rather than changing the row dtype.
+                    point = finite_binary64_mean(host_values)
+                    _, covariance = empirical_weighted_moments(
+                        [(float(value),) for value in host_values], [1.0] * n_valid
+                    )
+                    std = math.sqrt(float(covariance[0, 0]))
+                    if qmc_method is not None and not qmc_has_full_certificate:
+                        lo, hi = float(np.min(host_values)), float(np.max(host_values))
+                    else:
+                        lo = float(np.percentile(host_values, 100.0 * alpha / 2.0))
+                        hi = float(np.percentile(host_values, 100.0 * (1.0 - alpha / 2.0)))
                 if lo > point:
                     lo = point
                 if hi < point:
                     hi = point
-                std = float(jnp.std(valid))
 
                 metadata: dict[str, Any] = {
                     "joint_dependency_assurance": dependency_assurance,
@@ -2335,6 +2430,13 @@ class MonteCarloPropagator:
                     "mc_seed": int(self._config.mc_seed),
                     "mc_sampling_method": self._config.mc_sampling_method,
                 }
+                if use_host_summary:
+                    metadata["summary_numeric_profile"] = "float32_rows_binary64_fallback_v1"
+                if empirical_sampling_profile:
+                    metadata["empirical_sampling_profile"] = empirical_sampling_profile
+                    metadata["empirical_source_weights_applied"] = True
+                if adaptive_profile:
+                    metadata["adaptive_stopping_profile"] = adaptive_profile
                 if declared_gaussian_joint:
                     metadata["joint_gaussian_basis"] = "declared_non_authoritative"
                     metadata["parameter_unit_binding"] = "not_established"
@@ -2374,6 +2476,12 @@ class MonteCarloPropagator:
                     )
                     metadata["empirical_joint_id"] = joint_sample_id
                     metadata["empirical_joint_identity_status"] = "declared_non_authoritative"
+                if output_corpus_digest is not None:
+                    row_digest = hashlib.sha256(b"policyos.mc.output_rows.v1\0")
+                    row_digest.update(output_corpus_digest)
+                    row_digest.update(output_mask_digests[metric_id])
+                    metadata["joint_sample_id"] = "sha256:" + row_digest.hexdigest()
+                    metadata["joint_sample_identity_status"] = "declared_non_authoritative"
                 if parametric_fit_names:
                     metadata["parametric_fit_payload_used"] = True
                     metadata["parametric_fit_inputs"] = list(parametric_fit_names)
@@ -2383,13 +2491,22 @@ class MonteCarloPropagator:
 
                 # Tail-risk metrics
                 if n_valid > 100:
-                    q05 = float(jnp.percentile(valid, 5.0))
-                    tail_mask = valid <= q05
-                    cvar_05 = float(jnp.mean(valid[tail_mask])) if jnp.any(tail_mask) else q05
+                    if use_host_summary:
+                        q05 = float(np.percentile(host_values, 5.0))
+                        tail_values = host_values[host_values <= q05]
+                        cvar_05 = finite_binary64_mean(tail_values) if tail_values.size else q05
+                        quantile_01 = float(np.percentile(host_values, 1.0))
+                        quantile_99 = float(np.percentile(host_values, 99.0))
+                    else:
+                        q05 = float(jnp.percentile(valid, 5.0))
+                        tail_mask = valid <= q05
+                        cvar_05 = float(jnp.mean(valid[tail_mask])) if jnp.any(tail_mask) else q05
+                        quantile_01 = float(jnp.percentile(valid, 1.0))
+                        quantile_99 = float(jnp.percentile(valid, 99.0))
                     metadata["tail_risk"] = {
                         "cvar_05": cvar_05,
-                        "quantile_01": float(jnp.percentile(valid, 1.0)),
-                        "quantile_99": float(jnp.percentile(valid, 99.0)),
+                        "quantile_01": quantile_01,
+                        "quantile_99": quantile_99,
                     }
 
                 # Sensitivity indices
@@ -2466,6 +2583,7 @@ class MonteCarloPropagator:
                 elif qmc_method is not None:
                     assumptions.append("restricted_qmc_scope")
                 envelope = UncertaintyEnvelope(
+                    numeric_policy=numeric_policy,
                     point_estimate=point,
                     confidence_interval=(lo, hi),
                     confidence_level=confidence_level,
@@ -2518,6 +2636,16 @@ class MonteCarloPropagator:
                         "qmc_method": qmc_method,
                         "qmc_scrambled": qmc_scrambled if qmc_method is not None else None,
                         "qmc_replicates": qmc_replicates if qmc_method is not None else None,
+                        **(
+                            {"empirical_sampling_profile": empirical_sampling_profile}
+                            if empirical_sampling_profile
+                            else {}
+                        ),
+                        **(
+                            {"adaptive_stopping_profile": adaptive_profile}
+                            if adaptive_profile
+                            else {}
+                        ),
                     },
                 )
             )
@@ -2582,7 +2710,9 @@ class MonteCarloPropagator:
                 std = extract_std(env)
             else:
                 mean, std = fit
-            return mean + max(std, 1e-12) * jrandom.normal(rng, shape=(n,))
+            if std == 0.0:
+                return jnp.full((n,), mean)
+            return mean + std * jrandom.normal(rng, shape=(n,))
 
         if env.distribution_family == DistributionFamily.UNIFORM:
             return jrandom.uniform(rng, shape=(n,), minval=lo, maxval=hi)
@@ -2637,9 +2767,10 @@ class MonteCarloPropagator:
             return {name: joint[:, i] for i, name in enumerate(param_names)}
         if empirical_spec is not None:
             empirical_anchor_idx = dimension_names.index(empirical_spec.names[0])
-            shared_indices = _empirical_indices_from_uniform(
+            shared_indices = _empirical_indices_from_admitted_cdf(
                 uniform_samples[:, empirical_anchor_idx],
                 empirical_spec.probabilities,
+                empirical_spec.cumulative,
             )
         else:
             shared_indices = None
@@ -2666,7 +2797,11 @@ class MonteCarloPropagator:
                     std = extract_std(env)
                 else:
                     mean, std = fit
-                result[name] = sp_norm.ppf(u, loc=mean, scale=max(std, 1e-12))
+                result[name] = (
+                    np.full(u.shape, mean, dtype=np.float64)
+                    if std == 0.0
+                    else sp_norm.ppf(u, loc=mean, scale=std)
+                )
             elif env.distribution_family == DistributionFamily.UNIFORM:
                 result[name] = lo + u * (hi - lo)
             elif env.distribution_family == DistributionFamily.TRIANGULAR:

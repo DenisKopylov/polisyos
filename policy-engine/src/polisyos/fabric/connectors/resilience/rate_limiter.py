@@ -28,6 +28,8 @@ from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.resilience._bounded_registry import (
     BoundedResourceRegistry,
     _invalid_rate_refusal,
+    _is_local_admission_error,
+    _rate_limiter_feedback_refusal,
 )
 from polisyos.fabric.connectors.types.connector_types import RateLimitError
 
@@ -183,17 +185,25 @@ class RateLimiter:
         self._last_refill = now
 
     def _set_blocked_until(self, retry_after_seconds: float | None) -> None:
+        with self._lock:
+            self._set_blocked_until_locked(retry_after_seconds, now=_monotonic())
+
+    def _set_blocked_until_locked(
+        self,
+        retry_after_seconds: float | None,
+        *,
+        now: float,
+    ) -> None:
+        """Update cooldown state while the limiter lock is held."""
         if retry_after_seconds is None:
             return
         if not math.isfinite(retry_after_seconds):
             raise ValueError("retry_after_seconds must be finite")
         if retry_after_seconds <= 0:
             return
-        with self._lock:
-            now = _monotonic()
-            blocked_until = now + retry_after_seconds
-            if self._blocked_until is None or blocked_until > self._blocked_until:
-                self._blocked_until = blocked_until
+        blocked_until = now + retry_after_seconds
+        if self._blocked_until is None or blocked_until > self._blocked_until:
+            self._blocked_until = blocked_until
 
     def _acquire_or_wait_locked(self, *, tokens: float) -> tuple[bool, float, float]:
         now = _monotonic()
@@ -313,6 +323,9 @@ class RateLimiter:
         """Record a rate limit signal (e.g., HTTP 429) and apply cooldown."""
         self._set_blocked_until(retry_after_seconds)
 
+        self._record_rate_limit_metric()
+
+    def _record_rate_limit_metric(self) -> None:
         throttled_metric = getattr(self._metrics, "connector_rate_limit_throttled_total", None)
         if throttled_metric is not None:
             labels = {}
@@ -366,6 +379,8 @@ class AdaptiveRateLimiter(RateLimiter):
             metrics=metrics,
             tracer=tracer,
         )
+        # Adaptive feedback re-enters adjust_rate while holding this same state lock.
+        self._lock = threading.RLock()
 
         self._current_rate = initial_rate_rps
         self._increase_step = 0.1
@@ -375,19 +390,25 @@ class AdaptiveRateLimiter(RateLimiter):
 
     def is_quiescent(self) -> bool:
         """Return whether token and adaptive state are safe to release."""
-        if not super().is_quiescent():
-            return False
         with self._lock:
+            if not super().is_quiescent():
+                return False
             return self.rate_limit_rps == self.config.rate_limit_rps and self._success_count == 0
 
     def adjust_rate(self, new_rate: float) -> None:
-        _validate_positive_finite(new_rate, "new_rate")
-
-        min_rate = self.config.min_rate_rps or (self.config.rate_limit_rps / 10.0)
-        max_rate = self.config.max_rate_rps or self.config.rate_limit_rps
-        new_rate = max(min_rate, min(new_rate, max_rate))
-
         with self._lock:
+            _validate_positive_finite(new_rate, "new_rate")
+            min_rate = self.config.min_rate_rps
+            if min_rate is None:
+                min_rate = self.config.rate_limit_rps / 10.0
+            max_rate = self.config.max_rate_rps
+            if max_rate is None:
+                max_rate = self.config.rate_limit_rps
+            _validate_positive_finite(min_rate, "min_rate_rps")
+            _validate_positive_finite(max_rate, "max_rate_rps")
+            if max_rate < min_rate:
+                raise _invalid_rate_refusal("max_rate_rps must be >= min_rate_rps")
+            new_rate = max(min_rate, min(new_rate, max_rate))
             old_rate = self._current_rate
             self._current_rate = new_rate
             self.rate_limit_rps = new_rate
@@ -405,24 +426,28 @@ class AdaptiveRateLimiter(RateLimiter):
         if not self.config.adaptive:
             return
 
-        new_rate: float | None = None
         with self._lock:
-            self._success_count += 1
-            if self._success_count >= self._success_window:
-                self._success_count = 0
-                maximum = self.config.max_rate_rps
-                if maximum is None:
-                    raise _invalid_rate_refusal("max_rate_rps must be finite and > 0")
-                _validate_positive_finite(maximum, "max_rate_rps")
-                _validate_positive_finite(self._current_rate, "current_rate")
-                factor = 1.0 + self._increase_step
-                new_rate = (
-                    maximum
-                    if self._current_rate >= maximum / factor
-                    else self._current_rate * factor
-                )
+            maximum = self.config.max_rate_rps
+            if maximum is None:
+                raise _invalid_rate_refusal("max_rate_rps must be finite and > 0")
+            _validate_positive_finite(maximum, "max_rate_rps")
+            _validate_positive_finite(self._current_rate, "current_rate")
 
-        if new_rate is not None:
+            if self._current_rate >= maximum:
+                # Success votes cannot raise a rate already at its ceiling. Leaving
+                # a partial window would make this neutral owner appear protected.
+                self._success_count = 0
+                return
+
+            self._success_count += 1
+            if self._success_count < self._success_window:
+                return
+
+            self._success_count = 0
+            factor = 1.0 + self._increase_step
+            new_rate = (
+                maximum if self._current_rate >= maximum / factor else self._current_rate * factor
+            )
             self.adjust_rate(new_rate)
 
     def record_rate_limit(self, retry_after_seconds: float | None = None) -> None:
@@ -430,7 +455,6 @@ class AdaptiveRateLimiter(RateLimiter):
             super().record_rate_limit(retry_after_seconds)
             return
 
-        new_rate: float | None = None
         with self._lock:
             self._success_count = 0
             minimum = self.config.min_rate_rps
@@ -439,18 +463,18 @@ class AdaptiveRateLimiter(RateLimiter):
             _validate_positive_finite(minimum, "min_rate_rps")
             _validate_positive_finite(self._current_rate, "current_rate")
             new_rate = max(minimum, self._current_rate * self._decrease_factor)
-
-        if new_rate is not None:
-            logger.warning(
-                "Rate limit hit (429)",
-                current_rate=self._current_rate,
-                new_rate=new_rate,
-                retry_after_seconds=retry_after_seconds,
-                limiter_id=self.limiter_id,
-            )
             self.adjust_rate(new_rate)
+            self._set_blocked_until_locked(retry_after_seconds, now=_monotonic())
 
-        super().record_rate_limit(retry_after_seconds)
+        logger.warning(
+            "Rate limit hit (429)",
+            current_rate=self._current_rate,
+            new_rate=new_rate,
+            retry_after_seconds=retry_after_seconds,
+            limiter_id=self.limiter_id,
+        )
+
+        self._record_rate_limit_metric()
 
 
 async def _call_with_limiter[T](
@@ -459,13 +483,24 @@ async def _call_with_limiter[T](
     *args: object,
     **kwargs: object,
 ) -> T:
-    """Apply admission and propagate typed provider cooldown to the same owner."""
+    """Apply admission and feed provider outcomes back to the same limiter owner."""
     await limiter.acquire()
     try:
-        return await func(*args, **kwargs)
+        result = await func(*args, **kwargs)
     except RateLimitError as error:
         limiter.record_rate_limit(error.retry_after)
         raise
+
+    if isinstance(limiter, AdaptiveRateLimiter):
+        try:
+            limiter.record_success()
+        except Exception as error:
+            if _is_local_admission_error(error):
+                raise
+            raise _rate_limiter_feedback_refusal(
+                "adaptive rate limiter success feedback bookkeeping failed"
+            ) from error
+    return result
 
 
 def with_rate_limit(

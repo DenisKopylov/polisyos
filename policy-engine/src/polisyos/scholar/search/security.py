@@ -73,12 +73,11 @@ def sanitize_untrusted_text(text: str, *, max_chars: int = 400_000) -> str:
     return cleaned
 
 
-def _resolve_fetch_target(url: str, constraints: SearchConstraints) -> _ResolvedFetchTarget:
-    """Validate a fetch URL and retain every approved numeric TCP destination.
+def _validate_fetch_url_offline(url: str, constraints: SearchConstraints) -> tuple[str, str, int]:
+    """Check policy facts available without resolving a new network destination.
 
-    The returned target is an internal handoff to the shared transport. It binds the
-    checked URL and policy inputs to the exact resolver answers that the transport
-    must use for its socket connection.
+    A saved page is not a new socket connection. Domain and literal-address rules
+    still apply to every saved hop; DNS/peer checks belong only to live acquisition.
     """
     parsed = urllib.parse.urlparse(url)
     scheme = parsed.scheme.lower()
@@ -104,6 +103,24 @@ def _resolve_fetch_target(url: str, constraints: SearchConstraints) -> _Resolved
         host in _LOCAL_HOSTS or host.endswith(".localhost") or host.endswith(".local")
     ):
         raise ValueError(f"private network address blocked: {host}")
+
+    try:
+        literal_address = ipaddress.ip_address(host)
+    except ValueError:
+        literal_address = None
+    if literal_address is not None and not constraints.allow_private_networks:
+        _ensure_public_address(str(literal_address))
+    return scheme, host, port
+
+
+def _resolve_fetch_target(url: str, constraints: SearchConstraints) -> _ResolvedFetchTarget:
+    """Validate a fetch URL and retain every approved numeric TCP destination.
+
+    The returned target is an internal handoff to the shared transport. It binds the
+    checked URL and policy inputs to the exact resolver answers that the transport
+    must use for its socket connection.
+    """
+    scheme, host, port = _validate_fetch_url_offline(url, constraints)
 
     try:
         infos = socket.getaddrinfo(

@@ -11,7 +11,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, cast, runtime_checkable
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.observability import get_metrics
@@ -199,12 +204,14 @@ def _put_payload_artifact(
     media_type: str = "application/json",
     schema_version: str = "1.0",
     inputs: Sequence[str] = (),
+    selected_inputs: Sequence[InputRef] = (),
 ) -> ArtifactRef:
     payload_obj = _json_payload(payload)
     input_refs = [
         InputRef(artifact_id=_artifact_ref_from_str(artifact_id), role="quarantine_input")
         for artifact_id in inputs
     ]
+    input_refs.extend(selected_inputs)
     ref = store.put_json(
         payload_obj,
         ArtifactWriteOptions(
@@ -214,6 +221,7 @@ def _put_payload_artifact(
             inputs=input_refs or None,
         ),
         canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=bool(selected_inputs),
     )
     return ArtifactRef.model_validate(ref.model_dump())
 
@@ -224,18 +232,22 @@ def persist_quarantine_record(
     record: QuarantineRecord,
     raw_payload: object | None = None,
     input_artifact_ids: Sequence[str] = (),
+    selected_inputs: Sequence[InputRef] = (),
     metrics: MetricsRegistry | None = None,
 ) -> ArtifactRef:
     """Persist one quarantine record and append its immutable ref to the JSONL index."""
 
     raw_payload_ref = record.raw_payload_ref
+    selected_raw_payload_ref: ArtifactRef | None = None
     if raw_payload is not None and raw_payload_ref is None:
         payload_ref = _put_payload_artifact(
             store,
             payload=raw_payload,
             inputs=input_artifact_ids,
             schema_version=record.schema_version or "1.0",
+            selected_inputs=selected_inputs,
         )
+        selected_raw_payload_ref = payload_ref
         raw_payload_ref = str(payload_ref.artifact_id)
         record = QuarantineRecord(
             record_id=record.record_id,
@@ -256,12 +268,12 @@ def persist_quarantine_record(
         InputRef(artifact_id=_artifact_ref_from_str(artifact_id), role="quarantine_input")
         for artifact_id in input_artifact_ids
     ]
+    input_refs.extend(selected_inputs)
     if raw_payload_ref:
         input_refs.append(
-            InputRef(
-                artifact_id=_artifact_ref_from_str(raw_payload_ref),
-                role="raw_payload",
-            )
+            input_ref_from_artifact_ref(selected_raw_payload_ref, role="raw_payload")
+            if selected_raw_payload_ref is not None
+            else InputRef(artifact_id=_artifact_ref_from_str(raw_payload_ref), role="raw_payload")
         )
 
     ref = store.put_json(
@@ -273,6 +285,7 @@ def persist_quarantine_record(
             inputs=input_refs or None,
         ),
         canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=bool(selected_inputs),
     )
     artifact_ref = ArtifactRef.model_validate(ref.model_dump())
     append_text_locked(

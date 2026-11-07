@@ -88,29 +88,29 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 9 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 134 | `team-polisyos` | `src/polisyos/core/README.md` |
-| `polisyos.ir` | `public_stable` | `lazy_facade` | 530 | `team-polisyos` | `src/polisyos/ir/README.md` |
+| `polisyos.ir` | `public_stable` | `lazy_facade` | 538 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
-| `polisyos.fabric` | `public_stable` | `unresolved_exports` | unknown (no names proven) | `team-polisyos` | `src/polisyos/fabric/README.md` |
+| `polisyos.fabric` | `public_stable` | `lazy_facade` | 55 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 31 | `team-polisyos` | `src/polisyos/foundry/README.md` |
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 45 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
-| `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 973 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
+| `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 976 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
 | `polisyos.lex` | `public_stable` | `lazy_facade` | 61 | `team-polisyos` | `src/polisyos/lex/README.md` |
 | `polisyos.scholar` | `public_experimental` | `lazy_facade` | 30 | `team-polisyos` | `src/polisyos/scholar/README.md` |
 | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
 | `polisyos.berl` | `public_experimental` | `eager_exports` | 16 | `team-scientist` | `src/polisyos/berl/README.md` |
-| `polisyos.calibration` | `public_experimental` | `lazy_facade` | 17 | `team-scientist` | `src/polisyos/calibration/README.md` |
+| `polisyos.calibration` | `public_experimental` | `lazy_facade` | 19 | `team-scientist` | `src/polisyos/calibration/README.md` |
 | `polisyos.ddm` | `internal` | `lazy_facade` | 17 | `team-scientist` | `src/polisyos/ddm/README.md` |
 | `polisyos.foundry.agent_sim.world` | `public_experimental` | `eager_exports` | 23 | `team-foundry` | `src/polisyos/foundry/agent_sim/world/README.md` |
 
 ## `polisyos.common`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.common`, `polisyos.common.text`, `polisyos.common.config`, `polisyos.common.canonical`, `polisyos.common.canonical_profile`, `polisyos.common.producer_request`, `polisyos.common.hashing`, `polisyos.common.migrations`
+- Supported entrypoints: `polisyos.common`, `polisyos.common.text`, `polisyos.common.config`, `polisyos.common.canonical`, `polisyos.common.canonical_profile`, `polisyos.common.producer_request`, `polisyos.common.hashing`, `polisyos.common.migrations`, `polisyos.common.numeric_reductions`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/common/README.md`
@@ -130,6 +130,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.common.producer_request` | `src/polisyos/common/producer_request.py` | `eager_exports` | 14 |
 | `polisyos.common.hashing` | `src/polisyos/common/hashing.py` | `eager_exports` | 5 |
 | `polisyos.common.migrations` | `src/polisyos/common/migrations/__init__.py` | `eager_exports` | 6 |
+| `polisyos.common.numeric_reductions` | `src/polisyos/common/numeric_reductions.py` | `eager_exports` | 2 |
 
 #### `polisyos.common`
 
@@ -297,6 +298,21 @@ run_linear_migration
 
 </details>
 
+#### `polisyos.common.numeric_reductions`
+
+- Source: `src/polisyos/common/numeric_reductions.py`
+- Facade: `eager_exports`
+- Summary: Finite binary64 point reductions over CPython's exact-sum mean owner.
+
+<details><summary>Entrypoint exports (2)</summary>
+
+```text
+finite_binary64_mean
+finite_binary64_midpoint
+```
+
+</details>
+
 <details><summary>Supported exports (9)</summary>
 
 ```text
@@ -329,14 +345,14 @@ timestamps
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 134 |
-| `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `lazy_facade` | 136 |
+| `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `lazy_facade` | 140 |
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
-| `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 63 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 782 |
+| `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 64 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 802 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
 | `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `eager_exports` | 26 |
 | `polisyos.core.llm.cache_settlement` | `src/polisyos/core/llm/cache_settlement.py` | `eager_exports` | 8 |
-| `polisyos.core.observability` | `src/polisyos/core/observability/__init__.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.core.observability` | `src/polisyos/core/observability/__init__.py` | `eager_exports` | 25 |
 | `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 113 |
 | `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `eager_exports` | 6 |
 | `polisyos.core.registry` | `src/polisyos/core/registry/__init__.py` | `lazy_facade` | 12 |
@@ -495,7 +511,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Publish the stable CAS artifact ABI used by manifests, lineage, and signing.
 
-<details><summary>Entrypoint exports (136)</summary>
+<details><summary>Entrypoint exports (140)</summary>
 
 ```text
 AUTHORITY_ENVELOPE_ARTIFACT_KIND
@@ -565,10 +581,13 @@ DetachedSignature
 Ed25519Signer
 Ed25519Verifier
 EnvInfo
+ExportDurabilityError
 ExportReport
+ExportResourceError
 FileSystemCAS
 GitInfo
 ImportReport
+ImportSignatureVerificationError
 InputRef
 IntegrityInfo
 KeyPair
@@ -608,6 +627,7 @@ ensure_private_key_permissions
 expected_artifact_manifest_for_write
 fsync_directory
 input_ref_from_artifact_ref
+legacy_default_artifact_id
 load_core_json_artifact
 load_core_json_frame_records
 matches_artifact_store_protocol
@@ -669,7 +689,7 @@ truncated_hash
 - Facade: `eager_exports`
 - Summary: Expose the stable component discovery, metadata, compliance, and registry API.
 
-<details><summary>Entrypoint exports (63)</summary>
+<details><summary>Entrypoint exports (64)</summary>
 
 ```text
 DEFAULT_ENTRY_POINT_GROUPS
@@ -728,6 +748,7 @@ bootstrap_plugin_registries
 build_components_index
 capabilities_from_flags
 compare_semver
+describe_callable_source
 discover_components
 discover_dev_components
 discover_entry_points
@@ -745,9 +766,11 @@ validate_metadata
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (782)</summary>
+<details><summary>Entrypoint exports (802)</summary>
 
 ```text
+FetchPlan
+IngestionExecutionContext
 AcceptanceNonReceipt
 AcceptanceOutcome
 AcceptanceRejectedNonReceipt
@@ -973,6 +996,12 @@ CapabilityExecutionPostureResult
 CapabilityExecutionState
 CapabilityFreshness
 CapabilityResolverPort
+CAPABILITY_SOURCE_DISCOVERY_SCHEMA_VERSION
+candidate_source_time_coverage
+CapabilitySourceCandidate
+CapabilitySourceDiscoveryUnavailableError
+CapabilitySourceDiscoveryResult
+CapabilityCandidateDiscoveryPort
 CapabilityResourceKind
 CapabilityTimeSemantics
 CatalogRunProfile
@@ -1020,6 +1049,7 @@ CritiqueRef
 CursorPage
 DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION
 AcquiredObservationDataSnapshotLineage
+CandidateAcquisitionSourceDataSnapshotLineage
 DataSnapshot
 DataSnapshotOwnerBound
 DataSnapshotOwnerLineage
@@ -1292,6 +1322,7 @@ MobilityReportResponse
 ModelOutputs
 ModelSpecRef
 NaturalLanguageRunRequest
+RunBudgetScope
 NodeDebugResponse
 NodeDebugView
 NodeStatus
@@ -1368,9 +1399,17 @@ RuleBackend
 RuleType
 RunCandidateSimulationAcquisitionHistoryEntry
 RunCandidateSimulationAcquisitionHistoryEntryV3
+RunCandidateSimulationAcquisitionHistoryEntryV4
+RunCandidateSimulationAcquisitionHistoryEntryV5
+RunCandidateSimulationModelRevision
+RunCandidateSourceCurrentProjection
+RunCandidateSimulationCheapConsequences
+RunCandidateEvaluationAttemptProjection
+RunCandidateSimulationAcquiredOutcomeRevision
 RunCandidateSimulationRetainedEvaluation
 RunCandidateSimulationN5Observation
 RunCandidateSimulationProjection
+RunCandidateValueMethodProjection
 RunDetails
 RunConditionalTransportCandidateProjection
 RunDetailsResponse
@@ -1393,6 +1432,8 @@ RunTimelineEvent
 RunTimelineResponse
 RunTimelineSummary
 RunTimelineView
+N6_TERMINAL_STOP_PROJECTIONS
+n6_stop_projection_decision
 RunsListResponse
 RuntimeApiError
 RuntimeApiProblem
@@ -1615,14 +1656,10 @@ session_for_cache_client
 #### `polisyos.core.observability`
 
 - Source: `src/polisyos/core/observability/__init__.py`
-- Facade: `unresolved_exports`
+- Facade: `eager_exports`
 - Summary: PolicyOS Observability Module — Production-grade telemetry.
-- Export resolution incomplete: `Unresolved exported binding: src/polisyos/core/observability/__init__.py:MetricsRegistry`.
-- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
-- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
-- Source evidence: 1 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (25; native exports unproved)</summary>
+<details><summary>Entrypoint exports (25)</summary>
 
 ```text
 DeterminismTier
@@ -1997,8 +2034,8 @@ security
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 530 |
-| `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `lazy_facade` | 320 |
+| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 538 |
+| `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `lazy_facade` | 321 |
 | `polisyos.ir.analytics.calibration_diagnostics` | `src/polisyos/ir/analytics/calibration_diagnostics.py` | `eager_exports` | 6 |
 | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 14 |
 | `polisyos.ir.governance` | `src/polisyos/ir/governance/__init__.py` | `lazy_facade` | 106 |
@@ -2008,7 +2045,7 @@ security
 | `polisyos.ir.loading` | `src/polisyos/ir/loading/__init__.py` | `lazy_facade` | 12 |
 | `polisyos.ir.model_layer` | `src/polisyos/ir/model_layer/__init__.py` | `lazy_facade` | 6 |
 | `polisyos.ir.registry` | `src/polisyos/ir/registry/__init__.py` | `lazy_facade` | 130 |
-| `polisyos.ir.trinity` | `src/polisyos/ir/trinity/__init__.py` | `lazy_facade` | 6 |
+| `polisyos.ir.trinity` | `src/polisyos/ir/trinity/__init__.py` | `lazy_facade` | 7 |
 | `polisyos.ir.world` | `src/polisyos/ir/world/__init__.py` | `lazy_facade` | 54 |
 
 #### `polisyos.ir`
@@ -2017,7 +2054,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Expose the stable IR contract surface through a lazy package facade.
 
-<details><summary>Entrypoint exports (530)</summary>
+<details><summary>Entrypoint exports (538)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -2237,6 +2274,7 @@ InterferenceMethod
 IntervalSemantics
 InterventionExpr
 InterventionQuery
+InterventionQueryRef
 InterventionSpec
 InterventionType
 JudgeVerdictRef
@@ -2274,6 +2312,7 @@ MobilityReportRef
 ModelQueryDataViewRequest
 ModelSpec
 MultiplexGraphLayerId
+NCMSourceProfileMismatchError
 NCMSpec
 NCMSpecRef
 NativeValueEstimandBinding
@@ -2393,6 +2432,7 @@ StrategicResponseChannel
 StrategicResponseSpecsBundle
 StrategicSCMRef
 StructuralCausalModelSpec
+StructuralCausalModelSpecRef
 SubgroupDistributionComparison
 SubgroupEffect
 SuccessCriterion
@@ -2456,6 +2496,7 @@ get_ir_schema_catalog
 get_ir_type
 get_json_artifact
 get_json_artifact_with_bytes
+graph_for_analysis
 inspect_ir_schema
 list_ir_types
 load_abm_alignment_report
@@ -2483,11 +2524,13 @@ load_hte_point_result
 load_hte_refusal_diagnostic
 load_hte_result
 load_hte_result_v2
+load_intervention_query
 load_kernel_estimator_spec
 load_mean_field_equilibrium_certificate
 load_mean_field_macro_simulation_config
 load_mean_field_perturbation_spec
 load_ncm_spec
+load_ncm_spec_default_view
 load_ncm_spec_selected_view
 load_normative_arbitration_result
 load_ordinal_poverty_report
@@ -2496,6 +2539,7 @@ load_policy
 load_policy_recommendation
 load_post_adaptation_policy_value_summary
 load_posterior_summary
+load_proof_bundle
 load_sensitivity_result
 load_simulation_result_subject_uncertainty_projection
 load_simulation_result_uncertainty_admission
@@ -2540,6 +2584,7 @@ persist_uncertainty_envelope
 persist_welfare_bundle
 persist_welfare_sample_bundle
 prepare_ncm_spec_selected_values
+project_graph_to_dag
 proof_bundle_from_identification_result
 proof_bundle_from_negative_certificate
 proof_bundle_from_transportability_result
@@ -2560,7 +2605,7 @@ transportability_proof_review_grade
 - Facade: `lazy_facade`
 - Summary: Curated lazy facade for analytics IR contracts.
 
-<details><summary>Entrypoint exports (320)</summary>
+<details><summary>Entrypoint exports (321)</summary>
 
 ```text
 ABMBifurcationReport
@@ -2738,6 +2783,7 @@ MobilityReportRef
 MultiEnvironmentCausalContract
 NetworkInterferenceReport
 NodeMechanism
+NumericPolicySpec
 OperatingCharacteristicKey
 OperatingCharacteristicLibrary
 OperatingCharacteristicRecord
@@ -3584,7 +3630,7 @@ WelfareSampleBundleRef
 - Facade: `lazy_facade`
 - Summary: Bundle the three Trinity artifacts as one validated policy payload.
 
-<details><summary>Entrypoint exports (6)</summary>
+<details><summary>Entrypoint exports (7)</summary>
 
 ```text
 TRINITY_BUNDLE_SCHEMA_VERSION
@@ -3593,6 +3639,7 @@ PolicySpec
 ProblemFrame
 TrinityBundle
 load_trinity_bundle_artifact
+persist_trinity_bundle_artifact
 ```
 
 </details>
@@ -3664,7 +3711,7 @@ world_event_id_from_payload
 
 </details>
 
-<details><summary>Supported exports (530)</summary>
+<details><summary>Supported exports (538)</summary>
 
 ```text
 GATE_REQUEST_SCHEMA_VERSION
@@ -3884,6 +3931,7 @@ InterferenceMethod
 IntervalSemantics
 InterventionExpr
 InterventionQuery
+InterventionQueryRef
 InterventionSpec
 InterventionType
 JudgeVerdictRef
@@ -3921,6 +3969,7 @@ MobilityReportRef
 ModelQueryDataViewRequest
 ModelSpec
 MultiplexGraphLayerId
+NCMSourceProfileMismatchError
 NCMSpec
 NCMSpecRef
 NativeValueEstimandBinding
@@ -4040,6 +4089,7 @@ StrategicResponseChannel
 StrategicResponseSpecsBundle
 StrategicSCMRef
 StructuralCausalModelSpec
+StructuralCausalModelSpecRef
 SubgroupDistributionComparison
 SubgroupEffect
 SuccessCriterion
@@ -4103,6 +4153,7 @@ get_ir_schema_catalog
 get_ir_type
 get_json_artifact
 get_json_artifact_with_bytes
+graph_for_analysis
 inspect_ir_schema
 list_ir_types
 load_abm_alignment_report
@@ -4130,11 +4181,13 @@ load_hte_point_result
 load_hte_refusal_diagnostic
 load_hte_result
 load_hte_result_v2
+load_intervention_query
 load_kernel_estimator_spec
 load_mean_field_equilibrium_certificate
 load_mean_field_macro_simulation_config
 load_mean_field_perturbation_spec
 load_ncm_spec
+load_ncm_spec_default_view
 load_ncm_spec_selected_view
 load_normative_arbitration_result
 load_ordinal_poverty_report
@@ -4143,6 +4196,7 @@ load_policy
 load_policy_recommendation
 load_post_adaptation_policy_value_summary
 load_posterior_summary
+load_proof_bundle
 load_sensitivity_result
 load_simulation_result_subject_uncertainty_projection
 load_simulation_result_uncertainty_admission
@@ -4187,6 +4241,7 @@ persist_uncertainty_envelope
 persist_welfare_bundle
 persist_welfare_sample_bundle
 prepare_ncm_spec_selected_values
+project_graph_to_dag
 proof_bundle_from_identification_result
 proof_bundle_from_negative_certificate
 proof_bundle_from_transportability_result
@@ -4511,7 +4566,7 @@ write_participation_requirement_bundle
 
 - Classification: `public_stable`
 - Supported entrypoints: `polisyos.fabric`, `polisyos.fabric.api`, `polisyos.fabric.connectors`, `polisyos.fabric.data_plane`, `polisyos.fabric.world`, `polisyos.fabric.docs`, `polisyos.fabric.ingestion`, `polisyos.fabric.retrieval`, `polisyos.fabric.product_integration`
-- Facade policy: expected `lazy_facade`, observed `unresolved_exports`
+- Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/fabric/README.md`
 - Reference doc: `docs/reference/public-surface.md`
@@ -4522,27 +4577,23 @@ write_participation_requirement_bundle
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.fabric` | `src/polisyos/fabric/__init__.py` | `unresolved_exports` | unknown (no names proven) |
-| `polisyos.fabric.api` | `src/polisyos/fabric/api.py` | `eager_exports` | 54 |
-| `polisyos.fabric.connectors` | `src/polisyos/fabric/connectors/__init__.py` | `eager_exports` | 134 |
-| `polisyos.fabric.data_plane` | `src/polisyos/fabric/data_plane/__init__.py` | `lazy_facade` | 56 |
-| `polisyos.fabric.world` | `src/polisyos/fabric/world/__init__.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.fabric` | `src/polisyos/fabric/__init__.py` | `lazy_facade` | 55 |
+| `polisyos.fabric.api` | `src/polisyos/fabric/api.py` | `eager_exports` | 55 |
+| `polisyos.fabric.connectors` | `src/polisyos/fabric/connectors/__init__.py` | `eager_exports` | 135 |
+| `polisyos.fabric.data_plane` | `src/polisyos/fabric/data_plane/__init__.py` | `lazy_facade` | 58 |
+| `polisyos.fabric.world` | `src/polisyos/fabric/world/__init__.py` | `eager_exports` | conditional (41/59) |
 | `polisyos.fabric.docs` | `src/polisyos/fabric/docs/__init__.py` | `eager_exports` | 17 |
-| `polisyos.fabric.ingestion` | `src/polisyos/fabric/ingestion/__init__.py` | `lazy_facade` | 11 |
+| `polisyos.fabric.ingestion` | `src/polisyos/fabric/ingestion/__init__.py` | `lazy_facade` | 16 |
 | `polisyos.fabric.retrieval` | `src/polisyos/fabric/retrieval/__init__.py` | `eager_exports` | 16 |
 | `polisyos.fabric.product_integration` | `src/polisyos/fabric/product_integration/__init__.py` | `eager_exports` | 3 |
 
 #### `polisyos.fabric`
 
 - Source: `src/polisyos/fabric/__init__.py`
-- Facade: `unresolved_exports`
+- Facade: `lazy_facade`
 - Summary: Stable Fabric facade for connector ingestion, world-query, and catalog APIs.
-- Export resolution incomplete: `Unresolved reflective module-namespace write: src/polisyos/fabric/__init__.py`.
-- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
-- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
-- Source evidence: 1 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (54; native exports unproved)</summary>
+<details><summary>Entrypoint exports (55)</summary>
 
 ```text
 AccessRef
@@ -4597,6 +4648,7 @@ resolve_connector_registry
 resolve_world_snapshot
 run_connectors_ingestion
 stream_processing_contract
+validate_catalog_candidate_fetch_plans
 verify_federation_core_payload
 world
 ```
@@ -4609,7 +4661,7 @@ world
 - Facade: `eager_exports`
 - Summary: Explicit public Fabric API facade and connector bridge.
 
-<details><summary>Entrypoint exports (54)</summary>
+<details><summary>Entrypoint exports (55)</summary>
 
 ```text
 AccessRef
@@ -4664,6 +4716,7 @@ resolve_connector_registry
 resolve_world_snapshot
 run_connectors_ingestion
 stream_processing_contract
+validate_catalog_candidate_fetch_plans
 verify_federation_core_payload
 world
 ```
@@ -4676,7 +4729,7 @@ world
 - Facade: `eager_exports`
 - Summary: Data Fabric Connectors - Protocol Foundation & Registry Architecture.
 
-<details><summary>Entrypoint exports (134)</summary>
+<details><summary>Entrypoint exports (135)</summary>
 
 ```text
 API_PROTOCOL_CONNECTOR_CONTRACT
@@ -4809,6 +4862,7 @@ resolve_resilience_config
 validate_connector_governance_metadata
 validate_fetch_result_against_schema
 validate_protocol_compliance
+verify_selected_cache_payload_ref
 with_circuit_breaker
 with_fallback
 with_rate_limit
@@ -4823,7 +4877,7 @@ with_retry
 - Facade: `lazy_facade`
 - Summary: Data Plane facade for orchestration, quarantine, snapshots, shape, and time.
 
-<details><summary>Entrypoint exports (56)</summary>
+<details><summary>Entrypoint exports (58)</summary>
 
 ```text
 AppendOnlyEvidenceJournal
@@ -4862,6 +4916,7 @@ iter_record_batches
 list_quarantine_records
 load_quarantine_payload
 load_quarantine_record
+parse_datetime_utc
 payload_to_dataframe
 persist_cdc_schema_change_event
 persist_fabric_benchmark_report
@@ -4882,6 +4937,7 @@ resolve_live_transport_trace
 resolve_raw_response_body
 run_orchestrated_ingestion
 verify_journal_event_ref
+verify_live_ingestion_snapshot_profile
 ```
 
 </details>
@@ -4889,14 +4945,132 @@ verify_journal_event_ref
 #### `polisyos.fabric.world`
 
 - Source: `src/polisyos/fabric/world/__init__.py`
-- Facade: `unresolved_exports`
+- Facade: `eager_exports`
 - Summary: Facade for emitting, validating, persisting, and materializing world facts.
-- Export resolution incomplete: `Unresolved conditional/mutated exports: src/polisyos/fabric/world/__init__.py:__all__`.
-- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
-- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
-- Source evidence: 1 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
+- Complete finite source-conditioned export profiles follow. These conditions were not evaluated against a native environment.
+- Common source exports: 41; there is no single unconditional export count.
 
-<details><summary>Source-declared candidates (41; native exports unproved)</summary>
+- Source conditions: `_importlib_util.find_spec('duckdb') is not None` = `false`
+- Profile schema: `policyos.source-export-profile.v1`; runtime condition evaluation: `UNRUN`.
+
+<details><summary>Conditional source exports (41)</summary>
+
+```text
+SEGMENTS_INDEX_NAME
+WorldFactError
+WorldIDError
+WorldSegmentError
+WorldSnapshotBackendUnavailable
+WorldSnapshotFactWrite
+WorldSnapshotNodeWrite
+WorldSnapshotWriteRequest
+WorldStoreError
+WorldValidationError
+append_world_segment_index
+emit_attr_fact
+emit_claim_facts
+emit_doc_fragment_facts
+emit_doc_meta_facts
+emit_edge_fact
+emit_world_event_facts
+emit_world_node_facts
+event_world_provenance_v1
+load_world_fact_manifests
+load_world_facts
+persist_claim
+persist_conflict_set
+persist_doc_fragment
+persist_doc_meta
+persist_fact_segment_manifest
+persist_quality_report
+persist_trust_assessment
+persist_world_event
+stable_world_provenance_v1
+validate_claim_id
+validate_conflict_set_id
+validate_doc_fragment_ids
+validate_doc_meta_ids
+validate_fact_is_world_abi
+validate_quality_report_id
+validate_trust_assessment_id
+validate_world_event_id
+validate_world_facts
+write_world_fact_segment
+write_world_snapshot
+```
+
+</details>
+
+- Source conditions: `_importlib_util.find_spec('duckdb') is not None` = `true`
+- Profile schema: `policyos.source-export-profile.v1`; runtime condition evaluation: `UNRUN`.
+
+<details><summary>Conditional source exports (59)</summary>
+
+```text
+SEGMENTS_INDEX_NAME
+WorldFactError
+WorldIDError
+WorldSegmentError
+WorldSnapshotBackendUnavailable
+WorldSnapshotFactWrite
+WorldSnapshotNodeWrite
+WorldSnapshotWriteRequest
+WorldStoreError
+WorldValidationError
+append_world_segment_index
+emit_attr_fact
+emit_claim_facts
+emit_doc_fragment_facts
+emit_doc_meta_facts
+emit_edge_fact
+emit_world_event_facts
+emit_world_node_facts
+event_world_provenance_v1
+load_world_fact_manifests
+load_world_facts
+persist_claim
+persist_conflict_set
+persist_doc_fragment
+persist_doc_meta
+persist_fact_segment_manifest
+persist_quality_report
+persist_trust_assessment
+persist_world_event
+stable_world_provenance_v1
+validate_claim_id
+validate_conflict_set_id
+validate_doc_fragment_ids
+validate_doc_meta_ids
+validate_fact_is_world_abi
+validate_quality_report_id
+validate_trust_assessment_id
+validate_world_event_id
+validate_world_facts
+write_world_fact_segment
+write_world_snapshot
+MergeStrategy
+WorldArtifactReadError
+WorldKuzuCopyError
+WorldKuzuImportError
+WorldKuzuNotAvailable
+WorldMaterializationError
+WorldMaterializationPolicy
+WorldMaterializeSegmentStats
+WorldMaterializeStats
+WorldMergeConflict
+WorldSchemaError
+WorldSegmentHashMismatch
+apply_world_segment
+ensure_world_kuzu_schema
+ensure_world_materialized
+ensure_world_schema
+materialize_world_duckdb_from_fact_log
+materialize_world_kuzu_from_duckdb
+```
+
+</details>
+
+<details><summary>Common source exports (41)</summary>
 
 ```text
 SEGMENTS_INDEX_NAME
@@ -4980,7 +5154,7 @@ structure_doc
 - Facade: `lazy_facade`
 - Summary: Fabric ingestion runtime and provider dependencies.
 
-<details><summary>Entrypoint exports (11)</summary>
+<details><summary>Entrypoint exports (16)</summary>
 
 ```text
 ConnectorManifestSpec
@@ -4990,10 +5164,15 @@ PreTransformFetchResultSink
 RawFetchResultSink
 SourceCollection
 SourceCollectionMember
+build_connector_provenance_graph
 build_filesystem_artifact_store
+canonicalize_ingestion_scalar
+load_provenance_graph
 load_source_collection
+load_source_evidence_bundle
 resolve_ingestion_dependencies
 run_connectors_ingestion
+verify_live_ingestion_evidence_profile
 ```
 
 </details>
@@ -5042,12 +5221,73 @@ evidence_paths_from_fabric_decision_data
 ```
 
 </details>
-Export total is unknown; the static reader cannot resolve the extension.
+
+<details><summary>Supported exports (55)</summary>
+
+```text
+AccessRef
+AuthoredText
+ConnectorRegistryLike
+ConnectorSchemaContract
+DataSchema
+FabricDecisionData
+FabricDecisionDataCoverage
+FabricDecisionDataResponse
+FabricFetchReceipt
+FederatedFetchResult
+FederationFetchAudit
+FederationFetchRequest
+FederationFetchSource
+FederationSnapshotProjectionError
+FieldSpec
+IngestionStoreBindingError
+LineageRef
+ProcessingGuarantee
+ProcessingGuaranteeContract
+QualityRef
+ReplayRef
+SchemaType
+SimulationDB
+SourceContract
+SourceContractRef
+TemporalRef
+TenantSidecarScope
+TypedGap
+UnitRef
+WorldQueryError
+WorldQueryRequest
+atomic_write_json
+batch_processing_contract
+build_source_contract_requirement_bindings
+execute_world_query
+fabric_claim_to_authored_text
+fabric_event_to_authored_text
+fabric_fact_to_quantity_value
+fabric_get_data
+fabric_get_fresh_registered_sql_data
+file_lock
+freeze_federation_request
+prepare_federation_core_payload
+project_data_requirement_to_catalog_needs
+query_claims
+query_events
+query_world_table
+reopen_federated_fetch_result
+resolve_connector_registry
+resolve_world_snapshot
+run_connectors_ingestion
+stream_processing_contract
+validate_catalog_candidate_fetch_plans
+verify_federation_core_payload
+world
+```
+
+</details>
 
 ## `polisyos.foundry`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.foundry`, `polisyos.foundry.api`, `polisyos.foundry.compile`, `polisyos.foundry.analysis`, `polisyos.foundry.calibration`, `polisyos.foundry.data_plane`, `polisyos.foundry.execute`, `polisyos.foundry.methods`, `polisyos.foundry.methods.backends`, `polisyos.foundry.methods.causal`, `polisyos.foundry.uncertainty`, `polisyos.foundry.validation`
+- Supported entrypoints: `polisyos.foundry`, `polisyos.foundry.api`, `polisyos.foundry.compile`, `polisyos.foundry.coupling`, `polisyos.foundry.analysis`, `polisyos.foundry.calibration`, `polisyos.foundry.data_plane`, `polisyos.foundry.execute`, `polisyos.foundry.methods`, `polisyos.foundry.methods.artifacts`, `polisyos.foundry.methods.backends`, `polisyos.foundry.methods.causal`, `polisyos.foundry.uncertainty`, `polisyos.foundry.validation`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/foundry/README.md`
@@ -5061,15 +5301,17 @@ Export total is unknown; the static reader cannot resolve the extension.
 | --- | --- | --- | ---: |
 | `polisyos.foundry` | `src/polisyos/foundry/__init__.py` | `lazy_facade` | 31 |
 | `polisyos.foundry.api` | `src/polisyos/foundry/api.py` | `eager_exports` | 3 |
-| `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 6 |
+| `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 7 |
+| `polisyos.foundry.coupling` | `src/polisyos/foundry/coupling/__init__.py` | `lazy_facade` | 20 |
 | `polisyos.foundry.analysis` | `src/polisyos/foundry/analysis/__init__.py` | `eager_exports` | 19 |
-| `polisyos.foundry.calibration` | `src/polisyos/foundry/calibration/__init__.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.foundry.calibration` | `src/polisyos/foundry/calibration/__init__.py` | `eager_exports` | 115 |
 | `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 23 |
-| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 23 |
-| `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `eager_exports` | 225 |
+| `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 25 |
+| `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `eager_exports` | 232 |
+| `polisyos.foundry.methods.artifacts` | `src/polisyos/foundry/methods/artifacts/__init__.py` | `eager_exports` | 15 |
 | `polisyos.foundry.methods.backends` | `src/polisyos/foundry/methods/backends/__init__.py` | `lazy_facade` | 25 |
-| `polisyos.foundry.methods.causal` | `src/polisyos/foundry/methods/causal/__init__.py` | `unresolved_exports` | unknown (no names proven) |
-| `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `unresolved_exports` | unknown (no names proven) |
+| `polisyos.foundry.methods.causal` | `src/polisyos/foundry/methods/causal/__init__.py` | `lazy_facade` | 230 |
+| `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `lazy_facade` | 38 |
 | `polisyos.foundry.validation` | `src/polisyos/foundry/validation/__init__.py` | `eager_exports` | 11 |
 
 #### `polisyos.foundry`
@@ -5138,15 +5380,49 @@ execute
 - Facade: `lazy_facade`
 - Summary: Expose the compile facade without importing the Trinity compiler eagerly.
 
-<details><summary>Entrypoint exports (6)</summary>
+<details><summary>Entrypoint exports (7)</summary>
 
 ```text
 TreasuryPlan
 build_treasury_plan
+build_method_housekeeping_nodes
 compile
 execution_plan_input_refs
 program_graph_input_refs
 replay_method_program_graph
+```
+
+</details>
+
+#### `polisyos.foundry.coupling`
+
+- Source: `src/polisyos/foundry/coupling/__init__.py`
+- Facade: `lazy_facade`
+- Summary: DES/ABM coupling runtime for policy simulations.
+
+<details><summary>Entrypoint exports (20)</summary>
+
+```text
+AdaptiveAgentABMKernel
+CoupledContractsExecutor
+CoupledRuntimeState
+CoupledStepResult
+CouplingMessage
+DefaultPolicyCoupler
+NoOpABMKernel
+PairedMonteCarloResult
+PairedMonteCarloNumericalError
+ParticleFilterResult
+QueueDESKernel
+QueueMLEEstimate
+SMMResult
+UnemploymentClaimABMKernel
+calibrate_coupled_smm
+estimate_queue_mle
+extract_coupled_summary
+filter_queue_counts
+paired_monte_carlo_effect
+summary_distance
 ```
 
 </details>
@@ -5186,14 +5462,10 @@ persist_continuation_branch
 #### `polisyos.foundry.calibration`
 
 - Source: `src/polisyos/foundry/calibration/__init__.py`
-- Facade: `unresolved_exports`
+- Facade: `eager_exports`
 - Summary: Expose calibration contracts, loss adapters, and the differentiable calibrator.
-- Export resolution incomplete: `Unresolved exported binding: src/polisyos/foundry/calibration/__init__.py:affine_bijector`.
-- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
-- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
-- Source evidence: 1 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (115; native exports unproved)</summary>
+<details><summary>Entrypoint exports (115)</summary>
 
 ```text
 CalibrationSourceRead
@@ -5357,7 +5629,7 @@ resolve_bound_state_snapshot_ref
 - Facade: `lazy_facade`
 - Summary: Stable execute facade for compiled Foundry plans.
 
-<details><summary>Entrypoint exports (23)</summary>
+<details><summary>Entrypoint exports (25)</summary>
 
 ```text
 BoundedNumericNPZError
@@ -5373,11 +5645,13 @@ StateSnapshotInputReadRefusal
 SnapshotStateLayoutError
 admit_execution_source
 admit_execution_source_bounded
+apply_state_delta
 execute
 read_method_artifact_output_bounded
 execution_input_basis_sources
 get_state_path
 load_state_snapshot
+put_state_snapshot
 StateSnapshotValueLeaf
 state_snapshot_value_projection
 read_numeric_npz_bounded
@@ -5393,7 +5667,7 @@ resolve_execution_posture
 - Facade: `eager_exports`
 - Summary: Stable lazy facade for Foundry Methods.
 
-<details><summary>Entrypoint exports (225)</summary>
+<details><summary>Entrypoint exports (232)</summary>
 
 ```text
 ADVISOR_EXECUTION_CONTEXT_PARAM
@@ -5461,6 +5735,7 @@ FieldComparison
 FieldRequirement
 FieldToleranceSpec
 FileSystemSource
+FoundryExtensionRegistryReport
 FoundryMethod
 FoundryMethodBase
 FoundryMethodError
@@ -5496,6 +5771,7 @@ MethodRetiredException
 MethodRunner
 MethodScoreTraceEntry
 MethodSelectionCriteria
+MethodSelectionDisposition
 MethodSelectionReceipt
 MethodSignature
 MethodTiming
@@ -5534,8 +5810,10 @@ SlotType
 SolverStatus
 SourceFingerprint
 Specialization
+StockFlowSystemDynamicsEstimator
 TypeAdapter
 TypeAdapterKind
+UnboundFoundryDiscoveryInputError
 Unit
 UnitAdapter
 UnitAdapterKind
@@ -5549,6 +5827,7 @@ assess_certificate_applicability
 attach_advisor_execution_context
 attach_equivalence_ref
 authoring_catalog_payload
+bootstrap_foundry_method_registry
 bootstrap_method_registry_from_components
 build_advisor_execution_context
 build_method_capability_matrix
@@ -5571,6 +5850,7 @@ compute_projection_checks
 compute_source_fingerprint
 compute_source_hash
 compute_static_params_hash
+controlled_builtin_foundry_method_registry_scope
 deprecate_method
 derive_field_tolerance_spec
 derive_pairwise_budget
@@ -5621,6 +5901,35 @@ validate_source_bound_causal_worker_response
 validate_source_bound_gcm_spec
 verify_backend_equivalence
 verify_persisted_equivalence_certificate
+verify_value_method_selection_receipt
+```
+
+</details>
+
+#### `polisyos.foundry.methods.artifacts`
+
+- Source: `src/polisyos/foundry/methods/artifacts/__init__.py`
+- Facade: `eager_exports`
+- Summary: Artifact provenance APIs for Foundry method executions.
+
+<details><summary>Entrypoint exports (15)</summary>
+
+```text
+ChainArtifact
+ChainNodeRecord
+DeviceInfo
+ExecutionEvidence
+MethodArtifact
+MethodTiming
+SlotBindingRecord
+SourceFingerprint
+compute_source_fingerprint
+compute_source_hash
+load_compiled_chain
+load_execution_evidence
+store_chain_artifact
+store_execution_evidence
+store_method_artifact
 ```
 
 </details>
@@ -5666,24 +5975,253 @@ validated_bound_to_envelopes
 #### `polisyos.foundry.methods.causal`
 
 - Source: `src/polisyos/foundry/methods/causal/__init__.py`
-- Facade: `unresolved_exports`
+- Facade: `lazy_facade`
 - Summary: Lazy facade for causal catalog methods.
-- Export resolution incomplete: `Unresolved export expression: src/polisyos/foundry/methods/causal/__init__.py:_read_exports()`.
-- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
-- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
-- Source evidence: 1 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
+
+<details><summary>Entrypoint exports (230)</summary>
+
+```text
+NCMEngineMethod
+AIPWEstimator
+BalkePearlBoundsEstimator
+BipartiteInterferenceEstimator
+BorusyakJaravelSpiessEstimator
+BoundsEngineMethod
+BuildLiteraturePrior
+BunchingEstimator
+CBPSEstimator
+CallawaySantAnnaEstimator
+CausalBCF
+CausalEffectReport
+CausalEngine
+CausalEstimator
+CausalFairnessEngine
+CausalForestEstimator
+CausalMediationEstimator
+CausalMethod
+CausalQueryValidator
+CheckTransportability
+CompatibilityVerdict
+ContinuousTreatmentData
+ControlledDirectEffectEstimator
+CounterfactualFairnessEstimator
+CrossFitContinuousOrchestrator
+DAGMADiscovery
+DRLearnerEstimator
+DeChaisemartinDHaultfoeuilleEstimator
+DiagnosticTest
+DiscreteActionAtlas
+DistributionalBoundsEngineMethod
+DistributionalTreatmentEffectEstimator
+DoWhyIdentifyEstimate
+DoWhyIdentifyEstimateV1
+DoWhyRefute
+DoseResponseResult
+DoubleMachineLearning
+DynamicGraphDSCM
+DynamicGraphDSCMData
+DynamicGraphDSCMResult
+DynamicGraphEvent
+EntropyBalancingContinuousEstimator
+EntropyBalancingEstimator
+EstimationStatus
+FCIDiscovery
+FairnessObservationalData
+FieldNode
+FittedSPDEParameters
+FittedSuperLearner
+ForestDRLearnerEstimator
+GCMQuery
+GESDiscovery
+GeneralizedPropensityScoreEstimator
+GraphCausalData
+GraphCausalDataV1
+GraphReconciliationData
+HTEObservationalData
+HybridSCMFit
+IdentificationResult
+IdentificationStatus
+IPWEstimator
+ImbensManskiBoundsEstimator
+InvariantDiscoveryFromRegimes
+KernelDoseResponseEstimator
+LLMStructuralHint
+LeeBoundsEstimator
+LiteraturePriorBuildData
+LocalDependenceEdgeResult
+ManskiBoundsEstimator
+MarginalTreatmentEffectEstimator
+MetaLearnerEstimator
+MultiArmAIPWEstimator
+MultiTreatmentData
+MultiTreatmentResult
+MultinomialIPWEstimator
+MultinomialPropensityModel
+NetworkAIPWEstimator
+NetworkCausalData
+NetworkHeterogeneousEffectEstimator
+OperatorApplyProbeMethod
+OperatorCMEKRREstimator
+OperatorEdge
+OperatorExportBasisMethod
+OperatorKIVEstimator
+OperatorProximalMinimaxEstimator
+OperatorRLearnerEstimator
+OperatorUnsupportedTargetMethod
+OptimalPolicyLearner
+OptimizationBasedBoundsEstimator
+PCDiscovery
+PCMCIDiscovery
+POINTWISE_NON_UNIFORM_WARNING
+PanelObservationalData
+ParallelTrendsCheck
+ParameterTransfer
+ParameterTransferData
+ParametricConditionalDensity
+PartialInterferenceEstimator
+PathSpecificFairnessEstimator
+PerformativeLoopSpec
+PlaceboResult
+PlannerOptions
+PolicyAIPWEstimator
+PolicyOverlapDiagnostic
+PolicyPluginEstimator
+PolicyTMLEEstimator
+PropensityScoreMatchingEstimator
+ProximalBridgeEstimator
+ProximalMediationEstimator
+RDDObservationalData
+RLearnerEstimator
+ReconcileCausalGraph
+RegressionDiscontinuity
+RegressionKinkDesignEstimator
+SCMAdapter
+SCMFitData
+SCMQueryData
+ScalarOTDistributionalResult
+SPDEEstimatorSpec
+SPDEGenerator
+SPDEMechanism
+SensitivityMetrics
+ShiftInterventionEstimator
+ShiftShareIVEstimator
+SpaceTimeDSCM
+SpaceTimeDomain
+SpaceTimeFieldData
+SpaceTimeIdentificationCertificate
+SpaceTimeIdentificationStatus
+SpaceTimeIntervention
+SpaceTimeInterventionType
+SpaceTimeMeshSpec
+SpaceTimePathSpace
+SpaceTimeSPDEGComputation
+SpaceTimeSPDEGComputationResult
+SpaceTimeSplit
+SpaceTimeSupport
+SpatialInterferenceEstimator
+SpatialProximalBridgeEstimator
+StaggeredDifferenceInDifferences
+StandardDifferenceInDifferences
+StandardFairnessModel
+StrategicSolveResult
+StructuralNestedMeanModel
+StructuralTimeSeries
+SunAbrahamEstimator
+SuperLearnerNuisanceModel
+SymbolicIdentify
+SyntheticControlMethod
+TMLEEstimator
+TVFairnessDecomposer
+TabularCausalDiscoveryData
+TemporalBackendTarget
+TemporalComparatorSemantics
+TemporalCompileError
+TemporalDataContract
+TemporalExecutionPlan
+TemporalFallbackMode
+TemporalTrajectoryResult
+TimeSeriesCausalData
+TwinNetworkQuery
+UnifiedCausalDiscovery
+analyze_performative_loop
+auto_bounds
+best_first_support_search
+branch_and_bound_over_supports
+build_block_stratified_network_causal_data
+build_causal_capability_contract
+build_discrete_atlas
+build_piecewise_linear_fem_matrices
+build_solver_diagnostics
+build_space_time_identification_certificate
+build_strategic_response_bundle
+build_witness_index_from_proof_steps
+check_model_class_compatibility
+check_proof_trace_composability
+check_query_preservation
+check_query_preservation_batch
+compile_temporal_estimand
+compute_reconciliation_diagnostics
+ctf_transport_bounds
+ctf_transportability
+cyclic_id_algorithm
+ensure_causal_methods_registered
+estimate_discretization_error
+estimate_dtr_trajectory
+estimate_dynamic_graph_dscm
+estimate_g_computation_trajectory
+estimate_space_time_spde_g_computation
+estimate_space_time_treatment_density_process
+estimate_structural_time_series_trajectory
+evaluate_query_preservation
+evaluate_query_preservation_batch
+evaluate_strategic_hook
+exact_graph_search
+fairness_bounds
+identify_fairness_effects
+lee_trimming_distributional_bounds
+makarov_distributional_bounds
+mtr_atkinson_distributional_bounds
+mtr_gini_lorenz_distributional_bounds
+mtr_headcount_distributional_bounds
+mtr_theil_distributional_bounds
+negative_certificate_from_query_preservation_trace
+optimal_recourse_intervention
+pairwise_contrasts
+program_cost
+proof_composability_cache_key
+proximal_identify_v1
+proximal_mediation_identify_v1
+register_causal_methods
+replay_graph_witness
+rewrite_ctf_estimand
+sd_atkinson_distributional_bounds
+sd_gini_lorenz_distributional_bounds
+sd_headcount_distributional_bounds
+sd_theil_distributional_bounds
+sigma_identify
+sigma_z_identify
+simulate_linear_diffusion_response
+simulate_reaction_diffusion_response
+solve_strategic_response
+solve_temporal_effect_path
+strategic_result_summary
+transport_bounds
+tv_decomposition
+update_query_preservation_artifact_refs
+update_query_preservation_cache
+Y0_SURROGATE_DATA_PROFILE_ABSENT
+compute_scalar_distributional_effect
+```
+
+</details>
 
 #### `polisyos.foundry.uncertainty`
 
 - Source: `src/polisyos/foundry/uncertainty/__init__.py`
-- Facade: `unresolved_exports`
+- Facade: `lazy_facade`
 - Summary: Expose uncertainty propagation helpers used around Foundry simulation outputs.
-- Export resolution incomplete: `Unresolved exported binding: src/polisyos/foundry/uncertainty/__init__.py:AggregationStrategy`.
-- Export scope: `no names proven by the bounded parser; not an empty runtime namespace`
-- Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
-- Source evidence: 1 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (30; native exports unproved)</summary>
+<details><summary>Entrypoint exports (38)</summary>
 
 ```text
 CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1
@@ -5691,6 +6229,8 @@ CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1
 EXCEPTION_CHAIN_EDGE_LIMIT
 EXCEPTION_CHAIN_NODE_LIMIT
 EvaluationFailureClassification
+EmpiricalNumericResolutionError
+EmpiricalJointRows
 build_covariance_matrix
 calibration_covariance_blocks_agree_v1
 classify_evaluation_failure
@@ -5714,8 +6254,14 @@ aggregate_persisted_envelope_views
 load_aggregated_envelope_fresh
 persist_aggregated_envelope
 compute_first_order_indices
+empirical_indices_from_cdf
+empirical_joint_moments
+empirical_weighted_moments
 extract_std
 fabric_uncertainty_context_from_decision_data
+normalize_empirical_masses
+prepare_empirical_cdf
+prepare_empirical_joint
 ```
 
 </details>
@@ -5801,14 +6347,14 @@ validate_source_bound_gcm_spec
 | `polisyos.scientist.adapters` | `src/polisyos/scientist/adapters/__init__.py` | `lazy_facade` | 6 |
 | `polisyos.scientist.compute` | `src/polisyos/scientist/compute/__init__.py` | `lazy_facade` | 17 |
 | `polisyos.scientist.governance.continuous` | `src/polisyos/scientist/governance/continuous/__init__.py` | `lazy_facade` | 87 |
-| `polisyos.scientist.methods.backtesting` | `src/polisyos/scientist/methods/backtesting/__init__.py` | `lazy_facade` | 34 |
+| `polisyos.scientist.methods.backtesting` | `src/polisyos/scientist/methods/backtesting/__init__.py` | `lazy_facade` | 35 |
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `eager_exports` | 44 |
-| `polisyos.scientist.orchestration.engine` | `src/polisyos/scientist/orchestration/engine/__init__.py` | `lazy_facade` | 115 |
+| `polisyos.scientist.orchestration.engine` | `src/polisyos/scientist/orchestration/engine/__init__.py` | `lazy_facade` | 126 |
 | `polisyos.scientist.replay` | `src/polisyos/scientist/replay/__init__.py` | `lazy_facade` | 25 |
 | `polisyos.scientist.replay.deterministic` | `src/polisyos/scientist/replay/deterministic.py` | `eager_exports` | 20 |
 | `polisyos.scientist.validation.policy_verified` | `src/polisyos/scientist/validation/policy_verified/__init__.py` | `eager_exports` | 28 |
 | `polisyos.scientist.agent` | `src/polisyos/scientist/agent/__init__.py` | `lazy_facade` | 102 |
-| `polisyos.scientist.policy_design` | `src/polisyos/scientist/policy_design/__init__.py` | `lazy_facade` | 105 |
+| `polisyos.scientist.policy_design` | `src/polisyos/scientist/policy_design/__init__.py` | `lazy_facade` | 107 |
 
 #### `polisyos.scientist`
 
@@ -6023,7 +6569,7 @@ persist_published_signature_custody_scan
 - Facade: `lazy_facade`
 - Summary: Stable backtesting facade for replay, masking, challenge suites, and trust scoring.
 
-<details><summary>Entrypoint exports (34)</summary>
+<details><summary>Entrypoint exports (35)</summary>
 
 ```text
 ABSTRACTION_LEAKAGE_SUITE_ID
@@ -6057,6 +6603,7 @@ TrustScorer
 build_temporal_backtest_report
 evaluate_temporal_safe_rejection
 evaluate_temporal_trajectory
+load_backtest_report_for_consumption
 replay_fragment_composition_case
 run_phase_d4_challenge_suites
 summarize_temporal_evaluations
@@ -6127,9 +6674,14 @@ validate_source_invalidation_event
 - Facade: `lazy_facade`
 - Summary: Scientist workflow engine public facade with lazy exports.
 
-<details><summary>Entrypoint exports (115)</summary>
+<details><summary>Entrypoint exports (126)</summary>
 
 ```text
+ProducerBudgetObservation
+ProducerBudgetSourceError
+BudgetInvocationCapacityObservation
+BudgetInvocationExhaustionWitness
+ProducerBudgetObserver
 ATTR_CACHE_HIT
 ATTR_CELL_ID
 ATTR_DURATION_MS
@@ -6148,6 +6700,10 @@ CHECKPOINT_SCHEMA_VERSION
 IDEMPOTENCY_CONTRACT_VERSION
 AsyncWorkflowExecutor
 BudgetExhaustedError
+BudgetInvocationQuotaPolicy
+BudgetLedgerInvocationProfile
+BudgetLedgerReentryBudgetScope
+BudgetLedgerReentryBudgetWindow
 BudgetLedger
 BudgetLedgerMutation
 BudgetLedgerCacheReuseAdmission
@@ -6198,6 +6754,8 @@ NodeError
 NodeEvent
 NodeExecutionError
 NodeInvocation
+NodeInputRule
+InputAwareNodeSpec
 NodeOutcome
 NodeOutputRule
 OutputAwareNodeSpec
@@ -6482,7 +7040,7 @@ register_worker_tool
 - Facade: `lazy_facade`
 - Summary: Policy design typed schema and objective stack.
 
-<details><summary>Entrypoint exports (105)</summary>
+<details><summary>Entrypoint exports (107)</summary>
 
 ```text
 AdversarialScenarioBundle
@@ -6567,6 +7125,7 @@ TranslatorComplianceFinding
 TranslatorCompliancePass
 TranslatorComplianceResult
 TranslatorInputBundle
+TranslatorMaterialization
 TransportAssumptionSpec
 TransportabilityReport
 UncertaintyReport
@@ -6584,6 +7143,7 @@ load_adversarial_scenario_bundle
 load_policy_artifact_bundle
 load_policy_brief
 load_policy_candidate_schema
+materialize_translator_inputs
 persist_adversarial_scenario_bundle
 persist_policy_artifact_bundle
 persist_policy_brief
@@ -6793,7 +7353,7 @@ verify_replay
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.runtime.quality` | `src/polisyos/runtime/quality/__init__.py` | `eager_exports` | 973 |
+| `polisyos.runtime.quality` | `src/polisyos/runtime/quality/__init__.py` | `eager_exports` | 976 |
 
 #### `polisyos.runtime.quality`
 
@@ -6801,7 +7361,7 @@ verify_replay
 - Facade: `eager_exports`
 - Summary: Runtime quality evaluation helpers.
 
-<details><summary>Entrypoint exports (973)</summary>
+<details><summary>Entrypoint exports (976)</summary>
 
 ```text
 ACQUISITION_PLANNER_GATE_LAYER
@@ -7082,6 +7642,8 @@ CandidateAuthorityEnvelope
 CandidateFirewallError
 CandidateLever
 CandidateLeverSpace
+CandidateSourceCurrentOccurrence
+CandidateSourceCurrentProjection
 CanonicalDesignRecord
 CapabilityAuthorityError
 CapabilityAuthorityFactor
@@ -7685,6 +8247,7 @@ policy_design_jurisdiction_spine_json_schema
 policy_design_pass1b_hardening_scorecard_gates
 producer_spine_read_context_for
 project_cae_defeaters_to_s14_skeptic_records
+project_candidate_source_current_occurrences
 project_value_tradeoff_disclosure
 public_rule_evolution_annotation
 ratchet_templates
@@ -7781,7 +8344,7 @@ write_authority_envelope_json_schema
 
 </details>
 
-<details><summary>Supported exports (973)</summary>
+<details><summary>Supported exports (976)</summary>
 
 ```text
 ACQUISITION_PLANNER_GATE_LAYER
@@ -8062,6 +8625,8 @@ CandidateAuthorityEnvelope
 CandidateFirewallError
 CandidateLever
 CandidateLeverSpace
+CandidateSourceCurrentOccurrence
+CandidateSourceCurrentProjection
 CanonicalDesignRecord
 CapabilityAuthorityError
 CapabilityAuthorityFactor
@@ -8665,6 +9230,7 @@ policy_design_jurisdiction_spine_json_schema
 policy_design_pass1b_hardening_scorecard_gates
 producer_spine_read_context_for
 project_cae_defeaters_to_s14_skeptic_records
+project_candidate_source_current_occurrences
 project_value_tradeoff_disclosure
 public_rule_evolution_annotation
 ratchet_templates
@@ -9064,7 +9630,7 @@ validate_web_evidence_source_binding
 | `polisyos.data_forge` | `src/polisyos/data_forge/__init__.py` | `lazy_facade` | 49 |
 | `polisyos.data_forge.read_api` | `src/polisyos/data_forge/read_api/__init__.py` | `lazy_facade` | 30 |
 | `polisyos.data_forge.read_api.academic` | `src/polisyos/data_forge/read_api/academic.py` | `lazy_facade` | 110 |
-| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 156 |
+| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 160 |
 | `polisyos.data_forge.read_api.legal` | `src/polisyos/data_forge/read_api/legal.py` | `lazy_facade` | 61 |
 | `polisyos.data_forge.read_api.ukraine` | `src/polisyos/data_forge/read_api/ukraine.py` | `lazy_facade` | 75 |
 
@@ -9302,7 +9868,7 @@ validate_claim_adjudication_input_batch
 - Facade: `lazy_facade`
 - Summary: Runtime-safe read API for catalog Data Forge artifacts.
 
-<details><summary>Entrypoint exports (156)</summary>
+<details><summary>Entrypoint exports (160)</summary>
 
 ```text
 AcquisitionAuthorityEntry
@@ -9310,6 +9876,7 @@ AcquisitionAuthorityError
 AcquisitionAuthorityProvision
 AcquisitionAuthorityRegistry
 AcquisitionDatasetRegistration
+AcquisitionSourceMeasureScope
 ActivatedAcquisitionObservationProjection
 AuthoritySchemaColumn
 BaselineIdentity
@@ -9398,6 +9965,7 @@ ResolvedAcquisitionAuthority
 ResolvedFetchTarget
 ResolvedL5Trust
 ResolvedLiveHarnessReceipt
+SELECTED_LIVE_SOURCE_EXECUTION_EVIDENCE_SCHEMA_VERSION
 SearchFilters
 VariableAlignment
 WVSIndicatorRegistryError
@@ -9450,11 +10018,13 @@ plan_catalog_source_modules
 plan_catalog_source_stage_contracts
 profile_input_coverage_currentness
 project_catalog_acquisition_state
+read_selected_live_raw_source
 read_wvs_indicator_registry
 resolve_catalog_selection_policy
 resolve_embedding_generation
 resolve_live_temporal_bounds
 resolve_proxy
+resolve_source_observation_class
 score_variable_pair
 select_catalog_source_modules
 validate_catalog_run_profile
@@ -9756,7 +10326,7 @@ validate_persisted_explanation_bundle_payload
 
 - Classification: `public_experimental`
 - Supported entrypoints: `polisyos.calibration`
-- Facade policy: expected `eager_exports`, observed `lazy_facade`
+- Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-scientist`
 - README: `src/polisyos/calibration/README.md`
 - Reference doc: `docs/reference/public-surface.md`
@@ -9767,7 +10337,7 @@ validate_persisted_explanation_bundle_payload
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.calibration` | `src/polisyos/calibration/__init__.py` | `lazy_facade` | 17 |
+| `polisyos.calibration` | `src/polisyos/calibration/__init__.py` | `lazy_facade` | 19 |
 
 #### `polisyos.calibration`
 
@@ -9775,7 +10345,7 @@ validate_persisted_explanation_bundle_payload
 - Facade: `lazy_facade`
 - Summary: Calibration diagnostics public entrypoints.
 
-<details><summary>Entrypoint exports (17)</summary>
+<details><summary>Entrypoint exports (19)</summary>
 
 ```text
 REFERENCE_PROFILES
@@ -9791,7 +10361,9 @@ evaluate_binary
 evaluate_continuous
 evaluate_multiclass
 fit_calibrator
+load_continuous_evaluation
 load_empirical_calibration_evidence
+persist_continuous_evaluation
 persist_empirical_calibration_evidence
 produce_empirical_calibration_evidence
 to_validation_report
@@ -9799,7 +10371,7 @@ to_validation_report
 
 </details>
 
-<details><summary>Supported exports (17)</summary>
+<details><summary>Supported exports (19)</summary>
 
 ```text
 REFERENCE_PROFILES
@@ -9815,7 +10387,9 @@ evaluate_binary
 evaluate_continuous
 evaluate_multiclass
 fit_calibrator
+load_continuous_evaluation
 load_empirical_calibration_evidence
+persist_continuous_evaluation
 persist_empirical_calibration_evidence
 produce_empirical_calibration_evidence
 to_validation_report

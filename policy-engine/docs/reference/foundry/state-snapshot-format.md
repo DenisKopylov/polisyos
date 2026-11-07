@@ -1,5 +1,8 @@
 # Foundry StateSnapshot persistence formats
 
+Owner: Core contract and Foundry persistence owners.
+Source of truth: `src/polisyos/core/contracts/foundry.py` (`StateSnapshot`), `src/polisyos/foundry/execute/_internal/snapshots/__init__.py`, `tests/unit/foundry/runtime/test_method_metric_capture.py`, and `tests/unit/foundry/runtime/test_executor_snapshots.py`.
+
 `StateSnapshot` is a Core-persisted DTO, with a `StateSnapshotRef` pointing to
 its JSON wrapper and an NPZ state blob. Its payload version and artifact
 manifest schema version are paired by the version registry on

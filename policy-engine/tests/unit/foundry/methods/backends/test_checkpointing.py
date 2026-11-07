@@ -249,14 +249,13 @@ def test_execute_resumes_fully_bound_checkpoint_with_native_results(tmp_path) ->
     from polisyos.foundry.methods.base import ComputeBackend
 
     chain = _FakeChain(["demo.a@1.0.0", "demo.b@1.0.0"])
-    method_class = type(
-        "FakeMethod",
-        (),
-        {
-            "signature": SimpleNamespace(backend=ComputeBackend.NUMPY),
-        },
-    )
-    registry = SimpleNamespace(get=lambda _fqn: method_class)
+    runtime_classes = {
+        chain.get_node(node_id).method_fqn: type(
+            "FakeMethod", (), {"signature": chain.get_signature(node_id)}
+        )
+        for node_id in chain.execution_order
+    }
+    registry = SimpleNamespace(get=lambda fqn: runtime_classes[fqn])
 
     class _Dispatcher:
         def dispatch(self, *, method_class, signature, state, params, seed):
@@ -380,7 +379,7 @@ class _BoundExecutionChain(CompiledMethodChain):
         object.__setattr__(self, "_signatures", dict(compiled.signatures))
 
 
-def _arithmetic_executor(checkpoint_dir, *, calls=None):
+def _arithmetic_executor(checkpoint_dir, *, chain, calls=None):
     """Build the real checkpoint executor with a deterministic distinguishing dispatcher."""
     from polisyos.core.observability.determinism import DeterminismTier
     from polisyos.foundry.methods.backends.protocol import (
@@ -390,10 +389,17 @@ def _arithmetic_executor(checkpoint_dir, *, calls=None):
     )
     from polisyos.foundry.methods.base import ComputeBackend
 
-    signature = SimpleNamespace(backend=ComputeBackend.NUMPY)
+    signatures = {
+        chain.get_node(node_id).method_fqn: chain.get_signature(node_id)
+        for node_id in chain.execution_order
+    }
     methods = {
-        "demo.scale@1.0.0": SimpleNamespace(signature=signature, operation="scale"),
-        "demo.finish@1.0.0": SimpleNamespace(signature=signature, operation="finish"),
+        "demo.scale@1.0.0": SimpleNamespace(
+            signature=signatures["demo.scale@1.0.0"], operation="scale"
+        ),
+        "demo.finish@1.0.0": SimpleNamespace(
+            signature=signatures["demo.finish@1.0.0"], operation="finish"
+        ),
     }
     registry = SimpleNamespace(get=lambda fqn: methods[fqn])
 
@@ -427,17 +433,17 @@ def _arithmetic_executor(checkpoint_dir, *, calls=None):
 def test_effective_request_resume_matches_cold_execution(tmp_path) -> None:
     chain = _BoundExecutionChain()
     initial_state = {"value": 3}
-    producer = _arithmetic_executor(tmp_path)
+    producer = _arithmetic_executor(tmp_path, chain=chain)
     producer.execute(chain, initial_state=initial_state, seed=11)
     checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0000_*.json")))
 
-    resumed = _arithmetic_executor(None).execute(
+    resumed = _arithmetic_executor(None, chain=chain).execute(
         chain,
         initial_state=initial_state,
         checkpoint=checkpoint,
         seed=11,
     )
-    cold = _arithmetic_executor(None).execute(
+    cold = _arithmetic_executor(None, chain=chain).execute(
         chain,
         initial_state=initial_state,
         seed=11,
@@ -468,7 +474,7 @@ def test_effective_request_resume_matches_cold_execution(tmp_path) -> None:
 def test_execute_rejects_checkpoint_after_effective_request_change(tmp_path, change) -> None:
     original_chain = _BoundExecutionChain()
     initial_state = {"value": 3}
-    producer = _arithmetic_executor(tmp_path)
+    producer = _arithmetic_executor(tmp_path, chain=original_chain)
     producer.execute(original_chain, initial_state=initial_state, seed=11)
     checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0000_*.json")))
 
@@ -503,7 +509,7 @@ def test_execute_rejects_checkpoint_after_effective_request_change(tmp_path, cha
     # execution-identity check, rather than an earlier guard, decides the case.
     assert _compute_chain_digest(current_chain) == checkpoint.chain_digest
     calls = []
-    consumer = _arithmetic_executor(None, calls=calls)
+    consumer = _arithmetic_executor(None, chain=current_chain, calls=calls)
 
     with pytest.raises(CheckpointDigestMismatchError, match="execution identity|validation"):
         consumer.execute(
@@ -518,13 +524,13 @@ def test_execute_rejects_checkpoint_after_effective_request_change(tmp_path, cha
 
 def test_execute_rejects_checkpoint_with_invalid_completed_prefix(tmp_path) -> None:
     chain = _BoundExecutionChain()
-    producer = _arithmetic_executor(tmp_path)
+    producer = _arithmetic_executor(tmp_path, chain=chain)
     producer.execute(chain, initial_state={"value": 3}, seed=11)
     checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0000_*.json")))
     checkpoint.completed_node_ids[0] = str(UUID(int=0xB74099))
 
     with pytest.raises(CheckpointLoadError, match="not the current execution prefix"):
-        _arithmetic_executor(None).execute(
+        _arithmetic_executor(None, chain=chain).execute(
             chain,
             initial_state={"value": 3},
             checkpoint=checkpoint,
@@ -542,7 +548,7 @@ def test_execution_identity_removal_control_reproduces_stale_resume(tmp_path, mo
         _structural_only_digest,
     )
     original_chain = _BoundExecutionChain(factor=2)
-    producer = _arithmetic_executor(tmp_path)
+    producer = _arithmetic_executor(tmp_path, chain=original_chain)
     producer.execute(original_chain, initial_state={"value": 3}, seed=11)
     checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0000_*.json")))
 
@@ -550,13 +556,13 @@ def test_execution_identity_removal_control_reproduces_stale_resume(tmp_path, mo
     assert checkpoint.execution_digest == checkpoint.chain_digest
     assert checkpoint.execution_digest is not None
 
-    stale_resume = _arithmetic_executor(None).execute(
+    stale_resume = _arithmetic_executor(None, chain=changed_chain).execute(
         changed_chain,
         initial_state={"value": 3},
         checkpoint=checkpoint,
         seed=11,
     )
-    cold = _arithmetic_executor(None).execute(
+    cold = _arithmetic_executor(None, chain=changed_chain).execute(
         changed_chain,
         initial_state={"value": 3},
         seed=11,
@@ -587,3 +593,361 @@ def test_execution_identity_removal_control_reproduces_stale_resume(tmp_path, mo
         (observation_dir / "b74-effective-checkpoint-input-binding.json").write_text(
             json.dumps(observation, sort_keys=True) + "\n", encoding="utf-8"
         )
+
+
+def _assert_native_checkpoint_origins(*owners):
+    import inspect
+
+    product = Path(__file__).resolve().parents[5]
+    expected_root = product / "src"
+    if not expected_root.is_dir():
+        import sysconfig
+
+        from tests._helpers.installed_profile import installed_child_environment
+
+        expected_root = Path(sysconfig.get_path("purelib")).resolve(strict=True)
+        assert (
+            installed_child_environment({"POLISYOS_INSTALLED_PROFILE_PURELIB": str(expected_root)})
+            is not None
+        )
+    for owner in owners:
+        expected = expected_root / (owner.__module__.replace(".", "/") + ".py")
+        assert Path(inspect.getsourcefile(owner)).resolve() == expected
+
+
+def _native_checkpoint_fixture(*, factor=2):
+    """Use real registry/composer/NumPy dispatch without touching its singleton."""
+    from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+    from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
+    from polisyos.foundry.methods.base import (
+        ComplexityClass,
+        ComputeBackend,
+        FidelityLevel,
+        MethodMetadata,
+        MethodSignature,
+        ParameterSpec,
+        SlotSpec,
+        SlotType,
+        Unit,
+    )
+    from polisyos.foundry.methods.components.composer import MethodComposer
+    from polisyos.foundry.methods.selection.registry import MethodRegistry
+
+    _assert_native_checkpoint_origins(
+        MethodRegistry, MethodComposer, MethodDispatcher, NumpyRunner, ChainCheckpoint
+    )
+    registry = object.__new__(MethodRegistry)
+    registry._initialize()
+    calls = []
+    slot = SlotSpec("value", SlotType.SCALAR, Unit("checkpoint", "count"))
+
+    def native_signature(name, parameters=()):
+        return MethodSignature(
+            name=name,
+            namespace="checkpoint_native",
+            version="1.0.0",
+            input_slots=frozenset({slot}),
+            output_slots=frozenset({slot}),
+            parameters=parameters,
+            fidelity=FidelityLevel.LOW,
+            complexity=ComplexityClass.O_1,
+            backend=ComputeBackend.NUMPY,
+            supports_jit=False,
+            supports_vmap=False,
+            supports_grad=False,
+        )
+
+    class Multiply:
+        signature = native_signature("multiply", (ParameterSpec(name="factor", default=2),))
+        metadata = MethodMetadata(description="Synthetic native checkpoint multiply")
+
+        @staticmethod
+        def pure_step(state, params):
+            calls.append("multiply")
+            value = state["value"] if isinstance(state, dict) else state
+            return {
+                "value": int(np.asarray(value) * params["factor"]),
+                "__numpy_artifacts__": {"observed_seed": np.array([params["__seed__"]])},
+            }
+
+    class Add:
+        signature = native_signature("add")
+        metadata = MethodMetadata(description="Synthetic native checkpoint add")
+
+        @staticmethod
+        def pure_step(state, params):
+            calls.append("add")
+            value = state["value"] if isinstance(state, dict) else state
+            return {"value": int(np.asarray(value) + 1)}
+
+    registry.register(Multiply)
+    registry.register(Add)
+    composer = MethodComposer(registry=registry)
+    first = composer.add(Multiply.signature.fqn, factor=factor)
+    second = composer.add(Add.signature.fqn)
+    composer.connect(first, second, {"value": "value"})
+    chain = composer.build(validate_semantics=SemanticValidationLevel.WARN)
+
+    def executor(directory=None, *, permissive=False):
+        dispatcher = MethodDispatcher(enable_runtime_selection=False)
+        dispatcher.register_runner(NumpyRunner())
+        return CheckpointingChainExecutor(
+            checkpoint_dir=directory,
+            registry=registry,
+            dispatcher=dispatcher,
+            fail_on_checkpoint_error=not permissive,
+        )
+
+    return chain, calls, executor
+
+
+@pytest.mark.parametrize(("prefix", "new_calls"), [(0, ["add"]), (1, [])])
+def test_native_numpy_checkpoint_reuses_exact_prefix_and_preserves_each_output(
+    tmp_path, prefix, new_calls
+):
+    chain, calls, executor = _native_checkpoint_fixture()
+    cold = executor(tmp_path).execute(chain, initial_state={"value": 3}, seed=7)
+    assert calls == ["multiply", "add"]
+    assert cold.final_state["value"] == 7
+    path = next(tmp_path.glob(f"*_{prefix:04d}_*.json"))
+    checkpoint = ChainCheckpoint.load(path)
+    calls.clear()
+    resumed = executor().execute(chain, initial_state={"value": 3}, checkpoint=checkpoint, seed=7)
+    assert calls == new_calls
+    assert resumed.final_state["value"] == 7
+    assert [r.output["value"] for _, r in resumed.node_results] == [6, 7]
+    assert [r.reproducibility.seed for _, r in resumed.node_results] == [7, 7]
+    np.testing.assert_array_equal(resumed.node_results[0][1].artifacts["observed_seed"], [7])
+    assert resumed.node_results[0][1].timing == cold.node_results[0][1].timing
+    assert resumed.node_results[0][1].reproducibility == cold.node_results[0][1].reproducibility
+
+
+@pytest.mark.parametrize("change", ["factor", "input", "seed", "prefix", "history", "context"])
+def test_native_numpy_checkpoint_refuses_changed_request_before_dispatch(tmp_path, change):
+    chain, calls, executor = _native_checkpoint_fixture()
+    executor(tmp_path).execute(chain, initial_state={"value": 3}, seed=7)
+    checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0001_*.json")))
+    state, seed, params = {"value": 3}, 7, None
+    if change == "factor":
+        params = {chain.execution_order[0]: {"factor": 3}}
+    elif change == "input":
+        state = {"value": 4}
+    elif change == "seed":
+        seed = 99
+    elif change == "prefix":
+        checkpoint.completed_node_ids[0] = str(UUID(int=99))
+    elif change == "history":
+        checkpoint.node_results.pop()
+    else:
+        checkpoint.validation_context["ruleset"] = "foreign-ruleset"
+    calls.clear()
+    with pytest.raises((CheckpointDigestMismatchError, CheckpointLoadError)):
+        executor().execute(
+            chain, initial_state=state, params_per_node=params, checkpoint=checkpoint, seed=seed
+        )
+    assert calls == []
+    if change in {"factor", "input"}:
+        cold = executor().execute(chain, initial_state=state, params_per_node=params, seed=seed)
+        assert cold.final_state["value"] == (10 if change == "factor" else 9)
+
+
+@pytest.mark.parametrize("poverty_line", [None, 20.0])
+def test_actual_restricted_numpy_call_is_preserved_as_historical_evidence(tmp_path, poverty_line):
+    from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+    from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
+    from polisyos.foundry.methods.catalog.policy.evaluation import ExAnteSimulationEstimator
+    from polisyos.foundry.methods.components.composer import MethodComposer
+    from polisyos.foundry.methods.selection.registry import MethodRegistry
+
+    _assert_native_checkpoint_origins(
+        MethodRegistry,
+        MethodComposer,
+        MethodDispatcher,
+        NumpyRunner,
+        ChainCheckpoint,
+        ExAnteSimulationEstimator,
+    )
+    registry = object.__new__(MethodRegistry)
+    registry._initialize()
+    registry.register(ExAnteSimulationEstimator)
+    composer = MethodComposer(registry=registry)
+    composer.add(ExAnteSimulationEstimator.signature.fqn, poverty_line=poverty_line)
+    chain = composer.build(validate_semantics=SemanticValidationLevel.WARN)
+    state = {"baseline": np.array([10.0, 20.0, 40.0]), "scenario": np.array([11.0, 18.0, 44.0])}
+
+    def executor(directory=None):
+        dispatcher = MethodDispatcher(enable_runtime_selection=False)
+        dispatcher.register_runner(NumpyRunner())
+        return CheckpointingChainExecutor(
+            checkpoint_dir=directory, registry=registry, dispatcher=dispatcher
+        )
+
+    cold = executor(tmp_path).execute(chain, initial_state=state, seed=7)
+    original = cold.node_results[0][1]
+    assert original.output["result"]["mean_change"] == 1.0
+    assert original.restricted_invocation is not None
+    assert original.restricted_invocation.status == (
+        "verified" if poverty_line is None else "unavailable"
+    )
+    checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0000_*.json")))
+    resumed = executor().execute(chain, initial_state=state, checkpoint=checkpoint, seed=7)
+    restored = resumed.node_results[0][1]
+    assert restored.restricted_invocation == original.restricted_invocation
+    assert restored.timing == original.timing
+    assert restored.reproducibility == original.reproducibility
+    assert restored.output["result"]["mean_change"] == 1.0
+    assert isinstance(restored.restricted_invocation.output_value_path, tuple)
+
+
+def test_native_permissive_executor_keeps_result_and_reports_post_publication_error(
+    tmp_path, monkeypatch
+):
+    import polisyos.foundry.methods.backends.checkpointing as checkpointing
+
+    chain, _calls, executor = _native_checkpoint_fixture()
+    actual_write = checkpointing._atomic_write_bytes
+
+    def write_then_report_error(*args, **kwargs):
+        actual_write(*args, **kwargs)
+        raise OSError("post-publication storage diagnostic")
+
+    monkeypatch.setattr(checkpointing, "_atomic_write_bytes", write_then_report_error)
+    producer = executor(tmp_path, permissive=True)
+    result = producer.execute(chain, initial_state={"value": 3}, seed=7)
+    assert result.final_state["value"] == 7
+    assert len(producer.checkpoint_issues) == 2
+    assert all(issue.operation == "save" for issue in producer.checkpoint_issues)
+    checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0001_*.json")))
+    assert checkpoint.intermediate_state["value"] == 7
+    assert checkpoint.history_complete
+    np.testing.assert_array_equal(checkpoint.node_results[0]["artifacts"]["observed_seed"], [7])
+
+
+def test_native_legacy_forward_history_retains_values_but_cannot_resume(tmp_path):
+    chain, calls, executor = _native_checkpoint_fixture()
+    producer_root = tmp_path / "producer"
+    executor(producer_root).execute(chain, initial_state={"value": 3}, seed=7)
+    path = next(producer_root.glob("*_0001_*.json"))
+    payload = json.loads(path.read_text())
+    payload["node_results"][0].pop("restricted_invocation")
+    path.write_text(json.dumps(payload))
+    historical = ChainCheckpoint.load(path)
+    assert not historical.history_complete
+    derived = tmp_path / "forward.json"
+    historical.save(derived)
+    fresh = ChainCheckpoint.load(derived)
+    assert not fresh.history_complete
+    assert [item["output"]["value"] for item in fresh.node_results] == [6, 7]
+    assert [item["reproducibility"]["seed"] for item in fresh.node_results] == [7, 7]
+    assert "restricted_invocation_history_missing" in fresh.node_results[0]["warnings"]
+    calls.clear()
+    with pytest.raises(CheckpointLoadError, match="lacks completed slot-output history"):
+        executor().execute(chain, initial_state={"value": 3}, checkpoint=fresh, seed=7)
+    assert calls == []
+    forged = json.loads(derived.read_text())
+    forged["history_complete"] = True
+    derived.write_text(json.dumps(forged))
+    independently_loaded = ChainCheckpoint.load(derived)
+    assert not independently_loaded.history_complete
+    with pytest.raises(CheckpointLoadError, match="lacks completed slot-output history"):
+        executor().execute(
+            chain, initial_state={"value": 3}, checkpoint=independently_loaded, seed=7
+        )
+    assert calls == []
+    fresh.history_complete = True
+    with pytest.raises(CheckpointLoadError, match="restricted invocation"):
+        executor().execute(chain, initial_state={"value": 3}, checkpoint=fresh, seed=7)
+    assert calls == []
+
+
+def test_native_request_identity_removal_exposes_stale_reuse(tmp_path, monkeypatch):
+    import polisyos.foundry.methods.backends.checkpointing as checkpointing
+
+    def structural_only(chain, *, initial_state, params_per_node, seed):
+        del initial_state, params_per_node, seed
+        return _compute_chain_digest(chain)
+
+    monkeypatch.setattr(checkpointing, "_compute_execution_digest", structural_only)
+    chain, calls, executor = _native_checkpoint_fixture()
+    executor(tmp_path).execute(chain, initial_state={"value": 3}, seed=7)
+    checkpoint = ChainCheckpoint.load(next(tmp_path.glob("*_0000_*.json")))
+    override = {chain.execution_order[0]: {"factor": 3}}
+    calls.clear()
+    stale = executor().execute(
+        chain, initial_state={"value": 3}, params_per_node=override, checkpoint=checkpoint, seed=7
+    )
+    assert calls == ["add"]
+    cold = executor().execute(chain, initial_state={"value": 3}, params_per_node=override, seed=7)
+    assert stale.final_state["value"] == 7
+    assert cold.final_state["value"] == 10
+    assert stale.final_state != cold.final_state
+
+
+@pytest.mark.parametrize("mutation", ["selected_registry", "operation", "signature"])
+def test_replayed_recipe_complete_checkpoint_reconciles_selected_implementation(
+    tmp_path, monkeypatch, mutation
+):
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.foundry.methods.artifacts import load_compiled_chain
+    from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+    from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
+    from polisyos.foundry.methods.selection.registry import MethodRegistry
+    from tests._helpers.method_chain import METHODS, Required
+    from tests.unit.foundry.methods.test_compiled_chain_artifact import _persist, _required_chain
+
+    def registry_for(*, replacement=None):
+        registry = object.__new__(MethodRegistry)
+        registry._initialize()
+        for method in METHODS:
+            registry.register(replacement if method is Required and replacement else method)
+        return registry
+
+    registry = registry_for()
+    cas = FileSystemCAS(tmp_path / "cas")
+    _, ref = _persist(cas, _required_chain(registry), registry)
+    chain = load_compiled_chain(FileSystemCAS(tmp_path / "cas"), ref, registry=registry)
+    dispatcher = MethodDispatcher(enable_runtime_selection=False)
+    dispatcher.register_runner(NumpyRunner())
+    observed_dispatches = []
+    actual_dispatch = dispatcher.dispatch
+
+    def observe_dispatch(**kwargs):
+        observed_dispatches.append(kwargs["signature"].fqn)
+        return actual_dispatch(**kwargs)
+
+    monkeypatch.setattr(dispatcher, "dispatch", observe_dispatch)
+    source = CheckpointingChainExecutor(
+        checkpoint_dir=tmp_path / "checkpoints", registry=registry, dispatcher=dispatcher
+    )
+    result = source.execute(chain, initial_state={"sentinel": 7}, seed=7)
+    assert result.final_state["answer"] == 36
+    assert len(observed_dispatches) == 3
+    path = next((tmp_path / "checkpoints").glob("*_0002_*.json"))
+    saved_bytes = path.read_bytes()
+    checkpoint = ChainCheckpoint.load(path)
+    assert checkpoint.history_complete and checkpoint.n_completed == 3
+    selected = registry
+    if mutation == "selected_registry":
+
+        class Replacement:
+            signature = Required.signature
+            metadata = Required.metadata
+
+            @staticmethod
+            def pure_step(state, params):
+                return {"value": 777}
+
+        selected = registry_for(replacement=Replacement)
+    elif mutation == "operation":
+        monkeypatch.setattr(
+            Required, "pure_step", staticmethod(lambda state, params: {"value": 777})
+        )
+    else:
+        monkeypatch.setattr(Required, "signature", replace(Required.signature, family="changed"))
+    observed_dispatches.clear()
+    fresh = CheckpointingChainExecutor(registry=selected, dispatcher=dispatcher)
+    with pytest.raises((ValueError, CheckpointDigestMismatchError), match="implementation"):
+        fresh.execute(chain, initial_state={"sentinel": 7}, checkpoint=checkpoint, seed=7)
+    assert observed_dispatches == []
+    assert path.read_bytes() == saved_bytes
+    assert ChainCheckpoint.load(path).intermediate_state["answer"] == 36

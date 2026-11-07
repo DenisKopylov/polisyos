@@ -653,6 +653,17 @@ def test_denied_mutation_remains_denied_when_access_audit_append_fails(
 def test_run_ownership_denial_remains_denied_when_access_audit_append_fails(
     runtime_api_env,
 ) -> None:
+    class _FailFirstAppendAudit:
+        def __init__(self) -> None:
+            self.append_calls = 0
+            self.entries: list[dict[str, Any]] = []
+
+        def append(self, entry: dict[str, Any]) -> None:
+            self.append_calls += 1
+            if self.append_calls == 1:
+                raise OSError("data-access audit storage unavailable")
+            self.entries.append(entry)
+
     bearer = _fixture_bearer("run-ownership-audit-append-failure")
     client, cell, provider = _build_fixture_secure_client(
         runtime_api_env,
@@ -668,7 +679,8 @@ def test_run_ownership_denial_remains_denied_when_access_audit_append_fails(
             jti="jwt-run-ownership-audit-append-failure",
         ),
     )
-    _install_audit(client, _FailingAudit())
+    audit = _FailFirstAppendAudit()
+    _install_audit(client, audit)
 
     with client:
         response = client.get(
@@ -682,6 +694,15 @@ def test_run_ownership_denial_remains_denied_when_access_audit_append_fails(
     assert response.status_code == 403, response.json()
     assert response.json()["code"] == "run_tenant_mismatch"
     assert runtime_api_env["tenant_b"] not in response.text
+    assert audit.append_calls == 2
+    assert len(audit.entries) == 1
+    authorization_event = audit.entries[0]
+    assert authorization_event["event_type"] == "runtime.authorization.decision"
+    assert authorization_event["outcome"] == "deny"
+    assert authorization_event["denial_reason"] == "authorization_binding_run_tenant_mismatch"
+    assert authorization_event["permission"] == RuntimePermission.RUNS_REVIEW.value
+    assert authorization_event["tenant_id"] == runtime_api_env["tenant_a"]
+    assert runtime_api_env["tenant_b"] not in str(authorization_event)
 
 
 def test_tenant_boundary_metric_records_only_verified_mismatches(

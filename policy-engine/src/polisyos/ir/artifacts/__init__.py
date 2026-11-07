@@ -1,5 +1,6 @@
 """Public IR CAS boundary for artifact metadata, ref normalization, and JSON persistence helpers."""
 
+from ._lineage import InputRefLike
 from .contracts import (
     ArtifactID,
     ArtifactStore,
@@ -55,6 +56,7 @@ __all__ = [
     "DeltaSemantics",
     "IncrementalRelinkManifest",
     "InputRef",
+    "InputRefLike",
     "ObservationBinaryBatchArtifact",
     "ObservationStreamCheckpoint",
     "ObservationStreamEntry",

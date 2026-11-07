@@ -1,0 +1,298 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/calibration/curve/_compute.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/curve/_compute.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          93
+        ]
+      ],
+      "evidence_level": "Полный актуальный численный owner прочитан и исполнен",
+      "git_blob": "70c3b869cd37576212c9423f9629907c2e4eedc1",
+      "sha256": "ca9f8332372cc85b0e1690fcf3647cc5bc1224b7fa43e002380054939ba0e6fc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/calibration/curve/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/curve/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          36
+        ]
+      ],
+      "evidence_level": "Полный файл прочитан; actual dataclasses1–27 исполнены",
+      "git_blob": "bce3c104c9cd2d8111be8927d49cd670e51e7a36",
+      "sha256": "f728d338c60b866fba304bb77ac42290180112c3b1a9939625383aac6f3dadcb",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/calibration/diagnostics/continuous.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/diagnostics/continuous.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          403
+        ]
+      ],
+      "evidence_level": "Полный численный owner прочитан и исполнен; NumPy настоящий",
+      "git_blob": "6a2a40cd092e7a58a7130e28a5c73713f017f455",
+      "sha256": "c7202a9d529919d1231fe8ce301700251705b3e742f31074ff66ba5a5036093b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          334
+        ]
+      ],
+      "evidence_level": "Полный настоящий report/receipt projection прочитан и исполнен",
+      "git_blob": "33d3d8ae220e8d824a949bee20eb61e93e1a044a",
+      "sha256": "d62583344c7a85ebc25869adc65917bfbcd0d1419f1824877d1fd81635ff5e95",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/ir/analytics/_truthfulness.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/_truthfulness.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          254
+        ]
+      ],
+      "evidence_level": "Полные настоящие receipt/reconciliation/extractor прочитаны и исполнены",
+      "git_blob": "f86268fda7761d4a67c22d604a54f94e8fa869e4",
+      "sha256": "a450f6a11c8b8e6519088527d50828bd51343cf7ea655e20ad8d45a47503193f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/ir/analytics/query_validation_report.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/query_validation_report.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          24
+        ]
+      ],
+      "evidence_level": "Actual ValidationSeverity7–20 исполнен; соседняя class header прочитана",
+      "git_blob": "262678f2bcb7b7e34da1f608e54a0e73a006e437",
+      "sha256": "15584e05fe8e463ae3b759765cb63c975bedf76eeef877b59d2af6c0430354b8",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/tests/unit/calibration/curve/test__compute.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/calibration/curve/test__compute.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          139
+        ]
+      ],
+      "evidence_level": "Полный canonical numerical test файл прочитан; UNRUN",
+      "git_blob": "47893e4d30a377860cc9037a0a63ee7bb895f207",
+      "sha256": "529b8505aadaeda4931129a0648ec2cc3cb7e7e292678a6b73b806f44c8de7a0",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/calibration/diagnostics/test_continuous.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/calibration/diagnostics/test_continuous.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          341
+        ]
+      ],
+      "evidence_level": "Полный continuous/readback/receipt test файл прочитан; UNRUN",
+      "git_blob": "1022357d0b730aaea05ae9467f1ac3cb1394ed93",
+      "sha256": "d99e23eccca151bafefb41e0972e6f945d1e7464fdabbbf354f1c8fc727460fe",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          34
+        ]
+      ],
+      "evidence_level": "Полный существующий identity-only compatibility test прочитан; UNRUN",
+      "git_blob": "065506a99a5929f9c3d10e3b5228d151af0a230f",
+      "sha256": "a024673903c01bdf0dfb9ef461132581653265cab8135e3e7799788526bf0a17",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/calibration_curve.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/scientist/methods/backtesting/calibration_curve.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          15
+        ]
+      ],
+      "evidence_level": "Полный alias прочитан и исполнен с actual imports к изолированному canonical owner",
+      "git_blob": "7d5e4bb256867fd7e474a5455456884eead7b9f0",
+      "sha256": "3f618d669f3bb8f41a793817494bcbac59f1e0ed0712265aabf48b86ab1fdc02",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/calibration/__init__.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/__init__.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          79
+        ]
+      ],
+      "evidence_level": "Полный public facade прочитан и исполнен",
+      "git_blob": "41b4d89877ee3ade22669a5e60ef38b9283d50bb",
+      "sha256": "c954e24883a1ae9b355b26c2513bbd2a71c41a55946e5b2595e337dfe5b9f786",
+      "local_file": null,
+      "note": "Unrelated binary/multiclass/recalibration imports заменены явными фикстурами; native root startup/distribution не проверены."
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/calibration/README.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/README.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          76
+        ]
+      ],
+      "evidence_level": "Полная документация ролей, фасада и профилей прочитана",
+      "git_blob": "f227b7056d381936aa6a39efd6116c6a17bb33b6",
+      "sha256": "e187bb22c0200770bcf3cc5d2f016efa495b20b7f38902d1e58e0801815d4a9b",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/protocol.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/backends/protocol.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          170,
+          275
+        ]
+      ],
+      "evidence_level": "Настоящий MethodResult199–222 исполнен; output Any и соседний контракт прочитаны",
+      "git_blob": "461507a1957df79cb0d9f2c574f4174f8b34563d",
+      "sha256": "9ba67c48b5b812c9e4ffa465c18db56173f28acca7083ceab1ec2c5ae1d52946",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          110
+        ],
+        [
+          170,
+          215
+        ],
+        [
+          370,
+          420
+        ]
+      ],
+      "evidence_level": "Actual complete merge387–417 исполнен; telemetry consumer и module context прочитаны",
+      "git_blob": "d4dd104a9b8ced2c9b257cdedced82197195757b",
+      "sha256": "222c73c76919254e23cfa9ca50db1faec5694c0845630809cc4e0d4d17b6c3bc",
+      "local_file": null,
+      "note": "Настоящий runner/telemetry не исполнялись; timing/reproducibility в диагностике None, они не используются merge."
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/components/value_evidence.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          275,
+          325
+        ]
+      ],
+      "evidence_level": "Соседний typed uncertainty/receipt guard прочитан; UNRUN",
+      "git_blob": "3d54a60106c150ff2c8d5e70df260400303477c4",
+      "sha256": "993de0d950c52fb743f85bf30b7346f80040b09004ebe59557daba93ec06d466",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/RESIDUAL_LEDGER.md",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/RESIDUAL_LEDGER.md",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          499,
+          500
+        ]
+      ],
+      "evidence_level": "Историческое плановое свидетельство двух IDs прочитано, не принято за current verification",
+      "git_blob": "faf37519cf96956c0a5b034645d9704ccdd430b1",
+      "sha256": "8fd6f0edb1f3d8338bb782600f4fcf62fcb0ea86e08ff63a38934cd3d962f894",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      3670,
+      3845
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "discovery": {
+    "census": false,
+    "scope": "Exact public numerical/report/receipt chain and actual dispatcher merge; Python alias references addressed, external lifecycle census not complete"
+  }
+}

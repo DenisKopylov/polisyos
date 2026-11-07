@@ -553,6 +553,7 @@ from polisyos.ir.governance import (
 from polisyos.ir.governance import (
     load_phase1_flagship_dataset_ids as load_phase1_flagship_dataset_ids,
 )
+from polisyos.ir.registry.refs import CausalGraphModelRef as CausalGraphModelRef
 from polisyos.ir.registry.refs import (
     DynamicTreatmentRegimeRef as DynamicTreatmentRegimeRef,
 )
@@ -2728,6 +2729,10 @@ class CausalEngineArtifactsMixin:
             return None, proof_bundle, None, None, None, None, identification_outcome
 
         if isinstance(identification_outcome, NegativeCertificate):
+            source_binding = identification_outcome.quantitative_diagnostics.get("source_graph_ref")
+            bound = source_binding is not None and self._require_identification_source(
+                identification_outcome, self._graph_artifact_ref(graph)
+            )
             completed, dual_certificate_payload = self._complete_negative_certificate(
                 identification_outcome,
                 graph=graph,
@@ -2735,6 +2740,13 @@ class CausalEngineArtifactsMixin:
                 outcome=outcome,
                 data_dict=data_dict,
             )
+            if bound:
+                selection = identification_outcome.quantitative_diagnostics.get(
+                    "source_graph_selection"
+                )
+                completed = self._remember_identification_source(
+                    completed, source_binding, tuple(selection) if selection is not None else None
+                )
             proof_bundle = proof_bundle_from_negative_certificate(
                 completed,
                 query_ref=(
@@ -2760,7 +2772,14 @@ class CausalEngineArtifactsMixin:
                 None,
             )
 
-        proof_bundle = proof_bundle_from_identification_result(identification_outcome)
+        proof_bundle = proof_bundle_from_identification_result(
+            identification_outcome,
+            graph_ref=(
+                identification_outcome.source_graph_ref
+                if identification_outcome.source_graph_selection is not None
+                else None
+            ),
+        )
         from polisyos.ir.analytics.dp_robustness import (
             attach_dp_robustness_to_proof_bundle,
             bounds_bundle_from_dp_robustness_certificate,
@@ -2945,6 +2964,12 @@ class CausalEngineArtifactsMixin:
     ) -> EvidenceBundle:
         """Build an EvidenceBundle from identification and estimation results.
 
+        A selected static ID/IDC result is admitted only unchanged on its actual
+        producing engine while its bounded weak context exists. Copies, mutable
+        payload changes and foreign selected results are refused before writes.
+        Plain or omitted-graph calls retain historical inspection behavior and
+        do not acquire a selected graph lineage from caller-supplied fields.
+
         Parameters
         ----------
         graph:
@@ -2952,7 +2977,7 @@ class CausalEngineArtifactsMixin:
         executor_graph:
             Compiled ExecutorGraph (for CompilationStep records).
         """
-        from polisyos.foundry.methods.catalog.causal.id_engine import (
+        from polisyos.foundry.methods.catalog.causal.id_engine.core import (
             _internal_proof_step_to_ir,
         )
 
@@ -2979,7 +3004,77 @@ class CausalEngineArtifactsMixin:
         if not isinstance(proof_payload, ProofBundle):
             proof_payload = ProofBundle.model_validate(proof_payload)
 
+        source_graph_binding = (
+            identification_result.source_graph_ref
+            if isinstance(identification_result, IdentificationResult)
+            else (
+                negative_certificate.quantitative_diagnostics.get("source_graph_ref")
+                if negative_certificate is not None
+                else None
+            )
+        )
+        # Omitted graph preserves historical unselected audit/inspection behavior.
+        if graph is None:
+            source_graph_binding = None
+        if source_graph_binding is not None:
+            if source_graph_binding != self._graph_artifact_ref(graph):
+                raise ValueError("identification_source_graph_mismatch")
+            producer_result = (
+                identification_result if identification_result is not None else negative_certificate
+            )
+            if not self._require_identification_source(producer_result, source_graph_binding):
+                source_graph_binding = None  # Unselected historical/direct-leaf inspection only.
+        if source_graph_binding is not None:
+            proof_payload = proof_payload.model_copy(
+                update={
+                    "graph_ref": source_graph_binding,
+                    "metadata": {
+                        **proof_payload.metadata,
+                        "source_graph_ref": source_graph_binding,
+                        "structural_query_string": proof_payload.query_ref or query_str,
+                        "structural_basis": "conditional_on_selected_graph",
+                        "empirical_graph_validity": "not_established",
+                        "policy_authority": False,
+                    },
+                }
+            )
+        if not query_str:
+            query_str = str(proof_payload.query_ref or "")
+        graph_input = None
         twin_network_result_ref = None
+        if self._artifact_store is not None and source_graph_binding is not None:
+            from polisyos.ir.analytics.causal_graph import persist_causal_graph_model
+
+            selection = (
+                identification_result.source_graph_selection
+                if isinstance(identification_result, IdentificationResult)
+                else negative_certificate.quantitative_diagnostics.get("source_graph_selection")
+                if negative_certificate is not None
+                else None
+            )
+            if selection is not None:
+                from polisyos.ir.analytics.causal_graph import load_causal_graph_model
+                from polisyos.ir.registry.refs import CausalGraphModelRef
+
+                selected_graph = CausalGraphModelRef(
+                    artifact_id=selection[0], manifest_profile_sha256=selection[1]
+                )
+                selected_payload = load_causal_graph_model(
+                    _ensure_ir_artifact_store(self._artifact_store), selected_graph
+                )
+                if self._graph_artifact_ref(selected_payload) != source_graph_binding:
+                    raise ValueError("identification_selected_graph_content_mismatch")
+            else:
+                selected_graph = persist_causal_graph_model(
+                    _ensure_ir_artifact_store(self._artifact_store),
+                    graph,
+                    return_selected_profile=True,
+                )
+            graph_input = InputRef(
+                artifact_id=selected_graph.artifact_id,
+                role="graph",
+                manifest_profile_sha256=selected_graph.manifest_profile_sha256,
+            )
         if self._artifact_store is not None:
             from polisyos.core.artifacts import artifact_manifest_profile_sha256
             from polisyos.ir import (
@@ -3086,6 +3181,17 @@ class CausalEngineArtifactsMixin:
                     _ensure_ir_artifact_store(self._artifact_store),
                     intervention_query_model,
                 )
+                if graph_input is not None:
+                    from polisyos.core.artifacts import artifact_manifest_profile_sha256
+
+                    query_profile = artifact_manifest_profile_sha256(
+                        _ensure_ir_artifact_store(self._artifact_store).get_manifest(
+                            intervention_query_ref
+                        )
+                    )
+                    intervention_query_ref = intervention_query_ref.model_copy(
+                        update={"manifest_profile_sha256": query_profile}
+                    )
                 metadata_update["intervention_query_ref"] = intervention_query_ref.model_dump(
                     mode="json"
                 )
@@ -3664,7 +3770,7 @@ class CausalEngineArtifactsMixin:
         if (
             self._artifact_store is not None
             and proof_trace_ref is None
-            and (ir_steps or twin_network_result_ref is not None)
+            and (ir_steps or twin_network_result_ref is not None or graph_input is not None)
         ):
             trace_bundle_payload = EvidenceBundle(
                 run_id=run_id,
@@ -3787,15 +3893,32 @@ class CausalEngineArtifactsMixin:
                     dp_robustness_ref,
                     resolved_dp_certificate,
                 )
-            proof_bundle_inputs = [
-                InputRef(
-                    artifact_id=trace_ref.artifact_id,
-                    role="proof_trace",
-                    manifest_profile_sha256=trace_ref.manifest_profile_sha256,
+            proof_bundle_inputs = [graph_input] if graph_input is not None else []
+            query_ref_payload = proof_payload.metadata.get("intervention_query_ref")
+            if graph_input is not None and isinstance(query_ref_payload, dict):
+                from polisyos.ir.registry.refs import InterventionQueryRef
+
+                selected_query = InterventionQueryRef.model_validate(query_ref_payload)
+                if selected_query.manifest_profile_sha256 is None:
+                    raise ValueError("identification_query_profile_unavailable")
+                proof_bundle_inputs.append(
+                    InputRef(
+                        artifact_id=selected_query.artifact_id,
+                        role="query",
+                        manifest_profile_sha256=selected_query.manifest_profile_sha256,
+                    )
                 )
-                for trace_ref in (proof_payload.proof_trace_ref,)
-                if trace_ref is not None
-            ]
+            proof_bundle_inputs.extend(
+                [
+                    InputRef(
+                        artifact_id=trace_ref.artifact_id,
+                        role="proof_trace",
+                        manifest_profile_sha256=trace_ref.manifest_profile_sha256,
+                    )
+                    for trace_ref in (proof_payload.proof_trace_ref,)
+                    if trace_ref is not None
+                ]
+            )
             proof_bundle_inputs.extend(
                 InputRef(
                     artifact_id=witness_ref.artifact_id,
@@ -3817,7 +3940,7 @@ class CausalEngineArtifactsMixin:
                 proof_payload,
                 inputs=proof_bundle_inputs or None,
             )
-            if twin_network_result_ref is not None:
+            if twin_network_result_ref is not None or graph_input is not None:
                 from polisyos.core.artifacts import artifact_manifest_profile_sha256
 
                 ir_store = _ensure_ir_artifact_store(self._artifact_store)
@@ -3960,6 +4083,7 @@ class CausalEngineArtifactsMixin:
         graph: CausalGraphModel,
         data_dict: dict[str, Any] | None = None,
         *,
+        graph_ref: CausalGraphModelRef | None = None,
         df_columns: list[str] | None = None,
         df_dtypes: dict[str, str] | None = None,
         source_domains: list[Any] | None = None,
@@ -3979,6 +4103,10 @@ class CausalEngineArtifactsMixin:
     ) -> tuple[Any, EvidenceBundle, NegativeCertificate | None]:
         """Run the full Pearl-Bareinboim pipeline: identify → compile → estimate → audit.
 
+        The optional exact ``graph_ref`` selects the static ID/IDC graph profile
+        through the same-engine producer/audit chain. Other selected families
+        are explicitly unsupported; ordinary unselected routes remain available.
+
         Returns
         -------
         (CausalEffectReport | None, EvidenceBundle, NegativeCertificate | None)
@@ -3992,6 +4120,7 @@ class CausalEngineArtifactsMixin:
             treatment=treatment,
             outcome=outcome,
             graph=graph,
+            graph_ref=graph_ref,
             source_domains=source_domains,
             s_nodes=s_nodes,
             z_interventions=z_interventions,
@@ -5228,6 +5357,7 @@ class CausalEngineArtifactsMixin:
             )
             trajectory.effect_bundle = bundle
             trajectory.metadata["effect_bundle_artifact_id"] = str(bundle_ref.artifact_id)
+            trajectory.metadata["effect_bundle_artifact_ref"] = bundle_ref.model_dump(mode="json")
             trajectory.metadata["proof_bundle_artifact_id"] = str(proof_bundle_ref.artifact_id)
             trajectory.metadata["proof_status"] = proof_payload.proof_status
         elif (

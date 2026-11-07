@@ -10,7 +10,7 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
-from typing import Annotated, Any, Generic, Literal, TypeVar, get_args, get_origin
+from typing import Annotated, Any, Generic, Literal, TypeVar, cast, get_args, get_origin
 
 from pydantic import (
     BaseModel,
@@ -60,6 +60,7 @@ from .owned_attempt_anchor import (
     OwnedHTERequestContextV1,
 )
 from .policy_design_case_projection import PolicyDesignCaseProjection
+from .value_outer_set import ValueOuterSet
 
 SourceKind = Literal["core_run"]
 NodeStatus = Literal["ok", "skip", "fail", "unknown"]
@@ -2158,6 +2159,7 @@ class RunN5InteractionEvidence(BaseModel):
         "policyos.runtime.joint_simulation_horizon.v2",
         "policyos.runtime.joint_simulation_horizon.v3",
         "policyos.runtime.joint_simulation_horizon.v4",
+        "policyos.runtime.joint_simulation_horizon.v5",
     ]
     numeric_interaction: Literal["none", "additive", "non_additive", "unsupported"]
     numeric_interaction_basis: Literal[
@@ -2177,7 +2179,10 @@ class RunN5InteractionEvidence(BaseModel):
 
     @model_validator(mode="after")
     def _verify_interaction_evidence_epoch(self) -> RunN5InteractionEvidence:
-        current = self.schema_version == "policyos.runtime.joint_simulation_horizon.v4"
+        current = self.schema_version in {
+            "policyos.runtime.joint_simulation_horizon.v4",
+            "policyos.runtime.joint_simulation_horizon.v5",
+        }
         if not current:
             if (
                 self.numeric_interaction != "unsupported"
@@ -2217,10 +2222,10 @@ def _validate_run_n5_interaction_scope(
 ) -> None:
     """Bind current interaction records to the selected, source-derived N5 basis."""
 
-    if (
-        evidence is None
-        or evidence.schema_version != "policyos.runtime.joint_simulation_horizon.v4"
-    ):
+    if evidence is None or evidence.schema_version not in {
+        "policyos.runtime.joint_simulation_horizon.v4",
+        "policyos.runtime.joint_simulation_horizon.v5",
+    }:
         return
     if (
         not atom_ids
@@ -2370,6 +2375,18 @@ class RunCandidateSimulationN5Observation(BaseModel):
     status: Literal["joint_simulated", "simulation_pending_n5", "simulation_blocked"]
     simulation_ref: str | None = None
     simulation_result_ref: ArtifactRef | None = None
+    n5_execution_ref: ArtifactRef | None = None
+    result_body_status: Literal["not_applicable", "resolved", "not_established"] | None = None
+    result_body_limitation_code: (
+        Literal[
+            "candidate_n5_result_body_request_binding_not_established",
+            "candidate_n5_result_body_selected_manifest_view_not_established",
+            "candidate_n5_result_body_execution_not_successful",
+            "candidate_n5_result_body_content_refused",
+        ]
+        | None
+    ) = None
+    result_body: RunCandidateSimulationN5ResultBody | None = None
     n4_source_ref: ArtifactRef | None = None
     context_job_ref: ArtifactRef | None = None
     n5_input_ref: ArtifactRef | None = None
@@ -2432,21 +2449,39 @@ class RunCandidateSimulationN5Observation(BaseModel):
         Annotated[str, Field(pattern=r"^atom_[a-f0-9]{16}$")], ...
     ] = ()
     n8_candidate_parent_atom_content_hashes: tuple[str, ...] = ()
+    n8_candidate_derived_atom_ids: tuple[
+        Annotated[str, Field(pattern=r"^atom_[a-f0-9]{16}$")], ...
+    ] = ()
+    n8_candidate_derived_atom_content_hashes: tuple[
+        Annotated[str, Field(pattern=r"^sha256:[0-9a-f]{64}$")], ...
+    ] = ()
+    n8_selected_member_relationship: Literal["joint_components"] | None = None
+    n8_authored_joint_relation_ref: ArtifactRef | None = None
+    n8_authored_joint_request_payload_ref: ArtifactRef | None = None
+    n8_authored_joint_intent_digest: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
     n8_candidate_parent_intervention_ids: tuple[Annotated[str, Field(min_length=1)], ...] = ()
     n8_candidate_parent_child_refs: tuple[str, ...] = ()
     n8_candidate_joint_selection_limitation_code: (
         Literal["parent_joint_candidate_source_selection_not_established"] | None
     ) = None
     n8_candidate_member_basis: (
-        Literal["hypothetical_all_unique_n4_source_members", "not_established"] | None
+        Literal[
+            "hypothetical_all_unique_n4_source_members",
+            "authored_materialized_n4_source_members",
+            "not_established",
+        ]
+        | None
     ) = None
     n8_source_candidate_relationship: Literal["alternatives", "not_established"] | None = None
-    n8_policy_composition_status: Literal["not_established"] | None = None
+    n8_policy_composition_status: Literal["not_established", "authored_candidate"] | None = None
     n8_policy_composition_limitation_code: (
         Literal[
             "n4_source_candidates_are_alternatives_not_authored_compound_design",
             "legacy_selection_receipt_has_no_composition_basis",
             "parent_joint_candidate_source_selection_not_established",
+            "authored_candidate_coupling_not_established",
         ]
         | None
     ) = None
@@ -2478,6 +2513,59 @@ class RunCandidateSimulationN5Observation(BaseModel):
             executed_steps=self.executed_steps,
             replication_seeds=self.replication_seeds,
         )
+        if self.n5_execution_ref is not None and (
+            self.n5_execution_ref.kind != "runtime.quality.candidate_simulation_execution"
+            or self.n5_execution_ref.media_type != "application/json"
+            or self.n5_execution_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("run_n5_candidate_execution_ref_invalid")
+        if self.simulation_result_ref is None:
+            if (
+                self.result_body is not None
+                or self.result_body_status not in (None, "not_applicable")
+                or self.result_body_limitation_code is not None
+            ):
+                raise ValueError("run_n5_candidate_result_body_without_result_ref")
+        elif self.result_body is None:
+            if (
+                self.result_body_status == "resolved"
+                or self.result_body_status == "not_applicable"
+                or (
+                    self.result_body_status == "not_established"
+                    and self.result_body_limitation_code is None
+                )
+                or (
+                    self.result_body_status is None and self.result_body_limitation_code is not None
+                )
+            ):
+                raise ValueError("run_n5_candidate_result_body_status_invalid")
+        else:
+            if (
+                self.n4_source_ref is None
+                or self.context_job_ref is None
+                or self.n5_input_ref is None
+                or self.profile_config_ref is None
+                or self.profile_selection_ref is None
+                or self.lineage_status is None
+            ):
+                raise ValueError("run_n5_candidate_result_body_lineage_binding_missing")
+            if (
+                self.n4_source_ref.manifest_profile_sha256 is None
+                or self.n5_input_ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("run_n5_candidate_result_body_selected_view_missing")
+            if (
+                self.status != "joint_simulated"
+                or self.result_body_status != "resolved"
+                or self.result_body_limitation_code is not None
+                or self.n5_execution_ref is None
+                or self.result_body.artifact_ref != self.simulation_result_ref
+                or self.result_body.world_model_record_content_hash
+                != self.world_model_record_content_hash
+                or self.result_body.atom_ids != self.atom_ids
+                or self.result_body.selected_outcomes != self.selected_outcomes
+            ):
+                raise ValueError("run_n5_candidate_result_body_parent_binding_invalid")
         refs = (self.n4_source_ref, self.context_job_ref, self.n5_input_ref)
         if any(ref is not None for ref in refs):
             source, context, n5_input = refs
@@ -2597,7 +2685,10 @@ class RunCandidateSimulationN5Observation(BaseModel):
             or len(self.n8_parent_child_source_bindings) != len(self.atom_ids)
             or self.n5_interaction_evidence is None
             or self.n5_interaction_evidence.schema_version
-            != "policyos.runtime.joint_simulation_horizon.v4"
+            not in {
+                "policyos.runtime.joint_simulation_horizon.v4",
+                "policyos.runtime.joint_simulation_horizon.v5",
+            }
             or any(value is None for value in n8_fields)
             or n8_fields
             != (
@@ -2617,7 +2708,11 @@ class RunCandidateSimulationN5Observation(BaseModel):
             or self.n8_joint_scope_status != "not_established"
             or not {
                 "n5_execution_request_provenance_not_established",
-                "n4_source_candidates_are_alternatives_not_authored_compound_design",
+                (
+                    "authored_candidate_coupling_not_established"
+                    if self.n8_candidate_member_basis == "authored_materialized_n4_source_members"
+                    else "n4_source_candidates_are_alternatives_not_authored_compound_design"
+                ),
                 "child_to_parent_refinement_rule_not_established",
             }.issubset(self.n8_authority_blockers)
         ):
@@ -2628,6 +2723,28 @@ class RunCandidateSimulationN5Observation(BaseModel):
             and (self.n8_candidate_value_ref is None or self.n8_candidate_decision_grade is None)
         ):
             raise ValueError("run_n8_joint_candidate_conditional_value_missing")
+        authored_fields_present = any(
+            (
+                self.n8_selected_member_relationship is not None,
+                self.n8_authored_joint_relation_ref is not None,
+                self.n8_authored_joint_request_payload_ref is not None,
+                self.n8_authored_joint_intent_digest is not None,
+            )
+        )
+        authored_selection = (
+            self.n8_candidate_member_basis == "authored_materialized_n4_source_members"
+        )
+        derived_fields_present = bool(
+            self.n8_candidate_derived_atom_ids or self.n8_candidate_derived_atom_content_hashes
+        )
+        materialized_selection = authored_selection or (
+            self.n8_candidate_member_basis == "hypothetical_all_unique_n4_source_members"
+            and derived_fields_present
+        )
+        if authored_fields_present and not authored_selection:
+            raise ValueError("run_n8_authored_joint_basis_missing")
+        if derived_fields_present and not materialized_selection:
+            raise ValueError("run_n8_materialized_joint_basis_missing")
         candidate_selection_fields_present = any(
             (
                 self.n8_candidate_joint_selection_status is not None,
@@ -2643,6 +2760,8 @@ class RunCandidateSimulationN5Observation(BaseModel):
                 self.n8_policy_composition_limitation_code is not None,
                 self.n8_child_to_parent_refinement_status is not None,
                 self.n8_child_to_parent_refinement_limitation_code is not None,
+                authored_fields_present,
+                derived_fields_present,
             )
         )
         if self.n8_candidate_joint_selection_status is None:
@@ -2684,7 +2803,8 @@ class RunCandidateSimulationN5Observation(BaseModel):
             or self.n8_status not in {"value_pending_n8", "value_conditional"}
             or self.n8_candidate_member_basis is None
             or self.n8_source_candidate_relationship is None
-            or self.n8_policy_composition_status != "not_established"
+            or self.n8_policy_composition_status
+            != ("authored_candidate" if authored_selection else "not_established")
             or self.n8_policy_composition_limitation_code is None
             or self.n8_child_to_parent_refinement_status != "not_established"
             or self.n8_child_to_parent_refinement_limitation_code is None
@@ -2710,6 +2830,63 @@ class RunCandidateSimulationN5Observation(BaseModel):
             )
         ):
             raise ValueError("run_n8_candidate_joint_selection_binding_incomplete")
+        if materialized_selection and (
+            self.n8_candidate_joint_selection_status != "resolved"
+            or len(self.atom_ids) < 2
+            or len(self.n8_candidate_derived_atom_ids) != len(self.atom_ids)
+            or len(set(self.n8_candidate_derived_atom_ids)) != len(self.atom_ids)
+            or len(self.n8_candidate_derived_atom_content_hashes) != len(self.atom_ids)
+            or len(set(self.n8_candidate_derived_atom_content_hashes)) != len(self.atom_ids)
+            or any(
+                atom_id != f"atom_{content_hash.removeprefix('sha256:')[:16]}"
+                for atom_id, content_hash in zip(
+                    self.n8_candidate_derived_atom_ids,
+                    self.n8_candidate_derived_atom_content_hashes,
+                    strict=True,
+                )
+            )
+            or any(
+                previous == derived
+                for previous, derived in zip(
+                    self.n8_candidate_parent_atom_content_hashes,
+                    self.n8_candidate_derived_atom_content_hashes,
+                    strict=True,
+                )
+            )
+        ):
+            raise ValueError(
+                "run_n8_authored_joint_binding_incomplete"
+                if authored_selection
+                else "run_n8_materialized_joint_binding_incomplete"
+            )
+        if authored_selection and (
+            self.n8_candidate_joint_selection_status != "resolved"
+            or self.n8_selected_member_relationship != "joint_components"
+            or self.n8_source_candidate_relationship != "alternatives"
+            or self.n8_policy_composition_status != "authored_candidate"
+            or self.n8_policy_composition_limitation_code
+            != "authored_candidate_coupling_not_established"
+            or self.n8_child_to_parent_refinement_limitation_code
+            != "child_to_parent_refinement_rule_not_established"
+            or self.n8_authored_joint_intent_digest is None
+            or any(
+                ref is None
+                or ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+                for ref, kind in (
+                    (
+                        self.n8_authored_joint_relation_ref,
+                        "runtime.quality.recursive_authored_joint_relation",
+                    ),
+                    (
+                        self.n8_authored_joint_request_payload_ref,
+                        "runtime.control_job_payload.natural_language_run",
+                    ),
+                )
+            )
+        ):
+            raise ValueError("run_n8_authored_joint_binding_incomplete")
         return self
 
 
@@ -2734,6 +2911,7 @@ class RunRecursiveCycleCheckpoint(BaseModel):
     schema_version: Literal[
         "policyos.runtime.recursive_cycle_checkpoint.v1",
         "policyos.runtime.recursive_cycle_checkpoint.v2",
+        "policyos.runtime.recursive_cycle_checkpoint.v3",
     ] = "policyos.runtime.recursive_cycle_checkpoint.v1"
     status: Literal["partial"] = "partial"
     publication_authority: Literal[False] = False
@@ -2743,14 +2921,52 @@ class RunRecursiveCycleCheckpoint(BaseModel):
     root_n9_status: Literal["not_run"] = "not_run"
     leaf_terminal_kinds: dict[str, str] = Field(default_factory=dict)
     failed_branches: tuple[RunRecursiveCycleBranchFailure, ...] = ()
+    capacity_stop_parent_node_ref: str | None = Field(
+        default=None, min_length=1, exclude_if=lambda v: v is None
+    )
+    capacity_pending_child_node_ref: str | None = Field(
+        default=None, min_length=1, exclude_if=lambda v: v is None
+    )
+    capacity_pending_child_index: int | None = Field(
+        default=None, ge=1, exclude_if=lambda v: v is None
+    )
+    capacity_source_content_hash: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$", exclude_if=lambda v: v is None
+    )
+    capacity_limitation_code: Literal["physical_need_not_established"] | None = Field(
+        default=None, exclude_if=lambda v: v is None
+    )
 
     @model_validator(mode="after")
     def _verify_checkpoint_shape(self) -> RunRecursiveCycleCheckpoint:
+        capacity = (
+            self.capacity_stop_parent_node_ref,
+            self.capacity_pending_child_node_ref,
+            self.capacity_pending_child_index,
+            self.capacity_source_content_hash,
+            self.capacity_limitation_code,
+        )
         if self.schema_version.endswith(".v1"):
-            if self.budget_stop_node_ref is None or self.failed_branches:
+            if (
+                self.budget_stop_node_ref is None
+                or self.failed_branches
+                or any(v is not None for v in capacity)
+            ):
                 raise ValueError("recursive_cycle_budget_checkpoint_shape_invalid")
-        elif self.budget_stop_node_ref is not None or not self.failed_branches:
-            raise ValueError("recursive_cycle_failure_checkpoint_shape_invalid")
+        elif self.schema_version.endswith(".v2"):
+            if (
+                self.budget_stop_node_ref is not None
+                or not self.failed_branches
+                or any(v is not None for v in capacity)
+            ):
+                raise ValueError("recursive_cycle_failure_checkpoint_shape_invalid")
+        elif (
+            self.budget_stop_node_ref is not None
+            or self.failed_branches
+            or any(v is None for v in capacity)
+            or self.capacity_pending_child_node_ref not in self.pending_frontier
+        ):
+            raise ValueError("recursive_cycle_capacity_checkpoint_shape_invalid")
         return self
 
 
@@ -2806,6 +3022,103 @@ class RunCandidateSimulationCurrentOccurrence(BaseModel):
     source_content_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
     front: Literal["decision", "research", "quarantine", "portfolio"]
     certified_by_n9: bool
+    candidate_basis_cycle_index: int | None = Field(
+        default=None, ge=0, exclude_if=lambda value: value is None
+    )
+    candidate_basis_content_hash: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$", exclude_if=lambda value: value is None
+    )
+    candidate_basis_status: (
+        Literal["prior_basis_not_revalidated", "recorded_on_selected_basis"] | None
+    ) = Field(default=None, exclude_if=lambda value: value is None)
+    candidate_basis_limitation_code: (
+        Literal["candidate_source_basis_prior_occurrence_not_revalidated"] | None
+    ) = Field(default=None, exclude_if=lambda value: value is None)
+    historical_front: Literal["decision", "research", "quarantine", "portfolio"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    historical_certified_by_n9: bool | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    historical_value_status: RunN6CycleValueStatus | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    historical_value_decision_grade: RunN6CycleValueDecisionGrade | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    historical_value_ref: str | None = Field(default=None, exclude_if=lambda value: value is None)
+    historical_value_blockers: tuple[str, ...] = Field(
+        default=(), exclude_if=lambda value: not value
+    )
+    value_status: RunN6CycleValueStatus | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    value_decision_grade: RunN6CycleValueDecisionGrade | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    value_ref: str | None = Field(default=None, exclude_if=lambda value: value is None)
+    value_blockers: tuple[str, ...] = Field(default=(), exclude_if=lambda value: not value)
+
+    @model_validator(mode="after")
+    def _bind_candidate_basis(self) -> RunCandidateSimulationCurrentOccurrence:
+        metadata = (
+            self.candidate_basis_cycle_index,
+            self.candidate_basis_content_hash,
+            self.candidate_basis_status,
+            self.candidate_basis_limitation_code,
+            self.historical_front,
+            self.historical_certified_by_n9,
+            self.historical_value_status,
+            self.historical_value_decision_grade,
+            self.historical_value_ref,
+            self.value_status,
+            self.value_decision_grade,
+            self.value_ref,
+        )
+        if not any(value is not None for value in metadata) and not (
+            self.historical_value_blockers or self.value_blockers
+        ):
+            return self
+        basis_index = self.candidate_basis_cycle_index
+        if basis_index is None or any(
+            value is None
+            for value in (
+                self.candidate_basis_content_hash,
+                self.candidate_basis_status,
+                self.historical_front,
+                self.historical_certified_by_n9,
+                self.historical_value_status,
+                self.value_status,
+            )
+        ):
+            raise ValueError("run_candidate_occurrence_basis_projection_incomplete")
+        if self.certified_by_n9 or self.front == "decision" or self.value_status == "value_ready":
+            raise ValueError("run_candidate_occurrence_basis_projection_invalid")
+        limitation = "candidate_source_basis_prior_occurrence_not_revalidated"
+        if self.cycle_index < basis_index:
+            if (
+                self.candidate_basis_status != "prior_basis_not_revalidated"
+                or self.candidate_basis_limitation_code != limitation
+                or self.front
+                != ("quarantine" if self.historical_front == "quarantine" else "research")
+                or self.value_status != "value_pending_n8"
+                or self.value_ref is not None
+                or self.value_decision_grade is not None
+                or limitation not in self.value_blockers
+            ):
+                raise ValueError("run_candidate_occurrence_basis_projection_invalid")
+        elif (
+            self.candidate_basis_status != "recorded_on_selected_basis"
+            or self.candidate_basis_limitation_code is not None
+            or self.front != self.historical_front
+            or self.certified_by_n9 != self.historical_certified_by_n9
+            or self.value_status != self.historical_value_status
+            or self.value_ref != self.historical_value_ref
+            or self.value_decision_grade != self.historical_value_decision_grade
+            or self.value_blockers != self.historical_value_blockers
+        ):
+            raise ValueError("run_candidate_occurrence_basis_projection_invalid")
+        return self
 
 
 class RunCandidateSimulationContinuationFronts(BaseModel):
@@ -2817,6 +3130,148 @@ class RunCandidateSimulationContinuationFronts(BaseModel):
     research_candidate_ids: tuple[str, ...]
     quarantine_candidate_ids: tuple[str, ...]
     portfolio_candidate_ids: tuple[str, ...]
+
+
+class RunCandidateSourceCurrentProjection(BaseModel):
+    """One reopened candidate-basis fold; no deployment or publication authority."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: Literal["resolved", "not_established"]
+    generation_run_content_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    basis_cycle_index: int | None = Field(default=None, ge=0)
+    basis_transition_content_hash: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    occurrences: tuple[RunCandidateSimulationCurrentOccurrence, ...] = ()
+    fronts: RunCandidateSimulationContinuationFronts | None = None
+    certified_candidate_ids: tuple[str, ...] = ()
+    issues: tuple[str, ...] = ()
+    authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
+    currentness_status: Literal["not_established"] = "not_established"
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _bind_current_candidate_view(self) -> RunCandidateSourceCurrentProjection:
+        if self.status == "not_established":
+            if (
+                self.generation_run_content_hash is not None
+                or self.basis_cycle_index is not None
+                or self.basis_transition_content_hash is not None
+                or self.occurrences
+                or self.fronts is not None
+                or self.certified_candidate_ids
+                or not self.issues
+            ):
+                raise ValueError("run_candidate_current_unavailable_binding_invalid")
+            return self
+        if (
+            self.generation_run_content_hash is None
+            or self.basis_cycle_index is None
+            or self.basis_transition_content_hash is None
+            or self.fronts is None
+            or self.certified_candidate_ids
+            or self.issues
+            or self.fronts.decision_candidate_ids
+        ):
+            raise ValueError("run_candidate_current_projection_basis_missing")
+        ids = tuple(row.candidate_id for row in self.occurrences)
+        front_ids = (
+            *self.fronts.decision_candidate_ids,
+            *self.fronts.research_candidate_ids,
+            *self.fronts.quarantine_candidate_ids,
+            *self.fronts.portfolio_candidate_ids,
+        )
+        if (
+            len(ids) != len(set(ids))
+            or len(front_ids) != len(set(front_ids))
+            or set(front_ids) != set(ids)
+            or any(
+                row.candidate_basis_cycle_index != self.basis_cycle_index
+                or row.candidate_basis_content_hash != self.basis_transition_content_hash
+                or row.candidate_basis_status is None
+                or row.certified_by_n9
+                or row.candidate_id not in getattr(self.fronts, f"{row.front}_candidate_ids")
+                for row in self.occurrences
+            )
+        ):
+            raise ValueError("run_candidate_current_projection_occurrence_binding_invalid")
+        return self
+
+
+class _RunCandidateSimulationRevisionRefs(BaseModel):
+    """Display the owner-replayed candidate model change, without granting authority.
+
+    Runtime resolves the selected terminal, decision and both complete bases
+    before constructing this projection. Validating these references alone is
+    not that replay and does not establish an empirical replication.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    evaluation_decision_ref: ArtifactRef
+    previous_input_ref: ArtifactRef
+    selected_input_ref: ArtifactRef
+    previous_declaration_ref: ArtifactRef
+    selected_declaration_ref: ArtifactRef
+    previous_ncm_ref: ArtifactRef
+    selected_ncm_ref: ArtifactRef
+    previous_basis_ref: ArtifactRef
+    selected_basis_ref: ArtifactRef
+    predicate_provenance: Literal["recomputed"] = "recomputed"
+    authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _bind_selected_model_refs(self) -> _RunCandidateSimulationRevisionRefs:
+        for names, kind in (
+            (("evaluation_decision_ref",), "runtime_quality.acquisition_evaluation_decision"),
+            (
+                ("previous_input_ref", "selected_input_ref"),
+                "runtime.quality.candidate_simulation_n5_input",
+            ),
+            (
+                ("previous_declaration_ref", "selected_declaration_ref"),
+                "runtime.quality.candidate_simulation_model_declaration",
+            ),
+            (("previous_ncm_ref", "selected_ncm_ref"), "ir.ncm_spec"),
+            (
+                ("previous_basis_ref", "selected_basis_ref"),
+                "runtime_quality.acquisition_evaluation_basis",
+            ),
+        ):
+            refs = tuple(getattr(self, name) for name in names)
+            if any(
+                ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+                for ref in refs
+            ) or (
+                len(refs) == 2
+                and artifact_ref_identity_key(refs[0]) == artifact_ref_identity_key(refs[1])
+            ):
+                raise ValueError("candidate_model_revision_projection_refs_invalid")
+        return self
+
+
+class RunCandidateSimulationModelRevision(_RunCandidateSimulationRevisionRefs):
+    """A replayed coefficient-only candidate model change, not new empirical evidence."""
+
+    changed_field: Literal["outcome_per_target_unit"] = "outcome_per_target_unit"
+
+
+class RunCandidateSimulationAcquiredOutcomeRevision(_RunCandidateSimulationRevisionRefs):
+    """Owner-replayed acquired outcome baseline, distinct from coefficient inference."""
+
+    admitted_source_ref: ArtifactRef
+    outcome_world_slot: str = Field(min_length=1)
+    changed_field: Literal["outcome_baseline"] = "outcome_baseline"
+
+    @model_validator(mode="after")
+    def _bind_admitted_source(self) -> RunCandidateSimulationAcquiredOutcomeRevision:
+        if self.admitted_source_ref.manifest_profile_sha256 is None:
+            raise ValueError("candidate_acquired_outcome_source_profile_missing")
+        return self
 
 
 class RunCandidateSimulationAcquisitionContinuationProjection(BaseModel):
@@ -2847,6 +3302,12 @@ class RunCandidateSimulationAcquisitionContinuationProjection(BaseModel):
     selected_target_baseline_hash: str | None = Field(
         default=None, pattern=r"^sha256:[0-9a-f]{64}$"
     )
+    model_revision: RunCandidateSimulationModelRevision | None = None
+    acquired_outcome_revision: RunCandidateSimulationAcquiredOutcomeRevision | None = None
+    selected_simulation_status: (
+        Literal["joint_simulated", "simulation_pending_n5", "simulation_blocked"] | None
+    ) = None
+    selected_simulation_authority_blockers: tuple[str, ...] = ()
     source_currentness_status: Literal["current", "stale", "not_established"]
     source_currentness_reason: str = Field(min_length=1)
     continuation_currentness_status: Literal["current", "stale", "not_established"]
@@ -2864,6 +3325,11 @@ class RunCandidateSimulationAcquisitionContinuationProjection(BaseModel):
     def _bind_n9_current_front(
         self,
     ) -> RunCandidateSimulationAcquisitionContinuationProjection:
+        basis_revisions = tuple(
+            revision
+            for revision in (self.model_revision, self.acquired_outcome_revision)
+            if revision is not None
+        )
         current_ids = {row.candidate_id for row in self.current_candidate_occurrences}
         front_ids = (
             *self.current_fronts.decision_candidate_ids,
@@ -2902,6 +3368,22 @@ class RunCandidateSimulationAcquisitionContinuationProjection(BaseModel):
                 and self.selected_target_baseline_hash is not None
                 and self.previous_selected_target_baseline_hash
                 == self.selected_target_baseline_hash
+                and not basis_revisions
+            )
+            or len(basis_revisions) > 1
+            or (
+                basis_revisions
+                and (
+                    self.previous_n5_input_ref is None
+                    or artifact_ref_identity_key(basis_revisions[0].previous_input_ref)
+                    != artifact_ref_identity_key(self.previous_n5_input_ref)
+                    or artifact_ref_identity_key(basis_revisions[0].selected_input_ref)
+                    != artifact_ref_identity_key(self.selected_n5_input_ref)
+                    or self.previous_selected_target_baseline_hash is None
+                    or self.selected_target_baseline_hash is None
+                    or self.previous_selected_target_baseline_hash
+                    != self.selected_target_baseline_hash
+                )
             )
             or (self.n9_status != "certified_current_valid" and self.n9_certified_candidate_ids)
             or (
@@ -2946,6 +3428,8 @@ class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
         Literal["not_supplied", "observed_only", "verified_same_candidate_root"] | None
     ) = None
     continuation: RunCandidateSimulationAcquisitionContinuationProjection | None = None
+    selected_n5_observation: RunCandidateSimulationN5Observation | None = None
+    evaluation_provenance: Literal["new_execution"] | None = None
     currentness_status: Literal["not_established"] = "not_established"
     authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
     publication_authority: Literal[False] = False
@@ -3023,6 +3507,8 @@ class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
                     for value in (*reentry_fields, self.expected_origin_source_ref)
                 )
                 or self.continuation is not None
+                or self.selected_n5_observation is not None
+                or self.evaluation_provenance is not None
                 or self.reentry_receipt_schema_version is not None
                 or (
                     metadata_present
@@ -3119,8 +3605,12 @@ class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
                 != continuation.selected_profile_selection_ref
                 or continuation.previous_selected_target_baseline_hash is None
                 or continuation.selected_target_baseline_hash is None
-                or continuation.previous_selected_target_baseline_hash
-                == continuation.selected_target_baseline_hash
+                or (
+                    continuation.previous_selected_target_baseline_hash
+                    == continuation.selected_target_baseline_hash
+                    and continuation.model_revision is None
+                    and continuation.acquired_outcome_revision is None
+                )
                 or artifact_ref_identity_key(continuation.previous_n4_source_ref)
                 == artifact_ref_identity_key(continuation.selected_n4_source_ref)
                 or artifact_ref_identity_key(continuation.previous_n5_input_ref)
@@ -3128,6 +3618,42 @@ class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
             )
         ):
             raise ValueError("candidate_acquisition_same_candidate_continuation_binding_invalid")
+        observation = self.selected_n5_observation
+        if observation is not None and (
+            self.evaluation_provenance != "new_execution"
+            or continuation is None
+            or observation.status != "joint_simulated"
+            or continuation.selected_simulation_status not in {None, "joint_simulated"}
+            or observation.result_body_status != "resolved"
+            or observation.result_body is None
+            or observation.candidate_id != self.new_candidate_id
+            or observation.cycle_index != continuation.continued_cycle_index
+            or observation.n4_source_ref is None
+            or artifact_ref_identity_key(observation.n4_source_ref)
+            != artifact_ref_identity_key(continuation.selected_n4_source_ref)
+            or observation.n5_input_ref is None
+            or artifact_ref_identity_key(observation.n5_input_ref)
+            != artifact_ref_identity_key(continuation.selected_n5_input_ref)
+            or observation.profile_selection_ref != continuation.selected_profile_selection_ref
+        ):
+            raise ValueError("candidate_acquisition_selected_n5_observation_binding_invalid")
+        if observation is None and self.evaluation_provenance is not None:
+            raise ValueError("candidate_acquisition_evaluation_provenance_without_observation")
+        revision = (
+            continuation.model_revision or continuation.acquired_outcome_revision
+            if continuation is not None
+            else None
+        )
+        if (
+            observation is not None
+            and revision is not None
+            and (
+                observation.result_body.model_declaration_ref is None
+                or artifact_ref_identity_key(observation.result_body.model_declaration_ref)
+                != artifact_ref_identity_key(revision.selected_declaration_ref)
+            )
+        ):
+            raise ValueError("candidate_acquisition_revision_numerical_model_binding_invalid")
         return self
 
 
@@ -3174,6 +3700,103 @@ class RunCandidateSimulationRetainedEvaluation(BaseModel):
         return self
 
 
+RunN6CycleSearchTerminalKind = Literal[
+    "a_spec_gap",
+    "tool_failure",
+    "composition_invalid",
+    "recursive_blocked",
+    "search_ceiling_repair_required",
+    "human_decision_required",
+    "acquisition_required",
+    "budget_exhausted",
+    "frontier_stable",
+    "grounded_admissible",
+    "grounded_partial_admissible",
+    "grounded_abstention",
+]
+RunN6CycleRefinementDecision = Literal[
+    "refine",
+    "acquire",
+    "reframe",
+    "decompose",
+    "human_decision",
+    "abstain",
+    "block_candidate",
+    "stop",
+]
+RunN6CycleSearchIterationStatus = Literal[
+    "blocked",
+    "blocked_no_retry",
+    "governance_required",
+    "acquisition_required",
+    "abstained",
+    "stopped",
+    "refined_shadow",
+]
+RunN6CycleGroundingStatus = Literal[
+    "current_valid",
+    "grounded_shadow",
+    "grounding_gap",
+    "grounding_failed",
+    "grounding_unavailable",
+]
+RunN6CycleValueStatus = Literal[
+    "value_pending_n8",
+    "value_ready",
+    "value_conditional",
+    "value_blocked",
+]
+RunN6CycleValueDecisionGrade = Literal["blocked", "low", "medium", "high"]
+RunN6CycleVoiAction = Literal["advance", "stop", "escalate", "blocked"]
+RunN6CycleRunTerminalStatus = Literal["completed", "blocked"]
+
+
+class RunCandidateSimulationCheapConsequences(BaseModel):
+    """Verified cheap reactions at a recorded action, without a new N5 occurrence."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_cycle_index: int = Field(ge=0)
+    candidate_id: str = Field(min_length=1)
+    candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    grounding_status: RunN6CycleGroundingStatus
+    grounding_current_valid: bool
+    value_status: RunN6CycleValueStatus
+    value_decision_grade: RunN6CycleValueDecisionGrade | None = None
+    value_authority_blockers: tuple[str, ...] = ()
+    value_ref: str | None = None
+    voi_next_action: RunN6CycleVoiAction
+    voi_reason: str = Field(min_length=1)
+    terminal_kind: RunN6CycleSearchTerminalKind
+    refinement_decision: RunN6CycleRefinementDecision
+    search_iteration_status: RunN6CycleSearchIterationStatus
+    current_planner_report_ref: ArtifactRef | None = None
+    scope: Literal["current_cheap_consequences_at_recorded_action"] = (
+        "current_cheap_consequences_at_recorded_action"
+    )
+    numerical_provenance: Literal["retained_prior"] = "retained_prior"
+
+    @model_validator(mode="after")
+    def _bind_cheap_projection(self) -> RunCandidateSimulationCheapConsequences:
+        if self.voi_next_action == "stop":
+            decision = n6_stop_projection_decision(self.terminal_kind)
+            if self.refinement_decision != decision or self.search_iteration_status != (
+                "abstained" if decision == "abstain" else "stopped"
+            ):
+                raise ValueError("run_candidate_cheap_stop_projection_mismatch")
+        elif self.refinement_decision in {"stop", "abstain"} or self.search_iteration_status in {
+            "stopped",
+            "abstained",
+        }:
+            raise ValueError("run_candidate_cheap_stop_action_mismatch")
+        ref = self.current_planner_report_ref
+        if ref is not None and (
+            ref.kind != "runtime.acquisition_planner_report" or ref.media_type != "application/json"
+        ):
+            raise ValueError("run_candidate_cheap_planner_ref_invalid")
+        return self
+
+
 class RunCandidateSimulationAcquisitionHistoryEntryV3(BaseModel):
     """Verified source admission with an unchanged, separate evaluation occurrence.
 
@@ -3193,6 +3816,9 @@ class RunCandidateSimulationAcquisitionHistoryEntryV3(BaseModel):
     evaluation_decision_ref: ArtifactRef
     current_continuation_ref: ArtifactRef
     retained_evaluation: RunCandidateSimulationRetainedEvaluation
+    selected_n5_observation: RunCandidateSimulationN5Observation | None = None
+    evaluation_provenance: Literal["retained_prior"] = "retained_prior"
+    current_cheap_consequences: RunCandidateSimulationCheapConsequences | None = None
     source_admission_status: Literal["admitted"] = "admitted"
     evaluation_disposition: Literal["retained_prior"] = "retained_prior"
     reentry_receipt_ref: None = None
@@ -3225,6 +3851,346 @@ class RunCandidateSimulationAcquisitionHistoryEntryV3(BaseModel):
                 raise ValueError("candidate_acquisition_retention_ref_invalid")
         if self.admitted_source_ref.manifest_profile_sha256 is None:
             raise ValueError("candidate_acquisition_admitted_source_profile_missing")
+        observation = self.selected_n5_observation
+        selected = self.retained_evaluation
+        cheap = self.current_cheap_consequences
+        if cheap is not None and (
+            cheap.source_cycle_index != selected.cycle_index
+            or cheap.candidate_id != selected.candidate_id
+            or cheap.candidate_content_hash != selected.candidate_content_hash
+        ):
+            raise ValueError("candidate_retained_current_cheap_subject_mismatch")
+        if observation is not None and (
+            observation.status != "joint_simulated"
+            or observation.result_body_status != "resolved"
+            or observation.result_body is None
+            or observation.candidate_id != selected.candidate_id
+            or observation.cycle_index != selected.cycle_index
+            or any(
+                getattr(observation, observed_name) is None
+                or artifact_ref_identity_key(getattr(observation, observed_name))
+                != artifact_ref_identity_key(getattr(selected, selected_name))
+                for observed_name, selected_name in (
+                    ("n4_source_ref", "n4_source_ref"),
+                    ("context_job_ref", "context_job_ref"),
+                    ("n5_input_ref", "n5_input_ref"),
+                    ("n5_execution_ref", "n5_execution_ref"),
+                    ("simulation_result_ref", "n5_result_ref"),
+                )
+            )
+        ):
+            raise ValueError("candidate_acquisition_retained_n5_observation_binding_invalid")
+        return self
+
+
+class RunCandidateSimulationAcquisitionHistoryEntryV4(BaseModel):
+    """Owner-replayed candidate-only source continuation, not observed admission."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal["policyos.runtime.run_candidate_simulation_acquisition_history.v4"] = (
+        "policyos.runtime.run_candidate_simulation_acquisition_history.v4"
+    )
+    route_receipt_ref: ArtifactRef
+    reentry_receipt_ref: ArtifactRef
+    route_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    action_generation: int = Field(ge=1)
+    terminal_outcome: Literal["candidate_reentry_completed"] = "candidate_reentry_completed"
+    candidate_action_ref: ArtifactRef
+    candidate_source_ref: ArtifactRef
+    data_snapshot_ref: ArtifactRef
+    world_model_ref: ArtifactRef
+    context_job_ref: ArtifactRef
+    model_declaration_ref: ArtifactRef
+    ncm_ref: ArtifactRef
+    n4_source_ref: ArtifactRef | None = None
+    n5_input_ref: ArtifactRef | None = None
+    n5_execution_ref: ArtifactRef | None = None
+    n5_result_ref: ArtifactRef | None = None
+    simulation_status: Literal["joint_simulated", "simulation_pending_n5", "simulation_blocked"]
+    simulation_authority_blockers: tuple[str, ...] = ()
+    source_cycle_index: int = Field(ge=0)
+    continued_cycle_index: int = Field(ge=0)
+    source_generation_run_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    continued_generation_run_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    basis_transition_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    limitations: tuple[str, ...] = Field(min_length=1)
+    observed_admission: Literal[False] = False
+    currentness_status: Literal["not_established"] = "not_established"
+    authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _bind_candidate_refs(self) -> RunCandidateSimulationAcquisitionHistoryEntryV4:
+        for ref, kind in (
+            (self.route_receipt_ref, "runtime_quality.acquisition_route_loop_receipt"),
+            (self.reentry_receipt_ref, "runtime_quality.candidate_source_reentry_receipt"),
+            (self.candidate_action_ref, "runtime_quality.acquisition_candidate_action_receipt"),
+            (self.candidate_source_ref, "runtime.quality.candidate_acquisition_source"),
+            (self.data_snapshot_ref, "fabric.data_snapshot"),
+            (self.world_model_ref, "runtime.quality.world_model_record"),
+            (self.context_job_ref, "runtime.quality.cycle_substrate_context_job"),
+            (self.model_declaration_ref, "runtime.quality.candidate_simulation_model_declaration"),
+            (self.ncm_ref, "ir.ncm_spec"),
+            (self.n4_source_ref, "runtime.quality.n4_candidate_scenario_source"),
+            (self.n5_input_ref, "runtime.quality.candidate_simulation_n5_input"),
+            (self.n5_execution_ref, "runtime.quality.candidate_simulation_execution"),
+            (self.n5_result_ref, "polisyos.runtime.joint_simulation_result"),
+        ):
+            if ref is not None and (
+                ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("candidate_acquisition_v4_ref_invalid")
+        if self.continued_cycle_index <= self.source_cycle_index:
+            raise ValueError("candidate_acquisition_v4_cycle_invalid")
+        return self
+
+
+class RunCandidateSimulationAcquisitionHistoryEntryV5(BaseModel):
+    """Verified candidate terminal and historical frontier, without admission authority."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal["policyos.runtime.run_candidate_simulation_acquisition_history.v5"] = (
+        "policyos.runtime.run_candidate_simulation_acquisition_history.v5"
+    )
+    route_receipt_ref: ArtifactRef
+    route_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    action_generation: int = Field(ge=1)
+    terminal_outcome: Literal["candidate_reentry_completed", "candidate_evaluation_retained"]
+    candidate_action_ref: ArtifactRef
+    candidate_source_ref: ArtifactRef
+    evaluation_decision_ref: ArtifactRef
+    current_basis_ref: ArtifactRef
+    selected_basis_ref: ArtifactRef
+    selected_evaluation_witness_ref: ArtifactRef
+    comparison_result: Literal["equivalent", "different", "not_established"]
+    predicate_provenance: Literal["recomputed", "not_established"]
+    comparison_reason_codes: tuple[str, ...] = ()
+    selected_basis_role: Literal["evaluated", "blocked"]
+    current_basis_provenance: Literal["recomputed", "not_established"]
+    selected_basis_provenance: Literal["recomputed", "not_established"]
+    current_basis_limitations: tuple[str, ...] = Field(min_length=1)
+    selected_basis_limitations: tuple[str, ...] = Field(min_length=1)
+    frontier_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    frontier_revision: int = Field(ge=1)
+    frontier_selection: Literal["selected", "superseded"]
+    selected_evaluation: RunCandidateSimulationRetainedEvaluation | None = None
+    selected_n5_observation: RunCandidateSimulationN5Observation | None = None
+    reentry: RunCandidateSimulationAcquisitionHistoryEntryV4 | None = None
+    current_continuation_ref: ArtifactRef | None = None
+    current_cheap_consequences: RunCandidateSimulationCheapConsequences | None = None
+    evaluation_provenance: Literal["new_execution", "retained_prior", "not_established"]
+    observed_admission: Literal[False] = False
+    currentness_status: Literal["not_established"] = "not_established"
+    authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _bind_candidate_terminal(self) -> RunCandidateSimulationAcquisitionHistoryEntryV5:
+        for ref, kind in (
+            (self.route_receipt_ref, "runtime_quality.acquisition_route_loop_receipt"),
+            (self.candidate_action_ref, "runtime_quality.acquisition_candidate_action_receipt"),
+            (self.candidate_source_ref, "runtime.quality.candidate_acquisition_source"),
+            (self.evaluation_decision_ref, "runtime_quality.acquisition_evaluation_decision"),
+            (self.current_basis_ref, "runtime_quality.acquisition_evaluation_basis"),
+            (self.selected_basis_ref, "runtime_quality.acquisition_evaluation_basis"),
+            (
+                self.current_continuation_ref,
+                "runtime_quality.candidate_acquisition_retained_continuation",
+            ),
+        ):
+            if ref is not None and (
+                ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("candidate_acquisition_v5_selected_ref_invalid")
+        witness_kind = (
+            "runtime.quality.candidate_simulation_execution"
+            if self.selected_evaluation is not None
+            else "runtime_quality.candidate_source_reentry_receipt"
+        )
+        if (
+            self.selected_evaluation_witness_ref.kind != witness_kind
+            or self.selected_evaluation_witness_ref.media_type != "application/json"
+            or self.selected_evaluation_witness_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("candidate_acquisition_v5_witness_invalid")
+        if (self.comparison_result == "not_established") != (
+            self.predicate_provenance == "not_established"
+        ) or (self.predicate_provenance == "recomputed") == bool(self.comparison_reason_codes):
+            raise ValueError("candidate_acquisition_v5_comparison_invalid")
+        if (self.selected_evaluation is None) != (self.selected_basis_role == "blocked") or (
+            self.selected_basis_role == "blocked"
+            and self.selected_basis_provenance != "not_established"
+        ):
+            raise ValueError("candidate_acquisition_v5_basis_invalid")
+        observation = self.selected_n5_observation
+        selected = self.selected_evaluation
+        if observation is not None and (
+            selected is None
+            or observation.status != "joint_simulated"
+            or observation.result_body_status != "resolved"
+            or observation.result_body is None
+            or observation.candidate_id != selected.candidate_id
+            or observation.cycle_index != selected.cycle_index
+            or any(
+                getattr(observation, observed_name) is None
+                or artifact_ref_identity_key(getattr(observation, observed_name))
+                != artifact_ref_identity_key(getattr(selected, selected_name))
+                for observed_name, selected_name in (
+                    ("n4_source_ref", "n4_source_ref"),
+                    ("context_job_ref", "context_job_ref"),
+                    ("n5_input_ref", "n5_input_ref"),
+                    ("n5_execution_ref", "n5_execution_ref"),
+                    ("simulation_result_ref", "n5_result_ref"),
+                )
+            )
+        ):
+            raise ValueError("candidate_acquisition_v5_observation_invalid")
+        if self.current_cheap_consequences is not None and (
+            selected is None
+            or self.current_cheap_consequences.source_cycle_index != selected.cycle_index
+            or self.current_cheap_consequences.candidate_id != selected.candidate_id
+            or self.current_cheap_consequences.candidate_content_hash
+            != selected.candidate_content_hash
+        ):
+            raise ValueError("candidate_acquisition_v5_cheap_subject_invalid")
+        if self.selected_evaluation is None:
+            if (
+                self.selected_n5_observation is not None
+                or self.evaluation_provenance != "not_established"
+            ):
+                raise ValueError("candidate_acquisition_v5_blocked_result_invalid")
+        elif artifact_ref_identity_key(
+            self.selected_evaluation.basis_ref
+        ) != artifact_ref_identity_key(self.selected_basis_ref) or artifact_ref_identity_key(
+            self.selected_evaluation.n5_execution_ref
+        ) != artifact_ref_identity_key(self.selected_evaluation_witness_ref):
+            raise ValueError("candidate_acquisition_v5_evaluation_invalid")
+        if self.terminal_outcome == "candidate_evaluation_retained":
+            if (
+                self.reentry is not None
+                or self.current_continuation_ref is None
+                or self.current_cheap_consequences is None
+                or self.selected_evaluation is None
+                or self.evaluation_provenance != "retained_prior"
+                or self.comparison_result != "equivalent"
+                or self.predicate_provenance != "recomputed"
+            ):
+                raise ValueError("candidate_acquisition_v5_retention_invalid")
+        elif (
+            self.reentry is None
+            or self.comparison_result == "equivalent"
+            or self.current_continuation_ref is not None
+            or self.current_cheap_consequences is not None
+            or self.evaluation_provenance
+            != ("new_execution" if self.selected_evaluation else "not_established")
+            or artifact_ref_identity_key(self.reentry.route_receipt_ref)
+            != artifact_ref_identity_key(self.route_receipt_ref)
+            or artifact_ref_identity_key(self.reentry.candidate_action_ref)
+            != artifact_ref_identity_key(self.candidate_action_ref)
+            or artifact_ref_identity_key(self.reentry.candidate_source_ref)
+            != artifact_ref_identity_key(self.candidate_source_ref)
+            or self.reentry.route_id != self.route_id
+            or self.reentry.action_generation != self.action_generation
+            or (self.reentry.simulation_status == "joint_simulated")
+            != (self.selected_evaluation is not None)
+            or (
+                self.selected_evaluation is None
+                and artifact_ref_identity_key(self.reentry.reentry_receipt_ref)
+                != artifact_ref_identity_key(self.selected_evaluation_witness_ref)
+            )
+            or (
+                self.selected_evaluation is not None
+                and any(
+                    getattr(self.reentry, entry_field) is None
+                    or artifact_ref_identity_key(getattr(self.reentry, entry_field))
+                    != artifact_ref_identity_key(getattr(self.selected_evaluation, selected_field))
+                    for entry_field, selected_field in (
+                        ("n4_source_ref", "n4_source_ref"),
+                        ("context_job_ref", "context_job_ref"),
+                        ("n5_input_ref", "n5_input_ref"),
+                        ("n5_execution_ref", "n5_execution_ref"),
+                        ("n5_result_ref", "n5_result_ref"),
+                    )
+                )
+            )
+        ):
+            raise ValueError("candidate_acquisition_v5_reentry_invalid")
+        return self
+
+
+class RunCandidateEvaluationAttemptProjection(BaseModel):
+    """One owner-history-replayed local refusal, not a numerical verification."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    node_ref: str = Field(min_length=1)
+    candidate_id: str = Field(min_length=1)
+    candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    cycle_index: int = Field(ge=0)
+    problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    attempt_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    failure_stage: Literal["n5", "n8"]
+    failure_scope: Literal["candidate_local"] = "candidate_local"
+    simulation_status: Literal["joint_simulated", "simulation_pending_n5", "simulation_blocked"]
+    simulation_authority_blockers: tuple[str, ...] = ()
+    simulation_ref: str | None = None
+    n4_source_ref: ArtifactRef | None = None
+    context_job_ref: ArtifactRef | None = None
+    n5_input_ref: ArtifactRef | None = None
+    n5_execution_ref: ArtifactRef | None = None
+    simulation_result_ref: ArtifactRef | None = None
+    profile_selection_ref: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    value_status: RunN6CycleValueStatus
+    value_decision_grade: RunN6CycleValueDecisionGrade | None = None
+    value_ref: str | None = None
+    value_authority_blockers: tuple[str, ...] = ()
+    selected_method_fqn: str | None = None
+    scope: Literal["recorded_candidate_attempt"] = "recorded_candidate_attempt"
+    numerical_result_verification: Literal["not_established"] = "not_established"
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _bind_recorded_failure(self) -> RunCandidateEvaluationAttemptProjection:
+        if (self.failure_stage == "n5" and self.simulation_status != "simulation_blocked") or (
+            self.failure_stage == "n8"
+            and (
+                self.simulation_status != "joint_simulated" or self.value_status != "value_blocked"
+            )
+        ):
+            raise ValueError("run_candidate_attempt_failure_stage_mismatch")
+        for ref, kinds in (
+            (
+                self.n4_source_ref,
+                {
+                    "runtime.quality.n4_candidate_scenario_source",
+                    "runtime.generation_source_handoff",
+                },
+            ),
+            (self.context_job_ref, {"runtime.quality.cycle_substrate_context_job"}),
+            (
+                self.n5_input_ref,
+                {
+                    "runtime.quality.candidate_simulation_n5_input",
+                    "runtime.quality.generic_cycle_simulation_n5_input",
+                },
+            ),
+            (
+                self.n5_execution_ref,
+                {
+                    "runtime.quality.candidate_simulation_execution",
+                    "runtime.quality.generic_cycle_simulation_n5_execution",
+                },
+            ),
+            (self.simulation_result_ref, {"polisyos.runtime.joint_simulation_result"}),
+        ):
+            if ref is not None and (ref.kind not in kinds or ref.media_type != "application/json"):
+                raise ValueError("run_candidate_attempt_recorded_ref_invalid")
         return self
 
 
@@ -3291,9 +4257,20 @@ class RunCandidateSimulationProjection(BaseModel):
     ) = None
     n5_observations: tuple[RunCandidateSimulationN5Observation, ...] = ()
     recursive_cycle_checkpoint: RunRecursiveCycleCheckpoint | None = None
+    candidate_source_current_projection: RunCandidateSourceCurrentProjection | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    candidate_evaluation_attempts: tuple[RunCandidateEvaluationAttemptProjection, ...] = Field(
+        default=(), exclude_if=lambda value: not value
+    )
+    candidate_evaluation_attempts_limitation_code: (
+        Literal["candidate_attempt_context_history_not_established"] | None
+    ) = Field(default=None, exclude_if=lambda value: value is None)
     acquisition_history: tuple[
         RunCandidateSimulationAcquisitionHistoryEntry
-        | RunCandidateSimulationAcquisitionHistoryEntryV3,
+        | RunCandidateSimulationAcquisitionHistoryEntryV3
+        | RunCandidateSimulationAcquisitionHistoryEntryV4
+        | RunCandidateSimulationAcquisitionHistoryEntryV5,
         ...,
     ] = ()
     acquisition_history_limitation_code: (
@@ -3309,6 +4286,13 @@ class RunCandidateSimulationProjection(BaseModel):
 
     @model_validator(mode="after")
     def _verify_candidate_projection_source(self) -> RunCandidateSimulationProjection:
+        if (
+            self.candidate_source_current_projection is not None
+            and self.artifact_status != "resolved"
+        ):
+            raise ValueError("candidate_current_projection_source_not_resolved")
+        if self.artifact_status != "resolved" and self.candidate_evaluation_attempts:
+            raise ValueError("candidate_attempt_source_not_resolved")
         if self.artifact_status == "resolved":
             if (
                 self.source_ref is None
@@ -3520,21 +4504,20 @@ class RunGenericCycleSimulationN5Trajectory(BaseModel):
         return self
 
 
-class RunGenericCycleSimulationN5ResultBody(BaseModel):
-    """Typed candidate-only body read from the selected, verified N5 CAS view."""
+class _RunN5FiniteResultBody(BaseModel):
+    """Shared finite payload contract for concrete candidate-only N5 result bodies."""
 
     model_config = ConfigDict(extra="forbid")
-    schema_version: Literal["policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1"] = (
-        "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1"
-    )
+    schema_version: str = Field(min_length=1, strict=True)
     artifact_ref: ArtifactRef
     artifact_schema_name: Literal["policyos.runtime.n5.joint_simulation_result"]
-    artifact_schema_version: Literal["1.0.0", "2.0.0", "3.0.0", "4.0.0"]
+    artifact_schema_version: Literal["1.0.0", "2.0.0", "3.0.0", "4.0.0", "5.0.0"]
     result_schema_version: Literal[
         "policyos.runtime.joint_simulation_horizon.v1",
         "policyos.runtime.joint_simulation_horizon.v2",
         "policyos.runtime.joint_simulation_horizon.v3",
         "policyos.runtime.joint_simulation_horizon.v4",
+        "policyos.runtime.joint_simulation_horizon.v5",
     ]
     selected_manifest_profile_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)
     world_model_record_ref: str = Field(min_length=1, strict=True)
@@ -3544,7 +4527,7 @@ class RunGenericCycleSimulationN5ResultBody(BaseModel):
     horizon: RunGenericCycleSimulationN5Horizon
     trajectories: tuple[RunGenericCycleSimulationN5Trajectory, ...] = Field(min_length=1)
     uncertainty_kind: Literal["K_sim"] = "K_sim"
-    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+    authority_purpose: str = Field(min_length=1, strict=True)
     candidate_status: Literal["candidate_unverified"] = "candidate_unverified"
     currentness_status: Literal["not_established"] = "not_established"
     publication_authority: Literal[False] = False
@@ -3559,12 +4542,13 @@ class RunGenericCycleSimulationN5ResultBody(BaseModel):
         return value
 
     @model_validator(mode="after")
-    def _verify_result_body_binding(self) -> RunGenericCycleSimulationN5ResultBody:
+    def _verify_result_body_binding(self) -> _RunN5FiniteResultBody:
         result_schema_by_artifact_version = {
             "1.0.0": "policyos.runtime.joint_simulation_horizon.v1",
             "2.0.0": "policyos.runtime.joint_simulation_horizon.v2",
             "3.0.0": "policyos.runtime.joint_simulation_horizon.v3",
             "4.0.0": "policyos.runtime.joint_simulation_horizon.v4",
+            "5.0.0": "policyos.runtime.joint_simulation_horizon.v5",
         }
         if (
             self.artifact_ref.kind != "polisyos.runtime.joint_simulation_result"
@@ -3597,6 +4581,209 @@ class RunGenericCycleSimulationN5ResultBody(BaseModel):
                     or not set(self.selected_outcomes).issubset(point.effects)
                 ):
                     raise ValueError("run_generic_n5_result_body_selected_basis_incomplete")
+        return self
+
+
+class RunGenericCycleSimulationN5ResultBody(_RunN5FiniteResultBody):
+    """Typed candidate-only body read from the selected, verified N5 CAS view."""
+
+    schema_version: Literal["policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1"] = (
+        "policyos.runtime.run_generic_cycle_simulation_n5_result_body.v1"
+    )
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+
+
+class RunCandidateSimulationN5ResultBody(_RunN5FiniteResultBody):
+    """Typed N5 result body for one configured candidate observation."""
+
+    schema_version: Literal["policyos.runtime.run_candidate_simulation_n5_result_body.v1"] = (
+        "policyos.runtime.run_candidate_simulation_n5_result_body.v1"
+    )
+    authority_purpose: Literal["candidate_scenario_n5_only"] = "candidate_scenario_n5_only"
+    outcome_units: dict[str, str] = Field(default_factory=dict)
+    unit_provenance: Literal["declared_candidate_model", "not_established"] = "not_established"
+    model_declaration_ref: ArtifactRef | None = None
+
+    @model_validator(mode="after")
+    def _bind_declared_units(self) -> RunCandidateSimulationN5ResultBody:
+        if self.unit_provenance == "declared_candidate_model":
+            ref = self.model_declaration_ref
+            if (
+                set(self.outcome_units) != set(self.selected_outcomes)
+                or any(not unit.strip() for unit in self.outcome_units.values())
+                or ref is None
+                or ref.kind != "runtime.quality.candidate_simulation_model_declaration"
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("run_n5_result_body_declared_units_binding_invalid")
+        elif self.outcome_units or self.model_declaration_ref is not None:
+            raise ValueError("run_n5_result_body_unqualified_units")
+        return self
+
+
+class RunFailedCandidateSimulationProjection(BaseModel):
+    """Candidate-only N5 evidence retained when a later cycle stage fails."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal["policyos.runtime.run_failed_candidate_simulation_projection.v1"] = (
+        "policyos.runtime.run_failed_candidate_simulation_projection.v1"
+    )
+    run_id: str = Field(min_length=1)
+    artifact_status: Literal["resolved", "not_established"]
+    authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
+    publication_authority: Literal[False] = False
+    source_ref: ArtifactRef | None = None
+    source_content_hash: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    limitation_code: (
+        Literal["candidate_n5_output_not_established", "candidate_n5_output_ambiguous"] | None
+    ) = None
+    n5_observations: tuple[RunCandidateSimulationN5Observation, ...] = ()
+    cycle_index: int | None = Field(default=None, ge=0, strict=True)
+    cycle_completed: Literal[False] = False
+    failed_stage: Literal["value_projection", "revision"] | None = None
+    failure_source: Literal["same_control_job"] = "same_control_job"
+
+    @model_validator(mode="after")
+    def _verify_failed_candidate_projection(self) -> RunFailedCandidateSimulationProjection:
+        source_pair_present = self.source_ref is not None and self.source_content_hash is not None
+        if (self.source_ref is None) != (self.source_content_hash is None):
+            raise ValueError("failed_candidate_projection_source_pair_incomplete")
+        if self.source_ref is not None and (
+            self.source_ref.kind != "runtime.quality.candidate_simulation_execution"
+            or self.source_ref.media_type != "application/json"
+            or self.source_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("failed_candidate_projection_source_ref_invalid")
+        if self.artifact_status == "not_established":
+            if self.limitation_code not in {
+                "candidate_n5_output_not_established",
+                "candidate_n5_output_ambiguous",
+            } or any(row.result_body is not None for row in self.n5_observations):
+                raise ValueError("failed_candidate_projection_refusal_not_fail_closed")
+            return self
+        if not source_pair_present or self.limitation_code is not None or not self.n5_observations:
+            raise ValueError("failed_candidate_projection_resolved_source_missing")
+        linked_rows = tuple(
+            row for row in self.n5_observations if row.n5_execution_ref == self.source_ref
+        )
+        if (
+            len(linked_rows) != 1
+            or linked_rows[0].status != "joint_simulated"
+            or linked_rows[0].result_body_status != "resolved"
+            or linked_rows[0].result_body is None
+            or linked_rows[0].lineage_status != "resolved"
+            or linked_rows[0].lineage_limitation_code is not None
+            or linked_rows[0].n4_source_ref is None
+            or linked_rows[0].context_job_ref is None
+            or linked_rows[0].n5_input_ref is None
+            or any(
+                row.result_body is not None and row.n5_execution_ref != self.source_ref
+                for row in self.n5_observations
+            )
+            or (self.cycle_index is not None and linked_rows[0].cycle_index != self.cycle_index)
+        ):
+            raise ValueError("failed_candidate_projection_n5_observation_binding_invalid")
+        return self
+
+
+# These models refer to the candidate-specific result body declared after the
+# shared generic N5 body. Rebuild now that the forward reference is available.
+RunCandidateSimulationN5Observation.model_rebuild()
+RunCandidateSimulationProjection.model_rebuild()
+RunFailedCandidateSimulationProjection.model_rebuild()
+
+
+class RunCandidateValueMethodProjection(BaseModel):
+    """Source-row method evidence alongside a separately qualified simulation."""
+
+    model_config = ConfigDict(extra="forbid")
+    status: Literal["completed", "refused", "not_established"]
+    authority_purpose: Literal["candidate_source_rows_only"] = "candidate_source_rows_only"
+    production_value_eligible: Literal[False] = False
+    publication_authority: Literal[False] = False
+    source_time_status: Literal["not_established"] = "not_established"
+    assignment_provenance: Literal["consumer_asserted"] = "consumer_asserted"
+    record_ref: ArtifactRef | None = None
+    source_request_ref: ArtifactRef | None = None
+    run_basis_ref: ArtifactRef | None = None
+    value_ref: ArtifactRef | None = None
+    selected_method_fqn: str | None = None
+    native_report_ref: ArtifactRef | None = None
+    method_selection_receipt_ref: ArtifactRef | None = None
+    measurement_unit: str | None = Field(default=None, min_length=1)
+    point_estimate: float | None = Field(default=None, allow_inf_nan=False)
+    statistical_interval: tuple[float, float] | None = None
+    value_outer_set: ValueOuterSet | None = None
+    limitation_codes: tuple[str, ...] = Field(min_length=1)
+    reason: str | None = None
+    discovery_limitations: tuple[str, ...] = ()
+    failure_kind: Literal["input_refused", "environment_unavailable", "not_established"] | None = (
+        None
+    )
+
+    @field_validator("value_outer_set", mode="before")
+    @classmethod
+    def _read_persisted_value_set(cls, value: object) -> object:
+        """Verify the canonical derived-width checksum on a public JSON round trip."""
+        if isinstance(value, Mapping):
+            return ValueOuterSet.from_persisted_payload(value)
+        return value
+
+    @model_validator(mode="after")
+    def _verify_candidate_result(self) -> RunCandidateValueMethodProjection:
+        for ref, expected_kind in (
+            (self.record_ref, "runtime.candidate_value_method"),
+            (self.source_request_ref, "runtime.value_owner_source_projection_request"),
+            (self.run_basis_ref, "runtime.value_owner_method_run_basis"),
+            (self.value_ref, "runtime.value_outer_set_candidate_fixture"),
+            (self.native_report_ref, "ir.causal_effect_report"),
+            (self.method_selection_receipt_ref, "runtime.value_owner_method_selection_receipt"),
+        ):
+            if ref is not None and (
+                ref.kind != expected_kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("run_candidate_value_method_selected_ref_invalid")
+        if self.status == "completed":
+            if (
+                any(
+                    ref is None or ref.manifest_profile_sha256 is None
+                    for ref in (
+                        self.record_ref,
+                        self.source_request_ref,
+                        self.run_basis_ref,
+                        self.value_ref,
+                        self.native_report_ref,
+                        self.method_selection_receipt_ref,
+                    )
+                )
+                or self.value_outer_set is None
+                or not self.selected_method_fqn
+                or not self.measurement_unit
+                or self.point_estimate is None
+                or self.statistical_interval is None
+            ):
+                raise ValueError("run_candidate_value_method_completed_binding_missing")
+        elif any(
+            value is not None
+            for value in (
+                self.value_outer_set,
+                self.point_estimate,
+                self.statistical_interval,
+            )
+        ):
+            raise ValueError("run_candidate_value_method_unverified_output_present")
+        if self.statistical_interval is not None and (
+            not all(math.isfinite(value) for value in self.statistical_interval)
+            or self.statistical_interval[0] > self.statistical_interval[1]
+        ):
+            raise ValueError("run_candidate_value_method_statistical_interval_invalid")
         return self
 
 
@@ -3652,6 +4839,9 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
     n8_status: Literal["value_ready", "value_conditional", "value_blocked", "value_pending_n8"]
     n8_lineage_status: Literal["resolved", "not_established"]
     n8_value_ref: str | None = None
+    candidate_value_method: RunCandidateValueMethodProjection | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     n8_authority_blockers: tuple[str, ...] = ()
     n8_limitation_code: str | None = Field(default=None, min_length=1)
     n5_interaction_evidence: RunN5InteractionEvidence | None = None
@@ -3677,6 +4867,8 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
 
     @model_validator(mode="after")
     def _verify_generic_n5_lineage(self) -> RunGenericCycleSimulationN5Observation:
+        if self.candidate_value_method is not None and self.n8_status != "value_conditional":
+            raise ValueError("run_candidate_value_method_requires_conditional_n5")
         _validate_run_n5_interaction_scope(
             self.n5_interaction_evidence,
             atom_ids=self.atom_ids,
@@ -3819,55 +5011,46 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
         return self
 
 
-RunN6CycleSearchTerminalKind = Literal[
-    "a_spec_gap",
-    "tool_failure",
-    "composition_invalid",
-    "recursive_blocked",
-    "search_ceiling_repair_required",
-    "human_decision_required",
-    "acquisition_required",
-    "budget_exhausted",
-    "frontier_stable",
-    "grounded_admissible",
-    "grounded_partial_admissible",
-    "grounded_abstention",
-]
-RunN6CycleRefinementDecision = Literal[
-    "refine",
-    "acquire",
-    "reframe",
-    "decompose",
-    "human_decision",
-    "abstain",
-    "block_candidate",
-    "stop",
-]
-RunN6CycleSearchIterationStatus = Literal[
-    "blocked",
-    "blocked_no_retry",
-    "governance_required",
-    "acquisition_required",
-    "abstained",
-    "stopped",
-    "refined_shadow",
-]
-RunN6CycleGroundingStatus = Literal[
-    "current_valid",
-    "grounded_shadow",
-    "grounding_gap",
-    "grounding_failed",
-    "grounding_unavailable",
-]
-RunN6CycleValueStatus = Literal[
-    "value_pending_n8",
-    "value_ready",
-    "value_conditional",
-    "value_blocked",
-]
-RunN6CycleValueDecisionGrade = Literal["blocked", "low", "medium", "high"]
-RunN6CycleVoiAction = Literal["advance", "stop", "escalate", "blocked"]
-RunN6CycleRunTerminalStatus = Literal["completed", "blocked"]
+N6_TERMINAL_STOP_PROJECTIONS: Mapping[
+    RunN6CycleSearchTerminalKind, Literal["stop", "abstain", "not_stop"]
+] = {
+    "a_spec_gap": "not_stop",
+    "tool_failure": "not_stop",
+    "composition_invalid": "not_stop",
+    "recursive_blocked": "not_stop",
+    "search_ceiling_repair_required": "stop",
+    "human_decision_required": "not_stop",
+    "acquisition_required": "not_stop",
+    "budget_exhausted": "stop",
+    "frontier_stable": "stop",
+    "grounded_admissible": "stop",
+    "grounded_partial_admissible": "stop",
+    "grounded_abstention": "abstain",
+}
+
+
+def n6_stop_projection_decision(terminal_kind: str) -> Literal["stop", "abstain"]:
+    """Return the canonical decision for an already selected N6 stop.
+
+    Args:
+        terminal_kind: Canonical terminal selected by the N6 owner.
+
+    Returns:
+        The distinct normal/resource stop or abstention decision.
+
+    Raises:
+        ValueError: If the terminal denominator changed or this is not a stop.
+    """
+    if set(N6_TERMINAL_STOP_PROJECTIONS) != set(get_args(RunN6CycleSearchTerminalKind)):
+        raise ValueError("n6_stop_terminal_projection_denominator_mismatch")
+    projection = N6_TERMINAL_STOP_PROJECTIONS.get(
+        cast("RunN6CycleSearchTerminalKind", terminal_kind)
+    )
+    if projection == "stop":
+        return "stop"
+    if projection == "abstain":
+        return "abstain"
+    raise ValueError("unsupported_stop_terminal_projection")
 
 
 class RunGenericCycleSimulationN6CycleHistoryEntry(BaseModel):
@@ -3895,6 +5078,21 @@ class RunGenericCycleSimulationN6CycleHistoryEntry(BaseModel):
     value_authority_blockers: tuple[str, ...] = ()
     value_ref: str | None = None
     voi_next_action: RunN6CycleVoiAction
+
+    @model_validator(mode="after")
+    def _bind_stop_siblings(self) -> RunGenericCycleSimulationN6CycleHistoryEntry:
+        if self.voi_next_action == "stop":
+            decision = n6_stop_projection_decision(self.terminal_kind)
+            if self.refinement_decision != decision or self.search_iteration_status != (
+                "abstained" if decision == "abstain" else "stopped"
+            ):
+                raise ValueError("run_generic_n6_stop_projection_mismatch")
+        elif self.refinement_decision in {"stop", "abstain"} or self.search_iteration_status in {
+            "stopped",
+            "abstained",
+        }:
+            raise ValueError("run_generic_n6_stop_action_mismatch")
+        return self
 
 
 class RunGenericCycleSimulationProjection(BaseModel):
@@ -3948,6 +5146,12 @@ class RunGenericCycleSimulationProjection(BaseModel):
     )
     n5_limitation_code: str | None = Field(default=None, min_length=1)
     recursive_cycle_checkpoint: RunRecursiveCycleCheckpoint | None = None
+    candidate_evaluation_attempts: tuple[RunCandidateEvaluationAttemptProjection, ...] = Field(
+        default=(), exclude_if=lambda value: not value
+    )
+    candidate_evaluation_attempts_limitation_code: (
+        Literal["candidate_attempt_context_history_not_established"] | None
+    ) = Field(default=None, exclude_if=lambda value: value is None)
     n6_cycle_history_status: Literal["resolved", "not_established"] | None = None
     n6_cycle_history_limitation_code: Literal["n6_cycle_history_not_emitted"] | None = None
     n6_cycle_history: tuple[RunGenericCycleSimulationN6CycleHistoryEntry, ...] = ()
@@ -3955,6 +5159,8 @@ class RunGenericCycleSimulationProjection(BaseModel):
 
     @model_validator(mode="after")
     def _verify_generic_projection(self) -> RunGenericCycleSimulationProjection:
+        if self.artifact_status != "resolved" and self.candidate_evaluation_attempts:
+            raise ValueError("candidate_attempt_source_not_resolved")
         has_credal_attempt_projection = (
             self.credal_source_attempt_ref is not None
             or self.credal_source_status is not None
@@ -6980,7 +8186,9 @@ class RunDetails(RunRecordV1):
     decision_superseded_by_ref: ArtifactRef | None = None
     operator_diagnostic: RunOperatorDiagnostic | None = None
     policy_design_case_projection: PolicyDesignCaseProjection | None = None
-    candidate_simulation: RunCandidateSimulationProjection | None = None
+    candidate_simulation: (
+        RunCandidateSimulationProjection | RunFailedCandidateSimulationProjection | None
+    ) = None
     generic_cycle_simulation: RunGenericCycleSimulationProjection | None = None
     method_execution_producer_diagnostic: MethodExecutionProducerDiagnostic | None = None
     method_execution_selection: DirectMethodExecutionRunProjection | None = None
@@ -9018,6 +10226,7 @@ __all__ = [
     "RunCandidateSimulationAcquisitionHistoryEntry",
     "RunCandidateSimulationChildProfileBinding",
     "RunCandidateSimulationN5Observation",
+    "RunCandidateSimulationN5ResultBody",
     "RunCandidateSimulationProjection",
     "RunCompareResponse",
     "RunCompareView",
@@ -9032,6 +10241,7 @@ __all__ = [
     "RunEvidenceNeedView",
     "RunEvidencePlanView",
     "RunEvidencePromotionView",
+    "RunFailedCandidateSimulationProjection",
     "RunFeedbackResponse",
     "RunFeedbackView",
     "RunGenericCycleSimulationChildProfileBinding",

@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import os
+import subprocess
+import sys
+from pathlib import Path
+
 from polisyos.fabric.connectors.contracts import (
     ConnectorSchemaContract,
     DataSchema,
@@ -126,3 +131,20 @@ def test_evidence_payload_includes_impacted_surfaces_and_migrations() -> None:
     assert contract_evidence["recommended_version_bump"] == "minor"
     assert contract_evidence["migration_plan"]["sql_statements"]
     assert any("ADD COLUMN" in sql for sql in contract_evidence["migration_plan"]["sql_statements"])
+
+
+def test_schema_governance_cli_loads_real_contracts_in_a_fresh_process() -> None:
+    """Cold CLI loading must not depend on an already materialized connector facade."""
+    root = Path(__file__).resolve().parents[3]
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join((str(root / "src"), str(root)))
+    result = subprocess.run(
+        [sys.executable, "-B", "tools/quality/ci/check_fabric_schema_registry.py", "--check"],
+        cwd=root,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=45,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr

@@ -44,16 +44,18 @@ import time
 from dataclasses import MISSING, dataclass
 from enum import Enum, auto
 from pathlib import Path
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from polisyos.core.canon import content_hash
+from polisyos.fabric.connectors.base import _get_fetch_source_namespace
 from polisyos.fabric.connectors.http_limits import read_bounded_response_body
 from polisyos.fabric.io.atomic import atomic_write_text
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Mapping
 
     from polisyos.fabric.connectors.contracts.schema import DataSchema
 
@@ -71,6 +73,29 @@ class SimulatorMode(Enum):
     REPLAY = auto()  # Serve from fixture; fail if missing
     RECORD = auto()  # Proxy to network, save fixture
     SYNTHETIC = auto()  # Generate schema-conformant random data
+
+
+class ReplayFixtureIdentityError(ValueError):
+    """Recorded request identity cannot be reconciled with the actual request."""
+
+
+def _fixture_path_for_namespace(
+    root: Path, connector_id: str, dataset_id: str, request_hash: str
+) -> Path:
+    """Resolve supported nested identifiers within the owned fixture root."""
+    components = (connector_id, dataset_id, request_hash)
+    if any(
+        not isinstance(part, str) or not part or Path(part).is_absolute() for part in components
+    ):
+        raise ReplayFixtureIdentityError("fixture_root_namespace_escape")
+    path = root / connector_id / dataset_id / f"{request_hash}.json"
+    try:
+        confined = path.resolve().is_relative_to(root.resolve())
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise ReplayFixtureIdentityError("fixture_root_namespace_escape") from exc
+    if not confined:
+        raise ReplayFixtureIdentityError("fixture_root_namespace_escape")
+    return path
 
 
 @dataclass(frozen=True)
@@ -99,6 +124,8 @@ class SimulatorFixture:
     request_hash: str
     connector_id: str = ""
     dataset_id: str = ""
+    request_body_kind: str | None = None
+    request_body: str | None = None
 
     # ------------------------------------------------------------------
     # Serialisation helpers
@@ -115,7 +142,37 @@ class SimulatorFixture:
             "request_hash": self.request_hash,
             "connector_id": self.connector_id,
             "dataset_id": self.dataset_id,
+            "request_body_kind": self.request_body_kind,
+            "request_body": self.request_body,
         }
+
+    def reconciled_request_hash(self) -> str:
+        """Recompute the recorded canonical request, refusing unbound legacy bodies."""
+        if not isinstance(self.request_method, str) or not self.request_method.strip():
+            raise ReplayFixtureIdentityError("replay_request_method_invalid")
+        if not isinstance(self.request_url, str) or not self.request_url:
+            raise ReplayFixtureIdentityError("replay_request_url_invalid")
+        body_kind = self.request_body_kind
+        if body_kind is None and self.request_body is None:
+            # A matching canonical digest establishes the legacy no-body case.
+            # Other legacy bodies cannot be reconstructed from response bytes.
+            body_kind, request_body = "none", b""
+        elif body_kind in {"none", "json", "data"} and isinstance(self.request_body, str):
+            try:
+                request_body = base64.b64decode(self.request_body, validate=True)
+            except (TypeError, ValueError) as exc:
+                raise ReplayFixtureIdentityError("replay_request_body_invalid") from exc
+            if body_kind == "none" and request_body:
+                raise ReplayFixtureIdentityError("replay_request_body_invalid")
+        else:
+            raise ReplayFixtureIdentityError("replay_request_body_identity_not_established")
+        canonical_url = _canonicalize_url(self.request_url)
+        expected_hash = _request_hash(self.request_method, canonical_url, body_kind, request_body)
+        if expected_hash != self.request_hash:
+            raise ReplayFixtureIdentityError(
+                "replay_request_identity_mismatch_or_unbound_legacy_body"
+            )
+        return expected_hash
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> SimulatorFixture:
@@ -282,6 +339,9 @@ class APISimulator:
     schema : DataSchema | None
         Required only in SYNTHETIC mode -- the schema used to generate
         random payloads.
+    fixture_namespaces : Mapping[str, tuple[str, str]] | None
+        Pre-admitted exact request hashes and connector/dataset namespaces.
+        Replay snapshots this mapping and refuses hashes absent from it.
     """
 
     def __init__(
@@ -292,6 +352,8 @@ class APISimulator:
         dataset_id: str | None = None,
         schema: DataSchema | None = None,
         max_call_log_entries: int = 10_000,
+        fixture_namespaces: Mapping[str, tuple[str, str]] | None = None,
+        require_source_namespace: bool = False,
     ) -> None:
         self.mode = mode
         self.fixture_root = fixture_root or Path("tests/unit/fabric/connectors/fixtures")
@@ -299,6 +361,10 @@ class APISimulator:
         self.dataset_id = dataset_id or "unknown"
         self.schema = schema
         self.max_call_log_entries = max(1, max_call_log_entries)
+        self._require_source_namespace = require_source_namespace
+        self._fixture_namespaces = (
+            MappingProxyType(dict(fixture_namespaces)) if fixture_namespaces is not None else None
+        )
 
         # Internal call log for assertion helpers
         self._call_log: list[dict[str, Any]] = []
@@ -355,6 +421,14 @@ class APISimulator:
         body_kind, body_bytes = _canonical_body(kwargs)
         canonical_url = _canonicalize_url(str(url), kwargs.get("params"))
         req_hash = _request_hash(method, canonical_url, body_kind, body_bytes)
+        if (
+            self.mode is SimulatorMode.RECORD
+            and self._require_source_namespace
+            and _get_fetch_source_namespace() is None
+        ):
+            raise ReplayFixtureIdentityError("record_request_source_namespace_unavailable")
+        if self.mode is SimulatorMode.RECORD:
+            self._fixture_path(req_hash)
 
         self._call_log.append(
             {
@@ -383,7 +457,23 @@ class APISimulator:
 
     def _fixture_path(self, req_hash: str) -> Path:
         """Resolve the fixture file path for a given request hash."""
-        return self.fixture_root / self.connector_id / self.dataset_id / f"{req_hash}.json"
+        connector_id, dataset_id = self.connector_id, self.dataset_id
+        source_namespace = _get_fetch_source_namespace()
+        if self.mode is SimulatorMode.REPLAY and self._fixture_namespaces is not None:
+            namespace = self._fixture_namespaces.get(req_hash)
+            if namespace is None:
+                raise MissingFixtureError(
+                    f"No admitted replay fixture namespace for request hash: {req_hash}"
+                )
+            connector_id, dataset_id = namespace
+            if self._require_source_namespace and source_namespace != namespace:
+                raise MissingFixtureError(
+                    "Actual fetch namespace has no recorded request binding: "
+                    f"{source_namespace!r}, request hash: {req_hash}"
+                )
+        elif self.mode is SimulatorMode.RECORD and source_namespace is not None:
+            connector_id, dataset_id = source_namespace
+        return _fixture_path_for_namespace(self.fixture_root, connector_id, dataset_id, req_hash)
 
     async def _replay(self, method: str, url: str, req_hash: str) -> _MockResponse:
         """
@@ -402,6 +492,17 @@ class APISimulator:
             )
 
         fixture = SimulatorFixture.read(path)
+        if (
+            fixture.reconciled_request_hash() != req_hash
+            or fixture.request_method.upper() != method.upper()
+            or _canonicalize_url(fixture.request_url) != url
+        ):
+            raise ReplayFixtureIdentityError("replay_request_identity_mismatch")
+        if (
+            self._fixture_namespaces is not None
+            and (fixture.connector_id, fixture.dataset_id) != self._fixture_namespaces[req_hash]
+        ):
+            raise ReplayFixtureIdentityError("replay_request_namespace_mismatch")
         return _MockResponse(
             status=fixture.status_code,
             headers=fixture.headers,
@@ -426,21 +527,28 @@ class APISimulator:
         if self._orig_request is None:
             raise RuntimeError("APISimulator missing original _request; did you enter context?")
 
-        async with (
-            aiohttp.ClientSession() as session,
-            self._orig_request(session, method, url, **kwargs) as resp,
-        ):
-            body_bytes = await read_bounded_response_body(
-                resp,
-                connector_id="api_simulator.record",
-                url=url,
-                max_response_bytes=_MAX_RECORDED_FIXTURE_BYTES,
-                max_decompressed_bytes=_MAX_RECORDED_FIXTURE_BYTES,
-            )
-            headers = dict(resp.headers)
-            status = resp.status
+        request_body_kind, request_body = _canonical_body(dict(kwargs))
+        request_kwargs = dict(kwargs)
+        # The URL already includes the canonicalized query parameters.
+        request_kwargs.pop("params", None)
+        async with aiohttp.ClientSession() as session:
+            response = await self._orig_request(session, method, url, **request_kwargs)
+            async with response as resp:
+                body_bytes = await read_bounded_response_body(
+                    resp,
+                    connector_id="api_simulator.record",
+                    url=url,
+                    max_response_bytes=_MAX_RECORDED_FIXTURE_BYTES,
+                    max_decompressed_bytes=_MAX_RECORDED_FIXTURE_BYTES,
+                )
+                headers = dict(resp.headers)
+                status = resp.status
 
         # Persist fixture
+        connector_id, dataset_id = _get_fetch_source_namespace() or (
+            self.connector_id,
+            self.dataset_id,
+        )
         fixture = SimulatorFixture(
             status_code=status,
             headers=headers,
@@ -451,8 +559,10 @@ class APISimulator:
             request_url=url,
             request_method=method,
             request_hash=req_hash,
-            connector_id=self.connector_id,
-            dataset_id=self.dataset_id,
+            connector_id=connector_id,
+            dataset_id=dataset_id,
+            request_body_kind=request_body_kind,
+            request_body=base64.b64encode(request_body).decode("ascii"),
         )
         fixture.write(self._fixture_path(req_hash))
 

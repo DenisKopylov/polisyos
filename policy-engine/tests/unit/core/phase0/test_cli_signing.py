@@ -292,3 +292,25 @@ def test_verify_all_cli_text_surfaces_caller_requested_batch_authorization_loss(
     assert "state=aborted" in output  # noqa: S101
     assert "abort_reason=authorization_lost" in output  # noqa: S101
     assert "errors=1" in output  # noqa: S101
+    assert "admitted=1" in output
+    assert "finished=1" in output
+    assert "inventory_exhausted=False" in output
+
+
+def test_sign_all_text_exposes_actual_completion(capsys, tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    store.put_bytes(b"sign-all-native", PutOptions(kind="cas03.cli", media_type="text/plain"))
+    key = tmp_path / "key"
+    assert main(["keygen", "--output", str(key)]) == 0
+    capsys.readouterr()
+    assert (
+        main(
+            ["sign", "--all", "--cas-root", str(store.root), "--key", str(key.with_suffix(".pem"))]
+        )
+        == 0
+    )
+    output = capsys.readouterr().out
+    assert "state=complete" in output
+    assert "admitted=1" in output and "finished=1" in output
+    assert "inventory_exhausted=True" in output
+    assert "abort_reason=None" in output

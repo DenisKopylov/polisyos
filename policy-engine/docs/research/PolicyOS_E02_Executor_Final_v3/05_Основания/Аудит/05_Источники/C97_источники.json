@@ -1,0 +1,354 @@
+{
+  "pass_id": "C97",
+  "bundle": "EMB-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          539
+        ]
+      ],
+      "evidence_level": "Полный актуальный owner прочитан. Whole source исполнен вне checkout с ДВУМЯ syntax-only parenthesizations except для3.12; точный adapted source/hash/diff сохранены. SQL и index fixtures; asset identity actual. Owned runtime material branch source-only.",
+      "git_blob": "15bd5d3e7e5782ed058397f94ee0648f67108ef2",
+      "sha256": "b3f9d12cc7337aab12a49dad4e0671a0254ffc327ebd71d3035a6e49a2e53bbd",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          83
+        ]
+      ],
+      "evidence_level": "Полные три actual projections прочитаны и исполнены, включая schema shape,quote400 и caller32000 boundary.",
+      "git_blob": "f53bc19523ac6d78a11aac7175caa2fd14ea948c",
+      "sha256": "0354efbd823101d40fe5369688fb9c957a4b898fdd894377a46be5bb93fd03de",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          1450
+        ]
+      ],
+      "evidence_level": "Полный relevant file прочитан накопительно C95–C97 на том же blob: C97 добавляет601–631 и852–1117. Whole actual kernel исполняется; generic state/tokenizer identity, precomputed matrix checks и staged publisher actual. Native HNSW fixture JSON; live owned model/runtime success не квалифицирован.",
+      "git_blob": "cace792597f2999e955c6fa2aa24d82f467afac3",
+      "sha256": "ffd121f70aece50096ac6e96b10327f09a08692356074b07c85aed80334cc59e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          314
+        ]
+      ],
+      "evidence_level": "Полное чтение C95 same blob; actual whole module заново исполняется для per-record content identity/current membership.",
+      "git_blob": "672dc970ef1e2ee1daa8fe1d94e0f49de562c2f6",
+      "sha256": "5036e343aa67a6b2989bb003c3513f36d0b20e6ce59f86f91144c2daca79f343",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/legal.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/read_api/legal.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          446
+        ]
+      ],
+      "evidence_level": "Полный lazy read API прочитан/импортирован в bounded graph. Actual lazy export resolves kernel/projections/runtime module; authority helper и wholeSQLsearch не исполнялись.",
+      "git_blob": "e5faf977f021ddd1442d526c1e110f037b1e2d92",
+      "sha256": "6bcdec489c643fbb30633b2691be147f02ec36bd3bdbcb598c832ee3a0f797ff",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/_lazy.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/read_api/_lazy.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          29
+        ]
+      ],
+      "evidence_level": "Полный actual lazy helper прочитан/исполнен, не synthetic re-export owner.",
+      "git_blob": "3731c19a9f4982cef3b0a28efcf2d88084b0fc29",
+      "sha256": "144f2536c6b6f4902c34439d11d6bdba3a71b4523ddb5c9574b09e8c2f5ec1b6",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_emb_03.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          911
+        ],
+        [
+          1196,
+          1249
+        ]
+      ],
+      "evidence_level": "Initial helpers and11 relevant existing bodies/15 cases прочитаны/исполнены unchanged. Additional intent/fallback/source-relation witnesses в read ranges прочитаны, UNRUN. Whole2762-line file не объявлен проверенным; AST test census только routing.",
+      "git_blob": "cd22fc5879f3fef43fbda208a2f204263d25a22f",
+      "sha256": "d69f2590c789578c4d7ffbc0d3da93551d8f43bb76dac8225f416ba567a72177",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/data_forge/legal_batch/test_embed_local.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          126
+        ]
+      ],
+      "evidence_level": "Existing three-table builder test и fixtures прочитаны, UNRUN. Свежий P03 separately exercises actual three projections/CLI body, не приписывает PASS этому body.",
+      "git_blob": "0fb25e3c57344d04e183abff16e94453637889da",
+      "sha256": "44902c8589cc1a140dc2d194267a0dced11fbb060f05dd0a68a9ae1d8a071bab",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/lex/knowledge/store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          125
+        ],
+        [
+          1006,
+          1470
+        ],
+        [
+          1529,
+          1705
+        ]
+      ],
+      "evidence_level": "Полные selected profile/load/query-admission methods прочитаны и unchanged slices исполнены с fixture constructor. Three public search functions прочитаны source-only. Весь2850-line store и nativeDB/query не квалифицированы.",
+      "git_blob": "e07fc3e2dd4891f72e327ddcb7d028d22c065539",
+      "sha256": "6390d1ad65c52af948f3410676283dcf8e9047e2912c5a823d1d42e475da1e6d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/runtime_material.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/legal/runtime_material.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          106
+        ],
+        [
+          534,
+          949
+        ]
+      ],
+      "evidence_level": "Exact pinned profile/constants, owner/handle resolve/lease paths прочитаны. Native whole module import PASS; resolve model/material and live success UNRUN. Helper digest/file/runtime internals107–533 не объявлены полностью исследованными.",
+      "git_blob": "32d7539446c4aee19cc02f8a84a96f96ca095ea3",
+      "sha256": "2ee5093f03bade9677abe9a5c3386dbd936cfc970eb9b77dbc89c1b6c36f9dbc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/source_relation.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/legal/source_relation.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          83
+        ]
+      ],
+      "evidence_level": "Полный explicit candidate-only source-relation disposition прочитан. Не объявляется legal authority proof и не исполнялся в C97.",
+      "git_blob": "24b434966df130cafeaab3a196a64db2f3f18cb0",
+      "sha256": "c116b86285706b3d2577dc49258233b460ba23c411e963d3cd192ebf776ad4d2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/cli.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/domains/legal/batch/cli.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          929,
+          1010
+        ]
+      ],
+      "evidence_level": "Полный _cmd_embed_local прочитан и actual unchanged body исполнен:canonical args,3 selected generation metadata,real stage JSON. Full parser/process/owned profile branch UNRUN.",
+      "git_blob": "5b48179921f3e2035d94aa56f7fc4e91ce2083d3",
+      "sha256": "fd0008b8bef75e017d630e0a23a3f40f170df7aeaeb4d8c2ee3496c4850c154f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/lex/knowledge/search.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/lex/knowledge/search.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          143
+        ],
+        [
+          368,
+          498
+        ]
+      ],
+      "evidence_level": "Actual graph constructor/query inputs and full hybrid_search_with_status прочитаны. Typed text fallback is source evidence; full graph search UNRUN.",
+      "git_blob": "68b1641af6fd5c92757763edee88f88a336c7c76",
+      "sha256": "7ee81076e13afcace6dfce2541d2cbf238e7509bd7723dd7567253877a55d81c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          170
+        ],
+        [
+          430,
+          554
+        ]
+      ],
+      "evidence_level": "Actual request-profile parsing и complete search_lex_graph прочитаны. Candidate trust tier/typed vector refusal/source relation projection прослежены статически, HTTP path UNRUN.",
+      "git_blob": "1943bc961bb423e1bf74f6322498ac4e38fbefe0",
+      "sha256": "9d5aedfad51c83e666aa8fa263f6fdc49fd869d4a062ae2e18ee81e6a0a19213",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S15",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/pipeline/manifests.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          272
+        ]
+      ],
+      "evidence_level": "Полное чтение C94/C95 same blob; real atomic stage manifest writer заново исполнен P03.",
+      "git_blob": "13b5f985cda18030fe1c7ef644d49fd15f6f5d69",
+      "sha256": "42e3f5bbfb8f0b7e6f23addd05417c67f7738805c820d162d01b4fa93bed97f9",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S16",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/atomic.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/io/atomic.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          71
+        ]
+      ],
+      "evidence_level": "Полное чтение same blob ранее; actual publication/file writes заново исполнены. Не power-loss test.",
+      "git_blob": "3bc1c0e05b196e29c9d5f0fff1149221fd54bcee",
+      "sha256": "38cae9207be0d3d3d6ff810f62b79a433b13ff0dd0b9aac86a53d2fbb9598c41",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S17",
+      "path": "policy-engine/src/polisyos/data_forge/kernel/io/hashing.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/data_forge/kernel/io/hashing.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          28
+        ]
+      ],
+      "evidence_level": "Полный hash helper прочитан ранее same blob; actual hashing заново исполнен.",
+      "git_blob": "38144247f153be11c7cac07c29c5cb51ec7eacb8",
+      "sha256": "be74a13ba66a1652244b6f0b8b06597828f41e633cc7fe416f5f6f2649459ff1",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S18",
+      "path": "policy-engine/architecture/baselines/structure_remediation/public_surface_pre_decomp.json",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/architecture/baselines/structure_remediation/public_surface_pre_decomp.json",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          19585,
+          19602
+        ]
+      ],
+      "evidence_level": "Exact historical surface entries прочитаны. Baseline содержит старую signature/line, не удостоверяет текущий lifecycle или внешних callers.",
+      "git_blob": "4198448d810b49c95753f98b4cab28666ef96b05",
+      "sha256": "4d8b67ee939c769b8cd52b9cdae49597d040b9680304e63356b1c449b0eef589",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S19",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/full-id-C-assessment.json",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/full-id-C-assessment.json",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          13852,
+          13924
+        ]
+      ],
+      "evidence_level": "Relevant historical LA042 ledger/ab441 installed evidence/current-limited caveats прочитаны. Не переаттестованы и не перенесены на текущий wrapper, который отвергает любой backend!=None.",
+      "git_blob": "a71ca264c5aacbe9818fe2b653b5673656a8a7de",
+      "sha256": "72c50f92c75f12ebc89de1c1eff01a1925f1e3e89f3b7ff0e7b8561cad419972",
+      "local_file": null,
+      "note": null
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import json
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, cast
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
@@ -96,7 +96,11 @@ class UrlFetchCache:
                 if isinstance(payload, dict):
                     for url, item in payload.items():
                         if isinstance(url, str) and isinstance(item, dict):
-                            self._records[url] = CachedPageRecord.model_validate(item)
+                            try:
+                                self._records[url] = CachedPageRecord.model_validate(item)
+                            except ValidationError:
+                                # One malformed historical record must not erase independent pages.
+                                continue
             except Exception:
                 self._records = {}
 

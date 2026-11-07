@@ -59,7 +59,12 @@ class DataFilter(KernelModel):
 
 
 class DataViewRequest(KernelModel):
-    """Data view request data model."""
+    """Describe a requested data view and its query constraints.
+
+    The request carries scope, view type, metrics, filters, aggregation,
+    pagination, and an optional access tier. It specifies a query; it is not a
+    retrieved snapshot or an authorization decision.
+    """
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
     request_id: str

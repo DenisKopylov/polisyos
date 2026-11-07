@@ -1,12 +1,20 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import os
+from collections.abc import Iterator
 from datetime import UTC, datetime
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from _helpers.runtime_http import build_runtime_api_env
+from _helpers.runtime_http import (
+    _runtime_api_tenant_scope,
+    build_runtime_api_env_with_fixture_catalog,
+    close_runtime_api_env,
+)
+from _helpers.source_progress import finite_source_reader
 
 from polisyos.common.async_tools import run_blocking_async, run_coro_sync
 from polisyos.core.artifacts.async_store import (
@@ -30,6 +38,7 @@ from polisyos.fabric.connectors.base import (
     FetchResult,
 )
 from polisyos.fabric.connectors.registry import ConnectorRegistry
+from polisyos.fabric.connectors.sources.event_stream import EventStreamConnector
 from polisyos.fabric.data_plane.cursor_store import AsyncCursorStoreAdapter, CursorStore
 from polisyos.fabric.data_plane.modes import run_streaming_windowed
 from polisyos.fabric.data_plane.orchestrator import (
@@ -38,8 +47,14 @@ from polisyos.fabric.data_plane.orchestrator import (
     run_orchestrated_ingestion,
     run_partitioned_ingestion,
 )
-from polisyos.fabric.data_plane.streaming import StreamRuntimeOptions, process_stream_dataset
+from polisyos.fabric.data_plane.streaming import (
+    StreamDedupeUnsupported,
+    StreamRuntimeOptions,
+    process_stream_dataset,
+)
+from polisyos.fabric.ingestion import resolve_ingestion_dependencies
 from polisyos.ir.connectors import DataVersion, VersionStrategy
+from polisyos.runtime.http.services.lineage import LineageSurfaceAdmissionError
 from polisyos.runtime.quality.performance_budget import build_canary_performance_budget
 from tools.quality.testing import runtime_resilience_matrix
 
@@ -48,6 +63,99 @@ _INGESTION_VERSION = DataVersion(
     value="2024-07-01T00:00:00+00:00",
     timestamp=datetime(2024, 7, 1, 0, 0, 0, tzinfo=UTC),
 )
+
+
+@pytest.fixture(scope="module")
+def performance_catalog_source(tmp_path_factory, pytestconfig):
+    """Publish one isolated test catalog, then reopen it for each Runtime app."""
+    catalog_root = tmp_path_factory.mktemp("runtime-performance-catalog").resolve()
+    with pytest.MonkeyPatch.context() as fixture_patch:
+        fixture_patch.setenv("POLISYOS_PRODUCTION_DATA_ROOT", str(catalog_root / "no-production"))
+        fixture_patch.setenv("POLISYOS_CURATED_DIR", str(catalog_root / "no-curated-data"))
+        env = build_runtime_api_env_with_fixture_catalog(
+            catalog_root,
+            include_test_client=False,
+            app_kwargs={"repo_root": Path(pytestconfig.rootpath).resolve(strict=True)},
+            monkeypatch=fixture_patch,
+        )
+        try:
+            service = env["app"].state._control_service
+            selection = service._catalog_source_selection
+            database = service.catalog_serving_source.database_path.resolve(strict=True)
+            assert database.is_relative_to(catalog_root)
+            assert env["_runtime_http_catalog_fixture"].table_counts["datasets"] > 0
+            identity = service._retrieval._dataset_catalog.read_source_identity[0]
+            assert identity.source_path == str(database)
+            return selection, identity.content_sha256
+        finally:
+            close_runtime_api_env(env)
+
+
+@pytest.fixture
+def performance_runtime_env(
+    tmp_path: Path,
+    pytestconfig: pytest.Config,
+    monkeypatch: pytest.MonkeyPatch,
+    performance_catalog_source,
+) -> Iterator[dict[str, object]]:
+    """Build a fresh Runtime app on the selected fixture catalog and an empty curated root."""
+    from tests.unit.runtime.http._published_catalog_fixture import _install_fixture_profiles
+
+    selection, expected_sha256 = performance_catalog_source
+    monkeypatch.setenv("POLISYOS_PRODUCTION_DATA_ROOT", str(tmp_path / "no-production"))
+    curated = tmp_path / "no-curated-data"
+    monkeypatch.setenv("POLISYOS_CURATED_DIR", str(curated))
+    _install_fixture_profiles(monkeypatch)
+    env = build_runtime_api_env_with_fixture_catalog(
+        tmp_path,
+        include_test_client=False,
+        app_kwargs={
+            "repo_root": Path(pytestconfig.rootpath).resolve(strict=True),
+            "catalog_source_selection": selection,
+        },
+        monkeypatch=monkeypatch,
+    )
+    try:
+        service = env["app"].state._control_service
+        graph = service._retrieval._dataset_catalog
+        assert graph.database_path.resolve(strict=True) == (
+            selection.snapshot_root / selection.database_relative_path
+        ).resolve(strict=True)
+        assert graph.read_source_identity[0].content_sha256 == expected_sha256
+        assert service._retrieval._fastlane.binding_registry.curated_dir == curated
+        assert service._retrieval._fastlane._contracts.curated_dir == curated
+        yield env
+    finally:
+        close_runtime_api_env(env)
+
+
+@pytest.mark.performance
+def test_runtime_fixture_refuses_missing_explicit_catalog(
+    tmp_path: Path, pytestconfig: pytest.Config, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """An unavailable selected catalog cannot be replaced by the fixture default."""
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourceSelection,
+        SubstrateRegistryError,
+    )
+
+    monkeypatch.setenv("POLISYOS_PRODUCTION_DATA_ROOT", str(tmp_path / "no-production"))
+    monkeypatch.setenv("POLISYOS_CURATED_DIR", str(tmp_path / "no-curated-data"))
+    selection = CatalogServingSourceSelection(
+        snapshot_root=(tmp_path / "missing-snapshot").resolve(),
+        catalog_run_profile="prod_full",
+    )
+    with pytest.raises(SubstrateRegistryError, match="catalog_source_snapshot_missing"):
+        build_runtime_api_env_with_fixture_catalog(
+            tmp_path,
+            include_test_client=False,
+            app_kwargs={
+                "repo_root": Path(pytestconfig.rootpath).resolve(strict=True),
+                "catalog_source_selection": selection,
+            },
+            monkeypatch=monkeypatch,
+        )
+    assert not (tmp_path / "catalog-fixture-owner").exists()
 
 
 class _PerfIngestionConnector:
@@ -239,8 +347,8 @@ def test_runtime_resilience_matrix_covers_hot_path_pressure_budgets() -> None:
 
 @pytest.mark.performance
 @pytest.mark.benchmark
-def test_run_index_refresh_hot_path(benchmark, tmp_path) -> None:
-    env = build_runtime_api_env(tmp_path, include_test_client=False)
+def test_run_index_refresh_hot_path(benchmark, performance_runtime_env) -> None:
+    env = performance_runtime_env
     run_index = env["app"].state.runtime_api_ctx.run_index
 
     benchmark(lambda: run_index.refresh(force=True))
@@ -248,8 +356,8 @@ def test_run_index_refresh_hot_path(benchmark, tmp_path) -> None:
 
 @pytest.mark.performance
 @pytest.mark.benchmark
-def test_run_index_list_runs_hot_path(benchmark, tmp_path) -> None:
-    env = build_runtime_api_env(tmp_path, include_test_client=False)
+def test_run_index_list_runs_hot_path(benchmark, performance_runtime_env) -> None:
+    env = performance_runtime_env
     run_index = env["app"].state.runtime_api_ctx.run_index
     run_index.refresh(force=True)
 
@@ -258,8 +366,8 @@ def test_run_index_list_runs_hot_path(benchmark, tmp_path) -> None:
 
 @pytest.mark.performance
 @pytest.mark.benchmark
-def test_run_index_incremental_refresh_cycle_hot_path(benchmark, tmp_path) -> None:
-    env = build_runtime_api_env(tmp_path, include_test_client=False)
+def test_run_index_incremental_refresh_cycle_hot_path(benchmark, performance_runtime_env) -> None:
+    env = performance_runtime_env
     run_index = env["app"].state.runtime_api_ctx.run_index
     run_index.refresh(force=True)
     trace_path = run_index.get_run(env["core_run_id"]).run_dir / "trace.jsonl"
@@ -275,8 +383,8 @@ def test_run_index_incremental_refresh_cycle_hot_path(benchmark, tmp_path) -> No
 
 
 @pytest.mark.performance
-def test_run_index_incremental_refresh_soak_smoke(tmp_path) -> None:
-    env = build_runtime_api_env(tmp_path, include_test_client=False)
+def test_run_index_incremental_refresh_soak_smoke(performance_runtime_env) -> None:
+    env = performance_runtime_env
     run_index = env["app"].state.runtime_api_ctx.run_index
     run_index.refresh(force=True)
     trace_path = run_index.get_run(env["core_run_id"]).run_dir / "trace.jsonl"
@@ -293,8 +401,8 @@ def test_run_index_incremental_refresh_soak_smoke(tmp_path) -> None:
 
 @pytest.mark.performance
 @pytest.mark.benchmark
-def test_timeline_build_hot_path(benchmark, tmp_path) -> None:
-    env = build_runtime_api_env(tmp_path, include_test_client=False)
+def test_timeline_build_hot_path(benchmark, performance_runtime_env) -> None:
+    env = performance_runtime_env
     ctx = env["app"].state.runtime_api_ctx
     run = ctx.run_index.get_run(env["core_run_id"])
 
@@ -303,19 +411,27 @@ def test_timeline_build_hot_path(benchmark, tmp_path) -> None:
 
 @pytest.mark.performance
 @pytest.mark.benchmark
-def test_lineage_build_hot_path(benchmark, tmp_path) -> None:
-    env = build_runtime_api_env(tmp_path, include_test_client=False)
+def test_lineage_build_hot_path(benchmark, performance_runtime_env) -> None:
+    env = performance_runtime_env
     ctx = env["app"].state.runtime_api_ctx
     run = ctx.run_index.get_run(env["core_run_id"])
-    root_ids = ctx.run_index.resolve_root_artifact_ids(run)
+    root_refs = ctx.run_index.resolve_root_artifact_refs(run)
 
-    benchmark(lambda: ctx.lineage.build_for_artifact_ids(root_ids))
+    secret_refs = [ref for ref in root_refs if str(ref.artifact_id) == env["secret_artifact_id"]]
+    admitted_refs = [ref for ref in root_refs if str(ref.artifact_id) != env["secret_artifact_id"]]
+    assert len(secret_refs) == 1
+    assert len(admitted_refs) == len(root_refs) - 1
+    assert admitted_refs, "lineage benchmark requires an admitted positive substrate"
+    with _runtime_api_tenant_scope(env):
+        with pytest.raises(LineageSurfaceAdmissionError, match="authority_purpose_forbidden"):
+            ctx.lineage.build_for_artifact_ids(secret_refs)
+        benchmark(lambda: ctx.lineage.build_for_artifact_ids(admitted_refs))
 
 
 @pytest.mark.performance
 @pytest.mark.benchmark
-def test_async_artifact_store_round_trip_hot_path(benchmark, tmp_path) -> None:
-    env = build_runtime_api_env(tmp_path, include_test_client=False)
+def test_async_artifact_store_round_trip_hot_path(benchmark, performance_runtime_env) -> None:
+    env = performance_runtime_env
     async_store = env["app"].state.runtime_api_ctx.async_store
 
     def _exercise() -> bytes:
@@ -336,8 +452,8 @@ def test_async_artifact_store_round_trip_hot_path(benchmark, tmp_path) -> None:
 
 
 @pytest.mark.performance
-def test_async_artifact_store_repeated_round_trip_soak_smoke(tmp_path) -> None:
-    env = build_runtime_api_env(tmp_path, include_test_client=False)
+def test_async_artifact_store_repeated_round_trip_soak_smoke(performance_runtime_env) -> None:
+    env = performance_runtime_env
     async_store = env["app"].state.runtime_api_ctx.async_store
 
     async def _round_trip(index: int) -> bytes:
@@ -357,8 +473,8 @@ def test_async_artifact_store_repeated_round_trip_soak_smoke(tmp_path) -> None:
 
 
 @pytest.mark.performance
-def test_async_artifact_store_concurrent_round_trip_soak_smoke(tmp_path) -> None:
-    env = build_runtime_api_env(tmp_path, include_test_client=False)
+def test_async_artifact_store_concurrent_round_trip_soak_smoke(performance_runtime_env) -> None:
+    env = performance_runtime_env
     async_store = ensure_async_artifact_store(
         env["app"].state.runtime_api_ctx.async_store,
         timeout_seconds=3.0,
@@ -548,99 +664,167 @@ def test_partitioned_ingestion_resume_cycle_soak_smoke(tmp_path) -> None:
     assert len(states) >= 32
 
 
-@pytest.mark.performance
-def test_streaming_async_adapter_resume_cycle_soak_smoke(tmp_path) -> None:
-    stream_path = tmp_path / "stream.jsonl"
-    stream_path.write_text(
-        "\n".join(f'{{"_message_id":"m{index}","value":{index}}}' for index in range(8)) + "\n",
-        encoding="utf-8",
+@pytest.fixture
+def performance_stream_registry() -> Iterator[ConnectorRegistry]:
+    """Give each benchmark a real connector registry with an independent lifetime."""
+    registry = ConnectorRegistry()
+    registry.register(EventStreamConnector)
+    try:
+        yield registry
+    finally:
+        run_coro_sync(registry.shutdown_async())
+
+
+def _performance_source_reader(
+    root: Path,
+    dataset_id: str,
+    stream_path: Path,
+    event_ids: tuple[str, ...],
+    *,
+    partition_key: str = "default",
+):
+    """Bind a synthetic owner's independent event/version set to real JSONL transport."""
+    return finite_source_reader(
+        root / "source-owners" / dataset_id,
+        connector_id="stream.jsonl",
+        dataset_id=dataset_id,
+        schema_id=f"test.performance.{dataset_id.replace('-', '_')}",
+        snapshots=[
+            (
+                "source-v1",
+                [{"event_id": event_id, "source_version": 1} for event_id in event_ids],
+            )
+        ],
+        transport_path=stream_path,
+        partition_key=partition_key,
     )
 
-    ConnectorRegistry.reset_instance()
-    registry = ConnectorRegistry.get_instance()
+
+def _write_performance_stream(path: Path, rows: list[dict[str, object]]) -> None:
+    path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+
+
+def _performance_sanitize_rows(
+    batch: object, **kwargs: object
+) -> tuple[list[dict[str, object]], list[str], int]:
+    """Keep valid source records unchanged; malformed records fail the fixture."""
+    del kwargs
+    if not isinstance(batch, list) or any(type(row) is not dict for row in batch):
+        raise TypeError("performance stream requires a list of source record objects")
+    return batch, [], 0
+
+
+def _configure_performance_stream(
+    registry: ConnectorRegistry, path: Path, *, chunk_size: int
+) -> None:
     registry.set_default_config(
         "stream.jsonl",
-        ConnectionConfig(
-            url=stream_path.as_uri(),
-            headers={"X-Stream-ChunkSize": "2"},
-        ),
+        ConnectionConfig(url=path.as_uri(), headers={"X-Stream-ChunkSize": str(chunk_size)}),
     )
 
+
+@pytest.mark.performance
+def test_streaming_async_adapter_resume_cycle_soak_smoke(
+    tmp_path: Path, performance_stream_registry: ConnectorRegistry
+) -> None:
+    stream_path = tmp_path / "stream.jsonl"
+    event_ids = tuple(f"m{index}" for index in range(8))
+    _write_performance_stream(
+        stream_path,
+        [
+            {"_message_id": event_id, "event_id": event_id, "source_version": 1, "value": index}
+            for index, event_id in enumerate(event_ids)
+        ],
+    )
+    _configure_performance_stream(performance_stream_registry, stream_path, chunk_size=2)
+    readers = {
+        f"events-{cycle}": _performance_source_reader(
+            tmp_path, f"events-{cycle}", stream_path, event_ids
+        )
+        for cycle in range(12)
+    }
     sync_store = FileSystemCAS(tmp_path / ".polisyos")
     async_store = AsyncArtifactStoreAdapter(sync_store, timeout_seconds=3.0)
-    async_cursor_store = AsyncCursorStoreAdapter(
-        CursorStore(sync_store),
-        timeout_seconds=3.0,
-    )
-
-    def _sanitize_rows(batch, **kwargs):
-        del kwargs
-        return [dict(row) for row in batch if isinstance(row, dict)], [], 0
+    async_cursor_store = AsyncCursorStoreAdapter(CursorStore(sync_store), timeout_seconds=3.0)
 
     async def _exercise() -> list[int]:
         emitted: list[int] = []
         for cycle in range(12):
+            dataset_id = f"events-{cycle}"
             result = await process_stream_dataset(
                 connector_id="stream.jsonl",
-                dataset_id=f"events-{cycle}",
+                dataset_id=dataset_id,
                 store=async_store,
                 cursor_store=async_cursor_store,
-                sanitize_rows=_sanitize_rows,
+                sanitize_rows=_performance_sanitize_rows,
                 runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
-                registry=registry,
+                registry=performance_stream_registry,
+                source_progress_readers=(readers[dataset_id],),
             )
             emitted.append(result.rows_emitted)
+            if cycle == 0:
+                resumed = await process_stream_dataset(
+                    connector_id="stream.jsonl",
+                    dataset_id=dataset_id,
+                    store=async_store,
+                    cursor_store=async_cursor_store,
+                    sanitize_rows=_performance_sanitize_rows,
+                    runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
+                    registry=performance_stream_registry,
+                    source_progress_readers=(readers[dataset_id],),
+                )
+                assert result.final_checkpoint is not None
+                assert resumed.final_checkpoint is not None
+                assert resumed.final_checkpoint.offset == result.final_checkpoint.offset
+                assert resumed.rows_emitted == 0
         return emitted
 
     assert run_coro_sync(_exercise()) == [8] * 12
 
 
 @pytest.mark.performance
-def test_streaming_async_adapter_cdc_round_trip_soak_smoke(tmp_path) -> None:
+def test_streaming_async_adapter_cdc_round_trip_soak_smoke(
+    tmp_path: Path, performance_stream_registry: ConnectorRegistry
+) -> None:
     stream_path = tmp_path / "stream-cdc.jsonl"
-    stream_path.write_text(
-        "\n".join(
-            [
-                '{"_message_id":"m1","value":1}',
-                '{"_message_id":"m2","value":2,"new_field":"x"}',
-            ]
+    event_ids = ("m1", "m2")
+    _write_performance_stream(
+        stream_path,
+        [
+            {"_message_id": "m1", "event_id": "m1", "source_version": 1, "value": 1},
+            {
+                "_message_id": "m2",
+                "event_id": "m2",
+                "source_version": 1,
+                "value": 2,
+                "new_field": "x",
+            },
+        ],
+    )
+    _configure_performance_stream(performance_stream_registry, stream_path, chunk_size=1)
+    readers = {
+        f"events-cdc-{cycle}": _performance_source_reader(
+            tmp_path, f"events-cdc-{cycle}", stream_path, event_ids
         )
-        + "\n",
-        encoding="utf-8",
-    )
-
-    ConnectorRegistry.reset_instance()
-    registry = ConnectorRegistry.get_instance()
-    registry.set_default_config(
-        "stream.jsonl",
-        ConnectionConfig(
-            url=stream_path.as_uri(),
-            headers={"X-Stream-ChunkSize": "1"},
-        ),
-    )
-
+        for cycle in range(12)
+    }
     sync_store = FileSystemCAS(tmp_path / ".polisyos")
     async_store = AsyncArtifactStoreAdapter(sync_store, timeout_seconds=3.0)
-    async_cursor_store = AsyncCursorStoreAdapter(
-        CursorStore(sync_store),
-        timeout_seconds=3.0,
-    )
-
-    def _sanitize_rows(batch, **kwargs):
-        del kwargs
-        return [dict(row) for row in batch if isinstance(row, dict)], [], 0
+    async_cursor_store = AsyncCursorStoreAdapter(CursorStore(sync_store), timeout_seconds=3.0)
 
     async def _exercise() -> list[int]:
         cdc_counts: list[int] = []
         for cycle in range(12):
+            dataset_id = f"events-cdc-{cycle}"
             result = await process_stream_dataset(
                 connector_id="stream.jsonl",
-                dataset_id=f"events-cdc-{cycle}",
+                dataset_id=dataset_id,
                 store=async_store,
                 cursor_store=async_cursor_store,
-                sanitize_rows=_sanitize_rows,
+                sanitize_rows=_performance_sanitize_rows,
                 runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
-                registry=registry,
+                registry=performance_stream_registry,
+                source_progress_readers=(readers[dataset_id],),
             )
             cdc_counts.append(len(result.cdc_event_refs))
         return cdc_counts
@@ -649,55 +833,52 @@ def test_streaming_async_adapter_cdc_round_trip_soak_smoke(tmp_path) -> None:
 
 
 @pytest.mark.performance
-def test_streaming_async_adapter_combined_resume_cdc_long_soak_smoke(tmp_path) -> None:
+def test_streaming_async_adapter_combined_resume_cdc_long_soak_smoke(
+    tmp_path: Path, performance_stream_registry: ConnectorRegistry
+) -> None:
     stream_path = tmp_path / "stream-combined.jsonl"
-    stream_path.write_text(
-        "\n".join(
-            [
-                '{"_message_id":"m1","value":1}',
-                '{"_message_id":"m2","value":2}',
-                '{"_message_id":"m2","value":2}',
-                '{"_message_id":"m3","value":3,"new_field":"x"}',
-            ]
+    event_ids = ("m1", "m2", "m3")
+    _write_performance_stream(
+        stream_path,
+        [
+            {"_message_id": "m1", "event_id": "m1", "source_version": 1, "value": 1},
+            {"_message_id": "m2", "event_id": "m2", "source_version": 1, "value": 2},
+            {"_message_id": "m2", "event_id": "m2", "source_version": 1, "value": 2},
+            {
+                "_message_id": "m3",
+                "event_id": "m3",
+                "source_version": 1,
+                "value": 3,
+                "new_field": "x",
+            },
+        ],
+    )
+    _configure_performance_stream(performance_stream_registry, stream_path, chunk_size=2)
+    readers = {
+        f"events-combined-{cycle}": _performance_source_reader(
+            tmp_path, f"events-combined-{cycle}", stream_path, event_ids
         )
-        + "\n",
-        encoding="utf-8",
-    )
-
-    ConnectorRegistry.reset_instance()
-    registry = ConnectorRegistry.get_instance()
-    registry.set_default_config(
-        "stream.jsonl",
-        ConnectionConfig(
-            url=stream_path.as_uri(),
-            headers={"X-Stream-ChunkSize": "2"},
-        ),
-    )
-
+        for cycle in range(24)
+    }
     sync_store = FileSystemCAS(tmp_path / ".polisyos")
     async_store = AsyncArtifactStoreAdapter(sync_store, timeout_seconds=3.0)
-    async_cursor_store = AsyncCursorStoreAdapter(
-        CursorStore(sync_store),
-        timeout_seconds=3.0,
-    )
-
-    def _sanitize_rows(batch, **kwargs):
-        del kwargs
-        return [dict(row) for row in batch if isinstance(row, dict)], [], 0
+    async_cursor_store = AsyncCursorStoreAdapter(CursorStore(sync_store), timeout_seconds=3.0)
 
     async def _exercise() -> tuple[list[int], list[int], list[int]]:
         emitted_counts: list[int] = []
         cdc_counts: list[int] = []
         dedupe_counts: list[int] = []
         for cycle in range(24):
+            dataset_id = f"events-combined-{cycle}"
             result = await process_stream_dataset(
                 connector_id="stream.jsonl",
-                dataset_id=f"events-combined-{cycle}",
+                dataset_id=dataset_id,
                 store=async_store,
                 cursor_store=async_cursor_store,
-                sanitize_rows=_sanitize_rows,
+                sanitize_rows=_performance_sanitize_rows,
                 runtime_options=StreamRuntimeOptions(checkpoint_every_chunks=1),
-                registry=registry,
+                registry=performance_stream_registry,
+                source_progress_readers=(readers[dataset_id],),
             )
             emitted_counts.append(result.rows_emitted)
             cdc_counts.append(len(result.cdc_event_refs))
@@ -710,83 +891,30 @@ def test_streaming_async_adapter_combined_resume_cdc_long_soak_smoke(tmp_path) -
     assert dedupe_counts == [1] * 24
 
 
-@pytest.mark.performance
-def test_streaming_windowed_legacy_async_chunk_round_trip_soak_smoke(
-    tmp_path,
+def _run_owned_windowed_soak(
+    tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
-    from polisyos.fabric.data_plane import modes as modes_mod
-
-    seen_kinds: list[str] = []
-    original_put_json = AsyncArtifactStoreAdapter.put_json
-
-    async def _tracked_put_json(
-        self,
-        obj: object,
-        opts: object,
-        canon_spec: object = None,
-        *,
-        return_selected_profile: bool = False,
-    ):
-        kind = getattr(opts, "kind", "")
-        seen_kinds.append(str(kind))
-        return await original_put_json(
-            self,
-            obj,
-            opts,
-            canon_spec=canon_spec,
-            return_selected_profile=return_selected_profile,
-        )
-
-    async def _fake_fetch_stream_for_dataset_async(**kwargs: object) -> list[dict[str, object]]:
-        del kwargs
-        return [
-            {
-                "chunk_index": 0,
-                "row_count": 1,
-                "is_first": True,
-                "is_last": True,
-                "data": [{"value": 1}],
-            }
-        ]
-
-    monkeypatch.setattr(AsyncArtifactStoreAdapter, "put_json", _tracked_put_json)
-    monkeypatch.setattr(modes_mod, "_connector_is_registered", lambda *args, **kwargs: False)
-    monkeypatch.setattr(
-        modes_mod,
-        "_fetch_stream_for_dataset_async",
-        _fake_fetch_stream_for_dataset_async,
+    registry: ConnectorRegistry,
+    *,
+    produce_snapshot: bool,
+) -> tuple[list[IngestionResult], list[str]]:
+    """Exercise real source-admitted windowing through the public mode API."""
+    stream_path = tmp_path / "stream-windowed.jsonl"
+    _write_performance_stream(
+        stream_path,
+        [{"_message_id": "event-0", "event_id": "event-0", "source_version": 1, "value": 1}],
     )
-    monkeypatch.setattr(modes_mod, "run_coro_sync", lambda coro: asyncio.run(coro))
-
-    results = [
-        run_streaming_windowed(
-            connector_manifest={
-                "datasets": [
-                    {"connector_id": "legacy.stream", "dataset_id": f"events-{cycle}"},
-                ],
-            },
-            source="test",
-            license_name="MIT",
-            cas_root=tmp_path / ".polisyos",
-            produce_snapshot=False,
+    _configure_performance_stream(registry, stream_path, chunk_size=1)
+    readers = {
+        f"events-{cycle}": _performance_source_reader(
+            tmp_path,
+            f"events-{cycle}",
+            stream_path,
+            ("event-0",),
+            partition_key=f"events-{cycle}",
         )
         for cycle in range(12)
-    ]
-
-    assert all(result.mode_effective == "streaming_windowed" for result in results)
-    assert seen_kinds.count("fabric.stream_chunk") == 12
-
-
-@pytest.mark.performance
-def test_streaming_windowed_async_snapshot_round_trip_soak_smoke(
-    tmp_path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
-    from polisyos.fabric.data_plane import modes as modes_mod
-
+    }
     seen_kinds: list[str] = []
     original_put_json = AsyncArtifactStoreAdapter.put_json
 
@@ -800,52 +928,113 @@ def test_streaming_windowed_async_snapshot_round_trip_soak_smoke(
     ):
         seen_kinds.append(str(getattr(opts, "kind", "")))
         return await original_put_json(
-            self,
-            obj,
-            opts,
-            canon_spec=canon_spec,
-            return_selected_profile=return_selected_profile,
+            self, obj, opts, canon_spec=canon_spec, return_selected_profile=return_selected_profile
         )
 
-    async def _fake_fetch_stream_for_dataset_async(**kwargs: object) -> list[dict[str, object]]:
-        del kwargs
-        return [
-            {
-                "chunk_index": 0,
-                "row_count": 1,
-                "is_first": True,
-                "is_last": True,
-                "data": [{"value": 1}],
-            }
-        ]
-
     monkeypatch.setattr(AsyncArtifactStoreAdapter, "put_json", _tracked_put_json)
-    monkeypatch.setattr(modes_mod, "_connector_is_registered", lambda *args, **kwargs: False)
-    monkeypatch.setattr(
-        modes_mod,
-        "_fetch_stream_for_dataset_async",
-        _fake_fetch_stream_for_dataset_async,
-    )
-    monkeypatch.setattr(modes_mod, "run_coro_sync", lambda coro: asyncio.run(coro))
+    results = []
+    for cycle in range(12):
+        dataset_id = f"events-{cycle}"
+        dependencies = resolve_ingestion_dependencies(
+            registry=registry, source_progress_readers=(readers[dataset_id],)
+        )
+        results.append(
+            run_streaming_windowed(
+                connector_manifest={
+                    "datasets": [{"connector_id": "stream.jsonl", "dataset_id": dataset_id}],
+                },
+                source="test",
+                license_name="MIT",
+                cas_root=tmp_path / ".polisyos",
+                produce_snapshot=produce_snapshot,
+                ingestion_dependencies=dependencies,
+            )
+        )
+    return results, seen_kinds
 
-    results = [
+
+@pytest.mark.performance
+def test_streaming_windowed_owned_async_chunk_round_trip_soak_smoke(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, performance_stream_registry: ConnectorRegistry
+) -> None:
+    results, seen_kinds = _run_owned_windowed_soak(
+        tmp_path, monkeypatch, performance_stream_registry, produce_snapshot=False
+    )
+    assert all(result.mode_effective == "streaming_windowed" for result in results)
+    assert seen_kinds.count("fabric.stream_chunk") == 12
+
+
+@pytest.mark.performance
+def test_streaming_windowed_owned_async_snapshot_round_trip_soak_smoke(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, performance_stream_registry: ConnectorRegistry
+) -> None:
+    results, seen_kinds = _run_owned_windowed_soak(
+        tmp_path, monkeypatch, performance_stream_registry, produce_snapshot=True
+    )
+    assert all(result.data_snapshot_ref is not None for result in results)
+    assert seen_kinds.count("fabric.streaming_run_manifest") == 12
+    assert seen_kinds.count("fabric.data_snapshot") == 12
+
+
+@pytest.mark.performance
+def test_streaming_windowed_unowned_legacy_refuses_before_fetch(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, performance_stream_registry: ConnectorRegistry
+) -> None:
+    """The old unregistered path cannot claim deduplication without an owner."""
+    from polisyos.fabric.data_plane import modes as modes_mod
+
+    fetched = False
+
+    async def _unowned_fetch(**kwargs: object) -> list[dict[str, object]]:
+        nonlocal fetched
+        del kwargs
+        fetched = True
+        return []
+
+    monkeypatch.setattr(modes_mod, "_fetch_stream_for_dataset_async", _unowned_fetch)
+    with pytest.raises(StreamDedupeUnsupported, match="legacy streaming has no source-owned"):
         run_streaming_windowed(
             connector_manifest={
-                "datasets": [
-                    {"connector_id": "legacy.stream", "dataset_id": f"events-{cycle}"},
-                ],
+                "datasets": [{"connector_id": "legacy.stream", "dataset_id": "events"}]
             },
             source="test",
             license_name="MIT",
             cas_root=tmp_path / ".polisyos",
-            produce_snapshot=True,
+            produce_snapshot=False,
+            ingestion_dependencies=resolve_ingestion_dependencies(
+                registry=performance_stream_registry
+            ),
         )
-        for cycle in range(12)
-    ]
+    assert fetched is False
 
-    assert all(result.data_snapshot_ref is not None for result in results)
-    assert seen_kinds.count("fabric.streaming_run_manifest") == 12
-    assert seen_kinds.count("fabric.data_snapshot") == 12
+
+@pytest.mark.performance
+def test_streaming_async_adapter_rejects_foreign_source_event(
+    tmp_path: Path, performance_stream_registry: ConnectorRegistry
+) -> None:
+    """The admitted owner's event/version census is checked before stream output."""
+    stream_path = tmp_path / "foreign.jsonl"
+    _write_performance_stream(
+        stream_path, [{"event_id": "foreign", "source_version": 1, "value": 1}]
+    )
+    _configure_performance_stream(performance_stream_registry, stream_path, chunk_size=1)
+    reader = _performance_source_reader(tmp_path, "events", stream_path, ("owned",))
+    store = FileSystemCAS(tmp_path / ".polisyos")
+
+    async def _exercise() -> None:
+        with pytest.raises(StreamDedupeUnsupported, match="source replay transport"):
+            await process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id="events",
+                store=store,
+                cursor_store=CursorStore(store),
+                sanitize_rows=_performance_sanitize_rows,
+                registry=performance_stream_registry,
+                source_progress_readers=(reader,),
+            )
+
+    run_coro_sync(_exercise())
+    assert list(store.iter_artifact_ids()) == []
 
 
 @pytest.mark.performance

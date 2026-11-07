@@ -21,8 +21,11 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.core import contracts as core_contracts
 from polisyos.core.contracts import (
     CapabilityExecutionPostureResult,
+    CapabilitySourceCandidate,
+    CapabilitySourceDiscoveryResult,
     CapabilityTimeSemantics,
     ExecutionProfile,
+    candidate_source_time_coverage,
 )
 from polisyos.runtime.http.execution_policy import (
     ExecutionProfileError,
@@ -61,6 +64,9 @@ construct_for_legacy_family = core_contracts.construct_for_legacy_family
 legacy_family_for_construct = core_contracts.legacy_family_for_construct
 
 REQUIREMENT_TO_CAPABILITY_RESOLVER_RULE_VERSION = "requirement-to-capability-resolver-v1.0"
+REQUIREMENT_TO_CAPABILITY_SOURCE_DISCOVERY_RULE_VERSION = (
+    "requirement-to-capability-source-discovery-v1.2"
+)
 DEFAULT_CAPABILITY_INDEX_REF = "capability-index:policy-evidence-phase4-governed-rows"
 GOVERNED_CAPABILITY_ROWS_PATH = Path(
     "architecture/policy_design_case/layer2_s3_governed_capability_rows.json"
@@ -550,6 +556,81 @@ class RequirementToCapabilityResolver:
             reviewer_queue=reviewer_queue,
         )
 
+    def discover_sources(
+        self,
+        query: RequirementToCapabilityQuery | Mapping[str, Any],
+    ) -> CapabilitySourceDiscoveryResult:
+        """Find exact-construct source descriptors without admitting claim evidence.
+
+        This sibling search deliberately retains the original evidence query.
+        It can expose a draft or unverified source as a candidate for an
+        independent native admission step; it cannot change ``resolve`` or
+        satisfy the original claim. Known scope mismatches remain exclusions.
+        """
+
+        model = (
+            query
+            if isinstance(query, RequirementToCapabilityQuery)
+            else RequirementToCapabilityQuery.model_validate(query)
+        )
+        candidates: list[CapabilitySourceCandidate] = []
+        rejected: list[dict[str, Any]] = []
+        for capability in self.capabilities:
+            if _bare_construct(capability.construct_id) != model.construct:
+                continue
+            rejection, unknowns = _source_discovery_scope(model, capability)
+            if rejection is not None:
+                rejected.append(
+                    _rejection(capability.capability_id, rejection, "hard", capability=capability)
+                )
+                continue
+            if not capability.source_assets:
+                rejected.append(
+                    _rejection(
+                        capability.capability_id,
+                        "source_assets_missing",
+                        "hard",
+                        capability=capability,
+                    )
+                )
+                continue
+            descriptor = capability.model_dump(mode="json", by_alias=True)
+            encoded = json.dumps(
+                descriptor,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode("utf-8")
+            candidates.append(
+                CapabilitySourceCandidate(
+                    capability_ref=capability.capability_id,
+                    construct_ref=f"construct:{model.construct}",
+                    content_digest="sha256:" + hashlib.sha256(encoded).hexdigest(),
+                    descriptor=descriptor,
+                    limitations=tuple(
+                        dict.fromkeys(
+                            (
+                                "source_descriptor_only_requires_native_source_admission",
+                                "source_rights_release_and_currentness_not_established_by_discovery",
+                                *unknowns,
+                                *capability.limitations,
+                            )
+                        )
+                    ),
+                )
+            )
+        return CapabilitySourceDiscoveryResult(
+            query=model,
+            capability_index_ref=self.capability_index_ref,
+            rule_version_ref=REQUIREMENT_TO_CAPABILITY_SOURCE_DISCOVERY_RULE_VERSION,
+            state="candidates_returned" if candidates else "no_match",
+            candidates=tuple(sorted(candidates, key=lambda candidate: candidate.capability_ref)),
+            rejected_candidates=tuple(
+                sorted(rejected, key=lambda item: str(item["capability_ref"]))
+            ),
+        )
+
     def _evaluate_candidates(
         self,
         query: RequirementToCapabilityQuery,
@@ -903,6 +984,52 @@ def _mode_matches(actual: str, requested: str) -> bool:
     return requested == "observed" and actual in _DIRECT_MODES
 
 
+def _source_discovery_scope(
+    query: RequirementToCapabilityQuery,
+    capability: EvidenceCapability,
+) -> tuple[str | None, tuple[str, ...]]:
+    """Reuse resolver scope predicates, retaining candidate-band unknowns."""
+
+    unknowns: list[str] = []
+    populations = _population_filter_values(query.population_filter)
+    if not populations or all(
+        value in {"population", "scenario_population"} for value in populations
+    ):
+        unknowns.append("requirement_population_not_established")
+    elif not _population_matches(query.population_filter, capability.scope.population):
+        return "population_filter_mismatch", ()
+    if capability.scope.population is None:
+        unknowns.append("source_population_not_established")
+    if _slug(query.geography) in {
+        "geography",
+        "scenario_geography",
+        "state_or_region",
+        "unspecified",
+    }:
+        unknowns.append("requirement_geography_not_established")
+    elif not _geography_matches(query.geography, capability.scope.geography):
+        return "geography_mismatch", ()
+    elif capability.scope.jurisdiction is not None and not _geography_matches(
+        query.geography, capability.scope.jurisdiction
+    ):
+        return "jurisdiction_mismatch", ()
+    if capability.scope.jurisdiction is None:
+        unknowns.append("source_jurisdiction_not_established")
+    if _slug(query.entity_scope) in {"entity", "construct", "unspecified", "scenario_entity"}:
+        unknowns.append("requirement_entity_scope_not_established")
+    elif not _entity_scope_matches(query.entity_scope, capability.scope.entity_scope):
+        return "entity_scope_mismatch", ()
+    time_refusal, time_unknowns = candidate_source_time_coverage(
+        query_window=query.time_window,
+        source_start=capability.scope.time_start,
+        source_end=capability.scope.time_end,
+    )
+    if time_refusal is not None:
+        return time_refusal, ()
+    unknowns.extend(time_unknowns)
+    return None, tuple(unknowns)
+
+
 def _geography_matches(query_geography: str, capability_geography: str) -> bool:
     query = _slug(query_geography)
     capability = _slug(capability_geography)
@@ -1104,6 +1231,7 @@ __all__ = [
     "DEFAULT_CAPABILITY_INDEX_REF",
     "REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION",
     "REQUIREMENT_TO_CAPABILITY_RESOLVER_RULE_VERSION",
+    "REQUIREMENT_TO_CAPABILITY_SOURCE_DISCOVERY_RULE_VERSION",
     "CapabilityBindingResult",
     "CapabilityConformanceReceipt",
     "CapabilityConformanceVerifier",

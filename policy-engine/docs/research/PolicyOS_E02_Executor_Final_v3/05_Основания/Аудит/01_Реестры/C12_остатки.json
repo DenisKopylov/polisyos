@@ -1,0 +1,139 @@
+{
+  "release": "v010",
+  "pass": "C12",
+  "bundle": "CTL-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C12-R02",
+      "source_ids": [
+        "B118",
+        "LA-015"
+      ],
+      "type": "bounded_reproduced_run_affinity_defect",
+      "severity": "medium; high if mixed shared-owner sessions are admitted",
+      "confidence": "high within observed local generic boundary",
+      "locations": [
+        "service.py:40-141",
+        "service.py:177-197",
+        "lifecycle.py:_prepare_service_run/_accept_tell",
+        "adapters.py:LegacySearchServiceAdapter"
+      ],
+      "probes": [
+        "P16",
+        "P21"
+      ],
+      "positive_controls": [
+        "P01",
+        "P02",
+        "P12",
+        "P17",
+        "P18",
+        "P19",
+        "P28"
+      ],
+      "finding": "Old pending response survives owner run replacement through another driver and is appended under the new search_id; refused run also clears pending before lock admission.",
+      "consequence": "wrong-run history/counters; snapshot already returned remains unchanged",
+      "production_reach": "API source composition established; native execution/scheduling prevalence UNRUN",
+      "authority_bypass_established": false,
+      "preserve": [
+        "single lifecycle/state owner",
+        "detached completed result",
+        "same-session continuation",
+        "unknown/duplicate IDs guards",
+        "full-run lock"
+      ],
+      "repair_direction": "bind pending to actual owner run epoch, reconcile admission/reset/tell; clear only after admission, not a second ledger",
+      "native_falsifier": "public adapter.ask -> facade.run -> old tell must refuse or retain old-run provenance, and blocked overlapping run must preserve pending"
+    },
+    {
+      "id": "C12-R01",
+      "source_ids": [
+        "B119",
+        "LA-015"
+      ],
+      "type": "observed_interruption_lifecycle_gap_with_existing_characterization",
+      "severity": "medium; depends on external durable retention",
+      "confidence": "high in local driver ordering, end-to-end UNRUN",
+      "locations": [
+        "service.py:177-272",
+        "lifecycle.py:_finish_native_run",
+        "test_srv_03.py:test_lifecycle_owner_propagates_evaluator_exception_without_failed_transition"
+      ],
+      "probes": [
+        "P13",
+        "P14"
+      ],
+      "related_probe": [
+        "P15"
+      ],
+      "finding": "Started failed/cancelled generation is not counted and bypasses finish; status remains RUNNING; earlier complete row remains internal only.",
+      "external_paid_cost_loss_established": false,
+      "preserve": [
+        "original exception/cancellation propagation",
+        "released lock",
+        "earlier valid work",
+        "durable budget owner"
+      ],
+      "repair_direction": "record started/completed/failed meaning and preserve partial snapshot/reason through existing owner before rethrow or typed interruption; do not swallow cancellation",
+      "native_falsifier": "one accepted row then provider-settled generation failure; read retained run and exact reason/cost without admitting another evaluation"
+    },
+    {
+      "id": "C12-G01",
+      "source_ids": [
+        "B119"
+      ],
+      "type": "empty_reason_semantic_boundary",
+      "probes": [
+        "P04",
+        "P06",
+        "P07",
+        "P08"
+      ],
+      "finding": "Count-limited empty batch is labeled exhausted without producer-origin exhaustion vs repair vs transient reason.",
+      "wrong_public_scientific_claim_established": false,
+      "repair_direction": "keep bounded stopping and distinguish attempt-budget end from established space exhaustion; no fake candidates"
+    },
+    {
+      "id": "C12-A01",
+      "source_ids": [
+        "B121"
+      ],
+      "type": "adjacent_observation_for_next_bundle_not_full_assessment",
+      "probes": [
+        "P22",
+        "P23",
+        "P24"
+      ],
+      "finding": "Generated sentinel-only stream does not increment ordinary hard-limit counter; watchdog bounded demonstration. Independent cost cap remains effective.",
+      "next_bundle": "CTL-03",
+      "update_original_source_status": false
+    },
+    {
+      "id": "C12-A02",
+      "source_ids": [
+        "LA-014"
+      ],
+      "type": "adjacent_ask_tell_accounting_boundary",
+      "probes": [
+        "P20"
+      ],
+      "finding": "Explicit caller asks do not increment run_search generation accounting. Not an autonomous infinite loop.",
+      "next_bundle": "SRV-01",
+      "update_original_source_status": false
+    },
+    {
+      "id": "C12-T01",
+      "source_ids": [
+        "B118",
+        "LA-015"
+      ],
+      "type": "source_level_test_fixture_mismatch",
+      "location": "tests/unit/scientist/search/test_controller_api.py::test_search_controller_uses_facade_default_metrics_binding",
+      "finding": "Test omits both evaluator ports, but current constructor rejects before metrics factory/assertion.",
+      "native_pytest": "UNRUN",
+      "repair_direction": "supply valid no-op evaluator ports; preserve required-evaluators contract"
+    }
+  ]
+}

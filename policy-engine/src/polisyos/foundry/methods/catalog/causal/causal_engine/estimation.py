@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from . import artifacts as _artifacts
+import polisyos.foundry.methods.catalog.causal.causal_engine.artifacts as _artifacts
 
 if TYPE_CHECKING:
     from .artifacts import (

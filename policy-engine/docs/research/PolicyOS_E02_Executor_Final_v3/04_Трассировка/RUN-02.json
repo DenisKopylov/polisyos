@@ -1,0 +1,237 @@
+{
+  "packet_id": "RUN-02",
+  "lane": "LANE-06",
+  "source_ids": [
+    "B24"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/RUN-02.md",
+    "../05_Основания/Аудит/01_Реестры/C69_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C69-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-RUN-02-01"
+      ],
+      "shared_owner": null,
+      "rationale": "EOF до elapsed deadline не compute timeout; актуальный exit status/transport reason.",
+      "inventory_id": "audit-residual:C69_остатки:0"
+    },
+    {
+      "audit_id": "C69-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-RUN-02-02",
+        "REQ-RUN-02-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Core-bound Linux supervisor/receipt/descendants, не только direct child.",
+      "inventory_id": "audit-residual:C69_остатки:1"
+    },
+    {
+      "audit_id": "C69-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-RUN-02-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Native macOS spawn/allowlist/context, Linux spawn не замена.",
+      "inventory_id": "audit-residual:C69_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-RUN-02-01",
+      "text": "Sync/async drain при EOF до completion и до compute deadline выдаёт crash/transport diagnostic с актуальным известным exitcode либо unknown exit status; не compute-timeout только из-за EOF. При одном повторном наблюдении приоритет: timely completion mark → delivery failure; иначе подтверждённо exited worker → _WorkerProcessExited, даже если monotonic deadline к этому наблюдению уже истёк; иначе alive/unconfirmed exit и elapsed budget → compute-timeout; иначе early EOF → transport diagnostic. Этот порядок сохраняет текущий post-loop exit precedence и не утверждает неизвестное время смерти. Ни одна ветка не ждёт остаток compute budget ради EOF.",
+      "source_ids": [
+        "B24"
+      ],
+      "audit_ids": [
+        "C69-R01"
+      ],
+      "test_ids": [
+        "TEST-RUN-02-01"
+      ]
+    },
+    {
+      "id": "REQ-RUN-02-02",
+      "text": "Actual Core-bound wrapper доставляет small/1MiB typed outcomes до join в sync/async. Completion receipt, digest/run/attempt/owner binding проверяются до принятия; partial/corrupt/send failure не success. Delivery window фиксирован actual completion mark.",
+      "source_ids": [
+        "B24"
+      ],
+      "audit_ids": [
+        "C69-G01"
+      ],
+      "test_ids": [
+        "TEST-RUN-02-02"
+      ]
+    },
+    {
+      "id": "REQ-RUN-02-03",
+      "text": "Native Linux supervisor очищает подтверждённо принадлежащих descendants или явно сообщает cleanup incomplete; не сигналит parent/foreign group. Native macOS supported canonical nodes используют closed spawn task/context и exact attempt binding, unsupported node/context явно отказывается без silent fallback. Linux numerical-timeout qualification отдельно называет actual start method и состояние parent после JAX/BLAS/thread-pool initialization. Cold callable не доказывает warm numerical support: выбранный supported route должен завершить meaningful bounded calculation, либо именно эта topology явно остаётся unsupported/NOT_RUN без broad numerical PASS. Это не утверждение уже воспроизведённого deadlock и не блокер независимого EOF repair.",
+      "source_ids": [
+        "B24"
+      ],
+      "audit_ids": [
+        "C69-G01",
+        "C69-G02"
+      ],
+      "test_ids": [
+        "TEST-RUN-02-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-RUN-02-01",
+      "requirement_ids": [
+        "REQ-RUN-02-01"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Controlled alive→EOF→exit23 и exit23→EOF, no mark/near-future deadline; timely mark и elapsed variants.",
+      "action": "Оба drain owners, затем actual wrapper error projection.",
+      "oracle": "Early EOF crash/transport с23 или unknown, не timeout; no-mark+exited+elapsed даёт process-exited, no-mark+alive+elapsed — compute-timeout, timely-mark+exited+elapsed — delivery failure. Полная таблица одинакова sync/async; no success и немедленный bounded отказ.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RUN-02-02",
+      "requirement_ids": [
+        "REQ-RUN-02-02"
+      ],
+      "level": "native process integration",
+      "setup": "Real Core CAS/context/current attempt, small64B и1MiB outcomes, actual worker/supervisor/codec.",
+      "action": "Sync/async execute→drain→join→receipt accept→fresh read; partial frame/malformed/wrong nonce negatives.",
+      "oracle": "Exact all bytes/type/run/selector retained; no join deadlock; mismatch/corrupt no accepted receipt; finite delivery grace not reset.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-RUN-02-03",
+      "requirement_ids": [
+        "REQ-RUN-02-03"
+      ],
+      "level": "native Linux + native macOS separately",
+      "setup": "Owned process subtree only; Linux descendants fixture and supported Darwin canonical node/context. Отдельный Linux Python3.14/locked-JAX profile: parent выполняет реальную маленькую JAX operation до timeout invocation, с recorded start method/backend/env; внешний bounded watchdog не зависит от child.",
+      "action": "Timeout/worker exit/cancel; new request after cleanup; unsupported context negative. На выбранном warm-parent route выполнить actual bounded child numerical calculation→typed delivery; отдельно stalled-child control и cleanup. При unsafe/unsupported topology выбрать и обосновать existing closed spawn route либо controlled clean forkserver/profile limitation, не менять global start method молча.",
+      "oracle": "Own subtree reaped or explicit incomplete; foreign/parent never signalled. Darwin exact allowed bindings succeed; unsupported rejects before execution. Warm Linux поддержка принимается только при actual expected numerical value, typed run/attempt binding и deadline/cleanup; cold-only success её не закрывает. Если warm topology незаквалифицирована, ограничение named и numerical claim не повышен. Each platform/profile labelled independently; unavailable platform NOT_RUN. Startup/RSS costs — measured characterization, не выдуманный SLO.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I06-C"
+  ],
+  "dependencies": [
+    "RUN-01"
+  ],
+  "preservation": [
+    "Framed nonblocking Pipe, drain-before-join и exact typed codec.",
+    "Completion mark отдельно от конечного delivery grace, окно не продлевается кусками.",
+    "Send/serialization/corrupt receipt fail closed.",
+    "Only verified own non-parent process groups cleaned; closed spawn tasks и parent-issued binding."
+  ],
+  "design_alignment": [
+    "policy-design-execution-topology.md §6: observed receipt != deterministic execution claim.",
+    "design_direction.md §4.7: completion/delivery/admission отдельны; полезный timely result не теряется из-за join ordering."
+  ],
+  "open_decisions": [],
+  "source_obligations": [
+    "B24 → REQ-RUN-02-01…-03: already fixed transport сохранить; early EOF уточнить; real supervisor/descendants и native Darwin квалифицировать отдельно."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py: _WorkerResultChannel, _drain_result_sync/_async, _WorkerProcessExited, _owned_process_group_id",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py: typed timeout task/context/receipt codecs"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_timeout_transport_attempt_binding.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0059",
+      "requirement_ids": [
+        "REQ-RUN-02-01"
+      ],
+      "disposition": "fix",
+      "rationale": "EOF до elapsed deadline не compute timeout; актуальный exit status/transport reason."
+    },
+    {
+      "inventory_id": "remaining:0060",
+      "requirement_ids": [
+        "REQ-RUN-02-02",
+        "REQ-RUN-02-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Core-bound Linux supervisor/receipt/descendants, не только direct child."
+    },
+    {
+      "inventory_id": "remaining:0061",
+      "requirement_ids": [
+        "REQ-RUN-02-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native macOS spawn/allowlist/context, Linux spawn не замена."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0075",
+      "requirement_ids": [
+        "REQ-RUN-02-02"
+      ],
+      "test_ids": [
+        "TEST-RUN-02-02"
+      ],
+      "rationale": "Framed nonblocking Pipe and drain-before-join — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0076",
+      "requirement_ids": [
+        "REQ-RUN-02-01",
+        "REQ-RUN-02-02"
+      ],
+      "test_ids": [
+        "TEST-RUN-02-01",
+        "TEST-RUN-02-02"
+      ],
+      "rationale": "Separate compute mark and finite delivery window — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0077",
+      "requirement_ids": [
+        "REQ-RUN-02-01",
+        "REQ-RUN-02-02"
+      ],
+      "test_ids": [
+        "TEST-RUN-02-01",
+        "TEST-RUN-02-02"
+      ],
+      "rationale": "Typed corruption/send failure refusals — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0078",
+      "requirement_ids": [
+        "REQ-RUN-02-03"
+      ],
+      "test_ids": [
+        "TEST-RUN-02-03"
+      ],
+      "rationale": "Verified non-parent process group cleanup — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0079",
+      "requirement_ids": [
+        "REQ-RUN-02-03"
+      ],
+      "test_ids": [
+        "TEST-RUN-02-03"
+      ],
+      "rationale": "Closed spawn task and parent-issued receipt binding — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}

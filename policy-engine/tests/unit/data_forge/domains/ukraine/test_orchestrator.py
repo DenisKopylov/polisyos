@@ -372,7 +372,6 @@ def test_d3_registry_route_preserves_explicit_period_outputs(tmp_path: Path) -> 
     # These logical-content digests were measured from the same fixture at the
     # pre-split execution base. The separate receipt records 10/10 byte parity.
     expected_semantic_sha256 = {
-        "calibrated_household_cells.parquet": "d0aca476693e1180fd4f81fa182e4208377c13f78f59cbe351929e6c2602dc04",
         "corrected_firm_panels.parquet": "ef2964cd876a0660ca411165f33f5c5c14f174a142a5e2f8f58e67b97d3109a9",
         "household_candidate_panel.parquet": "a5a74bc544e1a26f72ca1b90a1fef402fda0567a2d3ab4eb2163db05d2e94ab1",
         "labor_bias_validation.json": "abeabf94970543d130eaa952d69b433dd542f1e09ed8583a252b979390431d11",
@@ -384,7 +383,10 @@ def test_d3_registry_route_preserves_explicit_period_outputs(tmp_path: Path) -> 
         "microsim_survey_contract_v1.json": "dbdfae5bc4fda952c95cff1e069dd7fede732fc91987ba4adacccba2b658c3bd",
         "survival_hazard_estimates.parquet": "8ddb27b4eeba11e0c7dc985933359155a85fa9fb9c84d69059935ca7060df12c",
     }
-    assert set(outputs) == set(expected_semantic_sha256) | {"household_candidate_basis.json"}
+    assert set(outputs) == set(expected_semantic_sha256) | {
+        "calibrated_household_cells.parquet",
+        "household_candidate_basis.json",
+    }
     for record in persisted.outputs:
         path = Path(record.path)
         assert path.is_file()
@@ -406,6 +408,34 @@ def test_d3_registry_route_preserves_explicit_period_outputs(tmp_path: Path) -> 
             assert hashlib.sha256(semantic).hexdigest() == expected_semantic_sha256[path.name], (
                 path.name
             )
+
+    # The canonical period repair extended this output after the historical
+    # parity capture. Check every original aggregate and every new time field,
+    # rather than silently replacing its pre-projection digest with a new one.
+    calibrated = pd.read_parquet(outputs["calibrated_household_cells.parquet"].path)
+    expected_calibrated = pd.DataFrame(
+        {
+            "cell_id": ["cell::01::household_distribution", "cell::02::household_distribution"],
+            "region_code": ["01", "02"],
+            "period_id": ["2025-12", "2025-12"],
+            "household_income_mean": [1000.0, 800.0],
+            "market_income_mean": [900.0, 700.0],
+            "total_expenditure_mean": [1000.0, 800.0],
+            "household_weight_sum": [1.0, 1.0],
+            "measurement_bias_flag": [False, False],
+            "trust_weight": [0.95, 0.95],
+            "period_start": ["2025-12-01", "2025-12-01"],
+            "period_end": ["2025-12-31", "2025-12-31"],
+            "period_disposition": ["valid", "valid"],
+            "period_reason": [pd.NA, pd.NA],
+            "period_projection_version": ["ukraine_observation_period_v1"] * 2,
+        }
+    )
+    pd.testing.assert_frame_equal(
+        calibrated.sort_values("cell_id").reset_index(drop=True),
+        expected_calibrated,
+        check_dtype=False,
+    )
 
     candidate_panel = pd.read_parquet(outputs["household_candidate_panel.parquet"].path)
     assert list(candidate_panel.columns) == [

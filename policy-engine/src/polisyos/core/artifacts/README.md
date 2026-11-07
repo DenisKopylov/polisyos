@@ -40,6 +40,14 @@ ordinary filesystem permission errors through explicit exception causes while le
 unavailability distinct; the caller must decide its own response. Neither helper grants access,
 proves numerical producer identity, or establishes authority or currentness.
 
+### Stock CAS component type inspection
+
+`FileSystemCAS.has_stock_component_types` checks the exact stock filesystem CAS,
+ownership-index, root-coordinator, layout, atomic-writer, and manifest owner
+classes without exposing those internal classes. This is a type-shape predicate:
+it does not validate root/configuration relations, access enforcement,
+provenance, or authority. Consumers must establish those properties separately.
+
 ### Atomic local byte replacement
 
 `write_bytes_atomic(path, data, durable_parent=False)` delegates to the existing
@@ -201,8 +209,8 @@ local Python API and adds no HTTP endpoint.
   callbacks, and returns their rows with `state="aborted"` and
   `abort_reason="authorization_lost"`. This signal does not preempt active work,
   infer authorization from per-artifact errors, or itself establish a permission
-  decision. The current CAS/CLI chain has no production authorizer bridge into this
-  signal.
+  decision. ``verify_all_signatures(request_authorizer=...)`` can bind a configured
+  caller to the actual CAS tenant/cell scope; the CLI does not infer such a grant.
 - exact chronology evidence: direct module API
   `polisyos.core.artifacts.signed_evidence.FileSystemSignedArtifactEvidenceRepository`; it is not
   added to the eager artifacts facade because that would create a contracts/artifacts import cycle
@@ -329,7 +337,7 @@ callback results remain in the report, along with a `<batch>` ERROR row for a gl
 Both `BulkSigningReport` and `BulkVerificationReport` expose runtime `state`, `admitted`,
 `finished`, `inventory_exhausted` and `abort_reason` fields. `admitted` counts successful executor
 submissions; `finished` counts callback results collected by the batch; and `inventory_exhausted`
-becomes true only when the iterator's `StopIteration` is observed. `state=complete` means the
+becomes true only when the iterator's `StopIteration` is observed without a concurrent stop. `state=complete` means the
 inventory was exhausted without a batch abort; it does not mean every item succeeded. The legacy
 `BulkVerificationReport.ok` remains outcome-only, may be true for unsigned or untrusted rows, and
 is not a completeness or publication predicate. Historical report payloads without runtime
@@ -339,10 +347,20 @@ report cannot authorize a publication that requires confirmations for every sele
 Bulk verification also accepts an optional `BatchAuthorizationLossSignal`. The caller owns the
 decision to request it after its configured request-scope authorizer establishes authorization loss;
 the batch stops new admissions, drains admitted callbacks, and retains their rows with an explicit
-`authorization_lost` abort reason. The signal is caller input, not permission evidence. No configured
-request-scope authorizer currently reaches the CAS batch-verification callsite, so this is a bounded
-mechanism with a controlled consumer witness rather than a production authorization bridge. Batch
-signing remains cancellation-only and its report excludes this verification-only reason.
+`authorization_lost` abort reason. The signal is caller input, not permission evidence. The optional
+`request_authorizer(tenant_id, cell_id)` callback receives the scope resolved by the CAS owner,
+including during inventory preparation. Only `AuthorizationDeniedError` requests the signal;
+configuration, backend and other callback failures abort as `inventory_failed`, never as a fabricated
+authorization denial. Runtime's `CASBatchRequestAuthorizer` reuses the current
+`DeploymentPrincipalGrantResolver`, exact issuer/audience/subject/tenant/cell bindings, expiry and
+`ARTIFACTS_BATCH_READ`. Runtime's `verify_cas_batch_for_request` is the explicit native caller
+that constructs this adapter and invokes the real CAS batch. The caller supplies authenticated
+claims and its current configuration
+supplier. This is a configured native caller port, not JWT authentication, a new HTTP route or an
+automatically configured CLI/deployment authorizer. A local grant-withdrawal test proves this
+software path without asserting external institutional authority. Checks establish the observed
+cooperative admission boundary, not continuous revocation. Batch signing remains cancellation-only
+and its report excludes this verification-only reason.
 
 These APIs do not provide `require_complete_valid(required_refs)` or an all-confirmations publisher.
 A consumer that needs that policy must supply and reconcile its own exact required set and freshly
@@ -353,41 +371,109 @@ Cancellation stops future admission but does not preempt callbacks already runni
 iterator operation may block; this is not hard preemption of arbitrary producer code.
 
 The default filesystem inventory materializes the full CAS name/member census and visible IDs
-before yielding, without reading every manifest or blob during that first census. On successful
-exhaustion it recomputes active-scope membership. Cancellation cannot interrupt the initial
-filesystem walk; it stops later item admission only. These signature batch methods do not accept
-a deadline. Detailed reports also require O(N) memory.
+before yielding, without reading every manifest or blob during that first census. One optional
+private stop probe reaches every filesystem scan, directory entry, canonical membership and
+visibility loop, as well as the final active-scope recheck. Explicit deduplication checks before
+and after each source `next()`, including duplicates and exhaustion; cancellation cannot be
+misreported as a complete empty/finished inventory. The scanner and source may finish an already
+in-flight synchronous call, and sorting is not hard-preempted. A successful complete report still
+requires the full canonical membership census and recheck; unrelated tenant/signature churn is
+not mistaken for a scoped change. These methods do not accept a deadline. The census, deduplication
+seen set and detailed report retain O(N) memory; the pending window bounds submitted work, not
+total memory. Verified snapshots also retain the selected payload bytes.
+A filesystem caller may pass `signature_verifier=Ed25519Verifier(...)` to `import_subgraph`.
+That explicit profile requires a `VALID` real Ed25519 result for **every** incoming default and
+selected manifest view, including exact owned no-ops, before any owner transaction begins.
+The configured verifier rechecks its current trust, revocation and identity policy; an absent,
+untrusted, revoked or invalid signature refuses the closed set. `ImportSignatureVerificationError`
+identifies the exact selected reference and actual typed verifier outcome.
+
+The policy path stages the complete measured input, including reused views, before the canonical
+owner gate. It verifies one immutable blob snapshot at a time against the exact captured manifest
+and signature bytes that publication consumes. Streamed transaction staging remains bound to the
+measured content digest. This adds a whole-input private disk requirement and at most one payload
+snapshot at a time; it is not a zero-copy or constant-total-memory claim. The returned
+`signature_verification_requested` and `signature_verified_refs` are distinct from integrity
+verification and from `published_refs`/`reused_refs`. A claimed no-op cannot skip current crypto
+policy after a key is revoked. Verification-only staging does not increase `imported_files`: an
+exact no-op reports zero and `exact_owned_view_admission`; a mixed input counts only members
+consumed by actual owner publication. An explicit selected view owns its destination slot, including
+an absent sidecar, even when an incoming default view cannot replace the existing default.
+Omitting the verifier preserves the existing permitted unsigned profile; it does not claim signature
+trust or external institutional authority.
+
 The importer with `verify_integrity=True` consumes a full typed per-view integrity report,
 reconciling exact member membership, actual blob digest/size and manifest digest/profile
-against its measured intake before publishing. This does not add a signature trust policy
-or replace a scientific publisher's required all-signature confirmations. That A-owned
-signature publication consumer remains explicitly absent until separately integrated.
+against its measured intake before publishing. The integrity flag alone does not apply
+signature trust. The explicit verifier profile above gates this CAS import; it does not
+replace a scientific publisher's exact required-reference signature confirmations.
 
 ### Transfer generations
 
-Reusable exports publish a complete privately staged generation. Archive destinations admit
-only missing paths or regular files; symlink aliases and other filesystem kinds are refused
-before staging. Existing archive permission bits are preserved. The archive is synced before
-one atomic replace, and the previous inode remains available at `ExportReport.previous_generation`.
-New archive and directory outputs start with private staging modes (0600 and 0700); existing
-output modes are retained.
+Reusable exports write privately staged generations before publication. Archive
+output paths admit only missing paths or regular files; aliases and other kinds
+refuse before staging. Tar headers, members and footer use the original owned
+`mkstemp` descriptor, followed by file sync. Directory members are created through
+the pinned staging directory with exclusive, no-follow descriptor operations.
+New staging modes are 0600/0700; ordinary existing permission bits are preserved.
 
-An existing owned nonempty directory requires a native atomic exchange (`renameat2` on Linux,
-`renamex_np` on Darwin). Missing or empty directories use atomic replacement. Unsupported
-platforms/filesystems refuse the exchange rather than temporarily removing the public path.
-The previous directory remains at the named generation path returned by the report. The
-operator owns retention and eventual reclamation of these history paths; publication does
-not sweep them. Inventory metadata, files, and directory entries are synced before selection.
+A shared native generation rename uses exclusive/no-replace publication for a
+missing destination and atomic exchange for an existing archive or directory
+(`renameat2` on Linux, `renamex_np` on Darwin). A destination created after
+preflight is not silently overwritten. The actually displaced generation remains
+at `ExportReport.previous_generation`; the CLI exposes this locator conditionally
+in JSON and text. The published inode is reconciled with the staged owner.
 
-A parent-directory sync failure after replacement raises `ExportDurabilityError` with
-`replaced=True` and `previous_generation`; both complete generations remain readable, while
-crash durability remains uncertain. This is a local filesystem publication boundary, not a
-power-loss, hostile-parent-mutation, ACL/ownership, or distributed filesystem guarantee.
-Archive import sources likewise require a regular supplied pathname and a regular opened
-descriptor, with no-follow and nonblocking open flags. Ordinary permission modes are verified;
-special set-ID bits and uid/gid ownership remain outside the native permission witness.
-Importers keep one archive inode or one directory descriptor pinned from inventory through
-member reads, so a concurrent generation replacement cannot mix their input bytes.
+Failed archive files and directory trees remain available. Export does not
+recursively sweep a failed stage or unlink a pathname that another actor could
+have replaced. `ExportDurabilityError` is an `OSError` exposing `replaced=True`
+when the published inode is established, `False` for a prepublication failure,
+and `None` when its visibility cannot be established. `previous_generation` names
+the displaced entry and `staging_path` identifies retained partial bytes; neither
+means a failed stage is complete. A post-publication sync failure does not promise
+rollback. Original causes and typed visibility remain inspectable.
+
+Exports have configurable finite limits: `max_retained_generations=8` and
+`max_retained_bytes=1073741824` by default. The byte unit is logical regular-file bytes,
+not a physical-filesystem quota or a forecast of free space. Target-local admission
+acquires a nonblocking thread gate and native `flock` before consuming the caller's ID
+iterable, opening CAS members or creating a generation. Its permanent regular lockfile
+is never unlinked; busy callers refuse rather than waiting or forcing past another writer.
+The kernel releases the lease on process exit, including an interrupted exporter.
+
+Admission counts all reserved sibling `staging-*`, `generation-*` and legacy `previous-*`
+entries conservatively, including partial/unknown entries, and reserves one possible
+failed stage for every attempt. It measures the current target's projected displacement
+and limits actual compressed archive writes or copied directory/inventory bytes to the
+remaining byte allowance. Thus one oversized failed attempt cannot bypass the limit.
+An abandoned stage consumes capacity on the next attempt; there is no stale-PID/TTL
+cleanup. Unknown or unmeasurable entries refuse admission and retain their locators.
+
+`ExportReport.retained_paths` and `retained_bytes` describe the observed reserved siblings;
+they do not prove completeness or exporter ownership of those bytes. `ExportResourceError`
+reports busy/capacity/unavailable measurements, limits and occupied paths. A resource
+observation error after successful selection carries `replaced=True`, so it cannot be
+misread as rollback. Cooperating writers are serialized; uncoordinated foreign mutation
+can change occupancy after a measurement and is diagnosed, never erased to regain space.
+
+Reclamation requires the caller's explicit inspection and authority; no returned locator
+permits deletion of changed foreign files. Replay CLI exposes finite overrides through
+`--export-max-retained-generations` and `--export-max-retained-bytes`, reports retained
+resources and typed refusal, and preserves the ordinary first-export output. Its explicit
+`--require-bundle-signatures` profile consumes configured `--bundle-trust-dir`,
+`--bundle-revoked-dir`, `--bundle-identities` and optional `--bundle-strict-identity` before
+replay consumes a bundle. The default bundle profile remains compatible and unsigned.
+
+Native macOS/APFS checks cover the declared publication window; they do not
+establish power-loss, indefinitely hostile parent mutation, special set-ID bits, ACL/uid/gid ownership,
+Linux runtime or distributed-filesystem guarantees.
+
+The importer remains independently pinned: supplied archive path and opened
+descriptor must be regular, with no-follow/nonblocking open flags. It holds one
+archive inode or directory descriptor from inventory through member reads, so a
+concurrent generation replacement cannot mix its input bytes. This export repair
+does not weaken that admission or promote signature/byte evidence to scientific
+or institutional authority.
 
 ### Scoped import admission and passive caches
 

@@ -5,6 +5,7 @@ import json
 from copy import deepcopy
 from dataclasses import replace
 from datetime import timedelta
+from decimal import Decimal
 
 import pytest
 
@@ -2436,3 +2437,111 @@ def test_control_job_creation_rolls_back_and_replays_through_guarded_store(
     finally:
         if not service_closed:
             service.close()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("mode", "expected", "cap"),
+    [
+        ("omitted", "legacy_omitted", 2.0),
+        (None, "explicit_null", 2.0),
+        ("hard_total_usd", "hard_total_usd", 2.0),
+        (
+            "metered_paid_producers_and_bounded_candidate",
+            "metered_paid_producers_and_bounded_candidate",
+            2.0,
+        ),
+        ("metered_paid_producers_and_bounded_candidate", "missing_cap", None),
+        ("metered_paid_producers_and_bounded_candidate", "missing_cap", "omitted"),
+    ],
+    ids=("legacy", "null", "hard", "limited", "limited-null-cap", "limited-omitted-cap"),
+)
+async def test_candidate_only_budget_scope_is_replayed_under_actual_worker_lease(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+    mode: str | None,
+    expected: str,
+    cap: float | str | None,
+) -> None:
+    """The distinct financial scope is issued for non-simulation NL intent too."""
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    service = _build_control_service(tmp_path)
+    service.bind_llm_producer_settlement_store(
+        BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(tmp_path / "producer-ledger.json"))
+    )
+    try:
+        values: dict[str, object] = {
+            "request": "Explore a policy option as a candidate.",
+            "llm_model": "simulated-qwen",
+        }
+        if cap != "omitted":
+            values["run_budget_usd"] = cap
+        if mode != "omitted":
+            values["run_budget_scope"] = mode
+        request = NaturalLanguageRunRequest.model_validate(values)
+        claims = _fixture_claims()
+        launch = await service.launch_nl_run(
+            request,
+            principal=RuntimePrincipal.from_user_claims(claims),
+            authorization_proof=bound_nl_authorization_proof(claims, request),
+        )
+        observed = []
+
+        async def compiler_probe(**kwargs: object) -> object:
+            assert kwargs.get("execution_intent") == "candidate_only"
+            scope = service._current_verified_nl_budget_scope()
+            assert scope.run_budget_usd == (
+                Decimal(str(cap)) if cap is not None and cap != "omitted" else None
+            )
+            if expected == "missing_cap":
+                with pytest.raises(ValueError, match="nl_physical_budget_cap_not_established"):
+                    scope.require_current_physical_budget_scope()
+            else:
+                assert scope.require_current_physical_budget_scope() == expected
+            for changed in (
+                scope.model_copy(update={"tenant_id": "foreign-tenant"}),
+                scope.model_copy(update={"attempt": scope.attempt + 1}),
+                scope.model_copy(update={"source_payload_ref": "sha256:" + "f" * 64}),
+                scope.model_copy(update={"run_budget_usd": Decimal("99")}),
+                scope.model_copy(
+                    update={
+                        "run_budget_scope_present": True,
+                        "run_budget_scope": "metered_paid_producers_and_bounded_candidate",
+                    }
+                )
+                if mode != "metered_paid_producers_and_bounded_candidate"
+                else scope.model_copy(update={"run_budget_scope": "hard_total_usd"}),
+            ):
+                assert not changed._was_issued_by_verified_nl_budget_owner
+                with pytest.raises(
+                    ValueError, match="nl_physical_budget_scope_owner_not_established"
+                ):
+                    changed.require_current_physical_budget_scope()
+
+            class PretendEqualOwner:
+                def __eq__(self, other: object) -> bool:
+                    return True
+
+            changed_owner = scope.model_copy()
+            object.__setattr__(changed_owner, "_budget_scope_owner", PretendEqualOwner())
+            with pytest.raises(ValueError, match="nl_physical_budget_scope_owner_not_established"):
+                changed_owner.require_current_physical_budget_scope()
+            observed.append(scope)
+            raise RuntimeError("budget_scope_probe_complete")
+
+        monkeypatch.setattr(service, "compile_and_run_recursive_generation_cycle", compiler_probe)
+        dispatch_one_control_job(
+            store=service._control_store,
+            handler=service._process_control_job,
+            expected_job_id=launch.job_id,
+        )
+        completed = service._control_store.get_job(launch.job_id)
+        assert completed is not None and completed.error_message == "budget_scope_probe_complete"
+        assert len(observed) == 1
+        with pytest.raises((RuntimeError, ValueError)):
+            observed[0].require_current_physical_budget_scope()
+    finally:
+        service.close()

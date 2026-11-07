@@ -18,7 +18,9 @@ from typing import TYPE_CHECKING, Protocol, TypedDict, TypeGuard, cast
 
 from polisyos.common.async_tools import run_blocking_async, run_coro_sync
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.contracts.cursor import CursorState, WatermarkType, WindowStrategy
+from polisyos.core.contracts.fabric import IngestionExecutionContext
 from polisyos.fabric.connectors._async_iterators import resolve_async_iterator
 
 # Runtime binding preserves four documented mode routes (AD-E02-FABRIC-REFLECTION-01;
@@ -74,7 +76,7 @@ class _RegistryConnectionKwargs(TypedDict, total=False):
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
-    from polisyos.core.artifacts import ArtifactRef, ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore
     from polisyos.core.contracts.fabric import EvidenceBundleRef
     from polisyos.fabric.connectors._registry_models import (
         _ConnectorRegistrationBinding,
@@ -606,27 +608,52 @@ def _save_confirmed_cursors(
     if evidence_ref is None:
         return set()
 
-    try:
-        from polisyos.core.artifacts import load_core_json_artifact
-        from polisyos.core.artifacts.ids import ArtifactID
-        from polisyos.core.artifacts.manifest import artifact_ref_identity_key
-        from polisyos.core.contracts.fabric import EvidenceBundle
-        from polisyos.core.contracts.provenance import ProvenanceCoreGraph, RelationType
+    from polisyos.core.contracts.fabric import EvidenceBundleRef
 
-        evidence = EvidenceBundle.model_validate(load_core_json_artifact(store, evidence_ref))
+    try:
+        if not isinstance(evidence_ref, ArtifactRef):
+            raise TypeError("source evidence requires a typed artifact reference")
+        evidence_ref = EvidenceBundleRef.model_validate(evidence_ref.model_dump(mode="python"))
+    except (TypeError, ValueError):
+        result.evidence_bundle_ref = None
+        result.warnings.append("source_evidence_reference_invalid")
+        return set()
+    result.evidence_bundle_ref = evidence_ref
+
+    from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+    from polisyos.core.contracts.provenance import ProvenanceCoreRef, RelationType
+    from polisyos.fabric.evidence import load_provenance_graph
+    from polisyos.fabric.ingestion._source_evidence_schema import load_source_evidence_bundle
+
+    try:
+        evidence, _manifest = load_source_evidence_bundle(
+            store, evidence_ref, require_selected_profile=True
+        )
+    except FileNotFoundError:
+        result.evidence_bundle_ref = None
+        result.warnings.append("source_evidence_unavailable")
+        return set()
+    except ValueError:
+        result.evidence_bundle_ref = None
+        result.warnings.append("source_evidence_invalid")
+        return set()
+
+    try:
         provenance_ref = evidence.provenance_ref
         if provenance_ref is None:
             return set()
-        graph_payload = load_core_json_artifact(
+        graph = load_provenance_graph(
             store,
-            ArtifactID.model_validate(provenance_ref.artifact_id),
+            ProvenanceCoreRef.from_dict(provenance_ref.model_dump()),
+            require_selected_profile=True,
         )
-        graph = ProvenanceCoreGraph.from_dict(graph_payload)
         if (
             graph.graph_id != provenance_ref.graph_id
             or graph.compute_stable_id() != provenance_ref.stable_id
         ):
             return set()
+    except PermissionError:
+        raise
     except Exception:
         logger.warning("batch_incremental: persisted evidence could not be resolved and bound")
         return set()
@@ -1017,21 +1044,26 @@ def run_record_mode(
     produce_snapshot: bool = True,
     ingestion_dependencies: IngestionDependencies | None = None,
     sidecar_scope: TenantSidecarScope | None = None,
-) -> tuple[IngestionResult, str]:
+) -> tuple[IngestionResult, str | None]:
     """Run ingestion with HTTP recording enabled.
 
     1. Create APISimulator in RECORD mode with a temp fixture_root.
     2. Run ingestion inside the simulator context.
     3. Collect captured fixtures from the temp directory.
     4. Persist RecordSession to CAS via ReplayStore.
-    5. Return (IngestionResult, canonical record ArtifactID).
+    5. Return the selected session on IngestionResult and a compatible default ID,
+       or None when that legacy ID would select another manifest view.
     """
     import tempfile
     import uuid
 
     from polisyos.core.artifacts import ArtifactOwnershipError
     from polisyos.core.security import TenantIsolationError
-    from polisyos.fabric.connectors.testing.simulator import APISimulator, SimulatorMode
+    from polisyos.fabric.connectors.testing.simulator import (
+        APISimulator,
+        SimulatorMode,
+        _fixture_path_for_namespace,
+    )
     from polisyos.fabric.data_plane.replay_store import (
         ReplayStore,
         make_record_session,
@@ -1043,12 +1075,15 @@ def run_record_mode(
     effective_dependencies = _resolve_ingestion_dependencies(ingestion_dependencies)
     invocation_scope = _resolve_mode_sidecar_scope(Path(cas_root), sidecar_scope)
     session_id = uuid.uuid4().hex
+    execution_context = IngestionExecutionContext(mode="record", capture_session_id=session_id)
 
     # Extract connector/dataset info for the session metadata
     connector_datasets = [{"connector_id": ds[0], "dataset_id": ds[1]} for ds in datasets]
 
     with tempfile.TemporaryDirectory(prefix="polisyos_record_") as tmpdir:
         fixture_root = Path(tmpdir)
+        for connector_id, dataset_id in datasets:
+            _fixture_path_for_namespace(fixture_root, connector_id, dataset_id, "preflight")
 
         # Determine connector_id for the simulator
         first_connector_id = datasets[0][0] if datasets else "unknown"
@@ -1059,6 +1094,7 @@ def run_record_mode(
             fixture_root=fixture_root,
             connector_id=first_connector_id,
             dataset_id=first_dataset_id,
+            require_source_namespace=True,
         )
 
         # Run ingestion with recording — the simulator patches aiohttp globally
@@ -1078,6 +1114,7 @@ def run_record_mode(
                     connection_config=connection_config,
                     dependencies=effective_dependencies,
                     sidecar_scope=invocation_scope,
+                    execution_context=execution_context,
                 )
                 return evidence_ref
 
@@ -1111,9 +1148,14 @@ def run_record_mode(
             Path(cas_root), effective_dependencies, sidecar_scope=invocation_scope
         )
         replay_store = ReplayStore(store)
-        ref = replay_store.save_record_session(session)
+        ref = replay_store.save_record_session(session, evidence_ref=evidence_ref)
+        from polisyos.core.artifacts import legacy_default_artifact_id
 
-        return result, str(ref.artifact_id)
+        legacy_id = legacy_default_artifact_id(store, ref)
+        legacy_ref = str(legacy_id) if legacy_id is not None else None
+        result.record_session_selected_ref = ref
+        result.record_session_ref = legacy_ref
+        return result, legacy_ref
 
 
 # ---------------------------------------------------------------------------
@@ -1127,7 +1169,7 @@ def run_replay_mode(
     source: str,
     license_name: str,
     cas_root: Path,
-    replay_ref: str,
+    replay_ref: ArtifactRef | str,
     connection_config: ConnectionConfig | dict[str, object] | None = None,
     produce_snapshot: bool = True,
     ingestion_dependencies: IngestionDependencies | None = None,
@@ -1142,7 +1184,11 @@ def run_replay_mode(
     """
     import tempfile
 
-    from polisyos.core.artifacts import ArtifactID
+    from polisyos.fabric.connectors.testing.simulator import (
+        APISimulator,
+        SimulatorFixture,
+        SimulatorMode,
+    )
     from polisyos.fabric.data_plane.replay_store import ReplayStore
     from polisyos.fabric.data_plane.streaming import normalize_connection_config
 
@@ -1156,19 +1202,48 @@ def run_replay_mode(
     replay_store = ReplayStore(store)
 
     # Load session from CAS
-    artifact_id = ArtifactID.model_validate(replay_ref)
-    session = replay_store.load_record_session(artifact_id.root)
+    selected_session_ref = replay_store.resolve_record_session_ref(replay_ref)
+    session = replay_store.load_record_session(selected_session_ref)
+    execution_context = IngestionExecutionContext(
+        mode="replay",
+        capture_session_id=session.session_id,
+        selected_record_session_ref=selected_session_ref,
+    )
+
+    # Admit the whole finite layout before any connector can consume a fixture.
+    # Legacy sessions may omit declarations; their fixtures still bind to the manifest.
+    manifest_namespaces = frozenset(datasets)
+    session_namespaces = frozenset(
+        (entry["connector_id"], entry["dataset_id"]) for entry in session.connector_datasets
+    )
+    fixture_namespaces: dict[str, tuple[str, str]] = {}
+    for fixture_dict in session.fixtures:
+        fixture = SimulatorFixture.from_dict(fixture_dict)
+        request_hash = fixture.reconciled_request_hash()
+        namespace = (fixture.connector_id, fixture.dataset_id)
+        if namespace not in manifest_namespaces or (
+            session_namespaces and namespace not in session_namespaces
+        ):
+            raise ValueError(f"Replay fixture namespace is not declared: {namespace!r}")
+        previous_namespace = fixture_namespaces.get(request_hash)
+        if previous_namespace is not None and previous_namespace != namespace:
+            raise ValueError(f"Ambiguous replay fixture namespace for request hash: {request_hash}")
+        fixture_namespaces[request_hash] = namespace
+    if len(manifest_namespaces) > 1:
+        missing_namespaces = manifest_namespaces - set(fixture_namespaces.values())
+        if missing_namespaces:
+            from polisyos.fabric.connectors.testing.simulator import MissingFixtureError
+
+            raise MissingFixtureError(
+                "Recorded request namespace is missing or legacy multi-source layout is unbound: "
+                f"{sorted(missing_namespaces)!r}"
+            )
 
     with tempfile.TemporaryDirectory(prefix="polisyos_replay_") as tmpdir:
         fixture_dir = Path(tmpdir)
         replay_store.build_replay_fixture_dir(session, fixture_dir)
 
-        # Patch aiohttp to serve from fixtures
-        from polisyos.fabric.connectors.testing.simulator import (
-            APISimulator,
-            SimulatorMode,
-        )
-
+        # Patch aiohttp to serve only the admitted request/namespace bindings.
         first_connector_id = datasets[0][0] if datasets else "unknown"
         first_dataset_id = datasets[0][1] if datasets else "unknown"
 
@@ -1177,6 +1252,8 @@ def run_replay_mode(
             fixture_root=fixture_dir,
             connector_id=first_connector_id,
             dataset_id=first_dataset_id,
+            fixture_namespaces=fixture_namespaces,
+            require_source_namespace=True,
         )
 
         async def _replay_ingestion() -> EvidenceBundleRef | None:
@@ -1192,6 +1269,7 @@ def run_replay_mode(
                     connection_config=connection_config,
                     dependencies=effective_dependencies,
                     sidecar_scope=invocation_scope,
+                    execution_context=execution_context,
                 )
 
         evidence_ref = run_coro_sync(_replay_ingestion())
@@ -1200,6 +1278,7 @@ def run_replay_mode(
             evidence_bundle_ref=evidence_ref,
             datasets_fetched=len(datasets),
             mode_effective="replay",
+            record_session_selected_ref=selected_session_ref,
         )
         return result
 
@@ -1407,6 +1486,7 @@ async def _run_streaming_windowed_async(
     from polisyos.fabric.data_plane.streaming import (
         _resolve_stream_schema_binding,
         process_stream_dataset,
+        read_stream_window,
     )
     from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
 
@@ -1479,6 +1559,10 @@ async def _run_streaming_windowed_async(
         )
         warnings.extend(dataset_result.warnings)
         source_refs.extend(dataset_result.chunk_refs)
+        for window_ref in dataset_result.window_refs:
+            # The same fresh reader fences immediate publication and later
+            # consumption; a valid sibling contributor cannot mask withdrawal.
+            await run_blocking_async(read_stream_window, store, window_ref)
         source_refs.extend(dataset_result.window_refs)
         source_refs.extend(dataset_result.cdc_event_refs)
         total_chunks += dataset_result.chunks_processed

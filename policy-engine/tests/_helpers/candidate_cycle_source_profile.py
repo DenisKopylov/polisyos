@@ -12,9 +12,9 @@ import hashlib
 import json
 from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import duckdb
 import pytest
@@ -86,6 +86,9 @@ from polisyos.runtime.quality.substrate_registry import (
 )
 from polisyos.runtime.quality.world_model_record import WorldModelRecord
 from polisyos.scientist.methods.autotune import ChampionRegistry
+
+if TYPE_CHECKING:
+    from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
 
 _PROFILE_SELECTION_KEY = "cycle_substrate_source_profile"
 _REQUIRED_N5_HINTS: dict[str, Any] = {
@@ -369,7 +372,10 @@ def _build_l3_fixture(path: Path) -> None:
 
 
 def _build_source_files(
-    root: Path, *, include_owner_slot_manifest: bool = False
+    root: Path,
+    *,
+    include_owner_slot_manifest: bool = False,
+    owner_knob_dictionary: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> tuple[Path, str]:
     from polisyos.runtime.quality.credal_reference import (
         DEFAULT_DATA_FORGE_CATALOG_PATH,
@@ -402,7 +408,8 @@ def _build_source_files(
     ):
         path = l6_paths[name]
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text("{}\n", encoding="utf-8")
+        payload = owner_knob_dictionary if name == "intervention_knob_dictionary" else None
+        path.write_text(json.dumps(payload or {}, sort_keys=True) + "\n", encoding="utf-8")
     if include_owner_slot_manifest:
         # Declare only slots already used by the tracked mechanism owner.
         # This is structural candidate input, not a lever, law or permission.
@@ -475,6 +482,7 @@ def build_candidate_cycle_substrate_route_inputs(
     runtime_hints: Mapping[str, Any] | None = None,
     outcome_variable: str = "education.learning_outcomes",
     include_owner_slot_manifest: bool = False,
+    owner_knob_dictionary: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> CandidateCycleSubstrateRouteInputs:
     """Build only selected-profile source inputs beneath a caller-owned temp root.
 
@@ -488,6 +496,8 @@ def build_candidate_cycle_substrate_route_inputs(
         include_owner_slot_manifest: Declare the tracked mechanism owner's complete
             read/write slot set for a candidate-action fixture. The default keeps
             the empty source-only L6 input and its real linker refusal.
+        owner_knob_dictionary: Explicit candidate-only knob inputs for the real
+            L6 owner to resolve. They confer no law or publication authority.
 
     Returns:
         Owner-built source data and an unprofiled seed context for the actual
@@ -498,7 +508,9 @@ def build_candidate_cycle_substrate_route_inputs(
     root.mkdir(parents=True, exist_ok=False)
     problem = _problem(runtime_hints=runtime_hints, outcome_variable=outcome_variable)
     skg_path, version_id = _build_source_files(
-        root, include_owner_slot_manifest=include_owner_slot_manifest
+        root,
+        include_owner_slot_manifest=include_owner_slot_manifest,
+        owner_knob_dictionary=owner_knob_dictionary,
     )
     registry = _build_registry(skg_path, root=root, version_id=version_id)
     selected_entry_hashes = tuple(sorted(entry.entry_content_hash for entry in registry.entries))
@@ -676,6 +688,47 @@ def build_candidate_cycle_catalog_serving_source(
     ):
         raise AssertionError("candidate_catalog_owner_selection_readback_mismatch")
     return selection, source
+
+
+@contextmanager
+def candidate_cycle_catalog_registry_providers(
+    selection: CatalogServingSourceSelection,
+    source: CatalogServingSourcePaths,
+    *,
+    providers: ControlRegistryProviders | None = None,
+) -> Iterator[ControlRegistryProviders]:
+    """Bind the actual selected Catalog graph before runtime composition.
+
+    Callers may preserve their other existing registry providers. The graph is
+    test-owned and remains open until the consuming runtime has shut down.
+    """
+    from polisyos.data_forge.read_api.catalog import DatasetCatalogGraph
+    from polisyos.runtime.http.services.control_registry_providers import (
+        resolve_control_registry_providers,
+    )
+    from polisyos.runtime.quality.substrate_registry import require_catalog_serving_graph_binding
+
+    graph = DatasetCatalogGraph(
+        source.database_path, source.index_dir, overlay_path=source.overlay_path
+    )
+    try:
+        require_catalog_serving_graph_binding(graph, source)
+        if providers is None:
+            providers = resolve_control_registry_providers(
+                gy_catalog_graph=graph,
+                catalog_source_selection=selection,
+                catalog_run_profile=selection.catalog_run_profile,
+            )
+        else:
+            providers = replace(
+                providers,
+                gy_catalog_graph=graph,
+                catalog_source_selection=selection,
+                catalog_run_profile=selection.catalog_run_profile,
+            )
+        yield providers
+    finally:
+        graph.close()
 
 
 def candidate_cycle_catalog_source_readback(database_path: Path) -> dict[str, Any]:
@@ -1021,6 +1074,8 @@ def candidate_cycle_kref_source_witness(
 def complete_candidate_cycle_catalog_source(
     source_root: Path,
     monkeypatch: pytest.MonkeyPatch,
+    *,
+    synthetic_usa_labor_scope: bool = False,
 ) -> Iterator[tuple[CatalogServingSourceSelection, CatalogServingSourcePaths, SubstrateRegistry]]:
     """Publish and readmit complete test-owned input before a candidate profile.
 
@@ -1058,6 +1113,44 @@ def complete_candidate_cycle_catalog_source(
     )
     graph_bytes = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in graph_paths}
     _write_substrate_catalog_fixture(root, include_graphs=False)
+    if synthetic_usa_labor_scope:
+        # Adapt only this unpublished test-owned L5 fixture. Its rows describe a
+        # synthetic candidate scope, not US measurement evidence or currentness.
+        measurement = json.loads(paths.measurement_registry_path.read_text())
+        measurement["coverage_rules"]["macro_state"] = 0.10
+        paths.measurement_registry_path.write_text(json.dumps(measurement, sort_keys=True) + "\n")
+        identification = json.loads(paths.identification_mode_registry_path.read_text())
+        identification["macro_state"] = {"selected_mode": "bounds_only"}
+        paths.identification_mode_registry_path.write_text(
+            json.dumps(identification, sort_keys=True) + "\n"
+        )
+        for path, old_id, new_id in (
+            (paths.schema_regime_registry_path, "ukraine_schema_v1", "synthetic_usa_labor_v1"),
+            (
+                paths.epoch_schema_regime_registry_path,
+                "ukraine_schema_v2",
+                "synthetic_usa_labor_v2",
+            ),
+        ):
+            payload = json.loads(path.read_text())
+            regime = payload["regimes"].pop(old_id)
+            regime["schema_regime_id"] = new_id
+            regime["source_version"] = "synthetic-candidate-only"
+            payload["regimes"][new_id] = regime
+            path.write_text(json.dumps(payload, sort_keys=True) + "\n")
+        relation_path = paths.epoch_schema_regime_scope_registry_path
+        relation_payload = json.loads(relation_path.read_text())
+        scope_ref = "sha256:" + hashlib.sha256(b"synthetic USA 2024 total labor force").hexdigest()
+        relation_ref = (
+            "sha256:" + hashlib.sha256(b"synthetic USA labor fixture relation").hexdigest()
+        )
+        for relation in relation_payload["relations"]:
+            relation["schema_regime_id"] = relation["schema_regime_id"].replace(
+                "ukraine_schema", "synthetic_usa_labor"
+            )
+            relation["scope_identity_refs"] = [scope_ref]
+            relation["relation_provenance_ref"]["artifact_id"] = relation_ref
+        relation_path.write_text(json.dumps(relation_payload, sort_keys=True) + "\n")
     if {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in graph_paths} != graph_bytes:
         raise AssertionError("complete_candidate_existing_graph_replaced")
     published_root = root / "complete-cov-published-catalog"

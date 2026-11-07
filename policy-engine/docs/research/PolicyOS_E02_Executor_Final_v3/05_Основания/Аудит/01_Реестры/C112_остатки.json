@@ -1,0 +1,55 @@
+{
+  "pass_id": "C112",
+  "bundle": "UQS-01",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C112-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "title": "Вторичная Gaussian decomposition теряет non-gating ограничения caller-only summary",
+      "evidence": [
+        "P04",
+        "S02:443–475",
+        "S03:56–146",
+        "S04:1378–1510"
+      ],
+      "remaining": "Передавать происхождение и ограничения summary в secondary decomposition через существующие поля/контракт. Не маркировать caller-only Gaussian approximation как gate-eligible credible evidence. Сохранить полезную диагностическую decomposition, не отключать её целиком.",
+      "limits": "Actual in-memory summary output: primary gate false, все три secondary envelope gate true и credible_interval. Candidate persistence decomposition не включает. Downstream authority acceptance, bypass или production occurrence не показаны."
+    },
+    {
+      "id": "C112-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "title": "Немасштабированная сумма конечных point estimates переполняется и молча сдвигается к верхней границе",
+      "evidence": [
+        "P05",
+        "S01:227–280"
+      ],
+      "remaining": "Использовать устойчивое вычисление среднего в допустимом finite диапазоне и сохранить явное ограничение неизвестной зависимости. Проверить большие одинаковые и разноимённые значения без снятия non-gating guards.",
+      "limits": "Две конечные точки 1e308 с bounds [9e307,1.1e308] дают point 1.1e308 вместо 1e308 после overflow/clamp. Gate остаётся false. Это numerical boundary, не частота реального использования."
+    },
+    {
+      "id": "C112-G01",
+      "kind": "qualification_gap",
+      "severity": "medium",
+      "title": "Source-bound независимые единицы и native persistence/propagation ещё не квалифицированы",
+      "evidence": [
+        "P02",
+        "P03",
+        "S01",
+        "S02:659–922",
+        "S08:334–516",
+        "commands.json"
+      ],
+      "remaining": "Квалифицировать selected native CAS views и method-evidence posterior route в поддерживаемой среде; отдельно подтвердить существующий путь допустимого независимого объединения или явно оставить capability gap. Переиспользовать existing refs/provenance, не доверять caller labels и не требовать универсального изобретателя зависимостей. Общие lane-level проверки распределить с UQP после его отдельного аудита.",
+      "limits": "Public aggregator не устанавливает effective information count и для distinct inputs остаётся conservative hull; отсутствие ложной точности не означает реализованную independent fusion. Fixture profile algorithm не native Core. Legacy positional rows сохранены, но joint law не admitted. MCMC mixing/ESS/coverage не проверены."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C112-R01",
+    "C112-R02"
+  ],
+  "decision": "Основные false-confidence и lossy-summary дефекты исправлены консервативно; secondary eligibility и large finite mean имеют bounded residuals. Independent fusion и native end-to-end остаются ограничениями."
+}

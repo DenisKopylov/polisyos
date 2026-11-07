@@ -7,7 +7,7 @@ cache, retry, timeout, telemetry, and audit.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutionResult
@@ -19,6 +19,8 @@ from polisyos.scientist.orchestration.engine.state_merge import MergeConflictPol
 from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.scientist.orchestration.engine.checkpoint import CheckpointHook
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
@@ -32,9 +34,21 @@ class LocalWorkflowRunner:
         *,
         max_parallelism: int = 4,
         merge_conflict_policy: MergeConflictPolicy = MergeConflictPolicy.ERROR,
+        workflow_deadline_at: datetime | None = None,
+        budget_middleware: Any | None = None,
+        workflow_execution_admission_ref: ArtifactRef | None = None,
+        workflow_execution_admission_origin: tuple[ArtifactRef, WorkflowSpec] | None = None,
+        strict_budget_attempts: bool = False,
+        capture_workflow_execution_admission: bool = False,
     ) -> None:
         self._max_parallelism = max_parallelism
         self._merge_conflict_policy = merge_conflict_policy
+        self._workflow_deadline_at = workflow_deadline_at
+        self._budget_middleware = budget_middleware
+        self._workflow_execution_admission_ref = workflow_execution_admission_ref
+        self._workflow_execution_admission_origin = workflow_execution_admission_origin
+        self._strict_budget_attempts = strict_budget_attempts
+        self._capture_workflow_execution_admission = capture_workflow_execution_admission
 
     async def health_check(self) -> RunnerHealth:
         """Local runner is always healthy."""
@@ -73,5 +87,11 @@ class LocalWorkflowRunner:
             checkpoint_cache_seed_refs=checkpoint_cache_seed_refs,
             max_parallelism=effective_parallelism,
             merge_conflict_policy=self._merge_conflict_policy,
+            workflow_deadline_at=self._workflow_deadline_at,
+            budget_middleware=self._budget_middleware,
+            workflow_execution_admission_ref=self._workflow_execution_admission_ref,
+            workflow_execution_admission_origin=self._workflow_execution_admission_origin,
+            strict_budget_attempts=self._strict_budget_attempts,
+            capture_workflow_execution_admission=self._capture_workflow_execution_admission,
         )
         return await executor.execute(workflow, state)

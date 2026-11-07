@@ -427,7 +427,7 @@ def test_b79_finite_file_replay_uses_only_its_admitted_persisted_cursor(
         assert result.evidence_bundle_ref is not None
         assert FileSystemCAS(cas_root).get_manifest(
             result.evidence_bundle_ref
-        ).artifact_schema == SchemaInfo(name="fabric.evidence_bundle", version="1.0")
+        ).artifact_schema == SchemaInfo(name="fabric.evidence_bundle", version="2.0")
         assert observed[-1].incremental_since.value == '"etag-prior"'
         current = CursorStore(FileSystemCAS(cas_root)).find_latest_cursor("rest.json", "dataset")
         assert current.watermark_value == '"etag-next"'
@@ -647,7 +647,7 @@ def test_b80_two_source_failure_then_fresh_snapshot_consumes_both_sources(
         assert complete.evidence_bundle_ref is not None
         assert FileSystemCAS(cas_root).get_manifest(
             complete.evidence_bundle_ref
-        ).artifact_schema == SchemaInfo(name="fabric.evidence_bundle", version="1.0")
+        ).artifact_schema == SchemaInfo(name="fabric.evidence_bundle", version="2.0")
         assert observed == [
             ("fixture.source_a", None),
             ("fixture.source_b", None),
@@ -727,11 +727,11 @@ def test_b80_two_source_failure_then_fresh_snapshot_consumes_both_sources(
 
         original_persist = ingestion_module.persist_provenance_graph
 
-        def mismatch_actual_a(store, graph):
+        def mismatch_actual_a(store, graph, **kwargs):
             graph.entities["dataset.fixture.source_a.events"].attributes["data_artifact_id"] = (
                 "unbound"
             )
-            return original_persist(store, graph)
+            return original_persist(store, graph, **kwargs)
 
         with pytest.MonkeyPatch.context() as patcher:
             patcher.setattr(ingestion_module, "persist_provenance_graph", mismatch_actual_a)

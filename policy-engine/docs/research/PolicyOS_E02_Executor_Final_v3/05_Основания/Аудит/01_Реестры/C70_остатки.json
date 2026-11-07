@@ -1,0 +1,70 @@
+{
+  "pass_id": "C70",
+  "bundle": "RUN-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C70-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "confidence": "high_in_bounded_terminal_state_projection",
+      "source_ids": [
+        "B96"
+      ],
+      "title": "Отмена следующей попытки не переносит уже известный расход предыдущей ошибки в baseline",
+      "evidence": [
+        "S01:4068–4114",
+        "S01:4135–4161",
+        "P03",
+        "P09"
+      ],
+      "actual": "Первая завершённая fail-попытка добавляет 2 к исходным 5; actual owner накапливает failed_spend и emits NODE_RETRY с cost=2. Вторая genuine async попытка поднимает CancelledError. После terminal propagation baseline остаётся 5, а callback первой попытки и событие сохраняют 7/+2. В cancellation branch нет _merge_spend, в соседнем deadline branch он есть.",
+      "remaining": "Согласовать settlement уже известного completed-failure cost при отмене с существующим cost owner. Не публиковать ordinary failed mutations и не трактовать unknown расход отменённой текущей работы как известный. Native test должен отличить ранее завершённые расходы от late/unknown и подтвердить выбранную terminal state projection/ledger consumption.",
+      "limits": "Low локальная согласованность state projection; не доказана потеря durable history, CAS или внешнего финансового ledger. Два Decimal-only primitives — fixtures, но accumulation и cancellation control flow actual. Не утверждается необходимость публиковать отменённый результат как success."
+    },
+    {
+      "id": "C70-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B39"
+      ],
+      "title": "Полная семантическая эквивалентность return/raise требует контрактного выбора",
+      "evidence": [
+        "S01:1607–1665",
+        "S02:61–117",
+        "S09:22–51",
+        "P02",
+        "P05",
+        "P06"
+      ],
+      "remaining": "На actual producer сравнить один и тот же reason/code/category в returned и raised формах, определить load-bearing classification owner для NodeError и исключений. Сохранить typed transient override и retry_on; не угадывать category из свободного details/message и не создавать новый classifier рядом с существующим.",
+      "limits": "Исходное retry_on=[] несоответствие исправлено. P05 показывает code-only return 3 попытки против typed validation raise 1, но details.category не является контрактом NodeError. Native same-cause producer bug и необходимость менять явный code policy не доказаны; поэтому G, не подтверждённый R."
+    },
+    {
+      "id": "C70-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B39",
+        "B96"
+      ],
+      "title": "Native durable attempts, cost settlement и отдельный checkpoint continuation не квалифицированы",
+      "evidence": [
+        "S05:255–321",
+        "S06:3354–3474",
+        "S07:1621–1793",
+        "S08:2026–2178",
+        "P01",
+        "P03",
+        "P04",
+        "P07"
+      ],
+      "remaining": "В поддерживаемом runtime исполнить existing durable trace/cost tests и общий LANE-06 сценарий: fresh retry baseline → actual attempt basis/outcome → known spend and cancellation → terminal consumer/readback. Checkpoint continuation проверять отдельным owner-bound договором, не повтором грязной ветви. Нужны positive чистый producer и negative ambiguous external outcome/idempotency controls; один общий integration вместо дублирования по пакетам.",
+      "limits": "Actual branching и wrappers работают в bounded execution; store/context facades и trace sink fixtures. `_spend_snapshot` и `_merge_spend` прочитаны, но их Python 3.14 exception/coercion paths не исполнены. Native tests отсутствуют в среде; это не объявлено product defect."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C70-R01"
+  ],
+  "decision": "Исходные empty-filter и dirty-baseline repairs подтверждены ограниченно. Low cancellation settlement projection и два qualification gaps остаются."
+}

@@ -785,7 +785,7 @@ def _assert_facade_contracts(fabric: ModuleType) -> None:
     mode_returns = {
         "run_batch_incremental": IngestionResult,
         "run_streaming_windowed": IngestionResult,
-        "run_record_mode": tuple[IngestionResult, str],
+        "run_record_mode": tuple[IngestionResult, str | None],
         "run_replay_mode": IngestionResult,
     }
     for name, expected_return in mode_returns.items():

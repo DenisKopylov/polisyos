@@ -14,6 +14,7 @@ from contextvars import ContextVar
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 from threading import Lock
 from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, TypeGuard, cast
@@ -28,6 +29,7 @@ from polisyos.core.artifacts import (
     CoreArtifactOwnerProfile,
     CoreOwnedModelRead,
     ensure_async_artifact_store,
+    load_core_json_artifact,
     validate_owned_core_model_json_artifact,
 )
 from polisyos.core.artifacts.backends.config import (
@@ -51,19 +53,24 @@ from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
+    from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedger
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
 
 logger = get_logger(__name__)
 
 
 CHECKPOINT_KIND = "scientist.checkpoint"
-CHECKPOINT_SCHEMA_VERSION = "1.3"
+CHECKPOINT_SCHEMA_VERSION = "1.4"
 _CHECKPOINT_MEDIA_TYPE = "application/json"
 _CHECKPOINT_SCHEMA_NAME = "polisyos.scientist.checkpoint.CheckpointArtifact"
 _CHECKPOINT_OWNER_PROFILE = CoreArtifactOwnerProfile(
     kind=CHECKPOINT_KIND,
     media_type=_CHECKPOINT_MEDIA_TYPE,
-    schema_variants=(SchemaInfo(name=_CHECKPOINT_SCHEMA_NAME, version=CHECKPOINT_SCHEMA_VERSION),),
+    schema_variants=(
+        SchemaInfo(name=_CHECKPOINT_SCHEMA_NAME, version="1.3"),
+        SchemaInfo(name=_CHECKPOINT_SCHEMA_NAME, version=CHECKPOINT_SCHEMA_VERSION),
+    ),
     payload_schema_version_by_manifest="not_applicable",
 )
 COMPLETED_NODE_STATUS_CONTRACT: Literal["native_node_outcome_v1"] = "native_node_outcome_v1"
@@ -102,6 +109,8 @@ class CheckpointPublicationBudget:
     deadline_monotonic: float | None
     owner_is_current: Callable[[], bool]
     caller_cancelled: Callable[[], bool]
+    execution_budget_contract: Literal["admitted_workflow_budget_v1"] | None = None
+    execution_deadline_at: datetime | None = None
 
     def require_active(self, operation: str, *, execution_state: str = "not_admitted") -> None:
         if not self.owner_is_current() or self.caller_cancelled():
@@ -167,6 +176,8 @@ def _budget_with_store_policy(
         ),
         owner_is_current=budget.owner_is_current,
         caller_cancelled=budget.caller_cancelled,
+        execution_budget_contract=budget.execution_budget_contract,
+        execution_deadline_at=budget.execution_deadline_at,
     )
 
 
@@ -240,6 +251,10 @@ class CheckpointResumeRequest:
     resume_strategy: CheckpointResumeStrategy = "require_cache_seed"
     force_lock: bool = False
     run_dir: Path | None = None
+    workflow_ref: ArtifactRef | None = None
+    require_reconciled_attempts: bool = False
+    expected_control_job_id: str | None = None
+    continuation_ledger: BudgetLedger | None = None
 
 
 class CheckpointError(PolicyOSError):
@@ -347,6 +362,8 @@ class CheckpointMetadata(BaseModel):
     completed_node_id: str
     completed_nodes: list[str] = Field(default_factory=list)
     completed_node_status_contract: Literal["native_node_outcome_v1"] | None = None
+    execution_budget_contract: Literal["admitted_workflow_budget_v1"] | None = None
+    execution_deadline_at: datetime | None = None
     workflow_id: str
     workflow_fingerprint: str = Field(min_length=64, max_length=64)
     # The current fingerprint may describe a pruned residual workflow after a
@@ -373,6 +390,21 @@ class CheckpointMetadata(BaseModel):
     def _validate_tenant_cell_scope(self) -> Self:
         if self.cell_id is not None and self.tenant_id is None:
             raise ValueError("checkpoint cell_id requires tenant_id")
+        if self.execution_deadline_at is not None:
+            if self.execution_budget_contract is None:
+                raise ValueError("checkpoint execution deadline requires budget contract")
+            if (
+                self.execution_deadline_at.tzinfo is None
+                or self.execution_deadline_at.utcoffset() is None
+            ):
+                raise ValueError("checkpoint execution deadline must be timezone-aware")
+            if self.execution_deadline_at.utcoffset() != timedelta(0):
+                raise ValueError("checkpoint execution deadline must be UTC")
+        if (
+            tuple(int(part) for part in self.schema_version.split(".")) < (1, 4)
+            and self.execution_budget_contract is not None
+        ):
+            raise ValueError("legacy checkpoint cannot establish execution budget")
         return self
 
 
@@ -853,6 +885,8 @@ class CASCheckpointHook:
         initial_state: dict[str, Any] | None = None,
         initial_chain_depth: int = 0,
         initial_origin_workflow_fingerprint: str | None = None,
+        initial_execution_budget_contract: Literal["admitted_workflow_budget_v1"] | None = None,
+        initial_execution_deadline_at: datetime | None = None,
     ) -> None:
         self._store = store
         self._store_config = store_config or infer_artifact_store_config(store)
@@ -881,6 +915,14 @@ class CASCheckpointHook:
         self._previous_state = deepcopy(initial_state) if initial_state is not None else None
         self._previous_chain_depth = max(0, int(initial_chain_depth))
         self._origin_workflow_fingerprint = initial_origin_workflow_fingerprint
+        self._execution_budget_contract = initial_execution_budget_contract
+        self._execution_deadline_at = initial_execution_deadline_at
+
+    def _admit_execution_budget(self, budget: CheckpointPublicationBudget | None) -> None:
+        """Capture only the originating workflow budget, never a store timeout."""
+        if self._previous_checkpoint_ref is None and budget is not None:
+            self._execution_budget_contract = budget.execution_budget_contract
+            self._execution_deadline_at = budget.execution_deadline_at
 
     def _append_cache_entry_refs(self, refs: list[ArtifactRef | None]) -> None:
         """Retain every cache entry reference represented by one commit."""
@@ -908,6 +950,7 @@ class CASCheckpointHook:
         merged_completed_nodes = _dedupe_aliases([*self._completed_nodes, *completed_nodes])
         origin_workflow_fingerprint = self._origin_workflow_fingerprint or workflow_fingerprint
         self._origin_workflow_fingerprint = origin_workflow_fingerprint
+        self._admit_execution_budget(publication_budget)
         if publication_budget is not None:
             publication_budget.require_active("checkpoint_artifact")
         created = create_checkpoint(
@@ -930,6 +973,8 @@ class CASCheckpointHook:
             previous_checkpoint_ref=self._previous_checkpoint_ref,
             previous_chain_depth=self._previous_chain_depth,
             max_incremental_chain=self._gc_policy.max_incremental_chain,
+            execution_budget_contract=self._execution_budget_contract,
+            execution_deadline_at=self._execution_deadline_at,
         )
         update_checkpoint_head(
             self._run_dir,
@@ -981,6 +1026,7 @@ class CASCheckpointHook:
         merged_completed_nodes = _dedupe_aliases([*self._completed_nodes, *completed_nodes])
         origin_workflow_fingerprint = self._origin_workflow_fingerprint or workflow_fingerprint
         self._origin_workflow_fingerprint = origin_workflow_fingerprint
+        self._admit_execution_budget(publication_budget)
         created = await create_checkpoint_async(
             self._async_store,
             run_id=state.run_id,
@@ -1002,6 +1048,8 @@ class CASCheckpointHook:
             previous_chain_depth=self._previous_chain_depth,
             max_incremental_chain=self._gc_policy.max_incremental_chain,
             publication_budget=publication_budget,
+            execution_budget_contract=self._execution_budget_contract,
+            execution_deadline_at=self._execution_deadline_at,
         )
         await _run_checkpoint_blocking(
             update_checkpoint_head,
@@ -1362,6 +1410,10 @@ class CASCheckpointHook:
             "sequence_start": self._sequence,
             "checkpoint_policy": self._policy,
             "origin_workflow_fingerprint": self._origin_workflow_fingerprint,
+            "execution_budget_contract": self._execution_budget_contract,
+            "execution_deadline_at": (
+                self._execution_deadline_at.isoformat() if self._execution_deadline_at else None
+            ),
             "cache_entry_refs": [ref.model_dump(mode="json") for ref in self._cache_entry_refs],
             "completed_nodes": list(self._completed_nodes),
             "completed_node_status_contract": self._completed_node_status_contract,
@@ -1454,6 +1506,21 @@ def restore_checkpoint_hook_from_runtime_metadata(
     ):
         raise CheckpointCorruptedError("checkpoint runtime origin fingerprint is invalid")
 
+    budget_contract = metadata.get("execution_budget_contract")
+    deadline_raw = metadata.get("execution_deadline_at")
+    if budget_contract not in (None, "admitted_workflow_budget_v1"):
+        raise CheckpointCorruptedError("checkpoint runtime execution budget contract is invalid")
+    try:
+        deadline_at = datetime.fromisoformat(deadline_raw) if deadline_raw is not None else None
+    except (TypeError, ValueError) as exc:
+        raise CheckpointCorruptedError("checkpoint runtime execution deadline is invalid") from exc
+    if deadline_at is not None and (
+        budget_contract is None
+        or deadline_at.tzinfo is None
+        or deadline_at.utcoffset() != timedelta(0)
+    ):
+        raise CheckpointCorruptedError("checkpoint runtime execution deadline is invalid")
+
     return CASCheckpointHook(
         store=build_artifact_store(store_config),
         run_dir=Path(run_dir),
@@ -1473,6 +1540,8 @@ def restore_checkpoint_hook_from_runtime_metadata(
         initial_state=metadata.get("previous_state"),
         initial_chain_depth=max(0, int(metadata.get("previous_chain_depth", 0) or 0)),
         initial_origin_workflow_fingerprint=origin_workflow_fingerprint,
+        initial_execution_budget_contract=budget_contract,
+        initial_execution_deadline_at=deadline_at,
     )
 
 
@@ -1550,38 +1619,46 @@ def _build_resume_workflow_spec(
 
 def _state_value_artifacts_available(value: Any, store: ArtifactStore) -> bool:
     """Check actual typed references without interpreting arbitrary JSON shapes."""
-    if isinstance(value, ArtifactRef):
-        try:
-            if not store.verify(value).ok:
+    pending = [value]
+    seen: set[int] = set()
+    while pending:
+        current = pending.pop()
+        if isinstance(current, ArtifactRef):
+            try:
+                if not store.verify(current).ok:
+                    return False
+                # Verification and reading may have different capabilities.
+                store.get_bytes(current)
+            except (OSError, PolicyOSError, ValueError):
                 return False
-            # Verification and reading may have different protected-store
-            # capabilities. Keep the complete selected reference for both.
-            store.get_bytes(value)
-        except (OSError, PolicyOSError, ValueError):
-            return False
-        return True
-    if isinstance(value, dict):
-        return all(_state_value_artifacts_available(item, store) for item in value.values())
-    if isinstance(value, (list, tuple)):
-        return all(_state_value_artifacts_available(item, store) for item in value)
+            continue
+        if isinstance(current, (BaseModel, dict, list, tuple)):
+            identity = id(current)
+            if identity in seen:
+                continue
+            seen.add(identity)
+        if isinstance(current, BaseModel):
+            fields = type(current).model_fields
+            if any(name not in current.__dict__ for name in fields):
+                return False
+            pending.extend(current.__dict__[name] for name in fields)
+        elif isinstance(current, dict):
+            pending.extend(current.values())
+        elif isinstance(current, (list, tuple)):
+            pending.extend(current)
     return True
 
 
 def _state_path_available(state: ExperimentState, path: str, store: ArtifactStore) -> bool:
     """Check existing required state and the typed artifact refs it resolves."""
-    current: Any = state
-    for part in path.split("."):
-        if isinstance(current, BaseModel):
-            if not hasattr(current, part):
-                return False
-            current = getattr(current, part)
-        elif isinstance(current, dict):
-            if part not in current:
-                return False
-            current = current[part]
-        else:
-            return False
-    return current is not None and _state_value_artifacts_available(current, store)
+    from polisyos.scientist.orchestration.engine.state_merge import _MISSING, _get_path
+
+    current = _get_path(state, tuple(path.split(".")))
+    return (
+        current is not _MISSING
+        and current is not None
+        and _state_value_artifacts_available(current, store)
+    )
 
 
 def _state_paths_overlap(read_path: str, write_path: str) -> bool:
@@ -1601,8 +1678,12 @@ def _missing_completed_state_paths(
     state: ExperimentState,
     registry: CheckpointRegistry,
     store: ArtifactStore,
+    strict: bool = False,
 ) -> tuple[str, ...]:
     """Find required remaining reads missing state or available producer artifacts."""
+    from polisyos.scientist.orchestration.engine.protocol import InputAwareNodeSpec
+    from polisyos.scientist.orchestration.engine.state_merge import _MISSING, _get_path
+
     completed_set = set(completed_nodes)
     completed_writes: list[str] = []
     for invocation in workflow.nodes:
@@ -1611,18 +1692,294 @@ def _missing_completed_state_paths(
         node = registry.get(invocation.node_id)
         completed_writes.extend(getattr(node.spec, "state_writes", ()))
 
-    if not completed_writes:
-        return ()
-
     missing: set[str] = set()
     for invocation in resumed_workflow.nodes:
         node = registry.get(invocation.node_id)
-        for read_path in getattr(node.spec, "state_reads", ()):
+        spec = node.spec
+        if isinstance(spec, InputAwareNodeSpec):
+            for rule in spec.input_rules:
+                value = _get_path(state, tuple(rule.path.split(".")))
+                if value is _MISSING:
+                    if rule.availability == "required":
+                        missing.add(rule.path)
+                elif value is None:
+                    if not rule.allow_null:
+                        missing.add(rule.path)
+                elif not _state_value_artifacts_available(value, store):
+                    missing.add(rule.path)
+            continue
+        if strict:
+            raise CheckpointError("checkpoint_input_requirements_not_established")
+        for read_path in getattr(spec, "state_reads", ()):
             if not any(_state_paths_overlap(read_path, write) for write in completed_writes):
                 continue
             if not _state_path_available(state, read_path, store):
                 missing.add(read_path)
     return tuple(sorted(missing))
+
+
+def _reconcile_checkpoint_attempts(
+    store: ArtifactStore,
+    *,
+    run_dir: Path,
+    run_id: str,
+    workflow: WorkflowSpec,
+    checkpoint: CheckpointArtifact,
+) -> tuple[tuple[str, str, str], tuple[int, int, str, int, int], str, int, str] | None:
+    """Admit a narrow completed-attempt frontier under the caller's run lock.
+
+    Known failed budgeted attempts may precede one successful attempt for an
+    alias. Unknown outcomes and cache-only completions remain unestablished.
+    This does not replace an external-effect fence.
+    """
+    from polisyos.core import run as core_run
+    from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
+
+    attempts = core_run.read_runtime_invocation_attempts(
+        store, run_dir / "trace.jsonl", run_id=run_id
+    )
+    completed = set(checkpoint.metadata.completed_nodes)
+    if not attempts or not completed:
+        raise CheckpointError("checkpoint_attempts_not_established")
+    by_alias = {inv.alias: inv for inv in workflow.nodes}
+    observed: set[str] = set()
+    retry_baselines: dict[str, dict[str, Any]] = {}
+    pending_retry_alias: str | None = None
+    budget_anchors: list[
+        tuple[tuple[str, str, str], tuple[int, int, str, int, int], str, int, str]
+    ] = []
+    budget_modes: set[bool] = set()
+    if checkpoint.state is None:
+        raise CheckpointError("checkpoint_attempt_state_not_materialized")
+    state = ExperimentState.model_validate(checkpoint.state).model_dump(mode="python")
+
+    def read_selected(ref: ArtifactRef, kind: str, schema_name: str) -> dict[str, Any]:
+        if (
+            ref.manifest_profile_sha256 is None
+            or ref.kind != kind
+            or ref.media_type != "application/json"
+            or not store.verify(ref).ok
+        ):
+            raise CheckpointError("checkpoint_attempt_reference_invalid")
+        manifest = store.get_manifest(ref)
+        if manifest.artifact_schema is None or manifest.artifact_schema.name != schema_name:
+            raise CheckpointError("checkpoint_attempt_reference_schema_invalid")
+        value = load_core_json_artifact(store, ref)
+        if not isinstance(value, dict):
+            raise CheckpointError("checkpoint_attempt_reference_payload_invalid")
+        if kind == "scientist.workflow_spec" and manifest.artifact_schema.version != "1.0":
+            raise CheckpointError("checkpoint_attempt_reference_schema_invalid")
+        if kind == "scientist.experiment_state" and (
+            value.get("schema_version") != manifest.artifact_schema.version
+        ):
+            raise CheckpointError("checkpoint_attempt_reference_schema_invalid")
+        return value
+
+    missing = object()
+
+    def same(left: Any, right: Any) -> bool:
+        if left is missing or right is missing:
+            return left is right
+        if type(left) is not type(right):
+            return False
+        if isinstance(left, dict):
+            return left.keys() == right.keys() and all(same(left[key], right[key]) for key in left)
+        if isinstance(left, (list, tuple)):
+            return len(left) == len(right) and all(
+                same(a, b) for a, b in zip(left, right, strict=True)
+            )
+        if isinstance(left, Decimal):
+            return left.as_tuple() == right.as_tuple()
+        if isinstance(left, float):
+            return left.hex() == right.hex()
+        return bool(left == right)
+
+    def apply_changes(before: Any, after: Any, retained: Any) -> Any:
+        if isinstance(before, dict) and isinstance(after, dict):
+            if not isinstance(retained, dict):
+                raise CheckpointError("checkpoint_attempt_state_conflict")
+            result = dict(retained)
+            for key in before.keys() | after.keys():
+                old = before.get(key, missing)
+                new = after.get(key, missing)
+                if same(old, new):
+                    continue
+                current = result.get(key, missing)
+                if old is not missing and new is not missing:
+                    result[key] = apply_changes(old, new, current)
+                elif not same(current, old) and not same(current, new):
+                    raise CheckpointError("checkpoint_attempt_state_conflict")
+                elif new is missing:
+                    result.pop(key, None)
+                else:
+                    result[key] = deepcopy(new)
+            return result
+        if not same(before, after):
+            if not same(retained, before) and not same(retained, after):
+                raise CheckpointError("checkpoint_attempt_state_conflict")
+            return deepcopy(after)
+        return retained
+
+    reconstructed: dict[str, Any] | None = None
+    latest_prior_pointer: Any = None
+
+    for attempt in attempts:
+        basis, outcome = attempt.basis, attempt.outcome
+        alias = basis.node_alias
+        if (
+            alias not in completed
+            or alias in observed
+            or (pending_retry_alias is not None and alias != pending_retry_alias)
+            or alias not in by_alias
+            or str(by_alias[alias].node_id) != basis.component_id
+            or outcome is None
+            or outcome.status not in {"ok", "fail"}
+            or outcome.outcome_state_ref is None
+            or basis.schema_version not in {"1.2", "1.3"}
+            or basis.execution_budget_contract != checkpoint.metadata.execution_budget_contract
+            or basis.execution_deadline_at != checkpoint.metadata.execution_deadline_at
+            or basis.budget_middleware_active is None
+        ):
+            raise CheckpointError("checkpoint_attempt_not_reconciled")
+        budget_modes.add(basis.budget_middleware_active)
+        if outcome.status == "fail" and not basis.budget_middleware_active:
+            raise CheckpointError("checkpoint_failed_attempt_not_reconciled")
+        if basis.budget_middleware_active:
+            if (
+                basis.budget_owner_identity is None
+                or basis.budget_resource_identity is None
+                or basis.invocation_settlement_profile != "single_owner_local_v1"
+                or basis.budget_start_revision is None
+                or basis.budget_start_snapshot_sha256 is None
+                or outcome.budget_owner_identity != basis.budget_owner_identity
+                or outcome.budget_snapshot_revision is None
+                or outcome.budget_snapshot_sha256 is None
+                or outcome.budget_receipt_ref is None
+                or outcome.budget_snapshot_canon != "polisyos.canon.json/0.2.0;forbid_floats=false"
+            ):
+                raise CheckpointError("checkpoint_budget_anchor_not_established")
+            budget_anchors.append(
+                (
+                    basis.budget_owner_identity,
+                    basis.budget_resource_identity,
+                    basis.invocation_settlement_profile,
+                    outcome.budget_snapshot_revision,
+                    outcome.budget_snapshot_sha256,
+                )
+            )
+            if len(budget_anchors) > 1:
+                previous = budget_anchors[-2]
+                if (
+                    budget_anchors[-1][:3] != previous[:3]
+                    or basis.budget_start_revision != previous[3]
+                    or basis.budget_start_snapshot_sha256 != previous[4]
+                ):
+                    raise CheckpointError("checkpoint_budget_attempt_chain_mismatch")
+        source = WorkflowSpec.model_validate(
+            read_selected(
+                basis.workflow_spec_ref,
+                "scientist.workflow_spec",
+                "polisyos.scientist.orchestration.engine.WorkflowSpec",
+            )
+        )
+        source_aliases = {inv.alias for inv in source.nodes}
+        if not source_aliases <= set(by_alias) or alias not in source_aliases:
+            raise CheckpointError("checkpoint_attempt_workflow_mismatch")
+        expected = _build_resume_workflow_spec(
+            workflow, completed_nodes=sorted(set(by_alias) - source_aliases)
+        )
+        if compute_workflow_fingerprint(source) != compute_workflow_fingerprint(expected):
+            raise CheckpointError("checkpoint_attempt_workflow_mismatch")
+        schema_name = "polisyos.scientist.orchestration.engine.ExperimentState"
+        before = ExperimentState.model_validate(
+            read_selected(basis.input_state_ref, "scientist.experiment_state", schema_name)
+        ).model_dump(mode="python")
+        after = ExperimentState.model_validate(
+            read_selected(outcome.outcome_state_ref, "scientist.experiment_state", schema_name)
+        ).model_dump(mode="python")
+        if before.get("run_id") != run_id or after.get("run_id") != run_id:
+            raise CheckpointError("checkpoint_attempt_run_mismatch")
+        # This pointer is engine-owned, not a node write. It may change between
+        # tiers, but an attempt may not mutate it, and its final value must
+        # identify an actual earlier checkpoint in this run's history.
+        latest_prior_pointer = before.pop("last_checkpoint_ref", None)
+        if not same(after.pop("last_checkpoint_ref", None), latest_prior_pointer):
+            raise CheckpointError("checkpoint_attempt_pointer_mutation")
+        if reconstructed is None:
+            reconstructed = deepcopy(before)
+        is_retry = False
+        if basis.budget_middleware_active:
+            prior_baseline = retry_baselines.get(alias)
+            if prior_baseline is None:
+                if not same(before, reconstructed):
+                    raise CheckpointError("checkpoint_attempt_input_mismatch")
+                retry_baselines[alias] = deepcopy(before)
+            elif not same(before, prior_baseline):
+                raise CheckpointError("checkpoint_retry_input_mismatch")
+            else:
+                is_retry = True
+        if outcome.status == "fail":
+            # Failed node writes are rolled back; only the budget projection
+            # is allowed to survive a known, receipted physical attempt.
+            failed_budget = deepcopy(reconstructed["budgets"])
+            for key, value in after["budgets"].items():
+                if isinstance(key, str) and key.endswith("_spent_usd"):
+                    delta = value - before["budgets"].get(key, Decimal(0))
+                    if delta > 0:
+                        failed_budget[key] = failed_budget.get(key, Decimal(0)) + delta
+            after = {**before, "budgets": failed_budget}
+        if is_retry:
+            # Only retry spend is rebased; all other budget keys retain the
+            # original attempt input and are checked through the normal patch.
+            adjusted_budget = dict(before["budgets"])
+            for key, value in reconstructed["budgets"].items():
+                if isinstance(key, str) and key.endswith("_spent_usd"):
+                    adjusted_budget[key] = value
+            before = {**before, "budgets": adjusted_budget}
+        reconstructed = apply_changes(before, after, reconstructed)
+        for ref in outcome.output_refs:
+            if ref.manifest_profile_sha256 is None or not store.verify(ref).ok:
+                raise CheckpointError("checkpoint_attempt_output_invalid")
+            store.get_bytes(ref)
+        if outcome.status == "ok":
+            observed.add(alias)
+            pending_retry_alias = None
+        else:
+            pending_retry_alias = alias
+    if observed != completed:
+        raise CheckpointError("checkpoint_completed_attempts_not_established")
+    if not same(state.pop("last_checkpoint_ref", None), latest_prior_pointer):
+        raise CheckpointError("checkpoint_attempt_pointer_mismatch")
+    history = load_checkpoint_history(run_dir)
+    prior_entries = [
+        entry
+        for entry in (history.entries if history is not None else [])
+        if entry.run_id == run_id and entry.sequence_number < checkpoint.metadata.sequence_number
+    ]
+    latest_prior = max(prior_entries, key=lambda entry: entry.sequence_number, default=None)
+    if checkpoint.metadata.sequence_number > 0 and latest_prior is None:
+        raise CheckpointError("checkpoint_attempt_pointer_not_established")
+    if latest_prior_pointer is None and latest_prior is not None:
+        raise CheckpointError("checkpoint_attempt_pointer_not_established")
+    if latest_prior_pointer is not None:
+        prior_ref = ArtifactRef.model_validate(latest_prior_pointer)
+        if (
+            prior_ref.manifest_profile_sha256 is None
+            or latest_prior is None
+            or latest_prior.checkpoint_ref.artifact_id != prior_ref.artifact_id
+            or latest_prior.checkpoint_ref.manifest_profile_sha256
+            != prior_ref.manifest_profile_sha256
+            or not store.verify(prior_ref).ok
+        ):
+            raise CheckpointError("checkpoint_attempt_pointer_not_established")
+        load_checkpoint(store, prior_ref)
+    if not same(reconstructed, state):
+        raise CheckpointError("checkpoint_attempt_state_not_reconciled")
+    if len(budget_modes) != 1:
+        raise CheckpointError("checkpoint_budget_mode_mismatch")
+    if not budget_anchors:
+        return None
+    return budget_anchors[-1]
 
 
 def compute_workflow_fingerprint(workflow: WorkflowSpec) -> str:
@@ -1650,6 +2007,8 @@ def _checkpoint_payload(
     completed_node_id: str,
     completed_nodes: list[str],
     completed_node_status_contract: Literal["native_node_outcome_v1"] | None,
+    execution_budget_contract: Literal["admitted_workflow_budget_v1"] | None,
+    execution_deadline_at: datetime | None,
     workflow_id: str,
     workflow_fingerprint: str,
     origin_workflow_fingerprint: str | None,
@@ -1672,6 +2031,8 @@ def _checkpoint_payload(
             completed_node_id=completed_node_id,
             completed_nodes=completed_nodes,
             completed_node_status_contract=completed_node_status_contract,
+            execution_budget_contract=execution_budget_contract,
+            execution_deadline_at=execution_deadline_at,
             workflow_id=workflow_id,
             workflow_fingerprint=workflow_fingerprint,
             origin_workflow_fingerprint=origin_workflow_fingerprint or workflow_fingerprint,
@@ -1708,6 +2069,8 @@ def create_checkpoint(
     previous_chain_depth: int = 0,
     max_incremental_chain: int = 6,
     origin_workflow_fingerprint: str | None = None,
+    execution_budget_contract: Literal["admitted_workflow_budget_v1"] | None = None,
+    execution_deadline_at: datetime | None = None,
 ) -> CreatedCheckpoint:
     """Create checkpoint."""
     tenant_id, cell_id = _reconcile_checkpoint_scope(
@@ -1748,6 +2111,8 @@ def create_checkpoint(
         completed_node_id=completed_node_id,
         completed_nodes=completed_nodes,
         completed_node_status_contract=completed_node_status_contract,
+        execution_budget_contract=execution_budget_contract,
+        execution_deadline_at=execution_deadline_at,
         workflow_id=workflow_id,
         workflow_fingerprint=workflow_fingerprint,
         origin_workflow_fingerprint=origin_workflow_fingerprint,
@@ -1805,6 +2170,8 @@ async def create_checkpoint_async(
     max_incremental_chain: int = 6,
     origin_workflow_fingerprint: str | None = None,
     publication_budget: CheckpointPublicationBudget | None = None,
+    execution_budget_contract: Literal["admitted_workflow_budget_v1"] | None = None,
+    execution_deadline_at: datetime | None = None,
 ) -> CreatedCheckpoint:
     """Create a checkpoint without blocking the active event loop."""
     if publication_budget is not None:
@@ -1847,6 +2214,8 @@ async def create_checkpoint_async(
         completed_node_id=completed_node_id,
         completed_nodes=completed_nodes,
         completed_node_status_contract=completed_node_status_contract,
+        execution_budget_contract=execution_budget_contract,
+        execution_deadline_at=execution_deadline_at,
         workflow_id=workflow_id,
         workflow_fingerprint=workflow_fingerprint,
         origin_workflow_fingerprint=origin_workflow_fingerprint,
@@ -2468,6 +2837,10 @@ def resume_from_checkpoint(
     run_id: str | CheckpointResumeRequest,
     *,
     workflow: WorkflowSpec | None = None,
+    workflow_ref: ArtifactRef | None = None,
+    require_reconciled_attempts: bool = False,
+    expected_control_job_id: str | None = None,
+    continuation_ledger: BudgetLedger | None = None,
     registry: CheckpointRegistry | None = None,
     registry_bundle_ref: ArtifactRef | None = None,
     checkpoint_policy: CheckpointPolicy = "strict",
@@ -2488,7 +2861,6 @@ def resume_from_checkpoint(
         build_workflow_runner,
     )
     from polisyos.scientist.orchestration.workflows.builder import (
-        build_default_registry,
         build_execution_context,
         build_registry_with_builtin_nodes,
     )
@@ -2498,6 +2870,10 @@ def resume_from_checkpoint(
         request = run_id
         run_id = request.run_id
         workflow = request.workflow
+        workflow_ref = request.workflow_ref
+        require_reconciled_attempts = request.require_reconciled_attempts
+        expected_control_job_id = request.expected_control_job_id
+        continuation_ledger = request.continuation_ledger
         registry = request.registry
         registry_bundle_ref = request.registry_bundle_ref
         checkpoint_policy = request.checkpoint_policy
@@ -2510,6 +2886,7 @@ def resume_from_checkpoint(
     active_scope = _active_checkpoint_scope()
     run_dir = _resolve_run_dir(store=store, run_id=run_id, run_dir=run_dir)
     lock = acquire_run_lock(run_dir, run_id=run_id, mode="resume", force=force_lock)
+    ctx: ExecutionContext | None = None
     try:
         resolved = resolve_latest_checkpoint(
             store,
@@ -2534,7 +2911,31 @@ def resume_from_checkpoint(
             )
         restored_state = ExperimentState.model_validate(checkpoint.state)
 
-        workflow_spec = workflow or default_workflow_spec()
+        if workflow is not None and workflow_ref is not None:
+            raise CheckpointError("checkpoint_resume_conflicting_workflow_inputs")
+        if workflow_ref is not None:
+            from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
+
+            if (
+                workflow_ref.manifest_profile_sha256 is None
+                or workflow_ref.kind != "scientist.workflow_spec"
+                or workflow_ref.media_type != "application/json"
+                or not store.verify(workflow_ref).ok
+            ):
+                raise CheckpointError("checkpoint_resume_workflow_ref_invalid")
+            manifest = store.get_manifest(workflow_ref)
+            if (
+                manifest.artifact_schema is None
+                or manifest.artifact_schema.name
+                != "polisyos.scientist.orchestration.engine.WorkflowSpec"
+                or manifest.artifact_schema.version != "1.0"
+            ):
+                raise CheckpointError("checkpoint_resume_workflow_ref_schema_invalid")
+            workflow_spec = WorkflowSpec.model_validate(
+                load_core_json_artifact(store, workflow_ref)
+            )
+        else:
+            workflow_spec = workflow or default_workflow_spec()
         current_fingerprint = compute_workflow_fingerprint(workflow_spec)
         origin_workflow_fingerprint = (
             checkpoint.metadata.origin_workflow_fingerprint
@@ -2548,6 +2949,140 @@ def resume_from_checkpoint(
             workflow_spec,
             completed_nodes=checkpoint.metadata.completed_nodes,
         )
+        continuation_middleware = None
+        execution_admission_ref: ArtifactRef | None = None
+        execution_admission_origin: tuple[ArtifactRef, WorkflowSpec] | None = None
+        if require_reconciled_attempts:
+            from polisyos.core import run as core_run
+
+            if checkpoint_resume_strategy != "require_cache_seed":
+                raise CheckpointError("checkpoint_reconciled_resume_replay_forbidden")
+            if checkpoint.metadata.execution_budget_contract != "admitted_workflow_budget_v1":
+                raise CheckpointError("checkpoint_execution_budget_not_established")
+            owner = core_run.read_run_owner_snapshot(
+                store,
+                run_dir / "trace.jsonl",
+                run_id=run_id,
+                access_scope=get_current_access_scope_or_none(),
+            )
+            selected_registry = registry_bundle_ref or restored_state.inputs.get(
+                "registry_bundle_ref"
+            )
+            if (
+                owner.run_manifest.control_job_id != expected_control_job_id
+                or owner.run_manifest.registry_bundle != selected_registry
+                or (owner.run_manifest.tenant_id, owner.run_manifest.cell_id) != active_scope
+            ):
+                raise CheckpointError("checkpoint_resume_owner_mismatch")
+            if expected_control_job_id is not None and resumed_workflow.nodes:
+                from polisyos.common.job_execution_interrupt import (
+                    require_current_job_execution_owner,
+                )
+
+                require_current_job_execution_owner(expected_control_job_id)
+            budget_anchor = _reconcile_checkpoint_attempts(
+                store,
+                run_dir=run_dir,
+                run_id=run_id,
+                workflow=workflow_spec,
+                checkpoint=checkpoint,
+            )
+            if budget_anchor is not None:
+                from polisyos.core import run as core_run
+                from polisyos.scientist.orchestration.engine._invocation_settlement import (
+                    _verify_invocation_settlement_receipt,
+                )
+                from polisyos.scientist.orchestration.engine.budget import BudgetState
+                from polisyos.scientist.orchestration.engine.budget_ledger import (
+                    FileBudgetLedger,
+                )
+                from polisyos.scientist.orchestration.engine.budget_middleware import (
+                    BudgetMiddleware,
+                )
+
+                (
+                    owner_identity,
+                    resource_identity,
+                    profile,
+                    revision,
+                    snapshot_sha256,
+                ) = budget_anchor
+                if type(continuation_ledger) is not FileBudgetLedger or (
+                    resumed_workflow.nodes and expected_control_job_id is None
+                ):
+                    raise CheckpointError("checkpoint_continuation_ledger_not_established")
+                try:
+                    continuation_middleware = BudgetMiddleware(
+                        BudgetState(),
+                        ledger=continuation_ledger,
+                        continuation_owner_identity=owner_identity,
+                        continuation_resource_identity=resource_identity,
+                        continuation_snapshot_anchor=(revision, snapshot_sha256),
+                        invocation_settlement_profile=profile,
+                    )
+                    current_owner, current_resource, current_anchor, snapshot = (
+                        continuation_middleware._continuation_state()
+                    )
+                except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                    raise CheckpointError("checkpoint_continuation_ledger_not_reconciled") from exc
+                if (
+                    current_owner != owner_identity
+                    or current_resource != resource_identity
+                    or current_anchor != (revision, snapshot_sha256)
+                    or restored_state.budgets.get("run_spent_usd")
+                    != snapshot.state.spent.get("run", Decimal(0))
+                    or (
+                        "run_max_usd" in restored_state.budgets
+                        and (
+                            "run" not in snapshot.state.limits
+                            or restored_state.budgets["run_max_usd"]
+                            != snapshot.state.limits["run"].max_usd
+                        )
+                    )
+                    or any(
+                        record.status != "committed"
+                        for record in snapshot.producer_settlements.values()
+                    )
+                    or any(
+                        record.status != "settled"
+                        for record in snapshot.compute_reservations.values()
+                    )
+                ):
+                    raise CheckpointError("checkpoint_continuation_ledger_not_reconciled")
+                seen_events: set[str] = set()
+                for attempt in core_run.read_runtime_invocation_attempts(
+                    store, run_dir / "trace.jsonl", run_id=run_id
+                ):
+                    outcome = attempt.outcome
+                    if outcome is None or outcome.budget_receipt_ref is None:
+                        raise CheckpointError("checkpoint_attempt_receipt_binding_not_established")
+                    try:
+                        receipt = _verify_invocation_settlement_receipt(
+                            store,
+                            outcome.budget_receipt_ref,
+                            outcome.output_refs,
+                            run_id=run_id,
+                            alias=attempt.basis.node_alias,
+                            attempt_id=attempt.basis.attempt_id,
+                            basis_ref=attempt.basis_ref,
+                            snapshot=snapshot,
+                        )
+                    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                        raise CheckpointError(
+                            "checkpoint_attempt_receipt_binding_not_established"
+                        ) from exc
+                    if (
+                        receipt.event_id in seen_events
+                        or receipt.key != "run"
+                        or receipt.revision != attempt.basis.budget_start_revision + 1
+                        or receipt.revision != outcome.budget_snapshot_revision
+                    ):
+                        raise CheckpointError("checkpoint_attempt_receipt_binding_not_established")
+                    seen_events.add(receipt.event_id)
+            elif budget_anchor is None and continuation_ledger is not None:
+                raise CheckpointError("checkpoint_unbudgeted_resume_received_ledger")
+        elif expected_control_job_id is not None or continuation_ledger is not None:
+            raise CheckpointError("checkpoint_owner_restriction_requires_reconciled_resume")
         # A fully completed workflow has no residual node whose declared reads
         # need checking.  Return its durable state without requiring registry
         # implementations for nodes that are no longer executable.
@@ -2556,6 +3091,14 @@ def resume_from_checkpoint(
             resolved_registry: CheckpointRegistry = (
                 registry if registry is not None else build_registry_with_builtin_nodes()
             )
+            if require_reconciled_attempts and any(
+                _state_paths_overlap(path, "last_checkpoint_ref")
+                for invocation in resumed_workflow.nodes
+                for path in getattr(
+                    resolved_registry.get(invocation.node_id).spec, "state_reads", ()
+                )
+            ):
+                raise CheckpointError("checkpoint_attempt_engine_pointer_consumer_unsupported")
             missing_state_paths = _missing_completed_state_paths(
                 workflow_spec,
                 resumed_workflow,
@@ -2563,8 +3106,10 @@ def resume_from_checkpoint(
                 state=restored_state,
                 registry=resolved_registry,
                 store=store,
+                strict=require_reconciled_attempts,
             )
         execution_workflow = resumed_workflow
+        replaying_completed = False
         if missing_state_paths:
             if checkpoint_resume_strategy == "allow_replay":
                 # This is the one strategy that may re-run completed nodes. It
@@ -2586,22 +3131,78 @@ def resume_from_checkpoint(
                     log=logger,
                 )
                 execution_workflow = workflow_spec
+                replaying_completed = True
             else:
                 raise CheckpointCorruptedError(
                     "checkpoint resume state is incomplete for remaining nodes: "
                     + ", ".join(missing_state_paths)
                 )
 
+        if len(resumed_workflow.nodes) == 0:
+            return WorkflowExecutionResult(
+                state=restored_state,
+                report=WorkflowReport(
+                    schema_version="1.0",
+                    workflow_id=workflow_spec.workflow_id,
+                    run_id=run_id,
+                    error_policy=workflow_spec.error_policy,
+                    status=WorkflowExecutionStatus.OK.value,
+                    nodes=[],
+                ),
+            )
+
+        deadline_at = checkpoint.metadata.execution_deadline_at
+        if deadline_at is not None and datetime.now(UTC) >= deadline_at:
+            raise WorkflowTimeoutError("Workflow execution deadline expired before resume dispatch")
+        if require_reconciled_attempts:
+            from polisyos.core import run as core_run
+            from polisyos.scientist.orchestration.engine.execution_admission import (
+                ExecutionAdmissionError,
+                verify_workflow_execution_admission,
+            )
+            from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
+
+            attempts = core_run.read_runtime_invocation_attempts(
+                store, run_dir / "trace.jsonl", run_id=run_id
+            )
+            if not attempts:
+                raise CheckpointError("checkpoint_residual_implementation_not_established")
+            first = attempts[0].basis
+            execution_admission_ref = first.workflow_execution_admission_ref
+            if execution_admission_ref is None or any(
+                attempt.basis.workflow_execution_admission_ref != execution_admission_ref
+                for attempt in attempts
+            ):
+                raise CheckpointError("checkpoint_residual_implementation_not_established")
+            original_ref = first.workflow_spec_ref
+            original_workflow = WorkflowSpec.model_validate(
+                load_core_json_artifact(store, original_ref)
+            )
+            try:
+                verify_workflow_execution_admission(
+                    store,
+                    execution_admission_ref,
+                    original_workflow_ref=original_ref,
+                    original_workflow=original_workflow,
+                    residual_workflow=execution_workflow,
+                    registry=resolved_registry,
+                    run_id=run_id,
+                )
+            except (ExecutionAdmissionError, OSError, ValueError) as exc:
+                raise CheckpointError("checkpoint_residual_implementation_not_established") from exc
+            execution_admission_origin = (original_ref, original_workflow)
+
         registry_bundle_ref = registry_bundle_ref or restored_state.inputs.get(
             INPUT_REGISTRY_BUNDLE_REF
         )
         if registry_bundle_ref is None:
-            registry_bundle_ref = build_default_registry(store)
+            raise CheckpointCorruptedError("checkpoint resume registry bundle ref not established")
 
         ctx = build_execution_context(
             store,
             registry_bundle_ref,
             run_id=run_id,
+            resume_run_dir=run_dir,
         )
 
         ctx.run.emit(
@@ -2621,35 +3222,54 @@ def resume_from_checkpoint(
             tenant_id=checkpoint.metadata.tenant_id,
             cell_id=checkpoint.metadata.cell_id,
             initial_cache_entry_refs=checkpoint.metadata.cache_entry_refs,
-            initial_completed_nodes=checkpoint.metadata.completed_nodes,
+            initial_completed_nodes=(
+                [] if replaying_completed else checkpoint.metadata.completed_nodes
+            ),
             initial_completed_node_status_contract=(
-                checkpoint.metadata.completed_node_status_contract
+                None if replaying_completed else checkpoint.metadata.completed_node_status_contract
             ),
             initial_status_contract_established=(
-                checkpoint.metadata.completed_node_status_contract == COMPLETED_NODE_STATUS_CONTRACT
+                replaying_completed
+                or checkpoint.metadata.completed_node_status_contract
+                == COMPLETED_NODE_STATUS_CONTRACT
             ),
             initial_checkpoint_ref=head.checkpoint_ref,
             initial_state=checkpoint.state,
             initial_chain_depth=head.chain_depth,
             initial_origin_workflow_fingerprint=origin_workflow_fingerprint,
+            initial_execution_budget_contract=checkpoint.metadata.execution_budget_contract,
+            initial_execution_deadline_at=checkpoint.metadata.execution_deadline_at,
         )
 
         runner_config = WorkflowRunnerConfig.from_env()
-        if len(resumed_workflow.nodes) == 0:
-            return WorkflowExecutionResult(
-                state=restored_state,
-                report=WorkflowReport(
-                    schema_version="1.0",
-                    workflow_id=workflow_spec.workflow_id,
-                    run_id=run_id,
-                    error_policy=workflow_spec.error_policy,
-                    status=WorkflowExecutionStatus.OK.value,
-                    nodes=[],
-                ),
-            )
-
+        if (
+            require_reconciled_attempts or deadline_at is not None
+        ) and runner_config.backend != "local":
+            raise CheckpointError("checkpoint_bounded_resume_requires_local_runner")
         try:
-            runner = build_workflow_runner(runner_config)
+            if (
+                deadline_at is not None
+                or continuation_middleware is not None
+                or require_reconciled_attempts
+            ):
+                from polisyos.scientist.orchestration.engine.runner.local_runner import (
+                    LocalWorkflowRunner,
+                )
+                from polisyos.scientist.orchestration.engine.state_merge import MergeConflictPolicy
+
+                runner = LocalWorkflowRunner(
+                    max_parallelism=(
+                        1 if continuation_middleware is not None else runner_config.max_parallelism
+                    ),
+                    merge_conflict_policy=MergeConflictPolicy(runner_config.merge_conflict_policy),
+                    workflow_deadline_at=deadline_at,
+                    budget_middleware=continuation_middleware,
+                    workflow_execution_admission_ref=execution_admission_ref,
+                    workflow_execution_admission_origin=execution_admission_origin,
+                    strict_budget_attempts=continuation_middleware is not None,
+                )
+            else:
+                runner = build_workflow_runner(runner_config)
         except (ImportError, RuntimeError, ValueError) as exc:
             if runner_config.backend != "local":
                 emit_degraded_path(
@@ -2680,7 +3300,9 @@ def resume_from_checkpoint(
             resolved_registry,
             checkpoint_hook=hook,
             checkpoint_cache_seed_refs=checkpoint.metadata.cache_entry_refs,
-            max_parallelism=runner_config.max_parallelism,
+            max_parallelism=(
+                1 if continuation_middleware is not None else runner_config.max_parallelism
+            ),
         )
         try:
             running_loop = asyncio.get_running_loop()
@@ -2690,7 +3312,11 @@ def resume_from_checkpoint(
             return run_coro_sync(execution_coro)
         return asyncio.run(execution_coro)
     finally:
-        lock.release()
+        try:
+            if ctx is not None:
+                ctx.run.suspend_for_resume()
+        finally:
+            lock.release()
 
 
 __all__ = [

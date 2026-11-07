@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from polisyos.core.artifacts import ArtifactTenantContextInfo
+from polisyos.core.artifacts import ArtifactRef, ArtifactTenantContextInfo
 from polisyos.runtime.http.services.control.generation_cycle import (
     N4CandidateProposalExecution,
     N4CandidateScenarioProposalOnlyExecution,
@@ -16,10 +16,11 @@ from .job_nl_publication import _n4_proposal_progress_with_budget
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from polisyos.core.artifacts import ArtifactRef
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
     )
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationExecutionV5
+    from polisyos.runtime.quality.generation_cycle import _GenerationCycleN5Completion
 
     from .job_nl_context import _ControlNLJobContext
 
@@ -128,7 +129,62 @@ class ControlNLJobExecutionMixin:
     ) -> CompiledRecursiveGenerationCycleRun | None:
         """Compile one admitted NL job and persist any terminal candidate lane."""
         self._persist_current_nl_owner_projection(context)
-        compiled = self._compile_control_nl_job(context)
+        try:
+            compiled = self._compile_control_nl_job(context)
+        except Exception as error:
+            from .job_attempt_publication import _clear_original_error_candidate_progress
+
+            _clear_original_error_candidate_progress(error)
+            try:
+                self._preserve_failed_nl_candidate_n5(context, error=error)
+            except Exception as preservation_error:
+                # Preservation cannot replace the real execution failure.
+                import logging
+
+                logging.getLogger(__name__).debug(
+                    "Failed N5 output preservation was not established: %s", preservation_error
+                )
+                from polisyos.runtime.quality.generation_cycle import (
+                    _completed_n5_failure_from_exception,
+                )
+
+                from .job_attempt_publication import _attach_original_error_candidate_progress
+
+                try:
+                    if _completed_n5_failure_from_exception(error) is not None:
+                        # Expose the failed preservation without leaking foreign
+                        # artifact diagnostics or substituting it for the primary.
+                        _attach_original_error_candidate_progress(
+                            error,
+                            job=context.job,
+                            execution_scope=context.execution_scope,
+                            progress={
+                                "state": "failed",
+                                "phase": "generation_cycle_partial_preservation",
+                                "runtime_state": "candidate_only",
+                                "run_id": context.job.run_id,
+                                "job_id": context.job.job_id,
+                                "attempt": context.job.attempt,
+                                "partial_candidate_simulation": {
+                                    "artifact_status": "not_established",
+                                    "limitation_code": "partial_n5_preservation_not_established",
+                                    "publication_authority": False,
+                                },
+                                "failure": {
+                                    "code": str(
+                                        getattr(error, "code", None)
+                                        or "generation_cycle_late_stage_failed"
+                                    ),
+                                    "exception_type": type(error).__name__,
+                                    "message": str(error),
+                                },
+                            },
+                        )
+                except Exception as diagnostic_error:
+                    logging.getLogger(__name__).debug(
+                        "Could not attach candidate failure diagnostic: %s", diagnostic_error
+                    )
+            raise
         if isinstance(compiled, N4CandidateScenarioProposalOnlyExecution):
             self._complete_nl_scenario_proposal_only(context, compiled)
             return None
@@ -145,6 +201,268 @@ class ControlNLJobExecutionMixin:
             self._complete_nl_simulation_result(context, compiled)
             return None
         return compiled
+
+    def _reopen_owned_candidate_n5_completion(
+        self,
+        context: _ControlNLJobContext,
+        *,
+        completion: _GenerationCycleN5Completion,
+    ) -> tuple[CandidateSimulationExecutionV5, tuple[ArtifactRef, ...]]:
+        """Reconcile enclosing facts with the canonical scoped V5 artifact owner."""
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationExecutionV5,
+            CandidateSimulationN5InputV5,
+        )
+        from polisyos.runtime.quality.cycle_substrate import (
+            VerifiedNLJobScope,
+            cycle_job_design_problem_ref,
+        )
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+            N4CandidateScenarioSourceRecordV2,
+            N4CandidateScenarioSourceRecordV3,
+        )
+
+        job, scope = context.job, context.execution_scope
+        verified = completion.verified_scope
+        if (
+            type(verified) is not VerifiedNLJobScope
+            or not verified._was_issued_by_verified_nl_execution_owner
+            or context.verified_nl_job_scope is None
+            or verified != context.verified_nl_job_scope
+            or (verified.job_id, verified.run_id, verified.tenant_id, verified.cell_id)
+            != (job.job_id, job.run_id, scope.tenant_id, scope.cell_id)
+            or verified.attempt != job.attempt
+            or verified.worker_id != job.lease_owner
+            or completion.problem.nl_provenance.raw_request
+            != str(context.payload.get("request") or "")
+            or context.core_run_context is None
+            or context.core_run_id is None
+        ):
+            raise ValueError("generation_cycle_partial_n5_scope_not_established")
+        self._persist_current_nl_owner_projection(context)
+        repository = GenerationSourceRepository(self._artifact_store)
+        expected_scope = {
+            "expected_run_id": str(job.run_id),
+            "expected_job_id": job.job_id,
+            "expected_tenant_id": scope.tenant_id,
+            "expected_cell_id": scope.cell_id,
+        }
+        resolved = repository._read_candidate_simulation_v5_numerical_output(
+            ref=completion.execution_ref, **expected_scope
+        )
+        execution, input_record = resolved.execution, resolved.input_record
+        if (
+            type(execution) is not CandidateSimulationExecutionV5
+            or type(input_record) is not CandidateSimulationN5InputV5
+            or execution.n5_input_ref != completion.input_ref
+            or execution.n4_source_ref != completion.n4_source_ref
+            or execution.context_job_ref != completion.context_job_ref
+            or execution.n5_result_ref != completion.result_ref
+            or execution.original_candidate_id != completion.candidate_id
+            or execution.original_candidate_hash != completion.candidate_hash
+            or execution.world_model_record_hash != completion.world_model_record_hash
+            or execution.problem_ref != cycle_job_design_problem_ref(completion.problem)
+            or input_record.materialization.problem_ref != execution.problem_ref
+        ):
+            raise ValueError("generation_cycle_partial_n5_execution_join_mismatch")
+        source = resolved.source
+        if (
+            type(source)
+            not in {N4CandidateScenarioSourceRecordV2, N4CandidateScenarioSourceRecordV3}
+            or source.problem != completion.problem
+            or source.candidate is None
+            or source.candidate.candidate_id != completion.candidate_id
+            or source.candidate.atom.content_hash != completion.candidate_hash
+            or source.profile != input_record.profile
+        ):
+            raise ValueError("generation_cycle_partial_n5_source_join_mismatch")
+        retained_refs = (
+            completion.execution_ref,
+            completion.input_ref,
+            completion.n4_source_ref,
+            completion.result_ref,
+        )
+        if any(ref.manifest_profile_sha256 is None for ref in retained_refs):
+            raise ValueError("generation_cycle_partial_n5_selected_view_missing")
+        return execution, retained_refs
+
+    def _preserve_failed_nl_candidate_n5(
+        self, context: _ControlNLJobContext, *, error: Exception
+    ) -> None:
+        """Reopen owned N5 bytes before linking them to the same failed attempt."""
+        from polisyos.runtime.quality.generation_cycle import (
+            _completed_n5_failure_from_exception,
+        )
+
+        from .job_attempt_publication import _attach_original_error_candidate_progress
+
+        packet = _completed_n5_failure_from_exception(error)
+        if packet is None:
+            return
+        completion = packet.completion
+        job, scope = context.job, context.execution_scope
+        execution, retained_refs = self._reopen_owned_candidate_n5_completion(
+            context, completion=completion
+        )
+        outputs = list(context.core_run_context.run_manifest.outputs)
+        for ref in retained_refs:
+            if ref not in outputs:
+                outputs.append(ref)
+        original_failure: dict[str, object] = {
+            "code": str(getattr(error, "code", None) or "generation_cycle_late_stage_failed"),
+            "exception_type": type(error).__name__,
+            "message": str(error),
+            "stage": packet.failed_stage,
+        }
+        if error.__cause__ is not None:
+            original_failure["cause"] = {
+                "exception_type": type(error.__cause__).__name__,
+                "message": str(error.__cause__),
+            }
+        manifest_ref = self._finish_generation_run_context(
+            job=job,
+            execution_scope=scope,
+            core_run_id=context.core_run_id,
+            context=context.core_run_context,
+            outputs=outputs,
+            status="error",
+            errors=[original_failure],
+        )
+        progress = {
+            "state": "failed",
+            "phase": "generation_cycle_" + packet.failed_stage,
+            "runtime_state": "candidate_only",
+            "authority_result": "candidate_only",
+            "run_id": job.run_id,
+            "job_id": job.job_id,
+            "attempt": job.attempt,
+            "core_terminal_status": "error",
+            **self._core_run_progress_fields(
+                job=job, core_run_id=context.core_run_id, manifest_ref=manifest_ref
+            ),
+            "partial_candidate_simulation": {
+                "artifact_status": "resolved",
+                "authority_purpose": "candidate_scenario_n5_only",
+                "cycle_index": completion.cycle_index,
+                "candidate_id": completion.candidate_id,
+                "candidate_hash": completion.candidate_hash,
+                "problem_ref": execution.problem_ref,
+                "world_model_record_hash": completion.world_model_record_hash,
+                "completed_stage": "n5_simulation",
+                "failed_stage": packet.failed_stage,
+                "cycle_completed": False,
+                "publication_authority": False,
+                "n5_input_ref": completion.input_ref.model_dump(mode="json"),
+                "execution_ref": completion.execution_ref.model_dump(mode="json"),
+                "n4_source_ref": completion.n4_source_ref.model_dump(mode="json"),
+                "context_job_ref": completion.context_job_ref.model_dump(mode="json"),
+                "simulation_result_ref": completion.result_ref.model_dump(mode="json"),
+            },
+            "failure": {
+                "code": str(getattr(error, "code", None) or "generation_cycle_late_stage_failed"),
+                "exception_type": type(error).__name__,
+                "message": str(error),
+                "layer": "generation_cycle",
+                "phase": packet.failed_stage,
+                "run_id": job.run_id,
+                "job_id": job.job_id,
+                "attempt": job.attempt,
+            },
+        }
+        _attach_original_error_candidate_progress(
+            error, progress=progress, job=job, execution_scope=scope
+        )
+
+    def _completed_candidate_n5_output_refs(
+        self,
+        context: _ControlNLJobContext,
+        compiled: CompiledRecursiveGenerationCycleRun,
+    ) -> tuple[ArtifactRef, ...]:
+        """Reopen completed configured V5 leaves before explicit Core publication.
+
+        Historical unbound simulations retain their existing compiled surface;
+        they do not acquire selected, same-owner output membership from an ID.
+        """
+        from polisyos.core.artifacts import ArtifactRef, read_core_manifest_profile
+        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+        from polisyos.runtime.quality.generation_cycle import _GenerationCycleN5Completion
+        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+        from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleNode
+
+        refs: list[ArtifactRef] = []
+        repository = GenerationSourceRepository(self._artifact_store)
+        scope = context.execution_scope
+        for node in compiled.recursive_run.nodes:
+            if type(node) is not RecursiveCycleNode or node.cycle_run is None:
+                continue
+            for cycle in node.cycle_run.cycles:
+                simulation = cycle.simulation
+                input_ref = simulation.candidate_simulation_n5_input_ref
+                if simulation.status != "joint_simulated" or input_ref is None:
+                    continue
+                manifest = read_core_manifest_profile(self._artifact_store, input_ref)[0]
+                schema = manifest.artifact_schema
+                if schema is None or (schema.name, schema.version) != (
+                    "policyos.runtime.candidate_simulation.n5_input.v5",
+                    "5.0",
+                ):
+                    continue
+                source_ref = simulation.candidate_simulation_n4_source_ref
+                context_ref = simulation.candidate_simulation_context_job_ref
+                if (
+                    source_ref is None
+                    or context_ref is None
+                    or simulation.simulation_result_ref is None
+                    or simulation.world_model_record is None
+                    or context.verified_nl_job_scope is None
+                    or scope.tenant_id is None
+                    or scope.cell_id is None
+                ):
+                    raise ValueError("compiled_candidate_n5_output_binding_missing")
+                source = repository.load_candidate_scenario_source_for_n5(
+                    source_ref,
+                    expected_run_id=str(context.job.run_id),
+                    expected_job_id=context.job.job_id,
+                    expected_tenant_id=scope.tenant_id,
+                    expected_cell_id=scope.cell_id,
+                )
+                if cycle_job_design_problem_ref(source.problem) != (
+                    cycle.design_problem_basis_ref or cycle.design_problem_ref
+                ):
+                    raise ValueError("compiled_candidate_n5_problem_basis_mismatch")
+                completion = _GenerationCycleN5Completion(
+                    verified_scope=context.verified_nl_job_scope,
+                    problem=source.problem,
+                    cycle_index=cycle.cycle_index,
+                    candidate_id=cycle.selected_candidate_ref,
+                    candidate_hash=cycle.selected_candidate_content_hash,
+                    world_model_record_hash=simulation.world_model_record.content_hash,
+                    n4_source_ref=source_ref,
+                    context_job_ref=context_ref,
+                    input_ref=input_ref,
+                    execution_ref=ArtifactRef.model_validate(
+                        simulation.diagnostics.get("candidate_simulation_execution_selected_ref")
+                    ),
+                    result_ref=simulation.simulation_result_ref,
+                )
+                execution, selected = self._reopen_owned_candidate_n5_completion(
+                    context, completion=completion
+                )
+                if (
+                    execution.n5_result_content_hash != simulation.simulation_ref
+                    or execution.world_model_record_hash != simulation.k_world_ref_before
+                    or execution.world_model_record_hash != simulation.k_world_ref_after
+                    or execution.profile_config_ref
+                    != simulation.candidate_simulation_profile_config_ref
+                    or source.profile.profile_selection_ref
+                    != simulation.candidate_simulation_profile_selection_ref
+                ):
+                    raise ValueError("compiled_candidate_n5_enclosing_simulation_mismatch")
+                for ref in selected:
+                    if ref not in refs:
+                        refs.append(ref)
+        return tuple(refs)
 
     def _compile_control_nl_job(
         self, context: _ControlNLJobContext
@@ -265,6 +583,15 @@ class ControlNLJobExecutionMixin:
                 lambda: self._llm_producer_settlement_store.resolve_producer_event_safe(event_id)
             )
 
+        joint_request_payload_ref = None
+        if payload.get("joint_interaction_candidate_intent") == "authored_joint_components.v1":
+            created = self._control_store.get_job_created_event_payload(job.job_id)
+            raw_ref = created.get("nl_request_payload_artifact_ref")
+            if not isinstance(raw_ref, dict):
+                raise ValueError("authored_joint_request_selected_queue_missing")
+            joint_request_payload_ref = ArtifactRef.model_validate(raw_ref)
+            if str(joint_request_payload_ref.artifact_id) != job.payload_ref:
+                raise ValueError("authored_joint_request_selected_queue_mismatch")
         producer_basis_scope = control_job_producer_basis_scope(
             context=context.core_run_context,
             run_binding=context.producer_run_binding,
@@ -297,6 +624,7 @@ class ControlNLJobExecutionMixin:
                     joint_interaction_candidate_intent=payload.get(
                         "joint_interaction_candidate_intent"
                     ),
+                    joint_interaction_request_payload_ref=joint_request_payload_ref,
                     # A configured generic handoff owner selects the N4/N5 route;
                     # without one, simulate_only stays on the N4 proposal-only lane.
                     n4_proposal_only=(
@@ -895,6 +1223,30 @@ class ControlNLJobExecutionMixin:
         )
         return
 
+    def _prepare_candidate_experiment_policies_after_completion(self, source_job_id: str) -> None:
+        """Prepare optional candidate experiment policies for a completed NL job."""
+        if not self._registry_providers.candidate_unpriced_policy_templates:
+            return
+
+        try:
+            from polisyos.runtime.quality.candidate_experiment_policy_issuer import (
+                prepare_candidate_experiment_policies_for_completed_job,
+            )
+
+            prepare_candidate_experiment_policies_for_completed_job(
+                control_service=self,
+                source_job_id=source_job_id,
+            )
+        except Exception as exc:
+            import logging
+
+            logging.getLogger(__name__).warning(
+                "Candidate experiment policy preparation failed for completed job "
+                "job_id=%s error_type=%s",
+                source_job_id,
+                type(exc).__name__[:80],
+            )
+
     def _complete_nl_candidate_only_result(self, context: _ControlNLJobContext) -> None:
         """Reject an unexpected recursive result for candidate-only intent."""
         job = context.job
@@ -983,10 +1335,13 @@ class ControlNLJobExecutionMixin:
         core_run_context = context.core_run_context
         cycle_substrate_context_job_ref = context.cycle_substrate_context_job_ref
         cycle_substrate_context_job_selected_ref = context.cycle_substrate_context_job_selected_ref
+        candidate_outputs = self._completed_candidate_n5_output_refs(context, compiled)
         compiled_artifact_ref = self._put_json_artifact_ref(
             compiled.model_dump(mode="json"),
             kind="runtime.compiled_recursive_generation_cycle",
             schema_name=("polisyos.runtime.CompiledRecursiveGenerationCycleRun"),
+            inputs=list(candidate_outputs),
+            input_roles=tuple("completed_candidate_simulation" for _ in candidate_outputs),
             tenant_context=(
                 ArtifactTenantContextInfo(
                     tenant_id=execution_scope.tenant_id,
@@ -1006,6 +1361,7 @@ class ControlNLJobExecutionMixin:
                 core_run_id=core_run_id,
                 run_context=core_run_context,
                 compiled_run_ref=compiled_artifact_ref,
+                candidate_output_refs=candidate_outputs,
             )
             core_progress = self._core_run_progress_fields(
                 job=job,
@@ -1085,4 +1441,5 @@ class ControlNLJobExecutionMixin:
                 ),
             ],
         )
+        self._prepare_candidate_experiment_policies_after_completion(job.job_id)
         return

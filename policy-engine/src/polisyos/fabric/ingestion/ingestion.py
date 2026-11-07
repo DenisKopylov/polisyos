@@ -14,12 +14,12 @@ from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.core.canon import content_hash
-from polisyos.core.contracts.fabric import EvidenceBundleRef
+from polisyos.core.contracts.fabric import EvidenceBundleRef, IngestionExecutionContext
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
-from polisyos.fabric.connectors.base import ConnectionConfig
+from polisyos.fabric.connectors.base import ConnectionConfig, _bind_fetch_source_namespace
 from polisyos.fabric.connectors.cache.policy import (
     PolicyRegistry,
     SmartExpiryPolicy,
@@ -192,7 +192,13 @@ def _is_dataframe_like(value: object) -> bool:
 
 @dataclass(frozen=True, slots=True)
 class DatasetFetchSpec:
-    """Dataset fetch spec data model."""
+    """Describe one dataset request for a connector ingestion run.
+
+    The specification carries connector and dataset identifiers, optional
+    filters and date bounds, and optional retry and page-size hints. It can be
+    parsed from and serialized to the connector manifest mapping; it does not
+    perform the fetch itself.
+    """
 
     connector_id: str
     dataset_id: str
@@ -234,7 +240,17 @@ class DatasetFetchSpec:
 
 @dataclass(frozen=True, slots=True)
 class ConnectorManifestSpec:
-    """Connector manifest spec data model."""
+    """Hold the dataset requests and run-level options in a connector manifest.
+
+    Dataset entries are represented as :class:`DatasetFetchSpec` instances.
+    The remaining fields describe an optional transform DAG, whether local
+    transform resolution is allowed, a cache policy, and retry policy data.
+    Parsing validates the dataset-list and retry-policy container shapes and
+    defaults the dataset list and local-transform permission when omitted; the
+    manifest itself does not execute ingestion. Its local-transform flag is a
+    caller-supplied opt-in, not an attestation that a local Python transform is
+    safe.
+    """
 
     datasets: list[DatasetFetchSpec] = field(default_factory=list)
     transform_dag: str | None = None
@@ -472,9 +488,15 @@ def _persist_quarantine_entry(
     downstream_impacts: tuple[str, ...],
     context: dict[str, Any],
     input_artifact_ids: list[str] | None = None,
+    execution_context: IngestionExecutionContext | None = None,
 ) -> str | None:
     if cas_store is None:
         return None
+    if execution_context is not None:
+        context = {
+            **context,
+            "execution_context": execution_context.model_dump(mode="json"),
+        }
     ref = persist_quarantine_record(
         cas_store,
         record=QuarantineRecord.new(
@@ -489,6 +511,17 @@ def _persist_quarantine_entry(
         ),
         raw_payload=raw_payload,
         input_artifact_ids=input_artifact_ids or [],
+        selected_inputs=(
+            [
+                input_ref_from_artifact_ref(
+                    execution_context.selected_record_session_ref,
+                    role="fabric.ingestion.record_session",
+                )
+            ]
+            if execution_context is not None
+            and execution_context.selected_record_session_ref is not None
+            else ()
+        ),
     )
     return str(ref.artifact_id)
 
@@ -532,6 +565,7 @@ def _sanitize_fetch_result(
     connector_id: str,
     dataset_id: str,
     cas_store: RootedArtifactStore | None = None,
+    execution_context: IngestionExecutionContext | None = None,
 ) -> tuple[FetchResult[Any], list[str], int]:
     rows, payload_kind, columns = _rows_from_payload(result.data)
     if rows is None or payload_kind is None:
@@ -589,6 +623,7 @@ def _sanitize_fetch_result(
                 "data_snapshot",
             ),
             context=context,
+            execution_context=execution_context,
         )
 
     if quarantined == 0:
@@ -615,6 +650,7 @@ def _apply_transform_pipeline(
     connector_id: str,
     dataset_id: str,
     cas_store: RootedArtifactStore | None = None,
+    execution_context: IngestionExecutionContext | None = None,
 ) -> tuple[FetchResult[Any], ProvenanceCoreGraph | None, list[str], int]:
     if pipeline is None:
         return result, None, [], 0
@@ -707,6 +743,7 @@ def _apply_transform_pipeline(
                         "message": str(row_exc),
                         "pipeline_stages": [stage.name for stage in pipeline.compile().stages],
                     },
+                    execution_context=execution_context,
                 )
 
         data = (
@@ -775,7 +812,13 @@ def _sync_fetch(
             finally:
                 await registry.release_connection(connector_id, handle)
 
-    return run_coro_sync(_do_fetch())
+    async def _do_scoped_fetch() -> FetchResult[Any]:
+        # Acquisition may perform connector-owned HTTP health checks, and
+        # release may close a transport. They belong to the same selected source.
+        with _bind_fetch_source_namespace(connector_id, request.dataset_id):
+            return await _do_fetch()
+
+    return run_coro_sync(_do_scoped_fetch())
 
 
 def _sync_fetch_with_receipt(
@@ -879,7 +922,11 @@ def _sync_fetch_with_receipt(
             finally:
                 await registry.release_connection(connector_id, handle)
 
-    return run_coro_sync(_do_fetch())
+    async def _do_scoped_fetch() -> tuple[FetchResult[Any], CacheFetchReceipt]:
+        with _bind_fetch_source_namespace(connector_id, request.dataset_id):
+            return await _do_fetch()
+
+    return run_coro_sync(_do_scoped_fetch())
 
 
 def _cache_payload_ref_matches_result(
@@ -927,12 +974,34 @@ def _build_connector_provenance_graph(
     ended_at: datetime,
     manifest_hash: str,
     transform_lineage_graphs: list[ProvenanceCoreGraph] | None = None,
+    execution_context: IngestionExecutionContext | None = None,
 ) -> ProvenanceCoreGraph:
+    """Build provenance for the supplied connector operations.
+
+    This records declared operations and execution context; it does not verify
+    source authority, currency, licensing entitlement or scientific validity.
+
+    Args:
+        datasets: Declared fetched datasets and their content bindings.
+        source: Declared connector source label.
+        license_name: Reported license label, not an entitlement decision.
+        started_at: Operation start time.
+        ended_at: Operation completion time.
+        manifest_hash: Content identity of the connector manifest.
+        transform_lineage_graphs: Existing lineage graphs to retain.
+        execution_context: Optional captured execution and selected replay view.
+
+    Returns:
+        Provenance graph over these declared operations and inputs.
+    """
     graph = ProvenanceCoreGraph(
         graph_id=f"connector_ingestion_{started_at.strftime('%Y%m%dT%H%M%S')}",
         created_at=started_at,
         metadata={"source": source, "license": license_name},
     )
+    if execution_context is not None:
+        graph.metadata["execution_mode"] = execution_context.mode
+        graph.metadata["capture_session_id"] = execution_context.capture_session_id
 
     graph.add_agent(
         ProvenanceAgent(
@@ -955,6 +1024,11 @@ def _build_connector_provenance_graph(
                 "license": license_name,
                 "dataset_count": len(datasets),
                 "manifest_hash": manifest_hash,
+                **(
+                    {"execution_context": execution_context.model_dump(mode="json")}
+                    if execution_context is not None
+                    else {}
+                ),
             },
         )
     )
@@ -1062,6 +1136,7 @@ def run_connectors_ingestion(
     raw_http_response_observer: RawHTTPResponseObserver | None = None,
     _live_acquire_permit: object | None = None,
     cache_namespace: str | None = None,
+    execution_context: IngestionExecutionContext | None = None,
 ) -> EvidenceBundleRef | None:
     """Run connector ingestion with optional HTTP and normalized-result witnesses.
 
@@ -1079,9 +1154,18 @@ def run_connectors_ingestion(
         raw_http_response_observer: Authorizes each HTTP attempt and receives its exact
             bounded response bytes before HTTP-status or JSON interpretation.
         cache_namespace: Optional index namespace, independent of the CAS blob root.
+        execution_context: Internal mode-handler context. Captured runs fetch through the
+            connector and persist into a purpose/session cache namespace with durable
+            execution provenance; ordinary ingestion retains its cache behavior.
     """
     if connection_config is not None and not isinstance(connection_config, ConnectionConfig):
         raise TypeError("connector_ingestion_selected_connection_config_invalid")
+    if execution_context is not None:
+        if not isinstance(execution_context, IngestionExecutionContext):
+            raise TypeError("connector_ingestion_execution_context_invalid")
+        execution_context = IngestionExecutionContext.model_validate(
+            execution_context.model_dump(mode="python")
+        )
     spec = _normalize_connector_manifest(connector_manifest)
     if not spec.datasets:
         logger.warning("connector_ingestion: manifest.datasets is empty — nothing to fetch.")
@@ -1148,6 +1232,7 @@ def run_connectors_ingestion(
                 ),
                 metrics=resolved_dependencies.metrics,
                 tracer=resolved_dependencies.tracer,
+                execution_context=execution_context,
             )
             if cas_store
             else None
@@ -1187,7 +1272,13 @@ def run_connectors_ingestion(
                 dataset_id,
             )
 
-            connector = resolved_dependencies.registry.get(connector_id)
+            connector = (
+                resolved_dependencies.registry.get(connector_id, enable_cache=False)
+                if execution_context is not None
+                else resolved_dependencies.registry.get(connector_id)
+            )
+            if execution_context is not None and isinstance(connector, CachingConnectorProxy):
+                raise ValueError("record_replay_connector_cache_bypass_unavailable")
             selected_connection_config = connection_config
             if selected_connection_config is None:
                 registry_entry = resolved_dependencies.registry.get_entry(connector_id)
@@ -1271,6 +1362,7 @@ def run_connectors_ingestion(
                     connector_id=connector_id,
                     dataset_id=dataset_id,
                     cas_store=cas_store,
+                    execution_context=execution_context,
                 )
             )
             if transform_graph is not None:
@@ -1297,6 +1389,7 @@ def run_connectors_ingestion(
                 connector_id=connector_id,
                 dataset_id=dataset_id,
                 cas_store=cas_store,
+                execution_context=execution_context,
             )
             if quarantine_warnings:
                 logger.warning(
@@ -1464,8 +1557,28 @@ def run_connectors_ingestion(
             ended_at=ingestion_completed_at,
             manifest_hash=manifest_hash,
             transform_lineage_graphs=transform_lineage_graphs,
+            execution_context=execution_context,
         )
-        provenance_ref = persist_provenance_graph(cas_store, prov_graph)
+        provenance_inputs = [
+            input_ref_from_artifact_ref(ref, role="fabric.ingestion.payload")
+            for ref in artifact_refs
+        ]
+        if (
+            execution_context is not None
+            and execution_context.selected_record_session_ref is not None
+        ):
+            provenance_inputs.append(
+                input_ref_from_artifact_ref(
+                    execution_context.selected_record_session_ref,
+                    role="fabric.ingestion.record_session",
+                )
+            )
+        provenance_ref = persist_provenance_graph(
+            cas_store,
+            prov_graph,
+            inputs=provenance_inputs or None,
+            return_selected_profile=True,
+        )
 
         dataset_notes = [
             (
@@ -1493,6 +1606,7 @@ def run_connectors_ingestion(
                 *failure_notes,
             ],
             provenance_ref=provenance_ref,
+            execution_context=execution_context,
         )
         evidence_ref = persist_evidence_bundle(
             cas_store,

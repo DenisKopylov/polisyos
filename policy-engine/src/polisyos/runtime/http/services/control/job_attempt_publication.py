@@ -5,10 +5,12 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping
+from decimal import Decimal
 from typing import TYPE_CHECKING, Any, Literal, Protocol, get_args
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.common.exception_metadata import _exception_instance_dict
 from polisyos.core import artifacts, registry, run
 from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.canon import content_hash as canonical_content_hash
@@ -38,6 +40,90 @@ from ..control_plane_store import (
     ControlJobRecord,
 )
 
+_NON_AUTHORITY_FAILURE_PROGRESS_ATTRIBUTE = "_polisyos_original_error_candidate_progress"
+_ORIGINAL_ERROR_ATTRIBUTE = "_original_error"
+_ORIGINAL_ERROR_PROGRESS_ISSUER = object()
+_ORIGINAL_ERROR_PROGRESS_ISSUER_ATTRIBUTE = "_progress_issuer"
+_ORIGINAL_ERROR_PROGRESS_BINDING_ATTRIBUTE = "_progress_owner_binding"
+
+
+def _candidate_progress_owner_binding(
+    job: ControlJobRecord, scope: ControlJobExecutionScope
+) -> tuple[object, ...]:
+    return (
+        job.job_id,
+        job.run_id,
+        job.attempt,
+        job.lease_owner,
+        job.effective_execution_profile,
+        job.requested_execution_profile,
+        scope.tenant_id,
+        scope.cell_id,
+    )
+
+
+def _clear_original_error_candidate_progress(error: Exception) -> None:
+    metadata = _exception_instance_dict(error)
+    if metadata is not None:
+        metadata.pop(_NON_AUTHORITY_FAILURE_PROGRESS_ATTRIBUTE, None)
+
+
+def _attach_original_error_candidate_progress(
+    error: Exception,
+    *,
+    progress: dict[str, Any],
+    job: ControlJobRecord,
+    execution_scope: ControlJobExecutionScope,
+) -> bool:
+    """Reuse issued progress as data, bound to this original error and attempt."""
+    if (
+        progress.get("job_id") != job.job_id
+        or progress.get("run_id") != job.run_id
+        or progress.get("attempt") != job.attempt
+        or execution_scope.status != "established"
+    ):
+        raise ValueError("original_error_candidate_progress_scope_mismatch")
+    metadata = _exception_instance_dict(error)
+    if metadata is None:
+        return False
+    try:
+        packet = _WorkflowExecutionNonAuthorityError(str(error), progress=progress)
+        setattr(packet, _ORIGINAL_ERROR_ATTRIBUTE, error)
+        setattr(packet, _ORIGINAL_ERROR_PROGRESS_ISSUER_ATTRIBUTE, _ORIGINAL_ERROR_PROGRESS_ISSUER)
+        setattr(
+            packet,
+            _ORIGINAL_ERROR_PROGRESS_BINDING_ATTRIBUTE,
+            _candidate_progress_owner_binding(job, execution_scope),
+        )
+        metadata[_NON_AUTHORITY_FAILURE_PROGRESS_ATTRIBUTE] = packet
+    except Exception:
+        return False
+    return True
+
+
+def _original_error_candidate_progress(
+    error: Exception,
+    *,
+    job: ControlJobRecord,
+    execution_scope: ControlJobExecutionScope,
+) -> dict[str, Any] | None:
+    if isinstance(error, _WorkflowExecutionNonAuthorityError):
+        return dict(error.progress)
+    metadata = _exception_instance_dict(error)
+    packet = (
+        metadata.get(_NON_AUTHORITY_FAILURE_PROGRESS_ATTRIBUTE) if metadata is not None else None
+    )
+    if (
+        type(packet) is _WorkflowExecutionNonAuthorityError
+        and getattr(packet, _ORIGINAL_ERROR_ATTRIBUTE, None) is error
+        and getattr(packet, _ORIGINAL_ERROR_PROGRESS_ISSUER_ATTRIBUTE, None)
+        is _ORIGINAL_ERROR_PROGRESS_ISSUER
+        and getattr(packet, _ORIGINAL_ERROR_PROGRESS_BINDING_ATTRIBUTE, None)
+        == _candidate_progress_owner_binding(job, execution_scope)
+    ):
+        return dict(packet.progress)
+    return None
+
 
 class _DebugLogger(Protocol):
     """Minimal debug call accepted by this failure-publication helper."""
@@ -58,6 +144,8 @@ _NL_REQUEST_SNAPSHOT_KEY = "nl_request_snapshot"
 _NL_REQUEST_SNAPSHOT_SCHEMA_V1 = "polisyos.runtime.control_nl_request_snapshot.v1"
 _NL_REQUEST_SNAPSHOT_SCHEMA_V2 = "polisyos.runtime.control_nl_request_snapshot.v2"
 _NL_REQUEST_SNAPSHOT_SCHEMA_V3 = "polisyos.runtime.control_nl_request_snapshot.v3"
+_NL_REQUEST_SNAPSHOT_SCHEMA_V4 = "polisyos.runtime.control_nl_request_snapshot.v4"
+_NL_REQUEST_SNAPSHOT_SCHEMA_V5 = "polisyos.runtime.control_nl_request_snapshot.v5"
 _NL_REQUEST_SNAPSHOT_NEW_FIELDS = (
     "value_data_profile_ref",
     "value_data_unit_id",
@@ -82,6 +170,10 @@ _NL_ROUTE_ACTION = "control.launch_nl_run"
 
 def _nl_request_snapshot_schema(request: NaturalLanguageRunRequest) -> str:
     """Choose the request snapshot version from executable intent and selected inputs."""
+    if "candidate_acquisition_intent" in request.model_fields_set:
+        return _NL_REQUEST_SNAPSHOT_SCHEMA_V5
+    if "run_budget_scope" in request.model_fields_set:
+        return _NL_REQUEST_SNAPSHOT_SCHEMA_V4
     if "temporal_scope" in request.model_fields_set:
         return _NL_REQUEST_SNAPSHOT_SCHEMA_V3
     if request.joint_interaction_candidate_intent is not None or any(
@@ -106,10 +198,23 @@ def _nl_request_snapshot_request_values(
         for field_name in _NL_REQUEST_SNAPSHOT_NEW_FIELDS:
             if field_name not in request.model_fields_set:
                 values.pop(field_name, None)
-    if selected_schema != _NL_REQUEST_SNAPSHOT_SCHEMA_V3:
+    if (
+        selected_schema
+        not in {
+            _NL_REQUEST_SNAPSHOT_SCHEMA_V3,
+            _NL_REQUEST_SNAPSHOT_SCHEMA_V4,
+            _NL_REQUEST_SNAPSHOT_SCHEMA_V5,
+        }
+        or "temporal_scope" not in request.model_fields_set
+    ):
         values.pop("temporal_scope", None)
-    elif request.temporal_scope is not None:
-        values["temporal_scope"] = request.model_dump(mode="json")["temporal_scope"]
+    if (
+        selected_schema not in {_NL_REQUEST_SNAPSHOT_SCHEMA_V4, _NL_REQUEST_SNAPSHOT_SCHEMA_V5}
+        or "run_budget_scope" not in request.model_fields_set
+    ):
+        values.pop("run_budget_scope", None)
+    if selected_schema != _NL_REQUEST_SNAPSHOT_SCHEMA_V5:
+        values.pop("candidate_acquisition_intent", None)
     return values
 
 
@@ -185,6 +290,8 @@ def _nl_request_snapshot_content_hash(snapshot: Mapping[str, Any]) -> str:
             _NL_REQUEST_SNAPSHOT_SCHEMA_V1,
             _NL_REQUEST_SNAPSHOT_SCHEMA_V2,
             _NL_REQUEST_SNAPSHOT_SCHEMA_V3,
+            _NL_REQUEST_SNAPSHOT_SCHEMA_V4,
+            _NL_REQUEST_SNAPSHOT_SCHEMA_V5,
         }
         or snapshot.get("digest_profile") != _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE
     ):
@@ -627,6 +734,8 @@ def _validate_nl_request_snapshot(
         _NL_REQUEST_SNAPSHOT_SCHEMA_V1,
         _NL_REQUEST_SNAPSHOT_SCHEMA_V2,
         _NL_REQUEST_SNAPSHOT_SCHEMA_V3,
+        _NL_REQUEST_SNAPSHOT_SCHEMA_V4,
+        _NL_REQUEST_SNAPSHOT_SCHEMA_V5,
     }:
         raise ValueError("nl_authorized_request_snapshot_schema_invalid")
     if raw_snapshot.get("digest_profile") != _NL_REQUEST_SNAPSHOT_DIGEST_PROFILE:
@@ -713,12 +822,38 @@ def _validate_nl_request_snapshot(
             )
         scope_in_request = "temporal_scope" in raw_request
         scope_in_payload = "temporal_scope" in payload
-        if snapshot_schema == _NL_REQUEST_SNAPSHOT_SCHEMA_V3:
+        if snapshot_schema == _NL_REQUEST_SNAPSHOT_SCHEMA_V3 or (
+            snapshot_schema in {_NL_REQUEST_SNAPSHOT_SCHEMA_V4, _NL_REQUEST_SNAPSHOT_SCHEMA_V5}
+            and scope_in_request
+        ):
             if not scope_in_request or not scope_in_payload or request.temporal_scope is None:
                 raise ValueError("nl_authorized_request_payload_mismatch")
             expected_payload["temporal_scope"] = request.model_dump(mode="json")["temporal_scope"]
         elif scope_in_request or scope_in_payload:
             raise ValueError("nl_authorized_request_payload_mismatch")
+    budget_in_request = "run_budget_scope" in raw_request
+    budget_in_payload = "run_budget_scope" in payload
+    if snapshot_schema in {_NL_REQUEST_SNAPSHOT_SCHEMA_V4, _NL_REQUEST_SNAPSHOT_SCHEMA_V5}:
+        if budget_in_request != budget_in_payload or (
+            snapshot_schema == _NL_REQUEST_SNAPSHOT_SCHEMA_V4 and not budget_in_request
+        ):
+            raise ValueError("nl_authorized_request_payload_mismatch")
+        if budget_in_request:
+            expected_payload["run_budget_scope"] = request.model_dump(mode="json")[
+                "run_budget_scope"
+            ]
+    elif budget_in_request or budget_in_payload:
+        raise ValueError("nl_authorized_request_payload_mismatch")
+    experiment_in_request = "candidate_acquisition_intent" in raw_request
+    experiment_in_payload = "candidate_acquisition_intent" in payload
+    if snapshot_schema == _NL_REQUEST_SNAPSHOT_SCHEMA_V5:
+        if not experiment_in_request or not experiment_in_payload:
+            raise ValueError("nl_authorized_request_payload_mismatch")
+        expected_payload["candidate_acquisition_intent"] = request.model_dump(mode="json")[
+            "candidate_acquisition_intent"
+        ]
+    elif experiment_in_request or experiment_in_payload:
+        raise ValueError("nl_authorized_request_payload_mismatch")
     _validate_nl_snapshot_payload_fields(payload, expected_payload)
 
 
@@ -920,6 +1055,7 @@ class ControlJobAttemptPublicationMixin:
         compiled_run_ref: ArtifactRef | None = None,
         normative_disposition_ref: ArtifactRef | None = None,
         proposal_ref: ArtifactRef | None = None,
+        candidate_output_refs: tuple[ArtifactRef, ...] = (),
     ) -> ArtifactRef:
         """Finalize a pre-started Core attempt or read back its owned terminal."""
         del payload  # Identity and ownership come from the admitted job record.
@@ -938,7 +1074,15 @@ class ControlJobAttemptPublicationMixin:
         )
         if not outputs or any(not isinstance(ref, ArtifactRef) for ref in outputs):
             raise ValueError("control_job_core_run_exact_outputs_not_established")
-        exact_outputs = outputs
+        if candidate_output_refs and (
+            compiled_run_ref is None
+            or normative_disposition_ref is not None
+            or proposal_ref is not None
+        ):
+            raise ValueError("control_job_candidate_outputs_require_simulation_compiled_run")
+        exact_outputs = [*outputs, *candidate_output_refs]
+        if any(not isinstance(ref, ArtifactRef) for ref in exact_outputs):
+            raise ValueError("control_job_core_run_exact_outputs_not_established")
         if run_context is not None:
             return self._finish_generation_run_context(
                 job=job,
@@ -1081,8 +1225,6 @@ class ControlJobAttemptPublicationMixin:
             replayed_binding = binding.model_dump(mode="json")
             if (
                 binding.admission_status == "established"
-                and binding.intent_band == "simulate_only_attempt"
-                and binding.canonical_mode == "simulate_only"
                 and binding.actor_authenticated is True
                 and isinstance(binding.tenant_id, str)
                 and binding.tenant_id.strip()
@@ -1090,7 +1232,9 @@ class ControlJobAttemptPublicationMixin:
                 and binding.cell_id.strip()
             ):
                 from polisyos.runtime.quality.cycle_substrate import (
+                    _VERIFIED_NL_BUDGET_OWNER_ISSUER,
                     _VERIFIED_NL_EXECUTION_OWNER_ISSUER,
+                    VerifiedNLJobBudgetScope,
                     VerifiedNLJobScope,
                 )
 
@@ -1103,9 +1247,10 @@ class ControlJobAttemptPublicationMixin:
                     or not current_job.lease_owner.strip()
                     or current_job.lease_owner != job.lease_owner
                     or current_job.attempt != job.attempt
+                    or current_job.payload_ref != job.payload_ref
                 ):
                     raise ValueError(failure_code)
-                verified_scope = VerifiedNLJobScope.model_validate(
+                verified_budget = VerifiedNLJobBudgetScope.model_validate(
                     {
                         "job_id": current_job.job_id,
                         "run_id": str(current_job.run_id),
@@ -1113,23 +1258,52 @@ class ControlJobAttemptPublicationMixin:
                         "cell_id": binding.cell_id,
                         "worker_id": current_job.lease_owner,
                         "attempt": current_job.attempt,
-                        "admission_status": binding.admission_status,
-                        "intent_band": binding.intent_band,
-                        "canonical_mode": binding.canonical_mode,
-                        "route_id": binding.route_id,
-                        "route_action": binding.route_action,
-                        "admission_surface": binding.admission_surface,
                         "actor_subject": binding.actor_subject,
-                        "actor_authenticated": True,
+                        "effective_execution_profile": current_job.effective_execution_profile,
                         "intent_digest": binding.intent_digest,
+                        "source_payload_ref": job.payload_ref,
+                        "run_budget_usd": (
+                            None
+                            if payload.get("run_budget_usd") is None
+                            else Decimal(str(payload["run_budget_usd"]))
+                        ),
+                        "run_budget_scope_present": "run_budget_scope" in payload,
+                        "run_budget_scope": payload.get("run_budget_scope"),
                     }
                 )
+                object.__setattr__(verified_budget, "_budget_scope_owner", self)
                 object.__setattr__(
-                    verified_scope,
-                    "_issuer",
-                    _VERIFIED_NL_EXECUTION_OWNER_ISSUER,
+                    verified_budget, "_budget_scope_seal", verified_budget._budget_scope_identity()
                 )
-                replayed_binding["_verified_nl_job_scope"] = verified_scope
+                object.__setattr__(verified_budget, "_issuer", _VERIFIED_NL_BUDGET_OWNER_ISSUER)
+                replayed_binding["_verified_nl_job_budget_scope"] = verified_budget
+                if (
+                    binding.intent_band == "simulate_only_attempt"
+                    and binding.canonical_mode == "simulate_only"
+                ):
+                    verified_scope = VerifiedNLJobScope.model_validate(
+                        {
+                            "job_id": current_job.job_id,
+                            "run_id": str(current_job.run_id),
+                            "tenant_id": binding.tenant_id,
+                            "cell_id": binding.cell_id,
+                            "worker_id": current_job.lease_owner,
+                            "attempt": current_job.attempt,
+                            "admission_status": binding.admission_status,
+                            "intent_band": binding.intent_band,
+                            "canonical_mode": binding.canonical_mode,
+                            "route_id": binding.route_id,
+                            "route_action": binding.route_action,
+                            "admission_surface": binding.admission_surface,
+                            "actor_subject": binding.actor_subject,
+                            "actor_authenticated": True,
+                            "intent_digest": binding.intent_digest,
+                        }
+                    )
+                    object.__setattr__(
+                        verified_scope, "_issuer", _VERIFIED_NL_EXECUTION_OWNER_ISSUER
+                    )
+                    replayed_binding["_verified_nl_job_scope"] = verified_scope
             return replayed_binding
         except Exception as exc:
             if isinstance(exc, RuntimeError) and str(exc) == failure_code:
@@ -1181,8 +1355,11 @@ class ControlJobAttemptPublicationMixin:
                     core_run_id,
                     finalize_exc,
                 )
-        if isinstance(exc, _WorkflowExecutionNonAuthorityError):
-            progress = dict(exc.progress)
+        retained_candidate_progress = _original_error_candidate_progress(
+            exc, job=job, execution_scope=execution_scope
+        )
+        if retained_candidate_progress is not None:
+            progress = retained_candidate_progress
         elif isinstance(exc, ControlProducerExecutionError):
             failure_phase = "direct_method_execution"
             diagnostic = exc.diagnostic()

@@ -1,12 +1,17 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
+import subprocess
+import sys
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
 import pytest
+from _helpers.installed_profile import installed_child_environment
 
 from polisyos.core.artifacts import store as store_module
 from polisyos.core.artifacts._transfer_ops import ImportReport
@@ -16,6 +21,7 @@ from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     ArtifactTenantContextInfo,
     InputRef,
+    SchemaInfo,
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -82,19 +88,30 @@ def _build_replay_bundle(
     return packet_ref, expected_ids
 
 
-def _build_executable_foundry_packet(store: FileSystemCAS) -> ArtifactRef:
+def _build_executable_foundry_packet(
+    store: FileSystemCAS,
+    *,
+    default_bindings_schema: str | None = None,
+    qualified_source: bool = True,
+    legacy_packet: bool = False,
+) -> ArtifactRef:
     """Create a packet through Foundry's real registry, compiler, and input producers."""
     from decimal import Decimal
 
+    from polisyos.core.artifacts import ensure_ir_artifact_store
     from polisyos.core.contracts.fabric import DataSnapshot
     from polisyos.core.contracts.foundry import (
         CompileRequest,
+        ExecuteRequest,
+        FoundryExecConfig,
         FoundryInputBindings,
         StateSnapshotRef,
     )
     from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
     from polisyos.foundry.compile.api import compile as compile_foundry
     from polisyos.foundry.contracts.state import GlobalState
+    from polisyos.foundry.data_plane import build_input_bindings
+    from polisyos.foundry.execute import execute as execute_foundry
     from polisyos.foundry.execute.executor import put_state_snapshot
     from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
     from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
@@ -102,7 +119,16 @@ def _build_executable_foundry_packet(store: FileSystemCAS) -> ArtifactRef:
     from polisyos.ir.governance.selector_expr import SelectorPredicate
     from polisyos.ir.model_layer.model_spec import ModelSpec
     from polisyos.ir.model_layer.types import SelectorOperator
-    from polisyos.ir.trinity import TrinityBundle
+    from polisyos.ir.trinity import (
+        TrinityBundle,
+        load_trinity_bundle_artifact,
+        persist_trinity_bundle_artifact,
+    )
+    from polisyos.scientist.policy_design.schema import (
+        PolicyCandidateSchema,
+        TargetPopulationSpec,
+        persist_policy_candidate_schema,
+    )
 
     registry = build_default_registry_bundle(store, return_selected_profile=True)
     load_registry_bundle_content(store, registry.bundle_ref)
@@ -115,7 +141,15 @@ def _build_executable_foundry_packet(store: FileSystemCAS) -> ArtifactRef:
     state_ref = StateSnapshotRef.model_validate(state_blob.model_dump(mode="python"))
     data_snapshot = store.put_json(
         DataSnapshot(data_ref=state_ref),
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[input_ref_from_artifact_ref(state_ref, role="data_ref")],
+        ),
         return_selected_profile=True,
     )
     policy = TrinityBundle(
@@ -138,15 +172,52 @@ def _build_executable_foundry_packet(store: FileSystemCAS) -> ArtifactRef:
         ),
         model_spec=ModelSpec(
             model_id="rep_01_model",
-            data_snapshot_ref=str(state_ref.artifact_id),
+            data_snapshot_ref=str(data_snapshot.artifact_id),
             registry_bundle_ref=str(registry.bundle_ref.artifact_id),
         ),
     )
-    policy_ref = store.put_json(
-        policy,
-        PutOptions(kind="ir.trinity_bundle", media_type="application/json"),
-        return_selected_profile=True,
-    )
+    qualified_source = qualified_source and not legacy_packet
+    if qualified_source:
+        candidate_ref = persist_policy_candidate_schema(
+            store,
+            PolicyCandidateSchema(
+                candidate_id="rep01_controlled_candidate",
+                trinity_bundle=policy,
+                target_population=TargetPopulationSpec(
+                    population_id="rep01_controlled_agents",
+                    description="Two synthetic agents in the declared native replay fixture.",
+                ),
+            ),
+            inputs=[
+                input_ref_from_artifact_ref(data_snapshot, role="world_model_data_snapshot"),
+                input_ref_from_artifact_ref(registry.bundle_ref, role="world_model_registry"),
+            ],
+            return_selected_profile=True,
+        )
+        ir_store = ensure_ir_artifact_store(store)
+        persisted_policy = persist_trinity_bundle_artifact(
+            ir_store,
+            policy,
+            inputs=[input_ref_from_artifact_ref(candidate_ref, role="policy_candidate")],
+        )
+        read_policy = load_trinity_bundle_artifact(ir_store, persisted_policy)
+        assert read_policy.policy_spec.policy_id == policy.policy_spec.policy_id
+        assert read_policy.model_spec.data_snapshot_ref == str(data_snapshot.artifact_id)
+        policy_ref = ArtifactRef.model_validate(persisted_policy.model_dump(mode="json"))
+    else:
+        # The supported candidate route predates selected execution-source basis.
+        policy_ref = store.put_json(
+            policy,
+            PutOptions(
+                kind=TrinityBundle.ARTIFACT_KIND,
+                media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                    version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+                ),
+            ),
+            return_selected_profile=True,
+        )
     compile_result = compile_foundry(
         store,
         CompileRequest(
@@ -164,21 +235,40 @@ def _build_executable_foundry_packet(store: FileSystemCAS) -> ArtifactRef:
     program_graph_ref = next(
         item.ref for item in compile_result.derived_refs if item.role == "program_graph"
     )
-    input_bindings = store.put_json(
-        FoundryInputBindings(
-            data_snapshot_ref=data_snapshot,
-            registry_bundle_ref=registry.bundle_ref,
-            rules=[],
-            bound_state_snapshot_ref=state_ref,
-        ),
-        PutOptions(kind="foundry.input_bindings", media_type="application/json"),
+
+    class FirstBindingsDefaultControl:
+        """Prepublish only the adversarial view of the real producer's exact bytes."""
+
+        def __getattr__(self, name: str):
+            return getattr(store, name)
+
+        def put_json(self, value, options, *, return_selected_profile=False):
+            if options.kind == FoundryInputBindings.ARTIFACT_KIND:
+                assert options.schema is not None
+                store.put_json(
+                    value,
+                    replace(
+                        options,
+                        schema=SchemaInfo(
+                            name=default_bindings_schema, version=options.schema.version
+                        ),
+                    ),
+                    return_selected_profile=True,
+                )
+            return store.put_json(value, options, return_selected_profile=return_selected_profile)
+
+    built = build_input_bindings(
+        FirstBindingsDefaultControl() if default_bindings_schema is not None else store,
+        data_snapshot_ref=data_snapshot,
+        registry_bundle_ref=registry.bundle_ref,
         return_selected_profile=True,
     )
+    input_bindings = built.input_bindings_ref
     packet_inputs = {
         "registry_bundle_ref": registry.bundle_ref,
         "input_bindings_ref": input_bindings,
         "data_snapshot_ref": data_snapshot,
-        "state_snapshot_ref": state_ref,
+        "state_snapshot_ref": built.bound_state_snapshot_ref,
         "trinity_bundle_ref": policy_ref,
     }
     packet_artifacts = {
@@ -186,6 +276,19 @@ def _build_executable_foundry_packet(store: FileSystemCAS) -> ArtifactRef:
         "lowered_ir_ref": lowered_ir_ref,
         "program_graph_ref": program_graph_ref,
     }
+    if qualified_source:
+        original = execute_foundry(
+            store,
+            ExecuteRequest(
+                exec_plan_ref=compile_result.exec_plan_ref,
+                input_bindings_ref=input_bindings,
+                registry_bundle_ref=registry.bundle_ref,
+                exec_config=FoundryExecConfig(seed=17, capture_env=True),
+                return_selected_profile=True,
+            ),
+        )
+        assert original.ok and original.simulation_result_ref is not None, original.notes
+        packet_artifacts["simulation_result_ref"] = original.simulation_result_ref
     payload = {
         "schema_version": "3.0",
         "run_id": "R_rep_01_cli_replay",
@@ -199,7 +302,12 @@ def _build_executable_foundry_packet(store: FileSystemCAS) -> ArtifactRef:
             kind="scientist.decision_packet",
             media_type="application/json",
             inputs=[
-                input_ref_from_artifact_ref(ref, role=role)
+                input_ref_from_artifact_ref(
+                    ref.model_copy(update={"manifest_profile_sha256": None})
+                    if legacy_packet
+                    else ref,
+                    role=role,
+                )
                 for role, ref in (*packet_inputs.items(), *packet_artifacts.items())
             ],
         ),
@@ -243,6 +351,8 @@ def test_replay_cli_runs_native_foundry_replay_and_persists_result(
     """The ordinary non-dry CLI path executes Foundry and leaves a readable result."""
     store = FileSystemCAS(tmp_path / "cas")
     packet_ref = _build_executable_foundry_packet(store)
+    # Compiler diagnostics belong to setup; the CLI must itself emit one JSON value.
+    capsys.readouterr()
 
     exit_code = main(
         [
@@ -268,6 +378,587 @@ def test_replay_cli_runs_native_foundry_replay_and_persists_result(
     assert isinstance(result_id, str)
     result_manifest = FileSystemCAS(store.root).get_manifest(result_id)
     assert result_manifest.kind == "foundry.simulation_result"
+
+
+def _fresh_replay_cli(
+    store: FileSystemCAS,
+    *arguments: str,
+    protect_json: bool = True,
+) -> subprocess.CompletedProcess[str]:
+    """Invoke the actual CLI without crossing the admitted package profile."""
+    product = Path(__file__).resolve().parents[4]
+    installed = installed_child_environment(os.environ)
+    if installed is None:
+        environment = os.environ.copy()
+        environment["PYTHONPATH"] = os.pathsep.join((str(product / "src"), str(product)))
+        flags = ["-B"]
+    else:
+        environment = installed
+        flags = ["-I", "-B"]
+    command = [sys.executable, *flags, "-m", "tools.ops_runners.runtime_cli", *arguments]
+    if not protect_json:
+        # A test-only removal of the real stream boundary; execution stays native.
+        command = [
+            sys.executable,
+            *flags,
+            "-c",
+            "import sys; from contextlib import nullcontext; "
+            "from polisyos.core.components import _cli_replay; "
+            "_cli_replay._library_output = lambda _as_json: nullcontext(); "
+            "from tools.ops_runners.runtime_cli import main; "
+            "raise SystemExit(main(sys.argv[1:]))",
+            *arguments,
+        ]
+    return subprocess.run(
+        command,
+        cwd=product,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=60,
+    )
+
+
+def _manifest_members(store: FileSystemCAS) -> set[str]:
+    """Observe published artifact views in this small, owned native fixture."""
+    return {str(path.relative_to(store.root)) for path in store.root.rglob("*.manifest.json")}
+
+
+def _fresh_cli_json(result: subprocess.CompletedProcess[str]) -> dict[str, Any]:
+    """Retain complete child diagnostics when its public JSON stream is malformed."""
+    try:
+        value = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        pytest.fail(
+            f"CLI JSON decoding failed ({exc}); exit={result.returncode}\n"
+            f"complete stdout:\n{result.stdout}\ncomplete stderr:\n{result.stderr}"
+        )
+    assert isinstance(value, dict), value
+    return value
+
+
+def test_fresh_cli_checks_then_executes_real_compiled_packet_with_skipped_verification(
+    tmp_path: Path,
+) -> None:
+    """A real compiled graph reaches a fresh CLI and backend, with explicit SKIP."""
+    store = FileSystemCAS(tmp_path / "cas")
+    packet_ref = _build_executable_foundry_packet(store)
+    packet_bytes = store.get_bytes(packet_ref)
+    before_check = _manifest_members(store)
+
+    checked = _fresh_replay_cli(
+        store,
+        "replay",
+        str(packet_ref.artifact_id),
+        "--cas-root",
+        str(store.root),
+        "--check-only",
+        "--json",
+    )
+    assert checked.returncode == 0, f"stdout={checked.stdout}\nstderr={checked.stderr}"
+    completeness = _fresh_cli_json(checked)
+    assert completeness["level"] == "complete"
+    assert completeness["strategy"] == "foundry"
+    assert completeness["missing"] == completeness["corrupted"] == []
+    assert _manifest_members(store) == before_check
+
+    replayed = _fresh_replay_cli(
+        store,
+        "replay",
+        str(packet_ref.artifact_id),
+        "--cas-root",
+        str(store.root),
+        "--mode",
+        "skip",
+        "--json",
+    )
+    assert replayed.returncode == 0, replayed.stderr
+    payload = _fresh_cli_json(replayed)
+    assert payload["success"] is True
+    assert payload["strategy"] == "foundry"
+    assert payload["errors"] == []
+    assert "method_registered" not in replayed.stdout
+    assert "method_registered" in replayed.stderr
+    assert payload["verification"] == {
+        "passed": False,
+        "skipped": True,
+        "mode": "skip",
+        "details": {"reason": "verification_skipped"},
+    }
+    fresh = FileSystemCAS(store.root)
+    result_ref = payload["replay_simulation_result_ref"]
+    selected_result = ArtifactRef.model_validate(
+        payload["replay_artifact_refs"]["simulation_result"]
+    )
+    assert str(selected_result.artifact_id) == result_ref
+    assert selected_result.manifest_profile_sha256 is not None
+    assert fresh.get_manifest(result_ref).kind == "foundry.simulation_result"
+    assert fresh.get_bytes(selected_result)
+    assert fresh.get_bytes(packet_ref) == packet_bytes
+    assert _manifest_members(fresh) > before_check
+
+    unprotected = _fresh_replay_cli(
+        store,
+        "replay",
+        str(packet_ref.artifact_id),
+        "--cas-root",
+        str(store.root),
+        "--mode",
+        "skip",
+        "--json",
+        protect_json=False,
+    )
+    assert unprotected.returncode == 0, unprotected.stderr
+    assert "method_registered" in unprotected.stdout
+    with pytest.raises(json.JSONDecodeError):
+        json.loads(unprotected.stdout)
+
+
+def test_fresh_cli_replay_uses_packet_selected_input_view_instead_of_valid_default(
+    tmp_path: Path,
+) -> None:
+    """A first-writer default cannot replace the packet's exact selected input."""
+    from polisyos.core.artifacts import artifact_manifest_profile_sha256
+    from polisyos.core.contracts.foundry import FoundryInputBindings, SimulationResultRef
+    from polisyos.foundry.data_plane import load_input_bindings
+    from polisyos.foundry.execute import admit_execution_source
+
+    store = FileSystemCAS(tmp_path / "cas")
+    packet_ref = _build_executable_foundry_packet(
+        store, default_bindings_schema="rep01.other_bindings_schema"
+    )
+    packet_manifest = store.get_manifest(packet_ref)
+    edge = next(item for item in packet_manifest.inputs if item.role == "input_bindings_ref")
+    selected = ArtifactRef(
+        artifact_id=edge.artifact_id,
+        kind=FoundryInputBindings.ARTIFACT_KIND,
+        media_type="application/json",
+        manifest_profile_sha256=edge.manifest_profile_sha256,
+    )
+    default_manifest = store.get_manifest(selected.artifact_id)
+    assert default_manifest.artifact_schema is not None
+    assert default_manifest.artifact_schema.name == "rep01.other_bindings_schema"
+    assert artifact_manifest_profile_sha256(default_manifest) != selected.manifest_profile_sha256
+    assert store.verify(selected.artifact_id).ok
+    assert store.verify(selected).ok
+    assert load_input_bindings(store, selected).registry_bundle_ref is not None
+    with pytest.raises(ValueError, match="canon_profile_typed_artifact_schema_name_mismatch"):
+        load_input_bindings(store, selected.model_copy(update={"manifest_profile_sha256": None}))
+    original_edge = next(
+        item for item in packet_manifest.inputs if item.role == "simulation_result_ref"
+    )
+    original_source = admit_execution_source(
+        store,
+        SimulationResultRef(
+            artifact_id=original_edge.artifact_id,
+            manifest_profile_sha256=original_edge.manifest_profile_sha256,
+        ),
+    )
+    assert original_source.basis is not None
+
+    replayed = _fresh_replay_cli(
+        store,
+        "replay",
+        str(packet_ref.artifact_id),
+        "--cas-root",
+        str(store.root),
+        "--mode",
+        "skip",
+        "--json",
+    )
+    assert replayed.returncode == 0, f"stdout={replayed.stdout}\nstderr={replayed.stderr}"
+    observed = _fresh_cli_json(replayed)
+    assert observed["success"] is True
+    assert observed["completeness"]["level"] == "complete"
+    fresh = FileSystemCAS(store.root)
+    simulation_manifest = fresh.get_manifest(observed["replay_simulation_result_ref"])
+    selected_result = ArtifactRef.model_validate(
+        observed["replay_artifact_refs"]["simulation_result"]
+    )
+    assert selected_result.manifest_profile_sha256 is not None
+    assert fresh.get_manifest(selected_result) == simulation_manifest
+    replay_source = admit_execution_source(
+        fresh, SimulationResultRef.model_validate(selected_result.model_dump(mode="python"))
+    )
+    assert replay_source.basis is not None
+    assert (
+        replay_source.basis.request_exec_config_fields_set
+        == original_source.basis.request_exec_config_fields_set
+    )
+    for field in type(original_source.basis).model_fields:
+        if field.startswith("effective_"):
+            assert getattr(replay_source.basis, field) == getattr(original_source.basis, field), (
+                field
+            )
+    plan = next(item for item in packet_manifest.inputs if item.role == "exec_plan_ref")
+    execution_plan = next(item for item in simulation_manifest.inputs if item.role == "exec_plan")
+    assert execution_plan.artifact_id == plan.artifact_id
+    assert execution_plan.manifest_profile_sha256 == plan.manifest_profile_sha256
+    assert fresh.get_bytes(selected) == store.get_bytes(selected)
+
+
+@pytest.mark.parametrize("legacy_packet", [True, False], ids=["id-only", "selected-inputs"])
+def test_fresh_cli_preserves_candidate_replay_without_claiming_execution_source(
+    tmp_path: Path, legacy_packet: bool
+) -> None:
+    """Both bounded candidate modes execute without claiming a stronger result view."""
+    store = FileSystemCAS(tmp_path / "cas")
+    packet_ref = _build_executable_foundry_packet(
+        store,
+        qualified_source=False,
+        legacy_packet=legacy_packet,
+        default_bindings_schema=None if legacy_packet else "rep01.other_bindings_schema",
+    )
+    if legacy_packet:
+        checked = _fresh_replay_cli(
+            store,
+            "replay",
+            str(packet_ref.artifact_id),
+            "--cas-root",
+            str(store.root),
+            "--check-only",
+            "--json",
+        )
+        assert checked.returncode == 0, f"stdout={checked.stdout}\nstderr={checked.stderr}"
+        completeness = _fresh_cli_json(checked)
+        assert completeness["level"] == "complete"
+        assert "legacy_payload_reference_profiles_not_established" in completeness["reason_codes"]
+    replayed = _fresh_replay_cli(
+        store,
+        "replay",
+        str(packet_ref.artifact_id),
+        "--cas-root",
+        str(store.root),
+        "--mode",
+        "skip",
+        "--json",
+    )
+    assert replayed.returncode == 0, f"stdout={replayed.stdout}\nstderr={replayed.stderr}"
+    payload = _fresh_cli_json(replayed)
+    assert payload["success"] is True
+    assert payload["errors"] == []
+    assert "original_execution_source_not_established:legacy_candidate" in payload["warnings"]
+    assert "replay_output_profile_not_established:simulation_result" in payload["warnings"]
+    legacy_warning = any(
+        value.startswith("legacy_payload_reference_profiles_not_established:")
+        for value in payload["warnings"]
+    )
+    assert legacy_warning is legacy_packet
+    output_ref = ArtifactRef.model_validate(payload["replay_artifact_refs"]["simulation_result"])
+    assert output_ref.manifest_profile_sha256 is None
+    assert FileSystemCAS(store.root).get_bytes(output_ref)
+
+
+@pytest.mark.parametrize("shared_dag", [False, True], ids=["new-leaf", "shared-leaf"])
+def test_legacy_completeness_shares_merged_node_and_root_relative_depth_limits(
+    tmp_path: Path,
+    shared_dag: bool,
+) -> None:
+    """The weaker reader bounds work conservatively even if a shared union would fit."""
+    from polisyos.scientist.replay.deterministic import CompletenessLevel
+
+    store = FileSystemCAS(tmp_path / "cas")
+    child = store.put_json(
+        {"source": 1}, PutOptions(kind="test.source", media_type="application/json")
+    )
+    second_inputs = []
+    if shared_dag:
+        extra = store.put_json(
+            {"source": 2}, PutOptions(kind="test.source", media_type="application/json")
+        )
+        second_inputs = [
+            InputRef(artifact_id=child.artifact_id, role="shared_source"),
+            InputRef(artifact_id=extra.artifact_id, role="new_source"),
+        ]
+    refs = {
+        "registry_bundle_ref": store.put_json(
+            {"registry": {}},
+            PutOptions(
+                kind="core.registry_bundle",
+                media_type="application/json",
+                inputs=[InputRef(artifact_id=child.artifact_id, role="source")],
+            ),
+        ),
+        "input_bindings_ref": store.put_json(
+            {"bindings": []},
+            PutOptions(
+                kind="foundry.input_bindings", media_type="application/json", inputs=second_inputs
+            ),
+        ),
+        "exec_plan_ref": store.put_json(
+            {"order": []}, PutOptions(kind="foundry.exec_plan", media_type="application/json")
+        ),
+        "lowered_ir_ref": store.put_json(
+            {"nodes": []}, PutOptions(kind="foundry.lowered_ir", media_type="application/json")
+        ),
+    }
+    packet_ref = store.put_json(
+        {
+            "inputs": {
+                name: str(refs[name].artifact_id)
+                for name in ("registry_bundle_ref", "input_bindings_ref")
+            },
+            "artifacts": {
+                name: str(refs[name].artifact_id) for name in ("exec_plan_ref", "lowered_ir_ref")
+            },
+        },
+        PutOptions(
+            kind="scientist.decision_packet",
+            media_type="application/json",
+            inputs=[InputRef(artifact_id=ref.artifact_id, role=role) for role, ref in refs.items()],
+        ),
+    )
+    complete = completeness_check(store, packet_ref.artifact_id)
+    assert complete.level is CompletenessLevel.COMPLETE
+    assert complete.total_artifacts == 6 + int(shared_dag)
+    with pytest.raises(ValueError, match="final union feasibility not established"):
+        completeness_check(store, packet_ref.artifact_id, max_nodes=7 if shared_dag else 5)
+    if shared_dag:
+        less_conservative = completeness_check(store, packet_ref.artifact_id, max_nodes=8)
+        assert less_conservative.level is CompletenessLevel.COMPLETE
+        assert less_conservative.total_artifacts == 7
+    bounded = completeness_check(store, packet_ref.artifact_id, max_depth=1)
+    assert bounded.level is not CompletenessLevel.COMPLETE
+    assert bounded.graph is not None
+    assert all(node.depth <= 1 for node in bounded.graph.nodes.values() if node.is_present)
+    registry_id = refs["registry_bundle_ref"].artifact_id
+    digest = registry_id.hex
+    blob = store.root / "artifacts" / "sha256" / digest[:2] / digest[2:4] / f"{digest}.blob"
+    original = blob.read_bytes()
+    try:
+        blob.write_bytes(original + b"tamper")
+        corrupted = completeness_check(store, packet_ref.artifact_id)
+        assert corrupted.level is CompletenessLevel.INCOMPLETE
+        assert any(item.artifact_id == str(registry_id) for item in corrupted.corrupted)
+    finally:
+        blob.write_bytes(original)
+
+
+@pytest.mark.parametrize("damage", ["payload_id", "multiple_profiles", "partly_selected"])
+def test_fresh_cli_refuses_ambiguous_or_unbound_selected_packet_roles(
+    tmp_path: Path, damage: str
+) -> None:
+    """Real compiled packets cannot hide mismatched/ambiguous consumed CAS edges."""
+    from polisyos.core.artifacts import (
+        artifact_manifest_profile_sha256,
+        load_core_json_artifact,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    packet_ref = _build_executable_foundry_packet(
+        store,
+        qualified_source=False,
+        default_bindings_schema="rep01.other_bindings_schema",
+    )
+    manifest = store.get_manifest(packet_ref)
+    payload = load_core_json_artifact(store, packet_ref)
+    payload["run_id"] += "_" + damage
+    edges = [edge.model_copy(deep=True) for edge in manifest.inputs]
+    target = next(edge for edge in edges if edge.role == "input_bindings_ref")
+    if damage == "payload_id":
+        payload["inputs"]["input_bindings_ref"] = payload["inputs"]["registry_bundle_ref"]
+    elif damage == "multiple_profiles":
+        default = store.get_manifest(target.artifact_id)
+        other_profile = artifact_manifest_profile_sha256(default)
+        assert other_profile != target.manifest_profile_sha256
+        edges.append(target.model_copy(update={"manifest_profile_sha256": other_profile}))
+    else:
+        edges = [
+            edge.model_copy(update={"manifest_profile_sha256": None}) if edge is target else edge
+            for edge in edges
+        ]
+    damaged = store.put_json(
+        payload,
+        PutOptions(kind=manifest.kind, media_type="application/json", inputs=edges),
+        return_selected_profile=True,
+    )
+    before = _manifest_members(store)
+    refused = _fresh_replay_cli(
+        store,
+        "replay",
+        str(damaged.artifact_id),
+        "--cas-root",
+        str(store.root),
+        "--mode",
+        "skip",
+        "--json",
+    )
+    assert refused.returncode == 1, refused.stderr
+    observed = _fresh_cli_json(refused)
+    assert observed["success"] is False
+    assert observed["completeness"]["level"] == "incomplete"
+    assert any(
+        reason.startswith("replay_input_binding_")
+        for reason in observed["completeness"]["reason_codes"]
+    )
+    assert observed["replay_simulation_result_ref"] is None
+    assert observed["replay_artifact_refs"] == {}
+    assert observed["verification"] is None
+    assert _manifest_members(store) == before
+
+
+def test_fresh_cli_refuses_seed_override_of_admitted_original_execution_source(
+    tmp_path: Path,
+) -> None:
+    """A packet cannot claim seed 18 while reusing the original seed-17 execution."""
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    store = FileSystemCAS(tmp_path / "cas")
+    original_packet = _build_executable_foundry_packet(store)
+    manifest = store.get_manifest(original_packet)
+    payload = load_core_json_artifact(store, original_packet)
+    payload["run_id"] += "_seed_override"
+    payload["replay"] = {"effective_seed": 18}
+    packet_ref = store.put_json(
+        payload,
+        PutOptions(kind=manifest.kind, media_type="application/json", inputs=manifest.inputs),
+        return_selected_profile=True,
+    )
+    before = _manifest_members(store)
+    refused = _fresh_replay_cli(
+        store,
+        "replay",
+        str(packet_ref.artifact_id),
+        "--cas-root",
+        str(store.root),
+        "--mode",
+        "skip",
+        "--json",
+    )
+    assert refused.returncode == 1, refused.stderr
+    observed = _fresh_cli_json(refused)
+    assert observed["success"] is False
+    assert any(
+        "replay_seed_disagrees_with_execution_source" in error for error in observed["errors"]
+    )
+    assert observed["replay_simulation_result_ref"] is None
+    assert observed["replay_artifact_refs"] == {}
+    assert _manifest_members(store) == before
+
+
+@pytest.mark.parametrize(
+    ("option", "value", "error_field"),
+    [
+        ("--tolerance", "nan", "relative_tolerance"),
+        ("--tolerance", "inf", "relative_tolerance"),
+        ("--tolerance", "-inf", "relative_tolerance"),
+        ("--tolerance", "-0.1", "relative_tolerance"),
+        ("--confidence-level", "nan", "confidence_level"),
+        ("--confidence-level", "inf", "confidence_level"),
+        ("--confidence-level", "-inf", "confidence_level"),
+        ("--confidence-level", "0", "confidence_level"),
+        ("--confidence-level", "1", "confidence_level"),
+    ],
+)
+def test_cli_refuses_invalid_verification_configuration_before_execution(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    option: str,
+    value: str,
+    error_field: str,
+) -> None:
+    """Invalid comparison options are usage errors, without an executed backend."""
+    store = FileSystemCAS(tmp_path / "cas")
+    before = _manifest_members(store)
+    exit_code = main(
+        [
+            "replay",
+            "sha256:" + "f" * 64,
+            "--cas-root",
+            str(store.root),
+            "--mode",
+            "ci_bounded",
+            f"{option}={value}",
+            "--json",
+        ]
+    )
+    captured = capsys.readouterr()
+    assert exit_code == 2
+    assert captured.out == ""
+    assert f"{error_field} must be finite" in captured.err
+    assert _manifest_members(store) == before
+
+
+@pytest.mark.parametrize("damage", ["packet_tamper", "missing_plan"])
+def test_fresh_cli_refuses_damaged_real_packet_before_backend_execution(
+    tmp_path: Path, damage: str
+) -> None:
+    """Missing/corrupt real inputs cannot produce a new replay result."""
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    store = FileSystemCAS(tmp_path / "cas")
+    packet_ref = _build_executable_foundry_packet(store)
+    packet = load_core_json_artifact(store, packet_ref)
+    damaged_id = (
+        packet_ref.artifact_id
+        if damage == "packet_tamper"
+        else ArtifactID.model_validate(packet["artifacts"]["exec_plan_ref"])
+    )
+    digest = damaged_id.hex
+    blob = store.root / "artifacts" / "sha256" / digest[:2] / digest[2:4] / f"{digest}.blob"
+    original = blob.read_bytes()
+    moved = blob.with_suffix(".withheld")
+    if damage == "packet_tamper":
+        blob.write_bytes(original + b"tamper")
+    else:
+        blob.rename(moved)
+    before = _manifest_members(store)
+    try:
+        report = completeness_check(store, packet_ref.artifact_id)
+        assert report.level.value == "incomplete"
+        for item in (*report.missing, *report.corrupted):
+            assert str(ArtifactID.model_validate(item.artifact_id)) == item.artifact_id
+            if damage == "missing_plan" and item.artifact_id == str(damaged_id):
+                selected = next(
+                    edge
+                    for edge in store.get_manifest(packet_ref).inputs
+                    if edge.role == "exec_plan_ref"
+                )
+                assert item.manifest_profile_sha256 == selected.manifest_profile_sha256
+        refused = _fresh_replay_cli(
+            store,
+            "replay",
+            str(packet_ref.artifact_id),
+            "--cas-root",
+            str(store.root),
+            "--mode",
+            "skip",
+            "--json",
+        )
+        assert refused.returncode == 1, refused.stderr
+        payload = _fresh_cli_json(refused)
+        assert payload["success"] is False
+        assert payload["completeness"]["level"] == "incomplete"
+        assert payload["replay_simulation_result_ref"] is None
+        assert payload["verification"] is None
+        assert _manifest_members(store) == before
+    finally:
+        if damage == "packet_tamper":
+            blob.write_bytes(original)
+        else:
+            moved.rename(blob)
+
+
+def test_fresh_cli_refuses_check_only_export_without_publishing_output(tmp_path: Path) -> None:
+    """The conflicting non-execution options fail before store or output creation."""
+    store = FileSystemCAS(tmp_path / "cas")
+    output = tmp_path / "forbidden.tar.gz"
+    result = _fresh_replay_cli(
+        store,
+        "replay",
+        "sha256:" + "f" * 64,
+        "--cas-root",
+        str(store.root),
+        "--check-only",
+        "--export",
+        str(output),
+        "--json",
+    )
+    assert result.returncode == 2
+    assert "cannot be used together" in result.stderr
+    assert result.stdout == ""
+    assert not output.exists()
 
 
 def _persisted_snapshot(root: Path) -> dict[str, bytes]:
@@ -654,6 +1345,7 @@ def test_all_replay_import_surfaces_project_one_typed_report(
             output_path=tmp_path / "export",
             missing_artifacts=[],
             missing_manifests=[],
+            previous_generation=None,
         )
     )
     replay_result = SimpleNamespace(
@@ -667,6 +1359,7 @@ def test_all_replay_import_surfaces_project_one_typed_report(
         warnings=[],
         completeness=completeness,
         verification=None,
+        replay_artifact_refs={},
     )
     replay_backend = SimpleNamespace(replay_packet=lambda *_args, **_kwargs: replay_result)
     monkeypatch.setattr(_cli_replay.importlib, "import_module", lambda _name: replay_backend)
@@ -695,3 +1388,204 @@ def test_all_replay_import_surfaces_project_one_typed_report(
         assert "bundle_import received_unique_ids=1" in output
         assert "integrity=not_requested:0" in output
         assert "disposition_basis=exact_owned_view_admission" in output
+
+
+@pytest.mark.parametrize("as_json", [True, False])
+def test_export_overwrite_cli_exposes_the_actual_retained_generation(
+    tmp_path: Path,
+    capsys,
+    as_json: bool,
+) -> None:
+    """The real CLI export names retained bytes; the first export shape stays stable."""
+    source = FileSystemCAS(tmp_path / "source")
+    packet_ref, _expected_ids = _build_replay_bundle(
+        source, tmp_path / "bundle", run_id="retained_export_cli"
+    )
+    target = tmp_path / "cli-export.tar.gz"
+    argv = [
+        "replay",
+        str(packet_ref.artifact_id),
+        "--bundle",
+        str(tmp_path / "bundle"),
+        "--export",
+        str(target),
+    ]
+    if as_json:
+        argv.append("--json")
+    assert main(argv) == 0
+    first = capsys.readouterr()
+    assert first.err == ""
+    if as_json:
+        first_payload = json.loads(first.out)
+        assert "previous_generation" not in first_payload
+        assert "previous_generation_retention" not in first_payload
+    else:
+        assert "previous_generation=" not in first.out
+    original_bytes = target.read_bytes()
+    assert main(argv) == 0
+    second = capsys.readouterr()
+    assert second.err == ""
+    if as_json:
+        payload = json.loads(second.out)
+        retained = Path(payload["previous_generation"])
+        assert payload["previous_generation_retention"] == "caller_owned_manual_reclamation"
+    else:
+        line = next(
+            line for line in second.out.splitlines() if line.startswith("previous_generation=")
+        )
+        retained = Path(line.removeprefix("previous_generation=").split(" retention=", 1)[0])
+        assert "retention=caller_owned_manual_reclamation" in line
+    assert retained.parent == target.parent
+    assert retained.read_bytes() == original_bytes
+    fresh = FileSystemCAS(tmp_path / "fresh-reader")
+    imported = fresh.import_subgraph(retained, verify_integrity=True)
+    assert imported.verification_failed == []
+    assert fresh.get_bytes(packet_ref) == source.get_bytes(packet_ref)
+
+
+@pytest.mark.parametrize("as_json", [False, True])
+@pytest.mark.parametrize("policy", ["trusted", "revoked", "unsigned"])
+def test_bundle_cli_required_signatures_use_real_crypto_and_graph(
+    tmp_path: Path, capsys, as_json: bool, policy: str
+) -> None:
+    """Configured trust is consumed before the actual graph-completeness reader."""
+    from polisyos.core.artifacts.signing import Ed25519Signer, KeyPair
+
+    source = FileSystemCAS(tmp_path / "source")
+    package = tmp_path / "bundle"
+    packet, expected = _build_replay_bundle(source, package, run_id="signature-policy-cli")
+    key = KeyPair.generate()
+    trust, revoked = tmp_path / "trust", tmp_path / "revoked"
+    trust.mkdir()
+    revoked.mkdir()
+    (trust / "signer.pub").write_bytes(key.public_pem())
+    if policy != "unsigned":
+        signer = Ed25519Signer.from_pem(key.private_pem())
+        for artifact_id in source.iter_artifact_ids():
+            source.sign_artifact(artifact_id, signer)
+        source.export_subgraph(
+            [ArtifactID.model_validate(value) for value in expected], package, compress=False
+        )
+    if policy == "revoked":
+        (revoked / "signer.pub").write_bytes(key.public_pem())
+    args = [
+        "replay",
+        str(packet.artifact_id),
+        "--bundle",
+        str(package),
+        "--check-only",
+        "--require-bundle-signatures",
+        "--bundle-trust-dir",
+        str(trust),
+        "--bundle-revoked-dir",
+        str(revoked),
+        "--bundle-identities",
+        str(tmp_path / "identities.json"),
+    ]
+    if as_json:
+        args.append("--json")
+    capsys.readouterr()
+    code = main(args)
+    captured = capsys.readouterr()
+    assert code == (0 if policy == "trusted" else 1)
+    if as_json:
+        result = json.loads(captured.out)
+        if policy == "trusted":
+            assert result["level"] == "complete"
+            assert result["bundle_import"]["signature_verification_requested"] is True
+            assert len(result["bundle_import"]["signature_verified_refs"]) == len(expected)
+        else:
+            assert result["error"] == "required_bundle_signature_refused"
+            assert result["signature_result"]["status"] == policy
+            assert "bundle_import" not in result
+    elif policy == "trusted":
+        assert f"signature=required:{len(expected)}" in captured.out
+    else:
+        assert "required_bundle_signature_refused" in captured.err
+        assert policy in captured.err
+
+
+@pytest.mark.parametrize("as_json", [False, True])
+def test_replay_export_reports_finite_retention_and_capacity_refusal(
+    tmp_path: Path, capsys, as_json
+):
+    source = FileSystemCAS(tmp_path / "source")
+    packet, _expected = _build_replay_bundle(
+        source, tmp_path / "input", run_id="finite-retention-cli"
+    )
+    output = tmp_path / "replay.tar.gz"
+    args = [
+        "replay",
+        str(packet.artifact_id),
+        "--cas-root",
+        str(source.root),
+        "--export",
+        str(output),
+        "--export-max-retained-generations",
+        "1",
+    ]
+    if as_json:
+        args.append("--json")
+    capsys.readouterr()
+    assert main(args) == 0
+    first = capsys.readouterr()
+    if as_json:
+        result = json.loads(first.out)
+        assert result["retention"]["max_generations"] == 1
+        assert result["retention"]["paths"] == []
+    else:
+        assert "retained_count=0" in first.out
+    assert main(args) == 0
+    second = capsys.readouterr()
+    if as_json:
+        result = json.loads(second.out)
+        assert result["retention"]["paths"] == [result["previous_generation"]]
+        assert result["retention"]["logical_bytes"] > 0
+    else:
+        assert "retained_count=1" in second.out
+        assert "previous_generation=" in second.out
+    before = output.read_bytes()
+    assert main(args) == 1
+    refused = capsys.readouterr()
+    assert output.read_bytes() == before
+    if as_json:
+        result = json.loads(refused.out)
+        assert result["error"] == "export_resource_refused"
+        assert result["reason"] == "retention_limit"
+        assert result["replaced"] is False
+        assert len(result["occupied_paths"]) == 1
+    else:
+        assert "retention_limit" in refused.err
+
+
+def test_export_retention_flags_validate_before_store_creation(tmp_path: Path, capsys):
+    output = tmp_path / "must-not-exist.tar.gz"
+    code = main(
+        [
+            "replay",
+            "sha256:" + "f" * 64,
+            "--export",
+            str(output),
+            "--export-max-retained-bytes",
+            "-1",
+            "--json",
+        ]
+    )
+    assert code == 2
+    assert not output.exists()
+    assert "nonnegative integers" in capsys.readouterr().err
+
+
+def test_required_bundle_signatures_validate_before_scientist_import(
+    tmp_path: Path, monkeypatch, capsys
+):
+    original = _cli_replay.importlib.import_module
+
+    def no_scientist(name, *args, **kwargs):
+        if name == "polisyos.scientist.replay.deterministic":
+            pytest.fail("invalid required-signature command imported the execution backend")
+        return original(name, *args, **kwargs)
+
+    monkeypatch.setattr(_cli_replay.importlib, "import_module", no_scientist)
+    assert main(["replay", "sha256:" + "f" * 64, "--require-bundle-signatures"]) == 2
+    assert "requires --bundle" in capsys.readouterr().err

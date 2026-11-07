@@ -1,0 +1,50 @@
+{
+  "pass_id": "C97",
+  "bundle": "EMB-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C97-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-040",
+        "LA-042"
+      ],
+      "title": "Native incremental и producer-to-served-reader corpus не исполнены",
+      "evidence": [
+        "S01–S14",
+        "P01–P05",
+        "native_legal_builder.stdout",
+        "native_legal_reader.stdout",
+        "native_runtime_material.stdout"
+      ],
+      "remaining": "В supported Python/native environment связать actual DuckDB snapshot/chunk reads, tiny HNSW, three projections, incremental invalidators и реальные public readers. Отдельно выполнить supported owned runtime material path и typed fallback/HTTP без подмены admission gates. Не превращать generic candidate asset identity в callable/authority proof.",
+      "limits": "Фикстуры подтверждают actual orchestration, state/tokenizer hashing и selected query refusal. Native builder/store блокируются3.14 syntax в3.12, backends отсутствуют. Runtime material import PASS не означает model resolution/lease/search PASS. Current controlled serving profile узок: pinned model/revision,CPU1024,ST2.7.0; другие generic producers не автоматически admitted."
+    },
+    {
+      "id": "C97-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "LA-042"
+      ],
+      "title": "Граница compatibility lifecycle и внешних клиентов остаётся не установленной",
+      "evidence": [
+        "S01:522–539",
+        "S12",
+        "S18–S19",
+        "P01",
+        "P05",
+        "old_symbol_census.stdout",
+        "canonical_callers.stdout"
+      ],
+      "remaining": "Сохранить честный retained wrapper default delegation и unsupported backend refusal. Если заявляется завершённый retirement или миграция внешних клиентов, получить конкретный owner/release/caller scope и проверить его; отсутствие локального caller не сертификат отсутствия внешних. Не назначать произвольный sunset и не создавать polymorphic backend ради старого параметра.",
+      "limits": "Tracked checkout search находит current definition,tests и historical docs/baseline, не действующий source caller с backend. Существующие ab441 installed claims относятся к старому профилю и не переносятся на текущий wrapper. Это не новый подтверждённый product defect и не требование удалить полезную compatibility surface сейчас."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "related_shared_residuals": [
+    "C96-R01"
+  ],
+  "decision": "Content-bound Legal reuse и honest compatibility semantics подтверждены bounded. Новых R нет; native/owned serving и заявляемый lifecycle scope не закрыты. Общий publisher C96-R01 не продублирован как новая находка."
+}

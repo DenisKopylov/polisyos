@@ -7,6 +7,7 @@ from types import SimpleNamespace
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
+from starlette.requests import Request
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.security.access_scope import AccessScope
@@ -21,20 +22,40 @@ _TENANT_IDS = st.text(alphabet=ascii_lowercase + digits, min_size=1, max_size=24
 _ARTIFACT_ID = ArtifactID.model_validate("sha256:" + "a" * 64)
 
 
-def _request_for_tenant(tenant_id: str) -> SimpleNamespace:
-    return SimpleNamespace(
-        state=SimpleNamespace(
-            access_scope=AccessScope(
-                tenant_id=tenant_id,
-                cell_id="cell-a",
-                principal_type="user",
-                user_sub="property-user",
-                roles=frozenset({PolicyOSRole.VIEWER}),
-                max_pii_tier=PIIAccessLevel.LOW,
-                mfa_verified=True,
-            )
-        )
+def _request_for_tenant(tenant_id: str) -> Request:
+    return Request(
+        {
+            "type": "http",
+            "method": "GET",
+            "path": "/api/v1/property-access",
+            "headers": [],
+            "app": SimpleNamespace(state=SimpleNamespace()),
+            "state": {
+                "access_scope": AccessScope(
+                    tenant_id=tenant_id,
+                    cell_id="cell-a",
+                    principal_type="user",
+                    user_sub="property-user",
+                    roles=frozenset({PolicyOSRole.VIEWER}),
+                    max_pii_tier=PIIAccessLevel.LOW,
+                    mfa_verified=True,
+                )
+            },
+        }
     )
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _runtime_telemetry_dependencies() -> None:
+    """Load telemetry dependencies before Hypothesis times individual examples."""
+    from polisyos.runtime.http.container import (
+        resolve_runtime_access_audit,
+        resolve_runtime_metrics,
+    )
+
+    request = _request_for_tenant("setup")
+    assert resolve_runtime_access_audit(request) is None
+    assert resolve_runtime_metrics(request) is None
 
 
 @dataclass(frozen=True)
@@ -44,6 +65,7 @@ class _RunDetails:
 
 @dataclass(frozen=True)
 class _RunRecord:
+    run_id: str
     details: _RunDetails
 
 
@@ -88,7 +110,7 @@ def test_enforce_run_tenant_access_is_fail_closed_when_scope_or_tenant_mismatch(
     run_tenant: str | None,
 ) -> None:
     request = _request_for_tenant(scope_tenant)
-    run = _RunRecord(details=_RunDetails(tenant_id=run_tenant))
+    run = _RunRecord(run_id="R_property", details=_RunDetails(tenant_id=run_tenant))
 
     if run_tenant == scope_tenant:
         enforce_run_tenant_access(request, ctx=SimpleNamespace(), run=run)

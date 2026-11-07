@@ -1,0 +1,167 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/foundry/plugins/api.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/api.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          418
+        ]
+      ],
+      "evidence_level": "Полный API прочитан; exact definitions/DTO/run/train исполнены с fixture adapter/state/config/RNG, не native training",
+      "git_blob": "baf7a5ba5b334f6fc1a7294677f9a391c9b4f0bd",
+      "sha256": "9148f082534ba061d0703987f317b80332bf9567ff8f0a3c7b218b3536c270a2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/foundry/plugins/cli.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/cli.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          201
+        ]
+      ],
+      "evidence_level": "Полный CLI прочитан; cmd_train/main/parser исполнены с fixture simulator/result и actual output paths вне checkout",
+      "git_blob": "fea6f24bcae4ef758b946a4aaa9129348de5f0b1",
+      "sha256": "5ef58d68cb3fb7e59e94e7a114703448b6473d006e6949bf4f1aed80b1e3bba2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/training_adapter.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          130
+        ],
+        [
+          420,
+          549
+        ],
+        [
+          686,
+          815
+        ]
+      ],
+      "evidence_level": "Прочитаны typed assessment и полный admission/train handoff; исполнены constants/DTO/assessment shell, не native adapter training",
+      "git_blob": "6150c77a7fa6b609b0899806a403e937ea32763e",
+      "sha256": "36aed5a1740a2075f3a7728e251b7e04b5eaf5f565a4da38b9cb7bb6b9f8cbb2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/foundry/plugins/core.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/plugins/core.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          251
+        ]
+      ],
+      "evidence_level": "Полный Domain contract прочитан; actual config/registry definitions исполнены",
+      "git_blob": "af250d21ff33d48af6e9c7f56b200fdbae363f7e",
+      "sha256": "8b3a9f93bb522d509651fed13c436316944d01f0cd25b48ae021f338ad613c32",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/jit_training.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/agent_sim/jit_training.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          45,
+          60
+        ]
+      ],
+      "evidence_level": "Полный exact bool selector прочитан и исполнен",
+      "git_blob": "53306ddf6becf170f80e9381598f8f889b9ab4a3",
+      "sha256": "6730c202d77ba15d2107b79d88b0a9a31149effa7eb25b3da8c9835cd0c30927",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/src/polisyos/foundry/agent_sim/training.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/agent_sim/training.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          226
+        ],
+        [
+          291,
+          375
+        ]
+      ],
+      "evidence_level": "Полные ordinary trainer/trajectory helpers и artifact wrapper прочитаны; actual PPO/Optax/JAX не исполнены",
+      "git_blob": "bb83c64bdd85e30d7e8c267ecc7e3bd43b926951",
+      "sha256": "3e65855fb44c74132169af99c7ca8832fa2b20157137a30f37f56eb1277c4b1d",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/tests/unit/remediation/test_plg_02.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_plg_02.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          136
+        ]
+      ],
+      "evidence_level": "Полный current unsupported-profile/CLI test прочитан; native attempt BLOCKED",
+      "git_blob": "b76ad12eb060c6fafa96203c14768dd68f51292c",
+      "sha256": "412dd8c35175c15e22bb5f42d2f9933df696bd3e185e8ac44c9ae7f3dfd93b3c",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/tests/unit/foundry/plugins/test_cli.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/foundry/plugins/test_cli.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          180
+        ]
+      ],
+      "evidence_level": "Полный process exit/supported/unsupported CLI test прочитан; native attempt BLOCKED",
+      "git_blob": "64ad96edbe2181e7bceeb68ab32272858fc77fc3",
+      "sha256": "db7eb13d05337d7bcbfdb450cd7add1dc9fff8cc4ec8898bfc0adf2fd75e5669",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      4995,
+      5089
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "discovery": {
+    "census": false,
+    "log": "04_Проверки/C40_PLG02/result_discovery.log",
+    "scope": "Bounded exact-symbol source search, полный API/CLI и found tests. Реальный historical TrainingResult archive или его production deserializer не найден/не загружен этим probe."
+  }
+}

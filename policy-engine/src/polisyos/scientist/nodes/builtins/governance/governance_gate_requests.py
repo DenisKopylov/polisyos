@@ -5,15 +5,16 @@ from __future__ import annotations
 import json
 import math
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
-from typing import Any
+from dataclasses import dataclass, replace
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ValidationError
 
 from polisyos.common import logger as common_logger
 from polisyos.core import registry as core_registry
 from polisyos.core.artifacts import ArtifactID, ArtifactRef, RegistryBundlePayload, SchemaInfo
-from polisyos.core.canon import content_hash
+from polisyos.core.artifacts.manifest import artifact_ref_identity_key, input_ref_from_artifact_ref
+from polisyos.core.canon import content_hash, from_canonical_bytes
 from polisyos.core.contracts import (
     DataSnapshot,
     DataSnapshotRef,
@@ -30,6 +31,7 @@ from polisyos.ir import (
     GATE_REQUEST_SCHEMA_VERSION,
     ArtifactRefModel,
     GateContext,
+    GateDecision,
     GatePriority,
     GateRequest,
     NormPack,
@@ -56,6 +58,10 @@ from polisyos.scientist.orchestration.engine.error_semantics import emit_degrade
 from polisyos.scientist.orchestration.engine.protocol import NodeEvent
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.kernel.gate_protocol import HumanGateProtocol
+
+if TYPE_CHECKING:
+    from polisyos.scientist.governance.report import GovernanceReportInvocationBinding
+
 
 logger = common_logger.get_logger("polisyos.scientist.nodes.builtins.governance.run_governance")
 
@@ -872,6 +878,217 @@ def _parse_gate_request(raw: Any) -> GateRequest | None:
         except _GOVERNANCE_HELPER_ERRORS:
             return None
     return None
+
+
+def _gate_replay_follows_exact_evaluator(
+    ctx: ExecutionContext, state: ExperimentState, binding: GovernanceReportInvocationBinding
+) -> bool:
+    """Verify the complete state transition from prior governance through evaluator."""
+    from polisyos.scientist.governance.report_currentness import (
+        resolve_current_governance_report,
+    )
+    from polisyos.scientist.nodes.builtins.planning.run_evaluator import RunEvaluatorNode
+    from polisyos.scientist.orchestration.engine.context import (
+        _EngineInvocationBinding,
+        _load_engine_owned_invocation_input_state,
+    )
+    from polisyos.scientist.orchestration.engine.producer_currentness import (
+        _load_invocation_output_state,
+        engine_invocation_identity_is_current,
+    )
+    from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
+
+    current_binding = ctx._engine_invocation
+    if not isinstance(current_binding, _EngineInvocationBinding):
+        return False
+    attempts = ctx.run.read_runtime_invocation_attempts()
+    current = [
+        item
+        for item in attempts
+        if item.basis.attempt_id == current_binding.attempt_id
+        and item.basis_ref == current_binding.basis_ref
+    ]
+    if len(current) != 1 or current[0].basis.workflow_spec_ref != binding.workflow_spec_ref:
+        return False
+    current_input = _load_engine_owned_invocation_input_state(ctx, state)
+    if current_input is None or current_input.model_dump(mode="json") != state.model_dump(
+        mode="json"
+    ):
+        return False
+    workflow = WorkflowSpec.model_validate(
+        from_canonical_bytes(ctx.store.get_bytes(binding.workflow_spec_ref))
+    )
+    by_alias = {node.alias: node for node in workflow.nodes}
+    current_alias = current[0].basis.node_alias
+    if current_alias not in by_alias:
+        return False
+    ancestors: set[str] = set()
+    pending = list(by_alias[current_alias].depends_on)
+    while pending:
+        alias = pending.pop()
+        if alias not in ancestors:
+            ancestors.add(alias)
+            if alias not in by_alias:
+                return False
+            pending.extend(by_alias[alias].depends_on)
+    if "run_evaluator" not in ancestors:
+        return False
+    evaluator_component = str(RunEvaluatorNode().spec.metadata.component_id)
+    for attempt in attempts:
+        outcome = attempt.outcome
+        if (
+            attempt.basis.node_alias != "run_evaluator"
+            or attempt.basis.component_id != evaluator_component
+            or attempt.basis.workflow_spec_ref != binding.workflow_spec_ref
+            or outcome is None
+            or outcome.status != "ok"
+            or outcome.outcome_state_ref is None
+            or not engine_invocation_identity_is_current(
+                ctx, attempt.basis, expected_component_id=evaluator_component
+            )
+        ):
+            continue
+        evaluator_ctx = replace(
+            ctx,
+            _engine_invocation=_EngineInvocationBinding(
+                run_id=attempt.basis.run_id,
+                attempt_id=attempt.basis.attempt_id,
+                basis_ref=attempt.basis_ref,
+                require_successful_completion=True,
+            ),
+        )
+        evaluator_input = _load_engine_owned_invocation_input_state(evaluator_ctx, state)
+        if evaluator_input is None:
+            continue
+        evaluator_admission = resolve_current_governance_report(ctx, evaluator_input)
+        evaluator_report = evaluator_admission.report
+        evaluator_binding = evaluator_report.invocation_binding if evaluator_report else None
+        if (
+            not evaluator_admission.is_current
+            or evaluator_binding is None
+            or evaluator_binding.attempt_id != binding.attempt_id
+            or evaluator_binding.attempt_basis_ref != binding.attempt_basis_ref
+        ):
+            continue
+        evaluator_output = _load_invocation_output_state(ctx, outcome.outcome_state_ref)
+        if evaluator_output.model_dump(mode="json") == current_input.model_dump(mode="json"):
+            return True
+    return False
+
+
+def _resolve_previous_gate_decision(
+    *,
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    request: GateRequest | None,
+    request_ref: ArtifactRef | None,
+) -> tuple[Literal["absent", "current", "not_established"], GateDecision | None]:
+    """Reopen the previous governance attempt's emitted gate decision and request.
+
+    The report can be stale because evaluation changed its full source maps. Its
+    successful producer is used only as predecessor evidence, never as a current
+    governance verdict. The current request and selected CAS lineage must still
+    match the decision that producer actually emitted.
+    """
+    from polisyos.scientist.governance.report_currentness import (
+        resolve_current_governance_report,
+    )
+    from polisyos.scientist.orchestration.engine.producer_currentness import (
+        _load_invocation_output_state,
+    )
+
+    try:
+        admission = resolve_current_governance_report(ctx, state)
+        if not admission.is_current and not (
+            admission.status == "stale"
+            and admission.reason_code == "producer_source_projection_changed"
+        ):
+            return "not_established", None
+        report = admission.report
+        if report is None or report.invocation_binding is None:
+            return "not_established", None
+        binding = report.invocation_binding
+        attempts = [
+            item
+            for item in ctx.run.read_runtime_invocation_attempts()
+            if item.basis.attempt_id == binding.attempt_id
+            and item.basis_ref == binding.attempt_basis_ref
+        ]
+        if len(attempts) != 1:
+            return "not_established", None
+        attempt = attempts[0]
+        outcome = attempt.outcome
+        if outcome is None or outcome.status != "ok" or outcome.outcome_state_ref is None:
+            return "not_established", None
+        previous = _load_invocation_output_state(ctx, outcome.outcome_state_ref)
+        previous_ref_value = previous.params.get("gate_decision_ref")
+        previous_typed = previous.params.get("gate_decision_typed")
+        current_ref_value = state.params.get("gate_decision_ref")
+        current_typed = state.params.get("gate_decision_typed")
+        if previous_ref_value is None and previous_typed is None:
+            # An unresolved prior gate is a refusal, not the absence of a gate.
+            # Re-evaluation must not turn it into the default approval merely
+            # because the unmatched raw decision was discarded by its producer.
+            if (
+                current_ref_value is None
+                and current_typed is None
+                and report.verdict != "human_gate"
+            ):
+                return "absent", None
+            return "not_established", None
+        if not _gate_replay_follows_exact_evaluator(ctx, state, binding):
+            return "not_established", None
+        if (
+            previous_ref_value is None
+            or previous_typed is None
+            or current_ref_value is None
+            or current_typed is None
+            or request is None
+            or request_ref is None
+            or request_ref.manifest_profile_sha256 is None
+            or not ctx.store.verify(request_ref).ok
+        ):
+            return "not_established", None
+        previous_ref = ArtifactRef.model_validate(previous_ref_value)
+        current_ref = ArtifactRef.model_validate(current_ref_value)
+        previous_request_ref = ArtifactRef.model_validate(previous.params.get("gate_request_ref"))
+        if (
+            previous_ref.kind != "ir.gate_decision"
+            or previous_ref.media_type != "application/json"
+            or previous_ref.manifest_profile_sha256 is None
+            or artifact_ref_identity_key(previous_ref) != artifact_ref_identity_key(current_ref)
+            or artifact_ref_identity_key(previous_request_ref)
+            != artifact_ref_identity_key(request_ref)
+            or not any(
+                artifact_ref_identity_key(output_ref) == artifact_ref_identity_key(previous_ref)
+                for output_ref in outcome.output_refs
+            )
+            or not ctx.store.verify(previous_ref).ok
+        ):
+            return "not_established", None
+        manifest = ctx.store.get_manifest(previous_ref)
+        decision = GateDecision.model_validate(
+            from_canonical_bytes(ctx.store.get_bytes(previous_ref))
+        )
+        producer = manifest.producer
+        if (
+            manifest.kind != "ir.gate_decision"
+            or manifest.media_type != "application/json"
+            or manifest.artifact_schema
+            != SchemaInfo(name="polisyos.ir.GateDecision", version=decision.schema_version)
+            or producer is None
+            or str(producer.component) != "ir.gate_protocol"
+            or producer.version != "1.0.0"
+            or manifest.inputs != [input_ref_from_artifact_ref(request_ref, role="gate_request")]
+            or decision.run_id != state.run_id
+            or decision.request_id != request.request_id
+            or GateDecision.model_validate(previous_typed) != decision
+            or GateDecision.model_validate(current_typed) != decision
+        ):
+            return "not_established", None
+        return "current", decision
+    except _GOVERNANCE_HELPER_ERRORS:
+        return "not_established", None
 
 
 def _resolve_cached_gate_request(

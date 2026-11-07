@@ -59,3 +59,33 @@ def test_fabric_exception_baseline_unavailable_scanner_is_unrun(
     )
     assert checker.main() == 2
     assert "UNRUN" in capsys.readouterr().err
+
+
+def test_fabric_exception_baseline_refuses_an_added_literal_handler(
+    tmp_path: Path,
+    capsys,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An intentional refreshed fingerprint still refuses the next source drift."""
+    import hashlib
+
+    source = tmp_path / "src/polisyos/fabric/candidate.py"
+    source.parent.mkdir(parents=True)
+    source.write_text("try:\n    run()\nexcept Exception:\n    raise\n")
+    expected = "src/polisyos/fabric/candidate.py:except Exception:"
+    monkeypatch.setattr(checker, "EXPECTED_MATCH_COUNT", 1)
+    monkeypatch.setattr(
+        checker, "EXPECTED_OUTPUT_SHA256", hashlib.sha256(expected.encode()).hexdigest()
+    )
+    monkeypatch.setattr(
+        checker.sys, "argv", ["check-fabric-exception-baseline", "--repo-root", str(tmp_path)]
+    )
+    assert checker.main() == 0
+    capsys.readouterr()
+
+    source.write_text(source.read_text() + "try:\n    other()\nexcept Exception:\n    raise\n")
+    assert checker.main() == 1
+    output = capsys.readouterr().err
+    assert "FAILED: literal-text fingerprint changed" in output
+    assert "expected count=1" in output
+    assert "actual   count=2" in output

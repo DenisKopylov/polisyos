@@ -87,3 +87,24 @@ Before a fused pair, both selected classes must match the compiled signatures;
 the already selected first class is passed to input preparation rather than
 re-resolved. Async preparation and Ray submission use the same signature
 predicate. Ray runtime verification is separately required.
+
+## Preparation and actual JAX specialization
+
+Chain preparation propagates declared shapes as data-only `ShapeSpec` values.
+`SlotSpec` has no output-dtype declaration, so those derived inputs carry
+`dtype="unknown"`; preparation neither borrows a stale sample/input dtype nor
+allocates output-sized NumPy placeholders. Unknown data-dependent dimensions
+still refuse before any method body runs.
+
+The prepared object contains a reusable lazy JAX wrapper. Its planning
+specialization is not an already lowered machine executable: JAX traces and
+specializes using the actual whole-state arrays when called, including an
+upstream result whose dtype differs from the original sample. Explicit
+trace/lower/compile and warmup calls are separate work and are reported
+separately from wrapper construction. This does not add general slot routing,
+an output-dtype inference engine, or safe tracing for arbitrary impure methods.
+
+A leader also rechecks the cache after claiming a new flight. If an earlier
+flight published between miss and claim, the new leader republishes the ready
+kernel through the normal generation-guarded terminal path, releasing followers
+with their own current dynamic defaults instead of building another wrapper.

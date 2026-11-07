@@ -1,0 +1,115 @@
+{
+  "repo_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source_lock_sha256": "ccfdca0e741dc77795f5af61871af5d62e73feebf55c7ffb28cd16e55fe207e9",
+  "packages": [
+    {
+      "name": "aiohttp",
+      "version": "3.13.3"
+    },
+    {
+      "name": "cryptography",
+      "version": "46.0.4"
+    },
+    {
+      "name": "cvxpy",
+      "version": "1.8.2"
+    },
+    {
+      "name": "duckdb",
+      "version": "1.4.3"
+    },
+    {
+      "name": "econml",
+      "version": "0.17.0"
+    },
+    {
+      "name": "equinox",
+      "version": "0.13.2"
+    },
+    {
+      "name": "httpx",
+      "version": "0.28.1"
+    },
+    {
+      "name": "hypothesis",
+      "version": "6.151.2"
+    },
+    {
+      "name": "jax",
+      "version": "0.8.2"
+    },
+    {
+      "name": "jaxlib",
+      "version": "0.8.2"
+    },
+    {
+      "name": "langchain",
+      "version": "1.2.0"
+    },
+    {
+      "name": "langgraph",
+      "version": "1.0.5"
+    },
+    {
+      "name": "mapie",
+      "version": "1.3.0"
+    },
+    {
+      "name": "mutmut",
+      "version": "3.5.0"
+    },
+    {
+      "name": "networkx",
+      "version": "3.6.1"
+    },
+    {
+      "name": "numpy",
+      "version": "2.3.5"
+    },
+    {
+      "name": "numpyro",
+      "version": "0.20.1"
+    },
+    {
+      "name": "optax",
+      "version": "0.2.6"
+    },
+    {
+      "name": "pandas",
+      "version": "2.3.3"
+    },
+    {
+      "name": "pyarrow",
+      "version": "22.0.0"
+    },
+    {
+      "name": "pydantic",
+      "version": "2.12.5"
+    },
+    {
+      "name": "pytest",
+      "version": "9.0.2"
+    },
+    {
+      "name": "pytest-asyncio",
+      "version": "1.3.0"
+    },
+    {
+      "name": "pytest-benchmark",
+      "version": "5.2.3"
+    },
+    {
+      "name": "salib",
+      "version": "1.5.2"
+    },
+    {
+      "name": "scipy",
+      "version": "1.16.3"
+    },
+    {
+      "name": "statsmodels",
+      "version": "0.14.6"
+    }
+  ],
+  "meaning": "Declared lock baseline, not evidence packages installed or executable in this review environment."
+}

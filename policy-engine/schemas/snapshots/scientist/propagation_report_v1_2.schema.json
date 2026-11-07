@@ -599,7 +599,7 @@
     },
     "_ReportDrawFailure": {
       "additionalProperties": false,
-      "description": "Match one draw-level failure row persisted by Monte Carlo.",
+      "description": "Match a historical draw failure with the historical outcome grammar.",
       "properties": {
         "draw_index": {
           "minimum": 0,
@@ -711,9 +711,9 @@
         "input_identity_status",
         "implementation_identity_status",
         "draw_identity_basis",
-        "failure_records",
         "schema_version",
-        "sampling_recipe"
+        "sampling_recipe",
+        "failure_records"
       ],
       "title": "_ReportDrawOutcomeProvenanceV12",
       "type": "object"

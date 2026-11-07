@@ -1,0 +1,565 @@
+{
+  "packet_id": "PCL-01",
+  "lane": "LANE-03",
+  "status": "AUTHORED_PENDING_FINAL_QA",
+  "implementation_status": "NOT_IMPLEMENTED_BY_THIS_DOCUMENT",
+  "test_status": "NOT_RUN",
+  "audit_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "source_ids": [
+    "LA-052",
+    "LA-053"
+  ],
+  "audit_reports": [
+    "05_Основания/Аудит/02_Пакеты/PCL-01.md"
+  ],
+  "source_plan_lines": [
+    3670,
+    3845
+  ],
+  "residual_dispositions": [
+    {
+      "inventory_id": "audit-residual:C30_остатки:0",
+      "audit_id": "C30-R01",
+      "disposition": "fix",
+      "requirement_ids": [
+        "REQ-PCL-01-01",
+        "REQ-PCL-01-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Закрыть representation-sensitive precedence на known serialized report boundary, не глобальной доверчивой dict эвристикой.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C30_остатки.json",
+        "sha256": "55633d5964aec89a99646272f318d0e256ddbbe07c0f726f3332e2fd28d58511",
+        "json_pointer": "/findings/0"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C30_остатки:1",
+      "audit_id": "C30-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-PCL-01-03",
+        "REQ-PCL-01-04",
+        "REQ-PCL-01-05",
+        "REQ-PCL-01-06"
+      ],
+      "shared_owner": null,
+      "rationale": "Native numerical/report/receipt и public distribution graph вместо isolated shells.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C30_остатки.json",
+        "sha256": "55633d5964aec89a99646272f318d0e256ddbbe07c0f726f3332e2fd28d58511",
+        "json_pointer": "/findings/1"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C30_остатки:2",
+      "audit_id": "C30-G02",
+      "disposition": "lifecycle",
+      "requirement_ids": [
+        "REQ-PCL-01-06",
+        "REQ-PCL-01-07"
+      ],
+      "shared_owner": null,
+      "rationale": "Поддерживаемый alias — не дефект; конечный census и declared window до удаления.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C30_остатки.json",
+        "sha256": "55633d5964aec89a99646272f318d0e256ddbbe07c0f726f3332e2fd28d58511",
+        "json_pointer": "/findings/2"
+      }
+    },
+    {
+      "inventory_id": "audit-residual:C30_остатки:3",
+      "audit_id": "C30-G03",
+      "disposition": "shared",
+      "requirement_ids": [
+        "REQ-PCL-01-04",
+        "REQ-PCL-01-05"
+      ],
+      "shared_owner": "FRC-02",
+      "rationale": "Численные показатели сохраняются, measurement source binding у existing producer/bridge.",
+      "audit_locator": {
+        "artifact": "sealed_audit",
+        "path": "01_Реестры/C30_остатки.json",
+        "sha256": "55633d5964aec89a99646272f318d0e256ddbbe07c0f726f3332e2fd28d58511",
+        "json_pointer": "/findings/3"
+      }
+    }
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0481",
+      "requirement_ids": [
+        "REQ-PCL-01-01",
+        "REQ-PCL-01-02"
+      ],
+      "disposition": "fix",
+      "rationale": "Typed и mapping одного report не меняют receipt.",
+      "source_ids": [
+        "LA-052"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0482",
+      "requirement_ids": [
+        "REQ-PCL-01-03",
+        "REQ-PCL-01-04",
+        "REQ-PCL-01-05"
+      ],
+      "disposition": "qualify",
+      "rationale": "Native actual chain.",
+      "source_ids": [
+        "LA-052"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0483",
+      "requirement_ids": [
+        "REQ-PCL-01-04",
+        "REQ-PCL-01-05"
+      ],
+      "disposition": "shared",
+      "rationale": "Подлинный источник/experiment не выводится из численного качества; FRC-02 bridge.",
+      "source_ids": [
+        "LA-052"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0484",
+      "requirement_ids": [
+        "REQ-PCL-01-07"
+      ],
+      "disposition": "qualify",
+      "rationale": "Полный finite census и окно совместимости, не blind removal.",
+      "source_ids": [
+        "LA-053"
+      ]
+    },
+    {
+      "inventory_id": "remaining:0485",
+      "requirement_ids": [
+        "REQ-PCL-01-06"
+      ],
+      "disposition": "qualify",
+      "rationale": "Real public package/distribution profile.",
+      "source_ids": [
+        "LA-053"
+      ]
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0783",
+      "requirement_ids": [
+        "REQ-PCL-01-03"
+      ],
+      "test_ids": [
+        "TEST-PCL-01-03"
+      ],
+      "rationale": "Unknown metrics and explicit inventory."
+    },
+    {
+      "inventory_id": "preserve:0784",
+      "requirement_ids": [
+        "REQ-PCL-01-03",
+        "REQ-PCL-01-04"
+      ],
+      "test_ids": [
+        "TEST-PCL-01-03",
+        "TEST-PCL-01-04"
+      ],
+      "rationale": "Length/refusal and measured positive/negative controls."
+    },
+    {
+      "inventory_id": "preserve:0785",
+      "requirement_ids": [
+        "REQ-PCL-01-01",
+        "REQ-PCL-01-02",
+        "REQ-PCL-01-04",
+        "REQ-PCL-01-05"
+      ],
+      "test_ids": [
+        "TEST-PCL-01-01",
+        "TEST-PCL-01-02",
+        "TEST-PCL-01-04",
+        "TEST-PCL-01-05"
+      ],
+      "rationale": "Actual typed receipt/reconciliation and source assurance."
+    },
+    {
+      "inventory_id": "preserve:0786",
+      "requirement_ids": [
+        "REQ-PCL-01-02",
+        "REQ-PCL-01-04"
+      ],
+      "test_ids": [
+        "TEST-PCL-01-02",
+        "TEST-PCL-01-04"
+      ],
+      "rationale": "Bootstrap/PIT/ENCE and binary independence."
+    },
+    {
+      "inventory_id": "preserve:0787",
+      "requirement_ids": [
+        "REQ-PCL-01-03",
+        "REQ-PCL-01-04",
+        "REQ-PCL-01-06"
+      ],
+      "test_ids": [
+        "TEST-PCL-01-03",
+        "TEST-PCL-01-04",
+        "TEST-PCL-01-06"
+      ],
+      "rationale": "Canonical numerical tests."
+    },
+    {
+      "inventory_id": "preserve:0788",
+      "requirement_ids": [
+        "REQ-PCL-01-06"
+      ],
+      "test_ids": [
+        "TEST-PCL-01-06"
+      ],
+      "rationale": "Identity-only old test."
+    },
+    {
+      "inventory_id": "preserve:0789",
+      "requirement_ids": [
+        "REQ-PCL-01-06"
+      ],
+      "test_ids": [
+        "TEST-PCL-01-06"
+      ],
+      "rationale": "Three same public objects."
+    },
+    {
+      "inventory_id": "preserve:0790",
+      "requirement_ids": [
+        "REQ-PCL-01-04",
+        "REQ-PCL-01-05"
+      ],
+      "test_ids": [
+        "TEST-PCL-01-04",
+        "TEST-PCL-01-05"
+      ],
+      "rationale": "Predictive/parameter/drift owner roles distinct."
+    }
+  ],
+  "requirements": [
+    {
+      "text": "Для поддержанного continuous report output один и тот же валидированный CalibrationDiagnosticsReport в typed форме, JSON mapping и после сохранения/readback должен давать одинаковый ограничивающий receipt при merge с положительным sidecar. Empty/incomplete/source-not-established output не может сохранять approximate_calibrated только из-за изменения представления.",
+      "source_ids": [
+        "LA-052"
+      ],
+      "audit_ids": [
+        "C30-R01"
+      ],
+      "id": "REQ-PCL-01-01",
+      "test_ids": [
+        "TEST-PCL-01-01",
+        "TEST-PCL-01-05"
+      ]
+    },
+    {
+      "text": "Serialized continuous report восстанавливается по известному owner/output contract и полной DTO validation до receipt reconciliation. Самоназвание task=continuous не устанавливает ни происхождение, ни пригодность; malformed/неподтверждённое expected output не может fall through к unbound positive sidecar. Generic valid receipt и binary/multiclass contracts сохраняют собственную семантику, без навязывания continuous interval inventory.",
+      "source_ids": [
+        "LA-052"
+      ],
+      "audit_ids": [
+        "C30-R01"
+      ],
+      "id": "REQ-PCL-01-02",
+      "test_ids": [
+        "TEST-PCL-01-01",
+        "TEST-PCL-01-02",
+        "TEST-PCL-01-05"
+      ]
+    },
+    {
+      "text": "Canonical curve/continuous APIs сохраняют полный inventory запроса: empty comparisons дают None-метрики и not_evaluated, пропущенная часть — incomplete с перечисленными уровнями, misaligned/surplus lengths — точную ошибку. n_obs не подменяет число interval comparisons. Доступная измеренная часть остаётся диагностически видимой, но неполнота не получает positive calibration tier и не запускает bootstrap как полный корпус.",
+      "source_ids": [
+        "LA-052"
+      ],
+      "audit_ids": [
+        "C30-G01"
+      ],
+      "id": "REQ-PCL-01-03",
+      "test_ids": [
+        "TEST-PCL-01-03"
+      ]
+    },
+    {
+      "text": "Корректные95/100 при nominal.95 и0/100 остаются различимыми по actual coverage/ECE; bootstrap/PIT/ENCE и small-sample downgrade сохраняются. Для continuous report candidate_numeric_tier отделён от фактического source assurance: хорошая математика без measurement binding остаётся unverified с measurement_source_not_established.",
+      "source_ids": [
+        "LA-052"
+      ],
+      "audit_ids": [
+        "C30-G03",
+        "C30-G01"
+      ],
+      "id": "REQ-PCL-01-04",
+      "test_ids": [
+        "TEST-PCL-01-04"
+      ]
+    },
+    {
+      "text": "Ремонт проверяется через настоящий method runner/dispatcher merge, output representation boundary, запись и свежий reader; typed report и receipt models не заменяются фикстурами. Положительный содержательный numerical report доходит до потребителя с точным scope, а sidecar не повышает его роль. Реальный observed source/experiment bridge проверяется совместно с FRC-02, не создаётся новым глобальным receipt registry.",
+      "source_ids": [
+        "LA-052"
+      ],
+      "audit_ids": [
+        "C30-G01",
+        "C30-G03"
+      ],
+      "id": "REQ-PCL-01-05",
+      "test_ids": [
+        "TEST-PCL-01-05"
+      ]
+    },
+    {
+      "text": "В поддержанном compatibility окне public root, actual calibration.curve и Scientist alias экспортируют те же CalibrationPoint, CalibrationResult и compute_calibration_curve, с прежними valid values и exceptions. Численные tests остаются у canonical owner; старый файл содержит только проверку identity, не вторую копию численного набора.",
+      "source_ids": [
+        "LA-053"
+      ],
+      "audit_ids": [
+        "C30-G01",
+        "C30-G02"
+      ],
+      "id": "REQ-PCL-01-06",
+      "test_ids": [
+        "TEST-PCL-01-06"
+      ]
+    },
+    {
+      "text": "Retirement старого Scientist адреса допускается только после конечного census прямых/относительных FQN, config/notebook/generated/public surfaces и решения по внешнему supported window. Пока основание недостаточно, supported alias явно сохраняется. Если снятие разрешено, удаляется только этот reexport и связанные declarations, с negative import/packaging проверкой; весь backtesting и новые цепочки aliases не создаются/не удаляются ради этой задачи.",
+      "source_ids": [
+        "LA-053"
+      ],
+      "audit_ids": [
+        "C30-G02"
+      ],
+      "id": "REQ-PCL-01-07",
+      "test_ids": [
+        "TEST-PCL-01-07"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "level": "native local merge regression",
+      "setup": "Actual evaluate_continuous(y_true=100 finite values, intervals={}) и положительный sidecar TruthfulnessReceipt; варианты typed report, model_dump(mode=json), canonical JSON readback. Повторить incomplete report и вложенные output/artifact containers.",
+      "action": "Создать actual MethodResult и вызвать actual _merge_dispatch_result с выбранным declared output contract; отдельно непосредственный extractor boundary по поддержанному контракту.",
+      "oracle": "Все три формы ограничивают sidecar до одного unverified receipt, с сохранёнными scope/reasons. В прежнем коде mapping оставлял approximate_calibrated — этот различающий случай обязан краснеть до ремонта. Дублированная ссылка на тот же контейнер/cycle не вызывает бесконечной рекурсии.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/foundry/methods/test_truthfulness_protocol.py; tests/unit/calibration/diagnostics/test_continuous.py; methods/backends/dispatch.py::_merge_dispatch_result",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-PCL-01-01",
+      "requirement_ids": [
+        "REQ-PCL-01-01",
+        "REQ-PCL-01-02"
+      ]
+    },
+    {
+      "level": "native contract confusion/negative",
+      "setup": "Expected CalibrationDiagnosticsReport slot: полный DTO mapping, malformed missing metrics, inconsistent inventory, unsupported schema/version; отдельно чужой dict только task=continuous и genuine binary/multiclass report.",
+      "action": "Провести через normalizer/merge и actual TruthfulnessReceipt reconciliation.",
+      "oracle": "Known valid DTO восстановлен; expected malformed payload адресно отказан либо получает ограниченный result без positive receipt. Чужой self-label не становится authenticated report. Binary/multiclass сохраняют свой valid receipt и не требуют interval_coverage; произвольная неподтверждённая metadata не может создавать сильную continuous роль.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/foundry/methods/test_truthfulness_protocol.py; ir/analytics/_truthfulness.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-PCL-01-02",
+      "requirement_ids": [
+        "REQ-PCL-01-02"
+      ]
+    },
+    {
+      "level": "native canonical numeric/denominator matrix",
+      "setup": "100 finite y; intervals={} и[]/levels=[]; empty y; missing both intervals/samples; лишний level/set; short set; partial и all-skipped sets; metadata claim5comparisons при одном bin.",
+      "action": "Вызвать existing compute_calibration_curve/evaluate_continuous, сохранить настоящий report, прочитать model_validate_json и вызвать to_truthfulness_receipt.",
+      "oracle": "Empty comparisons0, метрики None, not_evaluated/error и receipt unverified. Partial сохраняет measured metrics, incomplete inventory и отсутствие full bootstrap; misalignment адресно отвергнут. Actual bins/counts побеждают нарисованную metadata.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/calibration/curve/test__compute.py; tests/unit/calibration/diagnostics/test_continuous.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-PCL-01-03",
+      "requirement_ids": [
+        "REQ-PCL-01-03"
+      ]
+    },
+    {
+      "level": "native numerical positive/negative and task scope",
+      "setup": "Предзаданные .95 intervals с95/100 и0/100 покрытия; small sample10; samples для PIT/ENCE и bootstrap с фиксированным RNG.",
+      "action": "Выполнить canonical API/report/readback/receipt; сравнить actual numeric fields и source assurance.",
+      "oracle": "ECE0 против.95; хорошие значения не теряются при сохраняющемся unverified/source_not_established. Small-sample downgrade и samples/default-level behavior сохранены, явные levels=[] не заменены default. Binary/multiclass не проходят чужой continuous guard.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/calibration/diagnostics/test_continuous.py; tests/unit/calibration/curve/test__compute.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-PCL-01-04",
+      "requirement_ids": [
+        "REQ-PCL-01-04"
+      ]
+    },
+    {
+      "level": "native dispatch/persist/fresh consumer E02-I03-B",
+      "setup": "Тестовый method с объявленным текущим report output contract, вычисляющий genuine evaluate_continuous; actual supported runner/MethodDispatcher, настоящий serializer/CAS/reader, sidecar конфликт. Если найден действительный такой producer — использовать его вместо test method.",
+      "action": "Пропустить typed и serialized forms по одной declared boundary; сохранить итог, прочитать свежим consumer; затем чужой schema/source/sidecar.",
+      "oracle": "Одинаковый итоговый ограниченный receipt и численные значения во всех поддержанных формах, без повышения source assurance. Malformed expected report не замещается sidecar. Реальное FRC-02 measurement admission — отдельный bound variant, не от одного DTO.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "foundry/methods/backends/dispatch.py; tests/unit/foundry/methods/test_truthfulness_protocol.py",
+      "allowed_doubles_and_prohibitions": "Тестовый method/data допустимы для generic dispatcher contract; он обязан звать actual calibration owner. Runner, merge, models, serializer/CAS и consumer не подменяются. Такой тест не доказывает prevalence в production.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-PCL-01-05",
+      "requirement_ids": [
+        "REQ-PCL-01-01",
+        "REQ-PCL-01-02",
+        "REQ-PCL-01-05"
+      ]
+    },
+    {
+      "level": "native public import/installed distribution",
+      "setup": "Поддержанный Python и actual built/installed distribution в отдельной согласованной packaging среде; root, implementation package и legacy Scientist import.",
+      "action": "Запустить существующий identity-only test плюс canonical numeric suites; записать import origins, exceptions и при необходимости время startup без обещанного ускорения.",
+      "oracle": "Все три объекта тождественны, normal values/errors сохранены, numerical tests не скопированы в old path. Импорт не привязан случайно к checkout вместо installed artifact; отсутствие package extras честно BLOCKED.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "tests/unit/scientist/methods/backtesting/test_calibration_curve.py; calibration/__init__.py",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-PCL-01-06",
+      "requirement_ids": [
+        "REQ-PCL-01-06"
+      ]
+    },
+    {
+      "level": "finite lifecycle census/decision",
+      "setup": "Закреплённый полный перечень репозиторных src/tests/config/notebooks/generated/public manifests; отдельно доступные external consumer сведения и объявленный support договор, не выдуманный zero-external graph.",
+      "action": "Сохранить denominator/path hits с классификацией executable/compatibility/history. Принять retain-window либо authorized-retire; во втором варианте проверить wheel contents и отсутствие import/FQN, canonical API positive.",
+      "oracle": "Retain — alias и identity test остаются намеренно. Retire — только reexport/declarations исчезают, canonical API жив, старый адрес адресно не разрешается; нет tombstone или новой alias chain. Неизвестные внешние callers явно ограничивают решение, не считаются нулём.",
+      "expected": "См. точные положительный, отрицательный и граничный исходы oracle.",
+      "existing_owner": "scientist/methods/backtesting/calibration_curve.py; architecture/public_surface/contract.toml и generated surfaces",
+      "allowed_doubles_and_prohibitions": "Допустимы контролируемые входы и наблюдающая обёртка вокруг actual owner. Запрещена подмена принимаемого producer/consumer заранее готовым ответом.",
+      "status": "NOT_RUN",
+      "evidence_required": "Base/head, входы/seed/profile/hash, actual commands/exit/log, deciding values и ограничения.",
+      "id": "TEST-PCL-01-07",
+      "requirement_ids": [
+        "REQ-PCL-01-07"
+      ]
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I03-B"
+  ],
+  "dependencies": [
+    {
+      "packet": "FRC-02",
+      "relation": "Один measurement-source bridge и общий native scenario; numeric report здесь не повышает роль сам."
+    },
+    {
+      "packet": "FRC-01",
+      "relation": "Summary/support refs должны сохранять ограничения report/receipt; shared gateway writer согласован."
+    },
+    {
+      "packet": "API-01 / LANE-12",
+      "relation": "Переиспользовать existing public-surface/packaging правила для finite alias lifecycle, без общего массового удаления."
+    }
+  ],
+  "preservation": [
+    "Unknown metrics and explicit inventory.",
+    "Length/refusal and measured positive/negative controls.",
+    "Actual typed receipt/reconciliation and source assurance.",
+    "Bootstrap/PIT/ENCE and binary independence.",
+    "Canonical numerical tests.",
+    "Identity-only old test.",
+    "Three same public objects.",
+    "Predictive/parameter/drift owner roles distinct."
+  ],
+  "protected_distinction_ids": [
+    "LK01",
+    "LK30",
+    "LK32"
+  ],
+  "design_alignment": [
+    {
+      "source": "policy-engine/docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+      "section": "D0, lines559–617",
+      "application": "Один declared output contract нормализует разные представления без ветки по конкретному method/case. Новая семантика источника не возникает из универсального dict decoder."
+    },
+    {
+      "source": "policy-engine/docs/system-design-decisions/wave5-evidence-substitution-ratification.md",
+      "section": "K01 и K07–K08",
+      "application": "Численная согласованность и sidecar marker не заменяют источник измерений. Сохраняется полезный candidate, а не только отказ. TruthfulnessReceipt не присваивает права решения."
+    }
+  ],
+  "open_decisions": [
+    {
+      "id": "DEC-PCL-01-BOUNDARY",
+      "question": "Где actual serialized CalibrationDiagnosticsReport имеет известный output contract?",
+      "owner": "Dispatcher/serialization owner вместе с canonical calibration owner",
+      "bounded_action": "Проследить actual producers и output-slot metadata до merge и telemetry; выбрать существующий contract-carrying seam. Сдать одну реализованную нормализацию и native controlled producer path; если production caller не найден, явно ограничить claim generic contract acceptance, не утверждать production prevalence.",
+      "default": "Не распознавать authority по произвольному task label и не оставлять positive sidecar как fallback после invalid expected report."
+    },
+    {
+      "id": "DEC-PCL-01-ALIAS",
+      "question": "Завершилось ли поддерживаемое окно Scientist calibration_curve alias?",
+      "owner": "Public API/release owner; технический reviewer",
+      "bounded_action": "Сдать TEST-07 census, публичный статус и доступное внешнее подтверждение; выбрать retain с названным основанием либо retirement точного адреса. Дату не назначать произвольно.",
+      "default": "Alias поддерживается, identity-only test сохраняется; numerical repair сдаётся независимо."
+    }
+  ],
+  "technical_solution": "**Ремонт на границе, а не новая математика.** Current `_typed_continuous_receipts` видит только DTO, `_merge_dispatch_result` принимает `MethodResult.output: Any`, а telemetry `_record_execution` тоже извлекает receipt. Нужна одна контрактная нормализация representation до обоих consumers. Предпочтительно использовать известный `MethodSignature.output_slots`/его output contract в dispatcher, восстановить `CalibrationDiagnosticsReport.model_validate` для объявленного report slot и передать полученный typed объект в existing extraction/reconciliation. Нормализовать один раз и переиспользовать результат merge/telemetry, не писать два разных decoder.\n\nIR generic receipt helper не должен импортировать Foundry/Scientist для поиска registry. Контекст известного output contract передаёт верхний dispatcher либо уже существующий serialization owner. Если конкретный путь не имеет такого контекста, unbound positive sidecar не считается доказательством continuous calibration: поддержать явный ограниченный outcome либо требовать known contract на этой boundary. Полный validated DTO может использоваться для **понижения** сильного sidecar, но наличие dict/task label не создаёт source authority. Не добавлять эвристику `task==continuous ⇒ trust dict` и не ослаблять validation exceptions так, чтобы failure снова fall through к positive sidecar.\n\n**Сохранить текущую численную реализацию.** Публичный API уже ведёт в `calibration/curve/_compute.py` и `calibration/diagnostics/continuous.py`. Unknown metrics/incomplete inventory, bootstrap suppression и real report receipt — нужный результат, а не незавершённость, которую лечат low ECE threshold. Для хорошего continuous корпуса сохранять candidate_numeric_tier, measurement_source_not_established остаётся до actual FRC-02 source binding. Binary/multiclass ветки не переписывать под interval-only контракт.\n\n**Alias:** обычные imports уже должны использовать `polisyos.calibration`, а старый15-line Scientist shim и34-line identity test полезны до DEC-ALIAS. Не переносить numerical suites заново, не удалять весь backtesting. Снять только точный адрес после полного finite surface census и compatibility решения. Изменение receipt semantics и alias removal — разные reviewable части, даже если их сдают в одном окне.",
+  "compatibility_and_rollback": "Новый repair не переименовывает public CalibrationResult и не переписывает старые receipts. Для expected serialized report malformed/несогласованный payload становится явным отказом/ограничением — намеренный fix; canonical valid typed/JSON report остаётся эквивалентным. Исторические positive receipts без measured basis не переаттестовываются и могут требовать re-evaluation по владельцу. Retain/retire alias фиксируется отдельно. Rollback не должен возвращать lost-report precedence; при временной деградации ограничить только непроверенный serialized continuous route, сохранив typed и canonical numerical API.",
+  "source_locators": [
+    {
+      "path": "policy-engine/src/polisyos/calibration/curve/_compute.py",
+      "first_line": 12,
+      "last_line": 86,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/curve/_compute.py#L12-L86"
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/diagnostics/continuous.py",
+      "first_line": 24,
+      "last_line": 187,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/calibration/diagnostics/continuous.py#L24-L187"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py",
+      "first_line": 93,
+      "last_line": 325,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py#L93-L325"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/_truthfulness.py",
+      "first_line": 183,
+      "last_line": 240,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/ir/analytics/_truthfulness.py#L183-L240"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "first_line": 387,
+      "last_line": 417,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/backends/dispatch.py#L387-L417"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/protocol.py",
+      "first_line": 199,
+      "last_line": 222,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/foundry/methods/backends/protocol.py#L199-L222"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py",
+      "first_line": 1,
+      "last_line": 34,
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py#L1-L34"
+    }
+  ]
+}

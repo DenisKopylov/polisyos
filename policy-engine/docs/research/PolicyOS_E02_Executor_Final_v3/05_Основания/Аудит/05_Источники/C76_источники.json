@@ -1,0 +1,329 @@
+{
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "sources": [
+    {
+      "id": "S01",
+      "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          492
+        ]
+      ],
+      "evidence_level": "Полный owner прочитан заново; whole module исполнен. Single local digest и snapshot bytes проверены.",
+      "git_blob": "d02787381d9077219b36941ccee8674bc2746e5f",
+      "sha256": "a21d484f2f861b4e6e160b84e5aeeb06f9c37c75c12ce8f9a35c1d26d4ec7d32",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S02",
+      "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          489
+        ]
+      ],
+      "evidence_level": "Весь owner прочитан. Полные unchanged 33–45,63–72,84–489 исполняются; PEP695 generic context trampoline заменён явно объявленным fixture context.run, alias не используется runtime. Не whole-native import.",
+      "git_blob": "0479a05898e3902038a5c341ed92a3c85527b671",
+      "sha256": "0f37f8534184ee6e7b783b24b1e1d525536a604480f02da21e585719350243bb",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S03",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          270,
+          291
+        ],
+        [
+          1259,
+          1275
+        ],
+        [
+          1665,
+          1672
+        ],
+        [
+          2903,
+          3054
+        ],
+        [
+          5325,
+          5510
+        ],
+        [
+          5881,
+          5883
+        ],
+        [
+          5983,
+          6243
+        ]
+      ],
+      "evidence_level": "Полные public wrappers, authenticated inventory census/cursor, no-follow reader, signature/snapshot owners прочитаны заново. Selected complete methods реально исполнены над fixture receiver/index; durable owner и signature publication не квалифицированы.",
+      "git_blob": "f855f9f023d8152b67bb4c1e71a8b9568d0c6994",
+      "sha256": "208b9aa6867c2303e5444ce6d7e446af2fcf2e9ca60e43c6205d68cf45a0ccc7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S04",
+      "path": "policy-engine/src/polisyos/core/artifacts/batch_control.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/batch_control.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          53
+        ]
+      ],
+      "evidence_level": "Весь caller-owned authorization loss signal прочитан и whole module исполнен. Не самостоятельный authorizer.",
+      "git_blob": "8a210a3514a2910c06ca2e0c634b217336ed2fca",
+      "sha256": "a4d1d453e6cfb5267f03bf8a9426ab24185addd09115f0d1f73d1d0b4c27a8bc",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S05",
+      "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/signing.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          224
+        ],
+        [
+          294,
+          753
+        ]
+      ],
+      "evidence_level": "Полные DTO, keypair, signer и verifier прочитаны. Whole module исполнен, реальные свежие in-memory Ed25519 keys и crypto controls; файловая конфигурация trust/key lifecycle не квалифицирована.",
+      "git_blob": "1bd2d568875b4aabf77d4ae22b230ad55c7b66d6",
+      "sha256": "6ed0e4e7b7098e95777d331a4598268cf58fb2c91e5844fba3d0f09ebb814134",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S06",
+      "path": "policy-engine/tests/unit/remediation/test_cas_03.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_cas_03.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          883
+        ]
+      ],
+      "evidence_level": "Весь regression прочитан; 9 выбранных unchanged bodies PASS. Native stream/metrics, tenant и default-view signing bodies UNRUN. Неколлектируемый cancellation name-walk probe прочитан, не запущен как native pytest.",
+      "git_blob": "cced499d6ffaf807d650b950b0e98aabfdd2f07c",
+      "sha256": "48ef1004760a06f765c45a2156dcc3cfd1cbba2139990fe32249e255610bf8ad",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S07",
+      "path": "policy-engine/tests/unit/remediation/test_b154_batch_completion.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/tests/unit/remediation/test_b154_batch_completion.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          573
+        ]
+      ],
+      "evidence_level": "Весь regression прочитан; все 14 unchanged bodies PASS в explicit fixture CAS environment с реальными batch/crypto operations.",
+      "git_blob": "ee7356ad05eaa1d04131651cefa7b991c8029f47",
+      "sha256": "615db5888fdb3353945cee5eb0de60ff5cc10e0564f6a3859afb75d5e7bee42e",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S08",
+      "path": "policy-engine/src/polisyos/core/components/_cli_crypto.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/components/_cli_crypto.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          292
+        ]
+      ],
+      "evidence_level": "Полный CLI consumer прочитан; native command UNRUN. JSON/text completion и nonzero invalid/untrusted/revoked/error exit не смешаны с legacy DTO ok.",
+      "git_blob": "4d94c781f3f4b7e8d6fcdfa9b8f530a04d055266",
+      "sha256": "d170f483b3a80f21deb60b65535adf2b772951f5ab8c5a400c33c0a2d0d93ba4",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S09",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/store.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          709,
+          716
+        ],
+        [
+          744,
+          952
+        ],
+        [
+          970,
+          1117
+        ],
+        [
+          1259,
+          1261
+        ],
+        [
+          1656,
+          1664
+        ],
+        [
+          2162,
+          2225
+        ],
+        [
+          2349,
+          2392
+        ],
+        [
+          3056,
+          3062
+        ],
+        [
+          3358,
+          3707
+        ],
+        [
+          3709,
+          3814
+        ],
+        [
+          3876,
+          3914
+        ],
+        [
+          3971,
+          4124
+        ],
+        [
+          6167,
+          6193
+        ]
+      ],
+      "evidence_level": "Base publication/read/stage helpers повторно исполнены; source-qualified чтение C74 на том же SHA, не новый полный store review.",
+      "git_blob": "f855f9f023d8152b67bb4c1e71a8b9568d0c6994",
+      "sha256": "208b9aa6867c2303e5444ce6d7e446af2fcf2e9ca60e43c6205d68cf45a0ccc7",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S10",
+      "path": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          165
+        ]
+      ],
+      "evidence_level": "Source-qualified C74 чтение whole lifecycle, повторное C76 исполнение.",
+      "git_blob": "513f375b40c4366e26f1e31999b24bce2c78ca18",
+      "sha256": "89c231e69ec95c1223d3a2637ca2ba79bc1048ac2644e266216a8f1cb8fdea08",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S11",
+      "path": "policy-engine/src/polisyos/core/artifacts/_atomic_write.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/_atomic_write.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          128
+        ]
+      ],
+      "evidence_level": "Source-qualified C74 чтение atomic helpers, повторное C76 исполнение.",
+      "git_blob": "4f355498b5a615865c5c190bba9f2510316b93ad",
+      "sha256": "afa41fe64aa388d65ec89db504d2f651447c5a92b5a8cea0384a6793c924ebcf",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S12",
+      "path": "policy-engine/src/polisyos/core/artifacts/ownership.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/ownership.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          256,
+          566
+        ]
+      ],
+      "evidence_level": "Source-qualified C74 чтение actual coordinator/leases; повторное исполнение. Durable index fixture.",
+      "git_blob": "414124a009fdadee52a5dbdde2e32fc6289d582f",
+      "sha256": "11feb86117d5e06261fea8555d024d46611c5ba40e1b90cc8b6bd5c6b81c6ad2",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S13",
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          403
+        ]
+      ],
+      "evidence_level": "Source-qualified C73/C74 DTO/profile чтение, actual C76 классы.",
+      "git_blob": "f1b3372d9e209cf823bacf7dc38eecd76b6780bb",
+      "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+      "local_file": null,
+      "note": null
+    },
+    {
+      "id": "S14",
+      "path": "policy-engine/pyproject.toml",
+      "url": "https://github.com/DenisKopylov/polisyos/blob/20d9009be21097bfbdc38a546a15cc60213b8ace/policy-engine/pyproject.toml",
+      "ref": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+      "read_ranges": [
+        [
+          1,
+          30
+        ]
+      ],
+      "evidence_level": "Supported runtime/dependency bounds; mismatch не product defect.",
+      "git_blob": "e4bb0ae9d77ae3bbb4b961ddd8f5f7e2e597ca51",
+      "sha256": "5f65308cb088086b6fc0aa40a5bae6ed852ae3a2e261103bd0d4158d97c1e8f2",
+      "local_file": null,
+      "note": null
+    }
+  ],
+  "original_plan": {
+    "path": "05_Источники/E02_исходный_план.md",
+    "lines": [
+      8781,
+      8892
+    ]
+  },
+  "main_initial": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "main_final": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "scope": "First new packet after recovered 48–75. Fresh actual crypto/batch/inventory execution under explicitly bounded fixtures; no lost-run evidence claimed."
+}

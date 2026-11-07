@@ -1,0 +1,91 @@
+{
+  "pass": "C59",
+  "bundle": "SCM-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C59-R01",
+      "kind": "confirmed_local_defect",
+      "severity": "medium",
+      "confidence": "high_bounded",
+      "source_ids": [
+        "B224"
+      ],
+      "title": "Manual SCM без source disposition исполняет partial graph по raw endpoints",
+      "evidence": [
+        "S01:52–146",
+        "S03:208–240",
+        "S04:340–390",
+        "S05:460–479",
+        "P07",
+        "P08",
+        "P09"
+      ],
+      "remaining": "Перед static query/active plan требовать actual admitted directed DAG либо воспользоваться existing canonical graph projection/disposition. Сохранить manual/legacy useful models, но не превращать unresolved PAG/endpoint storage в ориентированный causal success. Проверить reversed-equivalent edge, unresolved refusal и temporal control через actual public route.",
+      "limits": "Real DTO manual PAG X o→Y accepted, query gives7 without warning, canonical projector and selected fit refuse. Two representations knownY→X project identically; same mechanisms and doY2→X yield KeyError versus4 due raw adjacency. Scope manual/no-source-disposition entry, selected fit guard не обвиняется и native CAS не выполнен."
+    },
+    {
+      "id": "C59-R02",
+      "kind": "confirmed_local_defect",
+      "severity": "low",
+      "confidence": "high_bounded_replica_identity",
+      "source_ids": [
+        "B224"
+      ],
+      "title": "Joint posterior draws остаются order-sensitive при перестановке эквивалентных active siblings",
+      "evidence": [
+        "S01:112–146",
+        "S01:277–318",
+        "S01:893–1015",
+        "S01:1358–1435",
+        "P01",
+        "P10"
+      ],
+      "remaining": "Согласовать canonical coordinate order/stream identity joint posterior с существующими logical per-node streams; сохранить joint covariance/shared-U. Добавить counterfactual posterior permutation witness к existing interventional reordered test, не заменять correlated draws независимыми.",
+      "limits": "Для одного graph/SCM/query/seed edge-order swap B/C меняет replicas в2/4 factual profiles; max difference21.98 при evidenceB1. Два контроля совпадают. Это low reproducibility/common-randomness residual, не доказательство biased marginal law или неверной Gaussian conditioning formula."
+    },
+    {
+      "id": "C59-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B224",
+        "B225"
+      ],
+      "title": "Native persisted plan/law chain и приложение не квалифицированы",
+      "evidence": [
+        "S08",
+        "S09",
+        "S10",
+        "native_pytest.log",
+        "native_import.log"
+      ],
+      "remaining": "В supported parent/worker runtime выполнить actual registry/dispatcher, selected fit/query tests и persisted reader/Scientist binding. Для performance claims измерить настоящую workload; counters10/210 и20/220 не wall-time speedup.",
+      "limits": "Pytest отсутствует, ordinary import блокируется Python3.14 syntax under3.12. Actual SciPy работает в bounded harness, что не native installed PolicyOS acceptance."
+    },
+    {
+      "id": "C59-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B224",
+        "B225"
+      ],
+      "title": "Ограниченный stochastic profile не закрывает scientific authority и соседние остатки",
+      "evidence": [
+        "S01:321–437",
+        "C57-R01",
+        "C58-R01",
+        "C58-R02",
+        "P05",
+        "P06"
+      ],
+      "remaining": "Сохранить strict stochastic refusal, real conditional truncnorm и отличие clipping-policy; учитывать открытые twin/conditional-law residuals. Дополнительные laws/empirical policy authority/refit acceptance требуют собственного evidence, не предполагать универсальную поддержку.",
+      "limits": "Normal/uniform/truncnorm finite controls и typed request сохранены. Refit bootstrap C59 UNRUN; никакая ссылка на следующую очередь не считается его проверкой. LLM semantic proposer не заменяет downstream numerical/law admission."
+    }
+  ],
+  "confirmed_local_defects": [
+    "C59-R01",
+    "C59-R02"
+  ],
+  "decision": "Perfect intervention/active pruning/stochastic-law fixes действуют в bounded DAG profile. Manual graph admission и joint-posterior replica stability остаются конкретными residuals; native/refit/scientific qualification открыта."
+}

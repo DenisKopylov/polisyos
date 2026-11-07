@@ -1,0 +1,1149 @@
+{
+  "schema": "source_based_read_coverage_v1",
+  "status": "COMPLETE",
+  "updated_at": "2026-11-01T12:58:45.297831+00:00",
+  "review_scope": {
+    "packet_ids": [
+      "GRF-01",
+      "GRF-02",
+      "GRF-03",
+      "API-01",
+      "CAU-01",
+      "CAU-02",
+      "CAU-03",
+      "CAU-04",
+      "CAU-05",
+      "SCM-01",
+      "SCM-02",
+      "SCM-03",
+      "FIT-01",
+      "BER-01",
+      "DDM-01",
+      "DDM-02",
+      "LEX-01"
+    ],
+    "lanes_as_support": [
+      "LANE-05",
+      "LANE-11"
+    ],
+    "standalone_lane_or_scenario70_assessment": false,
+    "counts": {
+      "packets": 17,
+      "packet_md": 17,
+      "packet_json": 17,
+      "criteria": 70,
+      "dispositions": 1190
+    }
+  },
+  "freeze": {
+    "catalog_path": "catalog/criteria_catalog.json",
+    "sha256": "8c8c77e13d9151349b7410b441f97f0f94fbfb7d097150f32c9872fe35a3cb59",
+    "counts": {
+      "criteria": 70,
+      "read_source_records": 67,
+      "excluded_source_records": 1
+    },
+    "baseline_zip_sha256": "7f22b1737f67b20137ce57b95bc77b244c479d4c850e96aab3f3e518e68501ed",
+    "phase": "SOURCES_FROZEN_AUDIT_MAY_START",
+    "inputs": [
+      {
+        "path": "research_requirements/criteria.json",
+        "sha256": "713e020696dbfc9836c971a550331d4bdf95a5691864f290a65ffcb57b3d6476",
+        "bytes": 38458
+      },
+      {
+        "path": "research_requirements/sources.json",
+        "sha256": "3b8dff95da1d9fecdd5db79c93c250853a952b04d7391ed38bfbff5c3ee7cf64",
+        "bytes": 14269
+      },
+      {
+        "path": "research_requirements/review.md",
+        "sha256": "b53c2b0644642f2c8fb1052e028bcbe42bd57a7abce0610ab67edffb791be0c3",
+        "bytes": 13405
+      },
+      {
+        "path": "research_distributed/criteria.json",
+        "sha256": "df31984a8ca8a95bbc69585fc6f68a2e24d18dc929ff29230fa156ed48321f6a",
+        "bytes": 38252
+      },
+      {
+        "path": "research_distributed/sources.json",
+        "sha256": "1888724fb747f886adc11b622aa0f78853f7dee230e63a805204a7e4220fbad1",
+        "bytes": 16999
+      },
+      {
+        "path": "research_distributed/review.md",
+        "sha256": "767f90c2d9ebad56b8ddcb194cbb79a38fd9c026eb1d07ec9232c2f8659db70b",
+        "bytes": 8748
+      },
+      {
+        "path": "research_data_tests/criteria.json",
+        "sha256": "864c312b3b5f273b9d80907e117e9a84f46569c341bb9edd2507c78cad125299",
+        "bytes": 49448
+      },
+      {
+        "path": "research_data_tests/sources.json",
+        "sha256": "8e1c52fbad6fbf6a62b77a73a7f53dbc00eebd78668694f13d2ebcd15c2b6be9",
+        "bytes": 32189
+      },
+      {
+        "path": "research_data_tests/review.md",
+        "sha256": "8548f671a2509d1e30fd7ef0f7b2d6661d9782b6511e449222bec9cc01eae29a",
+        "bytes": 64536
+      },
+      {
+        "path": "research_security_release/criteria.json",
+        "sha256": "257f1b31a9ee9e0d14e9d0027cceac179699fdf8a57bc666dbf4711fa8d8c5ca",
+        "bytes": 53977
+      },
+      {
+        "path": "research_security_release/sources.json",
+        "sha256": "048ee708832cbae0f0bb1f9fc274300a9f9f7bfdff0af7025bf18e0cf57ba240",
+        "bytes": 28962
+      },
+      {
+        "path": "research_security_release/review.md",
+        "sha256": "b400113cb0756b4558d476b933b2e69c4886677f0324f8752ec977ea0b8fd5b3",
+        "bytes": 80325
+      }
+    ]
+  },
+  "inputs": [
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/GRF-01.md",
+      "sha256": "ad53ec63504b547b2bd616bdb672704a533307e303921200153805b7cb5f897a",
+      "bytes": 25995,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            187
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/GRF-01.json",
+      "sha256": "b93a0aa17c1d001c67ba605dfbe6d6fe8d44c2e7e5ee77700cfd53462edc2a4c",
+      "bytes": 28316,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=GRF-01"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/GRF-02.md",
+      "sha256": "b8710444348901f4777ff0a7a36168e17809fd619a757935d7fd12aa4deed5d1",
+      "bytes": 27551,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            184
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/GRF-02.json",
+      "sha256": "f374320705a0251f6a715c6ec5a34e10b8376c3b76cf5b24c9d81005368a536f",
+      "bytes": 30054,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=GRF-02"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/GRF-03.md",
+      "sha256": "4f3ea3f1afe47f4bf46a362b646a27381a380362c4be6906ff68599a31cec3b8",
+      "bytes": 28447,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            199
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/GRF-03.json",
+      "sha256": "4a6649df67ea0f4636254a1d3b22feac0d0af9f14d5d532627459c5a424121bd",
+      "bytes": 31502,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=GRF-03"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/API-01.md",
+      "sha256": "fc5d0d3f4ee1178d3ef966f9409a3ccfc90d9b6ee305d3644ab6a0bdc145afbf",
+      "bytes": 23563,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            166
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/API-01.json",
+      "sha256": "649a4e154d9e2f14a70eca691b712a57b8169f9a86d03ac537c6897d1d195306",
+      "bytes": 25002,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=API-01"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAU-01.md",
+      "sha256": "fa8cee1463f734a44e8a62ff36675d75515a34f46d79340ec0a57d04f0a9ef8b",
+      "bytes": 37911,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            217
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CAU-01.json",
+      "sha256": "1202d237fd29e60e8319e1a018070002574f59c2fb1ba69211fdc31fb692f772",
+      "bytes": 39953,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=CAU-01"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAU-02.md",
+      "sha256": "cb94b6ff620aa4c1fb77baf568add5e894ba248f643f3da945eb4d8f43f2453b",
+      "bytes": 24711,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            182
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CAU-02.json",
+      "sha256": "c58eacc2e152cfc0ec7e60911a33f1c7bfc58c136386ffe22e8176d07b2b5aba",
+      "bytes": 27911,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=CAU-02"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAU-03.md",
+      "sha256": "32649aa29d84f4d0abb3aa0afb03360e29055c78b2ed402c242c0065e8ccfd92",
+      "bytes": 29424,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            208
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CAU-03.json",
+      "sha256": "8e26e424e078172d1cb5e1e725f149f4b2979d2d83e8a884891cd34b812900d7",
+      "bytes": 33157,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=CAU-03"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAU-04.md",
+      "sha256": "407c656e4a44d1fefa767f2c3756bba405b8e4ed509e7d428f7cb714e3327783",
+      "bytes": 26333,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            202
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CAU-04.json",
+      "sha256": "004b25230cf6cae317ce7554eae938871c46c8517a57128321348b585b610915",
+      "bytes": 28910,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=CAU-04"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/CAU-05.md",
+      "sha256": "b4d4f01c55d051af4ee21ea3e6b8cbf010571d5814ac8e7d761416702b02491e",
+      "bytes": 25298,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            185
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/CAU-05.json",
+      "sha256": "1b9996b3bac2a5528f5fb31c04ebaeda18acb3c6ef5a474627b3de8989ad6a8a",
+      "bytes": 28453,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=CAU-05"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/SCM-01.md",
+      "sha256": "c5f91f6462e8c3f86295fb32b391567698e65ab45d80cef917d059bc65839dbe",
+      "bytes": 26196,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            186
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/SCM-01.json",
+      "sha256": "9a2307da46e79ba516884e0f40f0379ed39453c2bad4ec46f589e10062f38ef9",
+      "bytes": 29387,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=SCM-01"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/SCM-02.md",
+      "sha256": "442a1b178533d695191df5d202bd5dcbc69d06130bac57b5293d51265570e7af",
+      "bytes": 32326,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            229
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/SCM-02.json",
+      "sha256": "1bad193f324ce2b4c4e5c95adc09d4d92005294369c6e6753c1e6799aed5efc9",
+      "bytes": 37059,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=SCM-02"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/SCM-03.md",
+      "sha256": "339ba91d986feb8bb8669993aa05def00d1e5519b0bbab3fbf3099db7de69e94",
+      "bytes": 26928,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            193
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/SCM-03.json",
+      "sha256": "4662e266f16156eea3c2a1e5c61b29993829bdf22639f668d1212b9707e72319",
+      "bytes": 31300,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=SCM-03"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/FIT-01.md",
+      "sha256": "ac4b636b2db998d6a49f55514194351ac58160b0b366ddffe92f911b8f8ae611",
+      "bytes": 40430,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            248
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/FIT-01.json",
+      "sha256": "ebfe9b071643ca9cfe391c01daad119cdb4ee97be92c1f163915139fc2ed4544",
+      "bytes": 40300,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=FIT-01"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/BER-01.md",
+      "sha256": "b950e2cab8655f5e9dcac5bc02ed4b73facf72427f3865e9f6df4581c7d458f6",
+      "bytes": 14622,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            146
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/BER-01.json",
+      "sha256": "537868bb7969120118e0f1b209ec12fd53e2629b2d7aa29bb288269d494e7bfc",
+      "bytes": 16843,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=BER-01"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/DDM-01.md",
+      "sha256": "34c6758a0462e1a4ed1fc619374b0b24b19335ec38b3d90ed523a0818cf752b4",
+      "bytes": 13771,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            143
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/DDM-01.json",
+      "sha256": "d5c26c9a77eba09977772c010c57f07985b93d8b7d679f31b7e3e8096f8f3278",
+      "bytes": 15005,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=DDM-01"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/DDM-02.md",
+      "sha256": "64d77f00860f16e2f6e9a06024ebd7963833225b2bf348dc3b6935a9c1b53e0d",
+      "bytes": 32970,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            227
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/DDM-02.json",
+      "sha256": "7bbf7c4b08c8b8485b26c19f93fbba6f1ee4a342ba4493b885131d15e29ecfc8",
+      "bytes": 36328,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=DDM-02"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/02_Пакеты/LEX-01.md",
+      "sha256": "d24417ec40be9d444f413b023e11e7df541f1e11ff6634fa77473538869e1b8a",
+      "bytes": 13831,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            143
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/LEX-01.json",
+      "sha256": "030c6bfae19f0f82bc35e20362ad6285e3e000ad1a740b764c74abdd72bb2584",
+      "bytes": 15227,
+      "read_scope": {
+        "mode": "all_semantic_fields",
+        "method": "Recursive string inventory: normalized duplicated strings matched fully read MD; every nonduplicate semantic string read. References/numeric metadata parsed and selected edges checked independently.",
+        "pointer_inventory": "semantic_read_comparison.json; packet_id=LEX-01"
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Правила_исполнения_и_приёмки.md",
+      "sha256": "8f83cd845cf172c02de1f87035af331cd2cbb6bd81c255ca3b2fa42a0842ac99",
+      "bytes": 18608,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            68
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Общие_владельцы_и_границы_изменений.md",
+      "sha256": "036a9db1db0158424fc6428a70130df05558b88e2a671188647c47eb6d20ee78",
+      "bytes": 7611,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            27
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Архитектурное_направление_и_отступления.md",
+      "sha256": "cfbabc5614a0d624940482536204aec687feb4c619f1892da09611d2c17d4317",
+      "bytes": 8287,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            32
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Порядок_и_окна_приёмки.md",
+      "sha256": "2cd026bcda5edc2a7e51c1f4d4cc3b7758f86d3d0ea2e91338ff668cf4b08a71",
+      "bytes": 8003,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            113
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Защиты_и_направления.md",
+      "sha256": "a85e78652493ea259ab79ea2ba8fc7dc096400ee348ad3170b1c078f65a7b3e3",
+      "bytes": 23991,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            92
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/01_Лейны/LANE-05.md",
+      "sha256": "fc111556b51776ced9f2f7198d10ad01bfbd58c3aab1d62186be967663bba229",
+      "bytes": 17085,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/01_Лейны/LANE-11.md",
+      "sha256": "21706b5c7de0d010311eda7228baf81df89571e19173652daccfd628adfd12d6",
+      "bytes": 4757,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            39
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/LANE-05.md",
+      "sha256": "f77bdf2f705ec227ba37b8c05215cefd335fdf42d6482dfe1ffa76fcc2464162",
+      "bytes": 15099,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            79
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/LANE-11.md",
+      "sha256": "2e0d7d6a2e51bd47859bb8990a0c8c5a1305bd5310112a2f9129084e60e39cd6",
+      "bytes": 11602,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            75
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/Практическая_расширяемость.md",
+      "sha256": "82b5faca59c39f5ab9b61767fc2ceb702d7e224d2d93170d49b6eec7bf297147",
+      "bytes": 13004,
+      "read_scope": {
+        "mode": "full_text",
+        "line_ranges": [
+          [
+            1,
+            52
+          ]
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/00_Общее/Реестр_ограниченных_решений.md",
+      "sha256": "c7d7e9fb9c382f8a888746d2564e85f3141ecabe670275e819c64cc26b068ea0",
+      "bytes": 27005,
+      "read_scope": {
+        "mode": "selected_ranges",
+        "line_ranges": [
+          [
+            1,
+            9
+          ],
+          [
+            47,
+            65
+          ],
+          [
+            100,
+            104
+          ]
+        ],
+        "limits": "Other packets rows not claimed read."
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/03_Интеграция/Сценарии.json",
+      "sha256": "e2db814faf6e1d824c93ace6682dd6058e8729941ccdeeb04f4b4cdfcb048616",
+      "bytes": 408264,
+      "read_scope": {
+        "mode": "selected_json_pointers",
+        "pointers": [
+          "/global_rules",
+          "/open_decisions",
+          "/native_profiles/P-CORE",
+          "/native_profiles/P-ANALYTICS",
+          "/native_profiles/P-DOWHY",
+          "/native_profiles/P-GRAPH",
+          "/lanes/11/scenarios/0",
+          "/lanes/4/id",
+          "/lanes/4/title",
+          "/lanes/4/bundle_ids",
+          "/lanes/4/goal",
+          "/lanes/4/seams",
+          "/lanes/4/dependencies",
+          "/lanes/4/native_profiles",
+          "/lanes/4/coverage_meaning",
+          "/lanes/4/scenarios",
+          "/lanes/4/existing_test_owners",
+          "/lanes/10/id",
+          "/lanes/10/title",
+          "/lanes/10/bundle_ids",
+          "/lanes/10/goal",
+          "/lanes/10/seams",
+          "/lanes/10/dependencies",
+          "/lanes/10/native_profiles",
+          "/lanes/10/coverage_meaning",
+          "/lanes/10/scenarios",
+          "/lanes/10/existing_test_owners"
+        ],
+        "additional_semantic_correspondence": "Four current cross-lane stories read completely in Практическая_расширяемость.md; not claiming every JSON story metadata field independently read.",
+        "excluded_subtrees": [
+          "/lanes/*/original_packet_contracts",
+          "unassigned lane audit/history summaries"
+        ]
+      }
+    },
+    {
+      "path": "baseline/PolicyOS_E02_Review_and_Specs_v2/04_Трассировка/Связь_требований_с_интеграцией.json",
+      "sha256": "60194c4970de884d13c7f1f9029f0d45ab43e439f91016f0939ff86f861cf4a8",
+      "bytes": 1323764,
+      "read_scope": {
+        "mode": "selected_json_pointers",
+        "pointers": [
+          "/rules",
+          "/counts",
+          "/validation",
+          "/source_inventory_status",
+          "/technical_review_revision",
+          "/scenario_mappings/14",
+          "/scenario_mappings/15",
+          "/scenario_mappings/16",
+          "/scenario_mappings/33",
+          "/scenario_mappings/34",
+          "/scenario_mappings/35",
+          "/scenario_mappings/38/bindings/4",
+          "/scenario_mappings/41/bindings/1",
+          "/scenario_mappings/41/bindings/4",
+          "/scenario_mappings/41/bindings/5",
+          "/requirement_index/6",
+          "/requirement_index/7",
+          "/requirement_index/8",
+          "/requirement_index/9",
+          "/requirement_index/10",
+          "/requirement_index/11",
+          "/requirement_index/12",
+          "/requirement_index/13",
+          "/requirement_index/14",
+          "/requirement_index/15",
+          "/requirement_index/16",
+          "/requirement_index/90",
+          "/requirement_index/91",
+          "/requirement_index/92",
+          "/requirement_index/93",
+          "/requirement_index/94",
+          "/requirement_index/95",
+          "/requirement_index/96",
+          "/requirement_index/97",
+          "/requirement_index/98",
+          "/requirement_index/99",
+          "/requirement_index/100",
+          "/requirement_index/101",
+          "/requirement_index/102",
+          "/requirement_index/103",
+          "/requirement_index/104",
+          "/requirement_index/105",
+          "/requirement_index/106",
+          "/requirement_index/107",
+          "/requirement_index/108",
+          "/requirement_index/109",
+          "/requirement_index/110",
+          "/requirement_index/111",
+          "/requirement_index/112",
+          "/requirement_index/113",
+          "/requirement_index/114",
+          "/requirement_index/115",
+          "/requirement_index/116",
+          "/requirement_index/117",
+          "/requirement_index/118",
+          "/requirement_index/119",
+          "/requirement_index/120",
+          "/requirement_index/121",
+          "/requirement_index/122",
+          "/requirement_index/123",
+          "/requirement_index/183",
+          "/requirement_index/184",
+          "/requirement_index/185",
+          "/requirement_index/186",
+          "/requirement_index/187",
+          "/requirement_index/188",
+          "/requirement_index/189",
+          "/requirement_index/190",
+          "/requirement_index/191",
+          "/requirement_index/192",
+          "/requirement_index/193",
+          "/requirement_index/194",
+          "/requirement_index/275",
+          "/requirement_index/276",
+          "/requirement_index/277",
+          "/requirement_index/278",
+          "/requirement_index/279",
+          "/requirement_index/280",
+          "/requirement_index/281",
+          "/requirement_index/282",
+          "/requirement_index/317",
+          "/requirement_index/318",
+          "/requirement_index/319",
+          "/requirement_index/320",
+          "/requirement_index/321",
+          "/requirement_index/322",
+          "/requirement_index/323",
+          "/requirement_index/324",
+          "/requirement_index/325",
+          "/requirement_index/326",
+          "/requirement_index/327",
+          "/requirement_index/328",
+          "/requirement_index/329",
+          "/requirement_index/330",
+          "/requirement_index/331",
+          "/requirement_index/332",
+          "/requirement_index/333",
+          "/requirement_index/334",
+          "/requirement_index/335",
+          "/requirement_index/359",
+          "/requirement_index/360",
+          "/requirement_index/361",
+          "/requirement_index/362",
+          "/requirement_index/486",
+          "/requirement_index/487",
+          "/requirement_index/488",
+          "/requirement_index/489",
+          "/requirement_index/490",
+          "/requirement_index/491",
+          "/requirement_index/492",
+          "/requirement_index/493",
+          "/requirement_index/494",
+          "/requirement_index/495",
+          "/requirement_index/496",
+          "/requirement_index/497",
+          "/requirement_index/498",
+          "/requirement_index/499",
+          "/requirement_index/500",
+          "/requirement_index/501",
+          "/requirement_index/502",
+          "/requirement_index/503",
+          "/requirement_index/504",
+          "/requirement_index/505",
+          "/requirement_index/506",
+          "/local_only/0",
+          "/local_only/1",
+          "/local_only/7",
+          "/local_only/8",
+          "/local_only/9",
+          "/local_only/10",
+          "/local_only/11",
+          "/local_only/12",
+          "/local_only/13",
+          "/local_only/20",
+          "/local_only/31",
+          "/local_only/32",
+          "/local_only/33",
+          "/local_only/34",
+          "/local_only/41",
+          "/local_only/42",
+          "/local_only/43",
+          "/local_only/44",
+          "/local_only/45",
+          "/local_only/46",
+          "/local_only/66",
+          "/source_inventory/0",
+          "/source_inventory/2",
+          "/source_inventory/3",
+          "/source_inventory/18",
+          "/source_inventory/19",
+          "/source_inventory/20",
+          "/source_inventory/21",
+          "/source_inventory/22",
+          "/source_inventory/35",
+          "/source_inventory/36",
+          "/source_inventory/56",
+          "/source_inventory/64",
+          "/source_inventory/65",
+          "/source_inventory/66",
+          "/source_inventory/73",
+          "/source_inventory/103",
+          "/source_inventory/104",
+          "/source_inventory/105"
+        ],
+        "deduplication": "Repeated requirement_text fully read in packets and independently equality-checked; unique local-only rationales and all selected binding semantic fields read. Unassigned scenarios/packets not claimed read."
+      }
+    },
+    {
+      "path": "WORK_CONTRACT.md",
+      "sha256": "6d5ce045a17ce8d5a7bd63089414d11a9dc065c3bffcd5fc3999b7aaf5a0e06b",
+      "bytes": 4872,
+      "read_scope": {
+        "mode": "full_text"
+      }
+    },
+    {
+      "path": "AUDIT_PROTOCOL.md",
+      "sha256": "b4776a26dc75bf190a371af8e17235e986103070e9bac8096c9d25378d0c9d76",
+      "bytes": 5410,
+      "read_scope": {
+        "mode": "full_text"
+      }
+    },
+    {
+      "path": "catalog/FREEZE.json",
+      "sha256": "5b0d6eabb89e587e6f862b9eae8a556988966b87b95aad2d18ef1d56eb0ccd41",
+      "bytes": 2427,
+      "read_scope": {
+        "mode": "full_text"
+      }
+    },
+    {
+      "path": "catalog/criteria_catalog.json",
+      "sha256": "8c8c77e13d9151349b7410b441f97f0f94fbfb7d097150f32c9872fe35a3cb59",
+      "bytes": 437270,
+      "read_scope": {
+        "mode": "all70_criteria",
+        "criteria_ids": [
+          "RA-01",
+          "RA-02",
+          "RA-03",
+          "RA-04",
+          "RA-05",
+          "RA-06",
+          "RA-07",
+          "RA-08",
+          "RA-09",
+          "RA-10",
+          "RA-11",
+          "RA-12",
+          "RA-13",
+          "RA-14",
+          "RA-15",
+          "RA-16",
+          "RA-17",
+          "DRT-01",
+          "DRT-02",
+          "DRT-03",
+          "DRT-04",
+          "DRT-05",
+          "DRT-06",
+          "DRT-07",
+          "DRT-08",
+          "DRT-09",
+          "DRT-10",
+          "DRT-11",
+          "DRT-12",
+          "DRT-13",
+          "DRT-14",
+          "DRT-15",
+          "DRT-16",
+          "DRT-17",
+          "DRT-18",
+          "DRT-19",
+          "DRT-20",
+          "DRT-21",
+          "DRT-22",
+          "DRT-23",
+          "DRT-24",
+          "DAT-01",
+          "DAT-02",
+          "DAT-03",
+          "DAT-04",
+          "DAT-05",
+          "DAT-06",
+          "DAT-07",
+          "DAT-08",
+          "DAT-09",
+          "DAT-10",
+          "DAT-11",
+          "SR-01",
+          "SR-02",
+          "SR-03",
+          "SR-04",
+          "SR-05",
+          "SR-06",
+          "SR-07",
+          "SR-08",
+          "SR-09",
+          "SR-10",
+          "SR-11",
+          "SR-12",
+          "SR-13",
+          "SR-14",
+          "SR-15",
+          "SR-16",
+          "SR-17",
+          "SR-18"
+        ],
+        "semantic_fields": [
+          "title",
+          "applicability_trigger",
+          "source_refs",
+          "source_proposition",
+          "corner_case",
+          "false_assurance",
+          "adequate_contract",
+          "required_evidence",
+          "scope_limits"
+        ],
+        "raw_additional_fields": "Unique raw tradeoffs/cross-lane obligations reviewed; repeated raw fields equivalent to normalized fields.",
+        "source_records": "Frozen source descriptions used; original web pages not reopened by this packet auditor."
+      }
+    }
+  ],
+  "consulted_sources": {
+    "mode": "frozen_authoritative_research_already_completed_before_assignment",
+    "source_ids": [
+      "DAT-S01",
+      "DAT-S02",
+      "DAT-S03",
+      "DAT-S04",
+      "DAT-S05",
+      "DAT-S06",
+      "DAT-S07",
+      "DAT-S08",
+      "DAT-S09",
+      "DAT-S10",
+      "DAT-S11",
+      "DAT-S12",
+      "DAT-S13",
+      "DAT-S14",
+      "DAT-S15",
+      "DAT-S16",
+      "DAT-S17",
+      "DAT-S18",
+      "DAT-S19",
+      "DAT-S20",
+      "DRS-01",
+      "DRS-02",
+      "DRS-03",
+      "DRS-04",
+      "DRS-05",
+      "DRS-06",
+      "DRS-07",
+      "DRS-08",
+      "DRS-09",
+      "DRS-10",
+      "DRS-11",
+      "DRS-12",
+      "DRS-13",
+      "DRS-14",
+      "RA-S01",
+      "RA-S02",
+      "RA-S03",
+      "RA-S04",
+      "RA-S05",
+      "RA-S06",
+      "RA-S07",
+      "RA-S08",
+      "RA-S09",
+      "RA-S10",
+      "RA-S11",
+      "RA-S12",
+      "RA-S13",
+      "SR-S01",
+      "SR-S02",
+      "SR-S03",
+      "SR-S04",
+      "SR-S05",
+      "SR-S06",
+      "SR-S07",
+      "SR-S08",
+      "SR-S09",
+      "SR-S10",
+      "SR-S11",
+      "SR-S12",
+      "SR-S13",
+      "SR-S14",
+      "SR-S15",
+      "SR-S16",
+      "SR-S17",
+      "SR-S18",
+      "SR-S19",
+      "SR-S20"
+    ],
+    "original_web_pages_reopened_by_this_agent": false,
+    "finding_source_records": [
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S05",
+        "title": "Systems Engineering Handbook, Appendix L: Interface Requirements Document Outline",
+        "publisher": "NASA",
+        "url": "https://www.nasa.gov/reference/appendix-l-interface-requirements-document-outline/",
+        "document_date": "NASA/SP-2016-6105 Rev 2; web edition accessed 2026-11-01",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "guidance",
+        "locators": [
+          "1.2 Precedence; 1.3 Responsibility and Change Authority; 2.1 Applicable Documents; 3.1.2 Interface Responsibilities; 3.2.6 Software and Data"
+        ],
+        "access_and_applicability_limits": "Релевантны ответственность, приоритет и software/data interfaces; physical/fluid/electrical/spacecraft требования исключены."
+      },
+      {
+        "research_group": "research_requirements",
+        "id": "RA-S06",
+        "title": "Systems Engineering Handbook, 6.3 Interface Management",
+        "publisher": "NASA",
+        "url": "https://www.nasa.gov/reference/6-3-interface-management/",
+        "document_date": "Web page updated 2023-07-26",
+        "accessed_utc_date": "2026-11-01",
+        "access_status": "opened_and_read",
+        "source_kind": "guidance",
+        "locators": [
+          "6.3.1.2.2–6.3.1.2.5; 6.3.1.3 Outputs"
+        ],
+        "access_and_applicability_limits": "Не навязывает E02 создание формального NASA Interface Working Group; важны явные стороны, владельцы, версия, согласование изменения и влияние на проверки."
+      }
+    ],
+    "attribution": "Catalog proposition/limits are source-derived guidance; baseline-specific application and optional CM-001 are this reviewer reasoning, not statements made by NASA."
+  },
+  "read_scope_limits": [
+    "Current root v2 only; historical07/baseline snapshots not used as current contract.",
+    "No repository source inspected; no unsupported claims of observed runtime behavior.",
+    "Companion JSON semantic reading used explicit MD deduplication, not mere keyword matching.",
+    "Lanes/scenarios read to resolve packet applicability, not claimed as separately completed70-criterion lane assessment.",
+    "Original source pages were researched in prior frozen phase; this agent did not independently reopen them."
+  ],
+  "execution": {
+    "product_native_tests": "NOT_RUN",
+    "installs": "NOT_PERFORMED",
+    "external_mutations": "NOT_PERFORMED",
+    "baseline_spec_edits": "NOT_PERFORMED",
+    "independent_calculations": "Stdlib parse/hash/set/equality/edge document validation only; no new numerical product run.",
+    "static_validation": "validation.json"
+  },
+  "blockers": [],
+  "artifacts": [
+    "review.md",
+    "assessments.json",
+    "findings.json",
+    "coverage.json",
+    "progress.json",
+    "validation.json",
+    "semantic_read_comparison.json",
+    "packet_notes.json"
+  ]
+}

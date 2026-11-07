@@ -570,7 +570,10 @@ async def build_design_problem_from_nl_request(
                 "jurisdiction, evidence, or value authority. Populate every "
                 "schema-required non-empty collection with request-grounded candidate "
                 "entries; never emit empty objectives, stakeholders, allowed operator "
-                "kinds, or candidate levers. "
+                "kinds, or candidate levers. Preserve explicitly requested outcome "
+                "conditioning_variables and measurement_unit; omit them when not declared. "
+                "Conditioning is a candidate query, not proof of a causal adjustment set. "
+                "Do not infer a unit or add covariates from a catalog or method preference. "
                 + design_problem_compiler_source_semantics_invariant()
             ),
             user=json.dumps(

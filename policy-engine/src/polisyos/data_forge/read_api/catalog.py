@@ -175,6 +175,9 @@ if TYPE_CHECKING:
         DEFAULT_LOCAL_RIGHTS_TRUST_REGISTRY as DEFAULT_LOCAL_RIGHTS_TRUST_REGISTRY,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        SELECTED_LIVE_SOURCE_EXECUTION_EVIDENCE_SCHEMA_VERSION as SELECTED_LIVE_SOURCE_EXECUTION_EVIDENCE_SCHEMA_VERSION,  # noqa: E501
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         AcquisitionAuthorityEntry as AcquisitionAuthorityEntry,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
@@ -185,6 +188,9 @@ if TYPE_CHECKING:
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         AcquisitionAuthorityRegistry as AcquisitionAuthorityRegistry,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        AcquisitionSourceMeasureScope as AcquisitionSourceMeasureScope,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         AuthoritySchemaColumn as AuthoritySchemaColumn,
@@ -250,7 +256,13 @@ if TYPE_CHECKING:
         normalized_acquisition_source_body as normalized_acquisition_source_body,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        read_selected_live_raw_source as read_selected_live_raw_source,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         resolve_live_temporal_bounds as resolve_live_temporal_bounds,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        resolve_source_observation_class as resolve_source_observation_class,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         verify_local_source_rights as verify_local_source_rights,
@@ -590,6 +602,9 @@ _EXPORTS = {
     "AcquisitionAuthorityEntry": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
+    "AcquisitionSourceMeasureScope": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
     "AcquisitionAuthorityProvision": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
@@ -606,6 +621,9 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "LiveSourceExecutionEvidence": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "SELECTED_LIVE_SOURCE_EXECUTION_EVIDENCE_SCHEMA_VERSION": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "LiveHarnessReceiptProvisionEntry": (
@@ -706,6 +724,12 @@ _EXPORTS = {
     "resolve_proxy": "polisyos.data_forge.domains.catalog.knowledge.proxy_resolver",
     "resolve_embedding_generation": "polisyos.data_forge.kernel.embeddings",
     "resolve_live_temporal_bounds": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "resolve_source_observation_class": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "read_selected_live_raw_source": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "resolve_catalog_selection_policy": (

@@ -99,7 +99,7 @@ def test_cau_03_vector_weighted_fit_matches_independent_reference(
 def test_cau_03_fit_does_not_materialize_diagonal_or_repeat_factorization(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A 400-point side uses vector weighting and one factorization of its small Gram matrix."""
+    """A 400-point side uses vector weighting and one economy factorization of its weighted design."""
 
     data = _curved_rdd(n=800)
     x_centered = data.running_variable - data.cutoff
@@ -111,17 +111,17 @@ def test_cau_03_fit_does_not_materialize_diagonal_or_repeat_factorization(
         kernel="triangular",
         bandwidth=0.8,
     )
-    original_pinv = rdd_module.np.linalg.pinv
-    pinv_calls: list[tuple[int, ...]] = []
+    original_svd = rdd_module.np.linalg.svd
+    svd_calls: list[tuple[tuple[int, ...], object]] = []
 
-    def recording_pinv(matrix: np.ndarray, *args: object, **kwargs: object) -> np.ndarray:
-        pinv_calls.append(matrix.shape)
-        return original_pinv(matrix, *args, **kwargs)
+    def recording_svd(matrix: np.ndarray, *args: object, **kwargs: object):
+        svd_calls.append((matrix.shape, kwargs.get("full_matrices")))
+        return original_svd(matrix, *args, **kwargs)
 
     def reject_diagonal(*args: object, **kwargs: object) -> np.ndarray:
         raise AssertionError("RDD WLS must not materialize an n-by-n diagonal matrix")
 
-    monkeypatch.setattr(rdd_module.np.linalg, "pinv", recording_pinv)
+    monkeypatch.setattr(rdd_module.np.linalg, "svd", recording_svd)
     monkeypatch.setattr(rdd_module.np, "diag", reject_diagonal)
 
     actual = rdd_module._fit_local_polynomial(
@@ -134,7 +134,7 @@ def test_cau_03_fit_does_not_materialize_diagonal_or_repeat_factorization(
     )
 
     assert actual == pytest.approx(reference, rel=1e-12, abs=1e-12)
-    assert pinv_calls == [(2, 2)]
+    assert svd_calls == [((320, 2), False)]
 
 
 def test_cau_03_signature_reports_linear_wls_complexity() -> None:
@@ -303,3 +303,34 @@ def test_cau_03_rank_deficient_local_design_fails_closed() -> None:
     assert report.status is EstimationStatus.NUMERICAL_FAILURE
     assert report.point_estimate is None
     assert "rank deficient design" in (report.status_reason or "")
+
+
+@pytest.mark.parametrize("scale", [1e-8, 1e-140, 1e140])
+def test_cau_03_conventional_fit_is_invariant_to_running_variable_units(scale: float) -> None:
+    """Changing forcing units must not change the fitted jump or accepted support."""
+
+    original = np.linspace(-1.0, 1.0, 400)
+    outcome = 1.0 + 0.3 * original + 3.0 * (original >= 0.0)
+    data = RDDObservationalData(running_variable=original * scale, outcome=outcome, cutoff=0.0)
+    report = _report(
+        RegressionDiscontinuity.pure_step(
+            data,
+            {"bandwidth": 0.7 * scale, "manipulation_test": False},
+        )
+    )
+    assert report.point_estimate == pytest.approx(3.0, abs=3e-12)
+    assert report.standard_error < 1e-12
+    if report.status is EstimationStatus.NUMERICAL_FAILURE:
+        # The exact linear signal can leave roundoff-only positive SE whose
+        # interval cannot be represented at a jump of three. Keep the correct
+        # point, never silently replace that SE by zero or a false point CI.
+        assert (
+            report.status_reason
+            == "RDD normal interval is outside the representable numerical range"
+        )
+        assert report.confidence_interval is None
+        assert report.confidence_level is None
+        assert report.to_uncertainty_envelope().gate_eligible is False
+    else:
+        assert report.status is EstimationStatus.SUCCESS
+        assert report.confidence_interval[0] < report.point_estimate < report.confidence_interval[1]

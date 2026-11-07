@@ -1,0 +1,241 @@
+{
+  "packet_id": "FRY-03",
+  "lane": "LANE-04",
+  "source_ids": [
+    "LA-003"
+  ],
+  "audit_reports": [
+    "../05_Основания/Аудит/02_Пакеты/FRY-03.md",
+    "../05_Основания/Аудит/01_Реестры/C37_остатки.json"
+  ],
+  "residual_dispositions": [
+    {
+      "audit_id": "C37-G01",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FRY-03-01",
+        "REQ-FRY-03-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Actual JAX/eqx state, PRNG, registry, MergeEngine и spec/compiler/CAS fresh reader; NumPy/scripted RNG не final proof.",
+      "inventory_id": "audit-residual:C37_остатки:0"
+    },
+    {
+      "audit_id": "C37-G02",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FRY-03-02"
+      ],
+      "shared_owner": null,
+      "rationale": "Historical serialized rate precision и x64/JIT/grad проверяются отдельно; не обещать восстановить Decimal изfloat32.",
+      "inventory_id": "audit-residual:C37_остатки:1"
+    },
+    {
+      "audit_id": "C37-G03",
+      "disposition": "qualify",
+      "requirement_ids": [
+        "REQ-FRY-03-03"
+      ],
+      "shared_owner": null,
+      "rationale": "Полезный baseline сохраняется с явными scientific limits и отдельным решением signed tax base.",
+      "inventory_id": "audit-residual:C37_остатки:2"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-FRY-03-01",
+      "text": "Native registered IncomeTax/TaxSubsidy/LaborMarketMechanism создаются через actual spec/class-path owner и дают PatchMap→MergeEngine→persisted state с сохранением input, masks/accounting/keys. Tax использует reported_income, subsidy income; fiscal key unchanged, labor возвращает третий split key, обновляет только active∩target agents и recomputes active firm counts. Zero firms и invalid eager scalar rate отказаны существующим boundary.",
+      "source_ids": [
+        "LA-003"
+      ],
+      "audit_ids": [
+        "C37-G01"
+      ],
+      "test_ids": [
+        "TEST-FRY-03-01"
+      ]
+    },
+    {
+      "id": "REQ-FRY-03-02",
+      "text": "В объявленных float32/x64 профилях rate precision сохраняется до receiving-income dtype с минимумом float32; JIT/grad/rebinding/pickle поддержанный путь согласован с current contract. Old alias identity сохраняется, но historical serialized float32 rate не выдаётся за исходный Decimal. Изменённые x64/reduction bytes квалифицируются как documented intended delta, не byte-neutral relocation.",
+      "source_ids": [
+        "LA-003"
+      ],
+      "audit_ids": [
+        "C37-G01",
+        "C37-G02"
+      ],
+      "test_ids": [
+        "TEST-FRY-03-02"
+      ]
+    },
+    {
+      "id": "REQ-FRY-03-03",
+      "text": "Выбранный consumer видит baseline law/scope: linear transfers и threshold employment/uniform firm assignment/wage×skill, а не universal calibrated market или causal/welfare proof. Negative reported-income reverse transfer сохраняется как текущая математическая law до отдельного model decision; silent clamp не допускается. Неприменимые assumptions ограничивают claim, не удаляют полезный conditional result.",
+      "source_ids": [
+        "LA-003"
+      ],
+      "audit_ids": [
+        "C37-G03"
+      ],
+      "test_ids": [
+        "TEST-FRY-03-03"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "TEST-FRY-03-01",
+      "requirement_ids": [
+        "REQ-FRY-03-01"
+      ],
+      "level": "native JAX + registry/compiler/CAS replay",
+      "setup": "Real GlobalState: reported[80,40,200,60], active[1,1,0,1], target[1,0,1,1], tax0.25; real firm state and fixed key.",
+      "action": "Spec→kernel→merge→fresh state; subsidy0.5 on income[100,50,25,80] target[0,1,0,1]; labor thresholds0/1, all-false target, zero firms.",
+      "oracle": "Tax deltas[-20,0,0,-15],government+35; subsidy[0,25,0,40],government−65; transfer sum0. Actual keys law exact; non-target/inactive agents preserved, aggregate active firm counts recomputed (не frozen). No side mutation; zero firms отказ до RNG.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-FRY-03-02",
+      "requirement_ids": [
+        "REQ-FRY-03-02"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Existing precision/replay tests, P-JAX dtype/device explicit; rate0.1000000001 receiving float64 income1e12; separate float32 historical serialized object.",
+      "action": "Eager/JIT/grad/pickle and old FQN imports; fresh persisted replay compare all state leaves/key.",
+      "oracle": "x64 expected100000000100 within declared native tolerance, float32 obeys its quantization; historical lost precision не invented. Alias same identity, independent numeric oracle not alias comparison. No forced global x64 flag in product.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    },
+    {
+      "id": "TEST-FRY-03-03",
+      "requirement_ids": [
+        "REQ-FRY-03-03"
+      ],
+      "level": "unit + targeted native integration",
+      "setup": "Actual method authority metadata и selected consumer с baseline model; signed reported income; tax/labor finite inputs.",
+      "action": "Execute conditional baseline, inspect result description/assumptions, negative-base transfer and absent empirical evidence.",
+      "oracle": "Patch result полезен и label baseline; no automatic causal/calibrated/welfare claim. Signed-base law unchanged unless separate approved version; metadata/citation не evidence substitute.",
+      "expected": "positive + negative + boundary",
+      "evidence_required": "NOT_RUN; предъявить actual command, runtime/backend/import binding, exit/log, exact observed values; отдельный контроль на прежнем дефекте или отключённом механизме"
+    }
+  ],
+  "shared_scenarios": [
+    "E02-I04-C"
+  ],
+  "dependencies": [
+    "FRY-01"
+  ],
+  "preservation": [
+    "Canonical fiscal/labor kernels в execute/mechanisms, direct old aliases и runtime descriptor view над MethodRegistry.",
+    "PatchMap/key ABI, active∩target masks, fiscal opposite counteraccount, employer IDs/active firm counts.",
+    "Baseline threshold/uniform-employer law не заменяется EconomicState transition model; LK06/LK08 сохраняются."
+  ],
+  "design_alignment": [
+    "Проверенный numerical result не эмпирическая пригодность; baseline можно использовать для честного conditional сценария.",
+    "Общие registry/spec/patch consumers позволяют подключать совместимый kernel без ветки под case."
+  ],
+  "open_decisions": [
+    "При конкретном применении определить signed tax base и units/time-step; без решения conditional law явно ограничена, но native repair не блокируется."
+  ],
+  "source_obligations": [
+    "LA-003: relocation уже выполнен; не переносить код снова и не сохранять независимую старую копию для теста.",
+    "Equivalent address move отдельно от документированного source-rate precision delta; same alias object не независимый historical numerical oracle.",
+    "Новый labor/tax law или authority требует explicit version/model decision, не silent clamp/upgrade baseline."
+  ],
+  "status": "EXECUTOR_SPEC_NOT_IMPLEMENTED",
+  "basis_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "owners": [
+    "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py: compute_tax, IncomeTax.emit_patches, TaxSubsidy.emit_patches",
+    "policy-engine/src/polisyos/foundry/execute/mechanisms/labor.py: LaborMarketMechanism.emit_patches",
+    "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime_registry.py: create_mechanism_from_spec",
+    "policy-engine/src/polisyos/foundry/methods/catalog/mechanism/runtime.py: runtime adapters",
+    "policy-engine/src/polisyos/foundry/execute/_internal/patching/__init__.py: apply_patch_map"
+  ],
+  "existing_test_owners": [
+    "policy-engine/tests/unit/remediation/test_fry_03.py",
+    "policy-engine/tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py",
+    "policy-engine/tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py"
+  ],
+  "obligation_dispositions": [
+    {
+      "inventory_id": "remaining:0360",
+      "requirement_ids": [
+        "REQ-FRY-03-01",
+        "REQ-FRY-03-02"
+      ],
+      "disposition": "qualify",
+      "rationale": "Actual JAX/eqx state, PRNG, registry, MergeEngine и spec/compiler/CAS fresh reader; NumPy/scripted RNG не final proof."
+    },
+    {
+      "inventory_id": "remaining:0361",
+      "requirement_ids": [
+        "REQ-FRY-03-02"
+      ],
+      "disposition": "qualify",
+      "rationale": "Historical serialized rate precision и x64/JIT/grad проверяются отдельно; не обещать восстановить Decimal изfloat32."
+    },
+    {
+      "inventory_id": "remaining:0362",
+      "requirement_ids": [
+        "REQ-FRY-03-03"
+      ],
+      "disposition": "qualify",
+      "rationale": "Полезный baseline сохраняется с явными scientific limits и отдельным решением signed tax base."
+    }
+  ],
+  "preservation_bindings": [
+    {
+      "inventory_id": "preserve:0581",
+      "requirement_ids": [
+        "REQ-FRY-03-01"
+      ],
+      "test_ids": [
+        "TEST-FRY-03-01"
+      ],
+      "rationale": "Canonical execution kernels — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0582",
+      "requirement_ids": [
+        "REQ-FRY-03-02"
+      ],
+      "test_ids": [
+        "TEST-FRY-03-02"
+      ],
+      "rationale": "Old direct aliases — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0583",
+      "requirement_ids": [
+        "REQ-FRY-03-01"
+      ],
+      "test_ids": [
+        "TEST-FRY-03-01"
+      ],
+      "rationale": "Runtime descriptor-view — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0584",
+      "requirement_ids": [
+        "REQ-FRY-03-01"
+      ],
+      "test_ids": [
+        "TEST-FRY-03-01"
+      ],
+      "rationale": "Active/target masks and fiscal balance — сохраняется указанным результатом и различающим oracle"
+    },
+    {
+      "inventory_id": "preserve:0585",
+      "requirement_ids": [
+        "REQ-FRY-03-03"
+      ],
+      "test_ids": [
+        "TEST-FRY-03-03"
+      ],
+      "rationale": "Baseline scientific limits — сохраняется указанным результатом и различающим oracle"
+    }
+  ]
+}
+

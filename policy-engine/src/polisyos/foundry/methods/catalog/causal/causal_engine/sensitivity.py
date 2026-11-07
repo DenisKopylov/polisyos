@@ -24,7 +24,7 @@ if TYPE_CHECKING:
         recovery_plan_from_negative_certificate,
     )
 
-from . import artifacts as _artifacts
+import polisyos.foundry.methods.catalog.causal.causal_engine.artifacts as _artifacts
 
 globals().update({name: getattr(_artifacts, name) for name in _artifacts.__all__})
 

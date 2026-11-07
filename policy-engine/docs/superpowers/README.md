@@ -13,7 +13,7 @@ closure.
   receipts, and the `plans` directory does not mean that every plan is still active.
 - [Journals](journals/README.md) record measured outcomes, deciding commands, source identity, and
   limitations. A journal is evidence only for its cited source, inputs, environment, and scope.
-- [Research notes](research/README.md) hold analysis and open questions, not runtime authority.
+- [Research notes](research) hold analysis and open questions, not runtime authority.
 - [Timing evidence](timing-evidence/README.md) is a salvaged historical record. It is not a live
   timing stream, and its README names source data that did not survive.
 

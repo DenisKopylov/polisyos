@@ -1,0 +1,70 @@
+{
+  "pass": "C50",
+  "bundle": "GRF-03",
+  "commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+  "full_closure_claimed": false,
+  "findings": [
+    {
+      "id": "C50-G01",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B214",
+        "B218"
+      ],
+      "title": "Поддержанная native fit/query и artifact цепочка не исполнены",
+      "evidence": [
+        "S04:610–827",
+        "S05:1315–1491",
+        "S07:189–338",
+        "P14",
+        "P15",
+        "P18–P20",
+        "native_attempt.log",
+        "native_fit_import.log"
+      ],
+      "remaining": "На поддержанном Python/dependencies выполнить реальные GRF/GCM suites, public imports и source→projection→fitted artifact→CAS readback→query consumer. Сохранять profile/source hashes и selected-worker границу, не выдавать isolated hybrid fixture за default DoWhy execution.",
+      "limits": "20 MATCH и 9 unchanged bodies исполнены с явными namespace/typing/AST seams. Native pytest отсутствует, public fit import остановлен Python 3.14 syntax. Synthetic OLS coefficient не доказывает empirical causal effect."
+    },
+    {
+      "id": "C50-G02",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B218"
+      ],
+      "title": "Компактное causal time сохранено, но конечный fixture не является temporal data adapter",
+      "evidence": [
+        "S01:610–651",
+        "S01:722–743",
+        "S04:622–626",
+        "S05:112–141",
+        "S10:174–188",
+        "P07–P14",
+        "P18"
+      ],
+      "remaining": "Отдельно квалифицировать фактически нужный temporal consumer либо finite expansion: variable/time coordinates, lag convention, boundary/initial conditions, horizon и соответствие реальным данным. Static consumer должен сохранять точный отказ до такого преобразования.",
+      "limits": "Lag1/lag2 и positive self-lag сохраняются; simultaneous cycle запрещён. 8-node/4-time graph построен вручную только как математический control. Наличие других temporal subsystems не оценено и не объявлено отсутствующим."
+    },
+    {
+      "id": "C50-G03",
+      "kind": "qualification_gap",
+      "source_ids": [
+        "B214"
+      ],
+      "title": "Canonical known-direction projection не равна inference по всем PAG/CPDAG completion families",
+      "evidence": [
+        "S01:1054–1182",
+        "S02:255–305",
+        "S04:460–508",
+        "S11:545–578",
+        "P01–P06",
+        "P16",
+        "P17",
+        "P20"
+      ],
+      "remaining": "Сохранять точную нормализацию известных directions и content-bound source/projection, а unresolved profiles передавать только квалифицированному partial-graph owner либо возвращать ограничение конкретного маршрута. Не возвращать произвольный DAG или удалять неудобные edges.",
+      "limits": "Finite one-edge product 90 profiles и selected cycle/reverse controls не доказывают общую completeness. Default selected DoWhy profile требует fully observed declared static DAG; native_hybrid — отдельная явно выбранная ветвь. Отсутствие universal deterministic model inventor не является дефектом этих B."
+    }
+  ],
+  "confirmed_local_defects": [],
+  "decision": "Известное обратное направление нормализуется без semantic flip; unresolved/cyclic profiles не превращаются в произвольный DAG. Temporal data сохраняются, static consumers отказывают до fit/sampling. Нового R не установлено; native/temporal-family/scientific qualification открыта."
+}

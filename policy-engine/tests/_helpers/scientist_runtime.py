@@ -85,7 +85,7 @@ def build_execution_context(
     *,
     run_id: str,
 ) -> tuple[ExecutionContext, Any]:
-    bundle = build_default_registry_bundle(store)
+    bundle = build_default_registry_bundle(store, return_selected_profile=True)
     run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id=run_id)
     ctx = ExecutionContext(
         store=store,

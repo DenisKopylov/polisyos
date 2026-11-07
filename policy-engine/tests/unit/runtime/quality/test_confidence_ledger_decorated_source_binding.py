@@ -99,6 +99,27 @@ def _load_fixture_module(
     return module
 
 
+def _load_fixture_package(
+    root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    name: str,
+    path: Path,
+):
+    spec = importlib.util.spec_from_file_location(
+        name,
+        path,
+        submodule_search_locations=[str(path.parent)],
+    )
+    assert spec is not None and spec.loader is not None
+    package = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, name, package)
+    parent_name, _, child_name = name.rpartition(".")
+    if parent_name in sys.modules:
+        monkeypatch.setattr(sys.modules[parent_name], child_name, package, raising=False)
+    spec.loader.exec_module(package)
+    return package
+
+
 def _route(root: Path, module: types.ModuleType, name: str):
     return ledger._source_module_direct_binding_route(
         root,
@@ -1133,9 +1154,7 @@ def test_type_alias_route_does_not_execute_lazy_evaluator(tmp_path, monkeypatch)
 
 
 def test_type_alias_route_does_not_call_mutable_gc_accessor(tmp_path, monkeypatch):
-    root, module = _load_decorated_case(
-        tmp_path, monkeypatch, "type Selector = int\n"
-    )
+    root, module = _load_decorated_case(tmp_path, monkeypatch, "type Selector = int\n")
 
     def unexpected_gc_call(*args, **kwargs):
         pytest.fail("TypeAlias routing must use its owned native evaluator descriptor")
@@ -1145,9 +1164,7 @@ def test_type_alias_route_does_not_call_mutable_gc_accessor(tmp_path, monkeypatc
 
 
 def test_type_alias_route_refuses_foreign_live_alias(tmp_path, monkeypatch):
-    root, module = _load_decorated_case(
-        tmp_path, monkeypatch, "type Selector = int\n"
-    )
+    root, module = _load_decorated_case(tmp_path, monkeypatch, "type Selector = int\n")
     foreign = _load_fixture_module(
         root,
         monkeypatch,
@@ -1175,16 +1192,16 @@ def test_resolve_lazy_export_map_recognizes_only_the_canonical_finite_call_shape
     wrong_helper_owner = _CANONICAL_LAZY_EXPORT_SOURCE.replace(
         "polisyos.ir.api", "polisyos.other.api"
     )
-    assert ledger._literal_module_getattr_mapping_names(ast.parse(wrong_helper_owner)) == frozenset()
+    assert (
+        ledger._literal_module_getattr_mapping_names(ast.parse(wrong_helper_owner)) == frozenset()
+    )
 
     shadowed_helper = _CANONICAL_LAZY_EXPORT_SOURCE.replace(
         "\ndef __getattr__", "\n_resolve = lambda *args, **kwargs: None\n\ndef __getattr__"
     )
     assert ledger._literal_module_getattr_mapping_names(ast.parse(shadowed_helper)) == frozenset()
 
-    noncanonical_call = _CANONICAL_LAZY_EXPORT_SOURCE.replace(
-        "namespace=globals()", "namespace={}"
-    )
+    noncanonical_call = _CANONICAL_LAZY_EXPORT_SOURCE.replace("namespace=globals()", "namespace={}")
     assert ledger._literal_module_getattr_mapping_names(ast.parse(noncanonical_call)) == frozenset()
 
 
@@ -1221,9 +1238,11 @@ def test_data_forge_lazy_export_map_binds_catalog_selection_error_live():
     assert vars(catalog)["lazy_dir"] is vars(helper)["lazy_dir"]
     selected = catalog.CatalogSelectionError
     provider = sys.modules[module_name]
-    assert vars(catalog)["CatalogSelectionError"] is selected is vars(provider)[
-        "CatalogSelectionError"
-    ]
+    assert (
+        vars(catalog)["CatalogSelectionError"]
+        is selected
+        is vars(provider)["CatalogSelectionError"]
+    )
 
 
 def test_data_forge_lazy_map_profile_rejects_noncanonical_import_and_name_binding():
@@ -1343,13 +1362,16 @@ def test_grouped_local_object_map_getter_resolves_both_exact_import_branches():
 @pytest.mark.parametrize(
     "replacement",
     [
-        ('"ConceptRefs": PolicyGrammarConceptSpineRefs,',
-         '"ConceptRefs": PolicyGrammarConceptSpineRefs,\n            "ConceptRefs": PolicyGrammarIntent,'),
-        ('"ConceptRefs": PolicyGrammarConceptSpineRefs,',
-         '"ConceptRefs": ForeignConceptRefs,'),
-        ('        exports = {', '        run_callback()\n        exports = {'),
-        ('if name in {"Compiler", "compile_for_slot"}:',
-         'if name in {"Compiler", "compile_for_slot", "Foreign"}:'),
+        (
+            '"ConceptRefs": PolicyGrammarConceptSpineRefs,',
+            '"ConceptRefs": PolicyGrammarConceptSpineRefs,\n            "ConceptRefs": PolicyGrammarIntent,',
+        ),
+        ('"ConceptRefs": PolicyGrammarConceptSpineRefs,', '"ConceptRefs": ForeignConceptRefs,'),
+        ("        exports = {", "        run_callback()\n        exports = {"),
+        (
+            'if name in {"Compiler", "compile_for_slot"}:',
+            'if name in {"Compiler", "compile_for_slot", "Foreign"}:',
+        ),
     ],
     ids=["duplicate-key", "foreign-value", "extra-effect", "branch-map-mismatch"],
 )
@@ -1357,12 +1379,15 @@ def test_grouped_local_object_map_getter_rejects_ambiguous_or_effectful_branch(r
     source = _DATA_REQUIREMENT_GROUPED_GETTER_SOURCE.replace(*replacement)
     tree = ast.parse(source)
     function = next(node for node in tree.body if isinstance(node, ast.FunctionDef))
-    assert ledger._literal_module_getattr_direct_providers(
-        tree,
-        function,
-        "name",
-        package_module_name="polisyos.data_requirement",
-    ) is None
+    assert (
+        ledger._literal_module_getattr_direct_providers(
+            tree,
+            function,
+            "name",
+            package_module_name="polisyos.data_requirement",
+        )
+        is None
+    )
     assert "exports" not in ledger._literal_module_getattr_mapping_names(
         tree, source_module_name="polisyos.data_requirement"
     )
@@ -1408,8 +1433,9 @@ def test_data_requirement_grouped_getter_binds_actual_imported_objects():
             directory_entries={},
             source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
         )
-        expected_module, expected_symbol = index.providers_by_export[export_name], (
-            index.provider_symbols_by_export[export_name]
+        expected_module, expected_symbol = (
+            index.providers_by_export[export_name],
+            (index.provider_symbols_by_export[export_name]),
         )
         assert candidate.route == (
             "symbol",
@@ -1420,9 +1446,7 @@ def test_data_requirement_grouped_getter_binds_actual_imported_objects():
 
 
 def test_imported_literal_map_survives_only_exact_builtin_sorted_read():
-    source = ast.parse(
-        "from polisyos.ir.api import EXPORTS\n__all__ = sorted(EXPORTS)\n"
-    )
+    source = ast.parse("from polisyos.ir.api import EXPORTS\n__all__ = sorted(EXPORTS)\n")
     source_map = {"chosen": ("polisyos.provider", "chosen")}
     maps, invalid, namespace_unknown = ledger._source_declared_facade_mapping_values(
         source,
@@ -1465,17 +1489,281 @@ def test_ir_kernel_lazy_export_resolves_to_source_owned_live_provider(monkeypatc
     assert selected is vars(constraints)[export_name]
     assert vars(kernel)["resolve_lazy_export"] is api.resolve_lazy_export
     closure = (
-        (kernel.__name__, Path(kernel.__file__).relative_to(ledger._loaded_policy_engine_root()).as_posix()),
-        (api.__name__, Path(api.__file__).relative_to(ledger._loaded_policy_engine_root()).as_posix()),
-        (constraints.__name__, Path(constraints.__file__).relative_to(ledger._loaded_policy_engine_root()).as_posix()),
+        (
+            kernel.__name__,
+            Path(kernel.__file__).relative_to(ledger._loaded_policy_engine_root()).as_posix(),
+        ),
+        (
+            api.__name__,
+            Path(api.__file__).relative_to(ledger._loaded_policy_engine_root()).as_posix(),
+        ),
+        (
+            constraints.__name__,
+            Path(constraints.__file__).relative_to(ledger._loaded_policy_engine_root()).as_posix(),
+        ),
     )
-    assert ledger._source_facade_runtime_projection(
-        ledger._loaded_policy_engine_root(), closure
-    )[0]
+    assert ledger._source_facade_runtime_projection(ledger._loaded_policy_engine_root(), closure)[0]
 
     monkeypatch.setattr(kernel, "resolve_lazy_export", lambda *_args, **_kwargs: None)
     with pytest.raises(ledger.ConfidenceLedgerError):
         ledger._source_facade_runtime_projection(ledger._loaded_policy_engine_root(), closure)
+
+
+def test_ir_analytics_guarded_lazy_export_binds_truthfulness_tier_and_keeps_child_owner():
+    from polisyos.ir.analytics import TruthfulnessTier as ImportedTruthfulnessTier
+    from polisyos.ir.analytics import _truthfulness as truthfulness_module
+    from polisyos.ir.analytics import calibration_diagnostics as imported_child
+
+    facade = importlib.import_module("polisyos.ir.analytics")
+    root = Path(ledger.__file__).parents[4]
+    facade_path = Path(facade.__file__)
+    tree = ast.parse(facade_path.read_bytes(), filename=facade_path.name)
+    index = ledger._source_module_provider_index(
+        root,
+        facade.__name__,
+        tree,
+        directory_entries={},
+        source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+    )
+    assert "ANALYTICS_FACADE_EXPORTS" in index.mapping_names
+    assert index.providers_by_export["TruthfulnessTier"] == frozenset(
+        {"polisyos.ir.analytics._truthfulness"}
+    )
+    assert index.provider_symbols_by_export["TruthfulnessTier"] == frozenset({"TruthfulnessTier"})
+    candidate = ledger._source_module_import_route_candidate(
+        root,
+        facade.__name__,
+        "TruthfulnessTier",
+        directory_entries={},
+        source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+    )
+    assert candidate.route == (
+        "symbol",
+        "polisyos.ir.analytics._truthfulness",
+        "TruthfulnessTier",
+    )
+    assert candidate.binding_basis == "literal_getattr"
+    assert ImportedTruthfulnessTier is truthfulness_module.TruthfulnessTier
+    assert facade.TruthfulnessTier is ImportedTruthfulnessTier
+
+    child_candidate = ledger._source_module_import_route_candidate(
+        root,
+        facade.__name__,
+        "calibration_diagnostics",
+        directory_entries={},
+        source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+    )
+    assert child_candidate.route == (
+        "module",
+        "polisyos.ir.analytics.calibration_diagnostics",
+        None,
+    )
+    assert imported_child is importlib.import_module(child_candidate.route[1])
+
+
+@pytest.mark.parametrize(
+    ("mutate", "map_is_recognized"),
+    [
+        (
+            lambda source: source.replace(
+                "if name not in ANALYTICS_FACADE_EXPORTS:",
+                "if name in ANALYTICS_FACADE_EXPORTS:",
+            ),
+            False,
+        ),
+        (
+            lambda source: source.replace(
+                "if name not in ANALYTICS_FACADE_EXPORTS:",
+                "if name not in OTHER_EXPORTS:",
+            ),
+            False,
+        ),
+        (
+            lambda source: source.replace(
+                'if exc.name != f"{__name__}.{name}":',
+                'if exc.name == f"{__name__}.{name}":',
+            ),
+            False,
+        ),
+        (
+            lambda source: source + "\nresolve_lazy_export = lambda *args, **kwargs: None\n",
+            False,
+        ),
+        (lambda source: source + "\nANALYTICS_FACADE_EXPORTS = {}\n", True),
+    ],
+    ids=[
+        "wrong-membership",
+        "foreign-guard-map",
+        "wrong-exception-guard",
+        "rebound-helper",
+        "rebound-map",
+    ],
+)
+def test_ir_analytics_guarded_lazy_export_rejects_malformed_or_rebound_source(
+    mutate, map_is_recognized
+):
+    path = Path(importlib.import_module("polisyos.ir.analytics").__file__)
+    source = path.read_text(encoding="utf-8")
+    tree = ast.parse(mutate(source))
+    names = ledger._literal_module_getattr_mapping_names(
+        tree, source_module_name="polisyos.ir.analytics"
+    )
+    assert (names == frozenset({"ANALYTICS_FACADE_EXPORTS"})) is map_is_recognized
+    index = ledger._literal_module_getattr_provider_index(
+        tree,
+        source_module_name="polisyos.ir.analytics",
+    )
+    assert index.providers_by_export.get("TruthfulnessTier", frozenset()) == frozenset()
+    if map_is_recognized:
+        assert "TruthfulnessTier" in index.invalid_exports or "*" in index.invalid_exports
+
+
+def _guarded_lazy_fixture(tmp_path, monkeypatch):
+    root = tmp_path / "guarded-lazy-engine"
+    package_root = root / "src" / "polisyos"
+    ir_root = package_root / "ir"
+    facade_root = ir_root / "analytics_fixture"
+    facade_root.mkdir(parents=True)
+    (package_root / "__init__.py").write_text("", encoding="utf-8")
+    (ir_root / "__init__.py").write_text("", encoding="utf-8")
+    api_path = ir_root / "api.py"
+    api_source = """from importlib import import_module
+
+MAP = {"Mapped": ("polisyos.ir.analytics_fixture_provider", "Mapped")}
+
+def resolve_lazy_export(name, *, namespace, exports):
+    module_name, symbol_name = exports[name]
+    value = getattr(import_module(module_name), symbol_name)
+    namespace[name] = value
+    return value
+"""
+    api = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.ir.api",
+        api_source,
+        path=api_path,
+    )
+    monkeypatch.setattr(sys.modules["polisyos.ir"], "api", api, raising=False)
+    facade_path = facade_root / "__init__.py"
+    facade_source = """import importlib
+from polisyos.ir.api import MAP, resolve_lazy_export
+
+def __getattr__(name):
+    if name not in MAP:
+        try:
+            module = importlib.import_module(f"{__name__}.{name}")
+        except ModuleNotFoundError as exc:
+            if exc.name != f"{__name__}.{name}":
+                raise
+        else:
+            globals()[name] = module
+            return module
+    return resolve_lazy_export(name, namespace=globals(), exports=MAP)
+"""
+    facade_path.write_text(facade_source, encoding="utf-8")
+    facade = _load_fixture_package(
+        root,
+        monkeypatch,
+        "polisyos.ir.analytics_fixture",
+        facade_path,
+    )
+    provider_path = ir_root / "analytics_fixture_provider.py"
+    provider = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.ir.analytics_fixture_provider",
+        "class Mapped:\n    pass\n",
+        path=provider_path,
+    )
+    return root, facade, facade_path, facade_source, provider
+
+
+def test_guarded_lazy_child_requires_valid_map_absence_and_preserves_mapped_owner(
+    tmp_path, monkeypatch
+):
+    root, facade, facade_path, _facade_source, provider = _guarded_lazy_fixture(
+        tmp_path, monkeypatch
+    )
+    facade_root = facade_path.parent
+    child_path = facade_root / "child.py"
+    child_path.write_text("VALUE = 4\n", encoding="utf-8")
+    child_name = f"{facade.__name__}.child"
+    child = importlib.import_module(child_name)
+    facade.__dict__.pop("child", None)
+    assert facade.child is child
+
+    child_route = ledger._source_module_import_route_candidate(
+        root,
+        facade.__name__,
+        "child",
+        directory_entries={},
+        source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        discovery_only=True,
+    )
+    assert child_route.route == ("module", child_name, None)
+    strict_child_route = ledger._source_module_import_route_candidate(
+        root,
+        facade.__name__,
+        "child",
+        directory_entries={},
+        source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+    )
+    assert strict_child_route.route == ("module", child_name, None)
+    assert strict_child_route.binding_basis == "loader_child"
+
+    mapped_path = facade_root / "Mapped.py"
+    assert not mapped_path.exists()
+    mapped_route = ledger._source_module_import_route_candidate(
+        root,
+        facade.__name__,
+        "Mapped",
+        directory_entries={},
+        source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+    )
+    assert mapped_route.route == (
+        "symbol",
+        provider.__name__,
+        "Mapped",
+    )
+    assert mapped_route.binding_basis == "literal_getattr"
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda source: source + "\nMAP = {}\n",
+        lambda source: source.replace("if name not in MAP:", "if name in MAP:"),
+    ],
+    ids=["rebound-map", "malformed-fallback-guard"],
+)
+def test_guarded_lazy_child_needs_source_proven_absence_in_discovery_and_strict_routes(
+    tmp_path, monkeypatch, mutate
+):
+    root, facade, facade_path, facade_source, _provider = _guarded_lazy_fixture(
+        tmp_path, monkeypatch
+    )
+    child_path = facade_path.parent / "child.py"
+    child_path.write_text("VALUE = 4\n", encoding="utf-8")
+    child_name = f"{facade.__name__}.child"
+    child = importlib.import_module(child_name)
+    facade.__dict__.pop("child", None)
+    assert facade.child is child
+    facade_path.write_text(mutate(facade_source), encoding="utf-8")
+
+    for discovery_only in (True, False):
+        try:
+            candidate = ledger._source_module_import_route_candidate(
+                root,
+                facade.__name__,
+                "child",
+                directory_entries={},
+                source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+                discovery_only=discovery_only,
+            )
+        except ledger.ConfidenceLedgerError:
+            continue
+        assert candidate.route != ("module", child_name, None)
 
 
 def test_loader_published_child_reaches_actual_module_consumer(loader_child_case, monkeypatch):

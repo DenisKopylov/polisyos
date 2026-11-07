@@ -8075,12 +8075,8 @@ def _static_facade_mapping_values(
             and not call.keywords
         ):
             source = _literal_source_expression(call.args[0], values)
-            if (
-                type(source) is dict
-                and all(type(key) is str for key in source)
-            ) or (
-                type(source) is list
-                and all(type(key) is str for key in source)
+            if (type(source) is dict and all(type(key) is str for key in source)) or (
+                type(source) is list and all(type(key) is str for key in source)
             ):
                 supported_readonly_mapping_calls.add(id(call))
                 return True
@@ -8804,6 +8800,104 @@ def _literal_data_forge_module_name_unshadowed(
     )
 
 
+def _literal_ir_lazy_child_fallback_guard(
+    tree: ast.Module,
+    function: ast.FunctionDef,
+    statement: ast.If,
+    parameter_name: str,
+    mapping_name: str,
+) -> bool:
+    """Verify one guarded sibling-module fallback before a canonical IR map read."""
+
+    if not (
+        not statement.orelse
+        and isinstance(statement.test, ast.Compare)
+        and isinstance(statement.test.left, ast.Name)
+        and statement.test.left.id == parameter_name
+        and len(statement.test.ops) == 1
+        and isinstance(statement.test.ops[0], ast.NotIn)
+        and len(statement.test.comparators) == 1
+        and isinstance(statement.test.comparators[0], ast.Name)
+        and statement.test.comparators[0].id == mapping_name
+        and mapping_name not in _source_scope_bound_names(function.body)
+        and _literal_data_forge_module_name_unshadowed(tree, function)
+        and _literal_builtin_name_unshadowed(tree, function, "globals")
+        and _literal_builtin_name_unshadowed(tree, function, "ModuleNotFoundError")
+    ):
+        return False
+    imported_functions, imported_modules = _literal_import_helper_bindings(tree, function)
+    if not imported_modules or len(statement.body) != 1:
+        return False
+    attempt = statement.body[0]
+    if not (
+        isinstance(attempt, ast.Try)
+        and len(attempt.body) == 1
+        and len(attempt.handlers) == 1
+        and len(attempt.orelse) == 2
+        and not attempt.finalbody
+    ):
+        return False
+    (load,) = attempt.body
+    (handler,) = attempt.handlers
+    publish, return_module = attempt.orelse
+    if not (
+        isinstance(load, ast.Assign)
+        and len(load.targets) == 1
+        and isinstance(load.targets[0], ast.Name)
+        and load.targets[0].id not in {parameter_name, mapping_name}
+        and isinstance(load.value, ast.Call)
+        and isinstance(load.value.func, ast.Attribute)
+        and load.value.func.attr == "import_module"
+        and isinstance(load.value.func.value, ast.Name)
+        and load.value.func.value.id in imported_modules
+        and load.value.func.value.id not in imported_functions
+        and len(load.value.args) == 1
+        and not load.value.keywords
+        and _literal_package_child_import_template(load.value.args[0], parameter_name)
+        and isinstance(handler.type, ast.Name)
+        and handler.type.id == "ModuleNotFoundError"
+        and handler.name is not None
+        and len(handler.body) == 1
+    ):
+        return False
+    missing = handler.body[0]
+    if not (
+        isinstance(missing, ast.If)
+        and not missing.orelse
+        and isinstance(missing.test, ast.Compare)
+        and isinstance(missing.test.left, ast.Attribute)
+        and isinstance(missing.test.left.value, ast.Name)
+        and missing.test.left.value.id == handler.name
+        and missing.test.left.attr == "name"
+        and len(missing.test.ops) == 1
+        and isinstance(missing.test.ops[0], ast.NotEq)
+        and len(missing.test.comparators) == 1
+        and _literal_package_child_import_template(missing.test.comparators[0], parameter_name)
+        and len(missing.body) == 1
+        and isinstance(missing.body[0], ast.Raise)
+        and missing.body[0].exc is None
+    ):
+        return False
+    return bool(
+        isinstance(publish, ast.Assign)
+        and len(publish.targets) == 1
+        and isinstance(publish.targets[0], ast.Subscript)
+        and isinstance(publish.targets[0].ctx, ast.Store)
+        and isinstance(publish.targets[0].value, ast.Call)
+        and isinstance(publish.targets[0].value.func, ast.Name)
+        and publish.targets[0].value.func.id == "globals"
+        and not publish.targets[0].value.args
+        and not publish.targets[0].value.keywords
+        and isinstance(publish.targets[0].slice, ast.Name)
+        and publish.targets[0].slice.id == parameter_name
+        and isinstance(publish.value, ast.Name)
+        and publish.value.id == load.targets[0].id
+        and isinstance(return_module, ast.Return)
+        and isinstance(return_module.value, ast.Name)
+        and return_module.value.id == load.targets[0].id
+    )
+
+
 def _literal_resolve_lazy_export_map_name(
     tree: ast.Module,
     function: ast.FunctionDef | ast.AsyncFunctionDef,
@@ -8913,10 +9007,33 @@ def _literal_resolve_lazy_export_map_name(
         and type(statements[0].value.value) is str
     ):
         statements.pop(0)
+    keywords = {keyword.arg: keyword.value for keyword in call.keywords}
+    exports = keywords.get("exports")
+    guarded_map_read = bool(
+        len(statements) == 2
+        and isinstance(statements[0], ast.If)
+        and isinstance(exports, ast.Name)
+        and _literal_ir_lazy_child_fallback_guard(
+            tree,
+            function,
+            statements[0],
+            parameter,
+            exports.id,
+        )
+    )
     if not (
-        len(statements) == 1
-        and isinstance(statements[0], ast.Return)
-        and statements[0].value is call
+        (
+            (
+                len(statements) == 1
+                and isinstance(statements[0], ast.Return)
+                and statements[0].value is call
+            )
+            or (
+                guarded_map_read
+                and isinstance(statements[1], ast.Return)
+                and statements[1].value is call
+            )
+        )
         and isinstance(call.func, ast.Name)
         and call.func.id in helper_aliases
         and call.func.id != (function.args.posonlyargs + function.args.args)[0].arg
@@ -8928,9 +9045,7 @@ def _literal_resolve_lazy_export_map_name(
         and _literal_builtin_name_unshadowed(tree, function, "globals")
     ):
         return None
-    keywords = {keyword.arg: keyword.value for keyword in call.keywords}
     namespace = keywords.get("namespace")
-    exports = keywords.get("exports")
     if not (
         len(keywords) == 2
         and isinstance(namespace, ast.Call)
@@ -9014,9 +9129,7 @@ def _source_module_provider_index(
         module_name,
         directory_entries=directory_entries,
     )
-    mapping_names = _literal_module_getattr_mapping_names(
-        tree, source_module_name=module_name
-    )
+    mapping_names = _literal_module_getattr_mapping_names(tree, source_module_name=module_name)
     external_mappings: dict[str, dict[str, object]] = {}
     if mapping_names:
         external_mappings, _invalid_imports = _source_imported_facade_mappings(
@@ -9493,11 +9606,7 @@ def _literal_module_getattr_mapping_providers(
                         except (ImportError, TypeError, ValueError):
                             return _UNKNOWN_SOURCE_LITERAL
                     namespace = next(
-                        (
-                            keyword.value
-                            for keyword in node.keywords
-                            if keyword.arg == "namespace"
-                        ),
+                        (keyword.value for keyword in node.keywords if keyword.arg == "namespace"),
                         None,
                     )
                     if isinstance(namespace, ast.Call):
@@ -12429,9 +12538,12 @@ def _source_package_getattr_binding_is_unresolved(tree: ast.Module) -> bool:
 def _source_getattr_child_import(
     tree: ast.Module,
     *,
+    repo_root: Path,
     module_name: str,
     export_name: str,
-) -> bool:
+    directory_entries: dict[Path, frozenset[str]],
+    source_index: _AuthorityImportClosureSourceIndex,
+) -> str | None:
     """Recognize a child import in a bounded, non-competing PEP 562 branch.
 
     This is source ownership only. The import candidate is usable as a runtime
@@ -12446,10 +12558,10 @@ def _source_getattr_child_import(
         and statement.name == "__getattr__"
     )
     if len(definitions) != 1:
-        return False
+        return None
     function = definitions[0]
     if not isinstance(function, ast.FunctionDef):
-        return False
+        return None
     parameters = (*function.args.posonlyargs, *function.args.args)
     if (
         len(parameters) != 1
@@ -12457,14 +12569,14 @@ def _source_getattr_child_import(
         or function.args.vararg is not None
         or function.args.kwarg is not None
     ):
-        return False
+        return None
     parameter = parameters[0].arg
     if parameter in _source_scope_bound_names(function.body):
-        return False
+        return None
     if "getattr" in _source_scope_bound_names(tree.body) or "getattr" in (
         _source_scope_bound_names(function.body)
     ):
-        return False
+        return None
 
     for branch in _source_scope_nodes(function.body):
         if not isinstance(branch, ast.If) or not (
@@ -12501,8 +12613,72 @@ def _source_getattr_child_import(
             and returned.value.args[1].id == parameter
             and not returned.value.keywords
         ):
-            return True
-    return False
+            return "literal"
+
+    statements = list(function.body)
+    if (
+        statements
+        and isinstance(statements[0], ast.Expr)
+        and isinstance(statements[0].value, ast.Constant)
+        and type(statements[0].value.value) is str
+    ):
+        statements.pop(0)
+    if len(statements) != 2 or not isinstance(statements[0], ast.If):
+        return None
+    guard, returned = statements
+    if not (isinstance(returned, ast.Return) and isinstance(returned.value, ast.Call)):
+        return None
+    helper_call = returned.value
+    mapping_names = _literal_resolve_lazy_export_aliases(tree)
+    map_name = _literal_resolve_lazy_export_map_name(
+        tree,
+        function,
+        helper_call,
+        helper_aliases=mapping_names,
+        source_module_name=module_name,
+    )
+    if map_name is None or not _literal_ir_lazy_child_fallback_guard(
+        tree,
+        function,
+        guard,
+        parameter,
+        map_name,
+    ):
+        return None
+    provider_index = _source_module_provider_index(
+        repo_root,
+        module_name,
+        tree,
+        directory_entries=directory_entries,
+        source_index=source_index,
+    )
+    if provider_index.mapping_names != frozenset({map_name}) or provider_index.invalid_exports:
+        return None
+    external_mappings, invalid_imports = _source_imported_facade_mappings(
+        repo_root,
+        module_name,
+        tree,
+        provider_index.mapping_names,
+        directory_entries=directory_entries,
+        source_index=source_index,
+    )
+    if invalid_imports:
+        return None
+    maps, invalid_maps, namespace_effect_unknown = _source_declared_facade_mapping_values(
+        tree,
+        provider_index.mapping_names,
+        external_mappings=external_mappings,
+        source_module_name=module_name,
+    )
+    source_map = maps.get(map_name)
+    if (
+        invalid_maps
+        or namespace_effect_unknown
+        or type(source_map) is not dict
+        or export_name in source_map
+    ):
+        return None
+    return "guarded_map"
 
 
 @dataclass(frozen=True, slots=True)
@@ -12540,11 +12716,15 @@ def _source_loader_child_candidate(
     child_relative = _repository_module_source(
         repo_root, child_name, directory_entries=directory_entries
     )
-    lazy_child_import = _source_getattr_child_import(
+    child_import_kind = _source_getattr_child_import(
         tree,
+        repo_root=repo_root,
         module_name=module_name,
         export_name=export_name,
+        directory_entries=directory_entries,
+        source_index=source_index,
     )
+    lazy_child_import = child_import_kind is not None
     parent, child = sys.modules.get(module_name), sys.modules.get(child_name)
     if not (
         child_relative is not None
@@ -12574,7 +12754,7 @@ def _source_loader_child_candidate(
     )
     if (
         export_name in index.invalid_exports
-        or ("*" in index.invalid_exports and not lazy_child_import)
+        or ("*" in index.invalid_exports and child_import_kind != "literal")
         or index.providers_by_export.get(export_name)
         or (index.module_providers_by_export or {}).get(export_name)
     ):
@@ -12860,8 +13040,11 @@ def _source_module_import_route_candidate_body(
         and module_source is not None
         and _source_getattr_child_import(
             initializer_tree,
+            repo_root=repo_root,
             module_name=module_name,
             export_name=export_name,
+            directory_entries=directory_entries,
+            source_index=source_index,
         )
         and _repository_module_source(
             repo_root,
@@ -19846,15 +20029,10 @@ def _source_type_alias_evaluator_binding_supported(
         source_path = analysis.bind_source_path(logical_source)
         if analysis.source_bytes(logical_source) != expected_source_bytes:
             return False
-        module_origins = _source_loaded_module_origin_fields(
-            module, expected_name=module_name
-        )
+        module_origins = _source_loaded_module_origin_fields(module, expected_name=module_name)
         if module_origins is None:
             return False
-        if any(
-            analysis.bind_source_path(Path(origin)) != source_path
-            for origin in module_origins
-        ):
+        if any(analysis.bind_source_path(Path(origin)) != source_path for origin in module_origins):
             return False
         if any(
             analysis.bind_source_path(Path(origin)) != analysis.bind_source_path(typing_path)
@@ -19867,9 +20045,7 @@ def _source_type_alias_evaluator_binding_supported(
             or analysis.bind_source_path(Path(code.co_filename)) != source_path
         ):
             return False
-        _compiled, hashes = analysis.compiled_source_index(
-            source_path, optimize=sys.flags.optimize
-        )
+        _compiled, hashes = analysis.compiled_source_index(source_path, optimize=sys.flags.optimize)
         source_hashes = hashes.get(export_name, ())
         evaluator_hash = _content_hash(_normalize_code_object(code))
         if len(source_hashes) != 1 or source_hashes[0] != evaluator_hash:

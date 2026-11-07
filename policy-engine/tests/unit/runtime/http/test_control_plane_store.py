@@ -1221,6 +1221,7 @@ def test_control_plane_store_dead_letters_terminal_failures(tmp_path) -> None:
     failed = store.get_job("job_fixture_failed")
     assert failed is not None
     assert failed.state == "failed"
+    assert store.lease_next_job(worker_id="worker-recovery") is None
 
     dead_letters = store.list_dead_letter_jobs()
     assert len(dead_letters) == 1

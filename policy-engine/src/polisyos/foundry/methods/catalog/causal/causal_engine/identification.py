@@ -861,7 +861,9 @@ class CausalEngineIdentificationMixin:
         result: IdentificationResult,
         query: InterventionQuery,
     ) -> IdentificationResult:
-        from polisyos.foundry.methods.catalog.causal.id_engine import _internal_proof_step_to_ir
+        from polisyos.foundry.methods.catalog.causal.id_engine.core import (
+            _internal_proof_step_to_ir,
+        )
 
         fallback = (
             InterventionFallback(

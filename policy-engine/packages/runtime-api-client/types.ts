@@ -4757,6 +4757,7 @@ export interface components {
             job_id?: string | null;
             /** Job State */
             job_state?: ("pending" | "running" | "completed" | "failed" | "cancelled") | null;
+            prior_candidate_n5_result?: components["schemas"]["CandidateExperimentPriorN5ResultProjection"] | null;
             /** Receipt Phase */
             receipt_phase?: ("requested" | "executing" | "outcome_selected" | "candidate_input_reentry_pending" | "terminal") | null;
             /** Recovery State */
@@ -4824,6 +4825,16 @@ export interface components {
             reentry_receipt_ref: components["schemas"]["ArtifactRef-Output"];
             result_body: components["schemas"]["RunCandidateSimulationN5ResultBody"];
             terminal_receipt_ref: components["schemas"]["ArtifactRef-Output"];
+        };
+        /**
+         * CandidateExperimentPriorN5ResultProjection
+         * @description Keep a verified earlier candidate result distinct from the current action.
+         */
+        CandidateExperimentPriorN5ResultProjection: {
+            n5_result: components["schemas"]["CandidateExperimentN5ResultProjection"];
+            /** Prior Action Generation */
+            prior_action_generation: number;
+            prior_action_ref: components["schemas"]["ArtifactRef-Output"];
         };
         /**
          * CandidateExperimentRouteExecutionRequest

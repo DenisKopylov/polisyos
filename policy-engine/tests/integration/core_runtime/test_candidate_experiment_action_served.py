@@ -723,9 +723,7 @@ def _assert_candidate_experiment_n5_uses_current_wmr(
     evaluation = history.evaluation
     if evaluation is None:
         evaluation = resolved_reentry_evaluation
-    elif resolved_reentry_evaluation is not None and (
-        resolved_reentry_evaluation != evaluation
-    ):
+    elif resolved_reentry_evaluation is not None and (resolved_reentry_evaluation != evaluation):
         raise AssertionError("candidate experiment reentry evaluation changed selected N5")
     if evaluation is None:
         raise AssertionError("candidate experiment terminal omitted its N5 evaluation evidence")
@@ -930,7 +928,9 @@ def _assert_candidate_experiment_n5_uses_current_wmr(
     expected_outcome = wmr_baseline[declaration.outcome_variable] + expected_effect
     for trajectory in joint_trajectories:
         assert trajectory.engine_kind == selected_decisions[0].engine_kind
-        assert trajectory.diagnostics["actual_replications"] == n5_input.profile.n5.replications == 2
+        assert (
+            trajectory.diagnostics["actual_replications"] == n5_input.profile.n5.replications == 2
+        )
         assert trajectory.diagnostics["replication_seeds"] == [17, 18]
         for point in trajectory.points:
             assert point.effect[declaration.outcome_variable] == pytest.approx(
@@ -1401,6 +1401,7 @@ def run_genuine_candidate_experiment_scenario(
     gateway,
     *,
     total_units: int = 5,
+    expected_blocked: bool = False,
     after_execution: Callable[..., object] | None = None,
 ) -> dict[str, object]:
     """Serve the genuine source and first candidate action; optionally continue inline."""
@@ -1514,8 +1515,16 @@ def run_genuine_candidate_experiment_scenario(
                 )
                 assert execution.standard_invocation_units_before == 2
                 assert execution.standard_invocation_units_after == 4
-                assert execution.current_action.evaluation_disposition == "new"
-                assert execution.terminal_history.frontier_after is not None
+                if expected_blocked:
+                    assert execution.current_action.evaluation_disposition == "blocked"
+                    assert execution.current_action.selected_evaluation is None
+                    assert execution.current_action.candidate_n5_result is not None
+                    assert execution.terminal_history.evaluation is None
+                    assert execution.terminal_history.reentry_evaluation is not None
+                    assert execution.terminal_history.frontier_after is None
+                else:
+                    assert execution.current_action.evaluation_disposition == "new"
+                    assert execution.terminal_history.frontier_after is not None
                 assert execution.source_basis_preparations
                 assert all(
                     observation.predicate_provenance == "recomputed"
@@ -1542,6 +1551,9 @@ def run_genuine_candidate_experiment_scenario(
                     control=control,
                     origin=execution_values["origin"],
                     execution=execution,
+                    resolved_reentry_evaluation=(
+                        execution.terminal_history.reentry_evaluation if expected_blocked else None
+                    ),
                 )
                 # The persisted evaluation used to replay the same selected N4
                 # source once directly, once for the input, and twice while

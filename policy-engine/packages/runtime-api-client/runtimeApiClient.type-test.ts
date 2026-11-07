@@ -238,7 +238,22 @@ type CandidateExperimentAction = NonNullable<
 type CandidateExperimentResult = NonNullable<
   CandidateExperimentAction["candidate_n5_result"]
 >;
+type CandidateExperimentPriorResult = NonNullable<
+  CandidateExperimentAction["prior_candidate_n5_result"]
+>;
 type CandidateExperimentResultWitnesses = [
+  Assert<
+    Equal<
+      undefined extends CandidateExperimentAction["prior_candidate_n5_result"]
+        ? true
+        : false,
+      true
+    >
+  >,
+  Assert<
+    Equal<CandidateExperimentPriorResult["n5_result"], CandidateExperimentResult>
+  >,
+  Assert<Equal<CandidateExperimentPriorResult["prior_action_generation"], number>>,
   Assert<
     Equal<
       undefined extends CandidateExperimentAction["candidate_n5_result"]

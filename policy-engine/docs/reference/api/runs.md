@@ -111,6 +111,15 @@ include N5 retention, claim authority and publication. The field is omitted
 when the current action has no supported numerical observation. Failure to
 reopen selected bytes or a changed current head requires revalidation.
 
+If the current action ends with `candidate_experiment_input_change_not_established`,
+`prior_candidate_n5_result` may expose the earlier candidate observation. Its
+`prior_action_ref` and `prior_action_generation` identify the verified action
+that produced the nested `n5_result`. The current action remains blocked and
+has no current `candidate_n5_result` or selected evaluation. The earlier result
+keeps its display-only limits. The projection establishes neither numerical
+input equivalence nor reuse. The reader reopens the selected prior result and
+checks that the blocking action is still current.
+
 Transport permission/refusal tests, the typed OpenAPI success example, generated
 client drift and the SDK transport control are qualified in LANE-01's existing
 working state. Transport fixtures alone do not prove the completed-source reader

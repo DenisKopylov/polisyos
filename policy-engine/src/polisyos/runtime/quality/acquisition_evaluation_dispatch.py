@@ -286,10 +286,16 @@ def _candidate_experiment_verified_prior_history(
         or latest.head.receipt_phase != "terminal"
         or latest.terminal_ref.manifest_profile_sha256 is None
         or str(latest.terminal_ref.artifact_id) != latest.head.receipt_ref
-        or latest.frontier_after is None
         or latest.frontier_after != frontier
     ):
         raise ValueError("candidate_experiment_prior_frontier_not_established")
+    if frontier is None and (
+        latest.evaluation is not None
+        or latest.terminal.selected_evaluation is not None
+        or latest.terminal.terminal_outcome
+        not in {"candidate_reentry_completed", "candidate_blocked"}
+    ):
+        raise ValueError("candidate_experiment_prior_candidate_context_not_established")
     replay = verify_candidate_experiment_terminal_history(
         control_service=service,
         head=latest.head,
@@ -302,6 +308,74 @@ def _candidate_experiment_verified_prior_history(
     ):
         raise ValueError("candidate_experiment_prior_history_changed")
     return replay
+
+
+def _candidate_experiment_unselected_prior(
+    origin: VerifiedCandidateExperimentOrigin,
+) -> CandidateExperimentTerminalHistory | None:
+    """Find the last real candidate calculation in an already verified prefix."""
+    for history in reversed(origin.candidate_terminal_history_chain):
+        if history.terminal.terminal_outcome == "candidate_blocked":
+            if (
+                history.terminal.blocker_reason
+                != "candidate_experiment_input_change_not_established"
+                or history.frontier_after is not None
+                or history.evaluation is not None
+                or history.reentry is not None
+            ):
+                raise ValueError("candidate_experiment_prior_blocker_not_established")
+            continue
+        if (
+            history.terminal.terminal_outcome != "candidate_reentry_completed"
+            or history.terminal.selected_evaluation is not None
+            or history.evaluation is not None
+            or history.reentry is None
+            or history.reentry_evaluation is None
+            or history.frontier_after is not None
+            or history.selected_basis is None
+            or history.selected_basis.basis_role != "blocked"
+        ):
+            raise ValueError("candidate_experiment_prior_candidate_context_not_established")
+        return history
+    return None
+
+
+def _candidate_experiment_unselected_input_changed(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    prior: ResolvedAcquisitionEvaluation | None,
+    prepared: object,
+) -> bool:
+    """Reopen an unselected prior and compare only its bound numerical input."""
+    from polisyos.runtime.quality.candidate_acquisition_source import (
+        read_candidate_acquisition_source,
+    )
+    from polisyos.runtime.quality.candidate_source_basis import (
+        CandidateSourceBasisValues,
+        candidate_experiment_input_changed,
+    )
+
+    history = _candidate_experiment_unselected_prior(origin)
+    if (
+        history is None
+        or prior is None
+        or not _candidate_model_values_same(history.reentry_evaluation, prior)
+        or type(prepared) is not CandidateSourceBasisValues
+        or prepared.inputs is None
+    ):
+        raise ValueError("candidate_experiment_prior_candidate_context_not_established")
+    source = read_candidate_acquisition_source(
+        bridge.artifact_store,
+        source_ref=prepared.inputs.candidate_source_ref,
+        authority=bridge.authority,
+    )
+    return candidate_experiment_input_changed(
+        prior=prior,
+        previous_source=history.source,
+        current_source=source,
+        prepared=prepared,
+    )
 
 
 def _current_selection(bridge: AcquisitionWorldGrowthBridge) -> _CurrentSelection:
@@ -1729,7 +1803,8 @@ def _revalidate_candidate_experiment_evaluation_owner(
     current_frontier = None
     previous_basis = None
     previous_basis_ref = None
-    if latest_history is not None:
+    candidate_only_prior = latest_history is not None and latest_history.frontier_after is None
+    if latest_history is not None and not candidate_only_prior:
         if (
             latest_history.selected_basis is None
             or latest_history.evaluation is None
@@ -1831,7 +1906,7 @@ def _revalidate_candidate_experiment_evaluation_owner(
         raise ValueError("candidate_experiment_evaluation_current_basis_changed")
 
     actual_prior = prior_owner.selected_evaluation
-    if latest_history is None:
+    if latest_history is None or candidate_only_prior:
         expected_comparison: _ComparisonResult = "not_established"
         expected_prior = None
         expected_revision = 0
@@ -1869,7 +1944,7 @@ def _revalidate_candidate_experiment_evaluation_owner(
         fresh_limit_usd=window.fresh_limit_usd,
         global_limit_usd=window.global_limit_usd,
     )
-    if latest_history is not None:
+    if latest_history is not None and not candidate_only_prior:
         if reasons:
             raise ValueError("candidate_experiment_evaluation_current_basis_not_established")
         previous_values, previous_reasons = recompute_candidate_acquisition_basis_values(
@@ -1897,11 +1972,26 @@ def _revalidate_candidate_experiment_evaluation_owner(
             raise ValueError("candidate_experiment_evaluation_prior_basis_changed")
     else:
         previous_reasons = ()
-    expected_reasons = (
-        tuple(dict.fromkeys(("candidate_evaluation_prior_basis_not_established", *reasons)))
-        if latest_history is None
-        else reasons
-    )
+    if candidate_only_prior:
+        changed = _candidate_experiment_unselected_input_changed(
+            bridge=bridge, origin=owner.origin, prior=actual_prior, prepared=preparation
+        )
+        input_reason = (
+            "candidate_experiment_changed_input"
+            if changed
+            else "candidate_experiment_input_change_not_established"
+        )
+        expected_reasons = tuple(
+            dict.fromkeys(
+                ("candidate_evaluation_prior_basis_not_established", input_reason, *reasons)
+            )
+        )
+    else:
+        expected_reasons = (
+            tuple(dict.fromkeys(("candidate_evaluation_prior_basis_not_established", *reasons)))
+            if latest_history is None
+            else reasons
+        )
     expected_current_provenance = "not_established" if reasons else "recomputed"
     if (
         reasons != current.reason_codes
@@ -2838,7 +2928,7 @@ def _revalidate_candidate_experiment_reentry_owner(
         or service._artifact_store is not bridge.artifact_store
         or service._control_store is not bridge.control_store
         or terminal.terminal_outcome
-        not in {"candidate_reentry_completed", "candidate_evaluation_retained"}
+        not in {"candidate_reentry_completed", "candidate_evaluation_retained", "candidate_blocked"}
         or terminal.predecessor_receipt_ref != owner.predecessor_head.receipt_ref
         or terminal.candidate_action_ref != owner.candidate_action_ref
         or terminal.action_generation != owner.predecessor_head.action_generation
@@ -2849,7 +2939,10 @@ def _revalidate_candidate_experiment_reentry_owner(
         or owner.evaluation_owner.pending_phase_ref != owner.predecessor_head.receipt_ref
         or owner.evaluation_owner.action_phase_ref != owner.action_phase_ref
         or not _candidate_ref_same(
-            owner.evaluation_owner.decision_ref, terminal.evaluation_decision_ref
+            owner.evaluation_owner.decision_ref,
+            terminal.blocker_ref
+            if terminal.terminal_outcome == "candidate_blocked"
+            else terminal.evaluation_decision_ref,
         )
     ):
         raise ValueError("candidate_experiment_reentry_owner_binding_mismatch")
@@ -2885,6 +2978,24 @@ def _revalidate_candidate_experiment_reentry_owner(
     )
     if window != owner.budget_window or window.scope != owner.reentry_budget_scope:
         raise ValueError("candidate_experiment_reentry_budget_window_changed")
+    if terminal.terminal_outcome == "candidate_blocked":
+        decision = read_acquisition_evaluation_artifact(
+            store=bridge.artifact_store,
+            event_log=bridge.event_log,
+            ref=terminal.blocker_ref,
+            record_type=CandidateAcquisitionEvaluationDecision,
+        )
+        if (
+            type(decision) is not CandidateAcquisitionEvaluationDecision
+            or owner.evaluation_owner.comparison != "not_established"
+            or decision.comparison_result != "not_established"
+            or decision.predicate_provenance != "not_established"
+            or terminal.blocker_reason != "candidate_experiment_input_change_not_established"
+            or "candidate_experiment_input_change_not_established" not in decision.reason_codes
+        ):
+            raise ValueError("candidate_experiment_blocker_owner_not_established")
+        owner.evaluation_owner.current_budget_snapshot(budget_state=owner.budget_state)
+        return
     if terminal.terminal_outcome == "candidate_evaluation_retained":
         prior = owner.evaluation_owner.prior
         decision = read_acquisition_evaluation_artifact(
@@ -2960,10 +3071,6 @@ def _revalidate_candidate_experiment_reentry_owner(
         or terminal.current_continuation_ref is not None
         or owner.evaluation_owner.comparison == "equivalent"
         or (
-            owner.evaluation_owner.comparison == "not_established"
-            and owner.origin.candidate_terminal_history_chain
-        )
-        or (
             owner.evaluation_owner.comparison == "different"
             and not owner.origin.candidate_terminal_history_chain
         )
@@ -3031,7 +3138,7 @@ def _revalidate_candidate_experiment_reentry_owner(
         current_result.diagnostics.get("physical_work_capture_status") == "observed"
         and bool(current_event_ids)
         and len(current_event_ids) == len(set(current_event_ids))
-        and len(expected_event_ids) == len(set(expected_event_ids))
+        # Individual and joint trajectories can reference the same physical run.
         and current_event_ids
         and set(current_event_ids) == set(expected_event_ids)
     )
@@ -3147,6 +3254,34 @@ def candidate_experiment_terminal_frontier_cas(
         head=scope.predecessor_head,
         terminal_ref=terminal_ref,
     )
+    if terminal.terminal_outcome == "candidate_blocked":
+        if (
+            history.head != scope.predecessor_head
+            or history.terminal != terminal
+            or history.terminal_ref != terminal_ref
+            or history.action.action_phase_ref != scope.owner.action_phase_ref
+            or history.budget_window != scope.owner.budget_window
+            or history.frontier_before is not None
+            or history.frontier_after is not None
+            or history.evaluation is not None
+            or history.reentry is not None
+            or history.decision is None
+            or terminal.blocker_ref != scope.owner.evaluation_owner.decision_ref
+        ):
+            raise ValueError("candidate_experiment_terminal_history_not_established")
+        key = AcquisitionEvaluationFrontierKey(
+            tenant_id=scope.owner.origin.tenant_id,
+            cell_id=scope.owner.origin.cell_id,
+            source_job_id=scope.owner.origin.source_job_id,
+            design_problem_ref=scope.owner.origin.policy_scope.design_problem_ref,
+            candidate_id=scope.owner.origin.policy_scope.candidate_id,
+        )
+        _revalidate_candidate_experiment_reentry_owner(scope.owner)
+        if scope.owner.bridge.control_store.read_acquisition_evaluation_frontier(key) is not None:
+            raise ValueError("candidate_experiment_terminal_frontier_changed")
+        return AcquisitionEvaluationFrontierCAS(
+            key=key, expected_revision=0, expected_frontier_ref=None, replacement=None
+        )
     retained = terminal.terminal_outcome == "candidate_evaluation_retained"
     history_outcome_binding_invalid = (
         (
@@ -3185,7 +3320,10 @@ def candidate_experiment_terminal_frontier_cas(
         raise ValueError("candidate_experiment_terminal_decision_not_established")
     first_generation_unknown = (
         not retained
-        and not history.origin.candidate_terminal_history_chain
+        and (
+            not history.origin.candidate_terminal_history_chain
+            or "candidate_experiment_changed_input" in decision.reason_codes
+        )
         and history.frontier_before is None
         and decision.comparison_result == "not_established"
         and decision.predicate_provenance == "not_established"
@@ -4849,12 +4987,13 @@ def dispatch_candidate_experiment_evaluation(
     prior = prior_owner.selected_evaluation
     previous_basis = None
     previous_basis_ref = None
+    candidate_only_prior = latest_history is not None and latest_history.frontier_after is None
     if latest_history is None:
         # The original source may already have N5. It remains numerical input;
         # only a committed experiment prefix can establish a retained basis.
         if frontier is not None:
             raise ValueError("candidate_experiment_evaluation_unowned_prior_frontier")
-    else:
+    elif not candidate_only_prior:
         if (
             latest_history.frontier_after is None
             or latest_history.selected_basis is None
@@ -4888,7 +5027,7 @@ def dispatch_candidate_experiment_evaluation(
         fresh_limit_usd=window.fresh_limit_usd,
         global_limit_usd=window.global_limit_usd,
     )
-    if latest_history is not None and reasons:
+    if latest_history is not None and not candidate_only_prior and reasons:
         raise ValueError("candidate_experiment_evaluation_current_basis_not_established")
     profile = prepared.inputs.configured_profile
     limitations = tuple(
@@ -4938,12 +5077,26 @@ def dispatch_candidate_experiment_evaluation(
         record=current,
     )
     comparison: _ComparisonResult
-    if latest_history is None:
+    if latest_history is None or candidate_only_prior:
         comparison = "not_established"
         comparison_provenance: Literal["recomputed", "not_established"] = "not_established"
         comparison_reasons = tuple(
             dict.fromkeys(("candidate_evaluation_prior_basis_not_established", *reasons))
         )
+        if candidate_only_prior:
+            changed = _candidate_experiment_unselected_input_changed(
+                bridge=bridge, origin=origin, prior=prior, prepared=prepared
+            )
+            input_reason = (
+                "candidate_experiment_changed_input"
+                if changed
+                else "candidate_experiment_input_change_not_established"
+            )
+            comparison_reasons = tuple(
+                dict.fromkeys(
+                    ("candidate_evaluation_prior_basis_not_established", input_reason, *reasons)
+                )
+            )
         expected_prior = None
         expected_frontier_revision = 0
         expected_frontier_ref = None
@@ -5024,7 +5177,42 @@ def dispatch_candidate_experiment_evaluation(
     )
     evaluation_owner.revalidate()
 
-    if comparison == "equivalent":
+    if (
+        candidate_only_prior
+        and "candidate_experiment_input_change_not_established" in comparison_reasons
+    ):
+        terminal = AcquisitionCandidateExperimentTerminalReceipt(
+            receipt_id=pending.job_id + ".candidate-experiment.terminal",
+            tenant_id=pending.tenant_id,
+            cell_id=pending.cell_id,
+            run_id=pending.run_id,
+            source_job_id=pending.source_job_id,
+            route_id=pending.route_id,
+            action_generation=pending.action_generation,
+            job_id=pending.job_id,
+            source_payload_ref=pending.source_payload_ref,
+            capability_manifest_ref=pending.capability_manifest_ref,
+            request_content_hash=pending.request_content_hash,
+            policy_scope=pending.policy_scope,
+            policy_ref=pending.policy_ref,
+            authority_decision_ref=pending.authority_decision_ref,
+            voi_decision=pending.voi_decision,
+            monetary_cost="not_established",
+            information_value="not_established",
+            observed_data_authority=False,
+            publication_authority=False,
+            predecessor_receipt_ref=pending_phase_ref,
+            owner_receipt_refs=tuple(
+                sorted({str(action_ref.artifact_id), str(decision_ref.artifact_id)})
+            ),
+            terminal_outcome="candidate_blocked",
+            candidate_action_ref=action_ref,
+            blocker_ref=decision_ref,
+            blocker_reason="candidate_experiment_input_change_not_established",
+            generated_at=datetime.now(UTC),
+        )
+        evaluation_owner.revalidate()
+    elif comparison == "equivalent":
         from polisyos.core.artifacts import load_core_json_artifact
         from polisyos.runtime.quality.generation_cycle import (
             GenerationCycleController,

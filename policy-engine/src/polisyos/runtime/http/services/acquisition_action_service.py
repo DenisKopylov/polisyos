@@ -289,6 +289,34 @@ class CandidateExperimentN5ResultProjection(BaseModel):
         return self
 
 
+class CandidateExperimentPriorN5ResultProjection(BaseModel):
+    """Keep a verified earlier candidate result distinct from the current action."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    prior_action_ref: artifacts.ArtifactRef
+    prior_action_generation: int = Field(ge=1)
+    n5_result: CandidateExperimentN5ResultProjection
+
+    @model_validator(mode="after")
+    def _selected_prior_action(self) -> CandidateExperimentPriorN5ResultProjection:
+        if (
+            self.prior_action_ref.kind != "runtime_quality.acquisition_candidate_action_receipt"
+            or self.prior_action_ref.media_type != "application/json"
+            or self.prior_action_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("candidate_experiment_prior_n5_result_action_ref_invalid")
+        if (
+            self.n5_result.result_body.artifact_ref.kind
+            != "polisyos.runtime.joint_simulation_result"
+            or self.n5_result.result_body.artifact_ref.manifest_profile_sha256 is None
+            or self.n5_result.result_body.selected_manifest_profile_sha256
+            != self.n5_result.result_body.artifact_ref.manifest_profile_sha256
+        ):
+            raise ValueError("candidate_experiment_prior_n5_result_selected_view_invalid")
+        return self
+
+
 class CandidateExperimentCurrentActionProjection(BaseModel):
     """Read-only status of the current verified candidate-experiment action."""
 
@@ -323,6 +351,10 @@ class CandidateExperimentCurrentActionProjection(BaseModel):
         default=None,
         exclude_if=lambda value: value is None,
     )
+    prior_candidate_n5_result: CandidateExperimentPriorN5ResultProjection | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     blocker_reason: str | None = Field(default=None, min_length=1)
 
     @model_validator(mode="after")
@@ -341,6 +373,7 @@ class CandidateExperimentCurrentActionProjection(BaseModel):
                         self.terminal_outcome,
                         self.selected_evaluation,
                         self.candidate_n5_result,
+                        self.prior_candidate_n5_result,
                         self.blocker_reason,
                     )
                 )
@@ -364,6 +397,7 @@ class CandidateExperimentCurrentActionProjection(BaseModel):
                 or self.evaluation_disposition != "unknown"
                 or self.selected_evaluation is not None
                 or self.candidate_n5_result is not None
+                or self.prior_candidate_n5_result is not None
                 or self.blocker_reason is not None
             ):
                 raise ValueError("candidate_experiment_nonterminal_projection_has_outcome")
@@ -378,6 +412,13 @@ class CandidateExperimentCurrentActionProjection(BaseModel):
                 or self.receipt_phase != "terminal"
             ):
                 raise ValueError("candidate_experiment_blocked_projection_mismatch")
+            if self.prior_candidate_n5_result is not None and (
+                self.blocker_reason != "candidate_experiment_input_change_not_established"
+                or self.prior_candidate_n5_result.prior_action_generation >= self.action_generation
+                or self.prior_candidate_n5_result.n5_result.terminal_receipt_ref
+                == self.selected_receipt_ref
+            ):
+                raise ValueError("candidate_experiment_prior_n5_result_current_projection_mismatch")
             return self
         if (
             self.terminal_outcome
@@ -400,6 +441,10 @@ class CandidateExperimentCurrentActionProjection(BaseModel):
                 or self.candidate_n5_result.terminal_receipt_ref != self.selected_receipt_ref
             ):
                 raise ValueError("candidate_experiment_completed_n5_result_mismatch")
+            if self.prior_candidate_n5_result is not None:
+                raise ValueError(
+                    "candidate_experiment_prior_n5_result_completed_projection_mismatch"
+                )
             return self
         if self.evaluation_disposition not in {"new", "retained"}:
             raise ValueError("candidate_experiment_completed_projection_missing_evaluation")
@@ -415,6 +460,8 @@ class CandidateExperimentCurrentActionProjection(BaseModel):
             raise ValueError("candidate_experiment_retained_evaluation_projection_mismatch")
         if self.candidate_n5_result is not None:
             raise ValueError("candidate_experiment_evaluated_projection_has_fresh_result")
+        if self.prior_candidate_n5_result is not None:
+            raise ValueError("candidate_experiment_prior_n5_result_completed_projection_mismatch")
         if self.blocker_reason is not None:
             raise ValueError("candidate_experiment_completed_projection_has_blocker")
         return self
@@ -1495,6 +1542,14 @@ class AcquisitionActionService:
             and terminal.selected_evaluation is None
             else None
         )
+        prior_candidate_n5_result = (
+            self._candidate_experiment_prior_n5_result_projection(current_terminal)
+            if current_terminal is not None
+            and terminal is not None
+            and terminal.terminal_outcome == "candidate_blocked"
+            and terminal.blocker_reason == "candidate_experiment_input_change_not_established"
+            else None
+        )
         return self._format_candidate_experiment_current_action(
             head=head,
             job_state=job_state,
@@ -1503,14 +1558,118 @@ class AcquisitionActionService:
             terminal_outcome=None if terminal is None else terminal.terminal_outcome,
             selected_evaluation=None if terminal is None else terminal.selected_evaluation,
             candidate_n5_result=candidate_n5_result,
+            prior_candidate_n5_result=prior_candidate_n5_result,
             blocker_reason=blocker_reason,
+        )
+
+    def _candidate_experiment_prior_n5_result_projection(
+        self,
+        current_history: CandidateExperimentTerminalHistory,
+    ) -> CandidateExperimentPriorN5ResultProjection:
+        """Expose the last verified N5 body only as a prior candidate observation."""
+        terminal = current_history.terminal
+        decision = current_history.decision
+        if (
+            terminal.terminal_outcome != "candidate_blocked"
+            or terminal.blocker_reason != "candidate_experiment_input_change_not_established"
+            or decision is None
+            or decision.comparison_result != "not_established"
+            or decision.predicate_provenance != "not_established"
+            or "candidate_experiment_input_change_not_established" not in decision.reason_codes
+        ):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_prior_n5_result_current_blocker_not_established"
+            )
+
+        from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+            _candidate_experiment_unselected_prior,
+        )
+
+        try:
+            prior_history = _candidate_experiment_unselected_prior(current_history.origin)
+        except ValueError as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_prior_n5_result_history_not_established"
+            ) from exc
+
+        history_chain = current_history.origin.candidate_terminal_history_chain
+        current_scope = (
+            current_history.head.tenant_id,
+            current_history.head.cell_id,
+            current_history.head.run_id,
+            current_history.head.source_job_id,
+            current_history.head.route_id,
+        )
+        if (
+            prior_history is None
+            or not any(item is prior_history for item in history_chain)
+            or any(
+                type(item) is not CandidateExperimentTerminalHistory
+                or item.head.action_generation != generation
+                or item.terminal.action_generation != generation
+                or (
+                    item.head.tenant_id,
+                    item.head.cell_id,
+                    item.head.run_id,
+                    item.head.source_job_id,
+                    item.head.route_id,
+                )
+                != current_scope
+                for generation, item in enumerate(history_chain, start=1)
+            )
+            or tuple(item.head.action_generation for item in history_chain)
+            != tuple(range(1, current_history.head.action_generation))
+            or prior_history.head.action_generation >= current_history.head.action_generation
+            or prior_history.terminal.candidate_action_ref is None
+            or prior_history.terminal.action_generation != prior_history.head.action_generation
+        ):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_prior_n5_result_history_not_established"
+            )
+
+        n5_result = self._candidate_experiment_n5_result_projection(
+            prior_history,
+            expected_latest_head=current_history.head,
+        )
+        if n5_result is None:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_prior_n5_result_not_established"
+            )
+        return CandidateExperimentPriorN5ResultProjection(
+            prior_action_ref=prior_history.terminal.candidate_action_ref,
+            prior_action_generation=prior_history.head.action_generation,
+            n5_result=n5_result,
         )
 
     def _candidate_experiment_n5_result_projection(
         self,
         history: CandidateExperimentTerminalHistory,
+        *,
+        expected_latest_head: AcquisitionActionHeadRecord | None = None,
     ) -> CandidateExperimentN5ResultProjection | None:
         """Project candidate N5 numbers without establishing full configuration use."""
+        latest_head = expected_latest_head or history.head
+        if (
+            (
+                latest_head.tenant_id,
+                latest_head.cell_id,
+                latest_head.run_id,
+                latest_head.source_job_id,
+                latest_head.route_id,
+            )
+            != (
+                history.head.tenant_id,
+                history.head.cell_id,
+                history.head.run_id,
+                history.head.source_job_id,
+                history.head.route_id,
+            )
+            or latest_head.action_generation < history.head.action_generation
+            or latest_head.receipt_phase != "terminal"
+        ):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_n5_result_expected_head_mismatch"
+            )
         terminal = history.terminal
         reentry = history.reentry
         evaluation = history.reentry_evaluation
@@ -1601,10 +1760,9 @@ class AcquisitionActionService:
             if code is None:
                 raise
             raise AcquisitionActionServiceError(code) from exc
-        if (
-            artifacts.artifact_ref_identity_key(result_body.artifact_ref)
-            != artifacts.artifact_ref_identity_key(selected.n5_result_ref)
-        ):
+        if artifacts.artifact_ref_identity_key(
+            result_body.artifact_ref
+        ) != artifacts.artifact_ref_identity_key(selected.n5_result_ref):
             raise AcquisitionActionServiceError(
                 "candidate_experiment_n5_result_reentry_binding_mismatch"
             )
@@ -1622,14 +1780,12 @@ class AcquisitionActionService:
             raise AcquisitionActionServiceError(
                 "candidate_experiment_current_action_head_not_established"
             ) from exc
-        if (
-            any(head.route_id != history.head.route_id for head in source_heads)
-            or tuple(head.action_generation for head in source_heads)
-            != tuple(range(1, len(source_heads) + 1))
-        ):
+        if any(head.route_id != history.head.route_id for head in source_heads) or tuple(
+            head.action_generation for head in source_heads
+        ) != tuple(range(1, len(source_heads) + 1)):
             raise AcquisitionActionServiceError("candidate_experiment_action_history_conflict")
         latest_source_head = source_heads[-1] if source_heads else None
-        if latest_source_head != history.head:
+        if latest_source_head != latest_head:
             raise AcquisitionActionServiceError("candidate_experiment_current_action_head_changed")
         return CandidateExperimentN5ResultProjection(
             terminal_receipt_ref=history.terminal_ref,
@@ -1660,6 +1816,7 @@ class AcquisitionActionService:
         | None = None,
         selected_evaluation: AcquisitionSelectedEvaluation | None = None,
         candidate_n5_result: CandidateExperimentN5ResultProjection | None = None,
+        prior_candidate_n5_result: CandidateExperimentPriorN5ResultProjection | None = None,
         blocker_reason: str | None = None,
     ) -> CandidateExperimentCurrentActionProjection:
         """Format an owner-adapted snapshot; this helper does not verify its inputs."""
@@ -1696,6 +1853,7 @@ class AcquisitionActionService:
             terminal_outcome = None
             selected_evaluation = None
             candidate_n5_result = None
+            prior_candidate_n5_result = None
             blocker_reason = None
         return CandidateExperimentCurrentActionProjection(
             status=status,
@@ -1710,6 +1868,7 @@ class AcquisitionActionService:
             evaluation_disposition=evaluation_disposition,
             selected_evaluation=selected_evaluation,
             candidate_n5_result=candidate_n5_result,
+            prior_candidate_n5_result=prior_candidate_n5_result,
             blocker_reason=blocker_reason,
         )
 

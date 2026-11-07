@@ -900,7 +900,7 @@ def verify_candidate_experiment_terminal_history(
     if len(predecessor_history_chain) + 1 != head.action_generation:
         raise ValueError("candidate_experiment_terminal_prior_generation_missing")
     phase_chain = sink._verified_candidate_experiment_phase_chain(
-        phase_head, verified_origin=origin
+        phase_head, verified_origin=origin, reuse_verified_origin=True
     )
     chain = (*phase_chain, terminal_verified)
     if (
@@ -1004,7 +1004,9 @@ def verify_candidate_experiment_terminal_history(
     ):
         raise ValueError("candidate_experiment_terminal_selection_mismatch")
     for row in phases:
-        sink._verify_candidate_experiment_phase_owner(row.receipt, verified_origin=origin)
+        sink._verify_candidate_experiment_phase_owner(
+            row.receipt, verified_origin=origin, reuse_verified_origin=True
+        )
 
     effective_generation_run = origin.effective_generation_run
     effective_source_cycle = origin.effective_source_cycle
@@ -1071,10 +1073,173 @@ def verify_candidate_experiment_terminal_history(
     frontier_after = None
     retained = terminal.terminal_outcome == "candidate_evaluation_retained"
     if terminal.terminal_outcome == "candidate_blocked":
-        # The schema allows arbitrary blocker kinds. There is not yet a
-        # canonical experiment blocker record owner, so a ref alone is not a
-        # historical blocker fact.
-        raise ValueError("candidate_experiment_blocker_owner_not_established")
+        from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+            _candidate_experiment_inherited_limitations,
+            _candidate_experiment_unselected_input_changed,
+            _candidate_experiment_unselected_prior,
+        )
+        from polisyos.runtime.quality.candidate_source_basis import (
+            prepare_candidate_source_basis_values,
+        )
+
+        if terminal.blocker_reason != "candidate_experiment_input_change_not_established":
+            raise ValueError("candidate_experiment_blocker_owner_not_established")
+        decision = read_acquisition_evaluation_artifact(
+            store=store,
+            event_log=events,
+            ref=terminal.blocker_ref,
+            record_type=CandidateAcquisitionEvaluationDecision,
+        )
+        if type(decision) is not CandidateAcquisitionEvaluationDecision:
+            raise ValueError("candidate_experiment_blocker_decision_untyped")
+        current_basis = read_acquisition_evaluation_artifact(
+            store=store,
+            event_log=events,
+            ref=decision.current_basis_ref,
+            record_type=CandidateAcquisitionEvaluationBasis,
+        )
+        prior_history = _candidate_experiment_unselected_prior(origin)
+        prior = None if prior_history is None else prior_history.reentry_evaluation
+        if (
+            type(current_basis) is not CandidateAcquisitionEvaluationBasis
+            or current_basis.basis_role != "prospective"
+            or prior is None
+            or decision.comparison_result != "not_established"
+            or decision.predicate_provenance != "not_established"
+            or decision.reason_codes
+            != tuple(
+                dict.fromkeys(
+                    (
+                        "candidate_evaluation_prior_basis_not_established",
+                        "candidate_experiment_input_change_not_established",
+                        *current_basis.reason_codes,
+                    )
+                )
+            )
+            or decision.prior_basis_ref is not None
+            or decision.prior_evaluation is not None
+            or decision.expected_frontier_ref is not None
+            or decision.expected_frontier_revision != 0
+            or (decision.tenant_id, decision.cell_id, decision.run_id, decision.source_job_id)
+            != (head.tenant_id, head.cell_id, head.run_id, head.source_job_id)
+            or decision.action_job_id != head.job_id
+            or decision.action_generation != head.action_generation
+            or decision.route_id != head.route_id
+            or decision.design_problem_ref != origin.policy_scope.design_problem_ref
+            or decision.design_problem_basis_ref != origin.policy_scope.design_problem_basis_ref
+            or decision.candidate_id != origin.policy_scope.candidate_id
+            or decision.compiled_ref != str(origin.policy_scope.compiled_ref.artifact_id)
+            or decision.source_candidate_content_hash
+            != effective_source_cycle.selected_candidate_content_hash
+            or (current_basis.tenant_id, current_basis.cell_id, current_basis.run_id)
+            != (head.tenant_id, head.cell_id, head.run_id)
+            or current_basis.source_job_id != head.source_job_id
+            or current_basis.action_job_id != head.job_id
+            or current_basis.action_generation != head.action_generation
+            or current_basis.route_id != head.route_id
+            or current_basis.design_problem_ref != decision.design_problem_ref
+            or current_basis.design_problem_basis_ref != decision.design_problem_basis_ref
+            or current_basis.candidate_id != decision.candidate_id
+            or current_basis.source_candidate_content_hash != decision.source_candidate_content_hash
+            or not set(_candidate_experiment_inherited_limitations(origin)).issubset(
+                current_basis.limitations
+            )
+            or not set(action.limitations).issubset(current_basis.limitations)
+            or not _candidate_ref_same(decision.candidate_action_ref, terminal.candidate_action_ref)
+            or not _candidate_ref_same(decision.candidate_source_ref, action.candidate_source_ref)
+            or not _candidate_ref_same(
+                current_basis.candidate_action_ref, terminal.candidate_action_ref
+            )
+            or not _candidate_ref_same(
+                current_basis.candidate_source_ref, action.candidate_source_ref
+            )
+            or not _candidate_ref_same(
+                current_basis.candidate_world_intent_ref, decision.candidate_world_intent_ref
+            )
+        ):
+            raise ValueError("candidate_experiment_blocker_owner_not_established")
+        predecessors = _candidate_source_predecessors_for_verified_experiment_origin(
+            store=store, origin=origin
+        )
+        prepared = prepare_candidate_source_basis_values(
+            store=store,
+            problem=origin.design_problem_basis,
+            inputs=current_basis.preparation_inputs,
+            predecessors=predecessors,
+        )
+        if _candidate_experiment_unselected_input_changed(
+            bridge=bridge, origin=origin, prior=prior, prepared=prepared
+        ):
+            raise ValueError("candidate_experiment_blocker_input_changed")
+        replay_candidate_acquisition_basis_for_history(
+            artifact_store=store,
+            problem=origin.design_problem_basis,
+            basis=current_basis,
+            predecessors=predecessors,
+            selected_evaluation=prior,
+            fresh_limit_usd=budget_window.fresh_limit_usd,
+            global_limit_usd=budget_window.global_limit_usd,
+        )
+        key = AcquisitionEvaluationFrontierKey(
+            tenant_id=head.tenant_id,
+            cell_id=head.cell_id,
+            source_job_id=head.source_job_id,
+            design_problem_ref=origin.policy_scope.design_problem_ref,
+            candidate_id=origin.policy_scope.candidate_id,
+        )
+        route_heads = (
+            control.list_acquisition_action_heads(
+                tenant_id=head.tenant_id,
+                cell_id=head.cell_id,
+                run_id=head.run_id,
+                source_job_id=head.source_job_id,
+                route_id=head.route_id,
+            )
+            if committed
+            else ()
+        )
+        latest_terminal = next(
+            (item for item in reversed(route_heads) if item.receipt_phase == "terminal"), None
+        )
+        if (
+            head.evaluation_frontier_before_ref is not None
+            or head.evaluation_frontier_ref is not None
+            or (
+                (not committed or latest_terminal == head)
+                and control.read_acquisition_evaluation_frontier(key) is not None
+            )
+            or control.get_acquisition_action_head(**scope) != head
+            or (
+                committed
+                and control.list_acquisition_action_heads(
+                    tenant_id=head.tenant_id,
+                    cell_id=head.cell_id,
+                    run_id=head.run_id,
+                    source_job_id=head.source_job_id,
+                    route_id=head.route_id,
+                )
+                != route_heads
+            )
+        ):
+            raise ValueError("candidate_experiment_blocker_frontier_changed")
+        return CandidateExperimentTerminalHistory(
+            head=head,
+            terminal_ref=terminal_ref,
+            terminal=terminal,
+            origin=origin,
+            phase_chain=chain,
+            action=action,
+            source=source,
+            budget_window=budget_window,
+            decision=decision,
+            current_basis=current_basis,
+            selected_basis=current_basis,
+            evaluation=None,
+            reentry=None,
+            continuation=None,
+            frontier_before=None,
+            frontier_after=None,
+        )
     decision = read_acquisition_evaluation_artifact(
         store=store,
         event_log=events,
@@ -1173,9 +1338,19 @@ def verify_candidate_experiment_terminal_history(
             if previous.evaluation is not None
             else None
         )
-        if (
+        if previous_frontier is None:
+            if (
+                previous.evaluation is not None
+                or decision.comparison_result != "not_established"
+                or decision.predicate_provenance != "not_established"
+                or decision.prior_basis_ref is not None
+                or decision.prior_evaluation is not None
+                or decision.expected_frontier_ref is not None
+                or decision.expected_frontier_revision != 0
+            ):
+                raise ValueError("candidate_experiment_terminal_prior_generation_mismatch")
+        elif (
             previous.selected_basis is None
-            or previous_frontier is None
             or expected_prior_evaluation is None
             or not _candidate_ref_same(
                 decision.prior_basis_ref, previous.terminal.selected_basis_ref
@@ -1194,6 +1369,36 @@ def verify_candidate_experiment_terminal_history(
         or decision.expected_frontier_revision != 0
     ):
         raise ValueError("candidate_experiment_terminal_unexpected_prior_frontier")
+
+    if predecessor_history_chain and predecessor_history_chain[-1].frontier_after is None:
+        from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+            _candidate_experiment_unselected_input_changed,
+            _candidate_experiment_unselected_prior,
+        )
+        from polisyos.runtime.quality.candidate_source_basis import (
+            prepare_candidate_source_basis_values,
+        )
+
+        prior_history = _candidate_experiment_unselected_prior(origin)
+        prepared = prepare_candidate_source_basis_values(
+            store=store,
+            problem=origin.design_problem_basis,
+            inputs=current_basis.preparation_inputs,
+            predecessors=_candidate_source_predecessors_for_verified_experiment_origin(
+                store=store, origin=origin
+            ),
+        )
+        if (
+            prior_history is None
+            or "candidate_experiment_changed_input" not in decision.reason_codes
+            or not _candidate_experiment_unselected_input_changed(
+                bridge=bridge,
+                origin=origin,
+                prior=prior_history.reentry_evaluation,
+                prepared=prepared,
+            )
+        ):
+            raise ValueError("candidate_experiment_terminal_changed_input_not_established")
 
     reentry_evaluation: ResolvedAcquisitionEvaluation | None = None
     if retained:
@@ -1305,6 +1510,21 @@ def verify_candidate_experiment_terminal_history(
                 source_cycle=reentry.new_cycle,
                 design_problem_ref=origin.policy_scope.design_problem_ref,
             )
+        if predecessor_history_chain and predecessor_history_chain[-1].frontier_after is None:
+            from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+
+            slot = prepared.inputs.slot_binding.target_slot_id
+            if (
+                reentry_evaluation is None
+                or prepared.prospective_model is None
+                or slot not in reentry_evaluation.input_record.n5.baseline_state
+                or slot not in prepared.prospective_model.n5_config.baseline_state
+                or exact_n5_content_bytes(reentry_evaluation.input_record.n5.baseline_state[slot])
+                != exact_n5_content_bytes(prepared.prospective_model.n5_config.baseline_state[slot])
+                or exact_n5_content_bytes(reentry_evaluation.input_record.n5)
+                != exact_n5_content_bytes(prepared.prospective_model.n5_config)
+            ):
+                raise ValueError("candidate_experiment_terminal_changed_input_not_consumed")
         evaluation = reentry_evaluation if selected_basis.basis_role == "evaluated" else None
         if (
             terminal.terminal_outcome != "candidate_reentry_completed"

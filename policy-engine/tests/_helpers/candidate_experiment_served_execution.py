@@ -874,13 +874,9 @@ def _read_candidate_experiment_with_reopened_owner(
                 expected_result_ref = reopened_history.reentry.n5_result_ref
             if expected_result_ref is not None:
                 visible_result = selected_action.candidate_n5_result
-                if (
-                    visible_result is None
-                    or artifacts.artifact_ref_identity_key(
-                        visible_result.result_body.artifact_ref
-                    )
-                    != artifacts.artifact_ref_identity_key(expected_result_ref)
-                ):
+                if visible_result is None or artifacts.artifact_ref_identity_key(
+                    visible_result.result_body.artifact_ref
+                ) != artifacts.artifact_ref_identity_key(expected_result_ref):
                     raise AssertionError(
                         "candidate experiment fresh GET omitted exact reentry result"
                     )
@@ -1004,6 +1000,36 @@ def _read_candidate_experiment_with_reopened_owner(
                 if terminal_evaluation.selected.n5_result_ref is None:
                     raise AssertionError("candidate experiment selected N5 result ref missing")
                 result_ref = terminal_evaluation.selected.n5_result_ref
+            elif reopened_history.terminal.terminal_outcome == "candidate_blocked":
+                prior = next(
+                    (
+                        item
+                        for item in reversed(
+                            reopened_history.origin.candidate_terminal_history_chain
+                        )
+                        if item.reentry is not None
+                    ),
+                    None,
+                )
+                if (
+                    reopened_history.terminal.blocker_reason
+                    != "candidate_experiment_input_change_not_established"
+                    or prior is None
+                    or prior.reentry_evaluation is None
+                    or prior.reentry.n5_result_ref is None
+                    or prior.reentry_evaluation.selected.n5_result_ref
+                    != prior.reentry.n5_result_ref
+                ):
+                    raise AssertionError("candidate experiment prior candidate result ref missing")
+                result_ref = prior.reentry.n5_result_ref
+                visible_prior = selected_action.prior_candidate_n5_result
+                if (
+                    visible_prior is None
+                    or visible_prior.prior_action_ref != prior.terminal.candidate_action_ref
+                    or visible_prior.prior_action_generation != prior.head.action_generation
+                    or visible_prior.n5_result.result_body.artifact_ref != result_ref
+                ):
+                    raise AssertionError("candidate experiment fresh GET omitted prior result")
             else:
                 # A blocked basis may still retain the actual candidate-only
                 # result in its verified source reentry. It is deliberately
@@ -1030,7 +1056,12 @@ def _read_candidate_experiment_with_reopened_owner(
             result_blob_path.unlink()
             try:
                 missing_result_response = reader.get(path, headers=headers)
-                if missing_result_response.status_code != 409:
+                permitted_statuses = (
+                    {409, 503}
+                    if reopened_history.terminal.terminal_outcome == "candidate_blocked"
+                    else {409}
+                )
+                if missing_result_response.status_code not in permitted_statuses:
                     raise AssertionError(
                         "candidate experiment missing selected N5 result did not fail closed: "
                         f"{missing_result_response.status_code} {missing_result_response.text}"
@@ -1038,6 +1069,13 @@ def _read_candidate_experiment_with_reopened_owner(
                 missing_result_code = missing_result_response.json().get("code")
                 if not isinstance(missing_result_code, str) or not missing_result_code:
                     raise AssertionError("candidate experiment missing-result refusal was untyped")
+                if (
+                    missing_result_response.status_code == 503
+                    and missing_result_code != "candidate_experiment_n5_result_storage_unavailable"
+                ):
+                    raise AssertionError(
+                        "candidate experiment missing-result 503 was misclassified"
+                    )
             finally:
                 result_blob_path.write_bytes(result_payload)
 
@@ -1052,16 +1090,20 @@ def _read_candidate_experiment_with_reopened_owner(
                 raise AssertionError("candidate experiment restored result lost positive selection")
             if expected_result_ref is not None:
                 restored_result = restored_action.candidate_n5_result
-                if (
-                    restored_result is None
-                    or artifacts.artifact_ref_identity_key(
-                        restored_result.result_body.artifact_ref
-                    )
-                    != artifacts.artifact_ref_identity_key(expected_result_ref)
-                ):
+                if restored_result is None or artifacts.artifact_ref_identity_key(
+                    restored_result.result_body.artifact_ref
+                ) != artifacts.artifact_ref_identity_key(expected_result_ref):
                     raise AssertionError(
                         "candidate experiment restored GET lost exact reentry result"
                     )
+            if reopened_history.terminal.terminal_outcome == "candidate_blocked":
+                restored_prior = restored_action.prior_candidate_n5_result
+                if (
+                    restored_prior is None
+                    or restored_prior.prior_action_ref != prior.terminal.candidate_action_ref
+                    or restored_prior.n5_result.result_body.artifact_ref != result_ref
+                ):
+                    raise AssertionError("candidate experiment restored GET lost prior result")
             return restored_action
 
 

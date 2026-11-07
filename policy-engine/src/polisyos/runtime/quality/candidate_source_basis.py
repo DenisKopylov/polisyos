@@ -125,6 +125,66 @@ class CandidateSourceBasisValues:
     canonical_base_data_snapshot_ref: artifacts.ArtifactRef | None = None
 
 
+def candidate_experiment_input_changed(
+    *,
+    prior: object,
+    previous_source: object,
+    current_source: object,
+    prepared: CandidateSourceBasisValues,
+) -> bool:
+    """Detect an owner-derived numerical input change without asserting equivalence."""
+    from polisyos.ir import candidate_ncm_spec_from_declaration, prepare_ncm_spec_selected_values
+    from polisyos.runtime.quality.acquisition_evaluation import ResolvedAcquisitionEvaluation
+    from polisyos.runtime.quality.candidate_acquisition_source import CandidateAcquisitionSource
+    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+
+    if (
+        type(prior) is not ResolvedAcquisitionEvaluation
+        or type(previous_source) is not CandidateAcquisitionSource
+        or type(current_source) is not CandidateAcquisitionSource
+        or type(prepared) is not CandidateSourceBasisValues
+        or prepared.predicate_provenance != "recomputed"
+        or prepared.reason_codes
+        or prepared.inputs is None
+        or prepared.prospective_model is None
+    ):
+        raise ValueError("candidate_experiment_input_comparison_not_established")
+    fields = (
+        "tenant_id",
+        "cell_id",
+        "run_id",
+        "route_id",
+        "target_slot_id",
+        "country_code",
+        "year",
+        "population",
+        "denominator",
+        "quantity_kind",
+        "canonical_unit",
+    )
+    if any(getattr(previous_source, name) != getattr(current_source, name) for name in fields):
+        raise ValueError("candidate_experiment_input_scope_changed")
+    slot = current_source.target_slot_id
+    if prepared.inputs.slot_binding.target_slot_id != slot:
+        raise ValueError("candidate_experiment_input_slot_mismatch")
+    old_values = prior.input_record.n5.baseline_state
+    new_values = prepared.prospective_model.n5_config.baseline_state
+    if slot not in old_values or slot not in new_values:
+        raise ValueError("candidate_experiment_input_slot_missing")
+    old_ncm = prepare_ncm_spec_selected_values(
+        candidate_ncm_spec_from_declaration(prior.handoff.model_declaration)
+    ).value_bytes
+    new_ncm = prepare_ncm_spec_selected_values(prepared.prospective_model.ncm_spec).value_bytes
+    return (
+        exact_n5_content_bytes(old_values[slot]) != exact_n5_content_bytes(new_values[slot])
+        or exact_n5_content_bytes(prior.input_record.n5)
+        != exact_n5_content_bytes(prepared.prospective_model.n5_config)
+        or exact_n5_content_bytes(prior.input_record.profile.rule)
+        != exact_n5_content_bytes(prepared.prospective_model.rule)
+        or old_ncm != new_ncm
+    )
+
+
 def _selected_n5_world_model_matches_exact_n4_context(
     *,
     selected_world_model_hash: str,
@@ -1129,6 +1189,23 @@ def _candidate_source_predecessors_for_verified_experiment_origin(
     for generation, history in enumerate(chain[:cutoff], start=1):
         receipt = history.reentry
         if receipt is None:
+            if (
+                history.terminal.terminal_outcome == "candidate_blocked"
+                and history.decision is not None
+                and history.decision.comparison_result == "not_established"
+                and history.decision.predicate_provenance == "not_established"
+                and history.terminal.blocker_ref is not None
+                and history.terminal.blocker_reason
+                == "candidate_experiment_input_change_not_established"
+                and history.decision.reason_codes
+                and "candidate_experiment_input_change_not_established"
+                in history.decision.reason_codes
+                and history.continuation is None
+                and history.evaluation is None
+                and history.frontier_before is None
+                and history.frontier_after is None
+            ):
+                continue
             if (
                 history.terminal.terminal_outcome != "candidate_evaluation_retained"
                 or history.continuation is None

@@ -6476,6 +6476,16 @@
             ],
             "title": "Job State"
           },
+          "prior_candidate_n5_result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CandidateExperimentPriorN5ResultProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "receipt_phase": {
             "anyOf": [
               {
@@ -6651,6 +6661,30 @@
           "limitations"
         ],
         "title": "CandidateExperimentN5ResultProjection",
+        "type": "object"
+      },
+      "CandidateExperimentPriorN5ResultProjection": {
+        "additionalProperties": false,
+        "description": "Keep a verified earlier candidate result distinct from the current action.",
+        "properties": {
+          "n5_result": {
+            "$ref": "#/components/schemas/CandidateExperimentN5ResultProjection"
+          },
+          "prior_action_generation": {
+            "minimum": 1.0,
+            "title": "Prior Action Generation",
+            "type": "integer"
+          },
+          "prior_action_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "prior_action_ref",
+          "prior_action_generation",
+          "n5_result"
+        ],
+        "title": "CandidateExperimentPriorN5ResultProjection",
         "type": "object"
       },
       "CandidateExperimentRouteExecutionRequest": {

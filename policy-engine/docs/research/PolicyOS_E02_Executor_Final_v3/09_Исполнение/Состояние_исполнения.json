@@ -13343,6 +13343,35 @@
           "process_group_gone": true,
           "deciding_failure_code": "TypeError: ArtifactRef is unhashable in candidate_source_reentry_history._owner_record"
         },
+        "n7_r28_historical_owner_readback": {
+          "classification": "PASS_AFFECTED_HISTORY_TESTS_AND_RETAINED_OWNER_READBACK",
+          "source_base_commit": "09740a8379fd49728d73696b7d890c9c929a4a32",
+          "source_base_tree": "c01e22bd4d8d68442cf42b4c6aeb71adde2c9354",
+          "source_and_test_sha256": {
+            "src/polisyos/runtime/quality/candidate_source_reentry_history.py": "1aa032aeb855d91cd872f66939e2973fea09679f5d11ca0ff2e2299bc1c98dc1",
+            "tests/unit/runtime/quality/test_candidate_source_reentry_history.py": "cacb1720fe57a4cdbf72baa928cd6784078633c7f31585fd52ff3c454eaf78aa"
+          },
+          "affected_tests": {
+            "PASS": 11,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "affected_tests_output": "AUTHOR:policy-engine/_cache/e02/lane01-n7-history-artifactref-r1",
+          "readback_output": "AUTHOR:policy-engine/_cache/e02/lane01-r28-readonly-owner-replay-r3",
+          "readback_stdout_sha256": "6412e9306ea4dde9a5afc3953a5595fb3f2475ab60e09b9f53ea208fff929145",
+          "scope": "Selected intent, checkpoint and reentry receipt from actual R28, using the typed phase compiled ref and canonical query-only event history. Twenty deciding CAS refs identified. SQLite DB/WAL/SHM hashes unchanged. No live admission, N5 or action terminal write; terminal head and fresh GET remain open.",
+          "affected_test_resources": {
+            "wall_seconds": 25.6992023329949,
+            "peak_rss_bytes": 1742471168,
+            "stable_input_count": 8
+          },
+          "retained_readback_resources": {
+            "wall_seconds": 19.634213917073794,
+            "peak_rss_bytes": 1517682688,
+            "stable_input_count": 11
+          }
+        },
         "n7_ordinary_bounded_r1": {
           "source_commit": "fb46a90924fe37433a05a9943905c4f7654df313",
           "source_tree": "6b8add0dc3b5fac291a04e13f7d550b9be7911ed",
@@ -13566,7 +13595,7 @@
         },
         "free_disk_bytes_at_refresh": 15066558464,
         "used_swap_GiB_at_refresh": 0.4951171875,
-        "next_action": "Verify historical compiled-reference ID projection through persisted R28 owner records and affected fixtures. Continue N6 in AUTHOR. Determine retained recovery before any new numerical run.",
+        "next_action": "Historical compiled-reference owner readback passes on persisted R28 and affected fixtures. Determine the legal lifecycle recovery route before any new numerical run. Continue N6 in AUTHOR.",
         "latest_G_cleanup": {
           "workspace_G": "Ancestor cf9cbee of MAIN b2e;0 G-only/5197 MAIN-only commits; clean tracked/nonignored state; inactive standalone environment. ~8.64GiB moved to Trash; later manually emptied by user. No active checkout/env/data dependency on G.",
           "G_agent_history": "User-authorized exact435 descendants,181069 history rows copied/row-hash verified before transfer. Shared DB reduced1717792768B by native incremental vacuum; final WAL checkpoint0/0/0. ParentG/other chat histories preserved. Archive/restore tool and temporary safety hardlink all in Trash, not outside. Archive quick_check/hash and synthetic exact restore pass; shared full quick_check interrupted at45s without PASS. Executor never emptied Trash.",

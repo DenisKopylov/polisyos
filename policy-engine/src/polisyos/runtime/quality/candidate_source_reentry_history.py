@@ -24,6 +24,8 @@ if TYPE_CHECKING:
 
     from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
     from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
+        AcquisitionRoutePhaseReceipt,
         VerifiedCandidateExperimentOrigin,
     )
     from polisyos.runtime.quality.acquisition_world_growth import (
@@ -91,18 +93,24 @@ def _owner_record[RecordT: BaseModel](
     phase: str,
     event_id: str,
     inputs: Sequence[artifacts.InputRef],
-    compiled_ref: str,
+    compiled_ref: str | artifacts.ArtifactRef,
     scope: _Scope,
     policy_ref: artifacts.ArtifactRef | None = None,
 ) -> RecordT:
     record = record_type.model_validate(_selected_payload(store, ref, kind=kind))
     manifest = store.get_manifest(ref)
     closure = manifest.same_input_closure
+    # Action replay verifies the selected reference. The closure records its content ID.
+    compiled_id = (
+        str(compiled_ref.artifact_id)
+        if type(compiled_ref) is artifacts.ArtifactRef
+        else compiled_ref
+    )
     expected_refs = tuple(
         dict.fromkeys(
             (
                 *((str(policy_ref.artifact_id),) if policy_ref is not None else ()),
-                compiled_ref,
+                compiled_id,
                 *(str(item.artifact_id) for item in inputs),
             )
         )
@@ -540,7 +548,10 @@ def _read_historical_action(
     action_ref: artifacts.ArtifactRef,
     origin: VerifiedCandidateExperimentOrigin | None = None,
     bridge: AcquisitionWorldGrowthBridge | None = None,
-) -> tuple[CandidateAcquisitionActionReceipt, object]:
+) -> tuple[
+    CandidateAcquisitionActionReceipt,
+    AcquisitionCandidateExperimentPhaseReceipt | AcquisitionRoutePhaseReceipt,
+]:
     if (origin is None) != (bridge is None):
         raise ValueError("candidate_reentry_history_experiment_owner_incomplete")
     if origin is not None:

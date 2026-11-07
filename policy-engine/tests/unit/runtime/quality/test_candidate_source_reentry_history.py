@@ -72,6 +72,7 @@ class _CheckpointCase:
     ref: artifacts.ArtifactRef
     event_id: str
     inputs: tuple[artifacts.InputRef, ...]
+    compiled_ref: str | artifacts.ArtifactRef
 
 
 def _checkpoint_case(
@@ -80,6 +81,7 @@ def _checkpoint_case(
     *,
     corruption: Literal["parent", "missing_parent", "producer", "closure_job", "closure_route"]
     | None = None,
+    typed_compiled_ref: bool = False,
 ) -> _CheckpointCase:
     """Persist a test-owned checkpoint through the actual authority writer."""
     store = artifacts.FileSystemCAS(tmp_path / "cas")
@@ -93,6 +95,17 @@ def _checkpoint_case(
         )
 
     action_ref = parent("action", "runtime_quality.acquisition_candidate_action_receipt")
+    compiled_ref: str | artifacts.ArtifactRef = _COMPILED
+    if typed_compiled_ref:
+        compiled_ref = parent(
+            "compiled",
+            "runtime_quality.test_candidate_experiment_compiled_input",
+        )
+    compiled_id = (
+        str(compiled_ref.artifact_id)
+        if type(compiled_ref) is artifacts.ArtifactRef
+        else compiled_ref
+    )
     checkpoint = CandidateAcquisitionWorldCheckpoint(
         candidate_action_ref=action_ref,
         intent_ref=parent("intent", "runtime_quality.acquisition_candidate_world_intent"),
@@ -122,8 +135,10 @@ def _checkpoint_case(
         actual_inputs[0] = actual_inputs[0].model_copy(update={"role": "unselected_action"})
     if corruption == "missing_parent":
         actual_inputs.pop()
-    input_ids = tuple(dict.fromkeys((_COMPILED, *(str(row.artifact_id) for row in actual_inputs))))
-    context = _runtime_context(_COMPILED)
+    input_ids = tuple(
+        dict.fromkeys((compiled_id, *(str(row.artifact_id) for row in actual_inputs)))
+    )
+    context = _runtime_context(compiled_id)
     context.update(
         evidence_id=identity,
         owner="team-runtime-quality",
@@ -174,7 +189,15 @@ def _checkpoint_case(
         canon_spec=canon.CanonSpec(forbid_floats=False),
     )
     assert result.cas_ref.manifest_profile_sha256
-    return _CheckpointCase(store, events, checkpoint, result.cas_ref, event_id, inputs)
+    return _CheckpointCase(
+        store,
+        events,
+        checkpoint,
+        result.cas_ref,
+        event_id,
+        inputs,
+        compiled_ref,
+    )
 
 
 def _read(
@@ -194,9 +217,34 @@ def _read(
         phase=_PHASE,
         event_id=case.event_id,
         inputs=case.inputs,
-        compiled_ref=_COMPILED,
+        compiled_ref=case.compiled_ref,
         scope=_SCOPE,
     )
+
+
+def test_historical_checkpoint_projects_typed_compiled_ref_to_selected_scope_id(
+    tmp_path: Path,
+) -> None:
+    """A real selected compiled CAS ref binds its ID in the exact owner closure."""
+    with closing(
+        ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "events.sqlite3")
+    ) as control:
+        case = _checkpoint_case(tmp_path, control, typed_compiled_ref=True)
+        assert type(case.compiled_ref) is artifacts.ArtifactRef
+        assert case.compiled_ref.manifest_profile_sha256 is not None
+        assert case.store.verify(case.compiled_ref).ok
+
+        manifest = case.store.get_manifest(case.ref)
+        closure = manifest.same_input_closure
+        assert closure is not None
+        assert closure.evidence_input_refs[0] == str(case.compiled_ref.artifact_id)
+        assert closure.tenant_id == _SCOPE.tenant_id
+        assert closure.cell_id == _SCOPE.cell_id
+        assert closure.run_id == _SCOPE.run_id
+        assert closure.job_id == _SCOPE.source_job_id
+        assert closure.closure_sha256 == _SCOPE.route_id
+
+        assert _read(case) == case.checkpoint
 
 
 def test_historical_checkpoint_reopens_exact_owner_without_live_job_or_writes(

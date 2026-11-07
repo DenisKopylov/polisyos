@@ -13700,6 +13700,38 @@
           "stable_inputs": 9,
           "scope": "Isolated CPython 3.14 with original locked wheels for sklearn, importlib_metadata and six. Exact executed Python members and actual retained LinearRegression provider, facade and consumers reconcile. Substituting the last consumer binding refuses. Native provider profile, closure, authority and protected through-use remain not established."
         },
+        "n6_selected_numpy_native_member": {
+          "classification": "PASS_SELECTED_NATIVE_FILE_AND_MAPPED_SYMBOL_SCOPE",
+          "saved_commit": "90facacf4a04163ba5c31b6f2974f02a26fca16a",
+          "saved_tree": "f1f9e3e14ce4297218ba5c3a30b6063f30850e89",
+          "tool_checks": "AUTHOR:policy-engine/_cache/e02/lane01-native-provider-tool-cohort-author-r1",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-numpy-native-provider-author-r1",
+          "stdout_sha256": "d128c8079ff1e48846c39cae3701509f3e93da46a4e704f082f7cb40daf7659d",
+          "scope": "33 tool cases. Real NumPy wheel member matched before normal extension load. The actual asarray C entry maps to the same Darwin image as the native initializer. Absent-image no-load and substituted-module controls pass. Mapped bytes at load and protection through use remain not established."
+        },
+        "n5_observed_callable_types": {
+          "classification": "PASS_BOUNDED_NCM_CALL_DIAGNOSTIC",
+          "source_commit": "509b90853b9faea85f6ff78d12d3efa6ab33ecd1",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-n5-call-types-main-r1",
+          "stdout_sha256": "554b998ca8f91025ab830a10c525f428988173a9a36ca601b030720a18cf19f3",
+          "scope": "Actual one-step controller numerical and receipt checks are unchanged with both observers. On the owner thread, 478250 selected CALL events include actual NumPy dispatcher and Cython calls with provider identity not established. This is a bounded diagnostic, with complete readset and protected through-use unestablished."
+        },
+        "reentry_budget_fastpath_author": {
+          "classification": "PASS_SCOPED_OWNER_AND_FALLBACK_CHECKS",
+          "saved_commit": "5fafe502bf5c0619fe56fbf9448ba3491021b4d1",
+          "saved_tree": "94329aa5765cbc045dc72f8689440a780d332ae0",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-reentry-budget-fastpath-author-20261107-r1",
+          "observed": {"PASS": 14, "FAIL": 0, "ERROR": 0, "SKIP": 0},
+          "scope": "Existing selected profile path skips one middle full replay. Real ledger refusal, original full fallback before any profile write, and final owner fence pass. CAS-failure control substitutes an exception. Native timing and composition remain open."
+        },
+        "sim01_compatible_model_orders": {
+          "classification": "PASS_ACTUAL_N5_AND_FRESH_READER_FOR_HOST_SELECTED_MODELS",
+          "saved_commit": "e04955479a643f3b7ffd54f7b81b8a24d029aadc",
+          "saved_tree": "3230a4f3c106379faeb386a1b87621ae78c81b96",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-sim01-compatible-models-author-r1",
+          "observed": {"PASS": 2, "FAIL": 0, "ERROR": 0, "SKIP": 0},
+          "scope": "Both orders of distinct acyclic same-estimand NCMs pass with 11 stable inputs. The exact controlled host-selected model refs reach actual N5 and give the respective distinct effects. A fresh GET reads the persisted selection. Automatic proposal generation and empirical grounding are outside this check."
+        },
         "sim01_real_fallback_current": {
           "classification": "PASS_SCOPED_NATIVE_FALLBACK_AND_REFUSALS",
           "source_commit": "64ac47de0f0777c5a9817ebcdee0014e53b38f7d",
@@ -29961,7 +29993,8 @@
         "LANE-01.evidence_catalog.numeric_native",
         "LANE-01.evidence_catalog.hypothetical_sibling_full_current",
         "LANE-01.evidence_catalog.ordinary_half_gain_current",
-        "LANE-01.evidence_catalog.sim01_real_fallback_current"
+        "LANE-01.evidence_catalog.sim01_real_fallback_current",
+        "LANE-01.evidence_catalog.sim01_compatible_model_orders"
       ],
       "blockers": [],
       "deferred_ids": []

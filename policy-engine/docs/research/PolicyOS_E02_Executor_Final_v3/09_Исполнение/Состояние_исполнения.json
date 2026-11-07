@@ -9158,6 +9158,18 @@
           "inputs_unchanged": true,
           "scope": "Configured procurement N5 publishes the exact selected numerical artifact to a separate API and conditional reader. All three child modes and semantic removal/refusal controls pass. The historical R4 cost-tag failure stays separate."
         },
+        "n6_labor_seed_optional_binding_diagnostic_r3": {
+          "source_commit": "f39e11f24cce6514cae6d2495a1dc43a32cd113f",
+          "source_tree": "26e6f8cbd1f35342a36bdf9a6481b719a174aa7e",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-first-a-passive-diagnostic-r3",
+          "observed": {
+            "FAIL": 1
+          },
+          "wall_seconds": 241.58,
+          "named_inputs": 10,
+          "inputs_unchanged": true,
+          "scope": "Passively observed actual labor seed source-capture refusals in _source_module_direct_binding_route for the selected sklearn compatibility LinearRegression and observability PolicyOSTracer edges. The temporary diagnostic is a pinned test delta with no product wrappers. Its V5 port readback assertion fails, so there is no qualified selected V5 witness or protected through-use result. The tracked diagnostic test was restored after the run."
+        },
         "n6_and_prior_controls_author_r2": {
           "delivered_author_commit": "62c973b62bc942e3f339fb11e75085ff5074d4f3",
           "output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-and-prior-controls-author-r2",

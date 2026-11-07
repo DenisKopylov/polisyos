@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationRequest,
         JointSimulationResult,
+        PreparedJointSimulationConfiguration,
     )
 
 
@@ -1152,3 +1153,74 @@ def read_n5_execution_implementation_witness(
     if exact_n5_content_hash(trajectories) != witness.trajectory_hash:
         raise ValueError("n5_execution_witness_trajectories_mismatch")
     return witness
+
+
+def _candidate_n5_historical_configuration_matches(
+    witness: N5ExecutionImplementationWitness,
+    prepared_configuration: PreparedJointSimulationConfiguration,
+) -> bool:
+    """Compare the historical configuration snapshot with its prepared descriptor.
+
+    The selected result must already be resolved through its owner and the witness
+    obtained through ``read_n5_execution_implementation_witness``. Snapshot equality
+    does not establish configuration use throughout engine selection or coupling.
+    """
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        PreparedJointSimulationConfiguration,
+    )
+
+    if (
+        type(witness) is not N5ExecutionImplementationWitness
+        or type(prepared_configuration) is not PreparedJointSimulationConfiguration
+        or type(witness.consumed_configuration_values) is not dict
+    ):
+        return False
+    try:
+        observed = exact_n5_content_bytes(witness.consumed_configuration_values)
+        expected = exact_n5_content_bytes(_exact_native_content(prepared_configuration))
+    except (TypeError, ValueError):
+        return False
+    return observed == expected
+
+
+def _candidate_n5_failure_diagnostic_is_bounded(reason: str) -> bool:
+    """Recognize only the bounded source locators emitted by this witness owner."""
+    target_prefix = "n5_implementation_failure_target:"
+    site_prefix = "n5_implementation_failure_site:"
+    module_pattern = r"polisyos(?:\.[A-Za-z_][A-Za-z_0-9]*)+"
+    if reason.startswith(target_prefix):
+        target = reason.removeprefix(target_prefix)
+        return len(target) <= 256 and re.fullmatch(module_pattern, target) is not None
+    return (
+        len(reason) <= 560
+        and re.fullmatch(
+            rf"{site_prefix}polisyos(?:\.[A-Za-z_][A-Za-z_0-9]*){{2,}}:[1-9][0-9]{{0,7}}",
+            reason,
+        )
+        is not None
+    )
+
+
+def _candidate_n5_experiment_observation_supported(
+    witness: N5ExecutionImplementationWitness,
+    prepared_configuration: PreparedJointSimulationConfiguration,
+) -> bool:
+    """Gate candidate output on completed-result integrity and limited source refusal.
+
+    A source binding refusal can leave a candidate result available when the
+    physical observer completed and the request, trajectories and configuration
+    snapshots agree. The caller keeps configuration use and implementation
+    provenance ``not_established``. This predicate grants no scientific reuse.
+    """
+    if not _candidate_n5_historical_configuration_matches(witness, prepared_configuration):
+        return False
+    if witness.predicate_provenance == "recomputed":
+        return True
+    if witness.predicate_provenance != "not_established":
+        return False
+    reasons = witness.reason_codes
+    return "canonical_loaded_runtime_mismatch" in reasons and all(
+        reason == "canonical_loaded_runtime_mismatch"
+        or _candidate_n5_failure_diagnostic_is_bounded(reason)
+        for reason in reasons
+    )

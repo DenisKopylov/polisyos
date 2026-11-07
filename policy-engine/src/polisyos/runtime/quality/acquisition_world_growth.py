@@ -5979,8 +5979,8 @@ class AcquisitionWorldGrowthBridge:
             PreparedJointSimulationConfiguration,
         )
         from polisyos.runtime.quality.n5_execution_basis import (
-            _exact_native_content,
-            exact_n5_content_bytes,
+            _candidate_n5_experiment_observation_supported,
+            _candidate_n5_historical_configuration_matches,
             read_n5_execution_implementation_witness,
         )
 
@@ -5989,6 +5989,8 @@ class AcquisitionWorldGrowthBridge:
         if (closure is None) == (origin is None):
             raise ValueError("candidate_source_reentry_prepared_configuration_identity_ambiguous")
         if origin is not None:
+            if type(origin) is not VerifiedCandidateExperimentOrigin:
+                raise TypeError("candidate_experiment_reentry_origin_untyped")
             selected = resolve_selected_acquisition_evaluation_parts(
                 artifact_store=self.artifact_store,
                 control_store=self.control_store,
@@ -6019,10 +6021,24 @@ class AcquisitionWorldGrowthBridge:
         witness = read_n5_execution_implementation_witness(
             selected.result, input_ref=selected.selected.n5_input_ref
         )
-        if witness.predicate_provenance != "recomputed" or exact_n5_content_bytes(
-            witness.consumed_configuration_values
-        ) != exact_n5_content_bytes(_exact_native_content(prepared_n5_configuration)):
-            raise ValueError("candidate_source_reentry_configuration_not_consumed")
+        if origin is None:
+            supported = (
+                witness.predicate_provenance == "recomputed"
+                and _candidate_n5_historical_configuration_matches(
+                    witness, prepared_n5_configuration
+                )
+            )
+        else:
+            supported = _candidate_n5_experiment_observation_supported(
+                witness, prepared_n5_configuration
+            )
+        if not supported:
+            reason = (
+                "candidate_source_reentry_configuration_not_consumed"
+                if origin is None
+                else "candidate_source_reentry_observation_not_established"
+            )
+            raise ValueError(reason)
 
     def _complete_candidate_source_reentry(
         self, closure: VerifiedAcquisitionRouteClosure

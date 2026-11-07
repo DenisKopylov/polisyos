@@ -9135,6 +9135,42 @@
         "affected_fixtures": "Disjoint Luna owners for CYC04 full fixture and ACQ01/WMR consumers. No shared index/ref rights."
       },
       "evidence_catalog": {
+        "x03_cpi_canonical_admission_r7": {
+          "run_base_commit": "a0ec99d22a243a4137a91a9c491c9ff26112d356",
+          "run_base_tree": "872e324d488f97b9a48aaa3e2a75da27190c9c9f",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-x03-cpi-admission-run-r7",
+          "observed": {
+            "SKIP": 1
+          },
+          "classification": "BOUNDARY_REACHED_SENTINEL_BEFORE_WORKER",
+          "named_inputs": 43,
+          "inputs_unchanged": true,
+          "wall_seconds": 263.39,
+          "scope": "Genuine initial N5, configured N7 v2 with CPI index scope, accepted execute POST and fresh requested head. The deliberate sentinel stops before delivery. No acquired-world B or fresh numerical GET."
+        },
+        "n5_owner_rebuilt_v5_request": {
+          "delivered_author_commit": "da35990c9ff7f7b1e90641b4ada795fc921f00d6",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-v5-owned-request-focused-author-r2",
+          "observed": {
+            "PASS": 1
+          },
+          "wall_seconds": 54.77,
+          "named_inputs": 7,
+          "inputs_unchanged": true,
+          "scope": "Real one-step NCM and independent 11/5 oracle with caller alias mutations. CAS reader and request builder are substituted. The exact admitted request flows into the actual controller. Complete served verification remains separate."
+        },
+        "n6_joined_native_author_r2": {
+          "source_commit": "0e0a68d5d50d05bff8e341d8c8326e93a80d10f2",
+          "source_tree": "ab36b9478298f8d51cdeb866104ccab57dc5c166",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-ncm-native-joined-author-r2",
+          "observed": {
+            "PASS": 1
+          },
+          "named_inputs": 13,
+          "inputs_unchanged": true,
+          "wall_seconds": 107.01,
+          "scope": "Actual NCM oracle and locked NumPy provider bindings for asarray and default_rng, with replacement refusal. Protected through-use, mapped bytes and full authority remain unestablished."
+        },
         "r31_terminal_shared_physical_work": {
           "source_commit": "509b90853b9faea85f6ff78d12d3efa6ab33ecd1",
           "source_tree": "bff5b392f69c7bd9b33fbd919066ad42c04f7419",
@@ -9195,8 +9231,11 @@
             "MAIN:policy-engine/_cache/e02/lane01-candidate-terminal-crash-native-r32",
             "MAIN:policy-engine/_cache/e02/lane01-gdp-protected-main-r6"
           ],
-          "classification": "RUNNING",
-          "scope": "Independent stores, JAX CPU, one numerical thread per process. No current qualification claim."
+          "observed": {
+            "FAIL": 2
+          },
+          "classification": "ACTUAL_B_REENTRY_THEN_TERMINAL_UNBOUND_QUOTA",
+          "scope": "Actual independent acquired-world B and reentry artifacts. R32 had 72 stable pins and GDP R6 had 79. Both failed before terminal because a fresh observer read capacity while invocation selection was pending. Saved ledger and B operation bindings agree. No crash hook, retry or fresh API claim."
         },
         "numeric_native": {
           "output": "policy-engine/_cache/e02/lane01-numerics/native-full-r2",

@@ -1483,6 +1483,7 @@ def _materialize_controlled_world_model_build(
     candidate_baseline_state: Mapping[str, object] | None = None,
     candidate_outcome_state_paths: Mapping[str, str] | None = None,
     candidate_model_unit_ids: Mapping[str, str] | None = None,
+    candidate_model_time_semantics: Any | None = None,
 ) -> Any:
     """Build a source-bound, limited WMR from real local owner artifacts.
 
@@ -1739,6 +1740,7 @@ def _materialize_controlled_world_model_build(
         data_snapshot_ref=str(data_snapshot_ref.artifact_id),
         registry_bundle_ref=str(registry_bundle.bundle_ref.artifact_id),
         calibrated=False,
+        time_semantics=candidate_model_time_semantics,
         notes=["controlled candidate-only source fixture"],
     )
 
@@ -1822,6 +1824,7 @@ def _materialize_controlled_world_model_record(
     candidate_baseline_state: Mapping[str, object] | None = None,
     candidate_outcome_state_paths: Mapping[str, str] | None = None,
     candidate_model_unit_ids: Mapping[str, str] | None = None,
+    candidate_model_time_semantics: Any | None = None,
 ) -> Any:
     """Return the exact WMR from its owner build result for existing callers."""
 
@@ -1841,6 +1844,7 @@ def _materialize_controlled_world_model_record(
         candidate_baseline_state=candidate_baseline_state,
         candidate_outcome_state_paths=candidate_outcome_state_paths,
         candidate_model_unit_ids=candidate_model_unit_ids,
+        candidate_model_time_semantics=candidate_model_time_semantics,
     )
     return built.record
 
@@ -1955,8 +1959,21 @@ def _build_configured_procurement_profile(
     rule_maximum: int = 1,
     target_baseline: float = 0.0,
     outcome_baseline: float = 0.0,
+    invocation_quota_policy: Any | None = None,
+    prepared_substrate_registry: Any | None = None,
+    use_prepared_substrate_registry_as_is: bool = False,
+    candidate_model_time_semantics: Any | None = None,
+    candidate_outcome_state_path: str | None = None,
+    candidate_outcome_unit_id: str | None = None,
+    candidate_outcome_noise_stddev: float = 0.01,
 ) -> tuple[Any, Any, Any]:
-    """Build a candidate profile from its exact owner-persisted WMR source."""
+    """Build a candidate profile from its exact owner-persisted WMR source.
+
+    ``candidate_outcome_state_path`` and ``candidate_outcome_unit_id`` let a
+    narrowly scoped candidate fixture bind an unregistered outcome to an
+    explicit scenario WMR path and model unit. They never mutate or extend the
+    shared default slot registry.
+    """
 
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.ir.analytics.ncm import (
@@ -1986,8 +2003,26 @@ def _build_configured_procurement_profile(
     _, base_context = _controlled_profile_cycle_basis(
         recorded_problem,
         repo_root=basis_repo_root or product_root,
+        prepared_substrate_registry=prepared_substrate_registry,
+        use_prepared_substrate_registry_as_is=use_prepared_substrate_registry_as_is,
     )
     outcome_variable = recorded_problem.outcome_of_interest.target_variable
+    if candidate_outcome_state_path is not None and (
+        not isinstance(candidate_outcome_state_path, str)
+        or not candidate_outcome_state_path.strip()
+    ):
+        raise ValueError("controlled_candidate_outcome_state_path_invalid")
+    if candidate_outcome_unit_id is not None and (
+        not isinstance(candidate_outcome_unit_id, str) or not candidate_outcome_unit_id.strip()
+    ):
+        raise ValueError("controlled_candidate_outcome_unit_id_invalid")
+    if (
+        isinstance(candidate_outcome_noise_stddev, bool)
+        or not isinstance(candidate_outcome_noise_stddev, (int, float))
+        or not math.isfinite(float(candidate_outcome_noise_stddev))
+        or candidate_outcome_noise_stddev < 0.0
+    ):
+        raise ValueError("controlled_candidate_outcome_noise_stddev_invalid")
     rule = CandidateScenarioSetToRule(
         operator_kind=rule_operator_kind,
         parameter_id=rule_parameter_id,
@@ -2002,14 +2037,14 @@ def _build_configured_procurement_profile(
         target_baseline=target_baseline,
         outcome_baseline=outcome_baseline,
         outcome_per_target_unit=0.5,
-        outcome_noise_stddev=0.01,
+        outcome_noise_stddev=float(candidate_outcome_noise_stddev),
     )
     ncm = candidate_ncm_spec_from_declaration(model_parameters)
     from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
 
     outcome_slot_id = _CONTROLLED_SLOT_ALIASES.get(outcome_variable, outcome_variable)
     outcome_slot = DEFAULT_SLOT_REGISTRY.slots.get(outcome_slot_id)
-    outcome_unit_id = (
+    outcome_unit_id = candidate_outcome_unit_id or (
         outcome_slot.unit.unit_id
         if outcome_slot is not None and outcome_slot.unit is not None
         else rule.unit_id
@@ -2041,7 +2076,15 @@ def _build_configured_procurement_profile(
         baseline_state=baseline_state,
         seed=11,
         replications=2,
+        **(
+            {"invocation_quota_policy": invocation_quota_policy, "invocation_purpose": "standard"}
+            if invocation_quota_policy is not None
+            else {}
+        ),
     )
+    candidate_outcome_state_paths = _controlled_direct_ncm_outcome_state_paths(outcome_variable)
+    if candidate_outcome_state_path is not None:
+        candidate_outcome_state_paths[outcome_variable] = candidate_outcome_state_path
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         ncm_ref = persist_ncm_spec(_ensure_ir_artifact_store(artifact_store), ncm)
         substrate_registry_ref = persist_substrate_registry(
@@ -2062,8 +2105,9 @@ def _build_configured_procurement_profile(
         cell_id=cell_id,
         ncm_view_refs=(ncm_ref,),
         candidate_baseline_state=n5.baseline_state,
-        candidate_outcome_state_paths=_controlled_direct_ncm_outcome_state_paths(outcome_variable),
+        candidate_outcome_state_paths=candidate_outcome_state_paths,
         candidate_model_unit_ids=model_unit_ids,
+        candidate_model_time_semantics=candidate_model_time_semantics,
     )
     world = world_build.record
     context_inputs = CandidateSimulationContextInputs(
@@ -2505,6 +2549,8 @@ def _controlled_profile_cycle_basis(
     *,
     runtime_hints: dict[str, Any] | None = None,
     repo_root: Path | None = None,
+    prepared_substrate_registry: Any | None = None,
+    use_prepared_substrate_registry_as_is: bool = False,
 ) -> tuple[DesignProblem, Any]:
     """Build only the owner-bound cycle context consumed by the profile fixture."""
     from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
@@ -2513,6 +2559,7 @@ def _controlled_profile_cycle_basis(
         SubstrateCoverage,
         SubstrateLayer,
         SubstrateRegistration,
+        SubstrateRegistry,
         SubstrateSchemaRegime,
         SubstrateTrustTier,
         build_substrate_registry,
@@ -2559,19 +2606,39 @@ def _controlled_profile_cycle_basis(
         provenance_refs=(f"lane0://{domain}/causal-claims",),
         authority_refs=(f"lane0://{domain}/registry-owner",),
     )
-    registry = build_substrate_registry(
-        (build_substrate_registry_entry(registration),),
-        producer_ref="tests.unit.runtime.quality.test_generation_cycle",
-        source_catalog_refs=registration.authority_refs,
-    )
-    selected_hash = registry.entries[0].entry_content_hash
+    if type(use_prepared_substrate_registry_as_is) is not bool:
+        raise TypeError("controlled_profile_prepared_registry_mode_invalid")
+    prepared_entries = ()
+    if prepared_substrate_registry is not None:
+        if type(prepared_substrate_registry) is not SubstrateRegistry:
+            raise TypeError("controlled_profile_prepared_substrate_registry_untyped")
+        prepared_entries = tuple(prepared_substrate_registry.entries)
+        if not any(entry.family_id == "macro_state" for entry in prepared_entries):
+            raise ValueError("controlled_profile_prepared_macro_state_missing")
+    if use_prepared_substrate_registry_as_is:
+        if prepared_substrate_registry is None:
+            raise ValueError("controlled_profile_prepared_registry_required")
+        registry = prepared_substrate_registry
+    else:
+        entries = [build_substrate_registry_entry(registration), *prepared_entries]
+        catalog_refs = list(registration.authority_refs)
+        if prepared_substrate_registry is not None:
+            catalog_refs = list(
+                dict.fromkeys((*prepared_substrate_registry.source_catalog_refs, *catalog_refs))
+            )
+        registry = build_substrate_registry(
+            tuple(entries),
+            producer_ref="tests.unit.runtime.quality.test_generation_cycle",
+            source_catalog_refs=tuple(catalog_refs),
+        )
+    selected_hashes = tuple(entry.entry_content_hash for entry in registry.entries)
     world = _build_boundary_world_model_record(
         repo_root=repo_root or REPO_ROOT,
         problem=problem,
         outcome="firm_survival",
         policy_slot_ids=("agents.income", "government.balance", "firm_survival"),
         substrate_registry=registry,
-        selected_registry_entry_hashes=(selected_hash,),
+        selected_registry_entry_hashes=selected_hashes,
     )
     problem_ref = gy_content_hash(problem.model_dump(mode="json"))
     substrate_input_hash = gy_content_hash(
@@ -2581,7 +2648,7 @@ def _controlled_profile_cycle_basis(
         design_problem_ref=problem_ref,
         domain=problem.domain,
         substrate_registry=registry,
-        selected_registry_entry_hashes=(selected_hash,),
+        selected_registry_entry_hashes=selected_hashes,
         world_model_record=world,
         intervention_substrate=None,
         candidate_levers=(),

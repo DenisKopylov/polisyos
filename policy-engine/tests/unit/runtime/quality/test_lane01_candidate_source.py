@@ -151,6 +151,19 @@ def test_candidate_source_reopens_owner_bytes_and_refuses_changed_inputs(
         == source
     )
 
+    original_get_bytes = store.get_bytes
+    source_payload_reads: list[object] = []
+
+    def count_source_payload_reads(ref: object, *args: object, **kwargs: object) -> bytes:
+        if str(getattr(ref, "artifact_id", ref)) == str(fixture.source_ref.artifact_id):
+            source_payload_reads.append(ref)
+        return original_get_bytes(ref, *args, **kwargs)
+
+    with monkeypatch.context() as scoped:
+        scoped.setattr(store, "get_bytes", count_source_payload_reads)
+        assert read_candidate_acquisition_source(store, source_ref=fixture.source_ref) == source
+    assert source_payload_reads == [fixture.source_ref]
+
     kwargs = {
         "authority": fixture.authority,
         "entry_id": fixture.entry.entry_id,

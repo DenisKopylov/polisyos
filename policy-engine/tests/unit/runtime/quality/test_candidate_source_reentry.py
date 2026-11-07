@@ -223,6 +223,121 @@ def _intrinsic_ref(kind: str, identity: str) -> ArtifactRef:
     )
 
 
+def _candidate_reentry_configuration_case(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    consumed_configuration: dict[str, Any] | None,
+) -> tuple[AcquisitionWorldGrowthBridge, Any, Any, Any, Any]:
+    """Build a narrow method case around the typed historical N5 reader."""
+    from polisyos.runtime.quality import acquisition_evaluation
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        VerifiedCandidateExperimentOrigin,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        prepare_joint_simulation_configuration,
+    )
+    from tests.unit.runtime.quality.test_n5_execution_basis import _historical_n5_result
+
+    prepared = prepare_joint_simulation_configuration()
+    input_ref = _intrinsic_ref("runtime.quality.candidate_simulation_n5_input", "a")
+    execution_ref = _intrinsic_ref("runtime.quality.candidate_simulation_execution", "b")
+    result_ref = _intrinsic_ref("polisyos.runtime.joint_simulation_result", "c")
+    result, _witness = _historical_n5_result(
+        input_ref,
+        consumed_configuration=consumed_configuration,
+    )
+    selected = SimpleNamespace(
+        selected=SimpleNamespace(
+            n5_input_ref=input_ref,
+            n5_execution_ref=execution_ref,
+            n5_result_ref=result_ref,
+        ),
+        result=result,
+    )
+    monkeypatch.setattr(
+        acquisition_evaluation,
+        "resolve_selected_acquisition_evaluation_parts",
+        lambda **_: selected,
+    )
+
+    bridge = object.__new__(AcquisitionWorldGrowthBridge)
+    bridge.artifact_store = object()
+    bridge.control_store = object()
+    origin = object.__new__(VerifiedCandidateExperimentOrigin)
+    object.__setattr__(origin, "tenant_id", "tenant-candidate-config")
+    object.__setattr__(origin, "cell_id", "cell-candidate-config")
+    object.__setattr__(origin, "run_id", "run-candidate-config")
+    object.__setattr__(origin, "policy_scope", SimpleNamespace(design_problem_ref="sha256:" + "6" * 64))
+    receipt = SimpleNamespace(
+        continued_generation_run=object(),
+        new_cycle=object(),
+        n5_input_ref=input_ref,
+        n5_execution_ref=execution_ref,
+        n5_result_ref=result_ref,
+    )
+    return bridge, origin, receipt, prepared, selected
+
+
+def test_candidate_experiment_reentry_accepts_historical_observation_without_promoting_witness(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        prepare_joint_simulation_configuration,
+    )
+    from polisyos.runtime.quality.n5_execution_basis import (
+        _exact_native_content,
+        read_n5_execution_implementation_witness,
+    )
+
+    prepared = prepare_joint_simulation_configuration()
+    bridge, origin, receipt, prepared, selected = _candidate_reentry_configuration_case(
+        monkeypatch,
+        consumed_configuration=_exact_native_content(prepared),
+    )
+
+    bridge._verify_candidate_reentry_prepared_configuration(
+        closure=None,
+        origin=origin,
+        receipt=receipt,
+        prepared_n5_configuration=prepared,
+    )
+    witness = read_n5_execution_implementation_witness(
+        selected.result,
+        input_ref=receipt.n5_input_ref,
+    )
+    assert witness.predicate_provenance == "not_established"
+
+
+def test_costed_closure_reentry_keeps_whole_implementation_witness_gate(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality import acquisition_evaluation
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        prepare_joint_simulation_configuration,
+    )
+    from polisyos.runtime.quality.n5_execution_basis import _exact_native_content
+
+    prepared = prepare_joint_simulation_configuration()
+    bridge, _origin, receipt, prepared, selected = _candidate_reentry_configuration_case(
+        monkeypatch,
+        consumed_configuration=_exact_native_content(prepared),
+    )
+    closure = SimpleNamespace(candidate_basis_transitions=(), model_copy=lambda **_: object())
+    monkeypatch.setattr(
+        acquisition_evaluation,
+        "resolve_selected_acquisition_evaluation",
+        lambda **_: selected,
+    )
+
+    with pytest.raises(ValueError, match=r"^candidate_source_reentry_configuration_not_consumed$"):
+        bridge._verify_candidate_reentry_prepared_configuration(
+            closure=closure,
+            origin=None,
+            receipt=receipt,
+            prepared_n5_configuration=prepared,
+        )
+
+
 def _reissue_transition(
     transition: CandidateSourceBasisTransition,
     **changes: object,

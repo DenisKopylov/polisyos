@@ -1385,7 +1385,12 @@ def recompute_candidate_acquisition_basis_values(
             )
         )
         if witness.predicate_provenance != "recomputed":
-            raise ValueError("candidate_evaluation_implementation_not_established")
+            reason = (
+                "n5_prior_live_implementation_not_established"
+                if historical_read_only
+                else "candidate_evaluation_implementation_not_established"
+            )
+            raise ValueError(reason)
         configuration = _exact_native_content(prepared_n5_configuration)
         if actual and exact_n5_content_bytes(witness.consumed_configuration_values) != (
             exact_n5_content_bytes(configuration)

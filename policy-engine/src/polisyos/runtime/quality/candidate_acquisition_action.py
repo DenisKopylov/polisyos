@@ -101,6 +101,17 @@ class _VerifiedCurrentCandidateExperimentReentryAction:
     budget_window: BudgetLedgerReentryBudgetWindow
 
 
+@dataclass(frozen=True)
+class _CurrentCandidateExperimentActionContext:
+    """Carry one owner-replayed action snapshot into its reentry consumer."""
+
+    selection: AcquisitionCandidateSourceRoute
+    phase: AcquisitionCandidateExperimentPhaseReceipt
+    admission: ControlJobExecutionAdmission
+    outcome: VerifiedAcquisitionActionOutcome
+    action: CandidateAcquisitionActionReceipt | None
+
+
 def receipt_inputs(receipt: CandidateAcquisitionActionReceipt) -> tuple[artifacts.InputRef, ...]:
     """Return the complete selected-profile parents of a candidate action."""
     return tuple(
@@ -495,19 +506,16 @@ def _selected_candidate_experiment_phase_ref(
     return selected_ref
 
 
-def _current_candidate_experiment_action(
+def _current_candidate_experiment_action_context(
     bridge: AcquisitionWorldGrowthBridge,
     origin: VerifiedCandidateExperimentOrigin,
     action_phase_ref: str,
     *,
     required_phase: Literal["executing", "candidate_input_reentry_pending"] = "executing",
     candidate_action_ref: artifacts.ArtifactRef | None = None,
-) -> tuple[
-    AcquisitionCandidateSourceRoute,
-    AcquisitionCandidateExperimentPhaseReceipt,
-    ControlJobExecutionAdmission,
-]:
-    """Resolve the exact current experiment phase and separate live acquisition lease."""
+    defer_historical_reentry: bool = False,
+) -> _CurrentCandidateExperimentActionContext:
+    """Resolve the exact current phase and preserve its verified action snapshot."""
     from polisyos.core.artifacts import artifact_ref_for_manifest
     from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionAdmission
     from polisyos.runtime.quality.acquisition_route_loop import (
@@ -524,6 +532,8 @@ def _current_candidate_experiment_action(
         raise ValueError("candidate_experiment_action_phase_ref_invalid")
     if bridge.control_store is None:
         raise ValueError("candidate_experiment_action_live_job_not_established")
+    if defer_historical_reentry and required_phase != "candidate_input_reentry_pending":
+        raise ValueError("candidate_experiment_reentry_phase_invalid")
 
     loop = AcquisitionRouteLoop(
         control_store=bridge.control_store,
@@ -597,6 +607,7 @@ def _current_candidate_experiment_action(
     ):
         raise ValueError("candidate_experiment_action_phase_binding_mismatch")
 
+    receipt: CandidateAcquisitionActionReceipt | None = None
     if required_phase == "candidate_input_reentry_pending":
         if candidate_action_ref is None:
             raise ValueError("candidate_experiment_reentry_action_missing")
@@ -617,13 +628,14 @@ def _current_candidate_experiment_action(
         )
         if str(selected_phase_ref.artifact_id) != receipt.action_phase_ref:
             raise ValueError("candidate_experiment_reentry_phase_profile_missing")
-        read_candidate_experiment_acquisition_action_historical(
-            bridge=bridge,
-            origin=current_origin,
-            receipt_ref=candidate_action_ref,
-            executing_phase=executing_phase,
-            executing_phase_ref=receipt.action_phase_ref,
-        )
+        if not defer_historical_reentry:
+            read_candidate_experiment_acquisition_action_historical(
+                bridge=bridge,
+                origin=current_origin,
+                receipt_ref=candidate_action_ref,
+                executing_phase=executing_phase,
+                executing_phase_ref=receipt.action_phase_ref,
+            )
 
     admission = bridge.control_store.current_execution_job_admission()
     job = admission.job
@@ -665,7 +677,36 @@ def _current_candidate_experiment_action(
         raise ValueError("candidate_experiment_action_live_owner_changed")
     if _candidate_experiment_source_selection(bridge, current_origin) != selected:
         raise ValueError("candidate_experiment_action_live_owner_changed")
-    return selected, phase, admission
+    return _CurrentCandidateExperimentActionContext(
+        selection=selected,
+        phase=phase,
+        admission=admission,
+        outcome=outcome,
+        action=receipt,
+    )
+
+
+def _current_candidate_experiment_action(
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    action_phase_ref: str,
+    *,
+    required_phase: Literal["executing", "candidate_input_reentry_pending"] = "executing",
+    candidate_action_ref: artifacts.ArtifactRef | None = None,
+) -> tuple[
+    AcquisitionCandidateSourceRoute,
+    AcquisitionCandidateExperimentPhaseReceipt,
+    ControlJobExecutionAdmission,
+]:
+    """Resolve the exact current experiment phase and separate live acquisition lease."""
+    context = _current_candidate_experiment_action_context(
+        bridge,
+        origin,
+        action_phase_ref,
+        required_phase=required_phase,
+        candidate_action_ref=candidate_action_ref,
+    )
+    return context.selection, context.phase, context.admission
 
 
 def _current_candidate_experiment_reentry_action_context(
@@ -679,17 +720,22 @@ def _current_candidate_experiment_reentry_action_context(
         AcquisitionCandidateExperimentPhaseReceipt,
     )
 
-    selection, phase, admission = _current_candidate_experiment_action(
+    action_context = _current_candidate_experiment_action_context(
         bridge,
         origin,
         pending_phase_ref,
         required_phase="candidate_input_reentry_pending",
         candidate_action_ref=candidate_action_ref,
+        defer_historical_reentry=True,
     )
+    selection = action_context.selection
+    phase = action_context.phase
+    admission = action_context.admission
     if type(phase) is not AcquisitionCandidateExperimentPhaseReceipt:
         raise ValueError("candidate_experiment_reentry_phase_untyped")
-    payload = artifacts.load_core_json_artifact(bridge.artifact_store, candidate_action_ref)
-    receipt = CandidateAcquisitionActionReceipt.model_validate(payload)
+    receipt = action_context.action
+    if type(receipt) is not CandidateAcquisitionActionReceipt:
+        raise ValueError("candidate_experiment_reentry_action_changed")
     outcomes = bridge.action_head_sink.experiment_action_outcomes(
         tenant_id=origin.tenant_id,
         cell_id=origin.cell_id,
@@ -705,6 +751,8 @@ def _current_candidate_experiment_reentry_action_context(
         receipt_ref=pending_phase_ref,
         required_phase="candidate_input_reentry_pending",
     )
+    if outcome != action_context.outcome:
+        raise ValueError("candidate_experiment_action_live_owner_changed")
     executing_refs = tuple(
         record
         for record in outcome.phase_chain
@@ -712,11 +760,14 @@ def _current_candidate_experiment_reentry_action_context(
     )
     if len(executing_refs) != 1 or getattr(executing_refs[0], "receipt", None) is None:
         raise ValueError("candidate_experiment_reentry_executing_phase_missing")
+    executing_phase = getattr(executing_refs[0], "receipt", None)
+    if type(executing_phase) is not AcquisitionCandidateExperimentPhaseReceipt:
+        raise ValueError("candidate_experiment_reentry_executing_phase_untyped")
     verified_receipt, _source, window = read_candidate_experiment_acquisition_action_historical(
         bridge=bridge,
         origin=origin,
         receipt_ref=candidate_action_ref,
-        executing_phase=executing_refs[0].receipt,
+        executing_phase=executing_phase,
         executing_phase_ref=receipt.action_phase_ref,
     )
     if verified_receipt != receipt or receipt.selection != selection:

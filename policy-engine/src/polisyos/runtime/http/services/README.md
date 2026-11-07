@@ -289,6 +289,9 @@ for supported carriers, compatibility, and verification requirements.
   run-bound costed-route projection and deferred PA2/worker composition. It
   consumes the control-plane phase-head sink and strict owner port without
   becoming a passport, overlay, epoch, or world writer.
+- [`acquisition_n5_projection.py`](acquisition_n5_projection.py) formats the
+  owner-resolved candidate N5 result, its selected manifest profile and declared
+  units for the run and candidate experiment readers.
 - [`acquisition_admission_bundle.py`](acquisition_admission_bundle.py) owns the deterministic,
   acquisition-only admission producer. Its default production signer slot is empty; a
   configured signer persists, signs, reconciles, reads back, and maps one bundle for the existing

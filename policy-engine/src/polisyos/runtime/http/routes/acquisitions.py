@@ -163,8 +163,12 @@ def _raise_service_error(exc: AcquisitionActionServiceError) -> None:
     if code in {
         "acquisition_authority_producer_missing",
         "acquisition_execution_bridge_missing",
+        "candidate_experiment_n5_result_storage_unavailable",
+        "candidate_experiment_current_action_head_not_established",
     }:
         raise service_unavailable("Acquisition producer is unavailable", code=code) from exc
+    if code == "candidate_experiment_n5_result_scope_refused":
+        raise forbidden("The selected candidate result is not accessible", code=code) from exc
     if code in {
         "source_job_not_completed",
         "acquisition_route_not_current",

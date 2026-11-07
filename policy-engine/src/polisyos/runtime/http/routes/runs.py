@@ -129,6 +129,14 @@ from polisyos.runtime.http.resource_binding import (
     production_approval_inputs_from_bound_request,
 )
 from polisyos.runtime.http.response_policies import add_run_link_relations
+from polisyos.runtime.http.services.acquisition_n5_projection import (
+    SelectedN5ScopeNotEstablishedError,
+    build_candidate_n5_result_body,
+    read_selected_n5_result_manifest,
+)
+from polisyos.runtime.http.services.acquisition_n5_projection import (
+    n5_numerical_body_payload as _n5_numerical_body_payload,
+)
 from polisyos.runtime.http.services.authority_values import (
     RunAuthorityProjection,
     build_run_authority_projection,
@@ -499,19 +507,14 @@ def _acquisition_selected_n5_observation(
         )
     ):
         raise ValueError("acquisition_selected_n5_occurrence_binding_mismatch")
-    manifest = _generic_selected_result_manifest(
-        store, selected.n5_result_ref, tenant_id=tenant_id, cell_id=cell_id
-    )
-    body = RunCandidateSimulationN5ResultBody.model_validate(
-        {
-            **_n5_numerical_body_payload(
-                ref=selected.n5_result_ref,
-                manifest=manifest,
-                result=result,
-                authority_purpose="candidate_scenario_n5_only",
-            ),
-            **_n5_declared_candidate_units(resolved.source, result),
-        }
+    body = build_candidate_n5_result_body(
+        store=store,
+        ref=selected.n5_result_ref,
+        result=result,
+        source=resolved.source,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        authority_purpose="candidate_scenario_n5_only",
     )
     return RunCandidateSimulationN5Observation(
         node_ref="acquisition-evaluation://" + selected.generation_run_id,
@@ -2002,54 +2005,6 @@ def _n5_interaction_projection_blockers(
     return blockers
 
 
-def _n5_numerical_body_payload(
-    *, ref: ArtifactRef, manifest: Any, result: Any, authority_purpose: str
-) -> dict[str, Any]:
-    """Project finite numerical fields without changing their producer or purpose."""
-    if ref.manifest_profile_sha256 is None or manifest.artifact_schema is None:
-        raise ValueError("candidate_n5_result_body_selected_manifest_view_not_established")
-    return {
-        "artifact_ref": ref,
-        "artifact_schema_name": manifest.artifact_schema.name,
-        "artifact_schema_version": manifest.artifact_schema.version,
-        "result_schema_version": result.schema_version,
-        "selected_manifest_profile_sha256": ref.manifest_profile_sha256,
-        "world_model_record_ref": result.world_model_record_ref,
-        "world_model_record_content_hash": result.world_model_record_content_hash,
-        "atom_ids": result.atom_ids,
-        "selected_outcomes": result.selected_outcomes,
-        "horizon": result.horizon.model_dump(mode="python"),
-        "trajectories": tuple(
-            {
-                "run_level": trajectory.run_level,
-                "atom_ids": trajectory.atom_ids,
-                "points": tuple(
-                    {"step": point.step, "outcomes": point.outcomes, "effects": point.effect}
-                    for point in trajectory.points
-                ),
-            }
-            for trajectory in result.trajectories
-        ),
-        "uncertainty_kind": result.uncertainty_kind,
-        "authority_purpose": authority_purpose,
-        "candidate_status": "candidate_unverified",
-        "currentness_status": "not_established",
-        "publication_authority": False,
-    }
-
-
-def _n5_declared_candidate_units(source: Any, result: Any) -> dict[str, Any]:
-    """Project units from the actual selected declaration already reopened by N5."""
-    declaration = source.model_declaration
-    if set(result.selected_outcomes) != {declaration.outcome_variable}:
-        raise ValueError("candidate_n5_public_outcome_unit_binding_mismatch")
-    return {
-        "outcome_units": {declaration.outcome_variable: declaration.outcome_unit_id},
-        "unit_provenance": "declared_candidate_model",
-        "model_declaration_ref": source.model_declaration_ref,
-    }
-
-
 def _configured_n5_public_numerical_read(
     *,
     execution_ref: ArtifactRef,
@@ -2107,19 +2062,14 @@ def _configured_n5_public_numerical_read(
     )
     if not all(ref in root_artifacts for ref in required_roots):
         raise ValueError("candidate_n5_public_selected_outputs_not_established")
-    manifest = _generic_selected_result_manifest(
-        store, execution.n5_result_ref, tenant_id=tenant_id, cell_id=cell_id
-    )
-    body = RunCandidateSimulationN5ResultBody.model_validate(
-        {
-            **_n5_numerical_body_payload(
-                ref=execution.n5_result_ref,
-                manifest=manifest,
-                result=resolved.result,
-                authority_purpose="candidate_scenario_n5_only",
-            ),
-            **_n5_declared_candidate_units(resolved.source, resolved.result),
-        }
+    body = build_candidate_n5_result_body(
+        store=store,
+        ref=execution.n5_result_ref,
+        result=resolved.result,
+        source=resolved.source,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        authority_purpose="candidate_scenario_n5_only",
     )
     return resolved, body
 
@@ -4221,13 +4171,15 @@ def _generic_selected_result_manifest(
     store: Any, ref: ArtifactRef, *, tenant_id: str, cell_id: str
 ) -> Any:
     """Reopen the exact result view and refuse a known foreign tenant or cell."""
-    manifest = read_core_manifest_profile(store, ref)[0]
-    scope = manifest.tenant_context
-    if scope is None:
-        raise _GenericSelectedScopeNotEstablishedError("generic_n5_result_scope_not_established")
-    if (scope.tenant_id, scope.cell_id) != (tenant_id, cell_id):
-        raise ArtifactOwnershipError("selected N5 result belongs to another tenant or cell")
-    return manifest
+    try:
+        return read_selected_n5_result_manifest(
+            store,
+            ref,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+    except SelectedN5ScopeNotEstablishedError as exc:
+        raise _GenericSelectedScopeNotEstablishedError(str(exc)) from exc
 
 
 def _raise_generic_read_access_refusal(

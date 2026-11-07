@@ -864,6 +864,26 @@ def _read_candidate_experiment_with_reopened_owner(
                 raise AssertionError("candidate experiment independent history changed")
 
             selected_action = read_current_action()
+            expected_result_ref = None
+            if (
+                reopened_history.evaluation is None
+                and reopened_history.reentry is not None
+                and reopened_history.selected_basis is not None
+                and reopened_history.selected_basis.basis_role == "blocked"
+            ):
+                expected_result_ref = reopened_history.reentry.n5_result_ref
+            if expected_result_ref is not None:
+                visible_result = selected_action.candidate_n5_result
+                if (
+                    visible_result is None
+                    or artifacts.artifact_ref_identity_key(
+                        visible_result.result_body.artifact_ref
+                    )
+                    != artifacts.artifact_ref_identity_key(expected_result_ref)
+                ):
+                    raise AssertionError(
+                        "candidate experiment fresh GET omitted exact reentry result"
+                    )
             terminal_ref = artifacts.profile_bound_ref(reader_store, reopened_history.terminal_ref)
             phase_heads = []
             for phase in reopened_history.phase_chain:
@@ -980,9 +1000,29 @@ def _read_candidate_experiment_with_reopened_owner(
                 raise AssertionError("candidate experiment wrong-profile refusal was untyped")
 
             terminal_evaluation = reopened_history.evaluation
-            if terminal_evaluation is None or terminal_evaluation.selected.n5_result_ref is None:
-                raise AssertionError("candidate experiment selected N5 result ref missing")
-            result_ref = terminal_evaluation.selected.n5_result_ref
+            if terminal_evaluation is not None:
+                if terminal_evaluation.selected.n5_result_ref is None:
+                    raise AssertionError("candidate experiment selected N5 result ref missing")
+                result_ref = terminal_evaluation.selected.n5_result_ref
+            else:
+                # A blocked basis may still retain the actual candidate-only
+                # result in its verified source reentry. It is deliberately
+                # not a selected evaluation, but its bytes remain required for
+                # exact historical replay and the fresh-reader removal control.
+                reentry = reopened_history.reentry
+                selected_basis = reopened_history.selected_basis
+                if (
+                    reopened_history.terminal.terminal_outcome != "candidate_reentry_completed"
+                    or selected_basis is None
+                    or selected_basis.basis_role != "blocked"
+                    or reopened_history.terminal.selected_evaluation is not None
+                    or reentry is None
+                    or reentry.n5_result_ref is None
+                ):
+                    raise AssertionError(
+                        "candidate experiment blocked reentry N5 result ref missing"
+                    )
+                result_ref = reentry.n5_result_ref
             result_blob_path, _result_manifest_path = reader_store._paths(
                 artifacts.ArtifactID.model_validate(result_ref.artifact_id)
             )
@@ -1010,6 +1050,18 @@ def _read_candidate_experiment_with_reopened_owner(
                 or restored_action.selected_receipt_ref != terminal_ref
             ):
                 raise AssertionError("candidate experiment restored result lost positive selection")
+            if expected_result_ref is not None:
+                restored_result = restored_action.candidate_n5_result
+                if (
+                    restored_result is None
+                    or artifacts.artifact_ref_identity_key(
+                        restored_result.result_body.artifact_ref
+                    )
+                    != artifacts.artifact_ref_identity_key(expected_result_ref)
+                ):
+                    raise AssertionError(
+                        "candidate experiment restored GET lost exact reentry result"
+                    )
             return restored_action
 
 

@@ -296,6 +296,9 @@ export type CandidateDecisionPacketHTEProjection =
 export type CandidateExperimentCurrentActionProjection =
   RuntimeApiComponents["schemas"]["CandidateExperimentCurrentActionProjection"];
 
+export type CandidateExperimentN5ResultProjection =
+  RuntimeApiComponents["schemas"]["CandidateExperimentN5ResultProjection"];
+
 export type CandidateExperimentRouteExecutionRequest =
   RuntimeApiComponents["schemas"]["CandidateExperimentRouteExecutionRequest"];
 

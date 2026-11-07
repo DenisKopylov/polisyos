@@ -4744,6 +4744,7 @@ export interface components {
             action_generation?: number | null;
             /** Blocker Reason */
             blocker_reason?: string | null;
+            candidate_n5_result?: components["schemas"]["CandidateExperimentN5ResultProjection"] | null;
             /** Coarse Phase */
             coarse_phase?: ("requested" | "executing" | "candidate_input_prepared" | "terminal") | null;
             /**
@@ -4770,6 +4771,59 @@ export interface components {
             status: "unknown" | "in_progress" | "completed" | "blocked";
             /** Terminal Outcome */
             terminal_outcome?: ("candidate_reentry_completed" | "candidate_evaluation_retained" | "candidate_blocked") | null;
+        };
+        /**
+         * CandidateExperimentN5ResultProjection
+         * @description Fresh candidate-only result bound to its selected reentry terminal.
+         */
+        CandidateExperimentN5ResultProjection: {
+            /**
+             * Authoritative For
+             * @default [
+             *       "api_display"
+             *     ]
+             */
+            authoritative_for: "api_display"[];
+            /**
+             * Authority Purpose
+             * @default candidate_observation_only
+             * @constant
+             */
+            authority_purpose: "candidate_observation_only";
+            /**
+             * Configuration Use
+             * @default not_established
+             * @constant
+             */
+            configuration_use: "not_established";
+            /**
+             * Implementation Currentness
+             * @default not_established
+             * @constant
+             */
+            implementation_currentness: "not_established";
+            /** Limitations */
+            limitations: string[];
+            /**
+             * May Not Use For
+             * @default [
+             *       "n5_evaluation_retention",
+             *       "claim_authority",
+             *       "publication_authority"
+             *     ]
+             */
+            may_not_use_for: ("n5_evaluation_retention" | "claim_authority" | "publication_authority")[];
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            /** Reason Codes */
+            reason_codes: string[];
+            reentry_receipt_ref: components["schemas"]["ArtifactRef-Output"];
+            result_body: components["schemas"]["RunCandidateSimulationN5ResultBody"];
+            terminal_receipt_ref: components["schemas"]["ArtifactRef-Output"];
         };
         /**
          * CandidateExperimentRouteExecutionRequest

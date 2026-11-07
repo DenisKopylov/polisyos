@@ -807,6 +807,7 @@ class CandidateExperimentTerminalHistory:
     continuation: CandidateAcquisitionRetainedContinuation | None
     frontier_before: AcquisitionEvaluationFrontierRecord | None
     frontier_after: AcquisitionEvaluationFrontierRecord | None
+    reentry_evaluation: ResolvedAcquisitionEvaluation | None = None
 
 
 def resolve_selected_acquisition_evaluation(

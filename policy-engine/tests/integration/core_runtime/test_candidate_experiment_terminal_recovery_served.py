@@ -243,12 +243,19 @@ def test_candidate_execution_port_factory_reopens_service_without_n5(
             )
 
 
+@pytest.mark.parametrize(
+    "block_b_implementation_observation",
+    [False, True],
+    ids=("evaluated", "blocked-reuse"),
+)
 def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     served_recorded_candidate_gateway,
+    block_b_implementation_observation: bool,
 ) -> None:
-    """A writer crash reuses its exact terminal CAS on attempt two without N5."""
+    """A writer crash reuses terminal CAS without N5, including blocked B reuse."""
+    from polisyos.core import canon
     from polisyos.runtime.http.services.control import run_lifecycle
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionCandidateExperimentTerminalReceipt,
@@ -261,6 +268,11 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
         prepare_candidate_experiment_policies_for_completed_job,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+    from polisyos.runtime.quality.n5_execution_basis import (
+        N5ExecutionImplementationWitness,
+        N5ImplementationCapture,
+        exact_n5_content_bytes,
+    )
     from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
     from tests._helpers import acquisition_served_history as served
     from tests._helpers.candidate_cycle_source_profile import (
@@ -292,6 +304,14 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
     )
     crash: dict[str, object] = {"writer_calls": 0, "interrupted": False}
     observed: dict[str, object] = {}
+    implementation_observation: dict[str, object] = {
+        "captures": [],
+        "calls": {},
+        "blocked_calls": 0,
+        "reason": "canonical_loaded_runtime_mismatch",
+        "detail": "test-owned bounded source qualification refusal: "
+        "polisyos.runtime.quality.confidence_ledger",
+    }
 
     def serve_action(**values) -> None:
         control = values["control"]
@@ -394,6 +414,52 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
                         )
 
             def arm_terminal_writer_crash(_execution_owner, job_id: str) -> None:
+                if block_b_implementation_observation:
+                    original_current = N5ImplementationCapture._current_implementation
+
+                    def observe_n5_implementation(capture):
+                        captures = implementation_observation["captures"]
+                        calls = implementation_observation["calls"]
+                        assert isinstance(captures, list) and isinstance(calls, dict)
+                        if not any(existing is capture for existing in captures):
+                            captures.append(capture)
+                        call_count = int(calls.get(id(capture), 0))
+                        # The hook is armed after A is complete. Capture only
+                        # B, and refuse its seal-time source observation after
+                        # the real N5, trajectories and configuration reads.
+                        handoff = (
+                            None
+                            if capture._admission is None
+                            else capture._admission.port._candidate_simulation_handoff
+                        )
+                        if (
+                            handoff is not None
+                            and handoff.job_id == job_id
+                            and capture._trajectory_bytes is not None
+                            and capture._trajectory_hash is not None
+                            and capture._sealed is None
+                            and call_count == 1
+                        ):
+                            implementation_observation["blocked_calls"] = (
+                                int(implementation_observation["blocked_calls"]) + 1
+                            )
+                            from polisyos.runtime.quality.confidence_ledger import (
+                                ConfidenceLedgerError,
+                            )
+
+                            raise ConfidenceLedgerError(
+                                str(implementation_observation["reason"]),
+                                str(implementation_observation["detail"]),
+                            )
+                        result = original_current(capture)
+                        calls[id(capture)] = call_count + 1
+                        return result
+
+                    monkeypatch.setattr(
+                        N5ImplementationCapture,
+                        "_current_implementation",
+                        observe_n5_implementation,
+                    )
                 original_writer = run_lifecycle.write_runtime_authority_artifact
 
                 def write_then_interrupt(artifact_store, event_log, payload, options, **fields):
@@ -761,6 +827,21 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
                                 raise AssertionError(
                                     "candidate experiment fresh retry was not visible to its reader"
                                 )
+                            if block_b_implementation_observation and (
+                                visible.evaluation_disposition != "blocked"
+                                or visible.selected_evaluation is not None
+                                or not visible.blocker_reason
+                            ):
+                                raise AssertionError(
+                                    "candidate experiment blocked B reuse was not visible without evaluation"
+                                )
+                            if not block_b_implementation_observation and (
+                                visible.evaluation_disposition != "new"
+                                or visible.selected_evaluation is None
+                            ):
+                                raise AssertionError(
+                                    "candidate experiment evaluated positive changed disposition"
+                                )
                             if len(retry_values["execution_owner"].transport_calls) != int(
                                 retry_values["interrupted_transport_call_count"]
                             ):
@@ -797,7 +878,6 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
                 assert execution.standard_invocation_units_before == 2
                 assert execution.standard_invocation_units_after_interrupted == 4
                 assert execution.standard_invocation_units_after == 4
-                assert execution.terminal_history.frontier_after is not None
                 assert type(execution.terminal_history.terminal) is (
                     AcquisitionCandidateExperimentTerminalReceipt
                 )
@@ -815,7 +895,106 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
                     execution.terminal_history.head.receipt_manifest_profile_sha256
                     == saved_ref.manifest_profile_sha256
                 )
-                assert execution.current_action.evaluation_disposition == "new"
+                if block_b_implementation_observation:
+                    from polisyos.runtime.quality.acquisition_evaluation import (
+                        CandidateAcquisitionEvaluationBasis,
+                    )
+
+                    terminal = execution.terminal_history.terminal
+                    assert terminal.selected_evaluation is None
+                    assert terminal.candidate_reentry_ref is not None
+                    assert terminal.selected_evaluation_witness_ref == (
+                        terminal.candidate_reentry_ref
+                    )
+                    selected_basis = CandidateAcquisitionEvaluationBasis.model_validate(
+                        canon.from_canonical_bytes(
+                            control._artifact_store.get_bytes(terminal.selected_basis_ref)
+                        )
+                    )
+                    assert selected_basis.basis_role == "blocked"
+                    assert selected_basis.predicate_provenance == "not_established"
+                    assert "n5_prior_live_implementation_not_established" in (
+                        selected_basis.reason_codes
+                    )
+                    assert execution.terminal_history.frontier_after == (
+                        execution.terminal_history.frontier_before
+                    )
+                    assert execution.current_action.evaluation_disposition == "blocked"
+                    assert execution.current_action.selected_evaluation is None
+                    assert int(implementation_observation["blocked_calls"]) == 1
+                    captures = implementation_observation["captures"]
+                    assert isinstance(captures, list) and len(captures) == 1
+                    b_capture = captures[0]
+                    assert int(implementation_observation["calls"][id(b_capture)]) == 1
+                    reentry = execution.terminal_history.reentry
+                    assert reentry is not None and reentry.n5_input_ref is not None
+                    from polisyos.core.artifacts import artifact_ref_identity_key
+                    from polisyos.runtime.quality.generation_cycle import (
+                        load_joint_simulation_result,
+                    )
+
+                    assert b_capture._admission is not None
+                    assert artifact_ref_identity_key(b_capture._admission.input_ref) == (
+                        artifact_ref_identity_key(reentry.n5_input_ref)
+                    )
+                    b_result = load_joint_simulation_result(
+                        reentry.n5_result_ref,
+                        store=control._artifact_store,
+                    )
+                    b_witness = N5ExecutionImplementationWitness.model_validate(
+                        b_result.diagnostics["n5_execution_implementation_witness"]
+                    )
+                    assert b_witness.predicate_provenance == "not_established"
+                    assert b_witness.reason_codes[0] == "canonical_loaded_runtime_mismatch"
+                    assert (
+                        "n5_implementation_failure_target:"
+                        "polisyos.runtime.quality.confidence_ledger"
+                    ) in b_witness.reason_codes
+                    assert b_witness.input_ref_identity == artifact_ref_identity_key(
+                        reentry.n5_input_ref
+                    )
+                    assert exact_n5_content_bytes(b_witness.consumed_configuration_values) == (
+                        exact_n5_content_bytes(b_capture._configuration_start)
+                    )
+                    assert execution.terminal_history.reentry is not None
+                    assert execution.terminal_history.reentry.n5_result_ref is not None
+                    assert execution.terminal_history.reentry.n5_execution_ref is not None
+                    candidate_result = execution.current_action.candidate_n5_result
+                    assert candidate_result is not None
+                    assert candidate_result.configuration_use == "not_established"
+                    assert (
+                        "controller_wide_configuration_use_not_established"
+                        in candidate_result.limitations
+                    )
+                    assert candidate_result.authority_purpose == "candidate_observation_only"
+                    assert candidate_result.publication_authority is False
+                    assert candidate_result.result_body.authority_purpose == (
+                        "candidate_scenario_n5_only"
+                    )
+                    assert candidate_result.result_body.publication_authority is False
+                    assert artifact_ref_identity_key(
+                        candidate_result.result_body.artifact_ref
+                    ) == artifact_ref_identity_key(
+                        execution.terminal_history.reentry.n5_result_ref
+                    )
+                    _assert_candidate_experiment_n5_uses_current_wmr(
+                        control=control,
+                        origin=execution_values["origin"],
+                        execution=execution,
+                        resolved_reentry_evaluation=(
+                            execution.terminal_history.reentry_evaluation
+                        ),
+                    )
+                else:
+                    assert execution.terminal_history.frontier_after is not None
+                    assert execution.current_action.evaluation_disposition == "new"
+                    assert execution.current_action.selected_evaluation is not None
+                    assert int(implementation_observation["blocked_calls"]) == 0
+                    _assert_candidate_experiment_n5_uses_current_wmr(
+                        control=control,
+                        origin=execution_values["origin"],
+                        execution=execution,
+                    )
                 assert template.max_standard_n5_invocations == 4
                 assert execution.execution_owner.transport_calls == [
                     (
@@ -829,11 +1008,6 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
                         },
                     )
                 ]
-                _assert_candidate_experiment_n5_uses_current_wmr(
-                    control=control,
-                    origin=execution_values["origin"],
-                    execution=execution,
-                )
                 terminal = execution.terminal_history.terminal
                 event_id = (
                     "evt_acquisition_"

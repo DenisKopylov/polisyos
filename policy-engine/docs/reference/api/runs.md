@@ -103,6 +103,14 @@ action status stays `completed` and its terminal outcome stays
 `selected_evaluation` is null, and `blocker_reason` carries the verified basis
 reason codes. Completion does not establish evaluation or publication authority.
 
+The same current action may include `candidate_n5_result`. It binds the saved
+numerical trajectories and declared units to the selected result, reentry and
+terminal manifest profiles. `configuration_use` and `implementation_currentness`
+remain `not_established`. The result is for API display only. Its denied uses
+include N5 retention, claim authority and publication. The field is omitted
+when the current action has no supported numerical observation. Failure to
+reopen selected bytes or a changed current head requires revalidation.
+
 Transport permission/refusal tests, the typed OpenAPI success example, generated
 client drift and the SDK transport control are qualified in LANE-01's existing
 working state. Transport fixtures alone do not prove the completed-source reader

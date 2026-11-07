@@ -1195,6 +1195,7 @@ def verify_candidate_experiment_terminal_history(
     ):
         raise ValueError("candidate_experiment_terminal_unexpected_prior_frontier")
 
+    reentry_evaluation: ResolvedAcquisitionEvaluation | None = None
     if retained:
         if not predecessor_history_chain:
             raise ValueError("candidate_experiment_retained_prior_history_missing")
@@ -1453,6 +1454,7 @@ def verify_candidate_experiment_terminal_history(
         continuation=continuation,
         frontier_before=frontier_before,
         frontier_after=frontier_after,
+        reentry_evaluation=reentry_evaluation,
     )
 
 

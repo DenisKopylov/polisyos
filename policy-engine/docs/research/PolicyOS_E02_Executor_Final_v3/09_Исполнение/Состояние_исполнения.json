@@ -13563,6 +13563,72 @@
           "inputs_unchanged": true,
           "scope": "The custom seed_problem skips shared gateway fixture preparation. The completed NL job has no run-bound invocation profile. Acquisition, new physical N5, terminal and fresh GET remain unrun on this selector."
         },
+        "r29_selected_declaration_repair": {
+          "classification": "PASS_AFFECTED_AND_RETAINED_EXACT_CONTEXT_WITHOUT_N5",
+          "saved_commit": "af164c492ef0f363c2059ef097a5197645875177",
+          "source_commit": "6c769c2ee571c845bd34f24084e95bb0cc99acdd",
+          "source_tree": "a5552b4bc1bc6f685b939cf74f5872bf52c3d02d",
+          "affected_output": "MAIN:policy-engine/_cache/e02/lane01-r29-content-affected-composed-r1",
+          "affected_tests": {
+            "PASS": 21,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "retained_output": "MAIN:policy-engine/_cache/e02/r29-repaired-exact-history-r1",
+          "scope": "Exact native comparison of the repository-selected declaration with typed diagnostic, reconstructed context, world/limitations and stored N5 all pass. Original bytes unchanged. No live lease or physical N5. Persisted A/B implementation qualification remains not_established."
+        },
+        "first_a_observed_source_route_limits": {
+          "classification": "OBSERVED_REAL_INITIAL_N5_WITNESS_NOT_ESTABLISHED",
+          "r2_output": "AUTHOR:policy-engine/_cache/e02/lane01-first-a-n5-witness-preflight-r2",
+          "r3_output": "AUTHOR:policy-engine/_cache/e02/lane01-first-a-n5-witness-preflight-r3",
+          "r3_source_commit": "bb27222b9e352f43933e5366726c1330d13c95ba",
+          "r3_source_tree": "1b7a61f5d8bae03711059f403e093cc7876cb765",
+          "r3_pins": 36,
+          "r3_inputs_unchanged": true,
+          "scope": "Ordinary NL completion and real initial N5 seal observed. R2 on causal sibling and MetricsRegistry changes refuses at id_engine private converter and PolicyOSTracer. R3 with experimental tracer wiring and canonical converter imports refuses at id_engine.CtfQuery from unexecuted causal_engine.artifacts, and at ir.connectors.FetchRequest without a pinned exact importer. The experimental tracer wiring was not composed. Intentional cut before B, acquisition and terminal. No full test PASS."
+        },
+        "pending_action_history_reuse": {
+          "classification": "PASS_SINGLE_FULL_LATE_HISTORY_CHECK",
+          "saved_commit": "75c73b585df3e62089e40a646601bc2283e93c66",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-reentry-action-reuse-r2",
+          "observed": {
+            "PASS": 10,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "scope": "One complete historical owner, policy and budget check after fresh outcome re-read. Changed outcome fails. No measured full-run speedup yet."
+        },
+        "sim02_final_affected_composed": {
+          "classification": "PASS_COMPOSED_AFFECTED_SIM02",
+          "source_commit": "78ffafcc59c43d76bdc6403eb434c1df23ed80ae",
+          "source_tree": "7700d2d1165c6158209b78e1198225016555d25e",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-sim02-composed-final-r1",
+          "observed": {
+            "PASS": 105,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "stable_pins": 11,
+          "scope": "Prior refusal-code cases, full original remainder and typed program parameter regression. Product/test inputs stable through a documentation-only advance."
+        },
+        "req01_pre_domain_v2_source_replay": {
+          "classification": "PASS_SCOPED_HISTORICAL_SOURCE_PRODUCER_AND_FRESH_CURRENT_READER",
+          "historical_commit": "63706888af4676c49a84150cf8bc1c5523b7f93c",
+          "historical_tree": "659f4a103edb50aeb60f725aa1380a58da5e6f14",
+          "saved_test_commit": "d81788abf5fe890e970f8fe4326c88f064a417a0",
+          "output": "AUTHOR:policy-engine/_cache/e02/req01-pre-domain-v2-20261107-r1",
+          "fixture": "tests/_data/data_requirement/req01/pre-domain-source-replay-v2.json",
+          "sha256": "1e816f7da651d4694aa29e7b52d0ec06d184fe8f788a01e3229aa215a232dd79",
+          "scope": "Actual old compiler and immutable writer replay. Current fresh reader preserves exact bytes, metadata, rule and unresolved basis and refuses write-once clobbering. Tracked regression passes. Original archival provenance and installed build are separate."
+        },
+        "gdp_knob_fixture_preflight": {
+          "classification": "FAIL_BEFORE_N5_ON_MISSING_RUN_BOUND_QUOTA",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-gdp-sentinel-author-r2",
+          "scope": "Corrected test-owned L6 knob setup does not yet produce the run-bound quota profile. Sentinel not reached. Current new-world N5, terminal, fresh GET and heldout X03 remain open."
+        },
         "r28_lease_and_recovery_boundary": {
           "classification": "PASS_LEASE_TAKEOVER_COMPONENT_FAILED_JOB_SOURCE_AND_RETAINED_STATE_REVIEW",
           "expired_lease_output": "AUTHOR:policy-engine/_cache/e02/lane01-lease-takeover-guard-r1",

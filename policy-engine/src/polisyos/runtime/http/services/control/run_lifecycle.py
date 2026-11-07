@@ -2107,8 +2107,13 @@ if TYPE_CHECKING:
         CandidateExperimentTerminalHistory,
     )
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionCandidateSourceRoute,
+        AcquisitionWorldGrowthBridge,
+    )
     from polisyos.runtime.quality.candidate_acquisition_action import (
         CandidateAcquisitionActionReceipt,
+        _VerifiedCurrentCandidateExperimentReentryAction,
     )
     from polisyos.runtime.quality.cycle_substrate import (
         VerifiedNLJobBudgetScope,
@@ -8133,6 +8138,161 @@ class ControlPlaneService(
             current_head.receipt_ref,
             candidate_action_ref=candidate_action_ref,
         )
+        return self._finish_candidate_experiment_reentry_budget_observer(
+            origin=origin,
+            budget_state=budget_state,
+            reentry_budget_scope=reentry_budget_scope,
+            binding=binding,
+            selection=selection,
+            phase=phase,
+            admission=admission,
+            action_receipt=action_receipt,
+        )
+
+    def _build_candidate_experiment_reentry_budget_observer_from_context(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+        world_growth_bridge: AcquisitionWorldGrowthBridge,
+        candidate_action_ref: ArtifactRef,
+        budget_state: BudgetState,
+        reentry_budget_scope: BudgetLedgerReentryBudgetScope,
+        pending_phase_ref: str,
+        context: _VerifiedCurrentCandidateExperimentReentryAction,
+    ) -> ProducerBudgetObserver:
+        """Reuse one verified action context after rereading all live owner fences."""
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionActionService,
+        )
+        from polisyos.runtime.http.services.acquisition_surface_execution import (
+            WorldBankWDIAcquisitionExecutionPort,
+        )
+        from polisyos.runtime.quality.acquisition_route_loop import (
+            VerifiedCandidateExperimentOrigin,
+        )
+        from polisyos.runtime.quality.acquisition_world_growth import (
+            AcquisitionCandidateSourceRoute,
+            AcquisitionWorldGrowthBridge,
+        )
+        from polisyos.runtime.quality.candidate_acquisition_action import (
+            CandidateAcquisitionActionReceipt,
+            _VerifiedCurrentCandidateExperimentReentryAction,
+        )
+        from polisyos.scientist.orchestration.engine import (
+            BudgetLedgerProducerRunBinding,
+            BudgetLedgerReentryBudgetScope,
+            BudgetLedgerReentryBudgetWindow,
+        )
+
+        if (
+            type(origin) is not VerifiedCandidateExperimentOrigin
+            or type(world_growth_bridge) is not AcquisitionWorldGrowthBridge
+            or type(context) is not _VerifiedCurrentCandidateExperimentReentryAction
+            or type(context.selection) is not AcquisitionCandidateSourceRoute
+            or type(context.phase) is not AcquisitionCandidateExperimentPhaseReceipt
+            or type(context.admission) is not ControlJobExecutionAdmission
+            or type(context.action) is not CandidateAcquisitionActionReceipt
+            or type(context.budget_window) is not BudgetLedgerReentryBudgetWindow
+            or context.selection.tenant_id != origin.tenant_id
+            or context.selection.cell_id != origin.cell_id
+            or context.selection.run_id != origin.run_id
+            or context.selection.route_id != origin.route_id
+            or context.phase.tenant_id != origin.tenant_id
+            or context.phase.cell_id != origin.cell_id
+            or context.phase.run_id != origin.run_id
+            or context.phase.source_job_id != origin.source_job_id
+            or context.phase.route_id != origin.route_id
+            or context.phase.candidate_receipt_ref != candidate_action_ref
+            or context.action.selection != context.selection
+            or not isinstance(candidate_action_ref, ArtifactRef)
+            or candidate_action_ref.kind != "runtime_quality.acquisition_candidate_action_receipt"
+            or candidate_action_ref.manifest_profile_sha256 is None
+            or type(reentry_budget_scope) is not BudgetLedgerReentryBudgetScope
+            or not isinstance(pending_phase_ref, str)
+            or not pending_phase_ref
+        ):
+            raise TypeError("candidate_experiment_reentry_action_context_untyped")
+        binding = self.verify_acquisition_source_budget_owner(closure=origin)
+        if type(binding) is not BudgetLedgerProducerRunBinding or (
+            reentry_budget_scope.run_binding != binding
+            or reentry_budget_scope.source_payload_ref != origin.source_payload_ref
+            or reentry_budget_scope.route_id != origin.route_id
+        ):
+            raise ValueError("candidate_experiment_reentry_budget_scope_mismatch")
+        handler = getattr(self, "_acquisition_job_handler", None)
+        action_service = getattr(handler, "__self__", None)
+        port = getattr(action_service, "_production_execution_port", None)
+        if (
+            type(action_service) is not AcquisitionActionService
+            or action_service.control_service is not self
+            or type(port) is not WorldBankWDIAcquisitionExecutionPort
+            or action_service._execution_port is not port
+            or port._world_growth_bridge is not world_growth_bridge
+        ):
+            raise ValueError("candidate_experiment_reentry_execution_owner_not_current")
+        live_admission = self._control_store.current_execution_job_admission()
+        current_head = self._control_store.get_acquisition_action_head(
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            source_job_id=origin.source_job_id,
+            route_id=origin.route_id,
+            action_generation=reentry_budget_scope.action_generation,
+        )
+        if (
+            type(live_admission) is not ControlJobExecutionAdmission
+            or not context.admission.same_execution_identity(live_admission)
+            or live_admission.job.kind != "acquisition"
+            or live_admission.job.state != "running"
+            or live_admission.job.run_id != origin.run_id
+            or live_admission.scope.status != "established"
+            or live_admission.scope.actor_authenticated is not True
+            or live_admission.scope.tenant_id != origin.tenant_id
+            or live_admission.scope.cell_id != origin.cell_id
+            or current_head is None
+            or type(current_head) is not AcquisitionActionHeadRecord
+            or current_head.tenant_id != origin.tenant_id
+            or current_head.cell_id != origin.cell_id
+            or current_head.run_id != origin.run_id
+            or current_head.source_job_id != origin.source_job_id
+            or current_head.receipt_ref != pending_phase_ref
+            or current_head.receipt_phase != "candidate_input_reentry_pending"
+            or current_head.job_id != reentry_budget_scope.action_job_id
+            or current_head.action_generation != reentry_budget_scope.action_generation
+            or current_head.route_id != reentry_budget_scope.route_id
+        ):
+            raise ValueError("candidate_experiment_reentry_live_owner_not_current")
+        settlement_store = self._llm_producer_settlement_store
+        if type(settlement_store) is not BudgetMiddleware:
+            raise ValueError("candidate_experiment_reentry_budget_settlement_not_established")
+        if settlement_store.resolve_reentry_budget_window_safe(reentry_budget_scope) != (
+            context.budget_window
+        ):
+            raise ValueError("candidate_experiment_reentry_budget_window_not_current")
+        return self._finish_candidate_experiment_reentry_budget_observer(
+            origin=origin,
+            budget_state=budget_state,
+            reentry_budget_scope=reentry_budget_scope,
+            binding=binding,
+            selection=context.selection,
+            phase=context.phase,
+            admission=context.admission,
+            action_receipt=context.action,
+        )
+
+    def _finish_candidate_experiment_reentry_budget_observer(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+        budget_state: BudgetState,
+        reentry_budget_scope: BudgetLedgerReentryBudgetScope,
+        binding: BudgetLedgerProducerRunBinding,
+        selection: AcquisitionCandidateSourceRoute,
+        phase: AcquisitionCandidateExperimentPhaseReceipt,
+        admission: ControlJobExecutionAdmission,
+        action_receipt: CandidateAcquisitionActionReceipt,
+    ) -> ProducerBudgetObserver:
+        """Validate one action basis and construct its pending ledger observer."""
         if (
             phase.receipt_phase != "candidate_input_reentry_pending"
             or action_receipt.action_phase_ref != reentry_budget_scope.action_phase_ref

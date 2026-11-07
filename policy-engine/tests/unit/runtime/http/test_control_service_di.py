@@ -349,6 +349,253 @@ def test_control_service_binds_one_durable_llm_settlement_owner(tmp_path) -> Non
         service.close()
 
 
+@pytest.mark.parametrize(
+    ("live_change", "expected_error"),
+    [("current", None), ("head", "live_owner_not_current"),
+     ("lease", "live_owner_not_current"), ("window", "budget_window_not_current")],
+)
+def test_reentry_context_observer_rechecks_live_lease_head_and_window(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+    live_change: str,
+    expected_error: str | None,
+) -> None:
+    """The real control-service observer builder requires fresh live owner fences."""
+    from dataclasses import replace
+    from decimal import Decimal
+    from hashlib import sha256
+
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionService
+    from polisyos.runtime.http.services.acquisition_surface_execution import (
+        WorldBankWDIAcquisitionExecutionPort,
+    )
+    from polisyos.runtime.http.services.control_plane_store import (
+        AcquisitionActionHeadRecord,
+        ControlJobExecutionAdmission,
+        ControlJobExecutionScope,
+        ControlJobRecord,
+    )
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        _VerifiedCurrentCandidateExperimentReentryAction,
+    )
+    from polisyos.scientist.orchestration.engine import (
+        BudgetInvocationQuotaPolicy,
+        BudgetLedgerInvocationProfile,
+        BudgetLedgerProducerRunBinding,
+        BudgetLedgerReentryBudgetScope,
+    )
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from tests._helpers.lane01_candidate_action_served import build_candidate_port_owners
+    from tests.unit.runtime.quality.test_candidate_experiment_current_outcome import (
+        _selection_case,
+    )
+    from tests.unit.runtime.quality.test_candidate_experiment_dispatch_currentness import (
+        _reentry_receipts,
+    )
+
+    owners = build_candidate_port_owners(tmp_path / "owners")
+    service = _build_control_service(tmp_path / "service", artifact_store=owners.store)
+    try:
+        origin, _outcomes = _selection_case(1)
+        phase, action, _executing_phase_ref = _reentry_receipts()
+        selection = action.selection
+        pending_phase_ref = "sha256:" + "9" * 64
+        binding = BudgetLedgerProducerRunBinding(
+            run_id=origin.run_id,
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            profile_id="candidate-reentry-profile",
+            control_job_id=origin.source_job_id,
+        )
+        ledger_path = tmp_path / "producer-ledger.json"
+        ledger = FileBudgetLedger(ledger_path)
+        settlement_store = BudgetMiddleware(BudgetState(), ledger=ledger)
+        with settlement_store.producer_run_binding_scope(
+            binding, control_job_attempt=1
+        ):
+            settlement_store.settle_producer_event_safe(
+                sha256(b"reentry-owner-event").hexdigest(),
+                sha256(b"reentry-owner-request").hexdigest(),
+                sha256(b"reentry-owner-response").hexdigest(),
+                key=f"nl-run:{binding.run_id}",
+                model="unit-fixture-model",
+                provider="unit-fixture-provider",
+                amount=Decimal("0.01"),
+                cost_origin="reported",
+            )
+        scope = BudgetLedgerReentryBudgetScope(
+            run_binding=binding,
+            action_job_id=phase.job_id,
+            route_id=phase.route_id,
+            action_generation=phase.action_generation,
+            action_phase_ref=action.action_phase_ref,
+            source_payload_ref=origin.source_payload_ref,
+            profile_selection_ref=selection.profile_selection_ref,
+        )
+        window = settlement_store.open_reentry_budget_window_safe(
+            scope,
+            fresh_limit_usd=Decimal("1"),
+            global_limit_usd=Decimal("2"),
+        )
+        budget_state = BudgetState(
+            limits={"run": BudgetLimit(key="run", max_usd=window.effective_limit_usd)}
+        )
+        action = action.model_copy(
+            update={
+                "candidate_budget_window_id": window.window_id,
+                "candidate_budget_window_digest": window.record_digest,
+            }
+        )
+        quota = BudgetInvocationQuotaPolicy(
+            allocation_id="candidate-reentry-current-profile",
+            total_units=3,
+            protected_units=1,
+        )
+        profile = BudgetLedgerInvocationProfile.from_policy(binding, quota)
+        settlement_store.configure_invocation_profile_safe(profile)
+        service.bind_llm_producer_settlement_store(settlement_store)
+        monkeypatch.setattr(
+            service,
+            "verify_acquisition_source_budget_owner",
+            lambda *, closure: binding if closure is origin else pytest.fail("foreign origin"),
+        )
+
+        port = WorldBankWDIAcquisitionExecutionPort(
+            authority=owners.authority,
+            registry=owners.registry,
+            provision=owners.authority.provision,
+            provision_content_sha256=owners.authority.provision_content_sha256,
+            runtime_state_root=tmp_path / "runtime",
+            artifact_store=owners.store,
+            world_growth_bridge=owners.bridge,
+        )
+        action_service = object.__new__(AcquisitionActionService)
+        action_service.control_service = service
+        action_service._production_execution_port = port
+        action_service._execution_port = port
+        service.bind_acquisition_job_handler(action_service.handle_job)
+
+        now = datetime.now(UTC)
+        record = ControlJobRecord(
+            job_id=phase.job_id,
+            kind="acquisition",
+            state="running",
+            run_id=origin.run_id,
+            pipeline_id=None,
+            requested_execution_profile=None,
+            effective_execution_profile="dev",
+            policy_flags={},
+            capability_manifest_ref="sha256:" + "a" * 64,
+            payload_ref=origin.source_payload_ref,
+            submitted_by="unit-actor",
+            created_at=now,
+            started_at=now,
+            finished_at=None,
+            lease_owner="unit-worker",
+            lease_expires_at=now + timedelta(minutes=2),
+            attempt=1,
+            error_message=None,
+            progress={},
+        )
+        execution_scope = ControlJobExecutionScope(
+            status="established",
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            actor_subject="unit-actor",
+            actor_authenticated=True,
+            actor_roles=("operator",),
+        )
+        admission = ControlJobExecutionAdmission(
+            job=record,
+            scope=execution_scope,
+            admission_capability_manifest_ref=record.capability_manifest_ref,
+            attempt=1,
+            manifest_pointer_state="admission_current",
+        )
+        head = AcquisitionActionHeadRecord(
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            source_job_id=origin.source_job_id,
+            route_id=origin.route_id,
+            action_generation=phase.action_generation,
+            head_generation=1,
+            receipt_ref=pending_phase_ref,
+            receipt_sha256=pending_phase_ref,
+            durable_event_id="unit-reentry-head",
+            coarse_phase=phase.coarse_phase,
+            receipt_phase="candidate_input_reentry_pending",
+            recovery_state=phase.recovery_state,
+            job_id=phase.job_id,
+            predecessor_receipt_ref=phase.predecessor_receipt_ref,
+            created_at=now,
+            receipt_manifest_profile_sha256=(
+                phase.candidate_receipt_ref.manifest_profile_sha256
+                if isinstance(phase.candidate_receipt_ref, ArtifactRef)
+                else None
+            ),
+        )
+        live = {"admission": admission, "head": head}
+        monkeypatch.setattr(
+            service._control_store,
+            "current_execution_job_admission",
+            lambda: live["admission"],
+        )
+        monkeypatch.setattr(
+            service._control_store,
+            "get_acquisition_action_head",
+            lambda **_kwargs: live["head"],
+        )
+        context = _VerifiedCurrentCandidateExperimentReentryAction(
+            selection=selection,
+            phase=phase,
+            admission=admission,
+            action=action,
+            budget_window=window,
+        )
+        before = ledger_path.read_bytes()
+        if live_change == "head":
+            live["head"] = replace(head, receipt_ref="sha256:" + "8" * 64)
+        elif live_change == "lease":
+            live["admission"] = replace(
+                admission,
+                job=replace(record, state="completed"),
+            )
+        elif live_change == "window":
+            monkeypatch.setattr(settlement_store, "resolve_reentry_budget_window_safe", lambda _scope: None)
+
+        def build_observer() -> object:
+            return service._build_candidate_experiment_reentry_budget_observer_from_context(
+                origin=origin,
+                world_growth_bridge=owners.bridge,
+                candidate_action_ref=phase.candidate_receipt_ref,
+                budget_state=budget_state,
+                reentry_budget_scope=scope,
+                pending_phase_ref=pending_phase_ref,
+                context=context,
+            )
+
+        if expected_error is None:
+            observer = build_observer()
+            from polisyos.scientist.orchestration.engine.producer_budget import (
+                ProducerBudgetObserver,
+            )
+
+            assert type(observer) is ProducerBudgetObserver
+            assert ledger_path.read_bytes() == before
+            assert observer.bind_existing_invocation_policy_from_selected_owner(quota) == profile
+            assert settlement_store.snapshot_safe().invocation_profiles[binding.run_id] == profile
+        else:
+            with pytest.raises(ValueError, match=expected_error):
+                build_observer()
+            assert ledger_path.read_bytes() == before
+    finally:
+        service.close()
+
+
 def test_control_service_owns_one_eval_safety_service_verifier_and_store(tmp_path) -> None:
     service = _build_control_service(tmp_path)
     try:

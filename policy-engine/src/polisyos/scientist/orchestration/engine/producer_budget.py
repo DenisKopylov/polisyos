@@ -484,6 +484,25 @@ def _add_budget_amount(left: Decimal, right: Decimal, *, exact: bool) -> Decimal
         raise ProducerBudgetSourceError("reentry_budget_arithmetic_not_established") from exc
 
 
+def _selected_invocation_profile(
+    binding: BudgetLedgerProducerRunBinding,
+    policy: BudgetInvocationQuotaPolicy | None,
+    purpose: Literal["standard", "diagnostic", "counterevidence"],
+) -> BudgetLedgerInvocationProfile | None:
+    """Validate and owner-bind one invocation policy selection."""
+    if policy is not None and type(policy) is not BudgetInvocationQuotaPolicy:
+        raise TypeError("invocation_quota_policy_untyped")
+    if purpose not in {"standard", "diagnostic", "counterevidence"}:
+        raise ValueError("invocation_quota_purpose_invalid")
+    if policy is None and purpose != "standard":
+        raise ProducerBudgetSourceError("n5_protected_purpose_not_established")
+    return (
+        BudgetLedgerInvocationProfile.from_policy(binding, policy)
+        if policy is not None
+        else None
+    )
+
+
 class ProducerBudgetObserver:
     """Reconcile one existing budget state against one exact durable run owner.
 
@@ -623,11 +642,16 @@ class ProducerBudgetObserver:
 
     def _capacity_owner_snapshot(
         self,
+        *,
+        require_existing_lock: bool = False,
     ) -> tuple[
         tuple[str, str, str], tuple[int, int, str, int, int], tuple[int, str], BudgetLedgerSnapshot
     ]:
         """Read the exact file owner, refusing shadowed source-boundary methods."""
-        return _capacity_store_snapshot(self._store)
+        return _capacity_store_snapshot(
+            self._store,
+            require_existing_lock=require_existing_lock,
+        )
 
     def observe_standard_invocation_capacity(self) -> BudgetInvocationCapacityObservation:
         """Read current standard quota without consuming a unit or granting a permit.
@@ -777,17 +801,7 @@ class ProducerBudgetObserver:
         replace a profile already adopted for the run. Repeating an identical
         selection is idempotent; selecting a different policy or purpose fails.
         """
-        if policy is not None and type(policy) is not BudgetInvocationQuotaPolicy:
-            raise TypeError("invocation_quota_policy_untyped")
-        if purpose not in {"standard", "diagnostic", "counterevidence"}:
-            raise ValueError("invocation_quota_purpose_invalid")
-        if policy is None and purpose != "standard":
-            raise ProducerBudgetSourceError("n5_protected_purpose_not_established")
-        profile = (
-            BudgetLedgerInvocationProfile.from_policy(self._binding, policy)
-            if policy is not None
-            else None
-        )
+        profile = _selected_invocation_profile(self._binding, policy, purpose)
         with self._lock:
             if self._invocation_selection_bound:
                 if profile != self._invocation_profile or purpose != self._invocation_purpose:
@@ -800,6 +814,55 @@ class ProducerBudgetObserver:
                     profile = self._store.configure_invocation_profile_safe(profile)
             except (OSError, ValueError, RuntimeError) as exc:
                 raise ProducerBudgetSourceError("n5_invocation_selection_failed") from exc
+            self._invocation_profile = profile
+            self._invocation_purpose = purpose
+            self._invocation_selection_bound = True
+            self._invocation_selection_pending = False
+            return profile
+
+    def bind_existing_invocation_policy_from_selected_owner(
+        self,
+        policy: BudgetInvocationQuotaPolicy,
+        *,
+        purpose: Literal["standard", "diagnostic", "counterevidence"] = "standard",
+    ) -> BudgetLedgerInvocationProfile:
+        """Bind only an exact finite quota already selected in the current ledger.
+
+        This read-only path never installs or repairs a profile. Later capacity
+        observations reopen the owner and refuse if the selection changes.
+        """
+        if type(policy) is not BudgetInvocationQuotaPolicy:
+            raise TypeError("invocation_quota_policy_untyped")
+        profile = _selected_invocation_profile(self._binding, policy, purpose)
+        if profile is None:
+            raise TypeError("invocation_quota_policy_untyped")
+        with self._lock:
+            if self._invocation_selection_bound and (
+                profile != self._invocation_profile or purpose != self._invocation_purpose
+            ):
+                raise ProducerBudgetSourceError("n5_invocation_selection_conflict")
+            try:
+                if "_capacity_owner_snapshot" in vars(self):
+                    raise ValueError("invocation_capacity_source_shadowed")
+                owner, resource, anchor, snapshot = (
+                    ProducerBudgetObserver._capacity_owner_snapshot(
+                        self,
+                        require_existing_lock=True,
+                    )
+                )
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                raise ProducerBudgetSourceError(
+                    "n5_invocation_selection_source_unavailable"
+                ) from exc
+            if (
+                owner != self._owner
+                or resource != self._reconciliation.resource
+                or type(snapshot) is not BudgetLedgerSnapshot
+                or snapshot.revision != anchor[0]
+                or snapshot.invocation_profiles.get(self._binding.run_id) != profile
+                or self._binding.run_id in snapshot.invocation_unconfigured_runs
+            ):
+                raise ProducerBudgetSourceError("n5_invocation_selection_not_current")
             self._invocation_profile = profile
             self._invocation_purpose = purpose
             self._invocation_selection_bound = True

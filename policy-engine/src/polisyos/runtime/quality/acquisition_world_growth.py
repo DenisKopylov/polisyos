@@ -1511,19 +1511,42 @@ class AcquisitionWorldGrowthBridge:
         if quota is None or profile.n5.invocation_purpose != "standard":
             raise ValueError("candidate_experiment_reentry_n5_quota_not_established")
         try:
-            observer = service.build_candidate_experiment_reentry_budget_observer(
+            observer = service._build_candidate_experiment_reentry_budget_observer_from_context(
                 origin=origin,
+                world_growth_bridge=self,
                 candidate_action_ref=candidate_action_ref,
                 budget_state=budget_state,
                 reentry_budget_scope=reentry_budget_scope,
+                pending_phase_ref=pending_ref,
+                context=context,
             )
             if type(observer) is not ProducerBudgetObserver:
                 raise ValueError("candidate_experiment_budget_observer_untyped")
             ProducerBudgetObserver.require_bound_state(observer, budget_state)
-            budget = ProducerBudgetObserver.observe(observer)
-            selected_quota = observer.bind_invocation_policy_from_selected_owner(
-                quota, purpose="standard"
-            )
+            try:
+                selected_quota = observer.bind_existing_invocation_policy_from_selected_owner(
+                    quota, purpose="standard"
+                )
+            except ProducerBudgetSourceError as exc:
+                if exc.args != ("n5_invocation_selection_not_current",):
+                    raise
+                # A missing or changed persisted quota keeps the original full
+                # action read immediately before the legacy selection write.
+                observer = service.build_candidate_experiment_reentry_budget_observer(
+                    origin=origin,
+                    candidate_action_ref=candidate_action_ref,
+                    budget_state=budget_state,
+                    reentry_budget_scope=reentry_budget_scope,
+                )
+                if type(observer) is not ProducerBudgetObserver:
+                    raise ValueError("candidate_experiment_budget_observer_untyped") from exc
+                ProducerBudgetObserver.require_bound_state(observer, budget_state)
+                budget = ProducerBudgetObserver.observe(observer)
+                selected_quota = observer.bind_invocation_policy_from_selected_owner(
+                    quota, purpose="standard"
+                )
+            else:
+                budget = ProducerBudgetObserver.observe(observer)
             capacity = ProducerBudgetObserver.observe_standard_invocation_capacity(observer)
             if capacity.status == "exhausted":
                 witness = capacity.exhaustion_witness

@@ -337,6 +337,114 @@ def test_pending_selection_binds_only_the_resolved_owner_and_survives_restart(
         reopened.reserve_invocation(_digest("twice"), _digest("request"))
 
 
+@pytest.mark.parametrize("stored_selection", ["missing", "foreign", "drift"])
+def test_read_only_selection_refuses_missing_foreign_or_drifted_profile_without_repair(
+    tmp_path: Path,
+    stored_selection: str,
+) -> None:
+    path = tmp_path / f"{stored_selection}.json"
+    ledger, middleware = _owner(path)
+    policy = BudgetInvocationQuotaPolicy(
+        allocation_id="fixture-allocation", total_units=4, protected_units=2
+    )
+    if stored_selection == "foreign":
+        foreign_binding = _binding().model_copy(update={"tenant_id": "foreign-tenant"})
+        ledger.configure_invocation_profile(
+            BudgetLedgerInvocationProfile.from_policy(foreign_binding, policy)
+        )
+    elif stored_selection == "drift":
+        ledger.configure_invocation_profile(
+            BudgetLedgerInvocationProfile.from_policy(
+                _binding(),
+                BudgetInvocationQuotaPolicy(
+                    allocation_id="different-allocation", total_units=5, protected_units=2
+                ),
+            )
+        )
+    before = path.read_bytes()
+    observer = ProducerBudgetObserver(
+        settlement_store=middleware,
+        producer_run_binding=_binding(),
+        budget_state=BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))}),
+        invocation_selection_pending=True,
+    )
+
+    with pytest.raises(ProducerBudgetSourceError, match="selection_not_current"):
+        observer.bind_existing_invocation_policy_from_selected_owner(policy)
+
+    assert path.read_bytes() == before
+    assert ledger.snapshot().invocation_profiles.get("run-a") != _profile()
+
+
+def test_read_only_selection_reopens_capacity_after_profile_removal(tmp_path: Path) -> None:
+    path = tmp_path / "ledger.json"
+    ledger, middleware = _owner(path)
+    profile = _profile()
+    middleware.configure_invocation_profile_safe(profile)
+    before = path.read_bytes()
+    observer = ProducerBudgetObserver(
+        settlement_store=middleware,
+        producer_run_binding=_binding(),
+        budget_state=BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))}),
+        invocation_selection_pending=True,
+    )
+
+    assert observer.bind_existing_invocation_policy_from_selected_owner(
+        BudgetInvocationQuotaPolicy(
+            allocation_id=profile.allocation_id,
+            total_units=profile.total_units,
+            protected_units=profile.protected_units,
+        )
+    ) == profile
+    assert path.read_bytes() == before
+    capacity = observer.observe_standard_invocation_capacity()
+    assert capacity.status == "available"
+    assert capacity.profile_digest == profile.profile_digest
+
+    current = ledger.snapshot()
+    ledger._persist_snapshot(current.model_copy(update={"invocation_profiles": {}}))
+    changed = observer.observe_standard_invocation_capacity()
+    assert changed.status == "not_established"
+    assert changed.reason_code == "quota_owner_basis_not_established"
+    assert ledger.snapshot().invocation_profiles == {}
+
+
+@pytest.mark.parametrize("boundary_fault", ["shadowed_reader", "missing_lock"])
+def test_read_only_selection_refuses_shadowed_reader_or_missing_lock_without_repair(
+    tmp_path: Path,
+    boundary_fault: str,
+) -> None:
+    path = tmp_path / f"{boundary_fault}.json"
+    ledger, middleware = _owner(path)
+    profile = _profile()
+    middleware.configure_invocation_profile_safe(profile)
+    policy = BudgetInvocationQuotaPolicy(
+        allocation_id=profile.allocation_id,
+        total_units=profile.total_units,
+        protected_units=profile.protected_units,
+    )
+    observer = ProducerBudgetObserver(
+        settlement_store=middleware,
+        producer_run_binding=_binding(),
+        budget_state=BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))}),
+        invocation_selection_pending=True,
+    )
+    if boundary_fault == "shadowed_reader":
+        observer._capacity_owner_snapshot = lambda: pytest.fail(
+            "shadowed capacity reader was invoked"
+        )
+    else:
+        ledger._lock_path.unlink()
+    before = path.read_bytes()
+
+    with pytest.raises(ProducerBudgetSourceError, match="selection_source_unavailable"):
+        observer.bind_existing_invocation_policy_from_selected_owner(policy)
+
+    assert path.read_bytes() == before
+    if boundary_fault == "missing_lock":
+        assert not ledger._lock_path.exists()
+
+
 def test_unconfigured_mode_is_durable_and_rejects_foreign_binding(tmp_path: Path) -> None:
     path = tmp_path / "ledger.json"
     ledger, middleware = _owner(path)

@@ -13286,6 +13286,19 @@
           "source_tree": "ea78ed7a420d9840376e5d9db1d6226bb1e6899d",
           "output": "MAIN:policy-engine/_cache/e02/lane01-method-receipt-retained-r13"
         },
+        "method_selection_receipt_composed_r14": {
+          "classification": "PASS_RETAINED_READER_WITH_ZERO_N5",
+          "source_commit": "36c0d376afe1ba88a006398d1e76ba72432bb0e8",
+          "source_tree": "bd3f7bf77321cfa484a2a068432071cc2be014bc",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-method-receipt-retained-r14",
+          "stdout_sha256": "07fafdf6e65f84d304eb144cbda54c3ad9bc98695ca133ba1c532f8b52b250dc",
+          "wall_seconds": 60.27274383301847,
+          "peak_rss_bytes": 1760624640,
+          "named_inputs": 21,
+          "inputs_unchanged": true,
+          "physical_n5_calls": 0,
+          "scope": "Fresh API reader on retained R11 numerical artifacts. Removing the exact selected receipt yields not_established with no estimate. Restoring it serves the same method result. Deciding selected CAS bytes and SQLite control database unchanged."
+        },
         "cyc02_historical_producer_feasibility": {
           "classification": "SOURCE_REVIEW_ONLY_RUNTIME_UNRUN",
           "v2_source_commit": "73d6d71d1bde2b85b7910ba8e1356b888389cfc0",

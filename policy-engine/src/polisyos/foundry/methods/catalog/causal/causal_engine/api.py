@@ -80,7 +80,9 @@ class CausalEngine(
         Raises:
             ValueError: Selected profiles or graph/query/proof bindings disagree.
         """
-        from polisyos.foundry.methods.catalog.causal.id_engine import _internal_proof_step_to_ir
+        from polisyos.foundry.methods.catalog.causal.id_engine.core import (
+            _internal_proof_step_to_ir,
+        )
         from polisyos.ir import (
             ArtifactRefModel,
             InterventionQueryRef,

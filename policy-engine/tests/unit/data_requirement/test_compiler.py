@@ -2,6 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import subprocess
+import sys
+import textwrap
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
@@ -2014,6 +2018,142 @@ def test_v2_source_bytes_roundtrip_and_retention_removal_control(
     with pytest.raises(ValueError, match="data_requirement_report_content_conflict"):
         write_data_requirement_compilation_report(parsed, tmp_path / "intact")
     assert path.read_bytes() == b"tampered artifact"
+
+
+def test_pre_domain_v2_source_replay_roundtrips_in_fresh_current_reader(
+    tmp_path: Path,
+) -> None:
+    """Preserve one exact pre-domain-provenance V2 writer replay in a fresh reader."""
+
+    fixture_path = (
+        Path(__file__).resolve().parents[2]
+        / "_data/data_requirement/req01/pre-domain-source-replay-v2.json"
+    )
+    original = fixture_path.read_bytes()
+    original_sha256 = hashlib.sha256(original).hexdigest()
+    assert len(original) == 3590
+    assert original_sha256 == "1e816f7da651d4694aa29e7b52d0ec06d184fe8f788a01e3229aa215a232dd79"
+
+    # This raw input was compiled and persisted by the public producer/serializer at
+    # 63706888af4676c49a84150cf8bc1c5523b7f93c / 659f4a103edb50aeb60f725aa1380a58da5e6f14.
+    # It is a historical-source replay, not recovered archived production bytes.
+    scenario = {
+        "scenario_id": "opaque:req01-pre-domain-v2-replay",
+        "text": "Evaluate a fiscal intervention for education policy.",
+        "domain": "Education Policy",
+        "scope_profile": {
+            "profile_id": "scope:req01-pre-domain-v2-replay:v1",
+            "jurisdiction": "UA",
+            "population": "low_income_households",
+            "entity_scope": "household",
+            "time_window": {"start": "2023-01-01", "end": "2024-12-31"},
+            "time_role": "observation_time",
+            "granularity": "annual",
+            "required_constructs": ["employment_status"],
+        },
+    }
+    scenario_bytes = (
+        json.dumps(scenario, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+    ).encode("utf-8")
+    assert hashlib.sha256(scenario_bytes).hexdigest() == (
+        "7628ce10d3cf176cee43c4f57f5959866a04b16423e3fe24d7443528536293d6"
+    )
+
+    payload = json.loads(original)
+    assert payload["schema_version"] == "policyos.data_requirement_compilation.v2"
+    assert payload["scenario_id"] == scenario["scenario_id"]
+    assert payload["input_content_hash"] == (
+        "sha256:46e0499b6b95c8ab322b9044813177a69087eca46286c4d5b34868faa6502a5a"
+    )
+    assert payload["rule_version_refs"] == ["policyos.data_requirement.compiler.v2"]
+    assert "scenario_domain_resolution" not in payload["metadata"]
+    assert payload["requirement_basis"]["state"] == "not_established"
+    assert payload["requirement_basis"]["basis_grade"] == "not_established"
+    assert payload["requirement_basis"]["reason_codes"] == ["legacy_report_basis_not_carried"]
+    assert payload["specs"] == []
+    (resolution,) = payload["capability_requirement_resolutions"]
+    assert resolution["state"] == "not_established"
+    assert resolution["scope_profile_id"] == scenario["scope_profile"]["profile_id"]
+    assert resolution["query"]["construct"] == "employment_status"
+    assert resolution["query"]["geography"] == "UA"
+    assert resolution["query"]["time_window"] == scenario["scope_profile"]["time_window"]
+
+    current_source_root = Path(compiler_module.__file__).resolve().parents[2]
+    reader_probe = textwrap.dedent(
+        """
+        import hashlib, importlib, json, sys
+        from pathlib import Path
+        from polisyos.data_requirement import (
+            DataRequirementCompilationReport, data_requirement_compilation_audit_surface,
+            parse_data_requirement_compilation_report, write_data_requirement_compilation_report,
+        )
+        fixture, output_dir = map(Path, sys.argv[1:3])
+        expected_digest, expected_input_hash, source_root = sys.argv[3:]
+        raw = fixture.read_bytes()
+        assert hashlib.sha256(raw).hexdigest() == expected_digest
+        module = Path(importlib.import_module("polisyos.data_requirement.compiler").__file__).resolve()
+        assert module == Path(source_root) / "polisyos/data_requirement/compiler.py"
+        report = parse_data_requirement_compilation_report(raw)
+        assert type(report) is DataRequirementCompilationReport
+        assert report.original_bytes == raw and report.input_content_hash == expected_input_hash
+        document = json.loads(raw)
+        assert report.scenario_id == document["scenario_id"]
+        assert report.rule_version_refs == tuple(document["rule_version_refs"])
+        assert report.metadata == document["metadata"]
+        assert report.requirement_basis.state == "not_established"
+        assert "scenario_domain_resolution" not in report.metadata
+        surface = data_requirement_compilation_audit_surface(raw)
+        assert surface["input_content_hash"] == expected_input_hash
+        assert surface["rule_version_refs"] == document["rule_version_refs"]
+        assert surface["requirement_basis"] == report.requirement_basis.model_dump(mode="json")
+        written = write_data_requirement_compilation_report(report, output_dir)
+        assert written.read_bytes() == raw
+        written.write_bytes(b"tampered report")
+        try:
+            write_data_requirement_compilation_report(report, output_dir)
+        except ValueError as exc:
+            assert "data_requirement_report_content_conflict" in str(exc)
+        else:
+            raise AssertionError("writer accepted clobbered historical V2 bytes")
+        assert written.read_bytes() == b"tampered report" and fixture.read_bytes() == raw
+        print(json.dumps({
+            "status": "PASS", "module": str(module), "report_sha256": expected_digest
+        }))
+        """
+    )
+    product_root = current_source_root.parent
+    child_environment = os.environ.copy()
+    child_environment.pop("PYTHONHOME", None)
+    child_environment["PYTHONPATH"] = str(current_source_root)
+    child_environment["PYTHONNOUSERSITE"] = "1"
+    child_environment["PYTHONDONTWRITEBYTECODE"] = "1"
+    child_environment["OMP_NUM_THREADS"] = "1"
+    child_environment["OPENBLAS_NUM_THREADS"] = "1"
+    child_environment["MKL_NUM_THREADS"] = "1"
+    child = subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            "-c",
+            reader_probe,
+            str(fixture_path),
+            str(tmp_path / "fresh-current-reader"),
+            original_sha256,
+            payload["input_content_hash"],
+            str(current_source_root),
+        ],
+        cwd=product_root,
+        env=child_environment,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    assert child.returncode == 0, child.stdout + "\n" + child.stderr
+    result = json.loads(child.stdout)
+    assert result["status"] == "PASS"
+    assert result["module"] == str(current_source_root / "polisyos/data_requirement/compiler.py")
+    assert result["report_sha256"] == original_sha256
 
 
 def _declared_source_scenario(construct: str, population: str) -> dict[str, Any]:

@@ -2977,7 +2977,7 @@ class CausalEngineArtifactsMixin:
         executor_graph:
             Compiled ExecutorGraph (for CompilationStep records).
         """
-        from polisyos.foundry.methods.catalog.causal.id_engine import (
+        from polisyos.foundry.methods.catalog.causal.id_engine.core import (
             _internal_proof_step_to_ir,
         )
 

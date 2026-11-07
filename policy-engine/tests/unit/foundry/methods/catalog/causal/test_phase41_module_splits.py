@@ -70,6 +70,7 @@ def test_id_engine_split_modules_preserve_legacy_runtime_surface() -> None:
 
     assert runtime.id_algorithm is api.id_algorithm
     assert runtime.IdentificationResult is core.IdentificationResult
+    assert runtime._internal_proof_step_to_ir is core._internal_proof_step_to_ir
 
 
 def test_causal_engine_split_has_no_deferred_api_import_cycle() -> None:

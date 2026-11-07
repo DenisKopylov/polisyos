@@ -13624,6 +13624,20 @@
           "sha256": "1e816f7da651d4694aa29e7b52d0ec06d184fe8f788a01e3229aa215a232dd79",
           "scope": "Actual old compiler and immutable writer replay. Current fresh reader preserves exact bytes, metadata, rule and unresolved basis and refuses write-once clobbering. Tracked regression passes. Original archival provenance and installed build are separate."
         },
+        "req01_installed_v1_v2_compatibility": {
+          "classification": "PASS_INSTALLED_V1_V2_AND_CURRENT_COMPILER",
+          "source_commit": "540e18e99627fe74c057f7e90881d54489f730a6",
+          "source_tree": "81b654e9e90d7e26110d3f4464461c8eba06434a",
+          "wheel_sha256": "9aed051af2ec1c85784c241edead10e0735f7c6005b890a70dfd9695a504a481",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-installed-req01-r4/installed-child-readback-r2",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "scope": "One fresh offline noneditable wheel build/install. Child verifies installed-only module origins, exact V1/V2 bytes and audit projection, V2 clobber refusal, current education-domain resolution and governed candidate world-slot discovery. The retained installed child replay needs no rebuild."
+        },
         "gdp_knob_fixture_preflight": {
           "classification": "FAIL_BEFORE_N5_ON_MISSING_RUN_BOUND_QUOTA",
           "output": "AUTHOR:policy-engine/_cache/e02/lane01-gdp-sentinel-author-r2",

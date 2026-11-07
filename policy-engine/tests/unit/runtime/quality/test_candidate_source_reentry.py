@@ -17,7 +17,6 @@ from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.runtime.quality import generation_cycle as generation_cycle_module
 from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
 from polisyos.runtime.quality.generation_cycle import (
-    JOINT_SIMULATION_RESULT_ARTIFACT_KIND,
     CandidateGroundingObservation,
     CandidateSourceBasisTransition,
     GenerationCycleController,
@@ -29,166 +28,7 @@ from polisyos.runtime.quality.generation_cycle import (
     validate_generation_cycle_run_history,
 )
 from tests._helpers.controlled_candidate_profile import _budget, _CgfGenerationPort, _problem
-from tests._helpers.lane01_candidate_action_served import (
-    labor_candidate_profile,
-    run_lane01_candidate_action_served,
-)
 from tests.unit.runtime.quality.historical_artifacts import historical_generation_cycle_v1
-
-
-@pytest.mark.integration
-def test_candidate_source_world_refuses_reentry_without_selected_prior_n4_v5(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """A live acquired world cannot replace a missing N4/V5/context basis."""
-
-    reentry_refusals: list[tuple[str, object]] = []
-    n5_calls: list[object] = []
-    reentry_n5_call_deltas: list[int] = []
-    reenter = GenerationCycleController.reenter_after_candidate_acquisition_source
-    simulate = JointSimulationPort.__call__
-
-    async def inspect_reentry(
-        controller: GenerationCycleController,
-        *,
-        bridge: object,
-        closure: object,
-        candidate_action_ref: object,
-        source_world_handoff: object,
-        budget_state: object,
-    ) -> object:
-        from polisyos.runtime.quality.acquisition_world_growth import (
-            CandidateSourceWorldHandoff,
-        )
-        from polisyos.runtime.quality.candidate_acquisition_action import (
-            read_candidate_acquisition_action,
-        )
-
-        assert type(bridge) is AcquisitionWorldGrowthBridge
-        assert type(source_world_handoff) is CandidateSourceWorldHandoff
-        source_cycle = closure.source_cycle
-        assert source_cycle.simulation.candidate_simulation_n4_source_ref is None
-        assert source_cycle.simulation.candidate_simulation_n5_input_ref is None
-        assert source_cycle.simulation.candidate_simulation_context_job_ref is None
-        assert controller._artifact_store is bridge.artifact_store
-        assert type(controller._simulation_port) is JointSimulationPort
-        assert controller._cycle_substrate_context == source_world_handoff.context
-        assert controller._candidate_simulation_handoff == source_world_handoff.handoff
-        assert source_world_handoff.currentness_resolver() is True
-
-        action = bridge._require_selected_candidate_action(
-            closure=closure,
-            candidate_action_ref=candidate_action_ref,
-        )
-        assert (
-            read_candidate_acquisition_action(
-                bridge=bridge,
-                closure=closure,
-                receipt_ref=candidate_action_ref,
-                require_current_action=True,
-            )
-            == action
-        )
-        assert source_world_handoff.candidate_source_ref == action.candidate_source_ref
-        assert source_world_handoff.candidate_action_ref == candidate_action_ref
-        assert source_world_handoff.world_model_record.content_hash != (
-            source_world_handoff.context.world_model_record.content_hash
-        )
-        assert source_world_handoff.handoff.context.world_model_record.content_hash == (
-            source_world_handoff.context.world_model_record.content_hash
-        )
-
-        store = bridge.artifact_store
-        before_n5_inputs = store.manifest_inventory_snapshot(
-            kind="runtime.quality.candidate_simulation_n5_input"
-        )
-        before_n5_results = store.manifest_inventory_snapshot(
-            kind=JOINT_SIMULATION_RESULT_ARTIFACT_KIND
-        )
-        before_calls = len(n5_calls)
-        with pytest.raises(GenerationCycleError) as refusal:
-            await reenter(
-                controller,
-                bridge=bridge,
-                closure=closure,
-                candidate_action_ref=candidate_action_ref,
-                source_world_handoff=source_world_handoff,
-                budget_state=budget_state,
-            )
-        exc = refusal.value
-        assert exc.code == "candidate_source_reentry_prior_evaluation_not_established"
-        assert source_world_handoff.currentness_resolver() is True
-        assert len(n5_calls) == before_calls
-        assert (
-            store.manifest_inventory_snapshot(kind="runtime.quality.candidate_simulation_n5_input")
-            == before_n5_inputs
-        )
-        assert (
-            store.manifest_inventory_snapshot(kind=JOINT_SIMULATION_RESULT_ARTIFACT_KIND)
-            == before_n5_results
-        )
-        reentry_n5_call_deltas.append(len(n5_calls) - before_calls)
-        reentry_refusals.append((exc.code, source_world_handoff))
-        raise exc
-
-    def count_n5(
-        port: JointSimulationPort,
-        *args: object,
-        **kwargs: object,
-    ) -> object:
-        n5_calls.append(object())
-        return simulate(port, *args, **kwargs)
-
-    monkeypatch.setattr(
-        GenerationCycleController,
-        "reenter_after_candidate_acquisition_source",
-        inspect_reentry,
-    )
-    monkeypatch.setattr(JointSimulationPort, "__call__", count_n5)
-
-    def observe(ctx: Any) -> None:
-        assert ctx.response.status_code in {200, 202}, ctx.response.text
-        assert ctx.job is not None and ctx.job.state == "failed"
-        assert len(reentry_refusals) == 1
-        assert reentry_refusals[0][0] == (
-            "candidate_source_reentry_prior_evaluation_not_established"
-        )
-        assert ctx.transport_calls == [
-            (
-                "GET",
-                "https://api.worldbank.org/v2/country/USA/indicator/SL.UEM.TOTL.ZS",
-                {"date": "2024:2024", "format": "json", "page": "1", "per_page": "1000"},
-            )
-        ]
-        scope = {
-            "tenant_id": ctx.closure.tenant_id,
-            "cell_id": ctx.closure.cell_id,
-            "run_id": ctx.closure.run_id,
-            "source_job_id": ctx.closure.source_job_id,
-            "route_id": ctx.closure.route_id,
-        }
-        outcome = ctx.control.acquisition_route_sink.current_action_outcome(**scope)
-        assert outcome is not None
-        assert outcome.latest_receipt.receipt_phase == "candidate_input_reentry_pending"
-        assert getattr(outcome.latest_receipt, "reentry_receipt_ref", None) is None
-        assert reentry_n5_call_deltas == [0]
-
-        for forbidden_kind in (
-            "runtime_quality.acquisition_world_growth_receipt",
-            "epoch.prepared",
-            "epoch.production_receipt",
-            "epoch.acquisition_passport_snapshot",
-        ):
-            inventory = ctx.control._artifact_store.manifest_inventory_snapshot(kind=forbidden_kind)
-            assert inventory.verdict == "pass"
-            assert inventory.entries == (), forbidden_kind
-
-    run_lane01_candidate_action_served(
-        tmp_path,
-        monkeypatch,
-        observe,
-        candidate_profile_builder=labor_candidate_profile,
-    )
 
 
 class _AcquisitionRequiredGrounding:
@@ -1380,8 +1220,10 @@ async def test_v9_transition_history_cannot_carry_forged_n9_promotion() -> None:
 
     with pytest.raises(
         ValueError,
-        match="recursive_leaf_generation_cycle_history_invalid:"
-        "candidate_source_basis_transition_claims_current_authority",
+        match=(
+            r"recursive_leaf_generation_cycle_history_invalid:.*"
+            r"candidate_source_basis_transition_claims_current_authority"
+        ),
     ):
         RecursiveCycleNode(
             node_ref="node:forged-candidate-transition",

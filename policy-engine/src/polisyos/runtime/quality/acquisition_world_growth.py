@@ -83,6 +83,7 @@ if TYPE_CHECKING:
         AcquiredCandidateModelValues,
         ConfiguredCandidateSimulationContextAdmissionOwner,
         CycleSubstrateContext,
+        CycleSubstrateContextArtifactOwner,
     )
     from polisyos.runtime.quality.data_state_substrate import AcquiredObservationDataPreparation
     from polisyos.runtime.quality.design_problem import DesignProblem
@@ -639,6 +640,7 @@ class CandidateSourceWorldHandoff:
     world_model_ref: artifacts.ArtifactRef
     world_model_record: WorldModelRecord
     context: CycleSubstrateContext
+    context_owner: CycleSubstrateContextArtifactOwner
     handoff: CandidateSimulationContextHandoff
     currentness_resolver: Callable[[], bool]
 
@@ -5542,6 +5544,7 @@ class AcquisitionWorldGrowthBridge:
             world_model_ref=checkpoint.world_model_ref,
             world_model_record=record,
             context=resolved.context,
+            context_owner=context_owner,
             handoff=handoff,
             currentness_resolver=currentness_resolver,
         )

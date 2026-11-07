@@ -10546,6 +10546,9 @@ class GenerationCycleController:
         self._cycle_substrate_context = cycle_substrate_context
         self._candidate_cycle_context_artifact_owner = candidate_cycle_context_artifact_owner
         self._candidate_cycle_verified_nl_job_scope = candidate_cycle_verified_nl_job_scope
+        self._candidate_source_reentry_context_binding: (
+            tuple[CycleSubstrateContextArtifactOwner, CandidateSimulationContextHandoff] | None
+        ) = None
         self._candidate_cycle_context_job_ref: CASArtifactRef | None = None
         self._candidate_simulation_handoff = candidate_simulation_handoff
         self._candidate_simulation_currentness_resolver = candidate_simulation_currentness_resolver
@@ -11919,8 +11922,15 @@ class GenerationCycleController:
             k_ref_limitation_code=original_source.k_ref_limitation_code,
         )
         old_currentness = self._candidate_simulation_currentness_resolver
-        self._candidate_simulation_currentness_resolver = selected.currentness_resolver
+        old_context_binding = self._candidate_source_reentry_context_binding
+        # The acquired context belongs to the action worker's current lease.
+        # Its owner resolves that lease through Control, just as during persistence.
         try:
+            self._candidate_source_reentry_context_binding = (
+                selected.context_owner,
+                selected.handoff,
+            )
+            self._candidate_simulation_currentness_resolver = selected.currentness_resolver
             self._restore_source_run(original_run)
             if original_run.source_custody_limitation is not None:
                 self._source_custody_limitation = original_run.source_custody_limitation
@@ -12150,6 +12160,7 @@ class GenerationCycleController:
                 raise GenerationCycleError("candidate_source_reentry_owner_changed")
             return receipt
         finally:
+            self._candidate_source_reentry_context_binding = old_context_binding
             self._candidate_simulation_currentness_resolver = old_currentness
 
     def _promote_completed_generation(
@@ -16037,20 +16048,32 @@ class GenerationCycleController:
             ) from exc
         context_owner = self._candidate_cycle_context_artifact_owner
         verified_scope = self._candidate_cycle_verified_nl_job_scope
+        reentry_binding = self._candidate_source_reentry_context_binding
+        expected_scope: CandidateSimulationContextHandoff | VerifiedNLJobScope
+        if reentry_binding is not None:
+            context_owner, expected_scope = reentry_binding
+            if checked_handoff != expected_scope:
+                raise GenerationCycleError("n7_candidate_simulation_handoff_scope_mismatch")
+            verified_scope = None
+        elif (
+            type(verified_scope) is VerifiedNLJobScope
+            and verified_scope._was_issued_by_verified_nl_execution_owner
+        ):
+            expected_scope = verified_scope
+        else:
+            raise GenerationCycleError("n7_candidate_simulation_context_owner_binding_missing")
         if (
             type(context_owner) is not CycleSubstrateContextArtifactOwner
             or self._artifact_store is None
             or context_owner._store is not self._artifact_store
-            or type(verified_scope) is not VerifiedNLJobScope
-            or not verified_scope._was_issued_by_verified_nl_execution_owner
             or self._repo_root is None
         ):
             raise GenerationCycleError("n7_candidate_simulation_context_owner_binding_missing")
         if (
-            checked_handoff.job_id != verified_scope.job_id
-            or checked_handoff.run_id != verified_scope.run_id
-            or checked_handoff.tenant_id != verified_scope.tenant_id
-            or checked_handoff.cell_id != verified_scope.cell_id
+            checked_handoff.job_id != expected_scope.job_id
+            or checked_handoff.run_id != expected_scope.run_id
+            or checked_handoff.tenant_id != expected_scope.tenant_id
+            or checked_handoff.cell_id != expected_scope.cell_id
             or checked_handoff.profile.profile_selection_ref
             != cycle_job_profile_selection_ref(problem)
             or checked_handoff.context.design_problem_ref != cycle_job_design_problem_ref(problem)

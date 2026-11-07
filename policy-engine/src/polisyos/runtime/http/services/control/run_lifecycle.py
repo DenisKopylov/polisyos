@@ -5007,9 +5007,10 @@ class AcquisitionRouteLoopAuthoritySink:
             inventory = manifest_inventory(kind="runtime_quality.acquisition_route_loop_receipt")
         if inventory.verdict != "pass":
             raise ValueError("candidate_experiment_terminal_recovery_inventory_unverified")
-        recovered_candidates: list[
-            tuple[AcquisitionCandidateExperimentTerminalReceipt, ArtifactRef]
-        ] = []
+        recovered_candidates: dict[
+            tuple[str, str, str, str | None],
+            tuple[AcquisitionCandidateExperimentTerminalReceipt, ArtifactRef],
+        ] = {}
         for entry in inventory.entries:
             manifest = entry.manifest
             schema = manifest.artifact_schema
@@ -5043,14 +5044,15 @@ class AcquisitionRouteLoopAuthoritySink:
             except (OSError, RuntimeError, TypeError, ValueError):
                 continue
             if recovered.receipt_id == expected.receipt_id:
-                recovered_candidates.append((recovered, selected))
+                # The default manifest and its selected view can name the same profile.
+                recovered_candidates[artifact_ref_identity_key(selected)] = (recovered, selected)
         if not recovered_candidates:
             if event_rows:
                 raise ValueError("candidate_experiment_terminal_recovery_cas_missing")
             return None
         if len(recovered_candidates) != 1:
             raise ValueError("candidate_experiment_terminal_recovery_cas_not_unique")
-        recovered, selected_ref = recovered_candidates[0]
+        ((recovered, selected_ref),) = recovered_candidates.values()
         recovered_expected = expected.model_copy(update={"generated_at": recovered.generated_at})
         if (
             recovered != recovered_expected

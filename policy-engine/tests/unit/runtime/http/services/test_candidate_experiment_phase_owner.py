@@ -2,18 +2,37 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
+from typing import cast
 
 import pytest
 
-from polisyos.core.artifacts import ArtifactRef, FileSystemCAS
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    ArtifactSameInputClosureInfo,
+    ArtifactTenantContextInfo,
+    ArtifactWriteOptions,
+    FileSystemCAS,
+    ProducerInfo,
+    SchemaInfo,
+    artifact_ref_for_manifest,
+    artifact_ref_identity_key,
+)
+from polisyos.core.canon import CanonSpec
 from polisyos.runtime.http.services.control.run_lifecycle import (
     AcquisitionRouteLoopAuthoritySink,
 )
-from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+from polisyos.runtime.http.services.control_plane_store import (
+    AcquisitionActionHeadRecord,
+    ControlPlaneStore,
+)
+from polisyos.runtime.quality import acquisition_evaluation_dispatch as dispatch
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionCandidateExperimentPhaseReceipt,
+    AcquisitionCandidateExperimentTerminalReceipt,
 )
 from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
     CandidateUnpricedPolicyScope,
@@ -131,3 +150,124 @@ def test_candidate_experiment_phase_event_is_registered_as_cas_authority() -> No
     assert contract.payload_ref_policy == "cas_required"
     assert contract.phase_required is contract.producer_required is True
     assert contract.serious_no_sampling is True
+
+
+def test_terminal_recovery_counts_selected_profiles_instead_of_inventory_rows(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A default alias can repeat one profile while a second profile remains ambiguous."""
+    phase = _phase()
+    pending_ref = _hash("a")
+    action = _ref("runtime_quality.acquisition_candidate_action_receipt", "b")
+    blocker = _ref("runtime_quality.acquisition_evaluation_decision", "c")
+    terminal = AcquisitionCandidateExperimentTerminalReceipt.model_validate(
+        {
+            **phase.model_dump(
+                exclude={
+                    "schema_version",
+                    "coarse_phase",
+                    "receipt_phase",
+                    "recovery_state",
+                    "candidate_receipt_ref",
+                }
+            ),
+            "receipt_id": "action-a.terminal",
+            "predecessor_receipt_ref": pending_ref,
+            "owner_receipt_refs": (str(action.artifact_id), str(blocker.artifact_id)),
+            "terminal_outcome": "candidate_blocked",
+            "candidate_action_ref": action,
+            "blocker_ref": blocker,
+            "blocker_reason": "test blocked",
+        }
+    )
+    head = AcquisitionActionHeadRecord(
+        tenant_id=phase.tenant_id,
+        cell_id=phase.cell_id,
+        run_id=phase.run_id,
+        source_job_id=phase.source_job_id,
+        route_id=phase.route_id,
+        action_generation=phase.action_generation,
+        head_generation=4,
+        receipt_ref=pending_ref,
+        receipt_sha256=pending_ref.removeprefix("sha256:"),
+        durable_event_id="event-a",
+        coarse_phase="executing",
+        receipt_phase="candidate_input_reentry_pending",
+        recovery_state="reentry_recovery_required",
+        job_id=phase.job_id,
+        predecessor_receipt_ref=_hash("d"),
+        created_at=phase.generated_at,
+    )
+    owner = cast(
+        "dispatch.CandidateExperimentReentryOwner",
+        object.__new__(dispatch.CandidateExperimentReentryOwner),
+    )
+    object.__setattr__(owner, "terminal", terminal)
+    object.__setattr__(owner, "predecessor_head", head)
+    monkeypatch.setattr(AcquisitionRouteLoopAuthoritySink, "get_head", lambda *_: head)
+    monkeypatch.setattr(dispatch, "_revalidate_candidate_experiment_reentry_owner", lambda _: None)
+
+    database = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    store = FileSystemCAS(tmp_path / "cas").for_tenant(phase.tenant_id, cell_id=phase.cell_id)
+    sink = AcquisitionRouteLoopAuthoritySink(
+        artifact_store=store,
+        event_log=RuntimeDiagnosticEventLog(store=database, artifact_store=store),
+        control_store=database,
+    )
+    closure = ArtifactSameInputClosureInfo(
+        closure_id=f"acquisition-route:{terminal.receipt_id}",
+        status="closed",
+        closure_sha256="1" * 64,
+        run_id=phase.run_id,
+        job_id=phase.job_id,
+        tenant_id=phase.tenant_id,
+        cell_id=phase.cell_id,
+    )
+    options = ArtifactWriteOptions(
+        kind="runtime_quality.acquisition_route_loop_receipt",
+        media_type="application/json",
+        schema=SchemaInfo(
+            name="polisyos.runtime.AcquisitionCandidateExperimentTerminalReceipt", version="1.0"
+        ),
+        producer=ProducerInfo(
+            component="polisyos.runtime.acquisition_route_loop", version="2026.08.28+ds15-c02"
+        ),
+        tenant_context=ArtifactTenantContextInfo(tenant_id=phase.tenant_id, cell_id=phase.cell_id),
+        same_input_closure=closure,
+    )
+    payload = terminal.model_dump(mode="json")
+    canon = CanonSpec(forbid_floats=False)
+    selected = store.put_json(payload, options, canon, return_selected_profile=True)
+    monkeypatch.setattr(
+        RuntimeDiagnosticEventLog,
+        "list_events",
+        lambda *_args, **_kwargs: (
+            SimpleNamespace(event=SimpleNamespace(payload_ref=str(selected.artifact_id))),
+        ),
+    )
+    inventory = store.inventory_snapshot(artifact_id=selected.artifact_id)
+    assert inventory.verdict == "pass" and len(inventory.entries) == 2
+    assert {
+        artifact_ref_identity_key(artifact_ref_for_manifest(entry.manifest))
+        for entry in inventory.entries
+    } == {artifact_ref_identity_key(selected)}
+    # The intentionally unsigned fixture reaches the later authority check.
+    with pytest.raises(
+        ValueError, match=r"^candidate_experiment_terminal_recovery_authority_missing$"
+    ):
+        sink.recover_candidate_experiment_terminal(terminal, predecessor_head=head, owner=owner)
+
+    alternate = store.put_json(
+        payload,
+        replace(
+            options, same_input_closure=closure.model_copy(update={"closure_sha256": "2" * 64})
+        ),
+        canon,
+        return_selected_profile=True,
+    )
+    assert alternate.artifact_id == selected.artifact_id
+    assert alternate.manifest_profile_sha256 != selected.manifest_profile_sha256
+    with pytest.raises(
+        ValueError, match=r"^candidate_experiment_terminal_recovery_cas_not_unique$"
+    ):
+        sink.recover_candidate_experiment_terminal(terminal, predecessor_head=head, owner=owner)

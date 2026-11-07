@@ -1447,6 +1447,7 @@ class AcquisitionWorldGrowthBridge:
         """
         from polisyos.runtime.quality.candidate_acquisition_action import (
             _current_candidate_experiment_reentry_action,
+            _current_candidate_experiment_reentry_action_context,
             _select_current_candidate_experiment_outcome,
         )
         from polisyos.scientist.orchestration.engine import (
@@ -1481,15 +1482,19 @@ class AcquisitionWorldGrowthBridge:
         )
         pending_ref = outcome.head.receipt_ref
         try:
-            selection, phase, admission, action = _current_candidate_experiment_reentry_action(
-                self, origin, pending_ref, candidate_action_ref
+            context = _current_candidate_experiment_reentry_action_context(
+                self,
+                origin,
+                pending_ref,
+                candidate_action_ref,
             )
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
             raise ValueError("candidate_experiment_reentry_action_not_current") from exc
-        window = self.resolve_candidate_experiment_reentry_budget_window(
-            origin=origin,
-            candidate_action_ref=candidate_action_ref,
-        )
+        selection = context.selection
+        phase = context.phase
+        admission = context.admission
+        action = context.action
+        window = context.budget_window
         if (
             phase.receipt_phase != "candidate_input_reentry_pending"
             or action.selection != selection

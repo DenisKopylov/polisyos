@@ -9287,6 +9287,34 @@
           "inputs_unchanged": true,
           "scope": "Terminal quota revalidation and CAS/event durability reach the injected crash. A fresh runtime reopens the exact saved artifact and event and observes unchanged physical work. The foreign-scope fixture changes both partition and origin, then incorrectly expects a mismatch error. The selector fails before claim. Retained original remains running at attempt 1 with an expired lease and pending action-head generation 4. No retry, no fresh final GET, no overall PASS."
         },
+          "terminal_recovery_r33_retained_r9": {
+            "source_commit": "7ff8ae637fa9fb02763c8af317a7f239796c8687",
+            "source_tree": "64dc4ebef9b6afccefa5ba3d8ab02e598a71c6dc",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-r33-retained-recovery-r9",
+            "observed": {
+              "RESOURCE_ABORT": 1,
+              "UNRUN": [
+                "terminal_head_verdict",
+                "fresh_get"
+              ]
+            },
+            "named_inputs": 14,
+            "inputs_unchanged": true,
+            "wall_seconds": 7195.2,
+            "scope": "Original R33 retained worker claimant reaches attempt 2 in isolated SQLite. Supervisor overall wall cap terminates its group before a terminal SQL head. Original ledger and selected retained inputs stay unchanged. No product failure or successful retry verdict."
+          },
+          "pending_reentry_locator_author_r1": {
+            "source_commit": "7bb67f767690887f9e94c38c8784517db28d9797",
+            "source_tree": "a94aa06f2b9c4a8a62cb53062b463a5f589d446b",
+            "output": "AUTHOR:policy-engine/_cache/e02/lane01-pending-locator-author-composed-r1",
+            "observed": {
+              "PASS": 40
+            },
+            "named_inputs": 7,
+            "inputs_unchanged": true,
+            "wall_seconds": 38.51,
+            "scope": "Independently reviewed author delta finds the exact pending phase with a scoped SQL lookup before full owner replay. Missing or stale locator refuses; later CAS, quota and owner fences remain. Published and read back. Main composition and elapsed improvement remain pending."
+          },
         "terminal_existing_quota_author_r1": {
           "source_commit": "8b7668875402ca182bd7a2a9c537aa962bdaf812",
           "source_tree": "de8cf58883e4c231e0bbf922f36fb22f3ebcb9fd",

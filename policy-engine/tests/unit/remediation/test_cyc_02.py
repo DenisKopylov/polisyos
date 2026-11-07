@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import os
@@ -1165,7 +1166,18 @@ def _persist_legacy_n5_result(
     payload["receipt"] = receipt.model_dump(mode="json")
     with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
         source_manifest = store.get_manifest(source_ref)
-        selected_ref = store.put_json(
+        write_store = (
+            with_ambient_ownership_enforcement_if_supported(store) if schema_version == 3 else store
+        )
+        tenant_context = None
+        if schema_version == 3:
+            from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+
+            tenant_context = ArtifactTenantContextInfo(
+                tenant_id="tenant-n5-owner",
+                cell_id="cell-n5-owner",
+            )
+        selected_ref = write_store.put_json(
             payload,
             PutOptions(
                 kind="polisyos.runtime.joint_simulation_result",
@@ -1175,14 +1187,25 @@ def _persist_legacy_n5_result(
                     version=artifact_versions[schema_version],
                 ),
                 inputs=source_manifest.inputs,
+                tenant_context=tenant_context,
             ),
             canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
             return_selected_profile=True,
         )
         assert selected_ref.manifest_profile_sha256 is not None
+        if schema_version == 3:
+            record_owner = getattr(write_store, "record_artifact_owner", None)
+            if not callable(record_owner):
+                raise AssertionError("v3 compatibility fixture requires the CAS owner recorder")
+            record_owner(
+                selected_ref.artifact_id,
+                tenant_id="tenant-n5-owner",
+                cell_id="cell-n5-owner",
+                writer="tests.unit.remediation.test_cyc_02.v3_compatibility_fixture",
+            )
         loaded = load_joint_simulation_result(
             selected_ref,
-            store=store,
+            store=write_store,
             expected_world_model_record_content_hash=result.world_model_record_content_hash,
             expected_atom_ids=result.atom_ids,
             expected_selected_outcomes=result.selected_outcomes,
@@ -1612,6 +1635,116 @@ def test_legacy_n8_v1_v2_v3_v4_reopens_and_rederives_missing_classification_limi
                     ncm_interaction.by_step[0]
                 )
                 assert projected_ncm_interaction.replication_sampling_by_step == {}
+            if schema_version == 3:
+                # This is a newly generated native compatibility witness, not an
+                # archived historical artifact. v3 keeps trajectory replication
+                # samples while its interaction classification remains point-mean
+                # only; the new unsupported marker must be derived by N8.
+                legacy_payload = legacy_result.content_bound_payload()
+                assert legacy_result.schema_version == (
+                    "policyos.runtime.joint_simulation_horizon.v3"
+                )
+                assert any(
+                    point.replication_sampling is not None
+                    for trajectory in legacy_result.trajectories
+                    for point in trajectory.points
+                )
+                assert all(
+                    not term.replication_sampling_by_step
+                    for term in legacy_result.interaction_terms
+                )
+                assert "higher_order_residuals" not in legacy_payload
+                assert "interaction_numeric_classification_unsupported" not in json.dumps(
+                    legacy_payload
+                )
+
+                legacy_simulation = simulation.model_copy(
+                    update={
+                        "simulation_result_ref": legacy_ref,
+                        "simulation_ref": legacy_result.receipt.payload_hash,
+                        "authority_blockers": tuple(
+                            blocker
+                            for blocker in simulation.authority_blockers
+                            if blocker != "interaction_numeric_classification_unsupported"
+                        ),
+                    }
+                )
+                assert (
+                    "interaction_numeric_classification_unsupported"
+                    not in legacy_simulation.authority_blockers
+                )
+                store_root = tmp_path / "ncm" / "n5-runtime-store"
+                handoff = {
+                    "store_root": str(store_root),
+                    "simulation_status": legacy_simulation.status,
+                    "simulation_ref": legacy_simulation.simulation_ref,
+                    "simulation_result_ref": legacy_ref.model_dump(mode="json"),
+                    "simulation_authority_blockers": list(legacy_simulation.authority_blockers),
+                    "candidate_id": ncm_candidate.candidate_id,
+                    "candidate_atoms": [
+                        atom.model_dump(mode="json") for atom in ncm_candidate.intervention_atoms
+                    ],
+                    "problem": ncm_problem.model_dump(mode="json"),
+                    "cycle_substrate_context": ncm_context.model_dump(mode="json"),
+                    "world_model_record_content_hash": (
+                        legacy_result.world_model_record_content_hash
+                    ),
+                    "result_fingerprint": gy_content_hash(legacy_result.model_dump(mode="json")),
+                    "structural_variants": {},
+                }
+                manifest_path = ncm_store._manifest_path_for_ref(
+                    legacy_ref.artifact_id,
+                    legacy_ref.manifest_profile_sha256,
+                )
+                with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+                    payload_bytes_before = ncm_store.get_bytes(legacy_ref)
+                    manifest_bytes_before = manifest_path.read_bytes()
+                payload_sha_before = hashlib.sha256(payload_bytes_before).hexdigest()
+
+                project_root = Path(__file__).resolve().parents[3]
+                fresh_read = _run_n5_readback_child(
+                    mode="consume",
+                    project_root=project_root,
+                    store_root=store_root,
+                    handoff=handoff,
+                )
+
+                assert fresh_read["consumer_pid"] != os.getpid()
+                fresh_value = fresh_read["value_observation"]
+                assert fresh_value["status"] == "value_conditional"
+                assert fresh_value["evaluation_mode"] == "simulate_only"
+                assert fresh_value["decision_grade"] == "low"
+                assert fresh_value.get("value_receipt") is None
+                assert fresh_value.get("method_selection_receipt") is None
+                assert fresh_value["numeric_interaction"] == "unsupported"
+                assert fresh_value["numeric_interaction_basis"] == "not_established"
+                assert fresh_value["interaction_sampling_status"] == "not_established"
+                assert "legacy_sampling_not_established" in fresh_value["authority_blockers"]
+                assert "legacy_interaction_not_established" in fresh_value["authority_blockers"]
+                assert (
+                    "interaction_numeric_classification_unsupported"
+                    in fresh_value["authority_blockers"]
+                )
+                negatives = fresh_read["negative_consumers"]
+                assert negatives["wrong_manifest_profile"]["status"] == "value_blocked"
+                assert negatives["wrong_manifest_profile"]["authority_blockers"] == [
+                    "joint_simulation_result_unavailable"
+                ]
+                assert negatives["foreign_world"]["status"] == "value_blocked"
+                assert negatives["foreign_world"]["authority_blockers"] == [
+                    "joint_simulation_result_wmr_mismatch"
+                ]
+                assert negatives["corrupt_result"]["status"] == "value_blocked"
+                assert negatives["corrupt_result"]["authority_blockers"] == [
+                    "joint_simulation_result_integrity_invalid"
+                ]
+
+                with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+                    payload_bytes_after = ncm_store.get_bytes(legacy_ref)
+                    manifest_bytes_after = manifest_path.read_bytes()
+                assert hashlib.sha256(payload_bytes_after).hexdigest() == payload_sha_before
+                assert payload_bytes_after == payload_bytes_before
+                assert manifest_bytes_after == manifest_bytes_before
     finally:
         if witness is not None:
             witness.store.close()

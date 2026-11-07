@@ -13279,10 +13279,12 @@
         "method_selection_receipt_reader_preparation": {
           "saved_commit": "1db28a1a9",
           "path": "tests/integration/runtime_quality/test_candidate_value_method_served.py",
-          "classification": "TEST_ONLY_PREPARATION_RUNTIME_UNRUN_AT_USER_STOP",
-          "checks": "Root independent source review, AST, Ruff check/format and diff-check pass. No new N5 or retained-store mutation.",
-          "scope": "Actual runner manifest selection receipt binding and fresh GET removal/restoration with unchanged N5 count. Coherent catalog drift remains covered separately by canonical verifier controls; no fabricated report/new public seam.",
-          "next": "Run current _assert_source_method_reader_suffix against qualified MAIN R11 store via /tmp/sel-retained-receipt-r13.py under AUTHOR source and explicit N5 trap; check current named input stability. Recreate the small harness from the committed helper and R11 artifact bindings if /tmp is unavailable."
+          "classification": "PASS_RETAINED_READER_WITH_ZERO_N5",
+          "checks": "50.21s, peak RSS 1877540864 bytes, 20 named input pins unchanged, zero physical N5. Shared R11 selected artifact bytes and SQLite control database unchanged.",
+          "scope": "Fresh GET reopens the exact saved runner receipt and selection inputs. Receipt removal yields not_established and no point estimate. Restoration returns the same method result. Existing coherent catalog-drift checks remain separate.",
+          "source_commit": "4e3fc8a6b6abbf74c6a38519f11efca446bf18c1",
+          "source_tree": "ea78ed7a420d9840376e5d9db1d6226bb1e6899d",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-method-receipt-retained-r13"
         },
         "cyc02_historical_producer_feasibility": {
           "classification": "SOURCE_REVIEW_ONLY_RUNTIME_UNRUN",
@@ -13291,6 +13293,298 @@
           "v2_path": "Old JointSimulationPort -> actual ProgramGraph controller -> bind_world_state_consumption(v2) -> old canonical persister; compact plan/request fixture in same historical test_joint_simulation_horizon.py. Reproduce with exact old producer/serializer bytes and transparent oldproducer_replay provenance; current downcast is not a substitute.",
           "v2_remaining": "First qualify finite historical source/API closure against existing dependencies without copying checkout/environment or patching semantics; then actual CAS/current loader/default N8 with unchanged bytes and tamper/foreign/no-promotion controls.",
           "v3_remaining": "Inspected reachable schema-introduction history9dd15d1c1bc89d189a5c53c47e816ce48ab5b352 introduces v3/v4 together with writer already v4; parent supports v1/v2. No genuine v3-producing revision/output located in bounded canonical/fixture/history review. Need byte-bearing v3 artifact with receipt/profile provenance or a specific criterion disposition; never label a v4 downcast as old producer output."
+        },
+        "n7_acquired_context_owner_r7": {
+          "source_commit": "fb46a90924fe37433a05a9943905c4f7654df313",
+          "source_tree": "6b8add0dc3b5fac291a04e13f7d550b9be7911ed",
+          "saved_commit": "fffaa39b0",
+          "classification": "PASS_REAL_ACQUISITION_LEASE_CONTEXT_OWNER_PREFLIGHT",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-n7-owner-binding-composed-r7",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 14.770205708104186,
+          "peak_rss_bytes": 1517420544,
+          "named_inputs": 7,
+          "inputs_unchanged": true,
+          "scope": "Exact persisted selected CAS context under a real SQLite acquisition lease. Missing binding, foreign owner/store, foreign job/ref and stale lease refuse. N5 input/result inventory unchanged under the same tenant scope. Full bridge and physical B remain for R28."
+        },
+        "n7_existing_nl_fixture_r6": {
+          "source_commit": "fb46a90924fe37433a05a9943905c4f7654df313",
+          "classification": "RESOURCE_LIMIT_ABORT_BEFORE_TEST_VERDICT",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-n7-owner-binding-composed-r6",
+          "wall_seconds": 26.964591084048152,
+          "peak_rss_bytes": 2966618112,
+          "named_inputs": 9,
+          "inputs_unchanged": true,
+          "scope": "Ordinary NL fixture reached 2.75 GiB supervisor RSS cap. No test verdict. Existing controlled NL scope branch preserved by source review."
+        },
+        "candidate_served_execution_R28": {
+          "source_commit": "fb46a90924fe37433a05a9943905c4f7654df313",
+          "source_tree": "6b8add0dc3b5fac291a04e13f7d550b9be7911ed",
+          "classification": "SEMANTIC_FAIL_POST_B_HISTORICAL_COMPILED_REF_REPLAY",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-candidate-execution-native-r28",
+          "scope": "Actual protected reentry passed the prior N7 guard and wrote two distinct N5 input, execution and result artifact IDs plus one candidate reentry receipt. Historical owner readback fails at the experiment phase compiled_ref because the closure expects a content-ID string. The acquisition job is failed and the action head remains candidate_input_reentry_pending. Terminal head and fresh API checks remain open. Preserve retained output and repair the read-only owner projection without another N5.",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 2783.881895666942,
+          "peak_rss_bytes": 1960296448,
+          "minimum_free_disk_bytes": 14963884032,
+          "named_inputs": 134,
+          "inputs_unchanged": true,
+          "abort_reason": null,
+          "process_group_gone": true,
+          "deciding_failure_code": "TypeError: ArtifactRef is unhashable in candidate_source_reentry_history._owner_record"
+        },
+        "n7_r28_historical_owner_readback": {
+          "classification": "PASS_AFFECTED_HISTORY_TESTS_AND_RETAINED_OWNER_READBACK",
+          "source_base_commit": "09740a8379fd49728d73696b7d890c9c929a4a32",
+          "source_base_tree": "c01e22bd4d8d68442cf42b4c6aeb71adde2c9354",
+          "source_and_test_sha256": {
+            "src/polisyos/runtime/quality/candidate_source_reentry_history.py": "1aa032aeb855d91cd872f66939e2973fea09679f5d11ca0ff2e2299bc1c98dc1",
+            "tests/unit/runtime/quality/test_candidate_source_reentry_history.py": "cacb1720fe57a4cdbf72baa928cd6784078633c7f31585fd52ff3c454eaf78aa"
+          },
+          "affected_tests": {
+            "PASS": 11,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "affected_tests_output": "AUTHOR:policy-engine/_cache/e02/lane01-n7-history-artifactref-r1",
+          "readback_output": "AUTHOR:policy-engine/_cache/e02/lane01-r28-readonly-owner-replay-r3",
+          "readback_stdout_sha256": "6412e9306ea4dde9a5afc3953a5595fb3f2475ab60e09b9f53ea208fff929145",
+          "scope": "Selected intent, checkpoint and reentry receipt from actual R28, using the typed phase compiled ref and canonical query-only event history. Twenty deciding CAS refs identified. SQLite DB/WAL/SHM hashes unchanged. No live admission, N5 or action terminal write; terminal head and fresh GET remain open.",
+          "affected_test_resources": {
+            "wall_seconds": 25.6992023329949,
+            "peak_rss_bytes": 1742471168,
+            "stable_input_count": 8
+          },
+          "retained_readback_resources": {
+            "wall_seconds": 19.634213917073794,
+            "peak_rss_bytes": 1517682688,
+            "stable_input_count": 11
+          }
+        },
+        "n6_guarded_ir_map_and_child_routes": {
+          "source_base_commit": "5b13472168872146f273cf48a106a4e1686221c5",
+          "source_base_tree": "f76dfb4fa43d69a3ec3aa4c80518c822fb84fbcc",
+          "source_and_test_sha256": {
+            "src/polisyos/runtime/quality/confidence_ledger.py": "427e04b85257cadec738b13a7ac116f3f47ccc5c5e21685e67a6ba3fbb221a44",
+            "tests/unit/runtime/quality/test_confidence_ledger_decorated_source_binding.py": "9cbfc4cfc26a4c46e8ff27582c0d1fdf7cbb293cb5b100d00fdab0316bb9a263"
+          },
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-guarded-map-proof-full-r1",
+          "observed": {
+            "PASS": 407,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 43.217920167022385,
+          "peak_rss_bytes": 1582776320,
+          "named_inputs": 2,
+          "inputs_unchanged": true,
+          "scope": "Real IR analytics mapped symbol and absent-map sibling. Strict/discovery child admission requires a finite valid source map; malformed and rebound-map controls refuse. Independent Luna GO. Focused 9 PASS at lane01-n6-guarded-map-proof-focused-r3. Direct fresh import at lane01-n6-guarded-map-proof-import-r1 refuses core.contracts.CatalogRunProfile namespace effect; full N6 and CYC remain open."
+        },
+        "n7_history_and_lease_final": {
+          "source_base_commit": "5b13472168872146f273cf48a106a4e1686221c5",
+          "source_base_tree": "f76dfb4fa43d69a3ec3aa4c80518c822fb84fbcc",
+          "source_and_test_sha256": {
+            "src/polisyos/runtime/http/services/control_plane_store.py": "3de1b6488121eb54ff583315b553204cda7d368c1fa7ca4b587306cdc2c816fa",
+            "src/polisyos/runtime/quality/acquisition_world_growth.py": "84e12319534fe5c7fe16099f3dfac389f054448db167a5c292922c60b6501be9",
+            "src/polisyos/runtime/quality/candidate_source_reentry_history.py": "1aa032aeb855d91cd872f66939e2973fea09679f5d11ca0ff2e2299bc1c98dc1",
+            "src/polisyos/runtime/quality/confidence_ledger.py": "427e04b85257cadec738b13a7ac116f3f47ccc5c5e21685e67a6ba3fbb221a44",
+            "src/polisyos/runtime/quality/generation_cycle.py": "8ad5980c7c92bd8c12acd647857c00eef0599008be1a91455945f85ed2ab73e4",
+            "tests/unit/runtime/http/test_acquisition_control_worker.py": "3b66735b35f70a1930867571ce40fa180cb9cf1dd010c25126662b7a173105eb",
+            "tests/unit/runtime/http/test_control_plane_store.py": "ff17622ef07db6ae33e0f6a1eafc0dca5f17778b00f910d5b36c30d8dcad2dd9",
+            "tests/unit/runtime/quality/test_candidate_source_reentry_history.py": "cacb1720fe57a4cdbf72baa928cd6784078633c7f31585fd52ff3c454eaf78aa",
+            "tests/unit/runtime/quality/test_n7_candidate_handoff_bridge.py": "1d2128837b7d547c1c9932a4609026d96c363d66e537c3f7eb508bc89c8579f2"
+          },
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-n7-history-lease-final-r1",
+          "observed": {
+            "PASS": 14,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 31.35098658304196,
+          "peak_rss_bytes": 1788198912,
+          "named_inputs": 9,
+          "inputs_unchanged": true,
+          "scope": "Historical readback tests, genuine leased N7 context owner, expired lease takeover and terminal dead-letter no-reclaim assertion. No numerical replay or served terminal success."
+        },
+        "n6_n7_final_affected_cohort": {
+          "source_base_commit": "5b13472168872146f273cf48a106a4e1686221c5",
+          "source_base_tree": "f76dfb4fa43d69a3ec3aa4c80518c822fb84fbcc",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-n7-formatted-final-r1",
+          "observed": {
+            "PASS": 421,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 49.62114699999802,
+          "peak_rss_bytes": 1862877184,
+          "named_inputs": 10,
+          "inputs_unchanged": true,
+          "scope": "The 407 N6 source binding cases and 14 N7 history, owner and lease cases on final formatting bytes. Product and test ASTs unchanged by formatting. Before/after source pins and JUnit at the output. No full protected route, fresh API or N6 authority claim."
+        },
+        "n6_canonical_host_diagnostic_r1": {
+          "source_commit": "fb46a90924fe37433a05a9943905c4f7654df313",
+          "source_tree": "6b8add0dc3b5fac291a04e13f7d550b9be7911ed",
+          "classification": "DIAGNOSTIC_COMPLETED_N6_NOT_ESTABLISHED",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-n6-authority-host-diagnose-r1",
+          "stdout_sha256": "070daa425a5a7808e25f123b59c3c15f972174520400f2cab991e93e7c1d2d0c",
+          "wall_seconds": 130.2316223749658,
+          "peak_rss_bytes": 2183512064,
+          "named_inputs": 6,
+          "inputs_unchanged": true,
+          "observed_source_modules": 4426,
+          "reconciled_direct_binding_rows": 9363,
+          "binding_disagreements": [
+            [
+              "polisyos.foundry.methods.catalog.causal",
+              "_interference_contracts",
+              "polisyos.foundry.methods.catalog.causal.interference",
+              "_contracts"
+            ],
+            [
+              "polisyos.ir.api",
+              "install_ir_legacy_module_aliases",
+              "polisyos.ir",
+              "_install_ir_legacy_module_aliases"
+            ]
+          ],
+          "external_source_selection": {
+            "failure_codes": [
+              "provider_locked_wheel_unavailable"
+            ],
+            "refused_modules": 731,
+            "scope": "observed locked wheel Python members; provider authority not established",
+            "selected_modules": 2818
+          },
+          "scope": "Local CPython 3.14.3 pre-import recorder and canonical host handoff. Observed graph only. Authority false; source lock differs from the host reference, provider and material-state roles and owner seal/currentness remain unresolved. CYC unrun in this profile."
+        },
+        "r28_lease_and_recovery_boundary": {
+          "classification": "PASS_LEASE_TAKEOVER_COMPONENT_FAILED_JOB_SOURCE_AND_RETAINED_STATE_REVIEW",
+          "expired_lease_output": "AUTHOR:policy-engine/_cache/e02/lane01-lease-takeover-guard-r1",
+          "dead_letter_output": "AUTHOR:policy-engine/_cache/e02/lane01-terminal-deadletter-selector-r1",
+          "terminal_cas_event_sql_component": {
+            "source_commit": "fb46a90924fe37433a05a9943905c4f7654df313",
+            "source_tree": "6b8add0dc3b5fac291a04e13f7d550b9be7911ed",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-terminal-cas-sql-retained-r2",
+            "observed": {"PASS": 14, "FAIL": 0, "ERROR": 0, "SKIP": 0},
+            "wall_seconds": 18.00487445795443,
+            "peak_rss_bytes": 1518616576,
+            "named_inputs": 8,
+            "inputs_unchanged": true,
+            "scope": "Real terminal CAS/event/SQLite recovery components with producer-forbidding controls. No live recovery of R28 or served success."
+          },
+          "older_fixture_output": "AUTHOR:policy-engine/_cache/e02/lane01-candidate-reentry-no-repeat-r1",
+          "scope": "R28 is terminal failed and dead-lettered with no lease, with action at candidate_input_reentry_pending. Expired running attempt takeover blocks stale writes. Older closure fixture returns HTTP 409 candidate_reentry_owner_not_available before GET/N5. No live recovery or fresh API success for R28. The canonical served terminal recovery selector must run under a claimable lease."
+        },
+        "n7_ordinary_bounded_r1": {
+          "source_commit": "fb46a90924fe37433a05a9943905c4f7654df313",
+          "source_tree": "6b8add0dc3b5fac291a04e13f7d550b9be7911ed",
+          "classification": "PASS_BOUNDED_ORDINARY_NL_OWNER_HANDOFF",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-n7-ordinary-bounded-r1",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 27.31,
+          "peak_rss_bytes": 1718386688,
+          "named_inputs": 21,
+          "inputs_unchanged": true,
+          "scope": "Existing ordinary NL assertions and real issued scope. Adapter supplies the four roots of the existing bounded source fixture. R6 remains a separate resource abort."
+        },
+        "n6_lazy_child_and_ir_facade_owner": {
+          "source_base_commit": "fffaa39b0bb46e2cd9aa1840a0fbd720d5b50359",
+          "source_and_test_sha256": {
+            "src/polisyos/runtime/quality/confidence_ledger.py": "eb98c4d48680d6768cce0b0a77a9ffc6024bdf1b08117899bea905e6dc17b0d8",
+            "tests/unit/runtime/quality/test_confidence_ledger_decorated_source_binding.py": "c21e8b1ad436ca9bc0120f5c68a26a97fedf9cfa017dca63652d8d68aebe312c"
+          },
+          "classification": "AFFECTED_MODULE_PASS_FRESH_IMPORT_ADVANCES_TO_PEP695_ALIAS",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-lazy-facade-full-module-r1",
+          "observed": {
+            "PASS": 385,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 33.74180525005795,
+          "peak_rss_bytes": 1527070720,
+          "named_inputs": 2,
+          "inputs_unchanged": true,
+          "scope": "Exact lazy child source candidates and actual loaded child binding remain distinct. Canonical IR lazy map delegation and exact safe map reads resolve through source and live ownership checks. Fresh AUTHOR import passes prior loader and kernel facade routes and remains not_established at unsupported direct source binding polisyos.ir.artifacts.contracts.ArtifactSelector. No alias value evaluation or CYC claim."
+        },
+        "n6_type_alias_evaluator_owner": {
+          "source_base_commit": "d1a94a1d15a371b1d69df2425ca98019550908ef",
+          "source_and_test_sha256": {
+            "src/polisyos/runtime/quality/confidence_ledger.py": "7e9728b6f7081c155e17016b167cfeeb63c6b4db87926445c8f1776b3dc86407",
+            "tests/unit/runtime/quality/test_confidence_ledger_decorated_source_binding.py": "b0fdb0c464e968bf473ee5a28570d1b3a50609424161022df66f47910166b2a2"
+          },
+          "classification": "PASS_PASSIVE_TYPE_ALIAS_OWNER_FULL_N6_OPEN",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-typealias-full-module-r2",
+          "observed": {
+            "PASS": 389,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 35.48463341710158,
+          "peak_rss_bytes": 1604222976,
+          "named_inputs": 2,
+          "inputs_unchanged": true,
+          "scope": "Non-generic CPython 3.14 TypeAliasType native evaluator belongs to one exact source expression. No alias value/evaluator or arbitrary GC callback is invoked. Fresh import passes ArtifactSelector and remains not_established at missing repository re-export binding polisyos.data_forge.read_api.catalog.CatalogSelectionError. Independent final review GO."
+        },
+        "n6_data_forge_lazy_map_owner": {
+          "source_base_commit": "9920f32070fb95e9d53345959ba50d37171ebd12",
+          "source_and_test_sha256": {
+            "src/polisyos/runtime/quality/confidence_ledger.py": "22245eb12a701fee146dc57fd93371cd39a693fd9a7f038af7e1e3f9884bb43f",
+            "tests/unit/runtime/quality/test_confidence_ledger_decorated_source_binding.py": "0a6a181a66597bce39572e79fbb1b4002ada73d1d6e56292d5a6b8b61ce4b826"
+          },
+          "classification": "PASS_DATA_FORGE_LAZY_MAP_FULL_N6_OPEN",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-df-lazy-full-module-r1",
+          "observed": {
+            "PASS": 392,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 39.214714249945246,
+          "peak_rss_bytes": 1499185152,
+          "named_inputs": 2,
+          "inputs_unchanged": true,
+          "scope": "Actual CatalogSelectionError resolves through the canonical Data Forge helper and exact loaded provider. Only proven finite helper and key-list reads are allowed. Fresh import advances to unsupported source facade map polisyos.data_requirement. Its local object-map getter requires a separate source route shape. Independent review GO."
+        },
+        "n6_grouped_object_getter_owner": {
+          "source_base_commit": "02ebf471924ec4205eeda52f6ee92e827c42d4a9",
+          "source_and_test_sha256": {
+            "src/polisyos/runtime/quality/confidence_ledger.py": "3f43d36acf83d402c2c8f733f2a8eb74513d92d0b1b3e18f29c79f0d7e5dd51f",
+            "tests/unit/runtime/quality/test_confidence_ledger_decorated_source_binding.py": "41dd276c6951a713b50da81161433db81521da9577aea2d14eccd888aaa9b547"
+          },
+          "classification": "PASS_GROUPED_LOCAL_GETTER_FULL_N6_OPEN",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-grouped-getter-full-module-r2",
+          "observed": {
+            "PASS": 398,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 37.64809716702439,
+          "peak_rss_bytes": 1613725696,
+          "named_inputs": 2,
+          "inputs_unchanged": true,
+          "scope": "Two real data_requirement groups use exact literal name gates, one source import, a local object map and indexed return. Uncached provider/importer identity remains checked. Fresh AUTHOR advances to missing repository re-export binding polisyos.ir.analytics.TruthfulnessTier. Independent review GO."
         }
       },
       "independent_component_reviews": {
@@ -13362,7 +13656,7 @@
           "trash_emptied_by_executor": false,
           "deleted_by_executor": false
         },
-        "hold": "User requested end-of-day stop; do not launch agents or numerical routes until explicit resume.",
+        "hold": "3 GiB free disk floor. Use the existing checkouts and one resource supervisor per deciding process.",
         "resumed_admission": "16GiB8CPU,9.76GiBfree,swap377MiB,memory-pressure69%free,no processes at admission; two measured CPU1 numerical jobs admitted on separate existing checkouts; four-job/8GiB aggregate ceiling,3GiB disk floor unchanged.",
         "current_cleanup": {
           "scratch_leaves": 189,
@@ -13372,7 +13666,7 @@
           "trash_emptied_by_executor": false,
           "code_docs_environments_unique_production_preserved": true
         },
-        "execution_state": "PAUSED_BY_USER_AFTER_INFLIGHT_FINISH",
+        "execution_state": "R28_FINISHED_B_PERSISTED_HISTORICAL_READER_FAIL",
         "next_session": "Fix R19 Catalog dispatch/pending-resume boundary and run genuine protected replay; independently finish finite source cohort, shared generation/GDP constituent controls and fresh-runtime crash preparation. Then generations, GDP, affected consumers/installed and all66 reconciliation. No next lane.",
         "latest_additional_trash_move": {
           "size_KiB": 398572,
@@ -13418,7 +13712,7 @@
         },
         "free_disk_bytes_at_refresh": 15066558464,
         "used_swap_GiB_at_refresh": 0.4951171875,
-        "next_action": "Check identities/resources; isolate R27 N7 owner binding with cheap real boundary preflight; independently finish N6 lazy child route, saved zero-N5 receipt reader and historicalv2 source admission. Genuine rerun only after prerequisites pass, then generations/crash/GDP.",
+        "next_action": "Historical compiled-reference owner readback passes on persisted R28. Its failed job is terminal and dead-lettered. Verify terminal recovery under a legitimately claimable lease. Use the committed early recorder and implement confidence-ledger sealing/currentness for N6.",
         "latest_G_cleanup": {
           "workspace_G": "Ancestor cf9cbee of MAIN b2e;0 G-only/5197 MAIN-only commits; clean tracked/nonignored state; inactive standalone environment. ~8.64GiB moved to Trash; later manually emptied by user. No active checkout/env/data dependency on G.",
           "G_agent_history": "User-authorized exact435 descendants,181069 history rows copied/row-hash verified before transfer. Shared DB reduced1717792768B by native incremental vacuum; final WAL checkpoint0/0/0. ParentG/other chat histories preserved. Archive/restore tool and temporary safety hardlink all in Trash, not outside. Archive quick_check/hash and synthetic exact restore pass; shared full quick_check interrupted at45s without PASS. Executor never emptied Trash.",

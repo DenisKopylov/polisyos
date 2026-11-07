@@ -2904,7 +2904,7 @@ def _revalidate_candidate_experiment_reentry_owner(
         read_candidate_acquisition_retained_continuation,
     )
     from polisyos.runtime.quality.candidate_acquisition_action import (
-        _current_candidate_experiment_reentry_action,
+        _current_candidate_experiment_reentry_action_context,
     )
     from polisyos.runtime.quality.candidate_source_reentry_history import (
         verify_candidate_experiment_source_reentry_history,
@@ -2950,7 +2950,7 @@ def _revalidate_candidate_experiment_reentry_owner(
     if service.acquisition_route_sink.get_head(terminal) != owner.predecessor_head:
         raise ValueError("candidate_experiment_reentry_predecessor_changed")
     try:
-        selection, phase, admission, action = _current_candidate_experiment_reentry_action(
+        reentry_context = _current_candidate_experiment_reentry_action_context(
             bridge,
             origin,
             owner.predecessor_head.receipt_ref,
@@ -2958,6 +2958,10 @@ def _revalidate_candidate_experiment_reentry_owner(
         )
     except (OSError, RuntimeError, TypeError, ValueError) as exc:
         raise ValueError("candidate_experiment_reentry_live_owner_not_current") from exc
+    selection = reentry_context.selection
+    phase = reentry_context.phase
+    admission = reentry_context.admission
+    action = reentry_context.action
     if (
         phase.receipt_phase != "candidate_input_reentry_pending"
         or action.action_phase_ref != owner.action_phase_ref
@@ -2972,10 +2976,7 @@ def _revalidate_candidate_experiment_reentry_owner(
         or terminal.compiled_ref != origin.policy_scope.compiled_ref
     ):
         raise ValueError("candidate_experiment_reentry_live_owner_changed")
-    window = bridge.resolve_candidate_experiment_reentry_budget_window(
-        origin=origin,
-        candidate_action_ref=owner.candidate_action_ref,
-    )
+    window = reentry_context.budget_window
     if window != owner.budget_window or window.scope != owner.reentry_budget_scope:
         raise ValueError("candidate_experiment_reentry_budget_window_changed")
     if terminal.terminal_outcome == "candidate_blocked":

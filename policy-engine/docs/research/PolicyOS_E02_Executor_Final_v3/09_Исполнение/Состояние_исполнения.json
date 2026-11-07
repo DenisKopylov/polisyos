@@ -13588,6 +13588,15 @@
           "r3_inputs_unchanged": true,
           "scope": "Ordinary NL completion and real initial N5 seal observed. R2 on causal sibling and MetricsRegistry changes refuses at id_engine private converter and PolicyOSTracer. R3 with experimental tracer wiring and canonical converter imports refuses at id_engine.CtfQuery from unexecuted causal_engine.artifacts, and at ir.connectors.FetchRequest without a pinned exact importer. The experimental tracer wiring was not composed. Intentional cut before B, acquisition and terminal. No full test PASS."
         },
+        "first_a_source_route_r5": {
+          "classification": "OBSERVED_REAL_INITIAL_N5_WITNESS_NOT_ESTABLISHED",
+          "source_base_commit": "d81788abf5fe890e970f8fe4326c88f064a417a0",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-first-a-n5-witness-preflight-r5",
+          "preflight_sha256": "8736230d4489dca8f7d4a808a3666971f4da11c0087713f3a8289296ac4a0cd3",
+          "wall_seconds": 202.39,
+          "stable_pins": 30,
+          "scope": "Real ordinary initial N5 completed. The uncommitted capture experiment passed 45 focused tests but the actual witness refused registry and security binding routes. Opaque native callback coverage remained unproved. The capture experiment was reversed; the independent explicit ID owner change was committed as e2587c7f3. Protected acquisition, changed N5 and terminal were unrun."
+        },
         "pending_action_history_reuse": {
           "classification": "PASS_SINGLE_FULL_LATE_HISTORY_CHECK",
           "saved_commit": "75c73b585df3e62089e40a646601bc2283e93c66",
@@ -13642,6 +13651,14 @@
           "classification": "FAIL_BEFORE_N5_ON_MISSING_RUN_BOUND_QUOTA",
           "output": "AUTHOR:policy-engine/_cache/e02/lane01-gdp-sentinel-author-r2",
           "scope": "Corrected test-owned L6 knob setup does not yet produce the run-bound quota profile. Sentinel not reached. Current new-world N5, terminal, fresh GET and heldout X03 remain open."
+        },
+        "gdp_unpriced_admission_r3": {
+          "classification": "OBSERVED_REAL_ADMISSION_BEFORE_ACQUIRED_WORLD_N5",
+          "source_base_commit": "139f6a7adc9f738daf2f2dc7b8e748bd2b1cedcf",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-gdp-sentinel-main-r3",
+          "wall_seconds": 151.83,
+          "stable_pins": 16,
+          "scope": "Ordinary initial N5, live 5/1 quota with two completed standard reservations, current v2 N7 report with no cost basis, selected L1 global.gdp availability gap, and admitted action. Intentional pytest SKIP at the sentinel. Acquired-world N5, terminal, fresh GET and heldout X03 remain unrun."
         },
         "r28_lease_and_recovery_boundary": {
           "classification": "PASS_LEASE_TAKEOVER_COMPONENT_FAILED_JOB_SOURCE_AND_RETAINED_STATE_REVIEW",

@@ -1564,7 +1564,7 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
     )
     from polisyos.fabric.connectors.profiles import SourceProfileRegistry
     from polisyos.foundry.execute.executor import load_state_snapshot
-    from polisyos.runtime.quality import acquisition_planner, generation_cycle
+    from polisyos.runtime.quality import generation_cycle
     from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
         CandidateUnpricedExperimentPolicyTemplate,
         read_candidate_unpriced_policy,
@@ -1583,6 +1583,7 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
     from polisyos.runtime.quality.world_model_record import world_model_artifact_views
     from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
     from tests._helpers import acquisition_served_history as served
+    from tests._helpers import generic_n4_served_replay
     from tests._helpers import world_model_record as wmr_fixture
     from tests._helpers.acquisition_constituent_controls import (
         install_first_candidate_experiment_constituent_controls,
@@ -1614,20 +1615,13 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
     base_payload.update(gdp=0.0, tax_rate=0.5)
     monkeypatch.setattr(wmr_fixture, "FABRIC_PAYLOAD", base_payload)
     monkeypatch.setattr(generation_cycle, "_N7_SOURCE_SEMANTIC_EMISSION_ENABLED", True)
-    monkeypatch.setitem(
-        acquisition_planner._ACQUISITION_GAP_BASIS,
-        "global.gdp",
-        {
-            "basis_ref": "fixture-only:hypothetical-gdp-acquisition-input:v1",
-            "collection_mode": "fixture-only annual source routing input",
-            "expert_hours": 1,
-            "calendar_days": 1,
-        },
-    )
     source_inputs = build_candidate_cycle_substrate_route_inputs(
         tmp_path / "annual-gdp-source",
         outcome_variable="global.gdp",
         include_owner_slot_manifest=True,
+        owner_knob_dictionary=generic_n4_served_replay._declared_generic_component_knobs(
+            "served_tax_global_scalar"
+        ),
     )
     problem = annual_gdp_candidate_problem()
     quota = BudgetInvocationQuotaPolicy(
@@ -1648,9 +1642,16 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
             artifact_store=control._artifact_store,
             source_profile=ANNUAL_GDP_WDI_PROFILE,
         )
-        quota_profile = control._llm_producer_settlement_store.snapshot_safe().invocation_profiles[
-            run_id
-        ]
+        quota_snapshot = control._llm_producer_settlement_store.snapshot_safe()
+        quota_profile = quota_snapshot.invocation_profiles[run_id]
+        assert quota_profile.allocation_id == quota.allocation_id
+        assert any(
+            item.run_id == run_id
+            and item.profile_digest == quota_profile.profile_digest
+            and item.purpose == "standard"
+            and item.status == "completed"
+            for item in quota_snapshot.invocation_reservations.values()
+        )
         template = CandidateUnpricedExperimentPolicyTemplate(
             tenant_id=served.TENANT,
             cell_id=served.CELL,
@@ -1774,6 +1775,24 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
                     observed["fresh_numeric_body"] = body
 
                 def execute_after_replay(**execution_values: Any) -> None:
+                    origin = execution_values["origin"]
+                    source_cycle = origin.source_cycle
+                    report = origin.planner_report
+                    routing = source_cycle.value_port.candidate_n5_l1_routing
+                    assert report.schema_version == "policyos.runtime.acquisition_planner.v2"
+                    assert source_cycle.acquisition_routing_report == report
+                    assert source_cycle.acquisition_cost_basis_record is None
+                    assert report.candidate_lineage is not None
+                    assert routing is not None
+                    gap = routing.requirement_gap
+                    availability = gap.metadata["availability"]
+                    assert availability["variable_id"] == "global.gdp"
+                    assert origin.planner_record in report.acquisition_records
+                    assert origin.planner_record.requirement_gap_ref == gap.requirement_gap_id
+                    assert (
+                        origin.planner_record.requirement_schema_version
+                        == gap.requirement_schema_version
+                    )
                     execution = run_candidate_experiment_served_execution(
                         values=execution_values["values"],
                         origin=execution_values["origin"],

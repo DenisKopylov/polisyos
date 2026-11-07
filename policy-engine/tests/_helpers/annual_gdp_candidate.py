@@ -637,7 +637,7 @@ def build_annual_gdp_candidate_provider(
                 "objectives": [
                     {
                         "objective_id": "annual_gdp",
-                        "metric_id": "annual_gdp",
+                        "metric_id": "gdp",
                         "direction": "maximize",
                         "weight": "1.0",
                     }

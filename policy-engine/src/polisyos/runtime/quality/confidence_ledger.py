@@ -8687,8 +8687,13 @@ def _literal_module_getattr_mapping_names(
             and statement.name == "__getattr__"
         ):
             continue
+        local_names = _source_scope_bound_names(statement.body)
         for node in _source_scope_nodes(statement.body):
-            if isinstance(node, ast.Subscript) and isinstance(node.value, ast.Name):
+            if (
+                isinstance(node, ast.Subscript)
+                and isinstance(node.value, ast.Name)
+                and node.value.id not in local_names
+            ):
                 names.add(node.value.id)
             if isinstance(node, ast.Call):
                 map_name = _literal_resolve_lazy_export_map_name(
@@ -9858,7 +9863,7 @@ def _literal_module_getattr_direct_providers(
     leaves the whole dispatcher outside this source-only index.
     """
 
-    if function.decorator_list:
+    if function.decorator_list or isinstance(function, ast.AsyncFunctionDef):
         return None
     parameters = (
         *function.args.posonlyargs,
@@ -9876,6 +9881,14 @@ def _literal_module_getattr_direct_providers(
         for node in _source_scope_nodes(function.body)
     ):
         return None
+    local_object_providers = _literal_module_getattr_local_object_providers(
+        tree,
+        function,
+        parameter_name,
+        package_module_name=package_module_name,
+    )
+    if local_object_providers is not None:
+        return local_object_providers
     imported_functions, imported_modules = _literal_import_helper_bindings(tree, function)
     if not imported_functions and not imported_modules:
         return None
@@ -9965,6 +9978,137 @@ def _literal_module_getattr_direct_providers(
         for name in names:
             providers[name] = (target_module, name)
     return providers or None
+
+
+def _literal_module_getattr_local_object_providers(
+    tree: ast.Module,
+    function: ast.FunctionDef | ast.AsyncFunctionDef,
+    parameter_name: str,
+    *,
+    package_module_name: str | None,
+) -> dict[str, tuple[str, str]] | None:
+    """Resolve exact grouped local-import maps in a finite PEP 562 getter."""
+
+    if isinstance(function, ast.AsyncFunctionDef) or function.decorator_list:
+        return None
+    if not _literal_builtin_name_unshadowed(tree, function, "AttributeError"):
+        return None
+
+    statements = list(function.body)
+    if (
+        statements
+        and isinstance(statements[0], ast.Expr)
+        and isinstance(statements[0].value, ast.Constant)
+        and type(statements[0].value.value) is str
+    ):
+        statements.pop(0)
+    providers: dict[str, tuple[str, str]] = {}
+    saw_fallback = False
+    for position, statement in enumerate(statements):
+        if isinstance(statement, ast.Raise):
+            if saw_fallback or position != len(statements) - 1:
+                return None
+            exception = statement.exc
+            if not (
+                isinstance(exception, ast.Call)
+                and isinstance(exception.func, ast.Name)
+                and exception.func.id == "AttributeError"
+                and len(exception.args) == 1
+                and not exception.keywords
+                and isinstance(exception.args[0], ast.JoinedStr)
+                and _literal_getattr_error_message(exception.args[0], parameter_name)
+            ):
+                return None
+            saw_fallback = True
+            continue
+        if not isinstance(statement, ast.If) or statement.orelse or saw_fallback:
+            return None
+        names = _literal_getattr_dispatch_names(statement.test, parameter_name)
+        if not names or providers.keys() & names:
+            return None
+        branch = statement.body
+        if len(branch) != 3:
+            return None
+        import_statement, assignment, returned = branch
+        if not isinstance(import_statement, ast.ImportFrom) or any(
+            alias.name == "*" for alias in import_statement.names
+        ):
+            return None
+        if package_module_name is None:
+            return None
+        try:
+            provider_module = _resolve_import_from_base(import_statement, package_module_name)
+        except ConfidenceLedgerError:
+            return None
+        if type(provider_module) is not str or not provider_module:
+            return None
+        if not (
+            isinstance(assignment, ast.Assign)
+            and len(assignment.targets) == 1
+            and isinstance(assignment.targets[0], ast.Name)
+            and assignment.targets[0].id != parameter_name
+            and isinstance(assignment.value, ast.Dict)
+            and isinstance(returned, ast.Return)
+            and isinstance(returned.value, ast.Subscript)
+            and isinstance(returned.value.value, ast.Name)
+            and returned.value.value.id == assignment.targets[0].id
+            and isinstance(returned.value.slice, ast.Name)
+            and returned.value.slice.id == parameter_name
+        ):
+            return None
+
+        imported: dict[str, str] = {}
+        for alias in import_statement.names:
+            local_name = alias.asname or alias.name
+            if (
+                type(alias.name) is not str
+                or not alias.name.isidentifier()
+                or not local_name.isidentifier()
+                or local_name == parameter_name
+                or local_name in imported
+            ):
+                return None
+            imported[local_name] = alias.name
+
+        mapped: dict[str, str] = {}
+        for key_node, value_node in zip(
+            assignment.value.keys, assignment.value.values, strict=True
+        ):
+            if not (
+                isinstance(key_node, ast.Constant)
+                and type(key_node.value) is str
+                and isinstance(value_node, ast.Name)
+                and value_node.id in imported
+                and key_node.value not in mapped
+            ):
+                return None
+            mapped[key_node.value] = imported[value_node.id]
+        if frozenset(mapped) != names:
+            return None
+        for export_name in names:
+            providers[export_name] = (provider_module, mapped[export_name])
+
+    return providers if providers and saw_fallback else None
+
+
+def _literal_getattr_error_message(message: ast.JoinedStr, parameter_name: str) -> bool:
+    """Accept only a passive diagnostic f-string that formats the lookup name."""
+
+    saw_name = False
+    for part in message.values:
+        if isinstance(part, ast.Constant) and type(part.value) is str:
+            continue
+        if not (
+            isinstance(part, ast.FormattedValue)
+            and isinstance(part.value, ast.Name)
+            and part.value.id == parameter_name
+            and part.conversion == ord("r")
+            and part.format_spec is None
+            and not saw_name
+        ):
+            return False
+        saw_name = True
+    return saw_name
 
 
 def _literal_module_getattr_provider_index(

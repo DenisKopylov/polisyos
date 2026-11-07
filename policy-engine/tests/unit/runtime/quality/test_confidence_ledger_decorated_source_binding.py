@@ -1284,6 +1284,141 @@ def test_data_forge_lazy_map_allows_only_bounded_sorted_and_constant_reads():
     assert invalid == frozenset()
 
 
+_DATA_REQUIREMENT_GROUPED_GETTER_SOURCE = """from __future__ import annotations
+
+def __getattr__(name):
+    if name in {"ConceptRefs", "Intent", "AuthorityProfile"}:
+        from polisyos.policy_grammar import (
+            PolicyGrammarConceptSpineRefs,
+            PolicyGrammarIntent,
+            UniversalAuthorityProfile,
+        )
+        exports = {
+            "ConceptRefs": PolicyGrammarConceptSpineRefs,
+            "Intent": PolicyGrammarIntent,
+            "AuthorityProfile": UniversalAuthorityProfile,
+        }
+        return exports[name]
+
+    if name in {"Compiler", "compile_for_slot"}:
+        from .compiler import DataRequirementCompiler, compiled_requirements_for_world_slot
+        exports = {
+            "Compiler": DataRequirementCompiler,
+            "compile_for_slot": compiled_requirements_for_world_slot,
+        }
+        return exports[name]
+    raise AttributeError(f"module has no attribute {name!r}")
+"""
+
+
+def test_grouped_local_object_map_getter_resolves_both_exact_import_branches():
+    tree = ast.parse(_DATA_REQUIREMENT_GROUPED_GETTER_SOURCE)
+    function = next(node for node in tree.body if isinstance(node, ast.FunctionDef))
+    providers = ledger._literal_module_getattr_direct_providers(
+        tree,
+        function,
+        "name",
+        package_module_name="polisyos.data_requirement",
+    )
+    assert providers == {
+        "ConceptRefs": ("polisyos.policy_grammar", "PolicyGrammarConceptSpineRefs"),
+        "Intent": ("polisyos.policy_grammar", "PolicyGrammarIntent"),
+        "AuthorityProfile": ("polisyos.policy_grammar", "UniversalAuthorityProfile"),
+        "Compiler": ("polisyos.data_requirement.compiler", "DataRequirementCompiler"),
+        "compile_for_slot": (
+            "polisyos.data_requirement.compiler",
+            "compiled_requirements_for_world_slot",
+        ),
+    }
+    index = ledger._literal_module_getattr_provider_index(
+        tree, package_module_name="polisyos.data_requirement"
+    )
+    assert index.mapping_names == frozenset()
+    assert index.invalid_exports == frozenset()
+    assert index.providers_by_export["Compiler"] == frozenset(
+        {"polisyos.data_requirement.compiler"}
+    )
+
+
+@pytest.mark.parametrize(
+    "replacement",
+    [
+        ('"ConceptRefs": PolicyGrammarConceptSpineRefs,',
+         '"ConceptRefs": PolicyGrammarConceptSpineRefs,\n            "ConceptRefs": PolicyGrammarIntent,'),
+        ('"ConceptRefs": PolicyGrammarConceptSpineRefs,',
+         '"ConceptRefs": ForeignConceptRefs,'),
+        ('        exports = {', '        run_callback()\n        exports = {'),
+        ('if name in {"Compiler", "compile_for_slot"}:',
+         'if name in {"Compiler", "compile_for_slot", "Foreign"}:'),
+    ],
+    ids=["duplicate-key", "foreign-value", "extra-effect", "branch-map-mismatch"],
+)
+def test_grouped_local_object_map_getter_rejects_ambiguous_or_effectful_branch(replacement):
+    source = _DATA_REQUIREMENT_GROUPED_GETTER_SOURCE.replace(*replacement)
+    tree = ast.parse(source)
+    function = next(node for node in tree.body if isinstance(node, ast.FunctionDef))
+    assert ledger._literal_module_getattr_direct_providers(
+        tree,
+        function,
+        "name",
+        package_module_name="polisyos.data_requirement",
+    ) is None
+    assert "exports" not in ledger._literal_module_getattr_mapping_names(
+        tree, source_module_name="polisyos.data_requirement"
+    )
+
+
+def test_data_requirement_grouped_getter_binds_actual_imported_objects():
+    from polisyos.data_requirement import DataRequirementCompiler as ImportedCompiler
+    from polisyos.data_requirement import (
+        PolicyGrammarConceptSpineRefs as ImportedConceptRefs,
+    )
+    from polisyos.data_requirement.compiler import DataRequirementCompiler
+    from polisyos.policy_grammar import PolicyGrammarConceptSpineRefs
+
+    facade = importlib.import_module("polisyos.data_requirement")
+    root = Path(ledger.__file__).parents[4]
+    data_requirement_path = Path(facade.__file__)
+    tree = ast.parse(data_requirement_path.read_bytes(), filename=data_requirement_path.name)
+    index = ledger._source_module_provider_index(
+        root,
+        facade.__name__,
+        tree,
+        directory_entries={},
+        source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+    )
+    assert index.mapping_names == frozenset()
+    assert index.providers_by_export["DataRequirementCompiler"] == frozenset(
+        {"polisyos.data_requirement.compiler"}
+    )
+    assert index.provider_symbols_by_export["DataRequirementCompiler"] == frozenset(
+        {"DataRequirementCompiler"}
+    )
+    assert ImportedCompiler is DataRequirementCompiler
+    assert ImportedConceptRefs is PolicyGrammarConceptSpineRefs
+    assert "DataRequirementCompiler" not in vars(facade)
+    assert "PolicyGrammarConceptSpineRefs" not in vars(facade)
+    assert facade.DataRequirementCompiler is ImportedCompiler
+    assert facade.PolicyGrammarConceptSpineRefs is ImportedConceptRefs
+    for export_name in ("DataRequirementCompiler", "PolicyGrammarConceptSpineRefs"):
+        candidate = ledger._source_module_import_route_candidate(
+            root,
+            facade.__name__,
+            export_name,
+            directory_entries={},
+            source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        )
+        expected_module, expected_symbol = index.providers_by_export[export_name], (
+            index.provider_symbols_by_export[export_name]
+        )
+        assert candidate.route == (
+            "symbol",
+            next(iter(expected_module)),
+            next(iter(expected_symbol)),
+        )
+        assert candidate.binding_basis == "literal_getattr"
+
+
 def test_imported_literal_map_survives_only_exact_builtin_sorted_read():
     source = ast.parse(
         "from polisyos.ir.api import EXPORTS\n__all__ = sorted(EXPORTS)\n"

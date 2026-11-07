@@ -13325,9 +13325,23 @@
         "candidate_served_execution_R28": {
           "source_commit": "fb46a90924fe37433a05a9943905c4f7654df313",
           "source_tree": "6b8add0dc3b5fac291a04e13f7d550b9be7911ed",
-          "classification": "RUNNING",
+          "classification": "SEMANTIC_FAIL_POST_B_HISTORICAL_COMPILED_REF_REPLAY",
           "output": "MAIN:policy-engine/_cache/e02/lane01-candidate-execution-native-r28",
-          "scope": "Fresh protected quota5/1 route with exact N7 composition. N6 source-owner diagnostics proceed in AUTHOR and do not change this run. CPU1, 3 GiB RSS cap, 3 GiB disk floor, 3600-second wall budget. Full selector requires physical B, terminal and fresh reader."
+          "scope": "Actual protected reentry passed the prior N7 guard and wrote two distinct N5 input, execution and result artifact IDs plus one candidate reentry receipt. Historical owner readback fails at the experiment phase compiled_ref because the closure expects a content-ID string. The acquisition job is failed and the action head remains candidate_input_reentry_pending. Terminal head and fresh API checks remain open. Preserve retained output and repair the read-only owner projection without another N5.",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 2783.881895666942,
+          "peak_rss_bytes": 1960296448,
+          "minimum_free_disk_bytes": 14963884032,
+          "named_inputs": 134,
+          "inputs_unchanged": true,
+          "abort_reason": null,
+          "process_group_gone": true,
+          "deciding_failure_code": "TypeError: ArtifactRef is unhashable in candidate_source_reentry_history._owner_record"
         },
         "n7_ordinary_bounded_r1": {
           "source_commit": "fb46a90924fe37433a05a9943905c4f7654df313",
@@ -13405,6 +13419,26 @@
           "named_inputs": 2,
           "inputs_unchanged": true,
           "scope": "Actual CatalogSelectionError resolves through the canonical Data Forge helper and exact loaded provider. Only proven finite helper and key-list reads are allowed. Fresh import advances to unsupported source facade map polisyos.data_requirement. Its local object-map getter requires a separate source route shape. Independent review GO."
+        },
+        "n6_grouped_object_getter_owner": {
+          "source_base_commit": "02ebf471924ec4205eeda52f6ee92e827c42d4a9",
+          "source_and_test_sha256": {
+            "src/polisyos/runtime/quality/confidence_ledger.py": "3f43d36acf83d402c2c8f733f2a8eb74513d92d0b1b3e18f29c79f0d7e5dd51f",
+            "tests/unit/runtime/quality/test_confidence_ledger_decorated_source_binding.py": "41dd276c6951a713b50da81161433db81521da9577aea2d14eccd888aaa9b547"
+          },
+          "classification": "PASS_GROUPED_LOCAL_GETTER_FULL_N6_OPEN",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-grouped-getter-full-module-r2",
+          "observed": {
+            "PASS": 398,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 37.64809716702439,
+          "peak_rss_bytes": 1613725696,
+          "named_inputs": 2,
+          "inputs_unchanged": true,
+          "scope": "Two real data_requirement groups use exact literal name gates, one source import, a local object map and indexed return. Uncached provider/importer identity remains checked. Fresh AUTHOR advances to missing repository re-export binding polisyos.ir.analytics.TruthfulnessTier. Independent review GO."
         }
       },
       "independent_component_reviews": {
@@ -13486,7 +13520,7 @@
           "trash_emptied_by_executor": false,
           "code_docs_environments_unique_production_preserved": true
         },
-        "execution_state": "N7_R7_PASS_R28_RUNNING_N6_IN_AUTHOR",
+        "execution_state": "R28_FINISHED_B_PERSISTED_HISTORICAL_READER_FAIL",
         "next_session": "Fix R19 Catalog dispatch/pending-resume boundary and run genuine protected replay; independently finish finite source cohort, shared generation/GDP constituent controls and fresh-runtime crash preparation. Then generations, GDP, affected consumers/installed and all66 reconciliation. No next lane.",
         "latest_additional_trash_move": {
           "size_KiB": 398572,
@@ -13532,7 +13566,7 @@
         },
         "free_disk_bytes_at_refresh": 15066558464,
         "used_swap_GiB_at_refresh": 0.4951171875,
-        "next_action": "Monitor protected R28 on frozen MAIN. Finish N6 fresh import capture and affected controls in AUTHOR. Preserve method receipt R13 zero-N5 evidence.",
+        "next_action": "Verify historical compiled-reference ID projection through persisted R28 owner records and affected fixtures. Continue N6 in AUTHOR. Determine retained recovery before any new numerical run.",
         "latest_G_cleanup": {
           "workspace_G": "Ancestor cf9cbee of MAIN b2e;0 G-only/5197 MAIN-only commits; clean tracked/nonignored state; inactive standalone environment. ~8.64GiB moved to Trash; later manually emptied by user. No active checkout/env/data dependency on G.",
           "G_agent_history": "User-authorized exact435 descendants,181069 history rows copied/row-hash verified before transfer. Shared DB reduced1717792768B by native incremental vacuum; final WAL checkpoint0/0/0. ParentG/other chat histories preserved. Archive/restore tool and temporary safety hardlink all in Trash, not outside. Archive quick_check/hash and synthetic exact restore pass; shared full quick_check interrupted at45s without PASS. Executor never emptied Trash.",

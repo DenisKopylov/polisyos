@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Mapping
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -88,6 +88,17 @@ class CandidateAcquisitionActionReceipt(BaseModel):
     admitted_observation_delta: Literal[0] = 0
     observed_admission: Literal[False] = False
     publication_authority: Literal[False] = False
+
+
+@dataclass(frozen=True)
+class _VerifiedCurrentCandidateExperimentReentryAction:
+    """Keep one current reentry proof and its verified budget window together."""
+
+    selection: AcquisitionCandidateSourceRoute
+    phase: AcquisitionCandidateExperimentPhaseReceipt
+    admission: ControlJobExecutionAdmission
+    action: CandidateAcquisitionActionReceipt
+    budget_window: BudgetLedgerReentryBudgetWindow
 
 
 def receipt_inputs(receipt: CandidateAcquisitionActionReceipt) -> tuple[artifacts.InputRef, ...]:
@@ -657,18 +668,13 @@ def _current_candidate_experiment_action(
     return selected, phase, admission
 
 
-def _current_candidate_experiment_reentry_action(
+def _current_candidate_experiment_reentry_action_context(
     bridge: AcquisitionWorldGrowthBridge,
     origin: VerifiedCandidateExperimentOrigin,
     pending_phase_ref: str,
     candidate_action_ref: artifacts.ArtifactRef,
-) -> tuple[
-    AcquisitionCandidateSourceRoute,
-    AcquisitionCandidateExperimentPhaseReceipt,
-    ControlJobExecutionAdmission,
-    CandidateAcquisitionActionReceipt,
-]:
-    """Resolve a pending reentry phase, its selected action, and current live lease."""
+) -> _VerifiedCurrentCandidateExperimentReentryAction:
+    """Resolve one pending action, live lease, and the window bound to its receipt."""
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionCandidateExperimentPhaseReceipt,
     )
@@ -706,7 +712,7 @@ def _current_candidate_experiment_reentry_action(
     )
     if len(executing_refs) != 1 or getattr(executing_refs[0], "receipt", None) is None:
         raise ValueError("candidate_experiment_reentry_executing_phase_missing")
-    verified_receipt, _source, _window = read_candidate_experiment_acquisition_action_historical(
+    verified_receipt, _source, window = read_candidate_experiment_acquisition_action_historical(
         bridge=bridge,
         origin=origin,
         receipt_ref=candidate_action_ref,
@@ -715,7 +721,34 @@ def _current_candidate_experiment_reentry_action(
     )
     if verified_receipt != receipt or receipt.selection != selection:
         raise ValueError("candidate_experiment_reentry_action_changed")
-    return selection, phase, admission, receipt
+    return _VerifiedCurrentCandidateExperimentReentryAction(
+        selection=selection,
+        phase=phase,
+        admission=admission,
+        action=receipt,
+        budget_window=window,
+    )
+
+
+def _current_candidate_experiment_reentry_action(
+    bridge: AcquisitionWorldGrowthBridge,
+    origin: VerifiedCandidateExperimentOrigin,
+    pending_phase_ref: str,
+    candidate_action_ref: artifacts.ArtifactRef,
+) -> tuple[
+    AcquisitionCandidateSourceRoute,
+    AcquisitionCandidateExperimentPhaseReceipt,
+    ControlJobExecutionAdmission,
+    CandidateAcquisitionActionReceipt,
+]:
+    """Resolve a pending reentry action while preserving the established tuple API."""
+    context = _current_candidate_experiment_reentry_action_context(
+        bridge,
+        origin,
+        pending_phase_ref,
+        candidate_action_ref,
+    )
+    return context.selection, context.phase, context.admission, context.action
 
 
 def _compiler_binding(

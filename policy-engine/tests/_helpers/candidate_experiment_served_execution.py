@@ -1432,7 +1432,47 @@ def run_candidate_experiment_served_execution(
             except KeyboardInterrupt:
                 crashed = True
             if not crashed:
-                raise AssertionError("candidate experiment crash hook did not interrupt delivery")
+                failed_job = control._control_store.get_job(job_id)
+                dispatch_failure_summary = tuple(
+                    tuple(
+                        {
+                            "exception_type": node.exception_type,
+                            "code": node.code,
+                            "message": node.message[:256],
+                            "traceback_tail": tuple(
+                                (
+                                    frame.filename,
+                                    frame.line_number,
+                                    frame.function,
+                                )
+                                for frame in node.traceback_tail[-4:]
+                            ),
+                        }
+                        for node in failure.chain[:4]
+                    )
+                    for failure in dispatch_failures[-2:]
+                )
+                execution_call_summary = tuple(
+                    {
+                        "origin_head_phase": observation.origin_head_phase,
+                        "stages": tuple(
+                            (stage.stage, stage.raised_type)
+                            for stage in observation.stage_calls[-12:]
+                        ),
+                    }
+                    for observation in execution_owner.execution_calls[-3:]
+                )
+                raise AssertionError(
+                    "candidate experiment crash hook did not interrupt delivery; "
+                    f"job_state={getattr(failed_job, 'state', 'missing')} "
+                    f"attempt={getattr(failed_job, 'attempt', 'missing')} "
+                    f"error_code={getattr(failed_job, 'error_code', None)} "
+                    f"error_type={getattr(failed_job, 'error_type', None)}; "
+                    f"dispatch_failures_total={len(dispatch_failures)} "
+                    f"last_failures={dispatch_failure_summary!r}; "
+                    f"execution_calls_total={len(execution_owner.execution_calls)} "
+                    f"last_calls={execution_call_summary!r}"
+                )
             interrupted_job = control._control_store.get_job(job_id)
             if (
                 type(interrupted_job) is not ControlJobRecord
@@ -1779,6 +1819,8 @@ def _build_candidate_experiment_world_growth_bridge(
     """Build the served bridge against its runtime's selected repository root."""
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionWorldGrowthBridge as Bridge,
+    )
+    from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionWorldGrowthConfig,
     )
 

@@ -6643,6 +6643,9 @@ def _observed_source_bindings(
     repo_root: Path,
     capture: Any,  # noqa: ANN401
     graph: Any,  # noqa: ANN401
+    *,
+    retained_bindings: list[tuple[object, ...]] | None = None,
+    retained_importer_name: str | None = None,
 ) -> tuple[
     tuple[tuple[str, str, str, tuple[tuple[str, str], ...]], ...],
     tuple[tuple[str, str, str, str], ...],
@@ -6727,6 +6730,16 @@ def _observed_source_bindings(
                 capture.assert_import_binding(
                     event, importer_attribute=alias, provider_export=symbol
                 )
+                if retained_bindings is not None and (
+                    retained_importer_name is None or event.importer_name == retained_importer_name
+                ):
+                    # Keep only the exact provider/importer records and values
+                    # that passed the recorder's independent identity check.
+                    # This is a bounded import-time observation, not a claim
+                    # that these objects remain current through a later use.
+                    retained_bindings.append(
+                        (event, provider, importer, symbol, alias, retained, current_consumer)
+                    )
                 matched.setdefault((event.provider_name, symbol, digest), set()).add(
                     (event.importer_name, alias)
                 )
@@ -6737,9 +6750,35 @@ def _observed_source_bindings(
     return bindings, tuple(sorted(disagreements))
 
 
+@dataclass(frozen=True, slots=True)
+class _LoadedExecutionObservationSeal:
+    """Retain one bounded post-import observation without granting identity."""
+
+    capture: object
+    recorder_module: object
+    owner_module: types.ModuleType | None
+    state: Literal["retained", "failed"]
+    owner_execution: object | None
+    binding_references: tuple[tuple[object, ...], ...]
+    external_provider_modules: tuple[object, ...]
+    failed_reachable_imports: tuple[object, ...]
+    failed_reachable_modules: tuple[object, ...]
+    unresolved_importers: tuple[object, ...]
+    pending_modules: tuple[object, ...]
+    binding_disagreements: tuple[object, ...]
+    failure: str | None
+
+
+_LOADED_EXECUTION_OBSERVATION_SEAL: _LoadedExecutionObservationSeal | None = None
+
+
 def _observe_unsealed_host_capture(
     recorder_module: object,
     capture: Any,  # noqa: ANN401
+    *,
+    _host_anchor_verified: bool = False,
+    _retained_owner_executions: list[object] | None = None,
+    _retained_bindings: list[tuple[object, ...]] | None = None,
 ) -> dict[str, object]:
     """Reconcile live source candidates for diagnostics without admitting identity.
 
@@ -6771,7 +6810,7 @@ def _observe_unsealed_host_capture(
     report["legacy_identity_status"] = identity.status
     report["legacy_identity_reason"] = identity.reason_code
     report["protected_loaded_execution_status"] = "not_established"
-    if not _host_recorder_anchor_matches(recorder_module, capture):
+    if not _host_anchor_verified and not _host_recorder_anchor_matches(recorder_module, capture):
         report["failure"] = "host_execution_anchor_unavailable"
         return report
     try:
@@ -6782,14 +6821,23 @@ def _observe_unsealed_host_capture(
         root = _loaded_policy_engine_root()
         capture.assert_retained(frozenset({__name__}))
         execution = capture.completed(__name__)
+        if _retained_owner_executions is not None:
+            _retained_owner_executions.append(execution)
         if execution.module is not _passive_capture_lookup(sys.modules, __name__):
             raise ValueError("ledger_execution_binding_changed")
         graph = capture.relevant_graph(frozenset({__name__}))
-        matched, disagreements = _observed_source_bindings(root, capture, graph)
+        matched, disagreements = _observed_source_bindings(
+            root,
+            capture,
+            graph,
+            retained_bindings=_retained_bindings,
+            retained_importer_name=__name__,
+        )
         report["executed_direct_bindings"] = matched
         report["observed_binding_disagreements"] = disagreements
         report["observed_source_modules"] = len(graph.reached_sources)
         report["external_provider_count"] = len(graph.external_providers)
+        report["external_provider_modules"] = graph.external_providers
         report["failed_reachable_imports"] = graph.failed_imports
         report["failed_reachable_modules"] = graph.failed_modules
         report["unresolved_importers"] = graph.unresolved_importers
@@ -6822,6 +6870,338 @@ def _observe_unsealed_host_capture(
         else:
             report["failure"] = type(exc).__name__
     return report
+
+
+def _seal_loaded_execution_capture(
+    recorder_module: object,
+    capture: Any,  # noqa: ANN401
+) -> dict[str, object]:
+    """Retain the owner-direct import snapshot while leaving N6 unavailable.
+
+    The early bootstrap calls this only after resolving this exact function
+    from the completed source-owned ledger module. The retained subclaim covers
+    the ledger execution and first-party imports made directly by this owner.
+    Runtime appointment, external provider
+    qualification, material state, later currentness and protection through use
+    remain separate premises and are never inferred from this snapshot.
+    """
+
+    global _LOADED_EXECUTION_OBSERVATION_SEAL
+
+    def report_rows(name: str) -> tuple[object, ...]:
+        value = report.get(name, ())
+        if type(value) in (tuple, list):
+            return tuple(value)
+        return ()
+
+    previous = _LOADED_EXECUTION_OBSERVATION_SEAL
+    if previous is not None:
+        if previous.capture is capture and previous.state == "retained":
+            return {
+                "status": "not_established",
+                "protected_loaded_execution_status": "not_established",
+                "owner_observation_state": "retained",
+                "owner_observation_scope": "ledger-owner direct observed first-party imports",
+                "owner_observation_binding_count": len(previous.binding_references),
+                "currentness_status": "not_established",
+                "held_binding_endpoint_currentness": "not_checked",
+                "protected_through_use": "not_established",
+                "candidate_only": True,
+            }
+        return {
+            "status": "not_established",
+            "protected_loaded_execution_status": "not_established",
+            "owner_observation_state": "failed",
+            "failure": previous.failure or "owner_capture_attempt_already_finalized",
+            "currentness_status": "not_established",
+            "held_binding_endpoint_currentness": "not_established",
+            "protected_through_use": "not_established",
+            "candidate_only": True,
+        }
+
+    host_session = _passive_capture_lookup(sys.__dict__, "_polisyos_loaded_host_v1")
+    if (
+        type(host_session) is not dict
+        or _passive_capture_lookup(host_session, "capture") is not capture
+        or _passive_capture_lookup(host_session, "recorder") is not recorder_module
+    ):
+        # An unappointed direct call cannot poison the later real host attempt.
+        return {
+            "status": "not_established",
+            "protected_loaded_execution_status": "not_established",
+            "owner_observation_state": "failed",
+            "failure": "host_capture_session_unmatched",
+            "currentness_status": "not_established",
+            "held_binding_endpoint_currentness": "not_established",
+            "protected_through_use": "not_established",
+            "candidate_only": True,
+        }
+
+    if not _host_recorder_anchor_matches(recorder_module, capture):
+        owner_module = _passive_capture_lookup(sys.modules, __name__)
+        failure = "host_execution_anchor_unavailable"
+        _LOADED_EXECUTION_OBSERVATION_SEAL = _LoadedExecutionObservationSeal(
+            capture=capture,
+            recorder_module=recorder_module,
+            owner_module=owner_module if type(owner_module) is types.ModuleType else None,
+            state="failed",
+            owner_execution=None,
+            binding_references=(),
+            external_provider_modules=(),
+            failed_reachable_imports=(),
+            failed_reachable_modules=(),
+            unresolved_importers=(),
+            pending_modules=(),
+            binding_disagreements=(),
+            failure=failure,
+        )
+        return {
+            "status": "not_established",
+            "protected_loaded_execution_status": "not_established",
+            "owner_observation_state": "failed",
+            "failure": failure,
+            "currentness_status": "not_established",
+            "held_binding_endpoint_currentness": "not_established",
+            "protected_through_use": "not_established",
+            "candidate_only": True,
+        }
+
+    owner_module = _passive_capture_lookup(sys.modules, __name__)
+    owner_executions: list[object] = []
+    retained_bindings: list[tuple[object, ...]] = []
+    report = _observe_unsealed_host_capture(
+        recorder_module,
+        capture,
+        _host_anchor_verified=True,
+        _retained_owner_executions=owner_executions,
+        _retained_bindings=retained_bindings,
+    )
+    failure = report.get("failure")
+    capture_failure = report.get("capture_failure")
+    owner_execution = owner_executions[0] if len(owner_executions) == 1 else None
+    if (
+        type(owner_module) is not types.ModuleType
+        or owner_execution is None
+        or type(failure) is str
+        or type(capture_failure) is str
+    ):
+        reason = (
+            failure
+            if type(failure) is str
+            else capture_failure
+            if type(capture_failure) is str
+            else "owner_execution_snapshot_unavailable"
+        )
+        _LOADED_EXECUTION_OBSERVATION_SEAL = _LoadedExecutionObservationSeal(
+            capture=capture,
+            recorder_module=recorder_module,
+            owner_module=owner_module if type(owner_module) is types.ModuleType else None,
+            state="failed",
+            owner_execution=owner_execution,
+            binding_references=tuple(retained_bindings),
+            external_provider_modules=report_rows("external_provider_modules"),
+            failed_reachable_imports=report_rows("failed_reachable_imports"),
+            failed_reachable_modules=report_rows("failed_reachable_modules"),
+            unresolved_importers=report_rows("unresolved_importers"),
+            pending_modules=report_rows("pending_modules"),
+            binding_disagreements=report_rows("observed_binding_disagreements"),
+            failure=reason,
+        )
+        report["owner_observation_state"] = "failed"
+        report["failure"] = reason
+        report["currentness_status"] = "not_established"
+        report["held_binding_endpoint_currentness"] = "not_established"
+        report["protected_through_use"] = "not_established"
+        return report
+
+    # The report preserves the whole reachable graph. Endpoint currentness is
+    # deliberately narrower: only this owner module's direct first-party
+    # bindings are retained and rechecked.
+    _LOADED_EXECUTION_OBSERVATION_SEAL = _LoadedExecutionObservationSeal(
+        capture=capture,
+        recorder_module=recorder_module,
+        owner_module=owner_module,
+        state="retained",
+        owner_execution=owner_execution,
+        binding_references=tuple(retained_bindings),
+        external_provider_modules=report_rows("external_provider_modules"),
+        failed_reachable_imports=report_rows("failed_reachable_imports"),
+        failed_reachable_modules=report_rows("failed_reachable_modules"),
+        unresolved_importers=report_rows("unresolved_importers"),
+        pending_modules=report_rows("pending_modules"),
+        binding_disagreements=report_rows("observed_binding_disagreements"),
+        failure=None,
+    )
+    report["owner_observation_state"] = "retained"
+    report["owner_observation_scope"] = "ledger-owner direct observed first-party imports"
+    report["owner_observation_binding_count"] = len(retained_bindings)
+    report["currentness_status"] = "not_established"
+    report["held_binding_endpoint_currentness"] = "not_checked"
+    report["protected_through_use"] = "not_established"
+    report["candidate_only"] = True
+    report["status"] = "not_established"
+    report["protected_loaded_execution_status"] = "not_established"
+    return report
+
+
+def _check_loaded_execution_observation_currentness(capture: Any) -> dict[str, object]:  # noqa: ANN401
+    """Recheck retained import bindings at one live endpoint, not through use.
+
+    The bootstrap calls this before closing the recorder, after the dispatched
+    target returns (or before emitting the standalone diagnosis). It verifies
+    only the concrete source-owned provider/importer relations retained by the
+    earlier reconciliation. It cannot detect an A→B→A mutation between
+    endpoints and does not establish deployment currentness or authority.
+    """
+
+    global _LOADED_EXECUTION_OBSERVATION_SEAL
+
+    seal = _LOADED_EXECUTION_OBSERVATION_SEAL
+    base = {
+        "status": "not_established",
+        "protected_loaded_execution_status": "not_established",
+        "currentness_status": "not_established",
+        "protected_through_use": "not_established",
+        "candidate_only": True,
+    }
+    if seal is None or seal.capture is not capture or seal.state != "retained":
+        return {
+            **base,
+            "owner_observation_state": "failed",
+            "held_binding_endpoint_currentness": "not_established",
+            "failure": (
+                "owner_observation_not_retained"
+                if seal is None
+                else seal.failure or "owner_observation_generation_mismatch"
+            ),
+        }
+    host_session = _passive_capture_lookup(sys.__dict__, "_polisyos_loaded_host_v1")
+    if (
+        type(host_session) is not dict
+        or _passive_capture_lookup(host_session, "capture") is not capture
+        or _passive_capture_lookup(host_session, "recorder") is not seal.recorder_module
+    ):
+        failure = "host_capture_session_unmatched"
+        _LOADED_EXECUTION_OBSERVATION_SEAL = _LoadedExecutionObservationSeal(
+            capture=seal.capture,
+            recorder_module=seal.recorder_module,
+            owner_module=seal.owner_module,
+            state="failed",
+            owner_execution=seal.owner_execution,
+            binding_references=seal.binding_references,
+            external_provider_modules=seal.external_provider_modules,
+            failed_reachable_imports=seal.failed_reachable_imports,
+            failed_reachable_modules=seal.failed_reachable_modules,
+            unresolved_importers=seal.unresolved_importers,
+            pending_modules=seal.pending_modules,
+            binding_disagreements=seal.binding_disagreements,
+            failure=failure,
+        )
+        return {
+            **base,
+            "owner_observation_state": "failed",
+            "held_binding_endpoint_currentness": "not_established",
+            "failure": failure,
+        }
+    if not _host_recorder_anchor_matches(seal.recorder_module, capture):
+        failure = "host_execution_anchor_unavailable"
+        _LOADED_EXECUTION_OBSERVATION_SEAL = _LoadedExecutionObservationSeal(
+            capture=seal.capture,
+            recorder_module=seal.recorder_module,
+            owner_module=seal.owner_module,
+            state="failed",
+            owner_execution=seal.owner_execution,
+            binding_references=seal.binding_references,
+            external_provider_modules=seal.external_provider_modules,
+            failed_reachable_imports=seal.failed_reachable_imports,
+            failed_reachable_modules=seal.failed_reachable_modules,
+            unresolved_importers=seal.unresolved_importers,
+            pending_modules=seal.pending_modules,
+            binding_disagreements=seal.binding_disagreements,
+            failure=failure,
+        )
+        return {
+            **base,
+            "owner_observation_state": "failed",
+            "held_binding_endpoint_currentness": "failed",
+            "held_binding_endpoint_failure": failure,
+        }
+    if (
+        seal.owner_module is None
+        or _passive_capture_lookup(sys.modules, __name__) is not seal.owner_module
+    ):
+        failure = "owner_module_binding_changed_after_observation"
+    else:
+        failure = None
+    checked = 0
+    if failure is None:
+        try:
+            capture.assert_retained(frozenset({__name__}))
+            if capture.completed(__name__) is not seal.owner_execution:
+                raise ValueError("owner_execution_changed_after_observation")
+            for row in seal.binding_references:
+                if type(row) is not tuple or len(row) != 7:
+                    raise ValueError("retained_import_binding_record_invalid")
+                event, provider, importer, symbol, alias, provider_value, importer_value = row
+                if (
+                    type(symbol) is not str
+                    or type(alias) is not str
+                    or provider_value is not importer_value
+                ):
+                    raise ValueError("retained_import_binding_record_invalid")
+                capture.assert_import_binding(
+                    event, importer_attribute=alias, provider_export=symbol
+                )
+                if (
+                    event.provider is not provider.module
+                    or event.importer is not importer.module
+                    or capture.completed(event.provider_name) is not provider
+                    or capture.completed(event.importer_name) is not importer
+                ):
+                    raise ValueError("retained_import_binding_changed")
+                checked += 1
+        except Exception as exc:
+            failure = (
+                exc.args[0]
+                if type(exc) is ValueError and len(exc.args) == 1 and type(exc.args[0]) is str
+                else type(exc).__name__
+            )
+
+    if failure is not None:
+        _LOADED_EXECUTION_OBSERVATION_SEAL = _LoadedExecutionObservationSeal(
+            capture=seal.capture,
+            recorder_module=seal.recorder_module,
+            owner_module=seal.owner_module,
+            state="failed",
+            owner_execution=seal.owner_execution,
+            binding_references=seal.binding_references,
+            external_provider_modules=seal.external_provider_modules,
+            failed_reachable_imports=seal.failed_reachable_imports,
+            failed_reachable_modules=seal.failed_reachable_modules,
+            unresolved_importers=seal.unresolved_importers,
+            pending_modules=seal.pending_modules,
+            binding_disagreements=seal.binding_disagreements,
+            failure=failure,
+        )
+        return {
+            **base,
+            "owner_observation_state": "failed",
+            "held_binding_endpoint_currentness": "failed",
+            "held_binding_endpoint_failure": failure,
+            "held_binding_endpoint_checked_count": checked,
+        }
+    return {
+        **base,
+        "owner_observation_state": "retained",
+        "held_binding_endpoint_currentness": (
+            "current_at_endpoint" if checked else "not_established"
+        ),
+        "held_binding_endpoint_checked_count": checked,
+        "held_binding_endpoint_scope": "retained ledger-owner direct imports only",
+        "held_binding_endpoint_reason": (
+            "no_reconciled_owner_direct_bindings" if checked == 0 else None
+        ),
+    }
 
 
 def _resolve_authority_import_closure(

@@ -834,6 +834,117 @@ def test_candidate_experiment_reentry_preflight_uses_real_budget_and_quota_owner
     assert boundary_calls == [(origin, candidate_action_ref, budget_state, reentry_budget_scope)]
 
 
+@pytest.mark.parametrize("late_owner_change", [False, True])
+def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    late_owner_change: bool,
+) -> None:
+    """One operation reuses its verified window, then still rejects a changed owner."""
+    from polisyos.runtime.quality import candidate_acquisition_action as actions
+    from polisyos.scientist.orchestration.engine import (
+        BudgetInvocationQuotaPolicy,
+        BudgetLedgerInvocationProfile,
+    )
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+    from polisyos.scientist.orchestration.engine.producer_budget import ProducerBudgetObserver
+    from tests.unit.runtime.quality.test_acquisition_candidate_budget_window import (
+        _prepare,
+        _settle,
+        _unit_window,
+    )
+    from tests.unit.runtime.quality.test_candidate_experiment_current_outcome import (
+        _selection_case,
+    )
+
+    budget_case = _unit_window(tmp_path / "reuse-verified-reentry-window", monkeypatch)
+    _settle(budget_case, "candidate-reentry-reuse-baseline", Decimal("0.02"))
+    window = _prepare(budget_case)
+    origin, outcomes = _selection_case(1)
+    pending = outcomes[-1]
+    quota = BudgetInvocationQuotaPolicy(
+        allocation_id="candidate-reentry-reuse-context",
+        total_units=3,
+        protected_units=1,
+    )
+    profile = BudgetLedgerInvocationProfile.from_policy(budget_case.binding, quota)
+    budget_state = BudgetState(
+        limits={"run": BudgetLimit(key="run", max_usd=window.effective_limit_usd)}
+    )
+    observer = ProducerBudgetObserver(
+        settlement_store=budget_case.service._llm_producer_settlement_store,
+        producer_run_binding=budget_case.binding,
+        budget_state=budget_state,
+        invocation_quota_profile=profile,
+        reentry_budget_scope=window.scope,
+    )
+    selection = object()
+    changed_selection = object()
+    phase = pending.latest_receipt
+    admission = SimpleNamespace(same_execution_identity=lambda other: other is admission)
+    action = SimpleNamespace(
+        selection=selection,
+        candidate_budget_window_id=window.window_id,
+        candidate_budget_window_digest=window.record_digest,
+    )
+    context_calls: list[object] = []
+
+    def current_context(*_args: object) -> object:
+        context_calls.append(object())
+        selected = (
+            changed_selection
+            if late_owner_change and len(context_calls) == 2
+            else selection
+        )
+        return SimpleNamespace(
+            selection=selected,
+            phase=phase,
+            admission=admission,
+            action=action,
+            budget_window=window,
+        )
+
+    monkeypatch.setattr(actions, "_current_candidate_experiment_reentry_action_context", current_context)
+    assert type(profile) is BudgetLedgerInvocationProfile
+    service = SimpleNamespace(
+        acquisition_route_sink=SimpleNamespace(experiment_action_outcomes=lambda **_: (pending,)),
+        _control_store=SimpleNamespace(
+            current_execution_job_admission=lambda: SimpleNamespace(
+                job=SimpleNamespace(job_id=pending.head.job_id)
+            )
+        ),
+        build_candidate_experiment_reentry_budget_observer=lambda **_: observer,
+    )
+    prior_owner = SimpleNamespace(
+        profile=SimpleNamespace(
+            n5=SimpleNamespace(invocation_quota_policy=quota, invocation_purpose="standard")
+        )
+    )
+    bridge = AcquisitionWorldGrowthBridge.__new__(AcquisitionWorldGrowthBridge)
+    bridge._source_control_service = service
+    bridge.control_store = object()
+    bridge._candidate_experiment_prior_owner = lambda **_: prior_owner
+    bridge.resolve_candidate_experiment_reentry_budget_window = lambda **_: pytest.fail(
+        "reconciliation repeated the already verified window resolution"
+    )
+
+    def execute() -> object:
+        return bridge._reconcile_candidate_experiment_source_reentry_budget(
+            origin=origin,
+            candidate_action_ref=pending.latest_receipt.candidate_receipt_ref,
+            budget_state=budget_state,
+            reentry_budget_scope=window.scope,
+        )
+
+    if late_owner_change:
+        with pytest.raises(ValueError, match="candidate_experiment_reentry_owner_changed"):
+            execute()
+    else:
+        result = execute()
+        assert result.observer is observer
+    assert len(context_calls) == 2
+
+
 @pytest.mark.asyncio
 async def test_v9_intrinsic_history_rejects_pair_and_entry_hint_mutations() -> None:
     """Rehashed mutations cannot detach the edge from its adjacent source history."""

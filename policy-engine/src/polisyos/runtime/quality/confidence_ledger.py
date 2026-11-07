@@ -19768,6 +19768,241 @@ def _source_decorated_callable_binding_supported(
             _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
 
 
+def _source_plain_class_reference_supported(
+    repo_root: Path,
+    provider: types.ModuleType,
+    provider_name: str,
+    symbol: str,
+    source_path: Path,
+    selected: object,
+    *,
+    analysis: _IntegrityAnalysisContext,
+    directory_entries: dict[Path, frozenset[str]],
+    source_index: _AuthorityImportClosureSourceIndex,
+    visited: frozenset[tuple[str, str]],
+) -> bool:
+    """Check a current plain class reference, not construction or inherited behavior."""
+    if (
+        type(selected) is not type
+        or _passive_capture_lookup(vars(provider), symbol) is not selected
+    ):
+        return False
+    tree = analysis.source_tree(source_path)
+    sites = _module_scope_direct_binding_sites(tree, symbol)
+    if len(sites) != 1 or sites[0][0] != "local" or not isinstance(sites[0][1], ast.ClassDef):
+        return False
+    node = sites[0][1]
+    if (
+        node.decorator_list
+        or node.keywords
+        or getattr(node, "type_params", ())
+        or len(node.bases) != 1
+        or not isinstance(node.bases[0], ast.Name)
+    ):
+        return False
+    if (
+        _source_native_class_field(selected, "__module__") != provider_name
+        or _source_native_class_field(selected, "__qualname__") != symbol
+        or _source_native_class_field(selected, "__name__") != symbol
+    ):
+        return False
+    base_name = node.bases[0].id
+    base = _source_import_binding(
+        base_name, tree=tree, module=provider, module_name=provider_name, repo_root=repo_root
+    )
+    if type(base) is not type or not _source_native_class_bases_match(selected, base):
+        return False
+    base_route = _source_module_import_route(
+        repo_root,
+        provider_name,
+        base_name,
+        directory_entries=directory_entries,
+        source_index=source_index,
+        visited=visited,
+    )
+    if (
+        type(base_route) is not tuple
+        or len(base_route) != 3
+        or base_route[0] != "symbol"
+        or type(base_route[1]) is not str
+        or type(base_route[2]) is not str
+    ):
+        return False
+    base_owner = _passive_capture_lookup(sys.modules, base_route[1])
+    if (
+        type(base_owner) is not types.ModuleType
+        or _passive_capture_lookup(vars(base_owner), base_route[2]) is not base
+    ):
+        return False
+    if (
+        _source_native_class_field(base, "__module__") != base_route[1]
+        or _source_native_class_field(base, "__qualname__") != base_route[2]
+    ):
+        return False
+    base_relative = _repository_module_source(
+        repo_root, base_route[1], directory_entries=directory_entries
+    )
+    base_origins = _source_loaded_module_origin_fields(base_owner, expected_name=base_route[1])
+    if base_relative is None or base_origins is None:
+        return False
+    base_path = analysis.bind_source_path(repo_root / base_relative)
+    if any(analysis.bind_source_path(Path(origin)) != base_path for origin in base_origins):
+        return False
+    base_sites = _module_scope_direct_binding_sites(analysis.source_tree(base_path), base_route[2])
+    if (
+        len(base_sites) != 1
+        or base_sites[0][0] != "local"
+        or not isinstance(base_sites[0][1], ast.ClassDef)
+        or base_sites[0][1].decorator_list
+    ):
+        return False
+    base_mro = _source_native_class_field(base, "__mro__")
+    actual_mro = _source_native_class_field(selected, "__mro__")
+    if (
+        type(base_mro) is not tuple
+        or type(actual_mro) is not tuple
+        or len(actual_mro) != len(base_mro) + 1
+        or actual_mro[0] is not selected
+        or any(left is not right for left, right in zip(actual_mro[1:], base_mro, strict=True))
+    ):
+        return False
+    namespace = _source_native_class_field(selected, "__dict__")
+    if type(namespace) is not type(type.__dict__) or any(type(key) is not str for key in namespace):
+        return False
+    methods = {}
+    for item in node.body:
+        if (
+            isinstance(item, ast.Expr)
+            and isinstance(item.value, ast.Constant)
+            and type(item.value.value) is str
+        ):
+            continue
+        if (
+            not isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+            or item.decorator_list
+            or item.name in methods
+        ):
+            return False
+        methods[item.name] = item
+    if not methods:
+        return False
+    # A source-declared base state slot may be materialized on a subclass by
+    # a source-declared singleton allocator. Its value is not evidence of
+    # authority, construction history, or currentness.
+    base_node = base_sites[0][1]
+    declared_state = {
+        item.target.id
+        for item in base_node.body
+        if isinstance(item, ast.AnnAssign)
+        and isinstance(item.target, ast.Name)
+        and isinstance(item.value, ast.Constant)
+        and item.value.value is None
+    }
+    class_writes: set[str] = set()
+    constructors = [
+        item
+        for item in base_node.body
+        if isinstance(item, ast.FunctionDef) and item.name == "__new__"
+    ]
+    if len(constructors) == 1:
+        constructor = constructors[0]
+        arguments = (*constructor.args.posonlyargs, *constructor.args.args)
+        if arguments and arguments[0].arg == "cls" and not constructor.decorator_list:
+            pending = list(constructor.body)
+            valid_writes = True
+            while pending:
+                item = pending.pop()
+                expressions = []
+                if isinstance(item, ast.If):
+                    expressions.append(item.test)
+                    pending.extend((*item.body, *item.orelse))
+                elif isinstance(item, ast.With):
+                    pending.extend(item.body)
+                    for context in item.items:
+                        expressions.append(context.context_expr)
+                        if context.optional_vars is not None:
+                            expressions.append(context.optional_vars)
+                elif isinstance(item, ast.Assign):
+                    expressions.extend((*item.targets, item.value))
+                elif isinstance(item, ast.Return):
+                    if item.value is not None:
+                        expressions.append(item.value)
+                else:
+                    valid_writes = False
+                    break
+                if any(
+                    isinstance(child, ast.Name)
+                    and child.id in {"cls", "super"}
+                    and isinstance(child.ctx, ast.Store)
+                    for expression in expressions
+                    for child in ast.walk(expression)
+                ):
+                    valid_writes = False
+                    break
+                if isinstance(item, ast.Assign) and len(item.targets) == 1:
+                    target, value = item.targets[0], item.value
+                    if (
+                        isinstance(target, ast.Attribute)
+                        and isinstance(target.value, ast.Name)
+                        and target.value.id == "cls"
+                        and isinstance(value, ast.Call)
+                        and isinstance(value.func, ast.Attribute)
+                        and value.func.attr == "__new__"
+                        and isinstance(value.func.value, ast.Call)
+                        and isinstance(value.func.value.func, ast.Name)
+                        and value.func.value.func.id == "super"
+                        and not value.func.value.args
+                        and not value.func.value.keywords
+                        and len(value.args) == 1
+                        and isinstance(value.args[0], ast.Name)
+                        and value.args[0].id == "cls"
+                        and not value.keywords
+                    ):
+                        class_writes.add(target.attr)
+            if not valid_writes:
+                class_writes.clear()
+    allowed = set(methods) | {
+        "__module__",
+        "__qualname__",
+        "__firstlineno__",
+        "__static_attributes__",
+        "__doc__",
+        "__dict__",
+        "__weakref__",
+    }
+    state_names = declared_state & class_writes
+    for name in state_names:
+        if name in namespace:
+            state = _passive_capture_lookup(namespace, name)
+            if state is not None and type(state) is not selected:
+                return False
+    allowed |= state_names
+    if any(name not in allowed for name in namespace):
+        return False
+    _, hashes = analysis.compiled_source_index(source_path, optimize=sys.flags.optimize)
+    for name, method_node in methods.items():
+        function = _passive_capture_lookup(namespace, name)
+        qualname = f"{symbol}.{name}"
+        if not (
+            type(function) is types.FunctionType
+            and function.__globals__ is vars(provider)
+            and function.__builtins__ is vars(_builtins)
+            and type(function.__qualname__) is str
+            and function.__qualname__ == qualname
+            and function.__closure__ is None
+            and type(function.__code__.co_filename) is str
+            and analysis.bind_source_path(Path(function.__code__.co_filename)) == source_path
+            and function.__code__.co_firstlineno == method_node.lineno
+            and _content_hash(
+                _normalize_code_object(function.__code__, work_budget=[10000, 1024**2])
+            )
+            in hashes.get(qualname, ())
+            and _source_function_defaults_match(function, method_node)
+        ):
+            return False
+    return True
+
+
 def _source_optional_import_binding_route(
     repo_root: Path,
     module_name: str,
@@ -19785,7 +20020,7 @@ def _source_optional_import_binding_route(
 
     This is source-route discovery, not proof that a handler ran, that the
     package initializer is pure, or that telemetry works. Local fallback state
-    and non-function providers require their own proof and remain unresolved.
+    and unsupported providers require their own proof and remain unresolved.
     """
 
     if (
@@ -19795,7 +20030,7 @@ def _source_optional_import_binding_route(
         or any(not isinstance(item, (ast.Import, ast.ImportFrom)) for item in statement.body)
     ):
         return None
-    module = sys.modules.get(module_name)
+    module = _passive_capture_lookup(sys.modules, module_name)
     if type(module) is not types.ModuleType:
         return None
     for handler in statement.handlers:
@@ -19830,18 +20065,17 @@ def _source_optional_import_binding_route(
         token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
     try:
         source_path = analysis.bind_source_path(repo_root / relative)
-        spec = getattr(module, "__spec__", None)
-        if not (
-            analysis.source_bytes(source_path) == source_bytes
-            and isinstance(getattr(spec, "loader", None), SourceFileLoader)
-            and Path(str(getattr(spec, "origin", ""))).resolve() == source_path
-            and Path(str(getattr(module, "__file__", ""))).resolve() == source_path
+        origins = _source_loaded_module_origin_fields(module, expected_name=module_name)
+        if (
+            origins is None
+            or analysis.source_bytes(source_path) != source_bytes
+            or any(analysis.bind_source_path(Path(origin)) != source_path for origin in origins)
         ):
             return None
         selected = _source_import_binding(
             export_name, tree=import_tree, module=module, module_name=module_name
         )
-        if type(selected) is not types.FunctionType:
+        if type(selected) is not types.FunctionType and type(selected) is not type:
             return None
         route = _source_module_import_route(
             repo_root,
@@ -19854,25 +20088,42 @@ def _source_optional_import_binding_route(
         if route is None or route[0] != "symbol" or route[1] == module_name or route[2] is None:
             return None
         provider_name, symbol = route[1], route[2]
-        provider = sys.modules.get(provider_name)
+        provider = _passive_capture_lookup(sys.modules, provider_name)
         provider_relative = _repository_module_source(
             repo_root, provider_name, directory_entries=directory_entries
         )
         if (
             type(provider) is not types.ModuleType
             or provider_relative is None
-            or vars(provider).get(symbol) is not selected
+            or _passive_capture_lookup(vars(provider), symbol) is not selected
         ):
             return None
         logical_provider_path = repo_root / provider_relative
         provider_path = analysis.bind_source_path(logical_provider_path)
-        provider_spec = getattr(provider, "__spec__", None)
-        if not (
-            isinstance(getattr(provider_spec, "loader", None), SourceFileLoader)
-            and Path(str(getattr(provider_spec, "origin", ""))).resolve() == provider_path
-            and Path(str(getattr(provider, "__file__", ""))).resolve() == provider_path
+        provider_origins = _source_loaded_module_origin_fields(
+            provider, expected_name=provider_name
+        )
+        if provider_origins is None or any(
+            analysis.bind_source_path(Path(origin)) != provider_path for origin in provider_origins
         ):
             return None
+        if type(selected) is type:
+            if not _source_plain_class_reference_supported(
+                repo_root,
+                provider,
+                provider_name,
+                symbol,
+                provider_path,
+                selected,
+                analysis=analysis,
+                directory_entries=directory_entries,
+                source_index=source_index,
+                visited=visited,
+            ):
+                return None
+            if token is not None:
+                analysis.assert_sources_unchanged()
+            return route
         slots = tuple(
             slot
             for slot in _loader_owned_callable_slots(provider_path)

@@ -60,13 +60,11 @@ def _exact_native_content(value: object) -> object:
     if isinstance(value, (date, datetime)):
         return {type(value).__name__: value.isoformat()}
     if isinstance(value, BaseModel):
-        if set(vars(value)) != set(type(value).model_fields) or value.__pydantic_extra__:
-            raise ValueError("n5_native_model_field_denominator_not_established")
+        model_field_names = exact_n5_model_field_names(value)
         return {
             "model": f"{type(value).__module__}.{type(value).__qualname__}",
             "fields": {
-                name: _exact_native_content(getattr(value, name))
-                for name in type(value).model_fields
+                name: _exact_native_content(getattr(value, name)) for name in model_field_names
             },
         }
     if is_dataclass(value) and not isinstance(value, type):
@@ -118,6 +116,36 @@ _DIAGNOSTIC_KEY = "n5_execution_implementation_witness"
 _ACTIVE_INPUT: ContextVar[_VerifiedExecutionInput | None] = ContextVar(
     "policyos_candidate_n5_implementation_input", default=None
 )
+
+
+def exact_n5_model_field_names(value: BaseModel) -> frozenset[str]:
+    """Return the exact persisted model fields, allowing one typed read diagnostic.
+
+    Pydantic's declared field set remains the serialization denominator. A
+    GenerationSourceRepository may attach one typed, non-persisted read witness
+    to its returned declaration; that witness is diagnostic and is excluded
+    from native content only after its exact owner type is established.
+    """
+
+    if not isinstance(value, BaseModel):
+        raise TypeError("n5_native_model_field_denominator_not_established")
+    field_names = frozenset(type(value).model_fields)
+    instance_values = vars(value)
+    if type(instance_values) is not dict or value.__pydantic_extra__:
+        raise ValueError("n5_native_model_field_denominator_not_established")
+    instance_names = frozenset(instance_values)
+    if instance_names == field_names:
+        return field_names
+    diagnostic_name = "_generation_source_read_provenance"
+    if instance_names != field_names | {diagnostic_name}:
+        raise ValueError("n5_native_model_field_denominator_not_established")
+    from polisyos.runtime.quality.generation_source import (
+        _GenerationSourceReadProvenance,
+    )
+
+    if type(instance_values[diagnostic_name]) is not _GenerationSourceReadProvenance:
+        raise ValueError("n5_native_model_field_denominator_not_established")
+    return field_names
 
 
 def _implementation_failure_reasons(exc: Exception) -> tuple[str, ...]:

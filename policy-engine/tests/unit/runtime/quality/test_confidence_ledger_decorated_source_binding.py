@@ -5578,3 +5578,153 @@ def test_source_discovery_distinguishes_overload_stubs_from_rebinding(tmp_path, 
             source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
             discovery_only=True,
         )
+
+
+def test_actual_optional_observability_class_uses_source_owned_provider():
+    from polisyos.core import observability
+    from polisyos.core.observability import metrics, metrics_parts
+
+    assert observability.MetricsRegistry is metrics.MetricsRegistry is metrics_parts.MetricsRegistry
+    assert _route(ledger._loaded_policy_engine_root(), observability, "MetricsRegistry") == (
+        "symbol",
+        metrics_parts.__name__,
+        "MetricsRegistry",
+    )
+
+
+@pytest.fixture
+def optional_class_case(tmp_path, monkeypatch):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    base = _load_fixture_module(
+        root, monkeypatch, "polisyos.optional_class_base", "class Base:\n    pass\n"
+    )
+    provider = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.optional_class_provider",
+        "from polisyos.optional_class_base import Base\n"
+        "class Selected(Base):\n    def value(self): return 7\n",
+    )
+    facade = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.optional_class_facade",
+        "try:\n    from polisyos.optional_class_provider import Selected\n"
+        "except ModuleNotFoundError:\n    class Selected:\n        pass\n",
+    )
+    return root, base, provider, facade
+
+
+def test_optional_class_route_binds_source_owned_class(optional_class_case):
+    root, _base, provider, facade = optional_class_case
+    assert facade.Selected is provider.Selected
+    assert _route(root, facade, "Selected") == ("symbol", provider.__name__, "Selected")
+
+
+@pytest.mark.parametrize("mutation", ["facade", "counterfeit", "base", "method"])
+def test_optional_class_route_rejects_foreign_or_drifted_binding(
+    optional_class_case, monkeypatch, mutation
+):
+    root, base, provider, facade = optional_class_case
+    assert _route(root, facade, "Selected") == ("symbol", provider.__name__, "Selected")
+    if mutation == "facade":
+        monkeypatch.setattr(facade, "Selected", type("Selected", (), {}))
+    elif mutation == "counterfeit":
+        forged = type(
+            "Selected", (base.Base,), {"__module__": provider.__name__, "value": lambda self: 7}
+        )
+        monkeypatch.setattr(provider, "Selected", forged)
+        monkeypatch.setattr(facade, "Selected", forged)
+    elif mutation == "base":
+        monkeypatch.setattr(base, "Base", type("Base", (), {}))
+    else:
+        monkeypatch.setattr(provider.Selected, "value", lambda self: 7)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="unsupported direct source binding"):
+        _route(root, facade, "Selected")
+
+
+def test_optional_class_route_refuses_local_fallback(tmp_path, monkeypatch):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    facade = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.optional_class_fallback",
+        "try:\n    from polisyos.optional_class_absent import Selected\n"
+        "except ModuleNotFoundError:\n    class Selected:\n        pass\n",
+    )
+    with pytest.raises(ledger.ConfidenceLedgerError, match="unsupported direct source binding"):
+        _route(root, facade, "Selected")
+
+
+def test_optional_class_route_rejects_hostile_provider_spec_without_callbacks(
+    optional_class_case, monkeypatch
+):
+    root, _base, provider, facade = optional_class_case
+    calls = []
+
+    class HostileSpec:
+        loader = provider.__spec__.loader
+
+        @property
+        def origin(self):
+            calls.append("origin")
+            raise AssertionError("provider metadata executed")
+
+    monkeypatch.setattr(provider, "__spec__", HostileSpec())
+    with pytest.raises(ledger.ConfidenceLedgerError, match="unsupported direct source binding"):
+        _route(root, facade, "Selected")
+    assert calls == []
+
+
+def test_optional_class_route_rejects_unrelated_extra_class_state(optional_class_case, monkeypatch):
+    root, _base, provider, facade = optional_class_case
+    monkeypatch.setattr(provider.Selected, "surprise", object(), raising=False)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="unsupported direct source binding"):
+        _route(root, facade, "Selected")
+
+
+def test_actual_optional_class_reference_refuses_wrong_singleton_type(monkeypatch):
+    from polisyos.core import observability
+    from polisyos.core.observability import metrics_parts
+
+    root = ledger._loaded_policy_engine_root()
+    owner = metrics_parts.MetricsRegistry
+    monkeypatch.setattr(owner, "_instance", object.__new__(owner), raising=False)
+    assert _route(root, observability, "MetricsRegistry") == (
+        "symbol",
+        metrics_parts.__name__,
+        "MetricsRegistry",
+    )
+    for invalid in (object(), ledger._NO_EXECUTION_BINDING):
+        monkeypatch.setattr(owner, "_instance", invalid)
+        with pytest.raises(ledger.ConfidenceLedgerError, match="unsupported direct source binding"):
+            _route(root, observability, "MetricsRegistry")
+
+
+def test_optional_class_nested_cls_write_does_not_authorize_extra_state(tmp_path, monkeypatch):
+    root, _unused = _load_decorated_case(tmp_path, monkeypatch, _SOURCE)
+    _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.optional_nested_base",
+        "class Base:\n    extra: object = None\n    def never(self):\n"
+        "        def nested(cls): cls.extra = None\n        return nested\n",
+    )
+    provider = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.optional_nested_provider",
+        "from polisyos.optional_nested_base import Base\n"
+        "class Selected(Base):\n    def value(self): return 7\n",
+    )
+    facade = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.optional_nested_facade",
+        "try:\n    from polisyos.optional_nested_provider import Selected\n"
+        "except ModuleNotFoundError:\n    class Selected: pass\n",
+    )
+    assert _route(root, facade, "Selected") == ("symbol", provider.__name__, "Selected")
+    monkeypatch.setattr(provider.Selected, "extra", None, raising=False)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="unsupported direct source binding"):
+        _route(root, facade, "Selected")

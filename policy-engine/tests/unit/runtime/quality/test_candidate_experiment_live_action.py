@@ -205,6 +205,174 @@ def _install_candidate_action_case(
     monkeypatch.setattr(action, "_candidate_experiment_source_selection", case["select_source"])
 
 
+def _pending_candidate_action_case(
+    monkeypatch: pytest.MonkeyPatch,
+) -> tuple[dict[str, object], object, object, list[str]]:
+    """Add typed pending/action records for the scoped historical-read test."""
+    from polisyos.core import artifacts as artifact_module
+    from polisyos.core.artifacts import ArtifactRef
+
+    case = _candidate_action_case()
+    _install_candidate_action_case(monkeypatch, case)
+    pending = case["phase"]
+    pending.receipt_phase = "candidate_input_reentry_pending"
+    action_ref = ArtifactRef(
+        artifact_id="sha256:" + "c" * 64,
+        kind=action.CANDIDATE_ACTION_KIND,
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "d" * 64,
+    )
+    pending.candidate_receipt_ref = action_ref
+    pending.coarse_phase = "candidate_input_prepared"
+    pending.recovery_state = "reentry_recovery_required"
+    pending.owner_receipt_refs = (str(action_ref.artifact_id),)
+    executing = case["phase_type"](**vars(pending))
+    executing.receipt_phase = "executing"
+    executing.coarse_phase = "executing"
+    executing.recovery_state = "none"
+    executing.candidate_receipt_ref = None
+    executing.owner_receipt_refs = ()
+    executing.receipt_id = "executing-action-phase"
+    executing_ref = "sha256:" + "b" * 64
+    case["outcomes"][0].phase_chain = (
+        SimpleNamespace(receipt_ref=executing_ref, receipt=executing),
+        SimpleNamespace(receipt_ref=case["phase_ref"], receipt=pending),
+    )
+
+    class CandidateReceipt:
+        def __init__(self) -> None:
+            self.action_phase_ref = executing_ref
+            self.selection = case["selections"][0]
+
+        def __eq__(self, other: object) -> bool:
+            return (
+                type(other) is CandidateReceipt
+                and self.action_phase_ref == other.action_phase_ref
+                and self.selection == other.selection
+            )
+
+        @classmethod
+        def model_validate(cls, _payload: object) -> CandidateReceipt:
+            return cls()
+
+    monkeypatch.setattr(action, "CandidateAcquisitionActionReceipt", CandidateReceipt)
+    monkeypatch.setattr(
+        artifact_module,
+        "artifact_ref_for_manifest",
+        lambda _manifest: SimpleNamespace(artifact_id=executing_ref),
+    )
+    monkeypatch.setattr(
+        artifact_module, "load_core_json_artifact", lambda *_args, **_kwargs: object()
+    )
+    case["bridge"].artifact_store = SimpleNamespace(get_manifest=lambda _ref: object())
+    history_calls: list[str] = []
+
+    def historical_reader(**kwargs: object) -> tuple[object, object, object]:
+        history_calls.append("historical")
+        assert kwargs["receipt_ref"] == action_ref
+        assert kwargs["executing_phase"] is executing
+        assert kwargs["executing_phase_ref"] == executing_ref
+        return CandidateReceipt(), object(), object()
+
+    monkeypatch.setattr(
+        action, "read_candidate_experiment_acquisition_action_historical", historical_reader
+    )
+    return case, action_ref, executing, history_calls
+
+
+def test_candidate_reentry_defers_only_the_redundant_historical_read(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Only the reentry consumer may defer; ordinary phase resolution still verifies history."""
+    case, action_ref, _executing, history_calls = _pending_candidate_action_case(monkeypatch)
+
+    context = action._current_candidate_experiment_action_context(
+        case["bridge"],
+        case["origin"],
+        case["phase_ref"],
+        required_phase="candidate_input_reentry_pending",
+        candidate_action_ref=action_ref,
+        defer_historical_reentry=True,
+    )
+
+    assert context.action is not None
+    assert context.phase is case["phase"]
+    assert context.outcome is case["outcomes"][0]
+    assert history_calls == []
+
+    action._current_candidate_experiment_action_context(
+        case["bridge"],
+        case["origin"],
+        case["phase_ref"],
+        required_phase="candidate_input_reentry_pending",
+        candidate_action_ref=action_ref,
+    )
+    assert history_calls == ["historical"]
+
+
+def test_candidate_reentry_reuses_owner_outcome_then_runs_one_fresh_historical_read(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The retained full historic policy/window proof runs once, after the later owner read."""
+    case, action_ref, _executing, events = _pending_candidate_action_case(monkeypatch)
+    case["bridge"].action_head_sink = case["sink"]
+
+    def record_owner_read(**kwargs: object) -> tuple[object, ...]:
+        if kwargs.get("verified_origin") is not None:
+            events.append("initial-owner")
+        elif "tenant_id" in kwargs and len(events) == 1:
+            events.append("action-final-owner")
+        else:
+            events.append("reentry-fresh-owner")
+        return case["outcomes"]
+
+    case["sink"].experiment_action_outcomes = record_owner_read
+    context = action._current_candidate_experiment_reentry_action_context(
+        case["bridge"], case["origin"], case["phase_ref"], action_ref
+    )
+
+    assert context.action.action_phase_ref == "sha256:" + "b" * 64
+    assert context.phase is case["phase"]
+    assert events == ["initial-owner", "action-final-owner", "reentry-fresh-owner", "historical"]
+
+
+def test_candidate_reentry_rejects_fresh_outcome_drift_before_historical_read(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A changed execution-phase pointer cannot reuse the earlier owner snapshot."""
+    case, action_ref, _executing, events = _pending_candidate_action_case(monkeypatch)
+    case["bridge"].action_head_sink = case["sink"]
+    monkeypatch.setattr(
+        action,
+        "_select_current_candidate_experiment_outcome",
+        lambda outcomes, **_kwargs: outcomes[-1],
+    )
+
+    def record_owner_read(**kwargs: object) -> tuple[object, ...]:
+        if kwargs.get("verified_origin") is not None:
+            events.append("initial-owner")
+            return case["outcomes"]
+        if len(events) == 1:
+            events.append("action-final-owner")
+            return case["outcomes"]
+        events.append("reentry-fresh-owner")
+        drifted = SimpleNamespace(
+            **{
+                **vars(case["outcomes"][0]),
+                "executing_phase_ref": "sha256:" + "e" * 64,
+            }
+        )
+        return (drifted,)
+
+    case["sink"].experiment_action_outcomes = record_owner_read
+    with pytest.raises(ValueError, match="candidate_experiment_action_live_owner_changed"):
+        action._current_candidate_experiment_reentry_action_context(
+            case["bridge"], case["origin"], case["phase_ref"], action_ref
+        )
+
+    assert events == ["initial-owner", "action-final-owner", "reentry-fresh-owner"]
+
+
 def test_candidate_action_reuses_owner_outcomes_and_keeps_final_currentness_fold(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

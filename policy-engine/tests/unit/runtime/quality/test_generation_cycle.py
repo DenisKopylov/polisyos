@@ -7540,11 +7540,10 @@ def test_generation_cycle_revision_scope_preserves_problem_population_and_model(
         ) != generation_cycle_module._generation_cycle_revision_problem_scope_projection(changed)
 
 
-@_requires_owner_catalog
 def test_cycle_context_revision_rejects_changed_problem_scope() -> None:
     """Population, model, and jurisdiction edits cannot ride an N6 hint rebind."""
 
-    problem, context, _candidate = _canonical_strict_world_case()
+    problem, context = _lane0_cycle_context()
     controller = GenerationCycleController(cycle_substrate_context=context)
     revised = problem.model_copy(
         update={
@@ -7632,7 +7631,6 @@ def test_cycle_context_revision_rejects_stale_context_content() -> None:
 
 
 @pytest.mark.asyncio
-@_requires_owner_catalog
 async def test_cycle_context_revision_refuses_without_verified_job_scope(
     tmp_path: Path,
 ) -> None:
@@ -7648,9 +7646,23 @@ async def test_cycle_context_revision_refuses_without_verified_job_scope(
     )
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContextArtifactOwner,
+        build_cycle_substrate_context,
     )
 
-    problem, context, _candidate = _canonical_strict_world_case()
+    problem, context = _lane0_cycle_context()
+    context = build_cycle_substrate_context(
+        design_problem_ref=context.design_problem_ref,
+        domain=context.domain,
+        substrate_registry=context.substrate_registry,
+        selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+        world_model_record=context.world_model_record,
+        intervention_substrate=context.intervention_substrate,
+        candidate_levers=(),
+        transport_context=context.transport_context,
+        source_pack_content_hash=context.source_pack_content_hash,
+        substrate_input_content_hash=context.substrate_input_content_hash,
+        source_profile=context.source_profile,
+    )
     artifact_store = FileSystemCAS(
         tmp_path / "cycle-context-foreign-job-cas",
         ownership_enforced=True,

@@ -58,6 +58,7 @@ class CandidateWDIProfile:
     country_id: str = "US"
     year: int = 2024
     catalog_metric_id: str | None = None
+    index_base_year: int | None = None
 
 
 GDP_PROFILE = CandidateWDIProfile(
@@ -94,6 +95,30 @@ UNEMPLOYMENT_PROFILE = CandidateWDIProfile(
     quantity_kind="share_of_denominator",
     valid_min=0.0,
     valid_max=1.0,
+)
+
+CPI_PROFILE = CandidateWDIProfile(
+    construct="economic.consumer_price_index",
+    indicator_id="FP.CPI.TOTL",
+    source_title="Consumer price index (2010 = 100)",
+    source_description=(
+        "Annual consumer price index level expressed on a 2010=100 base; distinct from the "
+        "annual percentage-change indicator FP.CPI.TOTL.ZG."
+    ),
+    target_slot="global.consumer_price_index",
+    raw_unit="index",
+    canonical_unit="index",
+    transform="identity",
+    transform_ref="fabric://units/index-identity/v1",
+    population="national_economy",
+    fixture_value=457.090971982012,
+    source_provenance_class="observed",
+    valid_min=0.0,
+    country_code="UKR",
+    country_id="UA",
+    year=2024,
+    catalog_metric_id="consumer_price_index",
+    index_base_year=2010,
 )
 
 

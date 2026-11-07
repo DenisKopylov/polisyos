@@ -364,6 +364,71 @@
         "production": "blocked_candidate_only",
         "research": "blocked_candidate_only"
       },
+      "capability_id": "capability:worldbank_wdi_consumer_price_index_source_candidate",
+      "capability_lifecycle": {"state": "draft"},
+      "concept_spine_refs": ["concept:economic.consumer_price_index"],
+      "construct": "economic.consumer_price_index",
+      "evidence_mode": "observed",
+      "freshness_envelope": {"freshness_class": "not_established"},
+      "identification_mode": "candidate_unverified",
+      "limitations": [
+        "WDI FP.CPI.TOTL is an annual consumer price index level with base year 2010=100; it is not the annual inflation-rate indicator FP.CPI.TOTL.ZG.",
+        "Indicator metadata is a source candidate, not an admitted observation or a verified country-year release.",
+        "Annual source time and the selected model period require an explicit compatible scope.",
+        "Source rights and source currentness are not established by this candidate metadata."
+      ],
+      "modality": ["fabric_data"],
+      "quality_score": {"breakdown": {"construct_validity": 0.0}, "composite": 0.0},
+      "rights_envelope": {
+        "access_class": "not_established",
+        "claim_evidence_use_allowed": false,
+        "public_export_allowed": "none",
+        "restrictions": ["source_permission_not_established", "claim_evidence_forbidden"]
+      },
+      "scope": {
+        "entity_scope": "country",
+        "geography": "multi_context",
+        "population": "national_economy",
+        "spatial_granularity": "country",
+        "temporal_granularity": "annual"
+      },
+      "source_assets": [
+        {
+          "asset_type": "indicator_metadata",
+          "fields": ["country", "year", "value"],
+          "metadata": {
+            "canonical_unit": "index",
+            "catalog_fetch_binding": {
+              "connector_id": "worldbank.wdi",
+              "dataset_id": "FP.CPI.TOTL",
+              "metric_id": "consumer_price_index",
+              "profile_id": "worldbank_wdi"
+            },
+            "index_base_year": 2010,
+            "indicator_id": "FP.CPI.TOTL",
+            "population_scope": "national_economy",
+            "quantity_kind": "unconstrained",
+            "raw_unit": "index",
+            "source_release": "not_established",
+            "target_world_slot": "global.consumer_price_index",
+            "temporal_granularity": "annual",
+            "unit_transform": "identity"
+          },
+          "ref": "https://data.worldbank.org/indicator/FP.CPI.TOTL",
+          "role": "source_candidate",
+          "source_layer": "catalog"
+        }
+      ],
+      "trust_tier": "candidate_unverified"
+    },
+    {
+      "authority_envelope": {
+        "authoritative_for": [],
+        "governed_pilot": "blocked_candidate_only",
+        "may_not_use_for": ["claim_evidence_closeout", "production_claim_evidence"],
+        "production": "blocked_candidate_only",
+        "research": "blocked_candidate_only"
+      },
       "capability_id": "capability:worldbank_wdi_unemployment_source_candidate",
       "capability_lifecycle": {"state": "draft"},
       "concept_spine_refs": ["concept:labor.unemployment_rate"],

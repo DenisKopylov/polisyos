@@ -9135,6 +9135,53 @@
         "affected_fixtures": "Disjoint Luna owners for CYC04 full fixture and ACQ01/WMR consumers. No shared index/ref rights."
       },
       "evidence_catalog": {
+        "cyc02_fresh_native_composed_r1": {
+          "source_commit": "9fd207054d4ceacdc046f0801f9b1526455dd4cf",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-cyc02-fresh-remediation-composed-r1",
+          "observed": {
+            "PASS": 1
+          },
+          "wall_seconds": 102.58,
+          "named_inputs": 6,
+          "inputs_unchanged": true,
+          "scope": "Separate N5 producer and N8 consumer processes reopen the same selected numerical artifact and reject missing, foreign-world or corrupt inputs."
+        },
+        "cyc02_configured_cross_process_composed_r5": {
+          "source_commit": "709c3c5609c4b5aa62f39df41e9e90f05fb27c1d",
+          "source_tree": "25da8c0188a74e5a84a1e4fb0f3756f840d4adbd",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-cyc02-configured-composed-r5",
+          "observed": {
+            "PASS": 1
+          },
+          "wall_seconds": 215.71,
+          "named_inputs": 12,
+          "inputs_unchanged": true,
+          "scope": "Configured procurement N5 publishes the exact selected numerical artifact to a separate API and conditional reader. All three child modes and semantic removal/refusal controls pass. The historical R4 cost-tag failure stays separate."
+        },
+        "n6_and_prior_controls_author_r2": {
+          "delivered_author_commit": "62c973b62bc942e3f339fb11e75085ff5074d4f3",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-and-prior-controls-author-r2",
+          "observed": {
+            "PASS": 24,
+            "FAIL": 1
+          },
+          "wall_seconds": 124.49,
+          "named_inputs": 15,
+          "inputs_unchanged": true,
+          "scope": "The real recorded two-world NCM and substituted provider-binding refusal pass. The single stale missing-prior reason is corrected and passes separately in AUTHOR:policy-engine/_cache/e02/lane01-canonical-missing-prior-author-r1. Protected V5 through-use remains unestablished. The preceding R1 cohort hit its RSS cap before a final verdict."
+        },
+        "x03_cpi_served_r8": {
+          "source_commit": "18ff09edb7ec448426e2d38b53e6b78bb3143c90",
+          "source_tree": "d228245f6e4783ffdc821c47a50f7f716517260b",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-cpi-protected-main-r8",
+          "observed": {
+            "FAIL": 1
+          },
+          "wall_seconds": 601.52,
+          "named_inputs": 41,
+          "inputs_unchanged": true,
+          "scope": "Controlled WDI acquisition succeeds. Source-basis preparation refuses the mismatch between source national_economy/annual scope and the persisted stakeholder/entity-period WMR. No B N5 or numerical GET. The reviewed fixture fix f39e11f24 is running in AUTHOR R9."
+        },
         "terminal_existing_quota_author_r1": {
           "source_commit": "8b7668875402ca182bd7a2a9c537aa962bdaf812",
           "source_tree": "de8cf58883e4c231e0bbf922f36fb22f3ebcb9fd",

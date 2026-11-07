@@ -30,7 +30,9 @@ async def test_generic_n4_source_returns_selected_profile_and_preserves_parent_i
         GenerationSourceRepository,
         _candidate_simulation_write_options,
         _generation_source_read_result,
+        _source_content_hash,
     )
+    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
     from tests.unit.runtime.quality.test_cycle_substrate import (
         _authenticated_tenant_scope,
         _TestCurrentJobExecutionOwner,
@@ -125,12 +127,96 @@ async def test_generic_n4_source_returns_selected_profile_and_preserves_parent_i
         assert _candidate_model_values_same(source, source)
         source_without_reader_marker = type(source).model_validate(source.model_dump(mode="python"))
         assert _candidate_model_values_same(source, source_without_reader_marker)
+        assert exact_n5_content_bytes(source) == exact_n5_content_bytes(
+            source_without_reader_marker
+        )
+        empty_extra = source_without_reader_marker.model_copy(deep=True)
+        object.__setattr__(empty_extra, "__pydantic_extra__", {})
+        assert _candidate_model_values_same(source, empty_extra)
+        assert exact_n5_content_bytes(source) == exact_n5_content_bytes(empty_extra)
         unknown = source_without_reader_marker.model_copy(deep=True)
         object.__setattr__(unknown, "_unknown_semantic_state", "not part of the owner record")
         assert not _candidate_model_values_same(source, unknown)
+        with pytest.raises(ValueError, match="n5_native_model_field_denominator_not_established"):
+            exact_n5_content_bytes(unknown)
         forged_marker = source_without_reader_marker.model_copy(deep=True)
         object.__setattr__(forged_marker, "_generation_source_read_provenance", object())
         assert not _candidate_model_values_same(source, forged_marker)
+        with pytest.raises(ValueError, match="n5_native_model_field_denominator_not_established"):
+            exact_n5_content_bytes(forged_marker)
+
+        required_fields = [
+            name for name, field in type(source).model_fields.items() if field.is_required()
+        ]
+        assert required_fields
+        first_field = required_fields[0]
+        missing_field = type(source).model_construct(
+            **{
+                name: getattr(source, name)
+                for name in type(source).model_fields
+                if name != first_field
+            }
+        )
+        assert not _candidate_model_values_same(source, missing_field)
+        with pytest.raises(ValueError, match="n5_native_model_field_denominator_not_established"):
+            exact_n5_content_bytes(missing_field)
+
+        changed_payload = source_without_reader_marker.model_dump(mode="python")
+        changed_payload["run_id"] += "-changed"
+        changed_payload.pop("content_hash")
+        changed_value = type(source).model_validate(
+            {**changed_payload, "content_hash": _source_content_hash(changed_payload)}
+        )
+        assert not _candidate_model_values_same(source, changed_value)
+        assert exact_n5_content_bytes(source) != exact_n5_content_bytes(changed_value)
+
+        extra_payload = source_without_reader_marker.model_copy(deep=True)
+        object.__setattr__(extra_payload, "__pydantic_extra__", {"unexpected": "value"})
+        assert not _candidate_model_values_same(source, extra_payload)
+        with pytest.raises(ValueError, match="n5_native_model_field_denominator_not_established"):
+            exact_n5_content_bytes(extra_payload)
+
+        # Exercise the retained candidate-declaration reader that attaches the
+        # marker implicated in the N5 content denominator refusal.
+        from polisyos.ir import candidate_ncm_spec_from_declaration
+
+        prepared = case["prepared"]
+        declaration_ref = repository.persist_candidate_model_declaration(
+            declaration=prepared.base_declaration,
+            job_id=handoff.job_id,
+            run_id=handoff.run_id,
+            tenant_id=case["tenant_id"],
+            cell_id=case["cell_id"],
+        )
+        ncm_ref = repository.persist_candidate_ncm_selected_view(
+            ncm_spec=candidate_ncm_spec_from_declaration(prepared.base_declaration),
+            declaration_ref=declaration_ref,
+            job_id=handoff.job_id,
+            run_id=handoff.run_id,
+            tenant_id=case["tenant_id"],
+            cell_id=case["cell_id"],
+            profile_content_hash=prepared.base_profile.content_hash,
+        )
+        loaded_declaration, _loaded_ncm = repository.load_candidate_declared_ncm(
+            declaration_ref=declaration_ref,
+            ncm_ref=ncm_ref,
+            expected_profile=prepared.base_profile,
+            expected_run_id=handoff.run_id,
+            expected_job_id=handoff.job_id,
+            expected_tenant_id=case["tenant_id"],
+            expected_cell_id=case["cell_id"],
+        )
+        declaration_provenance = _generation_source_read_result(loaded_declaration)
+        assert declaration_provenance is not None
+        assert declaration_provenance.provenance.selected_artifact_id == str(
+            declaration_ref.artifact_id
+        )
+        clean_declaration = type(loaded_declaration).model_validate(
+            loaded_declaration.model_dump(mode="python")
+        )
+        assert exact_n5_content_bytes(loaded_declaration) == exact_n5_content_bytes(
+            clean_declaration
+        )
 
         # A second valid CAS manifest for the same bytes but a different
         # writer profile must not be accepted as the configured producer.

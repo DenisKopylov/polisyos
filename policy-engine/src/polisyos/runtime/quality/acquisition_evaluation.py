@@ -39,6 +39,7 @@ from polisyos.runtime.quality.n5_execution_basis import (
     _exact_native_content,
     exact_n5_content_bytes,
     exact_n5_content_hash,
+    exact_n5_model_field_names,
     read_n5_execution_implementation_witness,
     reconcile_live_n5_implementation,
 )
@@ -138,32 +139,12 @@ def _candidate_model_values_same(left: object, right: object) -> bool:
         if type(a) is not type(b):
             return False
         if isinstance(a, BaseModel):
-            names = set(type(a).model_fields)
-
-            def has_only_persisted_fields(model: BaseModel) -> bool:
-                values = vars(model)
-                extra = set(values) - names
-                if extra == {"_generation_source_read_provenance"}:
-                    # This exact owner-added diagnostic is not part of the
-                    # persisted model or an authority assertion. Selection is
-                    # independently checked through its full selected refs.
-                    from polisyos.runtime.quality.generation_source import (
-                        _GenerationSourceReadProvenance,
-                    )
-
-                    return type(values["_generation_source_read_provenance"]) is (
-                        _GenerationSourceReadProvenance
-                    )
-                return not extra
-
-            if (
-                not names.issubset(vars(a))
-                or not names.issubset(vars(b))
-                or not has_only_persisted_fields(a)
-                or not has_only_persisted_fields(b)
-                or a.__pydantic_extra__
-                or b.__pydantic_extra__
-            ):
+            try:
+                names = exact_n5_model_field_names(a)
+                other_names = exact_n5_model_field_names(b)
+            except (AttributeError, TypeError, ValueError):
+                return False
+            if names != other_names:
                 return False
             return all(same_values(getattr(a, name), getattr(b, name)) for name in names)
         if is_dataclass(a) and not isinstance(a, type):

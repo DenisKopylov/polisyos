@@ -13660,6 +13660,22 @@
           "stable_pins": 16,
           "scope": "Ordinary initial N5, live 5/1 quota with two completed standard reservations, current v2 N7 report with no cost basis, selected L1 global.gdp availability gap, and admitted action. Intentional pytest SKIP at the sentinel. Acquired-world N5, terminal, fresh GET and heldout X03 remain unrun."
         },
+        "r29_candidate_numeric_body": {
+          "classification": "PASS_RETAINED_EXACT_BLOCKED_REASON_AND_NUMERICAL_BODY",
+          "source_base_commit": "9f8573e1436f0b355f39454620c7896d15724bc4",
+          "blocked_reason_output": "AUTHOR:policy-engine/_cache/e02/lane01-r29-blocked-reason-exact-r1",
+          "numerical_body_output": "MAIN:policy-engine/_cache/e02/lane01-r29-real-b-numerical-body-r2",
+          "scope": "Live and historical blocked-basis reasons and values match. The exact historical B result projects both trajectories and declared units. Foreign cell refuses. Original and replay database bytes stay unchanged. No physical N5, live lease, terminal write or served GET replay."
+        },
+        "candidate_result_affected_consumers": {
+          "classification": "PASS_AFFECTED_NATIVE_AND_ORDINARY_CONSUMERS",
+          "sim03_output": "AUTHOR:policy-engine/_cache/e02/lane01-sim03-numeric-oracle-author-after-n5-freeze-r1",
+          "sim03_pass": 16,
+          "two_child_output": "MAIN:policy-engine/_cache/e02/lane01-cyc05-two-child-main-9f8573e-r1",
+          "two_child_pass": 1,
+          "requirement_selection_output": "MAIN:policy-engine/_cache/e02/lane01-requirement-selection-consumer-main-9f8573e-r1",
+          "scope": "Integer, stochastic and CAS numerical oracles; separate ordinary two-content-child physical runs and fresh generic GET with stable shared numerical projection bytes. REQ/SEL reports the honest blocked treatment assignment. Dedicated candidate experiment crash and terminal remain separate."
+        },
         "r28_lease_and_recovery_boundary": {
           "classification": "PASS_LEASE_TAKEOVER_COMPONENT_FAILED_JOB_SOURCE_AND_RETAINED_STATE_REVIEW",
           "expired_lease_output": "AUTHOR:policy-engine/_cache/e02/lane01-lease-takeover-guard-r1",

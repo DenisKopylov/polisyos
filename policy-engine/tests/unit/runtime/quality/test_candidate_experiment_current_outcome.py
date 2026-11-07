@@ -362,3 +362,210 @@ def test_original_source_n5_does_not_retain_first_experiment(
             "prepared_n5_configuration": configuration_value,
         }
     ]
+
+
+@pytest.mark.parametrize("stale_fence_read", [None, "head", "phase"])
+def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_terminal_write(
+    monkeypatch: pytest.MonkeyPatch,
+    stale_fence_read: str | None,
+) -> None:
+    """Use the experiment reader at admission and both terminal fences.
+
+    The synthetic owner below scopes this test to dispatch selection and the final
+    writer boundary. Numerical source reentry and deep live-owner replay remain
+    covered by the served terminal-recovery integration test.
+    """
+    origin, outcomes = _selection_case(1)
+    pending = outcomes[-1].latest_receipt
+    assert type(pending) is AcquisitionCandidateExperimentPhaseReceipt
+    predecessor = outcomes[-1].head
+    store, event_log = object(), object()
+    selection = SimpleNamespace()
+    action = SimpleNamespace(
+        action_job_id=pending.job_id,
+        action_generation=pending.action_generation,
+        candidate_source_ref=_ref("runtime.quality.candidate_acquisition_source", "6"),
+        limitations=("component_only_no_authority",),
+        action_phase_ref=_hash("7"),
+    )
+    admission = SimpleNamespace(job=SimpleNamespace(job_id=pending.job_id))
+    control_store = SimpleNamespace(
+        current_execution_job_admission=lambda: admission,
+        read_acquisition_evaluation_frontier=lambda _key: None,
+    )
+
+    reads: list[dict[str, object]] = []
+    persisted: list[object] = []
+
+    def experiment_action_outcomes(**kwargs):
+        reads.append(kwargs)
+        if len(reads) != 3 or stale_fence_read is None:
+            return outcomes
+        if stale_fence_read == "head":
+            return (
+                *outcomes[:-1],
+                replace(
+                    outcomes[-1],
+                    head=replace(
+                        outcomes[-1].head,
+                        receipt_ref=_hash("0"),
+                        receipt_sha256=_hash("0"),
+                    ),
+                ),
+            )
+        return (
+            *outcomes[:-1],
+            replace(
+                outcomes[-1],
+                head=replace(outcomes[-1].head, receipt_phase="outcome_selected"),
+            ),
+        )
+
+    def forbidden_costed_reader(**_kwargs):
+        pytest.fail("candidate experiment dispatch used the costed action reader")
+
+    sink = SimpleNamespace(
+        experiment_action_outcomes=experiment_action_outcomes,
+        current_action_outcome=forbidden_costed_reader,
+        get_head=lambda _terminal: predecessor,
+        recover_candidate_experiment_terminal=lambda *_args, **_kwargs: None,
+        persist_terminal=lambda terminal: persisted.append(terminal) or "terminal-head",
+    )
+    service = object.__new__(ControlPlaneService)
+    service._artifact_store, service._control_store = store, control_store
+    bridge = object.__new__(AcquisitionWorldGrowthBridge)
+    bridge.artifact_store, bridge.event_log = store, event_log
+    bridge.control_store, bridge.action_head_sink = control_store, sink
+    bridge._source_control_service = service
+    source_evaluation = object()
+    prior_owner = SimpleNamespace(selected_evaluation=source_evaluation)
+    window = SimpleNamespace(
+        fresh_limit_usd=Decimal("1"),
+        global_limit_usd=Decimal("5"),
+        effective_limit_usd=Decimal("5"),
+        scope=SimpleNamespace(run_binding="run-binding"),
+    )
+    inputs = SimpleNamespace(
+        configured_profile=SimpleNamespace(limitations=("candidate_only",))
+    )
+    monkeypatch.setattr(bridge, "_candidate_experiment_prior_owner", lambda **_kwargs: prior_owner)
+    monkeypatch.setattr(
+        bridge,
+        "resolve_candidate_experiment_reentry_budget_window",
+        lambda **_kwargs: window,
+    )
+    monkeypatch.setattr(
+        actions,
+        "_current_candidate_experiment_reentry_action",
+        lambda *_args: (selection, pending, admission, action),
+    )
+    monkeypatch.setattr(
+        preparation,
+        "prepare_live_candidate_experiment_source_basis_values",
+        lambda **_kwargs: (
+            SimpleNamespace(predicate_provenance="recomputed", reason_codes=(), inputs=inputs),
+            _ref("runtime_quality.acquisition_candidate_world_intent", "8"),
+            object(),
+        ),
+    )
+    monkeypatch.setattr(
+        configuration, "prepare_joint_simulation_configuration", lambda: object()
+    )
+    monkeypatch.setattr(
+        dispatch, "_candidate_experiment_verified_prior_history", lambda **_kwargs: None
+    )
+    monkeypatch.setattr(
+        preparation,
+        "_candidate_source_predecessors_for_verified_experiment_origin",
+        lambda **_kwargs: (),
+    )
+
+    recomputations = 0
+
+    def recompute(**_kwargs):
+        nonlocal recomputations
+        recomputations += 1
+        if recomputations == 1:
+            return {"basis": "current"}, ()
+        return {"basis": "reentry"}, ("candidate_reentry_n5_not_established",)
+
+    monkeypatch.setattr(dispatch, "recompute_candidate_acquisition_basis_values", recompute)
+    monkeypatch.setattr(
+        records,
+        "issue_candidate_acquisition_evaluation_basis",
+        lambda **kwargs: SimpleNamespace(
+            record_kind="basis", limitations=kwargs["limitations"]
+        ),
+    )
+    monkeypatch.setattr(
+        records,
+        "issue_candidate_acquisition_evaluation_decision",
+        lambda **_kwargs: SimpleNamespace(record_kind="decision"),
+    )
+
+    def selected_record_ref(**kwargs):
+        kind = (
+            "runtime_quality.acquisition_evaluation_decision"
+            if kwargs["record"].record_kind == "decision"
+            else "runtime_quality.acquisition_evaluation_basis"
+        )
+        return _ref(kind, "9")
+
+    monkeypatch.setattr(
+        dispatch,
+        "_select_candidate_experiment_evaluation_artifact",
+        selected_record_ref,
+    )
+    monkeypatch.setattr(
+        dispatch, "_candidate_experiment_decision_for_recovery", lambda **_kwargs: None
+    )
+    monkeypatch.setattr(
+        dispatch.CandidateExperimentEvaluationCurrentOwner, "revalidate", lambda _self: None
+    )
+    budget_state = SimpleNamespace(limits={"run": SimpleNamespace(max_usd=Decimal("5"))})
+    budget_observation = SimpleNamespace(run_binding="run-binding")
+    monkeypatch.setattr(
+        dispatch.CandidateExperimentEvaluationCurrentOwner,
+        "current_budget_snapshot",
+        lambda _self: (budget_state, budget_observation),
+    )
+    reentry = SimpleNamespace(
+        new_cycle=SimpleNamespace(simulation=SimpleNamespace(status="not_simulated")),
+        data_snapshot_ref=_ref("runtime.data_snapshot", "a"),
+        world_model_ref=_ref("runtime.world_model", "b"),
+        limitations=("component_only_no_n5",),
+    )
+    reentry_ref = _ref("runtime_quality.candidate_source_reentry_receipt", "c")
+    monkeypatch.setattr(
+        bridge,
+        "prepare_candidate_experiment_source_reentry",
+        lambda **_kwargs: (reentry_ref, reentry),
+    )
+
+    owner_checks: list[object] = []
+
+    def scoped_owner_revalidation(owner):
+        assert type(owner) is dispatch.CandidateExperimentReentryOwner
+        assert owner.predecessor_head == predecessor
+        assert owner.terminal.predecessor_receipt_ref == predecessor.receipt_ref
+        owner_checks.append(owner)
+
+    monkeypatch.setattr(
+        dispatch, "_revalidate_candidate_experiment_reentry_owner", scoped_owner_revalidation
+    )
+
+    assert origin.candidate_terminal_history_chain == ()
+    if stale_fence_read is None:
+        assert dispatch.dispatch_candidate_experiment_evaluation(bridge=bridge, origin=origin) == (
+            "terminal-head"
+        )
+        assert len(persisted) == 1
+        assert type(persisted[0]) is AcquisitionCandidateExperimentTerminalReceipt
+    else:
+        with pytest.raises(ValueError, match="candidate_experiment_action_phase_not_current"):
+            dispatch.dispatch_candidate_experiment_evaluation(bridge=bridge, origin=origin)
+        assert persisted == []
+
+    assert len(reads) == 3
+    assert all(read["verified_origin"] is origin for read in reads)
+    assert len(owner_checks) == 2

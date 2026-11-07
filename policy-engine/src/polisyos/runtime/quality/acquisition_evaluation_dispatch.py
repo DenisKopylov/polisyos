@@ -4776,21 +4776,28 @@ def dispatch_candidate_experiment_evaluation(
         or service._control_store is not bridge.control_store
     ):
         raise ValueError("candidate_experiment_evaluation_owner_not_composed")
-    outcomes = sink.experiment_action_outcomes(
-        tenant_id=origin.tenant_id,
-        cell_id=origin.cell_id,
-        run_id=origin.run_id,
-        source_job_id=origin.source_job_id,
-        route_id=origin.route_id,
-        verified_origin=origin,
-    )
-    snapshot = _select_current_candidate_experiment_outcome(
-        outcomes,
-        origin=origin,
-        action_job_id=bridge.control_store.current_execution_job_admission().job.job_id,
-        action_generation=len(origin.candidate_terminal_history_chain) + 1,
-        required_phase="candidate_input_reentry_pending",
-    )
+
+    def current_pending_experiment(
+        receipt_ref: str | None = None,
+    ) -> VerifiedAcquisitionActionOutcome:
+        outcomes = sink.experiment_action_outcomes(
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            source_job_id=origin.source_job_id,
+            route_id=origin.route_id,
+            verified_origin=origin,
+        )
+        return _select_current_candidate_experiment_outcome(
+            outcomes,
+            origin=origin,
+            action_job_id=service._control_store.current_execution_job_admission().job.job_id,
+            action_generation=len(origin.candidate_terminal_history_chain) + 1,
+            receipt_ref=receipt_ref,
+            required_phase="candidate_input_reentry_pending",
+        )
+
+    snapshot = current_pending_experiment()
     if type(snapshot.latest_receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
         raise ValueError("candidate_experiment_evaluation_pending_action_not_established")
     pending = snapshot.latest_receipt
@@ -5210,14 +5217,7 @@ def dispatch_candidate_experiment_evaluation(
         )
     if (
         sink.get_head(terminal) != snapshot.head
-        or sink.current_action_outcome(
-            tenant_id=origin.tenant_id,
-            cell_id=origin.cell_id,
-            run_id=origin.run_id,
-            source_job_id=origin.source_job_id,
-            route_id=origin.route_id,
-        )
-        != snapshot
+        or current_pending_experiment(pending_phase_ref) != snapshot
     ):
         raise ValueError("candidate_experiment_evaluation_pending_head_changed")
     budget_state, budget_observation = evaluation_owner.current_budget_snapshot()
@@ -5278,14 +5278,7 @@ def dispatch_candidate_experiment_evaluation(
         ):
             raise ValueError("candidate_experiment_terminal_recovery_owner_changed")
     with candidate_experiment_reentry_fence(owner):
-        latest = sink.current_action_outcome(
-            tenant_id=origin.tenant_id,
-            cell_id=origin.cell_id,
-            run_id=origin.run_id,
-            source_job_id=origin.source_job_id,
-            route_id=origin.route_id,
-        )
-        if latest != snapshot:
+        if current_pending_experiment(pending_phase_ref) != snapshot:
             raise ValueError("candidate_experiment_evaluation_pending_changed")
         return sink.persist_terminal(terminal)
 

@@ -13667,6 +13667,39 @@
           "numerical_body_output": "MAIN:policy-engine/_cache/e02/lane01-r29-real-b-numerical-body-r2",
           "scope": "Live and historical blocked-basis reasons and values match. The exact historical B result projects both trajectories and declared units. Foreign cell refuses. Original and replay database bytes stay unchanged. No physical N5, live lease, terminal write or served GET replay."
         },
+        "r30_protected_terminal_family": {
+          "classification": "FAIL_LATE_EXPERIMENT_DISPATCH_COSTED_READER",
+          "source_commit": "a0fd088bd30b1c58843a893e5b4b69f30ea65be0",
+          "source_tree": "3cd456416d8ddacf89744d6d8b0cec8ad3edafce",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-candidate-terminal-crash-native-r30",
+          "stdout_sha256": "4640acecd8d301116ece0559a0c0d340664552cd7ad2829cbfbbafa9b8893050",
+          "selected_b_result": "sha256:a1046f072f25fda05715d3d8102bfab93928c068932d0b9cfac002745a17f2bb",
+          "source_reentry_receipt": "sha256:fe51817dab3fa9997058a58237d47350c710ad470f8dad5075a7d373df0e0d18",
+          "wall_seconds": 3003.3,
+          "stable_inputs": 71,
+          "scope": "Native A and acquired-world B both persisted, followed by the source-reentry receipt and blocked basis. The terminal hook did not run. The costed action reader refused the experiment receipt family at dispatch. Failed job has no active lease and is dead-lettered. Crash recovery and fresh GET remain unrun on this prefix."
+        },
+        "gdp_protected_r4": {
+          "classification": "COORDINATOR_STOP_AFTER_INITIAL_N5",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-gdp-protected-main-r4",
+          "stable_inputs": 78,
+          "scope": "Ordinary A completed and acquisition reached executing. Stopped safely after R30 revealed the shared late dispatcher bug, before acquired-world N5. No GDP semantic verdict."
+        },
+        "experiment_terminal_family_affected_readers": {
+          "classification": "PASS_SCOPED_AFFECTED_READER_AND_HISTORY",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-terminal-family-affected-main-r1",
+          "observed": {"PASS": 20, "FAIL": 0, "ERROR": 0, "SKIP": 0},
+          "scope": "Eight stable inputs on the repaired dispatcher. This cohort covers phase ownership, replay prefix, terminal history and current numerical projection. Three scoped direct dispatcher cases independently reach the terminal writer or refuse a stale head or phase before writing. Full live crash recovery requires a separate served run."
+        },
+        "n6_locked_sklearn_python_binding": {
+          "classification": "PASS_BOUNDED_ACTUAL_LOCKED_PYTHON_IMPORT_RELATION",
+          "source_commit": "81cc9220b00fef1dea66f0d1d4e686fe189267e2",
+          "source_tree": "22122151d0441b0e0c8e173018c6c834f009cb62",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-sklearn-locked-provider-r4",
+          "stdout_sha256": "0d54a9ab1ca2a6618f1f5323976f1b4e9f6dbc92643103c121a15abf9e87f99e",
+          "stable_inputs": 9,
+          "scope": "Isolated CPython 3.14 with original locked wheels for sklearn, importlib_metadata and six. Exact executed Python members and actual retained LinearRegression provider, facade and consumers reconcile. Substituting the last consumer binding refuses. Native provider profile, closure, authority and protected through-use remain not established."
+        },
         "sim01_real_fallback_current": {
           "classification": "PASS_SCOPED_NATIVE_FALLBACK_AND_REFUSALS",
           "source_commit": "64ac47de0f0777c5a9817ebcdee0014e53b38f7d",

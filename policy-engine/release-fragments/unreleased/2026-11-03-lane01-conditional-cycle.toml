@@ -208,3 +208,16 @@ release_note = "Resolve supported Annotated aliases and Pydantic class reference
 migration = "Historical artifacts and their dispositions remain unchanged. No request, HTTP DTO or SDK change is required. Type-reference identity does not attest effective compiled-model validation behavior."
 generated_client_compatibility = "not_applicable"
 limitations = "Compiled-validator/schema coherence is explicitly not_established. The full import-time N6 currently still refuses a non-literal repository re-export in core.registry.loader; source-unit PASS does not establish the complete CYC route, installed qualification or G acceptance."
+
+[[compatibility_change]]
+id = "lane01-acquired-context-worker-owner"
+change_class = "runtime-state-format"
+impact = "additive"
+surface = "internal candidate acquisition reentry and selected context readback"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Carry the verified acquired-context artifact owner into reentry. The controller reads the exact selected context through the current acquisition job lease and the same CAS. Ordinary NL execution continues to require its issued worker scope."
+migration = "Existing context artifacts keep their wire shape and their original job bindings. The owner handoff lives only in the reentry controller."
+generated_client_compatibility = "not_applicable"
+limitations = "The context stays candidate-only under its existing evidence and authority limits. The full protected numerical and terminal route requires separate execution evidence."

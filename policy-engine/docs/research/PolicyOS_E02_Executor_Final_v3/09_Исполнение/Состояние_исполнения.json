@@ -9194,6 +9194,18 @@
           "inputs_unchanged": true,
           "scope": "Controlled WDI acquisition succeeds. Source-basis preparation refuses the mismatch between source national_economy/annual scope and the persisted stakeholder/entity-period WMR. No B N5 or numerical GET. The reviewed fixture fix f39e11f24 is running in AUTHOR R9."
         },
+        "terminal_recovery_r33_controlled_crash": {
+          "source_commit": "18ff09edb7ec448426e2d38b53e6b78bb3143c90",
+          "source_tree": "d228245f6e4783ffdc821c47a50f7f716517260b",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-candidate-terminal-crash-native-r33",
+          "observed": {
+            "FAIL": 1
+          },
+          "wall_seconds": 6625.96,
+          "named_inputs": 73,
+          "inputs_unchanged": true,
+          "scope": "Terminal quota revalidation and CAS/event durability reach the injected crash. A fresh runtime reopens the exact saved artifact and event and observes unchanged physical work. The foreign-scope fixture changes both partition and origin, then incorrectly expects a mismatch error. The selector fails before claim. Retained original remains running at attempt 1 with an expired lease and pending action-head generation 4. No retry, no fresh final GET, no overall PASS."
+        },
         "terminal_existing_quota_author_r1": {
           "source_commit": "8b7668875402ca182bd7a2a9c537aa962bdaf812",
           "source_tree": "de8cf58883e4c231e0bbf922f36fb22f3ebcb9fd",

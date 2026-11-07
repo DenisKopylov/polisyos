@@ -686,13 +686,18 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
                                     "candidate experiment fresh runtime changed physical N5 units"
                                 )
 
+                            sink = fresh_control.acquisition_route_sink
                             with pytest.raises(
                                 ValueError,
                                 match="candidate_experiment_action_source_scope_mismatch",
                             ):
-                                _experiment_outcomes(
-                                    control=fresh_control,
-                                    origin=replace(
+                                sink.experiment_action_outcomes(
+                                    tenant_id=fresh_origin.tenant_id,
+                                    cell_id=fresh_origin.cell_id,
+                                    run_id=fresh_origin.run_id,
+                                    source_job_id=fresh_origin.source_job_id,
+                                    route_id=fresh_origin.route_id,
+                                    verified_origin=replace(
                                         fresh_origin,
                                         cell_id=fresh_origin.cell_id + "-foreign",
                                     ),

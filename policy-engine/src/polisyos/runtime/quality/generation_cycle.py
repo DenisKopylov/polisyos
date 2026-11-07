@@ -5852,7 +5852,7 @@ class JointSimulationPort:
                         problem=problem,
                         request=request,
                         input_ref=candidate_simulation_input_ref,
-                    ):
+                    ) as request:
                         result = self._controller.run(request)
                     result = bind_n5_execution_implementation(
                         result,

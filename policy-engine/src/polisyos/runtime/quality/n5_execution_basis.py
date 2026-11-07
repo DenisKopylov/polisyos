@@ -207,7 +207,7 @@ def observe_candidate_n5_execution_input(
     problem: object,
     request: JointSimulationRequest,
     input_ref: ArtifactRef,
-) -> Iterator[None]:
+) -> Iterator[JointSimulationRequest]:
     """Bind the exact owner-replayed V5 input before the real controller runs.
 
     The request is reconstructed by the same actual port builder from a fresh
@@ -234,6 +234,12 @@ def observe_candidate_n5_execution_input(
         problem=problem,
         input_record=record,
     )
+    # The rebuilt request owns its CAS-selected numerical inputs. Its world
+    # model may still alias the port's revalidated context, so detach that
+    # nested model before passing the request to the controller.
+    expected = expected.model_copy(
+        update={"world_model_record": expected.world_model_record.model_copy(deep=True)}
+    )
     if exact_n5_content_bytes(expected) != exact_n5_content_bytes(request):
         raise ValueError("n5_implementation_input_request_mismatch")
     observer = _ControllerExecutionObserver((port, port._controller))
@@ -243,7 +249,7 @@ def observe_candidate_n5_execution_input(
             port._controller,
             candidate,
             problem,
-            request,
+            expected,
             input_ref,
             record.content_hash,
             observer,
@@ -254,7 +260,7 @@ def observe_candidate_n5_execution_input(
         # cache/replication, numerical code, and final aggregation/result
         # construction. Capturing only run_once would miss outer consumers.
         with observer:
-            yield
+            yield expected
     finally:
         _ACTIVE_INPUT.reset(token)
 

@@ -9194,6 +9194,51 @@
           "inputs_unchanged": true,
           "scope": "Controlled WDI acquisition succeeds. Source-basis preparation refuses the mismatch between source national_economy/annual scope and the persisted stakeholder/entity-period WMR. No B N5 or numerical GET. The reviewed fixture fix f39e11f24 is running in AUTHOR R9."
         },
+        "x03_cpi_served_r9": {
+          "source_commit": "f39e11f24cce6514cae6d2495a1dc43a32cd113f",
+          "source_tree": "26e6f8cbd1f35342a36bdf9a6481b719a174aa7e",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-cpi-protected-author-r9",
+          "observed": {
+            "FAIL": 1
+          },
+          "named_inputs": 42,
+          "inputs_unchanged": true,
+          "wall_seconds": 7085.47,
+          "scope": "Actual configured CPI acquires source and persists new N5 result 41320ebf27e2 and terminal CAS/event d64a781eab2e before SQL head. CPI level 456.59097290039062, synthetic effect -0.5 index points, two physical units. Existing scalar/model comparator misuse rejects the authentic equal identity chain. Old job failed/dead-lettered; no fresh served GET."
+        },
+        "cpi_exact_terminal_identity_comparator": {
+          "source_commit": "16aa29809909569f9954a8a2e65748b33e4ab863",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-cpi-retained-identity-comparator-r1",
+          "observed": {
+            "PASS": 1
+          },
+          "named_inputs": 5,
+          "inputs_unchanged": true,
+          "scope": "Actual R9 CAS canonical read of four phase rows and terminal. The shared sink predicate matches all four later rows and refuses changed scalar or same-blob foreign selected profile. Original predicate rejects even an equal typed tenant string. This is a comparator proof; no full history, worker or GET."
+        },
+        "terminal_affected_api_composed": {
+          "source_commit": "7ff8ae637fa9fb02763c8af317a7f239796c8687",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-terminal-affected-api-r1",
+          "observed": {
+            "PASS": 20
+          },
+          "named_inputs": 6,
+          "inputs_unchanged": true,
+          "wall_seconds": 63.38,
+          "scope": "Affected pending retry Catalog source, public candidate status, prior-only N5 projection and selected-artifact/authority refusals. Component API checks, not fresh served numerical GET."
+        },
+        "terminal_owner_composition": {
+          "source_commit": "7ff8ae637fa9fb02763c8af317a7f239796c8687",
+          "source_tree": "64dc4ebef9b6afccefa5ba3d8ab02e598a71c6dc",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-terminal-owners-composed-r1",
+          "observed": {
+            "PASS": 31
+          },
+          "named_inputs": 8,
+          "inputs_unchanged": true,
+          "wall_seconds": 27.44,
+          "scope": "Exact quota and live fence, terminal identity and canonical CAS aliases. Source checked before same product delta committed. Main retained retry uses original accounting resource identity; a copied ledger correctly refuses. Full served qualification remains separate."
+        },
         "terminal_recovery_r33_controlled_crash": {
           "source_commit": "18ff09edb7ec448426e2d38b53e6b78bb3143c90",
           "source_tree": "d228245f6e4783ffdc821c47a50f7f716517260b",

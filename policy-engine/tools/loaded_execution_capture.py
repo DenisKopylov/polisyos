@@ -44,10 +44,28 @@ _PATH_FINDER = importlib.machinery.PathFinder
 _PATH_FINDER_DESCRIPTOR = type.__getattribute__(_PATH_FINDER, "__dict__")["find_spec"]
 _FIND_SPEC = _PATH_FINDER.find_spec
 _SOURCE_LOADER = importlib.machinery.SourceFileLoader
+_EXTENSION_LOADER = importlib.machinery.ExtensionFileLoader
+_EXTENSION_CREATE = _EXTENSION_LOADER.create_module
+_EXTENSION_EXEC = _EXTENSION_LOADER.exec_module
+_EXTENSION_CREATE_CODE = _EXTENSION_CREATE.__code__
+_EXTENSION_EXEC_CODE = _EXTENSION_EXEC.__code__
 _GETPID = os.getpid
 _PROCESS_CAPTURE: SourceExecutionCapture | None = None
 _PROCESS_OWNER_SLOT = "_polisyos_loaded_execution_owner_v1"
 _MISSING = object()
+
+
+def _native_file_sha256(path: Path) -> str:
+    """Hash a bounded selected extension without reading an unbounded file."""
+    digest = hashlib.sha256()
+    remaining = 16 * 1024 * 1024
+    with path.open("rb") as stream:
+        while block := stream.read(min(65536, remaining + 1)):
+            remaining -= len(block)
+            if remaining < 0:
+                raise ValueError("native_selected_file_too_large")
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def _passive_lookup(mapping: object, key: str) -> tuple[bool, object]:
@@ -285,6 +303,18 @@ class ModuleExecution:
 
 
 @dataclass(frozen=True, slots=True)
+class NativeModuleExecution:
+    """A selected extension file and module, without a mapped-code assertion."""
+
+    module_name: str
+    relative_path: str
+    file_sha256: str
+    module: ModuleType
+    loader: object
+    spec: importlib.machinery.ModuleSpec
+
+
+@dataclass(frozen=True, slots=True)
 class ImportEvidence:
     """A successful import observed at a selected source-owned call site."""
 
@@ -485,6 +515,119 @@ _CAPTURED_LOADER_INIT = _CapturedSourceLoader.__init__
 _CAPTURED_LOADER_EXEC = _CapturedSourceLoader.exec_module
 
 
+class _CapturedExtensionLoader(_EXTENSION_LOADER):
+    """Delegate native loading while observing the selected file and module."""
+
+    def __init__(
+        self,
+        capture: SourceExecutionCapture,
+        loader: importlib.machinery.ExtensionFileLoader,
+        expected: ExpectedSource,
+    ) -> None:
+        super().__init__(loader.name, loader.path)
+        self._capture = capture
+        self._loader = loader
+        self._expected = expected
+        self._verified = False
+
+    def create_module(self, spec: importlib.machinery.ModuleSpec) -> ModuleType | None:
+        name = spec.name
+        try:
+            selected = self._capture._selected_path(self._expected)
+            loader_name = self._loader.name
+            loader_path = self._loader.path
+            self._verified = bool(
+                _captured_extension_loader_intact()
+                and spec.loader is self
+                and type(name) is str
+                and type(spec.origin) is str
+                and Path(spec.origin).resolve(strict=True) == selected
+                and type(loader_name) is str
+                and loader_name == name
+                and type(loader_path) is str
+                and Path(loader_path).resolve(strict=True) == selected
+                and _native_file_sha256(selected) == self._expected.sha256
+            )
+        except (OSError, ValueError):
+            self._verified = False
+        if not self._verified:
+            if type(name) is str:
+                self._capture._module_fail(name, "native_selected_file_mismatch")
+            else:
+                self._capture._fail("native_selected_file_mismatch")
+        try:
+            return _EXTENSION_CREATE(self._loader, spec)
+        except BaseException:
+            if type(name) is str:
+                self._capture._module_fail(name, "native_initialization_failed")
+            else:
+                self._capture._fail("native_initialization_failed")
+            raise
+
+    def exec_module(self, module: ModuleType) -> None:
+        try:
+            _EXTENSION_EXEC(self._loader, module)
+        except BaseException:
+            self._capture._module_fail(self._loader.name, "native_initialization_failed")
+            raise
+        if not self._verified:
+            return
+        name = self._loader.name
+        try:
+            selected = self._capture._selected_path(self._expected)
+            if _native_file_sha256(selected) != self._expected.sha256:
+                raise ValueError("native_selected_file_mismatch")
+            spec = module.__spec__
+            if type(spec) is not importlib.machinery.ModuleSpec or spec.loader is not self:
+                raise ValueError("native_module_metadata_mismatch")
+            record = NativeModuleExecution(
+                name, self._expected.relative_path, self._expected.sha256, module, self, spec
+            )
+            self._capture._native_completed[name] = record
+            self._capture._native_anchors[name] = (
+                record,
+                name,
+                self._expected.relative_path,
+                self._expected.sha256,
+                module,
+                self,
+                spec,
+                self._loader,
+            )
+        except (AttributeError, OSError, ValueError):
+            self._capture._module_fail(name, "native_observation_incomplete")
+
+
+_CAPTURED_EXTENSION_CREATE = _CapturedExtensionLoader.create_module
+_CAPTURED_EXTENSION_EXEC = _CapturedExtensionLoader.exec_module
+_CAPTURED_EXTENSION_CREATE_CODE = _CAPTURED_EXTENSION_CREATE.__code__
+_CAPTURED_EXTENSION_EXEC_CODE = _CAPTURED_EXTENSION_EXEC.__code__
+
+
+def _captured_extension_loader_intact() -> bool:
+    namespace = type.__getattribute__(_CapturedExtensionLoader, "__dict__")
+    standard = type.__getattribute__(_EXTENSION_LOADER, "__dict__")
+    return (
+        _passive_lookup(namespace, "create_module")[1] is _CAPTURED_EXTENSION_CREATE
+        and _passive_lookup(namespace, "exec_module")[1] is _CAPTURED_EXTENSION_EXEC
+        and _passive_lookup(standard, "create_module")[1] is _EXTENSION_CREATE
+        and _passive_lookup(standard, "exec_module")[1] is _EXTENSION_EXEC
+        and all(
+            type(function) is FunctionType
+            and function.__code__ is code
+            and function.__defaults__ is None
+            and function.__kwdefaults__ is None
+            and function.__closure__ is None
+            for function, code in (
+                (_EXTENSION_CREATE, _EXTENSION_CREATE_CODE),
+                (_EXTENSION_EXEC, _EXTENSION_EXEC_CODE),
+                (_CAPTURED_EXTENSION_CREATE, _CAPTURED_EXTENSION_CREATE_CODE),
+                (_CAPTURED_EXTENSION_EXEC, _CAPTURED_EXTENSION_EXEC_CODE),
+            )
+        )
+    )
+
+
 def _captured_loader_intact() -> bool:
     """Check the producer's retained loader implementation without invoking it."""
 
@@ -581,7 +724,7 @@ class _ExternalCaptureFinder(importlib.abc.MetaPathFinder):
         capture = self._capture
         selector = capture._external_source_selector
         if (
-            selector is None
+            (selector is None and capture._external_native_selector is None)
             or capture._selecting_external
             or capture._phase != "collecting"
             or not capture._same_process()
@@ -590,7 +733,7 @@ class _ExternalCaptureFinder(importlib.abc.MetaPathFinder):
         ):
             return _FIND_SPEC(fullname, path, target)
         if target is not None:
-            if fullname in capture._sources:
+            if fullname in capture._sources or fullname in capture._external_native_modules:
                 capture._module_fail(fullname, "module_reload_not_admitted")
             return _FIND_SPEC(fullname, path, target)
         spec = _FIND_SPEC(fullname, path, target)
@@ -601,7 +744,46 @@ class _ExternalCaptureFinder(importlib.abc.MetaPathFinder):
         origin = _passive_lookup(fields, "origin")[1]
         name = _passive_lookup(fields, "name")[1]
         if (
-            type(loader) is not _SOURCE_LOADER
+            type(loader) is _EXTENSION_LOADER
+            and type(origin) is str
+            and name == fullname
+            and fullname in capture._external_native_modules
+        ):
+            native_selector = capture._external_native_selector
+            if native_selector is None:
+                capture._module_fail(fullname, "native_source_selection_invalid")
+                return spec
+            capture._selecting_external = True
+            try:
+                selection = native_selector(fullname, origin)
+            except Exception:
+                capture._module_fail(fullname, "native_source_selection_failed")
+                return spec
+            finally:
+                capture._selecting_external = False
+            if (
+                type(selection) is not tuple
+                or len(selection) != 2
+                or type(selection[0]) is not str
+                or type(selection[1]) is not str
+                or len(selection[1]) != 64
+                or any(char not in "0123456789abcdef" for char in selection[1])
+                or not _captured_extension_loader_intact()
+            ):
+                capture._module_fail(fullname, "native_source_selection_invalid")
+                return spec
+            expected = ExpectedSource(*selection)
+            try:
+                if capture._selected_path(expected) != Path(origin).resolve(strict=True):
+                    raise ValueError("native_origin_not_admitted")
+            except (OSError, RuntimeError, ValueError):
+                capture._module_fail(fullname, "native_origin_not_admitted")
+                return spec
+            spec.loader = _CapturedExtensionLoader(capture, loader, expected)
+            return spec
+        if (
+            selector is None
+            or type(loader) is not _SOURCE_LOADER
             or type(origin) is not str
             or type(name) is not str
             or name != fullname
@@ -679,6 +861,8 @@ class SourceExecutionCapture:
         *,
         exports: Mapping[str, set[str] | frozenset[str]] | None = None,
         external_source_selector: Callable[[str, str], tuple[str, str] | None] | None = None,
+        external_native_selector: Callable[[str, str], tuple[str, str] | None] | None = None,
+        external_native_modules: frozenset[str] = frozenset(),
         external_source_root: Path | None = None,
     ) -> None:
         self._root = root.resolve(strict=True)
@@ -698,6 +882,16 @@ class SourceExecutionCapture:
         self._sources = MappingProxyType(self._selected_sources)
         self._initial_source_names = frozenset(sources)
         self._external_source_selector = external_source_selector
+        if (
+            type(external_native_modules) is not frozenset
+            or any(type(name) is not str or not name for name in external_native_modules)
+            or bool(external_native_modules) != (external_native_selector is not None)
+        ):
+            raise ValueError("capture_native_selection_invalid")
+        self._external_native_selector = external_native_selector
+        self._external_native_modules = external_native_modules
+        self._native_completed: dict[str, NativeModuleExecution] = {}
+        self._native_anchors: dict[str, tuple[object, ...]] = {}
         self._selecting_external = False
         self._external_source_root = (
             None if external_source_root is None else external_source_root.absolute()
@@ -728,7 +922,9 @@ class SourceExecutionCapture:
         self._package_roots = frozenset(name.partition(".")[0] for name in self._sources)
         self._finder = _CaptureFinder(self)
         self._external_finder = (
-            _ExternalCaptureFinder(self) if external_source_selector is not None else None
+            _ExternalCaptureFinder(self)
+            if external_source_selector is not None or external_native_selector is not None
+            else None
         )
         self._path_finder_descriptor: object | None = None
         self._initial_meta_path: tuple[object, ...] = ()
@@ -961,6 +1157,88 @@ class SourceExecutionCapture:
         except KeyError as exc:
             raise CaptureError("module_not_completed") from exc
 
+    def completed_native(self, module_name: str) -> NativeModuleExecution:
+        """Recheck one selected extension file and its retained module metadata."""
+        self._require_same_process()
+        if self._phase != "collecting":
+            raise CaptureError("capture_incomplete")
+        record = self._native_completed.get(module_name)
+        anchor = self._native_anchors.get(module_name)
+        if (
+            type(record) is not NativeModuleExecution
+            or type(anchor) is not tuple
+            or len(anchor) != 8
+            or anchor[0] is not record
+            or module_name in self._module_failures
+        ):
+            raise CaptureError("native_module_not_completed")
+        try:
+            if any(
+                object.__getattribute__(record, name) is not value
+                for name, value in zip(
+                    ("module_name", "relative_path", "file_sha256", "module", "loader", "spec"),
+                    anchor[1:7],
+                    strict=True,
+                )
+            ):
+                raise ValueError("native_module_changed")
+            if (
+                type(record.loader) is not _CapturedExtensionLoader
+                or type(record.loader._loader) is not _EXTENSION_LOADER
+                or type(record.spec) is not importlib.machinery.ModuleSpec
+            ):
+                raise ValueError("native_module_changed")
+            selected = self._selected_path(ExpectedSource(anchor[2], anchor[3]))
+            namespace = self._module_namespace(record.module)
+            module_file = _passive_lookup(namespace, "__file__")[1]
+            spec_origin = record.spec.origin
+            original_name = record.loader._loader.name
+            original_path = record.loader._loader.path
+            loader_name = record.loader.name
+            loader_path = record.loader.path
+            if (
+                not _captured_extension_loader_intact()
+                or builtins.__import__ is not self._import_hook
+                or importlib.import_module is not self._import_module_hook
+                or sys.meta_path is not self._meta_path_object
+                or len(sys.meta_path) != len(self._admitted_meta_path)
+                or any(
+                    actual is not held
+                    for actual, held in zip(sys.meta_path, self._admitted_meta_path, strict=True)
+                )
+                or _passive_lookup(sys.__dict__, _PROCESS_OWNER_SLOT)[1] is not self
+                or type(record.loader) is not _CapturedExtensionLoader
+                or record.loader._capture is not self
+                or record.loader._loader is not anchor[7]
+                or type(record.loader._loader) is not _EXTENSION_LOADER
+                or type(original_name) is not str
+                or original_name != module_name
+                or type(original_path) is not str
+                or Path(original_path).resolve(strict=True) != selected
+                or type(loader_name) is not str
+                or loader_name != module_name
+                or type(loader_path) is not str
+                or Path(loader_path).resolve(strict=True) != selected
+                or type(record.loader._expected) is not ExpectedSource
+                or record.loader._expected.relative_path is not anchor[2]
+                or record.loader._expected.sha256 is not anchor[3]
+                or _native_file_sha256(selected) != record.file_sha256
+                or _passive_lookup(sys.modules, module_name)[1] is not record.module
+                or namespace is None
+                or _passive_lookup(namespace, "__spec__")[1] is not record.spec
+                or _passive_lookup(namespace, "__loader__")[1] is not record.loader
+                or type(module_file) is not str
+                or Path(module_file).resolve(strict=True) != selected
+                or record.spec.loader is not record.loader
+                or type(spec_origin) is not str
+                or Path(spec_origin).resolve(strict=True) != selected
+            ):
+                raise ValueError("native_module_changed")
+        except (OSError, ValueError):
+            self._module_fail(module_name, "native_module_changed")
+            raise CaptureError("native_module_changed") from None
+        return record
+
     def close(self) -> None:
         """End the capture generation and release live evidence after its use.
 
@@ -1041,6 +1319,8 @@ class SourceExecutionCapture:
             self._pending,
             self._pending_codes,
             self._completed,
+            self._native_completed,
+            self._native_anchors,
             self._execution_anchors,
             self._module_failures,
             self._importer_failures,
@@ -1064,6 +1344,8 @@ class SourceExecutionCapture:
         self._meta_path_object = None
         self._path_finder_descriptor = None
         self._external_source_selector = None
+        self._external_native_selector = None
+        self._external_native_modules = frozenset()
         self._import_hook = None
         self._import_module_hook = None
         self._prior_import = None

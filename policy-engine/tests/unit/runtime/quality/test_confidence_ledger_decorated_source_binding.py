@@ -131,6 +131,124 @@ def _route(root: Path, module: types.ModuleType, name: str):
     )
 
 
+def _int_enum_dataclass_source() -> str:
+    return (
+        "from __future__ import annotations\n"
+        "from dataclasses import dataclass\n"
+        "from enum import IntEnum\n\n"
+        "class QualityTier(IntEnum):\n"
+        "    UNVERIFIED = 0\n"
+        "    VERIFIED = 1\n\n"
+        "@dataclass(frozen=True, slots=True)\n"
+        "class FetchRequest:\n"
+        "    min_quality_tier: QualityTier = QualityTier.UNVERIFIED\n"
+    )
+
+
+def test_actual_fetch_request_source_route_supports_its_int_enum_default():
+    from polisyos.ir import connectors
+
+    request = connectors.FetchRequest(dataset_id="source-binding-probe")
+    assert request.min_quality_tier is connectors.QualityTier.UNVERIFIED
+    assert _route(ledger._loaded_policy_engine_root(), connectors, "FetchRequest") == (
+        "symbol",
+        "polisyos.ir.connectors",
+        "FetchRequest",
+    )
+
+
+def test_string_enum_dataclass_route_keeps_alias_defaults_supported(tmp_path, monkeypatch):
+    source = (
+        "from __future__ import annotations\n"
+        "from dataclasses import dataclass\n"
+        "from enum import Enum\n\n"
+        "class Kind(str, Enum):\n"
+        "    CANONICAL = 'same'\n"
+        "    ALIAS = 'same'\n\n"
+        "@dataclass(frozen=True, slots=True)\n"
+        "class Request:\n"
+        "    kind: Kind = Kind.ALIAS\n"
+    )
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    assert module.Request().kind is module.Kind.CANONICAL
+    assert _route(root, module, "Request") == ("symbol", module.__name__, "Request")
+
+
+def test_int_enum_dataclass_route_rejects_source_member_value_drift(tmp_path, monkeypatch):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _int_enum_dataclass_source())
+    assert _route(root, module, "FetchRequest") == (
+        "symbol",
+        module.__name__,
+        "FetchRequest",
+    )
+    source_path = Path(module.__file__)
+    source_path.write_text(
+        _int_enum_dataclass_source().replace("UNVERIFIED = 0", "UNVERIFIED = 2"),
+        encoding="utf-8",
+    )
+    with pytest.raises(
+        ledger.ConfidenceLedgerError,
+        match="decorated direct source binding is unresolved",
+    ):
+        _route(root, module, "FetchRequest")
+
+
+def test_int_enum_dataclass_route_rejects_bool_member_literal(tmp_path, monkeypatch):
+    source = _int_enum_dataclass_source().replace("UNVERIFIED = 0", "UNVERIFIED = True")
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    with pytest.raises(
+        ledger.ConfidenceLedgerError,
+        match="decorated direct source binding is unresolved",
+    ):
+        _route(root, module, "FetchRequest")
+
+
+def test_int_enum_dataclass_route_rejects_foreign_live_enum_binding(tmp_path, monkeypatch):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _int_enum_dataclass_source())
+    foreign_source = (
+        "from enum import IntEnum\n\n"
+        "class QualityTier(IntEnum):\n"
+        "    UNVERIFIED = 0\n"
+        "    VERIFIED = 1\n"
+    )
+    foreign = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.foreign_quality_tier",
+        foreign_source,
+    )
+    monkeypatch.setattr(module, "QualityTier", foreign.QualityTier)
+    with pytest.raises(
+        ledger.ConfidenceLedgerError,
+        match="decorated direct source binding is unresolved",
+    ):
+        _route(root, module, "FetchRequest")
+
+
+def test_int_enum_dataclass_route_rejects_spoofed_origin_with_changed_integer_behavior(
+    tmp_path, monkeypatch
+):
+    root, module = _load_decorated_case(tmp_path, monkeypatch, _int_enum_dataclass_source())
+    altered_source = _int_enum_dataclass_source().replace(
+        "class QualityTier(IntEnum):\n",
+        "class QualityTier(IntEnum):\n    def __int__(self):\n        return 99\n",
+    )
+    foreign = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.foreign_quality_tier_with_int_override",
+        altered_source.split("@dataclass", 1)[0],
+    )
+    type.__setattr__(foreign.QualityTier, "__module__", module.__name__)
+    type.__setattr__(foreign.QualityTier, "__qualname__", "QualityTier")
+    monkeypatch.setattr(module, "QualityTier", foreign.QualityTier)
+    with pytest.raises(
+        ledger.ConfidenceLedgerError,
+        match="decorated direct source binding is unresolved",
+    ):
+        _route(root, module, "FetchRequest")
+
+
 def _with_captured_builtins(function: types.FunctionType, changed: dict[str, object]):
     namespace = function.__globals__
     original = namespace["__builtins__"]

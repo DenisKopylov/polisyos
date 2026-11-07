@@ -1094,6 +1094,71 @@ def test_lazy_imported_child_has_source_candidate_but_needs_loaded_binding(
     assert loaded.binding_basis == "loader_child"
 
 
+def test_type_alias_route_binds_real_artifact_selector_without_evaluating_value():
+    from polisyos.ir.artifacts import contracts
+
+    root = Path(contracts.__file__).parents[4]
+    candidate = ledger._source_module_import_route_candidate(
+        root,
+        contracts.__name__,
+        "ArtifactSelector",
+        directory_entries={},
+        source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        discovery_only=True,
+    )
+    assert candidate.route == ("symbol", contracts.__name__, "ArtifactSelector")
+    assert candidate.binding_basis == "source_expression"
+    assert ledger._source_module_direct_binding_route(
+        root,
+        contracts.__name__,
+        "ArtifactSelector",
+        directory_entries={},
+        source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        visited=frozenset(),
+    ) == ("symbol", contracts.__name__, "ArtifactSelector")
+
+
+def test_type_alias_route_does_not_execute_lazy_evaluator(tmp_path, monkeypatch):
+    source = (
+        "EVENTS = []\n"
+        "def touch():\n"
+        "    EVENTS.append('evaluated')\n"
+        "    return int\n"
+        "type Selector = touch()\n"
+    )
+    root, module = _load_decorated_case(tmp_path, monkeypatch, source)
+    assert module.EVENTS == []
+    assert _route(root, module, "Selector") == ("symbol", module.__name__, "Selector")
+    assert module.EVENTS == []
+
+
+def test_type_alias_route_does_not_call_mutable_gc_accessor(tmp_path, monkeypatch):
+    root, module = _load_decorated_case(
+        tmp_path, monkeypatch, "type Selector = int\n"
+    )
+
+    def unexpected_gc_call(*args, **kwargs):
+        pytest.fail("TypeAlias routing must use its owned native evaluator descriptor")
+
+    monkeypatch.setattr(ledger.gc, "get_referents", unexpected_gc_call)
+    assert _route(root, module, "Selector") == ("symbol", module.__name__, "Selector")
+
+
+def test_type_alias_route_refuses_foreign_live_alias(tmp_path, monkeypatch):
+    root, module = _load_decorated_case(
+        tmp_path, monkeypatch, "type Selector = int\n"
+    )
+    foreign = _load_fixture_module(
+        root,
+        monkeypatch,
+        "polisyos.foreign_type_alias_fixture",
+        "type Selector = str\n",
+    )
+    monkeypatch.setattr(module, "Selector", foreign.Selector)
+    with pytest.raises(ledger.ConfidenceLedgerError, match="unsupported direct source binding"):
+        _route(root, module, "Selector")
+
+
 _CANONICAL_LAZY_EXPORT_SOURCE = """from polisyos.ir.api import EXPORTS, resolve_lazy_export as _resolve
 
 def __getattr__(name):

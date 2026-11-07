@@ -13365,6 +13365,26 @@
           "named_inputs": 2,
           "inputs_unchanged": true,
           "scope": "Exact lazy child source candidates and actual loaded child binding remain distinct. Canonical IR lazy map delegation and exact safe map reads resolve through source and live ownership checks. Fresh AUTHOR import passes prior loader and kernel facade routes and remains not_established at unsupported direct source binding polisyos.ir.artifacts.contracts.ArtifactSelector. No alias value evaluation or CYC claim."
+        },
+        "n6_type_alias_evaluator_owner": {
+          "source_base_commit": "d1a94a1d15a371b1d69df2425ca98019550908ef",
+          "source_and_test_sha256": {
+            "src/polisyos/runtime/quality/confidence_ledger.py": "7e9728b6f7081c155e17016b167cfeeb63c6b4db87926445c8f1776b3dc86407",
+            "tests/unit/runtime/quality/test_confidence_ledger_decorated_source_binding.py": "b0fdb0c464e968bf473ee5a28570d1b3a50609424161022df66f47910166b2a2"
+          },
+          "classification": "PASS_PASSIVE_TYPE_ALIAS_OWNER_FULL_N6_OPEN",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-typealias-full-module-r2",
+          "observed": {
+            "PASS": 389,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 35.48463341710158,
+          "peak_rss_bytes": 1604222976,
+          "named_inputs": 2,
+          "inputs_unchanged": true,
+          "scope": "Non-generic CPython 3.14 TypeAliasType native evaluator belongs to one exact source expression. No alias value/evaluator or arbitrary GC callback is invoked. Fresh import passes ArtifactSelector and remains not_established at missing repository re-export binding polisyos.data_forge.read_api.catalog.CatalogSelectionError. Independent final review GO."
         }
       },
       "independent_component_reviews": {

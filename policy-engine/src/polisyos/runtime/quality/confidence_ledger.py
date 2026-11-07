@@ -11972,6 +11972,8 @@ def _module_scope_direct_binding_sites(
                 if isinstance(statement, ast.AnnAssign) and statement.value is None:
                     continue
                 sites.append(("assignment", statement, None))
+            elif isinstance(statement, ast.TypeAlias):
+                sites.append(("type_alias", statement, None))
             else:
                 sites.append(("unsupported", statement, None))
 
@@ -12325,6 +12327,8 @@ def _source_direct_expression_candidate(
     kind, statement, _ = sites[0]
     if kind == "local":
         return isinstance(statement, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))
+    if kind == "type_alias":
+        return isinstance(statement, ast.TypeAlias)
     if kind != "assignment":
         return False
     if isinstance(statement, ast.Assign):
@@ -19173,6 +19177,20 @@ def _source_module_direct_binding_route(
             else "external"
         )
         return route_kind, target_module, None
+    if binding_kind == "type_alias" and isinstance(statement, ast.TypeAlias):
+        if _source_type_alias_evaluator_binding_supported(
+            repo_root,
+            module_name,
+            export_name,
+            relative,
+            statement,
+            source_bytes,
+        ):
+            return "symbol", module_name, export_name
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            f"unsupported direct source binding: {module_name}.{export_name}",
+        )
     if binding_kind == "local" and isinstance(
         statement,
         (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef),
@@ -19354,6 +19372,166 @@ def _source_module_direct_binding_route(
         "canonical_loaded_runtime_mismatch",
         f"unsupported direct source binding: {module_name}.{export_name}",
     )
+
+
+def _source_type_alias_evaluator_binding_supported(
+    repo_root: Path,
+    module_name: str,
+    export_name: str,
+    relative: Path,
+    statement: ast.TypeAlias,
+    expected_source_bytes: bytes,
+) -> bool:
+    """Bind a non-generic alias to its inert, source-matching CPython evaluator.
+
+    This proves which source expression the loaded alias would evaluate. It does
+    not evaluate the alias, inspect its value, or establish the resulting type.
+    """
+
+    if (
+        sys.implementation.name != "cpython"
+        or sys.version_info[:2] != (3, 14)
+        or not isinstance(statement.name, ast.Name)
+        or statement.name.id != export_name
+        or statement.type_params
+        or statement.value is None
+    ):
+        return False
+    module = sys.modules.get(module_name)
+    if type(module) is not types.ModuleType:
+        return False
+    module_namespace = vars(module)
+    declared_module_name = module_namespace.get("__name__")
+    if type(declared_module_name) is not str or declared_module_name != module_name:
+        return False
+
+    typing_module = sys.modules.get("typing")
+    native_typing_module = sys.modules.get("_typing")
+    if not (
+        typing_module is typing
+        and type(typing_module) is types.ModuleType
+        and type(native_typing_module) is types.ModuleType
+    ):
+        return False
+    typing_origins = _source_loaded_module_origin_fields(typing_module, expected_name="typing")
+    if typing_origins is None:
+        return False
+    typing_path = Path(sysconfig.get_path("stdlib")) / "typing.py"
+    alias_type = vars(typing_module).get("TypeAliasType")
+    alias_type_name = alias_type.__name__ if type(alias_type) is type else None
+    alias_type_module = alias_type.__module__ if type(alias_type) is type else None
+    if not (
+        type(alias_type) is type
+        and vars(native_typing_module).get("TypeAliasType") is alias_type
+        and type(alias_type_name) is str
+        and alias_type_name == "TypeAliasType"
+        and type(alias_type_module) is str
+        and alias_type_module == "typing"
+    ):
+        return False
+    alias = module_namespace.get(export_name)
+    if type(alias) is not alias_type:
+        return False
+
+    # Read only the exact native descriptors. In particular, the lazy evaluator
+    # descriptor is allowed here; the alias-value descriptor is never touched.
+    alias_type_namespace = vars(alias_type)
+    name_descriptor = alias_type_namespace.get("__name__")
+    module_descriptor = alias_type_namespace.get("__module__")
+    params_descriptor = alias_type_namespace.get("__type_params__")
+    evaluator_descriptor = alias_type_namespace.get("evaluate_value")
+    if not (
+        type(name_descriptor) is types.MemberDescriptorType
+        and type(module_descriptor) is types.GetSetDescriptorType
+        and type(params_descriptor) is types.GetSetDescriptorType
+        and type(evaluator_descriptor) is types.GetSetDescriptorType
+        and name_descriptor.__objclass__ is alias_type
+        and module_descriptor.__objclass__ is alias_type
+        and params_descriptor.__objclass__ is alias_type
+        and evaluator_descriptor.__objclass__ is alias_type
+    ):
+        return False
+    alias_name = name_descriptor.__get__(alias, alias_type)
+    alias_module = module_descriptor.__get__(alias, alias_type)
+    type_params = params_descriptor.__get__(alias, alias_type)
+    evaluator = evaluator_descriptor.__get__(alias, alias_type)
+    if not (
+        type(alias_name) is str
+        and alias_name == export_name
+        and type(alias_module) is str
+        and alias_module == module_name
+        and type(type_params) is tuple
+        and not type_params
+        and type(evaluator) is types.FunctionType
+    ):
+        return False
+
+    if not (
+        type(evaluator.__name__) is str
+        and evaluator.__name__ == export_name
+        and type(evaluator.__qualname__) is str
+        and evaluator.__qualname__ == export_name
+        and type(evaluator.__module__) is str
+        and evaluator.__module__ == module_name
+        and evaluator.__globals__ is module_namespace
+        and evaluator.__builtins__ is vars(_builtins)
+        and evaluator.__closure__ is None
+        and evaluator.__kwdefaults__ is None
+        and type(evaluator.__defaults__) is tuple
+        and len(evaluator.__defaults__) == 1
+        and type(evaluator.__defaults__[0]) is int
+        # CPython 3.14's TypeAliasType evaluator ABI defaults to
+        # annotationlib.Format.VALUE, whose exact integer value is 1.
+        and evaluator.__defaults__[0] == 1
+    ):
+        return False
+
+    analysis = _active_integrity_analysis()
+    token = None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+        token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    try:
+        logical_source = repo_root / relative
+        source_path = analysis.bind_source_path(logical_source)
+        if analysis.source_bytes(logical_source) != expected_source_bytes:
+            return False
+        module_origins = _source_loaded_module_origin_fields(
+            module, expected_name=module_name
+        )
+        if module_origins is None:
+            return False
+        if any(
+            analysis.bind_source_path(Path(origin)) != source_path
+            for origin in module_origins
+        ):
+            return False
+        if any(
+            analysis.bind_source_path(Path(origin)) != analysis.bind_source_path(typing_path)
+            for origin in typing_origins
+        ):
+            return False
+        code = evaluator.__code__
+        if (
+            code.co_qualname != export_name
+            or analysis.bind_source_path(Path(code.co_filename)) != source_path
+        ):
+            return False
+        _compiled, hashes = analysis.compiled_source_index(
+            source_path, optimize=sys.flags.optimize
+        )
+        source_hashes = hashes.get(export_name, ())
+        evaluator_hash = _content_hash(_normalize_code_object(code))
+        if len(source_hashes) != 1 or source_hashes[0] != evaluator_hash:
+            return False
+        if token is not None:
+            analysis.assert_sources_unchanged()
+        return True
+    except (ConfidenceLedgerError, AttributeError, OSError, RuntimeError, TypeError, ValueError):
+        return False
+    finally:
+        if token is not None:
+            _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
 
 
 def _source_module_direct_export_target(

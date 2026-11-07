@@ -9135,6 +9135,69 @@
         "affected_fixtures": "Disjoint Luna owners for CYC04 full fixture and ACQ01/WMR consumers. No shared index/ref rights."
       },
       "evidence_catalog": {
+        "r31_terminal_shared_physical_work": {
+          "source_commit": "509b90853b9faea85f6ff78d12d3efa6ab33ecd1",
+          "source_tree": "bff5b392f69c7bd9b33fbd919066ad42c04f7419",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-candidate-terminal-crash-native-r31",
+          "observed": {
+            "FAIL": 1
+          },
+          "wall_seconds": 4390.9,
+          "peak_rss_bytes": 1809825792,
+          "named_inputs": 71,
+          "inputs_unchanged": true,
+          "stdout_sha256": "d76e4913442ffcbaa07e31b2f8af6c9267a40cc78abe2ea4ac037a9c67b1aa66",
+          "scope": "Real A/B results and selected reentry receipt. The terminal guard incorrectly rejected two physical events referenced by both trajectories. No terminal commit or fresh API qualification. Shared-work event-set repair b5c6f180d."
+        },
+        "gdp_r5_terminal_shared_physical_work": {
+          "source_commit": "509b90853b9faea85f6ff78d12d3efa6ab33ecd1",
+          "source_tree": "bff5b392f69c7bd9b33fbd919066ad42c04f7419",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-gdp-protected-main-r5",
+          "observed": {
+            "FAIL": 1
+          },
+          "wall_seconds": 4178.69,
+          "peak_rss_bytes": 1740095488,
+          "named_inputs": 78,
+          "inputs_unchanged": true,
+          "stdout_sha256": "1d7702f675052e01afac8a09fdd890146223accfcc5f1a654e777a43ebca6b2e",
+          "scope": "Real A/B results and selected reentry receipt. The terminal guard incorrectly rejected two physical events referenced by both trajectories. No terminal commit or fresh API qualification. Shared-work event-set repair b5c6f180d."
+        },
+        "candidate_unknown_continuation_author": {
+          "delivered_author_commit": "cbe1289f2126eddb72b8bd9648edb07b3b309819",
+          "delivered_author_tree": "d02cd6008ad61874261902a134a2c7237e5b9e53",
+          "run_base_commit": "fc3c75ea45eca9c8555290ee567a1ebe13c11c8b",
+          "run_base_tree": "9609b1a0445ca2329fc91e01c6bab3e88afdc1db",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-candidate-prior-api-n6-components-author-r2",
+          "observed": {
+            "PASS": 62,
+            "FAIL": 1
+          },
+          "named_inputs": 26,
+          "inputs_unchanged": true,
+          "scope": "Pinned prior API, history, changed-input and physical-work components pass. One separate uncommitted early-recorder fixture failed. Independently reviewed candidate continuation and pure additive OpenAPI with 56 SDK tests and both typechecks. Full served continuation and CAS control are pending."
+        },
+        "n6_joined_native_provider_current": {
+          "source_commit": "c26c9a2051e9a322c7c5033dc99e5464eb7eeb5f",
+          "source_tree": "350dea579bd74eea64715e1150cce64c1977c7fc",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-ncm-native-joined-main-r1",
+          "observed": {
+            "FAIL": 1
+          },
+          "named_inputs": 12,
+          "inputs_unchanged": true,
+          "scope": "Actual selected NumPy native call targets and one-step NCM oracle reached. Retained Python numpy binding refused module_reload_not_admitted. The instrumented MAIN lane01-ncm-native-reload-diagnostic-main-r2 run with 12 stable pins located dill/_dill.py line 107 performing a direct PathFinder existence lookup with target absent and the exact completed numpy module live. This diagnostic establishes the call site. It does not establish through-use."
+        },
+        "candidate_terminal_shared_work_reruns": {
+          "source_commit": "c26c9a2051e9a322c7c5033dc99e5464eb7eeb5f",
+          "source_tree": "350dea579bd74eea64715e1150cce64c1977c7fc",
+          "outputs": [
+            "MAIN:policy-engine/_cache/e02/lane01-candidate-terminal-crash-native-r32",
+            "MAIN:policy-engine/_cache/e02/lane01-gdp-protected-main-r6"
+          ],
+          "classification": "RUNNING",
+          "scope": "Independent stores, JAX CPU, one numerical thread per process. No current qualification claim."
+        },
         "numeric_native": {
           "output": "policy-engine/_cache/e02/lane01-numerics/native-full-r2",
           "observed": {

@@ -4161,6 +4161,7 @@ class JointSimulationHorizonController:
 
         capture = N5ImplementationCapture(
             method=method,
+            selected_step=selected_step,
             request=request,
             controller=self,
             method_fqn=decision.method_fqn,

@@ -148,6 +148,7 @@ def build_x03_cpi_candidate_profile(
     import numpy as np
 
     from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.data_requirement import DataRequirementScope
     from polisyos.foundry.execute.executor import get_state_path, load_state_snapshot
     from polisyos.ir.kernel.time_semantics import TimeSemantics
     from polisyos.ir.model_layer.model_spec import ModelSpec
@@ -167,6 +168,33 @@ def build_x03_cpi_candidate_profile(
 
     tenant_id = tenant_id or acquisition_served_history.TENANT
     cell_id = cell_id or acquisition_served_history.CELL
+
+    raw_scope_profile = problem.runtime_hints.get("n7_scope_profile")
+    if not isinstance(raw_scope_profile, dict):
+        raise ValueError("x03_cpi_n7_scope_profile_missing")
+    raw_time_window = raw_scope_profile.get("time_window")
+    if not isinstance(raw_time_window, dict):
+        raise ValueError("x03_cpi_n7_time_window_missing")
+    declared_scope = DataRequirementScope.model_validate(
+        {
+            "population": raw_scope_profile.get("population"),
+            "geography": raw_scope_profile.get("entity_scope"),
+            "time": f"{raw_time_window.get('start')}/{raw_time_window.get('end')}",
+            "time_role": raw_scope_profile.get("time_role"),
+            "jurisdiction": raw_scope_profile.get("jurisdiction"),
+        }
+    )
+    if (
+        declared_scope.population != "national_economy"
+        or declared_scope.geography != "country"
+        or declared_scope.jurisdiction != problem.jurisdiction_time.region
+        or declared_scope.jurisdiction != "UKR"
+        or declared_scope.time != "2024-01-01/2024-12-31"
+        or declared_scope.time_role != "observation_time"
+        or raw_scope_profile.get("granularity") != "annual"
+    ):
+        raise ValueError("x03_cpi_n7_scope_profile_mismatch")
+    candidate_resolution = "country_year"
 
     if (
         problem.outcome_of_interest.target_variable != CPI_OUTCOME_SLOT
@@ -213,6 +241,8 @@ def build_x03_cpi_candidate_profile(
                 start_date="2024-01-01",
                 step_count=1,
             ),
+            candidate_population_scope=declared_scope.population,
+            candidate_resolution=candidate_resolution,
             rule_operator_kind="tax_relief_rate",
             rule_parameter_id="rate",
             rule_target_world_slot="global.tax_rate",
@@ -272,6 +302,11 @@ def build_x03_cpi_candidate_profile(
     physical_tax_rate = np.asarray(get_state_path(bound_state, target_binding.state_path))
     if (
         binding is None
+        or world.region_or_jurisdiction != declared_scope.jurisdiction
+        or world.population_scope != declared_scope.population
+        or world.resolution != candidate_resolution
+        or world.policy_domain != problem.domain
+        or world.valid_time_scope != problem.jurisdiction_time.valid_time
         or binding.state_path != CPI_STATE_PATH
         or binding.unit != CPI_UNIT_ID
         or target_binding is None

@@ -1484,6 +1484,8 @@ def _materialize_controlled_world_model_build(
     candidate_outcome_state_paths: Mapping[str, str] | None = None,
     candidate_model_unit_ids: Mapping[str, str] | None = None,
     candidate_model_time_semantics: Any | None = None,
+    candidate_population_scope: str | None = None,
+    candidate_resolution: str | None = None,
 ) -> Any:
     """Build a source-bound, limited WMR from real local owner artifacts.
 
@@ -1542,6 +1544,14 @@ def _materialize_controlled_world_model_build(
 
     if not selected_registry_entry_hashes:
         raise ValueError("controlled_wmr_selected_registry_entries_missing")
+    if (candidate_population_scope is None) != (candidate_resolution is None):
+        raise ValueError("controlled_wmr_candidate_scope_incomplete")
+    if candidate_population_scope is not None and (
+        not candidate_population_scope.strip()
+        or not candidate_resolution
+        or not candidate_resolution.strip()
+    ):
+        raise ValueError("controlled_wmr_candidate_scope_invalid")
     registry = SubstrateRegistry.model_validate(substrate_registry.model_dump(mode="json"))
     selected_hashes = tuple(dict.fromkeys(str(item) for item in selected_registry_entry_hashes))
     selected_entries = tuple(
@@ -1773,11 +1783,19 @@ def _materialize_controlled_world_model_build(
             ),
             substrate_registry=registry,
             region_or_jurisdiction=source_world_model_record.region_or_jurisdiction,
-            population_scope=source_world_model_record.population_scope,
+            population_scope=(
+                candidate_population_scope
+                if candidate_population_scope is not None
+                else source_world_model_record.population_scope
+            ),
             policy_domain=source_world_model_record.policy_domain,
             valid_time_scope=source_world_model_record.valid_time_scope,
             tx_time_scope=source_world_model_record.tx_time_scope,
-            resolution=source_world_model_record.resolution,
+            resolution=(
+                candidate_resolution
+                if candidate_resolution is not None
+                else source_world_model_record.resolution
+            ),
             branch_mode=BranchMode.SCENARIO,
             policy_slot_ids=tuple(controlled_slot_specs),
             producer_ref=(
@@ -1966,6 +1984,8 @@ def _build_configured_procurement_profile(
     candidate_outcome_state_path: str | None = None,
     candidate_outcome_unit_id: str | None = None,
     candidate_outcome_noise_stddev: float = 0.01,
+    candidate_population_scope: str | None = None,
+    candidate_resolution: str | None = None,
 ) -> tuple[Any, Any, Any]:
     """Build a candidate profile from its exact owner-persisted WMR source.
 
@@ -2108,6 +2128,8 @@ def _build_configured_procurement_profile(
         candidate_outcome_state_paths=candidate_outcome_state_paths,
         candidate_model_unit_ids=model_unit_ids,
         candidate_model_time_semantics=candidate_model_time_semantics,
+        candidate_population_scope=candidate_population_scope,
+        candidate_resolution=candidate_resolution,
     )
     world = world_build.record
     context_inputs = CandidateSimulationContextInputs(

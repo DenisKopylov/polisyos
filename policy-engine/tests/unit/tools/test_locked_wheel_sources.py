@@ -81,6 +81,181 @@ def test_locked_wheel_selects_exact_installed_source(
     assert len(calls) == 1
 
 
+@pytest.mark.parametrize(
+    "mode",
+    [
+        "positive",
+        "consumer",
+        "provider",
+        "pre_event",
+        "pre_event_remove_guard",
+        "late",
+        "source",
+        "unselected",
+        "remove_guard",
+    ],
+)
+def test_dynamic_wheel_import_binding_uses_actual_anchored_events(
+    tmp_path: Path, mode: str
+) -> None:
+    """Bind the observed wheel provider, facade and consumer without guessing exports."""
+    site = tmp_path / "site"
+    package = site / "sample_provider"
+    info = site / "sample_provider-1.0.dist-info"
+    package.mkdir(parents=True)
+    info.mkdir()
+    sources = {
+        "sample_provider/__init__.py": b"from .base import Capability\n",
+        "sample_provider/base.py": b"class Capability: pass\n",
+    }
+    metadata = b"Metadata-Version: 2.1\nName: sample-provider\nVersion: 1.0\n\n"
+    wheel = b"Wheel-Version: 1.0\nRoot-Is-Purelib: true\nTag: py3-none-any\n\n"
+    for name, content in sources.items():
+        (site / name).write_bytes(content)
+    (info / "METADATA").write_bytes(metadata)
+    (info / "WHEEL").write_bytes(wheel)
+    (info / "RECORD").write_text("".join(f"{name},,\n" for name in sources))
+    archive_buffer = io.BytesIO()
+    with zipfile.ZipFile(archive_buffer, "w") as archive:
+        for name, content in sources.items():
+            archive.writestr(name, content)
+        archive.writestr("sample_provider-1.0.dist-info/METADATA", metadata)
+        archive.writestr("sample_provider-1.0.dist-info/WHEEL", wheel)
+    content = archive_buffer.getvalue()
+    lock = (
+        '[[package]]\nname = "sample-provider"\nversion = "1.0"\n'
+        'wheels = [{ url = "https://example.invalid/sample_provider-1.0-py3-none-any.whl", '
+        f'hash = "sha256:{hashlib.sha256(content).hexdigest()}", size = {len(content)} }}]\n'
+    ).encode()
+    consumer = tmp_path / "consumer.py"
+    consumer.write_text(
+        (
+            "import sample_provider\nsample_provider.Capability = object()\n"
+            if mode in ("pre_event", "pre_event_remove_guard")
+            else ""
+        )
+        + "from sample_provider import Capability as Selected\n"
+        "def later():\n"
+        "    from sample_provider import Capability as Selected\n"
+        "    return Selected\n"
+    )
+    product = Path(__file__).resolve().parents[3]
+    script = r"""
+import __future__, ast, base64, hashlib, pathlib, sys, types, typing
+product, root, archive, lock, mode = sys.argv[1:]
+product, root = pathlib.Path(product), pathlib.Path(root)
+sys.path.insert(0, str(product))
+from tools import authority_bootstrap as host
+from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
+host._LockedWheelSourceSelector._archive_bytes = staticmethod(lambda url, size: base64.b64decode(archive))
+selector = host._LockedWheelSourceSelector(root, root / 'site', base64.b64decode(lock))
+source = root / 'consumer.py'
+capture = SourceExecutionCapture(root, {
+    'consumer': ExpectedSource('consumer.py', hashlib.sha256(source.read_bytes()).hexdigest())
+}, external_source_selector=(lambda name, path: None) if mode == 'unselected' else selector.select)
+capture.install()
+sys.path[:0] = [str(root), str(root / 'site')]
+import consumer
+graph = capture.relevant_graph(frozenset({'consumer'}))
+source_file = product / 'src/polisyos/runtime/quality/confidence_ledger.py'
+tree = ast.parse(source_file.read_bytes(), filename=str(source_file))
+names = {'_passive_capture_lookup', '_source_import_aliases_for_event', '_observed_source_bindings'}
+functions = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in names]
+scope = {'ast': ast, 'hashlib': hashlib, 'types': types, 'Path': pathlib.Path,
+         'Iterable': typing.Iterable, 'Mapping': typing.Mapping, 'Any': typing.Any,
+         'cast': typing.cast, '_NO_EXECUTION_BINDING': object()}
+exec(compile(ast.Module(body=functions, type_ignores=[]), str(source_file), 'exec',
+             flags=__future__.annotations.compiler_flag, dont_inherit=True), scope)
+observe = scope['_observed_source_bindings']
+if mode == 'unselected':
+    bindings, _ = observe(root, capture, graph)
+    assert not bindings and 'sample_provider' in graph.external_providers
+    raise SystemExit(0)
+bindings, disagreements = observe(root, capture, graph)
+if mode in ('pre_event', 'pre_event_remove_guard'):
+    assert ('sample_provider', 'Capability', 'consumer', 'Selected') in disagreements
+    event = next(event for event in capture.import_events()
+                 if event.importer_name == 'consumer' and event.provider_name == 'sample_provider'
+                 and event.requested_exports == ('Capability',))
+    if mode == 'pre_event_remove_guard':
+        capture.completed_binding = lambda *args: consumer.Selected
+    try:
+        capture.assert_import_binding(event, importer_attribute='Selected', provider_export='Capability')
+    except CaptureError as exc:
+        assert str(exc) == 'retained_export_changed'
+    else:
+        raise AssertionError('pre-event provider mutation accepted')
+    assert capture.failed
+    raise SystemExit(0)
+assert not disagreements
+assert any(row[0] == 'sample_provider.base' and row[1] == 'Capability'
+           and ('sample_provider', 'Capability') in row[3] for row in bindings)
+assert any(row[0] == 'sample_provider' and row[1] == 'Capability'
+           and ('consumer', 'Selected') in row[3] for row in bindings)
+event = next(event for event in capture.import_events()
+             if event.importer_name == 'consumer' and event.provider_name == 'sample_provider')
+if mode == 'remove_guard': capture.assert_import_binding = lambda *args, **kwargs: None
+if mode in ('consumer', 'remove_guard'): consumer.Selected = object()
+if mode == 'provider': sys.modules['sample_provider'].Capability = object()
+if mode in ('consumer', 'provider', 'remove_guard'):
+    try:
+        capture.assert_import_binding(event, importer_attribute='Selected', provider_export='Capability')
+    except CaptureError as exc:
+        assert str(exc) == ('retained_export_changed' if mode == 'provider' else 'import_event_binding_changed')
+    else:
+        raise AssertionError('changed binding accepted')
+    assert capture.failed
+if mode == 'late':
+    consumer.later()
+    late = [event for event in capture.import_events() if event.importer_name == 'consumer'
+            and event.provider_name == 'sample_provider'][-1]
+    try:
+        capture.assert_import_binding(late, importer_attribute='Selected', provider_export='Capability')
+    except CaptureError as exc:
+        assert str(exc) == 'import_event_binding_unresolved'
+    else:
+        raise AssertionError('late event accepted')
+if mode == 'source':
+    path = root / 'site/sample_provider/base.py'
+    path.write_bytes(path.read_bytes() + b'# changed\n')
+    try:
+        observe(root, capture, graph)
+    except ValueError as exc:
+        assert str(exc) == 'importer_source_observation_mismatch' or str(exc) == 'executed_source_observation_mismatch'
+    else:
+        raise AssertionError('changed provider source accepted')
+"""
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            "-S",
+            "-B",
+            "-c",
+            script,
+            str(product),
+            str(tmp_path),
+            base64.b64encode(content).decode(),
+            base64.b64encode(lock).decode(),
+            mode,
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=20,
+    )
+    if mode in ("remove_guard", "pre_event_remove_guard"):
+        assert result.returncode != 0
+        expected = (
+            "pre-event provider mutation accepted"
+            if mode == "pre_event_remove_guard"
+            else "changed binding accepted"
+        )
+        assert expected in result.stderr
+    else:
+        assert result.returncode == 0, result.stderr
+
+
 @pytest.mark.parametrize("mutation", ["installed_source", "archive_digest", "record_owner"])
 def test_locked_wheel_refusal_is_sticky_after_restore(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, mutation: str

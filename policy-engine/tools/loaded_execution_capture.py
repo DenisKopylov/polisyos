@@ -696,6 +696,7 @@ class SourceExecutionCapture:
             raise ValueError("capture_source_selection_invalid")
         self._selected_sources = dict(sources)
         self._sources = MappingProxyType(self._selected_sources)
+        self._initial_source_names = frozenset(sources)
         self._external_source_selector = external_source_selector
         self._selecting_external = False
         self._external_source_root = (
@@ -1472,6 +1473,17 @@ class SourceExecutionCapture:
         self.assert_retained(frozenset(required))
         if event.provider_name in self._sources:
             self.completed_binding(event.provider_name, provider_export)
+            if event.provider_name not in self._initial_source_names:
+                importer = self.completed(event.importer_name)
+                if (
+                    self._external_source_selector is None
+                    or event.route != "builtin_import"
+                    or event.caller_code is not importer.code
+                    or provider_export not in event.requested_exports
+                    or provider_export in event.unresolved_exports
+                ):
+                    self._fail("import_event_binding_unresolved")
+                    raise CaptureError("import_event_binding_unresolved")
         importer_namespace = self._module_namespace(event.importer)
         provider_namespace = self._module_namespace(event.provider)
         if (
@@ -2163,6 +2175,15 @@ class SourceExecutionCapture:
         ):
             raise CaptureError("module_initialization_invalid")
         names = self._exports.get(name, frozenset())
+        if name not in self._initial_source_names:
+            # A wheel provider is selected during import, after the initial
+            # export census. Hold its passive initializer-end namespace so a
+            # later import cannot authenticate a replaced provider value.
+            names = frozenset(
+                key
+                for key in namespace
+                if type(key) is str and key.isidentifier() and not key.startswith("__")
+            )
         values: dict[str, object] = {}
         for export in names:
             found, value = _passive_lookup(namespace, export)

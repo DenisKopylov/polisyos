@@ -103,6 +103,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.world_model_record import WorldModelRecord
     from polisyos.scientist.orchestration.engine import (
         BudgetInvocationCapacityObservation,
+        BudgetInvocationQuotaPolicy,
         BudgetLedgerReentryBudgetWindow,
         ProducerBudgetObservation,
         ProducerBudgetObserver,
@@ -1324,6 +1325,17 @@ class AcquisitionWorldGrowthBridge:
             first_n4_source=first_n4_source,
         )
 
+    @staticmethod
+    def _candidate_experiment_standard_quota_policy(
+        prior_owner: CandidateExperimentPriorOwner,
+    ) -> BudgetInvocationQuotaPolicy:
+        """Select the standard quota from an already verified prior owner."""
+        profile = prior_owner.profile.n5
+        quota = profile.invocation_quota_policy
+        if quota is None or profile.invocation_purpose != "standard":
+            raise ValueError("candidate_experiment_reentry_n5_quota_not_established")
+        return quota
+
     def resolve_candidate_experiment_reentry_budget_window(
         self,
         *,
@@ -1506,10 +1518,7 @@ class AcquisitionWorldGrowthBridge:
         ):
             raise ValueError("candidate_experiment_reentry_budget_binding_mismatch")
         prior_owner = self._candidate_experiment_prior_owner(origin=origin, selection=selection)
-        profile = prior_owner.profile
-        quota = profile.n5.invocation_quota_policy
-        if quota is None or profile.n5.invocation_purpose != "standard":
-            raise ValueError("candidate_experiment_reentry_n5_quota_not_established")
+        quota = self._candidate_experiment_standard_quota_policy(prior_owner)
         try:
             observer = service._build_candidate_experiment_reentry_budget_observer_from_context(
                 origin=origin,

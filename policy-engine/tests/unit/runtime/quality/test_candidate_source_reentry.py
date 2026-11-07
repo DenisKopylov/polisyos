@@ -267,7 +267,9 @@ def _candidate_reentry_configuration_case(
     object.__setattr__(origin, "tenant_id", "tenant-candidate-config")
     object.__setattr__(origin, "cell_id", "cell-candidate-config")
     object.__setattr__(origin, "run_id", "run-candidate-config")
-    object.__setattr__(origin, "policy_scope", SimpleNamespace(design_problem_ref="sha256:" + "6" * 64))
+    object.__setattr__(
+        origin, "policy_scope", SimpleNamespace(design_problem_ref="sha256:" + "6" * 64)
+    )
     receipt = SimpleNamespace(
         continued_generation_run=object(),
         new_cycle=object(),
@@ -1015,11 +1017,7 @@ def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
 
     def current_context(*_args: object) -> object:
         context_calls.append(object())
-        selected = (
-            changed_selection
-            if late_owner_change and len(context_calls) == 2
-            else selection
-        )
+        selected = changed_selection if late_owner_change and len(context_calls) == 2 else selection
         return SimpleNamespace(
             selection=selected,
             phase=phase,
@@ -1028,7 +1026,9 @@ def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
             budget_window=window,
         )
 
-    monkeypatch.setattr(actions, "_current_candidate_experiment_reentry_action_context", current_context)
+    monkeypatch.setattr(
+        actions, "_current_candidate_experiment_reentry_action_context", current_context
+    )
     assert type(profile) is BudgetLedgerInvocationProfile
     final_action_calls: list[object] = []
 
@@ -1049,9 +1049,10 @@ def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
         return observer
 
     def build_with_full_action_read(**kwargs: object) -> ProducerBudgetObserver:
-        assert budget_case.ledger.snapshot().invocation_profiles.get(
-            budget_case.binding.run_id
-        ) is None
+        assert (
+            budget_case.ledger.snapshot().invocation_profiles.get(budget_case.binding.run_id)
+            is None
+        )
         current_action(
             None,
             kwargs["origin"],
@@ -1107,7 +1108,128 @@ def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
         1 if final_cas_removed else (2 if selected_profile_present else 3)
     )
     assert len(final_action_calls) == (2 if not selected_profile_present else 1)
-    assert budget_case.ledger.snapshot().invocation_profiles.get(budget_case.binding.run_id) == profile
+    assert (
+        budget_case.ledger.snapshot().invocation_profiles.get(budget_case.binding.run_id) == profile
+    )
+
+
+@pytest.mark.parametrize("ledger_profile", ["selected", "missing", "foreign"])
+def test_terminal_reentry_binds_exact_selected_quota_read_only(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    ledger_profile: str,
+) -> None:
+    """Terminal budget reconciliation binds only the selected existing quota."""
+    from polisyos.scientist.orchestration.engine import (
+        BudgetInvocationQuotaPolicy,
+        BudgetLedgerInvocationProfile,
+    )
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+    from polisyos.scientist.orchestration.engine.producer_budget import (
+        ProducerBudgetObserver,
+        ProducerBudgetSourceError,
+    )
+    from tests.unit.runtime.quality.test_acquisition_candidate_budget_window import (
+        _prepare,
+        _settle,
+        _unit_window,
+    )
+
+    budget_case = _unit_window(tmp_path / ledger_profile, monkeypatch)
+    _settle(budget_case, "terminal-reentry-quota-baseline", Decimal("0.02"))
+    window = _prepare(budget_case)
+    quota = BudgetInvocationQuotaPolicy(
+        allocation_id="terminal-reentry-selected-standard",
+        total_units=5,
+        protected_units=1,
+    )
+    selected_profile = BudgetLedgerInvocationProfile.from_policy(budget_case.binding, quota)
+    if ledger_profile == "foreign":
+        budget_case.service._llm_producer_settlement_store.configure_invocation_profile_safe(
+            BudgetLedgerInvocationProfile.from_policy(
+                budget_case.binding,
+                BudgetInvocationQuotaPolicy(
+                    allocation_id="terminal-reentry-different-standard",
+                    total_units=5,
+                    protected_units=1,
+                ),
+            )
+        )
+    elif ledger_profile == "selected":
+        producer = ProducerBudgetObserver(
+            settlement_store=budget_case.service._llm_producer_settlement_store,
+            producer_run_binding=budget_case.binding,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=window.effective_limit_usd)}
+            ),
+            invocation_quota_profile=selected_profile,
+            reentry_budget_scope=window.scope,
+        )
+        for index in range(4):
+            operation_id = f"{index + 1:064x}"
+            request_digest = f"{index + 101:064x}"
+            reservation = producer.reserve_invocation(operation_id, request_digest)
+            assert reservation is not None
+            producer.finish_invocation(operation_id, request_digest, "completed")
+
+    prior_owner = SimpleNamespace(
+        profile=SimpleNamespace(
+            n5=SimpleNamespace(
+                invocation_quota_policy=quota,
+                invocation_purpose="standard",
+            )
+        )
+    )
+    selected_quota = AcquisitionWorldGrowthBridge._candidate_experiment_standard_quota_policy(
+        prior_owner
+    )
+    assert selected_quota == quota
+
+    terminal_state = BudgetState(
+        limits={"run": BudgetLimit(key="run", max_usd=window.effective_limit_usd)}
+    )
+    terminal_observer = ProducerBudgetObserver(
+        settlement_store=budget_case.service._llm_producer_settlement_store,
+        producer_run_binding=budget_case.binding,
+        budget_state=terminal_state,
+        invocation_selection_pending=True,
+        reentry_budget_scope=window.scope,
+    )
+    ledger_before_read = budget_case.ledger_path.read_bytes()
+    unbound_capacity = ProducerBudgetObserver.observe_standard_invocation_capacity(
+        terminal_observer
+    )
+    assert unbound_capacity.status == "not_established"
+    assert unbound_capacity.reason_code == "quota_profile_not_established"
+    if ledger_profile != "selected":
+        with pytest.raises(ProducerBudgetSourceError, match="n5_invocation_selection_not_current"):
+            ProducerBudgetObserver.bind_existing_invocation_policy_from_selected_owner(
+                terminal_observer,
+                selected_quota,
+                purpose="standard",
+            )
+        assert terminal_observer.invocation_quota_profile is None
+    else:
+        bound_profile = ProducerBudgetObserver.bind_existing_invocation_policy_from_selected_owner(
+            terminal_observer,
+            selected_quota,
+            purpose="standard",
+        )
+        assert bound_profile == selected_profile
+        observation = ProducerBudgetObserver.observe(terminal_observer)
+        capacity = ProducerBudgetObserver.observe_standard_invocation_capacity(terminal_observer)
+        assert observation.predicate_basis == "independently_reconciled"
+        assert capacity.status == "exhausted"
+        assert capacity.profile_digest == selected_profile.profile_digest
+        assert capacity.standard_limit_units == 4
+        assert capacity.standard_remaining_units == 0
+        assert len(capacity.terminal_witnesses) == 4
+        assert capacity.exhaustion_witness is not None
+        assert ProducerBudgetObserver.verify_standard_invocation_exhaustion(
+            terminal_observer,
+            capacity.exhaustion_witness,
+        )
+    assert budget_case.ledger_path.read_bytes() == ledger_before_read
 
 
 @pytest.mark.asyncio

@@ -3104,13 +3104,23 @@ def _revalidate_candidate_experiment_reentry_owner(
             budget_state=owner.budget_state,
             reentry_budget_scope=owner.reentry_budget_scope,
         )
-        observation = observer.observe()
-        capacity = observer.observe_standard_invocation_capacity()
+        if type(observer) is not ProducerBudgetObserver:
+            raise ValueError("candidate_experiment_reentry_budget_owner_untyped")
+        ProducerBudgetObserver.require_bound_state(observer, owner.budget_state)
+        quota = bridge._candidate_experiment_standard_quota_policy(
+            owner.evaluation_owner.prior_owner
+        )
+        # Terminal publication reads the existing durable quota. It cannot
+        # repair selection or admit more work after the physical invocation.
+        selected_quota = ProducerBudgetObserver.bind_existing_invocation_policy_from_selected_owner(
+            observer, quota, purpose="standard"
+        )
+        observation = ProducerBudgetObserver.observe(observer)
+        capacity = ProducerBudgetObserver.observe_standard_invocation_capacity(observer)
     except (OSError, RuntimeError, TypeError, ValueError) as exc:
         raise ValueError("candidate_experiment_reentry_budget_not_reconciled") from exc
     if (
-        type(observer) is not ProducerBudgetObserver
-        or type(observation) is not ProducerBudgetObservation
+        type(observation) is not ProducerBudgetObservation
         or type(capacity) is not BudgetInvocationCapacityObservation
     ):
         raise ValueError("candidate_experiment_reentry_budget_owner_untyped")
@@ -3174,6 +3184,7 @@ def _revalidate_candidate_experiment_reentry_owner(
             )
         except (OSError, RuntimeError, TypeError, ValueError):
             exhaustion_replayed = False
+    conservation_cause = None
     if (
         observation.predicate_basis != "independently_reconciled"
         or observation.remaining_usd < 0
@@ -3182,17 +3193,25 @@ def _revalidate_candidate_experiment_reentry_owner(
         or observation.settlement_owner != capacity.settlement_owner
         or capacity.predicate_basis != "independently_reconciled"
         or capacity.status not in {"available", "exhausted"}
-        or capacity.profile_digest is None
+        or capacity.profile_digest != selected_quota.profile_digest
         or capacity.standard_limit_units is None
         or capacity.standard_remaining_units is None
         or (capacity.status == "available" and capacity.standard_remaining_units <= 0)
         or (capacity.status == "exhausted" and capacity.standard_remaining_units != 0)
-        or not current_event_capture_valid
-        or not current_operation_bindings_valid
-        or not set(current_operation_ids).issubset(witness_ids)
-        or (capacity.status == "exhausted" and not exhaustion_replayed)
     ):
-        raise ValueError("candidate_experiment_reentry_budget_conservation_not_established")
+        conservation_cause = "candidate_experiment_reentry_budget_capacity_not_reconciled"
+    elif not current_event_capture_valid:
+        conservation_cause = "candidate_experiment_reentry_physical_events_not_reconciled"
+    elif not current_operation_bindings_valid or not set(current_operation_ids).issubset(
+        witness_ids
+    ):
+        conservation_cause = "candidate_experiment_reentry_invocation_witnesses_not_reconciled"
+    elif capacity.status == "exhausted" and not exhaustion_replayed:
+        conservation_cause = "candidate_experiment_reentry_quota_exhaustion_not_reconciled"
+    if conservation_cause is not None:
+        raise ValueError(
+            "candidate_experiment_reentry_budget_conservation_not_established"
+        ) from ValueError(conservation_cause)
     owner.evaluation_owner.revalidate()
 
 

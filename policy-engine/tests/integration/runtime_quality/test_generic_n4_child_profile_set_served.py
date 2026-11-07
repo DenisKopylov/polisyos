@@ -13,7 +13,7 @@ from contextlib import contextmanager
 from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import pytest
 
@@ -41,10 +41,11 @@ def _assert_conditioned_fiscal_affine_effects(
 ) -> None:
     """Check the declared binary64 affine fixture, not general stochastic output.
 
-    The coefficient 0.5 scales exactly in binary64. Common factual noise is
-    conditioned on outcome 100, and subtraction near that value is exact by
-    Sterbenz's lemma. Three scale-100 additions contribute at most roughly
-    1.5 ulp; eight ulp conservatively covers this fixture's arithmetic.
+    The controlled coefficients 0.5 and 0.75 are exactly representable in
+    binary64. Common factual noise is conditioned on outcome 100, and
+    subtraction near that value is exact by Sterbenz's lemma. Three scale-100
+    additions contribute at most roughly 1.5 ulp; eight ulp conservatively
+    covers this fixture's arithmetic.
     """
     tolerance = 8 * math.ulp(100.0)
     assert tuple(samples) == pytest.approx((expected_effect,) * len(samples), rel=0, abs=tolerance)
@@ -4042,13 +4043,21 @@ async def test_actual_child_provider_refuses_stale_subject_after_same_root_readm
 @pytest.mark.integration
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ("recording_mode", "child_count", "ordered_alternatives"),
+    ("recording_mode", "child_count", "ordered_alternatives", "supported_model_order"),
     [
-        ("original_second_capture", 2, False),
-        ("served_tax_global_scalar", 1, False),
-        ("served_tax_global_scalar", 1, True),
+        ("original_second_capture", 2, False, None),
+        ("served_tax_global_scalar", 1, False, None),
+        ("served_tax_global_scalar", 1, True, None),
+        ("served_tax_global_scalar", 1, False, "declared_first"),
+        ("served_tax_global_scalar", 1, False, "alternative_first"),
     ],
-    ids=["employment-singleton", "fiscal-singleton", "fiscal-ordered-models"],
+    ids=[
+        "employment-singleton",
+        "fiscal-singleton",
+        "fiscal-cyclic-fallback",
+        "fiscal-supported-models-declared-first",
+        "fiscal-supported-models-alternative-first",
+    ],
 )
 async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choices(
     tmp_path: Path,
@@ -4059,13 +4068,16 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
     recording_mode: str,
     child_count: int,
     ordered_alternatives: bool,
+    supported_model_order: Literal["declared_first", "alternative_first"] | None,
 ) -> None:
-    """Same actual owner serves two declared questions and ordered CAS alternatives.
+    """The ordinary owner serves declared candidate models from ordered CAS input.
 
     User input supplies the question and explicit simulate-only intent. The
-    server-selected profile supplies NCM resource, single-point horizon, empty
+    server-selected profile supplies NCM refs, single-point horizon, empty
     comparator set, budget ref, synthetic model/units, seed and replications.
-    Neither synthetic question establishes empirical grounding or currentness.
+    The two supported models share a target, outcome, units and intervention
+    basis; reversing their declared order changes the selected numeric result.
+    These controlled inputs establish neither empirical grounding nor currentness.
     """
     from fastapi.testclient import TestClient
 
@@ -4130,6 +4142,7 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
         child_count=child_count,
         phase_callback=served_worker_phase_probe,
         include_cyclic_ncm_alternative=ordered_alternatives,
+        supported_ncm_alternative_order=supported_model_order,
         materialize_source_parameters=True,
         synthetic_settled_provider=True,
         condition_synthetic_provider_on_child_sources=(recording_mode == "original_second_capture"),
@@ -4570,9 +4583,15 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
             assignment = assignments[0]
             assert assignment.value_expr is None
             assert units[assignment.variable]
-            expected_effect = 0.5 * (
+            intervention_delta = (
                 float(assignment.value) - profile.n5.baseline_state[assignment.variable]
             )
+            if supported_model_order is not None:
+                assert intervention_delta != 0.0
+            expected_coefficient = (
+                0.75 if supported_model_order == "alternative_first" else 0.5
+            )
+            expected_effect = expected_coefficient * intervention_delta
             # Individual/joint scopes are not independent replications. Read the
             # actual per-seed samples from the selected joint trajectory instead.
             joint_trajectories = [
@@ -4629,6 +4648,58 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
                 assert result.engine_decisions[0].decision == "unsupported"
                 assert "cyclic_ncm_rejected" in result.engine_decisions[0].blockers
                 assert result.engine_decisions[1].decision == "selected"
+            elif supported_model_order is not None:
+                from polisyos.core.artifacts import ensure_ir_artifact_store
+                from polisyos.ir.analytics.ncm import load_ncm_spec_default_view
+                from polisyos.ir.registry.refs import NCMSpecRef
+
+                assert isinstance(profile.n5, GenericCycleN5RequestProfileV2)
+                assert len(request.engine_plan) == len(profile.n5.ncm_plan_refs) == 2
+                assert all(
+                    plan.ncm_spec is not None and plan.ncm_spec.is_acyclic
+                    for plan in request.engine_plan
+                )
+                assert all(
+                    plan.engine_kind == request.engine_plan[0].engine_kind
+                    and plan.objective_ref == request.engine_plan[0].objective_ref
+                    and plan.variable_map == request.engine_plan[0].variable_map
+                    for plan in request.engine_plan
+                )
+                with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+                    persisted_models = tuple(
+                        load_ncm_spec_default_view(
+                            ensure_ir_artifact_store(reader_context.store),
+                            NCMSpecRef.model_validate(ref.model_dump(mode="python")),
+                        )
+                        for ref in profile.n5.ncm_plan_refs
+                    )
+                assert tuple(plan.ncm_spec for plan in request.engine_plan) == persisted_models
+                target_coefficients_list: list[float] = []
+                for model in persisted_models:
+                    equations = tuple(
+                        equation
+                        for equation in model.structural_equations
+                        if equation.variable == outcome
+                    )
+                    assert len(equations) == 1
+                    target_coefficients_list.append(
+                        equations[0].equation_params["coefficients"][assignment.variable]
+                    )
+                target_coefficients = tuple(target_coefficients_list)
+                expected_coefficients = (
+                    (0.5, 0.75)
+                    if supported_model_order == "declared_first"
+                    else (0.75, 0.5)
+                )
+                assert target_coefficients == expected_coefficients
+                assert all(
+                    {assignment.variable, outcome} <= set(model.endogenous_vars)
+                    for model in persisted_models
+                )
+                assert profile.selected_ncm_ref == profile.n5.ncm_plan_refs[0]
+                assert len(result.engine_decisions) == 1
+                assert result.engine_decisions[0].decision == "selected"
+                assert expected_effect != target_coefficients[1] * intervention_delta
             else:
                 assert len(request.engine_plan) == 1
                 assert result.engine_decisions[0].decision == "selected"
@@ -4643,7 +4714,7 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
                         ref.model_dump(mode="json")
                         for ref in (
                             profile.n5.ncm_plan_refs
-                            if ordered_alternatives
+                            if ordered_alternatives or supported_model_order is not None
                             else (profile.selected_ncm_ref,)
                         )
                     ],
@@ -4654,6 +4725,10 @@ async def test_ordinary_generic_questions_preserve_numerics_and_all_model_choice
                     "target_value": assignment.value,
                     "expected_effect": expected_effect,
                     "observed_effects": effects,
+                    "supported_model_order": supported_model_order,
+                    "model_coefficients": list(target_coefficients)
+                    if supported_model_order is not None
+                    else [],
                     "historical_join": {
                         "status": joined.status,
                         "leaf_context_ref": selected_node.leaf_context_ref.model_dump(mode="json"),

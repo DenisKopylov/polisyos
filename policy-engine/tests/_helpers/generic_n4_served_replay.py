@@ -1531,6 +1531,10 @@ def _generic_profile_for_selection(
     cell_id: str,
     candidate_scm_overrides: dict[str, float] | None = None,
     include_cyclic_ncm_alternative: bool = False,
+    supported_ncm_alternative_order: Literal[
+        "declared_first", "alternative_first"
+    ]
+    | None = None,
     component_rule_spec: dict[str, Any] | None = None,
 ):
     """Build a profile from declared models, retaining every chosen CAS alternative."""
@@ -1629,6 +1633,14 @@ def _generic_profile_for_selection(
         declaration_fields,
         hash_fn=gy_content_hash,
     )
+    if supported_ncm_alternative_order is not None and include_cyclic_ncm_alternative:
+        raise ValueError("controlled_generic_ncm_alternative_modes_conflict")
+    if supported_ncm_alternative_order is not None and (
+        type(supported_ncm_alternative_order) is not str
+        or supported_ncm_alternative_order not in {"declared_first", "alternative_first"}
+    ):
+        raise ValueError("controlled_generic_supported_ncm_order_invalid")
+
     ncm = candidate_ncm_spec_from_declaration(declaration)
     _require_child_ncm_scope(
         ncm,
@@ -1636,42 +1648,76 @@ def _generic_profile_for_selection(
         outcome_variable=outcome_variable,
     )
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
-        ncm_ref = persist_ncm_spec(ensure_ir_artifact_store(store), ncm)
-        ncm_ref = ArtifactRef.model_validate(ncm_ref.model_dump(mode="python"))
-        ncm_plan_refs = (ncm_ref,)
-        if include_cyclic_ncm_alternative:
-            # A real competing model has an outcome→target feedback edge in
-            # addition to the target→outcome edge. Normal Horizon eligibility,
-            # not this producer, must reject its unsupported cyclic contour.
-            cyclic_fields = ncm.model_dump(mode="python")
-            cyclic_fields.update(
-                {
-                    "is_acyclic": False,
-                    "scm_spec": None,
-                    "fit_method": "declared_candidate_feedback_alternative",
-                    "structural_equations": [
-                        equation.model_copy(
-                            update={
-                                "parents": [outcome_variable],
-                                "equation_params": {
-                                    **equation.equation_params,
-                                    "coefficients": {outcome_variable: 0.1},
-                                },
-                                "is_recursive": False,
-                            }
-                        )
-                        if equation.variable == target_world_slot
-                        else equation.model_copy(update={"is_recursive": False})
-                        for equation in ncm.structural_equations
-                    ],
-                }
+        if supported_ncm_alternative_order is not None:
+            # These two explicit candidate assumptions share target, outcome,
+            # baseline, units and intervention request. Only the declared
+            # affine slope differs; neither model is empirically grounded.
+            alternative_fields = declaration.model_dump(
+                mode="python", exclude={"content_hash"}
             )
-            cyclic = type(ncm).model_validate(cyclic_fields)
-            cyclic_ref = persist_ncm_spec(ensure_ir_artifact_store(store), cyclic)
-            ncm_plan_refs = (
-                ArtifactRef.model_validate(cyclic_ref.model_dump(mode="python")),
-                ncm_ref,
+            alternative_fields["outcome_per_target_unit"] = (
+                declaration.outcome_per_target_unit * 1.5
             )
+            alternative_declaration = _hashed_model(
+                type(declaration), alternative_fields, hash_fn=gy_content_hash
+            )
+            alternative_ncm = candidate_ncm_spec_from_declaration(alternative_declaration)
+            _require_child_ncm_scope(
+                alternative_ncm,
+                target_world_slot=target_world_slot,
+                outcome_variable=outcome_variable,
+            )
+            declared_ref = persist_ncm_spec(ensure_ir_artifact_store(store), ncm)
+            declared_ref = ArtifactRef.model_validate(declared_ref.model_dump(mode="python"))
+            alternative_ref = persist_ncm_spec(ensure_ir_artifact_store(store), alternative_ncm)
+            alternative_ref = ArtifactRef.model_validate(
+                alternative_ref.model_dump(mode="python")
+            )
+            if supported_ncm_alternative_order == "alternative_first":
+                declaration = alternative_declaration
+                ncm = alternative_ncm
+                ncm_ref = alternative_ref
+                ncm_plan_refs = (alternative_ref, declared_ref)
+            else:
+                ncm_ref = declared_ref
+                ncm_plan_refs = (declared_ref, alternative_ref)
+        else:
+            ncm_ref = persist_ncm_spec(ensure_ir_artifact_store(store), ncm)
+            ncm_ref = ArtifactRef.model_validate(ncm_ref.model_dump(mode="python"))
+            ncm_plan_refs = (ncm_ref,)
+            if include_cyclic_ncm_alternative:
+                # A real competing model has an outcome→target feedback edge in
+                # addition to the target→outcome edge. Normal Horizon eligibility,
+                # not this producer, must reject its unsupported cyclic contour.
+                cyclic_fields = ncm.model_dump(mode="python")
+                cyclic_fields.update(
+                    {
+                        "is_acyclic": False,
+                        "scm_spec": None,
+                        "fit_method": "declared_candidate_feedback_alternative",
+                        "structural_equations": [
+                            equation.model_copy(
+                                update={
+                                    "parents": [outcome_variable],
+                                    "equation_params": {
+                                        **equation.equation_params,
+                                        "coefficients": {outcome_variable: 0.1},
+                                    },
+                                    "is_recursive": False,
+                                }
+                            )
+                            if equation.variable == target_world_slot
+                            else equation.model_copy(update={"is_recursive": False})
+                            for equation in ncm.structural_equations
+                        ],
+                    }
+                )
+                cyclic = type(ncm).model_validate(cyclic_fields)
+                cyclic_ref = persist_ncm_spec(ensure_ir_artifact_store(store), cyclic)
+                ncm_plan_refs = (
+                    ArtifactRef.model_validate(cyclic_ref.model_dump(mode="python")),
+                    ncm_ref,
+                )
 
     base_context_inputs = base_profile.context_inputs
     base_world = base_context_inputs.world_model_record
@@ -1734,7 +1780,7 @@ def _generic_profile_for_selection(
     else:
         generic_n5 = (
             GenericCycleN5RequestProfileV2(**n5_fields, ncm_plan_refs=ncm_plan_refs)
-            if include_cyclic_ncm_alternative
+            if include_cyclic_ncm_alternative or supported_ncm_alternative_order is not None
             else GenericCycleN5RequestProfileV1(**n5_fields)
         )
     profile_fields = {
@@ -2076,6 +2122,10 @@ async def prepare_generic_n4_served_replay(
     candidate_scm_overrides_by_child_index: dict[int, dict[str, float]] | None = None,
     source_root: Path | None = None,
     include_cyclic_ncm_alternative: bool = False,
+    supported_ncm_alternative_order: Literal[
+        "declared_first", "alternative_first"
+    ]
+    | None = None,
     materialize_source_parameters: bool = False,
     joint_numeric_model: Literal["additive", "cubic_binary64"] = "additive",
     synthetic_settled_provider: bool = False,
@@ -2138,6 +2188,13 @@ async def prepare_generic_n4_served_replay(
         )
     ):
         raise TypeError("controlled_generic_ncm_profile_selector_invalid")
+    if supported_ncm_alternative_order is not None and (
+        type(supported_ncm_alternative_order) is not str
+        or supported_ncm_alternative_order not in {"declared_first", "alternative_first"}
+    ):
+        raise ValueError("controlled_generic_supported_ncm_order_invalid")
+    if supported_ncm_alternative_order is not None and include_cyclic_ncm_alternative:
+        raise ValueError("controlled_generic_ncm_alternative_modes_conflict")
     if type(joint_numeric_model) is not str or joint_numeric_model not in {
         "additive",
         "cubic_binary64",
@@ -2877,6 +2934,7 @@ async def prepare_generic_n4_served_replay(
                 cell_id=cell_id,
                 candidate_scm_overrides=candidate_scm_overrides.get(index),
                 include_cyclic_ncm_alternative=include_cyclic_ncm_alternative,
+                supported_ncm_alternative_order=supported_ncm_alternative_order,
                 component_rule_spec=(
                     _source_component_rule_spec(organ_run, child)
                     if materialize_source_parameters

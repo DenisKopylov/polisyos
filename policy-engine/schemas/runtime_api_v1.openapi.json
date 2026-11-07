@@ -6408,6 +6408,16 @@
             ],
             "title": "Blocker Reason"
           },
+          "candidate_n5_result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CandidateExperimentN5ResultProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "coarse_phase": {
             "anyOf": [
               {
@@ -6549,6 +6559,98 @@
           }
         },
         "title": "CandidateExperimentCurrentActionProjection",
+        "type": "object"
+      },
+      "CandidateExperimentN5ResultProjection": {
+        "additionalProperties": false,
+        "description": "Fresh candidate-only result bound to its selected reentry terminal.",
+        "properties": {
+          "authoritative_for": {
+            "default": [
+              "api_display"
+            ],
+            "items": {
+              "const": "api_display",
+              "type": "string"
+            },
+            "title": "Authoritative For",
+            "type": "array"
+          },
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "configuration_use": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Configuration Use",
+            "type": "string"
+          },
+          "implementation_currentness": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Implementation Currentness",
+            "type": "string"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Limitations",
+            "type": "array"
+          },
+          "may_not_use_for": {
+            "default": [
+              "n5_evaluation_retention",
+              "claim_authority",
+              "publication_authority"
+            ],
+            "items": {
+              "enum": [
+                "n5_evaluation_retention",
+                "claim_authority",
+                "publication_authority"
+              ],
+              "type": "string"
+            },
+            "title": "May Not Use For",
+            "type": "array"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "reentry_receipt_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "result_body": {
+            "$ref": "#/components/schemas/RunCandidateSimulationN5ResultBody"
+          },
+          "terminal_receipt_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "terminal_receipt_ref",
+          "reentry_receipt_ref",
+          "result_body",
+          "reason_codes",
+          "limitations"
+        ],
+        "title": "CandidateExperimentN5ResultProjection",
         "type": "object"
       },
       "CandidateExperimentRouteExecutionRequest": {

@@ -1564,7 +1564,7 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
     )
     from polisyos.fabric.connectors.profiles import SourceProfileRegistry
     from polisyos.foundry.execute.executor import load_state_snapshot
-    from polisyos.runtime.quality import acquisition_planner, generation_cycle
+    from polisyos.runtime.quality import generation_cycle
     from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
         CandidateUnpricedExperimentPolicyTemplate,
         read_candidate_unpriced_policy,
@@ -1583,6 +1583,7 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
     from polisyos.runtime.quality.world_model_record import world_model_artifact_views
     from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
     from tests._helpers import acquisition_served_history as served
+    from tests._helpers import generic_n4_served_replay
     from tests._helpers import world_model_record as wmr_fixture
     from tests._helpers.acquisition_constituent_controls import (
         install_first_candidate_experiment_constituent_controls,
@@ -1614,20 +1615,13 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
     base_payload.update(gdp=0.0, tax_rate=0.5)
     monkeypatch.setattr(wmr_fixture, "FABRIC_PAYLOAD", base_payload)
     monkeypatch.setattr(generation_cycle, "_N7_SOURCE_SEMANTIC_EMISSION_ENABLED", True)
-    monkeypatch.setitem(
-        acquisition_planner._ACQUISITION_GAP_BASIS,
-        "global.gdp",
-        {
-            "basis_ref": "fixture-only:hypothetical-gdp-acquisition-input:v1",
-            "collection_mode": "fixture-only annual source routing input",
-            "expert_hours": 1,
-            "calendar_days": 1,
-        },
-    )
     source_inputs = build_candidate_cycle_substrate_route_inputs(
         tmp_path / "annual-gdp-source",
         outcome_variable="global.gdp",
         include_owner_slot_manifest=True,
+        owner_knob_dictionary=generic_n4_served_replay._declared_generic_component_knobs(
+            "served_tax_global_scalar"
+        ),
     )
     problem = annual_gdp_candidate_problem()
     quota = BudgetInvocationQuotaPolicy(
@@ -1648,9 +1642,16 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
             artifact_store=control._artifact_store,
             source_profile=ANNUAL_GDP_WDI_PROFILE,
         )
-        quota_profile = control._llm_producer_settlement_store.snapshot_safe().invocation_profiles[
-            run_id
-        ]
+        quota_snapshot = control._llm_producer_settlement_store.snapshot_safe()
+        quota_profile = quota_snapshot.invocation_profiles[run_id]
+        assert quota_profile.allocation_id == quota.allocation_id
+        assert any(
+            item.run_id == run_id
+            and item.profile_digest == quota_profile.profile_digest
+            and item.purpose == "standard"
+            and item.status == "completed"
+            for item in quota_snapshot.invocation_reservations.values()
+        )
         template = CandidateUnpricedExperimentPolicyTemplate(
             tenant_id=served.TENANT,
             cell_id=served.CELL,
@@ -1706,6 +1707,54 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
                     assert reader_control is not control
                     assert reader_control._artifact_store is not control._artifact_store
                     evaluation = history.evaluation
+                    if evaluation is None:
+                        evaluation = history.reentry_evaluation
+                        reentry = history.reentry
+                        basis = history.selected_basis
+                        assert reentry is not None and reentry.n5_result_ref is not None
+                        assert basis is not None and basis.basis_role == "blocked"
+                        assert history.terminal.selected_evaluation is None
+                        assert history.frontier_after == history.frontier_before
+                        from polisyos.runtime.http.services.acquisition_action_service import (
+                            CandidateExperimentRouteProjection,
+                        )
+
+                        source_job = reader_control._control_store.get_job(
+                            history.origin.source_job_id
+                        )
+                        assert source_job is not None
+                        action_response = reader_values["client"].get(
+                            f"/api/v1/runs/{source_job.progress['core_run_id']}"
+                            "/candidate-acquisition-experiment",
+                            headers=reader_values["headers"],
+                        )
+                        assert action_response.status_code == 200, action_response.text
+                        action = CandidateExperimentRouteProjection.model_validate(
+                            action_response.json()
+                        ).current_action
+                        assert action.status == "completed"
+                        assert action.evaluation_disposition == "blocked"
+                        assert action.selected_evaluation is None
+                        assert action.blocker_reason is not None
+                        assert action.blocker_reason == "; ".join(basis.reason_codes)
+                        assert "canonical_loaded_runtime_mismatch" in basis.reason_codes
+                        result = action.candidate_n5_result
+                        assert result is not None
+                        assert result.reason_codes == basis.reason_codes
+                        assert result.configuration_use == "not_established"
+                        assert result.implementation_currentness == "not_established"
+                        assert result.publication_authority is False
+                        assert result.authority_purpose == "candidate_observation_only"
+                        assert result.may_not_use_for == (
+                            "n5_evaluation_retention",
+                            "claim_authority",
+                            "publication_authority",
+                        )
+                        assert result.result_body.artifact_ref == reentry.n5_result_ref
+                        body = result.result_body
+                        assert body.outcome_units == {"global.gdp": "usd"}
+                        assert body.unit_provenance == "declared_candidate_model"
+                        assert body.candidate_status == "candidate_unverified"
                     assert evaluation is not None
                     selected = evaluation.selected
                     n5_input = evaluation.input_record
@@ -1721,38 +1770,39 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
                     assert n5_input.n5.baseline_state["global.gdp"] == float(state.gdp)
                     assert n5_input.n5.baseline_state["global.tax_rate"] == 0.5
                     assert n5_input.materialization.value == 0.0
-                    source_job = reader_control._control_store.get_job(history.origin.source_job_id)
-                    assert source_job is not None
-                    response = reader_values["client"].get(
-                        f"/api/v1/runs/{source_job.progress['core_run_id']}",
-                        headers=reader_values["headers"],
-                    )
-                    assert response.status_code == 200, response.text
-                    projection = RunDetailsResponse.model_validate_json(
-                        response.content
-                    ).run.candidate_simulation
-                    assert projection is not None and projection.artifact_status == "resolved"
-                    assert projection.publication_authority is False
-                    entries = tuple(
-                        row
-                        for row in projection.acquisition_history
-                        if type(row) is RunCandidateSimulationAcquisitionHistoryEntryV5
-                        and row.candidate_source_ref == history.action.candidate_source_ref
-                        and row.selected_evaluation is not None
-                        and row.selected_evaluation.n5_result_ref == selected.n5_result_ref
-                    )
-                    assert len(entries) == 1
-                    entry = entries[0]
-                    assert entry.observed_admission is False
-                    assert entry.publication_authority is False
-                    observation = entry.selected_n5_observation
-                    assert observation is not None and observation.result_body_status == "resolved"
-                    body = observation.result_body
-                    assert body is not None and body.artifact_ref == selected.n5_result_ref
-                    assert body.outcome_units == {"global.gdp": "usd"}
-                    assert body.unit_provenance == "declared_candidate_model"
-                    assert body.publication_authority is False
-                    assert body.candidate_status == "candidate_unverified"
+                    if history.evaluation is not None:
+                        source_job = reader_control._control_store.get_job(
+                            history.origin.source_job_id
+                        )
+                        assert source_job is not None
+                        response = reader_values["client"].get(
+                            f"/api/v1/runs/{source_job.progress['core_run_id']}",
+                            headers=reader_values["headers"],
+                        )
+                        assert response.status_code == 200, response.text
+                        projection = RunDetailsResponse.model_validate_json(
+                            response.content
+                        ).run.candidate_simulation
+                        assert projection is not None and projection.artifact_status == "resolved"
+                        assert projection.publication_authority is False
+                        entries = tuple(
+                            row
+                            for row in projection.acquisition_history
+                            if type(row) is RunCandidateSimulationAcquisitionHistoryEntryV5
+                            and row.candidate_source_ref == history.action.candidate_source_ref
+                            and row.selected_evaluation is not None
+                            and row.selected_evaluation.n5_result_ref == selected.n5_result_ref
+                        )
+                        assert len(entries) == 1
+                        entry = entries[0]
+                        assert entry.observed_admission is False
+                        assert entry.publication_authority is False
+                        observation = entry.selected_n5_observation
+                        assert observation is not None
+                        assert observation.result_body_status == "resolved"
+                        body = observation.result_body
+                        assert body is not None and body.artifact_ref == selected.n5_result_ref
+                        assert body.publication_authority is False
                     # Independent arithmetic on the physical pre-action state.
                     expected_effect = -500_000_000_000.0 * (0.0 - 0.5)
                     assert expected_effect == 250_000_000_000.0
@@ -1774,6 +1824,24 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
                     observed["fresh_numeric_body"] = body
 
                 def execute_after_replay(**execution_values: Any) -> None:
+                    origin = execution_values["origin"]
+                    source_cycle = origin.source_cycle
+                    report = origin.planner_report
+                    routing = source_cycle.value_port.candidate_n5_l1_routing
+                    assert report.schema_version == "policyos.runtime.acquisition_planner.v2"
+                    assert source_cycle.acquisition_routing_report == report
+                    assert source_cycle.acquisition_cost_basis_record is None
+                    assert report.candidate_lineage is not None
+                    assert routing is not None
+                    gap = routing.requirement_gap
+                    availability = gap.metadata["availability"]
+                    assert availability["variable_id"] == "global.gdp"
+                    assert origin.planner_record in report.acquisition_records
+                    assert origin.planner_record.requirement_gap_ref == gap.requirement_gap_id
+                    assert (
+                        origin.planner_record.requirement_schema_version
+                        == gap.requirement_schema_version
+                    )
                     execution = run_candidate_experiment_served_execution(
                         values=execution_values["values"],
                         origin=execution_values["origin"],
@@ -1789,7 +1857,12 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
                     assert history.terminal.terminal_outcome == "candidate_reentry_completed"
                     constituent_controls.assert_selected(control=control, history=history)
                     assert execution.current_action.status == "completed"
-                    assert execution.current_action.evaluation_disposition == "new"
+                    if history.evaluation is None:
+                        assert execution.current_action.evaluation_disposition == "blocked"
+                        assert execution.current_action.selected_evaluation is None
+                        assert execution.current_action.candidate_n5_result is not None
+                    else:
+                        assert execution.current_action.evaluation_disposition == "new"
                     assert history.action.admitted_observation_delta == 0
                     assert history.action.observed_admission is False
                     assert history.action.publication_authority is False
@@ -1799,8 +1872,15 @@ def test_annual_gdp_candidate_experiment_reaches_distinct_fresh_api_n5_reader(
                     assert source.observation == ANNUAL_GDP_VALUE_USD
                     assert source.year == 2024 and source.canonical_unit == "usd"
                     assert control._artifact_store.get_bytes(source.raw_source_ref) == capture
-                    assert history.evaluation is not None
-                    n5_input = history.evaluation.input_record
+                    evaluation = history.evaluation
+                    if evaluation is None:
+                        evaluation = history.reentry_evaluation
+                        assert history.reentry is not None
+                        assert history.selected_basis is not None
+                        assert history.selected_basis.basis_role == "blocked"
+                        assert history.frontier_after == history.frontier_before
+                    assert evaluation is not None
+                    n5_input = evaluation.input_record
                     views = world_model_artifact_views(
                         n5_input.profile.context_inputs.world_model_record
                     )

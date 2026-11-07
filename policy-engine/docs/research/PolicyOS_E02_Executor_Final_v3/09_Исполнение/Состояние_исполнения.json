@@ -13286,6 +13286,19 @@
           "source_tree": "ea78ed7a420d9840376e5d9db1d6226bb1e6899d",
           "output": "MAIN:policy-engine/_cache/e02/lane01-method-receipt-retained-r13"
         },
+        "method_selection_receipt_composed_r14": {
+          "classification": "PASS_RETAINED_READER_WITH_ZERO_N5",
+          "source_commit": "36c0d376afe1ba88a006398d1e76ba72432bb0e8",
+          "source_tree": "bd3f7bf77321cfa484a2a068432071cc2be014bc",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-method-receipt-retained-r14",
+          "stdout_sha256": "07fafdf6e65f84d304eb144cbda54c3ad9bc98695ca133ba1c532f8b52b250dc",
+          "wall_seconds": 60.27274383301847,
+          "peak_rss_bytes": 1760624640,
+          "named_inputs": 21,
+          "inputs_unchanged": true,
+          "physical_n5_calls": 0,
+          "scope": "Fresh API reader on retained R11 numerical artifacts. Removing the exact selected receipt yields not_established with no estimate. Restoring it serves the same method result. Deciding selected CAS bytes and SQLite control database unchanged."
+        },
         "cyc02_historical_producer_feasibility": {
           "classification": "SOURCE_REVIEW_ONLY_RUNTIME_UNRUN",
           "v2_source_commit": "73d6d71d1bde2b85b7910ba8e1356b888389cfc0",
@@ -13470,6 +13483,247 @@
             "selected_modules": 2818
           },
           "scope": "Local CPython 3.14.3 pre-import recorder and canonical host handoff. Observed graph only. Authority false; source lock differs from the host reference, provider and material-state roles and owner seal/currentness remain unresolved. CYC unrun in this profile."
+        },
+        "r29_candidate_terminal_crash_native": {
+          "classification": "FAIL_AFTER_REAL_B_AND_REENTRY_RECEIPT_BEFORE_TERMINAL",
+          "source_commit": "4c00d2daf5cf951f3bb6b81dab558f5a5e658a3b",
+          "source_tree": "f3104ee41ef22bf465cfca26e7188d77fdfd78f5",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-candidate-terminal-crash-native-r29",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 2942.149,
+          "peak_rss_bytes": 1957773312,
+          "named_inputs": 136,
+          "inputs_unchanged": true,
+          "scope": "Physical A and B results and B reentry receipt persist. Acquisition fails at candidate_input_reentry_pending with a generic recovery error before the intended terminal writer crash. The dead-lettered job cannot be resumed."
+        },
+        "r29_retained_inner_diagnosis": {
+          "classification": "REPRODUCED_CANONICAL_DENOMINATOR_REFUSAL_AND_STORED_WITNESS_LIMIT",
+          "source_commit": "4c00d2daf5cf951f3bb6b81dab558f5a5e658a3b",
+          "denominator_output": "MAIN:policy-engine/_cache/e02/r29-clone-declaration-denominator-r10",
+          "selected_basis_output": "MAIN:policy-engine/_cache/e02/r29-clone-role-witness-r14",
+          "scope": "Read-only originals, small isolated CAS clone and query-only SQLite. Canonical declaration reader adds one typed provenance attribute outside persisted fields. The exact native serializer refuses that operand. Other retained owner, profile, configuration, context and N5 evidence checks pass on their isolated scopes. Both persisted N5 witnesses are not_established at causal_engine.artifacts. A also records a MetricsRegistry binding refusal. Selected-basis replay remains blocked. No physical N5 or live admission replay."
+        },
+        "n6_bounded_host_owner_observation": {
+          "classification": "PASS_RETAINED_DIRECT_BINDING_ENDPOINT_AUTHORITY_NOT_ESTABLISHED",
+          "saved_commit": "471a2a01212348f9f2bacabe3cd496f7eee43f4a",
+          "source_tree": "40dc3a811f0e3f6d4e57abe4cfd7b660aa84294e",
+          "affected_output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-owner-endpoint-r7",
+          "affected_observed": {
+            "PASS": 32,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-owner-host-diagnostic-r2",
+          "resource_abort_output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-owner-host-diagnostic-r1",
+          "wall_seconds": 131.289,
+          "peak_rss_bytes": 2430222336,
+          "stable_pins": 8,
+          "scope": "Real pre-import host retained and rechecked three ledger-direct first-party bindings. Loaded execution, provider state and through-use authority remain not_established. No production authority."
+        },
+        "cyc02_legacy_selected_reader_replay": {
+          "classification": "PASS_SCOPED_OLD_SOURCE_V2_AND_NATIVE_V3_COMPATIBILITY",
+          "saved_commit": "d66917a3510c0ec447c2579a6f0503708fc7d6e3",
+          "v2_output": "AUTHOR:policy-engine/_cache/e02/lane01-legacy-v2-source-replay-r1",
+          "v3_output": "AUTHOR:policy-engine/_cache/e02/lane01-cyc02-legacy-v3-r5",
+          "scope": "The v2 case executes the old native producer and current selected consumer. The v3 case reserializes a real native result under the supported historical wire shape and verifies an independent N8 process, exact profile, original bytes, derived limitations and refusal controls. These are reproducible compatibility results rather than recovered archives."
+        },
+        "cyc04_current_grounded_fallback": {
+          "classification": "PASS_CURRENT_REAL_GROUNDED_SIBLING_N5_AND_FRESH_API",
+          "source_commit": "4c00d2daf5cf951f3bb6b81dab558f5a5e658a3b",
+          "source_tree": "f3104ee41ef22bf465cfca26e7188d77fdfd78f5",
+          "output": "MAIN:policy-engine/_cache/e02/cyc04-fallback-served-current-b2",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 53.118,
+          "peak_rss_bytes": 1463599104,
+          "named_inputs": 7,
+          "inputs_unchanged": true
+        },
+        "gdp_protected_current_prequota_r2": {
+          "classification": "FAIL_GDP_FIXTURE_RUN_BOUND_QUOTA_MISSING",
+          "source_commit": "4c00d2daf5cf951f3bb6b81dab558f5a5e658a3b",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-gdp-candidate-experiment-main-r2",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "named_inputs": 128,
+          "inputs_unchanged": true,
+          "scope": "The custom seed_problem skips shared gateway fixture preparation. The completed NL job has no run-bound invocation profile. Acquisition, new physical N5, terminal and fresh GET remain unrun on this selector."
+        },
+        "r29_selected_declaration_repair": {
+          "classification": "PASS_AFFECTED_AND_RETAINED_EXACT_CONTEXT_WITHOUT_N5",
+          "saved_commit": "af164c492ef0f363c2059ef097a5197645875177",
+          "source_commit": "6c769c2ee571c845bd34f24084e95bb0cc99acdd",
+          "source_tree": "a5552b4bc1bc6f685b939cf74f5872bf52c3d02d",
+          "affected_output": "MAIN:policy-engine/_cache/e02/lane01-r29-content-affected-composed-r1",
+          "affected_tests": {
+            "PASS": 21,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "retained_output": "MAIN:policy-engine/_cache/e02/r29-repaired-exact-history-r1",
+          "scope": "Exact native comparison of the repository-selected declaration with typed diagnostic, reconstructed context, world/limitations and stored N5 all pass. Original bytes unchanged. No live lease or physical N5. Persisted A/B implementation qualification remains not_established."
+        },
+        "first_a_observed_source_route_limits": {
+          "classification": "OBSERVED_REAL_INITIAL_N5_WITNESS_NOT_ESTABLISHED",
+          "r2_output": "AUTHOR:policy-engine/_cache/e02/lane01-first-a-n5-witness-preflight-r2",
+          "r3_output": "AUTHOR:policy-engine/_cache/e02/lane01-first-a-n5-witness-preflight-r3",
+          "r3_source_commit": "bb27222b9e352f43933e5366726c1330d13c95ba",
+          "r3_source_tree": "1b7a61f5d8bae03711059f403e093cc7876cb765",
+          "r3_pins": 36,
+          "r3_inputs_unchanged": true,
+          "scope": "Ordinary NL completion and real initial N5 seal observed. R2 on causal sibling and MetricsRegistry changes refuses at id_engine private converter and PolicyOSTracer. R3 with experimental tracer wiring and canonical converter imports refuses at id_engine.CtfQuery from unexecuted causal_engine.artifacts, and at ir.connectors.FetchRequest without a pinned exact importer. The experimental tracer wiring was not composed. Intentional cut before B, acquisition and terminal. No full test PASS."
+        },
+        "first_a_source_route_r5": {
+          "classification": "OBSERVED_REAL_INITIAL_N5_WITNESS_NOT_ESTABLISHED",
+          "source_base_commit": "d81788abf5fe890e970f8fe4326c88f064a417a0",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-first-a-n5-witness-preflight-r5",
+          "preflight_sha256": "8736230d4489dca8f7d4a808a3666971f4da11c0087713f3a8289296ac4a0cd3",
+          "wall_seconds": 202.39,
+          "stable_pins": 30,
+          "scope": "Real ordinary initial N5 completed. The uncommitted capture experiment passed 45 focused tests but the actual witness refused registry and security binding routes. Opaque native callback coverage remained unproved. The capture experiment was reversed; the independent explicit ID owner change was committed as e2587c7f3. Protected acquisition, changed N5 and terminal were unrun."
+        },
+        "pending_action_history_reuse": {
+          "classification": "PASS_SINGLE_FULL_LATE_HISTORY_CHECK",
+          "saved_commit": "75c73b585df3e62089e40a646601bc2283e93c66",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-reentry-action-reuse-r2",
+          "observed": {
+            "PASS": 10,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "scope": "One complete historical owner, policy and budget check after fresh outcome re-read. Changed outcome fails. No measured full-run speedup yet."
+        },
+        "sim02_final_affected_composed": {
+          "classification": "PASS_COMPOSED_AFFECTED_SIM02",
+          "source_commit": "78ffafcc59c43d76bdc6403eb434c1df23ed80ae",
+          "source_tree": "7700d2d1165c6158209b78e1198225016555d25e",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-sim02-composed-final-r1",
+          "observed": {
+            "PASS": 105,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "stable_pins": 11,
+          "scope": "Prior refusal-code cases, full original remainder and typed program parameter regression. Product/test inputs stable through a documentation-only advance."
+        },
+        "req01_pre_domain_v2_source_replay": {
+          "classification": "PASS_SCOPED_HISTORICAL_SOURCE_PRODUCER_AND_FRESH_CURRENT_READER",
+          "historical_commit": "63706888af4676c49a84150cf8bc1c5523b7f93c",
+          "historical_tree": "659f4a103edb50aeb60f725aa1380a58da5e6f14",
+          "saved_test_commit": "d81788abf5fe890e970f8fe4326c88f064a417a0",
+          "output": "AUTHOR:policy-engine/_cache/e02/req01-pre-domain-v2-20261107-r1",
+          "fixture": "tests/_data/data_requirement/req01/pre-domain-source-replay-v2.json",
+          "sha256": "1e816f7da651d4694aa29e7b52d0ec06d184fe8f788a01e3229aa215a232dd79",
+          "scope": "Actual old compiler and immutable writer replay. Current fresh reader preserves exact bytes, metadata, rule and unresolved basis and refuses write-once clobbering. Tracked regression passes. Original archival provenance and installed build are separate."
+        },
+        "req01_installed_v1_v2_compatibility": {
+          "classification": "PASS_INSTALLED_V1_V2_AND_CURRENT_COMPILER",
+          "source_commit": "540e18e99627fe74c057f7e90881d54489f730a6",
+          "source_tree": "81b654e9e90d7e26110d3f4464461c8eba06434a",
+          "wheel_sha256": "9aed051af2ec1c85784c241edead10e0735f7c6005b890a70dfd9695a504a481",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-installed-req01-r4/installed-child-readback-r2",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "scope": "One fresh offline noneditable wheel build/install. Child verifies installed-only module origins, exact V1/V2 bytes and audit projection, V2 clobber refusal, current education-domain resolution and governed candidate world-slot discovery. The retained installed child replay needs no rebuild."
+        },
+        "gdp_knob_fixture_preflight": {
+          "classification": "FAIL_BEFORE_N5_ON_MISSING_RUN_BOUND_QUOTA",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-gdp-sentinel-author-r2",
+          "scope": "Corrected test-owned L6 knob setup does not yet produce the run-bound quota profile. Sentinel not reached. Current new-world N5, terminal, fresh GET and heldout X03 remain open."
+        },
+        "gdp_unpriced_admission_r3": {
+          "classification": "OBSERVED_REAL_ADMISSION_BEFORE_ACQUIRED_WORLD_N5",
+          "source_base_commit": "139f6a7adc9f738daf2f2dc7b8e748bd2b1cedcf",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-gdp-sentinel-main-r3",
+          "wall_seconds": 151.83,
+          "stable_pins": 16,
+          "scope": "Ordinary initial N5, live 5/1 quota with two completed standard reservations, current v2 N7 report with no cost basis, selected L1 global.gdp availability gap, and admitted action. Intentional pytest SKIP at the sentinel. Acquired-world N5, terminal, fresh GET and heldout X03 remain unrun."
+        },
+        "r29_candidate_numeric_body": {
+          "classification": "PASS_RETAINED_EXACT_BLOCKED_REASON_AND_NUMERICAL_BODY",
+          "source_base_commit": "9f8573e1436f0b355f39454620c7896d15724bc4",
+          "blocked_reason_output": "AUTHOR:policy-engine/_cache/e02/lane01-r29-blocked-reason-exact-r1",
+          "numerical_body_output": "MAIN:policy-engine/_cache/e02/lane01-r29-real-b-numerical-body-r2",
+          "scope": "Live and historical blocked-basis reasons and values match. The exact historical B result projects both trajectories and declared units. Foreign cell refuses. Original and replay database bytes stay unchanged. No physical N5, live lease, terminal write or served GET replay."
+        },
+        "r30_protected_terminal_family": {
+          "classification": "FAIL_LATE_EXPERIMENT_DISPATCH_COSTED_READER",
+          "source_commit": "a0fd088bd30b1c58843a893e5b4b69f30ea65be0",
+          "source_tree": "3cd456416d8ddacf89744d6d8b0cec8ad3edafce",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-candidate-terminal-crash-native-r30",
+          "stdout_sha256": "4640acecd8d301116ece0559a0c0d340664552cd7ad2829cbfbbafa9b8893050",
+          "selected_b_result": "sha256:a1046f072f25fda05715d3d8102bfab93928c068932d0b9cfac002745a17f2bb",
+          "source_reentry_receipt": "sha256:fe51817dab3fa9997058a58237d47350c710ad470f8dad5075a7d373df0e0d18",
+          "wall_seconds": 3003.3,
+          "stable_inputs": 71,
+          "scope": "Native A and acquired-world B both persisted, followed by the source-reentry receipt and blocked basis. The terminal hook did not run. The costed action reader refused the experiment receipt family at dispatch. Failed job has no active lease and is dead-lettered. Crash recovery and fresh GET remain unrun on this prefix."
+        },
+        "gdp_protected_r4": {
+          "classification": "COORDINATOR_STOP_AFTER_INITIAL_N5",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-gdp-protected-main-r4",
+          "stable_inputs": 78,
+          "scope": "Ordinary A completed and acquisition reached executing. Stopped safely after R30 revealed the shared late dispatcher bug, before acquired-world N5. No GDP semantic verdict."
+        },
+        "experiment_terminal_family_affected_readers": {
+          "classification": "PASS_SCOPED_AFFECTED_READER_AND_HISTORY",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-terminal-family-affected-main-r1",
+          "observed": {"PASS": 20, "FAIL": 0, "ERROR": 0, "SKIP": 0},
+          "scope": "Eight stable inputs on the repaired dispatcher. This cohort covers phase ownership, replay prefix, terminal history and current numerical projection. Three scoped direct dispatcher cases independently reach the terminal writer or refuse a stale head or phase before writing. Full live crash recovery requires a separate served run."
+        },
+        "n6_locked_sklearn_python_binding": {
+          "classification": "PASS_BOUNDED_ACTUAL_LOCKED_PYTHON_IMPORT_RELATION",
+          "source_commit": "81cc9220b00fef1dea66f0d1d4e686fe189267e2",
+          "source_tree": "22122151d0441b0e0c8e173018c6c834f009cb62",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-sklearn-locked-provider-r4",
+          "stdout_sha256": "0d54a9ab1ca2a6618f1f5323976f1b4e9f6dbc92643103c121a15abf9e87f99e",
+          "stable_inputs": 9,
+          "scope": "Isolated CPython 3.14 with original locked wheels for sklearn, importlib_metadata and six. Exact executed Python members and actual retained LinearRegression provider, facade and consumers reconcile. Substituting the last consumer binding refuses. Native provider profile, closure, authority and protected through-use remain not established."
+        },
+        "sim01_real_fallback_current": {
+          "classification": "PASS_SCOPED_NATIVE_FALLBACK_AND_REFUSALS",
+          "source_commit": "64ac47de0f0777c5a9817ebcdee0014e53b38f7d",
+          "source_tree": "4842ed83368ae1dcd95bbbd90f8bd4991818ca4e",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-sim01-real-fallback-main-r1",
+          "observed": {"PASS": 7, "FAIL": 0, "ERROR": 0, "SKIP": 0},
+          "scope": "JAX CPU with seven stable inputs. Invalid first coupled plan performs no physical work. The real second engine produces final queue length 3 and the selected consumer agrees. All-invalid history, optional defaults, budget and access refusals pass. Upstream multi-plan handoff is separate."
+        },
+        "x03_cpi_catalog_candidate": {
+          "classification": "PASS_ANNUAL_INDEX_SOURCE_AND_FRESH_CAS",
+          "saved_commit": "737bb0643e67461821a4647393cd6cfa92a170be",
+          "saved_tree": "7cf6168fd0c7781abbbb80c16ac65e98279308c6",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-x03-cpi-catalog-author-r2",
+          "observed": {"PASS": 1, "FAIL": 0, "ERROR": 0, "SKIP": 0},
+          "scope": "Eight stable inputs. Compiler-selected WDI FP.CPI.TOTL, Ukraine 2024, 2010=100. Real Catalog acquisition, exact public response bytes, selected compiler digest and fresh CAS agree. Annual inflation-rate response refuses. Rights, source currentness, world-model use and numerical execution remain unestablished."
+        },
+        "candidate_result_affected_consumers": {
+          "classification": "PASS_AFFECTED_NATIVE_AND_ORDINARY_CONSUMERS",
+          "sim03_output": "AUTHOR:policy-engine/_cache/e02/lane01-sim03-numeric-oracle-author-after-n5-freeze-r1",
+          "sim03_pass": 16,
+          "two_child_output": "MAIN:policy-engine/_cache/e02/lane01-cyc05-two-child-main-9f8573e-r1",
+          "two_child_pass": 1,
+          "requirement_selection_output": "MAIN:policy-engine/_cache/e02/lane01-requirement-selection-consumer-main-9f8573e-r1",
+          "scope": "Integer, stochastic and CAS numerical oracles; separate ordinary two-content-child physical runs and fresh generic GET with stable shared numerical projection bytes. REQ/SEL reports the honest blocked treatment assignment. Dedicated candidate experiment crash and terminal remain separate."
         },
         "r28_lease_and_recovery_boundary": {
           "classification": "PASS_LEASE_TAKEOVER_COMPONENT_FAILED_JOB_SOURCE_AND_RETAINED_STATE_REVIEW",
@@ -29706,7 +29960,8 @@
       "evidence": [
         "LANE-01.evidence_catalog.numeric_native",
         "LANE-01.evidence_catalog.hypothetical_sibling_full_current",
-        "LANE-01.evidence_catalog.ordinary_half_gain_current"
+        "LANE-01.evidence_catalog.ordinary_half_gain_current",
+        "LANE-01.evidence_catalog.sim01_real_fallback_current"
       ],
       "blockers": [],
       "deferred_ids": []
@@ -29827,11 +30082,12 @@
         "LANE-01.evidence_catalog.selection_final_catalog_drift",
         "LANE-01.evidence_catalog.candidate_method_preflight_current",
         "LANE-01.evidence_catalog.candidate_method_served_current",
-        "LANE-01.evidence_catalog.selection_current_four"
+        "LANE-01.evidence_catalog.selection_current_four",
+        "LANE-01.evidence_catalog.method_selection_receipt_composed_r14"
       ],
       "blockers": [],
       "deferred_ids": [],
-      "current_assessment": "Served R11 already qualifies ordinary compiler/N4/N5/native AIPW/persisted CAS/fresh reader; canonical verifier controls cover relevant/unrelated catalog drift separately. New exact persisted runner selection receipt binding/removal/restoration assertion saved1db28a1a9, runtime UNRUN at user stop; run retained suffix only, no new N5."
+      "current_assessment": "R11 qualifies ordinary compiler, N4, N5, native AIPW, persisted CAS and fresh API read. Composed R14 reads the exact saved selection receipt, degrades on removal and restores the same estimate with zero new N5 and unchanged retained CAS and SQLite. Canonical verifier controls cover relevant and unrelated Catalog drift separately. Installed delivery remains a distinct boundary."
     },
     {
       "packet_id": "EMP-01",

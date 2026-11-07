@@ -700,8 +700,10 @@ def run_candidate_experiment_action_oracle(
     }
 
 
-def _assert_candidate_experiment_n5_uses_current_wmr(*, control, origin, execution) -> None:
-    """Recompute the selected N5 result from its new WMR-bound physical snapshot."""
+def _assert_candidate_experiment_n5_uses_current_wmr(
+    *, control, origin, execution, resolved_reentry_evaluation=None
+) -> None:
+    """Reconcile selected or blocked-reentry N5 output with its WMR snapshot."""
     import numpy as np
 
     from polisyos.core import artifacts
@@ -720,7 +722,13 @@ def _assert_candidate_experiment_n5_uses_current_wmr(*, control, origin, executi
     history = execution.terminal_history
     evaluation = history.evaluation
     if evaluation is None:
-        raise AssertionError("candidate experiment terminal omitted its selected N5 evaluation")
+        evaluation = resolved_reentry_evaluation
+    elif resolved_reentry_evaluation is not None and (
+        resolved_reentry_evaluation != evaluation
+    ):
+        raise AssertionError("candidate experiment reentry evaluation changed selected N5")
+    if evaluation is None:
+        raise AssertionError("candidate experiment terminal omitted its N5 evaluation evidence")
     source = history.source
     if type(source) is not CandidateAcquisitionSource:
         raise AssertionError(
@@ -768,9 +776,21 @@ def _assert_candidate_experiment_n5_uses_current_wmr(*, control, origin, executi
     )
     assert n5_input.run_id == origin.run_id
     assert n5_input.job_id != origin.source_job_id
-    assert selected.generation_run_id == origin.generation_run.run_id
-    assert selected.cycle_index == origin.source_cycle.cycle_index + 1
     assert execution.job_id != origin.source_job_id
+    if history.evaluation is None:
+        reentry = history.reentry
+        assert reentry is not None
+        assert reentry.source_job_id == origin.source_job_id
+        assert reentry.action_job_id != reentry.source_job_id
+        assert n5_input.job_id == reentry.action_job_id
+        assert selected.evaluation_job_id == reentry.action_job_id
+        assert execution.job_id == reentry.action_job_id
+        assert selected.design_problem_ref == reentry.design_problem_basis_ref
+        assert selected.generation_run_id == reentry.continued_generation_run.run_id
+        assert selected.cycle_index == reentry.new_cycle.cycle_index
+    else:
+        assert selected.generation_run_id == origin.generation_run.run_id
+        assert selected.cycle_index == origin.source_cycle.cycle_index + 1
 
     old_simulation = origin.source_cycle.simulation
     old_n5_input_ref = old_simulation.candidate_simulation_n5_input_ref
@@ -842,13 +862,13 @@ def _assert_candidate_experiment_n5_uses_current_wmr(*, control, origin, executi
     bound_state = load_state_snapshot(store, snapshot_ref=bound_state_ref)
 
     wmr_baseline: dict[str, float] = {}
-    for slot_id in sorted(n5_input.n5.baseline_state):
+    for slot_id in sorted(n5_input.profile.n5.baseline_state):
         binding = acquired_world.slot_binding(slot_id)
         assert binding is not None and binding.state_path
         value = np.asarray(get_state_path(bound_state, binding.state_path))
         assert value.size == 1
         wmr_baseline[slot_id] = float(value.item())
-    assert n5_input.n5.baseline_state == wmr_baseline
+    assert n5_input.profile.n5.baseline_state == wmr_baseline
 
     declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
         canon.from_canonical_bytes(store.get_bytes(n5_input.model_declaration_ref))
@@ -870,16 +890,16 @@ def _assert_candidate_experiment_n5_uses_current_wmr(*, control, origin, executi
     )
     assert declaration.outcome_per_target_unit == pytest.approx(0.001)
     assert declaration.outcome_noise_stddev == 0.0
-    assert n5_input.n5.horizon.start == n5_input.n5.horizon.end == 0
-    assert n5_input.n5.horizon.step == 1
-    assert n5_input.n5.seed == 17
-    assert n5_input.n5.replications == 2
+    assert n5_input.profile.n5.horizon.start == n5_input.profile.n5.horizon.end == 0
+    assert n5_input.profile.n5.horizon.step == 1
+    assert n5_input.profile.n5.seed == 17
+    assert n5_input.profile.n5.replications == 2
 
     old_n5_input = CandidateSimulationN5InputV5.model_validate(
         canon.from_canonical_bytes(store.get_bytes(old_n5_input_ref))
     )
     assert n5_input.job_id != old_n5_input.job_id
-    old_outcome_baseline = old_n5_input.n5.baseline_state[declaration.outcome_variable]
+    old_outcome_baseline = old_n5_input.profile.n5.baseline_state[declaration.outcome_variable]
     assert declaration.outcome_baseline != pytest.approx(old_outcome_baseline)
     old_world = old_n5_input.profile.context_inputs.world_model_record
     old_bound_state_ref = world_model_artifact_views(old_world).bound_state_snapshot_ref
@@ -910,7 +930,7 @@ def _assert_candidate_experiment_n5_uses_current_wmr(*, control, origin, executi
     expected_outcome = wmr_baseline[declaration.outcome_variable] + expected_effect
     for trajectory in joint_trajectories:
         assert trajectory.engine_kind == selected_decisions[0].engine_kind
-        assert trajectory.diagnostics["actual_replications"] == n5_input.n5.replications == 2
+        assert trajectory.diagnostics["actual_replications"] == n5_input.profile.n5.replications == 2
         assert trajectory.diagnostics["replication_seeds"] == [17, 18]
         for point in trajectory.points:
             assert point.effect[declaration.outcome_variable] == pytest.approx(
@@ -930,7 +950,12 @@ def _assert_candidate_experiment_n5_uses_current_wmr(*, control, origin, executi
                 )
 
     assert execution.terminal_ref == history.terminal_ref
-    assert history.frontier_after is not None
+    if history.evaluation is None:
+        assert history.selected_basis is not None
+        assert history.selected_basis.basis_role == "blocked"
+        assert history.frontier_after == history.frontier_before
+    else:
+        assert history.frontier_after is not None
 
 
 def run_retained_r8_candidate_experiment_oracle(

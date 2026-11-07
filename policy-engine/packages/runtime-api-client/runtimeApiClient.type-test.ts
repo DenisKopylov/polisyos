@@ -228,3 +228,49 @@ type ComparisonTransportWitnesses = [
 ];
 
 export type { ComparisonTransportWitnesses };
+
+type CandidateExperimentResponse = Awaited<
+  ReturnType<RuntimeApiClient["getRunCandidateAcquisitionExperiment"]>
+>;
+type CandidateExperimentAction = NonNullable<
+  CandidateExperimentResponse["current_action"]
+>;
+type CandidateExperimentResult = NonNullable<
+  CandidateExperimentAction["candidate_n5_result"]
+>;
+type CandidateExperimentResultWitnesses = [
+  Assert<
+    Equal<
+      undefined extends CandidateExperimentAction["candidate_n5_result"]
+        ? true
+        : false,
+      true
+    >
+  >,
+  Assert<
+    Equal<
+      CandidateExperimentResult["result_body"],
+      RawRuntimeApiComponents["schemas"]["RunCandidateSimulationN5ResultBody"]
+    >
+  >,
+  Assert<
+    Equal<
+      NonNullable<CandidateExperimentResult["configuration_use"]>,
+      "not_established"
+    >
+  >,
+  Assert<
+    Equal<
+      NonNullable<CandidateExperimentResult["implementation_currentness"]>,
+      "not_established"
+    >
+  >,
+  Assert<
+    Equal<
+      NonNullable<CandidateExperimentResult["publication_authority"]>,
+      false
+    >
+  >,
+];
+
+export type { CandidateExperimentResultWitnesses };

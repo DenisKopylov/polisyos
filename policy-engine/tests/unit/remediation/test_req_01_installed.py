@@ -145,6 +145,13 @@ def test_installed_wheel_keeps_active_compiler_and_retires_legacy_helpers(
     child_environment["REQ01_INSTALLED_SITE"] = str(installed_site)
     child_environment["REQ01_PRODUCT_ROOT"] = str(PRODUCT_ROOT.resolve())
     child_environment["REQ01_REPORT_DIR"] = str(outside_checkout / "compiler-reports")
+    child_environment["REQ01_V1_REPORT_PATH"] = str(
+        PRODUCT_ROOT
+        / "docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/compiler-readback.json"
+    )
+    child_environment["REQ01_V2_REPORT_PATH"] = str(
+        PRODUCT_ROOT / "tests/_data/data_requirement/req01/pre-domain-source-replay-v2.json"
+    )
 
     result = subprocess.run(
         [str(venv_python), "-S", "-c", _INSTALLED_WHEEL_PROBE],
@@ -384,6 +391,70 @@ assert audit_surface["surface"] == "data_requirement.audit_surface"
 assert audit_surface["summary"]["requirement_count"] == 1
 assert audit_surface["summary"]["required_data_families"] == ["employment_panel"]
 
+# Read/write the tracked historical reports through the installed package. The V2
+# artifact is a historical-source replay, not production provenance or authority.
+v1_path = Path(os.environ["REQ01_V1_REPORT_PATH"])
+v1_bytes = v1_path.read_bytes()
+assert hashlib.sha256(v1_bytes).hexdigest() == (
+    "d1d31eef31ddf6c0781d601be7325144e3f36292142abac20e5dd4413fb481d2"
+)
+v1_report = package_facade.parse_data_requirement_compilation_report(v1_bytes)
+assert type(v1_report) is package_facade.DataRequirementCompilationReportV1
+assert v1_report.original_bytes == v1_bytes
+assert v1_report.requirement_basis.state == "not_established"
+v1_surface = package_facade.data_requirement_compilation_audit_surface(v1_bytes)
+assert v1_surface["schema_version"] == v1_report.schema_version
+assert v1_surface["run_id"] == v1_report.run_id
+assert v1_surface["metadata"] == v1_report.metadata
+assert v1_surface["requirement_basis"]["state"] == "not_established"
+v1_written = package_facade.write_data_requirement_compilation_report(
+    v1_report, Path(os.environ["REQ01_REPORT_DIR"]) / "historical-v1"
+)
+assert v1_written.read_bytes() == v1_bytes
+
+v2_path = Path(os.environ["REQ01_V2_REPORT_PATH"])
+v2_bytes = v2_path.read_bytes()
+v2_digest = hashlib.sha256(v2_bytes).hexdigest()
+assert len(v2_bytes) == 3590
+assert v2_digest == "1e816f7da651d4694aa29e7b52d0ec06d184fe8f788a01e3229aa215a232dd79"
+v2_document = json.loads(v2_bytes)
+v2_report = package_facade.parse_data_requirement_compilation_report(v2_bytes)
+assert type(v2_report) is package_facade.DataRequirementCompilationReport
+assert v2_report.original_bytes == v2_bytes
+assert v2_report.scenario_id == "opaque:req01-pre-domain-v2-replay"
+assert v2_report.input_content_hash == v2_document["input_content_hash"]
+assert v2_report.rule_version_refs == ("policyos.data_requirement.compiler.v2",)
+assert "scenario_domain_resolution" not in v2_report.metadata
+assert v2_report.requirement_basis.state == "not_established"
+assert v2_report.requirement_basis.basis_grade == "not_established"
+assert v2_report.requirement_basis.reason_codes == ("legacy_report_basis_not_carried",)
+assert not v2_report.specs
+(v2_resolution,) = v2_report.capability_requirement_resolutions
+assert v2_resolution.state == "not_established"
+assert v2_resolution.scope_profile_id == "scope:req01-pre-domain-v2-replay:v1"
+v2_surface = package_facade.data_requirement_compilation_audit_surface(v2_bytes)
+assert v2_surface["schema_version"] == v2_report.schema_version
+assert v2_surface["input_content_hash"] == v2_report.input_content_hash
+assert v2_surface["rule_version_refs"] == list(v2_report.rule_version_refs)
+assert v2_surface["metadata"] == v2_report.metadata
+assert v2_surface["requirement_basis"]["state"] == "not_established"
+v2_written = package_facade.write_data_requirement_compilation_report(
+    v2_report, Path(os.environ["REQ01_REPORT_DIR"]) / "historical-v2"
+)
+assert v2_written.read_bytes() == v2_bytes
+assert v2_written.name == f"sha256-{v2_digest}-data-requirements.json"
+v2_written.write_bytes(b"tampered historical V2 report")
+try:
+    package_facade.write_data_requirement_compilation_report(
+        v2_report, Path(os.environ["REQ01_REPORT_DIR"]) / "historical-v2"
+    )
+except ValueError as exc:
+    assert "data_requirement_report_content_conflict" in str(exc)
+else:
+    raise AssertionError("installed writer accepted tampered historical V2 bytes")
+assert v2_written.read_bytes() == b"tampered historical V2 report"
+assert v2_path.read_bytes() == v2_bytes
+
 # Run the installed public scenario helper with the exact declared domain
 # spelling. The lexical text deliberately mentions fiscal policy so a topic
 # guess cannot masquerade as honoring the declared domain.
@@ -505,6 +576,10 @@ print(
             "candidate_discovery_satisfies_claim_evidence": (
                 world_slot_resolution.candidate_discovery.satisfies_claim_evidence
             ),
+            "historical_v1_sha256": hashlib.sha256(v1_bytes).hexdigest(),
+            "historical_v2_basis": v2_report.requirement_basis.state,
+            "historical_v2_sha256": v2_digest,
+            "installed_compiler_module": str(Path(compiler_module.__file__).resolve()),
             "report_schema": parsed_report.schema_version,
             "report_sha256": hashlib.sha256(persisted_bytes).hexdigest(),
             "runtime_modules": sorted(runtime_modules),

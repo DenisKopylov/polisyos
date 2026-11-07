@@ -33,7 +33,7 @@ import typing
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, IntEnum
 from fractions import Fraction
 from importlib.machinery import ModuleSpec, SourceFileLoader
 from pathlib import Path
@@ -14947,6 +14947,77 @@ def _source_dataclass_safe_literal(value: object, *, depth: int = 0) -> bool:
     return False
 
 
+def _source_stdlib_int_enum_provider_supported() -> bool:
+    """Bind IntEnum to the canonical source-loaded stdlib enum provider."""
+
+    provider = sys.modules.get("enum")
+    if type(provider) is not types.ModuleType:
+        return False
+    origins = _source_loaded_module_origin_fields(provider, expected_name="enum")
+    if origins is None:
+        return False
+    analysis = _active_integrity_analysis()
+    token = None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+        token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    try:
+        logical_path = Path(sysconfig.get_path("stdlib")) / "enum.py"
+        path = analysis.bind_source_path(logical_path)
+        if any(analysis.bind_source_path(Path(origin)) != path for origin in origins):
+            return False
+        tree = analysis.source_tree(logical_path)
+        int_enum_sites = _module_scope_direct_binding_sites(tree, "IntEnum")
+        enum_type_sites = _module_scope_direct_binding_sites(tree, "EnumType")
+        if not (
+            len(int_enum_sites) == len(enum_type_sites) == 1
+            and int_enum_sites[0][0] == "local"
+            and isinstance(int_enum_sites[0][1], ast.ClassDef)
+            and enum_type_sites[0][0] == "local"
+            and isinstance(enum_type_sites[0][1], ast.ClassDef)
+        ):
+            return False
+        int_enum_source = int_enum_sites[0][1]
+        enum_type_source = enum_type_sites[0][1]
+        enum_namespace = vars(provider)
+        enum_type = enum_namespace.get("EnumType")
+        int_enum = enum_namespace.get("IntEnum")
+        if not (
+            not int_enum_source.decorator_list
+            and len(int_enum_source.bases) == 2
+            and all(isinstance(base, ast.Name) for base in int_enum_source.bases)
+            and tuple(base.id for base in int_enum_source.bases) == ("int", "ReprEnum")
+            and len(int_enum_source.body) == 1
+            and isinstance(int_enum_source.body[0], ast.Expr)
+            and isinstance(int_enum_source.body[0].value, ast.Constant)
+            and type(int_enum_source.body[0].value.value) is str
+            and not enum_type_source.decorator_list
+            and len(enum_type_source.bases) == 1
+            and isinstance(enum_type_source.bases[0], ast.Name)
+            and enum_type_source.bases[0].id == "type"
+            and enum_type is type(Enum)
+            and int_enum is IntEnum
+            and enum_namespace.get("Enum") is Enum
+            and type(enum_type) is type
+            and type(int_enum) is enum_type
+            and type.__getattribute__(enum_type, "__module__") == "enum"
+            and type.__getattribute__(enum_type, "__qualname__") == "EnumType"
+            and type.__getattribute__(int_enum, "__module__") == "enum"
+            and type.__getattribute__(int_enum, "__qualname__") == "IntEnum"
+            and type.__getattribute__(int_enum, "__bases__")
+            == (int, enum_namespace.get("ReprEnum"))
+        ):
+            return False
+        if token is not None:
+            analysis.assert_sources_unchanged()
+        return True
+    except (ConfidenceLedgerError, OSError, AttributeError, TypeError, ValueError, SyntaxError):
+        return False
+    finally:
+        if token is not None:
+            _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
+
+
 def _source_dataclass_enum_member(
     node: ast.Attribute,
     *,
@@ -14954,7 +15025,7 @@ def _source_dataclass_enum_member(
     module: types.ModuleType,
     module_name: str,
 ) -> object:
-    """Resolve one member only from a simple source-owned string Enum declaration."""
+    """Resolve one member from an existing string Enum or bounded native IntEnum."""
 
     if not isinstance(node.value, ast.Name):
         return _SOURCE_DERIVATION_FAILED
@@ -14963,30 +15034,32 @@ def _source_dataclass_enum_member(
     if not (len(sites) == 1 and sites[0][0] == "local" and isinstance(sites[0][1], ast.ClassDef)):
         return _SOURCE_DERIVATION_FAILED
     statement = sites[0][1]
-    if not (
-        not statement.decorator_list
-        and len(statement.bases) == 2
+    string_enum = bool(
+        len(statement.bases) == 2
         and all(isinstance(base, ast.Name) for base in statement.bases)
         and tuple(base.id for base in statement.bases) == ("str", "Enum")
-        and not statement.keywords
-        and not getattr(statement, "type_params", ())
-        and _source_import_binding(
-            "str",
-            tree=tree,
-            module=module,
-            module_name=module_name,
-        )
+        and _source_import_binding("str", tree=tree, module=module, module_name=module_name)
         is _builtins.str
-        and _source_import_binding(
-            "Enum",
-            tree=tree,
-            module=module,
-            module_name=module_name,
-        )
+        and _source_import_binding("Enum", tree=tree, module=module, module_name=module_name)
         is Enum
-    ):
+    )
+    integer_enum = bool(
+        len(statement.bases) == 1
+        and isinstance(statement.bases[0], ast.Name)
+        and statement.bases[0].id == "IntEnum"
+        and _source_import_binding("IntEnum", tree=tree, module=module, module_name=module_name)
+        is IntEnum
+        and _source_stdlib_int_enum_provider_supported()
+    )
+    if not (string_enum or integer_enum):
         return _SOURCE_DERIVATION_FAILED
-    members: dict[str, str] = {}
+    if statement.decorator_list or statement.keywords or getattr(statement, "type_params", ()):
+        return _SOURCE_DERIVATION_FAILED
+
+    # Shared literal grammar; duplicate string values remain aliases exactly as
+    # before, while bounded IntEnum values must be unique integer literals.
+    members: dict[str, str | int] = {}
+    seen_values: set[int] = set()
     for member in statement.body:
         if (
             isinstance(member, ast.Expr)
@@ -15010,29 +15083,87 @@ def _source_dataclass_enum_member(
             value = ast.literal_eval(member.value)
         except (ValueError, TypeError, SyntaxError, MemoryError):
             return _SOURCE_DERIVATION_FAILED
-        if type(value) is not str:
+        if string_enum:
+            if type(value) is not str:
+                return _SOURCE_DERIVATION_FAILED
+        elif type(value) is not int or value in seen_values:
             return _SOURCE_DERIVATION_FAILED
         members[target.id] = value
+        if integer_enum:
+            seen_values.add(value)
+
+    if not members:
+        return _SOURCE_DERIVATION_FAILED
     actual_enum = vars(module).get(enum_name)
+    if string_enum:
+        if not (
+            type(actual_enum) is type(Enum)
+            and actual_enum.__module__ == module_name
+            and actual_enum.__qualname__ == enum_name
+            and str in actual_enum.__mro__
+            and Enum in actual_enum.__mro__
+        ):
+            return _SOURCE_DERIVATION_FAILED
+        actual_members = actual_enum.__members__
+        if tuple(actual_members) != tuple(members):
+            return _SOURCE_DERIVATION_FAILED
+        for name, value in members.items():
+            actual_member = actual_members.get(name)
+            if (
+                type(actual_member) is not actual_enum
+                or actual_member.value != value
+                or type(actual_member.value) is not str
+            ):
+                return _SOURCE_DERIVATION_FAILED
+        return actual_members.get(node.attr, _SOURCE_DERIVATION_FAILED)
+
+    enum_type = type(Enum)
     if not (
-        members
-        and type(actual_enum) is type(Enum)
-        and actual_enum.__module__ == module_name
-        and actual_enum.__qualname__ == enum_name
-        and str in actual_enum.__mro__
-        and Enum in actual_enum.__mro__
+        type(actual_enum) is enum_type
+        and type.__getattribute__(actual_enum, "__module__") == module_name
+        and type.__getattribute__(actual_enum, "__qualname__") == enum_name
+        and type.__getattribute__(actual_enum, "__bases__") == (IntEnum,)
     ):
         return _SOURCE_DERIVATION_FAILED
-    actual_members = actual_enum.__members__
-    if tuple(actual_members) != tuple(members):
+    actual_namespace = type.__getattribute__(actual_enum, "__dict__")
+    actual_members = actual_namespace.get("_member_map_")
+    if type(actual_members) is not dict or tuple(actual_members) != tuple(members):
+        return _SOURCE_DERIVATION_FAILED
+    enum_namespace = type.__getattribute__(Enum, "__dict__")
+    actual_new = actual_namespace.get("__new__")
+    expected_new = enum_namespace.get("__new__")
+    if type(expected_new) is staticmethod:
+        expected_new = expected_new.__func__
+    actual_next = actual_namespace.get("_generate_next_value_")
+    expected_next = enum_namespace.get("_generate_next_value_")
+    if type(expected_next) is staticmethod:
+        expected_next = expected_next.__func__
+    if not (
+        type(actual_new) is types.FunctionType
+        and actual_new is expected_new
+        and type(actual_next) is staticmethod
+        and actual_next.__func__ is expected_next
+        and not {
+            "__int__",
+            "__index__",
+            "__eq__",
+            "__ne__",
+            "__hash__",
+            "__bool__",
+            "__getattribute__",
+            "__getattr__",
+        }.intersection(actual_namespace)
+    ):
         return _SOURCE_DERIVATION_FAILED
     for name, value in members.items():
         actual_member = actual_members.get(name)
         if (
-            type(actual_member) is not actual_enum
-            or actual_member.value != value
-            or type(actual_member.value) is not str
+            actual_member is not actual_namespace.get(name)
+            or type(actual_member) is not actual_enum
         ):
+            return _SOURCE_DERIVATION_FAILED
+        payload = int.__int__(actual_member)
+        if type(payload) is not int or int.__eq__(payload, value) is not True:
             return _SOURCE_DERIVATION_FAILED
     return actual_members.get(node.attr, _SOURCE_DERIVATION_FAILED)
 

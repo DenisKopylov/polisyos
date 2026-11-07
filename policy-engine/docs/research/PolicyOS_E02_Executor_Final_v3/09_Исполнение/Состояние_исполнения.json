@@ -9135,6 +9135,36 @@
         "affected_fixtures": "Disjoint Luna owners for CYC04 full fixture and ACQ01/WMR consumers. No shared index/ref rights."
       },
       "evidence_catalog": {
+        "terminal_existing_quota_author_r1": {
+          "source_commit": "8b7668875402ca182bd7a2a9c537aa962bdaf812",
+          "source_tree": "de8cf58883e4c231e0bbf922f36fb22f3ebcb9fd",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-terminal-existing-quota-author-r1",
+          "observed": {
+            "PASS": 30,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "named_inputs": 9,
+          "inputs_unchanged": true,
+          "wall_seconds": 43.3,
+          "scope": "Exact persisted 5/1 standard quota binding before terminal capacity read, four completed standard units and exhaustion, absent or foreign profile refusal with unchanged ledger bytes. Source was tested before committing the same three-path delta. Independent source review passed. Full protected lifecycle pending."
+        },
+        "terminal_quota_composed_r1": {
+          "source_commit": "18ff09edb7ec448426e2d38b53e6b78bb3143c90",
+          "source_tree": "d228245f6e4783ffdc821c47a50f7f716517260b",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-terminal-quota-composed-r1",
+          "observed": {
+            "PASS": 43,
+            "FAIL": 2,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "named_inputs": 11,
+          "inputs_unchanged": true,
+          "wall_seconds": 42.2,
+          "scope": "All new quota controls pass in the composed source. The legacy execute fixture receives candidate_reentry_owner_not_available before its old assertion. The forged-promotion fixture receives the required reason alongside other reasons and rejects the exact-prefix assertion. Both failures are retained pending diagnosis."
+        },
         "x03_cpi_canonical_admission_r7": {
           "run_base_commit": "a0ec99d22a243a4137a91a9c491c9ff26112d356",
           "run_base_tree": "872e324d488f97b9a48aaa3e2a75da27190c9c9f",

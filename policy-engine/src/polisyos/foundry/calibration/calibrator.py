@@ -44,7 +44,10 @@ from polisyos.core.observability import (
     get_tracer,
     is_hpc_observability_enabled,
 )
-from polisyos.core.registry import load_registry_bundle_content, load_registry_bundle_payload
+from polisyos.core.registry.loader import (
+    load_registry_bundle_content,
+    load_registry_bundle_payload,
+)
 from polisyos.foundry.calibration.auxiliary import AuxLossComponent
 from polisyos.foundry.calibration.bijectors import (
     from_unconstrained,

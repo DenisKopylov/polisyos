@@ -67,10 +67,52 @@ def test_id_engine_split_modules_preserve_legacy_runtime_surface() -> None:
     runtime = importlib.import_module("polisyos.foundry.methods.catalog.causal.id_engine")
     api = importlib.import_module("polisyos.foundry.methods.catalog.causal.id_engine.api")
     core = importlib.import_module("polisyos.foundry.methods.catalog.causal.id_engine.core")
+    counterfactual = importlib.import_module(
+        "polisyos.foundry.methods.catalog.causal.id_engine.counterfactual"
+    )
+    transport = importlib.import_module(
+        "polisyos.foundry.methods.catalog.causal.id_engine.transport"
+    )
+    contracts = importlib.import_module("polisyos.foundry.methods.catalog.causal._id_contracts")
 
     assert runtime.id_algorithm is api.id_algorithm
     assert runtime.IdentificationResult is core.IdentificationResult
     assert runtime._internal_proof_step_to_ir is core._internal_proof_step_to_ir
+
+    owners = {
+        contracts: (
+            "CtfQuery",
+            "HedgeCertificate",
+            "IdentificationResult",
+            "IdentificationStatus",
+            "ProofStep",
+            "RequiredDataSpec",
+            "SourceDomain",
+        ),
+        counterfactual: (
+            "_counterfactual_ast",
+            "_normalize_counterfactual_query",
+            "id_star_algorithm",
+            "idc_star_algorithm",
+        ),
+        core: (
+            "id_algorithm",
+            "id_with_oracle_fallback",
+            "idc_algorithm",
+            "tr_algorithm",
+        ),
+        transport: (
+            "conditional_intervention_id",
+            "dynamic_intervention_id",
+            "multi_outcome_id",
+            "mz_id_algorithm",
+            "sid_algorithm",
+            "z_id_algorithm",
+        ),
+    }
+    for owner, names in owners.items():
+        for name in names:
+            assert getattr(runtime, name) is getattr(owner, name)
 
 
 def test_causal_engine_split_has_no_deferred_api_import_cycle() -> None:

@@ -879,9 +879,13 @@ def read_candidate_acquisition_source(
         or source_ref.media_type != "application/json"
     ):
         raise ValueError("candidate_source_ref_profile_mismatch")
-    _read_selected(store, source_ref)
+    source_payload = _read_selected(store, source_ref)
     source = CandidateAcquisitionSource.model_validate(
-        artifacts.load_core_json_artifact(store, source_ref)
+        artifacts.load_core_json_artifact(
+            store,
+            source_ref,
+            raw_payload_bytes=source_payload,
+        )
     )
     manifest = store.get_manifest(source_ref)
     opts = _write_options(source)

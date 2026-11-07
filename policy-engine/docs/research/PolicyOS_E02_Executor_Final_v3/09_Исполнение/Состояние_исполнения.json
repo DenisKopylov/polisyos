@@ -13667,6 +13667,22 @@
           "numerical_body_output": "MAIN:policy-engine/_cache/e02/lane01-r29-real-b-numerical-body-r2",
           "scope": "Live and historical blocked-basis reasons and values match. The exact historical B result projects both trajectories and declared units. Foreign cell refuses. Original and replay database bytes stay unchanged. No physical N5, live lease, terminal write or served GET replay."
         },
+        "sim01_real_fallback_current": {
+          "classification": "PASS_SCOPED_NATIVE_FALLBACK_AND_REFUSALS",
+          "source_commit": "64ac47de0f0777c5a9817ebcdee0014e53b38f7d",
+          "source_tree": "4842ed83368ae1dcd95bbbd90f8bd4991818ca4e",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-sim01-real-fallback-main-r1",
+          "observed": {"PASS": 7, "FAIL": 0, "ERROR": 0, "SKIP": 0},
+          "scope": "JAX CPU with seven stable inputs. Invalid first coupled plan performs no physical work. The real second engine produces final queue length 3 and the selected consumer agrees. All-invalid history, optional defaults, budget and access refusals pass. Upstream multi-plan handoff is separate."
+        },
+        "x03_cpi_catalog_candidate": {
+          "classification": "PASS_ANNUAL_INDEX_SOURCE_AND_FRESH_CAS",
+          "saved_commit": "737bb0643e67461821a4647393cd6cfa92a170be",
+          "saved_tree": "7cf6168fd0c7781abbbb80c16ac65e98279308c6",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-x03-cpi-catalog-author-r2",
+          "observed": {"PASS": 1, "FAIL": 0, "ERROR": 0, "SKIP": 0},
+          "scope": "Eight stable inputs. Compiler-selected WDI FP.CPI.TOTL, Ukraine 2024, 2010=100. Real Catalog acquisition, exact public response bytes, selected compiler digest and fresh CAS agree. Annual inflation-rate response refuses. Rights, source currentness, world-model use and numerical execution remain unestablished."
+        },
         "candidate_result_affected_consumers": {
           "classification": "PASS_AFFECTED_NATIVE_AND_ORDINARY_CONSUMERS",
           "sim03_output": "AUTHOR:policy-engine/_cache/e02/lane01-sim03-numeric-oracle-author-after-n5-freeze-r1",
@@ -29911,7 +29927,8 @@
       "evidence": [
         "LANE-01.evidence_catalog.numeric_native",
         "LANE-01.evidence_catalog.hypothetical_sibling_full_current",
-        "LANE-01.evidence_catalog.ordinary_half_gain_current"
+        "LANE-01.evidence_catalog.ordinary_half_gain_current",
+        "LANE-01.evidence_catalog.sim01_real_fallback_current"
       ],
       "blockers": [],
       "deferred_ids": []
@@ -30032,11 +30049,12 @@
         "LANE-01.evidence_catalog.selection_final_catalog_drift",
         "LANE-01.evidence_catalog.candidate_method_preflight_current",
         "LANE-01.evidence_catalog.candidate_method_served_current",
-        "LANE-01.evidence_catalog.selection_current_four"
+        "LANE-01.evidence_catalog.selection_current_four",
+        "LANE-01.evidence_catalog.method_selection_receipt_composed_r14"
       ],
       "blockers": [],
       "deferred_ids": [],
-      "current_assessment": "Served R11 already qualifies ordinary compiler/N4/N5/native AIPW/persisted CAS/fresh reader; canonical verifier controls cover relevant/unrelated catalog drift separately. New exact persisted runner selection receipt binding/removal/restoration assertion saved1db28a1a9, runtime UNRUN at user stop; run retained suffix only, no new N5."
+      "current_assessment": "R11 qualifies ordinary compiler, N4, N5, native AIPW, persisted CAS and fresh API read. Composed R14 reads the exact saved selection receipt, degrades on removal and restores the same estimate with zero new N5 and unchanged retained CAS and SQLite. Canonical verifier controls cover relevant and unrelated Catalog drift separately. Installed delivery remains a distinct boundary."
     },
     {
       "packet_id": "EMP-01",

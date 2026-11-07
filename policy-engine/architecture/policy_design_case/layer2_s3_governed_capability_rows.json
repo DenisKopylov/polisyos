@@ -541,6 +541,11 @@
       "scenario_family": "wdi_nominal_gdp_annual"
     },
     {
+      "construct": "economic.consumer_price_index",
+      "producer_ref": "repo://architecture/policy_design_case/layer2_s3_governed_capability_rows.json#scenario-family/wdi_consumer_price_index_annual",
+      "scenario_family": "wdi_consumer_price_index_annual"
+    },
+    {
       "construct": "labor.unemployment_rate",
       "producer_ref": "repo://architecture/policy_design_case/layer2_s3_governed_capability_rows.json#scenario-family/wdi_unemployment_laborforce_annual",
       "scenario_family": "wdi_unemployment_laborforce_annual"

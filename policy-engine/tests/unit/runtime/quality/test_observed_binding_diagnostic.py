@@ -78,7 +78,8 @@ compiled = compile(ast.Module(body=functions, type_ignores=[]), str(source_file)
                    flags=__future__.annotations.compiler_flag, dont_inherit=True)
 exec(compiled, scope)
 observe = scope['_observed_source_bindings']
-bindings, disagreements = observe(root, capture, graph)
+retained_binding_refs = []
+bindings, disagreements = observe(root, capture, graph, retained_bindings=retained_binding_refs)
 provider = [row for row in bindings if row[0] == 'observed_binding.provider' and row[1] == 'Capability']
 facade = [row for row in bindings if row[0] == 'observed_binding.facade' and row[1] == 'Alias']
 assert len(provider) == len(facade) == 1
@@ -86,6 +87,23 @@ assert ('observed_binding.facade', 'Alias') in provider[0][3]
 assert ('observed_binding.consumer', 'Chosen') in facade[0][3]
 assert ('observed_binding.consumer', 'Other') in facade[0][3]
 assert not disagreements
+assert len(retained_binding_refs) == 3
+assert len(bindings) == 2  # one provider/symbol row per exported symbol
+assert all(len(row) == 7 for row in retained_binding_refs)
+assert all(row[0] in capture.import_events() for row in retained_binding_refs)
+assert all(row[1].module is row[0].provider for row in retained_binding_refs)
+assert all(row[2].module is row[0].importer for row in retained_binding_refs)
+owner_direct_refs = []
+observe(
+    root,
+    capture,
+    graph,
+    retained_bindings=owner_direct_refs,
+    retained_importer_name='observed_binding.consumer',
+)
+assert len(owner_direct_refs) == 2
+assert {row[0].importer_name for row in owner_direct_refs} == {'observed_binding.consumer'}
+assert all(row[0].importer_name != 'observed_binding.facade' for row in owner_direct_refs)
 assert capture.diagnostic().status == 'not_established'
 report = scope['_observe_unsealed_host_capture'](recorder, capture)
 assert report['status'] == report['protected_loaded_execution_status'] == 'not_established'

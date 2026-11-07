@@ -1,10 +1,12 @@
 """Start a fresh, source-recorded local tooling process.
 
 The host launch is a bounded evidence producer. It does not appoint an authority
-profile, issue a deployment identity, or seal the confidence ledger. The initial
-profile records local measurements and leaves unsupported providers, state and
-through-use protection unavailable. Invoke directly with ``python -I -S -B`` for
-an isolated host; a normal console-script parent cannot attest its own startup.
+profile, issue a deployment identity, or promote the confidence ledger. It can
+hand the ledger owner a source-bound, non-authoritative snapshot of reconciled
+first-party imports. The initial profile records local measurements and leaves
+unsupported providers, state and through-use protection unavailable. Invoke
+directly with ``python -I -S -B`` for an isolated host; a normal console-script
+parent cannot attest its own startup.
 """
 
 from __future__ import annotations
@@ -36,7 +38,7 @@ from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Protocol
+    from typing import Any, Protocol
 
     import pytest
 
@@ -56,6 +58,13 @@ _HOST_SESSION: object | None = None
 _MAX_MESSAGE = 8 * 1024 * 1024
 _MAX_PROVIDER_WHEEL_BYTES = 32 * 1024 * 1024
 _MAX_PROVIDER_TOTAL_BYTES = 128 * 1024 * 1024
+_OWNER_CAPTURE_EXPORTS = frozenset(
+    {
+        "_observe_unsealed_host_capture",
+        "_seal_loaded_execution_capture",
+        "_check_loaded_execution_observation_currentness",
+    }
+)
 _ENTRY_TARGETS = {
     "tools": ("tools.cli", "main", True),
     "runtime": ("tools.ops_runners.runtime_cli", "main", True),
@@ -1076,7 +1085,7 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
         # The owner handoff is a private bootstrap protocol, not a domain-symbol
         # exception. It is retained before the owner module completes.
         exports.setdefault("polisyos.runtime.quality.confidence_ledger", set()).update(
-            {"_observe_unsealed_host_capture", "_seal_loaded_execution_capture"}
+            _OWNER_CAPTURE_EXPORTS
         )
         capture = recorder.SourceExecutionCapture(
             _PRODUCT,
@@ -1157,6 +1166,12 @@ def _close_host_capture(session: dict[str, object]) -> None:
     capture = session.get("capture")
     if capture is None:
         return
+    if (
+        session.get("owner_capture_state") == "retained"
+        and session.get("owner_endpoint_checked") is not True
+    ):
+        _check_owner_capture_at_endpoint(session, "post_target_close")
+    host_failed = session.get("phase") == "failed"
     if not _recorder_surface_unchanged(session):
         session["phase"] = "failed"
         raise RuntimeError("host_recorder_surface_changed")
@@ -1166,7 +1181,7 @@ def _close_host_capture(session: dict[str, object]) -> None:
     except BaseException:
         session["phase"] = "failed"
         raise
-    session["phase"] = "failed" if lifecycle.failed else "closed"
+    session["phase"] = "failed" if host_failed or lifecycle.failed else "closed"
 
 
 def _attach_tools_handoff() -> None:
@@ -1225,6 +1240,7 @@ def _invoke_entry(mode: str, arguments: list[str], *, candidate_reason: str | No
         if candidate_reason is None and type(session) is dict:
             importlib.import_module("polisyos.runtime.quality.confidence_ledger")
             handoff_if_ready()
+            _check_owner_capture_at_endpoint(session, "diagnose_before_output")
             report = {"profile": session["profile"], "owner": session["last_owner_diagnostic"]}
             selector = session.get("external_source_selector")
             if type(selector) is _LockedWheelSourceSelector:
@@ -1284,18 +1300,22 @@ class _CollectionHandoff:
 
 
 def handoff_if_ready() -> None:
-    """Offer live capture to the ledger after its initializer has completed."""
+    """Offer one live capture to the completed ledger owner."""
 
     session = _HOST_SESSION
     if type(session) is not dict or sys.__dict__.get(_HOST_SLOT) is not session:
         return
     if session["phase"] != "collecting":
         return
+    if session.get("owner_capture_attempted") is True:
+        return
     if session["pid"] != os.getpid() or session["parent_pid"] != os.getppid():
         session["phase"] = "failed"
+        session["owner_capture_state"] = "failed"
         return
     if not _recorder_surface_unchanged(session):
         session["phase"] = "failed"
+        session["owner_capture_state"] = "failed"
         session["last_owner_diagnostic"] = {
             "status": "not_established",
             "failure": "host_recorder_surface_changed",
@@ -1304,24 +1324,177 @@ def handoff_if_ready() -> None:
     module = sys.modules.get("polisyos.runtime.quality.confidence_ledger")
     if type(module) is not ModuleType:
         return
+    capture = session["capture"]
+    recorder = session["recorder"]
     try:
-        capture = session["capture"]
-        callback = capture.completed_binding(module.__name__, "_observe_unsealed_host_capture")
+        diagnostic = capture.diagnostic()
+        if type(diagnostic) is not recorder.__dict__.get("SourceCaptureDiagnostic"):
+            raise RuntimeError("owner_capture_diagnostic_type_unavailable")
+        if diagnostic.phase != "collecting":
+            raise RuntimeError("owner_capture_not_collecting")
         execution = capture.completed(module.__name__)
-        if (
-            type(callback) is not FunctionType
-            or callback.__globals__ is not module.__dict__
-            or not capture._code_belongs_to(execution.code, callback.__code__)
-        ):
-            raise RuntimeError("owner_diagnostic_binding_unavailable")
-        session["last_owner_diagnostic"] = callback(session["recorder"], session["capture"])
     except Exception as exc:
+        capture_error = recorder.__dict__.get("CaptureError")
+        if (
+            type(exc) is capture_error
+            and type(exc.args) is tuple
+            and exc.args == ("module_not_completed",)
+        ):
+            # A provisional circular-import module may be offered again once
+            # its initializer completes. No owner attempt has begun yet.
+            return
+        session["phase"] = "failed"
+        session["owner_capture_state"] = "failed"
+        session["owner_capture_attempted"] = True
         session["last_owner_diagnostic"] = {
             "status": "not_established",
             "failure": type(exc).__name__,
         }
-    # No diagnostic can seal authority: external profile and through-use owners
-    # are intentionally not supplied by this producer.
+        return
+    if (
+        type(execution) is not recorder.__dict__.get("ModuleExecution")
+        or type(execution.code) is not CodeType
+        or execution.module is not module
+    ):
+        session["phase"] = "failed"
+        session["owner_capture_state"] = "failed"
+        session["owner_capture_attempted"] = True
+        session["last_owner_diagnostic"] = {
+            "status": "not_established",
+            "failure": "owner_execution_binding_unavailable",
+        }
+        return
+
+    # A pending owner remains retryable; from this point an exact completed
+    # owner has begun its one sticky finalization attempt.
+    session["owner_capture_attempted"] = True
+    try:
+        callback = _completed_owner_callback(
+            capture, module, execution, "_seal_loaded_execution_capture"
+        )
+        report = callback(session["recorder"], capture)
+        if (
+            type(report) is not dict
+            or report.get("status") != "not_established"
+            or report.get("protected_loaded_execution_status") != "not_established"
+            or report.get("owner_observation_state") not in ("retained", "failed")
+        ):
+            raise RuntimeError("owner_capture_finalizer_result_invalid")
+        session["last_owner_diagnostic"] = report
+        session["owner_capture_state"] = report["owner_observation_state"]
+        if report["owner_observation_state"] == "failed":
+            session["phase"] = "failed"
+    except Exception as exc:
+        session["phase"] = "failed"
+        session["owner_capture_state"] = "failed"
+        session["last_owner_diagnostic"] = {
+            "status": "not_established",
+            "failure": type(exc).__name__,
+        }
+    # This owner snapshot covers only reconciled first-party import bindings.
+    # External provider profile and protected-through-use owners remain absent.
+
+
+def _completed_owner_callback(
+    capture: object,
+    module: ModuleType,
+    execution: object,
+    callback_name: str,
+) -> FunctionType:
+    """Return an exact captured callback from the completed ledger module."""
+
+    capture_api = cast("Any", capture)
+    execution_record = cast("Any", execution)
+    if (
+        type(callback_name) is not str
+        or type(execution_record.code) is not CodeType
+        or execution_record.module is not module
+    ):
+        raise RuntimeError("owner_execution_binding_unavailable")
+    callback = capture_api.completed_binding(module.__name__, callback_name)
+    if (
+        type(callback) is not FunctionType
+        or callback.__globals__ is not module.__dict__
+        or not capture_api._code_belongs_to(execution_record.code, callback.__code__)
+    ):
+        raise RuntimeError("owner_callback_binding_unavailable")
+    return callback
+
+
+def _check_owner_capture_at_endpoint(
+    session: object,
+    endpoint_role: str,
+) -> None:
+    """Recheck only the owner-retained bindings before the recorder closes."""
+
+    if type(session) is not dict or session.get("owner_capture_state") != "retained":
+        return
+    if session.get("owner_endpoint_checked") is True:
+        return
+    module = sys.modules.get("polisyos.runtime.quality.confidence_ledger")
+    capture = session.get("capture")
+    if (
+        session is not _HOST_SESSION
+        or sys.__dict__.get(_HOST_SLOT) is not session
+        or session.get("pid") != os.getpid()
+        or session.get("parent_pid") != os.getppid()
+        or type(module) is not ModuleType
+        or not _recorder_surface_unchanged(session)
+    ):
+        session["phase"] = "failed"
+        session["owner_capture_state"] = "failed"
+        session["owner_endpoint_checked"] = True
+        session["last_owner_diagnostic"] = {
+            "status": "not_established",
+            "protected_loaded_execution_status": "not_established",
+            "owner_observation_state": "failed",
+            "held_binding_endpoint_currentness": "failed",
+            "held_binding_endpoint_role": endpoint_role,
+            "failure": "owner_or_recorder_binding_unavailable_at_endpoint",
+            "protected_through_use": "not_established",
+        }
+        return
+    try:
+        capture_api = cast("Any", capture)
+        execution = capture_api.completed(module.__name__)
+        callback = _completed_owner_callback(
+            capture,
+            module,
+            execution,
+            "_check_loaded_execution_observation_currentness",
+        )
+        report = callback(capture)
+        if (
+            type(report) is not dict
+            or report.get("status") != "not_established"
+            or report.get("protected_loaded_execution_status") != "not_established"
+            or report.get("owner_observation_state") not in ("retained", "failed")
+        ):
+            raise RuntimeError("owner_endpoint_result_invalid")
+        report["held_binding_endpoint_role"] = endpoint_role
+        report["currentness_status"] = "not_established"
+        report["protected_through_use"] = "not_established"
+        last_report = session.get("last_owner_diagnostic")
+        if type(last_report) is not dict:
+            raise RuntimeError("owner_snapshot_report_unavailable")
+        last_report.update(report)
+        session["owner_capture_state"] = report["owner_observation_state"]
+        session["owner_endpoint_checked"] = True
+        if report["owner_observation_state"] == "failed":
+            session["phase"] = "failed"
+    except Exception as exc:
+        session["phase"] = "failed"
+        session["owner_capture_state"] = "failed"
+        session["owner_endpoint_checked"] = True
+        session["last_owner_diagnostic"] = {
+            "status": "not_established",
+            "protected_loaded_execution_status": "not_established",
+            "owner_observation_state": "failed",
+            "held_binding_endpoint_currentness": "failed",
+            "held_binding_endpoint_role": endpoint_role,
+            "failure": type(exc).__name__,
+            "protected_through_use": "not_established",
+        }
 
 
 def tools_main(argv: Sequence[str] | None = None) -> int:

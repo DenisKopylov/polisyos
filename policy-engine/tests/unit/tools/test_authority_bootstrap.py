@@ -22,6 +22,22 @@ def test_source_candidates_follow_relative_imports_and_module_aliases() -> None:
     assert "answer" in candidates["example.other"]
 
 
+def test_bootstrap_retains_private_owner_finalizer_and_endpoint_callbacks() -> None:
+    """Both source-qualified lifecycle callbacks are selected before owner import."""
+    from tools.authority_bootstrap import _OWNER_CAPTURE_EXPORTS
+
+    assert (
+        frozenset(
+            {
+                "_observe_unsealed_host_capture",
+                "_seal_loaded_execution_capture",
+                "_check_loaded_execution_observation_currentness",
+            }
+        )
+        == _OWNER_CAPTURE_EXPORTS
+    )
+
+
 def test_retained_recorder_surface_refuses_a_substituted_method() -> None:
     """Only descriptors from the exact compiled recorder are retained."""
     program = r"""
@@ -160,6 +176,29 @@ assert host._recorder_surface_unchanged(session)
         timeout=10,
     )
     assert result.returncode == 0, result.stderr
+
+
+def test_capture_close_does_not_clear_a_prior_owner_failure(monkeypatch) -> None:
+    """Hook cleanup cannot turn a sticky owner failure into a closed success."""
+    from tools import authority_bootstrap as host
+
+    class Capture:
+        failed = False
+
+        def __init__(self) -> None:
+            self.closed = False
+
+        def close(self) -> None:
+            self.closed = True
+
+    capture = Capture()
+    session = {"capture": capture, "phase": "failed"}
+    monkeypatch.setattr(host, "_recorder_surface_unchanged", lambda _: True)
+
+    host._close_host_capture(session)
+
+    assert capture.closed
+    assert session["phase"] == "failed"
 
 
 def test_isolated_candidate_fallback_finds_checkout_sources(tmp_path: Path) -> None:

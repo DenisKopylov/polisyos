@@ -957,31 +957,9 @@ def verify_candidate_experiment_terminal_history(
     ):
         raise ValueError("candidate_experiment_terminal_predecessor_binding_mismatch")
 
-    identity_fields = (
-        "tenant_id",
-        "cell_id",
-        "run_id",
-        "source_job_id",
-        "route_id",
-        "action_generation",
-        "job_id",
-        "source_payload_ref",
-        "capability_manifest_ref",
-        "request_content_hash",
-        "policy_scope",
-        "policy_ref",
-        "authority_decision_ref",
-        "voi_decision",
-        "monetary_cost",
-        "information_value",
-        "observed_data_authority",
-        "publication_authority",
-    )
     first_phase = phases[0].receipt
     if any(
-        not _candidate_model_values_same(getattr(first_phase, field), getattr(item.receipt, field))
-        for item in (*phases[1:], chain[-1])
-        for field in identity_fields
+        not sink._same_action_identity(first_phase, item.receipt) for item in chain[1:]
     ):
         raise ValueError("candidate_experiment_terminal_identity_mismatch")
     if any(

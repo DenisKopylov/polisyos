@@ -6,6 +6,7 @@ import hashlib
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -33,6 +34,7 @@ from polisyos.runtime.quality.acquisition_evaluation_history import (
 )
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionCandidateExperimentPhaseReceipt,
+    AcquisitionCandidateExperimentTerminalReceipt,
 )
 from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
     CandidateUnpricedPolicyScope,
@@ -198,6 +200,189 @@ def test_terminal_history_rejects_unselected_terminal_reference(tmp_path: Path) 
             )
     finally:
         service._control_store.close()
+
+
+def test_terminal_history_identity_join_uses_action_identity_owner(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Equal scalar/ref identity advances; a scalar or selected profile change fails closed."""
+    service = _build_control_service(tmp_path / "control")
+    base = _requested_phase()
+    requested_ref, executing_ref, selected_ref, pending_ref = (
+        _hash("3"),
+        _hash("4"),
+        _hash("5"),
+        _hash("9"),
+    )
+    action_ref = _ref("runtime_quality.acquisition_candidate_action_receipt", "7")
+    owner_refs = (str(action_ref.artifact_id),)
+    head = AcquisitionActionHeadRecord(
+        tenant_id=base.tenant_id,
+        cell_id=base.cell_id,
+        run_id=base.run_id,
+        source_job_id=base.source_job_id,
+        route_id=base.route_id,
+        action_generation=base.action_generation,
+        head_generation=4,
+        receipt_ref=pending_ref,
+        receipt_sha256=pending_ref,
+        durable_event_id="event-pending",
+        coarse_phase="candidate_input_prepared",
+        receipt_phase="candidate_input_reentry_pending",
+        recovery_state="reentry_recovery_required",
+        job_id=base.job_id,
+        predecessor_receipt_ref=selected_ref,
+        created_at=datetime(2026, 11, 4, tzinfo=UTC),
+        receipt_manifest_profile_sha256=_hash("f"),
+    )
+    terminal_ref = _ref("runtime_quality.acquisition_route_loop_receipt", "8")
+    verified_by_ref: dict[str, SimpleNamespace] = {}
+    phase_refs = (requested_ref, executing_ref, selected_ref, pending_ref)
+    phase_specs = (
+        ("requested", "requested", "none", None, (), False),
+        ("executing", "executing", "none", requested_ref, (), False),
+        ("outcome_selected", "executing", "none", executing_ref, owner_refs, True),
+        (
+            "candidate_input_reentry_pending",
+            "candidate_input_prepared",
+            "reentry_recovery_required",
+            selected_ref,
+            owner_refs,
+            True,
+        ),
+    )
+
+    def install_case(*, changed_scalar: bool = False, changed_profile: bool = False) -> None:
+        phases = []
+        for index, (phase, coarse_phase, recovery_state, predecessor, owners, has_action) in enumerate(
+            phase_specs
+        ):
+            receipt = AcquisitionCandidateExperimentPhaseReceipt.model_validate(
+                {
+                    **base.model_dump(mode="python"),
+                    "receipt_id": f"action-a.{phase}",
+                    "coarse_phase": coarse_phase,
+                    "receipt_phase": phase,
+                    "recovery_state": recovery_state,
+                    "predecessor_receipt_ref": predecessor,
+                    "owner_receipt_refs": owners,
+                    "candidate_receipt_ref": action_ref if has_action else None,
+                    "generated_at": datetime(2026, 11, 4, minute=index, tzinfo=UTC),
+                }
+            )
+            phases.append(receipt)
+
+        terminal_values = {
+            name: value
+            for name, value in base.model_dump(mode="python").items()
+            if name in AcquisitionCandidateExperimentTerminalReceipt.model_fields
+        }
+        terminal_values.update(
+            {
+                "schema_version": "AcquisitionCandidateExperimentTerminalReceipt@1.0",
+                "receipt_id": "action-a.terminal",
+                "coarse_phase": "terminal",
+                "receipt_phase": "terminal",
+                "recovery_state": "complete",
+                "predecessor_receipt_ref": pending_ref,
+                "owner_receipt_refs": (str(action_ref.artifact_id), _hash("6")),
+                "generated_at": datetime(2026, 11, 4, minute=4, tzinfo=UTC),
+                "terminal_outcome": "candidate_blocked",
+                "candidate_action_ref": action_ref,
+                "blocker_ref": _ref("runtime_quality.candidate_experiment_blocker", "6"),
+                "blocker_reason": "candidate experiment is blocked in this fixture",
+            }
+        )
+        if changed_scalar:
+            terminal_values["request_content_hash"] = _hash("a")
+        if changed_profile:
+            terminal_values["policy_ref"] = base.policy_ref.model_copy(
+                update={"manifest_profile_sha256": _hash("a")}
+            )
+        terminal = AcquisitionCandidateExperimentTerminalReceipt.model_validate(terminal_values)
+
+        def verified_row(
+            receipt: AcquisitionCandidateExperimentPhaseReceipt
+            | AcquisitionCandidateExperimentTerminalReceipt,
+            receipt_ref: str,
+            state_before: str | None,
+        ) -> SimpleNamespace:
+            phase_name = receipt.receipt_phase
+            return SimpleNamespace(
+                receipt_ref=receipt_ref,
+                receipt=receipt,
+                durable_event_id=(
+                    "event-pending" if receipt_ref == pending_ref else f"event-{phase_name}"
+                ),
+                event=SimpleNamespace(state_before=state_before, state_after=phase_name),
+            )
+
+        rows = tuple(
+            verified_row(receipt, phase_ref, None if index == 0 else phases[index - 1].receipt_phase)
+            for index, (receipt, phase_ref) in enumerate(zip(phases, phase_refs, strict=True))
+        )
+        rows += (verified_row(terminal, str(terminal_ref.artifact_id), phases[-1].receipt_phase),)
+        verified_by_ref.clear()
+        verified_by_ref.update({row.receipt_ref: row for row in rows})
+
+    def unexpected_head(
+        _store: ControlPlaneStore, **scope: object
+    ) -> AcquisitionActionHeadRecord | None:
+        expected_scope = {
+            "tenant_id": head.tenant_id,
+            "cell_id": head.cell_id,
+            "run_id": head.run_id,
+            "source_job_id": head.source_job_id,
+            "route_id": head.route_id,
+            "action_generation": head.action_generation,
+        }
+        return head if scope == expected_scope else None
+
+    origin = SimpleNamespace(candidate_terminal_history_chain=())
+    action_service = SimpleNamespace(
+        _candidate_experiment_origin_for_request=lambda **_kwargs: origin
+    )
+
+    def stop_after_identity(_receipt: object) -> frozenset[str] | None:
+        raise RuntimeError("identity_join_reached_transition_guard")
+
+    monkeypatch.setattr(ControlPlaneStore, "get_acquisition_action_head", unexpected_head)
+    monkeypatch.setattr(
+        AcquisitionRouteLoopAuthoritySink,
+        "_read_verified_action_phase",
+        lambda _self, receipt_ref, *, selected_ref=None: verified_by_ref[receipt_ref],
+    )
+    monkeypatch.setattr(
+        AcquisitionRouteLoopAuthoritySink,
+        "_candidate_experiment_phase_action_context",
+        lambda _self, _phase: (action_service, object(), _hash("0")),
+    )
+    monkeypatch.setattr(
+        AcquisitionRouteLoopAuthoritySink,
+        "_verified_candidate_experiment_phase_chain",
+        lambda _self, *_args, **_kwargs: tuple(verified_by_ref[ref] for ref in phase_refs),
+    )
+    monkeypatch.setattr(
+        AcquisitionRouteLoopAuthoritySink,
+        "_allowed_predecessor_phases",
+        staticmethod(stop_after_identity),
+    )
+
+    try:
+        for changes_identity, expected_error in (
+            ({}, "identity_join_reached_transition_guard"),
+            ({"changed_scalar": True}, "candidate_experiment_terminal_identity_mismatch"),
+            ({"changed_profile": True}, "candidate_experiment_terminal_identity_mismatch"),
+        ):
+            install_case(**changes_identity)
+            with pytest.raises((RuntimeError, ValueError), match=expected_error):
+                verify_candidate_experiment_terminal_history(
+                    control_service=service,
+                    head=head,
+                    terminal_ref=terminal_ref,
+                )
+    finally:
+        service.close()
 
 
 def test_candidate_experiment_frontier_history_reopens_immutable_sql_versions(

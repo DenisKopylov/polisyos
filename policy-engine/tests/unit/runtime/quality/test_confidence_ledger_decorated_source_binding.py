@@ -1042,13 +1042,14 @@ def loader_child_case(tmp_path, monkeypatch):
             sys.modules[child_name] = previous_child
 
 
-def _candidate(root, module, name):
+def _candidate(root, module, name, *, discovery_only=False):
     return ledger._source_module_import_route_candidate(
         root,
         module.__name__,
         name,
         directory_entries={},
         source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+        discovery_only=discovery_only,
     )
 
 
@@ -1061,6 +1062,124 @@ def test_loader_published_child_is_not_a_missing_lazy_export(loader_child_case):
     assert candidate.binding_basis == "loader_child"
     assert candidate.package_initializer_effect_unknown is True
     assert _candidate(root, package, "Remote").binding_basis == "literal_getattr"
+
+
+def test_lazy_imported_child_has_source_candidate_but_needs_loaded_binding(
+    loader_child_case,
+):
+    root, package, child = loader_child_case
+    path = Path(package.__file__)
+    path.write_text(
+        "from importlib import import_module\n"
+        "def __getattr__(name):\n"
+        "    if name in {'Remote'}:\n"
+        "        from . import child as _child\n"
+        "        return getattr(_child, name)\n"
+        "    raise AttributeError(name)\n",
+        encoding="utf-8",
+    )
+    sys.modules.pop(child.__name__)
+    package.__dict__.pop("child", None)
+
+    candidate = _candidate(root, package, "child", discovery_only=True)
+    assert candidate.route == ("module", child.__name__, None)
+    assert candidate.binding_basis == "source_expression"
+    with pytest.raises(ledger.ConfidenceLedgerError):
+        _candidate(root, package, "child")
+
+    __import__(child.__name__)
+    loaded = _candidate(root, package, "child")
+    assert package.child is sys.modules[child.__name__]
+    assert loaded.route == ("module", child.__name__, None)
+    assert loaded.binding_basis == "loader_child"
+
+
+_CANONICAL_LAZY_EXPORT_SOURCE = """from polisyos.ir.api import EXPORTS, resolve_lazy_export as _resolve
+
+def __getattr__(name):
+    return _resolve(name, namespace=globals(), exports=EXPORTS)
+"""
+
+
+def test_resolve_lazy_export_map_recognizes_only_the_canonical_finite_call_shape():
+    accepted = ledger._literal_module_getattr_mapping_names(
+        ast.parse(_CANONICAL_LAZY_EXPORT_SOURCE)
+    )
+    assert accepted == frozenset({"EXPORTS"})
+
+    wrong_helper_owner = _CANONICAL_LAZY_EXPORT_SOURCE.replace(
+        "polisyos.ir.api", "polisyos.other.api"
+    )
+    assert ledger._literal_module_getattr_mapping_names(ast.parse(wrong_helper_owner)) == frozenset()
+
+    shadowed_helper = _CANONICAL_LAZY_EXPORT_SOURCE.replace(
+        "\ndef __getattr__", "\n_resolve = lambda *args, **kwargs: None\n\ndef __getattr__"
+    )
+    assert ledger._literal_module_getattr_mapping_names(ast.parse(shadowed_helper)) == frozenset()
+
+    noncanonical_call = _CANONICAL_LAZY_EXPORT_SOURCE.replace(
+        "namespace=globals()", "namespace={}"
+    )
+    assert ledger._literal_module_getattr_mapping_names(ast.parse(noncanonical_call)) == frozenset()
+
+
+def test_imported_literal_map_survives_only_exact_builtin_sorted_read():
+    source = ast.parse(
+        "from polisyos.ir.api import EXPORTS\n__all__ = sorted(EXPORTS)\n"
+    )
+    source_map = {"chosen": ("polisyos.provider", "chosen")}
+    maps, invalid, namespace_unknown = ledger._source_declared_facade_mapping_values(
+        source,
+        frozenset({"EXPORTS"}),
+        external_mappings={"EXPORTS": source_map},
+    )
+    assert maps == {"EXPORTS": source_map}
+    assert not invalid
+    assert namespace_unknown is False
+
+    extra_key = ast.parse(
+        "from polisyos.ir.api import EXPORTS\n__all__ = sorted(EXPORTS, key=str)\n"
+    )
+    _maps, invalid, _namespace_unknown = ledger._source_declared_facade_mapping_values(
+        extra_key,
+        frozenset({"EXPORTS"}),
+        external_mappings={"EXPORTS": source_map},
+    )
+    assert "EXPORTS" in invalid
+
+    shadowed = ast.parse(
+        "from polisyos.ir.api import EXPORTS\n"
+        "sorted = lambda value: value\n"
+        "__all__ = sorted(EXPORTS)\n"
+    )
+    _maps, invalid, _namespace_unknown = ledger._source_declared_facade_mapping_values(
+        shadowed,
+        frozenset({"EXPORTS"}),
+        external_mappings={"EXPORTS": source_map},
+    )
+    assert "EXPORTS" in invalid
+
+
+def test_ir_kernel_lazy_export_resolves_to_source_owned_live_provider(monkeypatch):
+    kernel = importlib.import_module("polisyos.ir.kernel")
+    export_name = "DEFAULT_CONSTRAINT_REGISTRY"
+    selected = getattr(kernel, export_name)
+    api = importlib.import_module("polisyos.ir.api")
+    constraints = importlib.import_module("polisyos.ir.kernel.constraints")
+    assert selected is vars(constraints)[export_name]
+    assert vars(kernel)["resolve_lazy_export"] is api.resolve_lazy_export
+    closure = (
+        (kernel.__name__, Path(kernel.__file__).relative_to(ledger._loaded_policy_engine_root()).as_posix()),
+        (api.__name__, Path(api.__file__).relative_to(ledger._loaded_policy_engine_root()).as_posix()),
+        (constraints.__name__, Path(constraints.__file__).relative_to(ledger._loaded_policy_engine_root()).as_posix()),
+    )
+    assert ledger._source_facade_runtime_projection(
+        ledger._loaded_policy_engine_root(), closure
+    )[0]
+
+    monkeypatch.setattr(kernel, "resolve_lazy_export", lambda *_args, **_kwargs: None)
+    with pytest.raises(ledger.ConfidenceLedgerError):
+        ledger._source_facade_runtime_projection(ledger._loaded_policy_engine_root(), closure)
 
 
 def test_loader_published_child_reaches_actual_module_consumer(loader_child_case, monkeypatch):

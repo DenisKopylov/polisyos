@@ -7920,6 +7920,7 @@ def _static_facade_mapping_values(
     values: dict[str, object] = {}
     invalid: set[str] = set()
     supported_mapping_stores: set[int] = set()
+    supported_readonly_mapping_calls: set[int] = set()
     type_checking_names: set[str] = set()
     typing_module_names: set[str] = set()
     future_annotations = any(
@@ -8064,6 +8065,19 @@ def _static_facade_mapping_values(
         """Apply one call only when callee/receiver identity and arguments are proven."""
 
         function = call.func
+        if (
+            isinstance(function, ast.Name)
+            and function.id == "sorted"
+            and "sorted" not in module_bound_names
+            and len(call.args) == 1
+            and not call.keywords
+        ):
+            source = _literal_source_expression(call.args[0], values)
+            if type(source) is dict and all(type(key) is str for key in source):
+                supported_readonly_mapping_calls.add(id(call))
+                return True
+            return False
+
         if (
             isinstance(function, ast.Name)
             and function.id == "frozenset"
@@ -8449,6 +8463,33 @@ def _static_facade_mapping_values(
     execute(tree.body)
 
     if scan_deferred_mapping_effects:
+        # Only exact canonical helper reads of these maps are exempt from the
+        # conservative deferred-argument escape scan. Their live bindings and
+        # selected outputs are reconciled by the downstream facade projection.
+        for statement in tree.body:
+            if not isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            for node in _source_scope_nodes(statement.body):
+                if not isinstance(node, ast.Call):
+                    continue
+                map_name = None
+                if statement.name == "__getattr__":
+                    map_name = _literal_resolve_lazy_export_map_name(
+                        tree,
+                        statement,
+                        node,
+                        helper_aliases=_literal_resolve_lazy_export_aliases(tree),
+                    )
+                elif statement.name == "__dir__":
+                    map_name = _literal_lazy_dir_map_name(
+                        tree,
+                        statement,
+                        node,
+                        helper_aliases=_literal_ir_api_helper_aliases(tree, "lazy_dir"),
+                    )
+                if map_name in mapping_names:
+                    supported_readonly_mapping_calls.add(id(node))
+
         # A function can mutate a provider table after its initializer ran. Only
         # stores executed by the bounded module-scope interpreter count as proof.
         for node in ast.walk(tree):
@@ -8472,6 +8513,8 @@ def _static_facade_mapping_values(
                 if isinstance(value, ast.Name) and value.id in mapping_names:
                     invalid.add(value.id)
             elif isinstance(node, ast.Call):
+                if id(node) in supported_readonly_mapping_calls:
+                    continue
                 for argument in (*node.args, *(keyword.value for keyword in node.keywords)):
                     if isinstance(argument, ast.Name) and argument.id in mapping_names:
                         invalid.add(argument.id)
@@ -8610,6 +8653,7 @@ def _literal_module_getattr_mapping_names(tree: ast.Module) -> frozenset[str]:
     """Return module tables indexed by a top-level literal ``__getattr__`` hook."""
 
     names: set[str] = set()
+    helper_aliases = _literal_resolve_lazy_export_aliases(tree)
     for statement in tree.body:
         if not (
             isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
@@ -8619,7 +8663,147 @@ def _literal_module_getattr_mapping_names(tree: ast.Module) -> frozenset[str]:
         for node in _source_scope_nodes(statement.body):
             if isinstance(node, ast.Subscript) and isinstance(node.value, ast.Name):
                 names.add(node.value.id)
+            if isinstance(node, ast.Call):
+                map_name = _literal_resolve_lazy_export_map_name(
+                    tree,
+                    statement,
+                    node,
+                    helper_aliases=helper_aliases,
+                )
+                if map_name is not None:
+                    names.add(map_name)
     return frozenset(names)
+
+
+def _literal_resolve_lazy_export_aliases(tree: ast.Module) -> frozenset[str]:
+    """Return only unshadowed direct imports of the canonical lazy-map resolver."""
+
+    return _literal_ir_api_helper_aliases(tree, "resolve_lazy_export")
+
+
+def _literal_ir_api_helper_aliases(tree: ast.Module, helper_name: str) -> frozenset[str]:
+    """Return unshadowed direct imports of one canonical ``polisyos.ir.api`` helper."""
+
+    aliases: set[str] = set()
+    for statement in _source_scope_nodes(tree.body):
+        if not (
+            isinstance(statement, ast.ImportFrom)
+            and statement.level == 0
+            and statement.module == "polisyos.ir.api"
+        ):
+            continue
+        for alias in statement.names:
+            if alias.name != helper_name:
+                continue
+            local_name = alias.asname or alias.name
+            sites = _module_scope_direct_binding_sites(tree, local_name)
+            if len(sites) == 1 and sites[0] == ("import_from", statement, alias):
+                aliases.add(local_name)
+    return frozenset(aliases)
+
+
+def _literal_resolve_lazy_export_map_name(
+    tree: ast.Module,
+    function: ast.FunctionDef | ast.AsyncFunctionDef,
+    call: ast.Call,
+    *,
+    helper_aliases: frozenset[str],
+) -> str | None:
+    """Recognize the exact canonical ``resolve_lazy_export`` call shape."""
+
+    if (
+        not isinstance(function, ast.FunctionDef)
+        or function.decorator_list
+        or len(function.args.posonlyargs + function.args.args) != 1
+        or function.args.kwonlyargs
+        or function.args.vararg is not None
+        or function.args.kwarg is not None
+    ):
+        return None
+    parameter = (function.args.posonlyargs + function.args.args)[0].arg
+    statements = list(function.body)
+    if (
+        statements
+        and isinstance(statements[0], ast.Expr)
+        and isinstance(statements[0].value, ast.Constant)
+        and type(statements[0].value.value) is str
+    ):
+        statements.pop(0)
+    if not (
+        len(statements) == 1
+        and isinstance(statements[0], ast.Return)
+        and statements[0].value is call
+        and isinstance(call.func, ast.Name)
+        and call.func.id in helper_aliases
+        and call.func.id != (function.args.posonlyargs + function.args.args)[0].arg
+        and len(call.args) == 1
+        and isinstance(call.args[0], ast.Name)
+        and call.args[0].id == parameter
+        and len(call.keywords) == 2
+        and not any(keyword.arg is None for keyword in call.keywords)
+        and _literal_builtin_name_unshadowed(tree, function, "globals")
+    ):
+        return None
+    keywords = {keyword.arg: keyword.value for keyword in call.keywords}
+    namespace = keywords.get("namespace")
+    exports = keywords.get("exports")
+    if not (
+        len(keywords) == 2
+        and isinstance(namespace, ast.Call)
+        and isinstance(namespace.func, ast.Name)
+        and namespace.func.id == "globals"
+        and not namespace.args
+        and not namespace.keywords
+        and isinstance(exports, ast.Name)
+        and exports.id != parameter
+        and exports.id not in _source_scope_bound_names(function.body)
+    ):
+        return None
+    return exports.id
+
+
+def _literal_lazy_dir_map_name(
+    tree: ast.Module,
+    function: ast.FunctionDef | ast.AsyncFunctionDef,
+    call: ast.Call,
+    *,
+    helper_aliases: frozenset[str],
+) -> str | None:
+    """Recognize the canonical ``lazy_dir(globals(), map)`` read-only surface."""
+
+    statements = list(function.body)
+    if (
+        statements
+        and isinstance(statements[0], ast.Expr)
+        and isinstance(statements[0].value, ast.Constant)
+        and type(statements[0].value.value) is str
+    ):
+        statements.pop(0)
+    if not (
+        function.name == "__dir__"
+        and not function.decorator_list
+        and not function.args.posonlyargs
+        and not function.args.args
+        and not function.args.kwonlyargs
+        and function.args.vararg is None
+        and function.args.kwarg is None
+        and len(statements) == 1
+        and isinstance(statements[0], ast.Return)
+        and statements[0].value is call
+        and isinstance(call.func, ast.Name)
+        and call.func.id in helper_aliases
+        and len(call.args) == 2
+        and isinstance(call.args[0], ast.Call)
+        and isinstance(call.args[0].func, ast.Name)
+        and call.args[0].func.id == "globals"
+        and not call.args[0].args
+        and not call.args[0].keywords
+        and isinstance(call.args[1], ast.Name)
+        and not call.keywords
+        and _literal_builtin_name_unshadowed(tree, function, "globals")
+    ):
+        return None
+    return call.args[1].id
 
 
 def _source_module_provider_index(
@@ -8707,6 +8891,7 @@ def _literal_module_getattr_mapping_providers(
     module_bound_names = _source_scope_bound_names(tree.body)
     builtin_getattr_unshadowed = _literal_builtin_name_unshadowed(tree, function, "getattr")
     builtin_globals_unshadowed = _literal_builtin_name_unshadowed(tree, function, "globals")
+    lazy_export_aliases = _literal_resolve_lazy_export_aliases(tree)
 
     def is_import_call(node: ast.AST) -> bool:
         if not isinstance(node, ast.Call):
@@ -8722,13 +8907,24 @@ def _literal_module_getattr_mapping_providers(
             and callee.value.id not in function_bound_names
         )
 
-    referenced_maps = frozenset(
+    referenced_map_names = {
         node.value.id
         for node in scope
         if isinstance(node, ast.Subscript)
         and isinstance(node.value, ast.Name)
         and node.value.id in mapping_names
-    )
+    }
+    for node in scope:
+        if isinstance(node, ast.Call):
+            map_name = _literal_resolve_lazy_export_map_name(
+                tree,
+                function,
+                node,
+                helper_aliases=lazy_export_aliases,
+            )
+            if map_name is not None and map_name in mapping_names:
+                referenced_map_names.add(map_name)
+    referenced_maps = frozenset(referenced_map_names)
     # Reuse the module-initializer effect transfer for both map-backed and
     # direct getters. The sentinel is watched by the same monotone transfer so
     # an opaque executed initializer cannot silently rebind import aliases or
@@ -9064,6 +9260,50 @@ def _literal_module_getattr_mapping_providers(
                 return _UNKNOWN_SOURCE_LITERAL
             return _UNKNOWN_SOURCE_LITERAL
         if isinstance(node, ast.Call):
+            lazy_map_name = _literal_resolve_lazy_export_map_name(
+                tree,
+                function,
+                node,
+                helper_aliases=lazy_export_aliases,
+            )
+            if lazy_map_name is not None and lazy_map_name in tables:
+                raw_target = tables[lazy_map_name].get(export_name, _STATIC_FACADE_UNKNOWN)
+                target = _literal_facade_provider_target(export_name, raw_target)
+                if target is not None:
+                    module_name, symbol_name = target
+                    if module_name.startswith("."):
+                        if (
+                            package_module_name is None
+                            or namespace_effect_unknown
+                            or "__name__" in module_bound_names
+                            or "__package__" in module_bound_names
+                        ):
+                            return _UNKNOWN_SOURCE_LITERAL
+                        try:
+                            module_name = importlib.util.resolve_name(
+                                module_name,
+                                package_module_name,
+                            )
+                        except (ImportError, TypeError, ValueError):
+                            return _UNKNOWN_SOURCE_LITERAL
+                    namespace = next(
+                        (
+                            keyword.value
+                            for keyword in node.keywords
+                            if keyword.arg == "namespace"
+                        ),
+                        None,
+                    )
+                    if isinstance(namespace, ast.Call):
+                        handled_getattrs.add(id(namespace))
+                    handled_getattrs.add(id(node))
+                    return (
+                        attribute_tag,
+                        lazy_map_name,
+                        export_name,
+                        module_name,
+                        symbol_name,
+                    )
             module = mapped_import_target(node, environment, export_name)
             if is_tagged(module, module_tag, 5):
                 return module
@@ -9534,7 +9774,7 @@ def _literal_module_getattr_provider_index(
 ) -> _LiteralModuleGetattrProviderIndex:
     """Index PEP 562 providers through one bounded source-value transfer."""
 
-    mapping_names: set[str] = set()
+    mapping_names: set[str] = set(_literal_module_getattr_mapping_names(tree))
     functions: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
     for statement in tree.body:
         if (
@@ -9543,11 +9783,6 @@ def _literal_module_getattr_provider_index(
             and (statement.args.posonlyargs or statement.args.args)
         ):
             functions.append(statement)
-    for function in functions:
-        for node in _source_scope_nodes(function.body):
-            if isinstance(node, ast.Subscript) and isinstance(node.value, ast.Name):
-                mapping_names.add(node.value.id)
-
     providers: dict[str, set[str]] = {}
     provider_symbols: dict[str, set[str]] = {}
     module_providers: dict[str, set[str]] = {}
@@ -11839,6 +12074,85 @@ def _source_package_getattr_binding_is_unresolved(tree: ast.Module) -> bool:
     return "__getattr__" in _source_scope_bound_names(other_statements)
 
 
+def _source_getattr_child_import(
+    tree: ast.Module,
+    *,
+    module_name: str,
+    export_name: str,
+) -> bool:
+    """Recognize a child import in a bounded, non-competing PEP 562 branch.
+
+    This is source ownership only. The import candidate is usable as a runtime
+    route only after the caller independently verifies the loaded package and
+    child module identities.
+    """
+
+    definitions = tuple(
+        statement
+        for statement in tree.body
+        if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and statement.name == "__getattr__"
+    )
+    if len(definitions) != 1:
+        return False
+    function = definitions[0]
+    if not isinstance(function, ast.FunctionDef):
+        return False
+    parameters = (*function.args.posonlyargs, *function.args.args)
+    if (
+        len(parameters) != 1
+        or function.args.kwonlyargs
+        or function.args.vararg is not None
+        or function.args.kwarg is not None
+    ):
+        return False
+    parameter = parameters[0].arg
+    if parameter in _source_scope_bound_names(function.body):
+        return False
+    if "getattr" in _source_scope_bound_names(tree.body) or "getattr" in (
+        _source_scope_bound_names(function.body)
+    ):
+        return False
+
+    for branch in _source_scope_nodes(function.body):
+        if not isinstance(branch, ast.If) or not (
+            isinstance(branch.test, ast.Compare)
+            and isinstance(branch.test.left, ast.Name)
+            and branch.test.left.id == parameter
+            and len(branch.test.ops) == 1
+            and isinstance(branch.test.ops[0], ast.In)
+            and len(branch.test.comparators) == 1
+            and isinstance(branch.test.comparators[0], (ast.Set, ast.Tuple, ast.List))
+        ):
+            continue
+        names = branch.test.comparators[0].elts
+        if any(not isinstance(item, ast.Constant) or type(item.value) is not str for item in names):
+            continue
+        if export_name in {item.value for item in names}:
+            continue
+        if branch.orelse or len(branch.body) != 2:
+            continue
+        imported, returned = branch.body
+        if (
+            isinstance(imported, ast.ImportFrom)
+            and _resolve_import_from_base(imported, module_name) == module_name
+            and len(imported.names) == 1
+            and imported.names[0].name == export_name
+            and isinstance(returned, ast.Return)
+            and isinstance(returned.value, ast.Call)
+            and isinstance(returned.value.func, ast.Name)
+            and returned.value.func.id == "getattr"
+            and len(returned.value.args) == 2
+            and isinstance(returned.value.args[0], ast.Name)
+            and returned.value.args[0].id == (imported.names[0].asname or export_name)
+            and isinstance(returned.value.args[1], ast.Name)
+            and returned.value.args[1].id == parameter
+            and not returned.value.keywords
+        ):
+            return True
+    return False
+
+
 @dataclass(frozen=True, slots=True)
 class _SourceModuleImportRouteCandidate:
     """One source-discovered route that has not necessarily earned runtime authority."""
@@ -11874,6 +12188,11 @@ def _source_loader_child_candidate(
     child_relative = _repository_module_source(
         repo_root, child_name, directory_entries=directory_entries
     )
+    lazy_child_import = _source_getattr_child_import(
+        tree,
+        module_name=module_name,
+        export_name=export_name,
+    )
     parent, child = sys.modules.get(module_name), sys.modules.get(child_name)
     if not (
         child_relative is not None
@@ -11883,7 +12202,7 @@ def _source_loader_child_candidate(
         and vars(child).get("__name__") == child_name
     ):
         return None
-    declared_import = False
+    declared_import = lazy_child_import
     for node in tree.body:
         if isinstance(node, ast.Import):
             declared_import |= any(alias.name == child_name for alias in node.names)
@@ -11903,7 +12222,7 @@ def _source_loader_child_candidate(
     )
     if (
         export_name in index.invalid_exports
-        or "*" in index.invalid_exports
+        or ("*" in index.invalid_exports and not lazy_child_import)
         or index.providers_by_export.get(export_name)
         or (index.module_providers_by_export or {}).get(export_name)
     ):
@@ -12178,6 +12497,30 @@ def _source_module_import_route_candidate_body(
         return _SourceModuleImportRouteCandidate(
             route=direct,
             binding_basis="direct",
+            package_initializer_effect_unknown=initializer_effect_unknown,
+        )
+
+    if (
+        discovery_only
+        and initializer_tree is not None
+        and module_source is not None
+        and _source_getattr_child_import(
+            initializer_tree,
+            module_name=module_name,
+            export_name=export_name,
+        )
+        and _repository_module_source(
+            repo_root,
+            f"{module_name}.{export_name}",
+            directory_entries=directory_entries,
+        )
+        is not None
+    ):
+        if source_index.diagnostic_unqualified_direct_bindings is not None:
+            source_index.diagnostic_unqualified_direct_bindings.add((module_name, export_name))
+        return _SourceModuleImportRouteCandidate(
+            route=("module", f"{module_name}.{export_name}", None),
+            binding_basis="source_expression",
             package_initializer_effect_unknown=initializer_effect_unknown,
         )
 

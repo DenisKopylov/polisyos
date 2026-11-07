@@ -215,7 +215,9 @@ else:
     assert result.returncode == 0, result.stderr
 
 
-def _distribution(root: Path, *, finder: bool = False) -> tuple[Path, Path, bytes, bytes]:
+def _distribution(
+    root: Path, *, finder: bool = False, pending_lookup: bool = False
+) -> tuple[Path, Path, bytes, bytes]:
     site = root / "site"
     package = site / "sample_provider"
     info = site / "sample_provider-1.0.dist-info"
@@ -225,6 +227,9 @@ def _distribution(root: Path, *, finder: bool = False) -> tuple[Path, Path, byte
         b"import sys\nfrom .base import Base\nclass Finder(Base): pass\n"
         b"finder = Finder()\nsys.meta_path.append(finder)\nvalue = 7\n"
         if finder
+        else b"from importlib.machinery import PathFinder\n"
+        b"during_initialization = PathFinder().find_spec(__name__)\nvalue = 7\n"
+        if pending_lookup
         else b"value = 7\n"
     )
     base_source = (
@@ -744,7 +749,7 @@ else:
 
 
 def test_executed_locked_source_cannot_be_reimported(tmp_path: Path) -> None:
-    """A prior source selection is reusable only before its first execution."""
+    """A completed provider cannot be recaptured by a later reimport."""
     _, _, lock, content = _distribution(tmp_path)
     source = tmp_path / "consumer.py"
     source.write_text("from sample_provider import value\n", encoding="utf-8")
@@ -799,6 +804,93 @@ else:
             str(tmp_path),
             base64.b64encode(content).decode(),
             base64.b64encode(lock).decode(),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=20,
+    )
+    assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize(
+    "mode",
+    ["lookup", "pending", "direct_exec", "reload"],
+)
+def test_completed_wheel_provider_distinguishes_lookup_from_execution(
+    tmp_path: Path, mode: str
+) -> None:
+    """A real PathFinder lookup stays guarded without replaying the provider."""
+    _, _, lock, content = _distribution(tmp_path, pending_lookup=mode == "pending")
+    consumer = tmp_path / "consumer.py"
+    consumer.write_text("from sample_provider import value\n", encoding="utf-8")
+    product = Path(__file__).resolve().parents[3]
+    script = r"""
+import base64, hashlib, importlib, importlib.machinery, pathlib, sys
+product, root, archive, lock, mode = sys.argv[1:]
+root = pathlib.Path(root)
+sys.path.insert(0, product)
+from tools import authority_bootstrap as host
+from tools import loaded_execution_capture as recorder
+from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
+host._LockedWheelSourceSelector._archive_bytes = staticmethod(lambda url, size: base64.b64decode(archive))
+selector = host._LockedWheelSourceSelector(root, root / 'site', base64.b64decode(lock))
+consumer = root / 'consumer.py'
+capture = SourceExecutionCapture(root, {
+    'consumer': ExpectedSource('consumer.py', hashlib.sha256(consumer.read_bytes()).hexdigest())
+}, external_source_selector=selector.select)
+capture.install()
+sys.path[:0] = [str(root), str(root / 'site')]
+import consumer
+import sample_provider as provider
+required = frozenset({'consumer', 'sample_provider'})
+prior = capture.completed('sample_provider')
+capture.assert_binding('consumer', 'value', 'sample_provider', 'value')
+assert provider.value == consumer.value == 7
+if mode == 'pending':
+    assert type(provider.during_initialization.loader) is recorder._CapturedSourceLoader
+    assert 'sample_provider' not in capture._module_failures
+spec = importlib.machinery.PathFinder().find_spec('sample_provider')
+assert spec is not None
+assert type(spec.loader) is recorder._CapturedSourceLoader
+assert capture.completed('sample_provider') is prior
+assert sys.modules['sample_provider'] is provider
+assert provider.value == consumer.value == 7
+capture.assert_binding('consumer', 'value', 'sample_provider', 'value')
+if mode in ('lookup', 'pending'):
+    assert 'sample_provider' not in capture._module_failures
+    raise SystemExit(0)
+if mode == 'direct_exec':
+    spec.loader.exec_module(provider)
+else:
+    importlib.reload(provider)
+assert capture._module_failures['sample_provider'] == 'module_reload_not_admitted'
+try:
+    capture.assert_retained(required)
+except CaptureError as exc:
+    assert str(exc) == 'required_module_initialization_failed'
+else:
+    raise AssertionError('changed or reexecuted provider was accepted')
+try:
+    capture.assert_retained(required)
+except CaptureError:
+    pass
+else:
+    raise AssertionError('restoring provider erased capture refusal')
+"""
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            "-S",
+            "-B",
+            "-c",
+            script,
+            str(product),
+            str(tmp_path),
+            base64.b64encode(content).decode(),
+            base64.b64encode(lock).decode(),
+            mode,
         ],
         capture_output=True,
         text=True,

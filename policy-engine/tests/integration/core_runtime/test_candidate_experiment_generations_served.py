@@ -134,7 +134,7 @@ def test_retained_generation_n5_guard_rejects_real_controller_entry() -> None:
 
 
 def _assert_changed_candidate_n5_numeric_outcomes(
-    *, control: object, first: object, changed: object
+    *, control: object, first: object, changed: object, allow_blocked: bool = False
 ) -> None:
     """Reopen both real N5 outputs and compare their declared numerical outcomes."""
     import numpy as np
@@ -160,6 +160,10 @@ def _assert_changed_candidate_n5_numeric_outcomes(
     ):
         history = execution.terminal_history
         evaluation = history.evaluation
+        if evaluation is None and allow_blocked:
+            assert history.terminal.selected_evaluation is None
+            assert history.selected_basis.basis_role == "blocked"
+            evaluation = history.reentry_evaluation
         assert evaluation is not None
         selected = evaluation.selected
         n5_input = CandidateSimulationN5InputV5.model_validate(

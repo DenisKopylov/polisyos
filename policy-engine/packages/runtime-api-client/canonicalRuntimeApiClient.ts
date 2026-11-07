@@ -299,6 +299,9 @@ export type CandidateExperimentCurrentActionProjection =
 export type CandidateExperimentN5ResultProjection =
   RuntimeApiComponents["schemas"]["CandidateExperimentN5ResultProjection"];
 
+export type CandidateExperimentPriorN5ResultProjection =
+  RuntimeApiComponents["schemas"]["CandidateExperimentPriorN5ResultProjection"];
+
 export type CandidateExperimentRouteExecutionRequest =
   RuntimeApiComponents["schemas"]["CandidateExperimentRouteExecutionRequest"];
 

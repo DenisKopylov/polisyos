@@ -6772,6 +6772,141 @@ class _LoadedExecutionObservationSeal:
 _LOADED_EXECUTION_OBSERVATION_SEAL: _LoadedExecutionObservationSeal | None = None
 
 
+def _observe_n5_early_python_provider(
+    method: type,
+    entry: types.FunctionType,
+    observed_frames: tuple[tuple[types.CodeType, dict[str, Any]], ...],
+) -> dict[str, object] | None:
+    """Reconcile one selected N5 provider against the retained early recorder.
+
+    This observes the selected method's determinism tier and initializer import
+    bindings. It does not establish a complete readset or protection through use.
+    """
+    session = _passive_capture_lookup(sys.__dict__, "_polisyos_loaded_host_v1")
+    seal = _LOADED_EXECUTION_OBSERVATION_SEAL
+    if session is _NO_EXECUTION_BINDING and seal is None:
+        return None
+
+    unavailable: dict[str, object] = {
+        "schema_version": "policyos.runtime.n5_early_python_provider.v1",
+        "predicate_provenance": "not_established",
+        "scope": "selected_method_determinism_provider_only",
+        "protected_through_use": "not_established",
+    }
+    try:
+        if (
+            type(session) is not dict
+            or seal is None
+            or seal.state != "retained"
+            or _passive_capture_lookup(session, "capture") is not seal.capture
+            or _passive_capture_lookup(session, "recorder") is not seal.recorder_module
+            or seal.owner_module is not _passive_capture_lookup(sys.modules, __name__)
+            or not _host_recorder_anchor_matches(seal.recorder_module, seal.capture)
+        ):
+            return unavailable
+        capture = seal.capture
+        capture.assert_retained(frozenset({__name__}))
+        if capture.completed(__name__) is not seal.owner_execution:
+            return unavailable
+        if type(method) is not type or type(entry) is not types.FunctionType:
+            return unavailable
+
+        method_module = type.__getattribute__(method, "__module__")
+        method_name = type.__getattribute__(method, "__name__")
+        if type(method_module) is not str or type(method_name) is not str:
+            return unavailable
+        execution = capture.completed(method_module)
+        if capture.completed_binding(method_module, method_name) is not method:
+            return unavailable
+        descriptor = type.__getattribute__(method, "__dict__").get("pure_step")
+        if (
+            type(descriptor) is not staticmethod
+            or descriptor.__func__ is not entry
+            or not capture._code_belongs_to(execution.code, entry.__code__)
+        ):
+            return unavailable
+        matching_frames = [
+            namespace for code, namespace in observed_frames if code is entry.__code__
+        ]
+        if not matching_frames or any(
+            namespace is not vars(execution.module) for namespace in matching_frames
+        ):
+            return unavailable
+
+        namespace = type.__getattribute__(method, "__dict__")
+        tier = namespace.get("determinism_tier")
+        metadata = namespace.get("metadata")
+        if tier is None or metadata is None:
+            return unavailable
+        tier_type = type(tier)
+        symbol = type.__getattribute__(tier_type, "__name__")
+        provider_name = type.__getattribute__(tier_type, "__module__")
+        member_name = object.__getattribute__(tier, "_name_")
+        if (
+            type(symbol) is not str
+            or type(provider_name) is not str
+            or type(member_name) is not str
+            or type.__getattribute__(tier_type, "__dict__").get(member_name) is not tier
+            or object.__getattribute__(metadata, "determinism_tier") is not tier
+        ):
+            return unavailable
+
+        events = capture.import_events()
+        consumer_edges = [
+            event
+            for event in events
+            if event.route == "builtin_import"
+            and event.importer_name == method_module
+            and event.caller_code is execution.code
+            and _passive_capture_lookup(event.retained_exports, symbol) is tier_type
+            and symbol
+            in _source_import_aliases_for_event(
+                _loaded_policy_engine_root(), capture, event, symbol
+            )
+        ]
+        if len(consumer_edges) != 1:
+            return unavailable
+        consumer_edge = consumer_edges[0]
+        facade = capture.completed(consumer_edge.provider_name)
+        provider_edges = [
+            event
+            for event in events
+            if event.route == "builtin_import"
+            and event.importer_name == consumer_edge.provider_name
+            and event.provider_name == provider_name
+            and event.caller_code is facade.code
+            and _passive_capture_lookup(event.retained_exports, symbol) is tier_type
+            and symbol
+            in _source_import_aliases_for_event(
+                _loaded_policy_engine_root(), capture, event, symbol
+            )
+        ]
+        if len(provider_edges) != 1:
+            return unavailable
+        provider = capture.completed(provider_name)
+        capture.assert_import_binding(
+            consumer_edge, importer_attribute=symbol, provider_export=symbol
+        )
+        capture.assert_import_binding(
+            provider_edges[0], importer_attribute=symbol, provider_export=symbol
+        )
+        return {
+            **unavailable,
+            "predicate_provenance": "independently_reconciled",
+            "method_module": method_module,
+            "method_source_sha256": execution.source_sha256,
+            "entry_qualname": entry.__code__.co_qualname,
+            "facade_module": consumer_edge.provider_name,
+            "facade_source_sha256": facade.source_sha256,
+            "provider_module": provider_name,
+            "provider_source_sha256": provider.source_sha256,
+            "selected_symbol": symbol,
+            "selected_member": member_name,
+        }
+    except (AttributeError, ImportError, OSError, RuntimeError, TypeError, ValueError):
+        return unavailable
+
+
 def _observe_unsealed_host_capture(
     recorder_module: object,
     capture: Any,  # noqa: ANN401

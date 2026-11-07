@@ -823,15 +823,13 @@ class _ExternalCaptureFinder(importlib.abc.MetaPathFinder):
         previous = capture._sources.get(fullname)
         if previous is not None:
             if (
-                fullname in capture._pending
-                or fullname in capture._completed
-                or previous.relative_path != expected.relative_path
+                previous.relative_path != expected.relative_path
                 or previous.sha256 != expected.sha256
             ):
                 capture._module_fail(fullname, "module_reload_not_admitted")
                 return spec
-            # find_spec can select source during preflight without executing it.
-            # Preserve that exact held selection when the first import follows.
+            # Spec lookup does not execute a module. Keep the captured loader
+            # guard on each result, including after a completed initialization.
             expected = previous
         else:
             capture._selected_sources[fullname] = expected
@@ -2381,10 +2379,11 @@ class SourceExecutionCapture:
         return resolved
 
     def _begin(self, name: str, module: ModuleType, loader: _CapturedSourceLoader) -> None:
+        if name in self._pending or name in self._completed:
+            self._module_fail(name, "module_reload_not_admitted")
+            raise CaptureError("module_reload_not_admitted")
         if (
             self._phase != "collecting"
-            or name in self._pending
-            or name in self._completed
             or type(module) is not ModuleType
             or _passive_lookup(sys.modules, name)[1] is not module
             or _passive_lookup(module.__dict__, "__loader__")[1] is not loader

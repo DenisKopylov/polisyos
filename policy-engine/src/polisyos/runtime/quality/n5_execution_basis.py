@@ -207,7 +207,7 @@ def observe_candidate_n5_execution_input(
     problem: object,
     request: JointSimulationRequest,
     input_ref: ArtifactRef,
-) -> Iterator[None]:
+) -> Iterator[JointSimulationRequest]:
     """Bind the exact owner-replayed V5 input before the real controller runs.
 
     The request is reconstructed by the same actual port builder from a fresh
@@ -234,6 +234,12 @@ def observe_candidate_n5_execution_input(
         problem=problem,
         input_record=record,
     )
+    # The rebuilt request owns its CAS-selected numerical inputs. Its world
+    # model may still alias the port's revalidated context, so detach that
+    # nested model before passing the request to the controller.
+    expected = expected.model_copy(
+        update={"world_model_record": expected.world_model_record.model_copy(deep=True)}
+    )
     if exact_n5_content_bytes(expected) != exact_n5_content_bytes(request):
         raise ValueError("n5_implementation_input_request_mismatch")
     observer = _ControllerExecutionObserver((port, port._controller))
@@ -243,7 +249,7 @@ def observe_candidate_n5_execution_input(
             port._controller,
             candidate,
             problem,
-            request,
+            expected,
             input_ref,
             record.content_hash,
             observer,
@@ -254,7 +260,7 @@ def observe_candidate_n5_execution_input(
         # cache/replication, numerical code, and final aggregation/result
         # construction. Capturing only run_once would miss outer consumers.
         with observer:
-            yield
+            yield expected
     finally:
         _ACTIVE_INPUT.reset(token)
 
@@ -612,6 +618,7 @@ class N5ImplementationCapture:
         self,
         *,
         method: type,
+        selected_step: object,
         request: JointSimulationRequest,
         controller: object,
         method_fqn: str,
@@ -637,8 +644,12 @@ class N5ImplementationCapture:
         self.request_hash = "sha256:" + hashlib.sha256(self._request_bytes).hexdigest()
         self._result_bytes: bytes | None = None
         self._trajectory_bytes: bytes | None = None
-        self._entry = getattr(method, "pure_step", None)
-        self._supported = method is NCMEngineMethod and isinstance(self._entry, types.FunctionType)
+        self._entry = selected_step
+        self._supported = (
+            method is NCMEngineMethod
+            and isinstance(selected_step, types.FunctionType)
+            and getattr(method, "pure_step", None) is selected_step
+        )
         self._observer = self._admission.observer if self._admission is not None else None
         self._codes = self._observer.codes if self._observer is not None else {}
         self._native_calls = self._observer.native_calls if self._observer is not None else {}
@@ -706,6 +717,23 @@ class N5ImplementationCapture:
             ]
         )
         self._trajectory_hash = "sha256:" + hashlib.sha256(self._trajectory_bytes).hexdigest()
+
+    def _early_python_provider_observation(self) -> dict[str, object] | None:
+        """Observe the selected provider only through the retained host capture."""
+        from polisyos.runtime.quality import confidence_ledger
+
+        if (
+            "_polisyos_loaded_host_v1" not in sys.__dict__
+            and confidence_ledger._LOADED_EXECUTION_OBSERVATION_SEAL is None
+        ):
+            return None
+        if not isinstance(self._entry, types.FunctionType):
+            return None
+        return confidence_ledger._observe_n5_early_python_provider(
+            self.method,
+            self._entry,
+            tuple((item.code, item.globals) for item in self._codes.values()),
+        )
 
     def _current_implementation(self) -> dict[str, Any]:
         from polisyos.foundry.methods.selection.registry import MethodRegistry
@@ -944,7 +972,7 @@ class N5ImplementationCapture:
         entry = getattr(self.method, "pure_step", None)
         if entry is not self._entry or not isinstance(entry, types.FunctionType):
             raise ValueError("n5_selected_callable_changed")
-        return {
+        implementation = {
             "method_object": _token(self.method),
             "entry_object": _token(entry),
             "entry_code": _code_hash(entry.__code__),
@@ -959,6 +987,10 @@ class N5ImplementationCapture:
             "native_origins": _native_origins(),
             "numerical_policy": _numeric_policy(self.method),
         }
+        early_provider = self._early_python_provider_observation()
+        if early_provider is not None:
+            implementation["early_python_provider_observation"] = early_provider
+        return implementation
 
     def seal(
         self, *, input_ref: ArtifactRef, result: JointSimulationResult
@@ -1015,6 +1047,13 @@ class N5ImplementationCapture:
                         reasons.append("n5_implementation_changed_during_execution")
         except (OSError, TypeError, ValueError, RuntimeError) as exc:
             reasons.extend(_implementation_failure_reasons(exc))
+        early_provider = implementation.get("early_python_provider_observation")
+        if early_provider is None:
+            early_provider = self._early_python_provider_observation()
+        if early_provider is not None:
+            implementation["early_python_provider_observation"] = early_provider
+            if early_provider["predicate_provenance"] != "independently_reconciled":
+                reasons.append("canonical_loaded_runtime_mismatch")
         consumed_configuration = None
         try:
             from polisyos.runtime.quality.joint_simulation_horizon import (

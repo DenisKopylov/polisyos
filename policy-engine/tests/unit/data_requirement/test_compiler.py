@@ -2342,6 +2342,12 @@ def test_grammar_unavailable_candidate_merge_does_not_upgrade_legacy_denominator
     [
         ("economic.gdp", "national_economy", "wdi_nominal_gdp_annual", "global.gdp"),
         (
+            "economic.consumer_price_index",
+            "national_economy",
+            "wdi_consumer_price_index_annual",
+            "global.consumer_price_index",
+        ),
+        (
             "labor.unemployment_rate",
             "total_labor_force",
             "wdi_unemployment_laborforce_annual",
@@ -2358,6 +2364,19 @@ def test_declared_world_slot_joins_exact_canonical_construct_need(
     from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
 
     scenario = _declared_source_scenario(construct, population)
+    if construct == "economic.consumer_price_index":
+        scenario["scenario_id"] = "lane01-x03-cpi-ukr-2024"
+        scenario["domain"] = "economic"
+        scenario["text"] = (
+            "Use Ukraine's annual 2024 consumer price index level, based on 2010=100."
+        )
+        scenario["scope_profile"].update(
+            {
+                "profile_id": "scope:lane01-cpi-ukr-2024:v1",
+                "jurisdiction": "UKR",
+                "time_window": {"start": "2024-01-01", "end": "2024-12-31"},
+            }
+        )
     scenario["expected_evidence_contract"] = {"admissible_data_source_families": [world_slot]}
     resolver = RequirementToCapabilityResolver.governed_fixture()
     report = DataRequirementCompiler(capability_resolver=resolver).compile_for_scenario(scenario)
@@ -2372,6 +2391,7 @@ def test_declared_world_slot_joins_exact_canonical_construct_need(
     assert len(matches) == 1
     spec = matches[0]
     (resolution,) = report.capability_requirement_resolutions
+    assert resolution.query.source_family_alias == source_family
     assert spec.metadata["capability_binding"]["requirement_id"] == resolution.query.requirement_id
     assert spec.metadata["capability_binding"]["construct_ref"] == f"construct:{construct}"
     assert spec.metadata["construct_ref"] == f"construct:{construct}"
@@ -2380,6 +2400,86 @@ def test_declared_world_slot_joins_exact_canonical_construct_need(
     assert report.requirement_basis.basis_grade == "recomputed"
     assert report.metadata["declared_legacy_data_source_families"] == [world_slot]
     assert "policyos.data_requirement.world_slot_projection.v1" in report.rule_version_refs
+    assert (
+        "scenario-family-construct-row:repo://architecture/policy_design_case/"
+        "layer2_s3_governed_capability_rows.json#scenario-family/"
+        f"{source_family}"
+    ) in report.rule_version_refs
+
+
+def test_cpi_index_world_slot_rejects_the_growth_series_descriptor() -> None:
+    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
+
+    world_slot = "global.consumer_price_index"
+    scenario = _declared_source_scenario("economic.consumer_price_index", "national_economy")
+    scenario["scenario_id"] = "lane01-x03-cpi-ukr-2024"
+    scenario["domain"] = "economic"
+    scenario["scope_profile"]["profile_id"] = "scope:lane01-cpi-ukr-2024:v1"
+    scenario["scope_profile"].update(
+        {"jurisdiction": "UKR", "time_window": {"start": "2024-01-01", "end": "2024-12-31"}}
+    )
+    scenario["expected_evidence_contract"] = {"admissible_data_source_families": [world_slot]}
+
+    actual = RequirementToCapabilityResolver.governed_fixture()
+    cpi = next(
+        capability
+        for capability in actual.capabilities
+        if capability.construct_id == "economic.consumer_price_index"
+    )
+    (asset,) = cpi.source_assets
+    wrong_rate_metadata = {
+        **asset.metadata,
+        "catalog_fetch_binding": {
+            **asset.metadata["catalog_fetch_binding"],
+            "dataset_id": "FP.CPI.TOTL.ZG",
+            "metric_id": "consumer_price_index_growth",
+        },
+        "canonical_unit": "percent",
+        "indicator_id": "FP.CPI.TOTL.ZG",
+        "raw_unit": "percent",
+        "index_base_year": None,
+        "target_world_slot": "global.consumer_price_inflation_rate",
+    }
+    wrong_rate = cpi.model_copy(
+        update={
+            "source_assets": (
+                asset.model_copy(
+                    update={
+                        "metadata": wrong_rate_metadata,
+                        "ref": "https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG",
+                    }
+                ),
+            )
+        }
+    )
+    wrong_resolver = RequirementToCapabilityResolver(
+        capabilities=tuple(
+            wrong_rate if item.construct_id == "economic.consumer_price_index" else item
+            for item in actual.capabilities
+        ),
+        failure_modes=actual.failure_modes,
+        acquisition_strategies=actual.acquisition_strategies,
+        conflicts=actual.conflicts,
+        capability_index_ref=actual.capability_index_ref,
+    )
+    wrong_report = DataRequirementCompiler(capability_resolver=wrong_resolver).compile_for_scenario(
+        scenario
+    )
+    (wrong_resolution,) = wrong_report.capability_requirement_resolutions
+    (wrong_candidate,) = wrong_resolution.candidate_discovery.candidates
+    assert wrong_candidate.source_assets[0]["metadata"]["indicator_id"] == "FP.CPI.TOTL.ZG"
+    assert (
+        wrong_candidate.source_assets[0]["metadata"]["target_world_slot"]
+        == "global.consumer_price_inflation_rate"
+    )
+    wrong_matches = compiler_module.compiled_requirements_for_world_slot(
+        world_slot=world_slot,
+        specs=wrong_report.specs,
+        capability_resolutions=wrong_report.capability_requirement_resolutions,
+    )
+    assert wrong_matches == ()
+    assert wrong_report.metadata["candidate_world_slot_aliases"] == []
+    assert wrong_report.requirement_basis.basis_grade == "consumer_asserted"
 
 
 def test_world_slot_join_accepts_bare_binding_construct_identity() -> None:

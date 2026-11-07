@@ -1181,6 +1181,16 @@ def _candidate_experiment_effective_source(
                 or history.evaluation is None
             ):
                 raise ValueError("candidate_experiment_effective_source_retention_mismatch")
+        elif history.terminal.terminal_outcome == "candidate_blocked":
+            if (
+                history.reentry is not None
+                or history.continuation is not None
+                or history.evaluation is not None
+                or history.reentry_evaluation is not None
+                or history.frontier_before is not None
+                or history.frontier_after is not None
+            ):
+                raise ValueError("candidate_experiment_effective_source_blocker_mismatch")
         else:
             raise ValueError("candidate_experiment_effective_source_outcome_unsupported")
         prefix.append(history)
@@ -1906,9 +1916,21 @@ class AcquisitionRouteLoop:
                         )
                 else:
                     previous = previous_terminal_history
-                    if (
+                    if previous.frontier_after is None:
+                        if (
+                            previous.evaluation is not None
+                            or decision.comparison_result != "not_established"
+                            or decision.predicate_provenance != "not_established"
+                            or decision.prior_basis_ref is not None
+                            or decision.prior_evaluation is not None
+                            or decision.expected_frontier_ref is not None
+                            or decision.expected_frontier_revision != 0
+                        ):
+                            raise AcquisitionRouteClosureError(
+                                "candidate_experiment_terminal_generation_fold_mismatch"
+                            )
+                    elif (
                         previous.selected_basis is None
-                        or previous.frontier_after is None
                         or not _candidate_ref_same(
                             decision.prior_basis_ref,
                             previous.terminal.selected_basis_ref,

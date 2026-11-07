@@ -74,15 +74,54 @@ def _exercise_recorded_ncm_provider(monkeypatch: pytest.MonkeyPatch) -> None:
             if event == "call" and frame.f_code is entry.__code__:
                 frames.append((frame.f_code, frame.f_globals))
 
+        from polisyos.foundry.methods.catalog.causal.protocols import NCMQueryData
+        from polisyos.ir.analytics.ncm import ExogenousSpec, NCMSpec, StructuralEquation
+
+        numerical_model = NCMSpec(
+            endogenous_vars=["X", "Y"],
+            exogenous_specs=[
+                ExogenousSpec(variable="U_X", associated_endogenous="X"),
+                ExogenousSpec(variable="U_Y", associated_endogenous="Y"),
+            ],
+            structural_equations=[
+                StructuralEquation(
+                    variable="X",
+                    parents=[],
+                    exogenous="U_X",
+                    equation_type="linear",
+                    equation_params={"intercept": 0.0, "coefficients": {}},
+                ),
+                StructuralEquation(
+                    variable="Y",
+                    parents=["X"],
+                    exogenous="U_Y",
+                    equation_type="linear",
+                    equation_params={"intercept": 0.5, "coefficients": {"X": 2.0}},
+                ),
+            ],
+            scm_spec=None,
+            is_acyclic=True,
+        )
+        numerical_query = NCMQueryData(
+            ncm_spec=numerical_model,
+            interventions=[{"X": 0.0}, {"X": 1.0}],
+            query_vars=["Y"],
+            n_samples=32,
+        )
         previous = sys.getprofile()
         sys.setprofile(observe)
         try:
-            # This intentionally incomplete input reaches the real method and
-            # then fails validation. It is not a successful numerical result.
-            with pytest.raises(ValueError):
-                entry({}, {"n_samples": 1, "__seed__": 7})
+            numerical_result = entry(
+                {"ncm_query_data": numerical_query}, {"n_samples": 32, "__seed__": 7}
+            )
         finally:
             sys.setprofile(previous)
+        numerical_summary = numerical_result["counterfactual_result"]
+        assert numerical_summary["n_worlds"] == 2
+        assert numerical_summary["n_samples"] == 32
+        world_means = [world["Y"]["mean"] for world in numerical_summary["world_summaries"]]
+        assert world_means[1] - world_means[0] == pytest.approx(2.0, abs=1e-12)
+        assert len(frames) == 1
 
         recorder_module = types.ModuleType("recorded_test_host")
         seal = SimpleNamespace(

@@ -373,7 +373,10 @@ async def test_first_n5_prior_requires_real_selected_v3_and_exact_scheduler_defe
         )
         assert not candidate_source_first_n5_deferred(missing_source_cycle)
         reads_before = len(load_calls)
-        _expect_prior_refusal(resolve, "candidate_source_prior_n5_execution_not_established")
+        _expect_prior_refusal(
+            lambda: resolve(missing_source_cycle),
+            "candidate_source_prior_n5_execution_not_established",
+        )
         assert len(load_calls) == reads_before
 
         # Wrong kind/profile selection must refuse before using source bytes.

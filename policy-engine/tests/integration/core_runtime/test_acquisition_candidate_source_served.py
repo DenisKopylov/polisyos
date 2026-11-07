@@ -668,12 +668,7 @@ def test_native_labor_source_refuses_reentry_without_actual_prior_n5(
             ValueError, match=r"^candidate_source_reentry_preflight_not_established$"
         ) as refusal:
             bridge.candidate_source_reentry_preflight(closure=ctx.closure)
-        expected_cause = (
-            "acquisition_prior_actual_n5_not_established"
-            if simulation.status != "joint_simulated"
-            else "acquisition_prior_selected_evaluation_refs_missing"
-        )
-        assert str(refusal.value.__cause__) == expected_cause
+        assert str(refusal.value.__cause__) == "candidate_source_prior_n5_execution_not_established"
         assert ctx.response.status_code == 409, ctx.response.text
         assert ctx.response.json()["code"] == (
             "candidate_source_reentry_preflight_not_established"

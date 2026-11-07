@@ -348,7 +348,8 @@ class _LockedWheelSourceSelector:
             raise ValueError("provider_lock_invalid")
         self._packages = packages
         self._owners: dict[str, list[Path]] | None = None
-        self._wheels: dict[Path, tuple[str, dict[str, str]] | None] = {}
+        self._wheels: dict[tuple[Path, str | None], tuple[str, dict[str, str]] | None] = {}
+        self._native_wheel_archives: dict[Path, bytes] = {}
         self._wheel_failures: dict[Path, str] = {}
         self._selected: dict[str, tuple[str, str, str]] = {}
         self._refused: dict[str, str] = {}
@@ -387,7 +388,11 @@ class _LockedWheelSourceSelector:
                 with record.open(encoding="utf-8", newline="") as stream:
                     rows = csv.reader(stream)
                     for row in rows:
-                        if len(row) == 3 and row[0].endswith(".py") and self._safe_member(row[0]):
+                        if (
+                            len(row) == 3
+                            and row[0].endswith((".py", *importlib.machinery.EXTENSION_SUFFIXES))
+                            and self._safe_member(row[0])
+                        ):
                             owners.setdefault(row[0], []).append(info)
             except (OSError, UnicodeError, csv.Error):
                 continue
@@ -417,9 +422,12 @@ class _LockedWheelSourceSelector:
             "-".join(tag) for tag in itertools.product(*(part.split(".") for part in parts[-3:]))
         }
 
-    def _wheel_members(self, info: Path) -> tuple[str, dict[str, str]] | None:
-        if info in self._wheels:
-            return self._wheels[info]
+    def _wheel_members(
+        self, info: Path, native_member: str | None = None
+    ) -> tuple[str, dict[str, str]] | None:
+        cache_key = (info, native_member)
+        if cache_key in self._wheels:
+            return self._wheels[cache_key]
         result: tuple[str, dict[str, str]] | None = None
         try:
             metadata_path = info / "METADATA"
@@ -464,17 +472,21 @@ class _LockedWheelSourceSelector:
             if len(wheels) != 1:
                 raise ValueError("provider_locked_wheel_unavailable")
             wheel = wheels[0]
-            if self._network_unavailable or wheel["size"] > self._remaining_bytes:
-                raise ValueError("provider_wheel_budget_unavailable")
-            self._remaining_bytes -= wheel["size"]
-            try:
-                content = self._archive_bytes(wheel["url"], wheel["size"])
-            except OSError:
-                self._network_unavailable = True
-                raise
+            content = self._native_wheel_archives.get(info) if native_member is not None else None
+            if content is None:
+                if self._network_unavailable or wheel["size"] > self._remaining_bytes:
+                    raise ValueError("provider_wheel_budget_unavailable")
+                self._remaining_bytes -= wheel["size"]
+                try:
+                    content = self._archive_bytes(wheel["url"], wheel["size"])
+                except OSError:
+                    self._network_unavailable = True
+                    raise
             wheel_hash = f"sha256:{_sha(content)}"
             if wheel_hash != wheel["hash"]:
                 raise ValueError("provider_wheel_digest_mismatch")
+            if native_member is not None:
+                self._native_wheel_archives[info] = content
             with zipfile.ZipFile(io.BytesIO(content)) as archive:
                 members = archive.infolist()
                 names_in_archive = [member.filename for member in members]
@@ -499,7 +511,7 @@ class _LockedWheelSourceSelector:
                 source_hashes: dict[str, str] = {}
                 total_size = 0
                 for member in members:
-                    if not member.filename.endswith(".py"):
+                    if not member.filename.endswith(".py") and member.filename != native_member:
                         continue
                     mode = stat.S_IFMT(member.external_attr >> 16)
                     total_size += member.file_size
@@ -527,8 +539,64 @@ class _LockedWheelSourceSelector:
                 if type(exc) is ValueError and len(exc.args) == 1 and type(exc.args[0]) is str
                 else type(exc).__name__
             )
-        self._wheels[info] = result
+        self._wheels[cache_key] = result
         return result
+
+    def select_native(self, module_name: str, origin: str) -> tuple[str, str] | None:
+        """Bind an explicitly selected extension file to its locked wheel member.
+
+        The selected file is not an assertion about mapped machine code or the
+        lifetime of an execution. Callers select the names they actually need.
+        Extension package ``__init__`` files are outside this selection.
+        """
+        if type(module_name) is not str or type(origin) is not str or module_name in self._refused:
+            return None
+        try:
+            path = Path(origin)
+            if not path.is_relative_to(self._site_alias):
+                return None
+            relative = path.relative_to(self._site_alias)
+            canonical = self._site / relative
+            suffix = next(
+                (
+                    item
+                    for item in importlib.machinery.EXTENSION_SUFFIXES
+                    if relative.name.endswith(item)
+                ),
+                None,
+            )
+            if (
+                suffix is None
+                or ".." in relative.parts
+                or canonical.resolve(strict=True) != canonical
+                or path.resolve(strict=True) != canonical
+                or not canonical.is_file()
+            ):
+                raise ValueError("provider_native_origin_invalid")
+            parts = (*relative.parts[:-1], relative.name.removesuffix(suffix))
+            if not all(part.isidentifier() for part in parts) or ".".join(parts) != module_name:
+                raise ValueError("provider_native_name_mismatch")
+            member = relative.as_posix()
+            owners = self._record_owners().get(member, [])
+            if len(owners) != 1:
+                raise ValueError("provider_distribution_owner_unavailable")
+            selected = self._wheel_members(owners[0], native_member=member)
+            if selected is None:
+                raise ValueError(self._wheel_failures.get(owners[0], "provider_wheel_unavailable"))
+            wheel_hash, members = selected
+            digest = members.get(member)
+            if digest is None or _file_sha(canonical) != digest:
+                raise ValueError("provider_installed_native_mismatch")
+            checkout_relative = path.relative_to(self._root).as_posix()
+            self._selected[module_name] = (checkout_relative, digest, wheel_hash)
+            return checkout_relative, digest
+        except (OSError, ValueError) as exc:
+            self._refused[module_name] = (
+                exc.args[0]
+                if type(exc) is ValueError and len(exc.args) == 1 and type(exc.args[0]) is str
+                else type(exc).__name__
+            )
+            return None
 
     def select(self, module_name: str, origin: str) -> tuple[str, str] | None:
         """Bind a loaded module's path to its verified wheel member bytes."""

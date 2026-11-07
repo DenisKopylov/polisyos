@@ -6,6 +6,7 @@ import base64
 import hashlib
 import io
 import json
+import shutil
 import subprocess
 import sys
 import zipfile
@@ -14,6 +15,204 @@ from pathlib import Path
 import pytest
 
 from tools import authority_bootstrap as host
+
+
+@pytest.mark.parametrize(
+    "mode",
+    [
+        "normal",
+        "unselected",
+        "wrong_wheel",
+        "removed",
+        "replaced",
+        "loader",
+        "stdlib_loader",
+        "stdlib_loader_code",
+        "reload",
+        "failed_load",
+        "origin_callback",
+        "file_callback",
+        "changed_precreate",
+        "precreate_loader_callback",
+    ],
+)
+def test_selected_native_member_tracks_actual_extension_load(tmp_path: Path, mode: str) -> None:
+    """Observe a real extension against a bounded test wheel and refuse drift."""
+    extension = next(
+        (Path(sys.base_prefix) / "lib/python3.14/lib-dynload").glob("_ctypes_test*.so"), None
+    )
+    if extension is None:
+        pytest.skip("the selected CPython does not provide the _ctypes_test extension")
+    site = tmp_path / "site"
+    site.mkdir()
+    native = site / extension.name
+    shutil.copyfile(extension, native)
+    other_native = site / native.name.replace("_ctypes_test", "_dbm", 1)
+    shutil.copyfile(extension, other_native)
+    if mode == "failed_load":
+        shutil.copyfile(native, tmp_path / "native.valid")
+        native.write_bytes(b"invalid native image")
+    info = site / "native_probe-1.0.dist-info"
+    info.mkdir()
+    metadata = b"Metadata-Version: 2.1\nName: native-probe\nVersion: 1.0\n\n"
+    wheel_metadata = b"Wheel-Version: 1.0\nRoot-Is-Purelib: false\nTag: py3-none-any\n\n"
+    (info / "METADATA").write_bytes(metadata)
+    (info / "WHEEL").write_bytes(wheel_metadata)
+    (info / "RECORD").write_text(f"{native.name},,\n{other_native.name},,\n", encoding="utf-8")
+    archive_path = tmp_path / "native_probe-1.0-py3-none-any.whl"
+    with zipfile.ZipFile(archive_path, "w") as archive:
+        archive.write(native, native.name)
+        archive.write(other_native, other_native.name)
+        archive.writestr("native_probe-1.0.dist-info/METADATA", metadata)
+        archive.writestr("native_probe-1.0.dist-info/WHEEL", wheel_metadata)
+    archive_bytes = archive_path.read_bytes()
+    lock = (
+        (
+            '[[package]]\nname = "native-probe"\nversion = "1.0"\n'
+            'wheels = [{ url = "https://example.invalid/native_probe-1.0-py3-none-any.whl", '
+            f'hash = "sha256:{hashlib.sha256(archive_bytes).hexdigest()}", '
+            f"size = {len(archive_bytes)} }}]\\n"
+        )
+        .replace("\\n", "\n")
+        .encode()
+    )
+    (tmp_path / "lock.toml").write_bytes(lock)
+    (tmp_path / "consumer.py").write_text("import _ctypes_test\n", encoding="utf-8")
+    product = Path(__file__).resolve().parents[3]
+    script = r"""
+import hashlib, importlib, importlib.machinery, pathlib, sys, types
+product, root, mode = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2]), sys.argv[3]
+sys.path.insert(0, str(product))
+from tools import authority_bootstrap as host
+from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
+site = root / 'site'
+archive = next(root.glob('*.whl')).read_bytes()
+fetches = []
+def fetch(url, size):
+    fetches.append(url)
+    return archive + (b'changed' if mode == 'wrong_wheel' else b'')
+host._LockedWheelSourceSelector._archive_bytes = staticmethod(fetch)
+selector = host._LockedWheelSourceSelector(root, site, (root / 'lock.toml').read_bytes())
+consumer = root / 'consumer.py'
+capture = SourceExecutionCapture(
+    root, {'consumer': ExpectedSource('consumer.py', hashlib.sha256(consumer.read_bytes()).hexdigest())},
+    external_native_selector=selector.select_native,
+    external_native_modules=frozenset({'_ctypes_test'} if mode != 'unselected' else {'_dbm'}),
+    external_source_root=site,
+)
+capture.install()
+sys.path[:0] = [str(root), str(site)]
+if mode in ('changed_precreate', 'precreate_loader_callback'):
+    spec = importlib.util.find_spec('_ctypes_test')
+    assert spec is not None
+    if mode == 'changed_precreate':
+        spec.origin = str(next(site.glob('_dbm*.so')))
+    else:
+        class Canary:
+            def __fspath__(self):
+                raise AssertionError('verification called candidate __fspath__')
+        spec.loader._loader.path = Canary()
+    spec.loader.create_module(spec)
+    assert capture._module_failures['_ctypes_test'] == 'native_selected_file_mismatch'
+    raise SystemExit(0)
+if mode == 'failed_load':
+    try:
+        import consumer
+    except ImportError:
+        pass
+    else:
+        raise AssertionError('invalid native image loaded')
+    assert capture._module_failures['_ctypes_test'] == 'native_initialization_failed'
+    next(site.glob('_ctypes_test*.so')).write_bytes((root / 'native.valid').read_bytes())
+    import consumer
+    try:
+        capture.completed_native('_ctypes_test')
+    except CaptureError:
+        pass
+    else:
+        raise AssertionError('native failure was erased by retry')
+    raise SystemExit(0)
+import consumer
+if mode in ('unselected', 'wrong_wheel'):
+    try:
+        capture.completed_native('_ctypes_test')
+    except CaptureError as exc:
+        assert str(exc) == 'native_module_not_completed'
+    else:
+        raise AssertionError('unselected extension was captured')
+    if mode == 'wrong_wheel':
+        assert selector.failure_for('_ctypes_test') == 'provider_wheel_digest_mismatch'
+else:
+    record = capture.completed_native('_ctypes_test')
+    assert record.module is consumer._ctypes_test
+    assert isinstance(record.spec.loader, importlib.machinery.ExtensionFileLoader)
+    assert pathlib.Path(record.spec.loader.get_filename('_ctypes_test')).resolve() == pathlib.Path(record.spec.origin).resolve()
+    assert record.file_sha256 == hashlib.sha256(pathlib.Path(record.spec.origin).read_bytes()).hexdigest()
+    capture.assert_retained(frozenset({'consumer'}))
+    if mode == 'normal':
+        other = next(site.glob('_dbm*.so'))
+        assert selector.select_native('_dbm', str(other)) is not None
+        assert len(fetches) == 1
+        capture.close()
+        assert not capture._native_completed and not capture._native_anchors
+        assert capture._external_native_selector is None and not capture._external_native_modules
+        try:
+            capture.completed_native('_ctypes_test')
+        except CaptureError:
+            pass
+        else:
+            raise AssertionError('closed native capture remained available')
+    if mode == 'removed':
+        path = pathlib.Path(record.spec.origin)
+        backup = path.with_name(path.name + '.held')
+        path.rename(backup)
+    elif mode == 'replaced':
+        original = sys.modules['_ctypes_test']
+        sys.modules['_ctypes_test'] = types.ModuleType('_ctypes_test')
+    elif mode == 'loader':
+        type(record.loader).create_module = lambda self, spec: None
+    elif mode == 'stdlib_loader':
+        importlib.machinery.ExtensionFileLoader.exec_module = lambda self, module: None
+    elif mode == 'stdlib_loader_code':
+        def changed_exec(self, module):
+            return None
+        importlib.machinery.ExtensionFileLoader.exec_module.__code__ = changed_exec.__code__
+    elif mode in ('origin_callback', 'file_callback'):
+        class Canary:
+            def __str__(self):
+                raise AssertionError('verification called candidate __str__')
+        if mode == 'origin_callback':
+            record.spec.origin = Canary()
+        else:
+            record.module.__file__ = Canary()
+    elif mode == 'reload':
+        importlib.reload(record.module)
+    if mode in ('removed', 'replaced', 'loader', 'stdlib_loader', 'stdlib_loader_code', 'reload', 'origin_callback', 'file_callback'):
+        try:
+            capture.completed_native('_ctypes_test')
+        except CaptureError as exc:
+            assert str(exc) == ('native_module_not_completed' if mode == 'reload' else 'native_module_changed')
+        else:
+            raise AssertionError('changed extension observation was accepted')
+        if mode == 'removed':
+            backup.rename(path)
+        elif mode == 'replaced':
+            sys.modules['_ctypes_test'] = original
+        try:
+            capture.completed_native('_ctypes_test')
+        except CaptureError:
+            pass
+        else:
+            raise AssertionError('restoration erased native capture refusal')
+"""
+    result = subprocess.run(
+        [sys.executable, "-I", "-S", "-B", "-c", script, str(product), str(tmp_path), mode],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    assert result.returncode == 0, result.stderr
 
 
 def _distribution(root: Path, *, finder: bool = False) -> tuple[Path, Path, bytes, bytes]:

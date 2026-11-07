@@ -13385,6 +13385,26 @@
           "named_inputs": 2,
           "inputs_unchanged": true,
           "scope": "Non-generic CPython 3.14 TypeAliasType native evaluator belongs to one exact source expression. No alias value/evaluator or arbitrary GC callback is invoked. Fresh import passes ArtifactSelector and remains not_established at missing repository re-export binding polisyos.data_forge.read_api.catalog.CatalogSelectionError. Independent final review GO."
+        },
+        "n6_data_forge_lazy_map_owner": {
+          "source_base_commit": "9920f32070fb95e9d53345959ba50d37171ebd12",
+          "source_and_test_sha256": {
+            "src/polisyos/runtime/quality/confidence_ledger.py": "22245eb12a701fee146dc57fd93371cd39a693fd9a7f038af7e1e3f9884bb43f",
+            "tests/unit/runtime/quality/test_confidence_ledger_decorated_source_binding.py": "0a6a181a66597bce39572e79fbb1b4002ada73d1d6e56292d5a6b8b61ce4b826"
+          },
+          "classification": "PASS_DATA_FORGE_LAZY_MAP_FULL_N6_OPEN",
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-df-lazy-full-module-r1",
+          "observed": {
+            "PASS": 392,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 39.214714249945246,
+          "peak_rss_bytes": 1499185152,
+          "named_inputs": 2,
+          "inputs_unchanged": true,
+          "scope": "Actual CatalogSelectionError resolves through the canonical Data Forge helper and exact loaded provider. Only proven finite helper and key-list reads are allowed. Fresh import advances to unsupported source facade map polisyos.data_requirement. Its local object-map getter requires a separate source route shape. Independent review GO."
         }
       },
       "independent_component_reviews": {

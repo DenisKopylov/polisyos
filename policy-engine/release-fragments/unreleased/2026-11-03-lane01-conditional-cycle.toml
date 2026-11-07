@@ -207,7 +207,7 @@ deprecation_window = "not_applicable"
 release_note = "Resolve supported Annotated aliases and Pydantic class references through passive source, provider and current-object identity checks. Source-only import-closure discovery is an explicitly unqualified candidate; runtime admission still requires the loaded binding. Preserve strict refusal for altered providers, metadata, aliases and ambiguous bindings without executing annotation or model callbacks."
 migration = "Historical artifacts and their dispositions remain unchanged. No request, HTTP DTO or SDK change is required. Type-reference identity does not attest effective compiled-model validation behavior."
 generated_client_compatibility = "not_applicable"
-limitations = "Compiled-validator/schema coherence is explicitly not_established. Fresh import-time N6 verifies the supported lazy child and canonical IR facade routes. Non-generic PEP 695 aliases admit passive evaluator identity on the supported CPython 3.14 ABI. The evaluated type remains outside this check. The next unsupported binding is the Data Forge CatalogSelectionError facade. Full capture and CYC qualification remain open."
+limitations = "Compiled-validator/schema coherence is explicitly not_established. Fresh import-time N6 verifies the supported lazy child and canonical IR facade routes. Non-generic PEP 695 aliases admit passive evaluator identity on the supported CPython 3.14 ABI. The evaluated type remains outside this check. The canonical Data Forge lazy helper also resolves its bounded module-string map. The next unsupported binding is the data_requirement local object-map facade. Full capture and CYC qualification remain open."
 
 [[compatibility_change]]
 id = "lane01-acquired-context-worker-owner"

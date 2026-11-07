@@ -1188,6 +1188,102 @@ def test_resolve_lazy_export_map_recognizes_only_the_canonical_finite_call_shape
     assert ledger._literal_module_getattr_mapping_names(ast.parse(noncanonical_call)) == frozenset()
 
 
+def test_data_forge_lazy_export_map_binds_catalog_selection_error_live():
+    from polisyos.data_forge.read_api import catalog
+
+    module_name = "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
+    root = Path(ledger.__file__).parents[4]
+    catalog_path = Path(catalog.__file__)
+    tree = ast.parse(catalog_path.read_bytes(), filename=catalog_path.name)
+    index = ledger._source_module_provider_index(
+        root,
+        catalog.__name__,
+        tree,
+        directory_entries={},
+        source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+    )
+    assert index.mapping_names == frozenset({"_EXPORTS"})
+    assert index.providers_by_export["CatalogSelectionError"] == frozenset({module_name})
+    assert index.invalid_exports == frozenset()
+
+    route = ledger._source_module_import_route_candidate(
+        root,
+        catalog.__name__,
+        "CatalogSelectionError",
+        directory_entries={},
+        source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+    )
+    assert route.route == ("symbol", module_name, "CatalogSelectionError")
+    assert route.binding_basis == "literal_getattr"
+
+    helper = importlib.import_module("polisyos.data_forge.read_api._lazy")
+    assert vars(catalog)["load_lazy_export"] is vars(helper)["load_lazy_export"]
+    assert vars(catalog)["lazy_dir"] is vars(helper)["lazy_dir"]
+    selected = catalog.CatalogSelectionError
+    provider = sys.modules[module_name]
+    assert vars(catalog)["CatalogSelectionError"] is selected is vars(provider)[
+        "CatalogSelectionError"
+    ]
+
+
+def test_data_forge_lazy_map_profile_rejects_noncanonical_import_and_name_binding():
+    source = (
+        "from ._lazy import lazy_dir, load_lazy_export\n"
+        "_EXPORTS = {'Thing': 'polisyos.fixture.provider'}\n"
+        "def __getattr__(name):\n"
+        "    return load_lazy_export(name, exports=_EXPORTS, "
+        "module_name=__name__, namespace=globals())\n"
+        "def __dir__():\n"
+        "    return lazy_dir(globals(), _EXPORTS)\n"
+    )
+    module_name = "polisyos.data_forge.read_api.fixture"
+
+    def names(text: str) -> frozenset[str]:
+        return ledger._literal_module_getattr_mapping_names(
+            ast.parse(text), source_module_name=module_name
+        )
+
+    assert names(source) == frozenset({"_EXPORTS"})
+    assert names(source.replace("from ._lazy", "from .other")) == frozenset()
+    assert names(source.replace("module_name=__name__", "module_name=__package__")) == frozenset()
+    shadowed = source.replace(
+        "def __getattr__",
+        "load_lazy_export = lambda *a, **k: None\ndef __getattr__",
+    )
+    assert names(shadowed) == frozenset()
+    assert names(source + "__name__ = 'spoofed'\n") == frozenset()
+
+
+def test_data_forge_lazy_map_allows_only_bounded_sorted_and_constant_reads():
+    source = (
+        "from ._lazy import lazy_dir, load_lazy_export\n"
+        "_EXPORTS = {'Thing': 'polisyos.fixture.provider'}\n"
+        "def __getattr__(name):\n"
+        "    return load_lazy_export(name, exports=_EXPORTS, "
+        "module_name=__name__, namespace=globals())\n"
+        "def __dir__():\n"
+        "    return lazy_dir(globals(), _EXPORTS)\n"
+        "def build():\n"
+        "    return load_lazy_export('Thing', exports=_EXPORTS, "
+        "module_name=__name__, namespace=globals())\n"
+        "__all__ = sorted([*_EXPORTS, 'build'])\n"
+    )
+    tree = ast.parse(source)
+    index = ledger._literal_module_getattr_provider_index(
+        tree, source_module_name="polisyos.data_forge.read_api.fixture"
+    )
+    maps, invalid, _namespace_effect_unknown = ledger._source_declared_facade_mapping_values(
+        tree,
+        index.mapping_names,
+        source_module_name="polisyos.data_forge.read_api.fixture",
+    )
+    assert index.mapping_names == frozenset({"_EXPORTS"})
+    assert index.providers_by_export["Thing"] == frozenset({"polisyos.fixture.provider"})
+    assert index.invalid_exports == frozenset()
+    assert maps == {"_EXPORTS": {"Thing": "polisyos.fixture.provider"}}
+    assert invalid == frozenset()
+
+
 def test_imported_literal_map_survives_only_exact_builtin_sorted_read():
     source = ast.parse(
         "from polisyos.ir.api import EXPORTS\n__all__ = sorted(EXPORTS)\n"

@@ -4,13 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import polisyos.foundry.methods.catalog.causal.causal_engine.artifacts as _artifacts
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
     UnsupportedStaticADMGProfileError,
     canonical_scalar_query_graph,
 )
-
-from . import artifacts as _artifacts
 
 # Keep the historical runtime namespace while declaring every consumed binding to Ruff.
 if TYPE_CHECKING:

@@ -10,9 +10,10 @@ if TYPE_CHECKING:
     from polisyos.ir import ArtifactStore as IRArtifactStore
     from polisyos.ir import CausalGraphModelRef, ProofBundle, ProofBundleRef
 
-from . import artifacts as _artifacts
-from . import discovery as _discovery
-from . import identification as _identification
+import polisyos.foundry.methods.catalog.causal.causal_engine.artifacts as _artifacts
+import polisyos.foundry.methods.catalog.causal.causal_engine.discovery as _discovery
+import polisyos.foundry.methods.catalog.causal.causal_engine.identification as _identification
+
 from .artifacts import CausalEngineArtifactsMixin
 from .discovery import CausalEngineDiscoveryMixin
 from .estimation import CausalEngineEstimationMixin

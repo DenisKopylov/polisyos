@@ -169,6 +169,17 @@ def test_interference_serialized_result_consumed_via_supported_facade() -> None:
 
 _CAUSAL_PREFIX = "polisyos.foundry.methods.catalog.causal"
 _FACADE_TARGETS = {f"{_CAUSAL_PREFIX}.causal_engine", f"{_CAUSAL_PREFIX}.interference"}
+_FACADE_SIBLING_MODULES = {
+    f"{_CAUSAL_PREFIX}.causal_engine": frozenset(
+        {"api", "artifacts", "discovery", "estimation", "identification", "sensitivity"}
+    ),
+    f"{_CAUSAL_PREFIX}.interference": frozenset({"api", "estimation", "identification"}),
+}
+_INTERNAL_SIBLING_MODULES = frozenset(
+    f"{facade}.{child}"
+    for facade, children in _FACADE_SIBLING_MODULES.items()
+    for child in children
+)
 # The B114 recovery packet retains eighteen indented function pre/postimages,
 # not standalone executable modules. Bind their exact paths/bytes/error types;
 # do not exempt docs generally or silently omit them from the full denominator.
@@ -179,11 +190,22 @@ _HISTORICAL_EXCERPT_SCOPE_SHA256 = (
 
 
 _RELATIVE_FACADE_CALLERS = {
-    ("causal_engine/__init__.py", "artifacts"),
-    ("causal_engine/api.py", "artifacts"),
-    ("causal_engine/api.py", "discovery"),
-    ("causal_engine/api.py", "identification"),
-    ("causal_engine/estimation.py", "artifacts"),
+    (
+        "__init__.py",
+        f"{_CAUSAL_PREFIX}.causal_engine",
+        ("CausalEngine",),
+    ),
+    (
+        "__init__.py",
+        f"{_CAUSAL_PREFIX}.interference",
+        (
+            "BipartiteInterferenceEstimator",
+            "NetworkAIPWEstimator",
+            "PartialInterferenceEstimator",
+            "SpatialInterferenceEstimator",
+            "build_block_stratified_network_causal_data",
+        ),
+    ),
 }
 
 
@@ -201,8 +223,14 @@ def _assert_checkout_import_origin(module: ModuleType, source_root: Path) -> Non
     )
 
 
-def _literal_facade_imports(path: str, source: str) -> list[tuple[int, str, tuple[str, ...]]]:
-    """Resolve literal imports using the containing source package, never a text prefilter."""
+def _literal_import_rows(
+    path: str,
+    source: str,
+) -> tuple[
+    list[tuple[int, str, tuple[str, ...], str]],
+    list[tuple[int, str, tuple[str, ...], str]],
+]:
+    """Resolve public facade and internal sibling imports in one source pass."""
     tree = ast.parse(source, filename=path)
     package = ""
     if "/src/" in path:
@@ -212,34 +240,74 @@ def _literal_facade_imports(path: str, source: str) -> list[tuple[int, str, tupl
             if address.endswith(".__init__")
             else address.rsplit(".", 1)[0]
         )
-    rows = []
+    public_rows: list[tuple[int, str, tuple[str, ...], str]] = []
+    sibling_rows: list[tuple[int, str, tuple[str, ...], str]] = []
+
+    def resolve_module(node: ast.ImportFrom) -> str | None:
+        module = node.module or ""
+        if not node.level:
+            return module
+        if not package:
+            # Non-product scripts/tests have no declared polisyos package address.
+            return None
+        return importlib.util.resolve_name("." * node.level + module, package)
+
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom):
-            module = node.module or ""
-            if node.level:
-                if not package:
-                    # Non-product scripts/tests have no declared polisyos package address.
-                    continue
-                module = importlib.util.resolve_name("." * node.level + module, package)
+            module = resolve_module(node)
+            if module is None:
+                continue
             if module in _FACADE_TARGETS:
-                names = tuple(alias.name for alias in node.names)
+                sibling_rows.extend(
+                    (
+                        node.lineno,
+                        f"{module}.{alias.name}",
+                        (alias.asname or alias.name,),
+                        "relative" if node.level else "absolute",
+                    )
+                    for alias in node.names
+                    if alias.name in _FACADE_SIBLING_MODULES[module]
+                )
+                names = tuple(
+                    alias.name
+                    for alias in node.names
+                    if alias.name not in _FACADE_SIBLING_MODULES[module]
+                )
+                if names:
+                    public_rows.append(
+                        (node.lineno, module, names, "relative" if node.level else "absolute")
+                    )
             elif module == _CAUSAL_PREFIX:
                 names = tuple(
                     alias.name
                     for alias in node.names
                     if f"{_CAUSAL_PREFIX}.{alias.name}" in _FACADE_TARGETS
                 )
-            else:
-                continue
-            if names:
-                rows.append((node.lineno, module, names))
+                if names:
+                    public_rows.append(
+                        (node.lineno, module, names, "relative" if node.level else "absolute")
+                    )
+            elif module in _INTERNAL_SIBLING_MODULES:
+                sibling_rows.append(
+                    (
+                        node.lineno,
+                        module,
+                        tuple(alias.asname or alias.name for alias in node.names),
+                        "relative" if node.level else "absolute",
+                    )
+                )
         elif isinstance(node, ast.Import):
-            rows.extend(
-                (node.lineno, alias.name, ())
+            public_rows.extend(
+                (node.lineno, alias.name, (), "absolute")
                 for alias in node.names
                 if alias.name in _FACADE_TARGETS
             )
-    return rows
+            sibling_rows.extend(
+                (node.lineno, alias.name, (alias.asname or alias.name,), "absolute")
+                for alias in node.names
+                if alias.name in _INTERNAL_SIBLING_MODULES
+            )
+    return public_rows, sibling_rows
 
 
 @pytest.mark.parametrize("facade", ["causal_engine", "interference"])
@@ -257,15 +325,24 @@ def test_literal_census_includes_relative_imports_without_facade_text(
     """Path-derived package identity covers initializers, normal modules and deeper relatives."""
     path = f"policy-engine/src/{_CAUSAL_PREFIX.replace('.', '/')}/{facade}/{relative_path}"
     assert "causal_engine" not in source and "interference" not in source
-    expected = [(1, f"{_CAUSAL_PREFIX}.{facade}", expected_names)]
-    assert _literal_facade_imports(path, source) == expected
-    # Removing package context while retaining the old text filter loses this genuine caller.
+    if expected_names[0] in _FACADE_SIBLING_MODULES[f"{_CAUSAL_PREFIX}.{facade}"]:
+        expected_module = f"{_CAUSAL_PREFIX}.{facade}.{expected_names[0]}"
+        public_rows, sibling_rows = _literal_import_rows(path, source)
+        expected_binding = (
+            "selected" if expected_names[0] == "identification" else expected_names[0]
+        )
+        assert public_rows == []
+        assert sibling_rows == [(1, expected_module, (expected_binding,), "relative")]
+        return
+    expected = [(1, f"{_CAUSAL_PREFIX}.{facade}", expected_names, "relative")]
+    public_rows, sibling_rows = _literal_import_rows(path, source)
+    assert public_rows == expected
+    assert sibling_rows == []
+    # Removing package context while retaining the old text filter loses this public caller.
     old_prefilter_rows = (
-        _literal_facade_imports(path, source)
-        if "causal_engine" in source or "interference" in source
-        else []
+        public_rows if "causal_engine" in source or "interference" in source else []
     )
-    assert old_prefilter_rows != expected
+    assert old_prefilter_rows == []
 
 
 def test_literal_census_resolves_absolute_parent_imports_and_ignores_comments() -> None:
@@ -278,11 +355,13 @@ def test_literal_census_resolves_absolute_parent_imports_and_ignores_comments() 
         f"# from {_CAUSAL_PREFIX}.causal_engine import fake\n"
         f"TEXT = 'from {_CAUSAL_PREFIX}.interference import fake'\n"
     )
-    assert _literal_facade_imports(path, source) == [
-        (1, _CAUSAL_PREFIX, ("causal_engine", "interference")),
-        (2, f"{_CAUSAL_PREFIX}.causal_engine", ("CausalEngine",)),
-        (3, f"{_CAUSAL_PREFIX}.interference", ()),
+    public_rows, sibling_rows = _literal_import_rows(path, source)
+    assert public_rows == [
+        (1, _CAUSAL_PREFIX, ("causal_engine", "interference"), "absolute"),
+        (2, f"{_CAUSAL_PREFIX}.causal_engine", ("CausalEngine",), "relative"),
+        (3, f"{_CAUSAL_PREFIX}.interference", (), "absolute"),
     ]
+    assert sibling_rows == []
 
 
 def test_repository_literal_facade_imports_resolve() -> None:
@@ -297,8 +376,8 @@ def test_repository_literal_facade_imports_resolve() -> None:
     inventory = subprocess.check_output(["git", "ls-files", "-z", "--", "*.py"], cwd=root)
     paths = [entry.decode() for entry in inventory.split(b"\0") if entry]
     occurrences: list[dict[str, object]] = []
+    internal_sibling_occurrences: list[dict[str, object]] = []
     callers: set[str] = set()
-    old_prefilter_paths: set[str] = set()
     gaps: list[dict[str, object]] = []
     parsed = 0
     content_digest = hashlib.sha256()
@@ -310,9 +389,7 @@ def test_repository_literal_facade_imports_resolve() -> None:
             content_digest.update(path.encode() + b"\0" + hashlib.sha256(raw).digest())
             encoding, _ = tokenize.detect_encoding(io.BytesIO(raw).readline)
             source = raw.decode(encoding)
-            if "causal_engine" in source or "interference" in source:
-                old_prefilter_paths.add(path)
-            rows = _literal_facade_imports(path, source)
+            rows, sibling_rows = _literal_import_rows(path, source)
         except (OSError, UnicodeError, SyntaxError, ImportError, ValueError) as error:
             gaps.append(
                 {
@@ -326,7 +403,7 @@ def test_repository_literal_facade_imports_resolve() -> None:
             )
             continue
         parsed += 1
-        for line, module, names in rows:
+        for line, module, names, import_form in rows:
             if names:
                 # Execute real from-import semantics, including package submodule fallback.
                 namespace: dict[str, object] = {}
@@ -360,11 +437,22 @@ def test_repository_literal_facade_imports_resolve() -> None:
                     "line": line,
                     "module": module,
                     "names": names,
+                    "import_form": import_form,
                     "source_role": role,
                     "runtime_client_established": False,
                 }
             )
             callers.add(path)
+        for line, module, names, import_form in sibling_rows:
+            internal_sibling_occurrences.append(
+                {
+                    "path": path,
+                    "line": line,
+                    "module": module,
+                    "names": names,
+                    "import_form": import_form,
+                }
+            )
     gap_scope = sorted((gap["path"], gap["content_sha256"], gap["error_type"]) for gap in gaps)
     gap_scope_sha256 = hashlib.sha256(
         json.dumps(gap_scope, separators=(",", ":")).encode()
@@ -399,6 +487,11 @@ def test_repository_literal_facade_imports_resolve() -> None:
                 "literal_import_occurrences": len(occurrences),
                 "literal_import_files": len(callers),
                 "literal_imports": occurrences,
+                "internal_sibling_import_occurrences": len(internal_sibling_occurrences),
+                "internal_sibling_import_files": len(
+                    {row["path"] for row in internal_sibling_occurrences}
+                ),
+                "internal_sibling_imports": internal_sibling_occurrences,
                 "unresolved_boundary": "computed import addresses and external callers",
             },
             sort_keys=True,
@@ -408,21 +501,41 @@ def test_repository_literal_facade_imports_resolve() -> None:
     expected_relative = {
         (
             f"policy-engine/src/{_CAUSAL_PREFIX.replace('.', '/')}/{suffix}",
-            f"{_CAUSAL_PREFIX}.causal_engine",
-            (name,),
+            module,
+            names,
+            "relative",
         )
-        for suffix, name in _RELATIVE_FACADE_CALLERS
+        for suffix, module, names in _RELATIVE_FACADE_CALLERS
     }
-    actual_imports = {(row["path"], row["module"], tuple(row["names"])) for row in occurrences}
-    assert expected_relative <= actual_imports
-    old_filtered_imports = {
-        (row["path"], row["module"], tuple(row["names"]))
+    actual_relative = {
+        (row["path"], row["module"], tuple(row["names"]), row["import_form"])
         for row in occurrences
-        if row["path"] in old_prefilter_paths
+        if row["import_form"] == "relative"
     }
-    # The actual native census, not only synthetic resolver inputs, distinguishes
-    # the old false-negative filter from exhaustive package-relative resolution.
-    assert not expected_relative <= old_filtered_imports
+    assert actual_relative == expected_relative
+    expected_internal_absolute = {
+        (
+            f"policy-engine/src/{_CAUSAL_PREFIX.replace('.', '/')}/causal_engine/{filename}",
+            f"{_CAUSAL_PREFIX}.causal_engine.{module}",
+            (binding,),
+            "absolute",
+        )
+        for filename, module, binding in (
+            ("__init__.py", "artifacts", "_artifacts"),
+            ("api.py", "artifacts", "_artifacts"),
+            ("api.py", "discovery", "_discovery"),
+            ("api.py", "identification", "_identification"),
+            ("discovery.py", "artifacts", "_artifacts"),
+            ("estimation.py", "artifacts", "_artifacts"),
+            ("identification.py", "artifacts", "_artifacts"),
+            ("sensitivity.py", "artifacts", "_artifacts"),
+        )
+    }
+    actual_internal = {
+        (row["path"], row["module"], tuple(row["names"]), row["import_form"])
+        for row in internal_sibling_occurrences
+    }
+    assert expected_internal_absolute <= actual_internal
     assert parsed + len(gaps) == len(paths)
     assert occurrences  # An empty measurement cannot qualify the supported consumers.
 

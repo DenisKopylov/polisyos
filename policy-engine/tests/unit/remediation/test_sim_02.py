@@ -21,6 +21,7 @@ checks; native coupled execution has its own controlled slot.
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, ClassVar, Literal
@@ -728,6 +729,7 @@ def test_coupled_conflicting_assignments_refuse_before_method_invocation(
     ("left_value", "right_value"),
     [
         pytest.param(True, 1, id="bool-versus-int"),
+        pytest.param(True, 1.0, id="bool-versus-float"),
         pytest.param(1, 1.0, id="int-versus-float"),
         pytest.param(
             {"enabled": True, "thresholds": [1, 2.0]},
@@ -750,6 +752,7 @@ def test_program_parameter_conflicts_refuse_before_graph_execution(
     reverse: bool,
 ) -> None:
     """B20 rejects type-distinct program writes before graph execution."""
+    assert left_value == right_value
     base = _request()
     source_atoms = base.intervention_atoms
     plan = _program_graph_plan(tmp_path).model_copy(
@@ -823,6 +826,59 @@ def test_identical_program_parameter_overrides_merge_independent_of_atom_order(
         )
         merged.append(value)
     assert merged[0] == merged[1]
+
+
+def test_identical_program_parameter_writes_reach_persisted_graph_consumer(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Same-typed aliases execute the real graph and survive a fresh CAS reader."""
+    original_execute = joint_simulation_horizon_module.execute_program_graph
+    observed_rates: list[Any] = []
+
+    def observe_execute(*args: Any, **kwargs: Any) -> Any:
+        parameter_overrides = kwargs.get("parameter_overrides")
+        assert isinstance(parameter_overrides, Mapping)
+        rate = parameter_overrides["apply_subsidy"]["rate"]
+        observed_rates.append(rate)
+        return original_execute(*args, **kwargs)
+
+    monkeypatch.setattr(joint_simulation_horizon_module, "execute_program_graph", observe_execute)
+    outputs: list[list[float]] = []
+
+    for reverse in (False, True):
+        case_root = tmp_path / ("right-left" if reverse else "left-right")
+        plan = _program_graph_plan(case_root, rates_by_atom=(0.10, 0.10))
+        base = _request()
+        atoms = tuple(reversed(base.intervention_atoms)) if reverse else base.intervention_atoms
+        request = base.model_copy(
+            update={
+                "intervention_atoms": atoms,
+                "engine_plan": (plan,),
+                "selected_outcomes": ("mean_income",),
+                "baseline_state": {"mean_income": 0.0},
+            }
+        )
+
+        produced = JointSimulationHorizonController().run(request)
+        restored = _persist_and_read_result(
+            produced,
+            case_root / "readback",
+            expected_request=request,
+        )
+
+        assert restored.engine_decisions[0].decision == "selected"
+        assert restored.engine_decisions[0].engine_kind == "program_graph"
+        assert restored.physical_work_observations
+        assert all(item.status == "completed" for item in restored.physical_work_observations)
+        joint = restored.trajectory_for("joint", tuple(atom.intervention_id for atom in atoms))
+        values = [point.outcomes["mean_income"] for point in joint.points]
+        assert values == pytest.approx([1650.0, 1815.0, 1996.5, 2196.15])
+        outputs.append(values)
+
+    assert observed_rates
+    assert all(type(rate) is float and rate == 0.10 for rate in observed_rates)
+    assert outputs[0] == outputs[1]
 
 
 @pytest.mark.parametrize(

@@ -13484,6 +13484,85 @@
           },
           "scope": "Local CPython 3.14.3 pre-import recorder and canonical host handoff. Observed graph only. Authority false; source lock differs from the host reference, provider and material-state roles and owner seal/currentness remain unresolved. CYC unrun in this profile."
         },
+        "r29_candidate_terminal_crash_native": {
+          "classification": "FAIL_AFTER_REAL_B_AND_REENTRY_RECEIPT_BEFORE_TERMINAL",
+          "source_commit": "4c00d2daf5cf951f3bb6b81dab558f5a5e658a3b",
+          "source_tree": "f3104ee41ef22bf465cfca26e7188d77fdfd78f5",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-candidate-terminal-crash-native-r29",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 2942.149,
+          "peak_rss_bytes": 1957773312,
+          "named_inputs": 136,
+          "inputs_unchanged": true,
+          "scope": "Physical A and B results and B reentry receipt persist. Acquisition fails at candidate_input_reentry_pending with a generic recovery error before the intended terminal writer crash. The dead-lettered job cannot be resumed."
+        },
+        "r29_retained_inner_diagnosis": {
+          "classification": "REPRODUCED_CANONICAL_DENOMINATOR_REFUSAL_AND_STORED_WITNESS_LIMIT",
+          "source_commit": "4c00d2daf5cf951f3bb6b81dab558f5a5e658a3b",
+          "denominator_output": "MAIN:policy-engine/_cache/e02/r29-clone-declaration-denominator-r10",
+          "selected_basis_output": "MAIN:policy-engine/_cache/e02/r29-clone-role-witness-r14",
+          "scope": "Read-only originals, small isolated CAS clone and query-only SQLite. Canonical declaration reader adds one typed provenance attribute outside persisted fields. The exact native serializer refuses that operand. Other retained owner, profile, configuration, context and N5 evidence checks pass on their isolated scopes. Both persisted N5 witnesses are not_established at causal_engine.artifacts. A also records a MetricsRegistry binding refusal. Selected-basis replay remains blocked. No physical N5 or live admission replay."
+        },
+        "n6_bounded_host_owner_observation": {
+          "classification": "PASS_RETAINED_DIRECT_BINDING_ENDPOINT_AUTHORITY_NOT_ESTABLISHED",
+          "saved_commit": "471a2a01212348f9f2bacabe3cd496f7eee43f4a",
+          "source_tree": "40dc3a811f0e3f6d4e57abe4cfd7b660aa84294e",
+          "affected_output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-owner-endpoint-r7",
+          "affected_observed": {
+            "PASS": 32,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-owner-host-diagnostic-r2",
+          "resource_abort_output": "AUTHOR:policy-engine/_cache/e02/lane01-n6-owner-host-diagnostic-r1",
+          "wall_seconds": 131.289,
+          "peak_rss_bytes": 2430222336,
+          "stable_pins": 8,
+          "scope": "Real pre-import host retained and rechecked three ledger-direct first-party bindings. Loaded execution, provider state and through-use authority remain not_established. No production authority."
+        },
+        "cyc02_legacy_selected_reader_replay": {
+          "classification": "PASS_SCOPED_OLD_SOURCE_V2_AND_NATIVE_V3_COMPATIBILITY",
+          "saved_commit": "d66917a3510c0ec447c2579a6f0503708fc7d6e3",
+          "v2_output": "AUTHOR:policy-engine/_cache/e02/lane01-legacy-v2-source-replay-r1",
+          "v3_output": "AUTHOR:policy-engine/_cache/e02/lane01-cyc02-legacy-v3-r5",
+          "scope": "The v2 case executes the old native producer and current selected consumer. The v3 case reserializes a real native result under the supported historical wire shape and verifies an independent N8 process, exact profile, original bytes, derived limitations and refusal controls. These are reproducible compatibility results rather than recovered archives."
+        },
+        "cyc04_current_grounded_fallback": {
+          "classification": "PASS_CURRENT_REAL_GROUNDED_SIBLING_N5_AND_FRESH_API",
+          "source_commit": "4c00d2daf5cf951f3bb6b81dab558f5a5e658a3b",
+          "source_tree": "f3104ee41ef22bf465cfca26e7188d77fdfd78f5",
+          "output": "MAIN:policy-engine/_cache/e02/cyc04-fallback-served-current-b2",
+          "observed": {
+            "PASS": 1,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "wall_seconds": 53.118,
+          "peak_rss_bytes": 1463599104,
+          "named_inputs": 7,
+          "inputs_unchanged": true
+        },
+        "gdp_protected_current_prequota_r2": {
+          "classification": "FAIL_GDP_FIXTURE_RUN_BOUND_QUOTA_MISSING",
+          "source_commit": "4c00d2daf5cf951f3bb6b81dab558f5a5e658a3b",
+          "output": "MAIN:policy-engine/_cache/e02/lane01-gdp-candidate-experiment-main-r2",
+          "observed": {
+            "PASS": 0,
+            "FAIL": 1,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "named_inputs": 128,
+          "inputs_unchanged": true,
+          "scope": "The custom seed_problem skips shared gateway fixture preparation. The completed NL job has no run-bound invocation profile. Acquisition, new physical N5, terminal and fresh GET remain unrun on this selector."
+        },
         "r28_lease_and_recovery_boundary": {
           "classification": "PASS_LEASE_TAKEOVER_COMPONENT_FAILED_JOB_SOURCE_AND_RETAINED_STATE_REVIEW",
           "expired_lease_output": "AUTHOR:policy-engine/_cache/e02/lane01-lease-takeover-guard-r1",

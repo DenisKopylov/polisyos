@@ -35,7 +35,10 @@ from polisyos.core.contracts.variable_binding import (
     ScopedMeasurementOccurrenceRef,
     SelectedVariableBindingRef,
 )
-from polisyos.foundry.data_plane.bindings import load_input_bindings
+from polisyos.foundry.data_plane.bindings import (
+    load_input_bindings,
+    reconcile_semantic_input_bindings,
+)
 
 
 def _ref(kind: str, suffix: str) -> ArtifactRef:
@@ -289,3 +292,27 @@ def test_semantic_binding_requires_exact_manifest_role_and_wire_version(
         load_input_bindings(store, wrong_edge)
     with pytest.raises(ValueError, match="canon_profile_typed_artifact_schema_version_mismatch"):
         load_input_bindings(store, persist(schema_version="1.0", correct_edge=True))
+
+
+def test_semantic_registered_sql_replay_stays_not_established(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    manifest_ref = persist_resolved_input_binding_manifest(store, _manifest())
+    bindings = FoundryInputBindings.model_validate(
+        _binding_fields()
+        | {
+            "schema_version": "1.3",
+            "registered_sql_admission_ref": _selected_ref(
+                RegisteredSQLAdmissionBinding.ARTIFACT_KIND, "4"
+            ),
+            "resolved_binding_manifest_ref": manifest_ref,
+        }
+    )
+    existing_files = {path.relative_to(tmp_path) for path in tmp_path.rglob("*") if path.is_file()}
+
+    with pytest.raises(
+        ValueError, match=r"^foundry_input_bindings_semantic_sql_replay_not_established$"
+    ):
+        reconcile_semantic_input_bindings(store, bindings)
+
+    remaining_files = {path.relative_to(tmp_path) for path in tmp_path.rglob("*") if path.is_file()}
+    assert remaining_files == existing_files

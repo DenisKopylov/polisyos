@@ -7,7 +7,12 @@ from pathlib import Path
 import pytest
 from pydantic import BaseModel, ValidationError
 
-from polisyos.core.artifacts import ArtifactRef, input_ref_from_artifact_ref
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+    validate_core_model_json_artifact,
+)
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import ExecPlanRef, ProgramGraphRef
@@ -32,6 +37,7 @@ from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import 
     DEFAULT_ACQUISITION_AUTHORITY_REGISTRY,
     AcquisitionAuthorityEntry,
     AcquisitionAuthorityError,
+    AcquisitionAuthorityRegistry,
     AcquisitionSourceMeasureScope,
     CanonicalAcquisitionAuthority,
     build_authority_entry,
@@ -87,6 +93,10 @@ def _model_inputs(
     store: FileSystemCAS,
     *,
     source_quantity_kind: str = "stock",
+    definition_namespace: str = "test.fiscal",
+    definition_meaning: str = (
+        "Government fiscal balance measured for a bounded population and period."
+    ),
 ) -> tuple[
     VariableSemanticDefinitionRef,
     VariableRepresentationRef,
@@ -100,10 +110,10 @@ def _model_inputs(
     )
     evidence_ref = SelectedVariableBindingRef.model_validate(evidence_ref.model_dump(mode="json"))
     definition = VariableSemanticDefinition(
-        namespace="test.fiscal",
+        namespace=definition_namespace,
         stable_id="balance",
         revision="r1",
-        meaning="Government fiscal balance measured for a bounded population and period.",
+        meaning=definition_meaning,
         definition_evidence_refs=(evidence_ref,),
     )
     definition_ref = _put_semantic_definition(store, definition)
@@ -269,9 +279,7 @@ def _replace_authority_registry(
 ) -> None:
     registry = build_authority_registry(
         baseline_content_sha256=authority.provision.baseline_content_sha256,
-        l5_measurement_registry_sha256=(
-            authority.provision.l5_measurement_registry_content_sha256
-        ),
+        l5_measurement_registry_sha256=(authority.provision.l5_measurement_registry_content_sha256),
         entries=entries,
     )
     registry_path = authority.repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
@@ -395,6 +403,120 @@ def test_scoped_query_envelope_records_exact_definition_countercandidate(
     }
     assert all(row.disposition == "compatible" for row in envelope.rows)
     assert all(row.reason_codes == () for row in envelope.rows)
+
+
+def test_exhaustive_definition_oracle_is_order_invariant_and_ignores_aliases(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    definition_ref, representation_ref, _, interface_ref = _model_inputs(store)
+    repeated_definition_ref, flow_representation_ref, _, _ = _model_inputs(
+        store,
+        source_quantity_kind="flow",
+    )
+    namespace_alias_ref, namespace_alias_representation_ref, _, _ = _model_inputs(
+        store,
+        definition_namespace="test.other",
+    )
+    content_alias_ref, content_alias_representation_ref, _, _ = _model_inputs(
+        store,
+        definition_meaning=(
+            "A different balance definition sharing the same local label and revision."
+        ),
+    )
+    assert repeated_definition_ref == definition_ref
+    assert namespace_alias_ref != definition_ref
+    assert content_alias_ref != definition_ref
+
+    selected = _authority_entry(definition_ref, representation_ref, suffix="selected")
+    exact_incompatible = _authority_entry(
+        definition_ref,
+        flow_representation_ref,
+        suffix="exact-incompatible-countercandidate",
+    )
+    namespace_alias = _authority_entry(
+        namespace_alias_ref,
+        namespace_alias_representation_ref,
+        suffix="same-local-label-different-namespace",
+    )
+    content_alias = _authority_entry(
+        content_alias_ref,
+        content_alias_representation_ref,
+        suffix="same-namespace-label-different-meaning",
+    )
+    entries = (selected, exact_incompatible, namespace_alias, content_alias)
+    authority, _ = _resolver(tmp_path / "catalog-owner", authority_entry=selected)
+
+    model_definition = validate_core_model_json_artifact(
+        VariableSemanticDefinition, store, definition_ref
+    )
+    target_definition_key = artifact_ref_identity_key(definition_ref)
+    outcomes = []
+    for registry_entries in (entries, tuple(reversed(entries))):
+        _replace_authority_registry(authority, registry_entries)
+        registry = AcquisitionAuthorityRegistry.model_validate_json(
+            (authority.repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY).read_bytes()
+        )
+
+        # Independently enumerate the complete tiny fixture and reopen each
+        # row's selected definition and representation before forming the oracle.
+        expected_exact_definition_ids: set[str] = set()
+        exact_definition_rows: dict[str, tuple[str, tuple[str, ...]]] = {}
+        for entry in registry.entries:
+            source_definition_ref = entry.source_semantic_definition_ref
+            source_representation_ref = entry.source_representation_ref
+            assert source_definition_ref is not None
+            assert source_representation_ref is not None
+            source_definition = validate_core_model_json_artifact(
+                VariableSemanticDefinition,
+                store,
+                source_definition_ref,
+            )
+            source_representation = validate_core_model_json_artifact(
+                VariableRepresentation,
+                store,
+                source_representation_ref,
+            )
+            representation_manifest = store.get_manifest(source_representation_ref)
+            assert source_representation.semantic_definition_ref == source_definition_ref
+            assert tuple(representation_manifest.inputs) == (
+                input_ref_from_artifact_ref(source_definition_ref, role="semantic_definition"),
+            )
+            if artifact_ref_identity_key(source_definition_ref) != target_definition_key:
+                assert source_definition != model_definition
+                continue
+
+            assert source_definition == model_definition
+            expected_exact_definition_ids.add(entry.entry_id)
+            if source_representation.quantity_kind == "stock":
+                exact_definition_rows[entry.entry_id] = ("compatible", ())
+            else:
+                exact_definition_rows[entry.entry_id] = (
+                    "incompatible",
+                    ("required_axis_mismatch:quantity_kind",),
+                )
+
+        assert expected_exact_definition_ids == {selected.entry_id, exact_incompatible.entry_id}
+        assert {namespace_alias.entry_id, content_alias.entry_id}.isdisjoint(
+            expected_exact_definition_ids
+        )
+
+        result = authority.discover_model_input_source_descriptor(
+            store,
+            model_input_interface_ref=interface_ref,
+            port_id="fiscal-balance-input",
+            include_query_envelope=True,
+        )
+        assert result.authority_entry_id == selected.entry_id
+        assert result.source_semantic_definition_ref == definition_ref
+        assert result.query_envelope is not None
+        actual_rows = {
+            row.entry_id: (row.disposition, row.reason_codes) for row in result.query_envelope.rows
+        }
+        assert actual_rows == exact_definition_rows
+        outcomes.append((result.authority_entry_id, actual_rows))
+
+    assert outcomes[0] == outcomes[1]
 
 
 def test_scoped_query_envelope_tracks_same_definition_reclassification(

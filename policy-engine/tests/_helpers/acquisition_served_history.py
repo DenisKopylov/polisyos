@@ -8,7 +8,9 @@ import json
 import sys
 import time
 import uuid
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar, Token
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
@@ -618,6 +620,9 @@ class _ExternalTrust:
 
     def __init__(self, tmp_path):
         self.inputs = []
+        self._active_authorizations: ContextVar[dict[str, str] | None] = ContextVar(
+            f"external-trust-authorizations-{id(self)}", default=None
+        )
         self.key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
         self.jwks = LocalJWKSStub(self.key)
         uri = self.jwks.start()
@@ -702,6 +707,34 @@ class _ExternalTrust:
         )
         return f"Bearer {self.encode(payload)}"
 
+    @contextmanager
+    def authorization_exchange(self, subject: str) -> Iterator[str]:
+        """Reuse one fresh signed bearer only across a single authority exchange.
+
+        Human approval and the protected execute request must bind the same
+        DS20 credential proof as the source decision. Separate exchanges mint
+        new JTI values; direct ``authorization_header`` calls remain fresh for
+        independent GET readers.
+        """
+        active = self._active_authorizations.get() or {}
+        authorization = self.authorization_header(subject)
+        token: Token[dict[str, str] | None] = self._active_authorizations.set(
+            {**active, subject: authorization}
+        )
+        try:
+            yield authorization
+        finally:
+            self._active_authorizations.reset(token)
+
+    def _request_authorization_header(
+        self, subject: str, *, explicit_authorization: str | None = None
+    ) -> str:
+        """Prefer explicit, then exchange-scoped, then legacy fixture identity."""
+        if explicit_authorization is not None:
+            return explicit_authorization
+        active = self._active_authorizations.get() or {}
+        return active.get(subject) or f"Bearer {self.tokens[subject]}"
+
     def close(self):
         self.opa.shutdown()
         self.opa.server_close()
@@ -722,13 +755,10 @@ class _ExternalTrust:
         request_headers = extra_headers or {}
         explicit_authorization = request_headers.get("Authorization")
 
-        def request_authorization() -> str:
-            if explicit_authorization is not None:
-                return explicit_authorization
-            return self.authorization_header(subject)
-
         headers = {
-            "Authorization": request_authorization(),
+            "Authorization": self._request_authorization_header(
+                subject, explicit_authorization=explicit_authorization
+            ),
             "X-Tenant-ID": TENANT,
             "Content-Type": "application/json",
             **request_headers,
@@ -743,7 +773,6 @@ class _ExternalTrust:
         resource_id = resource["artifact_id"]
         digest = "sha256:" + resource_id.rsplit("sha256:", 1)[1]
         now = int(time.time())
-        headers["Authorization"] = request_authorization()
         headers["X-PolicyOS-Step-Up"] = self.encode(
             {
                 "iss": "https://step-up.example",

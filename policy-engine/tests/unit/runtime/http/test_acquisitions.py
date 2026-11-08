@@ -467,10 +467,19 @@ def test_execute_route_binds_current_tuple_and_persists_allowed_reservation(
         trust.close()
 
 
-def test_external_trust_issues_a_fresh_request_token_after_long_work(
+def test_external_trust_scopes_fresh_credentials_to_authority_exchange(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Fixture-issued credentials can be refreshed after the original expires."""
+    """Refresh identity, preserve DS20 within approval, and scope its JTI."""
+    def decode(header: str) -> dict[str, object]:
+        return served_fixture.jwt.decode(
+            header.removeprefix("Bearer "),
+            trust.key.public_key(),
+            algorithms=["RS256"],
+            audience="polisyos-runtime",
+            issuer="https://idp.example",
+        )
+
     expired_issued_at = int(served_fixture.time.time()) - 7200
     with monkeypatch.context() as stale_clock:
         stale_clock.setattr(served_fixture.time, "time", lambda: expired_issued_at)
@@ -489,20 +498,74 @@ def test_external_trust_issues_a_fresh_request_token_after_long_work(
                 issuer="https://idp.example",
             )
 
-        header = trust.authorization_header("acquisition-operator")
-        fresh_payload = served_fixture.jwt.decode(
-            header.removeprefix("Bearer "),
-            trust.key.public_key(),
-            algorithms=["RS256"],
-            audience="polisyos-runtime",
-            issuer="https://idp.example",
+        assert old_payload["exp"] < int(served_fixture.time.time())
+        assert old_payload["jti"] == "jwt-acquisition-operator"
+        assert trust._request_authorization_header("acquisition-operator") == (
+            f"Bearer {old_token}"
         )
 
-        assert old_payload["exp"] < int(served_fixture.time.time())
-        assert fresh_payload["exp"] == fresh_payload["iat"] + 3600
-        assert fresh_payload["sub"] == old_payload["sub"]
-        assert fresh_payload["tenant_id"] == old_payload["tenant_id"]
-        assert old_payload["jti"] == "jwt-acquisition-operator"
-        assert fresh_payload["jti"] != old_payload["jti"]
+        with trust.authorization_exchange("acquisition-operator") as exchange_header:
+            exchange_payload = decode(exchange_header)
+            assert exchange_payload["exp"] == exchange_payload["iat"] + 3600
+            assert exchange_payload["sub"] == old_payload["sub"]
+            assert exchange_payload["tenant_id"] == old_payload["tenant_id"]
+            assert exchange_payload["jti"] != old_payload["jti"]
+            assert trust._request_authorization_header("acquisition-operator") == (
+                exchange_header
+            )
+            assert trust._request_authorization_header(
+                "acquisition-operator", explicit_authorization="Bearer explicit-control"
+            ) == "Bearer explicit-control"
+
+            # Independent readers deliberately bypass the protected exchange.
+            reader_header = trust.authorization_header("acquisition-operator")
+            reader_payload = decode(reader_header)
+            assert reader_payload["sub"] == exchange_payload["sub"]
+            assert reader_payload["jti"] != exchange_payload["jti"]
+            assert reader_header != exchange_header
+
+            with trust.authorization_exchange("human-reviewer-1") as reviewer_header:
+                reviewer_payload = decode(reviewer_header)
+                assert reviewer_payload["sub"] == "human-reviewer-1"
+                assert trust._request_authorization_header("human-reviewer-1") == (
+                    reviewer_header
+                )
+
+            with trust.authorization_exchange("acquisition-operator") as nested_header:
+                nested_payload = decode(nested_header)
+                assert nested_header != exchange_header
+                assert nested_payload["sub"] == exchange_payload["sub"]
+                assert nested_payload["jti"] != exchange_payload["jti"]
+                assert trust._request_authorization_header("acquisition-operator") == (
+                    nested_header
+                )
+            assert trust._request_authorization_header("acquisition-operator") == (
+                exchange_header
+            )
+
+            with pytest.raises(RuntimeError, match="fixture exchange probe"), trust.authorization_exchange(
+                "human-reviewer-1"
+            ):
+                raise RuntimeError("fixture exchange probe")
+            assert trust._request_authorization_header("acquisition-operator") == (
+                exchange_header
+            )
+            assert trust._request_authorization_header("human-reviewer-1") == (
+                f"Bearer {trust.tokens['human-reviewer-1']}"
+            )
+
+        assert trust._request_authorization_header("acquisition-operator") == (
+            f"Bearer {old_token}"
+        )
+        with trust.authorization_exchange("acquisition-operator") as next_header:
+            next_payload = decode(next_header)
+            assert next_header != exchange_header
+            assert next_payload["jti"] != exchange_payload["jti"]
+            assert trust._request_authorization_header("acquisition-operator") == (
+                next_header
+            )
+        assert trust._request_authorization_header("acquisition-operator") == (
+            f"Bearer {old_token}"
+        )
     finally:
         trust.close()

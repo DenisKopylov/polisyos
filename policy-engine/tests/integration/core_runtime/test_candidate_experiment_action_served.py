@@ -392,6 +392,41 @@ def run_candidate_experiment_action_oracle(
     exercise_controls: bool = True,
     after_replay: Callable[..., object] | None = None,
 ) -> dict[str, str]:
+    """Run one protected exchange with a stable, freshly issued identity proof.
+
+    The scope includes ``after_replay`` so an execute POST remains bound to the
+    same exact credential snapshot that was reviewed. Independent GET readers
+    still issue fresh credentials through ``authorization_header``.
+    """
+    trust = values.get("trust")
+    authorization_exchange = getattr(trust, "authorization_exchange", None)
+    if not callable(authorization_exchange):
+        raise TypeError("candidate_experiment_authority_exchange_trust_missing")
+    with (
+        authorization_exchange("acquisition-operator"),
+        authorization_exchange("human-reviewer-1"),
+    ):
+        return _run_candidate_experiment_action_oracle(
+            tmp_path=tmp_path,
+            values=values,
+            policy_ref=policy_ref,
+            monkeypatch=monkeypatch,
+            idempotency_key=idempotency_key,
+            exercise_controls=exercise_controls,
+            after_replay=after_replay,
+        )
+
+
+def _run_candidate_experiment_action_oracle(
+    *,
+    tmp_path: Path,
+    values: dict[str, object],
+    policy_ref,
+    monkeypatch: pytest.MonkeyPatch,
+    idempotency_key: str = "served-labor-candidate-experiment-authority",
+    exercise_controls: bool = True,
+    after_replay: Callable[..., object] | None = None,
+) -> dict[str, str]:
     """Run the fresh HTTP/PA2/DS9 consumer against an already-served source.
 
     ``values`` is the observer payload from ``seed_only_context_observer``. A
@@ -559,6 +594,8 @@ def run_candidate_experiment_action_oracle(
         effect_handler=lambda call: effects.append(call),
     )
     loaded = replay.load_persisted_decision(decision_ref)
+    assert source_decision.permission_snapshot is not None
+    assert loaded.decision.permission_snapshot == source_decision.permission_snapshot
     operation, invocation, intent = action_service._candidate_experiment_action_tuple(
         origin, request
     )

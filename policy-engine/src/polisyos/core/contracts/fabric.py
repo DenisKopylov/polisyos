@@ -346,9 +346,7 @@ class AcquiredObservationSemanticInputDataSnapshotLineage(_DataSnapshotOwnerLine
     schema_version: Literal["polisyos.core.DataSnapshotOwnerLineage.v2"] = (
         "polisyos.core.DataSnapshotOwnerLineage.v2"
     )
-    owner: Literal["acquired_observation_semantic_input"] = (
-        "acquired_observation_semantic_input"
-    )
+    owner: Literal["acquired_observation_semantic_input"] = "acquired_observation_semantic_input"
     base_data_snapshot_ref: ArtifactRef
     overlay_admission_receipt_ref: ArtifactRef
     passport_ref: ArtifactRef

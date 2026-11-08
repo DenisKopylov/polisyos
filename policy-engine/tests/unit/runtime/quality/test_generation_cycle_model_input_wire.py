@@ -128,9 +128,7 @@ def _transition(run: dict[str, Any]) -> dict[str, Any]:
                 "transition-model-declaration",
             )
         ),
-        ncm_ref=generation.CASArtifactRef.model_validate(
-            _ref("ir.ncm_spec", "transition-ncm")
-        ),
+        ncm_ref=generation.CASArtifactRef.model_validate(_ref("ir.ncm_spec", "transition-ncm")),
         limitations=("candidate_only",),
     )
     return transition.model_dump(mode="json")
@@ -209,12 +207,16 @@ def test_v10_requires_a_complete_populated_pair_and_old_v3_bytes_stay_exact() ->
 
     missing_report = copy.deepcopy(payload)
     del missing_report["cycles"][0]["model_input_routing_report_ref"]
-    with pytest.raises(ValidationError, match="generation_cycle_v10_model_input_routing_pair_mismatch"):
+    with pytest.raises(
+        ValidationError, match="generation_cycle_v10_model_input_routing_pair_mismatch"
+    ):
         generation.GenerationCycleRun.model_validate(missing_report)
 
     missing_obligation = copy.deepcopy(payload)
     del missing_obligation["cycles"][0]["simulation"]["model_input_obligation_set_ref"]
-    with pytest.raises(ValidationError, match="generation_cycle_v10_model_input_routing_pair_mismatch"):
+    with pytest.raises(
+        ValidationError, match="generation_cycle_v10_model_input_routing_pair_mismatch"
+    ):
         generation.GenerationCycleRun.model_validate(missing_obligation)
 
     unversioned = copy.deepcopy(payload)

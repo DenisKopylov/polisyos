@@ -2414,13 +2414,6 @@
       "source_module": "polisyos.fabric.data_plane.modes",
       "source_root": "fabric",
       "source_file": "src/polisyos/fabric/data_plane/modes.py",
-      "target_module": "polisyos.core.artifacts.ids",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.fabric.data_plane.modes",
-      "source_root": "fabric",
-      "source_file": "src/polisyos/fabric/data_plane/modes.py",
       "target_module": "polisyos.core.artifacts.manifest",
       "target_root": "core"
     },
@@ -2995,13 +2988,6 @@
       "source_module": "polisyos.fabric.ingestion.source_collection",
       "source_root": "fabric",
       "source_file": "src/polisyos/fabric/ingestion/source_collection.py",
-      "target_module": "polisyos.core.artifacts.ids",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.fabric.ingestion.source_collection",
-      "source_root": "fabric",
-      "source_file": "src/polisyos/fabric/ingestion/source_collection.py",
       "target_module": "polisyos.core.artifacts.manifest",
       "target_root": "core"
     },
@@ -3031,13 +3017,6 @@
       "source_root": "fabric",
       "source_file": "src/polisyos/fabric/ingestion/source_collection.py",
       "target_module": "polisyos.core.contracts.provenance",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.fabric.ingestion.source_progress",
-      "source_root": "fabric",
-      "source_file": "src/polisyos/fabric/ingestion/source_progress.py",
-      "target_module": "polisyos.core.artifacts.ids",
       "target_root": "core"
     },
     {
@@ -10937,20 +10916,6 @@
       "target_root": "core"
     },
     {
-      "source_module": "polisyos.runtime.quality.data_snapshot_lineage",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/data_snapshot_lineage.py",
-      "target_module": "polisyos.data_forge.domains.catalog.knowledge.overlay",
-      "target_root": "data_forge"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.data_snapshot_lineage",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/data_snapshot_lineage.py",
-      "target_module": "polisyos.fabric.retrieval.custody",
-      "target_root": "fabric"
-    },
-    {
       "source_module": "polisyos.runtime.quality.data_state_substrate",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
@@ -11409,27 +11374,6 @@
       "source_module": "polisyos.runtime.quality.joint_simulation_horizon",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
-      "target_module": "polisyos.core.artifacts.ids",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.joint_simulation_horizon",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
-      "target_module": "polisyos.core.artifacts.manifest",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.joint_simulation_horizon",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
-      "target_module": "polisyos.foundry.execute.executor",
-      "target_root": "foundry"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.joint_simulation_horizon",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
       "target_module": "polisyos.foundry.methods.catalog.causal",
       "target_root": "foundry"
     },
@@ -11467,20 +11411,6 @@
       "source_file": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
       "target_module": "polisyos.ir.analytics.ncm",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.joint_simulation_horizon",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
-      "target_module": "polisyos.scientist.orchestration.engine.budget",
-      "target_root": "scientist"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.joint_simulation_horizon",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/joint_simulation_horizon.py",
-      "target_module": "polisyos.scientist.orchestration.engine.producer_budget",
-      "target_root": "scientist"
     },
     {
       "source_module": "polisyos.runtime.quality.legacy_payload_migration_audit",
@@ -11698,13 +11628,6 @@
       "source_file": "src/polisyos/runtime/quality/scorecard.py",
       "target_module": "polisyos.scientist.validation.policy_grounding",
       "target_root": "scientist"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.semantic_epoch",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/semantic_epoch.py",
-      "target_module": "polisyos.core.contracts.fabric",
-      "target_root": "core"
     },
     {
       "source_module": "polisyos.runtime.quality.skip_blockers",

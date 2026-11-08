@@ -621,9 +621,14 @@ def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
             resolved_binding_manifest_ref=manifest_ref,
             return_selected_profile=True,
         )
-        assert float(
-            load_state_snapshot(store, snapshot_ref=built.bound_state_snapshot_ref).government_balance
-        ) == 1000.0
+        assert (
+            float(
+                load_state_snapshot(
+                    store, snapshot_ref=built.bound_state_snapshot_ref
+                ).government_balance
+            )
+            == 1000.0
+        )
 
         no_interface_case = prepare_program_graph_tax_subsidy_input_case(
             tmp_path / "legacy-binding-without-interface",
@@ -642,9 +647,11 @@ def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
             role="input.data_snapshot_ref",
         )
         assert legacy_binding_edges.count(snapshot_edge) == 1
-        legacy_binding_edges[legacy_binding_edges.index(snapshot_edge)] = input_ref_from_artifact_ref(
-            semantic.data_snapshot_ref,
-            role="input.data_snapshot_ref",
+        legacy_binding_edges[legacy_binding_edges.index(snapshot_edge)] = (
+            input_ref_from_artifact_ref(
+                semantic.data_snapshot_ref,
+                role="input.data_snapshot_ref",
+            )
         )
         stored_legacy_bindings_ref = store.put_json(
             legacy_bindings,
@@ -691,9 +698,7 @@ def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
             ),
             return_selected_profile=True,
         )
-        misversioned_legacy_bindings = load_input_bindings(
-            store, misversioned_legacy_bindings_ref
-        )
+        misversioned_legacy_bindings = load_input_bindings(store, misversioned_legacy_bindings_ref)
         assert misversioned_legacy_bindings.resolved_binding_manifest_ref is None
         with pytest.raises(
             ValueError,
@@ -798,9 +803,10 @@ def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
         admitted = admit_execution_source(fresh_store, executed.simulation_result_ref)
         assert admitted.basis is not None
         assert admitted.basis.input_bindings_ref == built.input_bindings_ref
-        assert load_input_bindings(
-            fresh_store, built.input_bindings_ref
-        ).resolved_binding_manifest_ref == manifest_ref
+        assert (
+            load_input_bindings(fresh_store, built.input_bindings_ref).resolved_binding_manifest_ref
+            == manifest_ref
+        )
         assert admitted.simulation_result.state_snapshot_ref is not None
         final_state = load_state_snapshot(
             fresh_store, snapshot_ref=admitted.simulation_result.state_snapshot_ref

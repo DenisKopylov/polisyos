@@ -2045,9 +2045,7 @@ def prepare_input_bindings(
             rules=rules,
         )
     snapshot = _load_data_snapshot(store, data_snapshot_ref)
-    if isinstance(
-        snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage
-    ):
+    if isinstance(snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage):
         raise ValueError("foundry_input_bindings_semantic_manifest_required")
     if registered_sql_admission_ref is not None:
         if (
@@ -2469,9 +2467,7 @@ def _prepare_semantic_input_bindings(
     snapshot = _load_data_snapshot(store, data_snapshot_ref)
     if snapshot.data_ref.manifest_profile_sha256 is None:
         raise ValueError("foundry_input_bindings_semantic_profile_required")
-    if isinstance(
-        snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage
-    ):
+    if isinstance(snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage):
         if len(manifest.measurements) != 1:
             raise ValueError("foundry_input_bindings_semantic_snapshot_selection_mismatch")
         selected = manifest.measurements[0]
@@ -2745,9 +2741,7 @@ def reconcile_semantic_input_bindings(
             snapshot = validate_core_model_json_artifact(
                 DataSnapshot, core_store, bindings.data_snapshot_ref
             )
-            semantic_lineage = _require_semantic_snapshot_lineage_version(
-                snapshot, snapshot_schema
-            )
+            semantic_lineage = _require_semantic_snapshot_lineage_version(snapshot, snapshot_schema)
             if semantic_schema or semantic_lineage:
                 raise ValueError("foundry_input_bindings_semantic_manifest_required")
         elif semantic_schema:
@@ -3189,14 +3183,10 @@ def _verify_selected_data_snapshot_schema(
             or manifest.media_type != DataSnapshot.ARTIFACT_MEDIA_TYPE
         ):
             raise ValueError("DataSnapshot default profile differs from its artifact contract")
-        if (
-            manifest.artifact_schema is None
-            or manifest.artifact_schema.version
-            not in {
-                DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
-                DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION,
-            }
-        ):
+        if manifest.artifact_schema is None or manifest.artifact_schema.version not in {
+            DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
+            DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION,
+        }:
             return None
     else:
         try:
@@ -3226,9 +3216,7 @@ def _verify_data_snapshot_owner_inputs(
     snapshot: DataSnapshot,
 ) -> None:
     """Reconcile schema-0.3 parent edges without changing child selectors."""
-    schema_version = (
-        None if manifest.artifact_schema is None else manifest.artifact_schema.version
-    )
+    schema_version = None if manifest.artifact_schema is None else manifest.artifact_schema.version
     semantic_lineage = isinstance(
         snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage
     )

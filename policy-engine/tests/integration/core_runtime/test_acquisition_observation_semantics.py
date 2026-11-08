@@ -12,7 +12,6 @@ import pytest
 
 from polisyos.core.artifacts import FileSystemCAS, PutOptions, load_core_json_artifact
 from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
-from polisyos.core.contracts.epoch import load_verified_epoch_statement
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
@@ -21,15 +20,11 @@ from polisyos.core.contracts.foundry import (
     ProgramGraphRef,
     SemanticHorizonStepContext,
 )
-from polisyos.core.contracts.model_input_requirements import (
-    ProgramGraphInputInvocation,
-    load_program_graph_input_interface,
-)
+from polisyos.core.contracts.model_input_requirements import ProgramGraphInputInvocation
 from polisyos.core.contracts.semantic_input_binding import (
     load_resolved_input_binding_manifest,
     persist_resolved_input_binding_manifest,
 )
-from polisyos.core.contracts.variable_binding import SelectedVariableBindingRef
 from polisyos.data_forge import read_api
 from polisyos.foundry.data_plane import (
     build_input_bindings,
@@ -41,7 +36,6 @@ from polisyos.foundry.execute.api import admit_execution_source
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import load_state_snapshot
 from polisyos.runtime.quality import data_state_substrate as owner
-from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
 from polisyos.runtime.quality.data_snapshot_lineage import (
     DataSnapshotLineageError,
     validate_data_snapshot_owner_lineage,
@@ -49,6 +43,7 @@ from polisyos.runtime.quality.data_snapshot_lineage import (
 from tests._helpers import semantic_epoch_native as native_fixture
 from tests._helpers import world_model_record as world_fixture
 from tests._helpers.program_graph_tax_subsidy_input import (
+    activated_program_graph_opening_stock,
     prepare_program_graph_tax_subsidy_input_case,
 )
 from tests.unit.foundry.runtime.test_execute_input_bindings import (
@@ -405,13 +400,10 @@ def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
         model_input_port_declaration_builder=_stock_declaration_in_source_scope,
         snapshot_id="base-acquisition",
     )
-    activated_owner = None
     fresh_store = None
     try:
         store = case.store
         interface_ref = _interface(case)
-        interface = load_program_graph_input_interface(store, interface_ref)
-        (port,) = interface.ports
         override_ref = _supplied_rate(case)
         invocation = ProgramGraphInputInvocation(
             context=_context(case),
@@ -431,106 +423,30 @@ def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
             parameter_override_bundle_ref=override_ref,
         )
 
-        variable_id = "test.treasury.opening-stock"
-        activated_owner = native_fixture.make_native_multivariable_active_projections(
-            tmp_path / "activated-source",
-            source_rows=[
-                {
-                    "country_code": "UA",
-                    "year": 2022,
-                    "opening_usd": 1000,
-                    "condition_json": {
-                        "population_ref": "population:treasury",
-                        "jurisdiction_ref": "jurisdiction:fixture",
-                        "time_period_basis": "calendar_year",
-                    },
-                }
-            ],
-            variable_specs=(
-                {
-                    "target_variable": variable_id,
-                    "raw_field": "opening_usd",
-                    "raw_unit": "usd",
-                    "canonical_unit": "usd",
-                    "unit_transform_ref": "fabric://units/usd-identity/v1",
-                    "valid_min": 0.0,
-                    "valid_max": 10_000.0,
-                },
-            ),
-            artifact_store=store,
-            return_selected_raw_profile=True,
-        )
-        projection = activated_owner.projections[variable_id]
-        (row,) = projection.observations
-        passport = AdmissionPassport.model_validate(
-            load_verified_epoch_statement(
-                store=store,
-                ref=projection.passport_ref,
-                expected_kind="epoch.acquisition_passport_snapshot",
-            )
-        )
-        slot_binding = owner.ControlledAcquisitionSlotBinding(
-            profile_selection_ref="sha256:" + "7" * 64,
-            canonical_variable_id=variable_id,
-            target_slot_id=port.slot_id,
-        )
-        binding_rule = owner.acquired_observation_binding_rule(
-            observation=row.observation, slot_binding=slot_binding
-        )
-        request = owner.AcquiredObservationSemanticInputRequest(
-            binding_id=binding_rule.binding_id,
-            source_definition_ref=port.semantic_definition_ref,
-            source_representation_ref=port.representation_ref,
-            obligation_set_ref=SelectedVariableBindingRef.model_validate(
-                preflight.obligation_set_ref.model_dump(mode="python")
-            ),
-            expected_invocation=invocation,
-            model_port_id=port.port_id,
-        )
         workspace_dir = tmp_path / "shared-data-forge-workspace"
         transaction_time = datetime(2026, 10, 2, 12, tzinfo=UTC)
-
-        legacy = owner.materialize_acquired_observation_snapshot(
-            store,
-            base_data_snapshot_ref=case.data_snapshot_ref,
-            overlay=activated_owner.overlay,
-            receipt_ref=projection.receipt_ref,
-            passport=passport,
-            authority=activated_owner.authority,
-            observation_id=row.observation.observation_id,
-            slot_binding=slot_binding,
-            workspace_dir=workspace_dir,
-            transaction_time=transaction_time,
-        )
-        legacy_binding_bytes = legacy.data_forge_snapshot_binding_path.read_bytes()
-        semantic = owner.materialize_acquired_observation_snapshot(
-            store,
-            base_data_snapshot_ref=case.data_snapshot_ref,
-            overlay=activated_owner.overlay,
-            receipt_ref=projection.receipt_ref,
-            passport=passport,
-            authority=activated_owner.authority,
-            observation_id=row.observation.observation_id,
-            slot_binding=slot_binding,
-            workspace_dir=workspace_dir,
-            transaction_time=transaction_time,
-            semantic_input_request=request,
-        )
-        first_semantic_snapshot_bytes = semantic.data_forge_snapshot_binding_path.read_bytes()
-        first_semantic_manifest = store.get_manifest(semantic.data_snapshot_ref)
-        repeated_semantic = owner.materialize_acquired_observation_snapshot(
-            store,
-            base_data_snapshot_ref=case.data_snapshot_ref,
-            overlay=activated_owner.overlay,
-            receipt_ref=projection.receipt_ref,
-            passport=passport,
-            authority=activated_owner.authority,
-            observation_id=row.observation.observation_id,
-            slot_binding=slot_binding,
-            workspace_dir=workspace_dir,
-            transaction_time=transaction_time + timedelta(days=1),
-            semantic_input_request=request,
-        )
+        with activated_program_graph_opening_stock(
+            tmp_path / "activated-source",
+            case,
+            obligation_set_ref=preflight.obligation_set_ref,
+            expected_invocation=invocation,
+        ) as materialize:
+            legacy = materialize(
+                workspace_dir=workspace_dir,
+                transaction_time=transaction_time,
+                semantic_input_request=None,
+            )
+            legacy_binding_bytes = legacy.data_forge_snapshot_binding_path.read_bytes()
+            semantic = materialize(
+                workspace_dir=workspace_dir,
+                transaction_time=transaction_time,
+            )
+            first_semantic_snapshot_bytes = semantic.data_forge_snapshot_binding_path.read_bytes()
+            first_semantic_manifest = store.get_manifest(semantic.data_snapshot_ref)
+            repeated_semantic = materialize(
+                workspace_dir=workspace_dir,
+                transaction_time=transaction_time + timedelta(days=1),
+            )
         assert repeated_semantic.data_snapshot_ref != semantic.data_snapshot_ref
         assert repeated_semantic.data_forge_snapshot_binding_path != (
             semantic.data_forge_snapshot_binding_path
@@ -829,6 +745,4 @@ def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
             close = getattr(fresh_store, "close", None)
             if callable(close):
                 close()
-        if activated_owner is not None:
-            activated_owner.overlay.close()
         case.close()

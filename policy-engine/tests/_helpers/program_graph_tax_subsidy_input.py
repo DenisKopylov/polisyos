@@ -7,14 +7,19 @@ it does not establish a production source, fiscal correspondence, or authority.
 
 from __future__ import annotations
 
+import json
+from contextlib import contextmanager
 from dataclasses import dataclass
+from functools import partial
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterator
 
     from polisyos.core.artifacts import ArtifactRef, CoreJSONArtifactStore, FileSystemCAS
+    from polisyos.core.contracts.model_input_requirements import ProgramGraphInputInvocation
+    from polisyos.runtime.quality.data_state_substrate import AcquiredObservationDataSnapshotResult
 
 
 INCOME_VALUES = (100, 200)
@@ -374,3 +379,106 @@ def execute_program_graph_tax_subsidy_input_case(
     if not result.ok or result.simulation_result_ref is None:
         raise AssertionError(f"program_graph_execution_failed: {result.notes!r}")
     return ProgramGraphTaxSubsidyExecution(simulation_result_ref=result.simulation_result_ref)
+
+
+@contextmanager
+def activated_program_graph_opening_stock(
+    tmp_path: Path,
+    case: ProgramGraphTaxSubsidyInputCase,
+    *,
+    obligation_set_ref: ArtifactRef,
+    expected_invocation: ProgramGraphInputInvocation,
+) -> Iterator[partial[AcquiredObservationDataSnapshotResult]]:
+    """Open the native activation and bind its row to the declared model port.
+
+    The yielded materializer accepts the workspace and transaction time. It
+    defaults to semantic materialization. Pass ``semantic_input_request=None``
+    for the legacy control using the same admitted source.
+    """
+    from polisyos.core.contracts.epoch import load_verified_epoch_statement
+    from polisyos.core.contracts.model_input_requirements import load_program_graph_input_interface
+    from polisyos.core.contracts.variable_binding import SelectedVariableBindingRef
+    from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
+    from polisyos.runtime.quality.data_state_substrate import (
+        AcquiredObservationSemanticInputRequest,
+        ControlledAcquisitionSlotBinding,
+        acquired_observation_binding_rule,
+        materialize_acquired_observation_snapshot,
+    )
+    from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
+
+    store = case.store
+    interface = load_program_graph_input_interface(store, expected_invocation.interface_ref)
+    (port,) = interface.ports
+    variable_id = "test.treasury.opening-stock"
+    active = make_native_multivariable_active_projections(
+        tmp_path,
+        source_rows=[
+            {
+                "country_code": "UA",
+                "year": 2022,
+                "opening_usd": 1000,
+                "condition_json": {
+                    "population_ref": "population:treasury",
+                    "jurisdiction_ref": "jurisdiction:fixture",
+                    "time_period_basis": "calendar_year",
+                },
+            }
+        ],
+        variable_specs=(
+            {
+                "target_variable": variable_id,
+                "raw_field": "opening_usd",
+                "raw_unit": "usd",
+                "canonical_unit": "usd",
+                "unit_transform_ref": "fabric://units/usd-identity/v1",
+                "valid_min": 0.0,
+                "valid_max": 10_000.0,
+            },
+        ),
+        artifact_store=store,
+        return_selected_raw_profile=True,
+    )
+    try:
+        projection = active.projections[variable_id]
+        (row,) = projection.observations
+        assert json.loads(row.observation.condition_json)["time_period_basis"] == "calendar_year"
+        passport = AdmissionPassport.model_validate(
+            load_verified_epoch_statement(
+                store=store,
+                ref=projection.passport_ref,
+                expected_kind="epoch.acquisition_passport_snapshot",
+            )
+        )
+        slot_binding = ControlledAcquisitionSlotBinding(
+            profile_selection_ref="sha256:" + "7" * 64,
+            canonical_variable_id=variable_id,
+            target_slot_id=port.slot_id,
+        )
+        binding_rule = acquired_observation_binding_rule(
+            observation=row.observation, slot_binding=slot_binding
+        )
+        request = AcquiredObservationSemanticInputRequest(
+            binding_id=binding_rule.binding_id,
+            source_definition_ref=port.semantic_definition_ref,
+            source_representation_ref=port.representation_ref,
+            obligation_set_ref=SelectedVariableBindingRef.model_validate(
+                obligation_set_ref.model_dump(mode="python")
+            ),
+            expected_invocation=expected_invocation,
+            model_port_id=port.port_id,
+        )
+        yield partial(
+            materialize_acquired_observation_snapshot,
+            store,
+            base_data_snapshot_ref=case.data_snapshot_ref,
+            overlay=active.overlay,
+            receipt_ref=projection.receipt_ref,
+            passport=passport,
+            authority=active.authority,
+            observation_id=row.observation.observation_id,
+            slot_binding=slot_binding,
+            semantic_input_request=request,
+        )
+    finally:
+        active.overlay.close()

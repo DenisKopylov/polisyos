@@ -5,6 +5,7 @@ import hashlib
 import inspect
 import json
 import subprocess
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, ClassVar
@@ -1660,10 +1661,16 @@ def test_selected_program_graph_input_preflight_stops_before_runner_and_charge(
 def test_semantic_program_graph_horizon_executes_and_reopens_every_selected_step(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Real Catalog-backed opening state reaches the late compiled mechanism."""
+    """A native activated opening state reaches the late compiled mechanism."""
     from polisyos.core.artifacts import ensure_ir_artifact_store
     from polisyos.core.artifacts.manifest import WarningRecord
+    from polisyos.core.contracts.foundry import ExecPlanRef
+    from polisyos.core.contracts.model_input_requirements import (
+        ProgramGraphInputInvocation,
+        load_model_input_obligation_set,
+    )
     from polisyos.core.registry import load_registry_bundle_content
+    from polisyos.foundry.data_plane import load_input_bindings
     from polisyos.foundry.execute import load_state_snapshot
     from polisyos.ir.trinity import load_trinity_bundle_artifact
     from polisyos.runtime.quality import joint_simulation_horizon as horizon_owner
@@ -1674,13 +1681,14 @@ def test_semantic_program_graph_horizon_executes_and_reopens_every_selected_step
     )
     from polisyos.runtime.quality.model_input_requirements import preflight_program_graph_inputs
     from tests._helpers.program_graph_tax_subsidy_input import (
+        activated_program_graph_opening_stock,
         prepare_program_graph_tax_subsidy_input_case,
     )
     from tests.unit.foundry.runtime.test_execute_input_bindings import (
         _stock_declaration_in_source_scope,
     )
-    from tests.unit.foundry.runtime.test_semantic_horizon_steps import _bind_opening_stock
     from tests.unit.runtime.quality.test_generic_simulation_admission_program_graph import _n4_atom
+    from tests.unit.runtime.quality.test_model_input_requirements import _context, _interface
 
     horizon = HorizonSpec(start=0, end=4, step=1)
     case = prepare_program_graph_tax_subsidy_input_case(
@@ -1689,12 +1697,42 @@ def test_semantic_program_graph_horizon_executes_and_reopens_every_selected_step
         mechanism_start_step=3,
         mechanism_duration_steps=2,
         model_input_port_declaration_builder=_stock_declaration_in_source_scope,
+        snapshot_id="base-acquisition-horizon",
     )
     try:
         store = case.store
-        opening, obligation_ref, invocation, correspondence_ref = _bind_opening_stock(
-            tmp_path, case, horizon.steps()
+        invocation = ProgramGraphInputInvocation(
+            context=_context(case),
+            interface_ref=_interface(case),
+            program_graph_ref=ProgramGraphRef.model_validate(case.program_graph_ref.model_dump()),
+            exec_plan_ref=ExecPlanRef.model_validate(case.exec_plan_ref.model_dump()),
+            registry_bundle_ref=case.registry_bundle_ref,
+            input_bindings_ref=case.input_bindings_ref,
+            steps=horizon.steps(),
         )
+        obligation_ref = preflight_program_graph_inputs(
+            store, **vars(invocation)
+        ).obligation_set_ref
+        _, (stock,) = load_model_input_obligation_set(store, obligation_ref)
+        assert stock.port.purpose == "initial_state"
+        assert {dep.first_required_step for dep in stock.dependencies} == {3}
+        with activated_program_graph_opening_stock(
+            tmp_path / "activated-source",
+            case,
+            obligation_set_ref=obligation_ref,
+            expected_invocation=invocation,
+        ) as materialize:
+            opening = materialize(
+                workspace_dir=tmp_path / "data-forge-workspace",
+                transaction_time=datetime(2026, 10, 2, 12, tzinfo=UTC),
+            )
+        bindings_ref = opening.semantic_foundry_input_bindings_ref
+        selection = opening.semantic_input_selection
+        assert bindings_ref is not None and selection is not None
+        assert (
+            load_input_bindings(store, bindings_ref).data_snapshot_ref == opening.data_snapshot_ref
+        )
+        correspondence_ref = selection.correspondence_basis_ref
         registry = load_registry_bundle_content(store, case.registry_bundle_ref)
         trinity = load_trinity_bundle_artifact(ensure_ir_artifact_store(store), case.trinity_ref)
         (intervention,) = trinity.policy_spec.interventions
@@ -1704,7 +1742,7 @@ def test_semantic_program_graph_horizon_executes_and_reopens_every_selected_step
             engine_kind="program_graph",
             objective_ref="objective://selected-opening-stock",
             program_compilation_ref=case.compile_report_ref,
-            program_semantic_input_bindings_ref=opening.input_bindings_ref,
+            program_semantic_input_bindings_ref=bindings_ref,
             program_store=store,
             program_graph_ref=case.program_graph_ref,
             exec_plan_ref=case.exec_plan_ref,

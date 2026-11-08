@@ -41,6 +41,14 @@ from polisyos.core.contracts import (
     data_snapshot_reference_fields,
     data_snapshot_reference_input_roles,
 )
+from polisyos.core.contracts.fabric import (
+    DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION,
+    AcquiredObservationSemanticInputDataSnapshotLineage,
+)
+
+_VERSIONED_DATA_SNAPSHOT_LINEAGE_VERSIONS = frozenset(
+    {DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION, DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION}
+)
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import CoreJSONArtifactBoundedMemberReader
@@ -152,9 +160,16 @@ def validate_data_snapshot_owner_lineage(
         or schema.version not in DataSnapshot.ARTIFACT_SCHEMA_VERSIONS
     ):
         raise DataSnapshotLineageError("data_snapshot_owner_schema_invalid")
-    if schema.version == DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION:
+    if schema.version in _VERSIONED_DATA_SNAPSHOT_LINEAGE_VERSIONS:
         if snapshot.source_lineage is None:
             raise DataSnapshotLineageError("data_snapshot_owner_lineage_missing")
+        semantic_owner = isinstance(
+            snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage
+        )
+        if (
+            schema.version == DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
+        ) != semantic_owner:
+            raise DataSnapshotLineageError("data_snapshot_owner_version_lineage_mismatch")
     elif snapshot.source_lineage is not None:
         raise DataSnapshotLineageError("data_snapshot_legacy_lineage_field_unbound")
 
@@ -198,7 +213,7 @@ def validate_data_snapshot_owner_lineage(
         parent=parent,
         payload_manifest=payload_manifest,
     )
-    if schema.version == DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION:
+    if schema.version in _VERSIONED_DATA_SNAPSHOT_LINEAGE_VERSIONS:
         if lineage is None or _lineage_family(lineage) != family:
             raise DataSnapshotLineageError("data_snapshot_owner_family_or_lineage_mismatch")
         selected_expected = data_snapshot_owner_input_requirements(snapshot)
@@ -215,7 +230,7 @@ def validate_data_snapshot_owner_lineage(
     parent = _verified_manifest(store, snapshot_ref, require_selected_profile=True)
     payload_manifest = _verified_manifest(store, snapshot.data_ref, require_selected_profile=True)
 
-    if schema.version == DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION:
+    if schema.version in _VERSIONED_DATA_SNAPSHOT_LINEAGE_VERSIONS:
         if lineage is None or _lineage_family(lineage) != family:
             raise DataSnapshotLineageError("data_snapshot_owner_family_or_lineage_mismatch")
     else:
@@ -276,20 +291,30 @@ def validate_data_snapshot_owner_lineage(
             ),
         )
     else:
-        if not isinstance(lineage, AcquiredObservationDataSnapshotLineage):
+        if not isinstance(
+            lineage,
+            (
+                AcquiredObservationDataSnapshotLineage,
+                AcquiredObservationSemanticInputDataSnapshotLineage,
+            ),
+        ):
             raise DataSnapshotLineageError("acquired_observation_lineage_invalid")
         base_result = _verify_acquired_observation_owner(
             store, snapshot_ref, snapshot, lineage, seen=seen
         )
         if binding_lineage_refs is not None:
-            expected_binding_refs = tuple(
-                _data_forge_cas_uri(ref)
-                for ref in (
-                    lineage.base_data_snapshot_ref,
-                    lineage.overlay_admission_receipt_ref,
-                    lineage.passport_ref,
-                    snapshot.data_ref,
+            lineage_refs = (
+                lineage.base_data_snapshot_ref,
+                lineage.overlay_admission_receipt_ref,
+                lineage.passport_ref,
+            )
+            if isinstance(lineage, AcquiredObservationSemanticInputDataSnapshotLineage):
+                lineage_refs = (
+                    *lineage_refs,
+                    *(ref for ref, _role in lineage.selection.lineage_refs()),
                 )
+            expected_binding_refs = tuple(
+                _data_forge_cas_uri(ref) for ref in (*lineage_refs, snapshot.data_ref)
             )
             if binding_lineage_refs != expected_binding_refs:
                 raise DataSnapshotLineageError("acquired_observation_binding_lineage_mismatch")
@@ -451,7 +476,13 @@ def _owner_family(
         ):
             return "candidate_acquisition_source"
         if (
-            isinstance(snapshot.source_lineage, AcquiredObservationDataSnapshotLineage)
+            isinstance(
+                snapshot.source_lineage,
+                (
+                    AcquiredObservationDataSnapshotLineage,
+                    AcquiredObservationSemanticInputDataSnapshotLineage,
+                ),
+            )
             or (
                 snapshot.source_lineage is None
                 and parent.artifact_schema
@@ -514,6 +545,8 @@ def _lineage_family(lineage: DataSnapshotOwnerLineage) -> str:
     if isinstance(lineage, FabricBridgeDataSnapshotLineage):
         return "fabric_bridge"
     if isinstance(lineage, AcquiredObservationDataSnapshotLineage):
+        return "acquired_observation_overlay"
+    if isinstance(lineage, AcquiredObservationSemanticInputDataSnapshotLineage):
         return "acquired_observation_overlay"
     if isinstance(lineage, CandidateAcquisitionSourceDataSnapshotLineage):
         return "candidate_acquisition_source"
@@ -751,7 +784,8 @@ def _verify_fabric_bridge_owner(
 
 def _acquired_observation_payload_requirements(
     snapshot: DataSnapshot,
-    lineage: AcquiredObservationDataSnapshotLineage,
+    lineage: AcquiredObservationDataSnapshotLineage
+    | AcquiredObservationSemanticInputDataSnapshotLineage,
 ) -> tuple[tuple[ArtifactRef, str], ...]:
     """Derive source-only payload edges from the canonical Core owner contract.
 
@@ -770,7 +804,8 @@ def _verify_acquired_observation_owner(
     store: ArtifactStore,
     snapshot_ref: ArtifactRef,
     snapshot: DataSnapshot,
-    lineage: AcquiredObservationDataSnapshotLineage,
+    lineage: AcquiredObservationDataSnapshotLineage
+    | AcquiredObservationSemanticInputDataSnapshotLineage,
     *,
     seen: frozenset[tuple[str, str | None]],
 ) -> DataSnapshotLineageResult:

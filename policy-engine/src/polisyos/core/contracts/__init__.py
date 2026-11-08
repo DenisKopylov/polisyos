@@ -305,6 +305,7 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "StopReason",
     ),
     ".fabric": (
+        "DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION",
         "IngestionExecutionContext",
         "DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION",
         "data_snapshot_reference_fields",
@@ -1248,6 +1249,7 @@ if TYPE_CHECKING:
     )
     from .fabric import (
         DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
+        DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION,
         AcquiredObservationDataSnapshotLineage,
         CandidateAcquisitionSourceDataSnapshotLineage,
         DataSnapshot,
@@ -1796,6 +1798,7 @@ _LAZY_IMPORTS.update(
 )
 
 __all__ = [
+    "DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION",
     "FixedUnitTransformWitness",
     "MeasurementAxis",
     "MeasurementBindingProfile",

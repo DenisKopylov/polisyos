@@ -42,7 +42,13 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
-from polisyos.core.contracts import DataSnapshot, data_snapshot_owner_input_requirements
+from polisyos.core.contracts import (
+    DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION,
+    DataSnapshot,
+    ProgramGraphInputInvocation,
+    data_snapshot_manifest_inputs_match,
+    data_snapshot_owner_input_requirements,
+)
 from polisyos.core.contracts.decision_validity import RegisteredSQLAdmissionBinding
 from polisyos.core.contracts.foundry import (
     DerivedArtifact,
@@ -81,7 +87,6 @@ from polisyos.core.contracts.foundry import (
     StateSnapshotRef,
     WelfareBoundReportRef,
 )
-from polisyos.core.contracts.model_input_requirements import ProgramGraphInputInvocation
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 from polisyos.core.registry import (
     RegistryBundleContent,
@@ -553,6 +558,41 @@ def _verify_execution_data_snapshot_edges(
 ) -> None:
     """Reconcile the selected DataSnapshot fields with their exact CAS edges."""
     manifest = _selected_manifest(store, ref, read_session=read_session)
+    schema = manifest.artifact_schema
+    if (
+        schema is not None
+        and schema.name == DataSnapshot.ARTIFACT_SCHEMA_NAME
+        and schema.version == DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
+    ):
+        if not data_snapshot_manifest_inputs_match(
+            snapshot, manifest.inputs, schema_version=schema.version
+        ):
+            raise ValueError("execution_source_data_snapshot_owner_lineage_disagrees")
+        try:
+            owner_requirements = data_snapshot_owner_input_requirements(snapshot)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("execution_source_data_snapshot_owner_lineage_disagrees") from exc
+        expected_inputs = [
+            input_ref_from_artifact_ref(owner_ref, role=role)
+            for owner_ref, role in owner_requirements
+        ]
+        if Counter(_execution_input_inventory_key(manifest.inputs)) != Counter(
+            _execution_input_inventory_key(expected_inputs)
+        ):
+            raise ValueError("execution_source_data_snapshot_owner_inputs_disagree")
+        for owner_ref, role in owner_requirements:
+            if owner_ref.manifest_profile_sha256 is None:
+                raise ValueError("execution_source_data_snapshot_owner_profile_missing")
+            _require_execution_edge_ref(
+                store,
+                ref,
+                role,
+                owner_ref,
+                expected_kind=owner_ref.kind,
+                read_session=read_session,
+            )
+        return
+
     for role, raw_ref in (
         ("data_ref", snapshot.data_ref),
         ("uncertainty_envelope_ref", snapshot.uncertainty_envelope_ref),

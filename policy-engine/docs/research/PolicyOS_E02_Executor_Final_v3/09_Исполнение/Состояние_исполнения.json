@@ -9424,6 +9424,36 @@
             "inputs_unchanged": true,
             "scope": "Separate native invocations with 76 and 46 stable pins. Both workers finish and select B terminal CAS and SQL head 5. Both pytest invocations fail at the post-worker GET with HTTP 401 and Token expired. Same-input B and changed C are UNRUN. Retained CPI readback is separate from the original pytest verdict."
           },
+          "r33_independent_fresh_reader_r6": {
+            "source_commit": "164437dc0c39c96eec7fd2e1a5e707500f322e38",
+            "source_tree": "dc52da247a39e5943b8ec6144513a659731536c0",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-r33-fresh-reader-r6/fresh-reader.json",
+            "observed": {"PASS": 1},
+            "named_inputs": 19,
+            "inputs_unchanged": true,
+            "wall_seconds": 42.05,
+            "scope": "Separate fresh authenticated GET on the recovered fixture. All 16 tracked input bytes match readback from this commit. Exact recovered terminal and N5 CAS/profile, job completed attempt 2, head 5, four physical units before and after. No dispatch, transport, N5, publication authority or changes to original input bytes."
+          },
+          "test_fixture_request_time_identity": {
+            "source_commit": "164437dc0c39c96eec7fd2e1a5e707500f322e38",
+            "source_tree": "dc52da247a39e5943b8ec6144513a659731536c0",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-auth-refresh-focused-r1",
+            "observed": {"PASS": 1},
+            "named_inputs": 5,
+            "inputs_unchanged": true,
+            "wall_seconds": 28.74,
+            "scope": "JWT verification refuses the expired original fixture bearer and accepts a fresh request bearer for the same principal. Production authentication and step-up request binding are unchanged. The wider old protected-route fixture remains red before authentication on Catalog owner setup; that red is separate."
+          },
+          "retained_r33_budget_window_author_r5": {
+            "source_commit": "04e2ecf648e0aeb7a8703dfbd60190ff96722ad8",
+            "source_tree": "ff24f2091c3c73e5586bedc7274af37c4356404b",
+            "output": "AUTHOR:policy-engine/_cache/e02/lane01-r33-budget-window-author-r5",
+            "observed": {"PASS": 1},
+            "named_inputs": 8,
+            "inputs_unchanged": true,
+            "wall_seconds": 42.3,
+            "scope": "The actual admitted worker lease resolves the retained exact budget window in one resolver and one historical action read, with three history folds. The isolated job remains running for this diagnostic, and the pending head, four standard units, terminal bytes and original ledger remain unchanged."
+          },
           "native_protected_quota_composed_r1": {
             "source_commit": "fa2440962c3302d5679f8d539201eed5b573aa6a",
             "output": "MAIN:policy-engine/_cache/e02/lane01-protected-quota-composed-r1",

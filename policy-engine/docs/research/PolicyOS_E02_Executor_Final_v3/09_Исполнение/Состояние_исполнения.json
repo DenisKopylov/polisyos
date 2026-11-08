@@ -9444,6 +9444,24 @@
             "wall_seconds": 28.74,
             "scope": "JWT verification refuses the expired original fixture bearer and accepts a fresh request bearer for the same principal. Production authentication and step-up request binding are unchanged. The wider old protected-route fixture remains red before authentication on Catalog owner setup; that red is separate."
           },
+          "cpi_retained_fresh_reader_r4": {
+            "source_commit": "758135e55ce7058af4cec72dbaa55b0d321dec79",
+            "source_tree": "9665097671b1394ea5ba2519ba36f8eba118494f",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-cpi-fresh-reader-r4-result.json",
+            "observed": {"PASS": 1},
+            "named_inputs": 25,
+            "inputs_unchanged": true,
+            "wall_seconds": 50.64,
+            "scope": "Separate fresh authenticated API and direct terminal history read of CPI R10. Controlled Catalog and raw UKR 2024 annual index observation 457.090971982012, source currentness unestablished. Fresh individual and joint outcome 456.5909729003906 index, effect -0.5, selected two physical work units, run count 4→4. Exact terminal/profile and completed attempt 1 unchanged. Candidate-only wrapper and body authority purposes remain distinct and publication is false. The original pytest remains failed on its expired token."
+          },
+          "dispatcher_budget_observation_context": {
+            "source_commit": "c2b7dabe35231771982b6bc3a26583f875f21369",
+            "source_tree": "1f5db535d8c37a87e7da775e4457a1ec1569aca3",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-eval-budget-context-r1 and lane01-eval-budget-head-removal-r1",
+            "observed": {"PASS": 66, "EXPECTED_REMOVAL_FAIL": 1},
+            "inputs_unchanged": true,
+            "scope": "One verified action context per budget observation. The late full recheck, live lease, exact head/profile and current ledger window remain. Removing only the complete selected-head comparison in memory makes the wrong-profile case fail. Static R33 call-count estimate only, no whole-route elapsed claim."
+          },
           "retained_r33_budget_window_author_r5": {
             "source_commit": "04e2ecf648e0aeb7a8703dfbd60190ff96722ad8",
             "source_tree": "ff24f2091c3c73e5586bedc7274af37c4356404b",

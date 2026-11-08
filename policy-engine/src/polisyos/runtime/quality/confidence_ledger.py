@@ -6767,9 +6767,32 @@ class _LoadedExecutionObservationSeal:
     pending_modules: tuple[object, ...]
     binding_disagreements: tuple[object, ...]
     failure: str | None
+    locked_python_member: object | None = None
 
 
 _LOADED_EXECUTION_OBSERVATION_SEAL: _LoadedExecutionObservationSeal | None = None
+
+
+def _retained_n5_host_capture() -> tuple[_LoadedExecutionObservationSeal, dict[str, object]] | None:
+    """Reopen the ledger's observation of the same live early recorder."""
+
+    session = _passive_capture_lookup(sys.__dict__, "_polisyos_loaded_host_v1")
+    seal = _LOADED_EXECUTION_OBSERVATION_SEAL
+    if (
+        type(session) is not dict
+        or seal is None
+        or seal.state != "retained"
+        or _passive_capture_lookup(session, "capture") is not seal.capture
+        or _passive_capture_lookup(session, "recorder") is not seal.recorder_module
+        or seal.owner_module is not _passive_capture_lookup(sys.modules, __name__)
+        or not _host_recorder_anchor_matches(seal.recorder_module, seal.capture)
+    ):
+        return None
+    capture = seal.capture
+    capture.assert_retained(frozenset({__name__}))
+    if capture.completed(__name__) is not seal.owner_execution:
+        return None
+    return seal, session
 
 
 def _observe_n5_early_python_provider(
@@ -6794,20 +6817,10 @@ def _observe_n5_early_python_provider(
         "protected_through_use": "not_established",
     }
     try:
-        if (
-            type(session) is not dict
-            or seal is None
-            or seal.state != "retained"
-            or _passive_capture_lookup(session, "capture") is not seal.capture
-            or _passive_capture_lookup(session, "recorder") is not seal.recorder_module
-            or seal.owner_module is not _passive_capture_lookup(sys.modules, __name__)
-            or not _host_recorder_anchor_matches(seal.recorder_module, seal.capture)
-        ):
+        live = _retained_n5_host_capture()
+        if live is None:
             return unavailable
-        capture = seal.capture
-        capture.assert_retained(frozenset({__name__}))
-        if capture.completed(__name__) is not seal.owner_execution:
-            return unavailable
+        capture = live[0].capture
         if type(method) is not type or type(entry) is not types.FunctionType:
             return unavailable
 
@@ -6905,6 +6918,263 @@ def _observe_n5_early_python_provider(
         }
     except (AttributeError, ImportError, OSError, RuntimeError, TypeError, ValueError):
         return unavailable
+
+
+type _LockedPythonMember = tuple[str, str, str, str, str]
+type _InitializerImportEdge = tuple[str, int, str, str, str, str]
+
+
+@dataclass(frozen=True, slots=True)
+class _SourceLockedOptionalArm:
+    statement: ast.Try
+    flag: str
+    imports: dict[str, tuple[ast.ImportFrom, ast.alias]]
+
+
+def _source_optional_flag(statement: ast.stmt, value: bool) -> str | None:
+    if (
+        isinstance(statement, ast.Assign)
+        and len(statement.targets) == 1
+        and isinstance(statement.targets[0], ast.Name)
+        and isinstance(statement.value, ast.Constant)
+        and statement.value.value is value
+    ):
+        return statement.targets[0].id
+    return None
+
+
+def _source_locked_optional_arms(tree: ast.Module) -> dict[str, _SourceLockedOptionalArm]:
+    """Find finite external import success arms with an explicit availability flag."""
+
+    arms: dict[str, _SourceLockedOptionalArm] = {}
+    for statement in tree.body:
+        if (
+            not isinstance(statement, ast.Try)
+            or statement.orelse
+            or statement.finalbody
+            or len(statement.handlers) != 1
+            or len(statement.body) < 2
+        ):
+            continue
+        flag = _source_optional_flag(statement.body[-1], True)
+        handler = statement.handlers[0]
+        if (
+            flag is None
+            or handler.name is not None
+            or not isinstance(handler.type, ast.Name)
+            or handler.type.id not in {"Exception", "ImportError", "ModuleNotFoundError"}
+            or _source_optional_flag(handler.body[0], False) != flag
+            or any(
+                not isinstance(item, (ast.ClassDef, ast.FunctionDef)) or item.name == flag
+                for item in handler.body[1:]
+            )
+        ):
+            continue
+        imports: dict[str, tuple[ast.ImportFrom, ast.alias]] = {}
+        for node in statement.body[:-1]:
+            if (
+                not isinstance(node, ast.ImportFrom)
+                or node.level
+                or node.module is None
+                or _repository_module_root(node.module) in {"polisyos", "tools"}
+            ):
+                break
+            for alias in node.names:
+                local = alias.asname or alias.name
+                if local in imports or local == flag or alias.name == "*":
+                    break
+                imports[local] = node, alias
+            else:
+                continue
+            break
+        else:
+            arm = _SourceLockedOptionalArm(statement, flag, imports)
+            for export in (flag, *imports):
+                arms[export] = arm
+    return arms
+
+
+class _N5LockedOptionalImports:
+    """Reconcile selected Python import edges within one N5 source capture."""
+
+    def __init__(
+        self,
+        root: Path,
+        analysis: _IntegrityAnalysisContext,
+        capture: Any,  # noqa: ANN401 - recorder supplied by the anchored early host
+        member: Callable[[str], _LockedPythonMember | None],
+    ) -> None:
+        self.root = root
+        self.analysis = analysis
+        self.capture = capture
+        self.member = member
+        self.rows: dict[_InitializerImportEdge, dict[str, object]] = {}
+        self.events: dict[tuple[str, str], list[Any]] = {}
+        for event in capture.import_events():
+            if event.route == "builtin_import":
+                self.events.setdefault((event.importer_name, event.provider_name), []).append(event)
+        self.members: dict[str, tuple[_LockedPythonMember, ast.Module]] = {}
+        self.chains: dict[tuple[str, str], tuple[object, ...]] = {}
+
+    def _initializer_edge(
+        self,
+        importer_name: str,
+        provider: str,
+        node: ast.ImportFrom,
+        alias: ast.alias,
+    ) -> _InitializerImportEdge:
+        importer = self.capture.completed(importer_name)
+        source = self.analysis.source_bytes(self.root / importer.relative_path)
+        if hashlib.sha256(source).hexdigest() != importer.source_sha256:
+            raise ValueError("n5_optional_importer_source_changed")
+        local = alias.asname or alias.name
+        events = [
+            event
+            for event in self.events.get((importer_name, provider), ())
+            if event.caller_code is importer.code
+            and node.lineno <= event.caller_line <= (node.end_lineno or node.lineno)
+            and alias.name in event.requested_exports
+            and alias.name not in event.unresolved_exports
+        ]
+        if len(events) != 1:
+            raise ValueError("n5_optional_initializer_edge_not_established")
+        event = events[0]
+        self.capture.assert_import_binding(
+            event, importer_attribute=local, provider_export=alias.name
+        )
+        return importer_name, event.caller_line, importer.source_sha256, provider, alias.name, local
+
+    def _locked_source(self, module: str) -> tuple[_LockedPythonMember, ast.Module]:
+        if module not in self.members:
+            member = self.member(module)
+            if member is None:
+                raise ValueError("n5_optional_locked_python_member_not_established")
+            execution = self.capture.completed(module)
+            if member[:3] != (module, execution.relative_path, execution.source_sha256):
+                raise ValueError("n5_optional_locked_python_member_mismatch")
+            path = self.root / execution.relative_path
+            if hashlib.sha256(self.analysis.source_bytes(path)).hexdigest() != member[2]:
+                raise ValueError("n5_optional_locked_python_source_changed")
+            self.members[module] = member, self.analysis.source_tree(path)
+        return self.members[module]
+
+    def _class_chain(
+        self, wrapper: str, node: ast.ImportFrom, alias: ast.alias
+    ) -> tuple[object, ...]:
+        local = alias.asname or alias.name
+        key = wrapper, local
+        if key in self.chains:
+            return self.chains[key]
+        provider = cast("str", node.module)  # Source arm admits only absolute from imports.
+        edges = [self._initializer_edge(wrapper, provider, node, alias)]
+        selected = self.capture.completed_binding(wrapper, local)
+        if not isinstance(selected, type):
+            raise ValueError("n5_optional_locked_class_not_established")
+        symbol = alias.name
+        members: list[_LockedPythonMember] = []
+        visited: set[tuple[str, str]] = set()
+        while (provider, symbol) not in visited:
+            visited.add((provider, symbol))
+            member, tree = self._locked_source(provider)
+            members.append(member)
+            if self.capture.completed_binding(provider, symbol) is not selected:
+                raise ValueError("n5_optional_locked_class_binding_changed")
+            sites = _module_scope_direct_binding_sites(tree, symbol)
+            if len(sites) != 1:
+                break
+            kind, statement, binding = sites[0]
+            if (
+                kind == "local"
+                and isinstance(statement, ast.ClassDef)
+                and type.__getattribute__(selected, "__module__") == provider
+                and type.__getattribute__(selected, "__qualname__") == symbol
+            ):
+                result = (local, tuple(edges), tuple(members))
+                self.chains[key] = result
+                return result
+            if (
+                kind != "import_from"
+                or not isinstance(statement, ast.ImportFrom)
+                or binding is None
+            ):
+                break
+            target = _resolve_import_from_base(statement, self.capture.completed(provider).package)
+            if target is None:
+                break
+            edges.append(self._initializer_edge(provider, target, statement, binding))
+            provider, symbol = target, binding.name
+        raise ValueError("n5_optional_locked_class_source_not_established")
+
+    def reconcile(
+        self,
+        importer: str,
+        importer_relative: Path,
+        node: ast.ImportFrom,
+        alias: ast.alias,
+        wrapper: str,
+        relative: Path,
+        tree: ast.Module,
+        arm: _SourceLockedOptionalArm,
+    ) -> None:
+        """Bind the selected source arm, import event, and current consumer."""
+
+        sites = _module_scope_direct_binding_sites(tree, alias.name)
+        handler = cast("ast.Name", arm.statement.handlers[0].type)
+        if (
+            len(sites) != 1
+            or sites[0][1] is not arm.statement
+            or _module_scope_direct_binding_sites(tree, handler.id)
+        ):
+            raise ValueError("n5_optional_wrapper_binding_not_established")
+        execution = self.capture.completed(wrapper)
+        if (
+            execution.relative_path != relative.as_posix()
+            or hashlib.sha256(self.analysis.source_bytes(self.root / relative)).hexdigest()
+            != execution.source_sha256
+            or self.capture.completed_binding(wrapper, arm.flag) is not True
+        ):
+            raise ValueError("n5_optional_wrapper_success_not_established")
+        if self.capture.completed(importer).relative_path != importer_relative.as_posix():
+            raise ValueError("n5_optional_importer_path_changed")
+        edge = self._initializer_edge(importer, wrapper, node, alias)
+        selected_imports = (
+            tuple(arm.imports.values()) if alias.name == arm.flag else (arm.imports[alias.name],)
+        )
+        self.rows[edge] = {
+            "consumer_import": edge,
+            "wrapper_source_sha256": execution.source_sha256,
+            "wrapper_availability_export": arm.flag,
+            "locked_class_imports": tuple(
+                self._class_chain(wrapper, source_node, source_alias)
+                for source_node, source_alias in selected_imports
+            ),
+        }
+
+
+def _n5_locked_optional_imports(
+    root: Path, analysis: _IntegrityAnalysisContext
+) -> _N5LockedOptionalImports | None:
+    try:
+        live = _retained_n5_host_capture()
+        if live is None:
+            return None
+        seal, session = live
+        member = _passive_capture_lookup(session, "locked_python_member")
+        host = _passive_capture_lookup(sys.modules, "_polisyos_early_host")
+        if (
+            type(member) is not types.FunctionType
+            or member is not seal.locked_python_member
+            or type(host) is not types.ModuleType
+            or member.__globals__ is not host.__dict__
+            or member.__code__.co_qualname != "_child_main.<locals>.locked_python_member"
+            or not _code_tree_contains(
+                _passive_capture_lookup(session, "host_code"), member.__code__
+            )
+        ):
+            return None
+        return _N5LockedOptionalImports(root, analysis, seal.capture, member)
+    except (AttributeError, ImportError, OSError, RuntimeError, TypeError, ValueError):
+        return None
 
 
 def _observe_unsealed_host_capture(
@@ -7158,6 +7428,7 @@ def _seal_loaded_execution_capture(
         owner_module=owner_module,
         state="retained",
         owner_execution=owner_execution,
+        locked_python_member=_passive_capture_lookup(host_session, "locked_python_member"),
         binding_references=tuple(retained_bindings),
         external_provider_modules=report_rows("external_provider_modules"),
         failed_reachable_imports=report_rows("failed_reachable_imports"),
@@ -7345,6 +7616,7 @@ def _resolve_authority_import_closure(
     *,
     include_tools: bool = False,
     _diagnostic_unqualified_direct_bindings: set[tuple[str, str]] | None = None,
+    _n5_optional_imports: _N5LockedOptionalImports | None = None,
 ) -> tuple[tuple[str, str], ...]:
     """Discover a repository-local source import closure candidate.
 
@@ -7375,6 +7647,18 @@ def _resolve_authority_import_closure(
             module_name,
             directory_entries=directory_entries,
         )
+
+    @functools.cache
+    def optional_source(
+        module: str,
+    ) -> tuple[Path, ast.Module, dict[str, _SourceLockedOptionalArm]] | None:
+        relative = resolve_source(module)
+        if relative is None or relative.name == "__init__.py" or _n5_optional_imports is None:
+            return None
+        source = _n5_optional_imports.analysis.source_bytes(repo_root / relative)
+        tree = source_index.parse(source, filename=relative.as_posix())
+        arms = _source_locked_optional_arms(tree)
+        return (relative, tree, arms) if arms else None
 
     def candidate_route_for_closure(
         base: str,
@@ -7499,6 +7783,38 @@ def _resolve_authority_import_closure(
                 for alias in node.names:
                     if alias.name == "*":
                         continue
+                    if _n5_optional_imports is not None:
+                        source = optional_source(base)
+                        if source is not None:
+                            provider_path, provider_tree, arms = source
+                            arm = arms.get(alias.name)
+                            if arm is not None:
+                                try:
+                                    _n5_optional_imports.reconcile(
+                                        module_name,
+                                        relative,
+                                        node,
+                                        alias,
+                                        base,
+                                        provider_path,
+                                        provider_tree,
+                                        arm,
+                                    )
+                                except (
+                                    AttributeError,
+                                    ImportError,
+                                    OSError,
+                                    RuntimeError,
+                                    TypeError,
+                                    ValueError,
+                                ) as exc:
+                                    raise ConfidenceLedgerError(
+                                        "canonical_loaded_runtime_mismatch",
+                                        f"unqualified locked optional import: {base}.{alias.name}",
+                                    ) from exc
+                                # The source closure still contains the local facade.
+                                # The selected external imports have their own recorded rows.
+                                continue
                     route = candidate_route_for_closure(base, alias.name)
                     if route is None:
                         continue
@@ -25003,7 +25319,10 @@ def _capture_execution_source_bindings_body(
     if analysis is None:
         raise RuntimeError("execution source capture requires its integrity analysis")
     root = _loaded_policy_engine_root()
-    closure = _resolve_authority_import_closure(root, entry_modules)
+    optional_imports = _n5_locked_optional_imports(root, analysis)
+    closure = _resolve_authority_import_closure(
+        root, entry_modules, _n5_optional_imports=optional_imports
+    )
     source_rows = tuple(
         (module, relative, _bytes_hash(analysis.source_bytes(root / relative)))
         for module, relative in closure
@@ -25051,7 +25370,7 @@ def _capture_execution_source_bindings_body(
             raise ConfidenceLedgerError("n5_executed_code_source_mismatch")
         row = (module, code.co_qualname, digest)
         (executed_rows if index < len(executed_code) else bound_rows).append(row)
-    return {
+    evidence: dict[str, object] = {
         "source_closure_hash": _content_hash(source_rows),
         "source_module_count": len(source_rows),
         "loaded_binding_hash": _content_hash(loaded_bindings),
@@ -25059,6 +25378,11 @@ def _capture_execution_source_bindings_body(
         "executed_code": tuple(sorted(set(executed_rows))),
         "bound_entry_code": tuple(sorted(set(bound_rows))),
     }
+    if optional_imports is not None and optional_imports.rows:
+        evidence["locked_optional_import_bindings"] = tuple(
+            row for _, row in sorted(optional_imports.rows.items())
+        )
+    return evidence
 
 
 def _loaded_code_evidence_projection(manifest: str) -> str:

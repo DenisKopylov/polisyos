@@ -669,24 +669,38 @@ class _ExternalTrust:
         now = int(time.time())
         self.tokens = {
             subject: self.encode(
-                {
-                    "iss": "https://idp.example",
-                    "aud": "polisyos-runtime",
-                    "sub": subject,
-                    "tenant_id": TENANT,
-                    "cell_id": CELL,
-                    "realm_access": {"roles": ["polisyos_analyst"]},
-                    "amr": ["pwd", "mfa"],
-                    "iat": now,
-                    "exp": now + 3600,
-                    "jti": f"jwt-{subject}",
-                }
+                self._identity_payload(subject, issued_at=now, jti=f"jwt-{subject}")
             )
             for subject in ("acquisition-operator", "human-reviewer-1")
         }
 
+    def _identity_payload(self, subject: str, *, issued_at: int, jti: str) -> dict[str, object]:
+        """Build the fixture claims shared by original and refreshed identity tokens."""
+        return {
+            "iss": "https://idp.example",
+            "aud": "polisyos-runtime",
+            "sub": subject,
+            "tenant_id": TENANT,
+            "cell_id": CELL,
+            "realm_access": {"roles": ["polisyos_analyst"]},
+            "amr": ["pwd", "mfa"],
+            "iat": issued_at,
+            "exp": issued_at + 3600,
+            "jti": jti,
+        }
+
     def encode(self, payload):
         return jwt.encode(payload, self.key, algorithm="RS256", headers={"kid": "identity-2026-07"})
+
+    def authorization_header(self, subject: str) -> str:
+        """Issue a fresh fixture identity token for one HTTP request."""
+        now = int(time.time())
+        payload = self._identity_payload(
+            subject,
+            issued_at=now,
+            jti=f"jwt-{subject}-{uuid.uuid4()}",
+        )
+        return f"Bearer {self.encode(payload)}"
 
     def close(self):
         self.opa.shutdown()
@@ -705,11 +719,19 @@ class _ExternalTrust:
         extra_headers=None,
     ):
         payload = json.dumps(body, separators=(",", ":"), ensure_ascii=False).encode()
+        request_headers = extra_headers or {}
+        explicit_authorization = request_headers.get("Authorization")
+
+        def request_authorization() -> str:
+            if explicit_authorization is not None:
+                return explicit_authorization
+            return self.authorization_header(subject)
+
         headers = {
-            "Authorization": f"Bearer {self.tokens[subject]}",
+            "Authorization": request_authorization(),
             "X-Tenant-ID": TENANT,
             "Content-Type": "application/json",
-            **(extra_headers or {}),
+            **request_headers,
         }
         # First request reaches real authorization and intentionally lacks step-up.
         refused = client.post(path, content=payload, headers=headers)
@@ -721,6 +743,7 @@ class _ExternalTrust:
         resource_id = resource["artifact_id"]
         digest = "sha256:" + resource_id.rsplit("sha256:", 1)[1]
         now = int(time.time())
+        headers["Authorization"] = request_authorization()
         headers["X-PolicyOS-Step-Up"] = self.encode(
             {
                 "iss": "https://step-up.example",

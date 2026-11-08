@@ -421,12 +421,14 @@ def run_candidate_experiment_action_oracle(
         cell_id=served.CELL,
         run_id=run_id,
     )
-    read_headers = {
-        "Authorization": f"Bearer {trust.tokens['acquisition-operator']}",
-        "X-Tenant-ID": served.TENANT,
-    }
+    def read_headers() -> dict[str, str]:
+        return {
+            "Authorization": trust.authorization_header("acquisition-operator"),
+            "X-Tenant-ID": served.TENANT,
+        }
+
     get_path = f"/api/v1/runs/{run_id}/candidate-acquisition-experiment"
-    public_before = client.get(get_path, headers=read_headers)
+    public_before = client.get(get_path, headers=read_headers())
     assert public_before.status_code == 200, public_before.text
     public_projection = CandidateExperimentRouteProjection.model_validate(public_before.json())
     assert public_projection.route_id == projection.route_id
@@ -524,7 +526,7 @@ def run_candidate_experiment_action_oracle(
     allowed_payload = allowed_response.json()
     assert allowed_payload["outcome"] == "decision_available"
     decision_ref = allowed_payload["authority_decision_ref"]
-    public_after = client.get(get_path, headers=read_headers)
+    public_after = client.get(get_path, headers=read_headers())
     assert public_after.status_code == 200, public_after.text
     assert public_after.json() == public_before.json()
     caller_selected_human = request.model_copy(update={"human_decision_record_ref": human_ref})

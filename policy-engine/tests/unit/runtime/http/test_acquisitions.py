@@ -465,3 +465,44 @@ def test_execute_route_binds_current_tuple_and_persists_allowed_reservation(
         port_patch.undo()
         trust.close()
         trust.close()
+
+
+def test_external_trust_issues_a_fresh_request_token_after_long_work(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Fixture-issued credentials can be refreshed after the original expires."""
+    expired_issued_at = int(served_fixture.time.time()) - 7200
+    with monkeypatch.context() as stale_clock:
+        stale_clock.setattr(served_fixture.time, "time", lambda: expired_issued_at)
+        trust = served_fixture._ExternalTrust(tmp_path)
+    try:
+        old_token = trust.tokens["acquisition-operator"]
+        old_payload = served_fixture.jwt.decode(
+            old_token, options={"verify_signature": False}
+        )
+        with pytest.raises(served_fixture.jwt.ExpiredSignatureError):
+            served_fixture.jwt.decode(
+                old_token,
+                trust.key.public_key(),
+                algorithms=["RS256"],
+                audience="polisyos-runtime",
+                issuer="https://idp.example",
+            )
+
+        header = trust.authorization_header("acquisition-operator")
+        fresh_payload = served_fixture.jwt.decode(
+            header.removeprefix("Bearer "),
+            trust.key.public_key(),
+            algorithms=["RS256"],
+            audience="polisyos-runtime",
+            issuer="https://idp.example",
+        )
+
+        assert old_payload["exp"] < int(served_fixture.time.time())
+        assert fresh_payload["exp"] == fresh_payload["iat"] + 3600
+        assert fresh_payload["sub"] == old_payload["sub"]
+        assert fresh_payload["tenant_id"] == old_payload["tenant_id"]
+        assert old_payload["jti"] == "jwt-acquisition-operator"
+        assert fresh_payload["jti"] != old_payload["jti"]
+    finally:
+        trust.close()

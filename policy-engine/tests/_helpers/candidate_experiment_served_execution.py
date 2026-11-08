@@ -833,13 +833,15 @@ def _read_candidate_experiment_with_reopened_owner(
         with monkeypatch.context() as read_only_guard:
             read_only_guard.setattr(JointSimulationHorizonController, "run", forbid_n5)
             path = f"/api/v1/runs/{origin.run_id}/candidate-acquisition-experiment"
-            headers = {
-                "Authorization": f"Bearer {trust.tokens['acquisition-operator']}",
-                "X-Tenant-ID": served.TENANT,
-            }
+
+            def read_headers() -> dict[str, str]:
+                return {
+                    "Authorization": trust.authorization_header("acquisition-operator"),
+                    "X-Tenant-ID": served.TENANT,
+                }
 
             def read_current_action() -> CandidateExperimentCurrentActionProjection:
-                response = reader.get(path, headers=headers)
+                response = reader.get(path, headers=read_headers())
                 if response.status_code != 200:
                     raise AssertionError(response.text)
                 return CandidateExperimentRouteProjection.model_validate(
@@ -940,7 +942,7 @@ def _read_candidate_experiment_with_reopened_owner(
                     control=reader_control,
                     history=reopened_history,
                     origin=origin,
-                    headers=headers,
+                    headers=read_headers(),
                 )
 
             wrong_profile = "sha256:" + "0" * 64
@@ -971,7 +973,7 @@ def _read_candidate_experiment_with_reopened_owner(
                     "candidate experiment wrong-profile control missed selected ancestor"
                 )
             try:
-                wrong_profile_response = reader.get(path, headers=headers)
+                wrong_profile_response = reader.get(path, headers=read_headers())
             finally:
                 with sqlite3.connect(sqlite_path) as connection:
                     restored = connection.execute(
@@ -1055,7 +1057,7 @@ def _read_candidate_experiment_with_reopened_owner(
             result_payload = result_blob_path.read_bytes()
             result_blob_path.unlink()
             try:
-                missing_result_response = reader.get(path, headers=headers)
+                missing_result_response = reader.get(path, headers=read_headers())
                 permitted_statuses = (
                     {409, 503}
                     if reopened_history.terminal.terminal_outcome == "candidate_blocked"
@@ -1170,10 +1172,12 @@ def run_candidate_experiment_served_execution(
     )
     execute_route = "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute"
     get_path = f"/api/v1/runs/{origin.run_id}/candidate-acquisition-experiment"
-    read_headers = {
-        "Authorization": f"Bearer {trust.tokens['acquisition-operator']}",
-        "X-Tenant-ID": served.TENANT,
-    }
+    def read_headers() -> dict[str, str]:
+        return {
+            "Authorization": trust.authorization_header("acquisition-operator"),
+            "X-Tenant-ID": served.TENANT,
+        }
+
     body = CandidateExperimentRouteExecutionRequest(
         request=request,
         decision_ref=decision_ref,
@@ -1265,7 +1269,7 @@ def run_candidate_experiment_served_execution(
         ):
             raise AssertionError("candidate experiment requested receipt profile missing")
 
-        before_delivery_response = client.get(get_path, headers=read_headers)
+        before_delivery_response = client.get(get_path, headers=read_headers())
         if before_delivery_response.status_code != 200:
             raise AssertionError(before_delivery_response.text)
         before_delivery_projection = CandidateExperimentRouteProjection.model_validate(
@@ -1696,7 +1700,7 @@ def run_candidate_experiment_served_execution(
             monkeypatch=monkeypatch,
         )
 
-        after_response = client.get(get_path, headers=read_headers)
+        after_response = client.get(get_path, headers=read_headers())
         if after_response.status_code != 200:
             raise AssertionError(after_response.text)
         public_projection = CandidateExperimentRouteProjection.model_validate(after_response.json())

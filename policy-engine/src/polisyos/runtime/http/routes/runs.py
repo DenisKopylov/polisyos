@@ -4293,6 +4293,7 @@ def _generic_cycle_simulation_projection(
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationAdmissionOwner,
         GenericCycleSimulationN5ExecutionV3,
+        GenericCycleSimulationN5ExecutionV4,
         GenericCycleSimulationN5RequestBindingV2,
         GenericN5ExecutionJoinExpectation,
     )
@@ -5057,6 +5058,7 @@ def _generic_cycle_simulation_projection(
                 n5_expectation = GenericN5ExecutionJoinExpectation(
                     input_ref=input_ref,
                     result_ref=simulation.simulation_result_ref,
+                    model_input_obligation_set_ref=simulation.model_input_obligation_set_ref,
                     status=simulation.status,
                     n4_source_ref=cycle_source_ref,
                     context_job_ref=history_binding.context_job_ref,
@@ -5243,13 +5245,21 @@ def _generic_cycle_simulation_projection(
                     raise ValueError("generic_n5_cycle_child_selection_rebind_mismatch")
                 request_binding_status = (
                     "resolved"
-                    if type(execution) is GenericCycleSimulationN5ExecutionV3
+                    if type(execution)
+                    in {
+                        GenericCycleSimulationN5ExecutionV3,
+                        GenericCycleSimulationN5ExecutionV4,
+                    }
                     and type(execution.request_binding) is GenericCycleSimulationN5RequestBindingV2
                     else "not_established"
                 )
                 request_content_hash = (
                     execution.request_binding.request_content_hash
-                    if type(execution) is GenericCycleSimulationN5ExecutionV3
+                    if type(execution)
+                    in {
+                        GenericCycleSimulationN5ExecutionV3,
+                        GenericCycleSimulationN5ExecutionV4,
+                    }
                     and type(execution.request_binding) is GenericCycleSimulationN5RequestBindingV2
                     else None
                 )

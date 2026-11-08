@@ -13,6 +13,7 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core import canon
+from polisyos.core.artifacts import input_ref_from_artifact_ref
 from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.pdc import gy_content_hash
@@ -25,12 +26,15 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from polisyos.runtime.quality.generic_simulation_admission import (
     _N5_EXECUTION_V3_SCHEMA,
+    _N5_EXECUTION_V4_SCHEMA,
     _N5_TYPED_CANON,
     GenericCycleSimulationAdmissionOwner,
     GenericCycleSimulationN5ExecutionV2,
     GenericCycleSimulationN5ExecutionV3,
+    GenericCycleSimulationN5ExecutionV4,
     GenericCycleSimulationN5RequestBindingV1,
     GenericCycleSimulationN5RequestBindingV2,
+    GenericN5ExecutionJoinExpectation,
     _n5_typed_execution_content_hash,
     parse_generic_cycle_simulation_n5_execution,
 )
@@ -842,6 +846,45 @@ def _execution_v3_record(
     )
 
 
+def _blocked_execution_v4_record(
+    request_binding: GenericCycleSimulationN5RequestBindingV2,
+    obligation_set_ref: ArtifactRef,
+) -> GenericCycleSimulationN5ExecutionV4:
+    payload = _execution_payload(request_binding=None)
+    assert payload.pop("request_binding", None) is None
+    payload.update(
+        schema_version=_N5_EXECUTION_V4_SCHEMA,
+        status="simulation_blocked",
+        result_ref=None,
+        limitation_code="n5_model_input_obligations_required",
+        model_input_obligation_set_ref=obligation_set_ref,
+    )
+    payload.pop("content_hash")
+    draft = GenericCycleSimulationN5ExecutionV4.model_construct(
+        **payload,
+        request_binding=request_binding,
+        content_hash="sha256:" + "0" * 64,
+    )
+    return GenericCycleSimulationN5ExecutionV4.model_validate(
+        {
+            **draft.model_dump(mode="python", exclude={"content_hash"}),
+            "content_hash": _n5_typed_execution_content_hash(draft),
+        }
+    )
+
+
+def _rehashed_v4_record(
+    record: GenericCycleSimulationN5ExecutionV4, **changes: Any
+) -> GenericCycleSimulationN5ExecutionV4:
+    draft = record.model_copy(update=changes)
+    return GenericCycleSimulationN5ExecutionV4.model_validate(
+        {
+            **draft.model_dump(mode="python", exclude={"content_hash"}),
+            "content_hash": _n5_typed_execution_content_hash(draft),
+        }
+    )
+
+
 def test_v3_cas_roundtrip_preserves_typed_request_and_rejects_wrong_profile(
     tmp_path: Path,
 ) -> None:
@@ -895,6 +938,13 @@ def test_v3_cas_roundtrip_preserves_typed_request_and_rejects_wrong_profile(
     assert JointSimulationRequest.model_validate(legacy_request) != request
 
     record = _execution_v3_record(binding)
+    assert "model_input_obligation_set_ref" not in record.model_dump(mode="python")
+    v3_with_new_field = record.model_dump(mode="python")
+    v3_with_new_field["model_input_obligation_set_ref"] = _artifact_ref(
+        "runtime.quality.model_input_obligation_set", "8"
+    )
+    with pytest.raises(ValidationError, match="extra_forbidden"):
+        parse_generic_cycle_simulation_n5_execution(v3_with_new_field)
     store = FileSystemCAS(tmp_path / "cas")
     owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
     options = owner._n5_execution_write_options(record)
@@ -932,6 +982,75 @@ def test_v3_cas_roundtrip_preserves_typed_request_and_rejects_wrong_profile(
         match="generic_cycle_simulation_input_integrity_failed",
     ):
         owner.resolve_n5_execution(ref, expected=record)
+
+
+def test_v4_blocked_model_input_set_is_selected_and_manifest_bound(tmp_path: Path) -> None:
+    """Only the new blocked V4 execution can carry the selected set."""
+    request = _request()
+    request_binding = GenericCycleSimulationN5RequestBindingV2.from_request(request)
+    obligation_ref = ArtifactRef(
+        artifact_id="sha256:" + "8" * 64,
+        kind="runtime.quality.model_input_obligation_set",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "9" * 64,
+    )
+    record = _blocked_execution_v4_record(request_binding, obligation_ref)
+    assert record.content_hash == _n5_typed_execution_content_hash(record)
+
+    owner = GenericCycleSimulationAdmissionOwner(
+        profiles=(), store=FileSystemCAS(tmp_path / "obligation-cas")
+    )
+    options = owner._n5_execution_write_options(record)
+    expected_edge = input_ref_from_artifact_ref(obligation_ref, role="model_input_obligation_set")
+    assert [edge for edge in options.inputs if edge.role == "model_input_obligation_set"] == [
+        expected_edge
+    ]
+    execution_ref = owner._store.put_json(
+        record.model_dump(mode="python"), options, canon_spec=_N5_TYPED_CANON
+    )
+    reopened = parse_generic_cycle_simulation_n5_execution(
+        canon.from_canonical_bytes(owner._store.get_bytes(execution_ref))
+    )
+    assert reopened == record
+    assert owner._manifest_matches_record(
+        owner._store.get_manifest(execution_ref), execution_ref, options
+    )
+
+    result_ref = _artifact_ref("polisyos.runtime.joint_simulation_result", "2")
+    with pytest.raises(
+        ValidationError,
+        match="generic_cycle_simulation_n5_execution_model_input_obligation_binding_invalid",
+    ):
+        _rehashed_v4_record(
+            record,
+            status="joint_simulated",
+            result_ref=result_ref,
+            limitation_code=None,
+        )
+    with pytest.raises(
+        ValidationError,
+        match="generic_cycle_simulation_n5_execution_model_input_obligation_binding_invalid",
+    ):
+        _rehashed_v4_record(record, result_ref=result_ref)
+    with pytest.raises(
+        ValidationError,
+        match="generic_cycle_simulation_n5_execution_model_input_obligation_binding_invalid",
+    ):
+        _rehashed_v4_record(
+            record,
+            model_input_obligation_set_ref=obligation_ref.model_copy(
+                update={"manifest_profile_sha256": None}
+            ),
+        )
+
+    legacy_binding = GenericCycleSimulationN5RequestBindingV1(
+        request=request,
+        request_content_hash=gy_content_hash(request.model_dump(mode="json")),
+    )
+    v2_payload = _execution_payload(request_binding=legacy_binding)
+    v2_payload["model_input_obligation_set_ref"] = obligation_ref.model_dump(mode="python")
+    with pytest.raises(ValidationError, match="extra_forbidden"):
+        GenericCycleSimulationN5ExecutionV2.model_validate(v2_payload)
 
 
 def test_v3_request_roundtrip_refuses_loss_across_the_complete_any_graph() -> None:
@@ -1617,10 +1736,6 @@ def test_generic_owner_join_distinguishes_selected_mismatch_from_unknown_replay(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """A selected record cannot be paired with another cycle or result reference."""
-    from polisyos.runtime.quality.generic_simulation_admission import (
-        GenericN5ExecutionJoinExpectation,
-    )
-
     binding = GenericCycleSimulationN5RequestBindingV2.from_request(_request())
     original = _execution_v3_record(binding)
     selected_input = original.input_ref.model_copy(
@@ -1649,6 +1764,7 @@ def test_generic_owner_join_distinguishes_selected_mismatch_from_unknown_replay(
         input_ref=record.input_ref,
         result_ref=record.result_ref,
         status=record.status,
+        model_input_obligation_set_ref=getattr(record, "model_input_obligation_set_ref", None),
         n4_source_ref=record.n4_source_ref,
         context_job_ref=record.context_job_ref,
         profile_ref=record.profile_ref,
@@ -1667,6 +1783,10 @@ def test_generic_owner_join_distinguishes_selected_mismatch_from_unknown_replay(
         tenant_id=record.tenant_id,
         cell_id=record.cell_id,
     )
+    expectation_payload = expectation.model_dump(mode="python")
+    del expectation_payload["model_input_obligation_set_ref"]
+    with pytest.raises(ValidationError, match="model_input_obligation_set_ref"):
+        GenericN5ExecutionJoinExpectation.model_validate(expectation_payload)
     for change in (
         {"job_id": "foreign-job"},
         {"run_id": "foreign-run"},

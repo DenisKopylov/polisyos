@@ -70,7 +70,9 @@ if TYPE_CHECKING:
     from polisyos.core.registry.loader import RegistryBundleContent
     from polisyos.ir.registry.registry_fragments import RegistryBundle
     from polisyos.ir.trinity import TrinityBundle
+    from polisyos.runtime.quality.generation_cycle import JointSimulationPort
     from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
+    from polisyos.runtime.quality.model_input_requirements import SelectedProgramGraphInputBasis
 
 _HASH_PATTERN = r"^sha256:[0-9a-f]{64}$"
 _PROFILE_KIND = "runtime.quality.generic_cycle_simulation_profile"
@@ -670,6 +672,8 @@ _N5_EXECUTION_KIND = "runtime.quality.generic_cycle_simulation_n5_execution"
 _N5_EXECUTION_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_execution.v1"
 _N5_EXECUTION_V2_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_execution.v2"
 _N5_EXECUTION_V3_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_execution.v3"
+_N5_EXECUTION_V4_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_execution.v4"
+_MODEL_INPUT_OBLIGATION_SET_KIND = "runtime.quality.model_input_obligation_set"
 _N5_REQUEST_BINDING_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_request_binding.v1"
 _N5_REQUEST_BINDING_V2_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_request_binding.v2"
 _N5_TYPED_CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
@@ -694,12 +698,15 @@ def _n5_typed_request_content_hash(request: JointSimulationRequest) -> str:
 
 
 def _n5_typed_execution_content_hash(record: object) -> str:
-    """Hash a v3 execution body with the same typed canonical profile."""
-    if type(record) is not GenericCycleSimulationN5ExecutionV3:
+    """Hash a typed V3/V4 execution body under its versioned canonical profile."""
+    if type(record) not in {
+        GenericCycleSimulationN5ExecutionV3,
+        GenericCycleSimulationN5ExecutionV4,
+    }:
         raise TypeError("generic_cycle_simulation_n5_execution_v3_untyped")
     return canon.fingerprint(
         {
-            "schema_version": _N5_EXECUTION_V3_SCHEMA,
+            "schema_version": record.schema_version,
             "execution": record.model_dump(mode="python", exclude={"content_hash"}),
         },
         prefix=True,
@@ -1019,7 +1026,7 @@ class GenericCycleSimulationN5ExecutionV1(_StrictModel):
             raise ValueError("generic_cycle_simulation_n5_execution_child_selection_mismatch")
         expected = (
             _n5_typed_execution_content_hash(self)
-            if self.schema_version == _N5_EXECUTION_V3_SCHEMA
+            if self.schema_version in {_N5_EXECUTION_V3_SCHEMA, _N5_EXECUTION_V4_SCHEMA}
             else gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
         )
         if self.content_hash != expected:
@@ -1066,10 +1073,32 @@ class GenericCycleSimulationN5ExecutionV3(GenericCycleSimulationN5ExecutionV2):
         return self
 
 
+class GenericCycleSimulationN5ExecutionV4(GenericCycleSimulationN5ExecutionV3):
+    """Typed V3 request plus the selected obligations for a blocked N5 run."""
+
+    schema_version: Literal[_N5_EXECUTION_V4_SCHEMA] = _N5_EXECUTION_V4_SCHEMA
+    model_input_obligation_set_ref: ArtifactRef
+
+    @model_validator(mode="after")
+    def _selected_model_input_obligations_are_blocked(self) -> GenericCycleSimulationN5ExecutionV4:
+        obligation_ref = self.model_input_obligation_set_ref
+        if (
+            not _is_selected_json_ref(obligation_ref, _MODEL_INPUT_OBLIGATION_SET_KIND)
+            or self.status != "simulation_blocked"
+            or self.result_ref is not None
+            or self.limitation_code != "n5_model_input_obligations_required"
+        ):
+            raise ValueError(
+                "generic_cycle_simulation_n5_execution_model_input_obligation_binding_invalid"
+            )
+        return self
+
+
 GenericCycleSimulationN5ExecutionRecord = (
     GenericCycleSimulationN5ExecutionV1
     | GenericCycleSimulationN5ExecutionV2
     | GenericCycleSimulationN5ExecutionV3
+    | GenericCycleSimulationN5ExecutionV4
 )
 
 
@@ -1079,6 +1108,7 @@ class GenericN5ExecutionJoinExpectation(_StrictModel):
     input_ref: ArtifactRef
     result_ref: ArtifactRef | None
     status: Literal["joint_simulated", "simulation_blocked"]
+    model_input_obligation_set_ref: ArtifactRef | None
     n4_source_ref: ArtifactRef
     context_job_ref: ArtifactRef
     profile_ref: ArtifactRef
@@ -1099,13 +1129,28 @@ class GenericN5ExecutionJoinExpectation(_StrictModel):
     tenant_id: str
     cell_id: str
 
+    @model_validator(mode="after")
+    def _selected_obligation_ref_matches_blocked_expectation(
+        self,
+    ) -> GenericN5ExecutionJoinExpectation:
+        obligation_ref = self.model_input_obligation_set_ref
+        if obligation_ref is not None and (
+            not _is_selected_json_ref(obligation_ref, _MODEL_INPUT_OBLIGATION_SET_KIND)
+            or self.status != "simulation_blocked"
+            or self.result_ref is not None
+        ):
+            raise ValueError("generic_n5_join_model_input_obligation_ref_invalid")
+        return self
+
 
 class GenericN5ExecutionJoinOutcome(_StrictModel):
     """Candidate-only evidence for one independently reopened execution join."""
 
     status: Literal["resolved", "unavailable", "invalid", "mismatch", "not_established"]
     code: str | None = None
-    execution: GenericCycleSimulationN5ExecutionV3 | None = None
+    execution: GenericCycleSimulationN5ExecutionV3 | GenericCycleSimulationN5ExecutionV4 | None = (
+        None
+    )
     input_record: GenericCycleSimulationN5InputV1 | None = None
     authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
 
@@ -1132,6 +1177,8 @@ def parse_generic_cycle_simulation_n5_execution(
         return GenericCycleSimulationN5ExecutionV2.model_validate(payload)
     if version == _N5_EXECUTION_V3_SCHEMA:
         return GenericCycleSimulationN5ExecutionV3.model_validate(payload)
+    if version == _N5_EXECUTION_V4_SCHEMA:
+        return GenericCycleSimulationN5ExecutionV4.model_validate(payload)
     raise ValueError("generic_cycle_simulation_n5_execution_schema_unsupported")
 
 
@@ -2726,6 +2773,7 @@ class GenericCycleSimulationAdmissionOwner:
             | GenericCycleSimulationN5RequestBindingV2
             | None
         ) = None,
+        model_input_obligation_set_ref: ArtifactRef | None = None,
         limitation_code: str | None = None,
     ) -> ArtifactRef:
         """Persist exact source, request, and result linkage as candidate-only data."""
@@ -2753,6 +2801,19 @@ class GenericCycleSimulationAdmissionOwner:
                     "generic_cycle_simulation_n5_request_binding_invalid"
                 ) from exc
         is_typed_binding = type(request_binding) is GenericCycleSimulationN5RequestBindingV2
+        if model_input_obligation_set_ref is not None and (
+            not _is_selected_json_ref(
+                model_input_obligation_set_ref, _MODEL_INPUT_OBLIGATION_SET_KIND
+            )
+            or not is_typed_binding
+            or not isinstance(input_record.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+            or status != "simulation_blocked"
+            or result_ref is not None
+            or limitation_code != "n5_model_input_obligations_required"
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_simulation_n5_model_input_obligation_binding_invalid"
+            )
         if (
             status == "joint_simulated"
             and isinstance(input_record.n5, GenericCycleN5ProgramGraphRequestProfileV4)
@@ -2767,7 +2828,9 @@ class GenericCycleSimulationAdmissionOwner:
             )
         draft = {
             "schema_version": (
-                _N5_EXECUTION_V3_SCHEMA
+                _N5_EXECUTION_V4_SCHEMA
+                if model_input_obligation_set_ref is not None
+                else _N5_EXECUTION_V3_SCHEMA
                 if is_typed_binding
                 else _N5_EXECUTION_V2_SCHEMA
                 if request_binding is not None
@@ -2796,7 +2859,9 @@ class GenericCycleSimulationAdmissionOwner:
             "limitation_code": limitation_code,
         }
         record_type = (
-            GenericCycleSimulationN5ExecutionV3
+            GenericCycleSimulationN5ExecutionV4
+            if model_input_obligation_set_ref is not None
+            else GenericCycleSimulationN5ExecutionV3
             if is_typed_binding
             else GenericCycleSimulationN5ExecutionV2
             if request_binding is not None
@@ -2804,6 +2869,8 @@ class GenericCycleSimulationAdmissionOwner:
         )
         if request_binding is not None:
             draft["request_binding"] = request_binding
+        if model_input_obligation_set_ref is not None:
+            draft["model_input_obligation_set_ref"] = model_input_obligation_set_ref
         draft_record = record_type.model_construct(
             **draft,
             content_hash="sha256:" + "0" * 64,
@@ -2843,12 +2910,25 @@ class GenericCycleSimulationAdmissionOwner:
         expected: GenericCycleSimulationN5ExecutionRecord,
     ) -> GenericCycleSimulationN5ExecutionRecord:
         """Resolve the complete selected result/input manifest and bytes."""
+        execution, _ = self._resolve_n5_execution_with_program_graph_input_basis(
+            ref, expected=expected
+        )
+        return execution
+
+    def _resolve_n5_execution_with_program_graph_input_basis(
+        self,
+        ref: ArtifactRef,
+        *,
+        expected: GenericCycleSimulationN5ExecutionRecord,
+    ) -> tuple[GenericCycleSimulationN5ExecutionRecord, SelectedProgramGraphInputBasis | None]:
+        """Resolve execution and return its replayed model-input basis when present."""
         from polisyos.core.artifacts import load_core_json_artifact
 
         if type(expected) not in {
             GenericCycleSimulationN5ExecutionV1,
             GenericCycleSimulationN5ExecutionV2,
             GenericCycleSimulationN5ExecutionV3,
+            GenericCycleSimulationN5ExecutionV4,
         }:
             raise CycleSubstrateContextOwnerError("generic_cycle_simulation_n5_execution_untyped")
         self._verify_json_artifact(ref, expected_kind=_N5_EXECUTION_KIND)
@@ -2902,9 +2982,11 @@ class GenericCycleSimulationAdmissionOwner:
             raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_program_graph_selected_execution_required"
             )
+        selected_input_basis: SelectedProgramGraphInputBasis | None = None
         if type(record) in {
             GenericCycleSimulationN5ExecutionV2,
             GenericCycleSimulationN5ExecutionV3,
+            GenericCycleSimulationN5ExecutionV4,
         }:
             binding = record.request_binding
             if binding is None:
@@ -2978,7 +3060,85 @@ class GenericCycleSimulationAdmissionOwner:
                     raise _GenericN5VerifiedMismatchError(
                         "generic_cycle_simulation_n5_execution_result_request_mismatch"
                     )
-        return record
+            if (
+                type(record) is GenericCycleSimulationN5ExecutionV4
+                and record.model_input_obligation_set_ref is not None
+            ):
+                selected_input_basis = self._replay_model_input_obligation_set(
+                    record=record,
+                    input_record=input_record,
+                    request=expected_request,
+                    candidate=source_candidate,
+                    port=port,
+                )
+        return record, selected_input_basis
+
+    def _replay_model_input_obligation_set(
+        self,
+        *,
+        record: GenericCycleSimulationN5ExecutionV4,
+        input_record: GenericCycleSimulationN5InputV1,
+        request: JointSimulationRequest,
+        candidate: object,
+        port: JointSimulationPort,
+    ) -> SelectedProgramGraphInputBasis:
+        """Replay the exact selected N5 input invocation behind a blocked artifact."""
+        from polisyos.runtime.quality.model_input_requirements import (
+            replay_selected_program_graph_input_obligations,
+        )
+
+        obligation_set_ref = record.model_input_obligation_set_ref
+        if (
+            obligation_set_ref is None
+            or type(input_record.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+            or type(record.request_binding) is not GenericCycleSimulationN5RequestBindingV2
+            or record.status != "simulation_blocked"
+            or record.result_ref is not None
+            or record.limitation_code != "n5_model_input_obligations_required"
+        ):
+            raise _GenericN5VerifiedMismatchError(
+                "generic_cycle_simulation_n5_model_input_obligation_binding_invalid"
+            )
+        bound_request, _, failures = port._request_with_bound_program_state(request)
+        if failures:
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_runtime_replay_unavailable", str(failures)
+            )
+        selected_plans = tuple(
+            plan for plan in bound_request.engine_plan if plan.engine_kind == "program_graph"
+        )
+        if len(selected_plans) != 1 or len(bound_request.engine_plan) != 1:
+            raise _GenericN5VerifiedMismatchError(
+                "generic_cycle_simulation_n5_model_input_selected_plan_mismatch"
+            )
+        (selected_plan,) = selected_plans
+        basis = port._selected_program_graph_input_basis(
+            request=bound_request,
+            selected_plan=selected_plan,
+            candidate=candidate,
+            input_record=input_record,
+        )
+        store = selected_plan.program_store
+        if store is None:
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_simulation_n5_model_input_store_not_established"
+            )
+        try:
+            selected_set = replay_selected_program_graph_input_obligations(
+                store,
+                obligation_set_ref=obligation_set_ref,
+                selected_basis=basis,
+            )
+            if not selected_set.obligation_refs:
+                raise _GenericN5VerifiedMismatchError(
+                    "generic_cycle_simulation_n5_model_input_obligation_set_empty"
+                )
+        except (TypeError, ValueError) as exc:
+            raise _GenericN5VerifiedMismatchError(
+                "generic_cycle_simulation_n5_model_input_obligation_replay_mismatch",
+                str(exc),
+            ) from exc
+        return basis
 
     def resolve_n5_execution_join(
         self,
@@ -2986,10 +3146,24 @@ class GenericCycleSimulationAdmissionOwner:
         *,
         expected: GenericN5ExecutionJoinExpectation,
     ) -> GenericN5ExecutionJoinOutcome:
+        """Resolve one exact execution join without exposing its replay basis."""
+        outcome, _ = self.resolve_n5_execution_join_with_program_graph_input_basis(
+            ref, expected=expected
+        )
+        return outcome
+
+    def resolve_n5_execution_join_with_program_graph_input_basis(
+        self,
+        ref: ArtifactRef | None,
+        *,
+        expected: GenericN5ExecutionJoinExpectation,
+    ) -> tuple[GenericN5ExecutionJoinOutcome, SelectedProgramGraphInputBasis | None]:
         """Resolve and classify the exact cycle/result join without an existence proxy.
 
         This proves only the scoped candidate input consistency provided by the
         existing owner. It does not authenticate an external numerical producer.
+        The optional basis is returned only after the exact blocked obligation set
+        is replayed against the reopened source candidate and current invocation.
         """
         from pydantic import ValidationError
 
@@ -3015,19 +3189,28 @@ class GenericCycleSimulationAdmissionOwner:
                 profiles=self.profiles,
                 store=artifacts.SelectedProfileVerificationReader(self._store),
             )
-            return replay_owner.resolve_n5_execution_join(ref, expected=expected)
+            return replay_owner.resolve_n5_execution_join_with_program_graph_input_basis(
+                ref, expected=expected
+            )
 
-        def refused(
+        def refused_outcome(
             status: Literal["unavailable", "invalid", "mismatch", "not_established"], code: str
         ) -> GenericN5ExecutionJoinOutcome:
             return GenericN5ExecutionJoinOutcome(status=status, code=code)
+
+        def refused(
+            status: Literal["unavailable", "invalid", "mismatch", "not_established"], code: str
+        ) -> tuple[GenericN5ExecutionJoinOutcome, SelectedProgramGraphInputBasis | None]:
+            return refused_outcome(status, code), None
 
         # Establish every independently available input binding before an
         # unavailable execution can reduce assurance to candidate-only.
         input_problem: GenericN5ExecutionJoinOutcome | None = None
         input_record: GenericCycleSimulationN5InputV1 | None = None
         if expected.input_ref.manifest_profile_sha256 is None:
-            input_problem = refused("not_established", "generic_n5_selected_input_view_missing")
+            input_problem = refused_outcome(
+                "not_established", "generic_n5_selected_input_view_missing"
+            )
         else:
             try:
                 input_record = GenericCycleSimulationN5InputV1.model_validate(
@@ -3035,29 +3218,31 @@ class GenericCycleSimulationAdmissionOwner:
                 )
                 self.resolve_n5_input(expected.input_ref, expected=input_record)
             except FileNotFoundError:
-                input_problem = refused("unavailable", "generic_n5_input_view_absent")
+                input_problem = refused_outcome("unavailable", "generic_n5_input_view_absent")
             except CanonicalProfileRefusalError as exc:
                 if exc.code in {
                     "canon_profile_raw_manifest_unavailable",
                     "canon_profile_typed_manifest_unavailable",
                     "canon_profile_payload_unavailable",
                 }:
-                    input_problem = refused("unavailable", exc.code)
+                    input_problem = refused_outcome("unavailable", exc.code)
                 else:
                     return refused("invalid", exc.code)
             except ArtifactUnavailableError:
-                input_problem = refused("unavailable", "generic_n5_input_owner_unavailable")
+                input_problem = refused_outcome("unavailable", "generic_n5_input_owner_unavailable")
             except ArtifactOwnershipError:
                 raise
             except (TimeoutError, ConnectionError, RuntimeDependencyError):
-                input_problem = refused("unavailable", "generic_n5_input_backend_unavailable")
+                input_problem = refused_outcome(
+                    "unavailable", "generic_n5_input_backend_unavailable"
+                )
             except (ArtifactIntegrityError, ValidationError):
                 return refused("invalid", "generic_n5_input_integrity_invalid")
             except _GenericN5VerifiedMismatchError as exc:
                 return refused("mismatch", exc.code)
             except (CycleSubstrateContextOwnerError, TypeError, ValueError) as exc:
                 raise_artifact_read_access_error(exc)
-                input_problem = refused(
+                input_problem = refused_outcome(
                     "not_established", "generic_n5_input_replay_not_established"
                 )
             else:
@@ -3093,20 +3278,24 @@ class GenericCycleSimulationAdmissionOwner:
                 ):
                     return refused("mismatch", "generic_n5_input_cycle_join_mismatch")
                 if expected.profile is None:
-                    input_problem = refused(
+                    input_problem = refused_outcome(
                         "not_established", "generic_n5_expected_profile_not_established"
                     )
         if ref is None:
-            return input_problem or refused(
-                "not_established", "generic_n5_owner_ref_not_established"
+            return (
+                (input_problem, None)
+                if input_problem is not None
+                else refused("not_established", "generic_n5_owner_ref_not_established")
             )
         if type(ref) is not ArtifactRef or ref.kind != _N5_EXECUTION_KIND:
             return refused("invalid", "generic_n5_owner_ref_invalid")
         if ref.manifest_profile_sha256 is None or (
             expected.result_ref is not None and expected.result_ref.manifest_profile_sha256 is None
         ):
-            return input_problem or refused(
-                "not_established", "generic_n5_selected_owner_view_not_established"
+            return (
+                (input_problem, None)
+                if input_problem is not None
+                else refused("not_established", "generic_n5_selected_owner_view_not_established")
             )
         try:
             payload = read_core_json_artifact(self._store, ref).value
@@ -3129,7 +3318,10 @@ class GenericCycleSimulationAdmissionOwner:
             return refused("unavailable", "generic_n5_owner_backend_unavailable")
         except (ArtifactIntegrityError, TypeError, ValueError):
             return refused("invalid", "generic_n5_owner_artifact_invalid")
-        if type(record) is not GenericCycleSimulationN5ExecutionV3:
+        if type(record) not in {
+            GenericCycleSimulationN5ExecutionV3,
+            GenericCycleSimulationN5ExecutionV4,
+        }:
             return refused("not_established", "generic_n5_typed_request_not_established")
         if (record.tenant_id, record.cell_id) != (expected.tenant_id, expected.cell_id):
             return refused("invalid", "generic_n5_execution_scope_refused")
@@ -3137,6 +3329,8 @@ class GenericCycleSimulationAdmissionOwner:
             record.status != expected.status
             or record.input_ref != expected.input_ref
             or record.result_ref != expected.result_ref
+            or getattr(record, "model_input_obligation_set_ref", None)
+            != expected.model_input_obligation_set_ref
             or record.n4_source_ref != expected.n4_source_ref
             or record.context_job_ref != expected.context_job_ref
             or record.profile_ref != expected.profile_ref
@@ -3152,9 +3346,11 @@ class GenericCycleSimulationAdmissionOwner:
         ):
             return refused("mismatch", "generic_n5_execution_cycle_join_mismatch")
         if input_problem is not None:
-            return input_problem
+            return input_problem, None
         try:
-            verified = self.resolve_n5_execution(ref, expected=record)
+            verified, selected_input_basis = (
+                self._resolve_n5_execution_with_program_graph_input_basis(ref, expected=record)
+            )
         except FileNotFoundError:
             return refused("unavailable", "generic_n5_execution_dependency_absent")
         except CanonicalProfileRefusalError as exc:
@@ -3187,10 +3383,24 @@ class GenericCycleSimulationAdmissionOwner:
             # Some old owner failures collapse missing, invalid, and conflicting
             # dependencies. Do not re-label their ambiguous cause as absence.
             return refused("not_established", "generic_n5_execution_replay_not_established")
-        if type(verified) is not GenericCycleSimulationN5ExecutionV3 or input_record is None:
+        if (
+            type(verified)
+            not in {
+                GenericCycleSimulationN5ExecutionV3,
+                GenericCycleSimulationN5ExecutionV4,
+            }
+            or input_record is None
+        ):
             return refused("not_established", "generic_n5_typed_request_not_established")
-        return GenericN5ExecutionJoinOutcome(
-            status="resolved", execution=verified, input_record=input_record
+        if (type(verified) is GenericCycleSimulationN5ExecutionV4) != (
+            selected_input_basis is not None
+        ):
+            return refused("not_established", "generic_n5_input_obligation_basis_not_established")
+        return (
+            GenericN5ExecutionJoinOutcome(
+                status="resolved", execution=verified, input_record=input_record
+            ),
+            selected_input_basis,
         )
 
     def _replay_n5_execution_sources(
@@ -4128,6 +4338,13 @@ class GenericCycleSimulationAdmissionOwner:
                 1,
                 input_ref_from_artifact_ref(record.result_ref, role="joint_simulation_result"),
             )
+        if type(record) is GenericCycleSimulationN5ExecutionV4:
+            inputs.append(
+                input_ref_from_artifact_ref(
+                    record.model_input_obligation_set_ref,
+                    role="model_input_obligation_set",
+                )
+            )
         if record.n4_child_profile_family_ref is not None:
             inputs.append(
                 input_ref_from_artifact_ref(
@@ -4147,14 +4364,18 @@ class GenericCycleSimulationAdmissionOwner:
             media_type="application/json",
             schema=artifacts.SchemaInfo(
                 name=(
-                    _N5_EXECUTION_V3_SCHEMA
+                    _N5_EXECUTION_V4_SCHEMA
+                    if type(record) is GenericCycleSimulationN5ExecutionV4
+                    else _N5_EXECUTION_V3_SCHEMA
                     if type(record) is GenericCycleSimulationN5ExecutionV3
                     else _N5_EXECUTION_V2_SCHEMA
                     if type(record) is GenericCycleSimulationN5ExecutionV2
                     else _N5_EXECUTION_SCHEMA
                 ),
                 version=(
-                    "3.0"
+                    "4.0"
+                    if type(record) is GenericCycleSimulationN5ExecutionV4
+                    else "3.0"
                     if type(record) is GenericCycleSimulationN5ExecutionV3
                     else "2.0"
                     if type(record) is GenericCycleSimulationN5ExecutionV2
@@ -4165,7 +4386,8 @@ class GenericCycleSimulationAdmissionOwner:
             inputs=inputs,
             canon=artifacts.CanonInfo.from_spec(
                 _N5_TYPED_CANON
-                if type(record) is GenericCycleSimulationN5ExecutionV3
+                if type(record)
+                in {GenericCycleSimulationN5ExecutionV3, GenericCycleSimulationN5ExecutionV4}
                 else _PROFILE_CANON
             ),
             tenant_context=ArtifactTenantContextInfo(

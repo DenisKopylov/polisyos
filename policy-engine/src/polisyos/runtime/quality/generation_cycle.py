@@ -350,6 +350,9 @@ _GENERATION_CYCLE_ATTEMPT_SCHEMA_VERSION = "policyos.runtime.generation_cycle_co
 _GENERATION_CYCLE_SOURCE_TRANSITION_SCHEMA_VERSION = (
     "policyos.runtime.generation_cycle_controller.v9"
 )
+_GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION = (
+    "policyos.runtime.generation_cycle_controller.v10"
+)
 _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS = frozenset(
     {
         _GENERATION_CYCLE_V3_SCHEMA_VERSION,
@@ -359,6 +362,7 @@ _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS = frozenset(
         GENERATION_CYCLE_SCHEMA_VERSION,
         _GENERATION_CYCLE_ATTEMPT_SCHEMA_VERSION,
         _GENERATION_CYCLE_SOURCE_TRANSITION_SCHEMA_VERSION,
+        _GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION,
     }
 )
 _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSIONS = frozenset(
@@ -376,6 +380,52 @@ _GENERATION_CYCLE_PRE_GENERIC_SCHEMA_VERSIONS = frozenset(
 _GENERATION_CYCLE_GENERIC_SIMULATION_FIELD_PREFIX = "generic_"
 
 
+def _generation_cycle_model_input_routing_flags(cycle: object) -> tuple[bool, bool]:
+    """Return whether a cycle carries its selected obligation and routing report."""
+
+    if isinstance(cycle, Mapping):
+        simulation = cycle.get("simulation")
+        obligation_ref = (
+            simulation.get("model_input_obligation_set_ref")
+            if isinstance(simulation, Mapping)
+            else None
+        )
+        report_ref = cycle.get("model_input_routing_report_ref")
+    else:
+        simulation = getattr(cycle, "simulation", None)
+        obligation_ref = getattr(simulation, "model_input_obligation_set_ref", None)
+        report_ref = getattr(cycle, "model_input_routing_report_ref", None)
+    return obligation_ref is not None, report_ref is not None
+
+
+def _generation_cycle_has_model_input_routing(cycles: object) -> bool:
+    """Return whether any persisted cycle carries the new model-input route."""
+
+    if not isinstance(cycles, (list, tuple)):
+        return False
+    return any(any(_generation_cycle_model_input_routing_flags(cycle)) for cycle in cycles)
+
+
+def _validate_generation_cycle_model_input_routing_boundary(
+    schema_version: object,
+    cycles: object,
+) -> None:
+    """Bind populated model-input routing to its dedicated v10 persisted wire."""
+
+    if not isinstance(cycles, (list, tuple)):
+        return
+    flags = tuple(_generation_cycle_model_input_routing_flags(cycle) for cycle in cycles)
+    has_route = any(obligation_ref or report_ref for obligation_ref, report_ref in flags)
+    if schema_version != _GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION:
+        if has_route:
+            raise ValueError("generation_cycle_model_input_routing_requires_v10")
+        return
+    if not has_route:
+        raise ValueError("generation_cycle_v10_requires_model_input_routing")
+    if any(obligation_ref != report_ref for obligation_ref, report_ref in flags):
+        raise ValueError("generation_cycle_v10_model_input_routing_pair_mismatch")
+
+
 def _generation_cycle_generic_simulation_fields() -> tuple[str, ...]:
     """Return every generic field declared by the canonical N5 observation DTO."""
     return tuple(
@@ -387,6 +437,8 @@ def _generation_cycle_generic_simulation_fields() -> tuple[str, ...]:
 
 def _generation_cycle_v5_wire_projection(payload: dict[str, Any]) -> dict[str, Any]:
     """Keep persisted v5 runs on their exact pre-generic simulation wire."""
+    if _generation_cycle_has_model_input_routing(payload.get("cycles")):
+        raise ValueError("generation_cycle_model_input_routing_requires_v10")
     projected = dict(payload)
     cycles = projected.get("cycles")
     if isinstance(cycles, list):
@@ -411,6 +463,8 @@ def _generation_cycle_v5_wire_projection(payload: dict[str, Any]) -> dict[str, A
 
 def _generation_cycle_v6_wire_projection(payload: dict[str, Any]) -> dict[str, Any]:
     """Keep v6 history free of the per-cycle context ref introduced in v7."""
+    if _generation_cycle_has_model_input_routing(payload.get("cycles")):
+        raise ValueError("generation_cycle_model_input_routing_requires_v10")
     projected = dict(payload)
     cycles = projected.get("cycles")
     if isinstance(cycles, list):
@@ -2866,6 +2920,26 @@ class CandidateSummary(_StrictModel):
         return self
 
 
+def _generation_cycle_run_schema_version(
+    *,
+    cycles: Sequence[object],
+    candidate_summaries: Sequence[object],
+    basis_transitions: Sequence[object],
+) -> str:
+    """Select the narrowest run wire that preserves every populated feature."""
+
+    if _generation_cycle_has_model_input_routing(cycles):
+        return _GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION
+    if basis_transitions:
+        return _GENERATION_CYCLE_SOURCE_TRANSITION_SCHEMA_VERSION
+    if any(
+        getattr(summary, "evaluation_attempt", None) is not None
+        for summary in candidate_summaries
+    ):
+        return _GENERATION_CYCLE_ATTEMPT_SCHEMA_VERSION
+    return GENERATION_CYCLE_SCHEMA_VERSION
+
+
 class LoopVOIDecision(_StrictModel):
     """VOI scheduler decision projected to N6 loop actions."""
 
@@ -3235,6 +3309,9 @@ class GenerationCycleRecord(_StrictModel):
     acquisition_receipt: dict[str, Any] | None = None
     acquisition_routing_report: AcquisitionPlannerReport | None = None
     acquisition_routing_report_ref: CASArtifactRef | None = None
+    model_input_routing_report_ref: CASArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     acquisition_cost_basis_record: AcquisitionCostBasisRecord | None = None
     acquisition_cost_basis_hash: str | None = Field(
         default=None,
@@ -3255,6 +3332,18 @@ class GenerationCycleRecord(_StrictModel):
             or self.counterexample.candidate_ref != selected
         ):
             raise ValueError("cycle_stage_candidate_mismatch")
+        if self.model_input_routing_report_ref is not None:
+            from polisyos.runtime.quality.model_input_routing import MODEL_INPUT_ROUTING_REPORT_KIND
+
+            ref = self.model_input_routing_report_ref
+            if (
+                self.simulation.model_input_obligation_set_ref is None
+                or self.simulation.generic_n5_execution_ref is None
+                or ref.kind != MODEL_INPUT_ROUTING_REPORT_KIND
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("cycle_model_input_routing_report_binding_invalid")
         l1_routing = self.value_port.candidate_n5_l1_routing
         if l1_routing is not None:
             binding = l1_routing.requirement_gap.metadata.get("candidate_binding")
@@ -4247,6 +4336,7 @@ class GenerationCycleRun(_StrictModel):
         "policyos.runtime.generation_cycle_controller.v7",
         "policyos.runtime.generation_cycle_controller.v8",
         "policyos.runtime.generation_cycle_controller.v9",
+        "policyos.runtime.generation_cycle_controller.v10",
     ] = GENERATION_CYCLE_SCHEMA_VERSION
     run_id: str = Field(..., min_length=1)
     design_problem_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
@@ -4282,7 +4372,10 @@ class GenerationCycleRun(_StrictModel):
         if (
             isinstance(value, Mapping)
             and value.get("schema_version", GENERATION_CYCLE_SCHEMA_VERSION)
-            != _GENERATION_CYCLE_SOURCE_TRANSITION_SCHEMA_VERSION
+            not in {
+                _GENERATION_CYCLE_SOURCE_TRANSITION_SCHEMA_VERSION,
+                _GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION,
+            }
             and "basis_transitions" in value
         ):
             raise ValueError("historical_generation_cannot_carry_basis_transition")
@@ -4322,6 +4415,7 @@ class GenerationCycleRun(_StrictModel):
             GENERATION_CYCLE_SCHEMA_VERSION,
             _GENERATION_CYCLE_ATTEMPT_SCHEMA_VERSION,
             _GENERATION_CYCLE_SOURCE_TRANSITION_SCHEMA_VERSION,
+            _GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION,
         }:
             return value
         values = [value.get("value_port")]
@@ -4330,6 +4424,16 @@ class GenerationCycleRun(_StrictModel):
             values.extend(cycle.get("value_port") for cycle in cycles if isinstance(cycle, Mapping))
         if any(isinstance(item, Mapping) and "candidate_n5_l1_routing" in item for item in values):
             raise ValueError("historical_generation_cannot_carry_candidate_n5_l1_routing")
+        return value
+
+    @model_validator(mode="before")
+    @classmethod
+    def _bind_model_input_routing_schema(cls, value: object) -> object:
+        if isinstance(value, Mapping):
+            _validate_generation_cycle_model_input_routing_boundary(
+                value.get("schema_version", GENERATION_CYCLE_SCHEMA_VERSION),
+                value.get("cycles", ()),
+            )
         return value
 
     @model_validator(mode="before")
@@ -4354,12 +4458,25 @@ class GenerationCycleRun(_StrictModel):
         if self.schema_version not in {
             _GENERATION_CYCLE_ATTEMPT_SCHEMA_VERSION,
             _GENERATION_CYCLE_SOURCE_TRANSITION_SCHEMA_VERSION,
+            _GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION,
         } and any(summary.evaluation_attempt is not None for summary in self.candidate_summaries):
             raise ValueError("generation_cycle_evaluation_attempt_requires_v8")
-        if (self.schema_version == _GENERATION_CYCLE_SOURCE_TRANSITION_SCHEMA_VERSION) != bool(
+        if (
+            self.schema_version == _GENERATION_CYCLE_SOURCE_TRANSITION_SCHEMA_VERSION
+            and not self.basis_transitions
+        ) or (
             self.basis_transitions
+            and self.schema_version
+            not in {
+                _GENERATION_CYCLE_SOURCE_TRANSITION_SCHEMA_VERSION,
+                _GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION,
+            }
         ):
             raise ValueError("generation_cycle_basis_transition_schema_mismatch")
+        _validate_generation_cycle_model_input_routing_boundary(
+            self.schema_version,
+            self.cycles,
+        )
         indices = tuple(item.to_cycle_index for item in self.basis_transitions)
         if indices != tuple(sorted(set(indices))):
             raise ValueError("generation_cycle_basis_transition_denominator_invalid")
@@ -4399,6 +4516,7 @@ class GenerationCycleRun(_StrictModel):
             GENERATION_CYCLE_SCHEMA_VERSION,
             _GENERATION_CYCLE_ATTEMPT_SCHEMA_VERSION,
             _GENERATION_CYCLE_SOURCE_TRANSITION_SCHEMA_VERSION,
+            _GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION,
         }:
             raise ValueError("generation_cycle_source_limitation_requires_v4")
         if (
@@ -4409,6 +4527,7 @@ class GenerationCycleRun(_StrictModel):
                 GENERATION_CYCLE_SCHEMA_VERSION,
                 _GENERATION_CYCLE_ATTEMPT_SCHEMA_VERSION,
                 _GENERATION_CYCLE_SOURCE_TRANSITION_SCHEMA_VERSION,
+                _GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION,
             }
             and limitation is not None
             and self.source_preservation_receipt is not None
@@ -4452,6 +4571,10 @@ class GenerationCycleRun(_StrictModel):
         handler: SerializerFunctionWrapHandler,
         info: SerializationInfo,
     ) -> dict[str, Any]:
+        _validate_generation_cycle_model_input_routing_boundary(
+            self.schema_version,
+            self.cycles,
+        )
         if (
             self.source_custody_limitation is not None
             and self.schema_version not in _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSIONS
@@ -4462,6 +4585,7 @@ class GenerationCycleRun(_StrictModel):
                 GENERATION_CYCLE_SCHEMA_VERSION,
                 _GENERATION_CYCLE_ATTEMPT_SCHEMA_VERSION,
                 _GENERATION_CYCLE_SOURCE_TRANSITION_SCHEMA_VERSION,
+                _GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION,
             }
         ):
             raise ValueError("generation_cycle_source_limitation_requires_v4")
@@ -4940,6 +5064,7 @@ def _historical_generation_cycle_run_projection(
         GENERATION_CYCLE_SCHEMA_VERSION,
         _GENERATION_CYCLE_ATTEMPT_SCHEMA_VERSION,
         _GENERATION_CYCLE_SOURCE_TRANSITION_SCHEMA_VERSION,
+        _GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION,
     }:
         return payload
     if run.schema_version == _GENERATION_CYCLE_V6_SCHEMA_VERSION:
@@ -7126,12 +7251,12 @@ class JointSimulationPort:
         input_record: GenericCycleSimulationN5InputV1,
     ) -> SelectedProgramGraphInputBasis:
         """Bind active N5 facts before producing or replaying the obligation set."""
-        from polisyos.core.contracts.foundry import (
+        from polisyos.core.contracts import (
             ExecPlanRef,
             FoundryInputBindingsRef,
+            ModelInputContext,
             ProgramGraphRef,
         )
-        from polisyos.core.contracts.model_input_requirements import ModelInputContext
         from polisyos.runtime.quality.generic_simulation_admission import (
             GenericCycleN5ProgramGraphRequestProfileV4,
         )
@@ -11573,16 +11698,10 @@ class GenerationCycleController:
             )
         )
         run = GenerationCycleRun(
-            schema_version=(
-                _GENERATION_CYCLE_SOURCE_TRANSITION_SCHEMA_VERSION
-                if basis_transitions
-                else (
-                    _GENERATION_CYCLE_ATTEMPT_SCHEMA_VERSION
-                    if any(
-                        summary.evaluation_attempt is not None for summary in projected_summaries
-                    )
-                    else GENERATION_CYCLE_SCHEMA_VERSION
-                )
+            schema_version=_generation_cycle_run_schema_version(
+                cycles=cycles,
+                candidate_summaries=projected_summaries,
+                basis_transitions=basis_transitions,
             ),
             run_id=run_id,
             design_problem_ref=design_problem_ref,
@@ -12839,6 +12958,13 @@ class GenerationCycleController:
             partial_slot.completion = None
             partial_slot.failed_stage = None
         cycle = finished["cycle"]
+        if type(cycle) is GenerationCycleRecord and cycle.simulation.model_input_obligation_set_ref:
+            report_ref = self._plan_n7_model_input_routing(
+                problem, cycle=cycle, candidate=finished["selected_candidate"]
+            )
+            values = {name: getattr(cycle, name) for name in GenerationCycleRecord.model_fields}
+            values["model_input_routing_report_ref"] = report_ref
+            cycle = GenerationCycleRecord.model_validate(values)
         cycle_request = (
             cycle.revision_request.strategy_payload.get("acquisition_request")
             if type(cycle) is GenerationCycleRecord
@@ -12916,6 +13042,111 @@ class GenerationCycleController:
         ):
             raise GenerationCycleError("n7_runtime_store_identity_mismatch")
         return self._artifact_store or repository_store
+
+    def _plan_n7_model_input_routing(
+        self,
+        problem: DesignProblem,
+        *,
+        cycle: GenerationCycleRecord,
+        candidate: object,
+    ) -> CASArtifactRef:
+        """Route a current model-owned gap through the exact persisted N5 join."""
+        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericN5ExecutionJoinExpectation,
+        )
+        from polisyos.runtime.quality.model_input_routing import plan_selected_model_input_routing
+        from polisyos.runtime.quality.substrate_registry import (
+            default_substrate_catalog_paths,
+            require_catalog_serving_source_unchanged,
+        )
+
+        simulation = cycle.simulation
+        owner = self._generic_cycle_simulation_admission_owner
+        handoff = self._generic_cycle_simulation_handoff
+        currentness = self._generic_cycle_simulation_currentness_resolver
+        store = self._n7_runtime_artifact_store()
+        outcome = _value_outcome_variable(candidate, problem)
+        if (
+            type(owner) is not GenericCycleSimulationAdmissionOwner
+            or type(handoff) is not GenericCycleSimulationContextHandoffV1
+            or not isinstance(store, CoreJSONArtifactStore)
+            or owner.store is not store
+            or self._source_run_id is None
+            or simulation.status != "simulation_blocked"
+            or simulation.model_input_obligation_set_ref is None
+            or simulation.generic_n5_input_ref is None
+            or simulation.generic_n5_execution_ref is None
+            or simulation.generic_n4_source_ref is None
+            or simulation.generic_context_job_ref != handoff.context_job_ref
+            or simulation.generic_profile_ref != handoff.profile_ref
+            or simulation.generic_profile_selection_ref != handoff.profile.profile_selection_ref
+            or simulation.generic_n4_child_profile_family_ref != handoff.n4_child_profile_family_ref
+            or simulation.generic_n4_child_profile_set_ref != self._generic_n4_child_profile_set_ref
+            or cycle.selected_candidate_ref != _candidate_id(candidate)
+            or cycle.selected_candidate_content_hash != _candidate_content_hash(candidate)
+            or not outcome
+            or currentness is None
+            or currentness() is not True
+        ):
+            raise GenerationCycleError("n7_model_input_current_owner_not_established")
+        join, basis = owner.resolve_n5_execution_join_with_program_graph_input_basis(
+            simulation.generic_n5_execution_ref,
+            expected=GenericN5ExecutionJoinExpectation(
+                input_ref=simulation.generic_n5_input_ref,
+                result_ref=None,
+                model_input_obligation_set_ref=simulation.model_input_obligation_set_ref,
+                status="simulation_blocked",
+                n4_source_ref=simulation.generic_n4_source_ref,
+                context_job_ref=handoff.context_job_ref,
+                profile_ref=handoff.profile_ref,
+                child_family_ref=handoff.n4_child_profile_family_ref,
+                child_set_ref=simulation.generic_n4_child_profile_set_ref,
+                profile_selection_ref=handoff.profile.profile_selection_ref,
+                profile=handoff.profile,
+                child_selection=self._generic_cycle_simulation_child_selection,
+                design_problem_ref=cycle_job_design_problem_ref(problem),
+                outcome_variable=outcome,
+                cycle_index=cycle.cycle_index,
+                candidate_id=cycle.selected_candidate_ref,
+                candidate_atom_hash=cycle.selected_candidate_content_hash,
+                world_model_record_content_hash=handoff.context.world_model_record.content_hash,
+                job_id=handoff.job_id,
+                run_id=handoff.run_id,
+                source_run_id=self._source_run_id,
+                tenant_id=handoff.tenant_id,
+                cell_id=handoff.cell_id,
+            ),
+        )
+        if join.status != "resolved" or basis is None:
+            raise GenerationCycleError(
+                "n7_model_input_n5_join_refused", join.code or "program_graph_input_basis_missing"
+            )
+        selected_catalog = self._catalog_serving_source
+        root = self._repo_root
+        if root is None or (
+            selected_catalog is not None and selected_catalog.repo_root != root.resolve()
+        ):
+            raise GenerationCycleError("n7_model_input_catalog_owner_not_established")
+        if selected_catalog is not None:
+            require_catalog_serving_source_unchanged(selected_catalog)
+        paths = (
+            selected_catalog.substrate_paths
+            if selected_catalog is not None
+            else default_substrate_catalog_paths(root)
+        )
+        authority_owner = data_forge_read_api.catalog.CanonicalAcquisitionAuthority
+        catalog_authority = authority_owner.from_provision(
+            repo_root=root,
+            baseline_path=paths.l1_dcat_path,
+            l5_measurement_registry_path=paths.measurement_registry_path,
+        )
+        return plan_selected_model_input_routing(
+            store,
+            obligation_set_ref=simulation.model_input_obligation_set_ref,
+            selected_basis=basis,
+            catalog_authority=catalog_authority,
+        ).report_ref
 
     def _run_n7_acquisition_if_requested(
         self,

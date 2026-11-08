@@ -149,9 +149,31 @@ def _source_export_candidates(
     """
 
     tree = ast.parse(content, filename=relative)
-    package = module_name if relative.endswith("/__init__.py") else module_name.rpartition(".")[0]
+    is_package = relative.endswith("/__init__.py")
+    package = module_name if is_package else module_name.rpartition(".")[0]
     exports: dict[str, set[str]] = {}
     aliases: dict[str, set[str]] = {}
+    if is_package:
+        # Lazy facades can cache a leaf without any syntactic import of its
+        # symbol. Retain candidates from literal package maps before the leaf
+        # initializes. Runtime still verifies the map, route and held object.
+        source_root = module_name.partition(".")[0]
+        for statement in tree.body:
+            if not isinstance(statement, (ast.Assign, ast.AnnAssign)):
+                continue
+            if not isinstance(statement.value, ast.Dict):
+                continue
+            for key, entry in zip(statement.value.keys, statement.value.values, strict=True):
+                match key, entry:
+                    case ast.Constant(value=str(export)), ast.Tuple(
+                        elts=[ast.Constant(value=str(provider)), ast.Constant(value=str(symbol))]
+                    ) if (
+                        export.isidentifier()
+                        and provider.startswith(f"{source_root}.")
+                        and all(part.isidentifier() for part in provider.split("."))
+                        and symbol.isidentifier()
+                    ):
+                        exports.setdefault(provider, set()).add(symbol)
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:

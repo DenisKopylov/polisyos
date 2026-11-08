@@ -22,6 +22,24 @@ def test_source_candidates_follow_relative_imports_and_module_aliases() -> None:
     assert "answer" in candidates["example.other"]
 
 
+def test_source_candidates_retain_literal_lazy_package_provider_symbols() -> None:
+    from tools.authority_bootstrap import _source_export_candidates
+
+    candidates = _source_export_candidates(
+        "example.facade",
+        "src/example/facade/__init__.py",
+        b"""
+route: dict[str, tuple[str, str]] = {
+    "alias": ("example.leaf", "real_export"),
+    "computed": ("example.leaf", local_symbol),
+    "relative": (".leaf", "relative_export"),
+    "foreign": ("another.leaf", "foreign_export"),
+}
+""",
+    )
+    assert candidates == {"example.leaf": {"real_export"}}
+
+
 def test_bootstrap_retains_private_owner_finalizer_and_endpoint_callbacks() -> None:
     """Both source-qualified lifecycle callbacks are selected before owner import."""
     from tools.authority_bootstrap import _OWNER_CAPTURE_EXPORTS

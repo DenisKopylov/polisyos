@@ -117,6 +117,7 @@ def test_retained_callable_foundry_facade_maps(monkeypatch: pytest.MonkeyPatch) 
     compile_package = importlib.import_module("polisyos.foundry.compile")
     routes = (
         (execute, "apply_state_delta", "polisyos.foundry.execute._internal.patching"),
+        (execute, "admit_execution_source", "polisyos.foundry.execute.api"),
         (compile_package, "compile", "polisyos.foundry.compile.api"),
     )
     for facade, export, provider in routes:
@@ -173,21 +174,23 @@ def test_retained_callable_foundry_facade_maps(monkeypatch: pytest.MonkeyPatch) 
         assert execute.apply_state_delta is original
         with pytest.raises(ledger.ConfidenceLedgerError, match="map differs from source"):
             resolve(execute, export)
-    assert type(original) is types.FunctionType
-    replacement = types.FunctionType(
-        original.__code__,
-        original.__globals__,
-        original.__name__,
-        original.__defaults__,
-        original.__closure__,
-    )
-    with monkeypatch.context() as mutation:
-        mutation.setattr(execute, export, replacement)
-        with pytest.raises(
-            ledger.ConfidenceLedgerError, match="callable facade cache is unqualified"
-        ):
-            resolve(execute, export)
-    assert resolve(execute, export) == ("symbol", routes[0][2], export)
+    for facade, export, provider in routes:
+        original = getattr(facade, export)
+        assert type(original) is types.FunctionType
+        replacement = types.FunctionType(
+            original.__code__,
+            original.__globals__,
+            original.__name__,
+            original.__defaults__,
+            original.__closure__,
+        )
+        with monkeypatch.context() as mutation:
+            mutation.setattr(facade, export, replacement)
+            with pytest.raises(
+                ledger.ConfidenceLedgerError, match="callable facade cache is unqualified"
+            ):
+                resolve(facade, export)
+        assert resolve(facade, export) == ("symbol", provider, export)
 
     root_facade = Path("src/polisyos/foundry/__init__.py")
     assert (

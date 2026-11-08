@@ -1898,6 +1898,7 @@ def _revalidate_candidate_experiment_evaluation_owner(
             origin=owner.origin,
             candidate_action_ref=owner.candidate_action_ref,
             pending_phase_ref=owner.pending_phase_ref,
+            initial_reentry_context=context,
         )
     )
     if (
@@ -5052,6 +5053,7 @@ def dispatch_candidate_experiment_evaluation(
         origin=origin,
         candidate_action_ref=action_ref,
         pending_phase_ref=pending_phase_ref,
+        initial_reentry_context=current_context,
     )
     if (
         prepared.predicate_provenance != "recomputed"

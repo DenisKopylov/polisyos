@@ -43,6 +43,9 @@ if TYPE_CHECKING:
         AcquisitionWorldGrowthBridge,
         CandidateAcquisitionWorldIntent,
     )
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        _VerifiedCurrentCandidateExperimentReentryAction,
+    )
     from polisyos.runtime.quality.candidate_acquisition_source import CandidateAcquisitionSource
     from polisyos.runtime.quality.cycle_substrate import AcquiredCandidateModelValues
     from polisyos.runtime.quality.data_state_substrate import AcquiredObservationWorldPreparation
@@ -1342,6 +1345,7 @@ def prepare_live_candidate_experiment_source_basis_values(
     origin: VerifiedCandidateExperimentOrigin,
     candidate_action_ref: artifacts.ArtifactRef,
     pending_phase_ref: str,
+    initial_reentry_context: _VerifiedCurrentCandidateExperimentReentryAction | None = None,
 ) -> tuple[
     CandidateSourceBasisValues,
     artifacts.ArtifactRef | None,
@@ -1354,11 +1358,24 @@ def prepare_live_candidate_experiment_source_basis_values(
     continuation contributes no new world. The original empty prefix remains
     unchanged and is never inferred from arbitrary world ancestry.
     """
-    from polisyos.runtime.quality.acquisition_route_loop import VerifiedCandidateExperimentOrigin
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        VerifiedAcquisitionActionOutcome,
+    )
+    from polisyos.runtime.http.services.control_plane_store import (
+        AcquisitionActionHeadRecord,
+        ControlJobExecutionAdmission,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
+        VerifiedCandidateExperimentOrigin,
+    )
     from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
     from polisyos.runtime.quality.candidate_acquisition_action import (
+        CandidateAcquisitionActionReceipt,
         _candidate_experiment_source_selection,
         _current_candidate_experiment_reentry_action,
+        _current_candidate_experiment_reentry_action_context,
+        _VerifiedCurrentCandidateExperimentReentryAction,
         read_candidate_experiment_acquisition_action,
     )
     from polisyos.runtime.quality.candidate_acquisition_source import (
@@ -1372,12 +1389,107 @@ def prepare_live_candidate_experiment_source_basis_values(
     ):
         raise TypeError("candidate_experiment_source_basis_live_owner_untyped")
     try:
-        selection, _phase, _admission, action = _current_candidate_experiment_reentry_action(
-            bridge,
-            origin,
-            pending_phase_ref,
-            candidate_action_ref,
+        reentry_context = initial_reentry_context
+        if reentry_context is None:
+            reentry_context = _current_candidate_experiment_reentry_action_context(
+                bridge,
+                origin,
+                pending_phase_ref,
+                candidate_action_ref,
+            )
+        if (
+            type(reentry_context) is not _VerifiedCurrentCandidateExperimentReentryAction
+            or type(reentry_context.head) is not AcquisitionActionHeadRecord
+            or type(reentry_context.phase) is not AcquisitionCandidateExperimentPhaseReceipt
+            or type(reentry_context.admission) is not ControlJobExecutionAdmission
+            or type(reentry_context.action) is not CandidateAcquisitionActionReceipt
+            or type(reentry_context.outcome) is not VerifiedAcquisitionActionOutcome
+        ):
+            raise ValueError("candidate_experiment_source_basis_reentry_context_untyped")
+        expected_scope = (
+            origin.tenant_id,
+            origin.cell_id,
+            origin.run_id,
+            origin.source_job_id,
+            origin.route_id,
+            len(origin.candidate_terminal_history_chain) + 1,
         )
+        head_scope = (
+            reentry_context.head.tenant_id,
+            reentry_context.head.cell_id,
+            reentry_context.head.run_id,
+            reentry_context.head.source_job_id,
+            reentry_context.head.route_id,
+            reentry_context.head.action_generation,
+        )
+        phase_scope = (
+            reentry_context.phase.tenant_id,
+            reentry_context.phase.cell_id,
+            reentry_context.phase.run_id,
+            reentry_context.phase.source_job_id,
+            reentry_context.phase.route_id,
+            reentry_context.phase.action_generation,
+        )
+        job = reentry_context.admission.job
+        if (
+            head_scope != expected_scope
+            or phase_scope != expected_scope
+            or reentry_context.head.receipt_ref != pending_phase_ref
+            or reentry_context.head.receipt_phase != "candidate_input_reentry_pending"
+            or reentry_context.head.receipt_manifest_profile_sha256 is None
+            or reentry_context.phase.receipt_phase != "candidate_input_reentry_pending"
+            or reentry_context.phase.job_id != reentry_context.head.job_id
+            or reentry_context.phase.candidate_receipt_ref != candidate_action_ref
+            or (
+                reentry_context.phase.source_payload_ref,
+                reentry_context.phase.capability_manifest_ref,
+                reentry_context.phase.request_content_hash,
+                reentry_context.phase.policy_scope,
+                reentry_context.phase.policy_ref,
+            )
+            != (
+                origin.source_payload_ref,
+                origin.capability_manifest_ref,
+                origin.request_content_hash,
+                origin.policy_scope,
+                origin.policy_ref,
+            )
+            or reentry_context.outcome.head != reentry_context.head
+            or reentry_context.outcome.latest_receipt != reentry_context.phase
+            or reentry_context.action.selection != reentry_context.selection
+            or reentry_context.action.action_job_id != reentry_context.phase.job_id
+            or reentry_context.action.action_generation != reentry_context.phase.action_generation
+            or job.job_id != reentry_context.phase.job_id
+            or job.kind != "acquisition"
+            or job.run_id != origin.run_id
+            or job.state != "running"
+            or reentry_context.admission.scope.status != "established"
+            or reentry_context.admission.scope.actor_authenticated is not True
+            or not reentry_context.admission.scope.actor_subject
+            or reentry_context.admission.scope.tenant_id != origin.tenant_id
+            or reentry_context.admission.scope.cell_id != origin.cell_id
+            or reentry_context.admission.attempt < reentry_context.action.action_attempt
+        ):
+            raise ValueError("candidate_experiment_source_basis_reentry_context_not_current")
+        if initial_reentry_context is not None:
+            current_head = bridge.control_store.get_acquisition_action_head(
+                tenant_id=origin.tenant_id,
+                cell_id=origin.cell_id,
+                run_id=origin.run_id,
+                source_job_id=origin.source_job_id,
+                route_id=origin.route_id,
+                action_generation=len(origin.candidate_terminal_history_chain) + 1,
+            )
+            current_admission = bridge.control_store.current_execution_job_admission()
+            if (
+                type(current_head) is not AcquisitionActionHeadRecord
+                or current_head != reentry_context.head
+                or type(current_admission) is not ControlJobExecutionAdmission
+                or current_admission.job.state != "running"
+                or not current_admission.same_execution_identity(reentry_context.admission)
+            ):
+                raise ValueError("candidate_experiment_source_basis_reentry_context_not_current")
+        selection, action = reentry_context.selection, reentry_context.action
         current_action = read_candidate_experiment_acquisition_action(
             bridge=bridge,
             origin=origin,

@@ -578,3 +578,256 @@ def test_candidate_source_basis_same_scalar_cannot_cross_declared_country_scope(
         )
         assert result.predicate_provenance == "not_established"
         assert result.reason_codes == ("candidate_source_world_scope_mismatch",)
+
+
+@pytest.mark.parametrize(
+    ("context_state", "expected_initial_replays"),
+    [
+        ("direct", 1),
+        ("reused", 0),
+        ("foreign_scope", 0),
+        ("same_bytes_wrong_profile", 0),
+        ("changed_head", 0),
+        ("changed_admission", 0),
+        ("changed_final_owner", 0),
+    ],
+)
+def test_live_source_basis_reuses_exact_context_and_keeps_final_fence(
+    monkeypatch: pytest.MonkeyPatch,
+    context_state: str,
+    expected_initial_replays: int,
+) -> None:
+    """Reuse the fresh owner once, reject foreign/stale bindings, and keep final replay."""
+    from datetime import UTC, datetime, timedelta
+    from types import SimpleNamespace
+
+    import polisyos.runtime.quality.candidate_acquisition_source as source_module
+    from polisyos.runtime.http.services.control_plane_store import (
+        ControlJobExecutionAdmission,
+        ControlJobExecutionScope,
+        ControlJobRecord,
+    )
+    from polisyos.runtime.quality import candidate_acquisition_action as action_module
+    from polisyos.runtime.quality import candidate_source_basis as basis_module
+    from polisyos.runtime.quality import world_model_record as world_model_record_module
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthBridge,
+    )
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        _VerifiedCurrentCandidateExperimentReentryAction,
+    )
+    from polisyos.runtime.quality.candidate_source_basis import CandidateSourceBasisValues
+    from tests.unit.runtime.quality.test_candidate_experiment_current_outcome import (
+        _hash,
+        _ref,
+        _selection_case,
+    )
+    from tests.unit.runtime.quality.test_candidate_experiment_dispatch_currentness import (
+        _reentry_receipts,
+    )
+
+    origin, outcomes = _selection_case(1)
+    pending = outcomes[-1].latest_receipt
+    phase_template, action, _action_phase_ref = _reentry_receipts()
+    action = action.model_copy(update={"action_job_id": pending.job_id})
+    phase = pending.model_copy(
+        update={
+            "candidate_receipt_ref": phase_template.candidate_receipt_ref,
+            "owner_receipt_refs": (str(phase_template.candidate_receipt_ref.artifact_id),),
+        }
+    )
+    selection = action.selection
+    canonical_head = outcomes[-1].head
+    context_head = canonical_head
+    context_phase = phase
+    if context_state == "foreign_scope":
+        context_head = replace(canonical_head, tenant_id="foreign-tenant")
+        context_phase = phase.model_copy(update={"tenant_id": "foreign-tenant"})
+    elif context_state == "same_bytes_wrong_profile":
+        context_head = replace(canonical_head, receipt_manifest_profile_sha256=_hash("e"))
+    context_outcome = replace(
+        outcomes[-1],
+        head=context_head,
+        latest_receipt=context_phase,
+        phase_chain=(replace(outcomes[-1].phase_chain[-1], receipt=context_phase),),
+    )
+
+    now = datetime(2026, 11, 8, tzinfo=UTC)
+    job = ControlJobRecord(
+        job_id=phase.job_id,
+        kind="acquisition",
+        state="running",
+        run_id=origin.run_id,
+        pipeline_id=None,
+        requested_execution_profile=None,
+        effective_execution_profile="dev",
+        policy_flags={},
+        capability_manifest_ref=origin.capability_manifest_ref,
+        payload_ref=origin.source_payload_ref,
+        submitted_by="candidate-source-basis-unit",
+        created_at=now,
+        started_at=now,
+        finished_at=None,
+        lease_owner="candidate-source-basis-worker",
+        lease_expires_at=now + timedelta(minutes=2),
+        attempt=1,
+        error_message=None,
+        progress={},
+    )
+    scope = ControlJobExecutionScope(
+        status="established",
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        actor_subject="candidate-source-basis-unit",
+        actor_authenticated=True,
+        actor_roles=("operator",),
+    )
+    context_admission = ControlJobExecutionAdmission(
+        job=job,
+        scope=scope,
+        admission_capability_manifest_ref=job.capability_manifest_ref,
+        attempt=1,
+        manifest_pointer_state="admission_current",
+    )
+    current_admission = context_admission
+    if context_state == "changed_admission":
+        current_job = replace(job, attempt=2)
+        current_admission = ControlJobExecutionAdmission(
+            job=current_job,
+            scope=scope,
+            admission_capability_manifest_ref=current_job.capability_manifest_ref,
+            attempt=2,
+            manifest_pointer_state="admission_current",
+        )
+    current_head = canonical_head
+    if context_state == "changed_head":
+        current_head = replace(canonical_head, receipt_ref=_hash("0"), receipt_sha256=_hash("0"))
+    control_store = SimpleNamespace(
+        get_acquisition_action_head=lambda **_kwargs: current_head,
+        current_execution_job_admission=lambda: current_admission,
+    )
+    bridge = object.__new__(AcquisitionWorldGrowthBridge)
+    bridge.artifact_store = object()
+    bridge.authority = object()
+    bridge.control_store = control_store
+    context = _VerifiedCurrentCandidateExperimentReentryAction(
+        selection=selection,
+        phase=context_phase,
+        admission=context_admission,
+        action=action,
+        head=context_head,
+        outcome=context_outcome,
+        budget_window=object(),
+    )
+    profile = SimpleNamespace(context_inputs=SimpleNamespace(world_model_record=object()))
+    prior_owner = SimpleNamespace(
+        profile=profile,
+        model_declaration=object(),
+        selected_evaluation=None,
+        generation_run=None,
+        source_cycle=None,
+        first_n4_source=None,
+    )
+    intent = SimpleNamespace(action_phase_ref=action.action_phase_ref, transaction_time=now)
+    intent_ref = action.candidate_source_ref
+    monkeypatch.setattr(bridge, "_candidate_experiment_prior_owner", lambda **_kwargs: prior_owner)
+    monkeypatch.setattr(
+        bridge,
+        "_candidate_world_materialization_intent",
+        lambda **_kwargs: (intent_ref, intent),
+    )
+    monkeypatch.setattr(
+        action_module, "_candidate_experiment_source_selection", lambda *_args: selection
+    )
+    monkeypatch.setattr(
+        action_module,
+        "read_candidate_experiment_acquisition_action",
+        lambda **_kwargs: action,
+    )
+    initial_replays: list[object] = []
+    monkeypatch.setattr(
+        action_module,
+        "_current_candidate_experiment_reentry_action_context",
+        lambda *_args: initial_replays.append(context) or context,
+    )
+    final_replays: list[object] = []
+    monkeypatch.setattr(
+        action_module,
+        "_current_candidate_experiment_reentry_action",
+        lambda *_args: final_replays.append(context)
+        or (
+            selection,
+            context.phase,
+            context.admission,
+                action.model_copy(update={"decision_ref": _hash("d")})
+            if context_state == "changed_final_owner"
+            else action,
+        ),
+    )
+    monkeypatch.setattr(
+        source_module,
+        "read_candidate_acquisition_source",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            tenant_id=origin.tenant_id,
+            cell_id=origin.cell_id,
+            run_id=origin.run_id,
+            job_id=action.action_job_id,
+            route_id=origin.route_id,
+            candidate_digest=selection.candidate_digest,
+        ),
+    )
+    predecessor_reads: list[object] = []
+    monkeypatch.setattr(
+        basis_module,
+        "_candidate_source_predecessors_for_verified_experiment_origin",
+        lambda **_kwargs: predecessor_reads.append(None) or (),
+    )
+    monkeypatch.setattr(
+        world_model_record_module,
+        "world_model_artifact_views",
+        lambda _record: SimpleNamespace(data_snapshot_ref=_ref("fabric.data_snapshot", "9")),
+    )
+    monkeypatch.setattr(
+        basis_module,
+        "CandidateAcquisitionSourceSlotBinding",
+        lambda **kwargs: SimpleNamespace(**kwargs),
+    )
+    monkeypatch.setattr(
+        basis_module, "CandidateSourceBasisInputs", lambda **kwargs: SimpleNamespace(**kwargs)
+    )
+    prepared_inputs: list[object] = []
+
+    def prepare_values(**kwargs: object) -> CandidateSourceBasisValues:
+        prepared_inputs.append(kwargs["inputs"])
+        return CandidateSourceBasisValues("recomputed", (), inputs=kwargs["inputs"])
+
+    monkeypatch.setattr(basis_module, "prepare_candidate_source_basis_values", prepare_values)
+    initial_context = None if context_state == "direct" else context
+    result, _result_ref, result_intent = basis_module.prepare_live_candidate_experiment_source_basis_values(
+        bridge=bridge,
+        origin=origin,
+        candidate_action_ref=phase.candidate_receipt_ref,
+        pending_phase_ref=canonical_head.receipt_ref,
+        initial_reentry_context=initial_context,
+    )
+
+    if context_state in {"foreign_scope", "same_bytes_wrong_profile", "changed_head", "changed_admission"}:
+        assert result.predicate_provenance == "not_established"
+        assert "candidate_experiment_source_basis_reentry_context_not_current" in result.reason_codes
+        assert prepared_inputs == []
+        assert final_replays == []
+        return
+
+    if context_state == "changed_final_owner":
+        assert result.predicate_provenance == "not_established"
+        assert result.reason_codes == ("candidate_experiment_source_basis_owner_changed",)
+        assert prepared_inputs
+        assert len(final_replays) == 1
+        return
+
+    assert result.predicate_provenance == "recomputed"
+    assert result_intent == intent
+    assert prepared_inputs
+    assert len(initial_replays) == expected_initial_replays
+    assert len(final_replays) == 1
+    assert len(predecessor_reads) == 2

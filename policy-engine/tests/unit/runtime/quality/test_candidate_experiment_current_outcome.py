@@ -394,6 +394,16 @@ def test_original_source_n5_does_not_retain_first_experiment(
     inputs = SimpleNamespace(configured_profile=SimpleNamespace(limitations=("candidate_only",)))
     prior_owner = SimpleNamespace(selected_evaluation=source_evaluation)
     window = SimpleNamespace(fresh_limit_usd=Decimal("1"), global_limit_usd=Decimal("5"))
+    source_basis_calls = []
+
+    def prepare_source_basis(**kwargs):
+        source_basis_calls.append(kwargs)
+        return (
+            SimpleNamespace(predicate_provenance="recomputed", reason_codes=(), inputs=inputs),
+            _ref("runtime_quality.acquisition_candidate_world_intent", "8"),
+            object(),
+        )
+
     monkeypatch.setattr(bridge, "_candidate_experiment_prior_owner", lambda **_kwargs: prior_owner)
     monkeypatch.setattr(
         bridge, "resolve_candidate_experiment_reentry_budget_window", lambda **_kwargs: window
@@ -401,11 +411,7 @@ def test_original_source_n5_does_not_retain_first_experiment(
     monkeypatch.setattr(
         preparation,
         "prepare_live_candidate_experiment_source_basis_values",
-        lambda **_kwargs: (
-            SimpleNamespace(predicate_provenance="recomputed", reason_codes=(), inputs=inputs),
-            _ref("runtime_quality.acquisition_candidate_world_intent", "8"),
-            object(),
-        ),
+        prepare_source_basis,
     )
     monkeypatch.setattr(
         configuration, "prepare_joint_simulation_configuration", lambda: configuration_value
@@ -462,6 +468,7 @@ def test_original_source_n5_does_not_retain_first_experiment(
     assert len(canonical_context_calls) == 1
     assert canonical_context_calls[0] == (bridge, origin, pending_phase_ref, pending.candidate_receipt_ref)
     assert full_outcome_reads == []
+    assert source_basis_calls[0]["initial_reentry_context"] is canonical_context
     assert numerical_inputs == [source_evaluation]
     decision = next(values for kind, values in records_seen if kind == "decision")
     assert decision["comparison_result"] == "not_established"
@@ -482,7 +489,7 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
     monkeypatch: pytest.MonkeyPatch,
     stale_fence_read: str | None,
 ) -> None:
-    """Use the experiment reader at admission and both terminal fences.
+    """Use the exact current context at admission and both terminal fences.
 
     The synthetic owner below scopes this test to dispatch selection and the final
     writer boundary. Numerical source reentry and deep live-owner replay remain
@@ -495,6 +502,7 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
     store, event_log = object(), object()
     selection = SimpleNamespace()
     action = SimpleNamespace(
+        selection=selection,
         action_job_id=pending.job_id,
         action_generation=pending.action_generation,
         candidate_source_ref=_ref("runtime.quality.candidate_acquisition_source", "6"),
@@ -512,7 +520,7 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
 
     def experiment_action_outcomes(**kwargs):
         reads.append(kwargs)
-        if len(reads) != 3 or stale_fence_read is None:
+        if len(reads) != 2 or stale_fence_read is None:
             return outcomes
         if stale_fence_read == "head":
             return (
@@ -550,6 +558,19 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
     bridge.artifact_store, bridge.event_log = store, event_log
     bridge.control_store, bridge.action_head_sink = control_store, sink
     bridge._source_control_service = service
+    pending_phase_ref = predecessor.receipt_ref
+    phase_record = outcomes[-1].phase_chain[-1]
+    monkeypatch.setattr(
+        sink,
+        "_read_verified_action_phase",
+        lambda receipt_ref: phase_record,
+        raising=False,
+    )
+    monkeypatch.setattr(
+        bridge,
+        "_candidate_experiment_pending_reentry_locator_ref",
+        lambda **_kwargs: pending_phase_ref,
+    )
     source_evaluation = object()
     prior_owner = SimpleNamespace(selected_evaluation=source_evaluation)
     window = SimpleNamespace(
@@ -557,6 +578,20 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
         global_limit_usd=Decimal("5"),
         effective_limit_usd=Decimal("5"),
         scope=SimpleNamespace(run_binding="run-binding"),
+    )
+    current_context = SimpleNamespace(
+        head=predecessor,
+        phase=pending,
+        admission=admission,
+        action=action,
+        selection=selection,
+        outcome=outcomes[-1],
+        budget_window=window,
+    )
+    monkeypatch.setattr(
+        actions,
+        "_current_candidate_experiment_reentry_action_context",
+        lambda *_args: current_context,
     )
     inputs = SimpleNamespace(
         configured_profile=SimpleNamespace(limitations=("candidate_only",))
@@ -679,6 +714,6 @@ def test_candidate_experiment_dispatch_rechecks_typed_pending_head_before_termin
             dispatch.dispatch_candidate_experiment_evaluation(bridge=bridge, origin=origin)
         assert persisted == []
 
-    assert len(reads) == 3
+    assert len(reads) == 2
     assert all(read["verified_origin"] is origin for read in reads)
     assert len(owner_checks) == 2

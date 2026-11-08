@@ -1344,52 +1344,76 @@ class AcquisitionWorldGrowthBridge:
     ) -> BudgetLedgerReentryBudgetWindow:
         """Resolve the source action's original durable window at pending reentry."""
         from polisyos.runtime.quality.candidate_acquisition_action import (
-            _current_candidate_experiment_reentry_action,
-            _select_current_candidate_experiment_outcome,
-            read_candidate_experiment_acquisition_action_historical,
+            _current_candidate_experiment_reentry_action_context,
         )
 
         service = self._source_control_service
         if service is None:
             raise ValueError("candidate_experiment_reentry_budget_owner_missing")
-        outcomes = service.acquisition_route_sink.experiment_action_outcomes(
+        # The scoped head supplies a locator; the action context proves currentness.
+        pending_ref = self._candidate_experiment_pending_reentry_locator_ref(
+            origin=origin,
+            unavailable_reason="candidate_experiment_action_history_not_current",
+        )
+        context = _current_candidate_experiment_reentry_action_context(
+            self,
+            origin,
+            pending_ref,
+            candidate_action_ref,
+        )
+        if context.phase.receipt_phase != "candidate_input_reentry_pending":
+            raise ValueError("candidate_experiment_reentry_pending_phase_missing")
+        if context.action.selection != context.selection:
+            raise ValueError("candidate_experiment_reentry_source_action_changed")
+        return context.budget_window
+
+    def _candidate_experiment_pending_reentry_locator_ref(
+        self,
+        *,
+        origin: VerifiedCandidateExperimentOrigin,
+        unavailable_reason: Literal[
+            "candidate_experiment_action_history_not_current",
+            "candidate_experiment_reentry_action_not_current",
+        ] = "candidate_experiment_reentry_action_not_current",
+    ) -> str:
+        """Read one exact-scope pending-head locator for a later live owner check."""
+        from polisyos.runtime.http.services.control_plane_store import (
+            AcquisitionActionHeadRecord,
+        )
+
+        if type(origin) is not VerifiedCandidateExperimentOrigin or self.control_store is None:
+            raise ValueError("candidate_experiment_reentry_action_not_current")
+        action_generation = len(origin.candidate_terminal_history_chain) + 1
+        pending_head = self.control_store.get_acquisition_action_head(
             tenant_id=origin.tenant_id,
             cell_id=origin.cell_id,
             run_id=origin.run_id,
             source_job_id=origin.source_job_id,
             route_id=origin.route_id,
+            action_generation=action_generation,
         )
-        outcome = _select_current_candidate_experiment_outcome(
-            outcomes,
-            origin=origin,
-            action_job_id=service._control_store.current_execution_job_admission().job.job_id,
-            action_generation=len(origin.candidate_terminal_history_chain) + 1,
-            required_phase="candidate_input_reentry_pending",
-        )
-        pending_ref = outcome.head.receipt_ref
-        selection, phase, _admission, action = _current_candidate_experiment_reentry_action(
-            self, origin, pending_ref, candidate_action_ref
-        )
-        executing_records = tuple(
-            record
-            for record in outcome.phase_chain
-            if getattr(record, "receipt_ref", None) == action.action_phase_ref
-        )
-        if len(executing_records) != 1:
-            raise ValueError("candidate_experiment_reentry_executing_phase_missing")
-        executing_phase = getattr(executing_records[0], "receipt", None)
-        if executing_phase is None or phase.receipt_phase != "candidate_input_reentry_pending":
-            raise ValueError("candidate_experiment_reentry_pending_phase_missing")
-        receipt, _source, window = read_candidate_experiment_acquisition_action_historical(
-            bridge=self,
-            origin=origin,
-            receipt_ref=candidate_action_ref,
-            executing_phase=executing_phase,
-            executing_phase_ref=action.action_phase_ref,
-        )
-        if receipt != action or selection != action.selection:
-            raise ValueError("candidate_experiment_reentry_source_action_changed")
-        return window
+        if (
+            type(pending_head) is not AcquisitionActionHeadRecord
+            or (
+                pending_head.tenant_id,
+                pending_head.cell_id,
+                pending_head.run_id,
+                pending_head.source_job_id,
+                pending_head.route_id,
+                pending_head.action_generation,
+            )
+            != (
+                origin.tenant_id,
+                origin.cell_id,
+                origin.run_id,
+                origin.source_job_id,
+                origin.route_id,
+                action_generation,
+            )
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", pending_head.receipt_ref) is None
+        ):
+            raise ValueError(unavailable_reason)
+        return pending_head.receipt_ref
 
     def preflight_candidate_experiment_evaluation(
         self,
@@ -1457,9 +1481,6 @@ class AcquisitionWorldGrowthBridge:
         This read proves only current budget and quota facts. Positive remaining
         USD and quota are required separately by the pre-effect admission path.
         """
-        from polisyos.runtime.http.services.control_plane_store import (
-            AcquisitionActionHeadRecord,
-        )
         from polisyos.runtime.quality.candidate_acquisition_action import (
             _current_candidate_experiment_reentry_action,
             _current_candidate_experiment_reentry_action_context,
@@ -1480,39 +1501,7 @@ class AcquisitionWorldGrowthBridge:
             or type(budget_state) is not BudgetState
         ):
             raise ValueError("candidate_experiment_reentry_owner_not_established")
-        action_generation = len(origin.candidate_terminal_history_chain) + 1
-        pending_head = self.control_store.get_acquisition_action_head(
-            tenant_id=origin.tenant_id,
-            cell_id=origin.cell_id,
-            run_id=origin.run_id,
-            source_job_id=origin.source_job_id,
-            route_id=origin.route_id,
-            action_generation=action_generation,
-        )
-        if (
-            type(pending_head) is not AcquisitionActionHeadRecord
-            or (
-                pending_head.tenant_id,
-                pending_head.cell_id,
-                pending_head.run_id,
-                pending_head.source_job_id,
-                pending_head.route_id,
-                pending_head.action_generation,
-            )
-            != (
-                origin.tenant_id,
-                origin.cell_id,
-                origin.run_id,
-                origin.source_job_id,
-                origin.route_id,
-                action_generation,
-            )
-            or re.fullmatch(r"sha256:[0-9a-f]{64}", pending_head.receipt_ref) is None
-        ):
-            raise ValueError("candidate_experiment_reentry_action_not_current")
-        # This head is only a locator. The following context read authenticates
-        # its phase, history prefix, selected source, and live execution owner.
-        pending_ref = pending_head.receipt_ref
+        pending_ref = self._candidate_experiment_pending_reentry_locator_ref(origin=origin)
         try:
             context = _current_candidate_experiment_reentry_action_context(
                 self,

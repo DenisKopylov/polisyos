@@ -7,12 +7,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
+# Keep this module available for runtime type-hint resolution.
+import polisyos.core.observability as _core_observability  # noqa: TC001
 from polisyos.core.artifacts import RootedArtifactStore
 from polisyos.core.artifacts.backends.config import (
     ArtifactStoreConfig,
     build_artifact_store,
 )
-from polisyos.core.observability import MetricsRegistry, PolicyOSTracer, get_metrics, get_tracer
+from polisyos.core.observability import MetricsRegistry, get_metrics, get_tracer
 from polisyos.fabric.connectors.registry import ConnectorEntry, ConnectorRegistry
 from polisyos.fabric.ingestion.source_progress import FiniteSourceProgressReader
 
@@ -151,7 +153,7 @@ class _BatchIngestionDependencies(Protocol):
     def registry(self) -> _BatchConnectorRegistry: ...
 
     @property
-    def tracer(self) -> PolicyOSTracer: ...
+    def tracer(self) -> _core_observability.PolicyOSTracer: ...
 
     @property
     def metrics(self) -> MetricsRegistry: ...
@@ -165,7 +167,7 @@ class _BatchIngestionDependenciesView:
     """Private batch-only dependency view for the cursor-aware registry facade."""
 
     registry: _BatchConnectorRegistry
-    tracer: PolicyOSTracer
+    tracer: _core_observability.PolicyOSTracer
     metrics: MetricsRegistry
     store_factory: ArtifactStoreFactory
 
@@ -175,7 +177,7 @@ class IngestionDependencies:
     """Resolved provider bundle for connector ingestion entrypoints."""
 
     registry: ConnectorRegistry
-    tracer: PolicyOSTracer
+    tracer: _core_observability.PolicyOSTracer
     metrics: MetricsRegistry
     store_factory: ArtifactStoreFactory = build_filesystem_artifact_store
     source_progress_readers: tuple[FiniteSourceProgressReader, ...] = ()
@@ -184,11 +186,11 @@ class IngestionDependencies:
 def resolve_ingestion_dependencies(
     *,
     registry: ConnectorRegistry | None = None,
-    tracer: PolicyOSTracer | None = None,
+    tracer: _core_observability.PolicyOSTracer | None = None,
     metrics: MetricsRegistry | None = None,
     store_factory: ArtifactStoreFactory | None = None,
     registry_factory: IngestionRegistryFactory | None = None,
-    tracer_factory: Callable[[], PolicyOSTracer] | None = None,
+    tracer_factory: Callable[[], _core_observability.PolicyOSTracer] | None = None,
     metrics_factory: Callable[[], MetricsRegistry] | None = None,
     source_progress_readers: tuple[FiniteSourceProgressReader, ...] = (),
 ) -> IngestionDependencies:
@@ -214,7 +216,7 @@ def _default_registry() -> ConnectorRegistry:
     return ConnectorRegistry.get_instance()
 
 
-def _default_tracer() -> PolicyOSTracer:
+def _default_tracer() -> _core_observability.PolicyOSTracer:
     return get_tracer()
 
 

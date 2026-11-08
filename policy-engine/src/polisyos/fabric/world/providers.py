@@ -5,9 +5,10 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
+# Keep this module available for runtime type-hint resolution.
+import polisyos.core.observability as _core_observability  # noqa: TC001
 from polisyos.core.observability import (
     MetricsRegistry,
-    PolicyOSTracer,
     get_metrics,
     get_tracer,
 )
@@ -17,19 +18,18 @@ from polisyos.core.observability import (
 class WorldObservabilityProviders:
     """Resolved observability providers for world read/write paths."""
 
-    tracer: PolicyOSTracer
+    tracer: _core_observability.PolicyOSTracer
     metrics: MetricsRegistry
 
 
-WorldTracerFactory = Callable[[], PolicyOSTracer]
 WorldMetricsFactory = Callable[[], MetricsRegistry]
 
 
 def resolve_world_observability(
     *,
-    tracer: PolicyOSTracer | None = None,
+    tracer: _core_observability.PolicyOSTracer | None = None,
     metrics: MetricsRegistry | None = None,
-    tracer_factory: WorldTracerFactory | None = None,
+    tracer_factory: Callable[[], _core_observability.PolicyOSTracer] | None = None,
     metrics_factory: WorldMetricsFactory | None = None,
 ) -> WorldObservabilityProviders:
     """Resolve a world observability bundle with optional explicit overrides."""
@@ -44,7 +44,7 @@ def resolve_world_observability(
     )
 
 
-def _default_tracer() -> PolicyOSTracer:
+def _default_tracer() -> _core_observability.PolicyOSTracer:
     return get_tracer()
 
 

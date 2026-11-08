@@ -19,10 +19,11 @@ from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 
+# Keep this module available for runtime type-hint resolution.
+import polisyos.core.observability as _core_observability  # noqa: TC001
 from polisyos.common.logger import get_logger
 from polisyos.common.numeric_reductions import finite_binary64_mean, finite_binary64_midpoint
 from polisyos.core.canon import content_hash
-from polisyos.core.observability import PolicyOSTracer
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.federation.profile import (
     MAX_FILE_BYTES,
@@ -65,7 +66,6 @@ from polisyos.ir.connectors import ConnectorMetadataSpec
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator
 
-    from polisyos.core.observability import PolicyOSTracer
     from polisyos.fabric.connectors.federation.resolver import ConflictResolver
 
 
@@ -95,7 +95,7 @@ def _noop_span() -> Iterator[None]:
     yield None
 
 
-def _default_tracer() -> PolicyOSTracer | None:
+def _default_tracer() -> _core_observability.PolicyOSTracer | None:
     try:
         from polisyos.core.observability import get_tracer
 
@@ -426,7 +426,7 @@ class DataComposer:
         self,
         conflict_resolver: ConflictResolver,
         *,
-        tracer: PolicyOSTracer | None = None,
+        tracer: _core_observability.PolicyOSTracer | None = None,
     ) -> None:
         """
         Initialize composer with a conflict resolver.

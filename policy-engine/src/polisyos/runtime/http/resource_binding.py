@@ -2277,7 +2277,7 @@ def _resolve_completed_nl_control_alias(
             or owner_scope.cell_id != scope.cell_id
         ):
             raise ValueError("completed_nl_control_run_scope_not_established")
-        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.core.security import tenant_scope
 
         with tenant_scope(None, tenant_id=scope.tenant_id, cell_id=scope.cell_id):
             terminal = control.resolve_completed_control_job_core_run_source(

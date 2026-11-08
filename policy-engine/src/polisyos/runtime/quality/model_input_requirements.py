@@ -5,17 +5,24 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from polisyos.core.artifacts import validate_core_model_json_artifact
-from polisyos.core.contracts.model_input_requirements import (
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    validate_core_model_json_artifact,
+)
+from polisyos.core.contracts import (
+    ExecPlanRef,
+    FoundryInputBindingsRef,
     ModelInputContext,
     ModelInputObligationSet,
+    ParameterOverrideBundleRef,
     ProgramGraphInputInterface,
     ProgramGraphInputInvocation,
+    ProgramGraphRef,
     persist_model_input_obligation,
     persist_model_input_obligation_set,
     persist_program_graph_input_interface,
 )
-from polisyos.foundry.execute.model_input_requirements import (
+from polisyos.foundry.execute import (
     recompute_program_graph_inputs,
     resolve_program_graph_input_declaration,
     verify_program_graph_input_preflight,
@@ -23,13 +30,6 @@ from polisyos.foundry.execute.model_input_requirements import (
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import CoreJSONArtifactStore
-    from polisyos.core.artifacts.manifest import ArtifactRef
-    from polisyos.core.contracts.foundry import (
-        ExecPlanRef,
-        FoundryInputBindingsRef,
-        ParameterOverrideBundleRef,
-        ProgramGraphRef,
-    )
 
 
 @dataclass(frozen=True)

@@ -217,6 +217,9 @@ if TYPE_CHECKING:
         LocalSourceRightsReceipt as LocalSourceRightsReceipt,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        ModelInputSourceDescriptorCandidate as ModelInputSourceDescriptorCandidate,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         ResolvedAcquisitionAuthority as ResolvedAcquisitionAuthority,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
@@ -311,6 +314,9 @@ if TYPE_CHECKING:
     )
     from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
         resolve_catalog_selection_policy as resolve_catalog_selection_policy,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
+        assess_measurement_to_model_candidate as assess_measurement_to_model_candidate,
     )
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         DEFAULT_ACQUISITION_OVERLAY_PATH as DEFAULT_ACQUISITION_OVERLAY_PATH,
@@ -619,6 +625,12 @@ _EXPORTS = {
     ),
     "CanonicalAcquisitionAuthority": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "ModelInputSourceDescriptorCandidate": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "assess_measurement_to_model_candidate": (
+        "polisyos.data_forge.domains.catalog.knowledge.measurement_binding"
     ),
     "LiveSourceExecutionEvidence": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 from typing import TYPE_CHECKING
 
 from ._impl.models import (
@@ -37,68 +38,77 @@ if TYPE_CHECKING:
         ClaimConstructDeclarationInputError,
         DataRequirementCompiler,
         ScenarioDomainInputError,
+        compile_data_requirements_for_scenario,
         compiled_requirements_for_world_slot,
+        data_requirement_compilation_audit_surface,
+        parse_data_requirement_compilation_report,
+        persist_model_input_compilation_report,
+        verify_model_input_compilation_report,
+        write_data_requirement_compilation_report,
     )
+    from .model_input_requirements import ModelInputCompilationReport as ModelInputCompilationReport
+
+_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "PolicyGrammarConceptSpineRefs": (
+        "polisyos.policy_grammar",
+        "PolicyGrammarConceptSpineRefs",
+    ),
+    "PolicyGrammarIntent": ("polisyos.policy_grammar", "PolicyGrammarIntent"),
+    "UniversalAuthorityProfile": ("polisyos.policy_grammar", "UniversalAuthorityProfile"),
+    "ClaimConstructDeclarationInputError": (
+        "polisyos.data_requirement.compiler",
+        "ClaimConstructDeclarationInputError",
+    ),
+    "DataRequirementCompiler": (
+        "polisyos.data_requirement.compiler",
+        "DataRequirementCompiler",
+    ),
+    "ScenarioDomainInputError": (
+        "polisyos.data_requirement.compiler",
+        "ScenarioDomainInputError",
+    ),
+    "compile_data_requirements_for_scenario": (
+        "polisyos.data_requirement.compiler",
+        "compile_data_requirements_for_scenario",
+    ),
+    "compiled_requirements_for_world_slot": (
+        "polisyos.data_requirement.compiler",
+        "compiled_requirements_for_world_slot",
+    ),
+    "data_requirement_compilation_audit_surface": (
+        "polisyos.data_requirement.compiler",
+        "data_requirement_compilation_audit_surface",
+    ),
+    "parse_data_requirement_compilation_report": (
+        "polisyos.data_requirement.compiler",
+        "parse_data_requirement_compilation_report",
+    ),
+    "persist_model_input_compilation_report": (
+        "polisyos.data_requirement.compiler",
+        "persist_model_input_compilation_report",
+    ),
+    "verify_model_input_compilation_report": (
+        "polisyos.data_requirement.compiler",
+        "verify_model_input_compilation_report",
+    ),
+    "write_data_requirement_compilation_report": (
+        "polisyos.data_requirement.compiler",
+        "write_data_requirement_compilation_report",
+    ),
+    "ModelInputCompilationReport": (
+        "polisyos.data_requirement.model_input_requirements",
+        "ModelInputCompilationReport",
+    ),
+}
 
 
 def __getattr__(name: str) -> object:
     """Lazily expose compiler entrypoints and the owner types used by its bridge."""
-
-    if name in {
-        "PolicyGrammarConceptSpineRefs",
-        "PolicyGrammarIntent",
-        "UniversalAuthorityProfile",
-    }:
-        from polisyos.policy_grammar import (
-            PolicyGrammarConceptSpineRefs,
-            PolicyGrammarIntent,
-            UniversalAuthorityProfile,
-        )
-
-        exports = {
-            "PolicyGrammarConceptSpineRefs": PolicyGrammarConceptSpineRefs,
-            "PolicyGrammarIntent": PolicyGrammarIntent,
-            "UniversalAuthorityProfile": UniversalAuthorityProfile,
-        }
-        return exports[name]
-
-    if name in {
-        "DataRequirementCompiler",
-        "ScenarioDomainInputError",
-        "ClaimConstructDeclarationInputError",
-        "compile_data_requirements_for_scenario",
-        "compiled_requirements_for_world_slot",
-        "parse_data_requirement_compilation_report",
-        "data_requirement_compilation_audit_surface",
-        "write_data_requirement_compilation_report",
-    }:
-        from .compiler import (
-            ClaimConstructDeclarationInputError,
-            DataRequirementCompiler,
-            ScenarioDomainInputError,
-            compile_data_requirements_for_scenario,
-            compiled_requirements_for_world_slot,
-            data_requirement_compilation_audit_surface,
-            parse_data_requirement_compilation_report,
-            write_data_requirement_compilation_report,
-        )
-
-        exports = {
-            "DataRequirementCompiler": DataRequirementCompiler,
-            "ScenarioDomainInputError": ScenarioDomainInputError,
-            "ClaimConstructDeclarationInputError": ClaimConstructDeclarationInputError,
-            "compile_data_requirements_for_scenario": compile_data_requirements_for_scenario,
-            "compiled_requirements_for_world_slot": compiled_requirements_for_world_slot,
-            "parse_data_requirement_compilation_report": parse_data_requirement_compilation_report,
-            "data_requirement_compilation_audit_surface": (
-                data_requirement_compilation_audit_surface
-            ),
-            "write_data_requirement_compilation_report": (
-                write_data_requirement_compilation_report
-            ),
-        }
-        return exports[name]
-    raise AttributeError(f"module 'polisyos.data_requirement' has no attribute {name!r}")
+    owner = _LAZY_IMPORTS.get(name)
+    if owner is None:
+        raise AttributeError(f"module 'polisyos.data_requirement' has no attribute {name!r}")
+    module_name, attr_name = owner
+    return getattr(importlib.import_module(module_name), attr_name)
 
 
 __all__ = [
@@ -117,6 +127,7 @@ __all__ = [
     "DataRequirementCompiler",
     "DataRequirementScope",
     "DataRequirementSpec",
+    "ModelInputCompilationReport",
     "ScenarioDomainInputError",
     "compile_data_requirements_for_scenario",
     "compiled_requirements_for_world_slot",
@@ -124,5 +135,7 @@ __all__ = [
     "data_requirement_compilation_audit_surface",
     "data_requirement_compilation_event_ref",
     "parse_data_requirement_compilation_report",
+    "persist_model_input_compilation_report",
+    "verify_model_input_compilation_report",
     "write_data_requirement_compilation_report",
 ]

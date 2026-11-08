@@ -22,12 +22,22 @@ __all__ = [
     "admit_execution_source",
     "admit_execution_source_bounded",
     "apply_state_delta",
+    "admit_semantic_horizon_step_chain",
     "execute",
+    "execute_program_graph",
+    "execute_semantic_horizon_step",
     "read_method_artifact_output_bounded",
     "execution_input_basis_sources",
     "get_state_path",
     "load_state_snapshot",
+    "new_method_execution_capture",
+    "persist_method_execution_capture",
     "put_state_snapshot",
+    "program_graph_declares_model_input_ports",
+    "recompute_program_graph_inputs",
+    "resolve_core_json_profile_store",
+    "resolve_program_graph_input_declaration",
+    "verify_program_graph_input_preflight",
     "StateSnapshotValueLeaf",
     "state_snapshot_value_projection",
     "read_numeric_npz_bounded",
@@ -72,6 +82,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.execute.api",
         "ExecutionSourceAdmissionRefusal",
     ),
+    "admit_semantic_horizon_step_chain": (
+        "polisyos.foundry.execute.api",
+        "admit_semantic_horizon_step_chain",
+    ),
     "ResolvedExecutionPosture": (
         "polisyos.foundry.execute.api",
         "ResolvedExecutionPosture",
@@ -105,6 +119,14 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "apply_state_delta",
     ),
     "execute": ("polisyos.foundry.execute.api", "execute"),
+    "execute_semantic_horizon_step": (
+        "polisyos.foundry.execute.api",
+        "execute_semantic_horizon_step",
+    ),
+    "execute_program_graph": (
+        "polisyos.foundry.execute.executor",
+        "execute_program_graph",
+    ),
     "read_method_artifact_output_bounded": (
         "polisyos.foundry.execute.api",
         "read_method_artifact_output_bounded",
@@ -118,6 +140,30 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.execute._internal.snapshots",
         "load_state_snapshot",
     ),
+    "new_method_execution_capture": (
+        "polisyos.foundry.execute.executor",
+        "new_method_execution_capture",
+    ),
+    "persist_method_execution_capture": (
+        "polisyos.foundry.execute.executor",
+        "persist_method_execution_capture",
+    ),
+    "program_graph_declares_model_input_ports": (
+        "polisyos.foundry.execute.model_input_requirements",
+        "program_graph_declares_model_input_ports",
+    ),
+    "recompute_program_graph_inputs": (
+        "polisyos.foundry.execute.model_input_requirements",
+        "recompute_program_graph_inputs",
+    ),
+    "resolve_core_json_profile_store": (
+        "polisyos.foundry._artifact_capabilities",
+        "resolve_core_json_profile_store",
+    ),
+    "resolve_program_graph_input_declaration": (
+        "polisyos.foundry.execute.model_input_requirements",
+        "resolve_program_graph_input_declaration",
+    ),
     "put_state_snapshot": (
         "polisyos.foundry.execute._internal.snapshots",
         "put_state_snapshot",
@@ -129,6 +175,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "resolve_execution_posture": (
         "polisyos.foundry.execute.api",
         "resolve_execution_posture",
+    ),
+    "verify_program_graph_input_preflight": (
+        "polisyos.foundry.execute.model_input_requirements",
+        "verify_program_graph_input_preflight",
     ),
 }
 

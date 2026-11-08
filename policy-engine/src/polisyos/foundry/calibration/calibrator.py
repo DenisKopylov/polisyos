@@ -44,7 +44,7 @@ from polisyos.core.observability import (
     get_tracer,
     is_hpc_observability_enabled,
 )
-from polisyos.core.registry.loader import (
+from polisyos.core.registry import (
     load_registry_bundle_content,
     load_registry_bundle_payload,
 )

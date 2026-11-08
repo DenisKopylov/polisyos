@@ -84,7 +84,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.generation_source import N4CandidateScenarioSourceRecordV3
     from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationResult
-    from polisyos.scientist.orchestration.engine.budget_ledger import (
+    from polisyos.scientist.orchestration.engine import (
         BudgetLedgerReentryBudgetWindow,
     )
 

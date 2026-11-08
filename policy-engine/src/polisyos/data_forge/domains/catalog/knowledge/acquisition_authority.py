@@ -27,7 +27,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon, contracts
-from polisyos.core.contracts.variable_binding import (
+from polisyos.core.contracts import (
     MeasurementAxis,
     MeasurementBindingProfile,
     MeasurementBindingProfileRef,
@@ -1369,7 +1369,7 @@ class CanonicalAcquisitionAuthority:
                 source registry, source descriptor, or unique compatible match
                 cannot be established.
         """
-        from polisyos.core.contracts.model_input_requirements import (
+        from polisyos.core.contracts import (
             ProgramGraphInputInterface,
             load_program_graph_input_interface,
             verify_model_input_port_semantics,

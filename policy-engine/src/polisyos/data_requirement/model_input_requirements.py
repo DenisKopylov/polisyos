@@ -7,7 +7,7 @@ from typing import ClassVar, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts import ArtifactRef, artifact_ref_identity_key
-from polisyos.core.contracts.model_input_requirements import (
+from polisyos.core.contracts import (
     ModelInputContext,
     ModelInputObligation,
     ModelInputObligationSet,

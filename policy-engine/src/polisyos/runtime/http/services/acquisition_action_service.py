@@ -19,7 +19,7 @@ from pydantic import (
 from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.core import artifacts
 from polisyos.core.artifacts import read_core_json_artifact
-from polisyos.core.contracts.runtime import RunCandidateSimulationN5ResultBody
+from polisyos.core.contracts import RunCandidateSimulationN5ResultBody
 from polisyos.pdc import OperationClass, OperationContract, OperationInvocationRecord
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionCandidateExperimentPhaseReceipt,

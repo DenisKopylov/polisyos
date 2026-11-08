@@ -60,6 +60,7 @@ def prepare_program_graph_tax_subsidy_input_case(
     *,
     opening_balance_usd: float | None,
     mechanism_start_step: int = 0,
+    mechanism_duration_steps: int = 1,
     model_input_port_declaration_builder: Callable[[CoreJSONArtifactStore], ArtifactRef]
     | None = None,
     store: FileSystemCAS | None = None,
@@ -217,7 +218,9 @@ def prepare_program_graph_tax_subsidy_input_case(
                         operator=SelectorOperator.EQUALS,
                         value="all",
                     ),
-                    schedule=ScheduleSpec(start_step=mechanism_start_step, duration_steps=1),
+                    schedule=ScheduleSpec(
+                        start_step=mechanism_start_step, duration_steps=mechanism_duration_steps
+                    ),
                     params={"rate": Decimal(str(SUBSIDY_RATE))},
                 )
             ],

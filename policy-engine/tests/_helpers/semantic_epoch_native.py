@@ -8,7 +8,7 @@ receipt or installs a test chronology verifier.
 import base64
 import hashlib
 import json
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import SimpleNamespace
@@ -1040,6 +1040,9 @@ def _authority(
                 country_codes=("UA",),
                 temporal_start=str(spec.get("temporal_start", years[0])),
                 temporal_end=str(spec.get("temporal_end", years[-1])),
+                source_measure_scope=spec.get("source_measure_scope"),
+                source_semantic_definition_ref=spec.get("source_semantic_definition_ref"),
+                source_representation_ref=spec.get("source_representation_ref"),
             )
         )
     entries = tuple(entries_list)
@@ -1265,11 +1268,14 @@ def make_native_multivariable_active_projections(
     condition_units_by_raw_field: Mapping[str, str] | None = None,
     artifact_store: FileSystemCAS | None = None,
     return_selected_raw_profile: bool = False,
+    before_activation: Callable[[catalog_read_api.CanonicalAcquisitionAuthority], None]
+    | None = None,
 ) -> SimpleNamespace:
     """Create active projections through the real signed epoch owner chain.
 
     Rows are controlled synthetic candidate inputs; source meaning, assignment,
-    support, sampling, and unit authority remain unestablished.
+    support, sampling, and unit authority remain unestablished. The optional
+    callback can exercise candidate source selection before any activation.
     """
     if not variable_specs:
         raise ValueError("native_epoch_fixture_requires_variable_specs")
@@ -1280,6 +1286,8 @@ def make_native_multivariable_active_projections(
         unadmitted_baseline_observations=unadmitted_baseline_observations,
         condition_units_by_raw_field=condition_units_by_raw_field,
     )
+    if before_activation is not None:
+        before_activation(authority)
     source_rows_by_raw_field = _source_rows_by_raw_field(
         source_rows, variable_specs, condition_units_by_raw_field
     )

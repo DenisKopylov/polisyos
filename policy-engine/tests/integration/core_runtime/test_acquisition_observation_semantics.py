@@ -10,8 +10,15 @@ from types import SimpleNamespace
 
 import pytest
 
-from polisyos.core.artifacts import FileSystemCAS, PutOptions, load_core_json_artifact
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    CoreJSONArtifactStore,
+    FileSystemCAS,
+    PutOptions,
+    load_core_json_artifact,
+)
 from polisyos.core.artifacts.manifest import SchemaInfo, WarningRecord, input_ref_from_artifact_ref
+from polisyos.core.contracts.epoch import load_verified_epoch_statement
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
@@ -20,7 +27,12 @@ from polisyos.core.contracts.foundry import (
     ProgramGraphRef,
     SemanticHorizonStepContext,
 )
-from polisyos.core.contracts.model_input_requirements import ProgramGraphInputInvocation
+from polisyos.core.contracts.model_input_requirements import (
+    ModelInputPortDeclaration,
+    ProgramGraphInputInvocation,
+    load_program_graph_input_interface,
+    persist_model_input_port_declaration,
+)
 from polisyos.core.contracts.semantic_input_binding import (
     load_resolved_input_binding_manifest,
     persist_resolved_input_binding_manifest,
@@ -36,9 +48,15 @@ from polisyos.foundry.execute.api import admit_execution_source
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import load_state_snapshot
 from polisyos.runtime.quality import data_state_substrate as owner
+from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
 from polisyos.runtime.quality.data_snapshot_lineage import (
     DataSnapshotLineageError,
     validate_data_snapshot_owner_lineage,
+)
+from polisyos.runtime.quality.model_input_requirements import SelectedProgramGraphInputBasis
+from polisyos.runtime.quality.model_input_routing import (
+    materialize_routed_model_input_observation,
+    plan_selected_model_input_routing,
 )
 from tests._helpers import semantic_epoch_native as native_fixture
 from tests._helpers import world_model_record as world_fixture
@@ -53,6 +71,7 @@ from tests.unit.runtime.quality.test_acquisition_executor import _activate_real_
 from tests.unit.runtime.quality.test_model_input_requirements import (
     _context,
     _interface,
+    _opening_stock_port,
     _preflight,
     _supplied_rate,
 )
@@ -772,4 +791,170 @@ def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
             close = getattr(fresh_store, "close", None)
             if callable(close):
                 close()
+        case.close()
+
+
+def _routed_stock_declaration(store: CoreJSONArtifactStore) -> ArtifactRef:
+    port = _opening_stock_port(store)
+    scope = port.scope.model_copy(
+        update={"geography_ref": "UA", "jurisdiction_ref": "UA", "period_basis": "calendar_year"}
+    )
+    return persist_model_input_port_declaration(
+        store, ModelInputPortDeclaration(ports=(port.model_copy(update={"scope": scope}),))
+    )
+
+
+def test_routed_stock_requires_the_selected_activated_source_before_foundry(
+    tmp_path: Path,
+) -> None:
+    """Run one model-owned N7 route through native activation and a fresh reader."""
+    case = prepare_program_graph_tax_subsidy_input_case(
+        tmp_path / "graph",
+        opening_balance_usd=None,
+        model_input_port_declaration_builder=_routed_stock_declaration,
+        snapshot_id="base-acquisition",
+    )
+    active = None
+    try:
+        store = case.store
+        interface_ref = _interface(case)
+        (port,) = load_program_graph_input_interface(store, interface_ref).ports
+        override_ref = _supplied_rate(case)
+        selected_basis = SelectedProgramGraphInputBasis(
+            context=_context(case),
+            program_graph_ref=ProgramGraphRef.model_validate(case.program_graph_ref.model_dump()),
+            exec_plan_ref=ExecPlanRef.model_validate(case.exec_plan_ref.model_dump()),
+            registry_bundle_ref=case.registry_bundle_ref,
+            input_bindings_ref=case.input_bindings_ref,
+            steps=(0,),
+            parameter_override_bundle_ref=override_ref,
+        )
+        preflight = _preflight(
+            case,
+            interface_ref,
+            selected_basis.context,
+            steps=selected_basis.steps,
+            parameter_override_bundle_ref=override_ref,
+        )
+        assert len(preflight.obligation_refs) == 1
+
+        report_ref = None
+
+        def produce_route(authority: read_api.catalog.CanonicalAcquisitionAuthority) -> None:
+            nonlocal report_ref
+            routing = plan_selected_model_input_routing(
+                store,
+                obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=authority,
+            )
+            assert routing.report.status == "candidate_descriptors_resolved"
+            report_ref = routing.report_ref
+
+        physical_descriptor = {
+            "raw_unit": "usd",
+            "canonical_unit": "usd",
+            "valid_max": 10_000.0,
+        }
+        active = native_fixture.make_native_multivariable_active_projections(
+            tmp_path / "activated",
+            source_rows=[
+                {
+                    "country_code": "UA",
+                    "year": 2022,
+                    "opening_usd": 1000,
+                    "other_usd": 1000,
+                    "condition_json": {
+                        "population_ref": "population:treasury",
+                        "jurisdiction_ref": "UA",
+                        "time_period_basis": "calendar_year",
+                    },
+                }
+            ],
+            variable_specs=(
+                {
+                    **physical_descriptor,
+                    "target_variable": "test.treasury.opening-stock",
+                    "raw_field": "opening_usd",
+                    "source_measure_scope": {
+                        "population": port.scope.population_ref,
+                        "temporal_granularity": "annual",
+                    },
+                    "source_semantic_definition_ref": port.semantic_definition_ref,
+                    "source_representation_ref": port.representation_ref,
+                },
+                {
+                    **physical_descriptor,
+                    "target_variable": "test.treasury.unqualified-stock",
+                    "raw_field": "other_usd",
+                },
+            ),
+            artifact_store=store,
+            return_selected_raw_profile=True,
+            before_activation=produce_route,
+        )
+        assert report_ref is not None
+        bridge = partial(
+            materialize_routed_model_input_observation,
+            store,
+            report_ref=report_ref,
+            expected_obligation_set_ref=preflight.obligation_set_ref,
+            selected_basis=selected_basis,
+            catalog_authority=active.authority,
+            overlay=active.overlay,
+            profile_selection_ref="sha256:" + "7" * 64,
+            transaction_time=datetime(2026, 10, 2, 12, tzinfo=UTC),
+        )
+
+        def activate_input(
+            variable: str, workspace_dir: Path
+        ) -> owner.AcquiredObservationDataSnapshotResult:
+            projection = active.projections[variable]
+            (row,) = projection.observations
+            assert row.observation.value == 1000.0
+            passport = AdmissionPassport.model_validate(
+                load_verified_epoch_statement(
+                    store=store,
+                    ref=projection.passport_ref,
+                    expected_kind="epoch.acquisition_passport_snapshot",
+                )
+            )
+            return bridge(
+                receipt_ref=projection.receipt_ref,
+                passport=passport,
+                observation_id=row.observation.observation_id,
+                workspace_dir=workspace_dir,
+            )
+
+        refused_workspace = tmp_path / "refused"
+        with pytest.raises(ValueError, match=r"^model_input_routing_activated_source_mismatch$"):
+            activate_input("test.treasury.unqualified-stock", refused_workspace)
+        assert not refused_workspace.exists()
+        semantic = activate_input("test.treasury.opening-stock", tmp_path / "selected")
+        selected_bindings_ref = semantic.semantic_foundry_input_bindings_ref
+        assert selected_bindings_ref is not None
+        executed = execute_foundry(
+            store,
+            ExecuteRequest(
+                exec_plan_ref=case.exec_plan_ref,
+                registry_bundle_ref=case.registry_bundle_ref,
+                input_bindings_ref=selected_bindings_ref,
+                parameter_override_bundle_ref=override_ref,
+                return_selected_profile=True,
+            ),
+        )
+        assert executed.ok and executed.simulation_result_ref is not None
+        assert "semantic_input_use:candidate_simulation_input_only" in executed.notes
+        fresh_store = FileSystemCAS(case.store_root)
+        admitted = admit_execution_source(fresh_store, executed.simulation_result_ref)
+        assert admitted.basis is not None
+        assert admitted.basis.input_bindings_ref == selected_bindings_ref
+        assert admitted.simulation_result.state_snapshot_ref is not None
+        final_state = load_state_snapshot(
+            fresh_store, snapshot_ref=admitted.simulation_result.state_snapshot_ref
+        )
+        assert float(final_state.government_balance) == 1000.0 - 0.125 * (100 + 200)
+    finally:
+        if active is not None:
+            active.overlay.close()
         case.close()

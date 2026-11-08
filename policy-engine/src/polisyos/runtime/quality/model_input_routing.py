@@ -2,8 +2,8 @@
 
 Model-owned ports are execution requirements, not claim or facet gaps. This
 module replays the selected N5 invocation, compiles its missing ports, and
-discovers compatible Catalog descriptors without dispatching an acquisition,
-admitting a measurement, or estimating value of information.
+discovers compatible Catalog descriptors. It also links a resolved descriptor
+to independently activated Catalog evidence for candidate model-input use.
 """
 
 from __future__ import annotations
@@ -43,6 +43,13 @@ from .model_input_requirements import (
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from datetime import datetime
+    from pathlib import Path
+
+    from polisyos.data_forge.read_api.catalog import CatalogAcquisitionOverlay
+
+    from .acquisition_executor import AdmissionPassport
+    from .data_state_substrate import AcquiredObservationDataSnapshotResult
 
 
 MODEL_INPUT_ROUTING_REPORT_KIND = "runtime.quality.model_input_routing_report"
@@ -296,6 +303,119 @@ def verify_model_input_routing_report(
     return report
 
 
+def materialize_routed_model_input_observation(
+    store: CoreJSONArtifactStore,
+    *,
+    report_ref: ArtifactRef,
+    expected_obligation_set_ref: ArtifactRef,
+    selected_basis: SelectedProgramGraphInputBasis,
+    catalog_authority: CanonicalAcquisitionAuthority,
+    overlay: CatalogAcquisitionOverlay,
+    receipt_ref: ArtifactRef,
+    passport: AdmissionPassport,
+    observation_id: str,
+    profile_selection_ref: str,
+    workspace_dir: Path,
+    transaction_time: datetime,
+) -> AcquiredObservationDataSnapshotResult:
+    """Bind the single routed model input to an independently activated observation.
+
+    The execution owner establishes operation authority before calling. It
+    supplies the exact blocked N5 basis and selected acquisition receipt.
+    Catalog independently replays the route and the active observation. The
+    resulting snapshot has candidate simulation input purpose only.
+
+    Returns:
+        The candidate snapshot and exact semantic Foundry bindings.
+
+    Raises:
+        ValueError: If the route, activated source, or selected input is incompatible.
+    """
+    from polisyos.core.contracts import (
+        SelectedVariableBindingRef,
+        load_program_graph_input_interface,
+    )
+    from polisyos.data_forge.read_api.catalog import CatalogAcquisitionOverlay
+    from polisyos.foundry.data_plane import load_input_bindings
+
+    from .acquisition_executor import AdmissionPassport
+    from .data_state_substrate import (
+        AcquiredObservationSemanticInputRequest,
+        ControlledAcquisitionSlotBinding,
+        acquired_observation_binding_rule,
+        materialize_acquired_observation_snapshot,
+    )
+
+    if type(overlay) is not CatalogAcquisitionOverlay or type(passport) is not AdmissionPassport:
+        raise ValueError("model_input_routing_activation_owner_untyped")
+    report = verify_model_input_routing_report(
+        store,
+        report_ref,
+        expected_obligation_set_ref=expected_obligation_set_ref,
+        selected_basis=selected_basis,
+        catalog_authority=catalog_authority,
+    )
+    if len(report.routes) != 1:
+        raise ValueError("model_input_routing_single_obligation_required")
+    (route,) = report.routes
+    descriptor = route.source_descriptor
+    if descriptor is None:
+        raise ValueError("model_input_routing_resolved_route_required")
+    if (
+        descriptor.authority_entry_id != passport.authority_entry_id
+        or descriptor.authority_registry_content_sha256
+        != passport.authority_registry_content_sha256
+    ):
+        raise ValueError("model_input_routing_activated_source_mismatch")
+
+    invocation = report.selected_invocation
+    interface = load_program_graph_input_interface(store, invocation.interface_ref)
+    port = next(port for port in interface.ports if port.port_id == route.port_id)
+    projection = overlay.read_activated_semantic_epoch_observations(
+        receipt_ref=receipt_ref,
+        artifact_store=store,
+        passport=passport,
+        authority=catalog_authority,
+    )
+    observations = tuple(
+        row.observation
+        for row in projection.observations
+        if row.observation.observation_id == observation_id
+    )
+    if len(observations) != 1:
+        raise ValueError("model_input_routing_activated_observation_not_selected")
+    (observation,) = observations
+    slot_binding = ControlledAcquisitionSlotBinding(
+        profile_selection_ref=profile_selection_ref,
+        canonical_variable_id=projection.variable_id,
+        target_slot_id=port.slot_id,
+    )
+    rule = acquired_observation_binding_rule(observation=observation, slot_binding=slot_binding)
+    predecessor = load_input_bindings(store, invocation.input_bindings_ref)
+    return materialize_acquired_observation_snapshot(
+        store,
+        base_data_snapshot_ref=predecessor.data_snapshot_ref,
+        overlay=overlay,
+        receipt_ref=receipt_ref,
+        passport=passport,
+        authority=catalog_authority,
+        observation_id=observation_id,
+        slot_binding=slot_binding,
+        workspace_dir=workspace_dir,
+        transaction_time=transaction_time,
+        semantic_input_request=AcquiredObservationSemanticInputRequest(
+            binding_id=rule.binding_id,
+            source_definition_ref=descriptor.source_semantic_definition_ref,
+            source_representation_ref=descriptor.source_representation_ref,
+            obligation_set_ref=SelectedVariableBindingRef.model_validate(
+                report.obligation_set_ref.model_dump(mode="python")
+            ),
+            expected_invocation=invocation,
+            model_port_id=port.port_id,
+        ),
+    )
+
+
 def _require_canonical_acquisition_authority(
     value: object,
 ) -> CanonicalAcquisitionAuthority:
@@ -465,6 +585,7 @@ __all__ = [
     "ModelInputPortRoute",
     "ModelInputRoutingReport",
     "ModelInputRoutingResult",
+    "materialize_routed_model_input_observation",
     "plan_selected_model_input_routing",
     "read_model_input_routing_report",
     "verify_model_input_routing_report",

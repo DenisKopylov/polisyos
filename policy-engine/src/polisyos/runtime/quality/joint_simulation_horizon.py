@@ -38,9 +38,16 @@ from pydantic import (
 from polisyos.common.numeric_reductions import finite_binary64_mean
 from polisyos.core.artifacts import raise_artifact_read_access_error
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, input_ref_from_artifact_ref
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
-from polisyos.core.contracts.foundry import StateSnapshotRef
+from polisyos.core.contracts.foundry import (
+    ExecuteRequest,
+    FoundryInputBindingsRef,
+    SemanticHorizonStepContext,
+    SimulationResult,
+    SimulationResultRef,
+    StateSnapshotRef,
+)
 from polisyos.foundry.execute.executor import (
     apply_state_delta,
     execute_program_graph,
@@ -81,6 +88,7 @@ from polisyos.scientist.orchestration.engine import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.contracts.model_input_requirements import ProgramGraphInputInvocation
     from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobBudgetScope
 
@@ -211,6 +219,13 @@ class ProgramGraphInputPreflightResult(Protocol):
     obligation_refs: tuple[ArtifactRef, ...]
     obligation_set_ref: ArtifactRef
     invocation: ProgramGraphInputInvocation
+
+
+@dataclass(frozen=True)
+class _SelectedSemanticProgramGraphInput:
+    request: ExecuteRequest
+    invocation: ProgramGraphInputInvocation
+    obligation_set_ref: ArtifactRef
 
 
 class ProofReceiptError(ValueError):
@@ -432,6 +447,9 @@ class EnginePlan(_StrictModel):
     program_compilation_ref: ArtifactRef | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    program_semantic_input_bindings_ref: FoundryInputBindingsRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     program_graph_ref: Any | None = Field(default=None, exclude=True)
     exec_plan_ref: Any | None = Field(default=None, exclude=True)
     program_store: Any | None = Field(default=None, exclude=True)
@@ -450,6 +468,13 @@ class EnginePlan(_StrictModel):
 
     @model_validator(mode="after")
     def _validate_program_compilation(self) -> EnginePlan:
+        bindings_ref = self.program_semantic_input_bindings_ref
+        if bindings_ref is not None and (
+            self.engine_kind != "program_graph"
+            or self.program_compilation_ref is None
+            or bindings_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("program_semantic_input_bindings_unselected")
         ref = self.program_compilation_ref
         if ref is None:
             return self
@@ -874,6 +899,19 @@ class TrajectoryPoint(_StrictModel):
     engine_state: dict[str, Any] = Field(default_factory=dict)
 
 
+class SemanticProgramGraphReplication(_StrictModel):
+    """Exact Foundry step results for one physical ProgramGraph replication."""
+
+    replication_seed: StrictInt
+    step_result_refs: tuple[SimulationResultRef, ...] = Field(min_length=1, max_length=64)
+
+    @model_validator(mode="after")
+    def _require_selected_steps(self) -> SemanticProgramGraphReplication:
+        if any(ref.manifest_profile_sha256 is None for ref in self.step_result_refs):
+            raise ValueError("semantic_program_graph_step_result_unselected")
+        return self
+
+
 class SimulationTrajectory(_StrictModel):
     """Individual, pairwise, or joint trajectory for a concrete atom subset."""
 
@@ -884,6 +922,9 @@ class SimulationTrajectory(_StrictModel):
     objective_ref: str
     points: tuple[TrajectoryPoint, ...]
     diagnostics: dict[str, Any] = Field(default_factory=dict)
+    semantic_program_graph_replications: tuple[SemanticProgramGraphReplication, ...] = Field(
+        default=(), exclude_if=lambda value: not value
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -1443,6 +1484,10 @@ def _physical_plan_identity(plan: EnginePlan) -> dict[str, Any]:
                     [name, encode(getattr(value, name))]
                     for name, field in type(value).model_fields.items()
                     if field.exclude is not True
+                    and not (
+                        name == "program_semantic_input_bindings_ref"
+                        and getattr(value, name) is None
+                    )
                 ],
             }
         if isinstance(value, np.ndarray | np.generic):
@@ -1616,7 +1661,22 @@ def _aggregate_replicated_trajectory(
             trajectory.diagnostics.get("method_execution_sources", [])
             for trajectory in trajectories
         ]
-    return first.model_copy(update={"points": tuple(points), "diagnostics": diagnostics})
+    semantic_replications = tuple(
+        item
+        for trajectory in trajectories
+        for item in trajectory.semantic_program_graph_replications
+    )
+    if semantic_replications and tuple(item.replication_seed for item in semantic_replications) != (
+        tuple(seeds)
+    ):
+        raise JointSimulationControllerError("semantic_program_graph_replication_scope_mismatch")
+    return first.model_copy(
+        update={
+            "points": tuple(points),
+            "diagnostics": diagnostics,
+            "semantic_program_graph_replications": semantic_replications,
+        }
+    )
 
 
 class PhysicalSimulationWorkObservation(_StrictModel):
@@ -3248,8 +3308,9 @@ class JointSimulationHorizonController:
                 decisions=decisions,
                 gate_disabled=self._settings.disable_coupling_gate,
             )
+        semantic_input = None
         if decision.decision == "selected" and decision.engine_kind == "program_graph":
-            _require_program_graph_input_preflight(
+            semantic_input = _require_program_graph_input_preflight(
                 request, selected_plan, decision, _program_graph_input_preflight
             )
         equilibrium = {decision.objective_ref: decision.equilibrium_semantics}
@@ -3322,7 +3383,13 @@ class JointSimulationHorizonController:
                 diagnostics["unsupported_objectives"].append(decision.objective_ref)
             else:
                 try:
-                    produced = runner(request, selected_plan, decision)
+                    produced = (
+                        self._run_semantic_program_graph_horizon(
+                            request, selected_plan, decision, semantic_input
+                        )
+                        if semantic_input is not None
+                        else runner(request, selected_plan, decision)
+                    )
                     trajectories = tuple(produced)
                     if type(produced) is _PhysicalRunOutput:
                         diagnostics["physical_work_capture_status"] = "observed"
@@ -3497,6 +3564,11 @@ class JointSimulationHorizonController:
             qualified_numeric_decision=qualified_numeric,
         )
         authority_blockers = ["simulation_only_k_sim_not_world_evidence"]
+        if semantic_input is not None:
+            diagnostics["semantic_program_graph_bindings_ref"] = (
+                semantic_input.request.input_bindings_ref.model_dump(mode="json")
+            )
+            authority_blockers.append("semantic_program_graph_candidate_only")
         authority_blockers.extend(diagnostics.get("intervention_numeric_limitations", ()))
         if "intervention_semantics_limitation" in diagnostics:
             authority_blockers.append(str(diagnostics["intervention_semantics_limitation"]))
@@ -3827,7 +3899,9 @@ class JointSimulationHorizonController:
                 ) from exc
             physical_run_ref = trajectory.diagnostics.get("physical_run_ref")
             expected_ref = _physical_run_ref(request, plan, decision, subset)
-            if physical_run_ref != expected_ref:
+            if physical_run_ref != expected_ref or bool(
+                trajectory.semantic_program_graph_replications
+            ) != (plan.program_semantic_input_bindings_ref is not None):
                 raise JointSimulationControllerError(
                     "selected_plan_execution_binding_missing",
                     "trajectory is not content-bound to the executed selected plan",
@@ -4120,6 +4194,102 @@ class JointSimulationHorizonController:
             ):
                 return signature.fqn
         return None
+
+    def _run_semantic_program_graph_horizon(
+        self,
+        request: JointSimulationRequest,
+        plan: EnginePlan,
+        decision: EngineDecision,
+        semantic_input: _SelectedSemanticProgramGraphInput,
+    ) -> list[SimulationTrajectory]:
+        from polisyos.core.artifacts import validate_core_model_json_artifact
+        from polisyos.foundry.execute.api import execute_semantic_horizon_step
+        from polisyos.foundry.execute.executor import load_state_snapshot
+
+        method_fqn = decision.method_fqn
+        if method_fqn is None:
+            raise JointSimulationControllerError("semantic_program_graph_method_missing")
+
+        def run_once(
+            run_level: RunLevel,
+            subset: tuple[InterventionAtomBinding, ...],
+            replication_seed: int,
+        ) -> SimulationTrajectory:
+            refs: list[SimulationResultRef] = []
+            points: list[TrajectoryPoint] = []
+            for index, step in enumerate(semantic_input.invocation.steps):
+                context = SemanticHorizonStepContext(
+                    obligation_set_ref=semantic_input.obligation_set_ref,
+                    steps=semantic_input.invocation.steps,
+                    step_index=index,
+                    replication_seed=replication_seed,
+                    previous_result_ref=refs[-1] if refs else None,
+                )
+                executed = execute_semantic_horizon_step(
+                    plan.program_store,
+                    semantic_input.request,
+                    expected_invocation=semantic_input.invocation,
+                    step=context,
+                )
+                ref = executed.simulation_result_ref
+                if not executed.ok or ref is None:
+                    raise JointSimulationControllerError(
+                        "semantic_program_graph_foundry_step_refused"
+                    )
+                result = validate_core_model_json_artifact(
+                    SimulationResult, plan.program_store, ref
+                )
+                if result.state_snapshot_ref is None:
+                    raise JointSimulationControllerError("semantic_program_graph_poststate_missing")
+                state = load_state_snapshot(
+                    plan.program_store, snapshot_ref=result.state_snapshot_ref
+                )
+                aggregation_basis: dict[str, Any] = {}
+                outcomes = _program_graph_outcomes(
+                    state, request.selected_outcomes, plan, aggregation_basis
+                )
+                points.append(
+                    TrajectoryPoint(
+                        step=step,
+                        outcomes=outcomes,
+                        effect={
+                            outcome: _effect_for_outcome(request, outcome, value)
+                            for outcome, value in outcomes.items()
+                        },
+                        engine_state={
+                            "simulation_result_ref": ref.model_dump(mode="json"),
+                            "semantic_input_notes": list(result.notes),
+                            **(
+                                {"outcome_aggregation_basis": aggregation_basis}
+                                if aggregation_basis
+                                else {}
+                            ),
+                        },
+                    )
+                )
+                refs.append(ref)
+            return SimulationTrajectory(
+                run_level=run_level,
+                atom_ids=tuple(atom.intervention_id for atom in subset),
+                engine_kind=decision.engine_kind,
+                method_fqn=method_fqn,
+                objective_ref=plan.objective_ref,
+                points=tuple(points),
+                semantic_program_graph_replications=(
+                    SemanticProgramGraphReplication(
+                        replication_seed=replication_seed, step_result_refs=tuple(refs)
+                    ),
+                ),
+            )
+
+        return _run_cached_replicates(
+            request,
+            plan,
+            decision,
+            run_once,
+            producer_budget_observer=self._producer_budget_observer,
+            physical_n5_budget_scope=self._physical_n5_budget_scope,
+        )
 
     def _run_program_graph_horizon(
         self,
@@ -6075,7 +6245,7 @@ def _require_program_graph_input_preflight(
         ProgramGraphInputPreflightResult | None,
     ]
     | None,
-) -> None:
+) -> _SelectedSemanticProgramGraphInput | None:
     from polisyos.core.artifacts import artifact_ref_identity_key
     from polisyos.core.contracts.model_input_requirements import ProgramGraphInputInvocation
     from polisyos.foundry.execute.model_input_requirements import (
@@ -6096,9 +6266,9 @@ def _require_program_graph_input_preflight(
         ) from exc
 
     if preflight is None:
-        if requires_preflight:
+        if requires_preflight or plan.program_semantic_input_bindings_ref is not None:
             raise JointSimulationControllerError("program_graph_input_preflight_required")
-        return
+        return None
     if type(preflight) is not ProgramGraphInputPreflight:
         raise JointSimulationControllerError("program_graph_input_preflight_result_untyped")
     invocation = preflight.invocation
@@ -6117,11 +6287,221 @@ def _require_program_graph_input_preflight(
         or preflight.obligation_set_ref.manifest_profile_sha256 is None
     ):
         raise JointSimulationControllerError("program_graph_input_preflight_selection_mismatch")
-    if preflight.obligation_refs:
-        raise ProgramGraphInputsRequiredError(preflight.obligation_set_ref)
-    # A complete obligation inventory does not qualify the legacy physical runner
-    # to consume semantic bindings for an opted-in graph.
-    raise JointSimulationControllerError("program_graph_semantic_horizon_intake_not_established")
+    bindings_ref = plan.program_semantic_input_bindings_ref
+    if bindings_ref is None:
+        if preflight.obligation_refs:
+            raise ProgramGraphInputsRequiredError(preflight.obligation_set_ref)
+        raise JointSimulationControllerError(
+            "program_graph_semantic_horizon_intake_not_established"
+        )
+    if (
+        bindings_ref.manifest_profile_sha256 is None
+        or plan.program_compilation_ref is None
+        or len(request.intervention_atoms) != 1
+        or plan.program_parameter_overrides_by_atom
+        or invocation.parameter_override_bundle_ref is not None
+    ):
+        raise JointSimulationControllerError("program_graph_semantic_horizon_profile_unsupported")
+    from polisyos.foundry.data_plane.bindings import (
+        load_input_bindings,
+        reconcile_semantic_input_bindings,
+    )
+
+    foundry_request = ExecuteRequest(
+        exec_plan_ref=invocation.exec_plan_ref,
+        input_bindings_ref=bindings_ref,
+        registry_bundle_ref=invocation.registry_bundle_ref,
+        return_selected_profile=True,
+    )
+    try:
+        bindings = load_input_bindings(plan.program_store, bindings_ref)
+        reconcile_semantic_input_bindings(
+            plan.program_store,
+            bindings,
+            execute_request=foundry_request,
+            semantic_horizon_step=SemanticHorizonStepContext(
+                obligation_set_ref=preflight.obligation_set_ref,
+                steps=invocation.steps,
+                step_index=0,
+                replication_seed=_replication_seeds(request)[0],
+            ),
+            expected_invocation=invocation,
+        )
+    except Exception as exc:
+        raise_artifact_read_access_error(exc)
+        raise JointSimulationControllerError(
+            "program_graph_semantic_horizon_intake_not_established",
+            context={"reason": str(exc)},
+        ) from exc
+    return _SelectedSemanticProgramGraphInput(
+        foundry_request, invocation, preflight.obligation_set_ref
+    )
+
+
+SEMANTIC_PROGRAM_GRAPH_STEP_ROLE_PREFIX = "semantic_program_graph_step."
+
+
+def _semantic_program_graph_replications(
+    result: JointSimulationResult,
+) -> dict[str, tuple[SemanticProgramGraphReplication, ...]]:
+    groups: dict[str, tuple[SemanticProgramGraphReplication, ...]] = {}
+    if result.diagnostics.get("semantic_program_graph_bindings_ref") is None:
+        if any(
+            trajectory.semantic_program_graph_replications for trajectory in result.trajectories
+        ):
+            raise ValueError("semantic_program_graph_bindings_ref_missing")
+        return groups
+    seeds = tuple(result.diagnostics.get("replication_seeds", ()))
+    if (
+        result.receipt.engine_kind != "program_graph"
+        or "semantic_program_graph_candidate_only"
+        not in result.promotion_ready_value_packet.get("authority_blockers", ())
+    ):
+        raise ValueError("semantic_program_graph_result_scope_invalid")
+    for trajectory in result.trajectories:
+        physical_ref = _physical_spec_digest(trajectory.diagnostics.get("physical_run_ref"))
+        replications = trajectory.semantic_program_graph_replications
+        if (
+            not replications
+            or tuple(item.replication_seed for item in replications) != seeds
+            or any(
+                len(item.step_result_refs) != len(result.horizon.steps()) for item in replications
+            )
+            or groups.setdefault(physical_ref, replications) != replications
+        ):
+            raise ValueError("semantic_program_graph_result_replications_invalid")
+    completed = {
+        (work.physical_spec_ref, work.effective_seed)
+        for work in result.physical_work_observations
+        if work.status == "completed"
+    }
+    if any(
+        (physical_ref, replication.replication_seed) not in completed
+        for physical_ref, replications in groups.items()
+        for replication in replications
+    ):
+        raise ValueError("semantic_program_graph_physical_work_missing")
+    return groups
+
+
+def semantic_program_graph_result_inputs(result: JointSimulationResult) -> list[InputRef]:
+    """Select exact persisted Foundry steps once per physical run and seed."""
+    return [
+        input_ref_from_artifact_ref(
+            ref,
+            role=f"{SEMANTIC_PROGRAM_GRAPH_STEP_ROLE_PREFIX}{physical_ref}.{seed_index}.{index}",
+        )
+        for physical_ref, replications in _semantic_program_graph_replications(result).items()
+        for seed_index, replication in enumerate(replications)
+        for index, ref in enumerate(replication.step_result_refs)
+    ]
+
+
+def verify_semantic_program_graph_result_sources(
+    store: ArtifactStore,
+    result: JointSimulationResult,
+    *,
+    expected_request: JointSimulationRequest | None = None,
+) -> None:
+    """Verify selected step chains and rederive projections from a trusted request."""
+    from polisyos.core.artifacts import artifact_ref_identity_key
+    from polisyos.foundry._artifact_capabilities import resolve_core_json_profile_store
+    from polisyos.foundry.execute.api import admit_semantic_horizon_step_chain
+    from polisyos.foundry.execute.executor import load_state_snapshot
+
+    groups = _semantic_program_graph_replications(result)
+    if not groups:
+        return
+    selected_ref = FoundryInputBindingsRef.model_validate(
+        result.diagnostics["semantic_program_graph_bindings_ref"]
+    )
+    if expected_request is None:
+        raise ValueError("semantic_program_graph_expected_request_required")
+    selected = JointSimulationHorizonController()._select_engine(expected_request)
+    plan = selected.plan
+    if (
+        selected.decision.decision != "selected"
+        or selected.decision.engine_kind != "program_graph"
+        or plan.program_semantic_input_bindings_ref != selected_ref
+        or plan.program_graph_ref is None
+        or plan.exec_plan_ref is None
+    ):
+        raise ValueError("semantic_program_graph_result_request_scope_mismatch")
+    core_store = resolve_core_json_profile_store(store)
+    if core_store is None:
+        raise ValueError("semantic_program_graph_result_store_unavailable")
+    steps = result.horizon.steps()
+    projected: dict[str, dict[tuple[int, int], tuple[dict[str, float], dict[str, float]]]] = {}
+    for physical_ref, replications in groups.items():
+        by_sample = projected.setdefault(physical_ref, {})
+        for replication in replications:
+            chain = admit_semantic_horizon_step_chain(store, replication.step_result_refs)
+            for index, admission in enumerate(chain):
+                basis = admission.basis
+                step = None if basis is None else basis.semantic_horizon_step
+                if (
+                    basis is None
+                    or basis.input_bindings_ref != selected_ref
+                    or step is None
+                    or step.steps != steps
+                    or step.step_index != index
+                    or step.replication_seed != replication.replication_seed
+                ):
+                    raise ValueError("semantic_program_graph_result_foundry_scope_mismatch")
+                poststate_ref = admission.simulation_result.state_snapshot_ref
+                if (
+                    poststate_ref is None
+                    or artifact_ref_identity_key(basis.program_graph_ref)
+                    != artifact_ref_identity_key(plan.program_graph_ref)
+                    or artifact_ref_identity_key(basis.exec_plan_ref)
+                    != artifact_ref_identity_key(plan.exec_plan_ref)
+                ):
+                    raise ValueError("semantic_program_graph_result_foundry_scope_mismatch")
+                state = load_state_snapshot(core_store, snapshot_ref=poststate_ref)
+                outcomes = _program_graph_outcomes(state, expected_request.selected_outcomes, plan)
+                effects = {
+                    key: _effect_for_outcome(expected_request, key, value)
+                    for key, value in outcomes.items()
+                }
+                by_sample[(step.effective_step, replication.replication_seed)] = (
+                    outcomes,
+                    effects,
+                )
+    for trajectory in result.trajectories:
+        physical_ref = _physical_spec_digest(trajectory.diagnostics.get("physical_run_ref"))
+        if tuple(point.step for point in trajectory.points) != steps:
+            raise ValueError("semantic_program_graph_result_projection_steps_mismatch")
+        replications = groups[physical_ref]
+        for index, point in enumerate(trajectory.points):
+            sampling = point.replication_sampling
+            states = point.engine_state.get("replication_engine_states")
+            if (
+                sampling is None
+                or tuple(sample.seed for sample in sampling.samples)
+                != tuple(replication.replication_seed for replication in replications)
+                or not isinstance(states, list)
+                or len(states) != len(replications)
+            ):
+                raise ValueError("semantic_program_graph_result_projection_mismatch")
+            for replica_index, (replication, sample, state) in enumerate(
+                zip(replications, sampling.samples, states, strict=True)
+            ):
+                expected_ref = replication.step_result_refs[index].model_dump(mode="json")
+                if (
+                    sample.engine_state.get("simulation_result_ref") != expected_ref
+                    or not isinstance(state, Mapping)
+                    or state.get("simulation_result_ref") != expected_ref
+                    or (
+                        replica_index == 0
+                        and point.engine_state.get("simulation_result_ref") != expected_ref
+                    )
+                ):
+                    raise ValueError("semantic_program_graph_result_projection_locator_mismatch")
+                if projected[physical_ref][(point.step, sample.seed)] != (
+                    sample.outcomes,
+                    sample.effects,
+                ):
+                    raise ValueError("semantic_program_graph_result_projection_mismatch")
 
 
 def _program_graph_outcomes(

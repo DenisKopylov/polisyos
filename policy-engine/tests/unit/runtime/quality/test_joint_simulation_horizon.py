@@ -1657,6 +1657,232 @@ def test_selected_program_graph_input_preflight_stops_before_runner_and_charge(
         case.close()
 
 
+def test_semantic_program_graph_horizon_executes_and_reopens_every_selected_step(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Real Catalog-backed opening state reaches the late compiled mechanism."""
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.core.artifacts.manifest import WarningRecord
+    from polisyos.core.registry import load_registry_bundle_content
+    from polisyos.foundry.execute import load_state_snapshot
+    from polisyos.ir.trinity import load_trinity_bundle_artifact
+    from polisyos.runtime.quality import joint_simulation_horizon as horizon_owner
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleError,
+        load_joint_simulation_result,
+        persist_joint_simulation_result,
+    )
+    from polisyos.runtime.quality.model_input_requirements import preflight_program_graph_inputs
+    from tests._helpers.program_graph_tax_subsidy_input import (
+        prepare_program_graph_tax_subsidy_input_case,
+    )
+    from tests.unit.foundry.runtime.test_execute_input_bindings import (
+        _stock_declaration_in_source_scope,
+    )
+    from tests.unit.foundry.runtime.test_semantic_horizon_steps import _bind_opening_stock
+    from tests.unit.runtime.quality.test_generic_simulation_admission_program_graph import _n4_atom
+
+    horizon = HorizonSpec(start=0, end=4, step=1)
+    case = prepare_program_graph_tax_subsidy_input_case(
+        tmp_path / "graph",
+        opening_balance_usd=None,
+        mechanism_start_step=3,
+        mechanism_duration_steps=2,
+        model_input_port_declaration_builder=_stock_declaration_in_source_scope,
+    )
+    try:
+        store = case.store
+        opening, obligation_ref, invocation, correspondence_ref = _bind_opening_stock(
+            tmp_path, case, horizon.steps()
+        )
+        registry = load_registry_bundle_content(store, case.registry_bundle_ref)
+        trinity = load_trinity_bundle_artifact(ensure_ir_artifact_store(store), case.trinity_ref)
+        (intervention,) = trinity.policy_spec.interventions
+        initial = _request()
+        atom = _n4_atom(trinity, initial.world_model_record, intervention)
+        plan = EnginePlan(
+            engine_kind="program_graph",
+            objective_ref="objective://selected-opening-stock",
+            program_compilation_ref=case.compile_report_ref,
+            program_semantic_input_bindings_ref=opening.input_bindings_ref,
+            program_store=store,
+            program_graph_ref=case.program_graph_ref,
+            exec_plan_ref=case.exec_plan_ref,
+            program_base_state=load_state_snapshot(
+                store, snapshot_ref=case.bound_state_snapshot_ref
+            ),
+            program_base_ref=case.bound_state_snapshot_ref,
+            mechanism_registry=registry.mechanism_registry,
+            slot_registry=registry.slot_registry,
+            merge_registry=registry.merge_registry,
+            selector_field_registry=registry.selector_field_registry,
+            constraint_registry=registry.constraint_registry,
+            variable_map={"opening_stock": "government_balance"},
+        )
+        request = initial.model_copy(
+            update={
+                "engine_plan": (plan,),
+                "horizon": horizon,
+                "intervention_atoms": (atom,),
+                "selected_outcomes": ("opening_stock",),
+                "baseline_state": {"opening_stock": 1000.0},
+                "replications": 2,
+            }
+        )
+
+        def preflight(selected_request, selected_plan, decision):
+            assert selected_request is request and selected_plan is plan
+            assert decision.engine_kind == "program_graph"
+            selected = preflight_program_graph_inputs(store, **vars(invocation))
+            assert selected.obligation_set_ref == obligation_ref
+            return selected
+
+        controller = JointSimulationHorizonController()
+        result = controller.run(request, _program_graph_input_preflight=preflight)
+        assert len(result.physical_work_observations) == 2
+        assert {work.status for work in result.physical_work_observations} == {"completed"}
+        assert {trajectory.run_level for trajectory in result.trajectories} == {
+            "individual",
+            "joint",
+        }
+        for trajectory in result.trajectories:
+            assert [point.outcomes["opening_stock"] for point in trajectory.points] == [
+                1000.0,
+                1000.0,
+                1000.0,
+                962.5,
+                920.3125,
+            ]
+        edges = horizon_owner.semantic_program_graph_result_inputs(result)
+        assert len(edges) == 10
+        assert all(edge.manifest_profile_sha256 is not None for edge in edges)
+        persisted = persist_joint_simulation_result(result, store=store)
+        fresh = FileSystemCAS(case.store_root)
+        reopened = load_joint_simulation_result(persisted, store=fresh, expected_request=request)
+        assert horizon_owner.semantic_program_graph_result_inputs(reopened) == edges
+        with pytest.raises(
+            GenerationCycleError, match="joint_simulation_semantic_expected_request_required"
+        ):
+            load_joint_simulation_result(persisted, store=fresh)
+        manifest = store.get_manifest(persisted)
+        broken = store.put_bytes(
+            store.get_bytes(persisted),
+            PutOptions(
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                schema=manifest.artifact_schema,
+                canon=manifest.canon,
+                inputs=[edge for edge in manifest.inputs if edge != edges[-1]],
+            ),
+            return_selected_profile=True,
+        )
+        assert broken.artifact_id == persisted.artifact_id
+        assert broken.manifest_profile_sha256 != persisted.manifest_profile_sha256
+        with pytest.raises(
+            GenerationCycleError, match="semantic_program_graph_result_sources_invalid"
+        ):
+            load_joint_simulation_result(broken, store=fresh, expected_request=request)
+
+        forged = copy.deepcopy(result.content_bound_payload())
+        for trajectory in forged["trajectories"]:
+            point = trajectory["points"][-1]
+            point["outcomes"]["opening_stock"] += 1
+            point["effect"]["opening_stock"] += 1
+            for sample in point["replication_sampling"]["samples"]:
+                sample["outcomes"]["opening_stock"] += 1
+                sample["effects"]["opening_stock"] += 1
+
+        def persist_rehashed(payload):
+            payload["receipt"] = build_content_bound_simulation_receipt(
+                engine_kind=result.receipt.engine_kind,
+                payload=payload,
+                diagnostics=payload["diagnostics"],
+            ).model_dump(mode="json")
+            return store.put_json(
+                payload,
+                PutOptions(
+                    kind=manifest.kind,
+                    media_type=manifest.media_type,
+                    schema=manifest.artifact_schema,
+                    inputs=manifest.inputs,
+                ),
+                canon_spec=horizon_owner.CanonSpec(forbid_floats=False, forbid_nan_inf=True),
+                return_selected_profile=True,
+            )
+
+        forged_ref = persist_rehashed(forged)
+        with pytest.raises(
+            GenerationCycleError, match="joint_simulation_semantic_expected_request_required"
+        ):
+            load_joint_simulation_result(forged_ref, store=fresh)
+        with pytest.raises(
+            GenerationCycleError, match="semantic_program_graph_result_sources_invalid"
+        ) as projected:
+            load_joint_simulation_result(forged_ref, store=fresh, expected_request=request)
+        assert str(projected.value.__cause__) == (
+            "semantic_program_graph_result_projection_mismatch"
+        )
+
+        actual_step = (
+            result.trajectories[0].semantic_program_graph_replications[1].step_result_refs[-1]
+        )
+        step_manifest = store.get_manifest(actual_step)
+        alternate_step = store.put_bytes(
+            store.get_bytes(actual_step),
+            PutOptions(
+                kind=step_manifest.kind,
+                media_type=step_manifest.media_type,
+                schema=step_manifest.artifact_schema,
+                canon=step_manifest.canon,
+                inputs=step_manifest.inputs,
+                warnings=[WarningRecord(code="test.alternate_step", msg="Same step bytes")],
+            ),
+            return_selected_profile=True,
+        )
+        assert alternate_step.artifact_id == actual_step.artifact_id
+        assert alternate_step.manifest_profile_sha256 != actual_step.manifest_profile_sha256
+        grafted = copy.deepcopy(result.content_bound_payload())
+        point = grafted["trajectories"][0]["points"][-1]
+        alternate_ref = alternate_step.model_dump(mode="json")
+        point["replication_sampling"]["samples"][1]["engine_state"]["simulation_result_ref"] = (
+            alternate_ref
+        )
+        point["engine_state"]["replication_engine_states"][1]["simulation_result_ref"] = (
+            alternate_ref
+        )
+        with pytest.raises(
+            GenerationCycleError, match="semantic_program_graph_result_sources_invalid"
+        ) as graft:
+            load_joint_simulation_result(
+                persist_rehashed(grafted), store=fresh, expected_request=request
+            )
+        assert str(graft.value.__cause__) == (
+            "semantic_program_graph_result_projection_locator_mismatch"
+        )
+
+        reader = store.get_raw_manifest_bytes
+
+        def missing_correspondence(ref, *args, **kwargs):
+            if getattr(ref, "artifact_id", None) == correspondence_ref.artifact_id:
+                raise FileNotFoundError("selected source correspondence removed")
+            return reader(ref, *args, **kwargs)
+
+        def unexpected_reservation(*args, **kwargs):
+            pytest.fail("missing semantic proof reached the physical reservation boundary")
+
+        with monkeypatch.context() as scope:
+            scope.setattr(store, "get_raw_manifest_bytes", missing_correspondence)
+            scope.setattr(horizon_owner, "_run_cached_replicates", unexpected_reservation)
+            with pytest.raises(
+                horizon_owner.JointSimulationControllerError,
+                match="program_graph_semantic_horizon_intake_not_established",
+            ) as refusal:
+                controller.run(request, _program_graph_input_preflight=preflight)
+            assert "semantic_correspondence_missing" in refusal.value.context["reason"]
+    finally:
+        case.close()
+
+
 def test_rejected_program_graph_does_not_create_input_obligations_before_fallback() -> None:
     """An ineligible graph cannot emit obligations when a later engine is selected."""
     request = _request().model_copy(

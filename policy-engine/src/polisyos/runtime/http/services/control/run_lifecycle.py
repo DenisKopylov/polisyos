@@ -8194,6 +8194,7 @@ class ControlPlaneService(
             or type(context.phase) is not AcquisitionCandidateExperimentPhaseReceipt
             or type(context.admission) is not ControlJobExecutionAdmission
             or type(context.action) is not CandidateAcquisitionActionReceipt
+            or type(context.head) is not AcquisitionActionHeadRecord
             or type(context.budget_window) is not BudgetLedgerReentryBudgetWindow
             or context.selection.tenant_id != origin.tenant_id
             or context.selection.cell_id != origin.cell_id
@@ -8253,6 +8254,7 @@ class ControlPlaneService(
             or live_admission.scope.cell_id != origin.cell_id
             or current_head is None
             or type(current_head) is not AcquisitionActionHeadRecord
+            or current_head != context.head
             or current_head.tenant_id != origin.tenant_id
             or current_head.cell_id != origin.cell_id
             or current_head.run_id != origin.run_id

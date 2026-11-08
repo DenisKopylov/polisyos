@@ -351,8 +351,13 @@ def test_control_service_binds_one_durable_llm_settlement_owner(tmp_path) -> Non
 
 @pytest.mark.parametrize(
     ("live_change", "expected_error"),
-    [("current", None), ("head", "live_owner_not_current"),
-     ("lease", "live_owner_not_current"), ("window", "budget_window_not_current")],
+    [
+        ("current", None),
+        ("head", "live_owner_not_current"),
+        ("head_profile", "live_owner_not_current"),
+        ("lease", "live_owner_not_current"),
+        ("window", "budget_window_not_current"),
+    ],
 )
 def test_reentry_context_observer_rechecks_live_lease_head_and_window(
     tmp_path,
@@ -360,7 +365,7 @@ def test_reentry_context_observer_rechecks_live_lease_head_and_window(
     live_change: str,
     expected_error: str | None,
 ) -> None:
-    """The real control-service observer builder requires fresh live owner fences."""
+    """One action replay per budget observation retains the real Control fences."""
     from dataclasses import replace
     from decimal import Decimal
     from hashlib import sha256
@@ -376,8 +381,16 @@ def test_reentry_context_observer_rechecks_live_lease_head_and_window(
         ControlJobExecutionScope,
         ControlJobRecord,
     )
+    from polisyos.runtime.quality import candidate_acquisition_action as actions
+    from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+        CandidateExperimentEvaluationCurrentOwner,
+        _candidate_experiment_budget_snapshot,
+    )
     from polisyos.runtime.quality.candidate_acquisition_action import (
         _VerifiedCurrentCandidateExperimentReentryAction,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        prepare_joint_simulation_configuration,
     )
     from polisyos.scientist.orchestration.engine import (
         BudgetInvocationQuotaPolicy,
@@ -388,6 +401,7 @@ def test_reentry_context_observer_rechecks_live_lease_head_and_window(
     from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
     from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
     from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine.producer_budget import ProducerBudgetObserver
     from tests._helpers.lane01_candidate_action_served import build_candidate_port_owners
     from tests.unit.runtime.quality.test_candidate_experiment_current_outcome import (
         _selection_case,
@@ -413,9 +427,7 @@ def test_reentry_context_observer_rechecks_live_lease_head_and_window(
         ledger_path = tmp_path / "producer-ledger.json"
         ledger = FileBudgetLedger(ledger_path)
         settlement_store = BudgetMiddleware(BudgetState(), ledger=ledger)
-        with settlement_store.producer_run_binding_scope(
-            binding, control_job_attempt=1
-        ):
+        with settlement_store.producer_run_binding_scope(binding, control_job_attempt=1):
             settlement_store.settle_producer_event_safe(
                 sha256(b"reentry-owner-event").hexdigest(),
                 sha256(b"reentry-owner-request").hexdigest(),
@@ -554,44 +566,93 @@ def test_reentry_context_observer_rechecks_live_lease_head_and_window(
             phase=phase,
             admission=admission,
             action=action,
+            head=head,
             budget_window=window,
+        )
+        # Replace only the heavy action intake. The canonical service builder,
+        # live-fence checks, and durable budget observation still execute.
+        owners.bridge._source_control_service = service
+        owners.bridge.control_store = service._control_store
+        action_reads = []
+
+        def read_action(*args: object) -> _VerifiedCurrentCandidateExperimentReentryAction:
+            assert args == (owners.bridge, origin, pending_phase_ref, phase.candidate_receipt_ref)
+            action_reads.append(context)
+            return context
+
+        monkeypatch.setattr(
+            actions, "_current_candidate_experiment_reentry_action_context", read_action
+        )
+        monkeypatch.setattr(
+            owners.bridge,
+            "resolve_candidate_experiment_reentry_budget_window",
+            lambda **_: pytest.fail("budget observation re-resolved the selected window"),
+        )
+        monkeypatch.setattr(
+            service,
+            "build_candidate_experiment_reentry_budget_observer",
+            lambda **_: pytest.fail("budget observer repeated the full action read"),
+        )
+        built_observers: list[ProducerBudgetObserver] = []
+        build_observer = service._build_candidate_experiment_reentry_budget_observer_from_context
+
+        def capture_observer(**kwargs: Any) -> ProducerBudgetObserver:
+            observer = build_observer(**kwargs)
+            built_observers.append(observer)
+            return observer
+
+        monkeypatch.setattr(
+            service,
+            "_build_candidate_experiment_reentry_budget_observer_from_context",
+            capture_observer,
+        )
+        owner = CandidateExperimentEvaluationCurrentOwner(
+            bridge=owners.bridge,
+            origin=origin,
+            selection=selection,
+            pending_phase_ref=pending_phase_ref,
+            action_phase_ref=action.action_phase_ref,
+            candidate_action_ref=phase.candidate_receipt_ref,
+            candidate_world_intent_ref=origin.policy_ref,
+            current_basis_ref=origin.policy_ref,
+            decision_ref=origin.policy_ref,
+            prior_owner=None,  # The read-only budget observation does not consume prior N5.
+            prepared_n5_configuration=prepare_joint_simulation_configuration(),
+            budget_window=window,
+            comparison="not_established",
         )
         before = ledger_path.read_bytes()
         if live_change == "head":
             live["head"] = replace(head, receipt_ref="sha256:" + "8" * 64)
+        elif live_change == "head_profile":
+            live["head"] = replace(head, receipt_manifest_profile_sha256="sha256:" + "8" * 64)
         elif live_change == "lease":
             live["admission"] = replace(
                 admission,
                 job=replace(record, state="completed"),
             )
         elif live_change == "window":
-            monkeypatch.setattr(settlement_store, "resolve_reentry_budget_window_safe", lambda _scope: None)
-
-        def build_observer() -> object:
-            return service._build_candidate_experiment_reentry_budget_observer_from_context(
-                origin=origin,
-                world_growth_bridge=owners.bridge,
-                candidate_action_ref=phase.candidate_receipt_ref,
-                budget_state=budget_state,
-                reentry_budget_scope=scope,
-                pending_phase_ref=pending_phase_ref,
-                context=context,
+            monkeypatch.setattr(
+                settlement_store, "resolve_reentry_budget_window_safe", lambda _scope: None
             )
 
         if expected_error is None:
-            observer = build_observer()
-            from polisyos.scientist.orchestration.engine.producer_budget import (
-                ProducerBudgetObserver,
+            observed_state, observation = _candidate_experiment_budget_snapshot(
+                owner, budget_state=budget_state
             )
-
-            assert type(observer) is ProducerBudgetObserver
-            assert ledger_path.read_bytes() == before
+            assert observed_state is budget_state
+            assert observation.run_binding == binding
+            assert observation.predicate_basis == "independently_reconciled"
+            assert observation.producer_spent_usd == Decimal("0.01")
+            (observer,) = built_observers
             assert observer.bind_existing_invocation_policy_from_selected_owner(quota) == profile
             assert settlement_store.snapshot_safe().invocation_profiles[binding.run_id] == profile
         else:
             with pytest.raises(ValueError, match=expected_error):
-                build_observer()
-            assert ledger_path.read_bytes() == before
+                _candidate_experiment_budget_snapshot(owner, budget_state=budget_state)
+            assert not built_observers
+        assert action_reads == [context]
+        assert ledger_path.read_bytes() == before
     finally:
         service.close()
 

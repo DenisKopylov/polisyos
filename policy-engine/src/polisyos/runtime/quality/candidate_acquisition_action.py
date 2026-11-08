@@ -31,7 +31,10 @@ if TYPE_CHECKING:
         ControlPlaneService,
         VerifiedAcquisitionActionOutcome,
     )
-    from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionAdmission
+    from polisyos.runtime.http.services.control_plane_store import (
+        AcquisitionActionHeadRecord,
+        ControlJobExecutionAdmission,
+    )
     from polisyos.runtime.quality.acquisition_executor import LiveSourceExecutionEvidence
     from polisyos.runtime.quality.acquisition_planner import AcquisitionRequirementBasisBinding
     from polisyos.runtime.quality.acquisition_route_loop import (
@@ -98,6 +101,7 @@ class _VerifiedCurrentCandidateExperimentReentryAction:
     phase: AcquisitionCandidateExperimentPhaseReceipt
     admission: ControlJobExecutionAdmission
     action: CandidateAcquisitionActionReceipt
+    head: AcquisitionActionHeadRecord
     budget_window: BudgetLedgerReentryBudgetWindow
 
 
@@ -767,6 +771,7 @@ def _current_candidate_experiment_reentry_action_context(
         phase=phase,
         admission=admission,
         action=receipt,
+        head=action_context.outcome.head,
         budget_window=window,
     )
 

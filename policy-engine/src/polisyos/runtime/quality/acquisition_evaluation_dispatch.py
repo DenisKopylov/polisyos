@@ -1587,6 +1587,9 @@ def _candidate_experiment_budget_snapshot(
 ) -> tuple[BudgetState, ProducerBudgetObservation]:
     """Read the live action budget without asking for N5 invocation capacity."""
     from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        _current_candidate_experiment_reentry_action_context,
+    )
     from polisyos.scientist.orchestration.engine import (
         BudgetState,
         ProducerBudgetObservation,
@@ -1602,10 +1605,13 @@ def _candidate_experiment_budget_snapshot(
         or service._control_store is not bridge.control_store
     ):
         raise ValueError("candidate_experiment_retained_budget_owner_not_established")
-    window = bridge.resolve_candidate_experiment_reentry_budget_window(
-        origin=owner.origin,
-        candidate_action_ref=owner.candidate_action_ref,
+    context = _current_candidate_experiment_reentry_action_context(
+        bridge,
+        owner.origin,
+        owner.pending_phase_ref,
+        owner.candidate_action_ref,
     )
+    window = context.budget_window
     if window != owner.budget_window:
         raise ValueError("candidate_experiment_retained_budget_window_changed")
     state = budget_state
@@ -1615,11 +1621,14 @@ def _candidate_experiment_budget_snapshot(
         )
     if type(state) is not BudgetState:
         raise ValueError("candidate_experiment_retained_budget_state_untyped")
-    observer = service.build_candidate_experiment_reentry_budget_observer(
+    observer = service._build_candidate_experiment_reentry_budget_observer_from_context(
         origin=owner.origin,
+        world_growth_bridge=bridge,
         candidate_action_ref=owner.candidate_action_ref,
         budget_state=state,
         reentry_budget_scope=window.scope,
+        pending_phase_ref=owner.pending_phase_ref,
+        context=context,
     )
     if type(observer) is not ProducerBudgetObserver:
         raise ValueError("candidate_experiment_retained_budget_observer_untyped")
@@ -1725,6 +1734,7 @@ def _revalidate_candidate_experiment_evaluation_owner(
     )
     from polisyos.runtime.quality.candidate_acquisition_action import (
         _current_candidate_experiment_reentry_action,
+        _current_candidate_experiment_reentry_action_context,
     )
     from polisyos.runtime.quality.candidate_source_basis import (
         _candidate_source_predecessors_for_verified_experiment_origin,
@@ -1752,11 +1762,17 @@ def _revalidate_candidate_experiment_evaluation_owner(
         or type(owner.prepared_n5_configuration) is not PreparedJointSimulationConfiguration
     ):
         raise ValueError("candidate_experiment_evaluation_owner_not_composed")
-    selection, phase, admission, action = _current_candidate_experiment_reentry_action(
+    context = _current_candidate_experiment_reentry_action_context(
         bridge,
         owner.origin,
         owner.pending_phase_ref,
         owner.candidate_action_ref,
+    )
+    selection, phase, admission, action = (
+        context.selection,
+        context.phase,
+        context.admission,
+        context.action,
     )
     if (
         selection != owner.selection
@@ -1828,10 +1844,7 @@ def _revalidate_candidate_experiment_evaluation_owner(
     )
     if bridge.control_store.read_acquisition_evaluation_frontier(key) != current_frontier:
         raise ValueError("candidate_experiment_evaluation_frontier_changed")
-    window = bridge.resolve_candidate_experiment_reentry_budget_window(
-        origin=owner.origin,
-        candidate_action_ref=owner.candidate_action_ref,
-    )
+    window = context.budget_window
     if window != owner.budget_window:
         raise ValueError("candidate_experiment_evaluation_budget_window_changed")
     profile = prior_owner.profile
@@ -2963,7 +2976,8 @@ def _revalidate_candidate_experiment_reentry_owner(
     admission = reentry_context.admission
     action = reentry_context.action
     if (
-        phase.receipt_phase != "candidate_input_reentry_pending"
+        reentry_context.head != owner.predecessor_head
+        or phase.receipt_phase != "candidate_input_reentry_pending"
         or action.action_phase_ref != owner.action_phase_ref
         or action.action_job_id != terminal.job_id
         or action.action_generation != terminal.action_generation
@@ -3099,11 +3113,14 @@ def _revalidate_candidate_experiment_reentry_owner(
     ):
         raise ValueError("candidate_experiment_reentry_receipt_binding_mismatch")
     try:
-        observer = service.build_candidate_experiment_reentry_budget_observer(
+        observer = service._build_candidate_experiment_reentry_budget_observer_from_context(
             origin=origin,
+            world_growth_bridge=bridge,
             candidate_action_ref=owner.candidate_action_ref,
             budget_state=owner.budget_state,
             reentry_budget_scope=owner.reentry_budget_scope,
+            pending_phase_ref=owner.predecessor_head.receipt_ref,
+            context=reentry_context,
         )
         if type(observer) is not ProducerBudgetObserver:
             raise ValueError("candidate_experiment_reentry_budget_owner_untyped")

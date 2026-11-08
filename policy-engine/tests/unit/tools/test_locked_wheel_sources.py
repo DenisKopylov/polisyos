@@ -286,6 +286,174 @@ def test_locked_wheel_selects_exact_installed_source(
 
 
 @pytest.mark.parametrize(
+    ("mode", "failure"),
+    [
+        ("matched", None),
+        ("missing", "provider_local_wheel_unavailable"),
+        ("wrong_size", "provider_wheel_size_mismatch"),
+        ("same_name", "provider_wheel_digest_mismatch"),
+    ],
+)
+def test_authority_launcher_reconciles_an_explicit_retained_wheel(
+    tmp_path: Path, mode: str, failure: str | None
+) -> None:
+    """The real launcher supplies only completed, hash-bound local provider members."""
+    original_product = Path(__file__).resolve().parents[3]
+    root = tmp_path.resolve()
+    product = root / "policy-engine"
+    site, provider_source, lock, content = _distribution(product)
+    member_sha256 = hashlib.sha256(provider_source.read_bytes()).hexdigest()
+    venv = product / ".venv"
+    python = venv / "bin/python"
+    python.parent.mkdir(parents=True)
+    interpreter = Path(sys.executable).resolve()
+    python.symlink_to(interpreter)
+    (venv / "pyvenv.cfg").write_text(
+        f"home = {interpreter.parent}\ninclude-system-site-packages = false\n",
+        encoding="utf-8",
+    )
+    install_site = venv / "lib/python3.14/site-packages"
+    install_site.parent.mkdir(parents=True)
+    site.rename(install_site)
+    retained = root / "retained wheels"
+    retained.mkdir()
+    archive = retained / "sample_provider-1.0-py3-none-any.whl"
+    if mode == "matched":
+        archive.write_bytes(content)
+    elif mode == "wrong_size":
+        archive.write_bytes(content + b"!")
+    elif mode == "same_name":
+        archive.write_bytes(bytes([content[0] ^ 1]) + content[1:])
+
+    fixture_source = {
+        "src/polisyos/__init__.py": "",
+        "src/polisyos/runtime/quality/confidence_ledger.py": "",
+        "tools/__init__.py": "",
+        "tools/ops_runners/__init__.py": "",
+        "tools/ops_runners/runtime_cli.py": r"""
+import importlib
+import importlib.util
+import json
+import sys
+import urllib.request
+from pathlib import Path
+
+
+def main(argv):
+    network_calls = []
+
+    def unexpected_network(*args, **kwargs):
+        network_calls.append(True)
+        raise AssertionError("retained-wheel mode attempted network transport")
+
+    urllib.request.urlopen = unexpected_network
+    session = sys.__dict__["_polisyos_loaded_host_v1"]
+    read_member = session["locked_python_member"]
+    assert importlib.util.find_spec("sample_provider") is not None
+    lookup_only = read_member("sample_provider")
+    provider = importlib.import_module("sample_provider")
+    member = read_member("sample_provider")
+    selector = session["external_source_selector"]
+    failure = selector.failure_for("sample_provider")
+    if member is not None:
+        session["external_source_selector"] = object()
+        assert read_member("sample_provider") is None
+        session["external_source_selector"] = selector
+        selected = selector._selected["sample_provider"]
+        wheel_key = next(
+            key for key, row in selector._wheels.items() if row and row[0] == member[3]
+        )
+        wheel = selector._wheels[wheel_key]
+        forged = "sha256:" + "0" * 64
+        selector._selected["sample_provider"] = (*selected[:2], forged)
+        selector._wheels[wheel_key] = (forged, wheel[1])
+        assert read_member("sample_provider") is None
+        selector._wheels[wheel_key] = wheel
+        selector._selected["sample_provider"] = selected
+        assert read_member("sample_provider") == member
+        lock = Path("uv.lock")
+        original_lock = lock.read_bytes()
+        lock.write_bytes(original_lock + b"\n")
+        assert read_member("sample_provider") is None
+        lock.write_bytes(original_lock)
+        assert read_member("sample_provider") == member
+        source = Path(provider.__file__)
+        source.write_bytes(b"value = 8\n")
+        assert read_member("sample_provider") is None
+    print(json.dumps({
+        "value": provider.value,
+        "member": member,
+        "failure": failure,
+        "lookup_only": lookup_only,
+        "network_calls": network_calls,
+        "authority": session["profile"]["authority"],
+        "argv": argv,
+    }))
+""",
+        "pyproject.toml": "",
+    }
+    for relative, body in fixture_source.items():
+        path = product / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(body, encoding="utf-8")
+    (product / "uv.lock").write_bytes(lock)
+    launcher_paths = (
+        "tools/authority",
+        "tools/authority_bootstrap.py",
+        "tools/loaded_execution_capture.py",
+    )
+    for relative in launcher_paths:
+        shutil.copy2(original_product / relative, product / relative)
+    git = ["/usr/bin/git", "-C", str(root)]
+    git_env = host._git_environment()
+    subprocess.run([*git, "init", "-q"], env=git_env, check=True, capture_output=True, timeout=10)
+    tracked = [str(product / name) for name in (*fixture_source, "uv.lock", *launcher_paths)]
+    subprocess.run(
+        [*git, "add", "--", *tracked], env=git_env, check=True, capture_output=True, timeout=10
+    )
+    subprocess.run(
+        [
+            *git,
+            "-c",
+            "user.name=Wheel Fixture",
+            "-c",
+            "user.email=fixture@example.invalid",
+            "commit",
+            "-qm",
+            "Select launcher and locked input",
+        ],
+        env=git_env,
+        check=True,
+        capture_output=True,
+        timeout=10,
+    )
+    result = subprocess.run(
+        [str(product / "tools/authority"), "--wheel-dir", str(retained), "runtime", "probe"],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=25,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    expected_member = [
+        "sample_provider",
+        ".venv/lib/python3.14/site-packages/sample_provider/__init__.py",
+        member_sha256,
+        f"sha256:{hashlib.sha256(content).hexdigest()}",
+        hashlib.sha256(lock).hexdigest(),
+    ]
+    assert json.loads(result.stdout) == {
+        "value": 7,
+        "member": expected_member if failure is None else None,
+        "failure": failure,
+        "lookup_only": None,
+        "network_calls": [],
+        "authority": False,
+        "argv": ["probe"],
+    }
+
+
+@pytest.mark.parametrize(
     "mode",
     [
         "positive",

@@ -336,12 +336,24 @@ class _LockedWheelSourceSelector:
     does not qualify native code, semantic state, or protected use.
     """
 
-    def __init__(self, root: Path, site: Path, lock_bytes: bytes) -> None:
+    def __init__(
+        self,
+        root: Path,
+        site: Path,
+        lock_bytes: bytes,
+        *,
+        wheel_directory: Path | None = None,
+    ) -> None:
         self._root = root.resolve(strict=True)
         self._site_alias = site.absolute()
         self._site = site.resolve(strict=True)
         if not self._site_alias.is_relative_to(self._root) or ".." in self._site_alias.parts:
             raise ValueError("provider_site_outside_checkout")
+        if wheel_directory is not None and (
+            wheel_directory.resolve(strict=True) != wheel_directory or not wheel_directory.is_dir()
+        ):
+            raise ValueError("provider_wheel_directory_unavailable")
+        self._wheel_directory = wheel_directory
         document = tomllib.loads(lock_bytes.decode("utf-8"))
         packages = document.get("package")
         if type(packages) is not list:
@@ -407,6 +419,29 @@ class _LockedWheelSourceSelector:
         with urllib.request.urlopen(url, timeout=15) as response:  # noqa: S310
             content = response.read(size + 1)
         if type(content) is not bytes or len(content) != size:
+            raise ValueError("provider_wheel_size_mismatch")
+        return content
+
+    def _local_archive_bytes(self, directory: Path, url: str, size: int) -> bytes:
+        parsed = urllib.parse.urlsplit(url)
+        name = PurePosixPath(parsed.path).name
+        if parsed.scheme != "https" or not parsed.hostname or not self._safe_member(name):
+            raise ValueError("provider_wheel_url_unsupported")
+        try:
+            descriptor = os.open(directory / name, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW)
+            try:
+                info = os.fstat(descriptor)
+                if not stat.S_ISREG(info.st_mode):
+                    raise ValueError("provider_local_wheel_unavailable")
+                if info.st_size != size:
+                    raise ValueError("provider_wheel_size_mismatch")
+                with os.fdopen(descriptor, "rb", closefd=False) as archive:
+                    content = archive.read(size + 1)
+            finally:
+                os.close(descriptor)
+        except OSError as exc:
+            raise ValueError("provider_local_wheel_unavailable") from exc
+        if len(content) != size:
             raise ValueError("provider_wheel_size_mismatch")
         return content
 
@@ -476,12 +511,18 @@ class _LockedWheelSourceSelector:
             if content is None:
                 if self._network_unavailable or wheel["size"] > self._remaining_bytes:
                     raise ValueError("provider_wheel_budget_unavailable")
-                self._remaining_bytes -= wheel["size"]
-                try:
-                    content = self._archive_bytes(wheel["url"], wheel["size"])
-                except OSError:
-                    self._network_unavailable = True
-                    raise
+                if self._wheel_directory is not None:
+                    content = self._local_archive_bytes(
+                        self._wheel_directory, wheel["url"], wheel["size"]
+                    )
+                    self._remaining_bytes -= wheel["size"]
+                else:
+                    self._remaining_bytes -= wheel["size"]
+                    try:
+                        content = self._archive_bytes(wheel["url"], wheel["size"])
+                    except OSError:
+                        self._network_unavailable = True
+                        raise
             wheel_hash = f"sha256:{_sha(content)}"
             if wheel_hash != wheel["hash"]:
                 raise ValueError("provider_wheel_digest_mismatch")
@@ -598,8 +639,10 @@ class _LockedWheelSourceSelector:
             )
             return None
 
-    def select(self, module_name: str, origin: str) -> tuple[str, str] | None:
-        """Bind a loaded module's path to its verified wheel member bytes."""
+    def select(
+        self, module_name: str, origin: str, *, _retained_only: bool = False
+    ) -> tuple[str, str] | None:
+        """Bind a loaded path to verified wheel bytes or recheck an existing selection."""
 
         if type(module_name) is not str or type(origin) is not str or module_name in self._refused:
             return None
@@ -629,7 +672,11 @@ class _LockedWheelSourceSelector:
             owners = self._record_owners().get(relative, [])
             if len(owners) != 1:
                 raise ValueError("provider_distribution_owner_unavailable")
-            selected = self._wheel_members(owners[0])
+            selected = (
+                self._wheels.get((owners[0], None))
+                if _retained_only
+                else self._wheel_members(owners[0])
+            )
             if selected is None:
                 raise ValueError(self._wheel_failures.get(owners[0], "provider_wheel_unavailable"))
             wheel_hash, members = selected
@@ -637,7 +684,12 @@ class _LockedWheelSourceSelector:
             if digest is None or _file_sha(canonical_path) != digest:
                 raise ValueError("provider_installed_source_mismatch")
             checkout_relative = path.relative_to(self._root).as_posix()
-            self._selected[module_name] = (checkout_relative, digest, wheel_hash)
+            member = (checkout_relative, digest, wheel_hash)
+            if _retained_only:
+                if self._selected.get(module_name) != member:
+                    raise ValueError("provider_selected_member_unavailable")
+            else:
+                self._selected[module_name] = member
             return checkout_relative, digest
         except (OSError, ValueError) as exc:
             self._refused[module_name] = (
@@ -765,7 +817,7 @@ raise SystemExit(module._child_main(channel, request))
 """
 
 
-def _launch(mode: str, argv: Sequence[str]) -> int:
+def _launch(mode: str, argv: Sequence[str], *, wheel_directory: Path | None = None) -> int:
     if (
         not (_PRODUCT / "src/polisyos").is_dir()
         or not (_PRODUCT / "uv.lock").is_file()
@@ -791,6 +843,7 @@ def _launch(mode: str, argv: Sequence[str]) -> int:
         "parent_pid": os.getpid(),
         "mode": mode,
         "argv": list(argv),
+        "wheel_directory": None if wheel_directory is None else str(wheel_directory),
         "root": str(_PRODUCT),
         "source_frame": source_frame,
         "sources": sources,
@@ -1132,19 +1185,48 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
     capture_failure = None
     selector: _LockedWheelSourceSelector | None = None
     selector_failure = None
+    lock_path = _PRODUCT / "uv.lock"
+    selected_lock_sha256 = None
     site = Path(sys.prefix) / "lib/python3.14/site-packages"
     try:
-        lock_path = _PRODUCT / "uv.lock"
         lock_bytes = lock_path.read_bytes()
+        lock_sha256 = _sha(lock_bytes)
         source_frame = cast("dict[str, str]", request["source_frame"])
         if (
             lock_path.resolve(strict=True) != lock_path
-            or _sha(lock_bytes) != source_frame["lock_sha256"]
+            or lock_sha256 != source_frame["lock_sha256"]
         ):
             raise ValueError("provider_lock_source_changed")
-        selector = _LockedWheelSourceSelector(_PRODUCT, site, lock_bytes)
+        wheel_directory = request.get("wheel_directory")
+        if wheel_directory is not None and type(wheel_directory) is not str:
+            raise ValueError("provider_wheel_directory_unavailable")
+        selector = _LockedWheelSourceSelector(
+            _PRODUCT,
+            site,
+            lock_bytes,
+            wheel_directory=None if wheel_directory is None else Path(wheel_directory),
+        )
+        selected_lock_sha256 = lock_sha256
     except (KeyError, OSError, TypeError, UnicodeError, ValueError) as exc:
         selector_failure = type(exc).__name__
+    select_wheel_source = None if selector is None else selector.select
+    selector_code = None if select_wheel_source is None else select_wheel_source.__func__.__code__
+    held_members: dict[str, tuple[str, str, str]] = {}
+
+    def select_locked_source(module_name: str, origin: str) -> tuple[str, str] | None:
+        if (
+            selector is None
+            or select_wheel_source is None
+            or select_wheel_source.__func__.__code__ is not selector_code
+        ):
+            return None
+        selected = select_wheel_source(module_name, origin)
+        if selected is not None:
+            member = selector._selected[module_name]
+            if held_members.setdefault(module_name, member) != member:
+                return None
+        return selected
+
     try:
         exports = {
             name: set(bindings)
@@ -1159,7 +1241,7 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
             _PRODUCT,
             sources,
             exports=exports,
-            external_source_selector=None if selector is None else selector.select,
+            external_source_selector=None if selector is None else select_locked_source,
             external_source_root=None if selector is None else site,
         )
         capture.install()
@@ -1180,6 +1262,47 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
         recorder_functions,
         recorder_classes,
     ) = recorder_surface
+
+    def locked_python_member(module_name: str) -> tuple[str, str, str, str, str] | None:
+        """Reconcile a recorded member at this live host endpoint."""
+        if (
+            type(module_name) is not str
+            or selector is None
+            or select_wheel_source is None
+            or selected_lock_sha256 is None
+            or capture is None
+            or _HOST_SESSION is not session
+            or sys.__dict__.get(_HOST_SLOT) is not session
+            or session.get("capture") is not capture
+            or session.get("external_source_selector") is not selector
+            or session.get("locked_python_member") is not locked_python_member
+            or session.get("phase") != "collecting"
+            or session.get("pid") != os.getpid()
+            or session.get("parent_pid") != os.getppid()
+            or not _recorder_surface_unchanged(session)
+            or select_wheel_source.__func__.__code__ is not selector_code
+            or vars(capture).get("_external_source_selector") is not select_locked_source
+        ):
+            return None
+        member = held_members.get(module_name)
+        if member is None or selector._selected.get(module_name) != member:
+            return None
+        try:
+            execution = capture.completed(module_name)
+            capture.assert_retained(frozenset({module_name}))
+            if (
+                type(execution) is not recorder.ModuleExecution
+                or (execution.relative_path, execution.source_sha256) != member[:2]
+                or lock_path.resolve(strict=True) != lock_path
+                or _file_sha(lock_path) != selected_lock_sha256
+                or select_wheel_source(module_name, execution.origin, _retained_only=True)
+                != member[:2]
+            ):
+                return None
+        except (ImportError, OSError, RuntimeError, TypeError, ValueError):
+            return None
+        return (module_name, *member, selected_lock_sha256)
+
     # Strong live references stay in this child; a serialized request or parent
     # process cannot provide an installed capture to a different process.
     profile = _measure_profile()
@@ -1201,6 +1324,7 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
         "capture": capture,
         "external_source_selector": selector,
         "external_source_selector_failure": selector_failure,
+        "locked_python_member": locked_python_member,
         "profile": profile,
         "source_frame": request["source_frame"],
         "host_sha256": request["host_sha256"],
@@ -1315,6 +1439,9 @@ def _invoke_entry(mode: str, arguments: list[str], *, candidate_reason: str | No
                 report["external_provider_sources"] = {
                     "selected_modules": len(selector._selected),
                     "refused_modules": len(selector._refused),
+                    "archive_transport": (
+                        "network" if selector._wheel_directory is None else "retained_directory"
+                    ),
                     "failure_codes": sorted(set(selector._refused.values())),
                     "scope": (
                         "observed locked wheel Python members; provider authority not established"
@@ -1598,13 +1725,22 @@ def ukraine_data_main(argv: Sequence[str] | None = None) -> int:
 def main(argv: Sequence[str] | None = None) -> int:
     """Select an existing CLI, HTTP server, or serial pytest entry."""
     args = list(sys.argv[1:] if argv is None else argv)
+    wheel_directory = None
+    if args[:1] == ["--wheel-dir"] and len(args) >= 3 and args[1]:
+        try:
+            wheel_directory = Path(args[1]).resolve(strict=True)
+            if not wheel_directory.is_dir():
+                raise ValueError("provider_wheel_directory_unavailable")
+        except (OSError, RuntimeError, ValueError) as exc:
+            raise SystemExit("provider_wheel_directory_unavailable") from exc
+        args = args[2:]
     if not args or args[0] not in {*_ENTRY_TARGETS, "test", "diagnose"}:
         raise SystemExit(
-            "usage: authority_bootstrap.py "
+            "usage: authority_bootstrap.py [--wheel-dir DIRECTORY] "
             "{tools|runtime|foundry|server|polisy|causal-capabilities|"
             "ukraine-data|test|diagnose} [arguments...]"
         )
-    return _launch(args[0], args[1:])
+    return _launch(args[0], args[1:], wheel_directory=wheel_directory)
 
 
 if __name__ == "__main__":

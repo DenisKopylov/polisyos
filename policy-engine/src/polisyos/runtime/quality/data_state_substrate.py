@@ -2109,6 +2109,7 @@ def _read_acquired_observation_selection(
     from polisyos.data_forge.read_api.catalog import CanonicalAcquisitionObservation
     from polisyos.fabric import data_plane
     from polisyos.runtime.quality.data_snapshot_lineage import (
+        DataSnapshotLineageError,
         validate_data_snapshot_owner_lineage,
     )
 
@@ -2190,6 +2191,13 @@ def _read_acquired_observation_selection(
     except DataStateSubstrateError:
         raise
     except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        if type(exc) is DataSnapshotLineageError:
+            cause = exc.__cause__
+            if (
+                type(cause) is DataStateSubstrateError
+                and cause.code == "acquisition_semantic_source_unverified"
+            ):
+                raise DataStateSubstrateError(cause.code) from exc
         raise DataStateSubstrateError("acquisition_semantic_snapshot_unresolved", str(exc)) from exc
 
 
@@ -2591,8 +2599,7 @@ def _acquired_observation_data_snapshot(
     projection = prepared.observation_projection
     if prepared.semantic_input_selection is None:
         snapshot_id = (
-            "gy-s1-acquisition-overlay-"
-            + str(payload_ref.artifact_id).removeprefix("sha256:")[:20]
+            "gy-s1-acquisition-overlay-" + str(payload_ref.artifact_id).removeprefix("sha256:")[:20]
         )
         return core_contracts.DataSnapshotOwnerBound(
             data_ref=payload_ref,
@@ -2707,9 +2714,7 @@ def verify_acquired_observation_snapshot_payload(
     )
     semantic_input_selection = (
         snapshot.source_lineage.selection
-        if isinstance(
-            snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage
-        )
+        if isinstance(snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage)
         else None
     )
     prepared = _prepare_acquired_observation_snapshot_from_projection(
@@ -2845,9 +2850,7 @@ def materialize_acquired_observation_snapshot(
         PutOptions(
             kind="fabric.data_snapshot",
             media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.core.DataSnapshot", version=snapshot_schema_version
-            ),
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version=snapshot_schema_version),
             inputs=[
                 input_ref_from_artifact_ref(
                     payload_ref,

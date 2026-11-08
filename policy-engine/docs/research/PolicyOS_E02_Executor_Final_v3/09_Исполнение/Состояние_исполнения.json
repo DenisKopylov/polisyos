@@ -9406,6 +9406,24 @@
             "wall_seconds": 96.61,
             "scope": "Authentic direct committed-terminal verifier performs one historical phase owner read, 15.56 seconds under concurrent load. Same candidate-only public GET. Removing original signed PA2 bytes in isolated CAS returns 409, restoration returns identical 200. Previous attempt measured one call but failed a probe-only raw-blob digest assumption before removal. No full-route elapsed claim. Independently reviewed, published, read back; composed source remains frozen."
           },
+          "retained_r33_worker_recovery_r10": {
+            "source_commit": "be7255f83299aa421c9da59a4ba8ff4ffb35d350",
+            "source_tree": "16b1e088852c7dec5dcbf447aaea4927b34fefdc",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-r33-retained-recovery-r10",
+            "observed": {"PASS": 1},
+            "named_inputs": 18,
+            "inputs_unchanged": true,
+            "wall_seconds": 7526.73,
+            "scope": "Actual expired attempt 1 reclaimed as attempt 2 in isolated SQLite. Same original terminal CAS, event and selected N5 profile, terminal SQL head 5 and four standard units. HTTP 200 after worker dispatch under the reopened served owner. No N5, source transport or original ledger write. Independent post-recovery process is a separate check."
+          },
+          "changed_c_r2_and_cpi_r10_post_worker_authentication": {
+            "source_commit": "be7255f83299aa421c9da59a4ba8ff4ffb35d350",
+            "source_tree": "16b1e088852c7dec5dcbf447aaea4927b34fefdc",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-candidate-changed-c-native-r2 and lane01-cpi-protected-main-r10",
+            "observed": {"FAIL": 2},
+            "inputs_unchanged": true,
+            "scope": "Separate native invocations with 76 and 46 stable pins. Both workers finish and select B terminal CAS and SQL head 5. Both pytest invocations fail at the post-worker GET with HTTP 401 and Token expired. Same-input B and changed C are UNRUN. Retained CPI readback is separate from the original pytest verdict."
+          },
           "native_protected_quota_composed_r1": {
             "source_commit": "fa2440962c3302d5679f8d539201eed5b573aa6a",
             "output": "MAIN:policy-engine/_cache/e02/lane01-protected-quota-composed-r1",

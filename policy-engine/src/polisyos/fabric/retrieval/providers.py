@@ -5,9 +5,10 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
+# Keep this module available for runtime type-hint resolution.
+import polisyos.core.observability as _core_observability  # noqa: TC001
 from polisyos.core.observability import (
     MetricsRegistry,
-    PolicyOSTracer,
     get_metrics,
     get_tracer,
 )
@@ -21,13 +22,12 @@ class RetrievalProviders:
 
     registry: ConnectorRegistry
     profiles: SourceProfileRegistry
-    tracer: PolicyOSTracer
+    tracer: _core_observability.PolicyOSTracer
     metrics: MetricsRegistry
 
 
 RetrievalRegistryFactory = Callable[[], ConnectorRegistry]
 RetrievalProfilesFactory = Callable[[], SourceProfileRegistry]
-RetrievalTracerFactory = Callable[[], PolicyOSTracer]
 RetrievalMetricsFactory = Callable[[], MetricsRegistry]
 
 
@@ -35,11 +35,11 @@ def resolve_retrieval_providers(
     *,
     registry: ConnectorRegistry | None = None,
     profiles: SourceProfileRegistry | None = None,
-    tracer: PolicyOSTracer | None = None,
+    tracer: _core_observability.PolicyOSTracer | None = None,
     metrics: MetricsRegistry | None = None,
     registry_factory: RetrievalRegistryFactory | None = None,
     profiles_factory: RetrievalProfilesFactory | None = None,
-    tracer_factory: RetrievalTracerFactory | None = None,
+    tracer_factory: Callable[[], _core_observability.PolicyOSTracer] | None = None,
     metrics_factory: RetrievalMetricsFactory | None = None,
 ) -> RetrievalProviders:
     """Resolve the retrieval provider bundle, defaulting only at the outer boundary."""
@@ -68,7 +68,7 @@ def _default_profiles() -> SourceProfileRegistry:
     return SourceProfileRegistry.get_instance()
 
 
-def _default_tracer() -> PolicyOSTracer:
+def _default_tracer() -> _core_observability.PolicyOSTracer:
     return get_tracer()
 
 

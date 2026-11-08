@@ -1,7 +1,30 @@
 from __future__ import annotations
 
+from collections.abc import Callable
+from typing import get_type_hints
+
+from polisyos.core.observability import PolicyOSTracer
 from polisyos.fabric.catalog.providers import resolve_catalog_providers
-from polisyos.fabric.retrieval.providers import resolve_retrieval_providers
+from polisyos.fabric.connectors.federation import DataComposer
+from polisyos.fabric.ingestion.ingestion_providers import (
+    IngestionDependencies,
+    resolve_ingestion_dependencies,
+)
+from polisyos.fabric.retrieval.providers import RetrievalProviders, resolve_retrieval_providers
+from polisyos.fabric.world.providers import WorldObservabilityProviders, resolve_world_observability
+
+
+def test_fabric_provider_tracer_annotations_resolve_to_runtime_tracer() -> None:
+    for providers, resolve in (
+        (IngestionDependencies, resolve_ingestion_dependencies),
+        (RetrievalProviders, resolve_retrieval_providers),
+        (WorldObservabilityProviders, resolve_world_observability),
+    ):
+        assert get_type_hints(providers)["tracer"] is PolicyOSTracer
+        annotations = get_type_hints(resolve)
+        assert annotations["tracer"] == PolicyOSTracer | None
+        assert annotations["tracer_factory"] == Callable[[], PolicyOSTracer] | None
+    assert get_type_hints(DataComposer.__init__)["tracer"] == PolicyOSTracer | None
 
 
 def test_resolve_retrieval_providers_uses_factory_overrides(monkeypatch) -> None:

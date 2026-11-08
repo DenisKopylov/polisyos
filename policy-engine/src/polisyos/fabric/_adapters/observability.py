@@ -10,10 +10,11 @@ from enum import Enum
 from math import isfinite
 from typing import TYPE_CHECKING, Any, Protocol, TypeGuard, cast
 
+# Keep this module available for runtime type-hint resolution.
+import polisyos.core.observability as _core_observability  # noqa: TC001
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import (
     MetricsRegistry,
-    PolicyOSTracer,
     get_current_trace_context,
     get_metrics,
     get_tracer,
@@ -173,7 +174,7 @@ def _default_metrics() -> MetricsRegistry:
     return get_metrics()
 
 
-def _default_tracer() -> PolicyOSTracer:
+def _default_tracer() -> _core_observability.PolicyOSTracer:
     return get_tracer()
 
 

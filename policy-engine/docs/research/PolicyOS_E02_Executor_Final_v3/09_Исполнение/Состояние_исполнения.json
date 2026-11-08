@@ -9315,6 +9315,53 @@
             "wall_seconds": 38.51,
             "scope": "Independently reviewed author delta finds the exact pending phase with a scoped SQL lookup before full owner replay. Missing or stale locator refuses; later CAS, quota and owner fences remain. Published and read back. Main composition and elapsed improvement remain pending."
           },
+          "changed_c_native_r1_frontier_readback_failure": {
+            "source_commit": "4d408d8a7719ce507402ed7df9a00278352b65cb",
+            "source_tree": "5da37d092e5bf0028d191b97c88b537eec42988d",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-candidate-changed-c-native-r1",
+            "observed": {
+              "FAIL": 1
+            },
+            "named_inputs": 75,
+            "inputs_unchanged": true,
+            "wall_seconds": 6989.51,
+            "scope": "Actual first B persists exact N5, terminal CAS, event and committed SQL head 5 for action generation 1, then the stock guarded control store is refused at post-write frontier readback. The old job remains failed; B-repeat and C did not start. 243 reentry calls total 3555.19 inclusive seconds."
+          },
+          "guarded_frontier_and_late_fold_composed": {
+            "source_commit": "be7255f83299aa421c9da59a4ba8ff4ffb35d350",
+            "source_tree": "16b1e088852c7dec5dcbf447aaea4927b34fefdc",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-guarded-and-fold-composed-r1",
+            "observed": {
+              "PASS": 63
+            },
+            "named_inputs": 10,
+            "inputs_unchanged": true,
+            "wall_seconds": 31.36,
+            "scope": "Real guarded and direct SQLite frontier fold, foreign/removed state, selected and fallback quota, exact live owner and current/prior result controls. Final full tuple fold stays after reentry source selection; no held snapshot becomes authority. Independent reviews GO."
+          },
+          "retained_first_b_fresh_get_composed": {
+            "source_commit": "be7255f83299aa421c9da59a4ba8ff4ffb35d350",
+            "source_tree": "16b1e088852c7dec5dcbf447aaea4927b34fefdc",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-changed-c-retained-b-composed-r3",
+            "observed": {
+              "PASS": 1
+            },
+            "named_inputs": 10,
+            "inputs_unchanged": true,
+            "wall_seconds": 52.16,
+            "scope": "Fresh guarded Runtime independently verifies original committed B and returns authenticated HTTP 200 with exact selected N5 CAS profile, completed action, blocked evaluation and failed job attempt 1. Four standard units, head, event, CAS and ledger unchanged. No N5, source transport, worker dispatch or publication authority."
+          },
+          "retained_first_b_fresh_get_profile_removal": {
+            "source_commit": "be7255f83299aa421c9da59a4ba8ff4ffb35d350",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-changed-c-retained-b-removal-r1",
+            "observed": {
+              "PASS": 1
+            },
+            "named_inputs": 10,
+            "inputs_unchanged": true,
+            "wall_seconds": 74.21,
+            "scope": "Actual selected terminal profile removal on isolated CAS changes fresh authenticated GET from 200 to 409, candidate_experiment_policy_binding_unavailable. Restoring exact manifest bytes restores identical HTTP 200. Original CAS, accounting, failed job attempt and exact SQL head/event remain unchanged. No dispatch, transport or N5."
+          },
         "terminal_existing_quota_author_r1": {
           "source_commit": "8b7668875402ca182bd7a2a9c537aa962bdaf812",
           "source_tree": "de8cf58883e4c231e0bbf922f36fb22f3ebcb9fd",

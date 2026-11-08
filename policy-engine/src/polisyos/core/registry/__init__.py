@@ -56,7 +56,7 @@ _LAZY_IMPORTS = {
 
 def __getattr__(name: str) -> Any:
     """Resolve the exact registered owner of a public bundle helper."""
-    owner = _LAZY_IMPORTS.get(name)
-    if owner is None:
+    if name not in _LAZY_IMPORTS:
         raise AttributeError(f"module 'polisyos.core.registry' has no attribute {name!r}")
+    owner = _LAZY_IMPORTS[name]
     return getattr(import_module(owner), name)

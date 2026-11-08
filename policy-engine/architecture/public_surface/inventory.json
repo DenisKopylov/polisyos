@@ -4197,8 +4197,8 @@
                 "path": "src/polisyos/core/registry/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 2213,
-                "sha256": "2789daf785c361bb6797fb1339f8017aaf6bbb21595ccd52b1f84b18540f7e1d"
+                "bytes": 2221,
+                "sha256": "fcd1a3d7cc22b6f6189ce36b231cbe672bf17efd86f5c591b7e6ece10e4d979d"
               },
               {
                 "path": "src/polisyos/core/registry",

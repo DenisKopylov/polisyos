@@ -2144,19 +2144,25 @@ def test_core_registry_source_resolution_covers_all_direct_and_lazy_exports() ->
         )
 
 
-def test_core_registry_lazy_owner_map_is_literal_and_identity_preserving() -> None:
-    """Every lazy registry name selects one leaf owner and returns its actual object."""
+def test_core_registry_lazy_owner_map_is_literal_and_identity_preserving(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, request: pytest.FixtureRequest
+) -> None:
+    """Resolve each public registry owner and exercise the selected bundle reader."""
+    from polisyos.fabric.connectors.resilience.circuit_breaker import (
+        CircuitBreaker,
+        CircuitBreakerConfig,
+    )
+    from polisyos.runtime.http.resilience import BlockingDependencyGuard, GuardedDependencyProxy
 
     registry_path = REPO_ROOT / "src/polisyos/core/registry/__init__.py"
-    tree = ast.parse(
-        registry_path.read_bytes(), filename=registry_path.relative_to(REPO_ROOT).as_posix()
-    )
-    getter = next(
-        statement
-        for statement in tree.body
-        if isinstance(statement, ast.FunctionDef) and statement.name == "__getattr__"
-    )
     expected = {
+        "BaseRegistry": ("polisyos.core.registry.base", "BaseRegistry"),
+        "DuplicateDecision": ("polisyos.core.registry.base", "DuplicateDecision"),
+        "GenericRegistry": ("polisyos.core.registry.generic", "GenericRegistry"),
+        "GenericRegistrySnapshot": (
+            "polisyos.core.registry.generic",
+            "GenericRegistrySnapshot",
+        ),
         "RegistryBundleContent": ("polisyos.core.registry.loader", "RegistryBundleContent"),
         "load_registry_bundle": ("polisyos.core.registry.loader", "load_registry_bundle"),
         "load_registry_bundle_content": (
@@ -2181,16 +2187,21 @@ def test_core_registry_lazy_owner_map_is_literal_and_identity_preserving() -> No
             "build_registry_bundle_from_components",
         ),
     }
-    assert (
-        ledger_module._literal_module_getattr_local_object_providers(
-            tree, getter, "name", package_module_name="polisyos.core.registry"
-        )
-        == expected
-    )
-
     registry = importlib.import_module("polisyos.core.registry")
-    assert set(expected).issubset(registry.__all__)
+    assert len(registry.__all__) == len(expected)
+    assert set(registry.__all__) == expected.keys()
+    source_index = ledger_module._AuthorityImportClosureSourceIndex({}, {})
+    directory_entries: dict[Path, frozenset[str]] = {}
     for name, (provider_name, provider_symbol) in expected.items():
+        candidate = ledger_module._source_module_import_route_candidate(
+            REPO_ROOT,
+            registry.__name__,
+            name,
+            directory_entries=directory_entries,
+            source_index=source_index,
+            discovery_only=True,
+        )
+        assert candidate.route == ("symbol", provider_name, provider_symbol)
         provider = importlib.import_module(provider_name)
         assert getattr(registry, name) is vars(provider)[provider_symbol]
     unknown_export = "unknown_registry_export"
@@ -2199,6 +2210,40 @@ def test_core_registry_lazy_owner_map_is_literal_and_identity_preserving() -> No
         match=r"module 'polisyos\.core\.registry' has no attribute 'unknown_registry_export'",
     ):
         getattr(registry, unknown_export)
+
+    cas_path = tmp_path / "registry-cas"
+    bundle = registry.build_default_registry_bundle(
+        FileSystemCAS(cas_path), return_selected_profile=True
+    )
+    assert bundle.bundle_ref.manifest_profile_sha256 is not None
+    guard = BlockingDependencyGuard(
+        dependency_name="test-guarded-registry-cas",
+        timeout_seconds=2.0,
+        breaker=CircuitBreaker(
+            "test-guarded-registry-cas",
+            CircuitBreakerConfig(min_throughput=1),
+        ),
+    )
+    request.addfinalizer(guard.close)
+    fresh = GuardedDependencyProxy(target=FileSystemCAS(cas_path), guard=guard)
+    content = registry.load_registry_bundle_content(fresh, bundle.bundle_ref)
+    assert content.bundle_ref == bundle.bundle_ref
+    assert content.slot_registry.slots
+
+    closure = ((registry.__name__, registry_path.relative_to(REPO_ROOT).as_posix()),)
+    projection = ledger_module._source_facade_runtime_projection(REPO_ROOT, closure)
+    export = "load_registry_bundle_content"
+    original = registry.load_registry_bundle_content
+    alternate = importlib.import_module("polisyos.core.registry.builder")
+    with monkeypatch.context() as mutation:
+        mutation.setattr(alternate, export, original, raising=False)
+        mutation.setitem(registry._LAZY_IMPORTS, export, alternate.__name__)
+        assert registry.load_registry_bundle_content is original
+        with pytest.raises(
+            ConfidenceLedgerError, match=r"loaded facade map differs from source: .*\._LAZY_IMPORTS"
+        ):
+            ledger_module._source_facade_runtime_projection(REPO_ROOT, closure)
+    assert ledger_module._source_facade_runtime_projection(REPO_ROOT, closure) == projection
 
 
 def test_core_registry_exports_reconcile_to_live_api_and_factory(

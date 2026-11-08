@@ -2480,6 +2480,49 @@ class ExecuteRequest(BaseModel):
     return_selected_profile: bool = False
 
 
+class SemanticHorizonStepContext(BaseModel):
+    """Exact step and predecessor selected for one candidate ProgramGraph run."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    obligation_set_ref: ArtifactRef
+    steps: tuple[StrictInt, ...] = Field(min_length=1, max_length=64)
+    step_index: StrictInt = Field(ge=0)
+    replication_seed: StrictInt
+    previous_result_ref: SimulationResultRef | None = None
+
+    @model_validator(mode="after")
+    def _validate_step_selection(self) -> SemanticHorizonStepContext:
+        if (
+            self.steps[0] < 0
+            or tuple(sorted(set(self.steps))) != self.steps
+            or self.step_index >= len(self.steps)
+        ):
+            raise ValueError("semantic_horizon_step_schedule_invalid")
+        if (
+            self.obligation_set_ref.kind != "runtime.quality.model_input_obligation_set"
+            or self.obligation_set_ref.media_type != "application/json"
+            or self.obligation_set_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("semantic_horizon_obligation_set_unselected")
+        previous = self.previous_result_ref
+        if (previous is None) != (self.step_index == 0) or (
+            previous is not None and previous.manifest_profile_sha256 is None
+        ):
+            raise ValueError("semantic_horizon_predecessor_unselected")
+        return self
+
+    @property
+    def effective_step(self) -> int:
+        """Return this invocation's declared logical step."""
+        return self.steps[self.step_index]
+
+    @property
+    def effective_seed(self) -> int:
+        """Return the physical replication seed offset by the logical step."""
+        return self.replication_seed + self.effective_step
+
+
 class FoundryExecutionInputBasis(BaseModel):
     """Exact CAS-bound single-step inputs observed at the Foundry executor boundary.
 
@@ -2489,9 +2532,10 @@ class FoundryExecutionInputBasis(BaseModel):
 
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.FoundryExecutionInputBasis"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1")
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1", "1.2")
     ARTIFACT_REQUIRED_FIELDS_BY_SCHEMA_VERSION: ClassVar[dict[str, tuple[str, ...]]] = {
         "1.1": ("registered_sql_admission_ref",),
+        "1.2": ("semantic_horizon_step",),
     }
     ARTIFACT_KIND: ClassVar[Literal["foundry.execution_input_basis"]] = (
         "foundry.execution_input_basis"
@@ -2500,7 +2544,7 @@ class FoundryExecutionInputBasis(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.0", "1.1"] = "1.0"
+    schema_version: Literal["1.0", "1.1", "1.2"] = "1.0"
     authority_purpose: Literal["execution_input_identity_only"] = "execution_input_identity_only"
     execution_mode: Literal["single_step"] = "single_step"
     request: ExecuteRequest
@@ -2537,11 +2581,21 @@ class FoundryExecutionInputBasis(BaseModel):
     effective_nan_guard_enabled: bool
     effective_jit: bool
     effective_capture_env: bool
+    semantic_horizon_step: SemanticHorizonStepContext | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _validate_registered_sql_transport(self) -> FoundryExecutionInputBasis:
         if (self.registered_sql_admission_ref is not None) != (self.schema_version == "1.1"):
             raise ValueError("execution_input_basis_registered_sql_version_mismatch")
+        if (self.semantic_horizon_step is not None) != (self.schema_version == "1.2"):
+            raise ValueError("execution_input_basis_semantic_horizon_version_mismatch")
+        step = self.semantic_horizon_step
+        if step is not None and (
+            self.effective_step != step.effective_step or self.effective_seed != step.effective_seed
+        ):
+            raise ValueError("execution_input_basis_semantic_horizon_step_mismatch")
         return self
 
 

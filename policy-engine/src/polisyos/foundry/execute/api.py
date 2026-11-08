@@ -12,6 +12,8 @@ from __future__ import annotations
 from collections import Counter
 from collections.abc import Mapping
 from dataclasses import dataclass
+from hashlib import sha256
+from io import BytesIO
 from typing import Literal, Protocol, TypeVar, cast
 
 import numpy as np
@@ -71,12 +73,15 @@ from polisyos.core.contracts.foundry import (
     ParameterOverrideBundle,
     ParameterOverrideBundleRef,
     ProgramGraph,
+    SemanticHorizonStepContext,
     SimulationResult,
     SimulationResultRef,
     StateDelta,
+    StateSnapshot,
     StateSnapshotRef,
     WelfareBoundReportRef,
 )
+from polisyos.core.contracts.model_input_requirements import ProgramGraphInputInvocation
 from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 from polisyos.core.registry import (
     RegistryBundleContent,
@@ -148,7 +153,9 @@ class _FeedbackExecutionEvaluation:
     final_state: GlobalState
 
 
-ExecutionSourceMode = Literal["legacy_profileless", "single_step_basis", "feedback_uncomposed"]
+ExecutionSourceMode = Literal[
+    "legacy_profileless", "single_step_basis", "feedback_uncomposed", "semantic_horizon_step"
+]
 
 
 @dataclass(frozen=True)
@@ -455,6 +462,11 @@ def execution_input_basis_sources(
     ]
     if basis.registered_sql_admission_ref is not None:
         sources.append(("registered_sql_admission", basis.registered_sql_admission_ref))
+    step = basis.semantic_horizon_step
+    if step is not None:
+        sources.append(("semantic_obligation_set", step.obligation_set_ref))
+        if step.previous_result_ref is not None:
+            sources.append(("semantic_previous_result", step.previous_result_ref))
     for role, payload in (
         ("binding", basis.binding_registry_members),
         ("compile", basis.compile_registry_members),
@@ -586,6 +598,7 @@ def _admit_execution_source(
     simulation_result_ref: SimulationResultRef,
     *,
     read_session: _BoundedExecutionSourceReadSession | None = None,
+    allow_semantic_horizon_step: bool = False,
 ) -> ExecutionSourceAdmission:
     """Admit a result's explicit source mode and, when selected, its exact basis.
 
@@ -707,6 +720,9 @@ def _admit_execution_source(
     )
     if basis.schema_version != basis_schema.version:
         raise ValueError("execution_source_basis_schema_mismatch")
+    semantic_step = basis.semantic_horizon_step
+    if semantic_step is not None and (not allow_semantic_horizon_step or read_session is not None):
+        raise ExecutionSourceAdmissionRefusal("execution_source_semantic_horizon_consumer_required")
 
     fields_set = basis.request_fields_set
     if fields_set != tuple(sorted(set(fields_set))) or set(fields_set) - set(
@@ -850,8 +866,11 @@ def _admit_execution_source(
         != _execution_ref_key(basis.bound_state_snapshot_ref)
         or _execution_ref_key(bindings.registry_bundle_ref)
         != _execution_ref_key(basis.binding_registry_ref)
-        or _execution_ref_key(basis.base_state_snapshot_ref)
-        != _execution_ref_key(bindings.bound_state_snapshot_ref)
+        or (
+            (semantic_step is None or semantic_step.step_index == 0)
+            and _execution_ref_key(basis.base_state_snapshot_ref)
+            != _execution_ref_key(bindings.bound_state_snapshot_ref)
+        )
     ):
         raise ValueError("execution_source_basis_bindings_disagree")
     source_binding: RegisteredSQLAdmissionBinding | None = None
@@ -864,7 +883,11 @@ def _admit_execution_source(
             "execution_source_semantic_bounded_replay_not_established"
         )
     semantic_notes = reconcile_semantic_input_bindings(
-        store, bindings, execute_request=basis.request, effective_step=basis.effective_step
+        store,
+        bindings,
+        execute_request=basis.request,
+        effective_step=basis.effective_step,
+        semantic_horizon_step=semantic_step,
     )
     if not all(note in simulation_result.notes for note in semantic_notes):
         raise ValueError("execution_source_semantic_input_limitations_missing")
@@ -1100,6 +1123,8 @@ def _admit_execution_source(
     metrics = _read_typed_model(Metrics, store, metrics_ref, read_session=read_session)
     if metrics.values.get("step") != basis.effective_step:
         raise ValueError("execution_source_metrics_step_differs_from_basis")
+    if semantic_step is not None:
+        _verify_semantic_horizon_poststate(store, basis, simulation_result, state_delta_ref)
 
     expected_inventory = _execution_input_basis_inventory(store, basis, read_session=read_session)
     if _execution_input_inventory_key(basis_manifest.inputs) != _execution_input_inventory_key(
@@ -1112,7 +1137,7 @@ def _admit_execution_source(
     ):
         raise ValueError("foundry_input_bindings_semantic_manifest_required")
     return ExecutionSourceAdmission(
-        mode="single_step_basis",
+        mode="single_step_basis" if semantic_step is None else "semantic_horizon_step",
         simulation_result_ref=simulation_result_ref,
         simulation_result=simulation_result,
         simulation_manifest=simulation_manifest,
@@ -1143,6 +1168,137 @@ def admit_execution_source(
         if type(exc) is not ValueError:
             raise
         raise ExecutionSourceAdmissionRefusal(str(exc)) from exc
+
+
+def _verify_semantic_horizon_poststate(
+    store: ArtifactStore,
+    basis: FoundryExecutionInputBasis,
+    result: SimulationResult,
+    delta_ref: ArtifactRef,
+) -> None:
+    from polisyos.foundry.execute._internal.snapshots import _flatten_state
+
+    core_store = resolve_core_json_profile_store(store)
+    poststate_ref = result.state_snapshot_ref
+    if core_store is None or poststate_ref is None:
+        raise ValueError("semantic_horizon_poststate_unavailable")
+    poststate = _load_model(core_store, poststate_ref, StateSnapshot)
+    _require_execution_edge_ref(
+        store, poststate_ref, "state_delta", delta_ref, expected_kind=StateDelta.ARTIFACT_KIND
+    )
+    _require_execution_edge_ref(
+        store,
+        poststate_ref,
+        "base_state",
+        basis.base_state_snapshot_ref,
+        expected_kind="foundry.state_snapshot",
+    )
+    base = load_state_snapshot(core_store, snapshot_ref=basis.base_state_snapshot_ref)
+    registry = load_registry_bundle_content(core_store, basis.runtime_registry_ref)
+    replayed = apply_state_delta(
+        core_store,
+        base_state=base,
+        state_delta_ref=delta_ref,
+        slot_registry=registry.slot_registry,
+        merge_registry=registry.merge_registry,
+    )
+    encoded = BytesIO()
+    np.savez(encoded, **dict(_flatten_state(replayed)))
+    checksum = sha256(encoded.getvalue()).hexdigest()
+    if (
+        poststate.schema_version != "2.2"
+        or poststate.step != basis.effective_step
+        or poststate.checksum_sha256 != checksum
+        or poststate.state_ref.artifact_id.hex != checksum
+    ):
+        raise ValueError("semantic_horizon_poststate_replay_mismatch")
+    load_state_snapshot(core_store, snapshot_ref=poststate_ref)
+
+
+def _require_semantic_predecessor(
+    previous: ExecutionSourceAdmission,
+    request: ExecuteRequest,
+    step: SemanticHorizonStepContext,
+) -> StateSnapshotRef:
+    basis = previous.basis
+    if (
+        previous.mode != "semantic_horizon_step"
+        or basis is None
+        or basis.semantic_horizon_step is None
+        or previous.simulation_result.state_snapshot_ref is None
+        or step.previous_result_ref != previous.simulation_result_ref
+    ):
+        raise ValueError("semantic_horizon_predecessor_not_admitted")
+    previous_step = basis.semantic_horizon_step
+    if (
+        previous_step.obligation_set_ref != step.obligation_set_ref
+        or previous_step.steps != step.steps
+        or previous_step.step_index + 1 != step.step_index
+        or previous_step.replication_seed != step.replication_seed
+        or basis.request.model_dump(exclude={"exec_config"})
+        != request.model_dump(exclude={"exec_config"})
+        or basis.request.exec_config.model_dump(exclude={"seed"})
+        != request.exec_config.model_dump(exclude={"seed"})
+    ):
+        raise ValueError("semantic_horizon_predecessor_scope_mismatch")
+    return previous.simulation_result.state_snapshot_ref
+
+
+def admit_semantic_horizon_step_chain(
+    store: ArtifactStore, result_refs: tuple[SimulationResultRef, ...]
+) -> tuple[ExecutionSourceAdmission, ...]:
+    """Reopen each selected physical step and verify the complete predecessor chain."""
+    if not result_refs or len(result_refs) > 64:
+        raise ValueError("semantic_horizon_result_schedule_mismatch")
+    admissions: list[ExecutionSourceAdmission] = []
+    for index, ref in enumerate(result_refs):
+        admission = _admit_execution_source(store, ref, allow_semantic_horizon_step=True)
+        basis = admission.basis
+        step = None if basis is None else basis.semantic_horizon_step
+        if (
+            basis is None
+            or step is None
+            or step.step_index != index
+            or len(step.steps) != len(result_refs)
+        ):
+            raise ValueError("semantic_horizon_result_schedule_mismatch")
+        if admissions:
+            expected_base = _require_semantic_predecessor(admissions[-1], basis.request, step)
+            if basis.base_state_snapshot_ref != expected_base:
+                raise ValueError("semantic_horizon_predecessor_poststate_mismatch")
+        admissions.append(admission)
+    return tuple(admissions)
+
+
+def _admit_semantic_horizon_prefix(
+    store: ArtifactStore, step: SemanticHorizonStepContext
+) -> ExecutionSourceAdmission:
+    """Admit the exact bounded predecessor prefix before another physical step."""
+    ref = step.previous_result_ref
+    head = None
+    successor = None
+    for index in range(step.step_index - 1, -1, -1):
+        if ref is None:
+            raise ValueError("semantic_horizon_predecessor_not_admitted")
+        admitted = _admit_execution_source(store, ref, allow_semantic_horizon_step=True)
+        basis = admitted.basis
+        selected_step = None if basis is None else basis.semantic_horizon_step
+        if basis is None or selected_step is None or selected_step.step_index != index:
+            raise ValueError("semantic_horizon_predecessor_scope_mismatch")
+        if successor is not None:
+            successor_basis, successor_step = successor
+            expected_base = _require_semantic_predecessor(
+                admitted, successor_basis.request, successor_step
+            )
+            if successor_basis.base_state_snapshot_ref != expected_base:
+                raise ValueError("semantic_horizon_predecessor_poststate_mismatch")
+        if head is None:
+            head = admitted
+        successor = basis, selected_step
+        ref = selected_step.previous_result_ref
+    if head is None or ref is not None:
+        raise ValueError("semantic_horizon_predecessor_not_admitted")
+    return head
 
 
 def admit_execution_source_bounded(
@@ -1200,6 +1356,7 @@ def _build_execution_input_basis(
     posture: ResolvedExecutionPosture,
     current_step: int,
     parameter_overrides: dict[str, dict[str, object]] | None,
+    semantic_horizon_step: SemanticHorizonStepContext | None = None,
 ) -> FoundryExecutionInputBasisRef:
     """Persist a selected source basis from the same objects used by the executor."""
     bindings = resolved_state.bindings
@@ -1247,7 +1404,13 @@ def _build_execution_input_basis(
         )
     }
     basis = FoundryExecutionInputBasis(
-        schema_version="1.1" if bindings.registered_sql_admission_ref is not None else "1.0",
+        schema_version=(
+            "1.2"
+            if semantic_horizon_step is not None
+            else "1.1"
+            if bindings.registered_sql_admission_ref is not None
+            else "1.0"
+        ),
         registered_sql_admission_ref=bindings.registered_sql_admission_ref,
         request=request,
         request_fields_set=tuple(sorted(request.model_fields_set)),
@@ -1280,6 +1443,7 @@ def _build_execution_input_basis(
         effective_nan_guard_enabled=posture.nan_guard_enabled,
         effective_jit=posture.jit,
         effective_capture_env=posture.capture_env,
+        semantic_horizon_step=semantic_horizon_step,
     )
     # The same owner now enumerates writer and fresh-reader sources. Preserve
     # the writer's historical exact order and multiplicity in the manifest.
@@ -1381,6 +1545,44 @@ def execute(
             simulation_ref = result.simulation_result_ref
         ```
     """
+    return _execute(store, request, artifact_output_codec=artifact_output_codec)
+
+
+def execute_semantic_horizon_step(
+    store: ArtifactStore,
+    request: ExecuteRequest,
+    *,
+    expected_invocation: ProgramGraphInputInvocation,
+    step: SemanticHorizonStepContext,
+) -> ExecuteResult:
+    """Execute one selected step from the opening binding or exact prior result."""
+    if type(expected_invocation) is not ProgramGraphInputInvocation:
+        raise ValueError("semantic_horizon_expected_invocation_untyped")
+    expected_invocation = ProgramGraphInputInvocation.model_validate(
+        expected_invocation.model_dump()
+    )
+    step = SemanticHorizonStepContext.model_validate(step.model_dump())
+    if not request.return_selected_profile or request.feedback_config_ref is not None:
+        raise ValueError("semantic_horizon_execution_profile_unsupported")
+    request = request.model_copy(
+        update={"exec_config": request.exec_config.model_copy(update={"seed": step.effective_seed})}
+    )
+    return _execute(
+        store,
+        request,
+        semantic_horizon_step=step,
+        expected_invocation=expected_invocation,
+    )
+
+
+def _execute(
+    store: ArtifactStore,
+    request: ExecuteRequest,
+    *,
+    artifact_output_codec: Literal["legacy", "bounded_v3"] = "legacy",
+    semantic_horizon_step: SemanticHorizonStepContext | None = None,
+    expected_invocation: ProgramGraphInputInvocation | None = None,
+) -> ExecuteResult:
     if type(artifact_output_codec) is not str or artifact_output_codec not in (
         "legacy",
         "bounded_v3",
@@ -1391,7 +1593,12 @@ def execute(
     if core_json_store is None:
         raise CanonicalProfileRefusalError("canon_profile_raw_manifest_unavailable")
     store = core_json_store
-    resolved_state = _resolve_state_snapshot(store, request)
+    resolved_state = _resolve_state_snapshot(
+        store,
+        request,
+        semantic_horizon_step=semantic_horizon_step,
+        expected_invocation=expected_invocation,
+    )
     state_snapshot_ref = resolved_state.state_snapshot_ref
     registry_bundle_ref = request.registry_bundle_ref
     if registry_bundle_ref is None:
@@ -1432,7 +1639,11 @@ def execute(
             }
         )
     posture = resolve_execution_posture(exec_plan, request.exec_config)
-    current_step = int(getattr(base_state, "step", 0))
+    current_step = (
+        int(getattr(base_state, "step", 0))
+        if semantic_horizon_step is None
+        else semantic_horizon_step.effective_step
+    )
     execution_notes = [*resolved_state.notes, *posture.notes]
     if posture.max_steps is not None and current_step >= posture.max_steps:
         return ExecuteResult(
@@ -1493,6 +1704,7 @@ def execute(
             posture=posture,
             current_step=current_step,
             parameter_overrides=parameter_overrides,
+            semantic_horizon_step=semantic_horizon_step,
         )
     try:
         exec_artifacts = execute_program_graph(
@@ -1657,7 +1869,11 @@ def execute(
 
 
 def _resolve_state_snapshot(
-    store: CoreJSONArtifactStore, request: ExecuteRequest
+    store: CoreJSONArtifactStore,
+    request: ExecuteRequest,
+    *,
+    semantic_horizon_step: SemanticHorizonStepContext | None = None,
+    expected_invocation: ProgramGraphInputInvocation | None = None,
 ) -> _ResolvedStateSource:
     """Load and validate the bound snapshot referenced by `request`."""
     bindings_ref = FoundryInputBindingsRef.model_validate(request.input_bindings_ref.model_dump())
@@ -1669,11 +1885,21 @@ def _resolve_state_snapshot(
         and request.feedback_config_ref is not None
     ):
         raise ValueError("foundry_input_bindings_semantic_feedback_not_established")
-    semantic_notes = reconcile_semantic_input_bindings(store, bindings, execute_request=request)
+    semantic_notes = reconcile_semantic_input_bindings(
+        store,
+        bindings,
+        execute_request=request,
+        semantic_horizon_step=semantic_horizon_step,
+        expected_invocation=expected_invocation,
+    )
     _ensure_readable(store, bindings.data_snapshot_ref)
     _ensure_readable(store, bindings.bound_state_snapshot_ref)
+    base_ref = bindings.bound_state_snapshot_ref
+    if semantic_horizon_step is not None and semantic_horizon_step.previous_result_ref is not None:
+        previous = _admit_semantic_horizon_prefix(store, semantic_horizon_step)
+        base_ref = _require_semantic_predecessor(previous, request, semantic_horizon_step)
     return _ResolvedStateSource(
-        state_snapshot_ref=bindings.bound_state_snapshot_ref,
+        state_snapshot_ref=base_ref,
         bindings=bindings,
         notes=("state_source:input_bindings_ref", *semantic_notes),
         input_refs=(

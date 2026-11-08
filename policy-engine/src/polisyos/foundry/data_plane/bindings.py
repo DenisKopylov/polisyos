@@ -81,11 +81,13 @@ from polisyos.core.contracts.foundry import (
     FoundryInputBindingRule,
     FoundryInputBindings,
     FoundryInputBindingsRef,
+    SemanticHorizonStepContext,
     StateSnapshot,
     StateSnapshotRef,
 )
 from polisyos.core.contracts.model_input_requirements import (
     ModelInputObligation,
+    ProgramGraphInputInvocation,
     load_model_input_obligation_set,
 )
 from polisyos.core.contracts.semantic_input_binding import (
@@ -2401,6 +2403,8 @@ def _prepare_semantic_input_bindings(
     rules: list[FoundryInputBindingRule] | None,
     execute_request: ExecuteRequest | None = None,
     effective_step: int | None = None,
+    semantic_horizon_step: SemanticHorizonStepContext | None = None,
+    expected_invocation: ProgramGraphInputInvocation | None = None,
 ) -> InputBindingsPreparation:
     from polisyos.foundry.execute.model_input_requirements import (
         verify_program_graph_input_preflight,
@@ -2418,6 +2422,18 @@ def _prepare_semantic_input_bindings(
         store, manifest.model_input_obligation_set_ref
     )
     invocation = selected_set.invocation
+    if expected_invocation is not None and invocation != expected_invocation:
+        raise ValueError("foundry_input_bindings_semantic_invocation_mismatch")
+    if semantic_horizon_step is not None and (
+        artifact_ref_identity_key(semantic_horizon_step.obligation_set_ref)
+        != artifact_ref_identity_key(manifest.model_input_obligation_set_ref)
+        or semantic_horizon_step.steps != invocation.steps
+    ):
+        raise ValueError("foundry_input_bindings_semantic_horizon_mismatch")
+    if len(invocation.steps) > 1 and any(
+        member.port.purpose != "initial_state" for member in members
+    ):
+        raise ValueError("foundry_input_bindings_semantic_horizon_time_profile_unsupported")
     if artifact_ref_identity_key(invocation.registry_bundle_ref) != artifact_ref_identity_key(
         registry_bundle_ref
     ):
@@ -2525,7 +2541,16 @@ def _prepare_semantic_input_bindings(
         selected_tensor_policies=policies,
     )
     step = int(np.asarray(prepared.materialized_state.step).item())
-    if invocation.steps != (step,) or (effective_step is not None and step != effective_step):
+    execution_step = step if semantic_horizon_step is None else semantic_horizon_step.effective_step
+    if (
+        invocation.steps[0] != step
+        or (
+            execute_request is not None
+            and semantic_horizon_step is None
+            and invocation.steps != (step,)
+        )
+        or (effective_step is not None and execution_step != effective_step)
+    ):
         raise ValueError("foundry_input_bindings_semantic_execution_step_mismatch")
     return replace(prepared, warnings=tuple(dict.fromkeys((*prepared.warnings, *limitations))))
 
@@ -2673,10 +2698,14 @@ def reconcile_semantic_input_bindings(
     *,
     execute_request: ExecuteRequest | None = None,
     effective_step: int | None = None,
+    semantic_horizon_step: SemanticHorizonStepContext | None = None,
+    expected_invocation: ProgramGraphInputInvocation | None = None,
 ) -> tuple[str, ...]:
     """Replay exact semantics and verify the persisted physical state bytes."""
     ref = bindings.resolved_binding_manifest_ref
     if ref is None:
+        if semantic_horizon_step is not None:
+            raise ValueError("foundry_input_bindings_semantic_manifest_required")
         return ()
     if bindings.registered_sql_admission_ref is not None:
         raise ValueError("foundry_input_bindings_semantic_sql_replay_not_established")
@@ -2691,6 +2720,8 @@ def reconcile_semantic_input_bindings(
         rules=bindings.rules,
         execute_request=execute_request,
         effective_step=effective_step,
+        semantic_horizon_step=semantic_horizon_step,
+        expected_invocation=expected_invocation,
     )
     from polisyos.foundry.execute._internal.snapshots import _flatten_state
 

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -90,7 +89,7 @@ async def _emitted_cycle(
 
 @pytest.mark.asyncio
 async def test_actual_revision_emits_descriptor_marker_and_fresh_checkpoint_replays(
-    tmp_path: Path,
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     assert owner._N7_SOURCE_SEMANTIC_EMISSION_ENABLED is False
     problem, gap, controller, cycle, cas_root = await _emitted_cycle(tmp_path)
@@ -101,24 +100,21 @@ async def test_actual_revision_emits_descriptor_marker_and_fresh_checkpoint_repl
     assert request["driver"] == "acquire_data:value_panel_data_missing"
     assert request["requirement_gap"] == gap.model_dump(mode="json")
     checkpoint_ref = controller._n7_candidate_checkpoint_refs[0]
-    store = controller._n7_runtime_artifact_store()
-    basis = controller._n7_data_requirement_basis_with_report(
-        problem, acquisition_request=request, cycle=cycle
+    monkeypatch.setattr(
+        controller,
+        "_n7_world_snapshot",
+        lambda *args, **kwargs: planner.AcquisitionWorldSnapshot(
+            world_ref="world://n7-source-route-positive-test"
+        ),
     )
+    route = controller._plan_n7_requirement_gap_if_requested(problem, cycle=cycle)
+    assert route is not None
+    basis = route.basis
     assert basis.routing_limitation_code is None and not basis.unbound_input_fields
-    binding = planner.persist_and_verify_data_requirement_compilation_report(
-        store, basis.compilation_report, expected_scenario_id=problem.design_problem_id
-    )
-    semantic_gaps = planner._n7_source_semantic_planning_gaps(
-        source_gap=gap, compiler_gaps=basis.routed_compiler_gaps, specs=basis.specs
-    )
-    report = planner.plan_evidence_acquisition(
-        run_id=f"n7-cycle:{problem.design_problem_id}:0",
-        gaps=semantic_gaps,
-        requirement_basis_binding=binding,
-        generated_at=datetime(2026, 11, 3, tzinfo=UTC),
-    )
-    report_ref = planner.persist_and_verify_acquisition_planner_report(store, report)
+    assert basis.source_route_diagnostic is None
+    report = route.report
+    report_ref = route.report_ref
+    assert report.status != "blocked"
     selected_request = {
         **request,
         "cycle_index": 0,
@@ -200,3 +196,134 @@ async def test_actual_revision_refuses_rehashed_wrong_descriptor_target(tmp_path
         != planner._N7_SOURCE_DESCRIPTOR_JOIN_RULE
     )
     assert not controller._n7_candidate_checkpoint_refs
+
+
+@pytest.mark.asyncio
+async def test_zero_resolution_report_explains_join_without_claiming_source_absence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.data_requirement import DataRequirementCompilationReport
+    from polisyos.runtime.quality.acquisition_planner import load_acquisition_planner_report
+
+    problem, gap, controller, cycle, cas_root = await _emitted_cycle(tmp_path)
+    request = cycle.revision_request.strategy_payload["acquisition_request"]
+    mixed_basis = controller._n7_data_requirement_basis_with_report(
+        problem, acquisition_request=request, cycle=cycle
+    )
+    assert mixed_basis.capability_resolutions is not None
+    assert len(mixed_basis.capability_resolutions) == 1
+    resolved_row = mixed_basis.capability_resolutions[0]
+    unresolved_row = resolved_row.model_copy(
+        update={
+            "state": "not_established",
+            "binding": None,
+            "reason_codes": ("unrelated_resolution_not_established",),
+        }
+    )
+    mixed_source_gap = planner.grounding_coverage_requirement_gap(
+        candidate_id=cycle.selected_candidate_ref,
+        candidate_content_hash=cycle.selected_candidate_content_hash,
+        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+        issue_codes=("acquire_data:global.tax_rate",),
+        evidence_refs=("fixture://mixed-resolution-carrier",),
+        grounding_report_ref="fixture://mixed-resolution-carrier-report",
+        authority_level=problem.authority_profile.requested_authority_level,
+    )
+    mixed_diagnostic = owner._n7_source_route_diagnostic(
+        source_gap=mixed_source_gap,
+        specs=mixed_basis.specs,
+        capability_resolutions=(resolved_row, unresolved_row),
+    )
+    assert mixed_diagnostic.compiler_resolution_rows == 2
+    assert mixed_diagnostic.non_established_resolution_rows == 1
+    assert mixed_diagnostic.exact_descriptor_join_occurrences == 0
+    assert mixed_diagnostic.result == "descriptor_join_not_established"
+
+    compiler_type = owner.DataRequirementCompiler
+    compile_for_scenario = compiler_type.compile_for_scenario
+
+    def compile_without_resolution(compiler: Any, *args: Any, **kwargs: Any):
+        report = compile_for_scenario(compiler, *args, **kwargs)
+        payload = report.model_dump(mode="json")
+        payload["capability_requirement_resolutions"] = []
+        return DataRequirementCompilationReport.model_validate(payload)
+
+    monkeypatch.setattr(compiler_type, "compile_for_scenario", compile_without_resolution)
+    from tests.unit.runtime.quality.test_candidate_n5_l1_routing import _simulation
+
+    simulation = _simulation(cycle.selected_candidate_ref)
+    execution_ref = owner.CASArtifactRef.model_validate(
+        simulation.diagnostics["candidate_simulation_execution_selected_ref"]
+    )
+    l1_route = owner._CandidateN5L1RoutingObservation(
+        source_ref=simulation.candidate_simulation_n4_source_ref,
+        context_job_ref=simulation.candidate_simulation_context_job_ref,
+        n5_input_ref=simulation.candidate_simulation_n5_input_ref,
+        n5_execution_ref=execution_ref,
+        n5_result_ref=simulation.simulation_result_ref,
+        requirement_gap=gap,
+    )
+    value_port = owner.ValuePortObservation(
+        status="value_pending_n8",
+        candidate_id=cycle.selected_candidate_ref,
+        authority_blockers=("candidate_scenario_n5_only",),
+        reason="Candidate L1 route is present for the N7 report refusal test.",
+        candidate_n5_l1_routing=l1_route,
+    )
+    request = dict(request)
+    request.update(
+        {
+            "n7_source_join_rule": planner._N7_CANDIDATE_N5_L1_OBLIGATIONS_RULE,
+            "accompanying_requirement_gaps": [],
+        }
+    )
+    revision = cycle.revision_request.model_copy(
+        update={
+            "strategy_payload": {
+                **cycle.revision_request.strategy_payload,
+                "acquisition_request": request,
+            }
+        }
+    )
+    cycle = owner.GenerationCycleRecord.model_validate(
+        cycle.model_copy(
+            update={"simulation": simulation, "value_port": value_port, "revision_request": revision}
+        ).model_dump(mode="json")
+    )
+    monkeypatch.setattr(
+        controller,
+        "_n7_world_snapshot",
+        lambda *args, **kwargs: planner.AcquisitionWorldSnapshot(
+            world_ref="world://n7-source-route-zero-resolution-test"
+        ),
+    )
+
+    route = controller._plan_n7_requirement_gap_if_requested(problem, cycle=cycle)
+    assert route is not None
+    basis = route.basis
+    diagnostic = basis.source_route_diagnostic
+    assert diagnostic is not None
+    assert diagnostic.source_gap_ref == gap.requirement_gap_id
+    assert diagnostic.target_world_slot == "global.unemployment_rate"
+    assert diagnostic.source_origin == "l1_outcome_validation_gap"
+    assert diagnostic.model_input_obligation_status == "not_established"
+    assert diagnostic.total_compiled_spec_occurrences == 1
+    assert diagnostic.compiler_resolution_rows == 0
+    assert diagnostic.exact_descriptor_join_occurrences == 0
+    assert diagnostic.resolution_carrier_state == "supplied_empty"
+    assert diagnostic.result == "no_resolution_rows"
+    assert diagnostic.source_search_completeness == "not_established"
+    report = route.report
+    assert report.status == "blocked"
+    assert report.basis_limitation_code == "unbound_requirement_input_refused"
+    assert report.source_route_diagnostic == diagnostic
+
+    fresh_store = FileSystemCAS.open_existing_read_only(cas_root)
+    loaded = load_acquisition_planner_report(fresh_store, route.report_ref)
+    assert loaded == report
+    assert loaded.source_route_diagnostic == diagnostic
+
+    legacy_shape = loaded.model_copy(update={"source_route_diagnostic": None})
+    assert "source_route_diagnostic" not in legacy_shape.model_dump(mode="json")
+    assert legacy_shape.schema_version == loaded.schema_version

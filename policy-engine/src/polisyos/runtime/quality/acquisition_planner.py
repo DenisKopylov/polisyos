@@ -1178,6 +1178,58 @@ class _N7CandidateReportLineage(BaseModel):
 _N7_CONFIGURED_REPORT_SCHEMA = "policyos.runtime.acquisition_planner.v2"
 
 
+class N7SourceRouteDiagnostic(BaseModel):
+    """Describe the selected source-to-compiler join without claiming source absence."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.runtime.n7_source_route_diagnostic.v1"] = (
+        "policyos.runtime.n7_source_route_diagnostic.v1"
+    )
+    stage: Literal["selected_source_to_compiled_descriptor_join"] = (
+        "selected_source_to_compiled_descriptor_join"
+    )
+    source_gap_ref: str = Field(min_length=1)
+    target_world_slot: str | None = Field(default=None, min_length=1)
+    source_origin: Literal[
+        "l1_outcome_validation_gap",
+        "other_selected_requirement_gap",
+    ]
+    model_input_obligation_status: Literal["not_established"] = "not_established"
+    total_compiled_spec_occurrences: int = Field(ge=0)
+    compiler_resolution_rows: int = Field(ge=0)
+    non_established_resolution_rows: int = Field(ge=0)
+    exact_descriptor_join_occurrences: int = Field(ge=0)
+    resolution_carrier_state: Literal["not_supplied", "supplied_empty", "supplied_rows"]
+    result: Literal[
+        "target_not_established",
+        "no_target_spec",
+        "no_resolution_rows",
+        "resolution_not_established",
+        "descriptor_join_not_established",
+        "join_evaluation_failed",
+        "ambiguous_descriptor_join",
+        "descriptor_join_established",
+    ]
+    source_search_completeness: Literal["not_established"] = "not_established"
+    resolution_reason_codes: tuple[str, ...] = ()
+    limitation_codes: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _validate_counts(self) -> N7SourceRouteDiagnostic:
+        if self.non_established_resolution_rows > self.compiler_resolution_rows:
+            raise ValueError("n7_source_route_resolution_count_exceeds_total")
+        if self.result == "ambiguous_descriptor_join" and (
+            self.exact_descriptor_join_occurrences < 2
+        ):
+            raise ValueError("n7_source_route_ambiguity_requires_multiple_exact_joins")
+        if self.result == "descriptor_join_established" and (
+            self.exact_descriptor_join_occurrences != 1
+        ):
+            raise ValueError("n7_source_route_established_join_must_be_unique")
+        return self
+
+
 class AcquisitionPlannerReport(BaseModel):
     """Run-level acquisition planner report."""
 
@@ -1213,6 +1265,9 @@ class AcquisitionPlannerReport(BaseModel):
         ]
         | None
     ) = None
+    source_route_diagnostic: N7SourceRouteDiagnostic | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     cost_estimation_status: Literal["not_estimated"] | None = None
     candidate_lineage: _N7CandidateReportLineage | None = Field(
         default=None, exclude_if=lambda value: value is None

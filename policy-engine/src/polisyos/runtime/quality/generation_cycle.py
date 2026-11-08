@@ -167,6 +167,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionReceipt,
     AcquisitionRequirementGap,
     AcquisitionWorldSnapshot,
+    N7SourceRouteDiagnostic,
     RealAcquisitionOwnerGateway,
     RequirementGapFamily,
     _n7_bind_configured_candidate_report,
@@ -507,6 +508,92 @@ class _N7DataRequirementBasis:
     routed_source_gap: AcquisitionRequirementGap | None = None
     routed_compiler_gaps: tuple[AcquisitionRequirementGap, ...] = ()
     routing_limitation_code: str | None = None
+    source_route_diagnostic: N7SourceRouteDiagnostic | None = None
+
+
+def _n7_source_route_diagnostic(
+    *,
+    source_gap: AcquisitionRequirementGap,
+    specs: Sequence[object],
+    capability_resolutions: tuple[core_contracts.CapabilityRequirementResolution, ...] | None,
+) -> N7SourceRouteDiagnostic:
+    """Report the exact selected-gap join observed in this compiler report."""
+
+    from polisyos.data_requirement import DataRequirementSpec
+
+    world_slot = _n7_requirement_family(source_gap)
+    typed_specs = tuple(spec for spec in specs if type(spec) is DataRequirementSpec)
+    resolution_rows = capability_resolutions or ()
+    non_established = sum(row.state != "binding_returned" for row in resolution_rows)
+    limitation_codes = ("source_search_completeness_not_established",)
+    if world_slot is None:
+        exact_join_count = 0
+        result = "target_not_established"
+        limitation_codes = (*limitation_codes, "selected_gap_target_not_established")
+    elif not typed_specs:
+        exact_join_count = 0
+        result = "no_target_spec"
+    else:
+        try:
+            exact_join_count = len(
+                compiled_requirements_for_world_slot(
+                    world_slot=world_slot,
+                    specs=typed_specs,
+                    capability_resolutions=capability_resolutions,
+                )
+            )
+        except (TypeError, ValueError):
+            exact_join_count = 0
+            result = "join_evaluation_failed"
+            limitation_codes = (*limitation_codes, "descriptor_join_evaluation_failed")
+        else:
+            if exact_join_count > 1:
+                result = "ambiguous_descriptor_join"
+            elif exact_join_count == 1:
+                result = "descriptor_join_established"
+            elif capability_resolutions is None or not capability_resolutions:
+                result = "no_resolution_rows"
+            elif resolution_rows and non_established == len(resolution_rows):
+                result = "resolution_not_established"
+            else:
+                result = "descriptor_join_not_established"
+    if result in {
+        "no_target_spec",
+        "no_resolution_rows",
+        "resolution_not_established",
+        "descriptor_join_not_established",
+        "join_evaluation_failed",
+    }:
+        limitation_codes = (*limitation_codes, "exact_source_descriptor_join_not_established")
+    return N7SourceRouteDiagnostic(
+        source_gap_ref=source_gap.requirement_gap_id,
+        target_world_slot=world_slot,
+        source_origin=(
+            "l1_outcome_validation_gap"
+            if source_gap.metadata.get("source") == "l1_dcat_variable_availability"
+            else "other_selected_requirement_gap"
+        ),
+        total_compiled_spec_occurrences=len(typed_specs),
+        compiler_resolution_rows=len(resolution_rows),
+        non_established_resolution_rows=non_established,
+        exact_descriptor_join_occurrences=exact_join_count,
+        resolution_carrier_state=(
+            "not_supplied"
+            if capability_resolutions is None
+            else "supplied_empty"
+            if not capability_resolutions
+            else "supplied_rows"
+        ),
+        result=result,
+        resolution_reason_codes=tuple(
+            dict.fromkeys(
+                reason
+                for row in resolution_rows
+                for reason in row.reason_codes
+            )
+        ),
+        limitation_codes=tuple(dict.fromkeys(limitation_codes)),
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -12914,6 +13001,13 @@ class GenerationCycleController:
 
                 raise_artifact_read_access_error(exc)
                 raise GenerationCycleError("n7_candidate_source_not_established", str(exc)) from exc
+        if (
+            basis.source_route_diagnostic is not None
+            and basis.source_route_diagnostic.result != "descriptor_join_established"
+        ):
+            report = report.model_copy(
+                update={"source_route_diagnostic": basis.source_route_diagnostic}
+            )
         report = bind_acquisition_planner_report(report, planning_context_hash=context_hash)
         route_ref = (
             basis.routed_source_gap.requirement_gap_id
@@ -13265,6 +13359,21 @@ class GenerationCycleController:
             routed_source_gap=None if request_binding_refused else source_gap,
             routed_compiler_gaps=routed_compiler_gaps,
             routing_limitation_code=routing_limitation_code,
+            source_route_diagnostic=(
+                _n7_source_route_diagnostic(
+                    source_gap=source_gap,
+                    specs=tuple(report.specs),
+                    capability_resolutions=report.capability_requirement_resolutions,
+                )
+                if (
+                    descriptor_join
+                    and source_gap is not None
+                    and not request_binding_refused
+                    and not unbound_input_fields
+                    and routing_limitation_code is not None
+                )
+                else None
+            ),
         )
 
     def _n7_capability_resolver(

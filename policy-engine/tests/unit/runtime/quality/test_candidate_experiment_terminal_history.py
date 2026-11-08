@@ -19,6 +19,7 @@ from polisyos.core.artifacts import (
     artifact_ref_for_manifest,
 )
 from polisyos.core.canon import CanonSpec
+from polisyos.runtime.http.resilience import guard_runtime_control_store
 from polisyos.runtime.http.services.control.run_lifecycle import (
     AcquisitionRouteLoopAuthoritySink,
 )
@@ -385,13 +386,20 @@ def test_terminal_history_identity_join_uses_action_identity_owner(
         service.close()
 
 
+@pytest.mark.parametrize("guarded", [False, True], ids=["stock-store", "guarded-stock-store"])
 def test_candidate_experiment_frontier_history_reopens_immutable_sql_versions(
-    tmp_path: Path,
+    tmp_path: Path, request: pytest.FixtureRequest, guarded: bool
 ) -> None:
     """Retained and blocked history resolve their recorded frontier versions."""
     database = ControlPlaneStore(
         backend="sqlite", sqlite_path=tmp_path / "frontier-history.sqlite3"
     )
+    if guarded:
+        control_handle = guard_runtime_control_store(database)
+        request.addfinalizer(control_handle.close)
+    else:
+        control_handle = database
+        request.addfinalizer(database.close)
     _source_job, frontier1, _progress = _bootstrap(database, tmp_path)
     key = frontier1.key
     retained_job, retained_worker, retained_attempt = _create_action_job(
@@ -470,7 +478,7 @@ def test_candidate_experiment_frontier_history_reopens_immutable_sql_versions(
         AcquisitionEvaluationFrontierRecord | None,
     ]:
         return _candidate_experiment_frontier_transition_for_history(
-            control_store=database,
+            control_store=control_handle,
             key=key,
             head=head,
             expected_frontier_ref=before_ref,
@@ -492,7 +500,7 @@ def test_candidate_experiment_frontier_history_reopens_immutable_sql_versions(
     assert retained_after == frontier2
 
     blocked_before, blocked_after = _candidate_experiment_frontier_transition_for_history(
-        control_store=database,
+        control_store=control_handle,
         key=key,
         head=blocked.head,
         expected_frontier_ref=frontier2.frontier_ref,
@@ -541,7 +549,7 @@ def test_candidate_experiment_frontier_history_reopens_immutable_sql_versions(
         )
     with pytest.raises(ValueError, match="candidate_experiment_terminal_blocked_frontier_mismatch"):
         _candidate_experiment_frontier_transition_for_history(
-            control_store=database,
+            control_store=control_handle,
             key=key,
             head=replace(blocked.head, evaluation_frontier_ref=later.frontier.frontier_ref),
             expected_frontier_ref=frontier2.frontier_ref,
@@ -567,7 +575,28 @@ def test_candidate_experiment_frontier_history_reopens_immutable_sql_versions(
             selected=frontier2,
         )
 
-    database.close()
+    wrong_target = guard_runtime_control_store(object())
+    try:
+        with pytest.raises(
+            ValueError,
+            match="candidate_experiment_terminal_frontier_owner_not_established",
+        ):
+            _candidate_experiment_frontier_transition_for_history(
+                control_store=wrong_target,
+                key=key,
+                head=retained.head,
+                expected_frontier_ref=frontier1.frontier_ref,
+                expected_frontier_revision=frontier1.revision,
+                selected_basis_ref=frontier2.basis_ref,
+                selected_basis_content_hash=frontier2.basis_content_hash,
+                decision_ref=frontier2.decision_ref,
+                selected_evaluation_witness_ref=(
+                    frontier2.selected_evaluation_witness_ref
+                ),
+                selected_evaluation_content_hash=frontier2.selected_evaluation_content_hash,
+            )
+    finally:
+        wrong_target.close()
 
 
 def test_phase_chain_uses_sql_selected_profile_when_default_is_alternate(

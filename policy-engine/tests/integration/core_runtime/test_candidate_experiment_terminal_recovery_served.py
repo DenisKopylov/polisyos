@@ -1193,6 +1193,10 @@ def test_candidate_n5_checkpoint_crash_reuses_exact_result_in_fresh_worker(
                 )
 
                 def persist_then_interrupt(bridge, **checkpoint_values):
+                    from polisyos.runtime.quality.acquisition_evaluation import (
+                        _candidate_model_values_same,
+                    )
+
                     result_ref = original_persist(bridge, **checkpoint_values)
                     admission = bridge.control_store.current_execution_job_admission()
                     if (
@@ -1207,7 +1211,23 @@ def test_candidate_n5_checkpoint_crash_reuses_exact_result_in_fresh_worker(
                             "completed real N5 did not produce a selected checkpoint ref"
                         )
                     origin = checkpoint_values["origin"]
-                    if origin != expected_origin["value"]:
+                    requested_origin = expected_origin["value"]
+                    if requested_origin is None or type(origin) is not type(requested_origin):
+                        raise AssertionError("checkpoint origin was not the admitted source origin")
+                    if not _candidate_model_values_same(
+                        replace(
+                            origin,
+                            current_action_head=None,
+                            current_terminal_history=None,
+                            candidate_terminal_history_chain=(),
+                        ),
+                        replace(
+                            requested_origin,
+                            current_action_head=None,
+                            current_terminal_history=None,
+                            candidate_terminal_history_chain=(),
+                        ),
+                    ):
                         raise AssertionError("checkpoint belongs to a different verified origin")
                     checkpoint_artifact = artifacts.read_core_json_artifact(
                         control._artifact_store, result_ref
@@ -1264,9 +1284,13 @@ def test_candidate_n5_checkpoint_crash_reuses_exact_result_in_fresh_worker(
                         != "candidate_input_reentry_pending"
                         or pending_outcomes[-1].latest_receipt.candidate_receipt_ref
                         != checkpoint.candidate_action_ref
+                        or str(checkpoint.pending_action_ref.artifact_id)
+                        != pending_outcomes[-1].head.receipt_ref
+                        or checkpoint.pending_action_ref.manifest_profile_sha256
+                        != pending_outcomes[-1].head.receipt_manifest_profile_sha256
                     ):
                         raise AssertionError(
-                            "N5 checkpoint advanced or changed the pending action head"
+                            "N5 checkpoint did not select the exact pending action head"
                         )
                     terminal_receipt_id = f"{job_id}.candidate-experiment.terminal"
                     terminal_event_id = (

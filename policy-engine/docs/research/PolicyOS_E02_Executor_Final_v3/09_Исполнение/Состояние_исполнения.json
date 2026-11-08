@@ -9406,6 +9406,41 @@
             "wall_seconds": 96.61,
             "scope": "Authentic direct committed-terminal verifier performs one historical phase owner read, 15.56 seconds under concurrent load. Same candidate-only public GET. Removing original signed PA2 bytes in isolated CAS returns 409, restoration returns identical 200. Previous attempt measured one call but failed a probe-only raw-blob digest assumption before removal. No full-route elapsed claim. Independently reviewed, published, read back; composed source remains frozen."
           },
+          "native_protected_quota_composed_r1": {
+            "source_commit": "fa2440962c3302d5679f8d539201eed5b573aa6a",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-protected-quota-composed-r1",
+            "observed": {
+              "PASS": 3,
+              "FAIL": 2
+            },
+            "named_inputs": 18,
+            "inputs_unchanged": true,
+            "wall_seconds": 70.38,
+            "scope": "Three real protected partition, no-guarantee, and lost-ack accounting cases pass. Two C49 cases execute exactly one physical seed and stop but fail the test expectation that the strict numerical reader accepts a trajectory-free report. Keep invocation outcomes separate."
+          },
+          "c49_audit_read_of_interrupted_physical_work": {
+            "source_commit": "8112e35546c60de4144411c6998122939002bf16",
+            "source_tree": "796e94099b063ada2b2676998a4381a5e7bbf371",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-c49-interrupted-reader-r2",
+            "observed": {
+              "PASS": 2
+            },
+            "named_inputs": 16,
+            "inputs_unchanged": true,
+            "wall_seconds": 41.85,
+            "scope": "After test-only correction, actual default and supplied N6 owner stop at exhausted USD after first native seed. Exact selected CAS audit profile and receipt show one physical unit and no numerical trajectory. Strict success reader still refuses."
+          },
+          "sim03_physical_projection_composed_r1": {
+            "source_commit": "fa2440962c3302d5679f8d539201eed5b573aa6a",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-sim03-physical-projection-composed-r1",
+            "observed": {
+              "PASS": 2
+            },
+            "named_inputs": 6,
+            "inputs_unchanged": true,
+            "wall_seconds": 49.1,
+            "scope": "SIM-03-04 actual seed/plan-bound physical run identity and fixed evidence with changed baseline rebind through a fresh CAS reader. Bounded numerical owner proof."
+          },
         "terminal_existing_quota_author_r1": {
           "source_commit": "8b7668875402ca182bd7a2a9c537aa962bdaf812",
           "source_tree": "de8cf58883e4c231e0bbf922f36fb22f3ebcb9fd",

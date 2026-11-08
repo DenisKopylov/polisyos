@@ -9362,6 +9362,50 @@
             "wall_seconds": 74.21,
             "scope": "Actual selected terminal profile removal on isolated CAS changes fresh authenticated GET from 200 to 409, candidate_experiment_policy_binding_unavailable. Restoring exact manifest bytes restores identical HTTP 200. Original CAS, accounting, failed job attempt and exact SQL head/event remain unchanged. No dispatch, transport or N5."
           },
+          "cyc03_grammar_fence_composed_r2": {
+            "source_commit": "34edec31a076bbf644bcd28234b0fc1a8b59f591",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-cyc03-grammar-fence-current-r2",
+            "observed": {
+              "PASS": 5
+            },
+            "named_inputs": 6,
+            "inputs_unchanged": true,
+            "wall_seconds": 58.06,
+            "scope": "Real fenced same-store NL context read and remove/restore/terminal-lease controls. Substantive problem/population/model/jurisdiction changes refuse. Unchanged or caller-only grammar retry refuses. Older two catalog-location fixture reds remain distinct."
+          },
+          "cyc03_hint_only_source_reissue_composed": {
+            "source_commit": "34edec31a076bbf644bcd28234b0fc1a8b59f591",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-cyc03-source-reissue-composed-r1",
+            "observed": {
+              "PASS": 1
+            },
+            "named_inputs": 7,
+            "inputs_unchanged": true,
+            "wall_seconds": 43.24,
+            "scope": "Actual NL worker and supported Catalog context reissue for allowed grammar hint. Uses a new exact selected context and rechecks owner/lease before N4, with no N5 claim."
+          },
+          "retained_b_historical_pa2_owner_baseline": {
+            "source_commit": "34edec31a076bbf644bcd28234b0fc1a8b59f591",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-retained-b-phase-owner-baseline-r1",
+            "observed": {
+              "PASS": 1
+            },
+            "named_inputs": 8,
+            "inputs_unchanged": true,
+            "scope": "Authentic retained B direct committed-terminal verifier performs five historical phase owner reads; 16.09 seconds inside that verifier. No worker, N5, or original ledger write."
+          },
+          "retained_b_historical_pa2_owner_author_r2": {
+            "source_commit": "e25249a196cc1bfc5a7c13e2acf9b363f48a7c65",
+            "source_tree": "03da6471541eca79f9f268c6343d3b8f5ffcfe8d",
+            "output": "AUTHOR:policy-engine/_cache/e02/lane01-retained-b-phase-owner-author-r2",
+            "observed": {
+              "PASS": 1
+            },
+            "named_inputs": 8,
+            "inputs_unchanged": true,
+            "wall_seconds": 96.61,
+            "scope": "Authentic direct committed-terminal verifier performs one historical phase owner read, 15.56 seconds under concurrent load. Same candidate-only public GET. Removing original signed PA2 bytes in isolated CAS returns 409, restoration returns identical 200. Previous attempt measured one call but failed a probe-only raw-blob digest assumption before removal. No full-route elapsed claim. Independently reviewed, published, read back; composed source remains frozen."
+          },
         "terminal_existing_quota_author_r1": {
           "source_commit": "8b7668875402ca182bd7a2a9c537aa962bdaf812",
           "source_tree": "de8cf58883e4c231e0bbf922f36fb22f3ebcb9fd",

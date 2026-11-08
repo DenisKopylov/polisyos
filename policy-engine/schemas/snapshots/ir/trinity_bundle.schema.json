@@ -236,6 +236,14 @@
       "title": "AgentTypeConfig",
       "type": "object"
     },
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "maxLength": 71,
+      "minLength": 71,
+      "pattern": "^sha256:[0-9A-Fa-f]{64}$",
+      "title": "ArtifactID",
+      "type": "string"
+    },
     "AssumptionSpec": {
       "additionalProperties": false,
       "description": "Record one explicit world-model assumption for governance and sensitivity.\n\nAssumptions are first-class model metadata: reporting, calibration, and\nrobustness tooling can surface them, prioritize ``sensitivity_flag=True``\nentries, and compare alternative ``ModelSpec`` variants that differ only in\nassumption values or confidence.",
@@ -1911,9 +1919,42 @@
       "title": "MechanismUtilityModelSpec",
       "type": "object"
     },
+    "ModelInputPortDeclarationRef": {
+      "additionalProperties": false,
+      "description": "Reference one exact selected model-owned input-port declaration.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.model_input_port_declaration",
+          "default": "ir.model_input_port_declaration",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "description": "Selected manifest profile for the declaration bytes",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Manifest Profile Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "manifest_profile_sha256"
+      ],
+      "title": "ModelInputPortDeclarationRef",
+      "type": "object"
+    },
     "ModelSpec": {
       "additionalProperties": false,
-      "description": "Define the Trinity ``how`` contract for simulation assumptions and state.\n\n``ModelSpec`` answers \"how is the world represented when evaluating this\npolicy?\" It should hold content-addressed references to initial data and\nregistries, declare agent/environment structure, and make modeling\nassumptions explicit enough for robustness sweeps and governance review.\n``ProblemFrame`` owns objectives, ``PolicySpec`` owns interventions, and\n``ModelSpec`` owns simulation mechanics and fidelity.\n\nAttributes:\n    model_id: Stable identifier for the world-model variant.\n    data_snapshot_ref: Content-addressed initial state artifact consumed by\n        simulation runtime.\n    registry_bundle_ref: Optional link to the mechanism/unit registry bundle.\n    time_semantics: Simulation clock, discounting, and horizon semantics.\n    agent_config: Agent populations and interaction topology.\n    assumptions: Explicit model assumptions surfaced for review and sweeps.\n    environment_config: Exogenous parameters and stochastic runtime knobs.\n    fidelity_level: Simulation detail level requested from the runtime.\n    calibrated: Whether this model variant is known to have been calibrated.\n    calibration_ref: Optional reference to persisted calibration outputs.",
+      "description": "Define the Trinity ``how`` contract for simulation assumptions and state.\n\n``ModelSpec`` answers \"how is the world represented when evaluating this\npolicy?\" It should hold content-addressed references to initial data and\nregistries, declare agent/environment structure, and make modeling\nassumptions explicit enough for robustness sweeps and governance review.\n``ProblemFrame`` owns objectives, ``PolicySpec`` owns interventions, and\n``ModelSpec`` owns simulation mechanics and fidelity.\n\nAttributes:\n    model_id: Stable identifier for the world-model variant.\n    data_snapshot_ref: Content-addressed initial state artifact consumed by\n        simulation runtime.\n    registry_bundle_ref: Optional link to the mechanism/unit registry bundle.\n    time_semantics: Simulation clock, discounting, and horizon semantics.\n    agent_config: Agent populations and interaction topology.\n    assumptions: Explicit model assumptions surfaced for review and sweeps.\n    environment_config: Exogenous parameters and stochastic runtime knobs.\n    model_input_port_declaration_ref: Optional selected model-owned semantic\n        input-port declaration; it carries no graph or plan identity.\n    fidelity_level: Simulation detail level requested from the runtime.\n    calibrated: Whether this model variant is known to have been calibrated.\n    calibration_ref: Optional reference to persisted calibration outputs.",
       "properties": {
         "agent_config": {
           "$ref": "#/$defs/AgentConfig",
@@ -1989,6 +2030,18 @@
           "pattern": "^[a-z][a-z0-9_]*$",
           "title": "Model Id",
           "type": "string"
+        },
+        "model_input_port_declaration_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ModelInputPortDeclarationRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Selected model-owned semantic input ports; requires ModelSpec schema 1.1"
         },
         "name": {
           "anyOf": [

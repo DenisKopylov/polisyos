@@ -78,6 +78,7 @@ from polisyos.scientist.orchestration.engine import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.core.contracts.model_input_requirements import ProgramGraphInputInvocation
     from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobBudgetScope
 
 JOINT_SIMULATION_HORIZON_V1_SCHEMA_VERSION = "policyos.runtime.joint_simulation_horizon.v1"
@@ -184,6 +185,29 @@ class JointSimulationControllerError(ValueError):
         self.code = code
         self.context = dict(context or {})
         super().__init__(f"{code}: {message or code}")
+
+
+class ProgramGraphInputsRequiredError(JointSimulationControllerError):
+    """A selected ProgramGraph has unresolved model-owned inputs for N7 routing."""
+
+    def __init__(self, obligation_set_ref: ArtifactRef) -> None:
+        if (
+            type(obligation_set_ref) is not ArtifactRef
+            or obligation_set_ref.kind != "runtime.quality.model_input_obligation_set"
+            or obligation_set_ref.media_type != "application/json"
+            or obligation_set_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("program_graph_input_obligation_set_ref_invalid")
+        self.obligation_set_ref = obligation_set_ref
+        super().__init__("program_graph_inputs_required")
+
+
+class ProgramGraphInputPreflightResult(Protocol):
+    """Typed P03 output for the exact selected ProgramGraph invocation."""
+
+    obligation_refs: tuple[ArtifactRef, ...]
+    obligation_set_ref: ArtifactRef
+    invocation: ProgramGraphInputInvocation
 
 
 class ProofReceiptError(ValueError):
@@ -2992,7 +3016,16 @@ class JointSimulationHorizonController:
         )
         return controller
 
-    def run(self, request: JointSimulationRequest) -> JointSimulationResult:
+    def run(
+        self,
+        request: JointSimulationRequest,
+        *,
+        _program_graph_input_preflight: Callable[
+            [JointSimulationRequest, EnginePlan, EngineDecision],
+            ProgramGraphInputPreflightResult | None,
+        ]
+        | None = None,
+    ) -> JointSimulationResult:
         """Run individual, pairwise, and joint horizons or fail closed."""
 
         self._last_n5_implementation_capture = None
@@ -3049,6 +3082,10 @@ class JointSimulationHorizonController:
                 request=request,
                 decisions=decisions,
                 gate_disabled=self._settings.disable_coupling_gate,
+            )
+        if decision.decision == "selected" and decision.engine_kind == "program_graph":
+            _require_program_graph_input_preflight(
+                request, selected_plan, decision, _program_graph_input_preflight
             )
         equilibrium = {decision.objective_ref: decision.equilibrium_semantics}
         trajectories: tuple[SimulationTrajectory, ...] = ()
@@ -5858,6 +5895,64 @@ def _method_state_for_subset(
         "method_registry_state_missing",
         plan.method_fqn or plan.engine_kind,
     )
+
+
+def _require_program_graph_input_preflight(
+    request: JointSimulationRequest,
+    plan: EnginePlan,
+    decision: EngineDecision,
+    preflight_callback: Callable[
+        [JointSimulationRequest, EnginePlan, EngineDecision],
+        ProgramGraphInputPreflightResult | None,
+    ]
+    | None,
+) -> None:
+    from polisyos.core.artifacts import artifact_ref_identity_key
+    from polisyos.core.contracts.model_input_requirements import ProgramGraphInputInvocation
+    from polisyos.foundry.execute.model_input_requirements import (
+        program_graph_declares_model_input_ports,
+    )
+    from polisyos.runtime.quality.model_input_requirements import ProgramGraphInputPreflight
+
+    try:
+        preflight = preflight_callback(request, plan, decision) if preflight_callback else None
+        requires_preflight = preflight is None and program_graph_declares_model_input_ports(
+            plan.program_store, plan.program_graph_ref
+        )
+    except Exception as exc:
+        raise_artifact_read_access_error(exc)
+        raise JointSimulationControllerError(
+            "program_graph_input_preflight_not_established",
+            context={"error_type": type(exc).__name__},
+        ) from exc
+
+    if preflight is None:
+        if requires_preflight:
+            raise JointSimulationControllerError("program_graph_input_preflight_required")
+        return
+    if type(preflight) is not ProgramGraphInputPreflight:
+        raise JointSimulationControllerError("program_graph_input_preflight_result_untyped")
+    invocation = preflight.invocation
+    if (
+        type(invocation) is not ProgramGraphInputInvocation
+        or plan.program_graph_ref is None
+        or plan.exec_plan_ref is None
+        or artifact_ref_identity_key(invocation.program_graph_ref)
+        != artifact_ref_identity_key(plan.program_graph_ref)
+        or artifact_ref_identity_key(invocation.exec_plan_ref)
+        != artifact_ref_identity_key(plan.exec_plan_ref)
+        or invocation.steps != request.horizon.steps()
+        or type(preflight.obligation_set_ref) is not ArtifactRef
+        or preflight.obligation_set_ref.kind != "runtime.quality.model_input_obligation_set"
+        or preflight.obligation_set_ref.media_type != "application/json"
+        or preflight.obligation_set_ref.manifest_profile_sha256 is None
+    ):
+        raise JointSimulationControllerError("program_graph_input_preflight_selection_mismatch")
+    if preflight.obligation_refs:
+        raise ProgramGraphInputsRequiredError(preflight.obligation_set_ref)
+    # A complete obligation inventory does not qualify the legacy physical runner
+    # to consume semantic bindings for an opted-in graph.
+    raise JointSimulationControllerError("program_graph_semantic_horizon_intake_not_established")
 
 
 def _program_graph_outcomes(

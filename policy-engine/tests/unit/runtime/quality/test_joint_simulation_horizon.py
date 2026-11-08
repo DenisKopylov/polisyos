@@ -1502,6 +1502,195 @@ def test_program_graph_plan_roundtrips_exact_selected_compilation() -> None:
         )
 
 
+def test_selected_program_graph_input_preflight_stops_before_runner_and_charge(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The actual selected-model obligation set reaches the pre-runner stop."""
+    from polisyos.core.artifacts import ArtifactRef, CoreJSONArtifactStore
+    from polisyos.core.contracts.foundry import ExecPlanRef, ProgramGraphRef
+    from polisyos.core.contracts.model_input_requirements import (
+        load_model_input_obligation_set,
+    )
+    from polisyos.core.registry import load_registry_bundle_content
+    from polisyos.foundry.execute import load_state_snapshot
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationControllerError,
+        ProgramGraphInputsRequiredError,
+    )
+    from polisyos.runtime.quality.model_input_requirements import (
+        derive_program_graph_input_interface,
+        preflight_program_graph_inputs,
+    )
+    from tests._helpers.program_graph_tax_subsidy_input import (
+        prepare_program_graph_tax_subsidy_input_case,
+    )
+    from tests.unit.runtime.quality.test_model_input_requirements import (
+        _context,
+        _stock_declaration,
+    )
+
+    case = prepare_program_graph_tax_subsidy_input_case(
+        tmp_path,
+        opening_balance_usd=None,
+        mechanism_start_step=2,
+        model_input_port_declaration_builder=_stock_declaration,
+    )
+    try:
+        assert isinstance(case.store, CoreJSONArtifactStore)
+        registry = load_registry_bundle_content(case.store, case.registry_bundle_ref)
+        base_state = load_state_snapshot(
+            case.store,
+            snapshot_ref=case.bound_state_snapshot_ref,
+        )
+        selected_plan = EnginePlan(
+            engine_kind="program_graph",
+            objective_ref="objective://program-graph-model-input",
+            eligibility_conditions=("acyclic", "state_transition"),
+            variable_map={"mean_income": "agents.income"},
+            program_store=case.store,
+            program_graph_ref=case.program_graph_ref,
+            exec_plan_ref=case.exec_plan_ref,
+            program_base_state=base_state,
+            program_base_ref=case.bound_state_snapshot_ref,
+            mechanism_registry=registry.mechanism_registry,
+            slot_registry=registry.slot_registry,
+            merge_registry=registry.merge_registry,
+            selector_field_registry=registry.selector_field_registry,
+            constraint_registry=registry.constraint_registry,
+        )
+        request = _request().model_copy(
+            update={
+                "engine_plan": (selected_plan,),
+                "horizon": HorizonSpec(start=0, end=3, step=1),
+                "selected_outcomes": ("mean_income",),
+                "baseline_state": {"mean_income": 0.0},
+            }
+        )
+        interface_ref = derive_program_graph_input_interface(
+            case.store,
+            program_graph_ref=ProgramGraphRef.model_validate(
+                case.program_graph_ref.model_dump(mode="python")
+            ),
+            exec_plan_ref=ExecPlanRef.model_validate(case.exec_plan_ref.model_dump(mode="python")),
+            registry_bundle_ref=case.registry_bundle_ref,
+        )
+        assert interface_ref is not None
+        callback_calls: list[tuple[str, str]] = []
+
+        def selected_input_preflight(
+            actual_request: JointSimulationRequest,
+            actual_plan: EnginePlan,
+            decision: Any,
+        ) -> Any:
+            callback_calls.append((decision.engine_kind, decision.decision))
+            assert actual_request.world_model_record is request.world_model_record
+            assert actual_plan is selected_plan
+            return preflight_program_graph_inputs(
+                case.store,
+                interface_ref=interface_ref,
+                program_graph_ref=ProgramGraphRef.model_validate(
+                    case.program_graph_ref.model_dump(mode="python")
+                ),
+                exec_plan_ref=ExecPlanRef.model_validate(
+                    case.exec_plan_ref.model_dump(mode="python")
+                ),
+                registry_bundle_ref=case.registry_bundle_ref,
+                input_bindings_ref=case.input_bindings_ref,
+                context=_context(case),
+                steps=actual_request.horizon.steps(),
+            )
+
+        controller = JointSimulationHorizonController()
+        runner_registry_calls: list[str] = []
+        monkeypatch.setattr(
+            controller,
+            "_engine_runners",
+            lambda: runner_registry_calls.append("dispatch") or {},
+        )
+        physical_dispatch_calls: list[str] = []
+        from polisyos.runtime.quality import joint_simulation_horizon as controller_module
+
+        monkeypatch.setattr(
+            controller_module,
+            "_run_cached_replicates",
+            lambda *args, **kwargs: physical_dispatch_calls.append("charge"),
+        )
+        with pytest.raises(
+            JointSimulationControllerError, match="program_graph_input_preflight_required"
+        ):
+            controller.run(request)
+        with pytest.raises(
+            JointSimulationControllerError, match="program_graph_input_preflight_required"
+        ):
+            controller.run(request, _program_graph_input_preflight=lambda *_args: None)
+        before_dependency = request.model_copy(
+            update={"horizon": HorizonSpec(start=0, end=1, step=1)}
+        )
+        with pytest.raises(
+            JointSimulationControllerError,
+            match="program_graph_semantic_horizon_intake_not_established",
+        ):
+            controller.run(
+                before_dependency, _program_graph_input_preflight=selected_input_preflight
+            )
+        with pytest.raises(ProgramGraphInputsRequiredError) as raised:
+            controller.run(
+                request,
+                _program_graph_input_preflight=selected_input_preflight,
+            )
+
+        assert callback_calls == [("program_graph", "selected")] * 2
+        assert runner_registry_calls == []
+        assert physical_dispatch_calls == []
+        assert isinstance(raised.value.obligation_set_ref, ArtifactRef)
+        selected_set, obligations = load_model_input_obligation_set(
+            case.store, raised.value.obligation_set_ref
+        )
+        assert selected_set.invocation.program_graph_ref == case.program_graph_ref
+        assert selected_set.invocation.exec_plan_ref == case.exec_plan_ref
+        assert selected_set.invocation.steps == request.horizon.steps()
+        assert len(obligations) == 1
+        assert obligations[0].port.slot_id == "government.balance"
+        assert obligations[0].dependencies[0].first_required_step == 2
+    finally:
+        case.close()
+
+
+def test_rejected_program_graph_does_not_create_input_obligations_before_fallback() -> None:
+    """An ineligible graph cannot emit obligations when a later engine is selected."""
+    request = _request().model_copy(
+        update={
+            "engine_plan": (
+                EnginePlan(
+                    engine_kind="program_graph",
+                    objective_ref="objective://rejected-program-graph",
+                    eligibility_conditions=("cyclic",),
+                ),
+                _request().engine_plan[0],
+            ),
+            "horizon": HorizonSpec(start=0, end=0, step=1),
+        }
+    )
+    callback_calls: list[str] = []
+
+    def selected_input_preflight(*_args: Any) -> Any:
+        callback_calls.append("called")
+        raise AssertionError("preflight must follow actual engine selection")
+
+    result = JointSimulationHorizonController().run(
+        request,
+        _program_graph_input_preflight=selected_input_preflight,
+    )
+
+    assert [item.engine_kind for item in result.engine_decisions] == [
+        "program_graph",
+        "ncm_parallel_worlds",
+    ]
+    assert [item.decision for item in result.engine_decisions] == ["unsupported", "selected"]
+    assert callback_calls == []
+
+
 def test_program_graph_plan_loops_real_shared_state_executor(tmp_path: Path) -> None:
     request = _request().model_copy(
         update={

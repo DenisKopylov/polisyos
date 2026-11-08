@@ -100,6 +100,9 @@ TRINITY_FIELD_COVERAGE: dict[str, dict[str, CoverageEntry]] = {
         "agent_config": CoverageEntry("compile_only", "foundry.lowering.agent_config"),
         "assumptions": CoverageEntry("compile_only", "foundry.lowering.assumptions"),
         "environment_config": CoverageEntry("compile_only", "foundry.lowering.environment_config"),
+        "model_input_port_declaration_ref": CoverageEntry(
+            "runtime", "foundry.execute.model_input_requirements"
+        ),
         "fidelity_level": CoverageEntry("runtime", "foundry.lowering.fidelity"),
         "calibrated": CoverageEntry("compile_only", "foundry.lowering.calibration_metadata"),
         "calibration_ref": CoverageEntry("compile_only", "foundry.lowering.calibration_metadata"),
@@ -124,6 +127,7 @@ _REQUIRED_CONSUMERS = {
     ("ModelSpec", "fidelity_level"),
     ("ModelSpec", "registry_bundle_ref"),
     ("ModelSpec", "data_snapshot_ref"),
+    ("ModelSpec", "model_input_port_declaration_ref"),
 }
 
 

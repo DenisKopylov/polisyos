@@ -13,9 +13,10 @@ from decimal import Decimal
 from enum import Enum
 from typing import TYPE_CHECKING, Annotated, Any, Literal
 
-from pydantic import BeforeValidator, Field, model_validator
+from pydantic import BeforeValidator, ConfigDict, Field, model_validator
 
 from polisyos.ir.kernel.base import KernelModel, reject_float
+from polisyos.ir.registry.refs import ArtifactRefModel
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -35,8 +36,22 @@ SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 MAX_ASSUMPTIONS = 100
 MAX_AGENT_TYPES = 50
 MAX_ENVIRONMENT_PARAMS = 100
+MODEL_SPEC_INPUT_PORT_DECLARATION_VERSION = "1.1"
 
 UnitIntervalValue = Annotated[Decimal, BeforeValidator(reject_float), Field(ge=0, le=1)]
+
+
+class ModelInputPortDeclarationRef(ArtifactRefModel):
+    """Reference one exact selected model-owned input-port declaration."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    kind: Literal["ir.model_input_port_declaration"] = "ir.model_input_port_declaration"
+    media_type: Literal["application/json"] = "application/json"
+    manifest_profile_sha256: str = Field(
+        pattern=r"^sha256:[0-9a-f]{64}$",
+        description="Selected manifest profile for the declaration bytes",
+    )
 
 
 class FidelityLevel(str, Enum):
@@ -197,6 +212,8 @@ class ModelSpec(KernelModel):
         agent_config: Agent populations and interaction topology.
         assumptions: Explicit model assumptions surfaced for review and sweeps.
         environment_config: Exogenous parameters and stochastic runtime knobs.
+        model_input_port_declaration_ref: Optional selected model-owned semantic
+            input-port declaration; it carries no graph or plan identity.
         fidelity_level: Simulation detail level requested from the runtime.
         calibrated: Whether this model variant is known to have been calibrated.
         calibration_ref: Optional reference to persisted calibration outputs.
@@ -217,6 +234,11 @@ class ModelSpec(KernelModel):
         default=None,
         pattern=ARTIFACT_ID_PATTERN,
         description="Reference to RegistryBundle for mechanisms/units",
+    )
+    model_input_port_declaration_ref: ModelInputPortDeclarationRef | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        description=("Selected model-owned semantic input ports; requires ModelSpec schema 1.1"),
     )
 
     # Time Configuration
@@ -269,6 +291,12 @@ class ModelSpec(KernelModel):
         _validate_unique_ids(self.assumptions, "assumption_id")
         _validate_unique_ids(self.agent_config.agent_types, "agent_type_id")
         _validate_unique_ids(self.environment_config.params, "param_id")
+
+        if (
+            self.model_input_port_declaration_ref is not None
+            and self.schema_version != MODEL_SPEC_INPUT_PORT_DECLARATION_VERSION
+        ):
+            raise ValueError("model_input_port_declaration_requires_schema_1_1")
 
         if self.agent_config.agent_types:
             total_share = sum(

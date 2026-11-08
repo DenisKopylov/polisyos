@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import importlib
 import io
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -15,6 +17,94 @@ from pathlib import Path
 import pytest
 
 from tools import authority_bootstrap as host
+
+
+def test_native_ledger_provider_inside_host(request: pytest.FixtureRequest) -> None:
+    """The completed owner retains the validator's actual native provider."""
+    node = f"{__file__}::test_native_ledger_provider_inside_host"
+    if node not in request.config.invocation_params.args:
+        pytest.skip("requires the explicit fresh-host test invocation")
+
+    live_host = sys.modules["_polisyos_early_host"]
+    session = sys.__dict__["_polisyos_loaded_host_v1"]
+    assert session["phase"] == "collecting", session["last_owner_diagnostic"]
+    module_name = "pydantic_core._pydantic_core"
+    ledger = importlib.import_module("polisyos.runtime.quality.confidence_ledger")
+    provider = importlib.import_module(module_name)
+    rational = ledger.RationalSpec.model_validate({"numerator": 6, "denominator": 9})
+    assert str(rational.fraction) == "2/3"
+    with pytest.raises(ValueError, match="greater than 0"):
+        ledger.RationalSpec.model_validate({"numerator": 6, "denominator": 0})
+
+    live_host.handoff_if_ready()
+    report = session["last_owner_diagnostic"]
+    assert session["owner_capture_state"] == "retained", (
+        report.get("failure"),
+        report.get("capture_failure"),
+    )
+    native = report["native_validation_provider"]
+    assert native["status"] == "reconciled_at_seal", (
+        native,
+        session["external_source_selector"].failure_for(module_name),
+    )
+    assert native["module"] == module_name
+    assert native["file_sha256"] == hashlib.sha256(Path(provider.__file__).read_bytes()).hexdigest()
+    assert native["lock_sha256"] == hashlib.sha256(Path("uv.lock").read_bytes()).hexdigest()
+    assert report["protected_loaded_execution_status"] == "not_established"
+
+    capture = session["capture"]
+    current = ledger._check_loaded_execution_observation_currentness(capture)
+    assert current["native_validation_provider_endpoint_currentness"] == "current_at_endpoint"
+    assert current["protected_through_use"] == "not_established"
+
+    # The native module, file, and validator class stay the same. The actual
+    # consumer can now return an integer because its held validator changed.
+    original = ledger.RationalSpec.__pydantic_validator__
+    replacement = provider.SchemaValidator({"type": "int"})
+    assert type(replacement) is type(original)
+    ledger.RationalSpec.__pydantic_validator__ = replacement
+    try:
+        assert ledger.RationalSpec.model_validate(17) == 17
+        live_host._check_owner_capture_at_endpoint(session, "native_provider_substitution")
+        changed = session["last_owner_diagnostic"]
+        assert changed["owner_observation_state"] == "failed", changed
+        assert changed["held_binding_endpoint_failure"] == "locked_native_validator_binding_changed"
+        assert changed["native_validation_provider_endpoint_currentness"] == "failed"
+    finally:
+        ledger.RationalSpec.__pydantic_validator__ = original
+    assert (
+        ledger._check_loaded_execution_observation_currentness(capture)["owner_observation_state"]
+        == "failed"
+    )
+
+
+@pytest.mark.integration
+def test_authority_launcher_retains_locked_native_ledger_provider() -> None:
+    """Run real ledger validation and its removal control under the normal host."""
+    wheel_directory = os.environ.get("POLISYOS_N6_PROVIDER_WHEEL_DIR")
+    if wheel_directory is None:
+        pytest.skip("requires the retained pydantic-core wheel selected by uv.lock")
+    product = Path(__file__).resolve().parents[3]
+    node = f"{__file__}::test_native_ledger_provider_inside_host"
+    result = subprocess.run(
+        [
+            str(product / "tools/authority"),
+            "--wheel-dir",
+            str(Path(wheel_directory).resolve(strict=True)),
+            "test",
+            "--noconftest",
+            "--assert=plain",
+            "-q",
+            node,
+        ],
+        cwd=product,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=300,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "1 passed" in result.stdout, result.stdout + result.stderr
 
 
 @pytest.mark.parametrize(
@@ -150,6 +240,9 @@ else:
     assert record.file_sha256 == hashlib.sha256(pathlib.Path(record.spec.origin).read_bytes()).hexdigest()
     capture.assert_retained(frozenset({'consumer'}))
     if mode == 'normal':
+        assert selector.select_native('_ctypes_test', record.spec.origin, _retained_only=True) == (
+            record.relative_path, record.file_sha256
+        )
         other = next(site.glob('_dbm*.so'))
         assert selector.select_native('_dbm', str(other)) is not None
         assert len(fetches) == 1

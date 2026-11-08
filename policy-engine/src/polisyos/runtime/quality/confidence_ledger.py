@@ -6752,6 +6752,84 @@ def _observed_source_bindings(
 
 
 @dataclass(frozen=True, slots=True)
+class _LockedNativeValidatorObservation:
+    """Retain one selected native file and the actual ledger validator binding."""
+
+    read_member: types.FunctionType
+    selection: tuple[str, str, str, str, str]
+    execution: object
+    facade: types.ModuleType
+    validator_type: type[object]
+    consumer_model: type[object]
+    validator: object
+
+    def projection(self) -> dict[str, str]:
+        module, path, digest, wheel_digest, lock_digest = self.selection
+        return {
+            "status": "reconciled_at_seal",
+            "predicate_provenance": "independently_reconciled",
+            "module": module,
+            "relative_path": path,
+            "file_sha256": digest,
+            "wheel_sha256": wheel_digest,
+            "lock_sha256": lock_digest,
+            "consumer": "RationalSpec.__pydantic_validator__",
+        }
+
+
+def _observe_locked_native_validator(
+    capture: Any,  # noqa: ANN401
+    session: dict[str, object],
+) -> _LockedNativeValidatorObservation | None:
+    """Bind the retained native module's class to a loaded ledger validator."""
+    module_name = "pydantic_core._pydantic_core"
+    member = _passive_capture_lookup(session, "locked_native_member")
+    host = _passive_capture_lookup(sys.modules, "_polisyos_early_host")
+    if (
+        type(member) is not types.FunctionType
+        or type(host) is not types.ModuleType
+        or member.__globals__ is not host.__dict__
+        or member.__code__.co_qualname != "_child_main.<locals>.locked_native_member"
+        or not _code_tree_contains(_passive_capture_lookup(session, "host_code"), member.__code__)
+    ):
+        return None
+    try:
+        selected = member(module_name)
+        if (
+            type(selected) is not tuple
+            or len(selected) != 5
+            or any(type(value) is not str for value in selected)
+            or selected[0] != module_name
+        ):
+            return None
+        execution = capture.completed_native(module_name)
+        facade = capture.completed("pydantic_core").module
+        capture.assert_retained(frozenset({"pydantic_core"}))
+        if (
+            type(facade) is not types.ModuleType
+            or type(execution.module) is not types.ModuleType
+            or (execution.relative_path, execution.file_sha256) != selected[1:3]
+        ):
+            return None
+        validator_type = _passive_capture_lookup(vars(execution.module), "SchemaValidator")
+        consumer_model = RationalSpec
+        validator = _passive_capture_lookup(
+            type.__getattribute__(consumer_model, "__dict__"), "__pydantic_validator__"
+        )
+        if (
+            type(validator_type) is not type
+            or _passive_capture_lookup(vars(facade), "SchemaValidator") is not validator_type
+            or type(validator) is not validator_type
+        ):
+            return None
+        return _LockedNativeValidatorObservation(
+            member, selected, execution, facade, validator_type, consumer_model, validator
+        )
+    except (AttributeError, ImportError, OSError, RuntimeError, TypeError, ValueError):
+        return None
+
+
+@dataclass(frozen=True, slots=True)
 class _LoadedExecutionObservationSeal:
     """Retain one bounded post-import observation without granting identity."""
 
@@ -6769,6 +6847,7 @@ class _LoadedExecutionObservationSeal:
     binding_disagreements: tuple[object, ...]
     failure: str | None
     locked_python_member: object | None = None
+    native_validator: _LockedNativeValidatorObservation | None = None
 
 
 _LOADED_EXECUTION_OBSERVATION_SEAL: _LoadedExecutionObservationSeal | None = None
@@ -7348,14 +7427,13 @@ def _seal_loaded_execution_capture(
     recorder_module: object,
     capture: Any,  # noqa: ANN401
 ) -> dict[str, object]:
-    """Retain the owner-direct import snapshot while leaving N6 unavailable.
+    """Retain bounded owner bindings while leaving N6 unavailable.
 
     The early bootstrap calls this only after resolving this exact function
-    from the completed source-owned ledger module. The retained subclaim covers
-    the ledger execution and first-party imports made directly by this owner.
-    Runtime appointment, external provider
-    qualification, material state, later currentness and protection through use
-    remain separate premises and are never inferred from this snapshot.
+    from the completed source-owned ledger module. The retained subclaims cover
+    direct first-party imports and the selected native validator binding.
+    Runtime appointment, full provider qualification, material state and
+    protection through use remain separate premises.
     """
 
     global _LOADED_EXECUTION_OBSERVATION_SEAL
@@ -7486,9 +7564,9 @@ def _seal_loaded_execution_capture(
         report["protected_through_use"] = "not_established"
         return report
 
-    # The report preserves the whole reachable graph. Endpoint currentness is
-    # deliberately narrower: only this owner module's direct first-party
-    # bindings are retained and rechecked.
+    # The report preserves the whole reachable graph. The retained endpoint
+    # scope includes direct first-party bindings and one named native consumer.
+    native_validator = _observe_locked_native_validator(capture, host_session)
     _LOADED_EXECUTION_OBSERVATION_SEAL = _LoadedExecutionObservationSeal(
         capture=capture,
         recorder_module=recorder_module,
@@ -7504,10 +7582,20 @@ def _seal_loaded_execution_capture(
         pending_modules=report_rows("pending_modules"),
         binding_disagreements=report_rows("observed_binding_disagreements"),
         failure=None,
+        native_validator=native_validator,
     )
     report["owner_observation_state"] = "retained"
     report["owner_observation_scope"] = "ledger-owner direct observed first-party imports"
     report["owner_observation_binding_count"] = len(retained_bindings)
+    report["native_validation_provider"] = (
+        native_validator.projection()
+        if native_validator is not None
+        else {
+            "status": "not_established",
+            "predicate_provenance": "not_established",
+            "reason_code": "locked_native_validation_binding_unavailable",
+        }
+    )
     report["currentness_status"] = "not_established"
     report["held_binding_endpoint_currentness"] = "not_checked"
     report["protected_through_use"] = "not_established"
@@ -7522,8 +7610,8 @@ def _check_loaded_execution_observation_currentness(capture: Any) -> dict[str, o
 
     The bootstrap calls this before closing the recorder, after the dispatched
     target returns (or before emitting the standalone diagnosis). It verifies
-    only the concrete source-owned provider/importer relations retained by the
-    earlier reconciliation. It cannot detect an A→B→A mutation between
+    the concrete source-owned relations and selected native consumer retained
+    by the earlier reconciliation. It cannot detect an A→B→A mutation between
     endpoints and does not establish deployment currentness or authority.
     """
 
@@ -7534,6 +7622,7 @@ def _check_loaded_execution_observation_currentness(capture: Any) -> dict[str, o
         "status": "not_established",
         "protected_loaded_execution_status": "not_established",
         "currentness_status": "not_established",
+        "native_validation_provider_endpoint_currentness": "not_established",
         "protected_through_use": "not_established",
         "candidate_only": True,
     }
@@ -7555,20 +7644,8 @@ def _check_loaded_execution_observation_currentness(capture: Any) -> dict[str, o
         or _passive_capture_lookup(host_session, "recorder") is not seal.recorder_module
     ):
         failure = "host_capture_session_unmatched"
-        _LOADED_EXECUTION_OBSERVATION_SEAL = _LoadedExecutionObservationSeal(
-            capture=seal.capture,
-            recorder_module=seal.recorder_module,
-            owner_module=seal.owner_module,
-            state="failed",
-            owner_execution=seal.owner_execution,
-            binding_references=seal.binding_references,
-            external_provider_modules=seal.external_provider_modules,
-            failed_reachable_imports=seal.failed_reachable_imports,
-            failed_reachable_modules=seal.failed_reachable_modules,
-            unresolved_importers=seal.unresolved_importers,
-            pending_modules=seal.pending_modules,
-            binding_disagreements=seal.binding_disagreements,
-            failure=failure,
+        _LOADED_EXECUTION_OBSERVATION_SEAL = _dataclasses.replace(
+            seal, state="failed", failure=failure
         )
         return {
             **base,
@@ -7578,20 +7655,8 @@ def _check_loaded_execution_observation_currentness(capture: Any) -> dict[str, o
         }
     if not _host_recorder_anchor_matches(seal.recorder_module, capture):
         failure = "host_execution_anchor_unavailable"
-        _LOADED_EXECUTION_OBSERVATION_SEAL = _LoadedExecutionObservationSeal(
-            capture=seal.capture,
-            recorder_module=seal.recorder_module,
-            owner_module=seal.owner_module,
-            state="failed",
-            owner_execution=seal.owner_execution,
-            binding_references=seal.binding_references,
-            external_provider_modules=seal.external_provider_modules,
-            failed_reachable_imports=seal.failed_reachable_imports,
-            failed_reachable_modules=seal.failed_reachable_modules,
-            unresolved_importers=seal.unresolved_importers,
-            pending_modules=seal.pending_modules,
-            binding_disagreements=seal.binding_disagreements,
-            failure=failure,
+        _LOADED_EXECUTION_OBSERVATION_SEAL = _dataclasses.replace(
+            seal, state="failed", failure=failure
         )
         return {
             **base,
@@ -7612,6 +7677,26 @@ def _check_loaded_execution_observation_currentness(capture: Any) -> dict[str, o
             capture.assert_retained(frozenset({__name__}))
             if capture.completed(__name__) is not seal.owner_execution:
                 raise ValueError("owner_execution_changed_after_observation")
+            held = seal.native_validator
+            if held is not None:
+                current = (
+                    _observe_locked_native_validator(capture, host_session)
+                    if _passive_capture_lookup(host_session, "locked_native_member")
+                    is held.read_member
+                    else None
+                )
+                if (
+                    current is None
+                    or current.selection != held.selection
+                    or current.execution is not held.execution
+                    or current.facade is not held.facade
+                    or current.validator_type is not held.validator_type
+                    or current.consumer_model is not held.consumer_model
+                    or current.validator is not held.validator
+                ):
+                    base["native_validation_provider_endpoint_currentness"] = "failed"
+                    raise ValueError("locked_native_validator_binding_changed")
+                base["native_validation_provider_endpoint_currentness"] = "current_at_endpoint"
             for row in seal.binding_references:
                 if type(row) is not tuple or len(row) != 7:
                     raise ValueError("retained_import_binding_record_invalid")
@@ -7641,20 +7726,8 @@ def _check_loaded_execution_observation_currentness(capture: Any) -> dict[str, o
             )
 
     if failure is not None:
-        _LOADED_EXECUTION_OBSERVATION_SEAL = _LoadedExecutionObservationSeal(
-            capture=seal.capture,
-            recorder_module=seal.recorder_module,
-            owner_module=seal.owner_module,
-            state="failed",
-            owner_execution=seal.owner_execution,
-            binding_references=seal.binding_references,
-            external_provider_modules=seal.external_provider_modules,
-            failed_reachable_imports=seal.failed_reachable_imports,
-            failed_reachable_modules=seal.failed_reachable_modules,
-            unresolved_importers=seal.unresolved_importers,
-            pending_modules=seal.pending_modules,
-            binding_disagreements=seal.binding_disagreements,
-            failure=failure,
+        _LOADED_EXECUTION_OBSERVATION_SEAL = _dataclasses.replace(
+            seal, state="failed", failure=failure
         )
         return {
             **base,

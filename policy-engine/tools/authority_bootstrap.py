@@ -58,6 +58,7 @@ _HOST_SESSION: object | None = None
 _MAX_MESSAGE = 8 * 1024 * 1024
 _MAX_PROVIDER_WHEEL_BYTES = 32 * 1024 * 1024
 _MAX_PROVIDER_TOTAL_BYTES = 128 * 1024 * 1024
+_LOCKED_NATIVE_MODULES = frozenset({"pydantic_core._pydantic_core"})
 _OWNER_CAPTURE_EXPORTS = frozenset(
     {
         "_observe_unsealed_host_capture",
@@ -329,11 +330,11 @@ def _selected_snapshot() -> tuple[
 
 
 class _LockedWheelSourceSelector:
-    """Select installed Python source only from an independently locked wheel.
+    """Select installed Python and native members from independently locked wheels.
 
     Installed RECORD and metadata choose a candidate archive; the lock digest,
     archive metadata, and exact member bytes independently reconcile it. This
-    does not qualify native code, semantic state, or protected use.
+    does not qualify mapped native code, semantic state, or protected use.
     """
 
     def __init__(
@@ -583,7 +584,9 @@ class _LockedWheelSourceSelector:
         self._wheels[cache_key] = result
         return result
 
-    def select_native(self, module_name: str, origin: str) -> tuple[str, str] | None:
+    def select_native(
+        self, module_name: str, origin: str, *, _retained_only: bool = False
+    ) -> tuple[str, str] | None:
         """Bind an explicitly selected extension file to its locked wheel member.
 
         The selected file is not an assertion about mapped machine code or the
@@ -621,7 +624,11 @@ class _LockedWheelSourceSelector:
             owners = self._record_owners().get(member, [])
             if len(owners) != 1:
                 raise ValueError("provider_distribution_owner_unavailable")
-            selected = self._wheel_members(owners[0], native_member=member)
+            selected = (
+                self._wheels.get((owners[0], member))
+                if _retained_only
+                else self._wheel_members(owners[0], native_member=member)
+            )
             if selected is None:
                 raise ValueError(self._wheel_failures.get(owners[0], "provider_wheel_unavailable"))
             wheel_hash, members = selected
@@ -629,7 +636,12 @@ class _LockedWheelSourceSelector:
             if digest is None or _file_sha(canonical) != digest:
                 raise ValueError("provider_installed_native_mismatch")
             checkout_relative = path.relative_to(self._root).as_posix()
-            self._selected[module_name] = (checkout_relative, digest, wheel_hash)
+            selection = (checkout_relative, digest, wheel_hash)
+            if _retained_only:
+                if self._selected.get(module_name) != selection:
+                    raise ValueError("provider_selected_member_unavailable")
+            else:
+                self._selected[module_name] = selection
             return checkout_relative, digest
         except (OSError, ValueError) as exc:
             self._refused[module_name] = (
@@ -1211,7 +1223,12 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
         selector_failure = type(exc).__name__
     select_wheel_source = None if selector is None else selector.select
     selector_code = None if select_wheel_source is None else select_wheel_source.__func__.__code__
+    select_wheel_native = None if selector is None else selector.select_native
+    native_selector_code = (
+        None if select_wheel_native is None else select_wheel_native.__func__.__code__
+    )
     held_members: dict[str, tuple[str, str, str]] = {}
+    held_native_members: dict[str, tuple[str, str, str]] = {}
 
     def select_locked_source(module_name: str, origin: str) -> tuple[str, str] | None:
         if (
@@ -1224,6 +1241,20 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
         if selected is not None:
             member = selector._selected[module_name]
             if held_members.setdefault(module_name, member) != member:
+                return None
+        return selected
+
+    def select_locked_native(module_name: str, origin: str) -> tuple[str, str] | None:
+        if (
+            selector is None
+            or select_wheel_native is None
+            or select_wheel_native.__func__.__code__ is not native_selector_code
+        ):
+            return None
+        selected = select_wheel_native(module_name, origin)
+        if selected is not None:
+            member = selector._selected[module_name]
+            if held_native_members.setdefault(module_name, member) != member:
                 return None
         return selected
 
@@ -1242,6 +1273,8 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
             sources,
             exports=exports,
             external_source_selector=None if selector is None else select_locked_source,
+            external_native_selector=None if selector is None else select_locked_native,
+            external_native_modules=frozenset() if selector is None else _LOCKED_NATIVE_MODULES,
             external_source_root=None if selector is None else site,
         )
         capture.install()
@@ -1263,6 +1296,19 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
         recorder_classes,
     ) = recorder_surface
 
+    def member_endpoint_is_current(reader_name: str, reader: object) -> bool:
+        return (
+            _HOST_SESSION is session
+            and sys.__dict__.get(_HOST_SLOT) is session
+            and session.get("capture") is capture
+            and session.get("external_source_selector") is selector
+            and session.get(reader_name) is reader
+            and session.get("phase") == "collecting"
+            and session.get("pid") == os.getpid()
+            and session.get("parent_pid") == os.getppid()
+            and _recorder_surface_unchanged(session)
+        )
+
     def locked_python_member(module_name: str) -> tuple[str, str, str, str, str] | None:
         """Reconcile a recorded member at this live host endpoint."""
         if (
@@ -1271,15 +1317,7 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
             or select_wheel_source is None
             or selected_lock_sha256 is None
             or capture is None
-            or _HOST_SESSION is not session
-            or sys.__dict__.get(_HOST_SLOT) is not session
-            or session.get("capture") is not capture
-            or session.get("external_source_selector") is not selector
-            or session.get("locked_python_member") is not locked_python_member
-            or session.get("phase") != "collecting"
-            or session.get("pid") != os.getpid()
-            or session.get("parent_pid") != os.getppid()
-            or not _recorder_surface_unchanged(session)
+            or not member_endpoint_is_current("locked_python_member", locked_python_member)
             or select_wheel_source.__func__.__code__ is not selector_code
             or vars(capture).get("_external_source_selector") is not select_locked_source
         ):
@@ -1296,6 +1334,38 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
                 or lock_path.resolve(strict=True) != lock_path
                 or _file_sha(lock_path) != selected_lock_sha256
                 or select_wheel_source(module_name, execution.origin, _retained_only=True)
+                != member[:2]
+            ):
+                return None
+        except (ImportError, OSError, RuntimeError, TypeError, ValueError):
+            return None
+        return (module_name, *member, selected_lock_sha256)
+
+    def locked_native_member(module_name: str) -> tuple[str, str, str, str, str] | None:
+        """Reopen one completed native selection without reselecting the wheel."""
+        if (
+            type(module_name) is not str
+            or module_name not in _LOCKED_NATIVE_MODULES
+            or selector is None
+            or select_wheel_native is None
+            or selected_lock_sha256 is None
+            or capture is None
+            or not member_endpoint_is_current("locked_native_member", locked_native_member)
+            or select_wheel_native.__func__.__code__ is not native_selector_code
+            or vars(capture).get("_external_native_selector") is not select_locked_native
+        ):
+            return None
+        member = held_native_members.get(module_name)
+        if member is None or selector._selected.get(module_name) != member:
+            return None
+        try:
+            execution = capture.completed_native(module_name)
+            if (
+                type(execution) is not recorder.NativeModuleExecution
+                or (execution.relative_path, execution.file_sha256) != member[:2]
+                or lock_path.resolve(strict=True) != lock_path
+                or _file_sha(lock_path) != selected_lock_sha256
+                or select_wheel_native(module_name, execution.spec.origin, _retained_only=True)
                 != member[:2]
             ):
                 return None
@@ -1325,6 +1395,7 @@ def _child_main(channel: socket.socket, request: dict[str, object]) -> int:
         "external_source_selector": selector,
         "external_source_selector_failure": selector_failure,
         "locked_python_member": locked_python_member,
+        "locked_native_member": locked_native_member,
         "profile": profile,
         "source_frame": request["source_frame"],
         "host_sha256": request["host_sha256"],
@@ -1444,7 +1515,8 @@ def _invoke_entry(mode: str, arguments: list[str], *, candidate_reason: str | No
                     ),
                     "failure_codes": sorted(set(selector._refused.values())),
                     "scope": (
-                        "observed locked wheel Python members; provider authority not established"
+                        "observed locked wheel source and selected native members; "
+                        "provider authority not established"
                     ),
                 }
             else:

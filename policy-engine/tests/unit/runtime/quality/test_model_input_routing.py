@@ -275,6 +275,52 @@ def test_selected_model_input_routes_to_candidate_descriptor_or_named_absence(
         assert v2_manifest.artifact_schema is not None
         assert v2_manifest.artifact_schema.version == "2.0"
 
+        # Keep the exact definition, dataset, units, scope and N5 obligation.
+        # The nearby fiscal flow still cannot supply the model's opening stock.
+        flow_definition_ref, flow_representation_ref, _, _ = _model_inputs(
+            case.store, source_quantity_kind="flow"
+        )
+        assert flow_definition_ref == port.semantic_definition_ref
+        flow_entry = build_authority_entry(
+            **{
+                **selected_entry.model_dump(mode="python", exclude={"entry_id"}),
+                "source_representation_ref": flow_representation_ref,
+            }
+        )
+        _replace_authority_registry(v2_authority, (flow_entry, unrelated_before))
+        flow_routing = plan_selected_model_input_routing(
+            case.store,
+            obligation_set_ref=preflight.obligation_set_ref,
+            selected_basis=selected_basis,
+            catalog_authority=v2_authority,
+            report_version="2.0",
+        )
+        assert flow_routing.report_ref != routed_v2.report_ref
+        assert flow_routing.report.obligation_set_ref == routed_v2.report.obligation_set_ref
+        assert flow_routing.report.status == "candidate_descriptors_limited"
+        assert flow_routing.report.authority_purpose == "candidate_acquisition_routing_only"
+        (flow_route,) = flow_routing.report.routes
+        assert flow_route.obligation_ref == route_v2.obligation_ref
+        assert flow_route.disposition == "conflict"
+        assert flow_route.reason_code == "model_input_source_descriptor_incompatible"
+        assert flow_route.source_descriptor is None
+        assert flow_route.fetch_status == "not_attempted"
+        assert flow_route.query_envelope is not None
+        (flow_row,) = flow_route.query_envelope.rows
+        assert flow_row.entry_id == flow_entry.entry_id
+        assert flow_row.disposition == "incompatible"
+        assert flow_row.reason_codes == ("required_axis_mismatch:quantity_kind",)
+        assert (
+            verify_model_input_routing_report(
+                fresh_store,
+                flow_routing.report_ref,
+                expected_obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=v2_authority,
+            )
+            == flow_routing.report
+        )
+
         revised_unrelated_fields = unrelated_before.model_dump(
             mode="python",
             exclude={"entry_id"},

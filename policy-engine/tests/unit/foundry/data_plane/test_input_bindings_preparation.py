@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
-from decimal import Decimal
+from decimal import Decimal, localcontext
 from pathlib import Path
 from typing import NoReturn
 
@@ -10,9 +10,15 @@ import numpy as np
 import pytest
 from pydantic import BaseModel
 
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.fabric import DataSnapshot
-from polisyos.core.contracts.foundry import FoundryInputBindingRule
+from polisyos.core.contracts.foundry import (
+    FoundryInputBindingRule,
+    FoundryInputBindings,
+    FoundryInputBindingsRef,
+    FoundryInputBindingTransform,
+)
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.data_plane import (
@@ -21,8 +27,14 @@ from polisyos.foundry.data_plane import (
     prepare_input_bindings,
     prepare_json_input_binding_values,
 )
-from polisyos.foundry.data_plane.bindings import load_input_bindings
+from polisyos.foundry.data_plane.bindings import (
+    _prepare_input_binding_values,
+    _SelectedBindingTensorPolicy,
+    load_input_bindings,
+    reconcile_explicit_initial_binding_slots,
+)
 from polisyos.foundry.execute.executor import get_state_path, load_state_snapshot
+from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY, SlotRegistry
 from tests.unit.foundry.data_plane.test_bindings_multiscale import (
     SYNTHETIC_MULTISCALE_PAYLOAD,
     _put_json,
@@ -464,3 +476,325 @@ def test_prospective_json_reuses_real_can2_numeric_value_law(
     assert not np.signbit(
         np.asarray(get_state_path(prospective.materialized_state, actual_state_path))
     ).any()
+
+
+def _prepare_selected_values(
+    tmp_path: Path,
+    payload: dict[str, object],
+    rules: list[FoundryInputBindingRule] | None,
+    policies: dict[str, _SelectedBindingTensorPolicy] | None,
+    *,
+    slot_registry: SlotRegistry = DEFAULT_SLOT_REGISTRY,
+) -> InputBindingsPreparation:
+    """Exercise the shared numerical owner after selection, without claiming admission."""
+    store = FileSystemCAS(tmp_path / "cas")
+    payload_ref = _put_json(store, payload, kind="fabric.binding_payload")
+    return _prepare_input_binding_values(
+        store,
+        snapshot=DataSnapshot(data_ref=payload_ref),
+        slot_registry=slot_registry,
+        binding_payload=payload,
+        rules=rules,
+        selected_tensor_policies=policies,
+    )
+
+
+def test_selected_empty_rules_never_infer_matching_payload_name(tmp_path: Path) -> None:
+    payload = {"government_balance": 1000}
+    legacy = _prepare_selected_values(tmp_path, payload, [], None)
+    assert legacy.applied_binding_ids
+    assert np.asarray(legacy.materialized_state.government_balance).item() == 1000
+
+    selected = _prepare_selected_values(tmp_path, payload, [], {})
+    assert selected.applied_binding_ids == selected.effective_rules == ()
+    assert np.asarray(selected.materialized_state.government_balance).item() == 0
+    with pytest.raises(ValueError, match="semantic_binding_explicit_rules_required"):
+        _prepare_selected_values(tmp_path, payload, None, {})
+
+
+@pytest.mark.parametrize(
+    ("payload", "target", "shape", "reason"),
+    [
+        ({"other": 1}, "government.balance", (), "semantic_binding_source_missing"),
+        ({"source": None}, "government.balance", (), "semantic_binding_source_null"),
+        ({"source": [None]}, "agents.income", (1,), "semantic_binding_source_null"),
+        ({"source": [0]}, "government.balance", (), "semantic_binding_shape_mismatch"),
+        ({"source": [0, 2]}, "government.balance", (), "semantic_binding_shape_mismatch"),
+        ({"source": 0}, "agents.income", (1,), "semantic_binding_shape_mismatch"),
+        ({"source": [0, 2]}, "agents.income", (1,), "semantic_binding_shape_mismatch"),
+        ({"source": "0"}, "government.balance", (), "semantic_binding_source_not_decimal"),
+        ({"source": False}, "government.balance", (), "semantic_binding_source_not_decimal"),
+    ],
+)
+def test_selected_binding_refuses_missing_null_or_coercion(
+    tmp_path: Path,
+    payload: dict[str, object],
+    target: str,
+    shape: tuple[int, ...],
+    reason: str,
+) -> None:
+    rule = FoundryInputBindingRule(
+        binding_id="selected", source_path="source", target_slot_id=target
+    )
+    policy = _SelectedBindingTensorPolicy(shape, "float32", Decimal(0))
+    with pytest.raises(ValueError, match=f"^selected: {reason}$"):
+        _prepare_selected_values(tmp_path, payload, [rule], {"selected": policy})
+
+
+def test_selected_observed_zero_and_exact_vector_are_materialized(tmp_path: Path) -> None:
+    rules = [
+        FoundryInputBindingRule(
+            binding_id="balance", source_path="balance", target_slot_id="government.balance"
+        ),
+        FoundryInputBindingRule(
+            binding_id="income", source_path="income", target_slot_id="agents.income"
+        ),
+    ]
+    selected = _prepare_selected_values(
+        tmp_path,
+        {"balance": 0, "income": [100, 200]},
+        rules,
+        {
+            "balance": _SelectedBindingTensorPolicy((), "float32", Decimal(0)),
+            "income": _SelectedBindingTensorPolicy((2,), "float32", Decimal(0)),
+        },
+    )
+    assert selected.applied_binding_ids == ("balance", "income")
+    assert np.asarray(selected.materialized_state.government_balance).item() == 0
+    np.testing.assert_array_equal(selected.materialized_state.agents.income, [100, 200])
+
+
+@pytest.mark.parametrize(
+    "rule_fields", [{"required": False}, {"default_value": 0}, {"source_path": ""}]
+)
+def test_selected_binding_cannot_supply_optional_or_default_value(
+    tmp_path: Path, rule_fields: dict[str, object]
+) -> None:
+    rule = FoundryInputBindingRule(
+        binding_id="selected", source_path="source", target_slot_id="government.balance"
+    ).model_copy(update=rule_fields)
+    policy = _SelectedBindingTensorPolicy((), "float32", Decimal(0))
+    reason = (
+        "semantic_binding_source_path_invalid"
+        if "source_path" in rule_fields
+        else "semantic_binding_source_required"
+    )
+    with pytest.raises(ValueError, match=f"^{reason}:selected$"):
+        _prepare_selected_values(tmp_path, {"source": 0}, [rule], {"selected": policy})
+
+
+@pytest.mark.parametrize("binding_ids", [("first", "second"), ("second", "first")])
+@pytest.mark.parametrize("reverse_input_order", [False, True])
+def test_selected_rules_cannot_overwrite_same_physical_destination(
+    tmp_path: Path, binding_ids: tuple[str, str], reverse_input_order: bool
+) -> None:
+    first = DEFAULT_SLOT_REGISTRY.slots["government.balance"]
+    second = first.model_copy(update={"slot_id": "government.other_balance"})
+    slots = SlotRegistry(slots={first.slot_id: first, second.slot_id: second})
+    rules = [
+        FoundryInputBindingRule(
+            binding_id=binding_id, source_path=source_path, target_slot_id=slot.slot_id
+        )
+        for binding_id, source_path, slot in zip(
+            binding_ids, ("a", "b"), (first, second), strict=True
+        )
+    ]
+    if reverse_input_order:
+        rules.reverse()
+    policy = _SelectedBindingTensorPolicy((), "float32", Decimal(0))
+    with pytest.raises(
+        ValueError, match="^semantic_binding_destination_conflict:government_balance$"
+    ):
+        _prepare_selected_values(
+            tmp_path,
+            {"a": 1000, "b": 2000},
+            rules,
+            dict.fromkeys(binding_ids, policy),
+            slot_registry=slots,
+        )
+
+
+def test_selected_fixed_conversion_obeys_separately_verified_multiplier_and_precision(
+    tmp_path: Path,
+) -> None:
+    rule = FoundryInputBindingRule(
+        binding_id="selected",
+        source_path="percent",
+        target_slot_id="global.tax_rate",
+        transforms=[FoundryInputBindingTransform(op="scale", params={"factor": "0.01"})],
+    )
+    # This is a physical representation test. A manifest owner must supply the
+    # verified multiplier and selected port precision before real intake.
+    payload = {"percent": 20}
+    cases = (
+        (Decimal("1e-8"), None, "semantic_binding_transform_mismatch"),
+        (Decimal("1e-8"), Decimal("0.1"), "semantic_binding_transform_mismatch"),
+        (Decimal("1e-9"), Decimal("0.01"), "semantic_binding_precision_loss"),
+        (Decimal(0), Decimal("0.01"), "semantic_binding_precision_loss"),
+    )
+    for error, multiplier, reason in cases:
+        with pytest.raises(ValueError, match=f"^selected: {reason}$"):
+            _prepare_selected_values(
+                tmp_path,
+                payload,
+                [rule],
+                {"selected": _SelectedBindingTensorPolicy((), "float32", error, multiplier)},
+            )
+    selected = _prepare_selected_values(
+        tmp_path,
+        payload,
+        [rule],
+        {"selected": _SelectedBindingTensorPolicy((), "float32", Decimal("1e-8"), Decimal("0.01"))},
+    )
+    assert selected.applied_binding_ids == ("selected",)
+    assert np.asarray(selected.materialized_state.tax_rate).item() == pytest.approx(0.2, abs=1e-8)
+    with localcontext() as context:
+        context.prec = 1
+        selected = _prepare_selected_values(
+            tmp_path,
+            {"percent": 23},
+            [rule],
+            {
+                "selected": _SelectedBindingTensorPolicy(
+                    (), "float32", Decimal("1e-8"), Decimal("0.01")
+                )
+            },
+        )
+    assert np.asarray(selected.materialized_state.tax_rate).item() == pytest.approx(0.23, abs=1e-8)
+
+
+def _selected_legacy_initial_binding(
+    store: FileSystemCAS,
+    payload: dict[str, object],
+    rule: FoundryInputBindingRule,
+) -> FoundryInputBindingsRef:
+    payload_ref = store.put_json(
+        payload,
+        PutOptions(kind="fabric.binding_payload", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    snapshot_ref = store.put_json(
+        DataSnapshot(data_ref=payload_ref),
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME, version=DataSnapshot.ARTIFACT_SCHEMA_VERSION
+            ),
+            inputs=[input_ref_from_artifact_ref(payload_ref, role="data_ref")],
+        ),
+        return_selected_profile=True,
+    )
+    return build_input_bindings(
+        store,
+        data_snapshot_ref=snapshot_ref,
+        registry_bundle_ref=build_default_registry_bundle(
+            store, return_selected_profile=True
+        ).bundle_ref,
+        rules=[rule],
+        return_selected_profile=True,
+    ).input_bindings_ref
+
+
+@pytest.mark.parametrize(
+    ("payload", "default", "supplied"),
+    [
+        ({"value": [100, 200]}, None, ("agents.income",)),
+        ({"value": [0]}, None, ("agents.income",)),
+        ({"value": None}, None, ()),
+        ({"value": 100}, None, ()),
+        ({}, [100], ()),
+    ],
+)
+def test_legacy_explicit_initial_supply_requires_exact_replayed_value(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    payload: dict[str, object],
+    default: list[int] | None,
+    supplied: tuple[str, ...],
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = _selected_legacy_initial_binding(
+        store,
+        payload,
+        FoundryInputBindingRule(
+            binding_id="income",
+            source_path="value",
+            target_slot_id="agents.income",
+            default_value=default,
+        ),
+    )
+    fresh = FileSystemCAS(tmp_path / "cas")
+    assert (
+        _without_writes(
+            fresh,
+            monkeypatch,
+            lambda: reconcile_explicit_initial_binding_slots(
+                fresh,
+                input_bindings_ref=ref,
+                expected_state_paths={"agents.income": "agents.income"},
+            ),
+        )
+        == supplied
+    )
+
+
+def test_legacy_explicit_initial_supply_refuses_same_bytes_without_selected_edge(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = _selected_legacy_initial_binding(
+        store,
+        {"value": [100, 200], "other": [100, 300]},
+        FoundryInputBindingRule(
+            binding_id="income", source_path="value", target_slot_id="agents.income"
+        ),
+    )
+    manifest = store.get_manifest(ref)
+    selected = load_input_bindings(store, ref)
+    missing_data_edge = store.put_json(
+        selected,
+        PutOptions(
+            kind=FoundryInputBindings.ARTIFACT_KIND,
+            media_type=FoundryInputBindings.ARTIFACT_MEDIA_TYPE,
+            schema=manifest.artifact_schema,
+            inputs=[edge for edge in manifest.inputs if edge.role != "input.data_snapshot_ref"],
+        ),
+        return_selected_profile=True,
+    )
+    assert missing_data_edge.artifact_id == ref.artifact_id
+    assert missing_data_edge.manifest_profile_sha256 != ref.manifest_profile_sha256
+    wrong_rule = store.put_json(
+        selected.model_copy(
+            update={"rules": [selected.rules[0].model_copy(update={"source_path": "other"})]}
+        ),
+        PutOptions(
+            kind=FoundryInputBindings.ARTIFACT_KIND,
+            media_type=FoundryInputBindings.ARTIFACT_MEDIA_TYPE,
+            schema=manifest.artifact_schema,
+            inputs=manifest.inputs,
+        ),
+        return_selected_profile=True,
+    )
+    fresh = FileSystemCAS(tmp_path / "cas")
+    with pytest.raises(
+        ValueError, match="^explicit_initial_binding_lineage_mismatch:input.data_snapshot_ref$"
+    ):
+        reconcile_explicit_initial_binding_slots(
+            fresh,
+            input_bindings_ref=FoundryInputBindingsRef.model_validate(
+                missing_data_edge.model_dump(mode="python")
+            ),
+            expected_state_paths={"agents.income": "agents.income"},
+        )
+    with pytest.raises(ValueError, match="^explicit_initial_binding_state_mismatch:agents.income$"):
+        reconcile_explicit_initial_binding_slots(
+            fresh,
+            input_bindings_ref=FoundryInputBindingsRef.model_validate(wrong_rule.model_dump()),
+            expected_state_paths={"agents.income": "agents.income"},
+        )
+    assert reconcile_explicit_initial_binding_slots(
+        fresh,
+        input_bindings_ref=ref,
+        expected_state_paths={"agents.income": "agents.income"},
+    ) == ("agents.income",)

@@ -14,7 +14,17 @@ import json
 from collections import Counter
 from collections.abc import Mapping
 from dataclasses import dataclass, replace
-from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation
+from decimal import (
+    MAX_EMAX,
+    MIN_EMIN,
+    ROUND_HALF_EVEN,
+    ROUND_UP,
+    Context,
+    Decimal,
+    Inexact,
+    InvalidOperation,
+    localcontext,
+)
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Literal, NoReturn, Protocol
@@ -120,6 +130,20 @@ class _MethodContractSpec:
 
     contract_fqn: str
     model_type: type[BaseModel]
+
+
+@dataclass(frozen=True, slots=True)
+class _SelectedBindingTensorPolicy:
+    """Physical encoding selected by an independently verified binding manifest.
+
+    The multiplier, when present, is the fixed unit owner's verified value.
+    This numerical policy alone does not establish semantic correspondence.
+    """
+
+    shape: tuple[int, ...]
+    dtype: str
+    max_absolute_error: Decimal
+    fixed_unit_multiplier: Decimal | None = None
 
 
 _METHOD_CONTRACT_ALLOW_REGISTRY: dict[str, _MethodContractSpec] = {
@@ -1822,6 +1846,7 @@ def _prepare_input_binding_values(
     slot_registry: SlotRegistry,
     binding_payload: Any,
     rules: list[FoundryInputBindingRule] | None,
+    selected_tensor_policies: Mapping[str, _SelectedBindingTensorPolicy] | None = None,
 ) -> InputBindingsPreparation:
     """Run the same pure rule/state owner for persisted and prospective inputs.
 
@@ -1833,8 +1858,11 @@ def _prepare_input_binding_values(
         rules=rules,
         slot_registry=slot_registry,
         payload=binding_payload,
+        explicit_only=selected_tensor_policies is not None,
     )
-    _validate_rules(effective_rules, slot_registry)
+    _validate_rules(
+        effective_rules, slot_registry, selected_tensor_policies=selected_tensor_policies
+    )
 
     base_state = _build_base_state(
         store=store,
@@ -1849,6 +1877,7 @@ def _prepare_input_binding_values(
         effective_rules=effective_rules,
         slot_registry=slot_registry,
         binding_payload=binding_payload,
+        selected_tensor_policies=selected_tensor_policies,
     )
     return InputBindingsPreparation(
         snapshot=snapshot,
@@ -1865,6 +1894,7 @@ def _prepare_materialized_binding_values(
     effective_rules: list[FoundryInputBindingRule],
     slot_registry: SlotRegistry,
     binding_payload: Any,
+    selected_tensor_policies: Mapping[str, _SelectedBindingTensorPolicy] | None = None,
 ) -> InputBindingValuesPreparation:
     """Single materialization/error fold for persisted and prospective payloads."""
 
@@ -1873,6 +1903,7 @@ def _prepare_materialized_binding_values(
         rules=effective_rules,
         slot_registry=slot_registry,
         payload=binding_payload,
+        selected_tensor_policies=selected_tensor_policies,
     )
     if errors:
         raise ValueError("; ".join(errors))
@@ -2245,6 +2276,110 @@ def load_input_bindings(
     from polisyos.core.artifacts import validate_core_model_json_artifact
 
     return validate_core_model_json_artifact(FoundryInputBindings, store, ref)
+
+
+def reconcile_explicit_initial_binding_slots(
+    store: CoreJSONArtifactStore,
+    *,
+    input_bindings_ref: FoundryInputBindingsRef,
+    expected_state_paths: Mapping[str, str],
+) -> tuple[str, ...]:
+    """Reconcile supplied decimal inputs in an exact legacy initial state.
+
+    Args:
+        store: Existing store containing the selected binding, data and state.
+        input_bindings_ref: Exact selected legacy no-SQL binding artifact.
+        expected_state_paths: Slot IDs and their physical destinations from
+            the calling model interface.
+
+    Returns:
+        Sorted slot IDs whose explicit source values reproduce the persisted
+        initial state exactly. This is physical input evidence only.
+
+    Raises:
+        ValueError: If selected lineage, destinations or persisted values disagree.
+    """
+    if not expected_state_paths:
+        return ()
+    if input_bindings_ref.manifest_profile_sha256 is None:
+        raise ValueError("explicit_initial_binding_selected_profile_required")
+    bindings = load_input_bindings(store, input_bindings_ref)
+    if bindings.schema_version != "1.0":
+        raise ValueError("explicit_initial_binding_legacy_profile_required")
+
+    source_refs = {
+        "input.data_snapshot_ref": bindings.data_snapshot_ref,
+        "input.registry_bundle_ref": bindings.registry_bundle_ref,
+    }
+    _require_selected_binding_edges(
+        store.get_manifest(input_bindings_ref),
+        {**source_refs, "artifact.bound_state_snapshot_ref": bindings.bound_state_snapshot_ref},
+    )
+    state_manifest = store.get_manifest(bindings.bound_state_snapshot_ref)
+    if state_manifest.artifact_schema != SchemaInfo(
+        name="polisyos.core.StateSnapshot",
+        version=StateSnapshot.SCHEMA_MANIFEST_VERSION_BY_PAYLOAD_VERSION["2.2"],
+    ):
+        raise ValueError("explicit_initial_binding_state_profile_mismatch")
+    _require_selected_binding_edges(state_manifest, source_refs)
+
+    snapshot = _load_data_snapshot(store, bindings.data_snapshot_ref)
+    payload = _load_binding_payload(store, snapshot)
+    slot_registry = load_registry_bundle_content(store, bindings.registry_bundle_ref).slot_registry
+    state = load_state_snapshot(store, snapshot_ref=bindings.bound_state_snapshot_ref)
+    _validate_rules(bindings.rules, slot_registry)
+    supplied: list[str] = []
+    for slot_id, path in sorted(expected_state_paths.items()):
+        slot = slot_registry.slots.get(slot_id)
+        if slot is None or not path or slot.state_path != path:
+            raise ValueError(f"explicit_initial_binding_destination_mismatch:{slot_id}")
+        writers = [
+            rule
+            for rule in bindings.rules
+            if (destination := slot_registry.slots[rule.target_slot_id].state_path)
+            and _binding_destinations_overlap(path, destination)
+        ]
+        if len(writers) > 1 or (writers and writers[0].target_slot_id != slot_id):
+            raise ValueError(f"explicit_initial_binding_destination_conflict:{slot_id}")
+        if not writers:
+            continue
+        rule = writers[0]
+        if (
+            not rule.required
+            or rule.default_value is not None
+            or not all(rule.source_path.split("."))
+        ):
+            continue
+        raw = _resolve_source_path(payload, rule.source_path, missing=_MISSING)
+        if raw is _MISSING:
+            continue
+        actual = np.asarray(get_state_path(state, path))
+        try:
+            expected = _materialize_selected_binding_tensor(
+                raw,
+                rule=rule,
+                slot=slot,
+                target_tensor=actual,
+                policy=_SelectedBindingTensorPolicy(actual.shape, actual.dtype.name, Decimal(0)),
+            )
+        except ValueError:
+            # Legacy missing/null/coercion/default behavior cannot establish
+            # physical supply for this supported explicit-input interface.
+            continue
+        if np.asarray(expected).tobytes() != actual.tobytes():
+            raise ValueError(f"explicit_initial_binding_state_mismatch:{slot_id}")
+        supplied.append(slot_id)
+    return tuple(supplied)
+
+
+def _require_selected_binding_edges(
+    manifest: ArtifactManifest, source_refs: Mapping[str, ArtifactRef]
+) -> None:
+    for role, ref in source_refs.items():
+        if ref.manifest_profile_sha256 is None or [
+            edge for edge in manifest.inputs if edge.role == role
+        ] != [input_ref_from_artifact_ref(ref, role=role)]:
+            raise ValueError(f"explicit_initial_binding_lineage_mismatch:{role}")
 
 
 def resolve_bound_state_snapshot_ref(
@@ -2700,8 +2835,11 @@ def _prepare_rules(
     rules: list[FoundryInputBindingRule] | None,
     slot_registry: SlotRegistry,
     payload: Any,
+    explicit_only: bool = False,
 ) -> list[FoundryInputBindingRule]:
-    if rules:
+    if explicit_only and rules is None:
+        raise ValueError("semantic_binding_explicit_rules_required")
+    if rules is not None and (rules or explicit_only):
         parsed = [FoundryInputBindingRule.model_validate(rule.model_dump()) for rule in rules]
         return sorted(parsed, key=lambda item: item.binding_id)
     auto = _auto_rules_from_payload(slot_registry=slot_registry, payload=payload)
@@ -2826,8 +2964,14 @@ def _auto_rules_from_payload(
     return rules
 
 
-def _validate_rules(rules: list[FoundryInputBindingRule], slot_registry: SlotRegistry) -> None:
+def _validate_rules(
+    rules: list[FoundryInputBindingRule],
+    slot_registry: SlotRegistry,
+    *,
+    selected_tensor_policies: Mapping[str, _SelectedBindingTensorPolicy] | None = None,
+) -> None:
     seen: set[str] = set()
+    selected_destinations: set[str] = set()
     for rule in rules:
         if rule.binding_id in seen:
             raise ValueError(f"Duplicate binding_id: {rule.binding_id}")
@@ -2837,6 +2981,26 @@ def _validate_rules(rules: list[FoundryInputBindingRule], slot_registry: SlotReg
                 f"Binding rule '{rule.binding_id}' references unknown slot_id "
                 f"'{rule.target_slot_id}'"
             )
+        if selected_tensor_policies is not None:
+            if not rule.required or rule.default_value is not None:
+                raise ValueError(f"semantic_binding_source_required:{rule.binding_id}")
+            if not all(rule.source_path.split(".")):
+                raise ValueError(f"semantic_binding_source_path_invalid:{rule.binding_id}")
+            slot = slot_registry.slots[rule.target_slot_id]
+            destination = slot.state_path or ""
+            if not all(destination.split(".")):
+                raise ValueError(f"semantic_binding_destination_invalid:{rule.target_slot_id}")
+            if any(
+                _binding_destinations_overlap(destination, other) for other in selected_destinations
+            ):
+                raise ValueError(f"semantic_binding_destination_conflict:{slot.state_path}")
+            selected_destinations.add(destination)
+    if selected_tensor_policies is not None and seen != selected_tensor_policies.keys():
+        raise ValueError("semantic_binding_tensor_policy_set_mismatch")
+
+
+def _binding_destinations_overlap(left: str, right: str) -> bool:
+    return left == right or left.startswith(f"{right}.") or right.startswith(f"{left}.")
 
 
 def _build_base_state(
@@ -2924,6 +3088,7 @@ def _materialize_state(
     rules: list[FoundryInputBindingRule],
     slot_registry: SlotRegistry,
     payload: Any,
+    selected_tensor_policies: Mapping[str, _SelectedBindingTensorPolicy] | None = None,
 ) -> tuple[GlobalState, tuple[str, ...], list[str], list[str]]:
     state = base_state
     applied: list[str] = []
@@ -2941,6 +3106,9 @@ def _materialize_state(
 
         value = _resolve_source_path(payload, rule.source_path, missing=_MISSING)
         if value is _MISSING:
+            if selected_tensor_policies is not None:
+                errors.append(f"{rule.binding_id}: semantic_binding_source_missing")
+                continue
             value = rule.default_value
             if value is None and not rule.required:
                 warnings.append(
@@ -2955,19 +3123,110 @@ def _materialize_state(
                 continue
 
         try:
-            transformed = _apply_transform_chain(value, rule.transforms)
-            target_tensor = get_state_path(state, slot.state_path)
-            coerced = _coerce_to_slot_tensor(
-                transformed,
-                slot=slot,
-                target_tensor=target_tensor,
-            )
+            if selected_tensor_policies is None:
+                transformed = _apply_transform_chain(value, rule.transforms)
+                coerced = _coerce_to_slot_tensor(
+                    transformed,
+                    slot=slot,
+                    target_tensor=get_state_path(state, slot.state_path),
+                )
+            else:
+                coerced = _materialize_selected_binding_tensor(
+                    value,
+                    rule=rule,
+                    slot=slot,
+                    target_tensor=get_state_path(state, slot.state_path),
+                    policy=selected_tensor_policies[rule.binding_id],
+                )
             state = set_state_path(state, slot.state_path, coerced)
             applied.append(rule.binding_id)
         except Exception as exc:
             errors.append(f"{rule.binding_id}: {exc}")
 
     return state, tuple(applied), errors, warnings
+
+
+def _materialize_selected_binding_tensor(
+    value: object,
+    *,
+    rule: FoundryInputBindingRule,
+    slot: SlotSpec,
+    target_tensor: object,
+    policy: _SelectedBindingTensorPolicy,
+) -> jnp.ndarray:
+    """Write one verified decimal input without legacy fallback or implicit reshaping."""
+    source = np.asarray(value, dtype=object)
+    target = np.asarray(target_tensor)
+    if any(item is None for item in source.flat):
+        raise ValueError("semantic_binding_source_null")
+    if source.shape != policy.shape or target.shape != policy.shape:
+        raise ValueError("semantic_binding_shape_mismatch")
+    if (
+        slot.value_type != SlotValueType.DECIMAL
+        or target.dtype.kind != "f"
+        or target.dtype.name != policy.dtype
+    ):
+        raise ValueError("semantic_binding_target_encoding_mismatch")
+    if not policy.max_absolute_error.is_finite() or policy.max_absolute_error < 0:
+        raise ValueError("semantic_binding_precision_policy_invalid")
+    if any(
+        not isinstance(item, int | float | Decimal | np.integer | np.floating)
+        or isinstance(item, bool)
+        for item in source.flat
+    ):
+        raise ValueError("semantic_binding_source_not_decimal")
+    decimals = np.array([_to_decimal(item) for item in source.flat], dtype=object).reshape(
+        source.shape
+    )
+    if not all(item.is_finite() for item in decimals.flat):
+        raise ValueError("semantic_binding_source_not_finite")
+
+    transforms = [(transform.op, transform.params) for transform in rule.transforms]
+    multiplier = policy.fixed_unit_multiplier
+    if multiplier is None:
+        if transforms not in ([], [("identity", {})]):
+            raise ValueError("semantic_binding_transform_mismatch")
+        transformed = decimals
+    else:
+        if (
+            not multiplier.is_finite()
+            or multiplier <= 0
+            or len(transforms) != 1
+            or transforms[0][0] != "scale"
+            or transforms[0][1].keys() != {"factor"}
+            or _to_decimal(transforms[0][1]["factor"]) != multiplier
+        ):
+            raise ValueError("semantic_binding_transform_mismatch")
+        digits = max((len(item.as_tuple().digits) for item in decimals.flat), default=1)
+        context = Context(
+            prec=digits + len(multiplier.as_tuple().digits), Emin=MIN_EMIN, Emax=MAX_EMAX
+        )
+        context.traps[Inexact] = True
+        with localcontext(context):
+            transformed = np.asarray(
+                _apply_transform_chain(decimals, rule.transforms), dtype=object
+            )
+
+    with np.errstate(over="ignore"):
+        encoded = jnp.asarray(np.asarray(transformed, dtype=target.dtype))
+    actual = np.asarray(encoded)
+    if actual.dtype != target.dtype or not np.isfinite(actual).all():
+        raise ValueError("semantic_binding_target_encoding_mismatch")
+    # Compare against an exactly representable threshold, rounding the error
+    # outwards so ambient Decimal precision cannot hide a lossy conversion.
+    error_context = Context(
+        prec=len(policy.max_absolute_error.as_tuple().digits),
+        rounding=ROUND_UP,
+        Emin=MIN_EMIN,
+        Emax=MAX_EMAX,
+    )
+    if any(
+        error_context.subtract(Decimal.from_float(float(stored)), exact).copy_abs()
+        > policy.max_absolute_error
+        for stored, exact in zip(actual.flat, transformed.flat, strict=True)
+    ):
+        raise ValueError("semantic_binding_precision_loss")
+    return encoded
 
 
 def _apply_transform_chain(value: Any, transforms: list[Any]) -> Any:

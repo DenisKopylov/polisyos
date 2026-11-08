@@ -12103,6 +12103,11 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
         load_acquisition_planner_report,
         validate_persisted_data_requirement_compilation_report,
     )
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourceSelection,
+        catalog_serving_source_scope,
+        resolve_catalog_serving_source,
+    )
     from tests._helpers.semantic_epoch_native import _real_epoch_scenario
     from tests.unit.runtime.quality.test_acquisition_executor import (
         _activate_real_epoch_scenario,
@@ -12111,14 +12116,31 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
     problem = _problem("ds15_active_overlay_reentry")
     source_cas_path = tmp_path / ".tmp/active-overlay-n7-cas"
     source_store = FileSystemCAS(source_cas_path)
-    controller = GenerationCycleController(
-        generation_port=_CgfGenerationPort(target_world_slots=("cells.distress_score",)),
-        value_port=_OverlayDataGapValuePort(),
-        authority_scope="contract_testing",
-        repo_root=REPO_ROOT,
-        artifact_store=source_store,
+    catalog_owner_root = (REPO_ROOT / "production_data").resolve(strict=True).parent
+    selected_catalog_path = default_substrate_catalog_paths(
+        REPO_ROOT,
+        source_owner_root=catalog_owner_root,
+    ).l1_dcat_path
+    catalog_source = resolve_catalog_serving_source(
+        REPO_ROOT,
+        selection=CatalogServingSourceSelection(
+            snapshot_root=selected_catalog_path.parent,
+            source_owner_root=catalog_owner_root,
+            catalog_run_profile="prod_full",
+            database_relative_path=Path(selected_catalog_path.name),
+        ),
+        requested_profile="prod_full",
     )
-    source_run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
+    with catalog_serving_source_scope(catalog_source):
+        controller = GenerationCycleController(
+            generation_port=_CgfGenerationPort(target_world_slots=("cells.distress_score",)),
+            value_port=_OverlayDataGapValuePort(),
+            authority_scope="contract_testing",
+            repo_root=REPO_ROOT,
+            artifact_store=source_store,
+            catalog_serving_source=catalog_source,
+        )
+        source_run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
     source_cycle = source_run.cycles[0]
     assert source_cycle.acquisition_routing_report is not None, (
         source_cycle.counterexample.diagnostic.model_dump(mode="json")
@@ -12156,15 +12178,16 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
     assert len(matching_records) == 1
     distress_record = matching_records[0]
     assert distress_record.compiled_requirement_ref is not None
-    assert distress_record.missing_requirement_fields == (
-        "required_data_family:cells.distress_score",
-    )
     matching_specs = tuple(
         spec
         for spec in compiler_report.specs
         if spec.requirement_id == distress_record.compiled_requirement_ref
     )
     assert len(matching_specs) == 1
+    assert distress_record.missing_requirement_fields == (
+        "required_data_family:cells.distress_score",
+        *(f"mandatory_facet:{facet}" for facet in matching_specs[0].mandatory_facets),
+    )
     assert matching_specs[0].required_data_families == ("cells.distress_score",)
     assert source_cycle.acquisition_receipt is None
 
@@ -12245,21 +12268,25 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
     assert receipt.new_cycle.cycle_index == source_cycle.cycle_index + 1
     assert source_run.cycles == (source_cycle,)
 
-    context_problem, context, context_candidate = _canonical_strict_world_case()
-    context_world = context.world_model_record
-    context_simulation = SimulationPortObservation(
-        candidate_id=context_candidate.candidate_id,
-        status="joint_simulated",
-        simulation_ref="sha256:" + "8" * 64,
-        world_model_record=context_world,
-        k_world_ref_before=context_world.content_hash,
-        k_world_ref_after=context_world.content_hash,
+    from tests.unit.runtime.quality.test_value_gate import (
+        _candidate as _value_gate_candidate,
     )
-    stale_context = generation_cycle_module.simulation_value_execution_context(
-        candidate=context_candidate,
-        simulation=context_simulation,
-        problem=context_problem,
-    ).model_copy(update={"evaluation_mode": "deployment"})
+    from tests.unit.runtime.quality.test_value_gate import (
+        _non_simulation_execution_context,
+    )
+    from tests.unit.runtime.quality.test_value_gate import (
+        _problem as _value_gate_problem,
+    )
+    from tests.unit.runtime.quality.test_value_gate import (
+        _world_record as _value_gate_world_record,
+    )
+
+    stale_context = _non_simulation_execution_context(
+        mode="deployment",
+        candidate=_value_gate_candidate(),
+        world=_value_gate_world_record(),
+        problem=_value_gate_problem("value_gate_problem"),
+    )
 
     class ForbiddenOwnerGateway:
         def __getattr__(self, name: str) -> Any:

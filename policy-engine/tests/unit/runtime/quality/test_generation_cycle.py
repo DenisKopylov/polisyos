@@ -5223,10 +5223,10 @@ async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
 
 
 @pytest.mark.asyncio
-async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evalsafety(
+async def test_static_ncm_sampling_variation_reaches_candidate_n8_but_not_evalsafety(
     tmp_path: Path,
 ) -> None:
-    """The served N6 path keeps partial N5 value candidate-only through N8."""
+    """The served N6 path keeps sampled NCM variation candidate-only through N8."""
 
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.quality.generation_cycle import (
@@ -5237,6 +5237,9 @@ async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evals
 
     store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
     hints = {
+        # Keep the static NCM on its supported one-step horizon. Its observed
+        # sampling variation limits classification without claiming missing
+        # trajectory coverage.
         "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
         "joint_simulation_baseline_state": {"firm_survival": 0.0},
         "joint_simulation_replications": 2,
@@ -5299,7 +5302,11 @@ async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evals
             simulation = cycle.simulation
             assert simulation.status == "joint_simulated"
             assert simulation.simulation_result_ref is not None
-            assert "interaction_evidence_incomplete" in simulation.authority_blockers
+            assert "interaction_evidence_incomplete" not in simulation.authority_blockers
+            assert "interaction_sampling_variation_observed" in simulation.authority_blockers
+            assert "interaction_numeric_classification_unsupported" in (
+                simulation.authority_blockers
+            )
 
             persisted = load_joint_simulation_result(
                 simulation.simulation_result_ref,
@@ -5313,9 +5320,12 @@ async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evals
             assert set(persisted.interaction_terms[0].by_step) == {0}
             observed_interaction = persisted.interaction_terms[0].by_step[0]
             assert abs(observed_interaction) > 1e-6
+            assert persisted.diagnostics["interaction_evidence_issues"] == []
             packet = persisted.promotion_ready_value_packet
             persisted_blockers = set(packet["authority_blockers"])
-            assert "interaction_evidence_incomplete" in persisted_blockers
+            assert "interaction_evidence_incomplete" not in persisted_blockers
+            assert "interaction_sampling_variation_observed" in persisted_blockers
+            assert "interaction_numeric_classification_unsupported" in persisted_blockers
             assert all(
                 point.replication_sampling is not None
                 and point.replication_sampling.status == "estimated"
@@ -5341,11 +5351,13 @@ async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evals
             assert value.evaluation_mode == "simulate_only"
             assert value.decision_grade == "low"
             assert value.value_ref == str(simulation.simulation_result_ref.artifact_id)
-            assert "interaction_evidence_incomplete" in value.authority_blockers
-            assert "interaction_sampling_not_established" in value.authority_blockers
+            assert "interaction_evidence_incomplete" not in value.authority_blockers
+            assert "interaction_sampling_variation_observed" in value.authority_blockers
+            assert "interaction_sampling_not_established" not in value.authority_blockers
             assert "interaction_numeric_classification_unsupported" in value.authority_blockers
             assert value.numeric_interaction == "unsupported"
-            assert value.numeric_interaction_basis == "not_established"
+            assert value.numeric_interaction_basis == "finite_checked_model_point_estimate_only"
+            assert value.interaction_sampling_status == "estimated"
             assert "standard_error_not_estimated" not in value.authority_blockers
             assert "legacy_sampling_not_established" not in value.authority_blockers
             assert "simulation_only_k_sim_not_world_evidence" in value.authority_blockers
@@ -5373,7 +5385,7 @@ async def test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evals
 async def test_n8_recovers_persisted_blocker_after_lossy_simulation_projection(
     tmp_path: Path,
 ) -> None:
-    """N8 retains verified packet blockers omitted by an injected N5 port projection."""
+    """N8 restores a real N5 limitation dropped by the served simulation projection."""
 
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.quality.generation_cycle import (
@@ -5384,6 +5396,8 @@ async def test_n8_recovers_persisted_blocker_after_lossy_simulation_projection(
 
     store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
     hints = {
+        # This is a complete one-step static NCM result. The lossy projection
+        # below removes a real persisted numeric-classification limitation.
         "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
         "joint_simulation_baseline_state": {"firm_survival": 0.0},
     }
@@ -5450,7 +5464,7 @@ async def test_n8_recovers_persisted_blocker_after_lossy_simulation_projection(
                     "authority_blockers": tuple(
                         blocker
                         for blocker in observation.authority_blockers
-                        if blocker != "interaction_evidence_incomplete"
+                        if blocker != "interaction_numeric_classification_unsupported"
                     )
                 }
             )
@@ -5482,8 +5496,13 @@ async def test_n8_recovers_persisted_blocker_after_lossy_simulation_projection(
             simulation = cycle.simulation
             assert simulation.status == "joint_simulated"
             assert simulation.simulation_result_ref is not None
-            assert "interaction_evidence_incomplete" in lossy_port.original_authority_blockers
-            assert "interaction_evidence_incomplete" not in simulation.authority_blockers
+            assert (
+                "interaction_numeric_classification_unsupported"
+                in lossy_port.original_authority_blockers
+            )
+            assert "interaction_numeric_classification_unsupported" not in (
+                simulation.authority_blockers
+            )
 
             persisted = load_joint_simulation_result(
                 simulation.simulation_result_ref,
@@ -5496,7 +5515,10 @@ async def test_n8_recovers_persisted_blocker_after_lossy_simulation_projection(
             )
             assert set(persisted.interaction_terms[0].by_step) == {0}
             assert abs(persisted.interaction_terms[0].by_step[0]) > 1e-6
-            assert "interaction_evidence_incomplete" in set(
+            assert "interaction_evidence_incomplete" not in set(
+                persisted.promotion_ready_value_packet["authority_blockers"]
+            )
+            assert "interaction_numeric_classification_unsupported" in set(
                 persisted.promotion_ready_value_packet["authority_blockers"]
             )
             assert "standard_error_not_estimated" in set(
@@ -5508,7 +5530,8 @@ async def test_n8_recovers_persisted_blocker_after_lossy_simulation_projection(
             assert "standard_error_not_estimated" in value.authority_blockers
             assert value.evaluation_mode == "simulate_only"
             assert value.decision_grade == "low"
-            assert "interaction_evidence_incomplete" in value.authority_blockers
+            assert "interaction_evidence_incomplete" not in value.authority_blockers
+            assert "interaction_numeric_classification_unsupported" in value.authority_blockers
             assert "simulation_only_k_sim_not_world_evidence" in value.authority_blockers
             assert value.value_receipt is None
             assert value.method_selection_receipt is None

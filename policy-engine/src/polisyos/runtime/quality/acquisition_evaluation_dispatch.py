@@ -1724,6 +1724,40 @@ def _candidate_experiment_prior_owners_match(
     )
 
 
+def _read_current_candidate_experiment_evaluation_records(
+    owner: CandidateExperimentEvaluationCurrentOwner,
+) -> tuple[CandidateAcquisitionEvaluationBasis, CandidateAcquisitionEvaluationDecision]:
+    """Resolve the selected decision and its exact prospective basis as one pair."""
+    bridge = owner.bridge
+    decision = read_acquisition_evaluation_artifact(
+        store=bridge.artifact_store,
+        event_log=bridge.event_log,
+        ref=owner.decision_ref,
+        record_type=CandidateAcquisitionEvaluationDecision,
+    )
+    current = read_acquisition_evaluation_artifact(
+        store=bridge.artifact_store,
+        event_log=bridge.event_log,
+        ref=owner.current_basis_ref,
+        record_type=CandidateAcquisitionEvaluationBasis,
+    )
+    if (
+        type(current) is not CandidateAcquisitionEvaluationBasis
+        or type(decision) is not CandidateAcquisitionEvaluationDecision
+        or not _candidate_ref_same(decision.current_basis_ref, owner.current_basis_ref)
+    ):
+        raise ValueError("candidate_experiment_evaluation_current_basis_changed")
+    # The decision scope freshly reopens and validates this exact prospective view.
+    _require_candidate_experiment_evaluation_record_scope(
+        bridge=bridge,
+        origin=owner.origin,
+        pending_phase_ref=owner.pending_phase_ref,
+        candidate_action_ref=owner.candidate_action_ref,
+        record=decision,
+    )
+    return current, decision
+
+
 def _revalidate_candidate_experiment_evaluation_owner(
     owner: CandidateExperimentEvaluationCurrentOwner,
 ) -> CandidateAcquisitionEvaluationBasis:
@@ -1876,41 +1910,13 @@ def _revalidate_candidate_experiment_evaluation_owner(
     ):
         raise ValueError("candidate_experiment_evaluation_preparation_changed")
 
-    decision = read_acquisition_evaluation_artifact(
-        store=bridge.artifact_store,
-        event_log=bridge.event_log,
-        ref=owner.decision_ref,
-        record_type=CandidateAcquisitionEvaluationDecision,
-    )
-    current = read_acquisition_evaluation_artifact(
-        store=bridge.artifact_store,
-        event_log=bridge.event_log,
-        ref=owner.current_basis_ref,
-        record_type=CandidateAcquisitionEvaluationBasis,
-    )
-    _require_candidate_experiment_evaluation_record_scope(
-        bridge=bridge,
-        origin=owner.origin,
-        pending_phase_ref=owner.pending_phase_ref,
-        candidate_action_ref=owner.candidate_action_ref,
-        record=current,
-    )
-    _require_candidate_experiment_evaluation_record_scope(
-        bridge=bridge,
-        origin=owner.origin,
-        pending_phase_ref=owner.pending_phase_ref,
-        candidate_action_ref=owner.candidate_action_ref,
-        record=decision,
-    )
+    current, decision = _read_current_candidate_experiment_evaluation_records(owner)
     if (
-        type(current) is not CandidateAcquisitionEvaluationBasis
-        or type(decision) is not CandidateAcquisitionEvaluationDecision
-        or current.basis_role != "prospective"
+        current.basis_role != "prospective"
         or current.preparation_inputs != preparation.inputs
         or current.prepared_n5_configuration != owner.prepared_n5_configuration
         or not _candidate_ref_same(current.candidate_world_intent_ref, intent_ref)
         or not _candidate_ref_same(current.candidate_source_ref, action.candidate_source_ref)
-        or not _candidate_ref_same(decision.current_basis_ref, owner.current_basis_ref)
         or not _candidate_ref_same(decision.candidate_action_ref, owner.candidate_action_ref)
         or not _candidate_ref_same(decision.candidate_world_intent_ref, intent_ref)
         or not _candidate_ref_same(decision.candidate_source_ref, action.candidate_source_ref)

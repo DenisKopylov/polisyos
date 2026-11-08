@@ -93,10 +93,14 @@ def record_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Sim
         bridge = AcquisitionWorldGrowthBridge.__new__(AcquisitionWorldGrowthBridge)
         bridge.artifact_store = store
         bridge.event_log = events
+        action_replays = []
+
+        def replay_action(*args: object) -> tuple[object, ...]:
+            action_replays.append(args)
+            return selection, None, None, action
+
         monkeypatch.setattr(
-            action_owner,
-            "_current_candidate_experiment_reentry_action",
-            lambda *_args, **_kwargs: (selection, None, None, action),
+            action_owner, "_current_candidate_experiment_reentry_action", replay_action
         )
         monkeypatch.setattr(
             action_owner,
@@ -175,6 +179,19 @@ def record_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Sim
                 record=record,
             )
 
+        def read_current(
+            basis_ref: artifacts.ArtifactRef, decision_ref: artifacts.ArtifactRef
+        ) -> tuple[CandidateAcquisitionEvaluationBasis, CandidateAcquisitionEvaluationDecision]:
+            owner = SimpleNamespace(
+                bridge=bridge,
+                origin=origin,
+                pending_phase_ref="sha256:" + "6" * 64,
+                candidate_action_ref=action_ref,
+                current_basis_ref=basis_ref,
+                decision_ref=decision_ref,
+            )
+            return dispatch._read_current_candidate_experiment_evaluation_records(owner)
+
         try:
             yield SimpleNamespace(
                 store=store,
@@ -183,6 +200,8 @@ def record_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Sim
                 decision=decision,
                 select=select,
                 parent=parent,
+                read_current=read_current,
+                action_replays=action_replays,
             )
         finally:
             control.close()
@@ -206,6 +225,10 @@ def test_experiment_decision_reopens_its_real_selected_prospective_basis(
     )
     assert reopened == decision
     assert reopened.current_basis_ref == basis_ref
+
+    case.action_replays.clear()
+    assert case.read_current(basis_ref, decision_ref) == (basis, decision)
+    assert len(case.action_replays) == 2  # The decision and its own prospective-basis scope.
     assert (
         read_acquisition_evaluation_artifact(
             store=case.store,
@@ -215,6 +238,54 @@ def test_experiment_decision_reopens_its_real_selected_prospective_basis(
         )
         == basis
     )
+
+
+def test_current_experiment_evaluation_requires_the_decisions_exact_profile(
+    record_case: SimpleNamespace,
+) -> None:
+    """Individually readable same-byte views cannot substitute for the selected basis."""
+    case = record_case
+    basis = case.basis()
+    selected = case.select(basis)
+    decision_ref = case.select(case.decision(selected))
+    manifest = case.store.get_manifest(selected)
+    alternate = case.store.put_bytes(
+        case.store.get_bytes(selected),
+        artifacts.ArtifactWriteOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            producer=manifest.producer,
+            env=manifest.env,
+            inputs=manifest.inputs,
+            canon=manifest.canon,
+            governance=manifest.governance,
+            tenant_context=manifest.tenant_context,
+            same_input_closure=manifest.same_input_closure,
+            authority=manifest.authority,
+            warnings=[
+                *manifest.warnings,
+                artifacts.WarningRecord(code="alternate-view", msg="Retained comparison view"),
+            ],
+        ),
+        return_selected_profile=True,
+    )
+    assert alternate.artifact_id == selected.artifact_id
+    assert alternate.manifest_profile_sha256 != selected.manifest_profile_sha256
+    assert (
+        read_acquisition_evaluation_artifact(
+            store=case.store,
+            event_log=case.events,
+            ref=alternate,
+            record_type=CandidateAcquisitionEvaluationBasis,
+        )
+        == basis
+    )
+
+    case.action_replays.clear()
+    with pytest.raises(ValueError, match="candidate_experiment_evaluation_current_basis_changed"):
+        case.read_current(alternate, decision_ref)
+    assert case.action_replays == []
 
 
 @pytest.mark.parametrize("control", ["foreign_profile", "foreign_action", "corrupt_blob"])

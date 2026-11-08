@@ -128,7 +128,12 @@ if TYPE_CHECKING:
         VerifiedNLJobBudgetScope,
         VerifiedNLJobScope,
     )
+    from polisyos.runtime.quality.design_generation import N4SelectedProgramGraphLinkContext
     from polisyos.runtime.quality.generation_source import _GenerationSourceReadExpectations
+    from polisyos.runtime.quality.model_input_requirements import (
+        ProgramGraphInputPreflight,
+        SelectedProgramGraphInputBasis,
+    )
 else:
     from polisyos.foundry.methods.selection import MethodSelectionReceipt
 from polisyos.pdc import (
@@ -586,11 +591,7 @@ def _n7_source_route_diagnostic(
         ),
         result=result,
         resolution_reason_codes=tuple(
-            dict.fromkeys(
-                reason
-                for row in resolution_rows
-                for reason in row.reason_codes
-            )
+            dict.fromkeys(reason for row in resolution_rows for reason in row.reason_codes)
         ),
         limitation_codes=tuple(dict.fromkeys(limitation_codes)),
     )
@@ -1301,6 +1302,9 @@ class SimulationPortObservation(_StrictModel):
     status: Literal["joint_simulated", "simulation_pending_n5", "simulation_blocked"]
     simulation_ref: str | None = None
     simulation_result_ref: CASArtifactRef | None = None
+    model_input_obligation_set_ref: CASArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     cycle_substrate_context_job_ref: CASArtifactRef | None = None
     candidate_simulation_n4_source_ref: CASArtifactRef | None = None
     candidate_simulation_context_job_ref: CASArtifactRef | None = None
@@ -1336,6 +1340,15 @@ class SimulationPortObservation(_StrictModel):
 
     @model_validator(mode="after")
     def _k_sim_cannot_shrink_k_world(self) -> SimulationPortObservation:
+        input_set_ref = self.model_input_obligation_set_ref
+        if input_set_ref is not None and (
+            self.status != "simulation_blocked"
+            or self.simulation_result_ref is not None
+            or input_set_ref.kind != "runtime.quality.model_input_obligation_set"
+            or input_set_ref.media_type != "application/json"
+            or input_set_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("n5_model_input_obligation_binding_invalid")
         if (
             self.k_world_ref_before is not None
             and self.k_world_ref_after is not None
@@ -5023,6 +5036,54 @@ class _N4CandidateScenarioProposalOnlyError(Exception):
         super().__init__("n4_candidate_scenario_proposal_only")
 
 
+def _resolve_n4_program_graph_link_context(
+    *,
+    problem: DesignProblem,
+    handoff: GenericCycleSimulationContextHandoffV1 | None,
+    owner: GenericCycleSimulationAdmissionOwner | None,
+    scope: VerifiedNLJobScope | None,
+    context_owner: CycleSubstrateContextArtifactOwner | None,
+    repo_root: Path | None,
+    child_selection: GenericCycleSimulationChildSelectionV1 | None = None,
+) -> N4SelectedProgramGraphLinkContext | None:
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5ProgramGraphRequestProfileV4,
+    )
+
+    if (
+        handoff is None
+        or type(handoff.profile.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+    ):
+        return None
+    if (
+        type(owner) is not GenericCycleSimulationAdmissionOwner
+        or scope is None
+        or context_owner is None
+    ):
+        raise GenerationCycleError("n4_selected_program_graph_owner_not_established")
+    from polisyos.runtime.quality.design_generation import (
+        N4SelectedProgramGraphLinkageV1,
+        N4SelectedProgramGraphLinkContext,
+    )
+
+    selected = owner.resolve_selected_program_graph_linkage(
+        handoff=handoff,
+        problem=problem,
+        verified_nl_job_scope=scope,
+        context_owner=context_owner,
+        repo_root=repo_root,
+        child_selection=child_selection,
+    )
+    return N4SelectedProgramGraphLinkContext(
+        linkage=N4SelectedProgramGraphLinkageV1.from_selected_owner(
+            profile_ref=selected.profile_ref,
+            profile=selected.profile,
+            registry_bundle_ref=selected.registry_bundle_ref,
+        ),
+        registry_content=selected.registry_bundle_content,
+    )
+
+
 class N4GenerationPort:
     """Default N4 port calling the real design generation owner."""
 
@@ -5070,6 +5131,7 @@ class N4GenerationPort:
         problem: DesignProblem,
         *,
         cycle_index: int,
+        selected_program_graph_link_context: N4SelectedProgramGraphLinkContext | None = None,
     ) -> object:
         """Call N4 generation for this cycle."""
 
@@ -5087,6 +5149,12 @@ class N4GenerationPort:
                 or organ_run.result.design_problem_ref
                 != gy_content_hash(problem.model_dump(mode="json"))
                 or cycle_index != 0
+                or organ_run.selected_program_graph_linkage
+                != (
+                    selected_program_graph_link_context.linkage
+                    if selected_program_graph_link_context is not None
+                    else None
+                )
             ):
                 raise GenerationCycleError("n4_prefetched_source_binding_mismatch")
             return organ_run
@@ -5123,6 +5191,11 @@ class N4GenerationPort:
             producer_settlement_store=self._producer_settlement_store,
             call_observer=self._call_observer,
             min_diverse_candidates=self._min_diverse_candidates,
+            **(
+                {"selected_program_graph_link_context": selected_program_graph_link_context}
+                if selected_program_graph_link_context is not None
+                else {}
+            ),
         )
         return organ_run
 
@@ -5830,7 +5903,10 @@ class JointSimulationPort:
             if isinstance(request, JointSimulationRequest)
             else JointSimulationRequest.model_validate(request)
         )
-        if any(plan.program_compilation_ref is not None for plan in request.engine_plan):
+        selected_program_profile = any(
+            plan.program_compilation_ref is not None for plan in request.engine_plan
+        )
+        if selected_program_profile:
             from polisyos.runtime.quality.generic_simulation_admission import (
                 GenericCycleN5ProgramGraphRequestProfileV4,
             )
@@ -5972,6 +6048,53 @@ class JointSimulationPort:
                         input_ref=candidate_simulation_input_ref,
                         capture=getattr(self._controller, "_last_n5_implementation_capture", None),
                     )
+                elif selected_program_profile and admitted_input is not None:
+                    from polisyos.runtime.quality.joint_simulation_horizon import (
+                        JointSimulationControllerError,
+                        ProgramGraphInputsRequiredError,
+                    )
+
+                    def preflight(
+                        selected_request: JointSimulationRequest,
+                        selected_plan: EnginePlan,
+                        _decision: object,
+                    ) -> ProgramGraphInputPreflight | None:
+                        return self._preflight_selected_program_graph_inputs(
+                            request=selected_request,
+                            selected_plan=selected_plan,
+                            candidate=candidate,
+                            input_record=admitted_input,
+                        )
+
+                    try:
+                        result = self._controller.run(
+                            request, _program_graph_input_preflight=preflight
+                        )
+                    except JointSimulationControllerError as exc:
+                        obligation_set_ref = None
+                        if isinstance(exc, ProgramGraphInputsRequiredError):
+                            code = "n5_model_input_obligations_required"
+                            obligation_set_ref = exc.obligation_set_ref
+                        elif exc.code in {
+                            "program_graph_input_preflight_not_established",
+                            "program_graph_input_preflight_required",
+                            "program_graph_input_preflight_result_untyped",
+                            "program_graph_input_preflight_selection_mismatch",
+                            "program_graph_semantic_horizon_intake_not_established",
+                        }:
+                            code = exc.code
+                        else:
+                            raise
+                        return produced(
+                            candidate_id=candidate_id,
+                            status="simulation_blocked",
+                            model_input_obligation_set_ref=obligation_set_ref,
+                            authority_blockers=(code,),
+                            diagnostics={"port": "N5", "reason": code},
+                            k_world_ref_before=request.world_model_record.content_hash,
+                            k_world_ref_after=request.world_model_record.content_hash,
+                            world_model_record=request.world_model_record,
+                        )
                 else:
                     result = self._controller.run(request)
         except ProducerBudgetSourceError as exc:
@@ -6214,6 +6337,9 @@ class JointSimulationPort:
         fields.update(
             status=status,
             authority_blockers=blockers,
+            model_input_obligation_set_ref=(
+                observation.model_input_obligation_set_ref if currentness_code is None else None
+            ),
             world_model_record=observation.world_model_record,
             generic_n5_request_binding=request_binding,
             generic_n4_source_ref=input_record.n4_source_ref,
@@ -6374,7 +6500,6 @@ class JointSimulationPort:
         loaded_plan = ExecPlan.model_validate(load_core_json_artifact(store, exec_plan_ref))
         if loaded_plan.program_ref != graph_ref:
             raise WorldModelRecordError("n5_exec_plan_program_graph_mismatch")
-
         world_input = consume_world_model_record_for_simulation(request.world_model_record)
         selected_world_views = world_model_artifact_views(request.world_model_record)
         bindings_ref = FoundryInputBindingsRef.model_validate(
@@ -6911,6 +7036,106 @@ class JointSimulationPort:
             budget_ref=persisted.n5.budget_ref,
             seed=persisted.n5.seed,
             replications=persisted.n5.replications,
+        )
+
+    def _preflight_selected_program_graph_inputs(
+        self,
+        *,
+        request: JointSimulationRequest,
+        selected_plan: EnginePlan,
+        candidate: object,
+        input_record: GenericCycleSimulationN5InputV1,
+    ) -> ProgramGraphInputPreflight | None:
+        """Produce obligations from the exact selected generic N5 invocation."""
+        from polisyos.runtime.quality.model_input_requirements import (
+            derive_program_graph_input_interface,
+            preflight_program_graph_inputs,
+        )
+
+        basis = self._selected_program_graph_input_basis(
+            request=request,
+            selected_plan=selected_plan,
+            candidate=candidate,
+            input_record=input_record,
+        )
+        store = selected_plan.program_store
+        interface_ref = derive_program_graph_input_interface(
+            store,
+            program_graph_ref=basis.program_graph_ref,
+            exec_plan_ref=basis.exec_plan_ref,
+            registry_bundle_ref=basis.registry_bundle_ref,
+        )
+        if interface_ref is None:
+            return None
+        return preflight_program_graph_inputs(
+            store,
+            interface_ref=interface_ref,
+            program_graph_ref=basis.program_graph_ref,
+            exec_plan_ref=basis.exec_plan_ref,
+            registry_bundle_ref=basis.registry_bundle_ref,
+            input_bindings_ref=basis.input_bindings_ref,
+            context=basis.context,
+            steps=basis.steps,
+        )
+
+    def _selected_program_graph_input_basis(
+        self,
+        *,
+        request: JointSimulationRequest,
+        selected_plan: EnginePlan,
+        candidate: object,
+        input_record: GenericCycleSimulationN5InputV1,
+    ) -> SelectedProgramGraphInputBasis:
+        """Bind active N5 facts before producing or replaying the obligation set."""
+        from polisyos.core.contracts.foundry import (
+            ExecPlanRef,
+            FoundryInputBindingsRef,
+            ProgramGraphRef,
+        )
+        from polisyos.core.contracts.model_input_requirements import ModelInputContext
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleN5ProgramGraphRequestProfileV4,
+        )
+        from polisyos.runtime.quality.model_input_requirements import SelectedProgramGraphInputBasis
+        from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+
+        store = selected_plan.program_store
+        graph_ref = selected_plan.program_graph_ref
+        exec_plan_ref = selected_plan.exec_plan_ref
+        candidate_hash = _candidate_content_hash(candidate)
+        if (
+            store is None
+            or store is not self._artifact_store
+            or type(graph_ref) is not ProgramGraphRef
+            or type(exec_plan_ref) is not ExecPlanRef
+            or type(input_record.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+            or selected_plan.program_compilation_ref != input_record.n5.compile_report_ref
+            or request.horizon != input_record.n5.horizon
+            or request.world_model_record.content_hash
+            != input_record.profile.context_inputs.world_model_record.content_hash
+            or _candidate_id(candidate) != input_record.candidate_id
+            or candidate_hash != input_record.candidate_atom_hash
+            or selected_plan.program_parameter_overrides_by_atom
+        ):
+            raise WorldModelRecordError("n5_selected_program_input_invocation_not_established")
+
+        views = world_model_artifact_views(request.world_model_record)
+        return SelectedProgramGraphInputBasis(
+            program_graph_ref=graph_ref,
+            exec_plan_ref=exec_plan_ref,
+            registry_bundle_ref=views.registry_bundle_ref,
+            input_bindings_ref=FoundryInputBindingsRef.model_validate(
+                views.input_bindings_ref.model_dump(mode="python")
+            ),
+            context=ModelInputContext(
+                run_id=input_record.run_id,
+                candidate_id=input_record.candidate_id,
+                candidate_content_hash=candidate_hash,
+                design_problem_ref=input_record.design_problem_ref,
+                candidate_source_ref=input_record.n4_source_ref,
+                context_job_ref=input_record.context_job_ref,
+            ),
+            steps=request.horizon.steps(),
         )
 
     def _build_candidate_simulation_request(
@@ -16508,10 +16733,25 @@ class GenerationCycleController:
 
         proposal_reissue = state.get("candidate_scenario_proposal_reissue")
         if proposal_reissue is None:
-            result = self._generation_port(
-                state["problem"],
-                cycle_index=int(state["cycle_index"]),
+            selected_link_context = _resolve_n4_program_graph_link_context(
+                problem=problem,
+                handoff=self._generic_cycle_simulation_handoff,
+                owner=self._generic_cycle_simulation_admission_owner,
+                scope=self._candidate_cycle_verified_nl_job_scope,
+                context_owner=self._candidate_cycle_context_artifact_owner,
+                repo_root=self._repo_root,
+                child_selection=self._generic_cycle_simulation_child_selection,
             )
+            if selected_link_context is None:
+                result = self._generation_port(problem, cycle_index=int(state["cycle_index"]))
+            elif type(self._generation_port) is N4GenerationPort:
+                result = self._generation_port(
+                    problem,
+                    cycle_index=int(state["cycle_index"]),
+                    selected_program_graph_link_context=selected_link_context,
+                )
+            else:
+                raise GenerationCycleError("n4_selected_program_graph_port_untyped")
             if inspect.isawaitable(result):
                 result = await result
         elif (

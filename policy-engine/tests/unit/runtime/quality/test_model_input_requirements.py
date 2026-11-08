@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -54,8 +55,10 @@ from polisyos.foundry.execute import load_state_snapshot
 from polisyos.foundry.execute.model_input_requirements import verify_program_graph_input_preflight
 from polisyos.runtime.quality.model_input_requirements import (
     ProgramGraphInputPreflight,
+    SelectedProgramGraphInputBasis,
     derive_program_graph_input_interface,
     preflight_program_graph_inputs,
+    replay_selected_program_graph_input_obligations,
 )
 from tests._helpers.program_graph_tax_subsidy_input import (
     ProgramGraphTaxSubsidyInputCase,
@@ -320,6 +323,33 @@ def test_required_input_is_produced_by_selected_model(tmp_path: Path) -> None:
             expected_invocation=preflight.invocation,
         )
         assert selected_set.obligation_refs == (obligation_ref,)
+        selected_basis = SelectedProgramGraphInputBasis(
+            context=context,
+            program_graph_ref=ProgramGraphRef.model_validate(case.program_graph_ref.model_dump()),
+            exec_plan_ref=ExecPlanRef.model_validate(case.exec_plan_ref.model_dump()),
+            registry_bundle_ref=case.registry_bundle_ref,
+            input_bindings_ref=case.input_bindings_ref,
+            steps=(0, 1, 2),
+            parameter_override_bundle_ref=rate_ref,
+        )
+        assert (
+            replay_selected_program_graph_input_obligations(
+                case.store,
+                obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+            )
+            == selected_set
+        )
+        for wrong_basis in (
+            replace(selected_basis, steps=(0, 1)),
+            replace(selected_basis, context=context.model_copy(update={"candidate_id": "foreign"})),
+        ):
+            with pytest.raises(ValueError, match="model_input_preflight_invocation_mismatch"):
+                replay_selected_program_graph_input_obligations(
+                    case.store,
+                    obligation_set_ref=preflight.obligation_set_ref,
+                    selected_basis=wrong_basis,
+                )
 
         wrong_step_obligation = obligation.model_copy(
             update={"dependencies": (dependency.model_copy(update={"first_required_step": 1}),)}

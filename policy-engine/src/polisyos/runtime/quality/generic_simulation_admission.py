@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import math
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass, fields, is_dataclass
 from datetime import date, datetime
@@ -66,6 +67,8 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from polisyos.core.contracts.foundry import LoweredIR, ProgramGraph
+    from polisyos.core.registry.loader import RegistryBundleContent
+    from polisyos.ir.registry.registry_fragments import RegistryBundle
     from polisyos.ir.trinity import TrinityBundle
     from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
 
@@ -412,12 +415,34 @@ def _profile_world_views_match(
 
 @dataclass(frozen=True, slots=True)
 class _SelectedProgramGraph:
+    compile_report_ref: ArtifactRef
+    registry_bundle_ref: ArtifactRef
     graph_ref: ArtifactRef
     exec_plan_ref: ArtifactRef
     trinity_ref: ArtifactRef
+    lowered_ir_ref: ArtifactRef
     graph: ProgramGraph
     lowered_ir: LoweredIR
     trinity: TrinityBundle
+
+
+@dataclass(frozen=True)
+class SelectedProgramGraphLinkage:
+    """Reopened V4 owner refs and exact selected registry for N4 candidate linking."""
+
+    profile_ref: ArtifactRef
+    profile: GenericCycleSimulationProfileV1
+    context: CycleSubstrateContext
+    compile_report_ref: ArtifactRef
+    registry_bundle_ref: ArtifactRef
+    program_graph_ref: ArtifactRef
+    exec_plan_ref: ArtifactRef
+    trinity_ref: ArtifactRef
+    lowered_ir_ref: ArtifactRef
+    registry_bundle_content: RegistryBundleContent
+    intervention_registry: RegistryBundle
+    currentness_status: Literal["not_established"] = "not_established"
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
 
 
 def _require_program_graph_input(
@@ -741,6 +766,18 @@ def _same_typed_public_value(left: object, right: object) -> bool:
     if type(left) in {str, int, bool, bytes, type(None)}:
         return bool(left == right)
     return False
+
+
+def _single_context_value(assumptions: object, prefix: str) -> str | None:
+    """Return one non-empty context value for a reserved grounding prefix."""
+    if not isinstance(assumptions, (tuple, list)):
+        return None
+    values = [
+        item.removeprefix(prefix)
+        for item in assumptions
+        if isinstance(item, str) and item.startswith(prefix)
+    ]
+    return values[0] if len(values) == 1 and values[0] else None
 
 
 def _validate_n5_typed_request_roundtrip(request: JointSimulationRequest) -> None:
@@ -2037,6 +2074,186 @@ class GenericCycleSimulationAdmissionOwner:
             )
         return profile
 
+    def resolve_selected_program_graph_linkage(
+        self,
+        *,
+        handoff: GenericCycleSimulationContextHandoffV1,
+        problem: DesignProblem,
+        verified_nl_job_scope: VerifiedNLJobScope,
+        context_owner: CycleSubstrateContextArtifactOwner,
+        repo_root: Path | None = None,
+        child_selection: GenericCycleSimulationChildSelectionV1 | None = None,
+    ) -> SelectedProgramGraphLinkage:
+        """Reopen V4 linkage under the active job scope and selected context."""
+        resolved = self.resolve_handoff(
+            handoff=handoff,
+            problem=problem,
+            verified_nl_job_scope=verified_nl_job_scope,
+            context_owner=context_owner,
+            repo_root=repo_root,
+            child_selection=child_selection,
+        )
+        return self._load_selected_program_graph_linkage(
+            profile_ref=resolved.profile_ref,
+            profile=resolved.profile,
+            context=resolved.context,
+            problem=problem,
+        )
+
+    def resolve_selected_program_graph_linkage_historical(
+        self,
+        *,
+        profile_ref: ArtifactRef,
+        expected_profile_content_hash: str,
+        expected_profile_selection_ref: str,
+        expected_compile_report_ref: ArtifactRef,
+        expected_registry_bundle_ref: ArtifactRef,
+        context_job_ref: ArtifactRef,
+        expected_context: CycleSubstrateContext,
+        problem: DesignProblem,
+        job_id: str,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+    ) -> SelectedProgramGraphLinkage:
+        """Reopen saved V4 linkage without treating its old job lease as current."""
+        from polisyos.core.artifacts import artifact_ref_identity_key, load_core_json_artifact
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+        )
+
+        if (
+            type(profile_ref) is not ArtifactRef
+            or type(expected_compile_report_ref) is not ArtifactRef
+            or type(expected_registry_bundle_ref) is not ArtifactRef
+            or type(context_job_ref) is not ArtifactRef
+            or type(expected_context) is not CycleSubstrateContext
+            or type(problem) is not DesignProblem
+            or not isinstance(expected_profile_content_hash, str)
+            or not isinstance(expected_profile_selection_ref, str)
+            or not all(
+                isinstance(value, str) and value.strip()
+                for value in (job_id, run_id, tenant_id, cell_id)
+            )
+            or not re.fullmatch(_HASH_PATTERN, expected_profile_content_hash)
+            or not re.fullmatch(_HASH_PATTERN, expected_profile_selection_ref)
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_historical_selection_untyped"
+            )
+        self._verify_json_artifact(profile_ref, expected_kind=_PROFILE_KIND)
+        profile = GenericCycleSimulationProfileV1.model_validate(
+            load_core_json_artifact(self._store, profile_ref)
+        )
+        if (
+            profile.content_hash != expected_profile_content_hash
+            or profile.profile_selection_ref != expected_profile_selection_ref
+            or not isinstance(profile.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+            or artifact_ref_identity_key(profile.n5.compile_report_ref)
+            != artifact_ref_identity_key(expected_compile_report_ref)
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_historical_profile_binding_mismatch"
+            )
+        profile = self.resolve_profile_historical(
+            profile_ref,
+            expected_profile=profile,
+            job_id=job_id,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        context_record = CycleSubstrateContextArtifactOwner(
+            store=self._store
+        ).resolve_historical_job_artifact(
+            context_job_ref,
+            problem=problem,
+            expected_job_id=job_id,
+            expected_run_id=run_id,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
+        )
+        context = context_record.context
+        if context != expected_context or context.content_hash != expected_context.content_hash:
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_historical_context_mismatch"
+            )
+        linkage = self._load_selected_program_graph_linkage(
+            profile_ref=profile_ref,
+            profile=profile,
+            context=context,
+            problem=problem,
+        )
+        if artifact_ref_identity_key(linkage.registry_bundle_ref) != artifact_ref_identity_key(
+            expected_registry_bundle_ref
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_historical_registry_binding_mismatch"
+            )
+        return linkage
+
+    def _load_selected_program_graph_linkage(
+        self,
+        *,
+        profile_ref: ArtifactRef,
+        profile: GenericCycleSimulationProfileV1,
+        context: CycleSubstrateContext,
+        problem: DesignProblem,
+    ) -> SelectedProgramGraphLinkage:
+        from polisyos.core.artifacts import artifact_ref_identity_key
+        from polisyos.core.registry import load_registry_bundle_content
+        from polisyos.ir.registry.registry_fragments import RegistryBundle
+
+        if not isinstance(profile.n5, GenericCycleN5ProgramGraphRequestProfileV4):
+            raise CycleSubstrateContextOwnerError("generic_cycle_program_graph_profile_required")
+        if not self.context_matches_profile(context, profile, problem):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_context_profile_mismatch"
+            )
+        self._verify_json_artifact(
+            profile.world_model_record_ref,
+            expected_kind="runtime.quality.world_model_record",
+        )
+        world = load_world_model_record(self._store, profile.world_model_record_ref)
+        if (
+            world != profile.context_inputs.world_model_record
+            or context.world_model_record != world
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_world_model_reopen_mismatch"
+            )
+        selection = self._read_selected_program_graph(profile.n5, world)
+        registry_content = load_registry_bundle_content(self._store, selection.registry_bundle_ref)
+        if artifact_ref_identity_key(registry_content.bundle_ref) != artifact_ref_identity_key(
+            selection.registry_bundle_ref
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_registry_reopen_mismatch"
+            )
+        linker_registry = RegistryBundle(
+            mechanisms=registry_content.mechanism_registry,
+            slots=registry_content.slot_registry,
+            merge_rules=registry_content.merge_registry,
+            constraints=registry_content.constraint_registry,
+            selector_fields=registry_content.selector_field_registry,
+            metrics=registry_content.metric_registry,
+            units=registry_content.units_registry,
+            trust=registry_content.trust_registry,
+        )
+        return SelectedProgramGraphLinkage(
+            profile_ref=profile_ref,
+            profile=profile,
+            context=context,
+            compile_report_ref=selection.compile_report_ref,
+            registry_bundle_ref=selection.registry_bundle_ref,
+            program_graph_ref=selection.graph_ref,
+            exec_plan_ref=selection.exec_plan_ref,
+            trinity_ref=selection.trinity_ref,
+            lowered_ir_ref=selection.lowered_ir_ref,
+            registry_bundle_content=registry_content,
+            intervention_registry=linker_registry,
+        )
+
     def resolve_child_profile_family(
         self,
         ref: ArtifactRef,
@@ -3318,7 +3535,17 @@ class GenericCycleSimulationAdmissionOwner:
             or model.registry_bundle_ref != str(registry_ref.artifact_id)
         ):
             raise CycleSubstrateContextOwnerError("generic_cycle_program_graph_wmr_model_mismatch")
-        return _SelectedProgramGraph(graph_ref, plan_ref, trinity_ref, graph, lowered_ir, trinity)
+        return _SelectedProgramGraph(
+            compile_report_ref=report_ref,
+            registry_bundle_ref=registry_ref,
+            graph_ref=graph_ref,
+            exec_plan_ref=plan_ref,
+            trinity_ref=trinity_ref,
+            lowered_ir_ref=lowered_ir_ref,
+            graph=graph,
+            lowered_ir=lowered_ir,
+            trinity=trinity,
+        )
 
     def _require_selected_program_graph_atom(
         self,
@@ -3339,9 +3566,53 @@ class GenericCycleSimulationAdmissionOwner:
         (atom,) = atoms
         policy = selection.trinity.policy_spec
         interventions = tuple(item for item in policy.interventions if item.enabled)
-        if len(interventions) != 1 or not _same_typed_public_value(
-            interventions[0], atom.to_trinity_intervention_spec()
-        ):
+        if len(interventions) != 1:
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_n4_intervention_mismatch"
+            )
+        compiled_intervention = interventions[0]
+        candidate_intervention = atom.to_trinity_intervention_spec()
+        compiled_without_notes = compiled_intervention.model_copy(update={"notes": []})
+        candidate_without_notes = candidate_intervention.model_copy(update={"notes": []})
+        context = atom.causal_do_expr.context
+        assumptions = context.get("assumptions")
+        grounding_note_values = {
+            "cg1_certificate": _single_context_value(
+                assumptions, "grounding_relation_certificate_id:"
+            ),
+            "cg1_hash": _single_context_value(assumptions, "grounding_relation_content_hash:"),
+            "cg2_certificate": _single_context_value(
+                assumptions, "grounding_decision_certificate_id:"
+            ),
+            "cg2_hash": _single_context_value(assumptions, "grounding_decision_content_hash:"),
+            "identified_atom": _single_context_value(assumptions, "identified_cg0_atom:"),
+        }
+        expected_grounding_notes = [
+            f"cg1_certificate:{grounding_note_values['cg1_certificate']}",
+            f"cg1_hash:{grounding_note_values['cg1_hash']}",
+            f"cg2_certificate:{grounding_note_values['cg2_certificate']}",
+            f"cg2_hash:{grounding_note_values['cg2_hash']}",
+            f"identified_atom:{grounding_note_values['identified_atom']}",
+        ]
+        grounding_hashes = (grounding_note_values["cg1_hash"], grounding_note_values["cg2_hash"])
+        notes = candidate_intervention.notes
+        compiled_notes = compiled_intervention.notes
+        grounding_notes_match = (
+            all(grounding_note_values.values())
+            and len(notes) == len(compiled_notes) + len(expected_grounding_notes)
+            and notes[: len(compiled_notes)] == compiled_notes
+            and notes[len(compiled_notes) :] == expected_grounding_notes
+            and all(re.fullmatch(_HASH_PATTERN, value) for value in grounding_hashes)
+            and all(atom.provenance_refs.count(value) == 1 for value in grounding_hashes)
+        )
+        exact_intervention_match = _same_typed_public_value(
+            compiled_intervention, candidate_intervention
+        )
+        grounded_intervention_match = (
+            _same_typed_public_value(compiled_without_notes, candidate_without_notes)
+            and grounding_notes_match
+        )
+        if not exact_intervention_match and not grounded_intervention_match:
             raise CycleSubstrateContextOwnerError(
                 "generic_cycle_program_graph_n4_intervention_mismatch"
             )

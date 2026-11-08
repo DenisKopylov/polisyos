@@ -793,13 +793,26 @@ def build_world_model_record(
         registry_content.slot_registry,
         policy_slot_ids=policy_slot_ids,
     )
+    # A declared model-input interface replays the exact bindings and state
+    # views. Models without a declaration keep their historical writer profile.
+    select_model_input_views = model_spec.model_input_port_declaration_ref is not None
     input_bindings = build_input_bindings(
         store,
         data_snapshot_ref=data_snapshot_ref,
         registry_bundle_ref=registry_bundle_ref,
         rules=list(foundry_binding_rules or []),
         notes=[f"world_model_record_snapshot_id:{data_snapshot_id}"],
+        return_selected_profile=select_model_input_views,
     )
+    if select_model_input_views and any(
+        ref.manifest_profile_sha256 is None
+        for ref in (
+            input_bindings.input_bindings_ref,
+            input_bindings.bound_state_snapshot_ref,
+            input_bindings.input_binding_report_ref,
+        )
+    ):
+        raise WorldModelRecordError("world_model_semantic_input_views_unselected")
     persisted_bindings = load_input_bindings(store, input_bindings.input_bindings_ref)
     if str(persisted_bindings.data_snapshot_ref.artifact_id) != str(data_snapshot_ref.artifact_id):
         raise WorldModelRecordError(

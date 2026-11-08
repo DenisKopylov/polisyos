@@ -28,13 +28,13 @@ def test_candidate_bridge_uses_selected_catalog_root_not_issuer_root(
         catalog_serving_source_scope,
         require_catalog_source_registry_binding,
     )
-    from tests._helpers.candidate_experiment_served_execution import (
-        _build_candidate_experiment_world_growth_bridge,
-    )
     from tests._helpers.candidate_cycle_source_profile import (
         build_candidate_cycle_substrate_route_inputs,
         candidate_cycle_catalog_registry_providers,
         complete_candidate_cycle_catalog_source,
+    )
+    from tests._helpers.candidate_experiment_served_execution import (
+        _build_candidate_experiment_world_growth_bridge,
     )
     from tests._helpers.lane01_candidate_action_served import (
         build_candidate_experiment_issuer_port,
@@ -1079,5 +1079,644 @@ def test_candidate_terminal_cas_crash_reuses_timestamp_and_n5(
         )
     assert result is not None
     assert observed["source_status"] == "completed"
+    execution = observed["execution"]
+    assert execution.terminal_history.origin.generation_run.run_id == result["run_id"]
+
+
+@pytest.mark.integration
+def test_candidate_n5_checkpoint_crash_reuses_exact_result_in_fresh_worker(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    served_recorded_candidate_gateway,
+) -> None:
+    """A real selected N5 checkpoint resumes before value and terminal work."""
+    from time import sleep
+
+    from polisyos.core import artifacts
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentTerminalReceipt,
+    )
+    from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
+        read_candidate_unpriced_policy,
+        resolve_current_candidate_unpriced_policy,
+    )
+    from polisyos.runtime.quality.candidate_experiment_policy_issuer import (
+        prepare_candidate_experiment_policies_for_completed_job,
+    )
+    from polisyos.runtime.quality.candidate_source_reentry_history import (
+        CandidateSourceReentryN5Checkpoint,
+        _n5_checkpoint_event_id,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+    from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
+    from tests._helpers import acquisition_served_history as served
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+        complete_candidate_cycle_catalog_source,
+    )
+    from tests._helpers.candidate_experiment_served_execution import (
+        _candidate_experiment_reopened_runtime,
+        _experiment_outcomes,
+        _standard_invocation_units,
+        bind_candidate_test_execution_port_factory,
+        candidate_experiment_served_execution_owner,
+        run_candidate_experiment_served_execution,
+    )
+    from tests._helpers.control_worker import dispatch_one_control_job
+    from tests.integration.core_runtime.test_candidate_experiment_action_served import (
+        _assert_candidate_experiment_n5_uses_current_wmr,
+        _candidate_experiment_policy_owner,
+        run_candidate_experiment_action_oracle,
+    )
+
+    monkeypatch.setenv("POLISYOS_RUNTIME_CAS_TIMEOUT_SECONDS", "3")
+    source = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "labor-source", include_owner_slot_manifest=True
+    )
+    quota = BudgetInvocationQuotaPolicy(
+        allocation_id="served-labor-n5-checkpoint-recovery",
+        total_units=5,
+        protected_units=1,
+    )
+    crash: dict[str, object] = {"interrupted": False, "checkpoint_calls": 0}
+    observed: dict[str, object] = {}
+    expected_origin: dict[str, object] = {"value": None}
+
+    def serve_action(**values) -> None:
+        control = values["control"]
+        run_id = str(values["run_id"])
+        assert values["job"].kind == "natural_language_run"
+        assert values["job"].state == "completed"
+        policy_owner = _candidate_experiment_policy_owner(
+            control=control,
+            fixture_root=tmp_path / "candidate-issuer",
+            run_id=run_id,
+        )
+        original_providers = control._registry_providers
+        control._registry_providers = replace(
+            original_providers,
+            source_profiles=policy_owner.source_profiles,
+            candidate_unpriced_policy_bindings=(),
+            candidate_unpriced_policy_templates=(policy_owner.template,),
+        )
+        try:
+            bind_candidate_test_execution_port_factory(
+                monkeypatch=monkeypatch,
+                control_service=control,
+                fixture_port=policy_owner.issuer.port,
+            )
+            refs = prepare_candidate_experiment_policies_for_completed_job(
+                control_service=control,
+                source_job_id=values["job"].job_id,
+            )
+            assert len(refs) == 1
+            policy_ref, policy = resolve_current_candidate_unpriced_policy(
+                control_service=control,
+                scope=read_candidate_unpriced_policy(
+                    store=control._artifact_store,
+                    event_log=control._diagnostic_event_log,
+                    ref=refs[0],
+                ).scope,
+            )
+            assert policy.observed_admission is False
+            assert policy.publication_authority is False
+            assert policy.information_value == policy.monetary_cost == "not_established"
+            assert policy.purpose == "bounded_candidate_experiment_voi_unknown"
+
+            def interrupt_after_selected_checkpoint(execution_owner, job_id: str) -> None:
+                from polisyos.runtime.quality.acquisition_world_growth import (
+                    AcquisitionWorldGrowthBridge,
+                )
+
+                original_persist = (
+                    AcquisitionWorldGrowthBridge.persist_completed_candidate_experiment_n5
+                )
+
+                def persist_then_interrupt(bridge, **checkpoint_values):
+                    result_ref = original_persist(bridge, **checkpoint_values)
+                    admission = bridge.control_store.current_execution_job_admission()
+                    if (
+                        admission.job.job_id != job_id
+                        or bridge._source_control_service is not control
+                        or crash["interrupted"]
+                    ):
+                        return result_ref
+                    crash["checkpoint_calls"] = int(crash["checkpoint_calls"]) + 1
+                    if type(result_ref) is not artifacts.ArtifactRef:
+                        raise AssertionError(
+                            "completed real N5 did not produce a selected checkpoint ref"
+                        )
+                    origin = checkpoint_values["origin"]
+                    if origin != expected_origin["value"]:
+                        raise AssertionError("checkpoint belongs to a different verified origin")
+                    checkpoint_artifact = artifacts.read_core_json_artifact(
+                        control._artifact_store, result_ref
+                    )
+                    checkpoint = CandidateSourceReentryN5Checkpoint.model_validate(
+                        checkpoint_artifact.value
+                    )
+                    if checkpoint.model_dump(mode="json") != checkpoint_artifact.value:
+                        raise AssertionError("selected N5 checkpoint bytes were not canonical")
+                    if (
+                        checkpoint.originating_attempt != 1
+                        or checkpoint.simulation.status != "joint_simulated"
+                        or checkpoint.simulation.candidate_simulation_n5_input_ref is None
+                        or checkpoint.n5_execution_ref.manifest_profile_sha256 is None
+                        or checkpoint.simulation.simulation_result_ref is None
+                    ):
+                        raise AssertionError("checkpoint did not bind a completed real N5")
+
+                    checkpoint_event_id = _n5_checkpoint_event_id(
+                        checkpoint.pending_action_ref,
+                        checkpoint.candidate_action_ref,
+                    )
+                    checkpoint_rows = tuple(
+                        control._diagnostic_event_log.list_events(
+                            event_id=checkpoint_event_id,
+                            run_id=origin.run_id,
+                            job_id=job_id,
+                            limit=10,
+                        )
+                    )
+                    if len(checkpoint_rows) != 1:
+                        raise AssertionError(
+                            "the completed N5 checkpoint event was not durable at the crash cut"
+                        )
+                    checkpoint_row = checkpoint_rows[0]
+                    event = checkpoint_row.event
+                    if (
+                        event.phase != "candidate_source_reentry_n5_checkpoint"
+                        or event.payload_ref != str(result_ref.artifact_id)
+                        or checkpoint_row.payload_ref != str(result_ref.artifact_id)
+                        or event.artifact_refs != (str(result_ref.artifact_id),)
+                        or result_ref.manifest_profile_sha256 not in event.event_subject
+                        or checkpoint_row.payload_inline is not None
+                    ):
+                        raise AssertionError(
+                            "the selected N5 checkpoint event did not bind its exact profile"
+                        )
+
+                    pending_outcomes = _experiment_outcomes(control=control, origin=origin)
+                    if (
+                        not pending_outcomes
+                        or pending_outcomes[-1].head.job_id != job_id
+                        or pending_outcomes[-1].head.receipt_phase
+                        != "candidate_input_reentry_pending"
+                        or pending_outcomes[-1].latest_receipt.candidate_receipt_ref
+                        != checkpoint.candidate_action_ref
+                    ):
+                        raise AssertionError(
+                            "N5 checkpoint advanced or changed the pending action head"
+                        )
+                    terminal_receipt_id = f"{job_id}.candidate-experiment.terminal"
+                    terminal_event_id = (
+                        "evt_acquisition_"
+                        + str(pending_outcomes[-1].head.action_generation)
+                        + "_experiment_terminal_"
+                        + hashlib.sha256(terminal_receipt_id.encode()).hexdigest()[:16]
+                    )
+                    if control._diagnostic_event_log.list_events(
+                        event_id=terminal_event_id,
+                        run_id=origin.run_id,
+                        job_id=job_id,
+                        limit=2,
+                    ):
+                        raise AssertionError(
+                            "value/terminal work was already selected at the checkpoint cut"
+                        )
+                    units = _standard_invocation_units(control=control, run_id=origin.run_id)
+                    if units != 4:
+                        raise AssertionError(
+                            f"candidate N5 checkpoint used unexpected standard units: {units}"
+                        )
+                    crash.update(
+                        checkpoint_ref=result_ref,
+                        checkpoint=checkpoint,
+                        checkpoint_payload=checkpoint_artifact.value,
+                        checkpoint_event_id=checkpoint_event_id,
+                        checkpoint_event_rows=checkpoint_rows,
+                        terminal_event_id=terminal_event_id,
+                        pending_head=pending_outcomes[-1].head,
+                        pending_outcomes=pending_outcomes,
+                        units_at_checkpoint=units,
+                        budget_snapshot_at_checkpoint=(
+                            control._llm_producer_settlement_store.snapshot_safe()
+                        ),
+                        interrupted=True,
+                    )
+                    raise KeyboardInterrupt("controlled crash after selected N5 checkpoint")
+
+                monkeypatch.setattr(
+                    AcquisitionWorldGrowthBridge,
+                    "persist_completed_candidate_experiment_n5",
+                    persist_then_interrupt,
+                )
+
+            def recover_in_fresh_runtime(**retry_values) -> str:
+                retry_control = retry_values["control"]
+                retry_origin = retry_values["origin"]
+                job_id = str(retry_values["job_id"])
+                values_for_retry = values
+                event_rows_at_recovery_start = tuple(
+                    retry_control._diagnostic_event_log.list_events(
+                        run_id=retry_origin.run_id,
+                        job_id=job_id,
+                        limit=500,
+                    )
+                )
+                with _candidate_experiment_reopened_runtime(
+                    control=retry_control,
+                    trust=values_for_retry["trust"],
+                    monkeypatch=monkeypatch,
+                ) as (reader, fresh_control, _sqlite_path, _cas_root):
+                    from polisyos.runtime.http.services.acquisition_action_service import (
+                        CandidateExperimentRouteProjection,
+                    )
+
+                    fresh_action_service = reader.app.state._acquisition_action_service
+                    if (
+                        fresh_action_service is None
+                        or fresh_action_service.control_service is not fresh_control
+                    ):
+                        raise AssertionError(
+                            "fresh checkpoint worker lost its actual candidate action owner"
+                        )
+                    fresh_policy_owner = _candidate_experiment_policy_owner(
+                        control=fresh_control,
+                        fixture_root=tmp_path / "candidate-issuer",
+                        run_id=retry_origin.run_id,
+                    )
+                    if fresh_policy_owner.template != policy_owner.template:
+                        raise AssertionError(
+                            "fresh checkpoint worker changed the selected issuer or policy"
+                        )
+                    fresh_control._registry_providers = replace(
+                        fresh_control._registry_providers,
+                        source_profiles=fresh_policy_owner.source_profiles,
+                        candidate_unpriced_policy_bindings=(),
+                        candidate_unpriced_policy_templates=(fresh_policy_owner.template,),
+                    )
+                    fresh_origin = fresh_action_service._resolve_candidate_experiment_origin(
+                        tenant_id=retry_origin.tenant_id,
+                        cell_id=retry_origin.cell_id,
+                        run_id=retry_origin.run_id,
+                    )
+                    if (
+                        fresh_origin.tenant_id != retry_origin.tenant_id
+                        or fresh_origin.cell_id != retry_origin.cell_id
+                        or fresh_origin.run_id != retry_origin.run_id
+                        or fresh_origin.source_job_id != retry_origin.source_job_id
+                        or fresh_origin.source_payload_ref != retry_origin.source_payload_ref
+                        or fresh_origin.request_content_hash != retry_origin.request_content_hash
+                        or fresh_origin.route_id != retry_origin.route_id
+                        or fresh_origin.policy_ref != retry_origin.policy_ref
+                        or fresh_origin.policy_scope != retry_origin.policy_scope
+                    ):
+                        raise AssertionError("fresh worker changed the admitted source origin")
+
+                    def read_current_action():
+                        response = reader.get(
+                            f"/api/v1/runs/{retry_origin.run_id}/candidate-acquisition-experiment",
+                            headers={
+                                "Authorization": (
+                                    f"Bearer {values_for_retry['trust'].tokens['acquisition-operator']}"
+                                ),
+                                "X-Tenant-ID": served.TENANT,
+                            },
+                        )
+                        if response.status_code != 200:
+                            raise AssertionError(response.text)
+                        return CandidateExperimentRouteProjection.model_validate(
+                            response.json()
+                        ).current_action
+
+                    with candidate_experiment_served_execution_owner(
+                        action_service=fresh_action_service,
+                        origin=fresh_origin,
+                        policy_owner=fresh_policy_owner,
+                        monkeypatch=monkeypatch,
+                    ) as fresh_execution_owner:
+                        if (
+                            fresh_execution_owner.port is policy_owner.issuer.port
+                            or fresh_execution_owner.port._artifact_store
+                            is not fresh_control._artifact_store
+                            or fresh_execution_owner.transport_calls
+                        ):
+                            raise AssertionError(
+                                "fresh worker did not start with an isolated, unused port"
+                            )
+                        checkpoint_ref = crash["checkpoint_ref"]
+                        checkpoint = crash["checkpoint"]
+                        if (
+                            type(checkpoint_ref) is not artifacts.ArtifactRef
+                            or type(checkpoint) is not CandidateSourceReentryN5Checkpoint
+                        ):
+                            raise AssertionError("crash cut did not retain a typed checkpoint")
+                        reopened = artifacts.read_core_json_artifact(
+                            fresh_control._artifact_store, checkpoint_ref
+                        )
+                        if reopened.value != crash["checkpoint_payload"]:
+                            raise AssertionError(
+                                "fresh worker could not reopen the exact selected checkpoint"
+                            )
+                        checkpoint_rows = tuple(
+                            fresh_control._diagnostic_event_log.list_events(
+                                event_id=str(crash["checkpoint_event_id"]),
+                                run_id=retry_origin.run_id,
+                                job_id=job_id,
+                                limit=10,
+                            )
+                        )
+                        if checkpoint_rows != crash["checkpoint_event_rows"]:
+                            raise AssertionError(
+                                "fresh worker changed the selected checkpoint event"
+                            )
+                        pending_before = _experiment_outcomes(
+                            control=fresh_control, origin=fresh_origin
+                        )
+                        interrupted_outcome = retry_values["interrupted_outcome"]
+                        if (
+                            not pending_before
+                            or pending_before[-1].head != crash["pending_head"]
+                            or pending_before[-1].head != interrupted_outcome.head
+                            or pending_before[-1].head.receipt_phase
+                            != "candidate_input_reentry_pending"
+                            or pending_before[-1].candidate_experiment_terminal_history is not None
+                        ):
+                            raise AssertionError(
+                                "checkpoint recovery did not retain the exact pending action head"
+                            )
+                        job_before = fresh_control._control_store.get_job(job_id)
+                        if (
+                            job_before is None
+                            or job_before.state != "running"
+                            or job_before.attempt != 1
+                        ):
+                            raise AssertionError(
+                                "fresh checkpoint worker did not reopen the interrupted lease"
+                            )
+                        units_before = _standard_invocation_units(
+                            control=fresh_control, run_id=retry_origin.run_id
+                        )
+                        budget_before = fresh_control._llm_producer_settlement_store.snapshot_safe()
+                        if (
+                            units_before != crash["units_at_checkpoint"]
+                            or units_before != retry_values["interrupted_units"]
+                            or budget_before != crash["budget_snapshot_at_checkpoint"]
+                        ):
+                            raise AssertionError(
+                                "checkpoint recovery changed budget or physical units before retry"
+                            )
+                        event_rows_before_retry = tuple(
+                            fresh_control._diagnostic_event_log.list_events(
+                                run_id=retry_origin.run_id,
+                                job_id=job_id,
+                                limit=500,
+                            )
+                        )
+                        if event_rows_before_retry != event_rows_at_recovery_start:
+                            raise AssertionError(
+                                "fresh open changed the event ledger before checkpoint retry"
+                            )
+                        pending_visible = read_current_action()
+                        if (
+                            pending_visible.status != "in_progress"
+                            or pending_visible.job_state != "running"
+                            or pending_visible.job_id != job_id
+                            or pending_visible.receipt_phase
+                            != "candidate_input_reentry_pending"
+                            or pending_visible.selected_receipt_ref
+                            != crash["pending_head"].receipt_ref
+                        ):
+                            raise AssertionError(
+                                "fresh reader changed the pending action before N5 checkpoint retry"
+                            )
+
+                        retry_expiry = retry_values["retry_expiry"]
+                        remaining = (
+                            retry_expiry - datetime.now(retry_expiry.tzinfo)
+                        ).total_seconds()
+                        if remaining > 0:
+                            sleep(remaining)
+                        with monkeypatch.context() as no_n5_retry:
+                            no_n5_retry.setattr(
+                                JointSimulationHorizonController,
+                                "run",
+                                lambda *_args, **_kwargs: pytest.fail(
+                                    "fresh checkpoint worker reran physical N5"
+                                ),
+                            )
+                            dispatched = dispatch_one_control_job(
+                                store=fresh_control._control_store,
+                                handler=fresh_control._process_control_job,
+                                expected_job_id=job_id,
+                            )
+                        if dispatched != job_id:
+                            raise AssertionError(
+                                "fresh checkpoint worker did not reclaim the expired job"
+                            )
+                        final_job = fresh_control._control_store.get_job(job_id)
+                        if (
+                            final_job is None
+                            or final_job.state != "completed"
+                            or final_job.attempt != 2
+                        ):
+                            raise AssertionError(
+                                "fresh checkpoint worker failed to complete the reclaimed job"
+                            )
+                        final_outcomes = _experiment_outcomes(
+                            control=fresh_control, origin=fresh_origin
+                        )
+                        if not final_outcomes:
+                            raise AssertionError("fresh checkpoint worker lost terminal history")
+                        final_history = final_outcomes[-1].candidate_experiment_terminal_history
+                        if (
+                            final_outcomes[-1].head.receipt_phase != "terminal"
+                            or final_outcomes[-1].head.job_id != job_id
+                            or final_history is None
+                            or type(final_history.terminal)
+                            is not AcquisitionCandidateExperimentTerminalReceipt
+                            or final_history.head.head_generation
+                            != crash["pending_head"].head_generation + 1
+                            or final_history.terminal.predecessor_receipt_ref
+                            != crash["pending_head"].receipt_ref
+                        ):
+                            raise AssertionError(
+                                "checkpoint recovery did not advance exactly one terminal head"
+                            )
+                        reentry = final_history.reentry
+                        if reentry is None:
+                            raise AssertionError("recovered terminal omitted its N5 reentry")
+                        from polisyos.core.artifacts import artifact_ref_identity_key
+
+                        if (
+                            artifact_ref_identity_key(reentry.n5_input_ref)
+                            != artifact_ref_identity_key(
+                                checkpoint.simulation.candidate_simulation_n5_input_ref
+                            )
+                            or artifact_ref_identity_key(reentry.n5_execution_ref)
+                            != artifact_ref_identity_key(checkpoint.n5_execution_ref)
+                            or artifact_ref_identity_key(reentry.n5_result_ref)
+                            != artifact_ref_identity_key(
+                                checkpoint.simulation.simulation_result_ref
+                            )
+                        ):
+                            raise AssertionError(
+                                "recovery changed the checkpointed N5 input, execution, or result profile"
+                            )
+
+                        final_checkpoint_rows = tuple(
+                            fresh_control._diagnostic_event_log.list_events(
+                                event_id=str(crash["checkpoint_event_id"]),
+                                run_id=retry_origin.run_id,
+                                job_id=job_id,
+                                limit=10,
+                            )
+                        )
+                        terminal_event_rows = tuple(
+                            fresh_control._diagnostic_event_log.list_events(
+                                event_id=str(crash["terminal_event_id"]),
+                                run_id=retry_origin.run_id,
+                                job_id=job_id,
+                                limit=10,
+                            )
+                        )
+                        event_rows_after_retry = tuple(
+                            fresh_control._diagnostic_event_log.list_events(
+                                run_id=retry_origin.run_id,
+                                job_id=job_id,
+                                limit=500,
+                            )
+                        )
+                        prior_event_ids = {
+                            row.event.event_id for row in event_rows_before_retry
+                        }
+                        recovery_added_events = tuple(
+                            row
+                            for row in event_rows_after_retry
+                            if row.event.event_id not in prior_event_ids
+                        )
+                        if any(
+                            row.event.phase == "candidate_source_reentry_n5_checkpoint"
+                            for row in recovery_added_events
+                        ):
+                            raise AssertionError(
+                                "checkpoint recovery appended a duplicate N5 checkpoint event"
+                            )
+                        units_after = _standard_invocation_units(
+                            control=fresh_control, run_id=retry_origin.run_id
+                        )
+                        budget_after = fresh_control._llm_producer_settlement_store.snapshot_safe()
+                        if (
+                            final_checkpoint_rows != crash["checkpoint_event_rows"]
+                            or len(terminal_event_rows) != 1
+                            or not any(
+                                row.event.event_id == str(crash["terminal_event_id"])
+                                for row in recovery_added_events
+                            )
+                            or units_after != units_before
+                            or budget_after != budget_before
+                            or fresh_execution_owner.transport_calls
+                        ):
+                            raise AssertionError(
+                                "fresh checkpoint retry duplicated N5, transport, event, or budget work"
+                            )
+                        visible = read_current_action()
+                        if (
+                            visible.status != "completed"
+                            or visible.job_id != job_id
+                            or visible.receipt_phase != "terminal"
+                            or visible.selected_receipt_ref != final_history.terminal_ref
+                        ):
+                            raise AssertionError(
+                                "fresh HTTP reader did not observe the completed checkpoint recovery"
+                            )
+                return job_id
+
+            def finish_checkpoint_recovery(**execution_values) -> None:
+                expected_origin["value"] = execution_values["origin"]
+                execution = run_candidate_experiment_served_execution(
+                    values=execution_values["values"],
+                    origin=execution_values["origin"],
+                    request=execution_values["request"],
+                    decision_ref=execution_values["decision_ref"],
+                    policy_owner=policy_owner,
+                    monkeypatch=monkeypatch,
+                    before_first_delivery=interrupt_after_selected_checkpoint,
+                    recover_worker_crash=True,
+                    fresh_runtime_recovery=recover_in_fresh_runtime,
+                )
+                if (
+                    crash["interrupted"] is not True
+                    or crash["checkpoint_calls"] != 1
+                    or execution.interrupted_job is None
+                    or execution.interrupted_job.state != "running"
+                    or execution.interrupted_job.attempt != 1
+                    or execution.final_job.attempt != 2
+                    or execution.standard_invocation_units_before != 2
+                    or execution.standard_invocation_units_after_interrupted != 4
+                    or execution.terminal_ref == crash["checkpoint_ref"]
+                ):
+                    raise AssertionError("real N5 checkpoint crash recovery result was not exact")
+                checkpoint = crash["checkpoint"]
+                if type(checkpoint) is not CandidateSourceReentryN5Checkpoint:
+                    raise AssertionError("crash did not retain the selected typed checkpoint")
+                if (
+                    checkpoint.candidate_content_hash
+                    != execution.terminal_history.origin.effective_source_cycle.selected_candidate_content_hash
+                ):
+                    raise AssertionError("checkpoint candidate differs from the selected source")
+                control = execution_values["values"]["control"]
+                _assert_candidate_experiment_n5_uses_current_wmr(
+                    control=control,
+                    origin=execution_values["origin"],
+                    execution=execution,
+                )
+                if (
+                    execution.current_action.evaluation_disposition != "new"
+                    or execution.current_action.selected_evaluation is None
+                    or len(execution.execution_owner.transport_calls) != 1
+                    or control._llm_producer_settlement_store.snapshot_safe()
+                    != crash["budget_snapshot_at_checkpoint"]
+                ):
+                    raise AssertionError(
+                        "checkpoint replay changed evaluation, transport, or budget"
+                    )
+                observed["execution"] = execution
+                observed["checkpoint"] = checkpoint
+
+            observed.update(
+                run_candidate_experiment_action_oracle(
+                    tmp_path=tmp_path,
+                    values=values,
+                    policy_ref=policy_ref,
+                    monkeypatch=monkeypatch,
+                    after_replay=finish_checkpoint_recovery,
+                )
+            )
+            if observed["source_status"] != "completed":
+                raise AssertionError("candidate source scenario did not complete before action")
+        finally:
+            control._registry_providers = original_providers
+
+    with complete_candidate_cycle_catalog_source(
+        source.root, monkeypatch, synthetic_usa_labor_scope=True
+    ) as prepared:
+        assert prepared[2].resolve(family_id="macro_state")
+        result = served._produce_served_acquisition_history(
+            tmp_path,
+            monkeypatch,
+            served_recorded_candidate_gateway,
+            source_owner_root=source.root,
+            prepared_catalog=prepared,
+            provider_mode="synthetic_settled_candidate",
+            seed_only_context_observer=serve_action,
+            run_budget_usd=5.0,
+            run_budget_scope="metered_paid_producers_and_bounded_candidate",
+            candidate_acquisition_intent="bounded_experiment_voi_unknown",
+            invocation_quota_policy=quota,
+            labor_seed=True,
+        )
+    assert result is not None
     execution = observed["execution"]
     assert execution.terminal_history.origin.generation_run.run_id == result["run_id"]

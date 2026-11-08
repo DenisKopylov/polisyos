@@ -9510,6 +9510,26 @@
             "wall_seconds": 175.94,
             "scope": "The fixture uses the existing published Catalog owner and readmits the substrate registry. Its actual joint source cycle now persists a blocked planner report with unbound_requirement_input_refused and no costed route. The exact saved cycle validates its L1 gap and request. The compiler produces one global.tax_rate spec, zero capability resolutions and no routable descriptor, with or without the existing governed fixture resolver. The historical costed fixture instead expects government.balance WDI. No B or later evaluation runs. Keep the two mechanisms and their owner inputs distinct."
           },
+          "ordinary_first_a_native_witness_diagnostic_r2": {
+            "source_commit": "b51c99f8e777a5bf3e8e020fd45ff48ecb385e27",
+            "source_tree": "770eb7fd172c5d6eff1ea03bf4fa2f79f2f351dd",
+            "output": "MAIN:policy-engine/_cache/e02/lane01-first-a-n5-witness-preflight-r2/preflight.json",
+            "observed": {"PASS_DIAGNOSTIC": 1, "PYTEST_SKIP": 1},
+            "named_inputs": 45,
+            "inputs_unchanged": true,
+            "wall_seconds": 168.0,
+            "scope": "Real initial NL job and A N5 physical execution. Passive return monitor records the witness as not_established with canonical_loaded_runtime_mismatch at LinearRegression and PolicyOSTracer import bindings. The 1,035 observed code objects include neither target as a direct matching global alias or target frame. This does not establish import-time, dynamic or receiver dependency absence. Deliberate sentinel stops before any protected action. R1 failed its later approval after the harness failed to match the parametrized node ID."
+          },
+          "retained_7of1_signed_approval_preflight_r2": {
+            "source_commit": "2d1a99d9966aae19a05b6c36401bbcff9719d435",
+            "source_tree": "27b319a996e9f847e9bff772f0248a2b4799f2ea",
+            "output": "/tmp/e02-lane01-7of1-b-decision-diagnostic-20261108-r2-receipt.json",
+            "sha256": "b146d88b948a45164f285f0c7f590109b38d3a6e72b2b69c9d1ad9109cd986c8",
+            "observed": {"PASS_DIAGNOSTIC": 1},
+            "named_inputs": 18,
+            "inputs_unchanged": true,
+            "scope": "Real decision-request and human approval POSTs on an isolated authenticated scratch app. Signed allowed decision 84117d6f… carries the same exact DS20 permission snapshot as the source decision. The callback deliberately stops before execution. Original CAS, SQL, ledger and 4→4 work unchanged. No worker or new N5. Caller-selected human ref remains refused. Separate same-input B execution and changed C remain UNRUN."
+          },
           "retained_r33_budget_window_author_r5": {
             "source_commit": "04e2ecf648e0aeb7a8703dfbd60190ff96722ad8",
             "source_tree": "ff24f2091c3c73e5586bedc7274af37c4356404b",

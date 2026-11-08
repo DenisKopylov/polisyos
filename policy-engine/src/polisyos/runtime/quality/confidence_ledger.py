@@ -6214,6 +6214,7 @@ class _AuthorityImportClosureSourceIndex:
     parsed_by_content: dict[bytes, ast.Module]
     providers_by_content: dict[bytes, _LiteralModuleGetattrProviderIndex]
     diagnostic_unqualified_direct_bindings: set[tuple[str, str]] | None = None
+    n5_recorded_optional_imports: _N5LockedOptionalImports | None = None
 
     def parse(self, content: bytes, *, filename: str) -> ast.Module:
         """Parse exact source bytes once within the current closure computation."""
@@ -6995,7 +6996,7 @@ def _source_locked_optional_arms(tree: ast.Module) -> dict[str, _SourceLockedOpt
 
 
 class _N5LockedOptionalImports:
-    """Reconcile selected Python import edges within one N5 source capture."""
+    """Reconcile selected Python imports from one live N5 capture."""
 
     def __init__(
         self,
@@ -7009,6 +7010,7 @@ class _N5LockedOptionalImports:
         self.capture = capture
         self.member = member
         self.rows: dict[_InitializerImportEdge, dict[str, object]] = {}
+        self.first_party_rows: dict[tuple[str, str], tuple[_InitializerImportEdge, ...]] = {}
         self.events: dict[tuple[str, str], list[Any]] = {}
         for event in capture.import_events():
             if event.route == "builtin_import":
@@ -7043,6 +7045,71 @@ class _N5LockedOptionalImports:
             event, importer_attribute=local, provider_export=alias.name
         )
         return importer_name, event.caller_line, importer.source_sha256, provider, alias.name, local
+
+    def retains_repository_source(self, module: object, module_name: str, relative: Path) -> bool:
+        """Reopen the exact completed repository module from the held recorder."""
+
+        execution = self.capture.completed(module_name)
+        if execution.module is not module or execution.relative_path != relative.as_posix():
+            return False
+        self.capture.assert_retained(frozenset({module_name}))
+        source = self.root / relative
+        return (
+            self.analysis.bind_source_path(Path(execution.origin))
+            == self.analysis.bind_source_path(source)
+            and hashlib.sha256(self.analysis.source_bytes(source)).hexdigest()
+            == execution.source_sha256
+        )
+
+    def reconcile_first_party(
+        self,
+        wrapper: str,
+        export: str,
+        provider: str,
+        node: ast.ImportFrom,
+        alias: ast.alias,
+        *,
+        terminal: tuple[str, str],
+        selected: object,
+    ) -> None:
+        """Reconcile the recorded first-party reexports of an optional import."""
+
+        if self.capture.completed_binding(wrapper, export) is not selected:
+            raise ValueError("n5_optional_first_party_binding_changed")
+        edges = [self._initializer_edge(wrapper, provider, node, alias)]
+        symbol = alias.name
+        visited: set[tuple[str, str]] = set()
+        while (provider, symbol) not in visited:
+            visited.add((provider, symbol))
+            relative = _repository_module_source(self.root, provider)
+            module = _passive_capture_lookup(sys.modules, provider)
+            if (
+                relative is None
+                or not self.retains_repository_source(module, provider, relative)
+                or self.capture.completed_binding(provider, symbol) is not selected
+            ):
+                break
+            if (provider, symbol) == terminal:
+                self.first_party_rows[(wrapper, export)] = tuple(edges)
+                return
+            tree = self.analysis.source_tree(self.root / relative)
+            sites = _module_scope_direct_binding_sites(tree, symbol)
+            if len(sites) != 1:
+                break
+            kind, statement, binding = sites[0]
+            if (
+                kind != "import_from"
+                or not isinstance(statement, ast.ImportFrom)
+                or binding is None
+            ):
+                break
+            package = provider if relative.name == "__init__.py" else provider.rpartition(".")[0]
+            target = _resolve_import_from_base(statement, package)
+            if target is None:
+                break
+            edges.append(self._initializer_edge(provider, target, statement, binding))
+            provider, symbol = target, binding.name
+        raise ValueError("n5_optional_first_party_source_not_established")
 
     def _locked_source(self, module: str) -> tuple[_LockedPythonMember, ast.Module]:
         if module not in self.members:
@@ -7637,7 +7704,7 @@ def _resolve_authority_import_closure(
     allowed_roots = {"polisyos", *(("tools",) if include_tools else ())}
     directory_entries: dict[Path, frozenset[str]] = {}
     source_index = _AuthorityImportClosureSourceIndex(
-        {}, {}, _diagnostic_unqualified_direct_bindings
+        {}, {}, _diagnostic_unqualified_direct_bindings, _n5_optional_imports
     )
 
     @functools.cache
@@ -20424,12 +20491,11 @@ def _source_plain_class_reference_supported(
     base_relative = _repository_module_source(
         repo_root, base_route[1], directory_entries=directory_entries
     )
-    base_origins = _source_loaded_module_origin_fields(base_owner, expected_name=base_route[1])
-    if base_relative is None or base_origins is None:
+    if base_relative is None or not _source_optional_repository_origin_matches(
+        repo_root, base_owner, base_route[1], base_relative, analysis, source_index
+    ):
         return False
     base_path = analysis.bind_source_path(repo_root / base_relative)
-    if any(analysis.bind_source_path(Path(origin)) != base_path for origin in base_origins):
-        return False
     base_sites = _module_scope_direct_binding_sites(analysis.source_tree(base_path), base_route[2])
     if (
         len(base_sites) != 1
@@ -20585,6 +20651,28 @@ def _source_plain_class_reference_supported(
     return True
 
 
+def _source_optional_repository_origin_matches(
+    repo_root: Path,
+    module: object,
+    module_name: str,
+    relative: Path,
+    analysis: _IntegrityAnalysisContext,
+    source_index: _AuthorityImportClosureSourceIndex,
+) -> bool:
+    """Use the N5 recorder for its own modules and preserve native strict admission."""
+
+    recorded = source_index.n5_recorded_optional_imports
+    if recorded is not None:
+        return recorded.root == repo_root and recorded.retains_repository_source(
+            module, module_name, relative
+        )
+    origins = _source_loaded_module_origin_fields(module, expected_name=module_name)
+    path = analysis.bind_source_path(repo_root / relative)
+    return origins is not None and all(
+        analysis.bind_source_path(Path(origin)) == path for origin in origins
+    )
+
+
 def _source_optional_import_binding_route(
     repo_root: Path,
     module_name: str,
@@ -20647,15 +20735,19 @@ def _source_optional_import_binding_route(
         token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
     try:
         source_path = analysis.bind_source_path(repo_root / relative)
-        origins = _source_loaded_module_origin_fields(module, expected_name=module_name)
-        if (
-            origins is None
-            or analysis.source_bytes(source_path) != source_bytes
-            or any(analysis.bind_source_path(Path(origin)) != source_path for origin in origins)
+        if analysis.source_bytes(source_path) != source_bytes:
+            return None
+        if not _source_optional_repository_origin_matches(
+            repo_root, module, module_name, relative, analysis, source_index
         ):
             return None
+        recorded = source_index.n5_recorded_optional_imports
         selected = _source_import_binding(
-            export_name, tree=import_tree, module=module, module_name=module_name
+            export_name,
+            tree=import_tree,
+            module=module,
+            module_name=module_name,
+            repo_root=repo_root if recorded is not None else None,
         )
         if type(selected) is not types.FunctionType and type(selected) is not type:
             return None
@@ -20682,13 +20774,26 @@ def _source_optional_import_binding_route(
             return None
         logical_provider_path = repo_root / provider_relative
         provider_path = analysis.bind_source_path(logical_provider_path)
-        provider_origins = _source_loaded_module_origin_fields(
-            provider, expected_name=provider_name
-        )
-        if provider_origins is None or any(
-            analysis.bind_source_path(Path(origin)) != provider_path for origin in provider_origins
+        if not _source_optional_repository_origin_matches(
+            repo_root, provider, provider_name, provider_relative, analysis, source_index
         ):
             return None
+
+        def admitted_route() -> tuple[str, str, str | None]:
+            if recorded is not None:
+                recorded.reconcile_first_party(
+                    module_name,
+                    export_name,
+                    base,
+                    import_statement,
+                    alias,
+                    terminal=(provider_name, symbol),
+                    selected=selected,
+                )
+            if token is not None:
+                analysis.assert_sources_unchanged()
+            return route
+
         if type(selected) is type:
             if not _source_plain_class_reference_supported(
                 repo_root,
@@ -20703,9 +20808,7 @@ def _source_optional_import_binding_route(
                 visited=visited,
             ):
                 return None
-            if token is not None:
-                analysis.assert_sources_unchanged()
-            return route
+            return admitted_route()
         slots = tuple(
             slot
             for slot in _loader_owned_callable_slots(provider_path)
@@ -20727,11 +20830,7 @@ def _source_optional_import_binding_route(
         _row, matches = _loader_owned_slot_binding(
             provider, provider_name, provider_path, slot, hashes.get(slot.qualname, ()), hashes
         )
-        if not matches:
-            return None
-        if token is not None:
-            analysis.assert_sources_unchanged()
-        return route
+        return admitted_route() if matches else None
     except (
         ConfidenceLedgerError,
         AttributeError,
@@ -20740,6 +20839,7 @@ def _source_optional_import_binding_route(
         SyntaxError,
         TypeError,
         ValueError,
+        ImportError,
     ):
         return None
     finally:
@@ -25378,10 +25478,16 @@ def _capture_execution_source_bindings_body(
         "executed_code": tuple(sorted(set(executed_rows))),
         "bound_entry_code": tuple(sorted(set(bound_rows))),
     }
-    if optional_imports is not None and optional_imports.rows:
-        evidence["locked_optional_import_bindings"] = tuple(
-            row for _, row in sorted(optional_imports.rows.items())
-        )
+    if optional_imports is not None:
+        if optional_imports.rows:
+            evidence["locked_optional_import_bindings"] = tuple(
+                row for _, row in sorted(optional_imports.rows.items())
+            )
+        if optional_imports.first_party_rows:
+            evidence["first_party_optional_import_bindings"] = tuple(
+                (module, export, edges)
+                for (module, export), edges in sorted(optional_imports.first_party_rows.items())
+            )
     return evidence
 
 

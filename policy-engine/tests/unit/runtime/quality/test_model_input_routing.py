@@ -2,11 +2,20 @@ from __future__ import annotations
 
 from dataclasses import replace
 from decimal import Decimal
+from functools import partial
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 
-from polisyos.core.artifacts import ArtifactRef, CoreJSONArtifactStore
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    ArtifactTenantContextInfo,
+    CoreJSONArtifactStore,
+    PutOptions,
+    SelectedProfileVerificationReader,
+    read_core_manifest_profile,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.foundry import ExecPlanRef, ProgramGraphRef
 from polisyos.core.contracts.model_input_requirements import (
@@ -16,6 +25,8 @@ from polisyos.core.contracts.model_input_requirements import (
     load_program_graph_input_interface,
     persist_model_input_port_declaration,
 )
+from polisyos.runtime.http.errors import RuntimeHTTPError
+from polisyos.runtime.http.routes.runs import _generic_model_input_routing_projection
 from polisyos.runtime.quality.model_input_requirements import (
     SelectedProgramGraphInputBasis,
     derive_program_graph_input_interface,
@@ -25,6 +36,7 @@ from polisyos.runtime.quality.model_input_routing import (
     plan_selected_model_input_routing,
     verify_model_input_routing_report,
 )
+from polisyos.runtime.quality.substrate_registry import resolve_catalog_serving_source
 from tests._helpers.acquisition_production import _resolver
 from tests._helpers.program_graph_tax_subsidy_input import (
     prepare_program_graph_tax_subsidy_input_case,
@@ -33,6 +45,28 @@ from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority_
     _authority_entry,
     _model_inputs,
 )
+
+if TYPE_CHECKING:
+    from polisyos.data_forge.read_api.catalog import CanonicalAcquisitionAuthority
+    from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
+
+
+def _projection_catalog_source(
+    authority: CanonicalAcquisitionAuthority,
+) -> CatalogServingSourcePaths:
+    source = resolve_catalog_serving_source(
+        authority.repo_root, selection=None, requested_profile=None
+    )
+    return replace(
+        source,
+        database_path=authority.baseline_path,
+        index_dir=authority.baseline_path.parent,
+        substrate_paths=replace(
+            source.substrate_paths,
+            l1_dcat_path=authority.baseline_path,
+            measurement_registry_path=authority.l5_path,
+        ),
+    )
 
 
 def _fiscal_input_declaration(store: CoreJSONArtifactStore) -> ArtifactRef:
@@ -180,6 +214,75 @@ def test_selected_model_input_routes_to_candidate_descriptor_or_named_absence(
         assert absent_route.source_descriptor is None
         assert absent_route.voi_status == "unknown"
         assert absent_route.fetch_status == "not_attempted"
+
+        projection_for = partial(
+            _generic_model_input_routing_projection,
+            store=SelectedProfileVerificationReader(fresh_store),
+            obligation_set_ref=preflight.obligation_set_ref,
+            selected_basis=selected_basis,
+            tenant_id="routing-tenant",
+            cell_id="routing-cell",
+        )
+        compatible_source = _projection_catalog_source(compatible_authority)
+        no_match_source = _projection_catalog_source(no_match_authority)
+        projected = projection_for(
+            report_ref=resolved.report_ref, catalog_serving_source=compatible_source
+        )
+        assert projected.status == "candidate_descriptors_resolved"
+        assert projected.obligation_set_ref == preflight.obligation_set_ref
+        assert projected.report_ref == resolved.report_ref
+        assert projected.authority_purpose == "candidate_acquisition_routing_only"
+        assert projected.voi_status == "unknown"
+        assert projected.fetch_status == "not_attempted"
+        assert [(row.port_id, row.disposition, row.reason_code) for row in projected.ports] == [
+            (port.port_id, "resolved", None)
+        ]
+        limited = projection_for(
+            report_ref=absent.report_ref, catalog_serving_source=no_match_source
+        )
+        assert limited.status == "candidate_descriptors_limited"
+        assert limited.report_ref == absent.report_ref
+        assert [(row.port_id, row.disposition, row.reason_code) for row in limited.ports] == [
+            (port.port_id, "absent", "model_input_source_descriptor_unresolved")
+        ]
+
+        missing_profile = resolved.report_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+        )
+        for refused in (
+            projection_for(report_ref=missing_profile, catalog_serving_source=compatible_source),
+            projection_for(report_ref=resolved.report_ref, catalog_serving_source=no_match_source),
+        ):
+            assert refused.status == "not_established"
+            assert (
+                refused.limitation_code == "generic_n5_model_input_routing_replay_not_established"
+            )
+            assert refused.report_ref is None
+            assert refused.obligation_set_ref is None
+            assert refused.ports == ()
+
+        report_manifest = case.store.get_manifest(resolved.report_ref)
+        foreign_scope = ArtifactTenantContextInfo(tenant_id="foreign", cell_id="foreign")
+        foreign_ref = case.store.put_bytes(
+            case.store.get_bytes(resolved.report_ref),
+            PutOptions(
+                kind=report_manifest.kind,
+                media_type=report_manifest.media_type,
+                schema=report_manifest.artifact_schema,
+                canon=report_manifest.canon,
+                inputs=report_manifest.inputs,
+                tenant_context=foreign_scope,
+            ),
+            return_selected_profile=True,
+        )
+        assert foreign_ref.artifact_id == resolved.report_ref.artifact_id
+        assert foreign_ref.manifest_profile_sha256 != resolved.report_ref.manifest_profile_sha256
+        foreign_manifest, _ = read_core_manifest_profile(fresh_store, foreign_ref)
+        assert foreign_manifest.tenant_context == foreign_scope
+        with pytest.raises(RuntimeHTTPError) as denied:
+            projection_for(report_ref=foreign_ref, catalog_serving_source=compatible_source)
+        assert denied.value.status_code == 403
+        assert denied.value.code == "generic_n5_model_input_routing_scope_refused"
 
         wrong_basis = replace(selected_basis, steps=(0, 1))
         with pytest.raises(ValueError, match="model_input_preflight_invocation_mismatch"):

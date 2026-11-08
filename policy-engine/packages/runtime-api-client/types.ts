@@ -18996,6 +18996,59 @@ export interface components {
             source_kind: "core_run";
         };
         /**
+         * RunGenericCycleModelInputPortProjection
+         * @description The candidate routing disposition of one selected model input port.
+         */
+        RunGenericCycleModelInputPortProjection: {
+            /**
+             * Disposition
+             * @enum {string}
+             */
+            disposition: "resolved" | "absent" | "ambiguous" | "conflict";
+            /** Port Id */
+            port_id: string;
+            /** Reason Code */
+            reason_code?: string | null;
+        };
+        /**
+         * RunGenericCycleModelInputRoutingProjection
+         * @description A replayed model-input route or a limitation of the selected read.
+         */
+        RunGenericCycleModelInputRoutingProjection: {
+            /**
+             * Authority Purpose
+             * @default candidate_acquisition_routing_only
+             * @constant
+             */
+            authority_purpose: "candidate_acquisition_routing_only";
+            /**
+             * Fetch Status
+             * @default not_attempted
+             * @constant
+             */
+            fetch_status: "not_attempted";
+            /** Limitation Code */
+            limitation_code?: string | null;
+            obligation_set_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Ports
+             * @default []
+             */
+            ports: components["schemas"]["RunGenericCycleModelInputPortProjection"][];
+            report_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "candidate_descriptors_resolved" | "candidate_descriptors_limited" | "not_established";
+            /**
+             * Voi Status
+             * @default unknown
+             * @constant
+             */
+            voi_status: "unknown";
+        };
+        /**
          * RunGenericCycleSimulationChildProfileBinding
          * @description Historical profile row joined to one persisted N4-derived child.
          */
@@ -19091,6 +19144,7 @@ export interface components {
              * @default []
              */
             executed_steps: number[];
+            model_input_routing?: components["schemas"]["RunGenericCycleModelInputRoutingProjection"] | null;
             n4_source_ref: components["schemas"]["ArtifactRef-Output"];
             n5_execution_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             n5_input_ref: components["schemas"]["ArtifactRef-Output"];

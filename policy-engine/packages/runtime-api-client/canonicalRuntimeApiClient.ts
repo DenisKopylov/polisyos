@@ -1658,6 +1658,12 @@ export type RunFeedbackResponse =
 export type RunFeedbackView =
   RuntimeApiComponents["schemas"]["RunFeedbackView"];
 
+export type RunGenericCycleModelInputPortProjection =
+  RuntimeApiComponents["schemas"]["RunGenericCycleModelInputPortProjection"];
+
+export type RunGenericCycleModelInputRoutingProjection =
+  RuntimeApiComponents["schemas"]["RunGenericCycleModelInputRoutingProjection"];
+
 export type RunGenericCycleSimulationChildProfileBinding =
   RuntimeApiComponents["schemas"]["RunGenericCycleSimulationChildProfileBinding"];
 

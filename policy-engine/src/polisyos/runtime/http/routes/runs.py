@@ -64,6 +64,8 @@ from polisyos.core.contracts.runtime import (
     RunEvidenceContextResponse,
     RunEvidenceContextView,
     RunFailedCandidateSimulationProjection,
+    RunGenericCycleModelInputPortProjection,
+    RunGenericCycleModelInputRoutingProjection,
     RunGenericCycleSimulationChildProfileBinding,
     RunGenericCycleSimulationN5Observation,
     RunGenericCycleSimulationN5ResultBody,
@@ -204,7 +206,7 @@ if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request, Response
     from fastapi.responses import StreamingResponse
 
-    from polisyos.core.artifacts import ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore, CoreJSONArtifactStore
     from polisyos.core.artifacts.manifest import ArtifactManifest
     from polisyos.core.artifacts.manifest import InputRef as CoreInputRef
     from polisyos.ir import InputRef as IRInputRef
@@ -217,11 +219,13 @@ if TYPE_CHECKING:
         GenerationCycleContextHistoryProjection,
         GenerationCycleRun,
     )
+    from polisyos.runtime.quality.model_input_requirements import SelectedProgramGraphInputBasis
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RecursiveGenerationCyclePartialRunV2,
         RecursiveGenerationCyclePartialRunV3,
         RecursiveGenerationCycleRun,
     )
+    from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
 else:
     try:  # pragma: no cover - optional runtime dependency
         from fastapi import APIRouter, Depends, Query, Request, Response
@@ -4200,6 +4204,78 @@ def _raise_generic_read_access_refusal(
         ) from unavailable
 
 
+def _generic_model_input_routing_projection(
+    *,
+    store: CoreJSONArtifactStore,
+    obligation_set_ref: ArtifactRef,
+    report_ref: ArtifactRef,
+    selected_basis: SelectedProgramGraphInputBasis | None,
+    catalog_serving_source: CatalogServingSourcePaths | None,
+    tenant_id: str,
+    cell_id: str,
+) -> RunGenericCycleModelInputRoutingProjection:
+    """Recompute candidate routes from the verified N5 basis and selected Catalog."""
+    from polisyos.data_forge.read_api.catalog import CanonicalAcquisitionAuthority
+    from polisyos.runtime.quality.model_input_routing import verify_model_input_routing_report
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourcePaths,
+        require_catalog_serving_source_unchanged,
+        run_catalog_source_call,
+    )
+
+    if selected_basis is None:
+        return RunGenericCycleModelInputRoutingProjection(
+            status="not_established",
+            limitation_code="generic_n5_model_input_routing_owner_join_not_established",
+        )
+    if type(catalog_serving_source) is not CatalogServingSourcePaths:
+        return RunGenericCycleModelInputRoutingProjection(
+            status="not_established",
+            limitation_code="generic_n5_model_input_routing_catalog_source_not_established",
+        )
+    try:
+        for selected_ref in (obligation_set_ref, report_ref):
+            manifest, _ = read_core_manifest_profile(store, selected_ref)
+            scope = manifest.tenant_context
+            if scope is not None and (scope.tenant_id, scope.cell_id) != (tenant_id, cell_id):
+                raise ArtifactOwnershipError("model input routing belongs to another run scope")
+        require_catalog_serving_source_unchanged(catalog_serving_source)
+        paths = catalog_serving_source.substrate_paths
+        authority = CanonicalAcquisitionAuthority.from_provision(
+            repo_root=catalog_serving_source.repo_root,
+            baseline_path=paths.l1_dcat_path,
+            l5_measurement_registry_path=paths.measurement_registry_path,
+        )
+        report = run_catalog_source_call(
+            catalog_serving_source,
+            verify_model_input_routing_report,
+            store,
+            report_ref,
+            expected_obligation_set_ref=obligation_set_ref,
+            selected_basis=selected_basis,
+            catalog_authority=authority,
+        )
+    except (OSError, RuntimeDependencyError, RuntimeError, TypeError, ValueError) as exc:
+        _raise_generic_read_access_refusal(exc, code_prefix="generic_n5_model_input_routing")
+        return RunGenericCycleModelInputRoutingProjection(
+            status="not_established",
+            limitation_code="generic_n5_model_input_routing_replay_not_established",
+        )
+    return RunGenericCycleModelInputRoutingProjection(
+        status=report.status,
+        obligation_set_ref=report.obligation_set_ref,
+        report_ref=report_ref,
+        ports=tuple(
+            RunGenericCycleModelInputPortProjection(
+                port_id=route.port_id,
+                disposition=route.disposition,
+                reason_code=route.reason_code,
+            )
+            for route in report.routes
+        ),
+    )
+
+
 def _candidate_evaluation_attempt_projection(
     *,
     node_ref: str,
@@ -5082,10 +5158,34 @@ def _generic_cycle_simulation_projection(
                     tenant_id=parent_handoff.tenant_id,
                     cell_id=parent_handoff.cell_id,
                 )
-                join, n5_replay = generic_owner.resolve_n5_execution_join_with_result(
-                    execution_ref,
-                    expected=n5_expectation,
-                )
+                selected_catalog_source = getattr(control_service, "catalog_serving_source", None)
+                obligation_ref = simulation.model_input_obligation_set_ref
+                routing_ref = cycle.model_input_routing_report_ref
+                model_input_routing = None
+                if (
+                    simulation.status == "simulation_blocked"
+                    and obligation_ref is not None
+                    and routing_ref is not None
+                ):
+                    join, input_basis = (
+                        generic_owner.resolve_n5_execution_join_with_program_graph_input_basis(
+                            execution_ref, expected=n5_expectation
+                        )
+                    )
+                    n5_replay = None
+                    model_input_routing = _generic_model_input_routing_projection(
+                        store=store,
+                        obligation_set_ref=obligation_ref,
+                        report_ref=routing_ref,
+                        selected_basis=input_basis if join.status == "resolved" else None,
+                        catalog_serving_source=selected_catalog_source,
+                        tenant_id=tenant_id,
+                        cell_id=cell_id,
+                    )
+                else:
+                    join, n5_replay = generic_owner.resolve_n5_execution_join_with_result(
+                        execution_ref, expected=n5_expectation
+                    )
                 if join.code in {
                     "generic_n5_input_scope_refused",
                     "generic_n5_execution_scope_refused",
@@ -5174,6 +5274,7 @@ def _generic_cycle_simulation_projection(
                             child_profile_set_ref=set_ref,
                             n5_input_ref=input_ref,
                             n5_execution_ref=execution_ref,
+                            model_input_routing=model_input_routing,
                             n5_owner_join_status=join.status,
                             n5_owner_join_limitation_code=join.code,
                             n5_request_binding_status="not_established",
@@ -5385,7 +5486,6 @@ def _generic_cycle_simulation_projection(
                 )
                 from polisyos.runtime.quality.substrate_registry import run_catalog_source_call
 
-                selected_catalog_source = getattr(control_service, "catalog_serving_source", None)
                 candidate_value_method = run_catalog_source_call(
                     selected_catalog_source,
                     project_candidate_value_method,
@@ -5418,6 +5518,7 @@ def _generic_cycle_simulation_projection(
                         child_profile_set_ref=set_ref,
                         n5_input_ref=input_ref,
                         n5_execution_ref=execution_ref,
+                        model_input_routing=model_input_routing,
                         n5_owner_join_status="resolved",
                         n5_request_binding_status=request_binding_status,
                         n5_request_content_hash=request_content_hash,

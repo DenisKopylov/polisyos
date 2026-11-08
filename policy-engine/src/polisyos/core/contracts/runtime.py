@@ -4787,6 +4787,67 @@ class RunCandidateValueMethodProjection(BaseModel):
         return self
 
 
+class RunGenericCycleModelInputPortProjection(BaseModel):
+    """The candidate routing disposition of one selected model input port."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    port_id: str = Field(min_length=1)
+    disposition: Literal["resolved", "absent", "ambiguous", "conflict"]
+    reason_code: str | None = Field(default=None, min_length=1)
+
+    @model_validator(mode="after")
+    def _verify_disposition(self) -> RunGenericCycleModelInputPortProjection:
+        if (self.disposition == "resolved") != (self.reason_code is None):
+            raise ValueError("run_generic_model_input_port_reason_invalid")
+        return self
+
+
+class RunGenericCycleModelInputRoutingProjection(BaseModel):
+    """A replayed model-input route or a limitation of the selected read."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: Literal[
+        "candidate_descriptors_resolved", "candidate_descriptors_limited", "not_established"
+    ]
+    obligation_set_ref: ArtifactRef | None = None
+    report_ref: ArtifactRef | None = None
+    ports: tuple[RunGenericCycleModelInputPortProjection, ...] = ()
+    limitation_code: str | None = Field(default=None, min_length=1)
+    authority_purpose: Literal["candidate_acquisition_routing_only"] = (
+        "candidate_acquisition_routing_only"
+    )
+    voi_status: Literal["unknown"] = "unknown"
+    fetch_status: Literal["not_attempted"] = "not_attempted"
+
+    @model_validator(mode="after")
+    def _verify_selected_routing(self) -> RunGenericCycleModelInputRoutingProjection:
+        refs = (
+            (self.obligation_set_ref, "runtime.quality.model_input_obligation_set"),
+            (self.report_ref, "runtime.quality.model_input_routing_report"),
+        )
+        if self.status == "not_established":
+            if self.limitation_code is None or self.ports or any(ref for ref, _ in refs):
+                raise ValueError("run_generic_model_input_routing_unverified_evidence_present")
+            return self
+        if self.limitation_code is not None or any(
+            ref is None
+            or ref.kind != kind
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            for ref, kind in refs
+        ):
+            raise ValueError("run_generic_model_input_routing_selected_refs_required")
+        if not self.ports or len({port.port_id for port in self.ports}) != len(self.ports):
+            raise ValueError("run_generic_model_input_routing_ports_invalid")
+        if (self.status == "candidate_descriptors_resolved") != all(
+            port.disposition == "resolved" for port in self.ports
+        ):
+            raise ValueError("run_generic_model_input_routing_status_mismatch")
+        return self
+
+
 class RunGenericCycleSimulationN5Observation(BaseModel):
     """One historical, candidate-only N5 observation and its persisted lineage."""
 
@@ -4818,6 +4879,9 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
     child_profile_set_ref: ArtifactRef | None = None
     n5_input_ref: ArtifactRef
     n5_execution_ref: ArtifactRef | None = None
+    model_input_routing: RunGenericCycleModelInputRoutingProjection | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     n5_owner_join_status: (
         Literal["resolved", "unavailable", "invalid", "mismatch", "not_established"] | None
     ) = Field(default=None, exclude_if=lambda value: value is None)
@@ -4867,6 +4931,12 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
 
     @model_validator(mode="after")
     def _verify_generic_n5_lineage(self) -> RunGenericCycleSimulationN5Observation:
+        routing = self.model_input_routing
+        if routing is not None and (
+            self.status != "simulation_blocked"
+            or (routing.status != "not_established" and self.n5_owner_join_status != "resolved")
+        ):
+            raise ValueError("run_generic_model_input_routing_without_blocked_n5")
         if self.candidate_value_method is not None and self.n8_status != "value_conditional":
             raise ValueError("run_candidate_value_method_requires_conditional_n5")
         _validate_run_n5_interaction_scope(

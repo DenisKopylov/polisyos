@@ -42912,6 +42912,123 @@
         "title": "RunFeedbackView",
         "type": "object"
       },
+      "RunGenericCycleModelInputPortProjection": {
+        "additionalProperties": false,
+        "description": "The candidate routing disposition of one selected model input port.",
+        "properties": {
+          "disposition": {
+            "enum": [
+              "resolved",
+              "absent",
+              "ambiguous",
+              "conflict"
+            ],
+            "title": "Disposition",
+            "type": "string"
+          },
+          "port_id": {
+            "minLength": 1,
+            "title": "Port Id",
+            "type": "string"
+          },
+          "reason_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason Code"
+          }
+        },
+        "required": [
+          "port_id",
+          "disposition"
+        ],
+        "title": "RunGenericCycleModelInputPortProjection",
+        "type": "object"
+      },
+      "RunGenericCycleModelInputRoutingProjection": {
+        "additionalProperties": false,
+        "description": "A replayed model-input route or a limitation of the selected read.",
+        "properties": {
+          "authority_purpose": {
+            "const": "candidate_acquisition_routing_only",
+            "default": "candidate_acquisition_routing_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "fetch_status": {
+            "const": "not_attempted",
+            "default": "not_attempted",
+            "title": "Fetch Status",
+            "type": "string"
+          },
+          "limitation_code": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limitation Code"
+          },
+          "obligation_set_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ports": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RunGenericCycleModelInputPortProjection"
+            },
+            "title": "Ports",
+            "type": "array"
+          },
+          "report_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "enum": [
+              "candidate_descriptors_resolved",
+              "candidate_descriptors_limited",
+              "not_established"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "voi_status": {
+            "const": "unknown",
+            "default": "unknown",
+            "title": "Voi Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "RunGenericCycleModelInputRoutingProjection",
+        "type": "object"
+      },
       "RunGenericCycleSimulationChildProfileBinding": {
         "additionalProperties": false,
         "description": "Historical profile row joined to one persisted N4-derived child.",
@@ -43139,6 +43256,16 @@
             },
             "title": "Executed Steps",
             "type": "array"
+          },
+          "model_input_routing": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunGenericCycleModelInputRoutingProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "n4_source_ref": {
             "$ref": "#/components/schemas/ArtifactRef-Output"

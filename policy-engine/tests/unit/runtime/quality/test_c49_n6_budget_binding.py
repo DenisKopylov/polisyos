@@ -8,6 +8,7 @@ from decimal import Decimal
 
 import pytest
 
+from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
 from polisyos.runtime.quality.generation_cycle import (
@@ -17,7 +18,11 @@ from polisyos.runtime.quality.generation_cycle import (
     JointSimulationPort,
     load_joint_simulation_result,
 )
-from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
+from polisyos.runtime.quality.joint_simulation_horizon import (
+    JointSimulationHorizonController,
+    JointSimulationResult,
+    verify_simulation_receipt,
+)
 from polisyos.scientist.orchestration.engine.producer_budget import ProducerBudgetObserver
 from tests.unit.runtime.quality.test_c49_native_stopping_budget import (
     _producer_owner,
@@ -192,10 +197,46 @@ async def test_real_n6_default_and_supplied_same_owner_stop_on_a_between_native_
                 if cycle.simulation.simulation_result_ref is not None
             ]
             assert refs
-            result = load_joint_simulation_result(refs[0], store=store)
+            ref = refs[0]
+            with pytest.raises(
+                GenerationCycleError,
+                match="joint_simulation_result_trajectory_missing",
+            ):
+                # The consumer remains strict: an interrupted run is not a
+                # successful numerical result.
+                load_joint_simulation_result(ref, store=store)
+
+            selected = read_core_json_artifact(store, ref)
+            assert selected.status == "declared_bytes_conformant"
+            assert ref.manifest_profile_sha256 is not None
+            assert selected.selected_manifest_profile_sha256 == ref.manifest_profile_sha256
+            payload = selected.value
+            assert isinstance(payload, dict)
+            result = JointSimulationResult.model_validate(payload)
+            verify_simulation_receipt(
+                result.receipt,
+                {key: value for key, value in payload.items() if key != "receipt"},
+            )
+
+            selected_decisions = [
+                decision for decision in result.engine_decisions if decision.decision == "selected"
+            ]
+            assert len(selected_decisions) == 1
+            assert selected_decisions[0].engine_kind == "ncm_parallel_worlds"
+            assert selected_decisions[0].method_fqn == NCMEngineMethod.signature.fqn
+            assert result.receipt.engine_kind == "ncm_parallel_worlds"
             assert result.diagnostics["physical_work_interruption"] == "n5_current_budget_exhausted"
-            assert len(result.physical_work_observations) == 1
-            assert result.physical_work_observations[0].budget_status == "current_owner_checked"
+            assert result.trajectories == ()
+            assert result.receipt.trajectory_count == 0
+            observations = result.physical_work_observations
+            assert len(observations) == result.diagnostics["physical_work_units"] == 1
+            observation = observations[0]
+            assert observation.status == "completed"
+            assert observation.work_units == 1
+            assert observation.budget_status == "current_owner_checked"
+            assert observation.usd_cost is None
+            assert observation.usd_cost_status == "not_established"
+            assert state.spent["run"] == Decimal("10.0")
     finally:
         close = getattr(store, "close", None)
         if callable(close):

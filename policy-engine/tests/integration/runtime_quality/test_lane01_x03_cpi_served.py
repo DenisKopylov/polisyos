@@ -292,9 +292,11 @@ def test_x03_cpi_level_reenters_fresh_served_n5_and_api_reader(
                         assert action.status == "completed"
                         assert action.candidate_n5_result is not None
                         result_ref = history.reentry.n5_result_ref
-                        body = action.candidate_n5_result.result_body
+                        result = action.candidate_n5_result
+                        assert result.authority_purpose == "candidate_observation_only"
+                        body = result.result_body
                         assert body.artifact_ref == result_ref
-                        assert body.authority_purpose == "candidate_observation_only"
+                        assert body.authority_purpose == "candidate_scenario_n5_only"
                         assert body.publication_authority is False
                         assert body.outcome_units == {CPI_OUTCOME_SLOT: "index"}
                         assert body.unit_provenance == "declared_candidate_model"

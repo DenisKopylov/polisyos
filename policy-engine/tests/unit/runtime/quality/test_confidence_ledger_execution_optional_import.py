@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import hashlib
+import importlib
 import subprocess
 import sys
+import types
 import zipfile
 from pathlib import Path
 
@@ -100,6 +102,107 @@ def test_n5_capture_requires_actual_initializer_and_locked_members(
         timeout=20,
     )
     assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.integration
+def test_retained_callable_foundry_facade_maps(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Bind the real compile/execute maps, cache objects, and callable package classes."""
+    host = sys.modules.get("_polisyos_early_host")
+    if host is None:
+        pytest.skip("requires the selected early authority launcher")
+
+    from polisyos.runtime.quality import confidence_ledger as ledger
+
+    execute = importlib.import_module("polisyos.foundry.execute")
+    compile_package = importlib.import_module("polisyos.foundry.compile")
+    routes = (
+        (execute, "apply_state_delta", "polisyos.foundry.execute._internal.patching"),
+        (compile_package, "compile", "polisyos.foundry.compile.api"),
+    )
+    for facade, export, provider in routes:
+        assert callable(facade)
+        assert getattr(facade, export) is vars(importlib.import_module(provider))[export]
+
+    host.handoff_if_ready()
+    root = ledger._loaded_policy_engine_root()
+    analysis = ledger._IntegrityAnalysisContext()
+    observed = ledger._n5_locked_optional_imports(root, analysis)
+    assert observed is not None, sys.__dict__["_polisyos_loaded_host_v1"]["last_owner_diagnostic"]
+    source_index = ledger._AuthorityImportClosureSourceIndex(
+        {}, {}, n5_recorded_optional_imports=observed
+    )
+
+    def resolve(facade: types.ModuleType, export: str) -> tuple[str, str, str | None] | None:
+        candidate = ledger._source_module_import_route_candidate(
+            root,
+            facade.__name__,
+            export,
+            directory_entries={},
+            source_index=source_index,
+            discovery_only=True,
+        )
+        assert candidate.package_initializer_effect_unknown
+        return candidate.route
+
+    for facade, export, provider in routes:
+        assert resolve(facade, export) == ("symbol", provider, export)
+
+    with pytest.raises(ledger.ConfidenceLedgerError, match="unsupported source facade map"):
+        ledger._source_module_import_route_candidate(
+            root,
+            execute.__name__,
+            "apply_state_delta",
+            directory_entries={},
+            source_index=ledger._AuthorityImportClosureSourceIndex({}, {}),
+            discovery_only=True,
+        )
+
+    child = importlib.import_module("polisyos.foundry.execute.api")
+    assert execute.__getattr__("api") is child
+    with pytest.raises(AttributeError, match="_absent_callable_facade_fixture"):
+        execute.__getattr__("_absent_callable_facade_fixture")
+    with pytest.raises(ledger.ConfidenceLedgerError, match="missing repository re-export binding"):
+        resolve(execute, "api")
+
+    export = "apply_state_delta"
+    original = execute.apply_state_delta
+    with monkeypatch.context() as mutation:
+        alternate = importlib.import_module("polisyos.foundry.execute.executor")
+        assert alternate.apply_state_delta is original
+        mutation.setitem(vars(execute)["_LAZY_IMPORTS"], export, (alternate.__name__, export))
+        assert execute.apply_state_delta is original
+        with pytest.raises(ledger.ConfidenceLedgerError, match="map differs from source"):
+            resolve(execute, export)
+    assert type(original) is types.FunctionType
+    replacement = types.FunctionType(
+        original.__code__,
+        original.__globals__,
+        original.__name__,
+        original.__defaults__,
+        original.__closure__,
+    )
+    with monkeypatch.context() as mutation:
+        mutation.setattr(execute, export, replacement)
+        with pytest.raises(
+            ledger.ConfidenceLedgerError, match="callable facade cache is unqualified"
+        ):
+            resolve(execute, export)
+    assert resolve(execute, export) == ("symbol", routes[0][2], export)
+
+    root_facade = Path("src/polisyos/foundry/__init__.py")
+    assert (
+        observed.callable_facade_effect_view(
+            "polisyos.foundry", root_facade, analysis.source_tree(root / root_facade)
+        )
+        is None
+    )
+    analysis.assert_sources_unchanged()
+
+    with monkeypatch.context() as mutation:
+        mutation.setattr(compile_package, "__class__", types.ModuleType)
+        with pytest.raises(ledger.ConfidenceLedgerError, match="callable facade class or source"):
+            resolve(compile_package, "compile")
+    assert observed.capture.failure_reason == "retained_module_changed"
 
 
 _PROBE = r"""

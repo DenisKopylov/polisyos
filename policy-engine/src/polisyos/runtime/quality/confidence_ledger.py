@@ -7141,6 +7141,66 @@ class _N5LockedOptionalImports:
             == execution.source_sha256
         )
 
+    def callable_facade_effect_view(
+        self, module_name: str, relative: Path, tree: ast.Module
+    ) -> tuple[ast.Module, Mapping[str, object]] | None:
+        """Separate an observed call-only module class from its literal map."""
+
+        install = _source_callable_facade_installation(tree)
+        if install is None:
+            return None
+        statement, sys_name, types_name, class_name = install
+        module = _passive_capture_lookup(sys.modules, module_name)
+        try:
+            if not self.retains_repository_source(module, module_name, relative):
+                raise ValueError("callable_facade_source_not_retained")
+            namespace = self.capture.retained_module_namespace(module_name)
+            cls = type(module)
+            if (
+                type(cls) is not type
+                or cls.__bases__ != (types.ModuleType,)
+                or _passive_capture_lookup(namespace, sys_name) is not sys
+                or _passive_capture_lookup(namespace, types_name) is not types
+                or _passive_capture_lookup(namespace, class_name) is not cls
+                or type(_passive_capture_lookup(vars(cls), "__call__")) is not types.FunctionType
+                or set(vars(cls))
+                - {
+                    "__call__",
+                    "__dict__",
+                    "__doc__",
+                    "__firstlineno__",
+                    "__module__",
+                    "__qualname__",
+                    "__static_attributes__",
+                    "__weakref__",
+                }
+            ):
+                raise ValueError("callable_facade_class_changed")
+        except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"callable facade class or source is unqualified: {module_name}",
+            ) from exc
+        # The original tree still classifies the package namespace as unknown.
+        # Only this map projection separates the held call-only class store.
+        effect_tree = ast.Module(
+            body=[node for node in tree.body if node is not statement],
+            type_ignores=tree.type_ignores,
+        )
+        return effect_tree, namespace
+
+    def reconcile_callable_facade_cache(self, cached: object, provider: str, symbol: str) -> None:
+        """A populated facade cache must still point to the held leaf export."""
+
+        relative = _repository_module_source(self.root, provider)
+        module = _passive_capture_lookup(sys.modules, provider)
+        if (
+            relative is None
+            or not self.retains_repository_source(module, provider, relative)
+            or self.capture.completed_binding(provider, symbol) is not cached
+        ):
+            raise ValueError("callable_facade_cache_changed")
+
     def reconcile_first_party(
         self,
         wrapper: str,
@@ -8033,6 +8093,7 @@ def _literal_module_getattr_provider(
     *,
     directory_entries: dict[Path, frozenset[str]],
     source_index: _AuthorityImportClosureSourceIndex | None = None,
+    callable_facade: tuple[ast.Module, Mapping[str, object]] | None = None,
 ) -> str | None:
     """Resolve one literal PEP 562 re-export provider without importing it."""
 
@@ -8045,14 +8106,17 @@ def _literal_module_getattr_provider(
         return None
     if source_index is None:
         source_index = _AuthorityImportClosureSourceIndex({}, {})
-    try:
-        source_bytes = (repo_root / relative).read_bytes()
-        tree = source_index.parse(source_bytes, filename=relative.as_posix())
-    except (OSError, SyntaxError) as exc:
-        raise ConfidenceLedgerError(
-            "canonical_loaded_runtime_mismatch",
-            relative.as_posix(),
-        ) from exc
+    if callable_facade is None:
+        try:
+            source_bytes = (repo_root / relative).read_bytes()
+            tree = source_index.parse(source_bytes, filename=relative.as_posix())
+        except (OSError, SyntaxError) as exc:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                relative.as_posix(),
+            ) from exc
+    else:
+        tree, _namespace = callable_facade
     provider_index = _source_module_provider_index(
         repo_root,
         module_name,
@@ -8080,11 +8144,25 @@ def _literal_module_getattr_provider(
                 source_module_name=module_name,
             )
         )
-        if invalid_maps:
+        if invalid_maps or (
+            callable_facade is not None and source_maps.keys() != provider_index.mapping_names
+        ):
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",
                 f"unsupported source facade map: {module_name}",
             )
+        if callable_facade is not None:
+            for name, source_map in source_maps.items():
+                observed = _passive_capture_lookup(callable_facade[1], name)
+                if (
+                    type(observed) is not dict
+                    or any(type(key) is not str for key in observed)
+                    or not _literal_facade_value_matches(source_map, observed)
+                ):
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"loaded callable facade map differs from source: {module_name}.{name}",
+                    )
         module_exports = provider_index.module_providers_by_export or {}
         for source_map in source_maps.values():
             raw_target = source_map.get(export_name, _STATIC_FACADE_UNKNOWN)
@@ -9524,6 +9602,76 @@ def _static_facade_mapping_values(
 
 
 _SOURCE_FACADE_NAMESPACE_EFFECT_GUARD = "__polisyos_static_namespace_effect_guard__"
+
+
+def _source_callable_facade_installation(
+    tree: ast.Module,
+) -> tuple[ast.Assign, str, str, str] | None:
+    """Find a direct self-install of one local call-only ModuleType subclass."""
+
+    installs = []
+    for statement in tree.body:
+        match statement:
+            case ast.Assign(
+                targets=[
+                    ast.Attribute(
+                        value=ast.Subscript(
+                            value=ast.Attribute(value=ast.Name(id=sys_name), attr="modules"),
+                            slice=ast.Name(id="__name__"),
+                        ),
+                        attr="__class__",
+                    )
+                ],
+                value=ast.Name(id=class_name),
+            ):
+                installs.append((statement, sys_name, class_name))
+    if len(installs) != 1:
+        return None
+    statement, sys_name, class_name = installs[0]
+    sites = _module_scope_direct_binding_sites(tree, class_name)
+    if len(sites) != 1 or _module_scope_direct_binding_sites(tree, "__name__"):
+        return None
+    match sites[0]:
+        case (
+            "local",
+            ast.ClassDef(
+                bases=[ast.Attribute(value=ast.Name(id=types_name), attr="ModuleType")],
+                decorator_list=[],
+                keywords=[],
+                type_params=[],
+            ) as declaration,
+            None,
+        ):
+            pass
+        case _:
+            return None
+    members = declaration.body
+    if ast.get_docstring(declaration, clean=False) is not None:
+        members = members[1:]
+    if (
+        declaration.lineno >= statement.lineno
+        or len(members) != 1
+        or not isinstance(members[0], ast.FunctionDef)
+        or members[0].name != "__call__"
+        or members[0].decorator_list
+    ):
+        return None
+    for name, expected, position in (
+        (sys_name, "sys", statement.lineno),
+        (types_name, "types", declaration.lineno),
+    ):
+        imports = _module_scope_direct_binding_sites(tree, name)
+        if len(imports) != 1:
+            return None
+        kind, imported, alias = imports[0]
+        if (
+            kind != "import"
+            or alias is None
+            or alias.name != expected
+            or imported.lineno >= position
+        ):
+            return None
+    return statement, sys_name, types_name, class_name
 
 
 def _source_declared_facade_mapping_values(
@@ -14063,12 +14211,25 @@ def _source_module_import_route_candidate_body(
                 package_initializer_effect_unknown=initializer_effect_unknown,
             )
 
+    recorded = source_index.n5_recorded_optional_imports
+    callable_facade = None
+    if (
+        discovery_only
+        and recorded is not None
+        and recorded.root == repo_root
+        and initializer_tree is not None
+        and module_source is not None
+    ):
+        callable_facade = recorded.callable_facade_effect_view(
+            module_name, module_source, initializer_tree
+        )
     provider = _literal_module_getattr_provider(
         repo_root,
         module_name,
         export_name,
         directory_entries=directory_entries,
         source_index=source_index,
+        callable_facade=callable_facade,
     )
     if provider is not None:
         relative = _repository_module_source(
@@ -14078,20 +14239,23 @@ def _source_module_import_route_candidate_body(
         )
         if relative is None:
             raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
-        try:
-            analysis = _active_integrity_analysis()
-            source_path = repo_root / relative
-            source_bytes = (
-                analysis.source_bytes(source_path)
-                if analysis is not None
-                else source_path.read_bytes()
-            )
-            tree = source_index.parse(source_bytes, filename=relative.as_posix())
-        except (OSError, SyntaxError) as exc:
-            raise ConfidenceLedgerError(
-                "canonical_loaded_runtime_mismatch",
-                relative.as_posix(),
-            ) from exc
+        if callable_facade is not None:
+            tree, _namespace = callable_facade
+        else:
+            try:
+                analysis = _active_integrity_analysis()
+                source_path = repo_root / relative
+                source_bytes = (
+                    analysis.source_bytes(source_path)
+                    if analysis is not None
+                    else source_path.read_bytes()
+                )
+                tree = source_index.parse(source_bytes, filename=relative.as_posix())
+            except (OSError, SyntaxError) as exc:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    relative.as_posix(),
+                ) from exc
         provider_index = _source_module_provider_index(
             repo_root,
             module_name,
@@ -14137,6 +14301,21 @@ def _source_module_import_route_candidate_body(
                 else "external"
             )
             route = route_kind, provider, next(iter(symbols))
+        if callable_facade is not None:
+            if recorded is None or route[0] != "symbol" or route[2] is None:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"callable facade owner is unqualified: {module_name}.{export_name}",
+                )
+            cached = _passive_capture_lookup(callable_facade[1], export_name)
+            if cached is not _NO_EXECUTION_BINDING:
+                try:
+                    recorded.reconcile_callable_facade_cache(cached, provider, route[2])
+                except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"callable facade cache is unqualified: {module_name}.{export_name}",
+                    ) from exc
         return _SourceModuleImportRouteCandidate(
             route=route,
             binding_basis="literal_getattr",

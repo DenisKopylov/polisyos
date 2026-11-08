@@ -9,11 +9,11 @@ from __future__ import annotations
 import hashlib
 import math
 from collections.abc import Mapping
-from dataclasses import fields, is_dataclass
+from dataclasses import dataclass, fields, is_dataclass
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, TypeGuard
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -64,6 +64,10 @@ from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
+
+    from polisyos.core.contracts.foundry import LoweredIR, ProgramGraph
+    from polisyos.ir.trinity import TrinityBundle
+    from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
 
 _HASH_PATTERN = r"^sha256:[0-9a-f]{64}$"
 _PROFILE_KIND = "runtime.quality.generic_cycle_simulation_profile"
@@ -226,6 +230,48 @@ class GenericCycleN5RequestProfileV3(GenericCycleN5RequestProfileV2):
         return rules
 
 
+class GenericCycleN5ProgramGraphRequestProfileV4(GenericCycleN5RequestProfileV1):
+    """Select one exact compiled graph for an ordinary, single-atom N5 job."""
+
+    schema_version: Literal["policyos.runtime.generic_cycle_n5_request_profile.v4"] = (
+        "policyos.runtime.generic_cycle_n5_request_profile.v4"
+    )
+    resource: Literal["program_graph"] = "program_graph"
+    compile_report_ref: ArtifactRef
+    invocation_quota_policy: BudgetInvocationQuotaPolicy
+    invocation_purpose: Literal["standard"] = "standard"
+
+    @model_validator(mode="after")
+    def _verify_program_graph_profile(self) -> GenericCycleN5ProgramGraphRequestProfileV4:
+        if not _is_selected_json_ref(self.compile_report_ref, "compiler.compile_report"):
+            raise ValueError("generic_cycle_program_graph_compile_report_not_selected")
+        if (
+            self.evidence_state is not None
+            or self.comparator_profile is not None
+            or self.comparator_refs
+            or self.engine_variable_map
+        ):
+            raise ValueError("generic_cycle_program_graph_ncm_settings_unsupported")
+        return self
+
+
+type _GenericCycleN5RequestProfile = (
+    GenericCycleN5RequestProfileV1
+    | GenericCycleN5RequestProfileV2
+    | GenericCycleN5RequestProfileV3
+    | GenericCycleN5ProgramGraphRequestProfileV4
+)
+
+
+def _is_selected_json_ref(ref: ArtifactRef | None, kind: str) -> TypeGuard[ArtifactRef]:
+    return (
+        type(ref) is ArtifactRef
+        and ref.kind == kind
+        and ref.media_type == "application/json"
+        and ref.manifest_profile_sha256 is not None
+    )
+
+
 class GenericCycleSimulationProfileV1(_StrictModel):
     """Server-owned context and request profile for generic candidate-only N5."""
 
@@ -239,16 +285,14 @@ class GenericCycleSimulationProfileV1(_StrictModel):
     authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
     world_model_record_ref: ArtifactRef
     substrate_registry_ref: ArtifactRef
-    selected_ncm_ref: ArtifactRef
+    selected_ncm_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     candidate_value_source_request_ref: ArtifactRef | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
     context_inputs: CandidateSimulationContextInputs
-    n5: (
-        GenericCycleN5RequestProfileV1
-        | GenericCycleN5RequestProfileV2
-        | GenericCycleN5RequestProfileV3
-    )
+    n5: _GenericCycleN5RequestProfile
     limitations: tuple[
         Literal[
             "controlled_inputs_only",
@@ -270,15 +314,30 @@ class GenericCycleSimulationProfileV1(_StrictModel):
                 self.substrate_registry_ref,
                 "runtime.quality.production_data_substrate_registry",
             ),
-            (self.selected_ncm_ref, "ir.ncm_spec"),
         )
         if any(
             type(ref) is not ArtifactRef or ref.kind != kind or ref.media_type != "application/json"
             for ref, kind in typed_refs
         ):
             raise ValueError("generic_cycle_simulation_profile_ref_kind_invalid")
+        if isinstance(self.n5, GenericCycleN5ProgramGraphRequestProfileV4):
+            if (
+                self.profile_selection_kind != "problem"
+                or self.selected_ncm_ref is not None
+                or not _is_selected_json_ref(
+                    self.world_model_record_ref, "runtime.quality.world_model_record"
+                )
+            ):
+                raise ValueError("generic_cycle_program_graph_profile_basis_invalid")
+        elif (
+            type(self.selected_ncm_ref) is not ArtifactRef
+            or self.selected_ncm_ref.kind != "ir.ncm_spec"
+            or self.selected_ncm_ref.media_type != "application/json"
+        ):
+            raise ValueError("generic_cycle_simulation_profile_ref_kind_invalid")
         if isinstance(self.n5, GenericCycleN5RequestProfileV2) and (
-            artifact_ref_identity_key(self.selected_ncm_ref)
+            self.selected_ncm_ref is None
+            or artifact_ref_identity_key(self.selected_ncm_ref)
             not in {artifact_ref_identity_key(ref) for ref in self.n5.ncm_plan_refs}
         ):
             raise ValueError("generic_cycle_simulation_selected_ncm_not_in_plans")
@@ -324,7 +383,7 @@ def _profile_ncm_plan_refs(profile: GenericCycleSimulationProfileV1) -> tuple[Ar
     """Return the complete ordered model denominator without changing V1."""
     if isinstance(profile.n5, GenericCycleN5RequestProfileV2):
         return profile.n5.ncm_plan_refs
-    return (profile.selected_ncm_ref,)
+    return (profile.selected_ncm_ref,) if profile.selected_ncm_ref is not None else ()
 
 
 def _profile_ncm_views_match_world(
@@ -336,6 +395,38 @@ def _profile_ncm_views_match_world(
     return tuple(artifact_ref_identity_key(ref) for ref in actual) == tuple(
         artifact_ref_identity_key(ref) for ref in expected
     )
+
+
+def _profile_world_views_match(
+    profile: GenericCycleSimulationProfileV1, world: WorldModelRecord
+) -> bool:
+    if isinstance(profile.n5, GenericCycleN5ProgramGraphRequestProfileV4):
+        views = world_model_artifact_views(world)
+        # The server profile selects one graph via its compile report. CAS
+        # admission verifies that exact view, including the registry and model.
+        return any(
+            _is_selected_json_ref(ref, "foundry.program_graph") for ref in views.program_graph_refs
+        )
+    return _profile_ncm_views_match_world(profile, world)
+
+
+@dataclass(frozen=True, slots=True)
+class _SelectedProgramGraph:
+    graph_ref: ArtifactRef
+    exec_plan_ref: ArtifactRef
+    trinity_ref: ArtifactRef
+    graph: ProgramGraph
+    lowered_ir: LoweredIR
+    trinity: TrinityBundle
+
+
+def _require_program_graph_input(
+    manifest: artifacts.ArtifactManifest, *, role: str, ref: ArtifactRef
+) -> None:
+    if [edge for edge in manifest.inputs if edge.role == role] != [
+        input_ref_from_artifact_ref(ref, role=role)
+    ]:
+        raise CycleSubstrateContextOwnerError("generic_cycle_program_graph_lineage_mismatch", role)
 
 
 class GenericCycleSimulationChildProfileMemberV1(_StrictModel):
@@ -470,6 +561,11 @@ class GenericCycleSimulationContextHandoffV1(_StrictModel):
             and self.n4_child_profile_family_ref is None
         ):
             raise ValueError("generic_cycle_simulation_child_handoff_family_missing")
+        if (
+            isinstance(self.profile.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+            and self.n4_child_profile_family_ref is not None
+        ):
+            raise ValueError("generic_cycle_program_graph_child_family_unsupported")
         return self
 
 
@@ -681,11 +777,7 @@ class GenericCycleSimulationN5InputV1(_StrictModel):
     candidate_id: str = Field(min_length=1, strict=True)
     candidate_atom_hash: str = Field(pattern=_HASH_PATTERN, strict=True)
     outcome_variable: str = Field(min_length=1, strict=True)
-    n5: (
-        GenericCycleN5RequestProfileV1
-        | GenericCycleN5RequestProfileV2
-        | GenericCycleN5RequestProfileV3
-    )
+    n5: _GenericCycleN5RequestProfile
     component_materializations: tuple[
         CandidateScenarioMaterializationV1 | CandidateScenarioNumericMaterializationV1, ...
     ] = Field(default=(), exclude_if=lambda value: not value)
@@ -743,6 +835,11 @@ class GenericCycleSimulationN5InputV1(_StrictModel):
             self.child_selection is not None or self.n4_child_profile_set_ref is not None
         ):
             raise ValueError("generic_cycle_simulation_parent_input_has_child_binding")
+        if (
+            isinstance(self.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+            and self.n4_child_profile_family_ref is not None
+        ):
+            raise ValueError("generic_cycle_program_graph_child_family_unsupported")
         if self.child_selection is not None and (
             cycle_job_design_problem_ref(self.child_selection.problem) != self.design_problem_ref
             or self.child_selection.profile_selection_ref != self.profile.profile_selection_ref
@@ -1330,7 +1427,7 @@ class GenericCycleSimulationAdmissionOwner:
             views.substrate_registry_ref is None
             or artifact_ref_identity_key(views.substrate_registry_ref)
             != artifact_ref_identity_key(profile.substrate_registry_ref)
-            or not _profile_ncm_views_match_world(profile, context.world_model_record)
+            or not _profile_world_views_match(profile, context.world_model_record)
         ):
             return False
         if context.source_profile is None:
@@ -1493,7 +1590,7 @@ class GenericCycleSimulationAdmissionOwner:
                 or views.substrate_registry_ref is None
                 or artifact_ref_identity_key(views.substrate_registry_ref)
                 != artifact_ref_identity_key(profile.substrate_registry_ref)
-                or not _profile_ncm_views_match_world(profile, world)
+                or not _profile_world_views_match(profile, world)
             ):
                 raise ValueError("generic_cycle_simulation_source_binding_mismatch")
             self._verify_json_artifact(
@@ -1503,9 +1600,12 @@ class GenericCycleSimulationAdmissionOwner:
             registry = load_substrate_registry(self._store, profile.substrate_registry_ref)
             if registry != profile.context_inputs.substrate_registry:
                 raise ValueError("generic_cycle_simulation_registry_content_mismatch")
-            for ncm_ref in _profile_ncm_plan_refs(profile):
-                self._verify_json_artifact(ncm_ref, expected_kind="ir.ncm_spec")
-                self._verify_default_ncm(ncm_ref)
+            if isinstance(profile.n5, GenericCycleN5ProgramGraphRequestProfileV4):
+                self._read_selected_program_graph(profile.n5, world)
+            else:
+                for ncm_ref in _profile_ncm_plan_refs(profile):
+                    self._verify_json_artifact(ncm_ref, expected_kind="ir.ncm_spec")
+                    self._verify_default_ncm(ncm_ref)
         except (OSError, TypeError, ValueError) as exc:
             raise CycleSubstrateContextOwnerError(
                 "generic_cycle_simulation_source_not_established", str(exc)
@@ -1647,7 +1747,9 @@ class GenericCycleSimulationAdmissionOwner:
                 raise CycleSubstrateContextOwnerError(
                     "generic_cycle_simulation_child_profile_outside_family"
                 )
-        elif offer.profile.profile_selection_kind == "problem":
+        elif offer.profile.profile_selection_kind == "problem" and not isinstance(
+            offer.profile.n5, GenericCycleN5ProgramGraphRequestProfileV4
+        ):
             child_profiles = self._configured_child_profiles()
             if child_profiles:
                 family_ref = self._persist_child_profile_family(
@@ -2434,6 +2536,18 @@ class GenericCycleSimulationAdmissionOwner:
                     "generic_cycle_simulation_n5_request_binding_invalid"
                 ) from exc
         is_typed_binding = type(request_binding) is GenericCycleSimulationN5RequestBindingV2
+        if (
+            status == "joint_simulated"
+            and isinstance(input_record.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+            and (
+                not is_typed_binding
+                or result_ref is None
+                or result_ref.manifest_profile_sha256 is None
+            )
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_selected_execution_required"
+            )
         draft = {
             "schema_version": (
                 _N5_EXECUTION_V3_SCHEMA
@@ -2556,6 +2670,21 @@ class GenericCycleSimulationAdmissionOwner:
             raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_execution_content_mismatch"
             )
+        program_graph_profile = isinstance(
+            input_record.n5, GenericCycleN5ProgramGraphRequestProfileV4
+        )
+        if (
+            program_graph_profile
+            and record.status == "joint_simulated"
+            and (
+                type(record) is not GenericCycleSimulationN5ExecutionV3
+                or record.result_ref is None
+                or record.result_ref.manifest_profile_sha256 is None
+            )
+        ):
+            raise _GenericN5VerifiedMismatchError(
+                "generic_cycle_program_graph_selected_execution_required"
+            )
         if type(record) in {
             GenericCycleSimulationN5ExecutionV2,
             GenericCycleSimulationN5ExecutionV3,
@@ -2586,6 +2715,19 @@ class GenericCycleSimulationAdmissionOwner:
                     load_joint_simulation_result,
                 )
 
+                result_request = request
+                if program_graph_profile:
+                    # The typed request retains selected compilation identity.
+                    # Live stores/state are excluded and must be reopened to
+                    # reproduce engine eligibility and physical run identity.
+                    result_request, _, failures = port._request_with_bound_program_state(
+                        expected_request
+                    )
+                    if failures:
+                        raise CycleSubstrateContextOwnerError(
+                            "generic_cycle_program_graph_runtime_replay_unavailable",
+                            str(failures),
+                        )
                 result = load_joint_simulation_result(
                     record.result_ref,
                     store=self._store,
@@ -2599,7 +2741,9 @@ class GenericCycleSimulationAdmissionOwner:
                     # Old results can lack a selected profile. They remain
                     # candidate inputs, but cannot carry a verified join.
                     expected_request=(
-                        request if record.result_ref.manifest_profile_sha256 is not None else None
+                        result_request
+                        if record.result_ref.manifest_profile_sha256 is not None
+                        else None
                     ),
                 )
                 if (
@@ -2992,7 +3136,7 @@ class GenericCycleSimulationAdmissionOwner:
             or views.substrate_registry_ref is None
             or artifact_ref_identity_key(views.substrate_registry_ref)
             != artifact_ref_identity_key(profile.substrate_registry_ref)
-            or not _profile_ncm_views_match_world(profile, world)
+            or not _profile_world_views_match(profile, world)
         ):
             raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_wmr_profile_mismatch"
@@ -3029,6 +3173,307 @@ class GenericCycleSimulationAdmissionOwner:
             generic_n4_child_profile_set_ref=input_record.n4_child_profile_set_ref,
         )
         return source, candidate, expected_context, port
+
+    def _read_selected_program_graph(
+        self,
+        n5: GenericCycleN5ProgramGraphRequestProfileV4,
+        world: WorldModelRecord,
+    ) -> _SelectedProgramGraph:
+        """Reopen one compiler report and compare its selected WMR dependencies."""
+        from polisyos.core.artifacts import (
+            ensure_ir_artifact_store,
+            load_core_json_artifact,
+            validate_core_model_json_artifact,
+        )
+        from polisyos.core.compiler.report import CompileReport
+        from polisyos.core.contracts.foundry import ExecPlan, LoweredIR, ProgramGraph
+        from polisyos.ir.model_layer.model_spec import ModelSpec
+        from polisyos.ir.trinity import load_trinity_bundle_artifact
+
+        report_ref = n5.compile_report_ref
+        self._verify_json_artifact(report_ref, expected_kind="compiler.compile_report")
+        report_manifest = self._store.get_manifest(report_ref)
+        report = CompileReport.model_validate(load_core_json_artifact(self._store, report_ref))
+        if (
+            not report.ok
+            or report.schema_version != "1.0"
+            or report_manifest.artifact_schema
+            != artifacts.SchemaInfo(name="polisyos.core.CompileReport", version="1.0")
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_compile_report_invalid"
+            )
+
+        graph_ref = report.program_graph_ref
+        plan_ref = report.exec_plan_ref
+        lowered_ir_ref = report.lowered_ir_ref
+        trinity_ref = report.policy_ref
+        registry_ref = report.registry_bundle_ref
+        if (
+            not _is_selected_json_ref(graph_ref, "foundry.program_graph")
+            or not _is_selected_json_ref(plan_ref, "foundry.exec_plan")
+            or not _is_selected_json_ref(lowered_ir_ref, "foundry.lowered_ir")
+            or not _is_selected_json_ref(trinity_ref, "ir.trinity_bundle")
+            or not _is_selected_json_ref(registry_ref, "core.registry_bundle")
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_compile_dependencies_not_selected"
+            )
+        for role, ref in (
+            ("ir", trinity_ref),
+            ("registry_bundle", registry_ref),
+            ("program_graph", graph_ref),
+            ("exec_plan", plan_ref),
+            ("lowered_ir", lowered_ir_ref),
+        ):
+            _require_program_graph_input(report_manifest, role=role, ref=ref)
+
+        views = world_model_artifact_views(world)
+        if (
+            world.schema_version != WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
+            or sum(
+                artifact_ref_identity_key(item) == artifact_ref_identity_key(graph_ref)
+                for item in views.program_graph_refs
+            )
+            != 1
+            or artifact_ref_identity_key(views.registry_bundle_ref)
+            != artifact_ref_identity_key(registry_ref)
+        ):
+            raise CycleSubstrateContextOwnerError("generic_cycle_program_graph_wmr_view_mismatch")
+        self._verify_json_artifact(registry_ref, expected_kind="core.registry_bundle")
+
+        graph = validate_core_model_json_artifact(ProgramGraph, self._store, graph_ref)
+        plan = validate_core_model_json_artifact(ExecPlan, self._store, plan_ref)
+        if artifact_ref_identity_key(graph.ir_ref) != artifact_ref_identity_key(
+            trinity_ref
+        ) or artifact_ref_identity_key(plan.program_ref) != artifact_ref_identity_key(graph_ref):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_compiled_pair_mismatch"
+            )
+        order = {node_id: index for index, node_id in enumerate(plan.order)}
+        if (
+            len(order) != len(plan.order)
+            or set(order) != {node.node_id for node in graph.nodes}
+            or any(
+                edge.src not in order or edge.dst not in order or order[edge.src] >= order[edge.dst]
+                for edge in graph.edges
+            )
+        ):
+            raise CycleSubstrateContextOwnerError("generic_cycle_program_graph_exec_order_mismatch")
+        graph_manifest = self._store.get_manifest(graph_ref)
+        _require_program_graph_input(graph_manifest, role="ir", ref=trinity_ref)
+        _require_program_graph_input(graph_manifest, role="registry_bundle", ref=registry_ref)
+        if graph.lowered_ir_ref is None or artifact_ref_identity_key(
+            graph.lowered_ir_ref
+        ) != artifact_ref_identity_key(lowered_ir_ref):
+            raise CycleSubstrateContextOwnerError("generic_cycle_program_graph_lowered_ir_mismatch")
+        _require_program_graph_input(graph_manifest, role="lowered_ir", ref=lowered_ir_ref)
+        lowered_manifest = self._store.get_manifest(lowered_ir_ref)
+        lowered_ir = LoweredIR.model_validate(load_core_json_artifact(self._store, lowered_ir_ref))
+        if (
+            lowered_manifest.kind != lowered_ir_ref.kind
+            or lowered_manifest.media_type != lowered_ir_ref.media_type
+            or lowered_manifest.artifact_schema
+            != artifacts.SchemaInfo(name="polisyos.foundry.LoweredIR", version="0.2.0")
+            or lowered_ir.schema_version != "0.2"
+            or artifact_ref_identity_key(lowered_ir.ir_ref)
+            != artifact_ref_identity_key(trinity_ref)
+        ):
+            raise CycleSubstrateContextOwnerError("generic_cycle_program_graph_lowered_ir_invalid")
+        _require_program_graph_input(lowered_manifest, role="ir", ref=trinity_ref)
+        _require_program_graph_input(lowered_manifest, role="registry_bundle", ref=registry_ref)
+        _require_program_graph_input(
+            self._store.get_manifest(plan_ref), role="program_graph", ref=graph_ref
+        )
+
+        trinity = load_trinity_bundle_artifact(ensure_ir_artifact_store(self._store), trinity_ref)
+        constraint_ops = [
+            node.op
+            for node in graph.nodes
+            if node.op is not None and node.op.op_kind == "check_constraints"
+        ]
+        if (
+            trinity.problem_frame.hard_constraints
+            or trinity.problem_frame.soft_constraints
+            or lowered_ir.constraints
+            or lowered_ir.composite_constraints
+            or len(constraint_ops) != 1
+            or constraint_ops[0].params != {"constraint_ids": []}
+            or plan.constraint_mode != lowered_ir.constraint_mode
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_constraints_unsupported"
+            )
+        model_ref = views.model_spec_ref
+        self._verify_json_artifact(model_ref, expected_kind="ir.model_spec")
+        model = ModelSpec.model_validate(load_core_json_artifact(self._store, model_ref))
+        if (
+            self._store.get_manifest(model_ref).artifact_schema
+            != artifacts.SchemaInfo(
+                name="polisyos.ir.model_layer.ModelSpec", version=model.schema_version
+            )
+            or not _same_typed_public_value(model, trinity.model_spec)
+            or gy_content_hash(model.model_dump(mode="json"))
+            != world.simulation_model_ref.model_spec_hash
+            or model.registry_bundle_ref != str(registry_ref.artifact_id)
+        ):
+            raise CycleSubstrateContextOwnerError("generic_cycle_program_graph_wmr_model_mismatch")
+        return _SelectedProgramGraph(graph_ref, plan_ref, trinity_ref, graph, lowered_ir, trinity)
+
+    def _require_selected_program_graph_atom(
+        self,
+        selection: _SelectedProgramGraph,
+        atoms: Sequence[InterventionAtomBinding] | None,
+    ) -> None:
+        """Allow only the actual single intervention compiled into this graph."""
+        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
+            resolve_runtime_fidelity,
+        )
+        from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
+
+        if atoms is None or len(atoms) != 1 or type(atoms[0]) is not InterventionAtomBinding:
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_single_n4_atom_required"
+            )
+        (atom,) = atoms
+        policy = selection.trinity.policy_spec
+        interventions = tuple(item for item in policy.interventions if item.enabled)
+        if len(interventions) != 1 or not _same_typed_public_value(
+            interventions[0], atom.to_trinity_intervention_spec()
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_n4_intervention_mismatch"
+            )
+        (intervention,) = interventions
+        if (
+            (policy.global_schedule is not None and policy.global_schedule != intervention.schedule)
+            or atom.direct_effect_bundle.mechanism_config_overrides
+            or atom.direct_effect_bundle.transform_refs
+            or atom.direct_effect_bundle.coerce_refs
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_n4_execution_override_unsupported"
+            )
+        if any(
+            binding.config_overrides
+            for binding in policy.mechanism_bindings
+            if intervention.intervention_id in binding.intervention_ids
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_n4_execution_override_unsupported"
+            )
+        nodes = tuple(
+            node
+            for node in selection.graph.nodes
+            if node.op is not None and node.op.op_kind == "apply_mechanism"
+        )
+        if len(nodes) != 1 or any(
+            node.node_kind != "op"
+            or node.op is None
+            or node.op.op_kind
+            not in {
+                "make_mask",
+                "apply_mechanism",
+                "merge_state",
+                "check_constraints",
+            }
+            for node in selection.graph.nodes
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_n4_node_denominator_unsupported"
+            )
+        (node,) = nodes
+        masks = tuple(
+            item
+            for item in selection.graph.nodes
+            if item.op is not None and item.op.op_kind == "make_mask"
+        )
+        selector = intervention.target.model_dump(mode="json")
+        if (
+            node.op is None
+            or len(masks) != 1
+            or masks[0].node_id != node.op.params.get("mask_id")
+            or not any(
+                edge.src == masks[0].node_id and edge.dst == node.node_id
+                for edge in selection.graph.edges
+            )
+        ):
+            raise CycleSubstrateContextOwnerError("generic_cycle_program_graph_n4_mask_mismatch")
+        mask = masks[0].op
+        if (
+            mask is None
+            or mask.params.get("selector") != selector
+            or mask.params.get("intervention_ids") != [intervention.intervention_id]
+            or mask.params.get("binding_id") != node.op.params.get("binding_id")
+        ):
+            raise CycleSubstrateContextOwnerError("generic_cycle_program_graph_n4_mask_mismatch")
+        params_ref = node.params_ref
+        if (
+            node.mechanism_type is None
+            or node.mechanism_type != atom.direct_effect_bundle.mechanism_id
+            or set(node.inputs) != set(atom.read_slots)
+            or set(node.outputs) != set(atom.target_world_slots)
+            or not _is_selected_json_ref(params_ref, "foundry.lowered_mechanism_payload")
+        ):
+            raise CycleSubstrateContextOwnerError("generic_cycle_program_graph_n4_node_mismatch")
+        if len(selection.lowered_ir.mechanisms) != 1:
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_n4_lowering_mismatch"
+            )
+        (mechanism,) = selection.lowered_ir.mechanisms
+        schedule = intervention.schedule.model_dump(mode="json")
+        if (
+            mechanism.mechanism_id != node.mechanism_type
+            or mechanism.binding_id != node.op.params.get("binding_id")
+            or mechanism.intervention_ids != [intervention.intervention_id]
+            or mechanism.effective_params_ref is None
+            or artifact_ref_identity_key(mechanism.effective_params_ref)
+            != artifact_ref_identity_key(params_ref)
+            or mechanism.target_selector != selector
+            or mechanism.effective_schedule != schedule
+            or mechanism.priority != intervention.priority
+            or mechanism.inputs != node.inputs
+            or mechanism.outputs != node.outputs
+            or mechanism.selected_fidelity
+            != resolve_runtime_fidelity(
+                node.mechanism_type, selection.trinity.model_spec.fidelity_level
+            ).value
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_n4_lowering_mismatch"
+            )
+        _require_program_graph_input(
+            self._store.get_manifest(selection.graph_ref),
+            role=f"params:{node.node_id}",
+            ref=params_ref,
+        )
+        params_manifest = self._store.get_manifest(params_ref)
+        if params_manifest.artifact_schema != artifacts.SchemaInfo(
+            name="polisyos.foundry.LoweredMechanismPayload", version="0.2.0"
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_n4_lowering_mismatch"
+            )
+        _require_program_graph_input(params_manifest, role="ir", ref=selection.trinity_ref)
+        lowered = load_core_json_artifact(self._store, params_ref)
+        if (
+            not isinstance(lowered, Mapping)
+            or lowered.get("intervention_ids") != [intervention.intervention_id]
+            or lowered.get("mechanism_id") != node.mechanism_type
+            or lowered.get("binding_id") != node.op.params.get("binding_id")
+            or lowered.get("selector") != selector
+            or lowered.get("schedule") != schedule
+            or lowered.get("priority") != intervention.priority
+            or lowered.get("selected_fidelity") != mechanism.selected_fidelity
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_n4_lowering_mismatch"
+            )
+        if not _same_typed_public_value(lowered.get("params"), intervention.params):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_program_graph_n4_parameter_mismatch"
+            )
 
     def materialize_source_atoms(
         self,
@@ -3152,22 +3597,20 @@ class GenericCycleSimulationAdmissionOwner:
         world_record: WorldModelRecord,
         outcome: str,
         variable_map: Mapping[str, str],
+        atoms: Sequence[InterventionAtomBinding] | None = None,
     ) -> tuple[EnginePlan, ...]:
-        """Reopen the full selected NCM tuple for one shared request basis.
+        """Reopen the selected compiled graph or full ordered NCM model tuple.
 
-        This does not preselect an eligible model. The normal Horizon consumer
-        receives every plan and owns rejection, fallback and physical execution.
-        All alternatives share the exact WMR, requested outcome, variable map,
-        request horizon, baseline, comparator and budget from the same profile.
+        For a compiled graph, the caller supplies atoms from its reopened N4
+        source. The graph profile supports one exact compiled intervention.
+        The Horizon consumer still owns binding the actual prestate and running
+        the selected engine. NCM profiles retain their ordered alternatives.
         """
-        from polisyos.core.artifacts import ensure_ir_artifact_store
-        from polisyos.ir import NCMSpecRef, load_ncm_spec_default_view
-
         if (
             type(profile) is not GenericCycleSimulationProfileV1
             or type(world_record) is not WorldModelRecord
             or world_record != profile.context_inputs.world_model_record
-            or not _profile_ncm_views_match_world(profile, world_record)
+            or not _profile_world_views_match(profile, world_record)
             or outcome not in profile.n5.baseline_state
             or not isinstance(variable_map, Mapping)
             or not variable_map
@@ -3180,6 +3623,29 @@ class GenericCycleSimulationAdmissionOwner:
             )
         ):
             raise CycleSubstrateContextOwnerError("generic_cycle_simulation_n5_plan_basis_mismatch")
+        if isinstance(profile.n5, GenericCycleN5ProgramGraphRequestProfileV4):
+            selected = self._read_selected_program_graph(profile.n5, world_record)
+            self._require_selected_program_graph_atom(selected, atoms)
+            state_paths = {slot.slot_id: slot.state_path for slot in world_record.policy_slot_map}
+            used_slots = tuple(dict.fromkeys((outcome, *variable_map)))
+            if any(slot_id not in state_paths for slot_id in used_slots):
+                raise CycleSubstrateContextOwnerError(
+                    "generic_cycle_program_graph_wmr_state_path_missing"
+                )
+            return (
+                EnginePlan(
+                    engine_kind="program_graph",
+                    objective_ref=f"objective://{outcome}",
+                    variable_map={slot_id: state_paths[slot_id] for slot_id in used_slots},
+                    program_compilation_ref=profile.n5.compile_report_ref,
+                    program_graph_ref=selected.graph_ref,
+                    exec_plan_ref=selected.exec_plan_ref,
+                ),
+            )
+
+        from polisyos.core.artifacts import ensure_ir_artifact_store
+        from polisyos.ir import NCMSpecRef, load_ncm_spec_default_view
+
         merged_variable_map = dict(variable_map)
         profile_variable_map = profile.n5.engine_variable_map
         profile_axes_opted_in = (
@@ -3302,6 +3768,7 @@ class GenericCycleSimulationAdmissionOwner:
             world_record=world_record,
             outcome=outcome,
             variable_map=variable_map,
+            atoms=atoms,
         )
         expected = JointSimulationRequest(
             world_model_record_ref=world_record.world_model_record_id,
@@ -3503,8 +3970,17 @@ class GenericCycleSimulationAdmissionOwner:
         input_refs = [
             input_ref_from_artifact_ref(profile.world_model_record_ref, role="world_model_record"),
             input_ref_from_artifact_ref(profile.substrate_registry_ref, role="substrate_registry"),
-            input_ref_from_artifact_ref(profile.selected_ncm_ref, role="selected_ncm"),
         ]
+        if isinstance(profile.n5, GenericCycleN5ProgramGraphRequestProfileV4):
+            input_refs.append(
+                input_ref_from_artifact_ref(
+                    profile.n5.compile_report_ref, role="selected_program_compile_report"
+                )
+            )
+        elif profile.selected_ncm_ref is not None:
+            input_refs.append(
+                input_ref_from_artifact_ref(profile.selected_ncm_ref, role="selected_ncm")
+            )
         if profile.candidate_value_source_request_ref is not None:
             input_refs.append(
                 input_ref_from_artifact_ref(

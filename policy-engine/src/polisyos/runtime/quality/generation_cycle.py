@@ -5308,6 +5308,7 @@ def _bind_selected_n5_invocation_policy(
     """
     from polisyos.runtime.quality.candidate_simulation import CandidateScenarioN5Config
     from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5ProgramGraphRequestProfileV4,
         GenericCycleN5RequestProfileV1,
         GenericCycleN5RequestProfileV2,
         GenericCycleN5RequestProfileV3,
@@ -5318,11 +5319,16 @@ def _bind_selected_n5_invocation_policy(
         GenericCycleN5RequestProfileV1,
         GenericCycleN5RequestProfileV2,
         GenericCycleN5RequestProfileV3,
+        GenericCycleN5ProgramGraphRequestProfileV4,
     }:
         raise ProducerBudgetSourceError("n5_invocation_selected_profile_untyped")
     # Revalidate even an in-memory model copy before reading its policy.
     selected = type(n5_profile).model_validate(n5_profile.model_dump(mode="python"))
-    if type(selected) in {CandidateScenarioN5Config, GenericCycleN5RequestProfileV3}:
+    if type(selected) in {
+        CandidateScenarioN5Config,
+        GenericCycleN5RequestProfileV3,
+        GenericCycleN5ProgramGraphRequestProfileV4,
+    }:
         policy = selected.invocation_quota_policy
         purpose = selected.invocation_purpose or "standard"
     else:
@@ -5361,10 +5367,17 @@ def _bind_scoped_n5_invocation_policy(
             else _bind_selected_n5_invocation_policy(observer, n5_profile=n5_profile)
         )
     from polisyos.runtime.quality.candidate_simulation import CandidateScenarioN5Config
-    from polisyos.runtime.quality.generic_simulation_admission import GenericCycleN5RequestProfileV3
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5ProgramGraphRequestProfileV4,
+        GenericCycleN5RequestProfileV3,
+    )
     from polisyos.scientist.orchestration.engine import BudgetLedgerInvocationProfile
 
-    if type(n5_profile) not in {CandidateScenarioN5Config, GenericCycleN5RequestProfileV3}:
+    if type(n5_profile) not in {
+        CandidateScenarioN5Config,
+        GenericCycleN5RequestProfileV3,
+        GenericCycleN5ProgramGraphRequestProfileV4,
+    }:
         raise ProducerBudgetSourceError("n5_invocation_selected_profile_not_established")
     selected = type(n5_profile).model_validate(n5_profile.model_dump(mode="python"))
     if selected.invocation_quota_policy is None or selected.invocation_purpose != "standard":
@@ -5817,6 +5830,19 @@ class JointSimulationPort:
             if isinstance(request, JointSimulationRequest)
             else JointSimulationRequest.model_validate(request)
         )
+        if any(plan.program_compilation_ref is not None for plan in request.engine_plan):
+            from polisyos.runtime.quality.generic_simulation_admission import (
+                GenericCycleN5ProgramGraphRequestProfileV4,
+            )
+
+            if type(selected_n5_profile) is not GenericCycleN5ProgramGraphRequestProfileV4:
+                code = "n5_program_compilation_owner_not_established"
+                return produced(
+                    candidate_id=candidate_id,
+                    status="simulation_blocked",
+                    authority_blockers=(code,),
+                    diagnostics={"port": "N5", "reason": code},
+                )
         try:
             request = self._request_with_verified_world_model(
                 request=request,
@@ -6801,6 +6827,7 @@ class JointSimulationPort:
         if not atoms or any(not isinstance(atom, InterventionAtomBinding) for atom in atoms):
             raise WorldModelRecordError("generic_cycle_simulation_n5_atom_untyped")
         from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleN5ProgramGraphRequestProfileV4,
             GenericCycleN5RequestProfileV3,
         )
 
@@ -6821,13 +6848,21 @@ class JointSimulationPort:
         world_record = self._context_world_model_record(candidate=candidate, problem=problem)
         profile_world = persisted.profile.context_inputs.world_model_record
         profile_views = world_model_artifact_views(profile_world)
+        program_graph_selected = type(persisted.n5) is GenericCycleN5ProgramGraphRequestProfileV4
+        selected_ncm_ref = persisted.profile.selected_ncm_ref
         if (
             world_record != profile_world
             or profile_views.substrate_registry_ref is None
             or artifact_ref_identity_key(profile_views.substrate_registry_ref)
             != artifact_ref_identity_key(persisted.profile.substrate_registry_ref)
-            or str(persisted.profile.selected_ncm_ref.artifact_id)
-            not in world_record.simulation_model_ref.ncm_refs
+            or (
+                not program_graph_selected
+                and (
+                    selected_ncm_ref is None
+                    or str(selected_ncm_ref.artifact_id)
+                    not in world_record.simulation_model_ref.ncm_refs
+                )
+            )
         ):
             raise WorldModelRecordError("generic_cycle_simulation_n5_wmr_ncm_binding_mismatch")
         outcome = _value_outcome_variable(candidate, problem)
@@ -6845,7 +6880,15 @@ class JointSimulationPort:
             world_record=world_record,
             outcome=outcome,
             variable_map=variable_map,
+            atoms=atoms if program_graph_selected else None,
         )
+        if type(persisted.n5) is GenericCycleN5ProgramGraphRequestProfileV4 and (
+            len(plans) != 1
+            or plans[0].program_compilation_ref is None
+            or artifact_ref_identity_key(plans[0].program_compilation_ref)
+            != artifact_ref_identity_key(persisted.n5.compile_report_ref)
+        ):
+            raise WorldModelRecordError("n5_program_compilation_owner_not_established")
         return JointSimulationRequest(
             world_model_record_ref=world_record.world_model_record_id,
             world_model_record=world_record,

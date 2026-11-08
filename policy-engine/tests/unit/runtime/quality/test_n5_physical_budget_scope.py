@@ -7,12 +7,16 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.control import NaturalLanguageRunRequest
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.quality.candidate_simulation import CandidateScenarioN5Config
 from polisyos.runtime.quality.generation_cycle import _bind_scoped_n5_invocation_policy
+from polisyos.runtime.quality.generic_simulation_admission import (
+    GenericCycleN5ProgramGraphRequestProfileV4,
+)
 from polisyos.runtime.quality.joint_simulation_horizon import (
     HorizonSpec,
     JointSimulationHorizonController,
@@ -20,6 +24,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
 from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import (
+    BudgetLedgerInvocationProfile,
     BudgetLedgerProducerRunBinding,
     FileBudgetLedger,
 )
@@ -108,6 +113,48 @@ def _with_scope(observer: ProducerBudgetObserver, scope: object) -> ProducerBudg
         invocation_selection_pending=True,
         invocation_guard_binding=scope,
     )
+
+
+@pytest.mark.asyncio
+async def test_program_graph_profile_binds_quota_under_real_signed_scope(tmp_path: Path) -> None:
+    service, _middleware, observer, job = await _issued_owner(
+        tmp_path, mode="metered_paid_producers_and_bounded_candidate"
+    )
+    policy = BudgetInvocationQuotaPolicy(
+        allocation_id="graph-scope-test", total_units=3, protected_units=1
+    )
+    profile = GenericCycleN5ProgramGraphRequestProfileV4(
+        budget_ref="budget://test/program-graph-scope",
+        horizon=HorizonSpec(start=0, end=0, step=1),
+        baseline_state={"outcome": 0.0},
+        compile_report_ref=ArtifactRef(
+            artifact_id="sha256:" + "a" * 64,
+            kind="compiler.compile_report",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "b" * 64,
+        ),
+        invocation_quota_policy=policy,
+    )
+    try:
+        with service._control_store.job_execution_fence(
+            job_id=job.job_id, worker_id=job.lease_owner, attempt=job.attempt
+        ):
+            admission = service._control_store.current_execution_job_admission()
+            with service._install_execution_scope(admission.scope):
+                scope = service._current_verified_nl_budget_scope()
+                observer = _with_scope(observer, scope)
+                with pytest.raises(ProducerBudgetSourceError, match="scope_binding_mismatch"):
+                    _bind_scoped_n5_invocation_policy(
+                        observer, n5_profile=profile, physical_n5_budget_scope=None
+                    )
+                with _bind_scoped_n5_invocation_policy(
+                    observer, n5_profile=profile, physical_n5_budget_scope=scope
+                ):
+                    assert observer.invocation_quota_profile == (
+                        BudgetLedgerInvocationProfile.from_policy(observer._binding, policy)
+                    )
+    finally:
+        service.close()
 
 
 @pytest.mark.asyncio

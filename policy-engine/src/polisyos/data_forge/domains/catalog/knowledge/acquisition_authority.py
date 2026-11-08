@@ -101,6 +101,9 @@ _MODEL_INPUT_DESCRIPTOR_PROHIBITED_USES = (
     "claim_evidence",
     "source_currentness",
 )
+_MODEL_INPUT_SOURCE_QUERY_ENVELOPE_SCHEMA_VERSION = (
+    "polisyos.data_forge.model_input_source_query_envelope.v1"
+)
 _MODELED_SOURCE_HINT = re.compile(
     r"\bmodel(?:l?ed|l?ing)\b"
     r"|\bmodels?[-\s]+(?:based|derived)\b"
@@ -114,8 +117,15 @@ _PROVISION_CONSTRUCTION_TOKEN = object()
 class AcquisitionAuthorityError(RuntimeError):
     """Fail-closed canonical authority resolution error."""
 
-    def __init__(self, code: str, detail: str | None = None) -> None:
+    def __init__(
+        self,
+        code: str,
+        detail: str | None = None,
+        *,
+        query_envelope: ModelInputSourceQueryEnvelope | None = None,
+    ) -> None:
         self.code = code
+        self.query_envelope = query_envelope
         super().__init__(f"{code}: {detail or code}")
 
 
@@ -129,6 +139,64 @@ class LicenseDisposition(StrEnum):
 
 class _StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
+
+
+class ModelInputSourceQueryRow(_StrictModel):
+    """One exact-definition Catalog row and its current route disposition."""
+
+    entry_id: str = Field(pattern=r"^acquisition-authority:sha256:[0-9a-f]{64}$")
+    disposition: Literal["compatible", "incompatible"]
+    reason_codes: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _reasons_match_disposition(self) -> Self:
+        if self.reason_codes != tuple(sorted(set(self.reason_codes))):
+            raise ValueError("model_input_source_query_reasons_must_be_unique_and_sorted")
+        if (self.disposition == "compatible") != (not self.reason_codes):
+            raise ValueError("model_input_source_query_reasons_mismatch_disposition")
+        return self
+
+
+class ModelInputSourceQueryEnvelope(_StrictModel):
+    """Content-bound result of the exact-definition Catalog discovery query."""
+
+    schema_version: Literal[
+        "polisyos.data_forge.model_input_source_query_envelope.v1"
+    ] = _MODEL_INPUT_SOURCE_QUERY_ENVELOPE_SCHEMA_VERSION
+    model_input_interface_ref: artifacts.ArtifactRef
+    model_input_port_id: str = Field(min_length=1)
+    model_semantic_definition_ref: VariableSemanticDefinitionRef
+    model_representation_ref: VariableRepresentationRef
+    binding_profile_ref: MeasurementBindingProfileRef
+    scope: ModelInputScope
+    rows: tuple[ModelInputSourceQueryRow, ...]
+    content_sha256: str = Field(pattern=_SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _query_rows_and_identity_are_recomputed(self) -> Self:
+        refs = (
+            self.model_input_interface_ref,
+            self.model_semantic_definition_ref,
+            self.model_representation_ref,
+            self.binding_profile_ref,
+        )
+        if any(ref.manifest_profile_sha256 is None for ref in refs):
+            raise ValueError("model_input_source_query_ref_unselected")
+        entry_ids = tuple(row.entry_id for row in self.rows)
+        if entry_ids != tuple(sorted(set(entry_ids))):
+            raise ValueError("model_input_source_query_rows_must_be_unique_and_sorted")
+        if self.content_sha256 != fabric_data_plane.content_sha256(self.identity_payload()):
+            raise ValueError("model_input_source_query_identity_must_be_recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, Any]:
+        """Return the query projection that defines this scoped envelope."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "content_sha256"
+        }
 
 
 class AuthoritySchemaColumn(_StrictModel):
@@ -798,6 +866,10 @@ class ModelInputSourceDescriptorCandidate(_StrictModel):
     model_semantic_definition_ref: VariableSemanticDefinitionRef
     model_representation_ref: VariableRepresentationRef
     binding_profile_ref: MeasurementBindingProfileRef
+    query_envelope: ModelInputSourceQueryEnvelope | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     recomputed_axes: tuple[MeasurementAxis, ...] = ()
     unknown_optional_axes: tuple[MeasurementAxis, ...] = ()
     semantic_correspondence: Literal["not_established"] = "not_established"
@@ -833,7 +905,51 @@ class ModelInputSourceDescriptorCandidate(_StrictModel):
             raise ValueError("model_input_source_descriptor_duplicate_unknown_axis")
         if self.may_not_use_for != _MODEL_INPUT_DESCRIPTOR_PROHIBITED_USES:
             raise ValueError("model_input_source_descriptor_candidate_limitations_mismatch")
+        if self.query_envelope is not None:
+            envelope = self.query_envelope
+            if (
+                envelope.model_input_interface_ref != self.model_input_interface_ref
+                or envelope.model_input_port_id != self.model_input_port_id
+                or envelope.model_semantic_definition_ref != self.model_semantic_definition_ref
+                or envelope.model_representation_ref != self.model_representation_ref
+                or envelope.binding_profile_ref != self.binding_profile_ref
+            ):
+                raise ValueError("model_input_source_descriptor_query_binding_mismatch")
+            compatible_entry_ids = tuple(
+                row.entry_id for row in envelope.rows if row.disposition == "compatible"
+            )
+            if compatible_entry_ids != (self.authority_entry_id,):
+                raise ValueError("model_input_source_descriptor_query_candidate_mismatch")
         return self
+
+
+def _build_model_input_source_query_envelope(
+    *,
+    model_input_interface_ref: artifacts.ArtifactRef,
+    model_input_port_id: str,
+    model_semantic_definition_ref: VariableSemanticDefinitionRef,
+    model_representation_ref: VariableRepresentationRef,
+    binding_profile_ref: MeasurementBindingProfileRef,
+    scope: ModelInputScope,
+    rows: Sequence[ModelInputSourceQueryRow],
+) -> ModelInputSourceQueryEnvelope:
+    """Build the canonical, route-scoped Catalog query projection."""
+
+    ordered_rows = tuple(sorted(rows, key=lambda row: row.entry_id))
+    projection = {
+        "schema_version": _MODEL_INPUT_SOURCE_QUERY_ENVELOPE_SCHEMA_VERSION,
+        "model_input_interface_ref": model_input_interface_ref,
+        "model_input_port_id": model_input_port_id,
+        "model_semantic_definition_ref": model_semantic_definition_ref,
+        "model_representation_ref": model_representation_ref,
+        "binding_profile_ref": binding_profile_ref,
+        "scope": scope,
+        "rows": ordered_rows,
+    }
+    return ModelInputSourceQueryEnvelope(
+        **projection,
+        content_sha256=fabric_data_plane.content_sha256(projection),
+    )
 
 
 def resolve_source_observation_class(
@@ -1343,6 +1459,7 @@ class CanonicalAcquisitionAuthority:
         *,
         model_input_interface_ref: artifacts.ArtifactRef,
         port_id: str,
+        include_query_envelope: bool = False,
     ) -> ModelInputSourceDescriptorCandidate:
         """Select one exact source descriptor for a selected model input port.
 
@@ -1359,6 +1476,9 @@ class CanonicalAcquisitionAuthority:
             model_input_interface_ref: Exact selected ProgramGraph input
                 interface produced by the active compiled model.
             port_id: Unique model-owned input port to match.
+            include_query_envelope: Include the exact-definition query result for
+                current-route freshness comparison. The default omits this field
+                to preserve legacy descriptor serialization.
 
         Returns:
             ModelInputSourceDescriptorCandidate: The unique compatible Catalog
@@ -1427,10 +1547,44 @@ class CanonicalAcquisitionAuthority:
             == target_definition_key
         )
         if not selected_descriptors:
-            raise AcquisitionAuthorityError("model_input_source_descriptor_unresolved")
+            envelope = (
+                _build_model_input_source_query_envelope(
+                    model_input_interface_ref=interface_ref,
+                    model_input_port_id=port.port_id,
+                    model_semantic_definition_ref=port.semantic_definition_ref,
+                    model_representation_ref=port.representation_ref,
+                    binding_profile_ref=port.binding_profile_ref,
+                    scope=port.scope,
+                    rows=(),
+                )
+                if include_query_envelope
+                else None
+            )
+            if include_query_envelope:
+                current_registry = self._load_registry()
+                self._require_provision_unchanged()
+                if current_registry.content_sha256 != registry.content_sha256:
+                    raise AcquisitionAuthorityError("acquisition_authority_registry_drift")
+            raise AcquisitionAuthorityError(
+                "model_input_source_descriptor_unresolved",
+                query_envelope=envelope,
+            )
 
         candidates: list[ModelInputSourceDescriptorCandidate] = []
         rejected: list[str] = []
+        query_rows: list[ModelInputSourceQueryRow] = []
+
+        def record_incompatible(entry_id: str, reason: str) -> None:
+            rejected.append(f"{entry_id}:{reason}")
+            if include_query_envelope:
+                query_rows.append(
+                    ModelInputSourceQueryRow(
+                        entry_id=entry_id,
+                        disposition="incompatible",
+                        reason_codes=(reason,),
+                    )
+                )
+
         for entry in selected_descriptors:
             source_definition_ref = entry.source_semantic_definition_ref
             source_representation_ref = entry.source_representation_ref
@@ -1473,7 +1627,8 @@ class CanonicalAcquisitionAuthority:
                 ),
             )
             if tuple(source_representation_manifest.inputs) != expected_representation_inputs:
-                rejected.append(f"{entry.entry_id}:source_representation_lineage_mismatch")
+                reason = "source_representation_lineage_mismatch"
+                record_incompatible(entry.entry_id, reason)
                 continue
 
             if artifacts.artifact_ref_identity_key(source_definition_ref) != target_definition_key:
@@ -1493,7 +1648,8 @@ class CanonicalAcquisitionAuthority:
                 != artifacts.artifact_ref_identity_key(source_definition_ref)
                 or source_representation.unit_id != entry.canonical_unit
             ):
-                rejected.append(f"{entry.entry_id}:source_descriptor_definition_or_unit_mismatch")
+                reason = "source_descriptor_definition_or_unit_mismatch"
+                record_incompatible(entry.entry_id, reason)
                 continue
 
             axis_match, unknown_optional_axes, axis_refusal = (
@@ -1504,7 +1660,7 @@ class CanonicalAcquisitionAuthority:
                 )
             )
             if axis_refusal is not None:
-                rejected.append(f"{entry.entry_id}:{axis_refusal}")
+                record_incompatible(entry.entry_id, axis_refusal)
                 continue
             scope_refusal = _preacquisition_source_scope_refusal(
                 entry,
@@ -1512,7 +1668,7 @@ class CanonicalAcquisitionAuthority:
                 source_representation,
             )
             if scope_refusal is not None:
-                rejected.append(f"{entry.entry_id}:{scope_refusal}")
+                record_incompatible(entry.entry_id, scope_refusal)
                 continue
 
             candidates.append(
@@ -1530,24 +1686,59 @@ class CanonicalAcquisitionAuthority:
                     unknown_optional_axes=unknown_optional_axes,
                 )
             )
+            if include_query_envelope:
+                query_rows.append(
+                    ModelInputSourceQueryRow(
+                        entry_id=entry.entry_id,
+                        disposition="compatible",
+                    )
+                )
+
+        query_envelope = (
+            _build_model_input_source_query_envelope(
+                model_input_interface_ref=interface_ref,
+                model_input_port_id=port.port_id,
+                model_semantic_definition_ref=port.semantic_definition_ref,
+                model_representation_ref=port.representation_ref,
+                binding_profile_ref=port.binding_profile_ref,
+                scope=port.scope,
+                rows=tuple(query_rows),
+            )
+            if include_query_envelope
+            else None
+        )
+        if include_query_envelope:
+            current_registry = self._load_registry()
+            self._require_provision_unchanged()
+            if current_registry.content_sha256 != registry.content_sha256:
+                raise AcquisitionAuthorityError("acquisition_authority_registry_drift")
 
         if len(candidates) > 1:
             raise AcquisitionAuthorityError(
                 "model_input_source_descriptor_ambiguous",
                 ",".join(candidate.authority_entry_id for candidate in candidates),
+                query_envelope=query_envelope,
             )
         if not candidates:
             detail = ";".join(rejected) if rejected else None
             raise AcquisitionAuthorityError(
                 "model_input_source_descriptor_incompatible",
                 detail,
+                query_envelope=query_envelope,
             )
 
-        current_registry = self._load_registry()
-        self._require_provision_unchanged()
-        if current_registry.content_sha256 != registry.content_sha256:
-            raise AcquisitionAuthorityError("acquisition_authority_registry_drift")
-        return candidates[0]
+        if not include_query_envelope:
+            current_registry = self._load_registry()
+            self._require_provision_unchanged()
+            if current_registry.content_sha256 != registry.content_sha256:
+                raise AcquisitionAuthorityError("acquisition_authority_registry_drift")
+            return candidates[0]
+        return ModelInputSourceDescriptorCandidate.model_validate(
+            {
+                **candidates[0].model_dump(mode="python"),
+                "query_envelope": query_envelope,
+            }
+        )
 
     def _require_provision_unchanged(self) -> None:
         provision, content_sha256 = _load_authority_provision(
@@ -3141,6 +3332,8 @@ __all__ = [
     "LocalSourceRightsDeclaration",
     "LocalSourceRightsReceipt",
     "ModelInputSourceDescriptorCandidate",
+    "ModelInputSourceQueryEnvelope",
+    "ModelInputSourceQueryRow",
     "ResolvedAcquisitionAuthority",
     "ResolvedL5Trust",
     "ResolvedLiveHarnessReceipt",

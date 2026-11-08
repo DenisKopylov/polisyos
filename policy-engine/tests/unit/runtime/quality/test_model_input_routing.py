@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import replace
 from decimal import Decimal
 from functools import partial
@@ -25,6 +26,12 @@ from polisyos.core.contracts.model_input_requirements import (
     load_program_graph_input_interface,
     persist_model_input_port_declaration,
 )
+from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+    DEFAULT_ACQUISITION_AUTHORITY_REGISTRY,
+    AcquisitionAuthorityEntry,
+    build_authority_entry,
+    build_authority_registry,
+)
 from polisyos.runtime.http.errors import RuntimeHTTPError
 from polisyos.runtime.http.routes.runs import _generic_model_input_routing_projection
 from polisyos.runtime.quality.model_input_requirements import (
@@ -33,11 +40,13 @@ from polisyos.runtime.quality.model_input_requirements import (
     preflight_program_graph_inputs,
 )
 from polisyos.runtime.quality.model_input_routing import (
+    _discover_port_routes,
+    _verify_model_input_routing_report_current,
     plan_selected_model_input_routing,
     verify_model_input_routing_report,
 )
 from polisyos.runtime.quality.substrate_registry import resolve_catalog_serving_source
-from tests._helpers.acquisition_production import _resolver
+from tests._helpers.acquisition_production import _entry, _resolver
 from tests._helpers.program_graph_tax_subsidy_input import (
     prepare_program_graph_tax_subsidy_input_case,
 )
@@ -67,6 +76,22 @@ def _projection_catalog_source(
             measurement_registry_path=authority.l5_path,
         ),
     )
+
+
+def _replace_authority_registry(
+    authority: CanonicalAcquisitionAuthority,
+    entries: tuple[AcquisitionAuthorityEntry, ...],
+) -> str:
+    registry = build_authority_registry(
+        baseline_content_sha256=authority.provision.baseline_content_sha256,
+        l5_measurement_registry_sha256=(
+            authority.provision.l5_measurement_registry_content_sha256
+        ),
+        entries=entries,
+    )
+    registry_path = authority.repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
+    registry_path.write_text(registry.model_dump_json(), encoding="utf-8")
+    return registry.content_sha256
 
 
 def _fiscal_input_declaration(store: CoreJSONArtifactStore) -> ArtifactRef:
@@ -153,9 +178,12 @@ def test_selected_model_input_routes_to_candidate_descriptor_or_named_absence(
         )
         (resolved_route,) = resolved.report.routes
         assert resolved.report.status == "candidate_descriptors_resolved"
+        assert resolved.report.schema_version == "1.0"
         assert resolved_route.disposition == "resolved"
         assert resolved_route.reason_code is None
+        assert resolved_route.query_envelope is None
         assert resolved_route.source_descriptor is not None
+        assert resolved_route.source_descriptor.query_envelope is None
         assert resolved_route.source_descriptor.semantic_correspondence == "not_established"
         assert resolved_route.voi_status == "unknown"
         assert resolved_route.fetch_status == "not_attempted"
@@ -189,6 +217,13 @@ def test_selected_model_input_routes_to_candidate_descriptor_or_named_absence(
             )
 
         fresh_store = FileSystemCAS(case.store_root)
+        legacy_manifest = fresh_store.get_manifest(resolved.report_ref)
+        assert legacy_manifest.artifact_schema is not None
+        assert legacy_manifest.artifact_schema.version == "1.0"
+        legacy_payload = json.loads(fresh_store.get_bytes(resolved.report_ref))
+        assert legacy_payload["schema_version"] == "1.0"
+        assert "query_envelope" not in legacy_payload["routes"][0]
+        assert "query_envelope" not in legacy_payload["routes"][0]["source_descriptor"]
         assert (
             verify_model_input_routing_report(
                 fresh_store,
@@ -199,6 +234,119 @@ def test_selected_model_input_routes_to_candidate_descriptor_or_named_absence(
             )
             == resolved.report
         )
+
+        v2_authority, _ = _resolver(
+            tmp_path / "catalog-v2",
+            authority_entry=_authority_entry(
+                port.semantic_definition_ref,
+                port.representation_ref,
+                suffix="v2-selected",
+            ),
+        )
+        (selected_entry,) = v2_authority._load_registry().entries
+        unrelated_fields = _entry().model_dump(mode="python", exclude={"entry_id"})
+        unrelated_fields["title"] = "Unrelated registry metadata before routing."
+        unrelated_before = build_authority_entry(**unrelated_fields)
+        registry_before_sha256 = _replace_authority_registry(
+            v2_authority,
+            (selected_entry, unrelated_before),
+        )
+        routed_v2 = plan_selected_model_input_routing(
+            case.store,
+            obligation_set_ref=preflight.obligation_set_ref,
+            selected_basis=selected_basis,
+            catalog_authority=v2_authority,
+            report_version="2.0",
+        )
+        (route_v2,) = routed_v2.report.routes
+        assert routed_v2.report.schema_version == "2.0"
+        assert route_v2.query_envelope is not None
+        assert [row.entry_id for row in route_v2.query_envelope.rows] == [
+            selected_entry.entry_id
+        ]
+        assert route_v2.query_envelope.rows[0].disposition == "compatible"
+        assert route_v2.source_descriptor is not None
+        assert route_v2.source_descriptor.query_envelope is None
+        assert (
+            route_v2.source_descriptor.authority_registry_content_sha256
+            == registry_before_sha256
+        )
+        v2_manifest = fresh_store.get_manifest(routed_v2.report_ref)
+        assert v2_manifest.artifact_schema is not None
+        assert v2_manifest.artifact_schema.version == "2.0"
+
+        revised_unrelated_fields = unrelated_before.model_dump(
+            mode="python",
+            exclude={"entry_id"},
+        )
+        revised_unrelated_fields["title"] = "Unrelated registry metadata after routing."
+        unrelated_after = build_authority_entry(**revised_unrelated_fields)
+        registry_after_sha256 = _replace_authority_registry(
+            v2_authority,
+            (selected_entry, unrelated_after),
+        )
+        assert registry_after_sha256 != registry_before_sha256
+
+        stored_v2, current_v2 = _verify_model_input_routing_report_current(
+            fresh_store,
+            routed_v2.report_ref,
+            expected_obligation_set_ref=preflight.obligation_set_ref,
+            selected_basis=selected_basis,
+            catalog_authority=v2_authority,
+        )
+        assert stored_v2 == routed_v2.report
+        assert current_v2 != stored_v2
+        (current_route_v2,) = current_v2.routes
+        assert current_route_v2.query_envelope == route_v2.query_envelope
+        assert current_route_v2.source_descriptor is not None
+        assert (
+            current_route_v2.source_descriptor.authority_registry_content_sha256
+            == registry_after_sha256
+        )
+        assert (
+            verify_model_input_routing_report(
+                fresh_store,
+                routed_v2.report_ref,
+                expected_obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=v2_authority,
+            )
+            == routed_v2.report
+        )
+
+        countercandidate = _authority_entry(
+            port.semantic_definition_ref,
+            port.representation_ref,
+            suffix="new-countercandidate",
+        )
+        _replace_authority_registry(
+            v2_authority,
+            (selected_entry, unrelated_after, countercandidate),
+        )
+        current_routes = _discover_port_routes(
+            fresh_store,
+            compilation_report=routed_v2.compilation_report,
+            catalog_authority=v2_authority,
+            include_query_envelope=True,
+        )
+        (ambiguous_route,) = current_routes
+        assert ambiguous_route.disposition == "ambiguous"
+        assert ambiguous_route.query_envelope is not None
+        assert len(ambiguous_route.query_envelope.rows) == 2
+        assert sum(
+            row.disposition == "compatible" for row in ambiguous_route.query_envelope.rows
+        ) == 2
+        with pytest.raises(
+            ValueError,
+            match="model_input_routing_report_selection_mismatch",
+        ):
+            verify_model_input_routing_report(
+                fresh_store,
+                routed_v2.report_ref,
+                expected_obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=v2_authority,
+            )
 
         no_match_authority, _ = _resolver(tmp_path / "catalog-no-match")
         absent = plan_selected_model_input_routing(
@@ -214,6 +362,26 @@ def test_selected_model_input_routes_to_candidate_descriptor_or_named_absence(
         assert absent_route.source_descriptor is None
         assert absent_route.voi_status == "unknown"
         assert absent_route.fetch_status == "not_attempted"
+        absent_v2 = plan_selected_model_input_routing(
+            case.store,
+            obligation_set_ref=preflight.obligation_set_ref,
+            selected_basis=selected_basis,
+            catalog_authority=no_match_authority,
+            report_version="2.0",
+        )
+        (absent_v2_route,) = absent_v2.report.routes
+        assert absent_v2_route.query_envelope is not None
+        assert absent_v2_route.query_envelope.rows == ()
+        assert (
+            verify_model_input_routing_report(
+                fresh_store,
+                absent_v2.report_ref,
+                expected_obligation_set_ref=preflight.obligation_set_ref,
+                selected_basis=selected_basis,
+                catalog_authority=no_match_authority,
+            )
+            == absent_v2.report
+        )
 
         projection_for = partial(
             _generic_model_input_routing_projection,

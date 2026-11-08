@@ -445,6 +445,7 @@ class SelectedProgramGraphLinkage:
     lowered_ir_ref: ArtifactRef
     registry_bundle_content: RegistryBundleContent
     intervention_registry: RegistryBundle
+    compiled_singleton: bool
     currentness_status: Literal["not_established"] = "not_established"
     authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
 
@@ -2297,6 +2298,21 @@ class GenericCycleSimulationAdmissionOwner:
             units=registry_content.units_registry,
             trust=registry_content.trust_registry,
         )
+        enabled_intervention_ids = tuple(
+            intervention.intervention_id
+            for intervention in selection.trinity.policy_spec.interventions
+            if intervention.enabled
+        )
+        compiled_singleton = (
+            len(enabled_intervention_ids) == 1
+            and tuple(tuple(item.intervention_ids) for item in selection.lowered_ir.mechanisms)
+            == (enabled_intervention_ids,)
+            and sum(
+                node.op is not None and node.op.op_kind == "apply_mechanism"
+                for node in selection.graph.nodes
+            )
+            == 1
+        )
         return SelectedProgramGraphLinkage(
             profile_ref=profile_ref,
             profile=profile,
@@ -2309,6 +2325,7 @@ class GenericCycleSimulationAdmissionOwner:
             lowered_ir_ref=selection.lowered_ir_ref,
             registry_bundle_content=registry_content,
             intervention_registry=linker_registry,
+            compiled_singleton=compiled_singleton,
         )
 
     def resolve_child_profile_family(

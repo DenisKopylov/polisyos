@@ -1686,6 +1686,7 @@ def _generic_root_n4_generation_port(
     producer_settlement_store: BudgetMiddleware | None = None,
     call_observer: Callable[[dict[str, object]], None] | None = None,
     prefetched_organ_run: DesignGenerationOrganRun | None = None,
+    min_diverse_candidates: int = 3,
 ) -> N4GenerationPort:
     """Keep the same configured N4 producer when reusing its cycle-zero organ."""
     from polisyos.runtime.quality.generation_cycle import N4GenerationPort
@@ -1699,6 +1700,7 @@ def _generic_root_n4_generation_port(
         producer_settlement_store=producer_settlement_store,
         call_observer=call_observer,
         prefetched_organ_run=prefetched_organ_run,
+        min_diverse_candidates=min_diverse_candidates,
     )
 
 
@@ -2031,6 +2033,7 @@ async def compile_and_run_recursive_generation_cycle(
     n4_credal_source_attempt_ref: ArtifactRef | None = None
     generic_child_handoffs_by_node: dict[str, GenericCycleSimulationContextHandoffV1] = {}
     prefetched_generic_root_organ: DesignGenerationOrganRun | None = None
+    generic_root_min_diverse_candidates = 3
     planned_child_handoffs: dict[str, CandidateSimulationContextHandoff] = {}
 
     def _resolve_candidate_context() -> None:
@@ -2361,6 +2364,20 @@ async def compile_and_run_recursive_generation_cycle(
                     raise DesignProblemAuthorityError(
                         "generic_cycle_simulation_source_profile_not_current"
                     )
+            root_link_context = _resolve_n4_program_graph_link_context(
+                problem=problem,
+                handoff=root_handoff,
+                owner=generic_cycle_simulation_admission_owner,
+                scope=verified_nl_job_scope,
+                context_owner=recursive_leaf_context_owner._context_owner,
+                repo_root=repo_root,
+            )
+            if (
+                root_handoff.n4_child_profile_family_ref is None
+                and root_link_context is not None
+                and root_link_context.compiled_singleton
+            ):
+                generic_root_min_diverse_candidates = 1
             root_source_port = _generic_root_n4_generation_port(
                 model_id=model_name,
                 llm_client=root_n4_generation_client,
@@ -2369,14 +2386,7 @@ async def compile_and_run_recursive_generation_cycle(
                 producer_run_id=producer_run_id,
                 producer_settlement_store=producer_settlement_store,
                 call_observer=_observe_n4_call,
-            )
-            root_link_context = _resolve_n4_program_graph_link_context(
-                problem=problem,
-                handoff=root_handoff,
-                owner=generic_cycle_simulation_admission_owner,
-                scope=verified_nl_job_scope,
-                context_owner=recursive_leaf_context_owner._context_owner,
-                repo_root=repo_root,
+                min_diverse_candidates=generic_root_min_diverse_candidates,
             )
             root_organ = await root_source_port(
                 problem,
@@ -2862,6 +2872,7 @@ async def compile_and_run_recursive_generation_cycle(
                 producer_settlement_store=producer_settlement_store,
                 call_observer=_observe_n4_call,
                 prefetched_organ_run=prefetched_generic_root_organ,
+                min_diverse_candidates=generic_root_min_diverse_candidates,
             )
         }
     recursive_graph = derive_recursive_design_graph(

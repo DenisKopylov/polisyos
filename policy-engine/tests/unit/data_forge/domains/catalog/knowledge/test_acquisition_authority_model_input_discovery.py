@@ -29,10 +29,13 @@ from polisyos.core.contracts.variable_binding import (
     VariableSemanticDefinitionRef,
 )
 from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+    DEFAULT_ACQUISITION_AUTHORITY_REGISTRY,
     AcquisitionAuthorityEntry,
     AcquisitionAuthorityError,
     AcquisitionSourceMeasureScope,
+    CanonicalAcquisitionAuthority,
     build_authority_entry,
+    build_authority_registry,
 )
 from polisyos.fabric.data_plane import content_sha256
 from tests._helpers.acquisition_production import _entry, _resolver
@@ -260,6 +263,21 @@ def _authority_entry(
     return build_authority_entry(**values)
 
 
+def _replace_authority_registry(
+    authority: CanonicalAcquisitionAuthority,
+    entries: tuple[AcquisitionAuthorityEntry, ...],
+) -> None:
+    registry = build_authority_registry(
+        baseline_content_sha256=authority.provision.baseline_content_sha256,
+        l5_measurement_registry_sha256=(
+            authority.provision.l5_measurement_registry_content_sha256
+        ),
+        entries=entries,
+    )
+    registry_path = authority.repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
+    registry_path.write_text(registry.model_dump_json(), encoding="utf-8")
+
+
 def test_catalog_discovers_one_exact_model_input_source_descriptor(
     tmp_path: Path,
 ) -> None:
@@ -281,6 +299,7 @@ def test_catalog_discovers_one_exact_model_input_source_descriptor(
         == _authority_entry(definition_ref, source_representation_ref).entry_id
     )
     assert candidate.authority_registry_content_sha256
+    assert "query_envelope" not in candidate.model_dump(mode="json")
     assert candidate.source_semantic_definition_ref == definition_ref
     assert candidate.semantic_correspondence == "not_established"
     assert candidate.recomputed_axes == (
@@ -299,6 +318,145 @@ def test_catalog_discovers_one_exact_model_input_source_descriptor(
         "claim_evidence",
         "source_currentness",
     }
+
+
+def test_scoped_query_envelope_ignores_unrelated_registry_metadata(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    definition_ref, representation_ref, _, interface_ref = _model_inputs(store)
+    selected = _authority_entry(definition_ref, representation_ref, suffix="selected")
+    unrelated = _entry()
+    authority, _ = _resolver(
+        tmp_path / "catalog-owner",
+        authority_entry=selected,
+    )
+    _replace_authority_registry(authority, (selected, unrelated))
+
+    before = authority.discover_model_input_source_descriptor(
+        store,
+        model_input_interface_ref=interface_ref,
+        port_id="fiscal-balance-input",
+        include_query_envelope=True,
+    )
+    assert before.query_envelope is not None
+
+    unrelated_fields = unrelated.model_dump(mode="python", exclude={"entry_id"})
+    unrelated_fields["title"] = "An unrelated registry row with revised descriptive metadata."
+    unrelated_fields["description"] = "This row is outside the exact-definition query."
+    revised_unrelated = build_authority_entry(**unrelated_fields)
+    _replace_authority_registry(authority, (selected, revised_unrelated))
+
+    after = authority.discover_model_input_source_descriptor(
+        store,
+        model_input_interface_ref=interface_ref,
+        port_id="fiscal-balance-input",
+        include_query_envelope=True,
+    )
+
+    assert after.authority_registry_content_sha256 != before.authority_registry_content_sha256
+    assert after.query_envelope == before.query_envelope
+    assert [row.entry_id for row in after.query_envelope.rows] == [selected.entry_id]
+    assert after.query_envelope.rows[0].disposition == "compatible"
+    assert after.query_envelope.rows[0].reason_codes == ()
+
+
+def test_scoped_query_envelope_records_exact_definition_countercandidate(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    definition_ref, representation_ref, _, interface_ref = _model_inputs(store)
+    selected = _authority_entry(definition_ref, representation_ref, suffix="selected")
+    countercandidate = _authority_entry(
+        definition_ref,
+        representation_ref,
+        suffix="countercandidate",
+    )
+    authority, _ = _resolver(
+        tmp_path / "catalog-owner",
+        authority_entry=selected,
+    )
+    _replace_authority_registry(authority, (selected, countercandidate))
+
+    with pytest.raises(AcquisitionAuthorityError) as error:
+        authority.discover_model_input_source_descriptor(
+            store,
+            model_input_interface_ref=interface_ref,
+            port_id="fiscal-balance-input",
+            include_query_envelope=True,
+        )
+
+    assert error.value.code == "model_input_source_descriptor_ambiguous"
+    envelope = error.value.query_envelope
+    assert envelope is not None
+    assert {row.entry_id for row in envelope.rows} == {
+        selected.entry_id,
+        countercandidate.entry_id,
+    }
+    assert all(row.disposition == "compatible" for row in envelope.rows)
+    assert all(row.reason_codes == () for row in envelope.rows)
+
+
+def test_scoped_query_envelope_tracks_same_definition_reclassification(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    definition_ref, compatible_representation_ref, _, interface_ref = _model_inputs(store)
+    flow_definition_ref, incompatible_representation_ref, _, _ = _model_inputs(
+        store,
+        source_quantity_kind="flow",
+    )
+    assert flow_definition_ref == definition_ref
+    selected = _authority_entry(
+        definition_ref,
+        compatible_representation_ref,
+        suffix="selected",
+    )
+    reclassifiable = _authority_entry(
+        definition_ref,
+        incompatible_representation_ref,
+        suffix="reclassifiable",
+    )
+    authority, _ = _resolver(
+        tmp_path / "catalog-owner",
+        authority_entry=selected,
+    )
+    _replace_authority_registry(authority, (selected, reclassifiable))
+
+    before = authority.discover_model_input_source_descriptor(
+        store,
+        model_input_interface_ref=interface_ref,
+        port_id="fiscal-balance-input",
+        include_query_envelope=True,
+    )
+    assert before.query_envelope is not None
+    before_rows = {row.entry_id: row for row in before.query_envelope.rows}
+    assert before_rows[selected.entry_id].disposition == "compatible"
+    assert before_rows[selected.entry_id].reason_codes == ()
+    assert before_rows[reclassifiable.entry_id].disposition == "incompatible"
+    assert before_rows[reclassifiable.entry_id].reason_codes
+
+    reclassified_fields = reclassifiable.model_dump(mode="python", exclude={"entry_id"})
+    reclassified_fields["source_representation_ref"] = compatible_representation_ref
+    reclassified = build_authority_entry(**reclassified_fields)
+    _replace_authority_registry(authority, (selected, reclassified))
+
+    with pytest.raises(AcquisitionAuthorityError) as error:
+        authority.discover_model_input_source_descriptor(
+            store,
+            model_input_interface_ref=interface_ref,
+            port_id="fiscal-balance-input",
+            include_query_envelope=True,
+        )
+
+    assert error.value.code == "model_input_source_descriptor_ambiguous"
+    after = error.value.query_envelope
+    assert after is not None
+    after_rows = {row.entry_id: row for row in after.rows}
+    assert reclassified.entry_id != reclassifiable.entry_id
+    assert reclassified.entry_id in after_rows
+    assert after_rows[reclassified.entry_id].disposition == "compatible"
+    assert after_rows[reclassified.entry_id].reason_codes == ()
 
 
 def test_catalog_accepts_explicit_full_calendar_date_bounds(tmp_path: Path) -> None:
@@ -492,15 +650,21 @@ def test_catalog_refuses_source_descriptor_with_incompatible_required_quantity_a
         authority_entry=_authority_entry(definition_ref, source_representation_ref),
     )
 
-    with pytest.raises(
-        AcquisitionAuthorityError,
-        match="model_input_source_descriptor_incompatible",
-    ):
+    with pytest.raises(AcquisitionAuthorityError) as error:
         authority.discover_model_input_source_descriptor(
             store,
             model_input_interface_ref=interface_ref,
             port_id="fiscal-balance-input",
+            include_query_envelope=True,
         )
+
+    assert error.value.code == "model_input_source_descriptor_incompatible"
+    assert error.value.query_envelope is not None
+    assert len(error.value.query_envelope.rows) == 1
+    assert error.value.query_envelope.rows[0].disposition == "incompatible"
+    assert error.value.query_envelope.rows[0].reason_codes == (
+        "required_axis_mismatch:quantity_kind",
+    )
 
 
 def test_legacy_authority_entries_omit_absent_semantic_refs_and_pair_them(

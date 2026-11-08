@@ -384,6 +384,7 @@ class N4SelectedProgramGraphLinkContext:
 
     linkage: N4SelectedProgramGraphLinkageV1
     registry_content: RegistryBundleContent
+    compiled_singleton: bool = False
 
     def __post_init__(self) -> None:
         from polisyos.core.registry import RegistryBundleContent
@@ -392,6 +393,8 @@ class N4SelectedProgramGraphLinkContext:
             raise TypeError("n4_selected_program_graph_linkage_untyped")
         if type(self.registry_content) is not RegistryBundleContent:
             raise TypeError("n4_selected_program_graph_registry_content_untyped")
+        if type(self.compiled_singleton) is not bool:
+            raise TypeError("n4_selected_program_graph_compiled_singleton_untyped")
         if artifact_ref_identity_key(self.registry_content.bundle_ref) != artifact_ref_identity_key(
             self.linkage.registry_bundle_ref
         ):

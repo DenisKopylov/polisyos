@@ -9711,7 +9711,7 @@ validate_web_evidence_source_binding
 | `polisyos.data_forge` | `src/polisyos/data_forge/__init__.py` | `lazy_facade` | 49 |
 | `polisyos.data_forge.read_api` | `src/polisyos/data_forge/read_api/__init__.py` | `lazy_facade` | 30 |
 | `polisyos.data_forge.read_api.academic` | `src/polisyos/data_forge/read_api/academic.py` | `lazy_facade` | 110 |
-| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 162 |
+| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 163 |
 | `polisyos.data_forge.read_api.legal` | `src/polisyos/data_forge/read_api/legal.py` | `lazy_facade` | 61 |
 | `polisyos.data_forge.read_api.ukraine` | `src/polisyos/data_forge/read_api/ukraine.py` | `lazy_facade` | 75 |
 
@@ -9949,7 +9949,7 @@ validate_claim_adjudication_input_batch
 - Facade: `lazy_facade`
 - Summary: Runtime-safe read API for catalog Data Forge artifacts.
 
-<details><summary>Entrypoint exports (162)</summary>
+<details><summary>Entrypoint exports (163)</summary>
 
 ```text
 AcquisitionAuthorityEntry
@@ -10037,6 +10037,7 @@ LocalSourceRightsReceipt
 MetricBindingMatch
 MetricFieldBinding
 ModelInputSourceDescriptorCandidate
+ModelInputSourceQueryEnvelope
 ObservationProvenanceClass
 OverlayAdmissionError
 OverlayAdmissionReceipt

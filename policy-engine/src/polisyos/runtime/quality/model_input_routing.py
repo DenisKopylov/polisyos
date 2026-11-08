@@ -28,6 +28,7 @@ from polisyos.data_forge.read_api.catalog import (
     AcquisitionAuthorityError,
     CanonicalAcquisitionAuthority,
     ModelInputSourceDescriptorCandidate,
+    ModelInputSourceQueryEnvelope,
 )
 from polisyos.data_requirement import (
     DataRequirementCompiler,
@@ -55,6 +56,7 @@ if TYPE_CHECKING:
 MODEL_INPUT_ROUTING_REPORT_KIND = "runtime.quality.model_input_routing_report"
 MODEL_INPUT_ROUTING_REPORT_SCHEMA_NAME = "polisyos.runtime.quality.ModelInputRoutingReport"
 MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION = "1.0"
+MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2 = "2.0"
 _MODEL_INPUT_ROUTING_PROHIBITED_USES = (
     "measurement_admission",
     "fetch_permission",
@@ -81,6 +83,10 @@ class ModelInputPortRoute(_StrictModel):
     port_id: str = Field(min_length=1)
     disposition: Literal["resolved", "absent", "ambiguous", "conflict"]
     source_descriptor: ModelInputSourceDescriptorCandidate | None = None
+    query_envelope: ModelInputSourceQueryEnvelope | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     reason_code: str | None = None
     voi_status: Literal["unknown"] = "unknown"
     fetch_status: Literal["not_attempted"] = "not_attempted"
@@ -103,6 +109,11 @@ class ModelInputPortRoute(_StrictModel):
     def _disposition_matches_result(self) -> Self:
         if self.obligation_ref.manifest_profile_sha256 is None:
             raise ValueError("model_input_routing_obligation_ref_unselected")
+        if (
+            self.query_envelope is not None
+            and self.query_envelope.model_input_port_id != self.port_id
+        ):
+            raise ValueError("model_input_routing_query_envelope_port_mismatch")
         if self.disposition == "resolved":
             if self.source_descriptor is None or self.reason_code is not None:
                 raise ValueError("model_input_routing_resolved_result_invalid")
@@ -135,8 +146,12 @@ class ModelInputRoutingReport(_StrictModel):
     ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = MODEL_INPUT_ROUTING_REPORT_SCHEMA_NAME
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = (
+        MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION,
+        MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2,
+    )
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "2.0"] = "1.0"
     authority_purpose: Literal["candidate_acquisition_routing_only"] = (
         "candidate_acquisition_routing_only"
     )
@@ -193,6 +208,44 @@ class ModelInputRoutingReport(_StrictModel):
                 descriptor.model_input_interface_ref
             ) != artifact_ref_identity_key(self.selected_invocation.interface_ref):
                 raise ValueError("model_input_routing_descriptor_interface_mismatch")
+            if self.schema_version == MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION:
+                if route.query_envelope is not None or (
+                    descriptor is not None and descriptor.query_envelope is not None
+                ):
+                    raise ValueError("model_input_routing_v1_query_envelope_forbidden")
+                continue
+
+            envelope = route.query_envelope
+            if envelope is None:
+                raise ValueError("model_input_routing_v2_query_envelope_required")
+            if artifact_ref_identity_key(
+                envelope.model_input_interface_ref
+            ) != artifact_ref_identity_key(self.selected_invocation.interface_ref):
+                raise ValueError("model_input_routing_query_envelope_interface_mismatch")
+            if envelope.model_input_port_id != route.port_id:
+                raise ValueError("model_input_routing_query_envelope_port_mismatch")
+            compatible_entry_ids = tuple(
+                row.entry_id for row in envelope.rows if row.disposition == "compatible"
+            )
+            if route.disposition == "resolved":
+                if (
+                    descriptor is None
+                    or descriptor.query_envelope is not None
+                    or compatible_entry_ids != (descriptor.authority_entry_id,)
+                    or envelope.model_semantic_definition_ref
+                    != descriptor.model_semantic_definition_ref
+                    or envelope.model_representation_ref != descriptor.model_representation_ref
+                    or envelope.binding_profile_ref != descriptor.binding_profile_ref
+                ):
+                    raise ValueError("model_input_routing_v2_resolved_query_invalid")
+            elif route.disposition == "absent":
+                if envelope.rows:
+                    raise ValueError("model_input_routing_v2_absence_query_not_empty")
+            elif route.disposition == "ambiguous":
+                if len(compatible_entry_ids) < 2:
+                    raise ValueError("model_input_routing_v2_ambiguity_query_incomplete")
+            elif not envelope.rows or compatible_entry_ids:
+                raise ValueError("model_input_routing_v2_conflict_query_incomplete")
         return self
 
 
@@ -212,6 +265,7 @@ def plan_selected_model_input_routing(
     obligation_set_ref: ArtifactRef,
     selected_basis: SelectedProgramGraphInputBasis,
     catalog_authority: CanonicalAcquisitionAuthority,
+    report_version: Literal["1.0", "2.0"] = MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION,
 ) -> ModelInputRoutingResult:
     """Replay, compile, and discover sources for one exact selected N5 input set.
 
@@ -239,6 +293,7 @@ def plan_selected_model_input_routing(
         store,
         compilation_report=compilation_report,
         catalog_authority=canonical_authority,
+        include_query_envelope=report_version == MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2,
     )
     report = _build_report(
         selected_basis=selected_basis,
@@ -246,6 +301,7 @@ def plan_selected_model_input_routing(
         obligation_set_ref=obligation_set_ref,
         compilation_report_ref=compilation_report_ref,
         routes=routes,
+        schema_version=report_version,
     )
     report_ref = _persist_model_input_routing_report(store, report)
     if read_model_input_routing_report(store, report_ref) != report:
@@ -266,7 +322,27 @@ def verify_model_input_routing_report(
     selected_basis: SelectedProgramGraphInputBasis,
     catalog_authority: CanonicalAcquisitionAuthority,
 ) -> ModelInputRoutingReport:
-    """Reopen and independently rederive a persisted candidate routing report."""
+    """Reopen a stored report and verify it against current Catalog routing."""
+
+    stored_report, _current_report = _verify_model_input_routing_report_current(
+        store,
+        report_ref,
+        expected_obligation_set_ref=expected_obligation_set_ref,
+        selected_basis=selected_basis,
+        catalog_authority=catalog_authority,
+    )
+    return stored_report
+
+
+def _verify_model_input_routing_report_current(
+    store: CoreJSONArtifactStore,
+    report_ref: ArtifactRef,
+    *,
+    expected_obligation_set_ref: ArtifactRef,
+    selected_basis: SelectedProgramGraphInputBasis,
+    catalog_authority: CanonicalAcquisitionAuthority,
+) -> tuple[ModelInputRoutingReport, ModelInputRoutingReport]:
+    """Return the frozen report and its freshly rederived current counterpart."""
 
     canonical_authority = _require_canonical_acquisition_authority(catalog_authority)
     report = read_model_input_routing_report(store, report_ref)
@@ -296,11 +372,63 @@ def verify_model_input_routing_report(
             store,
             compilation_report=compilation,
             catalog_authority=canonical_authority,
+            include_query_envelope=(
+                report.schema_version == MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2
+            ),
         ),
+        schema_version=report.schema_version,
     )
-    if report != expected:
+    if report.schema_version == MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION:
+        matches_current = report == expected
+    else:
+        matches_current = _v2_routing_report_matches_current(report, expected)
+    if not matches_current:
         raise ValueError("model_input_routing_report_selection_mismatch")
-    return report
+    return report, expected
+
+
+def _v2_routing_report_matches_current(
+    stored: ModelInputRoutingReport,
+    current: ModelInputRoutingReport,
+) -> bool:
+    """Compare V2 query scope and descriptor facts, excluding only registry hash."""
+
+    if (
+        stored.schema_version != MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2
+        or current.schema_version != MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2
+        or stored.model_dump(mode="python", exclude={"routes"})
+        != current.model_dump(mode="python", exclude={"routes"})
+        or len(stored.routes) != len(current.routes)
+    ):
+        return False
+    for stored_route, current_route in zip(stored.routes, current.routes, strict=True):
+        if (
+            stored_route.model_dump(
+                mode="python",
+                exclude={"source_descriptor", "query_envelope"},
+            )
+            != current_route.model_dump(
+                mode="python",
+                exclude={"source_descriptor", "query_envelope"},
+            )
+            or stored_route.query_envelope != current_route.query_envelope
+        ):
+            return False
+        stored_descriptor = stored_route.source_descriptor
+        current_descriptor = current_route.source_descriptor
+        if (stored_descriptor is None) != (current_descriptor is None):
+            return False
+        if stored_descriptor is None or current_descriptor is None:
+            continue
+        if stored_descriptor.model_dump(
+            mode="python",
+            exclude={"authority_registry_content_sha256"},
+        ) != current_descriptor.model_dump(
+            mode="python",
+            exclude={"authority_registry_content_sha256"},
+        ):
+            return False
+    return True
 
 
 def materialize_routed_model_input_observation(
@@ -348,7 +476,7 @@ def materialize_routed_model_input_observation(
 
     if type(overlay) is not CatalogAcquisitionOverlay or type(passport) is not AdmissionPassport:
         raise ValueError("model_input_routing_activation_owner_untyped")
-    report = verify_model_input_routing_report(
+    report, current_report = _verify_model_input_routing_report_current(
         store,
         report_ref,
         expected_obligation_set_ref=expected_obligation_set_ref,
@@ -358,12 +486,13 @@ def materialize_routed_model_input_observation(
     if len(report.routes) != 1:
         raise ValueError("model_input_routing_single_obligation_required")
     (route,) = report.routes
-    descriptor = route.source_descriptor
-    if descriptor is None:
+    (current_route,) = current_report.routes
+    current_descriptor = current_route.source_descriptor
+    if current_descriptor is None:
         raise ValueError("model_input_routing_resolved_route_required")
     if (
-        descriptor.authority_entry_id != passport.authority_entry_id
-        or descriptor.authority_registry_content_sha256
+        current_descriptor.authority_entry_id != passport.authority_entry_id
+        or current_descriptor.authority_registry_content_sha256
         != passport.authority_registry_content_sha256
     ):
         raise ValueError("model_input_routing_activated_source_mismatch")
@@ -405,8 +534,8 @@ def materialize_routed_model_input_observation(
         transaction_time=transaction_time,
         semantic_input_request=AcquiredObservationSemanticInputRequest(
             binding_id=rule.binding_id,
-            source_definition_ref=descriptor.source_semantic_definition_ref,
-            source_representation_ref=descriptor.source_representation_ref,
+            source_definition_ref=current_descriptor.source_semantic_definition_ref,
+            source_representation_ref=current_descriptor.source_representation_ref,
             obligation_set_ref=SelectedVariableBindingRef.model_validate(
                 report.obligation_set_ref.model_dump(mode="python")
             ),
@@ -439,7 +568,7 @@ def _persist_model_input_routing_report(
             media_type=report.ARTIFACT_MEDIA_TYPE,
             schema=SchemaInfo(
                 name=report.ARTIFACT_SCHEMA_NAME,
-                version=report.ARTIFACT_SCHEMA_VERSION,
+                version=report.schema_version,
             ),
             inputs=_model_input_routing_inputs(report),
         ),
@@ -463,7 +592,11 @@ def read_model_input_routing_report(
     ):
         raise ValueError("model_input_routing_report_ref_unselected")
     report = validate_core_model_json_artifact(ModelInputRoutingReport, store, ref)
-    if store.get_manifest(ref).inputs != _model_input_routing_inputs(report):
+    manifest = store.get_manifest(ref)
+    schema = manifest.artifact_schema
+    if schema is None or schema.version != report.schema_version:
+        raise ValueError("model_input_routing_report_schema_version_mismatch")
+    if manifest.inputs != _model_input_routing_inputs(report):
         raise ValueError("model_input_routing_report_lineage_mismatch")
     return report
 
@@ -473,6 +606,7 @@ def _discover_port_routes(
     *,
     compilation_report: ModelInputCompilationReport,
     catalog_authority: CanonicalAcquisitionAuthority,
+    include_query_envelope: bool = False,
 ) -> tuple[ModelInputPortRoute, ...]:
     routes: list[ModelInputPortRoute] = []
     for requirement in compilation_report.requirements:
@@ -481,21 +615,36 @@ def _discover_port_routes(
                 store,
                 model_input_interface_ref=compilation_report.interface_ref,
                 port_id=requirement.port.port_id,
+                include_query_envelope=include_query_envelope,
             )
         except AcquisitionAuthorityError as exc:
             disposition = _MODEL_INPUT_SOURCE_REFUSAL_DISPOSITIONS.get(exc.code)
             if disposition is None:
                 raise
+            query_envelope = exc.query_envelope
+            if include_query_envelope and query_envelope is None:
+                raise ValueError("model_input_routing_query_envelope_unavailable") from exc
             routes.append(
                 ModelInputPortRoute(
                     requirement_id=requirement.requirement_id,
                     obligation_ref=requirement.obligation_ref,
                     port_id=requirement.port.port_id,
                     disposition=disposition,
+                    query_envelope=query_envelope if include_query_envelope else None,
                     reason_code=exc.code,
                 )
             )
         else:
+            query_envelope = descriptor.query_envelope
+            if include_query_envelope and query_envelope is None:
+                raise ValueError("model_input_routing_query_envelope_unavailable")
+            if include_query_envelope:
+                descriptor = ModelInputSourceDescriptorCandidate.model_validate(
+                    {
+                        **descriptor.model_dump(mode="python"),
+                        "query_envelope": None,
+                    }
+                )
             routes.append(
                 ModelInputPortRoute(
                     requirement_id=requirement.requirement_id,
@@ -503,6 +652,7 @@ def _discover_port_routes(
                     port_id=requirement.port.port_id,
                     disposition="resolved",
                     source_descriptor=descriptor,
+                    query_envelope=query_envelope if include_query_envelope else None,
                 )
             )
     if len(routes) != len(compilation_report.requirements):
@@ -517,10 +667,12 @@ def _build_report(
     obligation_set_ref: ArtifactRef,
     compilation_report_ref: ArtifactRef,
     routes: Sequence[ModelInputPortRoute],
+    schema_version: Literal["1.0", "2.0"] = MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION,
 ) -> ModelInputRoutingReport:
     if selected_invocation.context != selected_basis.context:
         raise ValueError("model_input_routing_selected_context_mismatch")
     return ModelInputRoutingReport(
+        schema_version=schema_version,
         selected_invocation=selected_invocation,
         obligation_set_ref=obligation_set_ref,
         compilation_report_ref=compilation_report_ref,
@@ -569,6 +721,16 @@ def _model_input_routing_inputs(report: ModelInputRoutingReport) -> list[InputRe
     for index, route in enumerate(report.routes):
         descriptor = route.source_descriptor
         if descriptor is None:
+            envelope = route.query_envelope
+            if envelope is not None:
+                for role, ref in (
+                    ("model_semantic_definition", envelope.model_semantic_definition_ref),
+                    ("model_representation", envelope.model_representation_ref),
+                    ("measurement_binding_profile", envelope.binding_profile_ref),
+                ):
+                    inputs.append(
+                        input_ref_from_artifact_ref(ref, role=f"route.{index}.query.{role}")
+                    )
             continue
         for role, ref in (
             ("source_semantic_definition", descriptor.source_semantic_definition_ref),

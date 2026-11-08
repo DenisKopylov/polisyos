@@ -41,6 +41,10 @@ from polisyos.runtime.quality.design_axes.coupling_composition import (
 from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+from polisyos.runtime.quality.model_input_routing import (
+    MODEL_INPUT_ROUTING_REPORT_KIND,
+    MODEL_INPUT_ROUTING_REPORT_SCHEMA_NAME,
+)
 from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveCycleBudget,
     RecursiveGenerationCycleController,
@@ -498,9 +502,21 @@ async def test_route_closure_rejects_complete_before_terminal_then_ignores_newer
         tenant_id="tenant-a",
         cell_id="cell-a",
     )
+    unselected_report_ref = cas.put_json(
+        {"purpose": "unselected report with no source job output binding"},
+        _options(
+            kind=MODEL_INPUT_ROUTING_REPORT_KIND,
+            schema_name=MODEL_INPUT_ROUTING_REPORT_SCHEMA_NAME,
+        ),
+        return_selected_profile=True,
+    )
 
     with pytest.raises(AcquisitionRouteClosureError, match="source_terminal_event_missing"):
         loop.resolve_current_route(run_id="run-ds15")
+    with pytest.raises(AcquisitionRouteClosureError, match="source_terminal_event_missing"):
+        loop.resolve_model_input_routing_origin(
+            run_id="run-ds15", routing_report_ref=unselected_report_ref
+        )
 
     _append_terminal(
         event_log,
@@ -525,6 +541,12 @@ async def test_route_closure_rejects_complete_before_terminal_then_ignores_newer
     assert closure.cost_basis_record.missing_distribution == "administrative_tax_receipts"
     assert closure.cost_basis_record.record_content_hash == closure.cost_basis_hash
     assert closure.terminal_event_id == "evt-ds15-nl-terminal"
+    with pytest.raises(
+        AcquisitionRouteClosureError, match="model_input_source_report_not_selected"
+    ):
+        loop.resolve_model_input_routing_origin(
+            run_id="run-ds15", routing_report_ref=unselected_report_ref
+        )
 
 
 def test_candidate_experiment_policy_lookup_refusal_preserves_cause_and_issues_no_authority(

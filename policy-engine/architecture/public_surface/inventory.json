@@ -21199,8 +21199,8 @@
         {
           "module": "polisyos.data_forge.read_api.catalog",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 162,
-          "known_export_count": 162,
+          "export_count": 163,
+          "known_export_count": 163,
           "exports": [
             "AcquisitionAuthorityEntry",
             "AcquisitionAuthorityError",
@@ -21287,6 +21287,7 @@
             "MetricBindingMatch",
             "MetricFieldBinding",
             "ModelInputSourceDescriptorCandidate",
+            "ModelInputSourceQueryEnvelope",
             "ObservationProvenanceClass",
             "OverlayAdmissionError",
             "OverlayAdmissionReceipt",
@@ -21389,8 +21390,8 @@
                 "path": "src/polisyos/data_forge/read_api/catalog.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 65166,
-                "sha256": "6c985ffa69c7aa92c391c791a2e0f7c82d54fd5a2c8c9d8ad1b0b6110366eacb"
+                "bytes": 65454,
+                "sha256": "531b8a0e274fc7aa94fbe03f999330a9f06c7a4b01363d57a981f4f20f8d84ad"
               },
               {
                 "path": "src/polisyos/data_forge/read_api/catalog",

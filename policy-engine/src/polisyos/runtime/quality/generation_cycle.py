@@ -5246,6 +5246,7 @@ def _resolve_n4_program_graph_link_context(
             registry_bundle_ref=selected.registry_bundle_ref,
         ),
         registry_content=selected.registry_bundle_content,
+        compiled_singleton=selected.compiled_singleton,
     )
 
 
@@ -13071,6 +13072,7 @@ class GenerationCycleController:
         candidate: object,
     ) -> CASArtifactRef:
         """Route a current model-owned gap through the exact persisted N5 join."""
+        from polisyos.core.artifacts import matches_artifact_store_protocol
         from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
         from polisyos.runtime.quality.generic_simulation_admission import (
             GenericN5ExecutionJoinExpectation,
@@ -13090,7 +13092,7 @@ class GenerationCycleController:
         if (
             type(owner) is not GenericCycleSimulationAdmissionOwner
             or type(handoff) is not GenericCycleSimulationContextHandoffV1
-            or not isinstance(store, CoreJSONArtifactStore)
+            or not matches_artifact_store_protocol(store, CoreJSONArtifactStore)
             or owner.store is not store
             or self._source_run_id is None
             or simulation.status != "simulation_blocked"
@@ -13166,6 +13168,7 @@ class GenerationCycleController:
             obligation_set_ref=simulation.model_input_obligation_set_ref,
             selected_basis=basis,
             catalog_authority=catalog_authority,
+            report_version="2.0",
         ).report_ref
 
     def _run_n7_acquisition_if_requested(
@@ -18651,6 +18654,7 @@ class GenerationCycleController:
                 GenericCycleSimulationN5ExecutionV3,
                 GenericCycleSimulationN5ExecutionV4,
                 GenericN5ExecutionJoinExpectation,
+                _same_typed_public_value,
                 parse_generic_cycle_simulation_n5_execution,
             )
 
@@ -18680,18 +18684,27 @@ class GenerationCycleController:
                 "tenant_id": handoff.tenant_id,
                 "cell_id": handoff.cell_id,
             }
+            typed_execution = type(execution) in {
+                GenericCycleSimulationN5ExecutionV3,
+                GenericCycleSimulationN5ExecutionV4,
+            }
+            sealed_binding = getattr(execution, "request_binding", None)
+            live_binding = simulation.generic_n5_request_binding
+            # Selected ProgramGraph execution attaches process-local handles.
+            # The owner join below reopens their exact persisted source basis.
+            binding_matches = (
+                _same_typed_public_value(sealed_binding, live_binding)
+                if typed_execution
+                else sealed_binding == live_binding
+            )
             if (
                 any(getattr(execution, name) != value for name, value in expected_execution.items())
-                or getattr(execution, "request_binding", None)
-                != simulation.generic_n5_request_binding
+                or not binding_matches
                 or getattr(execution, "model_input_obligation_set_ref", None)
                 != simulation.model_input_obligation_set_ref
             ):
                 raise ValueError("generic_cycle_simulation_n5_sealed_execution_mismatch")
-            if type(execution) in {
-                GenericCycleSimulationN5ExecutionV3,
-                GenericCycleSimulationN5ExecutionV4,
-            }:
+            if typed_execution:
                 join = owner.resolve_n5_execution_join(
                     simulation.generic_n5_execution_ref,
                     expected=GenericN5ExecutionJoinExpectation.model_validate(

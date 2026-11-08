@@ -220,6 +220,9 @@ if TYPE_CHECKING:
         ModelInputSourceDescriptorCandidate as ModelInputSourceDescriptorCandidate,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        ModelInputSourceQueryEnvelope as ModelInputSourceQueryEnvelope,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         ResolvedAcquisitionAuthority as ResolvedAcquisitionAuthority,
     )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
@@ -627,6 +630,9 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "ModelInputSourceDescriptorCandidate": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "ModelInputSourceQueryEnvelope": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "assess_measurement_to_model_candidate": (

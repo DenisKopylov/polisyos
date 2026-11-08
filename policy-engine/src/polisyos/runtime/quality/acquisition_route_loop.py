@@ -79,6 +79,11 @@ if TYPE_CHECKING:
         ControlPlaneStore,
     )
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericN5ExecutionJoinExpectation,
+    )
+    from polisyos.runtime.quality.model_input_requirements import SelectedProgramGraphInputBasis
+    from polisyos.runtime.quality.model_input_routing import ModelInputRoutingReport
 
 
 class _ArtifactSchema(Protocol):
@@ -1045,8 +1050,8 @@ class _ActionOutcomeReader(Protocol):
 
 
 @dataclass(frozen=True)
-class _VerifiedAcquisitionOrigin:
-    """Owner-replayed selected source before route-specific authority is considered."""
+class _CompletedNLOrigin:
+    """Completed NL output joined to its job, terminal event, and Core manifest."""
 
     job: ControlJobRecord
     payload_ref: str
@@ -1055,6 +1060,12 @@ class _VerifiedAcquisitionOrigin:
     selected_compiled_ref: ArtifactRef
     terminal_event_id: str
     compiled: CompiledRecursiveGenerationCycleRun
+
+
+@dataclass(frozen=True)
+class _VerifiedAcquisitionOrigin(_CompletedNLOrigin):
+    """Owner-replayed selected source before route-specific authority is considered."""
+
     generation_run: GenerationCycleRun
     source_cycle: GenerationCycleRecord
     design_problem_basis: DesignProblem
@@ -1063,6 +1074,28 @@ class _VerifiedAcquisitionOrigin:
     source_requirement: AcquisitionRequirementGap | None
     configured_port_source: object | None
     cost: AcquisitionCostBasisRecord | None
+
+
+@dataclass(frozen=True)
+class VerifiedModelInputRoutingOrigin:
+    """Read-only source custody for a selected blocked model-input occurrence."""
+
+    tenant_id: str
+    cell_id: str
+    run_id: str
+    source_job_id: str
+    source_payload_ref: str
+    capability_manifest_ref: str
+    compiled_ref: ArtifactRef
+    terminal_event_id: str
+    generation_run: GenerationCycleRun
+    source_cycle: GenerationCycleRecord
+    design_problem_basis: DesignProblem
+    n5_execution_ref: ArtifactRef
+    n5_expectation: GenericN5ExecutionJoinExpectation
+    selected_basis: SelectedProgramGraphInputBasis
+    routing_report_ref: ArtifactRef
+    routing_report: ModelInputRoutingReport
 
 
 @dataclass(frozen=True)
@@ -1241,10 +1274,8 @@ class AcquisitionRouteLoop:
         self._cell_id = cell_id
         self._action_outcome_reader = action_outcome_reader
 
-    def _resolve_verified_origin(
-        self, *, run_id: str, experiment: bool = False
-    ) -> _VerifiedAcquisitionOrigin:
-        """Reopen the completed owner and selected planner/actual-cycle lineage."""
+    def _resolve_completed_nl_origin(self, *, run_id: str) -> _CompletedNLOrigin:
+        """Reopen the one completed NL output before applying any route policy."""
 
         try:
             job = self._control_store.get_unique_completed_job_by_run_and_kind(
@@ -1295,8 +1326,6 @@ class AcquisitionRouteLoop:
             )
         except (TypeError, ValueError, OSError) as exc:
             raise AcquisitionRouteClosureError("source_core_attempt_not_established") from exc
-        from polisyos.core.artifacts import artifact_ref_identity_key
-
         compiled_outputs = tuple(
             ref
             for ref in terminal.manifest.outputs
@@ -1332,6 +1361,24 @@ class AcquisitionRouteLoop:
             compiled = CompiledRecursiveGenerationCycleRun.model_validate(compiled_payload)
         except (TypeError, ValueError) as exc:
             raise AcquisitionRouteClosureError("compiled_run_invalid") from exc
+        return _CompletedNLOrigin(
+            job=job,
+            payload_ref=payload_ref,
+            manifest_ref=manifest_ref,
+            compiled_ref=compiled_ref,
+            selected_compiled_ref=selected_compiled_ref,
+            terminal_event_id=terminal_event_id,
+            compiled=compiled,
+        )
+
+    def _resolve_verified_origin(
+        self, *, run_id: str, experiment: bool = False
+    ) -> _VerifiedAcquisitionOrigin:
+        """Reopen the completed owner and selected planner/actual-cycle lineage."""
+
+        completed = self._resolve_completed_nl_origin(run_id=run_id)
+        job = completed.job
+        compiled = completed.compiled
         candidates = [
             (leaf.cycle_run, cycle)
             for leaf in compiled.recursive_run.leaf_nodes
@@ -1507,11 +1554,11 @@ class AcquisitionRouteLoop:
                 raise AcquisitionRouteClosureError("source_requirement_projection_mismatch")
         return _VerifiedAcquisitionOrigin(
             job=job,
-            payload_ref=payload_ref,
-            manifest_ref=manifest_ref,
-            compiled_ref=compiled_ref,
-            selected_compiled_ref=selected_compiled_ref,
-            terminal_event_id=terminal_event_id,
+            payload_ref=completed.payload_ref,
+            manifest_ref=completed.manifest_ref,
+            compiled_ref=completed.compiled_ref,
+            selected_compiled_ref=completed.selected_compiled_ref,
+            terminal_event_id=completed.terminal_event_id,
             compiled=compiled,
             generation_run=generation_run,
             source_cycle=source_cycle,
@@ -1521,6 +1568,192 @@ class AcquisitionRouteLoop:
             source_requirement=source_requirement,
             configured_port_source=configured_port_source,
             cost=cost,
+        )
+
+    def resolve_model_input_routing_origin(
+        self, *, run_id: str, routing_report_ref: ArtifactRef
+    ) -> VerifiedModelInputRoutingOrigin:
+        """Reopen the exact V10 root-leaf report and its blocked N5 occurrence.
+
+        This historical join resolves source custody. A successor must still
+        obtain current action authority and replay the selected Catalog before
+        using an activated observation.
+        """
+        from polisyos.core.artifacts import (
+            CoreJSONArtifactStore,
+            matches_artifact_store_protocol,
+            validate_core_model_json_artifact,
+        )
+        from polisyos.core.contracts import ModelInputObligationSet
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+            cycle_job_design_problem_ref,
+        )
+        from polisyos.runtime.quality.generation_cycle import (
+            _GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION,
+            _generation_source_run_id,
+            resolve_generation_cycle_run_context_history,
+        )
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationAdmissionOwner,
+            GenericCycleSimulationN5ExecutionV4,
+            GenericCycleSimulationN5InputV1,
+            GenericN5ExecutionJoinExpectation,
+        )
+        from polisyos.runtime.quality.model_input_routing import (
+            MODEL_INPUT_ROUTING_REPORT_KIND,
+            read_model_input_routing_report,
+        )
+
+        if (
+            routing_report_ref.kind != MODEL_INPUT_ROUTING_REPORT_KIND
+            or routing_report_ref.media_type != "application/json"
+            or routing_report_ref.manifest_profile_sha256 is None
+        ):
+            raise AcquisitionRouteClosureError("model_input_source_report_not_selected")
+        completed = self._resolve_completed_nl_origin(run_id=run_id)
+        compiled = completed.compiled
+        recursive_run = compiled.recursive_run
+        leaves = recursive_run.leaf_nodes
+        if (
+            len(leaves) != 1
+            or leaves[0].node_ref != recursive_run.root_node_ref
+            or leaves[0].cycle_run is None
+        ):
+            raise AcquisitionRouteClosureError("model_input_source_root_leaf_not_established")
+        generation_run = leaves[0].cycle_run
+        source_run_id = _generation_source_run_id(compiled.design_problem)
+        if (
+            generation_run.schema_version != _GENERATION_CYCLE_MODEL_INPUT_ROUTING_SCHEMA_VERSION
+            or not generation_run.cycles
+            or generation_run.cycles[-1].model_input_routing_report_ref != routing_report_ref
+            or sum(
+                cycle.model_input_routing_report_ref == routing_report_ref
+                for cycle in generation_run.cycles
+            )
+            != 1
+        ):
+            raise AcquisitionRouteClosureError("model_input_source_report_not_selected")
+        cycle = generation_run.cycles[-1]
+        simulation = cycle.simulation
+        handoff = compiled.generic_cycle_simulation_handoff
+        scope = (completed.job.job_id, run_id, self._tenant_id, self._cell_id)
+        if (
+            generation_run.run_id != source_run_id
+            or generation_run.design_problem_ref != compiled.design_problem_ref
+            or completed.selected_compiled_ref.manifest_profile_sha256 is None
+            or handoff is None
+            or (handoff.job_id, handoff.run_id, handoff.tenant_id, handoff.cell_id) != scope
+            or handoff.profile.profile_selection_kind != "problem"
+            or handoff.n4_child_profile_family_ref is not None
+            or compiled.n4_child_profile_set_ref is not None
+            or simulation.status != "simulation_blocked"
+            or simulation.simulation_result_ref is not None
+            or simulation.generic_n4_child_profile_family_ref is not None
+            or simulation.generic_n4_child_profile_set_ref is not None
+            or simulation.generic_n5_input_ref is None
+            or simulation.generic_n5_execution_ref is None
+            or simulation.model_input_obligation_set_ref is None
+            or simulation.generic_n4_source_ref is None
+            or simulation.generic_profile_ref != handoff.profile_ref
+            or simulation.generic_profile_selection_ref != handoff.profile.profile_selection_ref
+        ):
+            raise AcquisitionRouteClosureError("model_input_source_n5_lineage_not_established")
+        store = self._artifact_store
+        if not matches_artifact_store_protocol(store, CoreJSONArtifactStore):
+            raise AcquisitionRouteClosureError("model_input_source_profile_store_unavailable")
+        history = resolve_generation_cycle_run_context_history(
+            generation_run,
+            context_owner=CycleSubstrateContextArtifactOwner(store=store),
+            initial_problem=compiled.design_problem,
+            expected_job_id=completed.job.job_id,
+            expected_run_id=run_id,
+            expected_tenant_id=self._tenant_id,
+            expected_cell_id=self._cell_id,
+        )
+        bindings = tuple(row for row in history.bindings if row.cycle_index == cycle.cycle_index)
+        if history.status != "resolved" or len(bindings) != 1:
+            raise AcquisitionRouteClosureError("model_input_source_context_history_not_established")
+        (binding,) = bindings
+        if (
+            simulation.generic_context_job_ref != binding.context_job_ref
+            or cycle.design_problem_basis_ref != cycle_job_design_problem_ref(binding.problem)
+            or (
+                cycle.cycle_index == 0
+                and (
+                    binding.context_job_ref != handoff.context_job_ref
+                    or binding.context != handoff.context
+                )
+            )
+        ):
+            raise AcquisitionRouteClosureError("model_input_source_context_mismatch")
+
+        # The generic owner independently reopens N4 and recomputes this
+        # outcome from the candidate and problem during the V4 request replay.
+        input_record = GenericCycleSimulationN5InputV1.model_validate(
+            load_core_json_artifact(store, simulation.generic_n5_input_ref)
+        )
+        expectation = GenericN5ExecutionJoinExpectation(
+            input_ref=simulation.generic_n5_input_ref,
+            result_ref=None,
+            status="simulation_blocked",
+            model_input_obligation_set_ref=simulation.model_input_obligation_set_ref,
+            n4_source_ref=simulation.generic_n4_source_ref,
+            context_job_ref=binding.context_job_ref,
+            profile_ref=handoff.profile_ref,
+            child_family_ref=None,
+            child_set_ref=None,
+            profile_selection_ref=handoff.profile.profile_selection_ref,
+            profile=handoff.profile,
+            design_problem_ref=cycle.design_problem_basis_ref,
+            outcome_variable=input_record.outcome_variable,
+            cycle_index=cycle.cycle_index,
+            candidate_id=cycle.selected_candidate_ref,
+            candidate_atom_hash=cycle.selected_candidate_content_hash,
+            world_model_record_content_hash=binding.context.world_model_record.content_hash,
+            job_id=completed.job.job_id,
+            run_id=run_id,
+            source_run_id=source_run_id,
+            tenant_id=self._tenant_id,
+            cell_id=self._cell_id,
+        )
+        execution_ref = simulation.generic_n5_execution_ref
+        owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
+        join, selected_basis = owner.resolve_n5_execution_join_with_program_graph_input_basis(
+            execution_ref, expected=expectation
+        )
+        if (
+            join.status != "resolved"
+            or type(join.execution) is not GenericCycleSimulationN5ExecutionV4
+            or selected_basis is None
+        ):
+            raise AcquisitionRouteClosureError("model_input_source_n5_join_not_established")
+        report = read_model_input_routing_report(store, routing_report_ref)
+        obligation_set = validate_core_model_json_artifact(
+            ModelInputObligationSet, store, simulation.model_input_obligation_set_ref
+        )
+        if (
+            report.obligation_set_ref != simulation.model_input_obligation_set_ref
+            or report.selected_invocation != obligation_set.invocation
+        ):
+            raise AcquisitionRouteClosureError("model_input_source_report_invocation_mismatch")
+        return VerifiedModelInputRoutingOrigin(
+            tenant_id=self._tenant_id,
+            cell_id=self._cell_id,
+            run_id=run_id,
+            source_job_id=completed.job.job_id,
+            source_payload_ref=completed.payload_ref,
+            capability_manifest_ref=completed.manifest_ref,
+            compiled_ref=completed.selected_compiled_ref,
+            terminal_event_id=completed.terminal_event_id,
+            generation_run=generation_run,
+            source_cycle=cycle,
+            design_problem_basis=binding.problem,
+            n5_execution_ref=execution_ref,
+            n5_expectation=expectation,
+            selected_basis=selected_basis,
+            routing_report_ref=routing_report_ref,
+            routing_report=report,
         )
 
     def resolve_candidate_experiment_origin(
@@ -2712,6 +2945,7 @@ __all__ = [
     "AcquisitionTerminalReceipt",
     "VerifiedAcquisitionRouteClosure",
     "VerifiedCandidateExperimentOrigin",
+    "VerifiedModelInputRoutingOrigin",
     "parse_acquisition_route_loop_receipt",
     "parse_acquisition_route_phase_receipt",
     "persist_world_commit_and_reenter",

@@ -253,7 +253,12 @@ def test_terminal_history_identity_join_uses_action_identity_owner(
         ),
     )
 
-    def install_case(*, changed_scalar: bool = False, changed_profile: bool = False) -> None:
+    def install_case(
+        *,
+        changed_scalar: bool = False,
+        changed_profile: bool = False,
+        changed_phase_authority_profile: bool = False,
+    ) -> None:
         phases = []
         for index, (phase, coarse_phase, recovery_state, predecessor, owners, has_action) in enumerate(
             phase_specs
@@ -272,6 +277,16 @@ def test_terminal_history_identity_join_uses_action_identity_owner(
                 }
             )
             phases.append(receipt)
+        if changed_phase_authority_profile:
+            # Same PA2 bytes, but an earlier phase claims a different manifest
+            # profile. Removing repeated owner reads must not weaken this join.
+            phases[0] = phases[0].model_copy(
+                update={
+                    "authority_decision_ref": phases[0].authority_decision_ref.model_copy(
+                        update={"manifest_profile_sha256": _hash("a")}
+                    )
+                }
+            )
 
         terminal_values = {
             name: value
@@ -374,6 +389,10 @@ def test_terminal_history_identity_join_uses_action_identity_owner(
             ({}, "identity_join_reached_transition_guard"),
             ({"changed_scalar": True}, "candidate_experiment_terminal_identity_mismatch"),
             ({"changed_profile": True}, "candidate_experiment_terminal_identity_mismatch"),
+            (
+                {"changed_phase_authority_profile": True},
+                "candidate_experiment_terminal_identity_mismatch",
+            ),
         ):
             install_case(**changes_identity)
             with pytest.raises((RuntimeError, ValueError), match=expected_error):

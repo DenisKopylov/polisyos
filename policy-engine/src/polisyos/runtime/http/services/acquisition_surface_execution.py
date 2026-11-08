@@ -702,6 +702,10 @@ class WorldBankWDIAcquisitionExecutionPort:
             raise LiveAcquisitionExecutionError("candidate_experiment_source_owner_missing")
         if self._executor is not None:
             raise LiveAcquisitionExecutionError("candidate_experiment_canonical_executor_required")
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionActionServiceError,
+        )
+
         try:
             selection = self.preflight_candidate_experiment(origin=origin)
             selected, phase, _admission = _current_candidate_experiment_action(
@@ -709,15 +713,19 @@ class WorldBankWDIAcquisitionExecutionPort:
             )
             if selected != selection or phase.receipt_phase != "executing":
                 raise ValueError("candidate_experiment_action_changed")
+            service = bridge._source_control_service
+            if service is None:
+                raise ValueError("candidate_experiment_budget_owner_missing")
+            binding, prepared = self._candidate_experiment_binding(
+                origin=origin, selection=selection, control_service=service
+            )
+            self._require_candidate_experiment_attempt_available(binding)
             window = bridge.prepare_candidate_experiment_source_budget_window(
                 origin=origin, action_phase_ref=action_phase_ref
             )
             budget_state = BudgetState.model_validate(
                 {"limits": {"run": {"key": "run", "max_usd": window.effective_limit_usd}}}
             )
-            service = bridge._source_control_service
-            if service is None:
-                raise ValueError("candidate_experiment_budget_owner_missing")
             budget_observer = service.build_candidate_experiment_source_budget_observer(
                 origin=origin,
                 budget_state=budget_state,
@@ -735,9 +743,6 @@ class WorldBankWDIAcquisitionExecutionPort:
                 budget_observer=budget_observer,
                 budget_state=budget_state,
                 experiment_origin=origin,
-            )
-            binding, prepared = self._candidate_experiment_binding(
-                origin=origin, selection=selection, control_service=service
             )
             if prepared.authorization != self._current_candidate_experiment_authorization(
                 service=service, origin=origin, binding=binding
@@ -791,6 +796,8 @@ class WorldBankWDIAcquisitionExecutionPort:
                 action_phase_ref=action_phase_ref,
             )
         except LiveAcquisitionExecutionError:
+            raise
+        except AcquisitionActionServiceError:
             raise
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
             raise LiveAcquisitionExecutionError(
@@ -1190,6 +1197,31 @@ class WorldBankWDIAcquisitionExecutionPort:
         except (OSError, ValueError):
             return False
         return lease.binding == binding
+
+    def _require_candidate_experiment_attempt_available(
+        self,
+        binding: WorldBankWDIRouteExecutionBinding,
+    ) -> None:
+        """Fail before budget setup when the exact candidate attempt is already consumed."""
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionActionServiceError,
+        )
+
+        lease_path = self._lease_path(binding)
+        claim_path = self._execution_claim_path(binding)
+        try:
+            claim_path.lstat()
+        except FileNotFoundError:
+            pass
+        else:
+            raise AcquisitionActionServiceError("acquisition_live_attempt_exhausted")
+
+        try:
+            lease_path.lstat()
+        except FileNotFoundError:
+            return
+        if not self._reserved_binding_is_reusable(binding):
+            raise AcquisitionActionServiceError("acquisition_live_attempt_exhausted")
 
     def _claim_reserved_binding(
         self,

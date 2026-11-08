@@ -310,18 +310,16 @@ def test_candidate_reentry_defers_only_the_redundant_historical_read(
     assert history_calls == ["historical"]
 
 
-def test_candidate_reentry_reuses_owner_outcome_then_runs_one_fresh_historical_read(
+def test_candidate_reentry_uses_one_late_fresh_owner_fold_and_historical_read(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The retained full historic policy/window proof runs once, after the later owner read."""
+    """Reentry folds owner history once after source selection, then reads its bound window."""
     case, action_ref, _executing, events = _pending_candidate_action_case(monkeypatch)
     case["bridge"].action_head_sink = case["sink"]
 
     def record_owner_read(**kwargs: object) -> tuple[object, ...]:
         if kwargs.get("verified_origin") is not None:
             events.append("initial-owner")
-        elif "tenant_id" in kwargs and len(events) == 1:
-            events.append("action-final-owner")
         else:
             events.append("reentry-fresh-owner")
         return case["outcomes"]
@@ -333,7 +331,7 @@ def test_candidate_reentry_reuses_owner_outcome_then_runs_one_fresh_historical_r
 
     assert context.action.action_phase_ref == "sha256:" + "b" * 64
     assert context.phase is case["phase"]
-    assert events == ["initial-owner", "action-final-owner", "reentry-fresh-owner", "historical"]
+    assert events == ["initial-owner", "reentry-fresh-owner", "historical"]
 
 
 def test_candidate_reentry_rejects_fresh_outcome_drift_before_historical_read(
@@ -352,9 +350,6 @@ def test_candidate_reentry_rejects_fresh_outcome_drift_before_historical_read(
         if kwargs.get("verified_origin") is not None:
             events.append("initial-owner")
             return case["outcomes"]
-        if len(events) == 1:
-            events.append("action-final-owner")
-            return case["outcomes"]
         events.append("reentry-fresh-owner")
         drifted = SimpleNamespace(
             **{
@@ -370,7 +365,52 @@ def test_candidate_reentry_rejects_fresh_outcome_drift_before_historical_read(
             case["bridge"], case["origin"], case["phase_ref"], action_ref
         )
 
-    assert events == ["initial-owner", "action-final-owner", "reentry-fresh-owner"]
+    assert events == ["initial-owner", "reentry-fresh-owner"]
+
+
+def test_candidate_reentry_rejects_history_removed_after_final_source_selection(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The late owner fold sees removals made after selection, with no extra earlier replay."""
+    case, action_ref, _executing, _history_calls = _pending_candidate_action_case(monkeypatch)
+    case["bridge"].action_head_sink = case["sink"]
+    events: list[str] = []
+    base_select_source = case["select_source"]
+    source_selection_calls = 0
+
+    def drift_after_final_source_selection(bridge: object, origin: object) -> object:
+        nonlocal source_selection_calls
+        source_selection_calls += 1
+        selection = base_select_source(bridge, origin)
+        events.append(f"source-selection-{source_selection_calls}")
+        if source_selection_calls == 2:
+            case["sink"].final_outcomes = ()
+        return selection
+
+    monkeypatch.setattr(
+        action, "_candidate_experiment_source_selection", drift_after_final_source_selection
+    )
+
+    def record_owner_read(**kwargs: object) -> tuple[object, ...]:
+        if kwargs.get("verified_origin") is not None:
+            events.append("initial-owner")
+            return case["outcomes"]
+        events.append("reentry-fresh-owner")
+        final_outcomes = case["sink"].final_outcomes
+        return case["outcomes"] if final_outcomes is None else final_outcomes
+
+    case["sink"].experiment_action_outcomes = record_owner_read
+    with pytest.raises(ValueError, match="candidate_experiment_action_live_owner_changed"):
+        action._current_candidate_experiment_reentry_action_context(
+            case["bridge"], case["origin"], case["phase_ref"], action_ref
+        )
+
+    assert events == [
+        "initial-owner",
+        "source-selection-1",
+        "source-selection-2",
+        "reentry-fresh-owner",
+    ]
 
 
 def test_candidate_action_reuses_owner_outcomes_and_keeps_final_currentness_fold(

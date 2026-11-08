@@ -663,6 +663,12 @@ def _current_candidate_experiment_action_context(
     after = bridge.control_store.current_execution_job_admission()
     if current_head != head or not after.same_execution_identity(admission):
         raise ValueError("candidate_experiment_action_live_owner_changed")
+    # Reentry consumes this fresh outcome for its historical receipt read. Fold
+    # after the final source selection, at the last boundary before that read.
+    if defer_historical_reentry and (
+        _candidate_experiment_source_selection(bridge, current_origin) != selected
+    ):
+        raise ValueError("candidate_experiment_action_live_owner_changed")
     try:
         current_outcomes = service.acquisition_route_sink.experiment_action_outcomes(
             tenant_id=origin.tenant_id,
@@ -673,15 +679,16 @@ def _current_candidate_experiment_action_context(
         )
     except (OSError, RuntimeError, TypeError, ValueError) as exc:
         raise ValueError("candidate_experiment_action_history_not_verified") from exc
-    if current_outcomes != outcomes:
-        raise ValueError("candidate_experiment_action_live_owner_changed")
-    if _candidate_experiment_source_selection(bridge, current_origin) != selected:
+    if current_outcomes != outcomes or (
+        not defer_historical_reentry
+        and _candidate_experiment_source_selection(bridge, current_origin) != selected
+    ):
         raise ValueError("candidate_experiment_action_live_owner_changed")
     return _CurrentCandidateExperimentActionContext(
         selection=selected,
         phase=phase,
         admission=admission,
-        outcome=outcome,
+        outcome=current_outcomes[-1],
         action=receipt,
     )
 
@@ -736,26 +743,9 @@ def _current_candidate_experiment_reentry_action_context(
     receipt = action_context.action
     if type(receipt) is not CandidateAcquisitionActionReceipt:
         raise ValueError("candidate_experiment_reentry_action_changed")
-    outcomes = bridge.action_head_sink.experiment_action_outcomes(
-        tenant_id=origin.tenant_id,
-        cell_id=origin.cell_id,
-        run_id=origin.run_id,
-        source_job_id=origin.source_job_id,
-        route_id=origin.route_id,
-    )
-    outcome = _select_current_candidate_experiment_outcome(
-        outcomes,
-        origin=origin,
-        action_job_id=admission.job.job_id,
-        action_generation=phase.action_generation,
-        receipt_ref=pending_phase_ref,
-        required_phase="candidate_input_reentry_pending",
-    )
-    if outcome != action_context.outcome:
-        raise ValueError("candidate_experiment_action_live_owner_changed")
     executing_refs = tuple(
         record
-        for record in outcome.phase_chain
+        for record in action_context.outcome.phase_chain
         if getattr(record, "receipt_ref", None) == receipt.action_phase_ref
     )
     if len(executing_refs) != 1 or getattr(executing_refs[0], "receipt", None) is None:

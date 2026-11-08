@@ -5223,6 +5223,183 @@ async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
 
 
 @pytest.mark.asyncio
+async def test_partial_native_ncm_n5_is_freshly_persisted_and_n8_refuses_evalsafety(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """A real partial N5 remains visible in CAS but cannot cross the N8 authority gate."""
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+    from polisyos.runtime.quality.generation_cycle import (
+        load_joint_simulation_result,
+        simulation_evaluation_input_ref,
+        simulation_value_execution_context,
+    )
+
+    store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
+    fresh_reader = guard_runtime_cas(
+        FileSystemCAS(tmp_path / "runtime-cas").with_ambient_ownership_enforcement()
+    )
+    hints = {
+        "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
+        "joint_simulation_baseline_state": {"firm_survival": 0.0},
+    }
+    problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
+        ncm_ref,
+        artifact_store=store,
+        tmp_path=tmp_path,
+        runtime_hints=hints,
+    )
+
+    original = NCMEngineMethod.pure_step
+    native_outputs: list[dict[str, Any]] = []
+
+    def corrupt_second_native_output(state: Any, params: Any) -> dict[str, Any]:
+        output = original(state, params)
+        native_outputs.append(copy.deepcopy(output))
+        if len(native_outputs) == 2:
+            # Keep the real native call, then inject the same malformed envelope
+            # as SIM-02 at its output boundary. N5 must retain only prior work.
+            return {"counterfactual_result": {"world_summaries": []}}
+        return output
+
+    monkeypatch.setattr(
+        NCMEngineMethod,
+        "pure_step",
+        staticmethod(corrupt_second_native_output),
+    )
+
+    class _ControlledN4:
+        async def __call__(self, generated_problem: DesignProblem, *, cycle_index: int) -> Any:
+            assert generated_problem.design_problem_id == problem.design_problem_id
+            assert cycle_index == 0
+            return _GenerationResult(
+                status="generated",
+                candidates=(candidate,),
+                surrogate_rankings=(
+                    _Ranking(candidate_id=candidate.candidate_id, score=0.9, voi_estimate=4.0),
+                ),
+            )
+
+    def limited_candidate_grounding(
+        *,
+        candidate: Any,
+        problem: DesignProblem,
+        cycle_index: int,
+        generation_result: Any | None = None,
+    ) -> CandidateGroundingObservation:
+        del problem, cycle_index, generation_result
+        return CandidateGroundingObservation(
+            candidate_id=candidate.candidate_id,
+            status="grounding_unavailable",
+            grounding_score=0.2,
+            issue_codes=("controlled_profile_grounding_unavailable",),
+            grounding_source="grounding_unavailable",
+        )
+
+    fresh_n8_port = generation_cycle_module._DefaultSimulationBoundFoundryValuePort(
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+        artifact_store=fresh_reader,
+    )
+    controller = GenerationCycleController(
+        generation_port=_ControlledN4(),
+        grounding_port=limited_candidate_grounding,
+        value_port=fresh_n8_port,
+        repo_root=tmp_path,
+        cycle_substrate_context=context,
+        artifact_store=store,
+        authority_scope="contract_testing",
+    )
+    assert isinstance(controller._simulation_port, JointSimulationPort)
+    assert controller._simulation_port._artifact_store is store
+    assert controller._value_port.artifact_store is fresh_reader
+
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            run = await controller.run(
+                problem,
+                budget_state=_budget(),
+                min_cycles=1,
+                max_cycles=1,
+            )
+            assert len(native_outputs) == 2
+            assert run.promotion_port.status == "not_promoted"
+            assert run.promotion_port.receipts == ()
+            cycle = run.cycles[0]
+            simulation = cycle.simulation
+            # The producer returns a selected result for the completed scope.
+            # The persisted interruption still withholds joint value at N8.
+            assert simulation.status == "joint_simulated"
+            assert simulation.simulation_result_ref is not None
+            assert "n5_physical_work_failed" in simulation.authority_blockers
+            assert "interaction_evidence_incomplete" in simulation.authority_blockers
+
+            persisted = load_joint_simulation_result(
+                simulation.simulation_result_ref,
+                store=fresh_reader,
+                expected_world_model_record_content_hash=context.world_model_record.content_hash,
+                expected_atom_ids=tuple(
+                    atom.intervention_id for atom in candidate.intervention_atoms
+                ),
+                expected_selected_outcomes=("firm_survival",),
+            )
+            assert persisted.receipt.payload_hash == simulation.simulation_ref
+            assert len(persisted.trajectories) == 1
+            assert persisted.trajectories[0].run_level == "individual"
+            assert persisted.trajectories[0].atom_ids == (
+                candidate.intervention_atoms[0].intervention_id,
+            )
+            assert persisted.diagnostics["physical_work_interruption"] == (
+                "n5_physical_work_failed"
+            )
+            work = persisted.physical_work_observations
+            assert [item.status for item in work] == ["completed", "failed"]
+            assert work[0].error_code is None
+            assert work[1].error_type == "JointSimulationControllerError"
+            assert work[1].error_code == "ncm_world_summaries_missing"
+            assert work[1].error_context == {"slot": "counterfactual_result.world_summaries"}
+            assert persisted.diagnostics["interaction_evidence_issues"]
+            assert (
+                "interaction_evidence_incomplete"
+                in persisted.diagnostics["interaction_sampling_issues"]
+            )
+            persisted_blockers = set(persisted.promotion_ready_value_packet["authority_blockers"])
+            assert "n5_physical_work_failed" in persisted_blockers
+            assert "interaction_evidence_incomplete" in persisted_blockers
+
+            # N8 is invoked by the ordinary N6 path, but its EvalSafety intake
+            # refuses this real partial result and records the refusal.
+            assert cycle.value_port.status == "value_blocked"
+            assert cycle.value_port.value_ref is None
+            assert "eval_safety_simulation_provenance_mismatch" in (
+                cycle.value_port.authority_blockers
+            )
+            assert (
+                simulation_evaluation_input_ref(
+                    simulation,
+                    artifact_store=fresh_reader,
+                )
+                is None
+            )
+            with pytest.raises(
+                ValueError,
+                match="eval_safety_simulation_input_unresolved",
+            ):
+                simulation_value_execution_context(
+                    candidate=candidate,
+                    simulation=simulation,
+                    problem=problem,
+                    artifact_store=fresh_reader,
+                )
+    finally:
+        fresh_reader.close()
+        store.close()
+
+
+@pytest.mark.asyncio
 async def test_static_ncm_sampling_variation_reaches_candidate_n8_but_not_evalsafety(
     tmp_path: Path,
 ) -> None:

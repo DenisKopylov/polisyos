@@ -12,6 +12,9 @@ import pytest
 
 from polisyos.core.artifacts import ArtifactWriteOptions, ProducerInfo
 from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.runtime.quality.candidate_acquisition_source import (
+    read_candidate_acquisition_source,
+)
 from polisyos.runtime.quality.candidate_source_basis import (
     CandidateSourceBasisInputs,
     CandidateSourceBasisPredecessor,
@@ -366,6 +369,59 @@ def test_repeated_source_uses_verified_latest_world_without_losing_scientific_sc
         assert exact_n5_content_bytes(repeated.effective_values) != exact_n5_content_bytes(
             changed.effective_values
         )
+
+        # A provider release date changes the retained source occurrence even
+        # when the selected WDI row and every numerical N5 input stay equal.
+        # The date is source metadata, not proof that the source is current.
+        release_response = json.loads(fixture_wdi_response(UNEMPLOYMENT_PROFILE))
+        release_response[0]["lastupdated"] = "2026-10-09"
+        release_body = json.dumps(release_response, sort_keys=True, separators=(",", ":")).encode()
+        release_dir = tmp_path / "release-metadata-source"
+        release_dir.mkdir()
+        release_ref = _another_real_source(
+            case,
+            release_dir,
+            monkeypatch,
+            body=release_body,
+        )
+        assert release_ref != next_source_ref
+        prior_persisted_source = read_candidate_acquisition_source(
+            case.store,
+            source_ref=next_source_ref,
+        )
+        release_persisted_source = read_candidate_acquisition_source(
+            case.store,
+            source_ref=release_ref,
+        )
+        assert release_persisted_source.raw_source_ref != prior_persisted_source.raw_source_ref
+
+        released = prepare_candidate_source_basis_values(
+            store=case.store,
+            problem=case.problem,
+            inputs=next_inputs.model_copy(update={"candidate_source_ref": release_ref}),
+            predecessors=(predecessor,),
+        )
+        assert released.predicate_provenance == "recomputed", released.reason_codes
+        previous_raw = repeated.effective_values["candidate_source"]["raw_wdi_values"]
+        released_raw = released.effective_values["candidate_source"]["raw_wdi_values"]
+        assert "lastupdated" not in previous_raw[0]
+        assert released_raw[0]["lastupdated"] == "2026-10-09"
+        assert released_raw[1] == previous_raw[1]
+        for facet in ("foundry_state", "selected_native_ncm", "n5_request_values"):
+            assert exact_n5_content_bytes(released.effective_values[facet]) == (
+                exact_n5_content_bytes(repeated.effective_values[facet])
+            )
+        assert exact_n5_content_bytes(released.effective_values) != exact_n5_content_bytes(
+            repeated.effective_values
+        )
+        assert released.effective_values["candidate_source"]["scientific_authority"] == {
+            "observation_class": release_persisted_source.observation_class.value,
+            "source_currentness": "not_established",
+            "measurement_validity": "not_established",
+            "independence": "not_established",
+            "sample_denominator_evidence": "not_established",
+            "publication_authority": False,
+        }
 
 
 def test_changed_scientific_source_remains_in_restored_source_ancestry(

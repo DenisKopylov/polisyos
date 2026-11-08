@@ -190,6 +190,7 @@ def test_n4_source_canonical_identity_reaches_terminal_consumer(tmp_path):
     assert ref.manifest_profile_sha256 is None
     assert fresh_read.provenance.selected_manifest_profile_sha256 == actual_selected_profile
     assert "_generation_source_read_provenance" not in fresh.model_dump(mode="python")
+    assert "selected_program_graph_linkage" not in fresh.model_dump(mode="python")
     assert fresh == type(fresh).model_validate(fresh.model_dump(mode="python"))
     with (
         patch.object(repository.store, "get_raw_manifest_bytes", return_value=b'{"canon":null}'),
@@ -289,6 +290,86 @@ def test_n4_source_canonical_identity_reaches_terminal_consumer(tmp_path):
     )
     with pytest.raises(ValidationError):
         CycleSubstrateContext.model_validate(purpose_changed_context.model_dump(mode="python"))
+
+
+def test_selected_program_graph_linkage_hash_binds_owner_profile_and_registry(tmp_path) -> None:
+    """The V4 linkage hash and exact registry ABI retain singleton do targets."""
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core.registry import load_registry_bundle_content
+    from polisyos.ir.registry.registry_fragments import RegistryBundle
+    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+    from tests.unit.runtime.quality.test_generic_simulation_admission_program_graph import (
+        compiled_selection,
+    )
+
+    case = compiled_selection.__wrapped__(tmp_path)
+    profile_ref = ArtifactRef(
+        artifact_id=n4.gy_content_hash({"profile_ref": "selected"}),
+        kind="runtime.quality.generic_cycle_simulation_profile",
+        media_type="application/json",
+        manifest_profile_sha256=n4.gy_content_hash({"profile_view": "selected"}),
+    )
+    registry_ref = world_model_artifact_views(
+        case.profile.context_inputs.world_model_record
+    ).registry_bundle_ref
+    assert registry_ref is not None
+
+    linkage = n4.N4SelectedProgramGraphLinkageV1.from_selected_owner(
+        profile_ref=profile_ref,
+        profile=case.profile,
+        registry_bundle_ref=registry_ref,
+    )
+    assert linkage.profile_ref == profile_ref
+    assert linkage.compile_report_ref == case.profile.n5.compile_report_ref
+    assert linkage.registry_bundle_ref == registry_ref
+    assert linkage.content_hash == n4.gy_content_hash(
+        linkage.model_dump(mode="json", exclude={"content_hash"})
+    )
+
+    registry_content = load_registry_bundle_content(case.store, registry_ref)
+    registries = RegistryBundle(
+        schema_version="1.0",
+        mechanisms=registry_content.mechanism_registry,
+        slots=registry_content.slot_registry,
+        merge_rules=registry_content.merge_registry,
+        constraints=registry_content.constraint_registry,
+        selector_fields=registry_content.selector_field_registry,
+        units=registry_content.units_registry,
+        metrics=registry_content.metric_registry,
+    )
+    linked = n4._link_selected_program_graph_intervention(
+        bundle=case.trinity,
+        intervention=case.trinity.policy_spec.interventions[0],
+        linkage_context=n4.N4SelectedProgramGraphLinkContext(
+            linkage=linkage,
+            registry_content=registry_content,
+        ),
+        registries=registries,
+        required_do_slots=("agents.income",),
+    )
+    assert linked.reads_slots == ["agents.income"]
+    assert linked.writes_slots == ["agents.income", "government.balance"]
+    with pytest.raises(
+        n4.DesignGenerationError,
+        match="n4_selected_program_graph_candidate_link_refused",
+    ):
+        n4._link_selected_program_graph_intervention(
+            bundle=case.trinity,
+            intervention=case.trinity.policy_spec.interventions[0],
+            linkage_context=n4.N4SelectedProgramGraphLinkContext(
+                linkage=linkage,
+                registry_content=registry_content,
+            ),
+            registries=registries,
+            required_do_slots=("government.tax_rate",),
+        )
+
+    tampered = linkage.model_dump(mode="json")
+    tampered["profile_selection_ref"] = n4.gy_content_hash({"selection": "other"})
+    with pytest.raises(
+        ValidationError, match="n4_selected_program_graph_linkage_content_hash_mismatch"
+    ):
+        n4.N4SelectedProgramGraphLinkageV1.model_validate(tampered)
 
 
 @pytest.mark.asyncio

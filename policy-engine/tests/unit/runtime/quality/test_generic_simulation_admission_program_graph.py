@@ -31,6 +31,18 @@ from polisyos.ir.trinity import (
 )
 from polisyos.pdc import gy_content_hash, world_model_record_content_hash
 from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextInputs
+from polisyos.runtime.quality.design_problem import (
+    AuthorityProfile,
+    CandidateLever,
+    CandidateLeverSpace,
+    DesignObjective,
+    DesignProblem,
+    DesignStakeholder,
+    EvidenceAcquisitionNeeds,
+    JurisdictionTimeSemantics,
+    NLProvenance,
+    OutcomeOfInterest,
+)
 from polisyos.runtime.quality.generation_cycle import JointSimulationPort
 from polisyos.runtime.quality.generic_simulation_admission import (
     GenericCycleN5ProgramGraphRequestProfileV4,
@@ -86,10 +98,62 @@ def _with_hash(profile: GenericCycleSimulationProfileV1) -> GenericCycleSimulati
     )
 
 
+def _linkage_problem() -> DesignProblem:
+    return DesignProblem(
+        design_problem_id="selected_program_graph_linkage",
+        problem_statement="Exercise selected registry reopening for a candidate-only N4 link.",
+        domain="generic_policy",
+        nl_provenance=NLProvenance(
+            raw_request="Use a selected policy graph.",
+            source_surface="test.generic_program_graph_profile",
+        ),
+        authority_profile=AuthorityProfile(
+            requester_authority="research",
+            requested_authority_level="research",
+            mandate="candidate-only fixture",
+        ),
+        jurisdiction_time=JurisdictionTimeSemantics(
+            region="UA",
+            valid_time="2026",
+            as_of="2026-06-29",
+            policy_time="2026",
+            data_time="2026",
+        ),
+        objectives=[
+            DesignObjective(
+                objective_id="improve_outcome",
+                description="Exercise selected graph linkage.",
+                metric_id="outcome",
+            )
+        ],
+        stakeholders=[DesignStakeholder(stakeholder_id="citizens", name="Citizens")],
+        outcome_of_interest=OutcomeOfInterest(
+            target_variable="outcome",
+            metric_id="outcome",
+            estimand="candidate linkage fixture",
+        ),
+        candidate_lever_space=CandidateLeverSpace(
+            allowed_operator_kinds=["tax_subsidy"],
+            candidate_levers=[
+                CandidateLever(
+                    lever_id="income_support",
+                    operator_kind="tax_subsidy",
+                    instrument="income",
+                    target_slot="income",
+                )
+            ],
+        ),
+        evidence_acquisition_needs=EvidenceAcquisitionNeeds(),
+    )
+
+
 def _n4_atom(
     trinity: TrinityBundle,
     world: WorldModelRecord,
     intervention: InterventionSpec,
+    *,
+    context: Any | None = None,
+    provenance_refs: tuple[str, ...] = (),
 ) -> InterventionAtomBinding:
     causal = _node()
     return build_intervention_atom_binding(
@@ -100,9 +164,10 @@ def _n4_atom(
         causal_intervention=causal,
         query_target=QueryTarget(outcome_variables=(_OUTCOME,)),
         identification_plan=identification_plan_for_intervention(causal),
-        causal_context=_context(intervention),
+        causal_context=context or _context(intervention),
         world_model_record_ref=world.world_model_record_id,
         producer_ref="tests.generic_program_graph_profile",
+        provenance_refs=provenance_refs,
         operator_proof_type_map={intervention.kind: "node"},
     )
 
@@ -278,6 +343,51 @@ def test_selected_compilation_survives_typed_request_replay(
         assert trajectory.points[-1].outcomes[_OUTCOME] == pytest.approx(-0.20 * (1200 + 1800))
 
 
+def test_selected_program_graph_linkage_returns_exact_reopened_registry(
+    compiled_selection: _CompiledSelection,
+) -> None:
+    case = compiled_selection
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(case.profile,), store=case.store)
+    problem = _linkage_problem()
+    context = owner.context_for_profile(case.profile, problem)
+    profile_ref = case.store.put_json(
+        case.profile.model_dump(mode="json"),
+        owner._profile_write_options(
+            profile=case.profile,
+            job_id="job",
+            run_id="run",
+            tenant_id="tenant",
+            cell_id="cell",
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+    linkage = owner._load_selected_program_graph_linkage(
+        profile_ref=profile_ref,
+        profile=case.profile,
+        context=context,
+        problem=problem,
+    )
+
+    assert linkage.profile_ref == profile_ref
+    assert linkage.profile == case.profile
+    assert linkage.context == context
+    assert linkage.compile_report_ref == case.profile.n5.compile_report_ref
+    assert linkage.registry_bundle_ref == case.report.registry_bundle_ref
+    assert linkage.program_graph_ref == case.report.program_graph_ref
+    assert linkage.exec_plan_ref == case.report.exec_plan_ref
+    assert linkage.trinity_ref == case.report.policy_ref
+    assert linkage.lowered_ir_ref == case.report.lowered_ir_ref
+    assert linkage.registry_bundle_content.bundle_ref == linkage.registry_bundle_ref
+    assert linkage.intervention_registry.mechanisms == (
+        linkage.registry_bundle_content.mechanism_registry
+    )
+    assert linkage.intervention_registry.slots == linkage.registry_bundle_content.slot_registry
+    assert linkage.currentness_status == "not_established"
+    assert linkage.authority_purpose == "cycle_input_candidate_only"
+
+
 @pytest.mark.parametrize(
     ("ref_field", "role", "error"),
     [
@@ -360,6 +470,113 @@ def test_a_different_n4_intervention_cannot_label_the_compiled_action(
             outcome=_OUTCOME,
             variable_map=_VARIABLES,
             atoms=(changed,),
+        )
+
+
+def test_grounding_provenance_notes_do_not_change_selected_action_identity(
+    compiled_selection: _CompiledSelection,
+) -> None:
+    case = compiled_selection
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(case.profile,), store=case.store)
+    assert owner.build_engine_plans(
+        profile=case.profile,
+        world_record=case.world,
+        outcome=_OUTCOME,
+        variable_map=_VARIABLES,
+        atoms=(case.atom,),
+    )
+    compiled = case.trinity.policy_spec.interventions[0]
+    cg1_hash = gy_content_hash({"test": "cg1"})
+    cg2_hash = gy_content_hash({"test": "cg2"})
+    cg1_id = "cg1_cert_test"
+    cg2_id = "cg2_cert_test"
+    atom_id = "cg0_atom_test"
+    grounding_notes = [
+        f"cg1_certificate:{cg1_id}",
+        f"cg1_hash:{cg1_hash}",
+        f"cg2_certificate:{cg2_id}",
+        f"cg2_hash:{cg2_hash}",
+        f"identified_atom:{atom_id}",
+    ]
+    intervention = compiled.model_copy(update={"notes": [*compiled.notes, *grounding_notes]})
+    context = _context(intervention).model_copy(
+        update={
+            "assumptions": (
+                "llm_candidate_shadow_only",
+                "target_selector_content_bound",
+                f"grounding_relation_certificate_id:{cg1_id}",
+                f"grounding_relation_content_hash:{cg1_hash}",
+                f"grounding_decision_certificate_id:{cg2_id}",
+                f"grounding_decision_content_hash:{cg2_hash}",
+                f"identified_cg0_atom:{atom_id}",
+            )
+        }
+    )
+    refs = (cg1_hash, cg2_hash)
+    accepted = _n4_atom(
+        case.trinity, case.world, intervention, context=context, provenance_refs=refs
+    )
+    assert owner.build_engine_plans(
+        profile=case.profile,
+        world_record=case.world,
+        outcome=_OUTCOME,
+        variable_map=_VARIABLES,
+        atoms=(accepted,),
+    )
+
+    changed_params = intervention.model_copy(update={"params": {"rate": "0.25"}})
+    changed_action = _n4_atom(
+        case.trinity, case.world, changed_params, context=context, provenance_refs=refs
+    )
+    with pytest.raises(ValueError, match="generic_cycle_program_graph_n4_intervention_mismatch"):
+        owner.build_engine_plans(
+            profile=case.profile,
+            world_record=case.world,
+            outcome=_OUTCOME,
+            variable_map=_VARIABLES,
+            atoms=(changed_action,),
+        )
+
+    extra_notes = intervention.model_copy(
+        update={"notes": [*intervention.notes, "execution_override:rate=0.25"]}
+    )
+    arbitrary_metadata = _n4_atom(
+        case.trinity, case.world, extra_notes, context=context, provenance_refs=refs
+    )
+    with pytest.raises(ValueError, match="generic_cycle_program_graph_n4_intervention_mismatch"):
+        owner.build_engine_plans(
+            profile=case.profile,
+            world_record=case.world,
+            outcome=_OUTCOME,
+            variable_map=_VARIABLES,
+            atoms=(arbitrary_metadata,),
+        )
+
+    malformed_hash = f"sha256:{'z' * 64}"
+    malformed_intervention = intervention.model_copy(
+        update={"notes": [note.replace(cg1_hash, malformed_hash) for note in intervention.notes]}
+    )
+    malformed_context = context.model_copy(
+        update={
+            "assumptions": tuple(
+                assumption.replace(cg1_hash, malformed_hash) for assumption in context.assumptions
+            )
+        }
+    )
+    malformed_provenance = _n4_atom(
+        case.trinity,
+        case.world,
+        malformed_intervention,
+        context=malformed_context,
+        provenance_refs=(malformed_hash, cg2_hash),
+    )
+    with pytest.raises(ValueError, match="generic_cycle_program_graph_n4_intervention_mismatch"):
+        owner.build_engine_plans(
+            profile=case.profile,
+            world_record=case.world,
+            outcome=_OUTCOME,
+            variable_map=_VARIABLES,
+            atoms=(malformed_provenance,),
         )
 
 

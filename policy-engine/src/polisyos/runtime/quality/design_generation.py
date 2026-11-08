@@ -31,6 +31,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.producer_request import issue_producer_request_args as _issue_args
 from polisyos.common.serialization import extract_llm_json
+from polisyos.core.artifacts import ArtifactRef, artifact_ref_identity_key
 from polisyos.ir import TrinityBundle  # Pydantic resolves the persisted field type
 from polisyos.ir.analytics.interventions import (
     InterventionContext,
@@ -117,9 +118,11 @@ from polisyos.scientist.orchestration.engine.convergence import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.core.registry.loader import RegistryBundleContent
     from polisyos.data_forge.read_api.academic import (
         ConfidenceLayerVintage,
     )
+    from polisyos.ir.registry.registry_fragments import RegistryBundle
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationScenarioProfile,
     )
@@ -284,6 +287,115 @@ class N4CandidateScenarioProposalCandidate(_StrictModel):
         if self.atom.status != "candidate_unverified":
             raise ValueError("n4_candidate_scenario_atom_not_candidate")
         return self
+
+
+class N4SelectedProgramGraphLinkageV1(_StrictModel):
+    """Persist exact selected V4 owner identities without asserting a read set."""
+
+    schema_version: Literal["policyos.runtime.n4_selected_program_graph_linkage.v1"] = (
+        "policyos.runtime.n4_selected_program_graph_linkage.v1"
+    )
+    authority_purpose: Literal["candidate_linkage_only"] = "candidate_linkage_only"
+    profile_ref: ArtifactRef
+    profile_content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    profile_selection_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    compile_report_ref: ArtifactRef
+    registry_bundle_ref: ArtifactRef
+    content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @classmethod
+    def from_selected_owner(
+        cls,
+        *,
+        profile_ref: ArtifactRef,
+        profile: object,
+        registry_bundle_ref: ArtifactRef,
+    ) -> N4SelectedProgramGraphLinkageV1:
+        """Bind the minimal selected V4 identity tuple returned by its owner."""
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleN5ProgramGraphRequestProfileV4,
+            GenericCycleSimulationProfileV1,
+        )
+
+        if (
+            type(profile) is not GenericCycleSimulationProfileV1
+            or type(profile.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+        ):
+            raise ValueError("n4_selected_program_graph_profile_untyped")
+        if type(profile_ref) is not ArtifactRef or type(registry_bundle_ref) is not ArtifactRef:
+            raise TypeError("n4_selected_program_graph_owner_ref_untyped")
+        from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+
+        views = world_model_artifact_views(profile.context_inputs.world_model_record)
+        if views.registry_bundle_ref is None or artifact_ref_identity_key(
+            views.registry_bundle_ref
+        ) != artifact_ref_identity_key(registry_bundle_ref):
+            raise ValueError("n4_selected_program_graph_registry_not_wmr_bound")
+        payload = {
+            "schema_version": "policyos.runtime.n4_selected_program_graph_linkage.v1",
+            "authority_purpose": "candidate_linkage_only",
+            "profile_ref": profile_ref,
+            "profile_content_hash": profile.content_hash,
+            "profile_selection_ref": profile.profile_selection_ref,
+            "compile_report_ref": profile.n5.compile_report_ref,
+            "registry_bundle_ref": registry_bundle_ref,
+        }
+        json_payload = {
+            key: value.model_dump(mode="json") if isinstance(value, BaseModel) else value
+            for key, value in payload.items()
+        }
+        return cls.model_validate({**json_payload, "content_hash": gy_content_hash(json_payload)})
+
+    @model_validator(mode="after")
+    def _verify_selected_owner_refs(self) -> N4SelectedProgramGraphLinkageV1:
+        expected_kinds = (
+            (self.profile_ref, "runtime.quality.generic_cycle_simulation_profile"),
+            (self.compile_report_ref, "compiler.compile_report"),
+            (self.registry_bundle_ref, "core.registry_bundle"),
+        )
+        if any(
+            type(ref) is not ArtifactRef
+            or ref.kind != kind
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            for ref, kind in expected_kinds
+        ):
+            raise ValueError("n4_selected_program_graph_linkage_ref_invalid")
+        if (
+            len(
+                {
+                    artifact_ref_identity_key(self.profile_ref),
+                    artifact_ref_identity_key(self.compile_report_ref),
+                    artifact_ref_identity_key(self.registry_bundle_ref),
+                }
+            )
+            != 3
+        ):
+            raise ValueError("n4_selected_program_graph_linkage_ref_identity_ambiguous")
+        expected_hash = gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
+        if self.content_hash != expected_hash:
+            raise ValueError("n4_selected_program_graph_linkage_content_hash_mismatch")
+        return self
+
+
+@dataclass(frozen=True)
+class N4SelectedProgramGraphLinkContext:
+    """Process-local exact linker input reopened by the V4 selected owner."""
+
+    linkage: N4SelectedProgramGraphLinkageV1
+    registry_content: RegistryBundleContent
+
+    def __post_init__(self) -> None:
+        from polisyos.core.registry.loader import RegistryBundleContent
+
+        if type(self.linkage) is not N4SelectedProgramGraphLinkageV1:
+            raise TypeError("n4_selected_program_graph_linkage_untyped")
+        if type(self.registry_content) is not RegistryBundleContent:
+            raise TypeError("n4_selected_program_graph_registry_content_untyped")
+        if artifact_ref_identity_key(self.registry_content.bundle_ref) != artifact_ref_identity_key(
+            self.linkage.registry_bundle_ref
+        ):
+            raise ValueError("n4_selected_program_graph_registry_ref_mismatch")
 
 
 @dataclass(frozen=True)
@@ -1074,6 +1186,7 @@ class DesignGenerationOrganRun:
     cycle_substrate_context: CycleSubstrateContext | None = None
     credal_reference: CredalReference | None = None
     candidate_sources: tuple[GenerationCandidateSource, ...] = ()
+    selected_program_graph_linkage: N4SelectedProgramGraphLinkageV1 | None = None
 
 
 class GenerationCandidateSource(_StrictModel):
@@ -1218,6 +1331,7 @@ async def generate_design_candidate_bundle_under_a(
     world_model_record_ref: str | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
     grounding_run_budget: GroundingRunBudget | None = None,
+    selected_program_graph_link_context: N4SelectedProgramGraphLinkContext | None = None,
     producer_run_id: str | None = None,
     producer_settlement_store: BudgetMiddleware | None = None,
     call_observer: Callable[[dict[str, Any]], None] | None = None,
@@ -1234,6 +1348,7 @@ async def generate_design_candidate_bundle_under_a(
         world_model_record_ref=world_model_record_ref,
         cycle_substrate_context=cycle_substrate_context,
         grounding_run_budget=grounding_run_budget,
+        selected_program_graph_link_context=selected_program_graph_link_context,
         producer_run_id=producer_run_id,
         producer_settlement_store=producer_settlement_store,
         call_observer=call_observer,
@@ -1653,6 +1768,7 @@ async def _run_design_generation_under_a(
     cycle_substrate_context: CycleSubstrateContext | None,
     grounding_run_budget: GroundingRunBudget | None,
     candidate_proposal_only: bool,
+    selected_program_graph_link_context: N4SelectedProgramGraphLinkContext | None = None,
     producer_run_id: str | None = None,
     producer_settlement_store: BudgetMiddleware | None = None,
     call_observer: Callable[[dict[str, Any]], None] | None = None,
@@ -1704,6 +1820,7 @@ async def _run_design_generation_under_a(
             world_model_record_ref=world_model_record_ref,
             cycle_substrate_context=cycle_substrate_context,
             grounding_run_budget=grounding_run_budget,
+            selected_program_graph_link_context=selected_program_graph_link_context,
             candidate_proposal_only=candidate_proposal_only,
             candidate_scenario_reference_capture=candidate_scenario_reference_capture,
         )
@@ -1741,6 +1858,7 @@ async def _generate_design_candidate_bundle_under_a(
     world_model_record_ref: str | None,
     cycle_substrate_context: CycleSubstrateContext | None,
     grounding_run_budget: GroundingRunBudget | None = None,
+    selected_program_graph_link_context: N4SelectedProgramGraphLinkContext | None = None,
     candidate_proposal_only: bool = False,
     candidate_scenario_reference_capture: _N4CandidateScenarioReferenceCapture | None = None,
 ) -> DesignGenerationOrganRun | N4CandidateProposalSource:
@@ -2111,6 +2229,7 @@ async def _generate_design_candidate_bundle_under_a(
             reference=reference,
             relation_engine=relation_engine,
             cycle_substrate_context=cycle_substrate_context,
+            selected_program_graph_link_context=selected_program_graph_link_context,
             grounding_run_budget=grounding_run_budget,
             source_capture=source_capture,
         )
@@ -2197,6 +2316,11 @@ async def _generate_design_candidate_bundle_under_a(
         cycle_substrate_context=source_capture.context,
         credal_reference=source_capture.reference,
         candidate_sources=tuple(source_capture.candidates),
+        selected_program_graph_linkage=(
+            selected_program_graph_link_context.linkage
+            if selected_program_graph_link_context is not None
+            else None
+        ),
     )
 
 
@@ -3353,6 +3477,128 @@ def firewall_issues_for_result(
     return tuple(issues)
 
 
+def _selected_program_graph_link_registries(
+    linkage_context: N4SelectedProgramGraphLinkContext | None,
+    *,
+    design_problem: DesignProblem,
+    context: CycleSubstrateContext | None,
+    bundle: TrinityBundle,
+) -> RegistryBundle | None:
+    """Resolve one selected Core registry ABI for an ordinary V4 candidate."""
+    if linkage_context is None:
+        return None
+    if type(linkage_context) is not N4SelectedProgramGraphLinkContext:
+        raise DesignGenerationError("n4_selected_program_graph_link_context_untyped")
+    if context is None:
+        raise DesignGenerationError("n4_selected_program_graph_cycle_context_missing")
+    from polisyos.ir.registry.registry_fragments import RegistryBundle
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
+    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+
+    linkage = N4SelectedProgramGraphLinkageV1.model_validate(
+        linkage_context.linkage.model_dump(mode="python")
+    )
+    registry_content = linkage_context.registry_content
+    views = world_model_artifact_views(context.world_model_record)
+    if (
+        linkage.profile_selection_ref != cycle_job_profile_selection_ref(design_problem)
+        or linkage.registry_bundle_ref != registry_content.bundle_ref
+        or views.registry_bundle_ref is None
+        or artifact_ref_identity_key(views.registry_bundle_ref)
+        != artifact_ref_identity_key(linkage.registry_bundle_ref)
+        or str(bundle.model_spec.registry_bundle_ref)
+        != str(linkage.registry_bundle_ref.artifact_id)
+    ):
+        raise DesignGenerationError("n4_selected_program_graph_link_context_binding_mismatch")
+    return RegistryBundle(
+        schema_version="1.0",
+        mechanisms=registry_content.mechanism_registry,
+        slots=registry_content.slot_registry,
+        merge_rules=registry_content.merge_registry,
+        constraints=registry_content.constraint_registry,
+        selector_fields=registry_content.selector_field_registry,
+        units=registry_content.units_registry,
+        metrics=registry_content.metric_registry,
+    )
+
+
+def _link_selected_program_graph_intervention(
+    *,
+    bundle: TrinityBundle,
+    intervention: InterventionSpec,
+    linkage_context: N4SelectedProgramGraphLinkContext,
+    registries: RegistryBundle,
+    required_do_slots: Sequence[str],
+) -> LinkedIntervention:
+    """Link the N4 action and cover its selected do target with exact ABI writes."""
+    from polisyos.ir.registry.registry_fragments import RegistryBundle
+
+    if type(bundle) is not TrinityBundle or type(registries) is not RegistryBundle:
+        raise DesignGenerationError("n4_selected_program_graph_link_input_untyped")
+    selected_policy = bundle.policy_spec.model_copy(update={"interventions": [intervention]})
+    selected_bundle = bundle.model_copy(update={"policy_spec": selected_policy})
+    linked_bundle, report = link_trinity(
+        selected_bundle,
+        registries,
+        allow_extra_params=True,
+        strict=True,
+    )
+    rows = tuple(linked_bundle.bindings.interventions)
+    actual_writes = tuple(rows[0].writes_slots) if len(rows) == 1 else ()
+    required_targets = tuple(required_do_slots)
+    if (
+        not report.ok
+        or len(rows) != 1
+        or rows[0].intervention_id != intervention.intervention_id
+        or rows[0].mechanism_id != intervention.kind
+        or not actual_writes
+        or len(actual_writes) != len(set(actual_writes))
+        or not required_targets
+        or len(required_targets) != len(set(required_targets))
+        or not set(required_targets).issubset(actual_writes)
+        or len(rows[0].reads_slots) != len(set(rows[0].reads_slots))
+    ):
+        raise DesignGenerationError("n4_selected_program_graph_candidate_link_refused")
+    if artifact_ref_identity_key(
+        linkage_context.linkage.registry_bundle_ref
+    ) != artifact_ref_identity_key(linkage_context.registry_content.bundle_ref):
+        raise DesignGenerationError("n4_selected_program_graph_registry_content_mismatch")
+    return rows[0]
+
+
+def _link_selected_program_graph_grounding(
+    *,
+    bundle: TrinityBundle,
+    intervention: InterventionSpec,
+    cg1: GroundingRelationCertificate,
+    cg2: GroundingDecisionCertificate,
+    linkage_context: N4SelectedProgramGraphLinkContext,
+    registries: RegistryBundle,
+) -> LinkedIntervention:
+    """Recompute one grounded action through the selected V4 registry ABI."""
+    selected_atom_id = _selected_atom_id_from_cg1(cg1)
+    selected_atom = _selected_atom_payload(cg1, selected_atom_id)
+    signature = _mapping(selected_atom.get("signature"))
+    operator_kind = _id_token(signature.get("op"))
+    target_slots = tuple(_string_values(signature.get("X_do") or signature.get("target")))
+    if not selected_atom_id or not operator_kind or not target_slots:
+        raise DesignGenerationError("grounding_certificate_identifying_atom_missing")
+    grounded_intervention = _intervention_for_grounded_atom(
+        intervention,
+        operator_kind=operator_kind,
+        cg1=cg1,
+        cg2=cg2,
+        selected_atom_id=selected_atom_id,
+    )
+    return _link_selected_program_graph_intervention(
+        bundle=bundle,
+        intervention=grounded_intervention,
+        linkage_context=linkage_context,
+        registries=registries,
+        required_do_slots=target_slots,
+    )
+
+
 def _content_bound_candidates(
     *,
     design_problem: DesignProblem,
@@ -3369,6 +3615,7 @@ def _content_bound_candidates(
     reference: CredalReference | None,
     relation_engine: GroundingRelationEngine | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
+    selected_program_graph_link_context: N4SelectedProgramGraphLinkContext | None = None,
     grounding_run_budget: GroundingRunBudget | None = None,
     source_capture: _N4SourceCapture | None = None,
 ) -> tuple[tuple[ShadowGeneratedCandidate, ...], tuple[GroundingDispositionRecord, ...]]:
@@ -3393,6 +3640,12 @@ def _content_bound_candidates(
     else:
         world_record = None
         resolved_world_model_record_ref = world_model_record_ref
+    selected_link_registries = _selected_program_graph_link_registries(
+        selected_program_graph_link_context,
+        design_problem=design_problem,
+        context=context,
+        bundle=bundle,
+    )
     if resolved_world_model_record_ref is None:
         world_record = production_composed_world_model_record(repo_root.resolve())
         resolved_world_model_record_ref = world_record.world_model_record_id
@@ -3547,6 +3800,20 @@ def _content_bound_candidates(
             continue
         if cg1.selected_relation in {"exact", "certified-specialization"}:
             try:
+                selected_linked_intervention = None
+                if selected_program_graph_link_context is not None:
+                    if selected_link_registries is None:
+                        raise DesignGenerationError(
+                            "n4_selected_program_graph_registry_not_resolved"
+                        )
+                    selected_linked_intervention = _link_selected_program_graph_grounding(
+                        bundle=bundle,
+                        intervention=intervention,
+                        cg1=cg1,
+                        cg2=cg2,
+                        linkage_context=selected_program_graph_link_context,
+                        registries=selected_link_registries,
+                    )
                 candidate = _shadow_candidate_from_grounding(
                     design_problem=design_problem,
                     design_problem_ref=design_problem_ref,
@@ -3564,6 +3831,12 @@ def _content_bound_candidates(
                     cg2=cg2,
                     resolved_world_model_record_ref=str(resolved_world_model_record_ref),
                     world_record=world_record,
+                    linked_intervention=selected_linked_intervention,
+                    selected_program_graph_linkage=(
+                        selected_program_graph_link_context.linkage
+                        if selected_program_graph_link_context is not None
+                        else None
+                    ),
                 )
             except (InterventionSubstrateError, ValueError) as exc:
                 dispositions.append(
@@ -4468,6 +4741,8 @@ def _shadow_candidate_from_grounding(
     cg2: GroundingDecisionCertificate,
     resolved_world_model_record_ref: str,
     world_record: object | None,
+    linked_intervention: LinkedIntervention | None = None,
+    selected_program_graph_linkage: N4SelectedProgramGraphLinkageV1 | None = None,
 ) -> ShadowGeneratedCandidate:
     selected_atom_id = _selected_atom_id_from_cg1(cg1)
     selected_atom = _selected_atom_payload(cg1, selected_atom_id)
@@ -4484,14 +4759,30 @@ def _shadow_candidate_from_grounding(
         selected_atom_id=selected_atom_id,
     )
     schedule_start, schedule_end = _schedule_bounds(selected_intervention.schedule)
-    linked = LinkedIntervention(
-        intervention_id=selected_intervention.intervention_id,
-        mechanism_id=operator_kind,
-        reads_slots=[],
-        writes_slots=list(target_slots),
-        schedule_start=schedule_start,
-        schedule_end=schedule_end,
-    )
+    if linked_intervention is None:
+        linked = LinkedIntervention(
+            intervention_id=selected_intervention.intervention_id,
+            mechanism_id=operator_kind,
+            reads_slots=[],
+            writes_slots=list(target_slots),
+            schedule_start=schedule_start,
+            schedule_end=schedule_end,
+        )
+    else:
+        if (
+            type(linked_intervention) is not LinkedIntervention
+            or linked_intervention.intervention_id != selected_intervention.intervention_id
+            or linked_intervention.mechanism_id != operator_kind
+            or not linked_intervention.writes_slots
+            or not set(target_slots).issubset(linked_intervention.writes_slots)
+            or len(linked_intervention.writes_slots) != len(set(linked_intervention.writes_slots))
+            or len(linked_intervention.reads_slots) != len(set(linked_intervention.reads_slots))
+            or linked_intervention.schedule_start != schedule_start
+            or linked_intervention.schedule_end != schedule_end
+            or selected_program_graph_linkage is None
+        ):
+            raise DesignGenerationError("n4_selected_program_graph_linked_action_mismatch")
+        linked = linked_intervention
     causal = NodeIntervention(
         assignments=tuple(
             VariableAssignment(
@@ -4540,6 +4831,11 @@ def _shadow_candidate_from_grounding(
             *prompt_hashes,
             cg1.content_hash,
             cg2.content_hash,
+            *(
+                (selected_program_graph_linkage.content_hash,)
+                if selected_program_graph_linkage is not None
+                else ()
+            ),
         ),
         operator_proof_type_map={operator_kind: "node"},
         mechanism_variable_map={operator_kind: target_slots},
@@ -4549,7 +4845,7 @@ def _shadow_candidate_from_grounding(
         normalized_from=_normalization_record_for_grounded_candidate(
             intervention,
             normalized_intervention=selected_intervention,
-            normalized_target_slots=target_slots,
+            normalized_target_slots=linked.writes_slots,
             cg1=cg1,
         ),
         status="candidate_unverified",

@@ -11,7 +11,7 @@ from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import contextmanager, suppress
 from contextvars import ContextVar, Token
 from dataclasses import dataclass, fields
-from typing import TYPE_CHECKING, Any, Literal, TypeGuard
+from typing import TYPE_CHECKING, Any, Literal, TypeGuard, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -44,6 +44,7 @@ from polisyos.runtime.quality.candidate_simulation import (
 )
 from polisyos.runtime.quality.cycle_substrate import (
     CycleSubstrateContext,
+    cycle_job_profile_selection_ref,
     revalidate_cycle_substrate_context,
 )
 from polisyos.runtime.quality.design_problem import DesignProblem
@@ -714,7 +715,7 @@ def _canonical_model_content_hash(value: BaseModel) -> str:
 def _organ_source_payload(organ: n4.DesignGenerationOrganRun) -> dict[str, Any]:
     from polisyos.runtime.quality.promotion_sequence import _CredalReferenceReplayRecord
 
-    return {
+    payload = {
         "generation_result": organ.result,
         "trinity_bundle": organ.trinity_bundle,
         "cycle_substrate_context": organ.cycle_substrate_context,
@@ -727,6 +728,11 @@ def _organ_source_payload(organ: n4.DesignGenerationOrganRun) -> dict[str, Any]:
         ),
         "candidate_sources": organ.candidate_sources,
     }
+    if organ.selected_program_graph_linkage is not None:
+        payload["selected_program_graph_linkage"] = organ.selected_program_graph_linkage.model_dump(
+            mode="python"
+        )
+    return payload
 
 
 def _writer_projection_preserves_grounding(
@@ -786,11 +792,22 @@ class GenerationSourceHandoff(_StrictModel):
     cycle_substrate_context: CycleSubstrateContext | None
     credal_reference_payload: dict[str, Any] | None
     candidate_sources: tuple[n4.GenerationCandidateSource, ...]
+    selected_program_graph_linkage: n4.N4SelectedProgramGraphLinkageV1 | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
     @model_validator(mode="after")
     def _validate_source_bindings(self) -> GenerationSourceHandoff:
-        payload = self.model_dump(mode="python", exclude={"content_hash"})
+        payload = self.model_dump(
+            mode="python",
+            exclude={"content_hash", "selected_program_graph_linkage"},
+        )
+        if self.selected_program_graph_linkage is not None:
+            payload["selected_program_graph_linkage"] = (
+                self.selected_program_graph_linkage.model_dump(mode="python")
+            )
         if self.content_hash != _source_content_hash(payload):
             raise ValueError("generation_source_content_hash_mismatch")
         source_payload = {key: value for key, value in payload.items() if key != "synthetic"}
@@ -804,6 +821,12 @@ class GenerationSourceHandoff(_StrictModel):
         problem_ref = gy_content_hash(self.problem.model_dump(mode="json"))
         if self.generation_result.design_problem_ref != problem_ref:
             raise ValueError("generation_source_problem_mismatch")
+        if (
+            self.selected_program_graph_linkage is not None
+            and self.selected_program_graph_linkage.profile_selection_ref
+            != cycle_job_profile_selection_ref(self.problem)
+        ):
+            raise ValueError("generation_source_selected_program_graph_selection_mismatch")
         context = self.cycle_substrate_context
         if context is not None:
             context = revalidate_cycle_substrate_context(context)
@@ -881,6 +904,27 @@ class GenerationSourceHandoff(_StrictModel):
             ):
                 raise ValueError("generation_source_certificate_reference_mismatch")
             provenance = candidate.provenance
+            linked_intervention = None
+            if self.selected_program_graph_linkage is not None:
+                if (
+                    self.selected_program_graph_linkage.profile_selection_ref
+                    != cycle_job_profile_selection_ref(self.problem)
+                    or self.selected_program_graph_linkage.content_hash
+                    not in candidate.atom.provenance_refs
+                ):
+                    raise ValueError("generation_source_selected_program_graph_linkage_mismatch")
+                selected_link = candidate.atom.to_trinity_intervention_spec()
+                from polisyos.ir.linker import LinkedIntervention
+
+                schedule_start, schedule_end = n4._schedule_bounds(selected_link.schedule)
+                linked_intervention = LinkedIntervention(
+                    intervention_id=candidate.atom.intervention_id,
+                    mechanism_id=candidate.atom.operator_kind.trinity_kind,
+                    reads_slots=list(candidate.atom.read_slots),
+                    writes_slots=list(candidate.atom.target_world_slots),
+                    schedule_start=schedule_start,
+                    schedule_end=schedule_end,
+                )
             recomputed = n4._shadow_candidate_from_grounding(
                 design_problem=self.problem,
                 design_problem_ref=problem_ref,
@@ -898,6 +942,8 @@ class GenerationSourceHandoff(_StrictModel):
                 cg2=cg2,
                 resolved_world_model_record_ref=context.world_model_record.world_model_record_id,
                 world_record=context.world_model_record,
+                linked_intervention=linked_intervention,
+                selected_program_graph_linkage=self.selected_program_graph_linkage,
             )
             if recomputed.model_dump(mode="json") != candidate.model_dump(mode="json"):
                 raise ValueError("generation_source_original_candidate_mismatch")
@@ -1552,6 +1598,133 @@ class GenerationSourceRepository:
             yield trace
         finally:
             _GENERATION_SOURCE_READ_TRACE.reset(token)
+
+    def _verify_selected_program_graph_source(
+        self,
+        source: GenerationSourceHandoff,
+        *,
+        context_job_ref: ArtifactRef | None,
+        profile_ref: ArtifactRef | None,
+        job_id: str | None,
+        profile_run_id: str,
+        tenant_id: str | None,
+        cell_id: str | None,
+    ) -> None:
+        """Reopen V4 source inputs and reproduce the N4 linker footprint."""
+        linkage = source.selected_program_graph_linkage
+        if linkage is None:
+            return
+        if (
+            type(context_job_ref) is not ArtifactRef
+            or type(profile_ref) is not ArtifactRef
+            or not all(
+                isinstance(value, str) and value.strip() for value in (job_id, tenant_id, cell_id)
+            )
+            or source.cycle_substrate_context is None
+            or source.trinity_bundle is None
+            or artifact_ref_identity_key(profile_ref)
+            != artifact_ref_identity_key(linkage.profile_ref)
+        ):
+            raise ValueError("generation_source_selected_program_graph_replay_scope_missing")
+
+        try:
+            from polisyos.core.artifacts import load_core_json_artifact
+            from polisyos.runtime.quality.generic_simulation_admission import (
+                GenericCycleN5ProgramGraphRequestProfileV4,
+                GenericCycleSimulationAdmissionOwner,
+                GenericCycleSimulationProfileV1,
+            )
+
+            profile = GenericCycleSimulationProfileV1.model_validate(
+                load_core_json_artifact(self.store, profile_ref)
+            )
+            if (
+                profile.content_hash != linkage.profile_content_hash
+                or profile.profile_selection_ref != linkage.profile_selection_ref
+                or not isinstance(profile.n5, GenericCycleN5ProgramGraphRequestProfileV4)
+            ):
+                raise ValueError(
+                    "generation_source_selected_program_graph_profile_binding_mismatch"
+                )
+            # This owner path is read-only here. The exact profile and selected
+            # refs are reopened from Core; it does not claim currentness or a
+            # new lease for the historical source.
+            owner = GenericCycleSimulationAdmissionOwner(
+                profiles=(profile,),
+                store=cast("artifacts.ArtifactStore", self.store),
+            )
+            selected = owner.resolve_selected_program_graph_linkage_historical(
+                profile_ref=profile_ref,
+                expected_profile_content_hash=linkage.profile_content_hash,
+                expected_profile_selection_ref=linkage.profile_selection_ref,
+                expected_compile_report_ref=linkage.compile_report_ref,
+                expected_registry_bundle_ref=linkage.registry_bundle_ref,
+                context_job_ref=context_job_ref,
+                expected_context=source.cycle_substrate_context,
+                problem=source.problem,
+                job_id=str(job_id),
+                run_id=profile_run_id,
+                tenant_id=str(tenant_id),
+                cell_id=str(cell_id),
+            )
+            selected_context = n4.N4SelectedProgramGraphLinkContext(
+                linkage=linkage,
+                registry_content=selected.registry_bundle_content,
+            )
+            registries = n4._selected_program_graph_link_registries(
+                selected_context,
+                design_problem=source.problem,
+                context=source.cycle_substrate_context,
+                bundle=source.trinity_bundle,
+            )
+            if registries is None:
+                raise ValueError("generation_source_selected_program_graph_registry_missing")
+            candidates = {item.candidate_id: item for item in source.generation_result.candidates}
+            candidate_sources = {item.candidate_id: item for item in source.candidate_sources}
+            interventions = {
+                item.intervention_id: item
+                for item in source.trinity_bundle.policy_spec.interventions
+            }
+            for candidate_id, candidate in candidates.items():
+                candidate_source = candidate_sources[candidate_id]
+                intervention = interventions[candidate_source.intervention_id]
+                linked_intervention = n4._link_selected_program_graph_grounding(
+                    bundle=source.trinity_bundle,
+                    intervention=intervention,
+                    cg1=candidate_source.grounding_relation_certificate,
+                    cg2=candidate_source.grounding_decision_certificate,
+                    linkage_context=selected_context,
+                    registries=registries,
+                )
+                provenance = candidate.provenance
+                recomputed = n4._shadow_candidate_from_grounding(
+                    design_problem=source.problem,
+                    design_problem_ref=source.generation_result.design_problem_ref,
+                    intervention=intervention,
+                    model_id=provenance.model_id,
+                    draft_path=provenance.draft_generator_path,
+                    formalizer_path=provenance.formalizer_generator_path,
+                    critic_path=provenance.critic_generator_path,
+                    critique_verdict=candidate.critique_verdict,
+                    bundle_ref=gy_content_hash(source.trinity_bundle.model_dump(mode="json")),
+                    policy_spec_ref=gy_content_hash(
+                        source.trinity_bundle.policy_spec.model_dump(mode="json")
+                    ),
+                    prompt_hashes=provenance.prompt_hashes,
+                    raw_responses=provenance.raw_llm_responses,
+                    cg1=candidate_source.grounding_relation_certificate,
+                    cg2=candidate_source.grounding_decision_certificate,
+                    resolved_world_model_record_ref=(
+                        source.cycle_substrate_context.world_model_record.world_model_record_id
+                    ),
+                    world_record=source.cycle_substrate_context.world_model_record,
+                    linked_intervention=linked_intervention,
+                    selected_program_graph_linkage=linkage,
+                )
+                if recomputed.model_dump(mode="json") != candidate.model_dump(mode="json"):
+                    raise ValueError("generation_source_selected_program_graph_candidate_mismatch")
+        except (OSError, TypeError, ValueError) as exc:
+            raise ValueError("generation_source_selected_program_graph_replay_failed") from exc
 
     def persist_candidate_model_declaration(
         self,
@@ -4444,6 +4617,16 @@ class GenerationSourceRepository:
         ).model_dump(mode="python", exclude={"content_hash"})
         draft["content_hash"] = _source_content_hash(draft)
         artifact = GenerationSourceHandoff.model_validate(draft)
+        if artifact.selected_program_graph_linkage is not None:
+            self._verify_selected_program_graph_source(
+                artifact,
+                context_job_ref=context_job_ref,
+                profile_ref=profile_ref,
+                job_id=job_id,
+                profile_run_id=expected_run_id or run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
         body = canon.to_canonical_bytes(artifact, _SOURCE_CANON)
         generic_source_inputs = ()
         if context_job_ref is not None and profile_ref is not None:
@@ -4487,6 +4670,20 @@ class GenerationSourceRepository:
         )
         if generic_source_inputs and ref.manifest_profile_sha256 is None:
             raise ValueError("generation_source_generic_selected_profile_not_returned")
+        if artifact.selected_program_graph_linkage is not None:
+            readback = self.load(
+                ref,
+                run_id=run_id,
+                expected_run_id=expected_run_id,
+                expected_job_id=job_id,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+                context_job_ref=context_job_ref,
+                profile_ref=profile_ref,
+                n4_child_profile_family_ref=n4_child_profile_family_ref,
+            )
+            if readback.content_hash != artifact.content_hash:
+                raise ValueError("generation_source_selected_program_graph_readback_mismatch")
         return ref
 
     def load(
@@ -4588,6 +4785,16 @@ class GenerationSourceRepository:
             )
         if not _has_owner_profile(manifest, owner_options):
             raise ValueError("generation_source_owner_profile_mismatch")
+        if artifact.selected_program_graph_linkage is not None:
+            self._verify_selected_program_graph_source(
+                artifact,
+                context_job_ref=context_job_ref,
+                profile_ref=profile_ref,
+                job_id=expected_job_id,
+                profile_run_id=expected_run_id or run_id,
+                tenant_id=expected_tenant_id,
+                cell_id=expected_cell_id,
+            )
         return artifact
 
     def persist_candidate_credal_source_attempt(

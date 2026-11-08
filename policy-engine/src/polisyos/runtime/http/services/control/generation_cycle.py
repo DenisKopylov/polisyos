@@ -2306,7 +2306,9 @@ async def compile_and_run_recursive_generation_cycle(
             from polisyos.runtime.quality.design_generation import (
                 DesignGenerationOrganRun,
             )
-            from polisyos.runtime.quality.generation_cycle import N4GenerationPort
+            from polisyos.runtime.quality.generation_cycle import (
+                _resolve_n4_program_graph_link_context,
+            )
             from polisyos.runtime.quality.generation_source import (
                 _canonical_model_content_hash,
             )
@@ -2368,7 +2370,23 @@ async def compile_and_run_recursive_generation_cycle(
                 producer_settlement_store=producer_settlement_store,
                 call_observer=_observe_n4_call,
             )
-            root_organ = await root_source_port(problem, cycle_index=0)
+            root_link_context = _resolve_n4_program_graph_link_context(
+                problem=problem,
+                handoff=root_handoff,
+                owner=generic_cycle_simulation_admission_owner,
+                scope=verified_nl_job_scope,
+                context_owner=recursive_leaf_context_owner._context_owner,
+                repo_root=repo_root,
+            )
+            root_organ = await root_source_port(
+                problem,
+                cycle_index=0,
+                **(
+                    {"selected_program_graph_link_context": root_link_context}
+                    if root_link_context is not None
+                    else {}
+                ),
+            )
             if type(root_organ) is not DesignGenerationOrganRun:
                 raise DesignProblemAuthorityError(
                     "generic_n4_source_producer_untyped",

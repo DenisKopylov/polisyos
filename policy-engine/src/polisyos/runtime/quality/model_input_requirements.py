@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from polisyos.core.artifacts import validate_core_model_json_artifact
 from polisyos.core.contracts.model_input_requirements import (
     ModelInputContext,
     ModelInputObligationSet,
@@ -17,6 +18,7 @@ from polisyos.core.contracts.model_input_requirements import (
 from polisyos.foundry.execute.model_input_requirements import (
     recompute_program_graph_inputs,
     resolve_program_graph_input_declaration,
+    verify_program_graph_input_preflight,
 )
 
 if TYPE_CHECKING:
@@ -39,6 +41,53 @@ class ProgramGraphInputPreflight:
     parameter_override_bundle_ref: ParameterOverrideBundleRef | None
     obligation_set_ref: ArtifactRef
     invocation: ProgramGraphInputInvocation
+
+
+@dataclass(frozen=True)
+class SelectedProgramGraphInputBasis:
+    """Invocation facts from the active job, candidate, and selected execution."""
+
+    context: ModelInputContext
+    program_graph_ref: ProgramGraphRef
+    exec_plan_ref: ExecPlanRef
+    registry_bundle_ref: ArtifactRef
+    input_bindings_ref: FoundryInputBindingsRef
+    steps: tuple[int, ...]
+    parameter_override_bundle_ref: ParameterOverrideBundleRef | None = None
+
+    def invocation(self, interface_ref: ArtifactRef) -> ProgramGraphInputInvocation:
+        """Bind independently selected facts to an interface for Foundry replay."""
+        return ProgramGraphInputInvocation(
+            context=self.context,
+            interface_ref=interface_ref,
+            program_graph_ref=self.program_graph_ref,
+            exec_plan_ref=self.exec_plan_ref,
+            registry_bundle_ref=self.registry_bundle_ref,
+            input_bindings_ref=self.input_bindings_ref,
+            steps=self.steps,
+            parameter_override_bundle_ref=self.parameter_override_bundle_ref,
+        )
+
+
+def replay_selected_program_graph_input_obligations(
+    store: CoreJSONArtifactStore,
+    *,
+    obligation_set_ref: ArtifactRef,
+    selected_basis: SelectedProgramGraphInputBasis,
+) -> ModelInputObligationSet:
+    """Read the exact set and replay its members against the current selection.
+
+    The set supplies the interface locator. Foundry independently compares
+    that interface with the compiled model's declaration during replay.
+    """
+    selected_set = validate_core_model_json_artifact(
+        ModelInputObligationSet, store, obligation_set_ref
+    )
+    return verify_program_graph_input_preflight(
+        store,
+        obligation_set_ref=obligation_set_ref,
+        expected_invocation=selected_basis.invocation(selected_set.invocation.interface_ref),
+    )
 
 
 def derive_program_graph_input_interface(
@@ -95,16 +144,15 @@ def preflight_program_graph_inputs(
     numerical request. A missing state port stays missing even when the
     unbound snapshot has a numerically usable initialization placeholder.
     """
-    invocation = ProgramGraphInputInvocation(
+    invocation = SelectedProgramGraphInputBasis(
         context=context,
-        interface_ref=interface_ref,
         program_graph_ref=program_graph_ref,
         exec_plan_ref=exec_plan_ref,
         registry_bundle_ref=registry_bundle_ref,
         input_bindings_ref=input_bindings_ref,
         steps=steps,
         parameter_override_bundle_ref=parameter_override_bundle_ref,
-    )
+    ).invocation(interface_ref)
     recomputed = recompute_program_graph_inputs(store, invocation=invocation)
     refs = tuple(
         persist_model_input_obligation(store, obligation)

@@ -237,6 +237,22 @@ def _install_bound_test_step_up(client) -> str:
 _UNSAFE_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 _PATH_PARAMETER = re.compile(r"\{([^}]+)\}")
 _ACTION_PERMISSION_MARKER = "__polisyos_action_permission__"
+_CANDIDATE_EXPERIMENT_MUTATIONS = (
+    ("POST", "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request"),
+    ("POST", "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute"),
+)
+_MODEL_INPUT_USE_MUTATIONS = (
+    ("POST", "/api/v1/runs/{run_id}/model-input-use/decision-request"),
+    ("POST", "/api/v1/runs/{run_id}/model-input-use/execute"),
+)
+_DEPLOYMENT_ONLY_MUTATING_PERMISSIONS = frozenset(
+    {
+        RuntimePermission.JOBS_CANCEL,
+        RuntimePermission.REGISTERED_SQL_ADMIT,
+        RuntimePermission.REGISTERED_SQL_REGISTER,
+        RuntimePermission.REGISTERED_SQL_WITHDRAW,
+    }
+)
 _EXPECTED_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/analysis/attractors"),
     ("POST", "/api/v1/analysis/basin-map"),
@@ -254,8 +270,12 @@ _EXPECTED_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/control/data/resolve"),
     ("POST", "/api/v1/control/decision-validity/epoch-batches"),
     ("POST", "/api/v1/control/decision-validity/events"),
+    ("POST", "/api/v1/control/jobs/{job_id}/cancel"),
     ("POST", "/api/v1/control/lex/search"),
     ("POST", "/api/v1/control/lex/trigger"),
+    ("POST", "/api/v1/control/registered-sql/materializations"),
+    ("POST", "/api/v1/control/registered-sql/registrations"),
+    ("POST", "/api/v1/control/registered-sql/withdrawals"),
     ("POST", "/api/v1/control/runs"),
     ("POST", "/api/v1/control/runs/nl"),
     ("POST", "/api/v1/control/runs/{run_id}/feedback/evaluate"),
@@ -270,7 +290,9 @@ _EXPECTED_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/runs/batch"),
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request"),
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"),
+    *_CANDIDATE_EXPERIMENT_MUTATIONS,
     ("POST", "/api/v1/runs/{run_id}/human-decisions"),
+    *_MODEL_INPUT_USE_MUTATIONS,
     ("POST", "/api/v1/runs/{run_id}/predictive-calibration"),
     ("POST", "/api/v1/runs/{run_id}/production-approval"),
     ("POST", "/api/v1/runs/{run_id}/public-verification-record"),
@@ -311,8 +333,21 @@ _EXPECTED_MUTATING_PERMISSIONS = {
         "POST",
         "/api/v1/control/decision-validity/epoch-batches",
     ): RuntimePermission.DECISIONS_VALIDITY_PUBLISH,
+    ("POST", "/api/v1/control/jobs/{job_id}/cancel"): RuntimePermission.JOBS_CANCEL,
     ("POST", "/api/v1/control/lex/search"): RuntimePermission.KNOWLEDGE_SEARCH,
     ("POST", "/api/v1/control/lex/trigger"): RuntimePermission.KNOWLEDGE_TRIGGER,
+    (
+        "POST",
+        "/api/v1/control/registered-sql/materializations",
+    ): RuntimePermission.REGISTERED_SQL_ADMIT,
+    (
+        "POST",
+        "/api/v1/control/registered-sql/registrations",
+    ): RuntimePermission.REGISTERED_SQL_REGISTER,
+    (
+        "POST",
+        "/api/v1/control/registered-sql/withdrawals",
+    ): RuntimePermission.REGISTERED_SQL_WITHDRAW,
     ("POST", "/api/v1/control/runs"): RuntimePermission.RUNS_LAUNCH,
     ("POST", "/api/v1/control/runs/nl"): RuntimePermission.RUNS_LAUNCH,
     (
@@ -339,10 +374,12 @@ _EXPECTED_MUTATING_PERMISSIONS = {
         "POST",
         "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute",
     ): RuntimePermission.EVIDENCE_ACQUIRE,
+    **dict.fromkeys(_CANDIDATE_EXPERIMENT_MUTATIONS, RuntimePermission.EVIDENCE_ACQUIRE),
     (
         "POST",
         "/api/v1/runs/{run_id}/human-decisions",
     ): RuntimePermission.RUNS_HUMAN_DECISIONS_CREATE,
+    **dict.fromkeys(_MODEL_INPUT_USE_MUTATIONS, RuntimePermission.RUNS_LAUNCH),
     (
         "POST",
         "/api/v1/runs/{run_id}/predictive-calibration",
@@ -374,8 +411,18 @@ _MUTATING_OPERATION_CASE_IDS = {
     ("POST", "/api/v1/control/data/resolve"): "resolve-data-needs",
     ("POST", "/api/v1/control/decision-validity/events"): ("publish-decision-validity-event"),
     ("POST", "/api/v1/control/decision-validity/epoch-batches"): ("admit-epoch-validity-batch"),
+    ("POST", "/api/v1/control/jobs/{job_id}/cancel"): "cancel-control-job",
     ("POST", "/api/v1/control/lex/search"): "search-lex-graph",
     ("POST", "/api/v1/control/lex/trigger"): "trigger-lex-pipeline",
+    (
+        "POST",
+        "/api/v1/control/registered-sql/materializations",
+    ): "admit-registered-sql-materialization",
+    ("POST", "/api/v1/control/registered-sql/registrations"): "register-registered-sql-source",
+    (
+        "POST",
+        "/api/v1/control/registered-sql/withdrawals",
+    ): "withdraw-registered-sql-materialization",
     ("POST", "/api/v1/control/runs"): "launch-run",
     ("POST", "/api/v1/control/runs/nl"): "launch-nl-run",
     ("POST", "/api/v1/control/runs/{run_id}/feedback/evaluate"): ("evaluate-run-feedback"),
@@ -396,7 +443,11 @@ _MUTATING_OPERATION_CASE_IDS = {
         "POST",
         "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute",
     ): "execute-run-acquisition-route",
+    _CANDIDATE_EXPERIMENT_MUTATIONS[0]: "request-run-candidate-experiment-decision",
+    _CANDIDATE_EXPERIMENT_MUTATIONS[1]: "execute-run-candidate-experiment",
     ("POST", "/api/v1/runs/{run_id}/human-decisions"): ("create-run-human-decision"),
+    _MODEL_INPUT_USE_MUTATIONS[0]: "request-run-model-input-use-decision",
+    _MODEL_INPUT_USE_MUTATIONS[1]: "execute-run-model-input-use",
     ("POST", "/api/v1/runs/{run_id}/predictive-calibration"): ("create-run-predictive-calibration"),
     ("POST", "/api/v1/runs/{run_id}/production-approval"): ("create-run-production-approval"),
     ("POST", "/api/v1/runs/{run_id}/public-verification-record"): (
@@ -413,9 +464,24 @@ _HIGH_STAKES_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/control/runs/{run_id}/reissue"),
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request"),
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"),
+    *_CANDIDATE_EXPERIMENT_MUTATIONS,
     ("POST", "/api/v1/runs/{run_id}/human-decisions"),
+    *_MODEL_INPUT_USE_MUTATIONS,
     ("POST", "/api/v1/runs/{run_id}/production-approval"),
 )
+
+
+def _expected_mutating_step_up_class(operation: tuple[str, str]) -> str | None:
+    """Assert the two candidate action classes independently of the live gate."""
+    from polisyos.runtime.http.step_up import HIGH_STAKES_PERMISSION_CLASSES
+
+    if operation in _MODEL_INPUT_USE_MUTATIONS or operation in _CANDIDATE_EXPERIMENT_MUTATIONS:
+        return "acquisition_approval"
+    permission = _EXPECTED_MUTATING_PERMISSIONS[operation]
+    if permission is RuntimePermission.RUNS_LAUNCH:
+        return None
+    selected = HIGH_STAKES_PERMISSION_CLASSES.get(permission)
+    return None if selected is None else selected.value
 
 
 def _mutation_operation_params() -> tuple[object, ...]:
@@ -822,6 +888,49 @@ def _authorized_mutation_request(
             },
             "requested_query_context_ref": "sha256:" + "d" * 64,
         }
+    if case_id == "cancel-control-job":
+        from polisyos.core.contracts.control import ControlJobCancellationRequest
+        from tests.unit.runtime.http.test_control_plane_store import (
+            _job_creation_event,
+            _job_execution_scope,
+        )
+
+        control = client.app.state.runtime_container.control_service
+        assert control is not None
+        job_id = "job-ds20-owned-cancellation"
+        manifest = control._artifact_store.put_json(
+            {"fixture": "ds20-owned-cancellation"},
+            ArtifactWriteOptions(kind="runtime.capability_manifest", media_type="application/json"),
+        )
+        scope = {
+            **_job_execution_scope(),
+            "tenant_id": runtime_api_env["tenant_a"],
+            "cell_id": cell_id,
+        }
+        creation = _job_creation_event(execution_scope=scope)
+        creation.update(
+            job_id=job_id,
+            run_id=run_id,
+            capability_manifest_ref=str(manifest.artifact_id),
+            payload_ref=None,
+        )
+        job = control._control_store.create_job(
+            job_id=job_id,
+            kind="workflow_run",
+            run_id=run_id,
+            pipeline_id=None,
+            requested_execution_profile=None,
+            effective_execution_profile="dev",
+            policy_flags={"candidate": True},
+            capability_manifest_ref=str(manifest.artifact_id),
+            payload_ref=None,
+            submitted_by="denis",
+            creation_event_payload=creation,
+        )
+        assert job.state == "pending"
+        client.app.state.control_job_cancellation_rollout_enabled = True
+        request = ControlJobCancellationRequest(operation_id="ds20-cancel-owned-pending-job")
+        return f"/api/v1/control/jobs/{job.job_id}/cancel", request.model_dump(mode="json")
     if case_id == "search-lex-graph":
         return default_path, {
             "query": "authorization",
@@ -835,6 +944,42 @@ def _authorized_mutation_request(
             "output_dir": str(runtime_api_env["cas_root"] / "lex-ds20-output"),
             "llm_model": "simulated-qwen",
         }
+    if case_id in {
+        "admit-registered-sql-materialization",
+        "register-registered-sql-source",
+        "withdraw-registered-sql-materialization",
+    }:
+        # The development app has no appointed SQL source owner. The exact
+        # permission and request still reach its typed missing-owner boundary.
+        def source_ref(marker: str, kind: str) -> dict[str, str]:
+            return {
+                "artifact_id": "sha256:" + marker * 64,
+                "kind": kind,
+                "media_type": "application/json",
+                "manifest_profile_sha256": "sha256:" + marker * 64,
+            }
+
+        command: dict[str, Any] = {"slot_id": "unappointed-matrix-source", "event_id": case_id}
+        if case_id == "register-registered-sql-source":
+            return default_path, command
+        command["expected_predecessor"] = "sha256:" + "a" * 64
+        if case_id == "admit-registered-sql-materialization":
+            command["occurrence_id"] = "ds20-materialization-occurrence"
+            command["request_ref"] = source_ref("b", "ir.data_view_request")
+        else:
+            command["target"] = {
+                "tenant_id": runtime_api_env["tenant_a"],
+                "cell_id": cell_id,
+                "source_incarnation_id": "ds20-source-incarnation",
+                "admission_scope_digest": "sha256:" + "b" * 64,
+                "occurrence_id": "ds20-materialization-occurrence",
+                "revision_digest": "sha256:" + "c" * 64,
+                "admission_epoch": "ds20-admission-epoch",
+                "admission_event_ref": "sha256:" + "d" * 64,
+                "snapshot_ref": source_ref("e", "fabric.data_snapshot"),
+                "use_contract_ref": source_ref("f", "fabric.registered_sql_use"),
+            }
+        return default_path, command
     if case_id == "launch-run":
         return default_path, {
             "mode": "workflow",
@@ -981,6 +1126,91 @@ def _authorized_mutation_request(
             },
             "idempotency_key": case_id,
         }
+    if operation in _CANDIDATE_EXPERIMENT_MUTATIONS or operation in _MODEL_INPUT_USE_MUTATIONS:
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionDecisionRequestResponse,
+            AcquisitionExecutionResponse,
+        )
+        from polisyos.runtime.http.services.model_input_successor_action import (
+            ModelInputSuccessorDecisionResponse,
+        )
+
+        def selected_ref(
+            marker: str, kind: str, *, media_type: str = "application/json"
+        ) -> dict[str, str]:
+            # The routing matrix exercises authorization only. The served test
+            # resolves real source and activation artifacts through their owners.
+            return {
+                "artifact_id": "sha256:" + marker * 64,
+                "kind": kind,
+                "media_type": media_type,
+                "manifest_profile_sha256": "sha256:" + marker * 64,
+            }
+
+        route_id = "sha256:" + "a" * 64
+        authority_ref = "sha256:" + "9" * 64
+        job_id = "job-ds20-candidate-input-use"
+        service = client.app.state.runtime_container.acquisition_action_service
+        assert service is not None
+        compiled_ref = selected_ref("b", "runtime.compiled_recursive_generation_cycle")
+        response_fields = {
+            "run_id": run_id,
+            "route_id": route_id,
+            "authority_decision_ref": authority_ref,
+        }
+        mutation: dict[str, Any] = {"idempotency_key": case_id}
+        decision: AcquisitionDecisionRequestResponse | ModelInputSuccessorDecisionResponse
+        if operation in _CANDIDATE_EXPERIMENT_MUTATIONS:
+            mutation.update(
+                route_id=route_id,
+                replay_pins={
+                    "source_job_id": "job-ds20-candidate-source",
+                    "source_payload_ref": "sha256:" + "1" * 64,
+                    "request_content_hash": "sha256:" + "2" * 64,
+                    "compiled_ref": compiled_ref,
+                    "planner_report_ref": selected_ref("c", "runtime.acquisition_planner_report"),
+                    "compiler_report_ref": selected_ref(
+                        "d", "runtime.data_requirement_compilation_report"
+                    ),
+                    "configured_port_source_ref": selected_ref(
+                        "e", "runtime.quality.n7_configured_candidate_port_source"
+                    ),
+                    "policy_ref": selected_ref(
+                        "f", "runtime_quality.candidate_unpriced_acquisition_policy"
+                    ),
+                    "candidate_digest": "sha256:" + "3" * 64,
+                },
+            )
+            decision_handler = "request_candidate_experiment_decision"
+            execute_handler = "execute_candidate_experiment"
+            decision = AcquisitionDecisionRequestResponse(
+                **response_fields, outcome="decision_required"
+            )
+        else:
+            mutation.update(
+                compiled_ref=compiled_ref,
+                blocked_execution_ref=selected_ref(
+                    "c", "runtime.quality.generic_cycle_simulation_n5_execution"
+                ),
+                routing_report_ref=selected_ref("d", "runtime.quality.model_input_routing_report"),
+                activation_receipt_ref=selected_ref(
+                    "e",
+                    "epoch.activated_overlay_admission_receipt",
+                    media_type="application/vnd.polisyos.epoch+json",
+                ),
+                observation_id="test-model-input-use-observation",
+            )
+            decision_handler = "request_model_input_use_decision"
+            execute_handler = "execute_model_input_use"
+            decision = ModelInputSuccessorDecisionResponse(
+                **response_fields, job_id=job_id, outcome="decision_required"
+            )
+        if operation in (_CANDIDATE_EXPERIMENT_MUTATIONS[0], _MODEL_INPUT_USE_MUTATIONS[0]):
+            monkeypatch.setattr(service, decision_handler, lambda **_: decision)
+            return default_path, mutation
+        execution = AcquisitionExecutionResponse(**response_fields, job_id=job_id)
+        monkeypatch.setattr(service, execute_handler, lambda **_: execution)
+        return default_path, {"request": mutation, "decision_ref": authority_ref}
     if case_id == "create-run-human-decision":
         digest = "sha256:" + "a" * 64
         return default_path, {
@@ -1332,8 +1562,6 @@ def test_mutating_operation_authorized_request_reaches_handler(
     runtime_api_env,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from polisyos.runtime.http.step_up import HIGH_STAKES_PERMISSION_CLASSES
-
     method, _route_path = operation
     permission = _EXPECTED_MUTATING_PERMISSIONS[operation]
     case_id = _MUTATING_OPERATION_CASE_IDS[operation]
@@ -1346,15 +1574,21 @@ def test_mutating_operation_authorized_request_reaches_handler(
         claims_by_token={},
         raise_server_exceptions=False,
     )
-    provider.put_claim(
-        bearer,
-        _claims(
-            tenant_id=runtime_api_env["tenant_a"],
-            cell_id=cell.cell_id,
-            jti=f"jwt-authorized-{case_id}",
-            roles=frozenset({PolicyOSRole.ADMIN}),
-        ),
+    claims = _claims(
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=cell.cell_id,
+        jti=f"jwt-authorized-{case_id}",
+        roles=frozenset({PolicyOSRole.ADMIN}),
     )
+    provider.put_claim(bearer, claims)
+    if permission in _DEPLOYMENT_ONLY_MUTATING_PERMISSIONS:
+        from polisyos.runtime.http.authorization import DeploymentPrincipalGrantResolver
+
+        # The developer fixture supplies verified claims. The normal action
+        # owner still binds the exact principal tuple and deployment grant.
+        client.app.state.runtime_deployment_principal_grants = DeploymentPrincipalGrantResolver(
+            (((claims.iss, claims.aud, claims.sub, claims.tenant_id, cell.cell_id), (permission,)),)
+        )
     headers = {
         "Authorization": f"Bearer {bearer}",
         "X-Tenant-ID": runtime_api_env["tenant_a"],
@@ -1382,7 +1616,7 @@ def test_mutating_operation_authorized_request_reaches_handler(
                 route_path=_route_path,
                 monkeypatch=monkeypatch,
             )
-        expected_step_up = HIGH_STAKES_PERMISSION_CLASSES.get(permission)
+        expected_step_up = _expected_mutating_step_up_class(operation)
         if expected_step_up is not None:
             headers["X-PolicyOS-Step-Up"] = _install_bound_test_step_up(client)
         if case_id == "create-run-human-decision":
@@ -1399,6 +1633,15 @@ def test_mutating_operation_authorized_request_reaches_handler(
     expected_status, expected_code = {
         "submit-normative-evidence": (400, "normative_evidence_binding_invalid"),
         "admit-epoch-validity-batch": (422, "verifier_not_configured"),
+        "admit-registered-sql-materialization": (
+            503,
+            "registered_sql_source_owner_verification_missing",
+        ),
+        "register-registered-sql-source": (503, "registered_sql_source_owner_verification_missing"),
+        "withdraw-registered-sql-materialization": (
+            503,
+            "registered_sql_source_owner_verification_missing",
+        ),
         "get-artifact-batch": (200, None),
         "get-lineage-batch": (409, "authority_surface_admission_blocked"),
         "create-run-human-decision": (409, "DS9-DECISION-ARTIFACT-MISSING"),
@@ -1446,6 +1689,15 @@ def test_mutating_operation_authorized_request_reaches_handler(
         assert ArtifactManifestView.model_validate(artifacts[0]) == expected_artifact
     elif case_id == "get-lineage-batch":
         _assert_authority_surface_admission_refusal(response, expected_surface="lineage")
+    elif case_id == "cancel-control-job":
+        from polisyos.core.contracts.control import ControlJobResponse
+
+        cancelled = ControlJobResponse.model_validate(response.json())
+        assert cancelled.job_id == "job-ds20-owned-cancellation"
+        assert cancelled.state == "cancelled"
+        assert cancelled.cancellation_disposition == "publication_fenced"
+        assert cancelled.physical_stop_status == "not_established"
+        assert opa.inputs[0].resource_kind == "runtime.control_job.cancel.ownership_verified"
     assert opa.inputs[0].request_method == method
     assert opa.inputs[0].resource_kind
     assert opa.inputs[0].resource_artifact_id
@@ -1470,7 +1722,7 @@ def test_mutating_operation_authorized_request_reaches_handler(
         assert event["step_up_class"] == ""
         assert event["step_up_outcome"] == "not_required"
     else:
-        assert event["step_up_class"] == expected_step_up.value
+        assert event["step_up_class"] == expected_step_up
         assert event["step_up_outcome"] == "verified"
 
 
@@ -1480,11 +1732,10 @@ def test_high_stakes_mutating_operation_without_step_up_is_denied(
     runtime_api_env,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from polisyos.runtime.http.step_up import HIGH_STAKES_PERMISSION_CLASSES
-
     method, _route_path = operation
     permission = _EXPECTED_MUTATING_PERMISSIONS[operation]
-    expected_step_up = HIGH_STAKES_PERMISSION_CLASSES[permission]
+    expected_step_up = _expected_mutating_step_up_class(operation)
+    assert expected_step_up is not None
     case_id = _MUTATING_OPERATION_CASE_IDS[operation]
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
     opa = _CaptureOPA()
@@ -1541,7 +1792,7 @@ def test_high_stakes_mutating_operation_without_step_up_is_denied(
     assert event["outcome"] == "deny"
     assert event["denial_reason"] == "step_up_required"
     assert event["permission"] == permission.value
-    assert event["step_up_class"] == expected_step_up.value
+    assert event["step_up_class"] == expected_step_up
     assert event["step_up_outcome"] == "denied"
 
 
@@ -1635,6 +1886,11 @@ def test_each_mutating_operation_projects_action_permission_extension(
         resource_binding = openapi_operation["x-polisyos-resource-binding"]
         assert resource_binding["source"]
         assert resource_binding["resource_kind"]
+        assert openapi_operation.get(
+            "x-polisyos-step-up-class"
+        ) == _expected_mutating_step_up_class(operation)
+        if operation in _MODEL_INPUT_USE_MUTATIONS:
+            assert resource_binding["resource_kind"] == "runtime.evidence.model_input.use"
 
 
 def test_capability_search_routes_share_one_safe_dependency_and_deny_before_handler(

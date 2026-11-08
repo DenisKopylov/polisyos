@@ -56,6 +56,10 @@ class RuntimePermission(StrEnum):
     REGISTERED_SQL_WITHDRAW = "sources.registered_sql.withdraw"
 
 
+MODEL_INPUT_USE_PERMISSION: Final = RuntimePermission.RUNS_LAUNCH
+MODEL_INPUT_USE_RESOURCE_KIND: Final = "runtime.evidence.model_input.use"
+
+
 ROLE_PERMISSION_GRANTS: Final[Mapping[PolicyOSRole, frozenset[RuntimePermission]]] = (
     MappingProxyType(
         {

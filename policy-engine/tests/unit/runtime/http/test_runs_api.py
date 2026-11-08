@@ -1637,6 +1637,151 @@ def test_get_run_details_returns_normalized_payload(runtime_api_env) -> None:
     assert secondary_payload["execution_profile"] is None
 
 
+def test_model_input_use_result_ignores_mutable_completed_progress_without_terminal_event(
+    runtime_api_env,
+    monkeypatch,
+) -> None:
+    """A completed job row cannot establish a selected result without lifecycle proof."""
+    from polisyos.core.contracts.runtime import (
+        RunModelInputUseN5SuccessorProjection,
+    )
+    from polisyos.runtime.http.services.control_plane_store import (
+        ControlJobExecutionScope,
+        ControlJobRecord,
+    )
+
+    app = runtime_api_env["app"]
+    context = app.state.runtime_api_ctx
+    control_service = app.state._control_service
+    job_id = "job-model-input-use-no-terminal"
+    run_id = runtime_api_env["core_run_id"]
+    payload_ref = "sha256:" + "a" * 64
+    now = datetime.now(UTC)
+    job = ControlJobRecord(
+        job_id=job_id,
+        kind="acquisition",
+        state="completed",
+        run_id=run_id,
+        pipeline_id=None,
+        requested_execution_profile=None,
+        effective_execution_profile="dev",
+        policy_flags={},
+        capability_manifest_ref=None,
+        payload_ref=payload_ref,
+        submitted_by="fixture-actor",
+        created_at=now,
+        started_at=now,
+        finished_at=now,
+        lease_owner=None,
+        lease_expires_at=None,
+        attempt=1,
+        error_message=None,
+        # These mutable fields are deliberately success-shaped and must be ignored.
+        progress={
+            "receipt_phase": "terminal",
+            "terminal_receipt_ref": "sha256:" + "b" * 64,
+            "model_input_use": {"forged": True},
+        },
+    )
+    scope = ControlJobExecutionScope(
+        status="established",
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+        actor_subject="fixture-actor",
+        actor_authenticated=True,
+        actor_roles=("operator",),
+    )
+    refs = {
+        "compiled_ref": (
+            "runtime.compiled_recursive_generation_cycle",
+            "application/json",
+        ),
+        "blocked_execution_ref": (
+            "runtime.quality.generic_cycle_simulation_n5_execution",
+            "application/json",
+        ),
+        "routing_report_ref": (
+            "runtime.quality.model_input_routing_report",
+            "application/json",
+        ),
+        "activation_receipt_ref": (
+            "epoch.activated_overlay_admission_receipt",
+            "application/vnd.polisyos.epoch+json",
+        ),
+    }
+    request_payload = {
+        name: ArtifactRef(
+            artifact_id="sha256:" + str(index) * 64,
+            kind=kind,
+            media_type=media_type,
+            manifest_profile_sha256="sha256:" + "f" * 64,
+        ).model_dump(mode="json")
+        for index, (name, (kind, media_type)) in enumerate(refs.items(), start=1)
+    }
+    request_payload.update({"observation_id": "obs-1", "idempotency_key": "request-1"})
+    payload = {
+        "action_kind": "runtime.evidence.model_input.use",
+        "tenant_id": runtime_api_env["tenant_a"],
+        "cell_id": runtime_api_env["cell_a"],
+        "run_id": run_id,
+        "route_id": "route-1",
+        "decision_ref": "sha256:" + "c" * 64,
+        "request": request_payload,
+    }
+
+    class _StoreWithoutTerminal:
+        def get_job(self, selected_job_id: str):
+            assert selected_job_id == job_id
+            return job
+
+        def _reconcile_control_job_creation_envelope(self, selected_job):
+            assert selected_job is job
+            return scope, None
+
+        def get_job_created_event_payload(self, selected_job_id: str):
+            assert selected_job_id == job_id
+            return {
+                "job_id": job_id,
+                "run_id": run_id,
+                "job_kind": "acquisition",
+                "payload_ref": payload_ref,
+            }
+
+        def get_job_terminal_source_event_record(self, selected_job_id: str):
+            assert selected_job_id == job_id
+            raise RuntimeError("control job terminal event is unavailable")
+
+    with monkeypatch.context() as scoped:
+        scoped.setattr(control_service, "_control_store", _StoreWithoutTerminal())
+        scoped.setattr(
+            control_service,
+            "_load_payload_ref",
+            lambda selected_ref, *, kind: payload
+            if selected_ref == payload_ref and kind == "runtime.control_job_payload.acquisition"
+            else pytest.fail("unexpected action payload read"),
+        )
+
+        projection = runs_routes._model_input_use_n5_successor_projection(
+            run_id=run_id,
+            action_job_id=job_id,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+            store=context.store,
+            control_service=control_service,
+        )
+
+    selected = RunModelInputUseN5SuccessorProjection.model_validate(
+        projection.model_dump(mode="json")
+    )
+    assert selected.action_status == "completed"
+    assert selected.result_status == "not_established"
+    assert selected.limitation_code == "model_input_use_action_terminal_not_established"
+    assert selected.semantic_successor_ref is None
+    assert selected.n5_execution_ref is None
+    assert selected.simulation_result_ref is None
+    assert selected.result_body is None
+
+
 def test_get_run_predictive_calibration_exposes_only_the_typed_limited_attachment(
     runtime_api_env,
     monkeypatch,

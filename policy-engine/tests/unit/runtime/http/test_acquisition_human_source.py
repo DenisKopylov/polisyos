@@ -11,7 +11,7 @@ from polisyos.runtime.quality import agent_action_authority as authority
 from tests.unit.runtime.quality import test_agent_action_authority as fixtures
 
 
-def _source_case(tmp_path, monkeypatch, *, acquisition=True, action_kind=None):
+def _source_case(tmp_path, monkeypatch, *, acquisition=True, action_kind=None, permission=None):
     monkeypatch.setattr(authority, "_utcnow", lambda: fixtures.NOW)
     harness = fixtures._harness(tmp_path)
     if action_kind is not None:
@@ -24,9 +24,13 @@ def _source_case(tmp_path, monkeypatch, *, acquisition=True, action_kind=None):
     envelope_operation_id = kind if acquisition else "agent.search"
     operation = fixtures._operation(operation_id)
     invocation = fixtures._invocation(operation)
-    permission = (
-        RuntimePermission.EVIDENCE_ACQUIRE if acquisition else RuntimePermission.KNOWLEDGE_SEARCH
-    )
+    if permission is None:
+        if kind == authority.MODEL_INPUT_USE_ACTION_KIND:
+            permission = RuntimePermission.RUNS_LAUNCH
+        elif acquisition:
+            permission = RuntimePermission.EVIDENCE_ACQUIRE
+        else:
+            permission = RuntimePermission.KNOWLEDGE_SEARCH
     envelope = fixtures._envelope(
         action_kind=kind,
         operation_id=envelope_operation_id,
@@ -129,20 +133,24 @@ def _retarget_source_tuple(case, *, action_kind, operation_id):
 
 
 @pytest.mark.parametrize(
-    ("acquisition", "action_kind"),
+    ("acquisition", "action_kind", "need_reason"),
     [
-        (True, authority.ACQUISITION_ACTION_KIND),
-        (True, authority.CANDIDATE_EXPERIMENT_ACTION_KIND),
-        (False, None),
+        (True, authority.ACQUISITION_ACTION_KIND, "acquisition_required"),
+        (True, authority.CANDIDATE_EXPERIMENT_ACTION_KIND, "acquisition_required"),
+        (True, authority.MODEL_INPUT_USE_ACTION_KIND, "budget_required"),
+        (False, None, "out_of_envelope"),
     ],
 )
-def test_ds9_joins_actual_pre_human_source_classes(tmp_path, monkeypatch, acquisition, action_kind):
+def test_ds9_joins_actual_pre_human_source_classes(
+    tmp_path, monkeypatch, acquisition, action_kind, need_reason
+):
     case, effects = _source_case(
         tmp_path,
         monkeypatch,
         acquisition=acquisition,
         action_kind=action_kind,
     )
+    assert case["request"].need_reasons == [need_reason]
     _, issues = _pa2_packet_join_issues(**case)
     assert not issues, issues
     assert effects == []
@@ -184,13 +192,68 @@ def test_ds9_candidate_experiment_classifier_removal_refuses_candidate_source(
     )
     monkeypatch.setattr(
         authority,
-        "CANDIDATE_EXPERIMENT_ACTION_KIND",
-        "runtime.evidence.acquisition.candidate_experiment.removed",
+        "_PROTECTED_ACTION_HUMAN_REVIEW",
+        {
+            kind: requirement
+            for kind, requirement in authority._PROTECTED_ACTION_HUMAN_REVIEW.items()
+            if kind != authority.CANDIDATE_EXPERIMENT_ACTION_KIND
+        },
     )
 
     _, issues = _pa2_packet_join_issues(**case)
 
     assert "source" in issues
+    assert effects == []
+
+
+@pytest.mark.parametrize("mutation", ["permission", "version", "reason"])
+def test_ds9_model_input_use_refuses_crossed_review_tuple(tmp_path, monkeypatch, mutation):
+    case, effects = _source_case(
+        tmp_path, monkeypatch, action_kind=authority.MODEL_INPUT_USE_ACTION_KIND
+    )
+    source = case["source"]
+    (envelope,) = case["contract"].action_envelopes
+    if mutation == "permission":
+        legacy_permission = RuntimePermission.EVIDENCE_ACQUIRE
+        envelope = envelope.model_copy(update={"required_permission": legacy_permission})
+        source = source.model_copy(
+            update={
+                "permission_snapshot": source.permission_snapshot.model_copy(
+                    update={
+                        "required_permission": legacy_permission.value,
+                        "granted_permissions": (legacy_permission.value,),
+                    }
+                )
+            }
+        )
+    elif mutation == "version":
+        envelope = envelope.model_copy(update={"operation_version": "v2"})
+        source = source.model_copy(update={"operation_version": "v2"})
+    else:
+        request = case["request"].model_copy(update={"need_reasons": ["acquisition_required"]})
+        source = source.model_copy(update={"human_decision_request": request})
+        case["request"] = request
+        case["separation"] = case["separation"].model_copy(
+            update={"decision_request_digest": authority.agent_action_content_hash(request)}
+        )
+    case["source"] = source
+    case["contract"] = case["contract"].model_copy(update={"action_envelopes": (envelope,)})
+
+    _, issues = _pa2_packet_join_issues(**case)
+
+    assert issues == {"source"}
+    assert effects == []
+
+
+def test_pa2_model_input_use_refuses_matching_legacy_envelope_and_permission(tmp_path, monkeypatch):
+    case, effects = _source_case(
+        tmp_path,
+        monkeypatch,
+        action_kind=authority.MODEL_INPUT_USE_ACTION_KIND,
+        permission=RuntimePermission.EVIDENCE_ACQUIRE,
+    )
+
+    assert "explicit_permission_mismatch" in case["source"].refusal_reasons
     assert effects == []
 
 

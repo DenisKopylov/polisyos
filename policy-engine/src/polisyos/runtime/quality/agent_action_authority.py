@@ -24,7 +24,7 @@ from polisyos.pdc import (
     OperationInvocationRecord,
 )
 from polisyos.runtime.http.mutation_policy import RuntimeIdempotencyStore
-from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.permissions import MODEL_INPUT_USE_PERMISSION, RuntimePermission
 from polisyos.runtime.http.security import PolicyOSRole
 from polisyos.runtime.quality.authority import GovernanceMetadata
 from polisyos.runtime.quality.authority_reconciliation import (
@@ -62,6 +62,7 @@ if TYPE_CHECKING:
         HumanDecisionGatewayAdapterInput,
         HumanDecisionPA2GatewayAdapterInput,
     )
+    from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import DecisionNeedReason
 
     class _CasRef(Protocol):
         @property
@@ -160,6 +161,19 @@ HUMAN_DECISION_ARTIFACT_KIND = "runtime_quality.agent_action_human_decision"
 AGENT_ACTION_DECISION_ARTIFACT_KIND = "runtime_quality.agent_action_authority_decision"
 ACQUISITION_ACTION_KIND = "runtime.evidence.acquisition.execute"
 CANDIDATE_EXPERIMENT_ACTION_KIND = "runtime.evidence.acquisition.candidate_experiment.execute"
+MODEL_INPUT_USE_ACTION_KIND = "runtime.evidence.model_input.use"
+_PROTECTED_ACTION_HUMAN_REVIEW: Mapping[str, tuple[RuntimePermission, DecisionNeedReason]] = (
+    MappingProxyType(
+        {
+            ACQUISITION_ACTION_KIND: (RuntimePermission.EVIDENCE_ACQUIRE, "acquisition_required"),
+            CANDIDATE_EXPERIMENT_ACTION_KIND: (
+                RuntimePermission.EVIDENCE_ACQUIRE,
+                "acquisition_required",
+            ),
+            MODEL_INPUT_USE_ACTION_KIND: (MODEL_INPUT_USE_PERMISSION, "budget_required"),
+        }
+    )
+)
 CURRENT_MANDATE_OWNER_SCHEMA_VERSION: Literal["policyos.runtime.current_mandate_owner.v1"] = (
     "policyos.runtime.current_mandate_owner.v1"
 )
@@ -2009,6 +2023,20 @@ def _produce_decision(
             "delegation_runtime_role_mismatch",
         }.intersection(reasons)
 
+    protected_review = protected_action_human_review_requirement(
+        action_kind=validated_intent.action_kind,
+        operation_id=validated_operation.operation_id,
+        operation_version=validated_operation.operation_version,
+    )
+    protected_decision_reason = None
+    if protected_review is not None:
+        protected_permission, protected_decision_reason = protected_review
+        if (
+            proof_snapshot is not None
+            and proof_snapshot.required_permission != protected_permission.value
+        ):
+            reasons.append("explicit_permission_mismatch")
+            satisfied["explicit_permission"] = False
     request = _human_decision_request(
         contract=contract,
         invocation=validated_invocation,
@@ -2021,19 +2049,11 @@ def _produce_decision(
         contract_ref=resolved.contract_cas_ref if resolved is not None else None,
         resource_digest=(bound_resource.resource_digest if bound_resource is not None else None),
         effect_binding_digest=(binding.binding_digest if binding is not None else None),
-        required_decision_reason=(
-            "acquisition_required"
-            if _is_acquisition_execution(validated_intent, validated_operation)
-            else "out_of_envelope"
-        ),
+        required_decision_reason=protected_decision_reason or "out_of_envelope",
         information_refs=gateway._human_decision_information_refs,
         disconfirming_refs=gateway._human_decision_disconfirming_refs,
     )
     decision_record_ref: str | None = None
-    acquisition_requires_human = _is_acquisition_execution(
-        validated_intent,
-        validated_operation,
-    )
     permitted_pre_human_reasons = (
         {"operation_out_of_envelope"} if "operation_out_of_envelope" in reasons else set()
     )
@@ -2045,7 +2065,7 @@ def _produce_decision(
         and admission_ref is not None
         and binding is not None
         and proof_snapshot is not None
-        and ("operation_out_of_envelope" in reasons or acquisition_requires_human)
+        and ("operation_out_of_envelope" in reasons or protected_decision_reason is not None)
         and not (set(reasons) - permitted_pre_human_reasons)
     ):
         try:
@@ -2088,7 +2108,7 @@ def _produce_decision(
             else:
                 reasons.append(human_issue)
 
-    if acquisition_requires_human and decision_record_ref is None:
+    if protected_decision_reason is not None and decision_record_ref is None:
         satisfied["live_accountability"] = False
 
     reasons = list(dict.fromkeys(reasons))
@@ -2326,22 +2346,13 @@ def _tool_is_admitted(tool_name: str, ledger: object) -> bool:
     return bool(calls) and all(call.status == "pass" for call in calls)
 
 
-def _is_acquisition_execution(
-    intent: AgentActionIntent,
-    operation: OperationContract,
-) -> bool:
-    """Return whether the exact costed or candidate acquisition tuple is evaluated."""
-
-    return operation.operation_version == "v1" and (
-        (
-            intent.action_kind == ACQUISITION_ACTION_KIND
-            and operation.operation_id == ACQUISITION_ACTION_KIND
-        )
-        or (
-            intent.action_kind == CANDIDATE_EXPERIMENT_ACTION_KIND
-            and operation.operation_id == CANDIDATE_EXPERIMENT_ACTION_KIND
-        )
-    )
+def protected_action_human_review_requirement(
+    *, action_kind: str, operation_id: str, operation_version: str
+) -> tuple[RuntimePermission, DecisionNeedReason] | None:
+    """Return the permission and reason for the exact registered in-envelope action."""
+    if operation_version != "v1" or operation_id != action_kind:
+        return None
+    return _PROTECTED_ACTION_HUMAN_REVIEW.get(action_kind)
 
 
 def _human_decision_request(
@@ -2716,5 +2727,6 @@ __all__ = [
     "agent_action_permission_hash",
     "dispatch_agent_external_action",
     "produce_agent_action_authority_decision",
+    "protected_action_human_review_requirement",
     "reserve_agent_external_action",
 ]

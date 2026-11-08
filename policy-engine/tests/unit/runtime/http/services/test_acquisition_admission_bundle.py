@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from dataclasses import replace
+from hashlib import sha256
 from pathlib import Path
 
 import pytest
 
 from polisyos.core import canon
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.artifacts.signing import (
     Ed25519Signer,
     Ed25519Verifier,
@@ -12,12 +15,19 @@ from polisyos.core.artifacts.signing import (
     SignatureVerificationStatus,
 )
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.runtime.http.routes.acquisitions import _MODEL_INPUT_USE_MUTATION_AUTHZ
 from polisyos.runtime.http.services.acquisition_admission_bundle import (
     AcquisitionAdmissionBundleBlocked,
     AcquisitionAdmissionBundleProducer,
     AcquisitionAdmissionSigningSlot,
+    model_input_use_request_resource_digest,
+    require_model_input_use_bound_permission,
 )
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+from polisyos.runtime.http.services.model_input_successor_action import (
+    MODEL_INPUT_USE_PERMISSION,
+    ModelInputSuccessorActionRequest,
+)
 from polisyos.runtime.quality.agent_action_authority import (
     ACQUISITION_ACTION_KIND,
     AGENT_ACTION_ADMISSION_ARTIFACT_KIND,
@@ -152,3 +162,99 @@ def test_bundle_producer_reopens_signed_artifact_and_refuses_digest_mutation(
     assert blocked.value.code == "acquisition_resource_digest_mismatch"
     assert tuple(event_log.list_events(limit=100)) == events_before
     assert _bundle_refs(store) == bundle_refs_before
+
+
+def test_model_input_use_permission_binds_the_selected_activation_profile() -> None:
+    """Exercise the actual route's frozen binding and its historical PA2 replay."""
+
+    def selected_ref(kind: str, number: int, media_type: str = "application/json") -> ArtifactRef:
+        return ArtifactRef.model_validate(
+            {
+                "artifact_id": f"sha256:{number:064x}",
+                "kind": kind,
+                "media_type": media_type,
+                "manifest_profile_sha256": f"sha256:{number + 10:064x}",
+            }
+        )
+
+    request = ModelInputSuccessorActionRequest(
+        compiled_ref=selected_ref("runtime.compiled_recursive_generation_cycle", 1),
+        blocked_execution_ref=selected_ref(
+            "runtime.quality.generic_cycle_simulation_n5_execution", 2
+        ),
+        routing_report_ref=selected_ref("runtime.quality.model_input_routing_report", 3),
+        activation_receipt_ref=selected_ref(
+            "epoch.activated_overlay_admission_receipt", 4, "application/vnd.polisyos.epoch+json"
+        ),
+        observation_id="catalog-observation-selected",
+        idempotency_key="one-use",
+    )
+    requirement = _MODEL_INPUT_USE_MUTATION_AUTHZ.requirement
+    body = request.model_dump(mode="json")
+    selectors = tuple(
+        sorted(
+            (
+                field,
+                '{"present":false}'
+                if body[field] is None
+                else fixture._canonical_selector(body[field]),
+            )
+            for field in type(request).model_fields
+        )
+    )
+    body_hash = f"sha256:{sha256(request.model_dump_json().encode()).hexdigest()}"
+    digest = (
+        "sha256:"
+        + sha256(
+            fixture._canonical_selector(
+                {
+                    "binding_version": "runtime.authorization.resource.v1",
+                    "permission": MODEL_INPUT_USE_PERMISSION.value,
+                    "resource_kind": "runtime.evidence.model_input.use",
+                    "authority": "request_bound",
+                    "tenant_id": None,
+                    "body_sha256": body_hash,
+                    "query_sha256": fixture.EMPTY_QUERY_SHA256,
+                    "selectors": selectors,
+                    "resolved_context_sha256": None,
+                }
+            ).encode()
+        ).hexdigest()
+    )
+    proof = fixture._proof(
+        resource_digest=digest,
+        requirement=requirement,
+        canonical_selectors=selectors,
+        body_sha256=body_hash,
+    )
+    proof = replace(
+        proof,
+        verification=replace(proof.verification, granted_permissions=(MODEL_INPUT_USE_PERMISSION,)),
+    )
+    assert require_model_input_use_bound_permission(proof, request) == digest
+    assert (
+        model_input_use_request_resource_digest(
+            request, body_sha256=body_hash, query_sha256=fixture.EMPTY_QUERY_SHA256
+        )
+        == digest
+    )
+
+    sibling_ref = request.activation_receipt_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "9" * 64}
+    )
+    changed = request.model_copy(update={"activation_receipt_ref": sibling_ref})
+    assert sibling_ref.artifact_id == request.activation_receipt_ref.artifact_id
+    with pytest.raises(
+        AcquisitionAdmissionBundleBlocked, match="acquisition_resource_binding_invalid"
+    ):
+        require_model_input_use_bound_permission(proof, changed)
+    assert (
+        model_input_use_request_resource_digest(
+            changed, body_sha256=body_hash, query_sha256=fixture.EMPTY_QUERY_SHA256
+        )
+        != digest
+    )
+    with pytest.raises(
+        AcquisitionAdmissionBundleBlocked, match="acquisition_resource_binding_invalid"
+    ):
+        require_model_input_use_bound_permission(fixture._proof(), request)

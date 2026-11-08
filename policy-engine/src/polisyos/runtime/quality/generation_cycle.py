@@ -246,7 +246,10 @@ from polisyos.runtime.quality.generic_simulation_admission import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.runtime.quality.generic_simulation_admission import GenericN5ResolvedResult
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericN5ResolvedResult,
+        GenericN5SemanticSuccessorRequest,
+    )
 
 from polisyos.runtime.quality.grounding_disposition_vocab import (
     GroundingDispositionKind,
@@ -5753,6 +5756,98 @@ class JointSimulationPort:
             currentness_resolver=generic_cycle_simulation_currentness_resolver,
         )
 
+    def run_semantic_successor(
+        self,
+        *,
+        semantic_successor_ref: CASArtifactRef,
+        expected_blocked_execution_ref: CASArtifactRef,
+        expected_input_ref: CASArtifactRef,
+        currentness_resolver: Callable[[], bool],
+        on_result_persisted: Callable[[CASArtifactRef], None] | None = None,
+    ) -> SimulationPortObservation:
+        """Run the protected semantic successor against its selected original ledger.
+
+        The action owner owns the live lease and the terminal selection. It
+        may record the persisted numerical result before N5 seals execution.
+        """
+        from polisyos.foundry.methods import MethodRegistry
+        from polisyos.runtime.quality.joint_simulation_horizon import (
+            prepare_joint_simulation_configuration,
+        )
+        from polisyos.runtime.quality.n5_execution_basis import _default_receiver_protocol
+
+        if type(self) is not JointSimulationPort:
+            raise GenerationCycleError("n5_semantic_successor_owner_not_established")
+        owner = self._generic_cycle_simulation_admission_owner
+        controller = self._controller
+        observer = controller._producer_budget_observer
+        if (
+            type(owner) is not GenericCycleSimulationAdmissionOwner
+            or owner.store is not self._artifact_store
+            or type(controller) is not JointSimulationHorizonController
+            or type(observer) is not ProducerBudgetObserver
+            or self._physical_n5_budget_scope is not None
+            or controller._registry is not MethodRegistry.get_instance()
+        ):
+            raise GenerationCycleError("n5_semantic_successor_owner_not_established")
+        try:
+            _default_receiver_protocol(self)
+            _default_receiver_protocol(controller)
+            require_prepared_joint_simulation_configuration(
+                controller, prepare_joint_simulation_configuration()
+            )
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise GenerationCycleError("n5_semantic_successor_owner_not_established") from exc
+        successor = owner.prepare_semantic_successor_request(
+            semantic_successor_ref=semantic_successor_ref,
+            expected_blocked_execution_ref=expected_blocked_execution_ref,
+            expected_input_ref=expected_input_ref,
+        )
+        selection = successor.selection
+        window = observer.reentry_budget_window
+        if window is None:
+            raise GenerationCycleError("n5_semantic_successor_budget_window_not_established")
+        scope = window.scope
+        binding = scope.run_binding
+        if (
+            window.window_id != selection.reentry_budget_window_id
+            or window.record_digest != selection.reentry_budget_window_digest
+            or scope.action_job_id != selection.action_job_id
+            or scope.route_id != selection.route_id
+            or scope.action_phase_ref != str(selection.action_phase_ref.artifact_id)
+            or scope.profile_selection_ref != successor.input_record.profile.profile_selection_ref
+            or (binding.run_id, binding.control_job_id, binding.tenant_id, binding.cell_id)
+            != (selection.run_id, selection.source_job_id, selection.tenant_id, selection.cell_id)
+        ):
+            raise GenerationCycleError("n5_semantic_successor_budget_window_mismatch")
+
+        production = self._produce(
+            candidate=successor.candidate,
+            problem=successor.problem,
+            cycle_index=successor.input_record.cycle_index,
+            generic_cycle_simulation_input=successor.input_record,
+            generic_cycle_simulation_input_ref=expected_input_ref,
+            generic_cycle_simulation_currentness_resolver=currentness_resolver,
+            semantic_successor=successor,
+        )
+        observation = production.observation
+        if observation.status != "joint_simulated":
+            return observation
+        if (
+            observation.simulation_result_ref is None
+            or production.result is None
+            or production.result.state_consumption is not None
+        ):
+            raise GenerationCycleError("n5_semantic_successor_result_not_established")
+        if on_result_persisted is not None:
+            on_result_persisted(observation.simulation_result_ref)
+        return self._finalize_generic_production(
+            production,
+            candidate=successor.candidate,
+            currentness_resolver=currentness_resolver,
+            semantic_successor_ref=semantic_successor_ref,
+        )
+
     def _produce(
         self,
         *,
@@ -5771,6 +5866,7 @@ class JointSimulationPort:
         generic_cycle_simulation_input: GenericCycleSimulationN5InputV1 | None = None,
         generic_cycle_simulation_input_ref: CASArtifactRef | None = None,
         generic_cycle_simulation_currentness_resolver: Callable[[], bool] | None = None,
+        semantic_successor: GenericN5SemanticSuccessorRequest | None = None,
     ) -> _JointSimulationProduction:
         """Run N5 from a supplied request or the data-only request builder."""
 
@@ -5817,20 +5913,26 @@ class JointSimulationPort:
                     diagnostics={"port": "N5", "reason": "n5_input_source_ambiguous"},
                 )
             try:
-                request = self._build_generic_cycle_simulation_request(
-                    candidate=candidate,
-                    problem=problem,
-                    input_record=generic_cycle_simulation_input,
-                    input_ref=generic_cycle_simulation_input_ref,
-                    currentness_resolver=generic_cycle_simulation_currentness_resolver,
-                )
+                if semantic_successor is not None:
+                    request = semantic_successor.request
+                else:
+                    request = self._build_generic_cycle_simulation_request(
+                        candidate=candidate,
+                        problem=problem,
+                        input_record=generic_cycle_simulation_input,
+                        input_ref=generic_cycle_simulation_input_ref,
+                        currentness_resolver=generic_cycle_simulation_currentness_resolver,
+                    )
                 # The full request builder has admitted source, scope and view.
                 # Later refusal paths still need a complete persisted execution.
                 admitted_input = generic_cycle_simulation_input
                 admitted_input_ref = generic_cycle_simulation_input_ref
-                if self._generic_cycle_simulation_handoff is None:
-                    raise ValueError("generic_cycle_simulation_handoff_missing")
-                selected_n5_profile = self._generic_cycle_simulation_handoff.profile.n5
+                if semantic_successor is not None:
+                    selected_n5_profile = generic_cycle_simulation_input.n5
+                else:
+                    if self._generic_cycle_simulation_handoff is None:
+                        raise ValueError("generic_cycle_simulation_handoff_missing")
+                    selected_n5_profile = self._generic_cycle_simulation_handoff.profile.n5
             except (OSError, TypeError, ValueError, WorldModelRecordError) as exc:
                 code = str(
                     getattr(exc, "code", None) or "generic_cycle_simulation_n5_input_invalid"
@@ -6126,10 +6228,20 @@ class JointSimulationPort:
                 k_world_ref_after=request.world_model_record.content_hash,
                 world_model_record=request.world_model_record,
             )
+        state_consumptions: dict[int, WorldStateConsumptionRecord] = {}
+        program_binding_failures: dict[int, str] = {}
         try:
-            request, state_consumptions, program_binding_failures = (
-                self._request_with_bound_program_state(request)
-            )
+            if semantic_successor is None:
+                request, state_consumptions, program_binding_failures = (
+                    self._request_with_bound_program_state(request)
+                )
+            elif (
+                len(request.engine_plan) != 1
+                or request.engine_plan[0].program_store is not self._artifact_store
+                or request.engine_plan[0].program_semantic_input_bindings_ref
+                != semantic_successor.selection.semantic_foundry_input_bindings_ref
+            ):
+                raise WorldModelRecordError("n5_semantic_successor_bound_plan_mismatch")
         except (
             ArtifactIntegrityError,
             ArtifactOwnershipError,
@@ -6168,6 +6280,8 @@ class JointSimulationPort:
                     k_world_ref_after=request.world_model_record.content_hash,
                     world_model_record=request.world_model_record,
                 )
+        if semantic_successor is not None:
+            self._require_semantic_successor_current(generic_cycle_simulation_currentness_resolver)
         try:
             invocation_scope = _bind_scoped_n5_invocation_policy(
                 self._controller._producer_budget_observer,
@@ -6228,6 +6342,8 @@ class JointSimulationPort:
                         selected_plan: EnginePlan,
                         _decision: object,
                     ) -> ProgramGraphInputPreflight | None:
+                        if semantic_successor is not None:
+                            return semantic_successor.preflight
                         return self._preflight_selected_program_graph_inputs(
                             request=selected_request,
                             selected_plan=selected_plan,
@@ -6305,7 +6421,11 @@ class JointSimulationPort:
             ),
             None,
         )
-        if selected_program_index is not None and result.trajectories:
+        if (
+            semantic_successor is None
+            and selected_program_index is not None
+            and result.trajectories
+        ):
             state_consumption = state_consumptions.get(selected_program_index)
             if state_consumption is None:
                 return produced(
@@ -6358,21 +6478,23 @@ class JointSimulationPort:
             authority_blockers = tuple(
                 dict.fromkeys((*authority_blockers, *program_binding_failures.values()))
             )
+        if semantic_successor is not None:
+            self._require_semantic_successor_current(generic_cycle_simulation_currentness_resolver)
+        result_owner = (
+            semantic_successor.selection
+            if semantic_successor is not None
+            else self._candidate_simulation_handoff or self._generic_cycle_simulation_handoff
+        )
         try:
             simulation_result_ref = persist_joint_simulation_result(
                 result,
                 store=self._artifact_store,
                 tenant_context=(
                     ArtifactTenantContextInfo(
-                        tenant_id=self._candidate_simulation_handoff.tenant_id,
-                        cell_id=self._candidate_simulation_handoff.cell_id,
+                        tenant_id=result_owner.tenant_id,
+                        cell_id=result_owner.cell_id,
                     )
-                    if self._candidate_simulation_handoff is not None
-                    else ArtifactTenantContextInfo(
-                        tenant_id=self._generic_cycle_simulation_handoff.tenant_id,
-                        cell_id=self._generic_cycle_simulation_handoff.cell_id,
-                    )
-                    if self._generic_cycle_simulation_handoff is not None
+                    if result_owner is not None
                     else None
                 ),
             )
@@ -6420,12 +6542,20 @@ class JointSimulationPort:
             world_model_record=request.world_model_record,
         )
 
+    @staticmethod
+    def _require_semantic_successor_current(
+        currentness_resolver: Callable[[], bool] | None,
+    ) -> None:
+        if currentness_resolver is None or currentness_resolver() is not True:
+            raise GenerationCycleError("n5_semantic_successor_action_not_current")
+
     def _finalize_generic_production(
         self,
         production: _JointSimulationProduction,
         *,
         candidate: object,
         currentness_resolver: Callable[[], bool] | None,
+        semantic_successor_ref: CASArtifactRef | None = None,
     ) -> SimulationPortObservation:
         """Persist the admitted result linkage before constructing its strict DTO."""
         owner = self._generic_cycle_simulation_admission_owner
@@ -6469,13 +6599,17 @@ class JointSimulationPort:
                 raise ValueError("generic_cycle_simulation_n5_request_binding_invalid")
         blockers = tuple(observation.authority_blockers)
         currentness_code = None
-        try:
-            if currentness_resolver is None or currentness_resolver() is not True:
-                currentness_code = "generic_cycle_simulation_worker_lease_not_current"
-        except Exception as exc:
-            currentness_code = str(
-                getattr(exc, "code", None) or "generic_cycle_simulation_worker_lease_not_current"
-            )
+        if semantic_successor_ref is not None:
+            self._require_semantic_successor_current(currentness_resolver)
+        else:
+            try:
+                if currentness_resolver is None or currentness_resolver() is not True:
+                    currentness_code = "generic_cycle_simulation_worker_lease_not_current"
+            except Exception as exc:
+                currentness_code = str(
+                    getattr(exc, "code", None)
+                    or "generic_cycle_simulation_worker_lease_not_current"
+                )
         if currentness_code is not None:
             blockers = tuple(dict.fromkeys((*blockers, currentness_code)))
         status: Literal["joint_simulated", "simulation_blocked"] = (
@@ -6504,6 +6638,7 @@ class JointSimulationPort:
             ),
             limitation_code=limitation,
             model_input_obligation_set_ref=obligation_set_ref,
+            semantic_successor_ref=semantic_successor_ref,
         )
         if status == "joint_simulated":
             blockers = tuple(dict.fromkeys((*blockers, "simulation_only_k_sim_not_world_evidence")))

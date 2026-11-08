@@ -2128,8 +2128,8 @@
         {
           "module": "polisyos.core.contracts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 849,
-          "known_export_count": 849,
+          "export_count": 852,
+          "known_export_count": 852,
           "exports": [
             "DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION",
             "FixedUnitTransformWitness",
@@ -2826,6 +2826,9 @@
             "RunErrorsResponse",
             "RunLaunchResponse",
             "RunLineageResponse",
+            "RunModelInputUseBlockedSourceProjection",
+            "RunModelInputUseN5SuccessorProjection",
+            "RunModelInputUseN5SuccessorResponse",
             "RunNodeRecord",
             "RunNodesResponse",
             "RunRecordV1",
@@ -3005,8 +3008,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 88562,
-                "sha256": "525a7b5046fe17635173006d219a24f405a89921d495331ae8ecb8d15af377a2"
+                "bytes": 88985,
+                "sha256": "37aa91c8d1ea4a313a78bbd004adf27ca57d677a4cb78769718e9a3c99b0d4b0"
               },
               {
                 "path": "src/polisyos/core/contracts",
@@ -19593,6 +19596,12 @@
               },
               {
                 "path": "src/polisyos/runtime/quality/model_input_routing.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
+                "path": "src/polisyos/runtime/quality/model_input_successor_selection.py",
                 "operation": "is_file",
                 "status": "present",
                 "result": true

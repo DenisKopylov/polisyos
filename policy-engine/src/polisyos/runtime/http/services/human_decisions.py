@@ -458,33 +458,38 @@ def _pa2_packet_join_issues(
         None,
     )
     snapshot = source.permission_snapshot
-    from polisyos.runtime.http.permissions import RuntimePermission
     from polisyos.runtime.quality.agent_action_authority import (
-        ACQUISITION_ACTION_KIND,
-        CANDIDATE_EXPERIMENT_ACTION_KIND,
+        protected_action_human_review_requirement,
     )
 
-    # Acquisition is an in-envelope action with mandatory pre-action human
-    # accountability. Its exact tuple/permission distinguishes it from S7's
-    # out-of-envelope review; a request reason alone cannot select this arm.
-    acquisition_source = (
-        source.action_kind in {ACQUISITION_ACTION_KIND, CANDIDATE_EXPERIMENT_ACTION_KIND}
-        and source.operation_id == source.action_kind
-        and source.operation_version == "v1"
-        and envelope is not None
-        and envelope.action_kind == source.action_kind
-        and envelope.operation_id == source.operation_id
-        and envelope.operation_version == source.operation_version
-        and envelope.required_permission is RuntimePermission.EVIDENCE_ACQUIRE
-        and snapshot is not None
-        and snapshot.required_permission == RuntimePermission.EVIDENCE_ACQUIRE.value
+    # A protected in-envelope review is selected by the same operation policy
+    # as PA2 and independently joined to the signed envelope and permission.
+    protected_review = protected_action_human_review_requirement(
+        action_kind=source.action_kind,
+        operation_id=source.operation_id,
+        operation_version=source.operation_version,
     )
+    protected_source = False
+    expected_need_reason = "out_of_envelope"
+    if protected_review is not None:
+        required_permission, expected_need_reason = protected_review
+        protected_source = (
+            envelope is not None
+            and envelope.action_kind == source.action_kind
+            and envelope.operation_id == source.operation_id
+            and envelope.operation_version == source.operation_version
+            and envelope.required_permission is required_permission
+            and snapshot is not None
+            and snapshot.required_permission == required_permission.value
+        )
+        if not protected_source:
+            issues.add("source")
     expected_source_checks = (
         ("verified_identity", True, "recomputed"),
         ("explicit_permission", True, "recomputed"),
         ("mandate_bounded_delegation", True, "independently_reconciled"),
-        ("operation_in_envelope", acquisition_source, "recomputed"),
-        ("live_accountability", not acquisition_source, "recomputed"),
+        ("operation_in_envelope", protected_source, "recomputed"),
+        ("live_accountability", not protected_source, "recomputed"),
     )
     source_checks = tuple(
         (check.predicate, check.satisfied, check.provenance) for check in source.predicate_checks
@@ -502,7 +507,7 @@ def _pa2_packet_join_issues(
         or source.refusal_reasons
         not in (
             (("human_decision_missing",),)
-            if acquisition_source
+            if protected_source
             else (
                 ("operation_out_of_envelope",),
                 ("operation_out_of_envelope", "human_decision_missing"),
@@ -512,8 +517,7 @@ def _pa2_packet_join_issues(
         or request.decision_class_id != "mandate_boundary"
         or request.interaction_mode != "request_driven"
         or request.disposition != "request_human_decision"
-        or set(request.need_reasons)
-        != {"acquisition_required" if acquisition_source else "out_of_envelope"}
+        or set(request.need_reasons) != {expected_need_reason}
         or not provenance_required.issubset(request.provenance_refs)
         or not (request.requested_at <= source.decided_at <= now)
         or basis_ref is None

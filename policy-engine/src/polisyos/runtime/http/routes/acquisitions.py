@@ -31,6 +31,13 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     CandidateExperimentRouteMutationRequest,
     CandidateExperimentRouteProjection,
 )
+from polisyos.runtime.http.services.model_input_successor_action import (
+    MODEL_INPUT_USE_PERMISSION,
+    MODEL_INPUT_USE_RESOURCE_KIND,
+    ModelInputSuccessorActionRequest,
+    ModelInputSuccessorDecisionResponse,
+    ModelInputSuccessorExecutionRequest,
+)
 from polisyos.runtime.http.step_up import StepUpClass, require_step_up
 
 try:  # pragma: no cover - optional runtime dependency
@@ -103,6 +110,28 @@ _CANDIDATE_EXPERIMENT_EXECUTION_AUTHZ = require_action_permission(
         ),
     ),
 )
+_MODEL_INPUT_USE_MUTATION_AUTHZ = require_action_permission(
+    MODEL_INPUT_USE_PERMISSION,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.REQUEST_COMPOSITE,
+        resource_kind=MODEL_INPUT_USE_RESOURCE_KIND,
+        selector_fields=tuple(ModelInputSuccessorActionRequest.model_fields),
+        required_selector_fields=tuple(
+            name
+            for name, field in ModelInputSuccessorActionRequest.model_fields.items()
+            if field.is_required()
+        ),
+    ),
+)
+_MODEL_INPUT_USE_EXECUTION_AUTHZ = require_action_permission(
+    MODEL_INPUT_USE_PERMISSION,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.REQUEST_COMPOSITE,
+        resource_kind=MODEL_INPUT_USE_RESOURCE_KIND,
+        selector_fields=tuple(ModelInputSuccessorExecutionRequest.model_fields),
+        required_selector_fields=tuple(ModelInputSuccessorExecutionRequest.model_fields),
+    ),
+)
 _Service = Annotated[AcquisitionActionService, Depends(get_acquisition_action_service)]
 
 
@@ -165,9 +194,14 @@ def _raise_service_error(exc: AcquisitionActionServiceError) -> None:
         "acquisition_execution_bridge_missing",
         "candidate_experiment_n5_result_storage_unavailable",
         "candidate_experiment_current_action_head_not_established",
+        "model_input_use_authority_producer_missing",
+        "model_input_use_successor_owner_unavailable",
     }:
         raise service_unavailable("Acquisition producer is unavailable", code=code) from exc
-    if code == "candidate_experiment_n5_result_scope_refused":
+    if code in {
+        "candidate_experiment_n5_result_scope_refused",
+        "model_input_use_source_scope_refused",
+    }:
         raise forbidden("The selected candidate result is not accessible", code=code) from exc
     if code in {
         "source_job_not_completed",
@@ -325,6 +359,74 @@ def execute_run_candidate_acquisition_experiment(
             route_id=route_id,
             request=body.request,
             decision_ref=body.decision_ref,
+            request_id=ensure_request_id(request),
+            principal=principal,
+        )
+    except AcquisitionActionServiceError as exc:
+        _raise_service_error(exc)
+
+
+@router.post(
+    "/{run_id}/model-input-use/decision-request",
+    response_model=ModelInputSuccessorDecisionResponse,
+    operation_id="request_run_model_input_use_decision",
+    dependencies=[Depends(_MODEL_INPUT_USE_MUTATION_AUTHZ), Depends(_MUTATION_STEP_UP)],
+)
+def request_run_model_input_use_decision(
+    run_id: str,
+    body: ModelInputSuccessorActionRequest,
+    request: Request,
+    service: _Service,
+) -> ModelInputSuccessorDecisionResponse:
+    """Request approval to use a selected active observation for candidate N5."""
+    tenant_id, cell_id, _ = _scope(request)
+    set_authz_resource(
+        request, tenant_id=tenant_id, kind=f"{MODEL_INPUT_USE_RESOURCE_KIND}.request_bound"
+    )
+    proof = _MODEL_INPUT_USE_MUTATION_AUTHZ(request)
+    if type(proof) is not BoundActionPermissionVerification:
+        raise forbidden(
+            "Candidate model-input use lacks its frozen request binding",
+            code="authorization_binding_context_missing",
+        )
+    try:
+        return service.request_model_input_use_decision(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            request=body,
+            bound_permission=proof,
+        )
+    except AcquisitionActionServiceError as exc:
+        _raise_service_error(exc)
+
+
+@router.post(
+    "/{run_id}/model-input-use/execute",
+    response_model=AcquisitionExecutionResponse,
+    operation_id="execute_run_model_input_use",
+    dependencies=[Depends(_MODEL_INPUT_USE_EXECUTION_AUTHZ), Depends(_MUTATION_STEP_UP)],
+)
+def execute_run_model_input_use(
+    run_id: str,
+    body: ModelInputSuccessorExecutionRequest,
+    request: Request,
+    service: _Service,
+) -> AcquisitionExecutionResponse:
+    """Queue one exact approved use of an active candidate model input."""
+    tenant_id, cell_id, principal = _scope(request)
+    set_authz_resource(request, tenant_id=tenant_id, kind=MODEL_INPUT_USE_RESOURCE_KIND)
+    if type(_MODEL_INPUT_USE_EXECUTION_AUTHZ(request)) is not BoundActionPermissionVerification:
+        raise forbidden(
+            "Candidate model-input use lacks its frozen request binding",
+            code="authorization_binding_context_missing",
+        )
+    try:
+        return service.execute_model_input_use(
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            request=body,
             request_id=ensure_request_id(request),
             principal=principal,
         )

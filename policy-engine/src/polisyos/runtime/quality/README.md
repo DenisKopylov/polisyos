@@ -31,6 +31,7 @@ repository's [E02 work plan](../../../../../E02-WORK-PLAN.md).
 - `candidate_source_reentry_history.py` verifies persisted candidate history
   without acquiring a current lease or rerunning N5. Current-route admission
   remains with the acquisition route owner.
+- `model_input_successor_selection.py` checks the exact historical input selected by a protected candidate N5 action.
 - `acquisition_model_transition.py` replays bounded candidate model/outcome
   changes through the existing evaluation and N5 owners.
   `acquisition_evidence_transition.py` distinguishes that supported route from

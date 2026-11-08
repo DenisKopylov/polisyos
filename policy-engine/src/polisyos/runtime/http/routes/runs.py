@@ -72,6 +72,9 @@ from polisyos.core.contracts.runtime import (
     RunGenericCycleSimulationN6CycleHistoryEntry,
     RunGenericCycleSimulationProjection,
     RunLineageResponse,
+    RunModelInputUseBlockedSourceProjection,
+    RunModelInputUseN5SuccessorProjection,
+    RunModelInputUseN5SuccessorResponse,
     RunNodesResponse,
     RunOperatorDiagnostic,
     RunQuantitiesResponse,
@@ -94,6 +97,7 @@ from polisyos.fabric.evidence.decision_data import (
     TemporalRef as FabricTemporalRef,
 )
 from polisyos.runtime.http.authorization import (
+    BoundActionPermissionVerification,
     OptionalActionPermissionResult,
     RelatedRunBindingSource,
     ResourceBindingSource,
@@ -125,6 +129,8 @@ from polisyos.runtime.http.errors import (
 )
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.resource_binding import (
+    BindingAuthority,
+    BoundAuthorizationResource,
     _require_bound_comparison_members,
     _resolve_bound_method_metric_indexed_run,
     _resolve_method_execution_indexed_run,
@@ -315,6 +321,16 @@ _GET_RUN_METHOD_SELECTION_AUTHZ = require_optional_action_permission(
         source=ResourceBindingSource.OWNED_EXISTING_PATH,
         resource_kind="runtime.run.method_execution_selection",
         path_parameter="run_id",
+        allow_empty_body=True,
+    ),
+)
+_GET_RUN_MODEL_INPUT_USE_RESULT_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_REVIEW,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_EXISTING_PATH,
+        resource_kind="runtime.run.model_input_use_result",
+        path_parameter="run_id",
+        path_selector_parameters=("job_id",),
         allow_empty_body=True,
     ),
 )
@@ -5755,6 +5771,265 @@ def _generic_cycle_simulation_projection(
     )
 
 
+def _model_input_use_n5_successor_projection(
+    *,
+    run_id: str,
+    action_job_id: str,
+    tenant_id: str,
+    cell_id: str,
+    store: Any,
+    control_service: Any,
+) -> RunModelInputUseN5SuccessorProjection:
+    """Read one explicit completed model-input action and its selected N5 result.
+
+    The immutable completion outbox supplies the terminal progress snapshot. A
+    mutable job progress row alone is never sufficient to expose result bytes.
+    """
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core.artifacts import (
+        ArtifactOwnershipError,
+        artifact_ref_for_manifest,
+        artifact_ref_identity_key,
+    )
+    from polisyos.runtime.http.services.acquisition_n5_projection import (
+        n5_numerical_body_payload,
+        read_selected_n5_result_manifest,
+    )
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.http.services.control_plane_store import ControlJobRecord
+    from polisyos.runtime.http.services.model_input_successor_action import (
+        ModelInputSuccessorActionRequest,
+        ModelInputUseActionCheckpoint,
+        resolve_model_input_successor_action,
+        verify_model_input_use_result,
+    )
+    from polisyos.runtime.quality.agent_action_authority import MODEL_INPUT_USE_ACTION_KIND
+    from polisyos.runtime.quality.generic_simulation_admission import GenericN5ResolvedResult
+
+    def limited(
+        code: str,
+        *,
+        action_status: Literal["pending", "running", "completed", "failed", "not_established"],
+        blocked_source: RunModelInputUseBlockedSourceProjection | None = None,
+    ) -> RunModelInputUseN5SuccessorProjection:
+        return RunModelInputUseN5SuccessorProjection(
+            run_id=run_id,
+            action_job_id=action_job_id,
+            action_status=action_status,
+            result_status="not_established",
+            blocked_source=blocked_source,
+            limitation_code=code,
+        )
+
+    if type(control_service) is not ControlPlaneService:
+        return limited(
+            "model_input_use_control_service_not_established",
+            action_status="not_established",
+        )
+    control_store = control_service._control_store
+    try:
+        job = control_store.get_job(action_job_id)
+        if (
+            type(job) is not ControlJobRecord
+            or job.job_id != action_job_id
+            or job.kind != "acquisition"
+            or job.run_id != run_id
+            or job.payload_ref is None
+        ):
+            raise KeyError(action_job_id)
+        execution_scope, _ = control_store._reconcile_control_job_creation_envelope(job)
+        if (
+            execution_scope.status != "established"
+            or execution_scope.tenant_id != tenant_id
+            or execution_scope.cell_id != cell_id
+        ):
+            raise KeyError(action_job_id)
+        created = control_store.get_job_created_event_payload(action_job_id)
+        if (
+            created.get("job_id") != action_job_id
+            or created.get("run_id") != run_id
+            or created.get("job_kind") != "acquisition"
+            or created.get("payload_ref") != job.payload_ref
+        ):
+            return limited(
+                "model_input_use_action_creation_binding_not_established",
+                action_status="not_established",
+            )
+        raw_payload = control_service._load_payload_ref(
+            job.payload_ref, kind="runtime.control_job_payload.acquisition"
+        )
+        payload = ControlPlaneService._job_payload_without_telemetry(raw_payload)
+        if (
+            not isinstance(payload, dict)
+            or payload.get("action_kind") != MODEL_INPUT_USE_ACTION_KIND
+            or payload.get("tenant_id") != tenant_id
+            or payload.get("cell_id") != cell_id
+            or payload.get("run_id") != run_id
+            or not isinstance(payload.get("route_id"), str)
+            or not isinstance(payload.get("decision_ref"), str)
+        ):
+            return limited(
+                "model_input_use_action_payload_not_established",
+                action_status="not_established",
+            )
+        request = ModelInputSuccessorActionRequest.model_validate(payload.get("request"))
+    except KeyError:
+        raise
+    except ArtifactOwnershipError:
+        raise
+    except (CanonicalProfileRefusalError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        code = getattr(exc, "code", None)
+        return limited(
+            code if isinstance(code, str) else "model_input_use_action_source_not_established",
+            action_status="not_established",
+        )
+
+    if job.state != "completed":
+        action_status: Literal["pending", "running", "completed", "failed", "not_established"] = (
+            job.state if job.state in {"pending", "running", "failed"} else "not_established"
+        )
+        return limited(
+            "model_input_use_action_terminal_not_completed",
+            action_status=action_status,
+        )
+
+    try:
+        terminal = control_store.get_job_terminal_source_event_record(action_job_id)
+        outbox = control_store.get_job_completed_outbox_event(action_job_id)
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        code = getattr(exc, "code", None)
+        return limited(
+            code if isinstance(code, str) else "model_input_use_action_terminal_not_established",
+            action_status="completed",
+        )
+    terminal_payload = terminal.payload
+    if (
+        terminal.event_type != "job_completed"
+        or terminal.job_id != action_job_id
+        or terminal_payload.get("state") != "completed"
+        or type(terminal_payload.get("attempt")) is not int
+        or terminal_payload.get("attempt") != job.attempt
+        or not isinstance(terminal_payload.get("lease_owner"), str)
+        or not terminal_payload.get("lease_owner")
+        or job.lease_owner is not None
+        or job.lease_expires_at is not None
+        or outbox.topic != "control.job.completed"
+        or outbox.event_key != f"{action_job_id}:job_completed"
+        or outbox.job_id != action_job_id
+        or outbox.run_id != run_id
+        or outbox.payload.get("state") != "completed"
+        or outbox.payload.get("attempt") != job.attempt
+        or outbox.payload.get("lease_owner") != terminal_payload.get("lease_owner")
+    ):
+        return limited(
+            "model_input_use_action_terminal_binding_not_established",
+            action_status="completed",
+        )
+    progress = outbox.payload.get("progress")
+    if not isinstance(progress, dict) or progress.get("receipt_phase") != "terminal":
+        return limited(
+            "model_input_use_action_terminal_checkpoint_not_established",
+            action_status="completed",
+        )
+    try:
+        checkpoint = ModelInputUseActionCheckpoint.model_validate(progress.get("model_input_use"))
+    except (TypeError, ValueError):
+        return limited(
+            "model_input_use_action_terminal_checkpoint_not_established",
+            action_status="completed",
+        )
+    if (
+        checkpoint.execution_ref is None
+        or checkpoint.result_ref is None
+        or progress.get("terminal_receipt_ref") != str(checkpoint.execution_ref.artifact_id)
+    ):
+        return limited(
+            "model_input_use_n5_result_not_selected_by_terminal",
+            action_status="completed",
+        )
+    try:
+        selection = resolve_model_input_successor_action(
+            control_service,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            request=request,
+        )
+        if selection.job_id != action_job_id or selection.route_id != payload["route_id"]:
+            raise KeyError(action_job_id)
+    except KeyError:
+        raise
+    except ArtifactOwnershipError:
+        raise
+    except (CanonicalProfileRefusalError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        code = getattr(exc, "code", None)
+        return limited(
+            code if isinstance(code, str) else "model_input_use_action_source_not_established",
+            action_status="completed",
+        )
+    origin = selection.origin
+    blocked_source = RunModelInputUseBlockedSourceProjection(
+        run_id=origin.run_id,
+        source_job_id=origin.source_job_id,
+        design_problem_ref=origin.source_cycle.design_problem_ref,
+        cycle_index=origin.source_cycle.cycle_index,
+        candidate_id=origin.source_cycle.selected_candidate_ref,
+        candidate_content_hash=origin.source_cycle.selected_candidate_content_hash,
+        blocked_execution_ref=origin.n5_execution_ref,
+        model_input_obligation_set_ref=origin.routing_report.obligation_set_ref,
+        routing_report_ref=origin.routing_report_ref,
+    )
+    try:
+        resolved = verify_model_input_use_result(
+            store,
+            selection=selection,
+            checkpoint=checkpoint,
+            action_payload_ref=job.payload_ref,
+            authority_decision_ref=payload["decision_ref"],
+        )
+        if type(resolved) is not GenericN5ResolvedResult:
+            raise ValueError("model_input_use_result_owner_returned_untyped_value")
+        result_manifest = read_selected_n5_result_manifest(
+            store,
+            checkpoint.result_ref,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        selected_result_ref = artifact_ref_for_manifest(result_manifest)
+        if artifact_ref_identity_key(selected_result_ref) != artifact_ref_identity_key(
+            checkpoint.result_ref
+        ):
+            raise ValueError("model_input_use_result_selected_view_changed")
+        body = RunGenericCycleSimulationN5ResultBody.model_validate(
+            n5_numerical_body_payload(
+                ref=selected_result_ref,
+                manifest=result_manifest,
+                result=resolved.result,
+                authority_purpose="cycle_input_candidate_only",
+            )
+        )
+    except ArtifactOwnershipError:
+        raise
+    except (CanonicalProfileRefusalError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        code = getattr(exc, "code", None)
+        return limited(
+            code if isinstance(code, str) else "model_input_use_n5_result_not_established",
+            action_status="completed",
+            blocked_source=blocked_source,
+        )
+    return RunModelInputUseN5SuccessorProjection(
+        run_id=run_id,
+        action_job_id=action_job_id,
+        action_status="completed",
+        result_status="resolved",
+        blocked_source=blocked_source,
+        semantic_successor_ref=checkpoint.semantic_successor_ref,
+        n5_execution_ref=checkpoint.execution_ref,
+        simulation_result_ref=checkpoint.result_ref,
+        result_body=body,
+    )
+
+
 @dataclass(frozen=True)
 class LiveStreamPolicy:
     min_interval_seconds: float
@@ -6823,6 +7098,110 @@ if router is not None:
                 "The packet-bound HTE candidate does not reconcile to its owner",
                 code=exc.code,
             ) from exc
+
+    @router.get(
+        "/{run_id}/model-input-use/{job_id}/n5-result",
+        response_model=RunModelInputUseN5SuccessorResponse,
+        operation_id="get_run_model_input_use_n5_result",
+        responses=CANONICAL_PROFILE_REFUSAL_RESPONSES,
+    )
+    def get_run_model_input_use_n5_result(
+        run_id: str,
+        job_id: str,
+        request: Request,
+        authz_proof: BoundActionPermissionVerification = Depends(
+            _GET_RUN_MODEL_INPUT_USE_RESULT_AUTHZ
+        ),
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> RunModelInputUseN5SuccessorResponse:
+        """Read one exact accepted action's candidate-only N5 result."""
+        review_scope = require_access_scope(request)
+        if type(authz_proof) is not BoundActionPermissionVerification:
+            raise forbidden(
+                "The model-input result request lacks its exact owned run and job binding",
+                code="authorization_binding_context_missing",
+            )
+        bound_resource = authz_proof.bound_resource
+        if (
+            authz_proof.verification.requirement
+            is not _GET_RUN_MODEL_INPUT_USE_RESULT_AUTHZ.requirement
+            or type(bound_resource) is not BoundAuthorizationResource
+            or bound_resource.requirement is not _GET_RUN_MODEL_INPUT_USE_RESULT_AUTHZ.requirement
+            or bound_resource.authority is not BindingAuthority.OWNERSHIP_VERIFIED
+            or bound_resource.resource_kind
+            != "runtime.run.model_input_use_result.ownership_verified"
+            or bound_resource.tenant_id != review_scope.tenant_id
+            or not review_scope.cell_id
+        ):
+            raise forbidden(
+                "The model-input result request lacks its exact owned run and job binding",
+                code="authorization_binding_context_missing",
+            )
+        selectors = dict(bound_resource.canonical_selectors)
+        try:
+            selector_binding_matches = (
+                json.loads(selectors["run_id"]) == run_id
+                and json.loads(selectors["job_id"]) == job_id
+                and json.loads(selectors["cell_id"]) == review_scope.cell_id
+                and isinstance(json.loads(selectors["core_run_id"]), str)
+            )
+        except (KeyError, TypeError, ValueError):
+            selector_binding_matches = False
+        if not selector_binding_matches:
+            raise forbidden(
+                "The model-input result selectors differ from the owned binding",
+                code="authorization_binding_context_mismatch",
+            )
+        set_authz_resource(
+            request,
+            tenant_id=review_scope.tenant_id,
+            kind="runtime.run.model_input_use_result",
+            artifact_id=job_id,
+        )
+        control_service = _control_service_from_request(request)
+        if control_service is None:
+            raise service_unavailable(
+                "The model-input action result reader is unavailable",
+                code="model_input_use_result_reader_unavailable",
+            )
+        try:
+            projection = _model_input_use_n5_successor_projection(
+                run_id=run_id,
+                action_job_id=job_id,
+                tenant_id=review_scope.tenant_id,
+                cell_id=review_scope.cell_id,
+                store=ctx.store,
+                control_service=control_service,
+            )
+        except KeyError as exc:
+            raise not_found(
+                "The requested model-input action was not found for this run",
+                code="model_input_use_action_not_found",
+            ) from exc
+        except ArtifactOwnershipError as exc:
+            raise forbidden(
+                "The requested model-input result is outside this run scope",
+                code="model_input_use_result_scope_refused",
+            ) from exc
+        except PermissionError as exc:
+            raise service_unavailable(
+                "The model-input action result reader could not access its backing storage",
+                code="model_input_use_result_reader_permission_unavailable",
+            ) from exc
+        record_data_access_audit(
+            request,
+            resource_id=job_id,
+            resource_kind="runtime.run.model_input_use_result",
+            tenant_id=review_scope.tenant_id,
+            metadata={
+                "view": "model_input_use_n5_successor",
+                "result_status": projection.result_status,
+            },
+        )
+        return RunModelInputUseN5SuccessorResponse(
+            meta=build_meta(request, source_kinds=["core_run"]),
+            result=projection,
+        )
 
     @router.get(
         "/{run_id}",

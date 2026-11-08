@@ -864,6 +864,12 @@ export class RuntimeApiClient {
     return this.request("GET", path, query, undefined, undefined);
   }
 
+  async getRunModelInputUseN5Result(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/model-input-use/${encodeURIComponent(String(params.job_id))}/n5-result`;
+    const query = undefined;
+    return this.request("GET", path, query, undefined, undefined);
+  }
+
   async getRunNodes(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/nodes`;
     const query = this.buildQuery({

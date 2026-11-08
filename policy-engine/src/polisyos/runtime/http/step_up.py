@@ -25,7 +25,11 @@ from polisyos.runtime.http.authorization import (
 from polisyos.runtime.http.container import resolve_control_service
 from polisyos.runtime.http.dependencies import RuntimeAccessScope as AccessScope
 from polisyos.runtime.http.errors import RuntimeHTTPError, forbidden, service_unavailable
-from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.permissions import (
+    MODEL_INPUT_USE_PERMISSION,
+    MODEL_INPUT_USE_RESOURCE_KIND,
+    RuntimePermission,
+)
 from polisyos.runtime.http.resource_binding import BoundAuthorizationResource
 
 if TYPE_CHECKING:
@@ -33,6 +37,8 @@ if TYPE_CHECKING:
 
     from fastapi import Request
     from fastapi.routing import APIRoute as _ImportedAPIRoute
+
+    from polisyos.runtime.http.authorization import RouteAuthorizationRequirement
 
     _APIRoute: type[_ImportedAPIRoute] | None
 
@@ -473,6 +479,25 @@ HIGH_STAKES_PERMISSION_CLASSES: Mapping[RuntimePermission, StepUpClass] = Mappin
     }
 )
 
+_HIGH_STAKES_RESOURCE_CLASSES: Mapping[tuple[RuntimePermission, str], StepUpClass] = (
+    MappingProxyType(
+        {
+            (MODEL_INPUT_USE_PERMISSION, MODEL_INPUT_USE_RESOURCE_KIND): (
+                StepUpClass.ACQUISITION_APPROVAL
+            ),
+        }
+    )
+)
+
+
+def step_up_class_for_requirement(requirement: RouteAuthorizationRequirement) -> StepUpClass | None:
+    """Resolve assurance from the route's declared permission and resource."""
+    permission = requirement.permission
+    return _HIGH_STAKES_RESOURCE_CLASSES.get(
+        (permission, requirement.resource_binding.resource_kind),
+        HIGH_STAKES_PERMISSION_CLASSES.get(permission),
+    )
+
 
 @dataclass(frozen=True, slots=True)
 class StepUpRequirement:
@@ -724,10 +749,10 @@ def _build_step_up_context(
             "Step-up request authority is not exactly bound",
             code="step_up_context_mismatch",
         )
-    expected_class = HIGH_STAKES_PERMISSION_CLASSES.get(proof.requirement.permission)
+    expected_class = step_up_class_for_requirement(proof.requirement)
     if expected_class is not requirement.step_up_class:
         raise forbidden(
-            "Step-up class does not match the action permission",
+            "Step-up class does not match the action permission and resource",
             code="step_up_class_mismatch",
         )
     selectors = dict(bound_resource.canonical_selectors)
@@ -808,7 +833,7 @@ def get_route_step_up_dependency(
 ) -> StepUpDependency | None:
     """Return the exact direct step-up declaration or reject route drift."""
     action = action_dependency or get_route_action_permission_dependency(cast("Any", route))
-    expected_class = HIGH_STAKES_PERMISSION_CLASSES.get(action.requirement.permission)
+    expected_class = step_up_class_for_requirement(action.requirement)
     dependency_calls = tuple(iter_route_dependency_calls(cast("Any", route)))
     impostors = tuple(
         dependency
@@ -929,5 +954,6 @@ __all__ = [
     "get_route_step_up_dependency",
     "install_step_up_openapi_contract",
     "require_step_up",
+    "step_up_class_for_requirement",
     "step_up_verification_matches_request",
 ]

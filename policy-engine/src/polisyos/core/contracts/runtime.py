@@ -5081,6 +5081,109 @@ class RunGenericCycleSimulationN5Observation(BaseModel):
         return self
 
 
+class RunModelInputUseBlockedSourceProjection(BaseModel):
+    """Identify one original blocked N5 occurrence without replacing it."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    run_id: str = Field(min_length=1)
+    source_job_id: str = Field(min_length=1)
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    cycle_index: int = Field(ge=0)
+    candidate_id: str = Field(min_length=1)
+    candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    status: Literal["simulation_blocked"] = "simulation_blocked"
+    blocked_execution_ref: ArtifactRef
+    model_input_obligation_set_ref: ArtifactRef
+    routing_report_ref: ArtifactRef
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+    currentness_status: Literal["not_established"] = "not_established"
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _verify_blocked_source_refs(self) -> RunModelInputUseBlockedSourceProjection:
+        expected = (
+            (self.blocked_execution_ref, "runtime.quality.generic_cycle_simulation_n5_execution"),
+            (self.model_input_obligation_set_ref, "runtime.quality.model_input_obligation_set"),
+            (self.routing_report_ref, "runtime.quality.model_input_routing_report"),
+        )
+        if any(
+            ref.kind != kind
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            for ref, kind in expected
+        ):
+            raise ValueError("run_model_input_use_blocked_source_refs_invalid")
+        return self
+
+
+class RunModelInputUseN5SuccessorProjection(BaseModel):
+    """Expose one explicit action's fresh candidate-only N5 result, if proven."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.runtime.run_model_input_use_n5_successor_projection.v1"] = (
+        "policyos.runtime.run_model_input_use_n5_successor_projection.v1"
+    )
+    run_id: str = Field(min_length=1)
+    action_job_id: str = Field(min_length=1)
+    action_status: Literal["pending", "running", "completed", "failed", "not_established"]
+    result_status: Literal["resolved", "not_established"]
+    blocked_source: RunModelInputUseBlockedSourceProjection | None = None
+    semantic_successor_ref: ArtifactRef | None = None
+    n5_execution_ref: ArtifactRef | None = None
+    simulation_result_ref: ArtifactRef | None = None
+    result_body: RunGenericCycleSimulationN5ResultBody | None = None
+    limitation_code: str | None = Field(default=None, min_length=1)
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+    currentness_status: Literal["not_established"] = "not_established"
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _verify_candidate_result_binding(self) -> RunModelInputUseN5SuccessorProjection:
+        if self.blocked_source is not None and self.blocked_source.run_id != self.run_id:
+            raise ValueError("run_model_input_use_blocked_source_run_mismatch")
+        refs = (
+            (self.semantic_successor_ref, "runtime.quality.model_input_successor_selection"),
+            (self.n5_execution_ref, "runtime.quality.generic_cycle_simulation_n5_execution"),
+            (self.simulation_result_ref, "polisyos.runtime.joint_simulation_result"),
+        )
+        if self.result_status == "resolved":
+            if (
+                self.action_status != "completed"
+                or self.blocked_source is None
+                or self.limitation_code is not None
+                or self.result_body is None
+                or self.n5_execution_ref == self.blocked_source.blocked_execution_ref
+                or any(
+                    ref is None
+                    or ref.kind != kind
+                    or ref.media_type != "application/json"
+                    or ref.manifest_profile_sha256 is None
+                    for ref, kind in refs
+                )
+                or self.result_body.artifact_ref != self.simulation_result_ref
+                or self.result_body.authority_purpose != "cycle_input_candidate_only"
+            ):
+                raise ValueError("run_model_input_use_successor_result_binding_invalid")
+        elif (
+            self.result_body is not None
+            or any(ref is not None for ref, _ in refs)
+            or self.limitation_code is None
+        ):
+            raise ValueError("run_model_input_use_unverified_result_present")
+        return self
+
+
+class RunModelInputUseN5SuccessorResponse(BaseModel):
+    """Response for a fresh, explicitly action-selected model-input result read."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    result: RunModelInputUseN5SuccessorProjection
+
+
 N6_TERMINAL_STOP_PROJECTIONS: Mapping[
     RunN6CycleSearchTerminalKind, Literal["stop", "abstain", "not_stop"]
 ] = {
@@ -10318,6 +10421,9 @@ __all__ = [
     "RunGenericCycleSimulationN5Observation",
     "RunGenericCycleSimulationProjection",
     "RunLineageResponse",
+    "RunModelInputUseBlockedSourceProjection",
+    "RunModelInputUseN5SuccessorProjection",
+    "RunModelInputUseN5SuccessorResponse",
     "RunNodeRecord",
     "RunNodesResponse",
     "RunOperatorDiagnostic",

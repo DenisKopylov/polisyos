@@ -1925,6 +1925,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/runs/{run_id}/model-input-use/decision-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Request Run Model Input Use Decision
+         * @description Request approval to use a selected active observation for candidate N5.
+         */
+        post: operations["request_run_model_input_use_decision"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}/model-input-use/execute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Execute Run Model Input Use
+         * @description Queue one exact approved use of an active candidate model input.
+         */
+        post: operations["execute_run_model_input_use"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}/model-input-use/{job_id}/n5-result": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Run Model Input Use N5 Result
+         * @description Read one exact accepted action's candidate-only N5 result.
+         */
+        get: operations["get_run_model_input_use_n5_result"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/runs/{run_id}/nodes": {
         parameters: {
             query?: never;
@@ -14017,6 +14077,54 @@ export interface components {
             };
         };
         /**
+         * ModelInputSuccessorActionRequest
+         * @description Exact blocked N5, routing report, and activated input selected for a new action.
+         */
+        ModelInputSuccessorActionRequest: {
+            activation_receipt_ref: components["schemas"]["ArtifactRef-Input"];
+            blocked_execution_ref: components["schemas"]["ArtifactRef-Input"];
+            compiled_ref: components["schemas"]["ArtifactRef-Input"];
+            /** Human Decision Record Ref */
+            human_decision_record_ref?: string | null;
+            /** Idempotency Key */
+            idempotency_key: string;
+            /** Observation Id */
+            observation_id: string;
+            routing_report_ref: components["schemas"]["ArtifactRef-Input"];
+        };
+        /**
+         * ModelInputSuccessorDecisionResponse
+         * @description Persisted decision for one candidate-use job identity.
+         */
+        ModelInputSuccessorDecisionResponse: {
+            /** Authority Decision Ref */
+            authority_decision_ref: string;
+            /** Human Decision Request */
+            human_decision_request?: {
+                [key: string]: unknown;
+            } | null;
+            /** Job Id */
+            job_id: string;
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "decision_required" | "decision_available";
+            /** Route Id */
+            route_id: string;
+            /** Run Id */
+            run_id: string;
+        };
+        /**
+         * ModelInputSuccessorExecutionRequest
+         * @description Request one deferred action using its exact signed approval.
+         */
+        ModelInputSuccessorExecutionRequest: {
+            /** Decision Ref */
+            decision_ref: string;
+            request: components["schemas"]["ModelInputSuccessorActionRequest"];
+        };
+        /**
          * ModelProfileInfo
          * @description Describe one LLM model profile exposed to NL control-plane requests.
          */
@@ -19532,6 +19640,110 @@ export interface components {
             /** Run Id */
             run_id: string;
             temporal_scope?: components["schemas"]["TemporalScope"] | null;
+        };
+        /**
+         * RunModelInputUseBlockedSourceProjection
+         * @description Identify one original blocked N5 occurrence without replacing it.
+         */
+        RunModelInputUseBlockedSourceProjection: {
+            /**
+             * Authority Purpose
+             * @default cycle_input_candidate_only
+             * @constant
+             */
+            authority_purpose: "cycle_input_candidate_only";
+            blocked_execution_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Candidate Content Hash */
+            candidate_content_hash: string;
+            /** Candidate Id */
+            candidate_id: string;
+            /**
+             * Currentness Status
+             * @default not_established
+             * @constant
+             */
+            currentness_status: "not_established";
+            /** Cycle Index */
+            cycle_index: number;
+            /** Design Problem Ref */
+            design_problem_ref: string;
+            model_input_obligation_set_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            routing_report_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Run Id */
+            run_id: string;
+            /** Source Job Id */
+            source_job_id: string;
+            /**
+             * Status
+             * @default simulation_blocked
+             * @constant
+             */
+            status: "simulation_blocked";
+        };
+        /**
+         * RunModelInputUseN5SuccessorProjection
+         * @description Expose one explicit action's fresh candidate-only N5 result, if proven.
+         */
+        RunModelInputUseN5SuccessorProjection: {
+            /** Action Job Id */
+            action_job_id: string;
+            /**
+             * Action Status
+             * @enum {string}
+             */
+            action_status: "pending" | "running" | "completed" | "failed" | "not_established";
+            /**
+             * Authority Purpose
+             * @default cycle_input_candidate_only
+             * @constant
+             */
+            authority_purpose: "cycle_input_candidate_only";
+            blocked_source?: components["schemas"]["RunModelInputUseBlockedSourceProjection"] | null;
+            /**
+             * Currentness Status
+             * @default not_established
+             * @constant
+             */
+            currentness_status: "not_established";
+            /** Limitation Code */
+            limitation_code?: string | null;
+            n5_execution_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            result_body?: components["schemas"]["RunGenericCycleSimulationN5ResultBody"] | null;
+            /**
+             * Result Status
+             * @enum {string}
+             */
+            result_status: "resolved" | "not_established";
+            /** Run Id */
+            run_id: string;
+            /**
+             * Schema Version
+             * @default policyos.runtime.run_model_input_use_n5_successor_projection.v1
+             * @constant
+             */
+            schema_version: "policyos.runtime.run_model_input_use_n5_successor_projection.v1";
+            semantic_successor_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+            simulation_result_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+        };
+        /**
+         * RunModelInputUseN5SuccessorResponse
+         * @description Response for a fresh, explicitly action-selected model-input result read.
+         */
+        RunModelInputUseN5SuccessorResponse: {
+            meta: components["schemas"]["ApiMeta"];
+            result: components["schemas"]["RunModelInputUseN5SuccessorProjection"];
         };
         /**
          * RunN5InteractionEvidence
@@ -32840,6 +33052,282 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CounterfactualMetricsResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description The selected Core canonical profile is malformed or not byte-conformant. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    request_run_model_input_use_decision: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModelInputSuccessorActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModelInputSuccessorDecisionResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    execute_run_model_input_use: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModelInputSuccessorExecutionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcquisitionExecutionResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_model_input_use_n5_result: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunModelInputUseN5SuccessorResponse"];
                 };
             };
             /** @description Malformed request payload or parameters. */

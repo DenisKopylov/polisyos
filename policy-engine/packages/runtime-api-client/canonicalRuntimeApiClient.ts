@@ -1229,6 +1229,15 @@ export type MobilityEstimateResponse =
 export type MobilityReportResponse =
   RuntimeApiComponents["schemas"]["MobilityReportResponse"];
 
+export type ModelInputSuccessorActionRequest =
+  RuntimeApiComponents["schemas"]["ModelInputSuccessorActionRequest"];
+
+export type ModelInputSuccessorDecisionResponse =
+  RuntimeApiComponents["schemas"]["ModelInputSuccessorDecisionResponse"];
+
+export type ModelInputSuccessorExecutionRequest =
+  RuntimeApiComponents["schemas"]["ModelInputSuccessorExecutionRequest"];
+
 export type ModelProfileInfo =
   RuntimeApiComponents["schemas"]["ModelProfileInfo"];
 
@@ -1693,6 +1702,15 @@ export type RunLaunchResponse =
 
 export type RunLineageResponse =
   RuntimeApiComponents["schemas"]["RunLineageResponse"];
+
+export type RunModelInputUseBlockedSourceProjection =
+  RuntimeApiComponents["schemas"]["RunModelInputUseBlockedSourceProjection"];
+
+export type RunModelInputUseN5SuccessorProjection =
+  RuntimeApiComponents["schemas"]["RunModelInputUseN5SuccessorProjection"];
+
+export type RunModelInputUseN5SuccessorResponse =
+  RuntimeApiComponents["schemas"]["RunModelInputUseN5SuccessorResponse"];
 
 export type RunN5InteractionEvidence =
   RuntimeApiComponents["schemas"]["RunN5InteractionEvidence"];
@@ -3794,6 +3812,21 @@ export class RuntimeApiClient {
       regime_shift_forecast_bundle_ref: params.regime_shift_forecast_bundle_ref,
     });
     return this.request<CounterfactualMetricsResponse>(
+      "GET",
+      path,
+      query,
+      undefined,
+      undefined,
+    );
+  }
+
+  async getRunModelInputUseN5Result(params: {
+    run_id: string;
+    job_id: string;
+  }): Promise<RunModelInputUseN5SuccessorResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/model-input-use/${encodeURIComponent(String(params.job_id))}/n5-result`;
+    const query = undefined;
+    return this.request<RunModelInputUseN5SuccessorResponse>(
       "GET",
       path,
       query,

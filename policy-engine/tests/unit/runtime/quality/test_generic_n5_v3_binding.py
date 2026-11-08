@@ -16,6 +16,7 @@ from polisyos.core import canon
 from polisyos.core.artifacts import input_ref_from_artifact_ref
 from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.contracts import FoundryInputBindingsRef
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextOwnerError
 from polisyos.runtime.quality.generation_cycle import (
@@ -27,11 +28,13 @@ from polisyos.runtime.quality.generation_cycle import (
 from polisyos.runtime.quality.generic_simulation_admission import (
     _N5_EXECUTION_V3_SCHEMA,
     _N5_EXECUTION_V4_SCHEMA,
+    _N5_EXECUTION_V5_SCHEMA,
     _N5_TYPED_CANON,
     GenericCycleSimulationAdmissionOwner,
     GenericCycleSimulationN5ExecutionV2,
     GenericCycleSimulationN5ExecutionV3,
     GenericCycleSimulationN5ExecutionV4,
+    GenericCycleSimulationN5ExecutionV5,
     GenericCycleSimulationN5RequestBindingV1,
     GenericCycleSimulationN5RequestBindingV2,
     GenericN5ExecutionJoinExpectation,
@@ -39,9 +42,13 @@ from polisyos.runtime.quality.generic_simulation_admission import (
     parse_generic_cycle_simulation_n5_execution,
 )
 from polisyos.runtime.quality.joint_simulation_horizon import (
+    EnginePlan,
     HorizonSpec,
     JointSimulationRequest,
     NCMConditionalComparatorProfile,
+)
+from polisyos.runtime.quality.model_input_successor_selection import (
+    MODEL_INPUT_SUCCESSOR_SELECTION_KIND,
 )
 from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
 
@@ -1051,6 +1058,88 @@ def test_v4_blocked_model_input_set_is_selected_and_manifest_bound(tmp_path: Pat
     v2_payload["model_input_obligation_set_ref"] = obligation_ref.model_dump(mode="python")
     with pytest.raises(ValidationError, match="extra_forbidden"):
         GenericCycleSimulationN5ExecutionV2.model_validate(v2_payload)
+
+
+def test_v5_execution_requires_independent_successor_and_exact_manifest_edge(
+    tmp_path: Path,
+) -> None:
+    """Reject the same execution bytes with a different selected input edge."""
+    original = _request()
+    profile = "sha256:" + "b" * 64
+    successor_ref = _artifact_ref(MODEL_INPUT_SUCCESSOR_SELECTION_KIND, "a").model_copy(
+        update={"manifest_profile_sha256": profile}
+    )
+    plan = EnginePlan(
+        engine_kind="program_graph",
+        objective_ref=original.engine_plan[0].objective_ref,
+        program_compilation_ref=_artifact_ref("compiler.compile_report", "c").model_copy(
+            update={"manifest_profile_sha256": profile}
+        ),
+        program_semantic_input_bindings_ref=FoundryInputBindingsRef(
+            artifact_id="sha256:" + "d" * 64, manifest_profile_sha256=profile
+        ),
+    )
+    request = original.model_copy(update={"engine_plan": (plan,)})
+    binding = GenericCycleSimulationN5RequestBindingV2.from_request(request)
+    previous = _execution_v3_record(GenericCycleSimulationN5RequestBindingV2.from_request(original))
+    payload = previous.model_dump(mode="python", exclude={"content_hash", "schema_version"})
+    payload.update(
+        schema_version=_N5_EXECUTION_V5_SCHEMA,
+        request_binding=binding,
+        result_ref=previous.result_ref.model_copy(update={"manifest_profile_sha256": profile}),
+        semantic_successor_ref=successor_ref,
+        action_job_id="protected-action-job",
+    )
+    draft = GenericCycleSimulationN5ExecutionV5.model_construct(
+        **payload, content_hash="sha256:" + "0" * 64
+    )
+    record = GenericCycleSimulationN5ExecutionV5.model_validate(
+        {**payload, "content_hash": _n5_typed_execution_content_hash(draft)}
+    )
+    assert "semantic_successor_ref" not in previous.model_dump(mode="python")
+
+    store = FileSystemCAS(tmp_path / "successor-cas")
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
+    options = owner._n5_execution_write_options(record)
+    edge = input_ref_from_artifact_ref(successor_ref, role="semantic_successor")
+    assert options.inputs.count(edge) == 1
+    assert options.same_input_closure.job_id == record.action_job_id
+    assert record.job_id == previous.job_id
+    body = record.model_dump(mode="python")
+    ref = store.put_json(body, options, canon_spec=_N5_TYPED_CANON, return_selected_profile=True)
+    reopened = parse_generic_cycle_simulation_n5_execution(
+        canon.from_canonical_bytes(store.get_bytes(ref))
+    )
+    assert type(reopened) is GenericCycleSimulationN5ExecutionV5
+    assert reopened == record
+
+    other_selection = successor_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "e" * 64}
+    )
+    for expected in (None, other_selection):
+        with pytest.raises(
+            CycleSubstrateContextOwnerError,
+            match="generic_cycle_simulation_n5_semantic_successor_selection_mismatch",
+        ):
+            owner.resolve_n5_execution(
+                ref, expected=record, expected_semantic_successor_ref=expected
+            )
+    wrong_edge = input_ref_from_artifact_ref(other_selection, role="semantic_successor")
+    wrong_options = replace(
+        options, inputs=[wrong_edge if row == edge else row for row in options.inputs]
+    )
+    wrong_ref = store.put_json(
+        body, wrong_options, canon_spec=_N5_TYPED_CANON, return_selected_profile=True
+    )
+    assert wrong_ref.artifact_id == ref.artifact_id
+    assert wrong_ref.manifest_profile_sha256 != ref.manifest_profile_sha256
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="generic_cycle_simulation_n5_execution_manifest_mismatch",
+    ):
+        owner.resolve_n5_execution(
+            wrong_ref, expected=record, expected_semantic_successor_ref=successor_ref
+        )
 
 
 def test_v3_request_roundtrip_refuses_loss_across_the_complete_any_graph() -> None:

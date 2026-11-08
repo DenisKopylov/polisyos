@@ -39,6 +39,7 @@ from polisyos.runtime.quality.agent_action_authority import (
     AGENT_ACTION_AUTHORITY_RULE_VERSION,
     CANDIDATE_EXPERIMENT_ACTION_KIND,
     DELEGATION_CONTRACT_ARTIFACT_KIND,
+    MODEL_INPUT_USE_ACTION_KIND,
     AgentActionAdmissionBundle,
     AgentActionAuthorityWriteContext,
     AgentActionEffectBinding,
@@ -56,6 +57,11 @@ from .acquisition_action_service import (
     AcquisitionRouteMutationRequest,
     CandidateExperimentRouteMutationRequest,
 )
+from .model_input_successor_action import (
+    MODEL_INPUT_USE_PERMISSION,
+    MODEL_INPUT_USE_RESOURCE_KIND,
+    ModelInputSuccessorActionRequest,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -66,6 +72,28 @@ if TYPE_CHECKING:
 
 _SIGNER_PURPOSE: Literal["acquisition_admission"] = "acquisition_admission"
 _EMPTY_QUERY_SHA256 = f"sha256:{sha256(b'').hexdigest()}"
+type _ActionRequest = (
+    AcquisitionRouteMutationRequest
+    | CandidateExperimentRouteMutationRequest
+    | ModelInputSuccessorActionRequest
+)
+_REQUEST_BINDING_BY_KIND: dict[str, tuple[type[_ActionRequest], str, RuntimePermission]] = {
+    ACQUISITION_ACTION_KIND: (
+        AcquisitionRouteMutationRequest,
+        "runtime.evidence.acquisition",
+        RuntimePermission.EVIDENCE_ACQUIRE,
+    ),
+    CANDIDATE_EXPERIMENT_ACTION_KIND: (
+        CandidateExperimentRouteMutationRequest,
+        "runtime.evidence.acquisition.candidate_experiment",
+        RuntimePermission.EVIDENCE_ACQUIRE,
+    ),
+    MODEL_INPUT_USE_ACTION_KIND: (
+        ModelInputSuccessorActionRequest,
+        MODEL_INPUT_USE_RESOURCE_KIND,
+        MODEL_INPUT_USE_PERMISSION,
+    ),
+}
 
 
 class _AuthorityArtifactStore(Protocol):
@@ -178,9 +206,7 @@ class AcquisitionAdmissionBundleProducer:
         bound_permission: BoundActionPermissionVerification,
         effect_binding: AgentActionEffectBinding,
         admitted_at: datetime,
-        request: (
-            AcquisitionRouteMutationRequest | CandidateExperimentRouteMutationRequest | None
-        ) = None,
+        request: _ActionRequest | None = None,
     ) -> AcquisitionAdmissionBundleReceipt:
         """Persist, sign, reconcile, and map one exact acquisition invocation bundle."""
 
@@ -290,6 +316,8 @@ class AcquisitionAdmissionBundleProducer:
         expected_class: OperationClass | None = None
         if action_kind == CANDIDATE_EXPERIMENT_ACTION_KIND:
             expected_class = OperationClass.ACQUIRE
+        elif action_kind == MODEL_INPUT_USE_ACTION_KIND:
+            expected_class = OperationClass.BIND
         elif action_kind != ACQUISITION_ACTION_KIND:
             raise AcquisitionAdmissionBundleBlocked("acquisition_action_tuple_invalid")
         if (
@@ -429,21 +457,17 @@ def _recompute_resource_digest(
     bound_permission: BoundActionPermissionVerification,
     *,
     action_kind: str,
-    request: AcquisitionRouteMutationRequest | CandidateExperimentRouteMutationRequest | None,
+    request: _ActionRequest | None,
 ) -> str:
     """Recompute only the request schema canonically bound to this action kind."""
 
     resource = bound_permission.bound_resource
     requirement = bound_permission.verification.requirement
     binding = requirement.resource_binding
-    if action_kind == ACQUISITION_ACTION_KIND:
-        request_model = AcquisitionRouteMutationRequest
-        resource_kind = "runtime.evidence.acquisition"
-    elif action_kind == CANDIDATE_EXPERIMENT_ACTION_KIND:
-        request_model = CandidateExperimentRouteMutationRequest
-        resource_kind = "runtime.evidence.acquisition.candidate_experiment"
-    else:
+    selected = _REQUEST_BINDING_BY_KIND.get(action_kind)
+    if selected is None:
         raise AcquisitionAdmissionBundleBlocked("acquisition_action_tuple_invalid")
+    request_model, resource_kind, permission = selected
     request_fields = tuple(request_model.model_fields)
     required_request_fields = tuple(
         field_name
@@ -451,37 +475,17 @@ def _recompute_resource_digest(
         if field.is_required()
     )
     selector_names = tuple(name for name, _value in resource.canonical_selectors)
-    expected_request = request
-    if expected_request is None:
-        if action_kind == CANDIDATE_EXPERIMENT_ACTION_KIND:
+    if request is None:
+        if action_kind != ACQUISITION_ACTION_KIND:
             raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
-    elif type(expected_request) is not request_model:
+    elif type(request) is not request_model:
         raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
-    expected_selectors = None
-    if expected_request is not None:
-        body = expected_request.model_dump(mode="json")
-        expected_selectors = tuple(
-            sorted(
-                (
-                    field,
-                    '{"present":false}'
-                    if body[field] is None
-                    else json.dumps(
-                        body[field],
-                        ensure_ascii=True,
-                        allow_nan=False,
-                        separators=(",", ":"),
-                        sort_keys=True,
-                    ),
-                )
-                for field in request_fields
-            )
-        )
+    expected_selectors = None if request is None else _request_selectors(request)
     if (
         type(resource) is not BoundAuthorizationResource
         or resource.requirement is not requirement
         or resource.resource_kind != f"{resource_kind}.{resource.authority.value}"
-        or requirement.permission is not RuntimePermission.EVIDENCE_ACQUIRE
+        or requirement.permission is not permission
         or binding.source is not ResourceBindingSource.REQUEST_COMPOSITE
         or binding.resource_kind != resource_kind
         or binding.selector_fields != request_fields
@@ -492,10 +496,7 @@ def _recompute_resource_digest(
         or resource.authority is not BindingAuthority.REQUEST_BOUND
         or resource.tenant_id is not None
         or resource.resolved_context is not None
-        or (
-            action_kind == CANDIDATE_EXPERIMENT_ACTION_KIND
-            and resource.query_sha256 != _EMPTY_QUERY_SHA256
-        )
+        or (action_kind != ACQUISITION_ACTION_KIND and resource.query_sha256 != _EMPTY_QUERY_SHA256)
     ):
         raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
     digest = _digest_payload(
@@ -528,6 +529,18 @@ def require_candidate_experiment_bound_permission(
     )
 
 
+def require_model_input_use_bound_permission(
+    bound_permission: BoundActionPermissionVerification,
+    request: ModelInputSuccessorActionRequest,
+) -> str:
+    """Recompute the distinct candidate model-input use request permission."""
+    return _recompute_resource_digest(
+        bound_permission,
+        action_kind=MODEL_INPUT_USE_ACTION_KIND,
+        request=request,
+    )
+
+
 def candidate_experiment_request_resource_digest(
     request: CandidateExperimentRouteMutationRequest,
     *,
@@ -547,27 +560,57 @@ def candidate_experiment_request_resource_digest(
     )
 
 
+def model_input_use_request_resource_digest(
+    request: ModelInputSuccessorActionRequest,
+    *,
+    body_sha256: str,
+    query_sha256: str,
+) -> str:
+    """Rebuild the bound candidate-use resource from a persisted PA2 decision."""
+    if query_sha256 != _EMPTY_QUERY_SHA256:
+        raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
+    return _request_resource_digest(
+        action_kind=MODEL_INPUT_USE_ACTION_KIND,
+        request=request,
+        body_sha256=body_sha256,
+        query_sha256=query_sha256,
+        authority=BindingAuthority.REQUEST_BOUND,
+        tenant_id=None,
+    )
+
+
 def _request_resource_digest(
     *,
     action_kind: str,
-    request: AcquisitionRouteMutationRequest | CandidateExperimentRouteMutationRequest,
+    request: _ActionRequest,
     body_sha256: str,
     query_sha256: str,
     authority: BindingAuthority,
     tenant_id: str | None,
 ) -> str:
     """Hash one closed action-kind/request-model pair using authorization encoding."""
-    if action_kind == ACQUISITION_ACTION_KIND and type(request) is AcquisitionRouteMutationRequest:
-        resource_kind = "runtime.evidence.acquisition"
-    elif (
-        action_kind == CANDIDATE_EXPERIMENT_ACTION_KIND
-        and type(request) is CandidateExperimentRouteMutationRequest
-    ):
-        resource_kind = "runtime.evidence.acquisition.candidate_experiment"
-    else:
+    selected = _REQUEST_BINDING_BY_KIND.get(action_kind)
+    if selected is None or type(request) is not selected[0]:
         raise AcquisitionAdmissionBundleBlocked("acquisition_action_tuple_invalid")
+    _, resource_kind, permission = selected
+    return _digest_payload(
+        {
+            "binding_version": "runtime.authorization.resource.v1",
+            "permission": permission.value,
+            "resource_kind": resource_kind,
+            "authority": authority.value,
+            "tenant_id": tenant_id,
+            "body_sha256": body_sha256,
+            "query_sha256": query_sha256,
+            "selectors": _request_selectors(request),
+            "resolved_context_sha256": None,
+        }
+    )
+
+
+def _request_selectors(request: _ActionRequest) -> tuple[tuple[str, str], ...]:
     body = request.model_dump(mode="json")
-    selectors = tuple(
+    return tuple(
         sorted(
             (
                 field,
@@ -583,19 +626,6 @@ def _request_resource_digest(
             )
             for field in type(request).model_fields
         )
-    )
-    return _digest_payload(
-        {
-            "binding_version": "runtime.authorization.resource.v1",
-            "permission": RuntimePermission.EVIDENCE_ACQUIRE.value,
-            "resource_kind": resource_kind,
-            "authority": authority.value,
-            "tenant_id": tenant_id,
-            "body_sha256": body_sha256,
-            "query_sha256": query_sha256,
-            "selectors": selectors,
-            "resolved_context_sha256": None,
-        }
     )
 
 

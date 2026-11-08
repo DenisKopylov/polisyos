@@ -171,6 +171,7 @@ _OWNED_PATH_RESOLVERS = {
     ("runtime.run.predictive_calibration", "run_id"): _ResolverKind.RUN,
     ("runtime.run.method_execution_selection", "run_id"): _ResolverKind.RUN,
     ("runtime.run.method_metrics", "run_id"): _ResolverKind.RUN,
+    ("runtime.run.model_input_use_result", "run_id"): _ResolverKind.RUN,
     ("runtime.run.reissue", "run_id"): _ResolverKind.RUN,
     ("runtime.run.production_approval", "run_id"): _ResolverKind.RUN,
     ("runtime.run.public_verification_record", "run_id"): _ResolverKind.RUN,
@@ -1069,11 +1070,81 @@ def _bind_owned_existing_path(
     ctx = _require_runtime_context(request)
     resolver_kind = _OWNED_PATH_RESOLVERS.get((spec.resource_kind, parameter))
     owned_run_binding: _OwnedRunBinding | None = None
+    owned_path_selectors: tuple[tuple[str, str], ...] = ()
     if resolver_kind is _ResolverKind.ARTIFACT:
         resource_id, tenant_id = _resolve_owned_artifact(ctx, scope, value)
         selector_name = "artifact_id"
     elif resolver_kind is _ResolverKind.RUN:
-        if spec.resource_kind in {
+        if spec.resource_kind == "runtime.run.model_input_use_result":
+            selection_run_id = _required_string(value, field_name="run_id")
+            if not scope.cell_id:
+                raise forbidden(
+                    "Model-input result run ownership is not established for this cell",
+                    code="authorization_binding_run_unscoped",
+                )
+            resolved_run_id, tenant_id, run_binding = _resolve_completed_nl_control_alias(
+                request,
+                ctx,
+                scope,
+                control_run_id=selection_run_id,
+            )
+            if (
+                resolved_run_id != selection_run_id
+                or type(run_binding) is not _OwnedRunBinding
+                or run_binding.control_run_id != selection_run_id
+                or run_binding.tenant_id != scope.tenant_id
+                or run_binding.cell_id != scope.cell_id
+                or tenant_id != scope.tenant_id
+            ):
+                raise forbidden(
+                    "Model-input result Control alias does not resolve to this request scope",
+                    code="authorization_binding_run_unresolved",
+                )
+            resource_id = selection_run_id
+            selector_name = "run_id"
+            job_id = _path_identifier(request, "job_id")
+            control = resolve_control_service(request)
+            if control is None:
+                raise service_unavailable(
+                    "Model-input action resolver is unavailable",
+                    code="authorization_binding_resolver_unavailable",
+                )
+            try:
+                from polisyos.runtime.http.services.control_plane_store import ControlJobRecord
+
+                record = control._control_store.get_job(job_id)
+                if (
+                    type(record) is not ControlJobRecord
+                    or record.job_id != job_id
+                    or record.kind != "acquisition"
+                    or record.run_id != selection_run_id
+                ):
+                    raise ValueError("model_input_use_job_run_binding_invalid")
+                creation_scope, _event = (
+                    control._control_store._reconcile_control_job_creation_envelope(record)
+                )
+            except Exception as exc:
+                raise forbidden(
+                    "Model-input action job could not be resolved for this run",
+                    code="authorization_binding_job_unresolved",
+                ) from exc
+            if (
+                creation_scope.status != "established"
+                or creation_scope.actor_authenticated is not True
+                or creation_scope.tenant_id != tenant_id
+                or creation_scope.tenant_id != scope.tenant_id
+                or creation_scope.cell_id != scope.cell_id
+                or creation_scope.cell_id != run_binding.cell_id
+            ):
+                raise forbidden(
+                    "Model-input action job ownership does not match its run and request scope",
+                    code="authorization_binding_job_scope_mismatch",
+                )
+            owned_path_selectors = (
+                ("core_run_id", _canonical_json(run_binding.core_run_id)),
+                ("cell_id", _canonical_json(scope.cell_id)),
+            )
+        elif spec.resource_kind in {
             "runtime.run.method_execution_selection",
             "runtime.run.method_metrics",
         }:
@@ -1129,6 +1200,7 @@ def _bind_owned_existing_path(
         sorted(
             (
                 (selector_name, _canonical_json(resource_id)),
+                *owned_path_selectors,
                 *(
                     (
                         path_selector,

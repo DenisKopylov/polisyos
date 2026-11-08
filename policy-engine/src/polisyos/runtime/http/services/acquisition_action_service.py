@@ -39,10 +39,13 @@ from polisyos.runtime.quality.acquisition_route_loop import (
 from polisyos.runtime.quality.agent_action_authority import (
     ACQUISITION_ACTION_KIND,
     CANDIDATE_EXPERIMENT_ACTION_KIND,
+    MODEL_INPUT_USE_ACTION_KIND,
     AgentActionAuthorityGateway,
+    AgentActionAuthorityRecordingError,
     AgentActionAuthorityRefused,
     AgentActionIntent,
     AuthenticatedAgentActionDecisionHistory,
+    PersistedAgentActionDecision,
     agent_action_authority_scope,
     agent_action_content_hash,
     produce_agent_action_authority_decision,
@@ -51,12 +54,26 @@ from polisyos.runtime.quality.agent_action_authority import (
 
 from .control import ControlPlaneService
 from .human_decisions import HumanDecisionService
+from .model_input_successor_action import (
+    ModelInputSuccessorActionRequest,
+    ModelInputSuccessorDecisionResponse,
+    ModelInputSuccessorExecutionRequest,
+    ModelInputUseActionCheckpoint,
+    SelectedModelInputSuccessorAction,
+    model_input_successor_action_tuple,
+    model_input_use_terminal_progress,
+    resolve_model_input_successor_action,
+    run_model_input_use_action,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from polisyos.runtime.http.authorization import BoundActionPermissionVerification
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from polisyos.runtime.http.services.acquisition_authority_provider import (
+        ProductionAcquisitionAuthorityProvider,
+    )
     from polisyos.runtime.http.services.acquisition_surface_execution import (
         WorldBankWDIAcquisitionExecutionPort,
     )
@@ -69,6 +86,7 @@ if TYPE_CHECKING:
 
     from .control_plane_store import (
         AcquisitionActionHeadRecord,
+        ControlJobExecutionAdmission,
         ControlJobExecutionScope,
         ControlJobRecord,
     )
@@ -760,6 +778,16 @@ class AcquisitionAuthorityGatewayProvider(Protocol):
     ) -> AgentActionAuthorityGateway: ...
 
 
+@dataclass(frozen=True, slots=True)
+class VerifiedModelInputUseWorker:
+    """Exact active source, running lease and current signed effect gateway."""
+
+    selection: SelectedModelInputSuccessorAction
+    admission: ControlJobExecutionAdmission
+    gateway: AgentActionAuthorityGateway
+    decision: PersistedAgentActionDecision
+
+
 class AcquisitionActionService:
     """Compose current route, PA2/DS9 authority, worker, owner port, and recovery."""
 
@@ -1000,6 +1028,8 @@ class AcquisitionActionService:
     ) -> dict[str, Any]:
         """Run only with the tenant/cell admission attached to the live job lease."""
 
+        if payload.get("action_kind") == MODEL_INPUT_USE_ACTION_KIND:
+            return self._handle_model_input_use_job(job, payload, execution_scope)
         if payload.get("action_kind") == CANDIDATE_EXPERIMENT_ACTION_KIND:
             return self._handle_candidate_experiment_job(job, payload, execution_scope)
 
@@ -2149,6 +2179,319 @@ class AcquisitionActionService:
                 if decision.human_decision_request is not None
                 else None
             ),
+        )
+
+    def request_model_input_use_decision(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        request: ModelInputSuccessorActionRequest,
+        bound_permission: BoundActionPermissionVerification,
+    ) -> ModelInputSuccessorDecisionResponse:
+        """Persist the PA2 decision for one exact, already-active model input."""
+        provider = self._require_model_input_use_authority_provider()
+        selection = self._resolve_model_input_use(
+            tenant_id=tenant_id, cell_id=cell_id, run_id=run_id, request=request
+        )
+        operation, invocation, intent = model_input_successor_action_tuple(selection)
+        try:
+            gateway = provider.for_model_input_use_request(
+                selection=selection,
+                bound_permission=bound_permission,
+                effect_handler=self._model_input_use_effect_requires_worker,
+            )
+            with agent_action_authority_scope(gateway):
+                decision = produce_agent_action_authority_decision(
+                    bound_permission=bound_permission,
+                    operation=operation,
+                    invocation=invocation,
+                    intent=intent,
+                )
+                persisted = gateway.persist_decision(decision)
+        except (AgentActionAuthorityRecordingError, ValueError) as exc:
+            raise AcquisitionActionServiceError("model_input_use_decision_not_established") from exc
+        return ModelInputSuccessorDecisionResponse(
+            run_id=run_id,
+            route_id=selection.route_id,
+            job_id=selection.job_id,
+            authority_decision_ref=str(persisted.write_result.cas_ref.artifact_id),
+            outcome="decision_required" if decision.outcome == "refused" else "decision_available",
+            human_decision_request=(
+                decision.human_decision_request.model_dump(mode="json")
+                if decision.human_decision_request is not None
+                else None
+            ),
+        )
+
+    @staticmethod
+    def _model_input_use_effect_requires_worker(_invocation: OperationInvocationRecord) -> object:
+        raise AcquisitionActionServiceError("model_input_use_running_lease_not_established")
+
+    def execute_model_input_use(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        request: ModelInputSuccessorExecutionRequest,
+        request_id: str | None,
+        principal: RuntimePrincipal,
+    ) -> AcquisitionExecutionResponse:
+        """Queue one exact PA2-approved use through the normal Control worker."""
+        from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+
+        if not callable(getattr(JointSimulationPort, "run_semantic_successor", None)):
+            raise AcquisitionActionServiceError("model_input_use_successor_owner_unavailable")
+        if (
+            type(request) is not ModelInputSuccessorExecutionRequest
+            or principal.authenticated is not True
+            or principal.tenant_id != tenant_id
+            or principal.cell_id != cell_id
+        ):
+            raise AcquisitionActionServiceError("model_input_use_source_scope_refused")
+        selection = self._resolve_model_input_use(
+            tenant_id=tenant_id, cell_id=cell_id, run_id=run_id, request=request.request
+        )
+        control = self.control_service
+        try:
+            _, decision = self._load_model_input_use_decision(
+                selection,
+                request.decision_ref,
+                effect_handler=self._model_input_use_effect_requires_worker,
+            )
+            permission = decision.decision.permission_snapshot
+            if (
+                decision.decision.outcome != "allowed"
+                or permission is None
+                or permission.subject != principal.subject
+                or permission.tenant_id != tenant_id
+                or set(permission.roles) != principal.roles
+            ):
+                raise AcquisitionActionServiceError(
+                    "model_input_use_live_authority_not_established"
+                )
+            control.verify_candidate_unpriced_budget_scope(closure=selection.origin)
+            payload = {
+                "action_kind": MODEL_INPUT_USE_ACTION_KIND,
+                "tenant_id": tenant_id,
+                "cell_id": cell_id,
+                "run_id": run_id,
+                "route_id": selection.route_id,
+                "request": request.request.model_dump(mode="json"),
+                "decision_ref": request.decision_ref,
+            }
+            job = control.enqueue_acquisition_job(
+                job_id=selection.job_id,
+                run_id=run_id,
+                payload=payload,
+                request_id=request_id,
+                principal=principal,
+            )
+            self._require_model_input_use_enqueued_payload(job, payload)
+        except AcquisitionActionServiceError:
+            raise
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError("model_input_use_queue_not_established") from exc
+        return AcquisitionExecutionResponse(
+            run_id=run_id,
+            route_id=selection.route_id,
+            job_id=selection.job_id,
+            authority_decision_ref=request.decision_ref,
+        )
+
+    def _require_model_input_use_enqueued_payload(
+        self, job: ControlJobRecord, expected_payload: dict[str, Any]
+    ) -> None:
+        """Reconcile a repeated enqueue with the immutable exact request."""
+        from .control.job_attempt_publication import _EXECUTION_INTENT_BINDING_KEY
+
+        if job.payload_ref is None:
+            raise AcquisitionActionServiceError("model_input_use_job_payload_missing")
+        persisted = self.control_service._load_payload_ref(
+            job.payload_ref, kind="runtime.control_job_payload.acquisition"
+        )
+        actual = ControlPlaneService._job_payload_without_telemetry(persisted)
+        actual.pop(_EXECUTION_INTENT_BINDING_KEY, None)
+        if actual != expected_payload:
+            raise AcquisitionActionServiceError("model_input_use_job_payload_conflict")
+
+    def _handle_model_input_use_job(
+        self,
+        job: ControlJobRecord,
+        payload: dict[str, Any],
+        execution_scope: ControlJobExecutionScope,
+    ) -> dict[str, Any]:
+        def require_current_action() -> bool:
+            replayed = self._require_model_input_use_worker(
+                job, payload, execution_scope, effect_handler=effect
+            )
+            original = worker.selection
+            current = replayed.selection
+            return (
+                replayed.admission.same_execution_identity(worker.admission)
+                and replayed.decision.durable_event_id == worker.decision.durable_event_id
+                and replayed.decision.decision == worker.decision.decision
+                and current.request == original.request
+                and current.catalog_source == original.catalog_source
+                and current.passport_ref == original.passport_ref
+                and current.observation_content_sha256 == original.observation_content_sha256
+            )
+
+        def effect(_invocation: OperationInvocationRecord) -> ModelInputUseActionCheckpoint:
+            return run_model_input_use_action(
+                self.control_service,
+                selection=worker.selection,
+                admission=worker.admission,
+                decision_ref=str(worker.decision.write_result.cas_ref.artifact_id),
+                currentness_resolver=require_current_action,
+            )
+
+        worker = self._require_model_input_use_worker(
+            job, payload, execution_scope, effect_handler=effect
+        )
+        operation, invocation, intent = model_input_successor_action_tuple(worker.selection)
+        completed = worker.gateway.execute_bound_effect(
+            operation=operation, invocation=invocation, intent=intent, persisted=worker.decision
+        )
+        if type(completed) is not ModelInputUseActionCheckpoint:
+            raise AcquisitionActionServiceError("model_input_use_result_not_established")
+        return {
+            **self.control_service._control_store.current_execution_job_record().progress,
+            **model_input_use_terminal_progress(completed),
+        }
+
+    def _resolve_model_input_use(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        request: ModelInputSuccessorActionRequest,
+    ) -> SelectedModelInputSuccessorAction:
+        try:
+            return resolve_model_input_successor_action(
+                self.control_service,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                run_id=run_id,
+                request=request,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            try:
+                artifacts.raise_artifact_read_access_error(exc)
+            except artifacts.ArtifactOwnershipError as denied:
+                raise AcquisitionActionServiceError(
+                    "model_input_use_source_scope_refused"
+                ) from denied
+            code = getattr(exc, "code", None)
+            raise AcquisitionActionServiceError(
+                code if isinstance(code, str) else "model_input_use_source_not_established"
+            ) from exc
+
+    def _require_model_input_use_authority_provider(self) -> ProductionAcquisitionAuthorityProvider:
+        from .acquisition_authority_provider import ProductionAcquisitionAuthorityProvider
+
+        provider = self._require_authority_provider()
+        if type(provider) is not ProductionAcquisitionAuthorityProvider:
+            raise AcquisitionActionServiceError("model_input_use_authority_producer_missing")
+        return provider
+
+    def _load_model_input_use_decision(
+        self,
+        selection: SelectedModelInputSuccessorAction,
+        decision_ref: str,
+        *,
+        effect_handler: Callable[[OperationInvocationRecord], object],
+    ) -> tuple[AgentActionAuthorityGateway, PersistedAgentActionDecision]:
+        provider = self._require_model_input_use_authority_provider()
+        try:
+            gateway = provider.for_model_input_use_job(
+                selection=selection, decision_ref=decision_ref, effect_handler=effect_handler
+            )
+            return gateway, gateway.load_persisted_decision(decision_ref)
+        except (AgentActionAuthorityRecordingError, ValueError) as exc:
+            raise AcquisitionActionServiceError(
+                "model_input_use_live_authority_not_established"
+            ) from exc
+
+    def _require_model_input_use_worker(
+        self,
+        job: ControlJobRecord,
+        payload: dict[str, Any],
+        execution_scope: ControlJobExecutionScope,
+        *,
+        effect_handler: Callable[[OperationInvocationRecord], object],
+    ) -> VerifiedModelInputUseWorker:
+        """Reopen the current exact job envelope, activation, and PA2 allow."""
+        from .control.job_attempt_publication import _EXECUTION_INTENT_BINDING_KEY
+
+        store = self.control_service._control_store
+        admission = store.current_execution_job_admission()
+        if (
+            job.kind != "acquisition"
+            or job.state != "running"
+            or job.run_id is None
+            or not admission.matches_job_record(job)
+            or execution_scope != admission.scope
+            or execution_scope.status != "established"
+            or execution_scope.actor_authenticated is not True
+            or not execution_scope.actor_subject
+            or not execution_scope.tenant_id
+            or not execution_scope.cell_id
+        ):
+            raise AcquisitionActionServiceError("model_input_use_running_lease_not_established")
+        try:
+            payload = ControlPlaneService._job_payload_without_telemetry(payload)
+            request = ModelInputSuccessorActionRequest.model_validate(payload.get("request"))
+        except (TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError("model_input_use_job_payload_invalid") from exc
+        decision_ref = payload.get("decision_ref")
+        if (
+            set(payload)
+            - {
+                "action_kind",
+                "job_id",
+                "tenant_id",
+                "cell_id",
+                "run_id",
+                "route_id",
+                "request",
+                "decision_ref",
+                _EXECUTION_INTENT_BINDING_KEY,
+            }
+            or payload.get("action_kind") != MODEL_INPUT_USE_ACTION_KIND
+            or payload.get("job_id") != job.job_id
+            or payload.get("tenant_id") != execution_scope.tenant_id
+            or payload.get("cell_id") != execution_scope.cell_id
+            or payload.get("run_id") != job.run_id
+            or not isinstance(decision_ref, str)
+        ):
+            raise AcquisitionActionServiceError("model_input_use_job_payload_scope_mismatch")
+        selection = self._resolve_model_input_use(
+            tenant_id=execution_scope.tenant_id,
+            cell_id=execution_scope.cell_id,
+            run_id=job.run_id,
+            request=request,
+        )
+        if selection.job_id != job.job_id or selection.route_id != payload.get("route_id"):
+            raise AcquisitionActionServiceError("model_input_use_job_identity_mismatch")
+        gateway, decision = self._load_model_input_use_decision(
+            selection, decision_ref, effect_handler=effect_handler
+        )
+        permission = decision.decision.permission_snapshot
+        if (
+            decision.decision.outcome != "allowed"
+            or permission is None
+            or permission.subject != execution_scope.actor_subject
+            or permission.tenant_id != execution_scope.tenant_id
+            or tuple(sorted(permission.roles)) != execution_scope.actor_roles
+            or not store.current_execution_job_admission().same_execution_identity(admission)
+        ):
+            raise AcquisitionActionServiceError("model_input_use_worker_authority_scope_mismatch")
+        return VerifiedModelInputUseWorker(
+            selection=selection, admission=admission, gateway=gateway, decision=decision
         )
 
     def execute_candidate_experiment(

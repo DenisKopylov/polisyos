@@ -42,6 +42,16 @@ _HIGH_STAKES_OPERATIONS = {
     ): "acquisition_approval",
     (
         "POST",
+        "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/decision-request",
+    ): "acquisition_approval",
+    (
+        "POST",
+        "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/execute",
+    ): "acquisition_approval",
+    ("POST", "/api/v1/runs/{run_id}/model-input-use/decision-request"): "acquisition_approval",
+    ("POST", "/api/v1/runs/{run_id}/model-input-use/execute"): "acquisition_approval",
+    (
+        "POST",
         "/api/v1/runs/{run_id}/production-approval",
     ): "production_approval",
     ("POST", "/api/v1/runs/{run_id}/human-decisions"): "human_decision",
@@ -445,6 +455,47 @@ def test_live_app_passes_high_stakes_step_up_contract(runtime_api_env) -> None:
     gate = getattr(step_up, "assert_high_stakes_step_up_contract", None)
     assert callable(gate)
     gate(runtime_api_env["app"])
+
+
+@pytest.mark.parametrize(
+    ("permission", "resource_kind", "required"),
+    [
+        ("runs.launch", "runtime.evidence.model_input.use", True),
+        ("runs.launch", "runtime.evidence.model_input.use.other", False),
+        ("runs.review", "runtime.evidence.model_input.use", False),
+    ],
+)
+def test_model_input_use_step_up_requires_exact_permission_and_resource(
+    permission: str, resource_kind: str, required: bool
+) -> None:
+    from polisyos.runtime.http.authorization import (
+        ResourceBindingSource,
+        ResourceBindingSpec,
+        require_action_permission,
+    )
+    from polisyos.runtime.http.permissions import RuntimePermission
+    from polisyos.runtime.http.step_up import assert_high_stakes_step_up_contract
+
+    action = require_action_permission(
+        RuntimePermission(permission),
+        ResourceBindingSpec(
+            source=ResourceBindingSource.REQUEST_COMPOSITE,
+            resource_kind=resource_kind,
+            selector_fields=("request",),
+            required_selector_fields=("request",),
+        ),
+    )
+    app = FastAPI()
+
+    @app.post("/ds20/model-input-use", dependencies=[Depends(action)])
+    def _probe() -> None:
+        return None
+
+    if required:
+        with pytest.raises(RuntimeError, match="requires one direct step-up dependency"):
+            assert_high_stakes_step_up_contract(app)
+    else:
+        assert_high_stakes_step_up_contract(app)
 
 
 def test_replaced_route_app_cannot_bypass_executable_step_up_dependency(

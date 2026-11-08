@@ -53,6 +53,11 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationRequest,
     NCMConditionalComparatorProfile,
 )
+from polisyos.runtime.quality.model_input_successor_selection import (
+    MODEL_INPUT_SUCCESSOR_SELECTION_KIND,
+    ModelInputSuccessorSelection,
+    read_model_input_successor_selection,
+)
 from polisyos.runtime.quality.substrate_registry import load_substrate_registry
 from polisyos.runtime.quality.world_model_record import (
     WORLD_MODEL_RECORD_SCHEMA_V2_VERSION,
@@ -74,7 +79,10 @@ if TYPE_CHECKING:
         JointSimulationResult,
     )
     from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
-    from polisyos.runtime.quality.model_input_requirements import SelectedProgramGraphInputBasis
+    from polisyos.runtime.quality.model_input_requirements import (
+        ProgramGraphInputPreflight,
+        SelectedProgramGraphInputBasis,
+    )
 
 _HASH_PATTERN = r"^sha256:[0-9a-f]{64}$"
 _PROFILE_KIND = "runtime.quality.generic_cycle_simulation_profile"
@@ -676,6 +684,10 @@ _N5_EXECUTION_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_execution.v
 _N5_EXECUTION_V2_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_execution.v2"
 _N5_EXECUTION_V3_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_execution.v3"
 _N5_EXECUTION_V4_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_execution.v4"
+_N5_EXECUTION_V5_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_execution.v5"
+_N5_TYPED_EXECUTION_SCHEMAS = frozenset(
+    {_N5_EXECUTION_V3_SCHEMA, _N5_EXECUTION_V4_SCHEMA, _N5_EXECUTION_V5_SCHEMA}
+)
 _MODEL_INPUT_OBLIGATION_SET_KIND = "runtime.quality.model_input_obligation_set"
 _N5_REQUEST_BINDING_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_request_binding.v1"
 _N5_REQUEST_BINDING_V2_SCHEMA = "policyos.runtime.generic_cycle_simulation_n5_request_binding.v2"
@@ -701,11 +713,8 @@ def _n5_typed_request_content_hash(request: JointSimulationRequest) -> str:
 
 
 def _n5_typed_execution_content_hash(record: object) -> str:
-    """Hash a typed V3/V4 execution body under its versioned canonical profile."""
-    if type(record) not in {
-        GenericCycleSimulationN5ExecutionV3,
-        GenericCycleSimulationN5ExecutionV4,
-    }:
+    """Hash a typed execution body under its versioned canonical profile."""
+    if type(record) not in _N5_TYPED_EXECUTION_TYPES:
         raise TypeError("generic_cycle_simulation_n5_execution_v3_untyped")
     return canon.fingerprint(
         {
@@ -1029,7 +1038,7 @@ class GenericCycleSimulationN5ExecutionV1(_StrictModel):
             raise ValueError("generic_cycle_simulation_n5_execution_child_selection_mismatch")
         expected = (
             _n5_typed_execution_content_hash(self)
-            if self.schema_version in {_N5_EXECUTION_V3_SCHEMA, _N5_EXECUTION_V4_SCHEMA}
+            if self.schema_version in _N5_TYPED_EXECUTION_SCHEMAS
             else gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
         )
         if self.content_hash != expected:
@@ -1097,11 +1106,47 @@ class GenericCycleSimulationN5ExecutionV4(GenericCycleSimulationN5ExecutionV3):
         return self
 
 
+class GenericCycleSimulationN5ExecutionV5(GenericCycleSimulationN5ExecutionV3):
+    """A successful candidate N5 result from one protected semantic successor."""
+
+    schema_version: Literal[_N5_EXECUTION_V5_SCHEMA] = _N5_EXECUTION_V5_SCHEMA
+    semantic_successor_ref: ArtifactRef
+    action_job_id: str = Field(min_length=1, strict=True)
+
+    @model_validator(mode="after")
+    def _require_semantic_successor(self) -> GenericCycleSimulationN5ExecutionV5:
+        plans = self.request_binding.request.engine_plan
+        if (
+            self.status != "joint_simulated"
+            or not _is_selected_json_ref(
+                self.result_ref, "polisyos.runtime.joint_simulation_result"
+            )
+            or not _is_selected_json_ref(
+                self.semantic_successor_ref, MODEL_INPUT_SUCCESSOR_SELECTION_KIND
+            )
+            or self.action_job_id == self.job_id
+            or self.n4_child_profile_family_ref is not None
+            or len(plans) != 1
+            or plans[0].engine_kind != "program_graph"
+            or plans[0].program_semantic_input_bindings_ref is None
+        ):
+            raise ValueError("generic_cycle_simulation_n5_semantic_successor_binding_invalid")
+        return self
+
+
+_N5_TYPED_EXECUTION_TYPES = (
+    GenericCycleSimulationN5ExecutionV3,
+    GenericCycleSimulationN5ExecutionV4,
+    GenericCycleSimulationN5ExecutionV5,
+)
+
+
 GenericCycleSimulationN5ExecutionRecord = (
     GenericCycleSimulationN5ExecutionV1
     | GenericCycleSimulationN5ExecutionV2
     | GenericCycleSimulationN5ExecutionV3
     | GenericCycleSimulationN5ExecutionV4
+    | GenericCycleSimulationN5ExecutionV5
 )
 
 
@@ -1112,6 +1157,9 @@ class GenericN5ExecutionJoinExpectation(_StrictModel):
     result_ref: ArtifactRef | None
     status: Literal["joint_simulated", "simulation_blocked"]
     model_input_obligation_set_ref: ArtifactRef | None
+    semantic_successor_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     n4_source_ref: ArtifactRef
     context_job_ref: ArtifactRef
     profile_ref: ArtifactRef
@@ -1143,6 +1191,14 @@ class GenericN5ExecutionJoinExpectation(_StrictModel):
             or self.result_ref is not None
         ):
             raise ValueError("generic_n5_join_model_input_obligation_ref_invalid")
+        if self.semantic_successor_ref is not None and (
+            self.status != "joint_simulated"
+            or self.result_ref is None
+            or not _is_selected_json_ref(
+                self.semantic_successor_ref, MODEL_INPUT_SUCCESSOR_SELECTION_KIND
+            )
+        ):
+            raise ValueError("generic_n5_join_semantic_successor_ref_invalid")
         return self
 
 
@@ -1151,9 +1207,12 @@ class GenericN5ExecutionJoinOutcome(_StrictModel):
 
     status: Literal["resolved", "unavailable", "invalid", "mismatch", "not_established"]
     code: str | None = None
-    execution: GenericCycleSimulationN5ExecutionV3 | GenericCycleSimulationN5ExecutionV4 | None = (
-        None
-    )
+    execution: (
+        GenericCycleSimulationN5ExecutionV3
+        | GenericCycleSimulationN5ExecutionV4
+        | GenericCycleSimulationN5ExecutionV5
+        | None
+    ) = None
     input_record: GenericCycleSimulationN5InputV1 | None = None
     authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
 
@@ -1175,6 +1234,31 @@ class GenericN5ResolvedResult:
     request: JointSimulationRequest
 
 
+@dataclass(frozen=True, slots=True)
+class _ReplayedBlockedGenericN5:
+    basis: SelectedProgramGraphInputBasis
+    request: JointSimulationRequest
+    candidate: object
+    problem: DesignProblem
+
+
+@dataclass(frozen=True, slots=True)
+class GenericN5SemanticSuccessorRequest:
+    """Recomputed request and original preflight for one selected semantic input."""
+
+    input_record: GenericCycleSimulationN5InputV1
+    candidate: object
+    problem: DesignProblem
+    request: JointSimulationRequest
+    preflight: ProgramGraphInputPreflight
+    selection: ModelInputSuccessorSelection
+
+    @property
+    def action_job_id(self) -> str:
+        """Return the separate job selected for numerical use."""
+        return self.selection.action_job_id
+
+
 def parse_generic_cycle_simulation_n5_execution(
     payload: object,
 ) -> GenericCycleSimulationN5ExecutionRecord:
@@ -1190,6 +1274,8 @@ def parse_generic_cycle_simulation_n5_execution(
         return GenericCycleSimulationN5ExecutionV3.model_validate(payload)
     if version == _N5_EXECUTION_V4_SCHEMA:
         return GenericCycleSimulationN5ExecutionV4.model_validate(payload)
+    if version == _N5_EXECUTION_V5_SCHEMA:
+        return GenericCycleSimulationN5ExecutionV5.model_validate(payload)
     raise ValueError("generic_cycle_simulation_n5_execution_schema_unsupported")
 
 
@@ -2787,6 +2873,182 @@ class GenericCycleSimulationAdmissionOwner:
             )
         return record
 
+    def prepare_semantic_successor_request(
+        self,
+        *,
+        semantic_successor_ref: ArtifactRef,
+        expected_blocked_execution_ref: ArtifactRef,
+        expected_input_ref: ArtifactRef,
+    ) -> GenericN5SemanticSuccessorRequest:
+        """Rebuild N5 from an action-owned selection and its exact blocked origin.
+
+        The calling action owner establishes current authority and the worker
+        lease before executing the returned request. This read proves input
+        identity and supplies the original preflight.
+        """
+        from polisyos.core.artifacts import load_core_json_artifact
+
+        input_record = GenericCycleSimulationN5InputV1.model_validate(
+            load_core_json_artifact(self._store, expected_input_ref)
+        )
+        return self._replay_semantic_successor_request(
+            semantic_successor_ref,
+            input_ref=expected_input_ref,
+            input_record=input_record,
+            expected_blocked_execution_ref=expected_blocked_execution_ref,
+        )
+
+    def _read_scoped_semantic_successor(
+        self, ref: ArtifactRef, *, input_record: GenericCycleSimulationN5InputV1
+    ) -> ModelInputSuccessorSelection:
+        selected = read_model_input_successor_selection(self._store, ref)
+        if (
+            (selected.tenant_id, selected.cell_id, selected.run_id, selected.source_job_id)
+            != (
+                input_record.tenant_id,
+                input_record.cell_id,
+                input_record.run_id,
+                input_record.job_id,
+            )
+            or selected.action_job_id == input_record.job_id
+            or type(input_record.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+            or input_record.n4_child_profile_family_ref is not None
+            or input_record.profile.profile_selection_kind != "problem"
+        ):
+            raise _GenericN5VerifiedMismatchError(
+                "generic_cycle_simulation_n5_semantic_successor_scope_mismatch"
+            )
+        return selected
+
+    def _replay_semantic_successor_request(
+        self,
+        semantic_successor_ref: ArtifactRef,
+        *,
+        input_ref: ArtifactRef,
+        input_record: GenericCycleSimulationN5InputV1,
+        expected_blocked_execution_ref: ArtifactRef | None = None,
+    ) -> GenericN5SemanticSuccessorRequest:
+        from polisyos.core.artifacts import (
+            CoreJSONArtifactStore,
+            load_core_json_artifact,
+            matches_artifact_store_protocol,
+            validate_core_model_json_artifact,
+        )
+        from polisyos.core.contracts import (
+            ScopedCorrespondenceBasis,
+            ScopedMeasurementOccurrence,
+            load_model_input_obligation_set,
+            load_resolved_input_binding_manifest,
+        )
+        from polisyos.foundry.data_plane import load_input_bindings
+        from polisyos.runtime.quality.model_input_requirements import ProgramGraphInputPreflight
+        from polisyos.runtime.quality.model_input_routing import read_model_input_routing_report
+
+        store = self._store
+        if not matches_artifact_store_protocol(store, CoreJSONArtifactStore):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_simulation_n5_semantic_successor_store_unavailable"
+            )
+        selected = self._read_scoped_semantic_successor(
+            semantic_successor_ref, input_record=input_record
+        )
+        if (
+            expected_blocked_execution_ref is not None
+            and selected.blocked_execution_ref != expected_blocked_execution_ref
+        ):
+            raise _GenericN5VerifiedMismatchError(
+                "generic_cycle_simulation_n5_semantic_successor_origin_mismatch"
+            )
+        blocked = parse_generic_cycle_simulation_n5_execution(
+            load_core_json_artifact(store, selected.blocked_execution_ref)
+        )
+        if (
+            type(blocked) is not GenericCycleSimulationN5ExecutionV4
+            or blocked.input_ref != input_ref
+        ):
+            raise _GenericN5VerifiedMismatchError(
+                "generic_cycle_simulation_n5_semantic_successor_origin_mismatch"
+            )
+        _, predecessor, _ = self._resolve_n5_execution_with_program_graph_input_basis(
+            selected.blocked_execution_ref, expected=blocked
+        )
+        if predecessor is None:
+            raise _GenericN5VerifiedMismatchError(
+                "generic_cycle_simulation_n5_semantic_successor_origin_mismatch"
+            )
+        basis = predecessor.basis
+        report = read_model_input_routing_report(store, selected.routing_report_ref)
+        if (
+            report.obligation_set_ref != blocked.model_input_obligation_set_ref
+            or report.selected_invocation
+            != basis.invocation(report.selected_invocation.interface_ref)
+            or len(report.routes) != 1
+            or (descriptor := report.routes[0].source_descriptor) is None
+        ):
+            raise _GenericN5VerifiedMismatchError(
+                "generic_cycle_simulation_n5_semantic_successor_routing_mismatch"
+            )
+        obligation_set, _ = load_model_input_obligation_set(
+            store, blocked.model_input_obligation_set_ref
+        )
+        bindings_ref = selected.semantic_foundry_input_bindings_ref
+        bindings = load_input_bindings(store, bindings_ref)
+        if bindings.schema_version != "1.2" or bindings.resolved_binding_manifest_ref is None:
+            raise _GenericN5VerifiedMismatchError(
+                "generic_cycle_simulation_n5_semantic_successor_bindings_required"
+            )
+        manifest = load_resolved_input_binding_manifest(
+            store, bindings.resolved_binding_manifest_ref
+        )
+        if (
+            artifact_ref_identity_key(manifest.model_input_obligation_set_ref)
+            != artifact_ref_identity_key(blocked.model_input_obligation_set_ref)
+            or artifact_ref_identity_key(bindings.registry_bundle_ref)
+            != artifact_ref_identity_key(basis.registry_bundle_ref)
+            or len(manifest.measurements) != 1
+            or obligation_set.obligation_refs != (report.routes[0].obligation_ref,)
+            or artifact_ref_identity_key(manifest.measurements[0].model_input_obligation_ref)
+            != artifact_ref_identity_key(report.routes[0].obligation_ref)
+        ):
+            raise _GenericN5VerifiedMismatchError(
+                "generic_cycle_simulation_n5_semantic_successor_binding_mismatch"
+            )
+        occurrence = validate_core_model_json_artifact(
+            ScopedMeasurementOccurrence, store, manifest.measurements[0].selected_occurrence_ref
+        )
+        correspondence = validate_core_model_json_artifact(
+            ScopedCorrespondenceBasis, store, manifest.measurements[0].correspondence_ref
+        )
+        if (
+            artifact_ref_identity_key(occurrence.source_receipt_ref)
+            != artifact_ref_identity_key(selected.activation_receipt_ref)
+            or occurrence.observation_id != selected.observation_id
+            or occurrence.observation_content_sha256 != selected.observation_content_sha256
+            or correspondence.source_definition_ref != descriptor.source_semantic_definition_ref
+            or correspondence.source_representation_ref != descriptor.source_representation_ref
+        ):
+            raise _GenericN5VerifiedMismatchError(
+                "generic_cycle_simulation_n5_semantic_successor_observation_mismatch"
+            )
+        (plan,) = predecessor.request.engine_plan
+        selected_plan = plan.model_copy(
+            update={"program_semantic_input_bindings_ref": bindings_ref}
+        )
+        return GenericN5SemanticSuccessorRequest(
+            input_record=input_record,
+            candidate=predecessor.candidate,
+            problem=predecessor.problem,
+            request=predecessor.request.model_copy(update={"engine_plan": (selected_plan,)}),
+            preflight=ProgramGraphInputPreflight(
+                obligation_refs=obligation_set.obligation_refs,
+                supplied_initial_slots=obligation_set.supplied_initial_slots,
+                parameter_override_bundle_ref=basis.parameter_override_bundle_ref,
+                obligation_set_ref=blocked.model_input_obligation_set_ref,
+                invocation=report.selected_invocation,
+            ),
+            selection=selected,
+        )
+
     def persist_n5_execution(
         self,
         *,
@@ -2801,6 +3063,7 @@ class GenericCycleSimulationAdmissionOwner:
             | None
         ) = None,
         model_input_obligation_set_ref: ArtifactRef | None = None,
+        semantic_successor_ref: ArtifactRef | None = None,
         limitation_code: str | None = None,
     ) -> ArtifactRef:
         """Persist exact source, request, and result linkage as candidate-only data."""
@@ -2853,16 +3116,30 @@ class GenericCycleSimulationAdmissionOwner:
             raise CycleSubstrateContextOwnerError(
                 "generic_cycle_program_graph_selected_execution_required"
             )
+        selected_successor = None
+        if semantic_successor_ref is not None:
+            if (
+                status != "joint_simulated"
+                or model_input_obligation_set_ref is not None
+                or type(request_binding) is not GenericCycleSimulationN5RequestBindingV2
+            ):
+                raise CycleSubstrateContextOwnerError(
+                    "generic_cycle_simulation_n5_semantic_successor_binding_invalid"
+                )
+            selected_successor = self._read_scoped_semantic_successor(
+                semantic_successor_ref, input_record=input_record
+            )
+            plans = request_binding.request.engine_plan
+            if (
+                len(plans) != 1
+                or plans[0].program_semantic_input_bindings_ref is None
+                or artifact_ref_identity_key(plans[0].program_semantic_input_bindings_ref)
+                != artifact_ref_identity_key(selected_successor.semantic_foundry_input_bindings_ref)
+            ):
+                raise _GenericN5VerifiedMismatchError(
+                    "generic_cycle_simulation_n5_semantic_successor_binding_mismatch"
+                )
         draft = {
-            "schema_version": (
-                _N5_EXECUTION_V4_SCHEMA
-                if model_input_obligation_set_ref is not None
-                else _N5_EXECUTION_V3_SCHEMA
-                if is_typed_binding
-                else _N5_EXECUTION_V2_SCHEMA
-                if request_binding is not None
-                else _N5_EXECUTION_SCHEMA
-            ),
             "authority_purpose": "cycle_input_candidate_only",
             "status": status,
             "job_id": input_record.job_id,
@@ -2886,7 +3163,9 @@ class GenericCycleSimulationAdmissionOwner:
             "limitation_code": limitation_code,
         }
         record_type = (
-            GenericCycleSimulationN5ExecutionV4
+            GenericCycleSimulationN5ExecutionV5
+            if selected_successor is not None
+            else GenericCycleSimulationN5ExecutionV4
             if model_input_obligation_set_ref is not None
             else GenericCycleSimulationN5ExecutionV3
             if is_typed_binding
@@ -2898,6 +3177,9 @@ class GenericCycleSimulationAdmissionOwner:
             draft["request_binding"] = request_binding
         if model_input_obligation_set_ref is not None:
             draft["model_input_obligation_set_ref"] = model_input_obligation_set_ref
+        if selected_successor is not None:
+            draft["semantic_successor_ref"] = semantic_successor_ref
+            draft["action_job_id"] = selected_successor.action_job_id
         draft_record = record_type.model_construct(
             **draft,
             content_hash="sha256:" + "0" * 64,
@@ -2927,7 +3209,9 @@ class GenericCycleSimulationAdmissionOwner:
             raise CycleSubstrateContextOwnerError(
                 "generic_cycle_simulation_n5_execution_readback_mismatch"
             )
-        self.resolve_n5_execution(ref, expected=record)
+        self.resolve_n5_execution(
+            ref, expected=record, expected_semantic_successor_ref=semantic_successor_ref
+        )
         return ref
 
     def resolve_n5_execution(
@@ -2935,8 +3219,13 @@ class GenericCycleSimulationAdmissionOwner:
         ref: ArtifactRef,
         *,
         expected: GenericCycleSimulationN5ExecutionRecord,
+        expected_semantic_successor_ref: ArtifactRef | None = None,
     ) -> GenericCycleSimulationN5ExecutionRecord:
         """Resolve the complete selected result/input manifest and bytes."""
+        if getattr(expected, "semantic_successor_ref", None) != expected_semantic_successor_ref:
+            raise _GenericN5VerifiedMismatchError(
+                "generic_cycle_simulation_n5_semantic_successor_selection_mismatch"
+            )
         execution, _, _ = self._resolve_n5_execution_with_program_graph_input_basis(
             ref, expected=expected
         )
@@ -2949,18 +3238,17 @@ class GenericCycleSimulationAdmissionOwner:
         expected: GenericCycleSimulationN5ExecutionRecord,
     ) -> tuple[
         GenericCycleSimulationN5ExecutionRecord,
-        SelectedProgramGraphInputBasis | None,
+        _ReplayedBlockedGenericN5 | None,
         GenericN5ResolvedResult | None,
     ]:
         """Resolve execution, its replayed basis, and any exact selected result."""
         from polisyos.core.artifacts import load_core_json_artifact
 
-        if type(expected) not in {
+        if type(expected) not in (
             GenericCycleSimulationN5ExecutionV1,
             GenericCycleSimulationN5ExecutionV2,
-            GenericCycleSimulationN5ExecutionV3,
-            GenericCycleSimulationN5ExecutionV4,
-        }:
+            *_N5_TYPED_EXECUTION_TYPES,
+        ):
             raise CycleSubstrateContextOwnerError("generic_cycle_simulation_n5_execution_untyped")
         self._verify_json_artifact(ref, expected_kind=_N5_EXECUTION_KIND)
         manifest = self._store.get_manifest(ref)
@@ -2979,9 +3267,13 @@ class GenericCycleSimulationAdmissionOwner:
             load_core_json_artifact(self._store, input_ref)
         )
         self.resolve_n5_input(input_ref, expected=input_record)
-        source, source_candidate, source_context, port = self._replay_n5_execution_sources(
-            record, input_record
-        )
+        is_successor = type(record) is GenericCycleSimulationN5ExecutionV5
+        if is_successor:
+            self._require_n5_execution_source_scope(record, input_record)
+        else:
+            source, source_candidate, source_context, port = self._replay_n5_execution_sources(
+                record, input_record
+            )
         if (
             type(record) is not type(expected)
             or record != expected
@@ -3001,11 +3293,15 @@ class GenericCycleSimulationAdmissionOwner:
         program_graph_profile = isinstance(
             input_record.n5, GenericCycleN5ProgramGraphRequestProfileV4
         )
-        if (
+        if (is_successor and not program_graph_profile) or (
             program_graph_profile
             and record.status == "joint_simulated"
             and (
-                type(record) is not GenericCycleSimulationN5ExecutionV3
+                type(record)
+                not in (
+                    GenericCycleSimulationN5ExecutionV3,
+                    GenericCycleSimulationN5ExecutionV5,
+                )
                 or record.result_ref is None
                 or record.result_ref.manifest_profile_sha256 is None
             )
@@ -3013,26 +3309,32 @@ class GenericCycleSimulationAdmissionOwner:
             raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_program_graph_selected_execution_required"
             )
-        selected_input_basis: SelectedProgramGraphInputBasis | None = None
+        blocked_input: _ReplayedBlockedGenericN5 | None = None
         resolved_result: GenericN5ResolvedResult | None = None
-        if type(record) in {
-            GenericCycleSimulationN5ExecutionV2,
-            GenericCycleSimulationN5ExecutionV3,
-            GenericCycleSimulationN5ExecutionV4,
-        }:
+        if type(record) in (GenericCycleSimulationN5ExecutionV2, *_N5_TYPED_EXECUTION_TYPES):
             binding = record.request_binding
             if binding is None:
                 raise CycleSubstrateContextOwnerError(
                     "generic_cycle_simulation_n5_execution_request_binding_missing"
                 )
             request = binding.request
-            expected_request = self._recompute_n5_request(
-                input_record=input_record,
-                source=source,
-                source_candidate=source_candidate,
-                source_context=source_context,
-                port=port,
-            )
+            if type(record) is GenericCycleSimulationN5ExecutionV5:
+                successor = self._replay_semantic_successor_request(
+                    record.semantic_successor_ref, input_ref=input_ref, input_record=input_record
+                )
+                if record.action_job_id != successor.action_job_id:
+                    raise _GenericN5VerifiedMismatchError(
+                        "generic_cycle_simulation_n5_semantic_successor_action_mismatch"
+                    )
+                expected_request = successor.request
+            else:
+                expected_request = self._recompute_n5_request(
+                    input_record=input_record,
+                    source=source,
+                    source_candidate=source_candidate,
+                    source_context=source_context,
+                    port=port,
+                )
             if not _same_typed_public_value(request, expected_request):
                 raise _GenericN5VerifiedMismatchError(
                     "generic_cycle_simulation_n5_execution_request_profile_mismatch"
@@ -3046,8 +3348,8 @@ class GenericCycleSimulationAdmissionOwner:
                     load_joint_simulation_result,
                 )
 
-                result_request = request
-                if program_graph_profile:
+                result_request = expected_request if is_successor else request
+                if program_graph_profile and not is_successor:
                     # The typed request retains selected compilation identity.
                     # Live stores/state are excluded and must be reopened to
                     # reproduce engine eligibility and physical run identity.
@@ -3088,6 +3390,7 @@ class GenericCycleSimulationAdmissionOwner:
                     != [request.seed + offset for offset in range(request.replications)]
                     or result.world_credal_state_before != request.world_credal_state_before
                     or result.world_credal_state_after != request.world_credal_state_before
+                    or (is_successor and result.state_consumption is not None)
                 ):
                     raise _GenericN5VerifiedMismatchError(
                         "generic_cycle_simulation_n5_execution_result_request_mismatch"
@@ -3101,14 +3404,20 @@ class GenericCycleSimulationAdmissionOwner:
                 type(record) is GenericCycleSimulationN5ExecutionV4
                 and record.model_input_obligation_set_ref is not None
             ):
-                selected_input_basis = self._replay_model_input_obligation_set(
+                basis, bound_request = self._replay_model_input_obligation_set(
                     record=record,
                     input_record=input_record,
                     request=expected_request,
                     candidate=source_candidate,
                     port=port,
                 )
-        return record, selected_input_basis, resolved_result
+                blocked_input = _ReplayedBlockedGenericN5(
+                    basis=basis,
+                    request=bound_request,
+                    candidate=source_candidate,
+                    problem=source.problem,
+                )
+        return record, blocked_input, resolved_result
 
     def _replay_model_input_obligation_set(
         self,
@@ -3118,7 +3427,7 @@ class GenericCycleSimulationAdmissionOwner:
         request: JointSimulationRequest,
         candidate: object,
         port: JointSimulationPort,
-    ) -> SelectedProgramGraphInputBasis:
+    ) -> tuple[SelectedProgramGraphInputBasis, JointSimulationRequest]:
         """Replay the exact selected N5 input invocation behind a blocked artifact."""
         from polisyos.runtime.quality.model_input_requirements import (
             replay_selected_program_graph_input_obligations,
@@ -3175,7 +3484,7 @@ class GenericCycleSimulationAdmissionOwner:
                 "generic_cycle_simulation_n5_model_input_obligation_replay_mismatch",
                 str(exc),
             ) from exc
-        return basis
+        return basis, bound_request
 
     def resolve_n5_execution_join(
         self,
@@ -3389,10 +3698,7 @@ class GenericCycleSimulationAdmissionOwner:
             return refused("unavailable", "generic_n5_owner_backend_unavailable")
         except (ArtifactIntegrityError, TypeError, ValueError):
             return refused("invalid", "generic_n5_owner_artifact_invalid")
-        if type(record) not in {
-            GenericCycleSimulationN5ExecutionV3,
-            GenericCycleSimulationN5ExecutionV4,
-        }:
+        if type(record) not in _N5_TYPED_EXECUTION_TYPES:
             return refused("not_established", "generic_n5_typed_request_not_established")
         if (record.tenant_id, record.cell_id) != (expected.tenant_id, expected.cell_id):
             return refused("invalid", "generic_n5_execution_scope_refused")
@@ -3402,6 +3708,7 @@ class GenericCycleSimulationAdmissionOwner:
             or record.result_ref != expected.result_ref
             or getattr(record, "model_input_obligation_set_ref", None)
             != expected.model_input_obligation_set_ref
+            or getattr(record, "semantic_successor_ref", None) != expected.semantic_successor_ref
             or record.n4_source_ref != expected.n4_source_ref
             or record.context_job_ref != expected.context_job_ref
             or record.profile_ref != expected.profile_ref
@@ -3419,7 +3726,7 @@ class GenericCycleSimulationAdmissionOwner:
         if input_problem is not None:
             return input_problem, None, None
         try:
-            verified, selected_input_basis, resolved_result = (
+            verified, blocked_input, resolved_result = (
                 self._resolve_n5_execution_with_program_graph_input_basis(ref, expected=record)
             )
         except FileNotFoundError:
@@ -3454,43 +3761,23 @@ class GenericCycleSimulationAdmissionOwner:
             # Some old owner failures collapse missing, invalid, and conflicting
             # dependencies. Do not re-label their ambiguous cause as absence.
             return refused("not_established", "generic_n5_execution_replay_not_established")
-        if (
-            type(verified)
-            not in {
-                GenericCycleSimulationN5ExecutionV3,
-                GenericCycleSimulationN5ExecutionV4,
-            }
-            or input_record is None
-        ):
+        if type(verified) not in _N5_TYPED_EXECUTION_TYPES or input_record is None:
             return refused("not_established", "generic_n5_typed_request_not_established")
-        if (type(verified) is GenericCycleSimulationN5ExecutionV4) != (
-            selected_input_basis is not None
-        ):
+        if (type(verified) is GenericCycleSimulationN5ExecutionV4) != (blocked_input is not None):
             return refused("not_established", "generic_n5_input_obligation_basis_not_established")
         return (
             GenericN5ExecutionJoinOutcome(
                 status="resolved", execution=verified, input_record=input_record
             ),
-            selected_input_basis,
+            blocked_input.basis if blocked_input is not None else None,
             resolved_result,
         )
 
-    def _replay_n5_execution_sources(
-        self,
+    @staticmethod
+    def _require_n5_execution_source_scope(
         record: GenericCycleSimulationN5ExecutionRecord,
         input_record: GenericCycleSimulationN5InputV1,
-    ) -> tuple[object, object, CycleSubstrateContext, object]:
-        """Reopen the exact N4 candidate, profile context, and canonical N5 builder inputs."""
-        from polisyos.runtime.quality.cycle_substrate import (
-            CycleSubstrateContextArtifactOwner,
-            cycle_job_design_problem_ref,
-        )
-        from polisyos.runtime.quality.design_generation import ShadowGeneratedCandidate
-        from polisyos.runtime.quality.generation_cycle import JointSimulationPort
-        from polisyos.runtime.quality.generation_source import (
-            GenerationSourceRepository,
-        )
-
+    ) -> None:
         if (
             record.n4_source_ref != input_record.n4_source_ref
             or record.context_job_ref != input_record.context_job_ref
@@ -3515,6 +3802,24 @@ class GenericCycleSimulationAdmissionOwner:
             raise _GenericN5VerifiedMismatchError(
                 "generic_cycle_simulation_n5_source_scope_mismatch"
             )
+
+    def _replay_n5_execution_sources(
+        self,
+        record: GenericCycleSimulationN5ExecutionRecord,
+        input_record: GenericCycleSimulationN5InputV1,
+    ) -> tuple[object, object, CycleSubstrateContext, object]:
+        """Reopen the exact N4 candidate, profile context, and canonical N5 builder inputs."""
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+            cycle_job_design_problem_ref,
+        )
+        from polisyos.runtime.quality.design_generation import ShadowGeneratedCandidate
+        from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+        )
+
+        self._require_n5_execution_source_scope(record, input_record)
         source = GenerationSourceRepository(self._store).load(
             input_record.n4_source_ref,
             run_id=input_record.source_run_id,
@@ -4415,6 +4720,12 @@ class GenericCycleSimulationAdmissionOwner:
                     role="model_input_obligation_set",
                 )
             )
+        if type(record) is GenericCycleSimulationN5ExecutionV5:
+            inputs.append(
+                input_ref_from_artifact_ref(
+                    record.semantic_successor_ref, role="semantic_successor"
+                )
+            )
         if record.n4_child_profile_family_ref is not None:
             inputs.append(
                 input_ref_from_artifact_ref(
@@ -4429,12 +4740,19 @@ class GenericCycleSimulationAdmissionOwner:
                     role="recursive_n4_child_profile_set",
                 )
             )
+        execution_job_id = (
+            record.action_job_id
+            if type(record) is GenericCycleSimulationN5ExecutionV5
+            else record.job_id
+        )
         return artifacts.ArtifactWriteOptions(
             kind=_N5_EXECUTION_KIND,
             media_type="application/json",
             schema=artifacts.SchemaInfo(
                 name=(
-                    _N5_EXECUTION_V4_SCHEMA
+                    _N5_EXECUTION_V5_SCHEMA
+                    if type(record) is GenericCycleSimulationN5ExecutionV5
+                    else _N5_EXECUTION_V4_SCHEMA
                     if type(record) is GenericCycleSimulationN5ExecutionV4
                     else _N5_EXECUTION_V3_SCHEMA
                     if type(record) is GenericCycleSimulationN5ExecutionV3
@@ -4443,7 +4761,9 @@ class GenericCycleSimulationAdmissionOwner:
                     else _N5_EXECUTION_SCHEMA
                 ),
                 version=(
-                    "4.0"
+                    "5.0"
+                    if type(record) is GenericCycleSimulationN5ExecutionV5
+                    else "4.0"
                     if type(record) is GenericCycleSimulationN5ExecutionV4
                     else "3.0"
                     if type(record) is GenericCycleSimulationN5ExecutionV3
@@ -4455,19 +4775,16 @@ class GenericCycleSimulationAdmissionOwner:
             producer=artifacts.ProducerInfo(component=__name__, version="1.0"),
             inputs=inputs,
             canon=artifacts.CanonInfo.from_spec(
-                _N5_TYPED_CANON
-                if type(record)
-                in {GenericCycleSimulationN5ExecutionV3, GenericCycleSimulationN5ExecutionV4}
-                else _PROFILE_CANON
+                _N5_TYPED_CANON if type(record) in _N5_TYPED_EXECUTION_TYPES else _PROFILE_CANON
             ),
             tenant_context=ArtifactTenantContextInfo(
                 tenant_id=record.tenant_id, cell_id=record.cell_id
             ),
             same_input_closure=ArtifactSameInputClosureInfo(
-                closure_id=f"generic-cycle-n5-execution:{record.run_id}:{record.job_id}:{record.candidate_id}",
+                closure_id=f"generic-cycle-n5-execution:{record.run_id}:{execution_job_id}:{record.candidate_id}",
                 status="candidate_only",
                 run_id=record.run_id,
-                job_id=record.job_id,
+                job_id=execution_job_id,
                 tenant_id=record.tenant_id,
                 cell_id=record.cell_id,
             ),

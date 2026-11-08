@@ -11,7 +11,7 @@ from types import SimpleNamespace
 import pytest
 
 from polisyos.core.artifacts import FileSystemCAS, PutOptions, load_core_json_artifact
-from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
+from polisyos.core.artifacts.manifest import SchemaInfo, WarningRecord, input_ref_from_artifact_ref
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
     ExecPlanRef,
@@ -447,6 +447,33 @@ def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
                 workspace_dir=workspace_dir,
                 transaction_time=transaction_time + timedelta(days=1),
             )
+            predecessor = store.get_manifest(case.data_snapshot_ref)
+            alternate_base = store.put_bytes(
+                store.get_bytes(case.data_snapshot_ref),
+                PutOptions(
+                    kind=predecessor.kind,
+                    media_type=predecessor.media_type,
+                    schema=predecessor.artifact_schema,
+                    canon=predecessor.canon,
+                    inputs=predecessor.inputs,
+                    warnings=[WarningRecord(code="test.alternate_base", msg="Same base bytes")],
+                ),
+                return_selected_profile=True,
+            )
+            assert alternate_base.artifact_id == case.data_snapshot_ref.artifact_id
+            assert alternate_base.manifest_profile_sha256 != (
+                case.data_snapshot_ref.manifest_profile_sha256
+            )
+            refused_workspace = tmp_path / "foreign-predecessor"
+            with pytest.raises(
+                ValueError, match=r"^foundry_input_bindings_semantic_base_snapshot_mismatch$"
+            ):
+                materialize(
+                    base_data_snapshot_ref=alternate_base,
+                    workspace_dir=refused_workspace,
+                    transaction_time=transaction_time + timedelta(days=2),
+                )
+            assert not refused_workspace.exists()
         assert repeated_semantic.data_snapshot_ref != semantic.data_snapshot_ref
         assert repeated_semantic.data_forge_snapshot_binding_path != (
             semantic.data_forge_snapshot_binding_path

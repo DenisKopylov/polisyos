@@ -43,6 +43,7 @@ from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
 if TYPE_CHECKING:
     from polisyos.core.artifacts import CoreJSONArtifactStore
     from polisyos.core.contracts import RunCandidateSimulationCheapConsequences
+    from polisyos.runtime.http.resilience import GuardedDependencyProxy
     from polisyos.runtime.http.services.control.run_lifecycle import (
         ControlPlaneService,
         VerifiedAcquisitionActionOutcome,
@@ -679,7 +680,7 @@ def verify_candidate_terminal_history(
 
 def _candidate_experiment_frontier_transition_for_history(
     *,
-    control_store: ControlPlaneStore,
+    control_store: ControlPlaneStore | GuardedDependencyProxy,
     key: AcquisitionEvaluationFrontierKey,
     head: AcquisitionActionHeadRecord,
     expected_frontier_ref: str | None,
@@ -694,14 +695,20 @@ def _candidate_experiment_frontier_transition_for_history(
     AcquisitionEvaluationFrontierRecord | None,
 ]:
     """Reconstruct one committed terminal's immutable before/after frontier."""
+    from polisyos.runtime.http.resilience import GuardedDependencyProxy
     from polisyos.runtime.http.services.control_plane_store import (
         AcquisitionActionHeadRecord,
         AcquisitionEvaluationFrontierKey,
         ControlPlaneStore,
     )
 
+    store_owner = (
+        control_store._target
+        if type(control_store) is GuardedDependencyProxy
+        else control_store
+    )
     if (
-        type(control_store) is not ControlPlaneStore
+        type(store_owner) is not ControlPlaneStore
         or type(key) is not AcquisitionEvaluationFrontierKey
         or type(head) is not AcquisitionActionHeadRecord
     ):

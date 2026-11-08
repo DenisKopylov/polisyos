@@ -1457,10 +1457,12 @@ class AcquisitionWorldGrowthBridge:
         This read proves only current budget and quota facts. Positive remaining
         USD and quota are required separately by the pre-effect admission path.
         """
+        from polisyos.runtime.http.services.control_plane_store import (
+            AcquisitionActionHeadRecord,
+        )
         from polisyos.runtime.quality.candidate_acquisition_action import (
             _current_candidate_experiment_reentry_action,
             _current_candidate_experiment_reentry_action_context,
-            _select_current_candidate_experiment_outcome,
         )
         from polisyos.scientist.orchestration.engine import (
             BudgetInvocationCapacityObservation,
@@ -1478,21 +1480,39 @@ class AcquisitionWorldGrowthBridge:
             or type(budget_state) is not BudgetState
         ):
             raise ValueError("candidate_experiment_reentry_owner_not_established")
-        outcomes = service.acquisition_route_sink.experiment_action_outcomes(
+        action_generation = len(origin.candidate_terminal_history_chain) + 1
+        pending_head = self.control_store.get_acquisition_action_head(
             tenant_id=origin.tenant_id,
             cell_id=origin.cell_id,
             run_id=origin.run_id,
             source_job_id=origin.source_job_id,
             route_id=origin.route_id,
+            action_generation=action_generation,
         )
-        outcome = _select_current_candidate_experiment_outcome(
-            outcomes,
-            origin=origin,
-            action_job_id=service._control_store.current_execution_job_admission().job.job_id,
-            action_generation=len(origin.candidate_terminal_history_chain) + 1,
-            required_phase="candidate_input_reentry_pending",
-        )
-        pending_ref = outcome.head.receipt_ref
+        if (
+            type(pending_head) is not AcquisitionActionHeadRecord
+            or (
+                pending_head.tenant_id,
+                pending_head.cell_id,
+                pending_head.run_id,
+                pending_head.source_job_id,
+                pending_head.route_id,
+                pending_head.action_generation,
+            )
+            != (
+                origin.tenant_id,
+                origin.cell_id,
+                origin.run_id,
+                origin.source_job_id,
+                origin.route_id,
+                action_generation,
+            )
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", pending_head.receipt_ref) is None
+        ):
+            raise ValueError("candidate_experiment_reentry_action_not_current")
+        # This head is only a locator. The following context read authenticates
+        # its phase, history prefix, selected source, and live execution owner.
+        pending_ref = pending_head.receipt_ref
         try:
             context = _current_candidate_experiment_reentry_action_context(
                 self,

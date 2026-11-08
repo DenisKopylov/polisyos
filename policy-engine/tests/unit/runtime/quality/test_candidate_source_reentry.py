@@ -792,8 +792,20 @@ def test_candidate_experiment_reentry_preflight_uses_real_budget_and_quota_owner
 
 
 @pytest.mark.parametrize(
-    ("selected_profile_present", "late_owner_change", "final_cas_removed"),
-    [(True, False, False), (False, False, False), (True, True, False), (True, False, True)],
+    (
+        "selected_profile_present",
+        "late_owner_change",
+        "final_cas_removed",
+        "locator_state",
+    ),
+    [
+        (True, False, False, "current"),
+        (False, False, False, "current"),
+        (True, True, False, "current"),
+        (True, False, True, "current"),
+        (True, False, False, "missing"),
+        (True, False, False, "stale"),
+    ],
 )
 def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
     tmp_path: Path,
@@ -801,6 +813,7 @@ def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
     selected_profile_present: bool,
     late_owner_change: bool,
     final_cas_removed: bool,
+    locator_state: str,
 ) -> None:
     """Reuse exact selected quota; retain the full fallback and final owner fence."""
     from polisyos.runtime.quality import candidate_acquisition_action as actions
@@ -855,8 +868,10 @@ def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
     )
     context_calls: list[object] = []
 
-    def current_context(*_args: object) -> object:
+    def current_context(*args: object) -> object:
         context_calls.append(object())
+        if args[2] != pending.head.receipt_ref:
+            raise ValueError("candidate_experiment_reentry_action_not_current")
         selected = changed_selection if late_owner_change and len(context_calls) == 2 else selection
         return SimpleNamespace(
             selection=selected,
@@ -902,12 +917,32 @@ def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
         full_builder_calls.append(kwargs["candidate_action_ref"])
         return observer
 
+    head_scope = {
+        "tenant_id": origin.tenant_id,
+        "cell_id": origin.cell_id,
+        "run_id": origin.run_id,
+        "source_job_id": origin.source_job_id,
+        "route_id": origin.route_id,
+        "action_generation": len(origin.candidate_terminal_history_chain) + 1,
+    }
+    head_reads: list[dict[str, object]] = []
+
+    def get_head(**scope: object) -> object:
+        head_reads.append(scope)
+        if locator_state == "missing":
+            return None
+        if locator_state == "stale":
+            return replace(pending.head, receipt_ref="sha256:" + "f" * 64)
+        return pending.head
+
     service = SimpleNamespace(
-        acquisition_route_sink=SimpleNamespace(experiment_action_outcomes=lambda **_: (pending,)),
-        _control_store=SimpleNamespace(
-            current_execution_job_admission=lambda: SimpleNamespace(
-                job=SimpleNamespace(job_id=pending.head.job_id)
+        acquisition_route_sink=SimpleNamespace(
+            experiment_action_outcomes=lambda **_: pytest.fail(
+                "locator lookup replayed the full action history"
             )
+        ),
+        _control_store=SimpleNamespace(
+            get_acquisition_action_head=get_head,
         ),
         _build_candidate_experiment_reentry_budget_observer_from_context=build_from_context,
         build_candidate_experiment_reentry_budget_observer=build_with_full_action_read,
@@ -919,7 +954,7 @@ def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
     )
     bridge = AcquisitionWorldGrowthBridge.__new__(AcquisitionWorldGrowthBridge)
     bridge._source_control_service = service
-    bridge.control_store = object()
+    bridge.control_store = SimpleNamespace(get_acquisition_action_head=get_head)
     bridge._candidate_experiment_prior_owner = lambda **_: prior_owner
     bridge.resolve_candidate_experiment_reentry_budget_window = lambda **_: pytest.fail(
         "reconciliation repeated the already verified window resolution"
@@ -933,7 +968,13 @@ def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
             reentry_budget_scope=window.scope,
         )
 
-    if final_cas_removed:
+    if locator_state in {"missing", "stale"}:
+        with pytest.raises(
+            ValueError,
+            match="candidate_experiment_reentry_action_not_current",
+        ):
+            execute()
+    elif final_cas_removed:
         with pytest.raises(FileNotFoundError, match="selected action CAS disappeared"):
             execute()
     elif late_owner_change:
@@ -942,12 +983,27 @@ def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
     else:
         result = execute()
         assert result.observer is observer
-    assert len(fast_builder_calls) == 1
-    assert len(full_builder_calls) == (0 if selected_profile_present else 1)
-    assert len(context_calls) == (
-        1 if final_cas_removed else (2 if selected_profile_present else 3)
+    assert head_reads == [head_scope]
+    assert len(fast_builder_calls) == (0 if locator_state != "current" else 1)
+    assert len(full_builder_calls) == (
+        0 if locator_state != "current" or selected_profile_present else 1
     )
-    assert len(final_action_calls) == (2 if not selected_profile_present else 1)
+    if locator_state == "missing":
+        expected_context_calls = 0
+    elif locator_state == "stale" or final_cas_removed:
+        expected_context_calls = 1
+    elif selected_profile_present:
+        expected_context_calls = 2
+    else:
+        expected_context_calls = 3
+    assert len(context_calls) == expected_context_calls
+    if locator_state != "current":
+        expected_final_action_calls = 0
+    elif selected_profile_present:
+        expected_final_action_calls = 1
+    else:
+        expected_final_action_calls = 2
+    assert len(final_action_calls) == expected_final_action_calls
     assert (
         budget_case.ledger.snapshot().invocation_profiles.get(budget_case.binding.run_id) == profile
     )

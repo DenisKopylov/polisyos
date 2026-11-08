@@ -1337,6 +1337,8 @@ def test_candidate_n5_checkpoint_crash_reuses_exact_result_in_fresh_worker(
                 )
 
             def recover_in_fresh_runtime(**retry_values) -> str:
+                from polisyos.core.artifacts import artifact_ref_identity_key
+
                 retry_control = retry_values["control"]
                 retry_origin = retry_values["origin"]
                 job_id = str(retry_values["job_id"])
@@ -1399,20 +1401,73 @@ def test_candidate_n5_checkpoint_crash_reuses_exact_result_in_fresh_worker(
                         raise AssertionError("fresh worker changed the admitted source origin")
 
                     def read_current_action():
-                        response = reader.get(
-                            f"/api/v1/runs/{retry_origin.run_id}/candidate-acquisition-experiment",
-                            headers={
-                                "Authorization": (
-                                    f"Bearer {values_for_retry['trust'].tokens['acquisition-operator']}"
-                                ),
-                                "X-Tenant-ID": served.TENANT,
-                            },
-                        )
+                        try:
+                            response = reader.get(
+                                f"/api/v1/runs/{retry_origin.run_id}/candidate-acquisition-experiment",
+                                headers={
+                                    "Authorization": (
+                                        f"Bearer {values_for_retry['trust'].tokens['acquisition-operator']}"
+                                    ),
+                                    "X-Tenant-ID": served.TENANT,
+                                },
+                            )
+                        except Exception as exc:
+                            return None, (f"http_request: {type(exc).__name__}",)
                         if response.status_code != 200:
-                            raise AssertionError(response.text)
-                        return CandidateExperimentRouteProjection.model_validate(
-                            response.json()
-                        ).current_action
+                            return None, (f"http_status: expected 200, got {response.status_code}",)
+                        try:
+                            projection = CandidateExperimentRouteProjection.model_validate(
+                                response.json()
+                            )
+                        except Exception as exc:
+                            return None, (f"projection: {type(exc).__name__}",)
+                        return projection.current_action, ()
+
+                    def reader_projection_mismatches(
+                        projection,
+                        *,
+                        expected_status: str,
+                        expected_job_state: str,
+                        expected_job_id: str,
+                        expected_receipt_phase: str,
+                        expected_selected_receipt_ref: artifacts.ArtifactRef,
+                        read_errors: tuple[str, ...] = (),
+                    ) -> tuple[str, ...]:
+                        mismatches = list(read_errors)
+                        if projection is None:
+                            return tuple(mismatches or ("current_action: projection unavailable",))
+                        for name, expected in (
+                            ("status", expected_status),
+                            ("job_state", expected_job_state),
+                            ("job_id", expected_job_id),
+                            ("receipt_phase", expected_receipt_phase),
+                        ):
+                            actual = getattr(projection, name)
+                            if actual != expected:
+                                if name == "job_id":
+                                    mismatches.append(
+                                        "job_id: expected str matching the admitted job; "
+                                        f"got {type(actual).__name__} (value mismatch)"
+                                    )
+                                else:
+                                    mismatches.append(
+                                        f"{name}: expected {expected!r} (str), "
+                                        f"got {actual!r} ({type(actual).__name__})"
+                                    )
+                        actual_ref = projection.selected_receipt_ref
+                        if type(actual_ref) is not artifacts.ArtifactRef:
+                            mismatches.append(
+                                "selected_receipt_ref: expected ArtifactRef bound to the "
+                                f"selected manifest; got {type(actual_ref).__name__}"
+                            )
+                        elif artifact_ref_identity_key(
+                            actual_ref
+                        ) != artifact_ref_identity_key(expected_selected_receipt_ref):
+                            mismatches.append(
+                                "selected_receipt_ref: ArtifactRef identity differs from "
+                                "the expected checkpoint or terminal receipt"
+                            )
+                        return tuple(mismatches)
 
                     with candidate_experiment_served_execution_owner(
                         action_service=fresh_action_service,
@@ -1502,19 +1557,16 @@ def test_candidate_n5_checkpoint_crash_reuses_exact_result_in_fresh_worker(
                             raise AssertionError(
                                 "fresh open changed the event ledger before checkpoint retry"
                             )
-                        pending_visible = read_current_action()
-                        if (
-                            pending_visible.status != "in_progress"
-                            or pending_visible.job_state != "running"
-                            or pending_visible.job_id != job_id
-                            or pending_visible.receipt_phase
-                            != "candidate_input_reentry_pending"
-                            or pending_visible.selected_receipt_ref
-                            != crash["pending_head"].receipt_ref
-                        ):
-                            raise AssertionError(
-                                "fresh reader changed the pending action before N5 checkpoint retry"
-                            )
+                        pending_visible, pending_reader_errors = read_current_action()
+                        pending_reader_mismatches = reader_projection_mismatches(
+                            pending_visible,
+                            expected_status="in_progress",
+                            expected_job_state="running",
+                            expected_job_id=job_id,
+                            expected_receipt_phase="candidate_input_reentry_pending",
+                            expected_selected_receipt_ref=checkpoint.pending_action_ref,
+                            read_errors=pending_reader_errors,
+                        )
 
                         retry_expiry = retry_values["retry_expiry"]
                         remaining = (
@@ -1645,15 +1697,21 @@ def test_candidate_n5_checkpoint_crash_reuses_exact_result_in_fresh_worker(
                             raise AssertionError(
                                 "fresh checkpoint retry duplicated N5, transport, event, or budget work"
                             )
-                        visible = read_current_action()
-                        if (
-                            visible.status != "completed"
-                            or visible.job_id != job_id
-                            or visible.receipt_phase != "terminal"
-                            or visible.selected_receipt_ref != final_history.terminal_ref
-                        ):
+                        visible, terminal_reader_errors = read_current_action()
+                        terminal_reader_mismatches = reader_projection_mismatches(
+                            visible,
+                            expected_status="completed",
+                            expected_job_state="completed",
+                            expected_job_id=job_id,
+                            expected_receipt_phase="terminal",
+                            expected_selected_receipt_ref=final_history.terminal_ref,
+                            read_errors=terminal_reader_errors,
+                        )
+                        if pending_reader_mismatches or terminal_reader_mismatches:
                             raise AssertionError(
-                                "fresh HTTP reader did not observe the completed checkpoint recovery"
+                                "fresh HTTP reader stage mismatch after checkpoint recovery: "
+                                f"pending={pending_reader_mismatches!r}; "
+                                f"terminal={terminal_reader_mismatches!r}"
                             )
                 return job_id
 

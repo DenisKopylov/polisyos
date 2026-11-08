@@ -1884,7 +1884,7 @@ def test_n8_input_read_distinguishes_wrapped_owner_denial_from_unavailability() 
     from polisyos.core.artifacts import ArtifactOwnershipError
     from polisyos.core.artifacts.ownership import ArtifactReadOnlyUnavailableError
     from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
-    from polisyos.runtime.quality.generation_cycle import _generic_n5_observation_refusal
+    from polisyos.runtime.quality.generation_cycle import _replay_generic_n5_observation
 
     marker = object()
     simulation = SimpleNamespace(
@@ -1913,7 +1913,7 @@ def test_n8_input_read_distinguishes_wrapped_owner_denial_from_unavailability() 
             raise AssertionError("raw selected view failed before payload")
 
     def read(cause: Exception) -> str | None:
-        return _generic_n5_observation_refusal(
+        return _replay_generic_n5_observation(
             simulation=simulation,  # type: ignore[arg-type]
             candidate=object(),
             problem=object(),  # type: ignore[arg-type]
@@ -1924,7 +1924,7 @@ def test_n8_input_read_distinguishes_wrapped_owner_denial_from_unavailability() 
             child_selection=None,
             verified_scope=None,
             source_run_id=None,
-        )
+        )[0]
 
     assert read(ArtifactOwnershipError("owner denied")) == (
         "generic_cycle_simulation_artifact_scope_refused"

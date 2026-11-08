@@ -233,8 +233,8 @@ def produce_candidate_value_method(
         FoundryValuePort,
         _candidate_content_hash,
         _candidate_id,
-        _generic_n5_observation_refusal,
         _problem_ref,
+        _replay_generic_n5_observation,
         _value_input_ref,
     )
 
@@ -259,7 +259,7 @@ def produce_candidate_value_method(
         port.generic_cycle_simulation_currentness_resolver() is not True
     ):
         raise ValueError("candidate_value_method_source_not_current")
-    refusal = _generic_n5_observation_refusal(
+    refusal, _ = _replay_generic_n5_observation(
         simulation=simulation,
         candidate=candidate,
         problem=problem,

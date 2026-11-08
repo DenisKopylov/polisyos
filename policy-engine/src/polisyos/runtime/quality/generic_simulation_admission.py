@@ -69,7 +69,10 @@ if TYPE_CHECKING:
     from polisyos.core.contracts import LoweredIR, ProgramGraph
     from polisyos.core.registry import RegistryBundleContent
     from polisyos.ir import RegistryBundle, TrinityBundle
-    from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+    from polisyos.runtime.quality.generation_cycle import (
+        JointSimulationPort,
+        JointSimulationResult,
+    )
     from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
     from polisyos.runtime.quality.model_input_requirements import SelectedProgramGraphInputBasis
 
@@ -1161,6 +1164,14 @@ class GenericN5ExecutionJoinOutcome(_StrictModel):
         elif self.execution is not None or self.input_record is not None or not self.code:
             raise ValueError("generic_n5_join_refusal_shape_invalid")
         return self
+
+
+@dataclass(frozen=True, slots=True)
+class GenericN5ResolvedResult:
+    """Ephemeral selected N5 result and runtime request verified by its owner."""
+
+    result: JointSimulationResult
+    request: JointSimulationRequest
 
 
 def parse_generic_cycle_simulation_n5_execution(
@@ -2909,7 +2920,7 @@ class GenericCycleSimulationAdmissionOwner:
         expected: GenericCycleSimulationN5ExecutionRecord,
     ) -> GenericCycleSimulationN5ExecutionRecord:
         """Resolve the complete selected result/input manifest and bytes."""
-        execution, _ = self._resolve_n5_execution_with_program_graph_input_basis(
+        execution, _, _ = self._resolve_n5_execution_with_program_graph_input_basis(
             ref, expected=expected
         )
         return execution
@@ -2919,8 +2930,12 @@ class GenericCycleSimulationAdmissionOwner:
         ref: ArtifactRef,
         *,
         expected: GenericCycleSimulationN5ExecutionRecord,
-    ) -> tuple[GenericCycleSimulationN5ExecutionRecord, SelectedProgramGraphInputBasis | None]:
-        """Resolve execution and return its replayed model-input basis when present."""
+    ) -> tuple[
+        GenericCycleSimulationN5ExecutionRecord,
+        SelectedProgramGraphInputBasis | None,
+        GenericN5ResolvedResult | None,
+    ]:
+        """Resolve execution, its replayed basis, and any exact selected result."""
         from polisyos.core.artifacts import load_core_json_artifact
 
         if type(expected) not in {
@@ -2982,6 +2997,7 @@ class GenericCycleSimulationAdmissionOwner:
                 "generic_cycle_program_graph_selected_execution_required"
             )
         selected_input_basis: SelectedProgramGraphInputBasis | None = None
+        resolved_result: GenericN5ResolvedResult | None = None
         if type(record) in {
             GenericCycleSimulationN5ExecutionV2,
             GenericCycleSimulationN5ExecutionV3,
@@ -3059,6 +3075,11 @@ class GenericCycleSimulationAdmissionOwner:
                     raise _GenericN5VerifiedMismatchError(
                         "generic_cycle_simulation_n5_execution_result_request_mismatch"
                     )
+                if record.result_ref.manifest_profile_sha256 is not None:
+                    resolved_result = GenericN5ResolvedResult(
+                        result=result,
+                        request=result_request,
+                    )
             if (
                 type(record) is GenericCycleSimulationN5ExecutionV4
                 and record.model_input_obligation_set_ref is not None
@@ -3070,7 +3091,7 @@ class GenericCycleSimulationAdmissionOwner:
                     candidate=source_candidate,
                     port=port,
                 )
-        return record, selected_input_basis
+        return record, selected_input_basis, resolved_result
 
     def _replay_model_input_obligation_set(
         self,
@@ -3157,12 +3178,42 @@ class GenericCycleSimulationAdmissionOwner:
         *,
         expected: GenericN5ExecutionJoinExpectation,
     ) -> tuple[GenericN5ExecutionJoinOutcome, SelectedProgramGraphInputBasis | None]:
+        """Resolve the exact join and optional blocked model-input basis."""
+        outcome, input_basis, _ = self._resolve_n5_execution_join_with_runtime_result(
+            ref, expected=expected
+        )
+        return outcome, input_basis
+
+    def resolve_n5_execution_join_with_result(
+        self,
+        ref: ArtifactRef | None,
+        *,
+        expected: GenericN5ExecutionJoinExpectation,
+    ) -> tuple[GenericN5ExecutionJoinOutcome, GenericN5ResolvedResult | None]:
+        """Resolve an exact join with its already verified selected result."""
+        outcome, _, resolved_result = self._resolve_n5_execution_join_with_runtime_result(
+            ref, expected=expected
+        )
+        return outcome, resolved_result
+
+    def _resolve_n5_execution_join_with_runtime_result(
+        self,
+        ref: ArtifactRef | None,
+        *,
+        expected: GenericN5ExecutionJoinExpectation,
+    ) -> tuple[
+        GenericN5ExecutionJoinOutcome,
+        SelectedProgramGraphInputBasis | None,
+        GenericN5ResolvedResult | None,
+    ]:
         """Resolve and classify the exact cycle/result join without an existence proxy.
 
         This proves only the scoped candidate input consistency provided by the
         existing owner. It does not authenticate an external numerical producer.
         The optional basis is returned only after the exact blocked obligation set
         is replayed against the reopened source candidate and current invocation.
+        The selected result stays ephemeral and is returned only after the exact
+        persisted request and runtime-bound engine request have been verified.
         """
         from pydantic import ValidationError
 
@@ -3188,7 +3239,7 @@ class GenericCycleSimulationAdmissionOwner:
                 profiles=self.profiles,
                 store=artifacts.SelectedProfileVerificationReader(self._store),
             )
-            return replay_owner.resolve_n5_execution_join_with_program_graph_input_basis(
+            return replay_owner._resolve_n5_execution_join_with_runtime_result(
                 ref, expected=expected
             )
 
@@ -3199,8 +3250,12 @@ class GenericCycleSimulationAdmissionOwner:
 
         def refused(
             status: Literal["unavailable", "invalid", "mismatch", "not_established"], code: str
-        ) -> tuple[GenericN5ExecutionJoinOutcome, SelectedProgramGraphInputBasis | None]:
-            return refused_outcome(status, code), None
+        ) -> tuple[
+            GenericN5ExecutionJoinOutcome,
+            SelectedProgramGraphInputBasis | None,
+            GenericN5ResolvedResult | None,
+        ]:
+            return refused_outcome(status, code), None, None
 
         # Establish every independently available input binding before an
         # unavailable execution can reduce assurance to candidate-only.
@@ -3282,7 +3337,7 @@ class GenericCycleSimulationAdmissionOwner:
                     )
         if ref is None:
             return (
-                (input_problem, None)
+                (input_problem, None, None)
                 if input_problem is not None
                 else refused("not_established", "generic_n5_owner_ref_not_established")
             )
@@ -3292,7 +3347,7 @@ class GenericCycleSimulationAdmissionOwner:
             expected.result_ref is not None and expected.result_ref.manifest_profile_sha256 is None
         ):
             return (
-                (input_problem, None)
+                (input_problem, None, None)
                 if input_problem is not None
                 else refused("not_established", "generic_n5_selected_owner_view_not_established")
             )
@@ -3345,9 +3400,9 @@ class GenericCycleSimulationAdmissionOwner:
         ):
             return refused("mismatch", "generic_n5_execution_cycle_join_mismatch")
         if input_problem is not None:
-            return input_problem, None
+            return input_problem, None, None
         try:
-            verified, selected_input_basis = (
+            verified, selected_input_basis, resolved_result = (
                 self._resolve_n5_execution_with_program_graph_input_basis(ref, expected=record)
             )
         except FileNotFoundError:
@@ -3400,6 +3455,7 @@ class GenericCycleSimulationAdmissionOwner:
                 status="resolved", execution=verified, input_record=input_record
             ),
             selected_input_basis,
+            resolved_result,
         )
 
     def _replay_n5_execution_sources(

@@ -19,6 +19,13 @@ from pydantic import (
 from ..artifacts.ids import ArtifactID
 from ..artifacts.manifest import ArtifactRef, InputRef, WarningRecord, input_ref_from_artifact_ref
 from .uncertainty import UncertaintyEnvelopeRef
+from .variable_binding import (
+    ScopedCorrespondenceBasisRef,
+    ScopedMeasurementOccurrenceRef,
+    SelectedVariableBindingRef,
+    VariableRepresentationRef,
+    VariableSemanticDefinitionRef,
+)
 
 
 class DataViewRequestRef(ArtifactRef):
@@ -274,6 +281,80 @@ class AcquiredObservationDataSnapshotLineage(_DataSnapshotOwnerLineage):
     passport_ref: ArtifactRef
 
 
+class AcquiredObservationSemanticInputSelection(BaseModel):
+    """Candidate-only semantic selection for one activated observation path."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    authority_purpose: Literal["candidate_simulation_input_only"] = (
+        "candidate_simulation_input_only"
+    )
+    binding_id: str = Field(pattern=r"^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,127}$", strict=True)
+    source_path: str = Field(min_length=1, max_length=512, strict=True)
+    source_definition_ref: VariableSemanticDefinitionRef
+    source_representation_ref: VariableRepresentationRef
+    model_interface_ref: SelectedVariableBindingRef
+    model_port_id: str = Field(min_length=1, strict=True)
+    occurrence_ref: ScopedMeasurementOccurrenceRef
+    correspondence_basis_ref: ScopedCorrespondenceBasisRef
+
+    @field_validator("source_path")
+    @classmethod
+    def _require_exact_source_path(cls, path: str) -> str:
+        if any(not part or part != part.strip() for part in path.split(".")):
+            raise ValueError("acquired_semantic_input_source_path_invalid")
+        return path
+
+    @model_validator(mode="after")
+    def _require_selected_refs(self) -> AcquiredObservationSemanticInputSelection:
+        refs = (
+            self.source_definition_ref,
+            self.source_representation_ref,
+            self.model_interface_ref,
+            self.occurrence_ref,
+            self.correspondence_basis_ref,
+        )
+        if any(ref.manifest_profile_sha256 is None for ref in refs):
+            raise ValueError("acquired_semantic_input_ref_unselected")
+        if (
+            self.model_interface_ref.kind != "runtime.quality.program_graph_input_interface"
+            or self.model_interface_ref.media_type != "application/json"
+        ):
+            raise ValueError("acquired_semantic_input_model_interface_ref_mismatch")
+        return self
+
+    def lineage_refs(self) -> tuple[tuple[ArtifactRef, str], ...]:
+        """Return the exact profile-qualified refs used by the owner contract."""
+        return (
+            (self.source_definition_ref, f"binding.{self.binding_id}.source_definition"),
+            (
+                self.source_representation_ref,
+                f"binding.{self.binding_id}.source_representation",
+            ),
+            (self.model_interface_ref, f"binding.{self.binding_id}.model_interface"),
+            (
+                self.occurrence_ref,
+                f"binding.{self.binding_id}.occurrence:{self.source_path}",
+            ),
+            (self.correspondence_basis_ref, f"binding.{self.binding_id}.correspondence"),
+        )
+
+
+class AcquiredObservationSemanticInputDataSnapshotLineage(_DataSnapshotOwnerLineage):
+    """Versioned owner witness for candidate semantic input on an acquired snapshot."""
+
+    schema_version: Literal["polisyos.core.DataSnapshotOwnerLineage.v2"] = (
+        "polisyos.core.DataSnapshotOwnerLineage.v2"
+    )
+    owner: Literal["acquired_observation_semantic_input"] = (
+        "acquired_observation_semantic_input"
+    )
+    base_data_snapshot_ref: ArtifactRef
+    overlay_admission_receipt_ref: ArtifactRef
+    passport_ref: ArtifactRef
+    selection: AcquiredObservationSemanticInputSelection
+
+
 class CandidateAcquisitionSourceDataSnapshotLineage(_DataSnapshotOwnerLineage):
     """Candidate source refs that never represent an observed-data admission."""
 
@@ -286,18 +367,21 @@ DataSnapshotOwnerLineage = Annotated[
     MeasurementRootDataSnapshotLineage
     | FabricBridgeDataSnapshotLineage
     | AcquiredObservationDataSnapshotLineage
+    | AcquiredObservationSemanticInputDataSnapshotLineage
     | CandidateAcquisitionSourceDataSnapshotLineage,
     Field(discriminator="owner"),
 ]
 
 
 DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION = "0.3.0"
+DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION = "0.4.0"
 
 
 class DataSnapshot(BaseModel):
     """Snapshot of retrieved data plus typed references needed to audit its quality.
 
-    Version 0.2.0 remains readable with its exact typed-field/role contract.
+    Versions 0.2.0 and 0.3.0 remain readable with their exact contracts;
+    version 0.4.0 carries the versioned acquired semantic-input owner.
     Recognized owner families must pass the same fresh producer verification
     under either schema; version 0.3.0 carries those owner refs explicitly.
     """
@@ -307,9 +391,11 @@ class DataSnapshot(BaseModel):
     ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = (
         "0.2.0",
         DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
+        DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION,
     )
     ARTIFACT_REQUIRED_FIELDS_BY_SCHEMA_VERSION: ClassVar[dict[str, tuple[str, ...]]] = {
         DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION: ("source_lineage",),
+        DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION: ("source_lineage",),
     }
     ARTIFACT_KIND: ClassVar[Literal["fabric.data_snapshot"]] = "fabric.data_snapshot"
     ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
@@ -331,12 +417,30 @@ class DataSnapshot(BaseModel):
 
 
 class DataSnapshotOwnerBound(DataSnapshot):
-    """Schema 0.3.0 writer DTO requiring a typed owner-lineage variant."""
+    """Versioned DataSnapshot writer DTO requiring a typed owner-lineage variant."""
 
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = (DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,)
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = (
+        DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
+        DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION,
+    )
     ARTIFACT_REQUIRED_FIELDS_BY_SCHEMA_VERSION: ClassVar[dict[str, tuple[str, ...]]] = {
         DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION: ("source_lineage",),
+        DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION: ("source_lineage",),
+    }
+
+    source_lineage: DataSnapshotOwnerLineage
+
+
+class AcquiredObservationSemanticInputDataSnapshotOwnerBound(DataSnapshotOwnerBound):
+    """Schema 0.4.0 writer DTO for selected candidate semantic-input lineage."""
+
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = (
+        DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION,
+    )
+    ARTIFACT_REQUIRED_FIELDS_BY_SCHEMA_VERSION: ClassVar[dict[str, tuple[str, ...]]] = {
+        DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION: ("source_lineage",),
     }
 
     source_lineage: DataSnapshotOwnerLineage
@@ -440,6 +544,14 @@ def data_snapshot_owner_input_requirements(
             (lineage.overlay_admission_receipt_ref, "evidence.overlay_admission_receipt"),
             (lineage.passport_ref, "evidence.acquisition_passport"),
         )
+    elif isinstance(lineage, AcquiredObservationSemanticInputDataSnapshotLineage):
+        field_roles = {"data_ref": "payload.acquired_observation_candidate"}
+        extra_refs = (
+            (lineage.base_data_snapshot_ref, "input.base_data_snapshot"),
+            (lineage.overlay_admission_receipt_ref, "evidence.overlay_admission_receipt"),
+            (lineage.passport_ref, "evidence.acquisition_passport"),
+            *lineage.selection.lineage_refs(),
+        )
     elif isinstance(lineage, CandidateAcquisitionSourceDataSnapshotLineage):
         field_roles = {"data_ref": "payload.candidate_acquisition_source"}
         extra_refs = (
@@ -474,15 +586,31 @@ def data_snapshot_manifest_inputs_match(
 ) -> bool:
     """Reconcile selected DataSnapshot parent edges to its typed source fields.
 
-    Schema 0.2 uses the established field-to-role contract. Schema 0.3 uses
-    the owner-specific typed edge set. The runtime owner verifier must still
-    bind an owner-family snapshot to its producer payload; this predicate only
-    checks the manifest's direct edges against the declared typed transport.
+    Schema 0.2 uses the established field-to-role contract. Schemas 0.3 and
+    0.4 use the owner-specific typed edge set. The runtime owner verifier must
+    still bind an owner-family snapshot to its producer payload; this predicate
+    only checks the manifest's direct edges against the declared typed transport.
     """
     if not isinstance(manifest_inputs, list):
         return False
-    if schema_version == DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION:
+    if schema_version in {
+        DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
+        DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION,
+    }:
         if snapshot.source_lineage is None:
+            return False
+        if (
+            schema_version == DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION
+            and isinstance(
+                snapshot.source_lineage,
+                AcquiredObservationSemanticInputDataSnapshotLineage,
+            )
+        ) or (
+            schema_version == DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
+            and not isinstance(
+                snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage
+            )
+        ):
             return False
         try:
             requirements = data_snapshot_owner_input_requirements(snapshot)

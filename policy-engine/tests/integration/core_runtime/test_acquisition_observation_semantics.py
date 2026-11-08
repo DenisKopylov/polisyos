@@ -3,19 +3,62 @@
 from __future__ import annotations
 
 from dataclasses import replace
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from functools import partial
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
-from polisyos.core.artifacts import FileSystemCAS, PutOptions
+from polisyos.core.artifacts import FileSystemCAS, PutOptions, load_core_json_artifact
+from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
+from polisyos.core.contracts.epoch import load_verified_epoch_statement
+from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.contracts.foundry import (
+    ExecuteRequest,
+    FoundryInputBindings,
+    SemanticHorizonStepContext,
+)
+from polisyos.core.contracts.model_input_requirements import (
+    load_model_input_obligation_set,
+    load_program_graph_input_interface,
+)
+from polisyos.core.contracts.semantic_input_binding import (
+    ResolvedInputBindingManifest,
+    ResolvedMeasurementInput,
+    persist_resolved_input_binding_manifest,
+)
+from polisyos.core.contracts.variable_binding import SelectedVariableBindingRef
 from polisyos.data_forge import read_api
+from polisyos.foundry.data_plane.bindings import (
+    build_input_bindings,
+    load_input_bindings,
+    reconcile_semantic_input_bindings,
+)
+from polisyos.foundry.execute.api import admit_execution_source
+from polisyos.foundry.execute.api import execute as execute_foundry
+from polisyos.foundry.execute.executor import load_state_snapshot
 from polisyos.runtime.quality import data_state_substrate as owner
+from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
+from polisyos.runtime.quality.data_snapshot_lineage import (
+    DataSnapshotLineageError,
+    validate_data_snapshot_owner_lineage,
+)
 from tests._helpers import semantic_epoch_native as native_fixture
 from tests._helpers import world_model_record as world_fixture
+from tests._helpers.program_graph_tax_subsidy_input import (
+    prepare_program_graph_tax_subsidy_input_case,
+)
+from tests.unit.foundry.runtime.test_execute_input_bindings import (
+    _stock_declaration_in_source_scope,
+)
 from tests.unit.runtime.quality.test_acquisition_executor import _activate_real_epoch_scenario
+from tests.unit.runtime.quality.test_model_input_requirements import (
+    _context,
+    _interface,
+    _preflight,
+    _supplied_rate,
+)
 
 
 def _case(
@@ -348,3 +391,426 @@ def test_each_coordinate_is_decisive_even_when_scalar_and_watermark_are_held_fix
     assert before_row["source_watermark"] == after_row["source_watermark"]
     assert before_row[field] != after_row[field]
     assert before != after
+
+
+def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
+    tmp_path: Path,
+) -> None:
+    """Bind the real activated row through its selected snapshot and Foundry reader."""
+    case = prepare_program_graph_tax_subsidy_input_case(
+        tmp_path / "graph",
+        opening_balance_usd=None,
+        model_input_port_declaration_builder=_stock_declaration_in_source_scope,
+        snapshot_id="base-acquisition",
+    )
+    activated_owner = None
+    fresh_store = None
+    try:
+        store = case.store
+        interface_ref = _interface(case)
+        interface = load_program_graph_input_interface(store, interface_ref)
+        (port,) = interface.ports
+        override_ref = _supplied_rate(case)
+        preflight = _preflight(
+            case,
+            interface_ref,
+            _context(case),
+            steps=(0,),
+            parameter_override_bundle_ref=override_ref,
+        )
+
+        variable_id = "test.treasury.opening-stock"
+        activated_owner = native_fixture.make_native_multivariable_active_projections(
+            tmp_path / "activated-source",
+            source_rows=[
+                {
+                    "country_code": "UA",
+                    "year": 2022,
+                    "opening_usd": 1000,
+                    "condition_json": {
+                        "population_ref": "population:treasury",
+                        "jurisdiction_ref": "jurisdiction:fixture",
+                        "time_period_basis": "calendar_year",
+                    },
+                }
+            ],
+            variable_specs=(
+                {
+                    "target_variable": variable_id,
+                    "raw_field": "opening_usd",
+                    "raw_unit": "usd",
+                    "canonical_unit": "usd",
+                    "unit_transform_ref": "fabric://units/usd-identity/v1",
+                    "valid_min": 0.0,
+                    "valid_max": 10_000.0,
+                },
+            ),
+            artifact_store=store,
+            return_selected_raw_profile=True,
+        )
+        projection = activated_owner.projections[variable_id]
+        (row,) = projection.observations
+        passport = AdmissionPassport.model_validate(
+            load_verified_epoch_statement(
+                store=store,
+                ref=projection.passport_ref,
+                expected_kind="epoch.acquisition_passport_snapshot",
+            )
+        )
+        slot_binding = owner.ControlledAcquisitionSlotBinding(
+            profile_selection_ref="sha256:" + "7" * 64,
+            canonical_variable_id=variable_id,
+            target_slot_id=port.slot_id,
+        )
+        binding_rule = owner.acquired_observation_binding_rule(
+            observation=row.observation, slot_binding=slot_binding
+        )
+        request = owner.AcquiredObservationSemanticInputRequest(
+            binding_id=binding_rule.binding_id,
+            source_definition_ref=port.semantic_definition_ref,
+            source_representation_ref=port.representation_ref,
+            model_interface_ref=SelectedVariableBindingRef.model_validate(
+                interface_ref.model_dump(mode="json")
+            ),
+            model_port_id=port.port_id,
+        )
+        workspace_dir = tmp_path / "shared-data-forge-workspace"
+        transaction_time = datetime(2026, 10, 2, 12, tzinfo=UTC)
+
+        legacy = owner.materialize_acquired_observation_snapshot(
+            store,
+            base_data_snapshot_ref=case.data_snapshot_ref,
+            overlay=activated_owner.overlay,
+            receipt_ref=projection.receipt_ref,
+            passport=passport,
+            authority=activated_owner.authority,
+            observation_id=row.observation.observation_id,
+            slot_binding=slot_binding,
+            workspace_dir=workspace_dir,
+            transaction_time=transaction_time,
+        )
+        legacy_binding_bytes = legacy.data_forge_snapshot_binding_path.read_bytes()
+        semantic = owner.materialize_acquired_observation_snapshot(
+            store,
+            base_data_snapshot_ref=case.data_snapshot_ref,
+            overlay=activated_owner.overlay,
+            receipt_ref=projection.receipt_ref,
+            passport=passport,
+            authority=activated_owner.authority,
+            observation_id=row.observation.observation_id,
+            slot_binding=slot_binding,
+            workspace_dir=workspace_dir,
+            transaction_time=transaction_time,
+            semantic_input_request=request,
+        )
+        first_semantic_snapshot_bytes = semantic.data_forge_snapshot_binding_path.read_bytes()
+        first_semantic_manifest = store.get_manifest(semantic.data_snapshot_ref)
+        repeated_semantic = owner.materialize_acquired_observation_snapshot(
+            store,
+            base_data_snapshot_ref=case.data_snapshot_ref,
+            overlay=activated_owner.overlay,
+            receipt_ref=projection.receipt_ref,
+            passport=passport,
+            authority=activated_owner.authority,
+            observation_id=row.observation.observation_id,
+            slot_binding=slot_binding,
+            workspace_dir=workspace_dir,
+            transaction_time=transaction_time + timedelta(days=1),
+            semantic_input_request=request,
+        )
+        assert repeated_semantic.data_snapshot_ref != semantic.data_snapshot_ref
+        assert repeated_semantic.data_forge_snapshot_binding_path != (
+            semantic.data_forge_snapshot_binding_path
+        )
+        assert semantic.data_forge_snapshot_binding_path.read_bytes() == (
+            first_semantic_snapshot_bytes
+        )
+        assert store.get_manifest(semantic.data_snapshot_ref) == first_semantic_manifest
+        assert semantic.semantic_input_selection is not None
+        assert legacy.data_forge_snapshot_binding_path != semantic.data_forge_snapshot_binding_path
+        assert legacy.data_forge_snapshot_binding_path.read_bytes() == legacy_binding_bytes
+        assert store.get_manifest(legacy.data_snapshot_ref).artifact_schema.version == "0.3.0"
+        assert store.get_manifest(semantic.data_snapshot_ref).artifact_schema.version == "0.4.0"
+        legacy_snapshot = DataSnapshot.model_validate(
+            load_core_json_artifact(store, legacy.data_snapshot_ref)
+        )
+        legacy_lineage_result = validate_data_snapshot_owner_lineage(
+            store,
+            legacy.data_snapshot_ref,
+            legacy_snapshot,
+            candidate_only=True,
+        )
+        assert legacy_lineage_result.acquisition_source_row_status == "not_established"
+        semantic_snapshot = DataSnapshot.model_validate(
+            load_core_json_artifact(store, semantic.data_snapshot_ref)
+        )
+
+        wrong_schema_snapshot_ref = store.put_json(
+            semantic_snapshot,
+            PutOptions(
+                kind=DataSnapshot.ARTIFACT_KIND,
+                media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                    version="0.2.0",
+                ),
+                inputs=store.get_manifest(semantic.data_snapshot_ref).inputs,
+            ),
+            return_selected_profile=True,
+        )
+        with pytest.raises(
+            ValueError,
+            match=r"^DataSnapshot owner lineage version differs from its manifest schema$",
+        ):
+            build_input_bindings(
+                store,
+                data_snapshot_ref=wrong_schema_snapshot_ref,
+                registry_bundle_ref=case.registry_bundle_ref,
+                rules=[semantic.foundry_binding_rule],
+                return_selected_profile=True,
+            )
+
+        semantic_lineage_result = validate_data_snapshot_owner_lineage(
+            store,
+            semantic.data_snapshot_ref,
+            semantic_snapshot,
+            candidate_only=True,
+        )
+        assert semantic_lineage_result.acquisition_source_row_status == "not_established"
+        assert semantic_lineage_result.required_admissibility_blockers
+
+        with pytest.raises(
+            ValueError,
+            match=r"^foundry_input_bindings_semantic_manifest_required$",
+        ):
+            build_input_bindings(
+                store,
+                data_snapshot_ref=semantic.data_snapshot_ref,
+                registry_bundle_ref=case.registry_bundle_ref,
+                rules=[semantic.foundry_binding_rule],
+                return_selected_profile=True,
+            )
+
+        obligation_set, _ = load_model_input_obligation_set(store, preflight.obligation_set_ref)
+        (obligation_ref,) = obligation_set.obligation_refs
+        selection = semantic.semantic_input_selection
+        measurement = ResolvedMeasurementInput(
+            binding_id=selection.binding_id,
+            model_input_obligation_ref=SelectedVariableBindingRef.model_validate(
+                obligation_ref.model_dump(mode="json")
+            ),
+            selected_occurrence_ref=selection.occurrence_ref,
+            correspondence_ref=selection.correspondence_basis_ref,
+            source_path=selection.source_path,
+        )
+        manifest = ResolvedInputBindingManifest(
+            data_snapshot_ref=SelectedVariableBindingRef.model_validate(
+                semantic.data_snapshot_ref.model_dump(mode="json")
+            ),
+            model_input_obligation_set_ref=SelectedVariableBindingRef.model_validate(
+                preflight.obligation_set_ref.model_dump(mode="json")
+            ),
+            measurements=(measurement,),
+            retained_binding_ids=("fixture-agents-income",),
+        )
+        manifest_ref = persist_resolved_input_binding_manifest(store, manifest)
+        built = build_input_bindings(
+            store,
+            data_snapshot_ref=semantic.data_snapshot_ref,
+            registry_bundle_ref=case.registry_bundle_ref,
+            resolved_binding_manifest_ref=manifest_ref,
+            return_selected_profile=True,
+        )
+        assert float(
+            load_state_snapshot(store, snapshot_ref=built.bound_state_snapshot_ref).government_balance
+        ) == 1000.0
+
+        no_interface_case = prepare_program_graph_tax_subsidy_input_case(
+            tmp_path / "legacy-binding-without-interface",
+            opening_balance_usd=None,
+            store=store,
+        )
+        legacy_bindings = load_input_bindings(store, no_interface_case.input_bindings_ref)
+        assert reconcile_semantic_input_bindings(store, legacy_bindings) == ()
+        legacy_bindings = legacy_bindings.model_copy(
+            update={"data_snapshot_ref": semantic.data_snapshot_ref}
+        )
+        legacy_bindings_manifest = store.get_manifest(no_interface_case.input_bindings_ref)
+        legacy_binding_edges = list(legacy_bindings_manifest.inputs)
+        snapshot_edge = input_ref_from_artifact_ref(
+            no_interface_case.data_snapshot_ref,
+            role="input.data_snapshot_ref",
+        )
+        assert legacy_binding_edges.count(snapshot_edge) == 1
+        legacy_binding_edges[legacy_binding_edges.index(snapshot_edge)] = input_ref_from_artifact_ref(
+            semantic.data_snapshot_ref,
+            role="input.data_snapshot_ref",
+        )
+        stored_legacy_bindings_ref = store.put_json(
+            legacy_bindings,
+            PutOptions(
+                kind=FoundryInputBindings.ARTIFACT_KIND,
+                media_type=FoundryInputBindings.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=FoundryInputBindings.ARTIFACT_SCHEMA_NAME,
+                    version=legacy_bindings.schema_version,
+                ),
+                inputs=legacy_binding_edges,
+            ),
+            return_selected_profile=True,
+        )
+        stored_legacy_bindings = load_input_bindings(store, stored_legacy_bindings_ref)
+        assert stored_legacy_bindings.resolved_binding_manifest_ref is None
+        assert no_interface_case.model_input_port_declaration_ref is None
+        with pytest.raises(
+            ValueError,
+            match=r"^foundry_input_bindings_semantic_manifest_required$",
+        ):
+            reconcile_semantic_input_bindings(store, stored_legacy_bindings)
+
+        misversioned_legacy_bindings = load_input_bindings(
+            store, no_interface_case.input_bindings_ref
+        ).model_copy(update={"data_snapshot_ref": wrong_schema_snapshot_ref})
+        misversioned_binding_edges = list(legacy_bindings_manifest.inputs)
+        misversioned_binding_edges[misversioned_binding_edges.index(snapshot_edge)] = (
+            input_ref_from_artifact_ref(
+                wrong_schema_snapshot_ref,
+                role="input.data_snapshot_ref",
+            )
+        )
+        misversioned_legacy_bindings_ref = store.put_json(
+            misversioned_legacy_bindings,
+            PutOptions(
+                kind=FoundryInputBindings.ARTIFACT_KIND,
+                media_type=FoundryInputBindings.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=FoundryInputBindings.ARTIFACT_SCHEMA_NAME,
+                    version=misversioned_legacy_bindings.schema_version,
+                ),
+                inputs=misversioned_binding_edges,
+            ),
+            return_selected_profile=True,
+        )
+        misversioned_legacy_bindings = load_input_bindings(
+            store, misversioned_legacy_bindings_ref
+        )
+        assert misversioned_legacy_bindings.resolved_binding_manifest_ref is None
+        with pytest.raises(
+            ValueError,
+            match=r"^DataSnapshot owner lineage version differs from its manifest schema$",
+        ):
+            reconcile_semantic_input_bindings(store, misversioned_legacy_bindings)
+
+        wrong_manifest = persist_resolved_input_binding_manifest(
+            store,
+            manifest.model_copy(
+                update={
+                    "measurements": (
+                        measurement.model_copy(
+                            update={"source_path": "acquisition.selected.observation_id"}
+                        ),
+                    )
+                }
+            ),
+        )
+        with pytest.raises(
+            ValueError,
+            match=r"^foundry_input_bindings_semantic_snapshot_selection_mismatch$",
+        ):
+            build_input_bindings(
+                store,
+                data_snapshot_ref=semantic.data_snapshot_ref,
+                registry_bundle_ref=case.registry_bundle_ref,
+                resolved_binding_manifest_ref=wrong_manifest,
+                return_selected_profile=True,
+            )
+
+        semantic_snapshot_manifest = store.get_manifest(semantic.data_snapshot_ref)
+        selected_edge = input_ref_from_artifact_ref(
+            selection.occurrence_ref,
+            role=f"binding.{selection.binding_id}.occurrence:{selection.source_path}",
+        )
+        wrong_edges = list(semantic_snapshot_manifest.inputs)
+        selected_edge_index = wrong_edges.index(selected_edge)
+        wrong_edges[selected_edge_index] = input_ref_from_artifact_ref(
+            selection.occurrence_ref,
+            role=f"binding.{selection.binding_id}.occurrence:other.path",
+        )
+        wrong_role_snapshot_ref = store.put_json(
+            semantic_snapshot,
+            PutOptions(
+                kind="fabric.data_snapshot",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.4.0"),
+                inputs=wrong_edges,
+            ),
+            return_selected_profile=True,
+        )
+        with pytest.raises(
+            DataSnapshotLineageError,
+            match=r"^data_snapshot_owner_parent_inputs_mismatch$",
+        ):
+            validate_data_snapshot_owner_lineage(
+                store,
+                wrong_role_snapshot_ref,
+                semantic_snapshot,
+                candidate_only=True,
+            )
+
+        executed = execute_foundry(
+            store,
+            ExecuteRequest(
+                exec_plan_ref=case.exec_plan_ref,
+                registry_bundle_ref=case.registry_bundle_ref,
+                input_bindings_ref=built.input_bindings_ref,
+                parameter_override_bundle_ref=override_ref,
+                return_selected_profile=True,
+            ),
+        )
+        assert executed.ok and executed.simulation_result_ref is not None
+        assert "semantic_input_use:candidate_simulation_input_only" in executed.notes
+        horizon_predecessor = SemanticHorizonStepContext(
+            obligation_set_ref=preflight.obligation_set_ref,
+            steps=(0, 1),
+            step_index=1,
+            replication_seed=0,
+            previous_result_ref=executed.simulation_result_ref,
+        )
+        with pytest.raises(
+            ValueError,
+            match=r"^foundry_input_bindings_semantic_manifest_required$",
+        ):
+            reconcile_semantic_input_bindings(
+                store,
+                stored_legacy_bindings,
+                semantic_horizon_step=horizon_predecessor,
+            )
+        with pytest.raises(
+            ValueError,
+            match=r"^DataSnapshot owner lineage version differs from its manifest schema$",
+        ):
+            reconcile_semantic_input_bindings(
+                store,
+                misversioned_legacy_bindings,
+                semantic_horizon_step=horizon_predecessor,
+            )
+        fresh_store = FileSystemCAS(case.store_root)
+        admitted = admit_execution_source(fresh_store, executed.simulation_result_ref)
+        assert admitted.basis is not None
+        assert admitted.basis.input_bindings_ref == built.input_bindings_ref
+        assert load_input_bindings(
+            fresh_store, built.input_bindings_ref
+        ).resolved_binding_manifest_ref == manifest_ref
+        assert admitted.simulation_result.state_snapshot_ref is not None
+        final_state = load_state_snapshot(
+            fresh_store, snapshot_ref=admitted.simulation_result.state_snapshot_ref
+        )
+        assert float(final_state.government_balance) == 1000.0 - 0.125 * (100 + 200)
+    finally:
+        if fresh_store is not None:
+            close = getattr(fresh_store, "close", None)
+            if callable(close):
+                close()
+        if activated_owner is not None:
+            activated_owner.overlay.close()
+        case.close()

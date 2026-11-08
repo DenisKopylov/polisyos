@@ -50,8 +50,30 @@ from polisyos.core.artifacts import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.canon import CanonSpec
-from polisyos.core.contracts import DataTrust, ValueOuterSet
+from polisyos.core.contracts import (
+    DataTrust,
+    FixedUnitTransformWitness,
+    MeasurementBindingProfile,
+    ScopedCorrespondenceBasis,
+    ScopedMeasurementOccurrence,
+    SelectedVariableBindingRef,
+    ValueOuterSet,
+    VariableRepresentation,
+    VariableRepresentationRef,
+    VariableSemanticDefinition,
+    VariableSemanticDefinitionRef,
+    evaluate_scoped_correspondence_basis,
+    load_program_graph_input_interface,
+    replay_scoped_measurement_occurrence,
+    scoped_correspondence_basis_manifest_inputs,
+    scoped_measurement_occurrence_manifest_inputs,
+    scoped_source_selection_from_passport_mapping,
+)
 from polisyos.core.contracts.fabric import (
+    DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION,
+    AcquiredObservationSemanticInputDataSnapshotLineage,
+    AcquiredObservationSemanticInputDataSnapshotOwnerBound,
+    AcquiredObservationSemanticInputSelection,
     DataSnapshot,
     data_snapshot_owner_input_requirements,
     data_snapshot_reference_fields,
@@ -277,6 +299,34 @@ class ControlledAcquisitionSlotBinding(_StrictModel):
     )
 
 
+class AcquiredObservationSemanticInputRequest(BaseModel):
+    """Explicit candidate request to bind one selected acquisition row to a model port."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    binding_id: str = Field(pattern=r"^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,127}$", strict=True)
+    source_definition_ref: VariableSemanticDefinitionRef
+    source_representation_ref: VariableRepresentationRef
+    model_interface_ref: SelectedVariableBindingRef
+    model_port_id: str = Field(min_length=1, strict=True)
+
+    @model_validator(mode="after")
+    def _require_selected_model_interface(self) -> AcquiredObservationSemanticInputRequest:
+        refs = (
+            self.source_definition_ref,
+            self.source_representation_ref,
+            self.model_interface_ref,
+        )
+        if any(ref.manifest_profile_sha256 is None for ref in refs):
+            raise ValueError("acquisition_semantic_binding_request_ref_unselected")
+        if (
+            self.model_interface_ref.kind != "runtime.quality.program_graph_input_interface"
+            or self.model_interface_ref.media_type != "application/json"
+        ):
+            raise ValueError("acquisition_semantic_binding_request_interface_mismatch")
+        return self
+
+
 class CandidateAcquisitionSourceSlotBinding(_StrictModel):
     """Bind a candidate source descriptor separately from the scenario profile.
 
@@ -325,6 +375,7 @@ class AcquiredObservationDataSnapshotResult:
     source_time_status: Literal["not_established"]
     observation_projection: ActivatedAcquisitionObservationProjection
     foundry_binding_rule: FoundryInputBindingRule
+    semantic_input_selection: AcquiredObservationSemanticInputSelection | None = None
 
 
 @dataclass(frozen=True)
@@ -365,6 +416,7 @@ class AcquiredObservationDataPreparation:
     transaction_time_text: str
     lineage_inputs: tuple[Any, ...]
     foundry_binding_rule: FoundryInputBindingRule
+    semantic_input_selection: AcquiredObservationSemanticInputSelection | None = None
 
     def validate_content_binding(self) -> None:
         """Reject any changed field before the materializer's first write."""
@@ -405,6 +457,10 @@ def _acquisition_preparation_sha256(
         "lineage_inputs": [item.model_dump(mode="json") for item in prepared.lineage_inputs],
         "foundry_binding_rule": prepared.foundry_binding_rule.model_dump(mode="json"),
     }
+    if prepared.semantic_input_selection is not None:
+        fields["semantic_input_selection"] = prepared.semantic_input_selection.model_dump(
+            mode="json"
+        )
     if include_digest:
         fields["preparation_sha256"] = prepared.preparation_sha256
     encoded = json.dumps(fields, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
@@ -820,6 +876,7 @@ def prepare_acquired_observation_snapshot(
     observation_id: str,
     slot_binding: ControlledAcquisitionSlotBinding,
     transaction_time: datetime,
+    semantic_input_request: AcquiredObservationSemanticInputRequest | None = None,
 ) -> AcquiredObservationDataPreparation:
     """Prepare an owner-verified acquired observation without writing artifacts.
 
@@ -843,6 +900,9 @@ def prepare_acquired_observation_snapshot(
         observation_id: Exact row identity selected from the active projection.
         slot_binding: Explicit controlled-candidate map to one Foundry slot.
         transaction_time: Time this controlled candidate snapshot is emitted.
+        semantic_input_request: Optional explicit same-definition candidate
+            selection to a model-owned port. This persists only candidate
+            lineage and never promotes the observation or authorizes execution.
 
     Returns:
         Immutable, content-bound inputs for the existing materializer.
@@ -865,6 +925,10 @@ def prepare_acquired_observation_snapshot(
         raise DataStateSubstrateError("acquisition_passport_owner_untyped")
     if not isinstance(receipt_ref, ArtifactRef):
         raise DataStateSubstrateError("acquisition_activation_ref_untyped")
+    if semantic_input_request is not None and type(semantic_input_request) is not (
+        AcquiredObservationSemanticInputRequest
+    ):
+        raise DataStateSubstrateError("acquisition_semantic_binding_request_untyped")
     _require_selected_profile(receipt_ref, "acquisition_activation_profile_unselected")
     try:
         owner_projection = overlay.read_activated_semantic_epoch_observations(
@@ -891,7 +955,261 @@ def prepare_acquired_observation_snapshot(
         observation_id=observation_id,
         receipt_ref=receipt_ref,
         transaction_time=transaction_time,
+        semantic_input_request=semantic_input_request,
+        overlay=overlay,
+        passport=passport,
+        authority=authority,
     )
+
+
+def _produce_acquired_semantic_input_selection(
+    store: ArtifactStore,
+    *,
+    overlay: object,
+    passport: object,
+    authority: object,
+    selected_projection: ActivatedAcquisitionObservationProjection,
+    selected_profile: ControlledAcquisitionSlotBinding,
+    observation: CanonicalAcquisitionObservation,
+    request: AcquiredObservationSemanticInputRequest,
+    binding_rule: FoundryInputBindingRule,
+) -> AcquiredObservationSemanticInputSelection:
+    """Ask Catalog's existing owner for the same-definition candidate relation."""
+    from polisyos.data_forge.read_api.catalog import assess_measurement_to_model_candidate
+
+    if request.binding_id != binding_rule.binding_id:
+        raise DataStateSubstrateError("acquisition_semantic_binding_rule_id_mismatch")
+    try:
+        correspondence = assess_measurement_to_model_candidate(
+            store,
+            overlay,
+            receipt_ref=selected_projection.receipt_ref,
+            passport=passport,
+            authority=authority,
+            observation_id=observation.observation_id,
+            source_definition_ref=request.source_definition_ref,
+            source_representation_ref=request.source_representation_ref,
+            model_interface_ref=request.model_interface_ref,
+            port_id=request.model_port_id,
+        )
+    except (AttributeError, TypeError, ValueError, RuntimeError) as exc:
+        raise DataStateSubstrateError(
+            "acquisition_semantic_catalog_assessment_failed", str(exc)
+        ) from exc
+    if (
+        correspondence.status != "candidate"
+        or correspondence.semantic_correspondence != "recomputed"
+        or correspondence.source_observation_id != observation.observation_id
+        or correspondence.occurrence_ref is None
+        or correspondence.correspondence_basis_ref is None
+    ):
+        raise DataStateSubstrateError(
+            "acquisition_semantic_correspondence_not_candidate",
+            ",".join(correspondence.refusal_codes),
+        )
+    selection = AcquiredObservationSemanticInputSelection(
+        binding_id=request.binding_id,
+        source_path=binding_rule.source_path,
+        source_definition_ref=request.source_definition_ref,
+        source_representation_ref=request.source_representation_ref,
+        model_interface_ref=request.model_interface_ref,
+        model_port_id=request.model_port_id,
+        occurrence_ref=correspondence.occurrence_ref,
+        correspondence_basis_ref=correspondence.correspondence_basis_ref,
+    )
+    _verify_acquired_semantic_input_selection(
+        store,
+        selected_projection=selected_projection,
+        selected_profile=selected_profile,
+        observation=observation,
+        binding_rule=binding_rule,
+        selection=selection,
+    )
+    return selection
+
+
+def _verify_acquired_semantic_input_selection(
+    store: ArtifactStore,
+    *,
+    selected_projection: ActivatedAcquisitionObservationProjection,
+    selected_profile: ControlledAcquisitionSlotBinding,
+    observation: CanonicalAcquisitionObservation,
+    binding_rule: FoundryInputBindingRule,
+    selection: AcquiredObservationSemanticInputSelection,
+) -> None:
+    """Replay occurrence and relation against the exact activated row and model port."""
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.core.contracts.epoch import (
+        AcquisitionSemanticBoundaryCandidateStatement,
+        load_verified_epoch_statement,
+    )
+    from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
+
+    if (
+        selection.source_path != binding_rule.source_path
+        or selection.binding_id != binding_rule.binding_id
+        or selection.occurrence_ref.manifest_profile_sha256 is None
+        or selection.correspondence_basis_ref.manifest_profile_sha256 is None
+        or selection.occurrence_ref.kind != ScopedMeasurementOccurrence.ARTIFACT_KIND
+        or selection.correspondence_basis_ref.kind != ScopedCorrespondenceBasis.ARTIFACT_KIND
+    ):
+        raise DataStateSubstrateError("acquisition_semantic_selection_owner_mismatch")
+    selected_rows = tuple(
+        row
+        for row in selected_projection.observations
+        if row.observation.observation_id == observation.observation_id
+    )
+    if len(selected_rows) != 1 or selected_rows[0].observation != observation:
+        raise DataStateSubstrateError("acquisition_semantic_selection_row_mismatch")
+    selected_row = selected_rows[0]
+
+    passport_mapping = load_verified_epoch_statement(
+        store=store,
+        ref=selected_projection.passport_ref,
+        expected_kind="epoch.acquisition_passport_snapshot",
+    )
+    passport = AdmissionPassport.model_validate(passport_mapping)
+    boundary_ref = passport.semantic_boundary_candidate_ref
+    boundary_mapping = load_verified_epoch_statement(
+        store=store,
+        ref=boundary_ref,
+        expected_kind="epoch.acquisition_semantic_boundary_candidate",
+    )
+    boundary = AcquisitionSemanticBoundaryCandidateStatement.model_validate(boundary_mapping)
+    source_receipt_ref = SelectedVariableBindingRef.model_validate(
+        selected_projection.receipt_ref.model_dump(mode="json")
+    )
+    source_passport_ref = SelectedVariableBindingRef.model_validate(
+        selected_projection.passport_ref.model_dump(mode="json")
+    )
+    source_boundary_ref = SelectedVariableBindingRef.model_validate(
+        boundary_ref.model_dump(mode="json")
+    )
+    source_record_ref = SelectedVariableBindingRef.model_validate(
+        boundary.source_record_ref.model_dump(mode="json")
+    )
+    if (
+        boundary.source_record_content_hash != passport.source_watermark
+        or boundary.source_record_ref.manifest_profile_sha256 is None
+        or not store.verify(boundary.source_record_ref).ok
+    ):
+        raise DataStateSubstrateError("acquisition_semantic_source_record_unverified")
+    try:
+        source_selection = scoped_source_selection_from_passport_mapping(
+            passport.model_dump(mode="json"),
+            source_receipt_ref=source_receipt_ref,
+            source_passport_ref=source_passport_ref,
+            source_boundary_candidate_ref=source_boundary_ref,
+            source_record_ref=source_record_ref,
+        )
+        witness = (
+            None
+            if observation.unit_transform_evidence is None
+            else FixedUnitTransformWitness.model_validate(
+                observation.unit_transform_evidence.model_dump(mode="json")
+            )
+        )
+        replayed_occurrence = replay_scoped_measurement_occurrence(
+            store.get_bytes(boundary.source_record_ref),
+            observation_id=observation.observation_id,
+            source_selection=source_selection,
+            unit_transform_evidence=witness,
+        )
+        occurrence = validate_core_model_json_artifact(
+            ScopedMeasurementOccurrence, store, selection.occurrence_ref
+        )
+        basis = validate_core_model_json_artifact(
+            ScopedCorrespondenceBasis, store, selection.correspondence_basis_ref
+        )
+    except (OSError, TypeError, ValueError, RuntimeError) as exc:
+        raise DataStateSubstrateError(
+            "acquisition_semantic_selection_replay_failed", str(exc)
+        ) from exc
+
+    if (
+        occurrence != replayed_occurrence
+        or occurrence.observation_id != observation.observation_id
+        or occurrence.dataset_id != observation.dataset_id
+        or occurrence.canonical_variable != observation.canonical_var
+        or occurrence.canonical_value != str(observation.value)
+        or occurrence.observation_content_sha256 != selected_row.row_content_sha256
+        or occurrence.source_receipt_ref != source_receipt_ref
+        or occurrence.source_passport_ref != source_passport_ref
+        or occurrence.source_boundary_candidate_ref != source_boundary_ref
+        or occurrence.source_record_ref != source_record_ref
+        or basis.occurrence_ref != selection.occurrence_ref
+        or basis.source_definition_ref != selection.source_definition_ref
+        or basis.source_representation_ref != selection.source_representation_ref
+        or basis.model_interface_ref != selection.model_interface_ref
+        or basis.model_port_id != selection.model_port_id
+    ):
+        raise DataStateSubstrateError("acquisition_semantic_occurrence_or_basis_mismatch")
+    try:
+        occurrence_manifest = store.get_manifest(selection.occurrence_ref)
+        basis_manifest = store.get_manifest(selection.correspondence_basis_ref)
+        if occurrence_manifest.inputs != list(
+            scoped_measurement_occurrence_manifest_inputs(occurrence)
+        ):
+            raise DataStateSubstrateError("acquisition_semantic_occurrence_edges_mismatch")
+        if basis_manifest.inputs != list(scoped_correspondence_basis_manifest_inputs(basis)):
+            raise DataStateSubstrateError("acquisition_semantic_correspondence_edges_mismatch")
+        interface = load_program_graph_input_interface(store, selection.model_interface_ref)
+        selected_ports = tuple(
+            port for port in interface.ports if port.port_id == selection.model_port_id
+        )
+        if len(selected_ports) != 1:
+            raise DataStateSubstrateError("acquisition_semantic_model_port_not_unique")
+        model_port = selected_ports[0]
+        if (
+            model_port.slot_id != selected_profile.target_slot_id
+            or model_port.semantic_definition_ref != selection.source_definition_ref
+        ):
+            raise DataStateSubstrateError("acquisition_semantic_target_port_mismatch")
+        source_definition = validate_core_model_json_artifact(
+            VariableSemanticDefinition, store, selection.source_definition_ref
+        )
+        source_representation = validate_core_model_json_artifact(
+            VariableRepresentation, store, selection.source_representation_ref
+        )
+        target_definition = validate_core_model_json_artifact(
+            VariableSemanticDefinition, store, basis.target_definition_ref
+        )
+        target_representation = validate_core_model_json_artifact(
+            VariableRepresentation, store, basis.target_representation_ref
+        )
+        binding_profile = validate_core_model_json_artifact(
+            MeasurementBindingProfile, store, basis.binding_profile_ref
+        )
+        evaluation = evaluate_scoped_correspondence_basis(
+            basis=basis,
+            occurrence_ref=selection.occurrence_ref,
+            occurrence=occurrence,
+            replayed_occurrence=replayed_occurrence,
+            source_selection=source_selection,
+            source_definition_ref=selection.source_definition_ref,
+            source_definition=source_definition,
+            source_representation_ref=selection.source_representation_ref,
+            source_representation=source_representation,
+            target_definition_ref=basis.target_definition_ref,
+            target_definition=target_definition,
+            target_representation_ref=basis.target_representation_ref,
+            target_representation=target_representation,
+            binding_profile_ref=basis.binding_profile_ref,
+            profile=binding_profile,
+            model_interface_ref=selection.model_interface_ref,
+            model_port=model_port,
+        )
+    except DataStateSubstrateError:
+        raise
+    except (OSError, TypeError, ValueError, RuntimeError) as exc:
+        raise DataStateSubstrateError("acquisition_semantic_basis_replay_failed", str(exc)) from exc
+    if evaluation.status != "candidate" or evaluation.semantic_correspondence != "recomputed":
+        raise DataStateSubstrateError(
+            "acquisition_semantic_correspondence_not_candidate",
+            ",".join(evaluation.refusal_codes),
+        )
+    if any(not store.verify(ref).ok for ref in basis.source_definition_evidence_refs):
+        raise DataStateSubstrateError("acquisition_semantic_definition_evidence_unverified")
 
 
 def _prepare_acquired_observation_snapshot_from_projection(
@@ -903,6 +1221,11 @@ def _prepare_acquired_observation_snapshot_from_projection(
     observation_id: str,
     receipt_ref: ArtifactRef,
     transaction_time: datetime,
+    semantic_input_request: AcquiredObservationSemanticInputRequest | None = None,
+    semantic_input_selection: AcquiredObservationSemanticInputSelection | None = None,
+    overlay: object | None = None,
+    passport: object | None = None,
+    authority: object | None = None,
     _verify_base_lineage: bool = True,
 ) -> AcquiredObservationDataPreparation:
     """Shared actual payload/history/rule construction after source-owner replay."""
@@ -939,6 +1262,45 @@ def _prepare_acquired_observation_snapshot_from_projection(
         raise DataStateSubstrateError("acquisition_selected_variable_mismatch")
     if transaction_time.tzinfo is None or transaction_time.utcoffset() is None:
         raise DataStateSubstrateError("acquisition_transaction_time_must_be_aware")
+    if semantic_input_request is not None and semantic_input_selection is not None:
+        raise DataStateSubstrateError("acquisition_semantic_selection_source_ambiguous")
+    binding_rule = acquired_observation_binding_rule(
+        observation=observation,
+        slot_binding=selected_profile,
+    )
+    if semantic_input_request is not None:
+        if overlay is None or passport is None or authority is None:
+            raise DataStateSubstrateError("acquisition_semantic_catalog_owner_missing")
+        if type(semantic_input_request) is not AcquiredObservationSemanticInputRequest:
+            raise DataStateSubstrateError("acquisition_semantic_binding_request_untyped")
+        semantic_input_request = AcquiredObservationSemanticInputRequest.model_validate(
+            semantic_input_request.model_dump(mode="python")
+        )
+        semantic_input_selection = _produce_acquired_semantic_input_selection(
+            store,
+            overlay=overlay,
+            passport=passport,
+            authority=authority,
+            selected_projection=selected_projection,
+            selected_profile=selected_profile,
+            observation=observation,
+            request=semantic_input_request,
+            binding_rule=binding_rule,
+        )
+    elif semantic_input_selection is not None:
+        if type(semantic_input_selection) is not AcquiredObservationSemanticInputSelection:
+            raise DataStateSubstrateError("acquisition_semantic_selection_untyped")
+        semantic_input_selection = AcquiredObservationSemanticInputSelection.model_validate(
+            semantic_input_selection.model_dump(mode="python")
+        )
+        _verify_acquired_semantic_input_selection(
+            store,
+            selected_projection=selected_projection,
+            selected_profile=selected_profile,
+            observation=observation,
+            binding_rule=binding_rule,
+            selection=semantic_input_selection,
+        )
 
     _require_selected_profile(
         base_data_snapshot_ref,
@@ -1080,10 +1442,14 @@ def _prepare_acquired_observation_snapshot_from_projection(
             role="evidence.acquisition_passport",
         ),
     )
-    foundry_binding_rule = acquired_observation_binding_rule(
-        observation=observation,
-        slot_binding=selected_profile,
-    )
+    if semantic_input_selection is not None:
+        lineage_inputs = (
+            *lineage_inputs,
+            *(
+                input_ref_from_artifact_ref(ref, role=role)
+                for ref, role in semantic_input_selection.lineage_refs()
+            ),
+        )
     payload_json = json.dumps(
         payload,
         ensure_ascii=False,
@@ -1104,7 +1470,8 @@ def _prepare_acquired_observation_snapshot_from_projection(
         base_snapshot_id=base_snapshot_id,
         transaction_time_text=transaction_time_text,
         lineage_inputs=lineage_inputs,
-        foundry_binding_rule=foundry_binding_rule,
+        foundry_binding_rule=binding_rule,
+        semantic_input_selection=semantic_input_selection,
     )
     return replace(
         prepared,
@@ -1749,7 +2116,13 @@ def _read_acquired_observation_selection(
     try:
         snapshot = DataSnapshot.model_validate(load_core_json_artifact(store, data_snapshot_ref))
         lineage = snapshot.source_lineage
-        if not isinstance(lineage, core_contracts.AcquiredObservationDataSnapshotLineage):
+        if not isinstance(
+            lineage,
+            (
+                core_contracts.AcquiredObservationDataSnapshotLineage,
+                AcquiredObservationSemanticInputDataSnapshotLineage,
+            ),
+        ):
             raise DataStateSubstrateError("acquisition_semantic_snapshot_owner_unsupported")
         validate_data_snapshot_owner_lineage(
             store, data_snapshot_ref, snapshot, candidate_only=True
@@ -2216,15 +2589,61 @@ def _acquired_observation_data_snapshot(
 ) -> DataSnapshot:
     """Reconstruct the exact acquired snapshot produced from one preparation."""
     projection = prepared.observation_projection
-    snapshot_id = (
-        "gy-s1-acquisition-overlay-" + str(payload_ref.artifact_id).removeprefix("sha256:")[:20]
-    )
-    return core_contracts.DataSnapshotOwnerBound(
+    if prepared.semantic_input_selection is None:
+        snapshot_id = (
+            "gy-s1-acquisition-overlay-"
+            + str(payload_ref.artifact_id).removeprefix("sha256:")[:20]
+        )
+        return core_contracts.DataSnapshotOwnerBound(
+            data_ref=payload_ref,
+            source_lineage=core_contracts.AcquiredObservationDataSnapshotLineage(
+                base_data_snapshot_ref=prepared.base_data_snapshot_ref,
+                overlay_admission_receipt_ref=projection.receipt_ref,
+                passport_ref=projection.passport_ref,
+            ),
+            stats={
+                "snapshot_id": snapshot_id,
+                "source_mode": "candidate_acquisition_overlay",
+                "base_snapshot_id": prepared.base_snapshot_id,
+                "selected_observation_id": prepared.selected_observation_id,
+                "selected_dataset_id": prepared.selected_dataset_id,
+                "selected_row_content_sha256": prepared.selected_row_content_sha256,
+                "projection_content_sha256": projection.projection_content_sha256,
+                "source_time_status": "not_established",
+                "materialized_at_transaction_time": prepared.transaction_time_text,
+            },
+            notes=[
+                "candidate_acquisition_overlay",
+                "source_time_status:not_established",
+                "source_to_target_measurement_contract_not_established",
+                "causal_coupling_not_established",
+                "data_forge_snapshot_binding:finalize_snapshot",
+                "foundry_binding_owner:polisyos.foundry.data_plane.build_input_bindings",
+            ],
+        )
+    if payload_ref.manifest_profile_sha256 is None:
+        raise DataStateSubstrateError("acquisition_semantic_payload_profile_unselected")
+    snapshot_identity_digest = hashlib.sha256(
+        json.dumps(
+            {
+                "payload_ref": payload_ref.model_dump(mode="json"),
+                "semantic_input_selection": prepared.semantic_input_selection.model_dump(
+                    mode="json"
+                ),
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    snapshot_id = "gy-s1-acquisition-semantic-input-" + snapshot_identity_digest[:20]
+    return AcquiredObservationSemanticInputDataSnapshotOwnerBound(
         data_ref=payload_ref,
-        source_lineage=core_contracts.AcquiredObservationDataSnapshotLineage(
+        source_lineage=AcquiredObservationSemanticInputDataSnapshotLineage(
             base_data_snapshot_ref=prepared.base_data_snapshot_ref,
             overlay_admission_receipt_ref=projection.receipt_ref,
             passport_ref=projection.passport_ref,
+            selection=prepared.semantic_input_selection,
         ),
         stats={
             "snapshot_id": snapshot_id,
@@ -2239,6 +2658,7 @@ def _acquired_observation_data_snapshot(
         },
         notes=[
             "candidate_acquisition_overlay",
+            "candidate_semantic_input_selection",
             "source_time_status:not_established",
             "source_to_target_measurement_contract_not_established",
             "causal_coupling_not_established",
@@ -2285,6 +2705,13 @@ def verify_acquired_observation_snapshot_payload(
     projection = _replay_acquired_observation_projection(
         store, receipt_ref=receipt_ref, passport_ref=passport_ref
     )
+    semantic_input_selection = (
+        snapshot.source_lineage.selection
+        if isinstance(
+            snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage
+        )
+        else None
+    )
     prepared = _prepare_acquired_observation_snapshot_from_projection(
         store,
         base_data_snapshot_ref=base_data_snapshot_ref,
@@ -2293,6 +2720,7 @@ def verify_acquired_observation_snapshot_payload(
         observation_id=observation_id,
         receipt_ref=receipt_ref,
         transaction_time=transaction_time,
+        semantic_input_selection=semantic_input_selection,
         _verify_base_lineage=False,
     )
     expected_snapshot = _acquired_observation_data_snapshot(
@@ -2326,6 +2754,7 @@ def materialize_acquired_observation_snapshot(
     workspace_dir: Path,
     transaction_time: datetime,
     prepared: AcquiredObservationDataPreparation | None = None,
+    semantic_input_request: AcquiredObservationSemanticInputRequest | None = None,
 ) -> AcquiredObservationDataSnapshotResult:
     """Extend an existing S1 snapshot with one activated row for candidate work.
 
@@ -2349,6 +2778,9 @@ def materialize_acquired_observation_snapshot(
         slot_binding: Explicit controlled-candidate map to one Foundry slot.
         workspace_dir: Per-job workspace for Data Forge's normal snapshot owner.
         transaction_time: Time this controlled candidate snapshot is emitted.
+        semantic_input_request: Optional explicit same-definition candidate
+            selection to a model-owned port. If supplied, the existing Catalog
+            owner must reissue the relation during the fresh source read.
         prepared: Optional caller-constructible comparison candidate. Its digest
             is not authority. The active owner is reread and all preparation
             fields must agree; only freshly owner-resolved values are written.
@@ -2374,6 +2806,7 @@ def materialize_acquired_observation_snapshot(
         observation_id=observation_id,
         slot_binding=slot_binding,
         transaction_time=transaction_time,
+        semantic_input_request=semantic_input_request,
     )
     if prepared is not None and prepared != current:
         raise DataStateSubstrateError("acquisition_preparation_owner_state_changed")
@@ -2402,12 +2835,19 @@ def materialize_acquired_observation_snapshot(
     payload_content_hash = str(payload_ref.artifact_id)
     data_snapshot = _acquired_observation_data_snapshot(payload_ref=payload_ref, prepared=prepared)
     snapshot_id = str(data_snapshot.stats["snapshot_id"])
+    snapshot_schema_version = (
+        DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
+        if prepared.semantic_input_selection is not None
+        else "0.3.0"
+    )
     data_snapshot_ref = store.put_json(
         data_snapshot,
         PutOptions(
             kind="fabric.data_snapshot",
             media_type="application/json",
-            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.3.0"),
+            schema=SchemaInfo(
+                name="polisyos.core.DataSnapshot", version=snapshot_schema_version
+            ),
             inputs=[
                 input_ref_from_artifact_ref(
                     payload_ref,
@@ -2435,6 +2875,14 @@ def materialize_acquired_observation_snapshot(
             _cas_data_forge_ref(base_data_snapshot_ref),
             _cas_data_forge_ref(selected_projection.receipt_ref),
             _cas_data_forge_ref(selected_projection.passport_ref),
+            *(
+                _cas_data_forge_ref(ref)
+                for ref, _role in (
+                    ()
+                    if prepared.semantic_input_selection is None
+                    else prepared.semantic_input_selection.lineage_refs()
+                )
+            ),
             _cas_data_forge_ref(payload_ref),
         ),
         claim_requirement_bindings=_acquired_claim_requirement_bindings(
@@ -2452,6 +2900,7 @@ def materialize_acquired_observation_snapshot(
         source_time_status="not_established",
         observation_projection=selected_projection,
         foundry_binding_rule=prepared.foundry_binding_rule,
+        semantic_input_selection=prepared.semantic_input_selection,
     )
 
 

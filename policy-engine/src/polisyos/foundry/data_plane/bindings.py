@@ -62,14 +62,34 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts import (
+    RESOLVED_INPUT_BINDING_MANIFEST_ROLE,
+    MeasurementBindingProfile,
+    ModelInputObligation,
+    ProgramGraphInputInvocation,
+    ResolvedInputBindingManifestRef,
+    ResolvedMeasurementInput,
+    ScopedCorrespondenceBasis,
+    ScopedMeasurementOccurrence,
+    SelectedVariableBindingRef,
     ValueOuterSet,
+    VariableRepresentation,
+    VariableSemanticDefinition,
     data_snapshot_owner_input_requirements,
     data_snapshot_reference_fields,
     data_snapshot_reference_input_roles,
+    evaluate_scoped_correspondence_basis,
+    load_model_input_obligation_set,
+    load_resolved_input_binding_manifest,
+    replay_scoped_measurement_occurrence,
+    scoped_correspondence_basis_manifest_inputs,
+    scoped_measurement_occurrence_manifest_inputs,
+    scoped_source_selection_from_passport_mapping,
 )
 from polisyos.core.contracts import epoch as epoch_contract
 from polisyos.core.contracts.fabric import (
     DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
+    DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION,
+    AcquiredObservationSemanticInputDataSnapshotLineage,
     DataSnapshot,
     DataSnapshotRef,
 )
@@ -84,30 +104,6 @@ from polisyos.core.contracts.foundry import (
     SemanticHorizonStepContext,
     StateSnapshot,
     StateSnapshotRef,
-)
-from polisyos.core.contracts.model_input_requirements import (
-    ModelInputObligation,
-    ProgramGraphInputInvocation,
-    load_model_input_obligation_set,
-)
-from polisyos.core.contracts.semantic_input_binding import (
-    RESOLVED_INPUT_BINDING_MANIFEST_ROLE,
-    ResolvedInputBindingManifestRef,
-    ResolvedMeasurementInput,
-    load_resolved_input_binding_manifest,
-)
-from polisyos.core.contracts.variable_binding import (
-    MeasurementBindingProfile,
-    ScopedCorrespondenceBasis,
-    ScopedMeasurementOccurrence,
-    SelectedVariableBindingRef,
-    VariableRepresentation,
-    VariableSemanticDefinition,
-    evaluate_scoped_correspondence_basis,
-    replay_scoped_measurement_occurrence,
-    scoped_correspondence_basis_manifest_inputs,
-    scoped_measurement_occurrence_manifest_inputs,
-    scoped_source_selection_from_passport_mapping,
 )
 from polisyos.core.registry import load_registry_bundle_content
 from polisyos.data_forge import read_api
@@ -2049,6 +2045,10 @@ def prepare_input_bindings(
             rules=rules,
         )
     snapshot = _load_data_snapshot(store, data_snapshot_ref)
+    if isinstance(
+        snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage
+    ):
+        raise ValueError("foundry_input_bindings_semantic_manifest_required")
     if registered_sql_admission_ref is not None:
         if (
             data_snapshot_ref.manifest_profile_sha256 is None
@@ -2469,6 +2469,31 @@ def _prepare_semantic_input_bindings(
     snapshot = _load_data_snapshot(store, data_snapshot_ref)
     if snapshot.data_ref.manifest_profile_sha256 is None:
         raise ValueError("foundry_input_bindings_semantic_profile_required")
+    if isinstance(
+        snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage
+    ):
+        if len(manifest.measurements) != 1:
+            raise ValueError("foundry_input_bindings_semantic_snapshot_selection_mismatch")
+        selected = manifest.measurements[0]
+        obligation = obligations[artifact_ref_identity_key(selected.model_input_obligation_ref)]
+        proof = proofs[selected.binding_id]
+        owner_selection = snapshot.source_lineage.selection
+        if (
+            selected.binding_id != owner_selection.binding_id
+            or selected.source_path != owner_selection.source_path
+            or artifact_ref_identity_key(selected.selected_occurrence_ref)
+            != artifact_ref_identity_key(owner_selection.occurrence_ref)
+            or artifact_ref_identity_key(selected.correspondence_ref)
+            != artifact_ref_identity_key(owner_selection.correspondence_basis_ref)
+            or artifact_ref_identity_key(proof.source_definition_ref)
+            != artifact_ref_identity_key(owner_selection.source_definition_ref)
+            or artifact_ref_identity_key(proof.source_representation_ref)
+            != artifact_ref_identity_key(owner_selection.source_representation_ref)
+            or artifact_ref_identity_key(obligation.interface_ref)
+            != artifact_ref_identity_key(owner_selection.model_interface_ref)
+            or obligation.port.port_id != owner_selection.model_port_id
+        ):
+            raise ValueError("foundry_input_bindings_semantic_snapshot_selection_mismatch")
     payload = _load_binding_payload(store, snapshot)
     payload_manifest = store.get_manifest(snapshot.data_ref)
     slots = load_registry_bundle_content(store, registry_bundle_ref).slot_registry
@@ -2704,6 +2729,29 @@ def reconcile_semantic_input_bindings(
     """Replay exact semantics and verify the persisted physical state bytes."""
     ref = bindings.resolved_binding_manifest_ref
     if ref is None:
+        snapshot_manifest = store.get_manifest(bindings.data_snapshot_ref)
+        snapshot_schema = snapshot_manifest.artifact_schema
+        semantic_schema = (
+            snapshot_schema is not None
+            and snapshot_schema.name == DataSnapshot.ARTIFACT_SCHEMA_NAME
+            and snapshot_schema.version == DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
+        )
+        if bindings.data_snapshot_ref.manifest_profile_sha256 is not None:
+            core_store = resolve_core_json_profile_store(store)
+            if core_store is None:
+                if semantic_schema:
+                    raise ValueError("foundry_input_bindings_semantic_manifest_required")
+                raise ValueError("foundry_input_bindings_semantic_reader_not_established")
+            snapshot = validate_core_model_json_artifact(
+                DataSnapshot, core_store, bindings.data_snapshot_ref
+            )
+            semantic_lineage = _require_semantic_snapshot_lineage_version(
+                snapshot, snapshot_schema
+            )
+            if semantic_schema or semantic_lineage:
+                raise ValueError("foundry_input_bindings_semantic_manifest_required")
+        elif semantic_schema:
+            raise ValueError("foundry_input_bindings_semantic_manifest_required")
         if semantic_horizon_step is not None:
             raise ValueError("foundry_input_bindings_semantic_manifest_required")
         return ()
@@ -3028,12 +3076,18 @@ def _load_data_snapshot(
     _reconcile_artifact_ref(store, data_snapshot_ref, label="data snapshot")
     selected_parent_manifest = _verify_selected_data_snapshot_schema(store, data_snapshot_ref)
     snapshot = validate_core_model_json_artifact(DataSnapshot, store, data_snapshot_ref)
+    parent_manifest = selected_parent_manifest or store.get_manifest(data_snapshot_ref)
+    _require_semantic_snapshot_lineage_version(snapshot, parent_manifest.artifact_schema)
     if selected_parent_manifest is None:
         return snapshot
 
     if (
         selected_parent_manifest.artifact_schema is not None
-        and selected_parent_manifest.artifact_schema.version == DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION
+        and selected_parent_manifest.artifact_schema.version
+        in {
+            DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
+            DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION,
+        }
     ):
         _verify_data_snapshot_owner_inputs(store, selected_parent_manifest, snapshot)
         return snapshot
@@ -3101,6 +3155,24 @@ def _load_data_snapshot(
     return snapshot.model_copy(update=selected_nested_refs)
 
 
+def _require_semantic_snapshot_lineage_version(
+    snapshot: DataSnapshot,
+    schema: SchemaInfo | None,
+) -> bool:
+    """Keep the .4 owner discriminator bound to its matching outer manifest."""
+    semantic_schema = (
+        schema is not None
+        and schema.name == DataSnapshot.ARTIFACT_SCHEMA_NAME
+        and schema.version == DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
+    )
+    semantic_lineage = isinstance(
+        snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage
+    )
+    if semantic_schema != semantic_lineage:
+        raise ValueError("DataSnapshot owner lineage version differs from its manifest schema")
+    return semantic_lineage
+
+
 def _verify_selected_data_snapshot_schema(
     store: CoreJSONArtifactStore,
     ref: ArtifactRef,
@@ -3119,7 +3191,11 @@ def _verify_selected_data_snapshot_schema(
             raise ValueError("DataSnapshot default profile differs from its artifact contract")
         if (
             manifest.artifact_schema is None
-            or manifest.artifact_schema.version != DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION
+            or manifest.artifact_schema.version
+            not in {
+                DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION,
+                DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION,
+            }
         ):
             return None
     else:
@@ -3150,6 +3226,17 @@ def _verify_data_snapshot_owner_inputs(
     snapshot: DataSnapshot,
 ) -> None:
     """Reconcile schema-0.3 parent edges without changing child selectors."""
+    schema_version = (
+        None if manifest.artifact_schema is None else manifest.artifact_schema.version
+    )
+    semantic_lineage = isinstance(
+        snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage
+    )
+    if (schema_version == DATA_SNAPSHOT_LINEAGE_SCHEMA_VERSION and semantic_lineage) or (
+        schema_version == DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
+        and not semantic_lineage
+    ):
+        raise ValueError("DataSnapshot owner lineage version differs from its manifest schema")
     try:
         expected = data_snapshot_owner_input_requirements(snapshot)
     except (TypeError, ValueError) as exc:

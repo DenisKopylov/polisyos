@@ -1,9 +1,8 @@
-"""Protected candidate WDI controls and a separate genuine COV seed extraction.
+"""Protected candidate WDI controls, closed legacy re-entry, and a COV seed.
 
-Action controls use a native recursive-controller source without a prior N5.
-The separate served fiscal COV seed retains its actual NL/N4/N5 producer and
-limitations; it does not establish a labor WDI route or an acquired continuation.
-No test promotes modeled inputs to observed, causal, or publication authority.
+The refusal controls include both a native source without prior N5 and a genuine
+selected labor N4/N5 source. The separate served fiscal COV seed retains its
+actual NL/N4/N5 producer; no test promotes modeled inputs to authority.
 """
 
 from __future__ import annotations
@@ -42,8 +41,11 @@ from polisyos.runtime.quality.cycle_substrate import (
 from polisyos.runtime.quality.generation_cycle import CandidateSourceReentryReceipt
 from tests._helpers.lane01_candidate_action_served import (
     build_candidate_port_owners,
+    build_candidate_source_port_owners,
+    candidate_route_for_closure,
     labor_candidate_profile,
     run_lane01_candidate_action_served,
+    run_lane01_candidate_source_action_in_current_owner,
 )
 
 pytest_plugins = ("tests._helpers.acquisition_served_history",)
@@ -684,6 +686,235 @@ def test_native_labor_source_refuses_reentry_without_actual_prior_n5(
         observe,
         candidate_profile_builder=labor_candidate_profile,
     )
+
+
+@pytest.mark.integration
+def test_genuine_labor_candidate_source_reentry_refuses_before_transport_with_prior_n5(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    served_recorded_candidate_gateway: object,
+) -> None:
+    """Keep legacy candidate re-entry closed when its historical owner is absent.
+
+    A genuine selected prior N4/N5 and eligible WDI route do not authorize the
+    public @3 action until its historical frontier owner is composed. The exact
+    refusal must leave transport, action state, events, and quota unchanged;
+    fresh route-owner reads must retain the exact selected source.
+    """
+    from polisyos.runtime.quality import acquisition_planner
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationExecutionV5,
+        CandidateSimulationN5InputV5,
+    )
+    from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
+    from tests._helpers import acquisition_served_history as served
+    from tests._helpers.acquisition_production import resolve_completed_wdi_route
+    from tests._helpers.candidate_experiment_served_execution import (
+        _standard_invocation_units,
+    )
+
+    quota = BudgetInvocationQuotaPolicy(
+        allocation_id="labor-source-reentry-exhausted-standard",
+        total_units=3,
+        protected_units=1,
+    )
+    monkeypatch.setitem(
+        acquisition_planner._ACQUISITION_GAP_BASIS,
+        "global.unemployment_rate",
+        {
+            "basis_ref": "fixture-only:lane01-hypothetical-labor-cost:v1",
+            "collection_mode": "Fixture-only modeled unemployment input",
+            "expert_hours": 1,
+            "calendar_days": 1,
+        },
+    )
+    observed: dict[str, object] = {}
+
+    def observe_seed(**values: object) -> None:
+        control = values["control"]
+        client = values["client"]
+        run_id = values["run_id"]
+        assert type(run_id) is str
+        closure, mutation = resolve_completed_wdi_route(
+            control,
+            run_id=run_id,
+            tenant_id=served.TENANT,
+            cell_id=served.CELL,
+        )
+        selected = candidate_route_for_closure(control, closure)
+        old_simulation = closure.source_cycle.simulation
+        assert old_simulation.status == "joint_simulated"
+        assert old_simulation.candidate_simulation_n4_source_ref is not None
+        assert old_simulation.candidate_simulation_n5_input_ref is not None
+        assert old_simulation.candidate_simulation_context_job_ref is not None
+        assert old_simulation.simulation_result_ref is not None
+        n5_input = CandidateSimulationN5InputV5.model_validate(
+            artifacts.load_core_json_artifact(
+                control._artifact_store,
+                old_simulation.candidate_simulation_n5_input_ref,
+            )
+        )
+        assert n5_input.profile.n5.replications == 2
+        assert n5_input.profile.n5.horizon.start == n5_input.profile.n5.horizon.end == 0
+        execution_payload = old_simulation.diagnostics.get(
+            "candidate_simulation_execution_selected_ref"
+        )
+        assert isinstance(execution_payload, dict)
+        execution_ref = artifacts.ArtifactRef.model_validate(execution_payload)
+        n5_execution = CandidateSimulationExecutionV5.model_validate(
+            artifacts.load_core_json_artifact(control._artifact_store, execution_ref)
+        )
+        assert n5_execution.n5_input_ref == old_simulation.candidate_simulation_n5_input_ref
+        assert n5_execution.n5_result_ref == old_simulation.simulation_result_ref
+        before_units = _standard_invocation_units(control=control, run_id=run_id)
+        quota_profile = control._llm_producer_settlement_store.snapshot_safe().invocation_profiles[
+            run_id
+        ]
+        assert quota_profile.allocation_id == quota.allocation_id
+        assert (quota_profile.total_units, quota_profile.protected_units) == (3, 1)
+        # This is the decisive cheap admission: inspect the real old producer,
+        # selected N4/N5, owner scope and remaining quota before any source GET.
+        assert before_units == quota_profile.total_units - quota_profile.protected_units
+        port_owners = build_candidate_source_port_owners(
+            tmp_path=Path(values["key_root"]) / "candidate-action",
+            cas_root=Path(values["cas_root"]),
+            control_service=control,
+            selected=selected,
+        )
+        bridge = port_owners.bridge
+        assert bridge is not None
+        assert bridge.candidate_source_selection(closure) == selected
+        assert bridge.candidate_source_reentry_preflight(closure=closure) is None
+        assert (
+            control.acquisition_route_sink.current_action_outcome(
+                tenant_id=closure.tenant_id,
+                cell_id=closure.cell_id,
+                run_id=closure.run_id,
+                source_job_id=closure.source_job_id,
+                route_id=closure.route_id,
+            )
+            is None
+        )
+
+        def observe_action(ctx: SimpleNamespace) -> None:
+            assert ctx.response.status_code == 409, ctx.response.text
+            assert ctx.response.json()["code"] == "candidate_reentry_owner_not_available"
+            assert ctx.job is None
+            assert ctx.transport_calls == []
+            assert ctx.diagnostic_events_after == ctx.diagnostic_events_before
+            assert ctx.candidate_artifacts_after == ctx.candidate_artifacts_before
+            assert ctx.route_projection_after == ctx.route_projection_before
+            assert _standard_invocation_units(control=ctx.control, run_id=run_id) == before_units
+            assert (
+                ctx.control.acquisition_route_sink.current_action_outcome(
+                    tenant_id=closure.tenant_id,
+                    cell_id=closure.cell_id,
+                    run_id=closure.run_id,
+                    source_job_id=closure.source_job_id,
+                    route_id=closure.route_id,
+                )
+                is None
+            )
+            observed["refused"] = True
+
+        run_lane01_candidate_source_action_in_current_owner(
+            tmp_path=Path(values["key_root"]),
+            cas_root=Path(values["cas_root"]),
+            monkeypatch=monkeypatch,
+            client=client,
+            control=control,
+            closure=closure,
+            mutation=mutation,
+            selected=selected,
+            trust=values["trust"],
+            signers=values["signers"],
+            identities=values["identities"],
+            observer=observe_action,
+        )
+        observed["before_units"] = before_units
+        observed["run_id"] = run_id
+        reopened_closure, reopened_mutation = resolve_completed_wdi_route(
+            control,
+            run_id=run_id,
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+        )
+        assert reopened_closure == closure
+        assert reopened_mutation == mutation
+        assert candidate_route_for_closure(control, reopened_closure) == selected
+
+    # Keep the labor request, WMR and selected SKG produced above. Select only
+    # the source root for the existing Catalog/L3/L6 readers so this route uses
+    # bounded owner-built fixtures; no synthetic L6 slot/sign input is added.
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+        complete_candidate_cycle_catalog_source,
+    )
+
+    bounded_source = build_candidate_cycle_substrate_route_inputs(
+        tmp_path / "bounded-candidate-source-root",
+        include_owner_slot_manifest=False,
+    )
+    from polisyos.runtime.quality.intervention_substrate import default_l6_bundle_paths
+
+    # Preserve the exact five existing L6 data inputs needed by this action.
+    # Keep owner_authority_bindings code-owned under REPO_ROOT; the selected
+    # two-root reader below will bind these verbatim fixture bytes to its source.
+    source_l6_paths = default_l6_bundle_paths(served.REPO_ROOT)
+    selected_l6_paths = default_l6_bundle_paths(
+        served.REPO_ROOT,
+        source_owner_root=bounded_source.root,
+    )
+    selected_l6_names = (
+        "intervention_knob_dictionary",
+        "lex_intervention_map",
+        "observation_to_contract_manifest",
+        "policy_scenario_templates",
+        "slot_family_manifest",
+    )
+    from polisyos.runtime.quality import substrate_registry
+
+    with complete_candidate_cycle_catalog_source(
+        bounded_source.root, monkeypatch, synthetic_usa_labor_scope=True
+    ) as prepared_catalog:
+        catalog_selection, catalog_source, _ = prepared_catalog
+        # The canonical catalog fixture writer also creates starter L6 files.
+        # Restore the exact already-selected source bytes before rebinding the
+        # registry, so the selected N7 input and the actual L6 reader share one
+        # content-addressed basis.
+        for name in selected_l6_names:
+            source_path = source_l6_paths[name]
+            selected_path = selected_l6_paths[name]
+            original_bytes = source_path.read_bytes()
+            selected_path.parent.mkdir(parents=True, exist_ok=True)
+            selected_path.write_bytes(original_bytes)
+            assert selected_path.read_bytes() == original_bytes
+
+        with substrate_registry.catalog_serving_source_scope(catalog_source):
+            selected_registry = substrate_registry.build_substrate_registry_from_existing_catalogs(
+                bounded_source.root,
+                source_owner_root=bounded_source.root,
+            )
+            substrate_registry.require_catalog_source_registry_binding(
+                bounded_source.root, selected_registry, catalog_source
+            )
+        prepared_catalog = (catalog_selection, catalog_source, selected_registry)
+        result = served._produce_served_acquisition_history(
+            tmp_path,
+            monkeypatch,
+            served_recorded_candidate_gateway,
+            provider_mode="synthetic_settled_candidate",
+            seed_only_context_observer=observe_seed,
+            run_budget_usd=5.0,
+            invocation_quota_policy=quota,
+            labor_seed=True,
+            source_owner_root=bounded_source.root,
+            prepared_catalog=prepared_catalog,
+        )
+    assert result is not None
+    assert observed["run_id"] == result["run_id"]
+    assert observed["before_units"] == 2
+    assert observed["refused"] is True
 
 
 @pytest.mark.integration

@@ -49,7 +49,11 @@ from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import ValuePortObservation
 from tests._helpers import acquisition_served_history as served
 from tests._helpers.acquisition_human_decision import persist_signed, prepare_human_decision
-from tests._helpers.acquisition_production import bind_fixture_l1_catalog_source, persist_wdi_route
+from tests._helpers.acquisition_production import (
+    bind_fixture_l1_catalog_source,
+    persist_wdi_route,
+    resolve_completed_wdi_route,
+)
 from tests._helpers.control_worker import dispatch_one_control_job
 from tests._helpers.lane01_candidate_problem import (
     labor_candidate_problem as labor_candidate_problem,
@@ -224,6 +228,61 @@ def candidate_route_for_closure(control: Any, closure: Any) -> AcquisitionCandid
     )
 
 
+def build_candidate_source_port_owners(
+    *,
+    tmp_path: Path,
+    cas_root: Path,
+    control_service: Any,
+    selected: AcquisitionCandidateSourceRoute,
+) -> SimpleNamespace:
+    """Build the real candidate bridge from the caller's exact durable owners."""
+    authority = build_candidate_source_authority(tmp_path)
+    bridge = _build_candidate_source_bridge(
+        authority=authority,
+        cas_root=cas_root,
+        control_service=control_service,
+        selected=selected,
+        candidate_owner_mode="configured",
+    )
+    return SimpleNamespace(authority=authority, bridge=bridge)
+
+
+def build_candidate_source_authority(tmp_path: Path) -> Any:
+    """Build the existing fixture-owned WDI authority without a live service."""
+    authority, _entry = build_fixture_wdi_authority(tmp_path / "wdi-repo", UNEMPLOYMENT_PROFILE)
+    return authority
+
+
+def _build_candidate_source_bridge(
+    *,
+    authority: Any,
+    cas_root: Path,
+    control_service: Any,
+    selected: AcquisitionCandidateSourceRoute,
+    candidate_owner_mode: Literal["configured", "no_bridge", "bridge_without_candidate"],
+) -> AcquisitionWorldGrowthBridge:
+    """Compose one bridge around the supplied source, store, and lifecycle owners."""
+    bridge = AcquisitionWorldGrowthBridge(
+        config=AcquisitionWorldGrowthConfig(
+            candidate_source_routes=(selected,) if candidate_owner_mode == "configured" else (),
+        ),
+        repo_root=authority.repo_root,
+        runtime_root=cas_root,
+        authority=authority,
+        epoch_deployment=None,
+        artifact_store=control_service._artifact_store,
+        event_log=control_service._diagnostic_event_log,
+        control_store=control_service._control_store,
+        action_head_sink=control_service.acquisition_route_sink,
+        source_control_service=control_service,
+        promotion_runtime=control_service._promotion_runtime,
+        cycle_substrate_context_admission_owner=(
+            control_service._cycle_substrate_context_admission_owner
+        ),
+    )
+    return bridge
+
+
 def _transport(
     monkeypatch: pytest.MonkeyPatch,
     *,
@@ -290,6 +349,507 @@ def _transport(
     monkeypatch.setattr(socket.socket, "connect", connect)
     monkeypatch.setattr(socket.socket, "connect_ex", connect_ex)
     return calls
+
+
+def _prepare_candidate_action_mandate(
+    *,
+    client: TestClient,
+    control: Any,
+    closure: Any,
+    mutation: Any,
+    tmp_path: Path,
+    trust: Any,
+    signers: Any,
+    identities: Any,
+) -> tuple[str, str, str, str, dict[str, Any]]:
+    """Issue the same fixture-owned signed mandate for a verified route owner."""
+    path = f"/api/v1/runs/{closure.run_id}/acquisition-routes/{closure.route_id}"
+    template = "/api/v1/runs/{run_id}/acquisition-routes/{route_id}"
+    preflight, digest = trust.post(
+        client,
+        path + "/decision-request",
+        mutation.model_dump(mode="json"),
+        route=template + "/decision-request",
+    )
+    assert preflight.status_code == 200, preflight.text
+    job_id = AcquisitionActionService._job_id(closure, mutation)
+    now = datetime.now(UTC)
+    contract = served._contract()
+    envelope = contract.action_envelopes[0].model_copy(
+        update={
+            "mandate_owner_ref": identities["owner"],
+            "authorized_subject": "acquisition-operator",
+            "authorized_runtime_roles": (PolicyOSRole.ANALYST,),
+            "required_tenant_id": closure.tenant_id,
+            "required_resource_digest": digest,
+            "valid_from": now - timedelta(minutes=1),
+            "valid_until": now + timedelta(hours=1),
+        }
+    )
+    contract = contract.model_copy(
+        update={
+            "mandate_owner_ref": identities["owner"],
+            "action_envelopes": (envelope,),
+        }
+    )
+    context = {
+        "control": control,
+        "tenant_id": closure.tenant_id,
+        "cell_id": closure.cell_id,
+        "run_id": closure.run_id,
+        "job_id": job_id,
+        "now": now,
+    }
+    contract_ref = served._within_fixture_owner(
+        persist_signed,
+        payload=contract,
+        kind=served.authority.DELEGATION_CONTRACT_ARTIFACT_KIND,
+        schema_name="polisyos.runtime.DelegationContract",
+        schema_version=served.authority.LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
+        signer=signers["owner"],
+        signer_identity=identities["owner"],
+        **context,
+    )
+    current = served._mandate_authority_evidence(
+        owner_ref=identities["owner"],
+        signer_identity=identities["current"],
+        rule_version_ref=contract.rule_version_ref,
+        effective_from=now - timedelta(minutes=1),
+        effective_until=now + timedelta(hours=1),
+    )
+    current_ref = served._within_fixture_owner(
+        persist_signed,
+        payload=current,
+        kind=served.authority.CURRENT_MANDATE_OWNER_ARTIFACT_KIND,
+        schema_name="polisyos.runtime.CurrentMandateOwnerEvidence",
+        schema_version=served.authority.CURRENT_MANDATE_OWNER_SCHEMA_VERSION,
+        signer=signers["current"],
+        signer_identity=identities["current"],
+        **context,
+    )
+    info = served._within_fixture_owner(
+        control._artifact_store.put_json,
+        {"limitation": "modeled fixture; no measurement, causal, or publication authority"},
+        artifacts.ArtifactWriteOptions(
+            kind="test.acquisition.disconfirming", media_type="application/json"
+        ),
+    )
+    slot = {
+        "tenant_id": closure.tenant_id,
+        "cell_id": closure.cell_id,
+        "run_id": closure.run_id,
+        "route_id": closure.route_id,
+        "resource_digest": digest,
+        "delegation_contract_ref": contract_ref,
+        "mandate_owner_ref": identities["owner"],
+        "delegation_public_key_path": str(tmp_path / "owner.pub"),
+        "current_mandate_evidence_ref": current_ref,
+        "current_mandate_signer_identity": identities["current"],
+        "current_mandate_public_key_path": str(tmp_path / "current.pub"),
+        "verifier_provenance_ref": "fixture://appointment-registry",
+        "decision_information_refs": [info.model_dump(mode="json")],
+        "decision_disconfirming_refs": [info.model_dump(mode="json")],
+    }
+    trust.raw["acquisition_authority"]["mandates"] = [slot]
+    return path, template, digest, job_id, slot
+
+
+def _approve_candidate_action(
+    *,
+    client: TestClient,
+    control: Any,
+    closure: Any,
+    path: str,
+    template: str,
+    mutation: Any,
+    job_id: str,
+    slot: dict[str, Any],
+    cas_root: Path,
+    trust: Any,
+    signers: Any,
+    identities: Any,
+) -> None:
+    """Complete the existing authenticated request and human approval sequence."""
+    response, _ = trust.post(
+        client,
+        path + "/decision-request",
+        mutation.model_dump(mode="json"),
+        route=template + "/decision-request",
+    )
+    assert response.status_code == 200, response.text
+    source_ref = response.json()["authority_decision_ref"]
+    container = client.app.state.runtime_container
+    assert container.control_service is control
+    gate = served._within_fixture_owner(
+        prepare_human_decision,
+        control,
+        container.human_decision_service,
+        source_ref,
+        tenant_id=closure.tenant_id,
+        cell_id=closure.cell_id,
+        run_id=closure.run_id,
+        signers=signers,
+        identities=identities,
+        now=datetime.now(UTC),
+        audit_path=cas_root / "runtime" / "audit" / "access.jsonl",
+    )
+    body = {
+        k: v
+        for k, v in gate.model_dump(mode="json").items()
+        if k not in {"tenant_id", "run_id", "exposure_session_ref"}
+    }
+    body.update(
+        action="approve",
+        decision_mode="ordinary",
+        accountability_statement="I accept this bounded candidate-only input acquisition.",
+        dissent_statement="Its model and measurement limitations remain unresolved.",
+    )
+    human, _ = trust.post(
+        client,
+        f"/api/v1/runs/{closure.run_id}/human-decisions",
+        body,
+        route="/api/v1/runs/{run_id}/human-decisions",
+        subject="human-reviewer-1",
+        extra_headers={"X-PolicyOS-Human-Decision-Exposure": gate.exposure_session_ref},
+    )
+    assert human.status_code == 201, human.text
+    slot["human_decision_record_ref"] = human.json()["record_ref"]
+
+
+def _candidate_action_effect_snapshot(
+    control: Any, *, run_id: str
+) -> tuple[tuple[Any, ...], tuple[tuple[str, tuple[tuple[str, str], ...]], ...]]:
+    """Snapshot run events and action artifacts around one protected POST."""
+    from polisyos.runtime.quality.candidate_acquisition_action import CANDIDATE_ACTION_KIND
+    from polisyos.runtime.quality.candidate_acquisition_source import (
+        CANDIDATE_ACQUISITION_SOURCE_KIND,
+    )
+
+    events = tuple(control._diagnostic_event_log.list_events(run_id=run_id, limit=1000))
+    if len(events) >= 1000:
+        raise AssertionError("candidate action event snapshot reached its read limit")
+    kinds = (
+        CANDIDATE_ACTION_KIND,
+        CANDIDATE_ACQUISITION_SOURCE_KIND,
+        "runtime_quality.acquisition_candidate_action_receipt",
+        "runtime_quality.candidate_source_reentry_receipt",
+    )
+    inventories: list[tuple[str, tuple[tuple[str, str], ...]]] = []
+    for kind in kinds:
+        inventory = control._artifact_store.manifest_inventory_snapshot(kind=kind)
+        if inventory.verdict != "pass":
+            raise AssertionError(f"candidate action artifact inventory unavailable: {kind}")
+        identities = []
+        for entry in inventory.entries:
+            ref = artifacts.artifact_ref_for_manifest(entry.manifest)
+            identities.append((str(ref.artifact_id), ref.manifest_profile_sha256 or ""))
+        inventories.append((kind, tuple(sorted(identities))))
+    return events, tuple(inventories)
+
+
+def _execute_candidate_action(
+    *,
+    client: TestClient,
+    control: Any,
+    closure: Any,
+    mutation: Any,
+    selected: AcquisitionCandidateSourceRoute,
+    path: str,
+    template: str,
+    job_id: str,
+    observer: Callable[[SimpleNamespace], None],
+    trust: Any,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    cas_root: Path,
+    candidate_owner_mode: Literal[
+        "configured", "no_bridge", "bridge_without_candidate"
+    ] = "configured",
+    response_body: bytes | None = None,
+    prepared_port_owners: SimpleNamespace | None = None,
+    capture_route_projection: bool = False,
+) -> None:
+    """Execute and observe the actual HTTP action through its existing owner."""
+    owners = prepared_port_owners
+    authority = (
+        owners.authority if owners is not None else build_candidate_source_authority(tmp_path)
+    )
+    if owners is not None and owners.bridge is not None:
+        if owners.bridge._source_control_service is not control:
+            raise ValueError("candidate_source_action_bridge_owner_mismatch")
+    transport_calls = _transport(monkeypatch, response_body=response_body)
+    cases = []
+
+    def port(*, control_service: Any, **kwargs: Any):
+        del kwargs
+        if control_service is not control:
+            raise ValueError("candidate_source_action_control_owner_mismatch")
+        bridge = (
+            owners.bridge
+            if owners is not None
+            else _build_candidate_source_bridge(
+                authority=authority,
+                cas_root=cas_root,
+                control_service=control_service,
+                selected=selected,
+                candidate_owner_mode=candidate_owner_mode,
+            )
+        )
+        attached_bridge = None if candidate_owner_mode == "no_bridge" else bridge
+        registry = catalog.AcquisitionAuthorityRegistry.model_validate_json(
+            authority.registry_path.read_bytes()
+        )
+        result = acquisition_surface_execution.WorldBankWDIAcquisitionExecutionPort(
+            authority=authority,
+            registry=registry,
+            provision=authority.provision,
+            provision_content_sha256=authority.provision_content_sha256,
+            runtime_state_root=cas_root,
+            artifact_store=control_service._artifact_store,
+            world_growth_bridge=attached_bridge,
+        )
+        cases.append(
+            SimpleNamespace(
+                port=result,
+                bridge=attached_bridge,
+            )
+        )
+        return result
+
+    monkeypatch.setattr(
+        acquisition_surface_execution, "build_production_world_bank_wdi_execution_port", port
+    )
+    assert client.app.state.runtime_container.control_service is control
+    installed_port = port(control_service=control)
+    action_service = client.app.state.runtime_container.acquisition_action_service
+    if action_service is None or action_service.control_service is not control:
+        raise ValueError("candidate_source_action_service_owner_mismatch")
+    if (
+        action_service._execution_port is not None
+        or action_service._production_execution_port is not None
+    ):
+        raise ValueError("candidate_test_execution_port_already_installed")
+    # The dev app constructs its service before this same-owner fixture is
+    # available. Install the exact fixture port into that already-bound owner;
+    # all route, authorization, reservation, lease and worker checks stay live.
+    action_service._execution_port = installed_port
+    action_service._production_execution_port = installed_port
+    route_projection_before = None
+    if capture_route_projection:
+        route_projection_before = served._within_fixture_owner(
+            action_service.get_route,
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            route_id=closure.route_id,
+        )
+    (
+        diagnostic_events_before,
+        candidate_artifacts_before,
+    ) = _candidate_action_effect_snapshot(control, run_id=closure.run_id)
+    response, _ = trust.post(
+        client,
+        path + "/execute",
+        mutation.model_dump(mode="json"),
+        route=template + "/execute",
+    )
+    route_projection_after = None
+    if capture_route_projection:
+        route_projection_after = served._within_fixture_owner(
+            action_service.get_route,
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            run_id=closure.run_id,
+            route_id=closure.route_id,
+        )
+    (
+        diagnostic_events_after,
+        candidate_artifacts_after,
+    ) = _candidate_action_effect_snapshot(control, run_id=closure.run_id)
+    assert not transport_calls
+    if response.status_code not in {200, 202}:
+        served._within_fixture_owner(
+            observer,
+            SimpleNamespace(
+                client=client,
+                control=control,
+                closure=closure,
+                selected=selected,
+                request=mutation,
+                response=response,
+                job_id=job_id,
+                job=control._control_store.get_job(job_id),
+                cases=cases,
+                transport_calls=transport_calls,
+                trust=trust,
+                path=path,
+                template=template,
+                route_projection_before=route_projection_before,
+                route_projection_after=route_projection_after,
+                diagnostic_events_before=diagnostic_events_before,
+                diagnostic_events_after=diagnostic_events_after,
+                candidate_artifacts_before=candidate_artifacts_before,
+                candidate_artifacts_after=candidate_artifacts_after,
+            ),
+        )
+        return
+    dispatched = dispatch_one_control_job(
+        store=control._control_store,
+        handler=control._process_control_job,
+        expected_job_id=job_id,
+    )
+    assert dispatched == job_id
+    served._within_fixture_owner(
+        observer,
+        SimpleNamespace(
+            client=client,
+            control=control,
+            closure=closure,
+            selected=selected,
+            request=mutation,
+            response=response,
+            job_id=job_id,
+            job=control._control_store.get_job(job_id),
+            cases=cases,
+            transport_calls=transport_calls,
+            trust=trust,
+            path=path,
+            template=template,
+            route_projection_before=route_projection_before,
+            route_projection_after=route_projection_after,
+            diagnostic_events_before=diagnostic_events_before,
+            diagnostic_events_after=diagnostic_events_after,
+            candidate_artifacts_before=candidate_artifacts_before,
+            candidate_artifacts_after=candidate_artifacts_after,
+        ),
+    )
+
+
+def run_lane01_candidate_source_action_in_current_owner(
+    *,
+    tmp_path: Path,
+    cas_root: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    client: TestClient,
+    control: Any,
+    closure: Any,
+    mutation: Any,
+    selected: AcquisitionCandidateSourceRoute,
+    trust: Any,
+    signers: Any,
+    identities: Any,
+    observer: Callable[[SimpleNamespace], None],
+    response_body: bytes | None = None,
+) -> None:
+    """Run the protected action through freshly reopened, same-disk owners.
+
+    The test-owned delegation mandate is prepared after the source NL app has
+    started. Reopen the runtime after writing that mandate so deployment
+    security reads the exact current fixture configuration, and reopen again
+    after the human decision so execution re-resolves the route and rebuilds
+    its bridge against the active control owner.
+    """
+    if client.app.state.runtime_container.control_service is not control:
+        raise ValueError("candidate_source_action_control_owner_mismatch")
+    path, template, _digest, job_id, slot = _prepare_candidate_action_mandate(
+        client=client,
+        control=control,
+        closure=closure,
+        mutation=mutation,
+        tmp_path=tmp_path,
+        trust=trust,
+        signers=signers,
+        identities=identities,
+    )
+    from tests._helpers.candidate_experiment_served_execution import (
+        _candidate_experiment_reopened_runtime,
+    )
+
+    def resolve_same_source(
+        reopened_control: Any,
+    ) -> tuple[Any, Any, AcquisitionCandidateSourceRoute]:
+        reopened_closure, reopened_mutation = served._within_fixture_owner(
+            resolve_completed_wdi_route,
+            reopened_control,
+            run_id=closure.run_id,
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+        )
+        reopened_selection = served._within_fixture_owner(
+            candidate_route_for_closure, reopened_control, reopened_closure
+        )
+        if (
+            reopened_closure.source_job_id != closure.source_job_id
+            or reopened_closure.route_id != closure.route_id
+            or reopened_closure.compiled_ref != closure.compiled_ref
+            or reopened_closure.planner_report != closure.planner_report
+            or reopened_closure.source_cycle != closure.source_cycle
+            or reopened_mutation.model_dump(mode="json") != mutation.model_dump(mode="json")
+            or reopened_selection != selected
+        ):
+            raise ValueError("candidate_source_action_reopened_source_mismatch")
+        return reopened_closure, reopened_mutation, reopened_selection
+
+    # The mandate is in the shared CAS and trust.raw, but the original FastAPI
+    # app has already materialized its deployment-security snapshot. A fresh
+    # app over the same SQLite/CAS owners is required for decision-request.
+    with _candidate_experiment_reopened_runtime(
+        control=control, trust=trust, monkeypatch=monkeypatch
+    ) as (approval_client, approval_control, _sqlite_path, _reopened_cas_root):
+        approval_closure, approval_mutation, _ = resolve_same_source(approval_control)
+        _approve_candidate_action(
+            client=approval_client,
+            control=approval_control,
+            closure=approval_closure,
+            path=path,
+            template=template,
+            mutation=approval_mutation,
+            job_id=job_id,
+            slot=slot,
+            cas_root=cas_root,
+            trust=trust,
+            signers=signers,
+            identities=identities,
+        )
+
+    # Reopen once more after the human decision. Re-resolving from the shared
+    # stores checks that the new owner sees the exact approved route before a
+    # freshly bound candidate bridge can execute it.
+    with _candidate_experiment_reopened_runtime(
+        control=control, trust=trust, monkeypatch=monkeypatch
+    ) as (execution_client, execution_control, _sqlite_path, _reopened_cas_root):
+        execution_closure, execution_mutation, execution_selection = resolve_same_source(
+            execution_control
+        )
+        execution_port_owners = build_candidate_source_port_owners(
+            tmp_path=tmp_path / "candidate-action-reopened",
+            cas_root=cas_root,
+            control_service=execution_control,
+            selected=execution_selection,
+        )
+        if (
+            execution_port_owners.bridge is None
+            or execution_port_owners.bridge._source_control_service is not execution_control
+        ):
+            raise ValueError("candidate_source_action_reopened_bridge_owner_mismatch")
+        _execute_candidate_action(
+            client=execution_client,
+            control=execution_control,
+            closure=execution_closure,
+            mutation=execution_mutation,
+            selected=execution_selection,
+            path=path,
+            template=template,
+            job_id=job_id,
+            observer=observer,
+            trust=trust,
+            monkeypatch=monkeypatch,
+            tmp_path=tmp_path,
+            cas_root=cas_root,
+            response_body=response_body,
+            prepared_port_owners=execution_port_owners,
+            capture_route_projection=True,
+        )
 
 
 def run_lane01_candidate_action_served(
@@ -453,239 +1013,50 @@ def run_lane01_candidate_action_served(
                     tenant_id=served.TENANT,
                     cell_id=served.CELL,
                 ).finalize()
-            path = f"/api/v1/runs/{RUN_ID}/acquisition-routes/{closure.route_id}"
-            template = "/api/v1/runs/{run_id}/acquisition-routes/{route_id}"
-            preflight, digest = trust.post(
-                client,
-                path + "/decision-request",
-                mutation.model_dump(mode="json"),
-                route=template + "/decision-request",
-            )
-            assert preflight.status_code == 200, preflight.text
-            job_id = AcquisitionActionService._job_id(closure, mutation)
-            now = datetime.now(UTC)
-            contract = served._contract()
-            envelope = contract.action_envelopes[0].model_copy(
-                update={
-                    "mandate_owner_ref": identities["owner"],
-                    "authorized_subject": "acquisition-operator",
-                    "authorized_runtime_roles": (PolicyOSRole.ANALYST,),
-                    "required_tenant_id": served.TENANT,
-                    "required_resource_digest": digest,
-                    "valid_from": now - timedelta(minutes=1),
-                    "valid_until": now + timedelta(hours=1),
-                }
-            )
-            contract = contract.model_copy(
-                update={
-                    "mandate_owner_ref": identities["owner"],
-                    "action_envelopes": (envelope,),
-                }
-            )
-            context = {
-                "control": control,
-                "tenant_id": served.TENANT,
-                "cell_id": served.CELL,
-                "run_id": RUN_ID,
-                "job_id": job_id,
-                "now": now,
-            }
-            contract_ref = served._within_fixture_owner(
-                persist_signed,
-                payload=contract,
-                kind=served.authority.DELEGATION_CONTRACT_ARTIFACT_KIND,
-                schema_name="polisyos.runtime.DelegationContract",
-                schema_version=served.authority.LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
-                signer=signers["owner"],
-                signer_identity=identities["owner"],
-                **context,
-            )
-            current = served._mandate_authority_evidence(
-                owner_ref=identities["owner"],
-                signer_identity=identities["current"],
-                rule_version_ref=contract.rule_version_ref,
-                effective_from=now - timedelta(minutes=1),
-                effective_until=now + timedelta(hours=1),
-            )
-            current_ref = served._within_fixture_owner(
-                persist_signed,
-                payload=current,
-                kind=served.authority.CURRENT_MANDATE_OWNER_ARTIFACT_KIND,
-                schema_name="polisyos.runtime.CurrentMandateOwnerEvidence",
-                schema_version=served.authority.CURRENT_MANDATE_OWNER_SCHEMA_VERSION,
-                signer=signers["current"],
-                signer_identity=identities["current"],
-                **context,
-            )
-            info = served._within_fixture_owner(
-                control._artifact_store.put_json,
-                {"limitation": "modeled fixture; no measurement, causal, or publication authority"},
-                artifacts.ArtifactWriteOptions(
-                    kind="test.acquisition.disconfirming", media_type="application/json"
-                ),
-            )
-            slot = {
-                "tenant_id": served.TENANT,
-                "cell_id": served.CELL,
-                "run_id": RUN_ID,
-                "route_id": closure.route_id,
-                "resource_digest": digest,
-                "delegation_contract_ref": contract_ref,
-                "mandate_owner_ref": identities["owner"],
-                "delegation_public_key_path": str(tmp_path / "owner.pub"),
-                "current_mandate_evidence_ref": current_ref,
-                "current_mandate_signer_identity": identities["current"],
-                "current_mandate_public_key_path": str(tmp_path / "current.pub"),
-                "verifier_provenance_ref": "fixture://appointment-registry",
-                "decision_information_refs": [info.model_dump(mode="json")],
-                "decision_disconfirming_refs": [info.model_dump(mode="json")],
-            }
-            trust.raw["acquisition_authority"]["mandates"] = [slot]
-
-        with TestClient(app()) as client:
-            container = client.app.state.runtime_container
-            response, _ = trust.post(
-                client,
-                path + "/decision-request",
-                mutation.model_dump(mode="json"),
-                route=template + "/decision-request",
-            )
-            assert response.status_code == 200, response.text
-            source_ref = response.json()["authority_decision_ref"]
-            gate = served._within_fixture_owner(
-                prepare_human_decision,
-                container.control_service,
-                container.human_decision_service,
-                source_ref,
-                tenant_id=served.TENANT,
-                cell_id=served.CELL,
-                run_id=RUN_ID,
+            path, template, _digest, job_id, slot = _prepare_candidate_action_mandate(
+                client=client,
+                control=control,
+                closure=closure,
+                mutation=mutation,
+                tmp_path=tmp_path,
+                trust=trust,
                 signers=signers,
                 identities=identities,
-                now=datetime.now(UTC),
-                audit_path=cas_root / "runtime" / "audit" / "access.jsonl",
             )
-            body = {
-                k: v
-                for k, v in gate.model_dump(mode="json").items()
-                if k not in {"tenant_id", "run_id", "exposure_session_ref"}
-            }
-            body.update(
-                action="approve",
-                decision_mode="ordinary",
-                accountability_statement="I accept this bounded candidate-only input acquisition.",
-                dissent_statement="Its model and measurement limitations remain unresolved.",
-            )
-            human, _ = trust.post(
-                client,
-                f"/api/v1/runs/{RUN_ID}/human-decisions",
-                body,
-                route="/api/v1/runs/{run_id}/human-decisions",
-                subject="human-reviewer-1",
-                extra_headers={"X-PolicyOS-Human-Decision-Exposure": gate.exposure_session_ref},
-            )
-            assert human.status_code == 201, human.text
-            slot["human_decision_record_ref"] = human.json()["record_ref"]
 
-        authority, _entry = build_fixture_wdi_authority(tmp_path / "wdi-repo", UNEMPLOYMENT_PROFILE)
-        transport_calls = _transport(monkeypatch)
-        cases = []
-
-        def port(*, control_service: Any, **kwargs: Any):
-            del kwargs
-            bridge = AcquisitionWorldGrowthBridge(
-                config=AcquisitionWorldGrowthConfig(
-                    candidate_source_routes=(selected,)
-                    if candidate_owner_mode == "configured"
-                    else (),
-                ),
-                repo_root=authority.repo_root,
-                runtime_root=cas_root,
-                authority=authority,
-                epoch_deployment=None,
-                artifact_store=control_service._artifact_store,
-                event_log=control_service._diagnostic_event_log,
-                control_store=control_service._control_store,
-                action_head_sink=control_service.acquisition_route_sink,
-                source_control_service=control_service,
-                promotion_runtime=control_service._promotion_runtime,
-                cycle_substrate_context_admission_owner=control_service._cycle_substrate_context_admission_owner,
-            )
-            registry = catalog.AcquisitionAuthorityRegistry.model_validate_json(
-                authority.registry_path.read_bytes()
-            )
-            result = acquisition_surface_execution.WorldBankWDIAcquisitionExecutionPort(
-                authority=authority,
-                registry=registry,
-                provision=authority.provision,
-                provision_content_sha256=authority.provision_content_sha256,
-                runtime_state_root=cas_root,
-                artifact_store=control_service._artifact_store,
-                world_growth_bridge=None if candidate_owner_mode == "no_bridge" else bridge,
-            )
-            cases.append(
-                SimpleNamespace(
-                    port=result,
-                    bridge=None if candidate_owner_mode == "no_bridge" else bridge,
-                )
-            )
-            return result
-
-        monkeypatch.setattr(
-            acquisition_surface_execution, "build_production_world_bank_wdi_execution_port", port
-        )
         with TestClient(app()) as client:
             control = client.app.state.runtime_container.control_service
-            response, _ = trust.post(
-                client,
-                path + "/execute",
-                mutation.model_dump(mode="json"),
-                route=template + "/execute",
+            _approve_candidate_action(
+                client=client,
+                control=control,
+                closure=closure,
+                path=path,
+                template=template,
+                mutation=mutation,
+                job_id=job_id,
+                slot=slot,
+                cas_root=cas_root,
+                trust=trust,
+                signers=signers,
+                identities=identities,
             )
-            assert not transport_calls
-            if response.status_code not in {200, 202}:
-                served._within_fixture_owner(
-                    observer,
-                    SimpleNamespace(
-                        client=client,
-                        control=control,
-                        closure=closure,
-                        selected=selected,
-                        request=mutation,
-                        response=response,
-                        job_id=job_id,
-                        job=control._control_store.get_job(job_id),
-                        cases=cases,
-                        transport_calls=transport_calls,
-                        trust=trust,
-                        path=path,
-                        template=template,
-                    ),
-                )
-                return
-            dispatched = dispatch_one_control_job(
-                store=control._control_store,
-                handler=control._process_control_job,
-                expected_job_id=job_id,
-            )
-            assert dispatched == job_id
-            served._within_fixture_owner(
-                observer,
-                SimpleNamespace(
-                    client=client,
-                    control=control,
-                    closure=closure,
-                    selected=selected,
-                    request=mutation,
-                    response=response,
-                    job_id=job_id,
-                    job=control._control_store.get_job(job_id),
-                    cases=cases,
-                    transport_calls=transport_calls,
-                    trust=trust,
-                    path=path,
-                    template=template,
-                ),
+        with TestClient(app()) as client:
+            control = client.app.state.runtime_container.control_service
+            _execute_candidate_action(
+                client=client,
+                control=control,
+                closure=closure,
+                mutation=mutation,
+                selected=selected,
+                path=path,
+                template=template,
+                job_id=job_id,
+                observer=observer,
+                trust=trust,
+                monkeypatch=monkeypatch,
+                tmp_path=tmp_path,
+                cas_root=cas_root,
+                candidate_owner_mode=candidate_owner_mode,
             )
     finally:
         trust.close()

@@ -44,16 +44,20 @@ from polisyos.core import contracts as core_contracts
 from polisyos.core.artifacts import (
     ArtifactRef,
     ArtifactStore,
+    CoreJSONArtifactStore,
     FileSystemCAS,
     PutOptions,
     SchemaInfo,
     input_ref_from_artifact_ref,
+    matches_artifact_store_protocol,
 )
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import (
     DataTrust,
     FixedUnitTransformWitness,
+    FoundryInputBindingsRef,
     MeasurementBindingProfile,
+    ProgramGraphInputInvocation,
     ScopedCorrespondenceBasis,
     ScopedMeasurementOccurrence,
     SelectedVariableBindingRef,
@@ -307,23 +311,24 @@ class AcquiredObservationSemanticInputRequest(BaseModel):
     binding_id: str = Field(pattern=r"^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,127}$", strict=True)
     source_definition_ref: VariableSemanticDefinitionRef
     source_representation_ref: VariableRepresentationRef
-    model_interface_ref: SelectedVariableBindingRef
+    obligation_set_ref: SelectedVariableBindingRef
+    expected_invocation: ProgramGraphInputInvocation
     model_port_id: str = Field(min_length=1, strict=True)
 
     @model_validator(mode="after")
-    def _require_selected_model_interface(self) -> AcquiredObservationSemanticInputRequest:
+    def _require_selected_obligation_set(self) -> AcquiredObservationSemanticInputRequest:
         refs = (
             self.source_definition_ref,
             self.source_representation_ref,
-            self.model_interface_ref,
+            self.obligation_set_ref,
         )
         if any(ref.manifest_profile_sha256 is None for ref in refs):
             raise ValueError("acquisition_semantic_binding_request_ref_unselected")
         if (
-            self.model_interface_ref.kind != "runtime.quality.program_graph_input_interface"
-            or self.model_interface_ref.media_type != "application/json"
+            self.obligation_set_ref.kind != "runtime.quality.model_input_obligation_set"
+            or self.obligation_set_ref.media_type != "application/json"
         ):
-            raise ValueError("acquisition_semantic_binding_request_interface_mismatch")
+            raise ValueError("acquisition_semantic_binding_request_obligation_set_mismatch")
         return self
 
 
@@ -376,6 +381,7 @@ class AcquiredObservationDataSnapshotResult:
     observation_projection: ActivatedAcquisitionObservationProjection
     foundry_binding_rule: FoundryInputBindingRule
     semantic_input_selection: AcquiredObservationSemanticInputSelection | None = None
+    semantic_foundry_input_bindings_ref: FoundryInputBindingsRef | None = None
 
 
 @dataclass(frozen=True)
@@ -979,6 +985,9 @@ def _produce_acquired_semantic_input_selection(
 
     if request.binding_id != binding_rule.binding_id:
         raise DataStateSubstrateError("acquisition_semantic_binding_rule_id_mismatch")
+    model_interface_ref = SelectedVariableBindingRef.model_validate(
+        request.expected_invocation.interface_ref.model_dump(mode="python")
+    )
     try:
         correspondence = assess_measurement_to_model_candidate(
             store,
@@ -989,7 +998,7 @@ def _produce_acquired_semantic_input_selection(
             observation_id=observation.observation_id,
             source_definition_ref=request.source_definition_ref,
             source_representation_ref=request.source_representation_ref,
-            model_interface_ref=request.model_interface_ref,
+            model_interface_ref=model_interface_ref,
             port_id=request.model_port_id,
         )
     except (AttributeError, TypeError, ValueError, RuntimeError) as exc:
@@ -1012,7 +1021,7 @@ def _produce_acquired_semantic_input_selection(
         source_path=binding_rule.source_path,
         source_definition_ref=request.source_definition_ref,
         source_representation_ref=request.source_representation_ref,
-        model_interface_ref=request.model_interface_ref,
+        model_interface_ref=model_interface_ref,
         model_port_id=request.model_port_id,
         occurrence_ref=correspondence.occurrence_ref,
         correspondence_basis_ref=correspondence.correspondence_basis_ref,
@@ -2784,15 +2793,17 @@ def materialize_acquired_observation_snapshot(
         workspace_dir: Per-job workspace for Data Forge's normal snapshot owner.
         transaction_time: Time this controlled candidate snapshot is emitted.
         semantic_input_request: Optional explicit same-definition candidate
-            selection to a model-owned port. If supplied, the existing Catalog
-            owner must reissue the relation during the fresh source read.
+            selection to a model-owned port. Catalog reissues the relation during
+            the fresh source read, and Foundry binds it to the exact independently
+            selected predecessor invocation and its missing-input set.
         prepared: Optional caller-constructible comparison candidate. Its digest
             is not authority. The active owner is reread and all preparation
             fields must agree; only freshly owner-resolved values are written.
 
     Returns:
         The new DataSnapshot and Data Forge binding plus the required Foundry
-        rule that consumes the selected row.
+        rule that consumes the selected row. For semantic inputs, the result also
+        carries the exact Foundry input binding for candidate execution.
 
     Raises:
         DataStateSubstrateError: If the base snapshot, selected row, candidate
@@ -2863,6 +2874,28 @@ def materialize_acquired_observation_snapshot(
         return_selected_profile=True,
     )
     _require_selected_profile(data_snapshot_ref, "acquisition_snapshot_profile_unverified")
+    semantic_foundry_input_bindings_ref = None
+    if semantic_input_request is not None:
+        from polisyos.foundry.data_plane import (
+            build_input_bindings,
+            persist_activated_observation_input_manifest,
+        )
+
+        if not matches_artifact_store_protocol(store, CoreJSONArtifactStore):
+            raise DataStateSubstrateError("acquisition_semantic_foundry_store_unavailable")
+        manifest_ref = persist_activated_observation_input_manifest(
+            store,
+            data_snapshot_ref=data_snapshot_ref,
+            obligation_set_ref=semantic_input_request.obligation_set_ref,
+            expected_invocation=semantic_input_request.expected_invocation,
+        )
+        semantic_foundry_input_bindings_ref = build_input_bindings(
+            store,
+            data_snapshot_ref=data_snapshot_ref,
+            registry_bundle_ref=semantic_input_request.expected_invocation.registry_bundle_ref,
+            resolved_binding_manifest_ref=manifest_ref,
+            return_selected_profile=True,
+        ).input_bindings_ref
     binding_path = _write_data_forge_snapshot_binding(
         workspace_dir=workspace_dir,
         snapshot_id=snapshot_id,
@@ -2904,6 +2937,7 @@ def materialize_acquired_observation_snapshot(
         observation_projection=selected_projection,
         foundry_binding_rule=prepared.foundry_binding_rule,
         semantic_input_selection=prepared.semantic_input_selection,
+        semantic_foundry_input_bindings_ref=semantic_foundry_input_bindings_ref,
     )
 
 

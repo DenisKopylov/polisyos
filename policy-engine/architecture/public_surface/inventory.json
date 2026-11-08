@@ -2128,8 +2128,8 @@
         {
           "module": "polisyos.core.contracts",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 847,
-          "known_export_count": 847,
+          "export_count": 849,
+          "known_export_count": 849,
           "exports": [
             "DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION",
             "FixedUnitTransformWitness",
@@ -2149,6 +2149,7 @@
             "ProgramGraphInputInvocation",
             "ProgramNode",
             "RESOLVED_INPUT_BINDING_MANIFEST_ROLE",
+            "ResolvedInputBindingManifest",
             "ResolvedInputBindingManifestRef",
             "ResolvedMeasurementInput",
             "RunCandidateSimulationN5ResultBody",
@@ -2168,6 +2169,7 @@
             "load_model_input_port_declaration",
             "load_program_graph_input_interface",
             "load_resolved_input_binding_manifest",
+            "persist_resolved_input_binding_manifest",
             "persist_model_input_obligation",
             "persist_model_input_obligation_set",
             "persist_program_graph_input_interface",
@@ -3003,8 +3005,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 88301,
-                "sha256": "b3ae8753a067c16153f19b766749b8546adb7829fae2bc209c5b29a4dcbec743"
+                "bytes": 88562,
+                "sha256": "525a7b5046fe17635173006d219a24f405a89921d495331ae8ecb8d15af377a2"
               },
               {
                 "path": "src/polisyos/core/contracts",
@@ -12025,8 +12027,8 @@
         {
           "module": "polisyos.foundry.data_plane",
           "facade_mode_observed": "eager_exports",
-          "export_count": 24,
-          "known_export_count": 24,
+          "export_count": 25,
+          "known_export_count": 25,
           "exports": [
             "HTE_PHYSICAL_SOURCE_BINDING_KIND",
             "HTE_PHYSICAL_SOURCE_BINDING_SCHEMA",
@@ -12047,6 +12049,7 @@
             "load_hte_physical_source_materialization_binding",
             "load_ukraine_foundry_intake",
             "materialize_method_contract",
+            "persist_activated_observation_input_manifest",
             "prepare_hte_observational_input",
             "prepare_input_bindings",
             "prepare_json_input_binding_values",
@@ -12077,8 +12080,8 @@
                 "path": "src/polisyos/foundry/data_plane/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 1839,
-                "sha256": "45d9ef02807c89e7193e60c0901e4f43775cb3ffce6a246aa55760c47c5e21f7"
+                "bytes": 1941,
+                "sha256": "d3ae571ced3ae8eaae0a6a6d5699be1b2817b6bbdf6cd796800601f873f48e4a"
               },
               {
                 "path": "src/polisyos/foundry/data_plane",

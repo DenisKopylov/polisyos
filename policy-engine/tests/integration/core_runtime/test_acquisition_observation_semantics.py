@@ -15,24 +15,26 @@ from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact
 from polisyos.core.contracts.epoch import load_verified_epoch_statement
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
+    ExecPlanRef,
     ExecuteRequest,
     FoundryInputBindings,
+    ProgramGraphRef,
     SemanticHorizonStepContext,
 )
 from polisyos.core.contracts.model_input_requirements import (
-    load_model_input_obligation_set,
+    ProgramGraphInputInvocation,
     load_program_graph_input_interface,
 )
 from polisyos.core.contracts.semantic_input_binding import (
-    ResolvedInputBindingManifest,
-    ResolvedMeasurementInput,
+    load_resolved_input_binding_manifest,
     persist_resolved_input_binding_manifest,
 )
 from polisyos.core.contracts.variable_binding import SelectedVariableBindingRef
 from polisyos.data_forge import read_api
-from polisyos.foundry.data_plane.bindings import (
+from polisyos.foundry.data_plane import (
     build_input_bindings,
     load_input_bindings,
+    persist_activated_observation_input_manifest,
     reconcile_semantic_input_bindings,
 )
 from polisyos.foundry.execute.api import admit_execution_source
@@ -411,11 +413,21 @@ def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
         interface = load_program_graph_input_interface(store, interface_ref)
         (port,) = interface.ports
         override_ref = _supplied_rate(case)
+        invocation = ProgramGraphInputInvocation(
+            context=_context(case),
+            interface_ref=interface_ref,
+            program_graph_ref=ProgramGraphRef.model_validate(case.program_graph_ref.model_dump()),
+            exec_plan_ref=ExecPlanRef.model_validate(case.exec_plan_ref.model_dump()),
+            registry_bundle_ref=case.registry_bundle_ref,
+            input_bindings_ref=case.input_bindings_ref,
+            steps=(0,),
+            parameter_override_bundle_ref=override_ref,
+        )
         preflight = _preflight(
             case,
             interface_ref,
-            _context(case),
-            steps=(0,),
+            invocation.context,
+            steps=invocation.steps,
             parameter_override_bundle_ref=override_ref,
         )
 
@@ -469,9 +481,10 @@ def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
             binding_id=binding_rule.binding_id,
             source_definition_ref=port.semantic_definition_ref,
             source_representation_ref=port.representation_ref,
-            model_interface_ref=SelectedVariableBindingRef.model_validate(
-                interface_ref.model_dump(mode="json")
+            obligation_set_ref=SelectedVariableBindingRef.model_validate(
+                preflight.obligation_set_ref.model_dump(mode="python")
             ),
+            expected_invocation=invocation,
             model_port_id=port.port_id,
         )
         workspace_dir = tmp_path / "shared-data-forge-workspace"
@@ -527,6 +540,13 @@ def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
         )
         assert store.get_manifest(semantic.data_snapshot_ref) == first_semantic_manifest
         assert semantic.semantic_input_selection is not None
+        assert legacy.semantic_foundry_input_bindings_ref is None
+        assert semantic.semantic_foundry_input_bindings_ref is not None
+        assert repeated_semantic.semantic_foundry_input_bindings_ref is not None
+        assert (
+            repeated_semantic.semantic_foundry_input_bindings_ref
+            != semantic.semantic_foundry_input_bindings_ref
+        )
         assert legacy.data_forge_snapshot_binding_path != semantic.data_forge_snapshot_binding_path
         assert legacy.data_forge_snapshot_binding_path.read_bytes() == legacy_binding_bytes
         assert store.get_manifest(legacy.data_snapshot_ref).artifact_schema.version == "0.3.0"
@@ -591,36 +611,20 @@ def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
                 return_selected_profile=True,
             )
 
-        obligation_set, _ = load_model_input_obligation_set(store, preflight.obligation_set_ref)
-        (obligation_ref,) = obligation_set.obligation_refs
-        selection = semantic.semantic_input_selection
-        measurement = ResolvedMeasurementInput(
-            binding_id=selection.binding_id,
-            model_input_obligation_ref=SelectedVariableBindingRef.model_validate(
-                obligation_ref.model_dump(mode="json")
-            ),
-            selected_occurrence_ref=selection.occurrence_ref,
-            correspondence_ref=selection.correspondence_basis_ref,
-            source_path=selection.source_path,
-        )
-        manifest = ResolvedInputBindingManifest(
-            data_snapshot_ref=SelectedVariableBindingRef.model_validate(
-                semantic.data_snapshot_ref.model_dump(mode="json")
-            ),
-            model_input_obligation_set_ref=SelectedVariableBindingRef.model_validate(
-                preflight.obligation_set_ref.model_dump(mode="json")
-            ),
-            measurements=(measurement,),
-            retained_binding_ids=("fixture-agents-income",),
-        )
-        manifest_ref = persist_resolved_input_binding_manifest(store, manifest)
-        built = build_input_bindings(
-            store,
-            data_snapshot_ref=semantic.data_snapshot_ref,
-            registry_bundle_ref=case.registry_bundle_ref,
-            resolved_binding_manifest_ref=manifest_ref,
-            return_selected_profile=True,
-        )
+        with pytest.raises(ValueError, match=r"^model_input_preflight_invocation_mismatch$"):
+            persist_activated_observation_input_manifest(
+                store,
+                data_snapshot_ref=semantic.data_snapshot_ref,
+                obligation_set_ref=preflight.obligation_set_ref,
+                expected_invocation=invocation.model_copy(update={"steps": (1,)}),
+            )
+        selected_bindings_ref = semantic.semantic_foundry_input_bindings_ref
+        built = load_input_bindings(store, selected_bindings_ref)
+        manifest_ref = built.resolved_binding_manifest_ref
+        assert manifest_ref is not None
+        manifest = load_resolved_input_binding_manifest(store, manifest_ref)
+        assert manifest.retained_binding_ids == ("fixture-agents-income",)
+        (measurement,) = manifest.measurements
         assert (
             float(
                 load_state_snapshot(
@@ -731,6 +735,7 @@ def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
             )
 
         semantic_snapshot_manifest = store.get_manifest(semantic.data_snapshot_ref)
+        selection = semantic.semantic_input_selection
         selected_edge = input_ref_from_artifact_ref(
             selection.occurrence_ref,
             role=f"binding.{selection.binding_id}.occurrence:{selection.source_path}",
@@ -761,13 +766,20 @@ def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
                 semantic_snapshot,
                 candidate_only=True,
             )
+        with pytest.raises(ValueError, match=r"^DataSnapshot owner-lineage input edge differs$"):
+            persist_activated_observation_input_manifest(
+                store,
+                data_snapshot_ref=wrong_role_snapshot_ref,
+                obligation_set_ref=preflight.obligation_set_ref,
+                expected_invocation=invocation,
+            )
 
         executed = execute_foundry(
             store,
             ExecuteRequest(
                 exec_plan_ref=case.exec_plan_ref,
                 registry_bundle_ref=case.registry_bundle_ref,
-                input_bindings_ref=built.input_bindings_ref,
+                input_bindings_ref=selected_bindings_ref,
                 parameter_override_bundle_ref=override_ref,
                 return_selected_profile=True,
             ),
@@ -802,9 +814,9 @@ def test_activated_same_definition_selection_is_bound_to_fresh_foundry_input(
         fresh_store = FileSystemCAS(case.store_root)
         admitted = admit_execution_source(fresh_store, executed.simulation_result_ref)
         assert admitted.basis is not None
-        assert admitted.basis.input_bindings_ref == built.input_bindings_ref
+        assert admitted.basis.input_bindings_ref == selected_bindings_ref
         assert (
-            load_input_bindings(fresh_store, built.input_bindings_ref).resolved_binding_manifest_ref
+            load_input_bindings(fresh_store, selected_bindings_ref).resolved_binding_manifest_ref
             == manifest_ref
         )
         assert admitted.simulation_result.state_snapshot_ref is not None

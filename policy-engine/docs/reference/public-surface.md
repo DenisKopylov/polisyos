@@ -349,7 +349,7 @@ timestamps
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
 | `polisyos.core.compiler` | `src/polisyos/core/compiler/__init__.py` | `eager_exports` | 3 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 64 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 847 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 849 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
 | `polisyos.core.llm` | `src/polisyos/core/llm/__init__.py` | `eager_exports` | 26 |
 | `polisyos.core.llm.cache_settlement` | `src/polisyos/core/llm/cache_settlement.py` | `eager_exports` | 8 |
@@ -783,7 +783,7 @@ validate_metadata
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (847)</summary>
+<details><summary>Entrypoint exports (849)</summary>
 
 ```text
 DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
@@ -804,6 +804,7 @@ ProgramGraphInputInterface
 ProgramGraphInputInvocation
 ProgramNode
 RESOLVED_INPUT_BINDING_MANIFEST_ROLE
+ResolvedInputBindingManifest
 ResolvedInputBindingManifestRef
 ResolvedMeasurementInput
 RunCandidateSimulationN5ResultBody
@@ -823,6 +824,7 @@ load_model_input_obligation_set
 load_model_input_port_declaration
 load_program_graph_input_interface
 load_resolved_input_binding_manifest
+persist_resolved_input_binding_manifest
 persist_model_input_obligation
 persist_model_input_obligation_set
 persist_program_graph_input_interface
@@ -5371,7 +5373,7 @@ world
 | `polisyos.foundry.coupling` | `src/polisyos/foundry/coupling/__init__.py` | `lazy_facade` | 20 |
 | `polisyos.foundry.analysis` | `src/polisyos/foundry/analysis/__init__.py` | `eager_exports` | 19 |
 | `polisyos.foundry.calibration` | `src/polisyos/foundry/calibration/__init__.py` | `eager_exports` | 115 |
-| `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 24 |
+| `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 25 |
 | `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 35 |
 | `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `eager_exports` | 233 |
 | `polisyos.foundry.methods.artifacts` | `src/polisyos/foundry/methods/artifacts/__init__.py` | `eager_exports` | 15 |
@@ -5659,7 +5661,7 @@ StaticBundle
 - Facade: `eager_exports`
 - Summary: Expose input-binding helpers that bridge external data into Foundry state snapshots.
 
-<details><summary>Entrypoint exports (24)</summary>
+<details><summary>Entrypoint exports (25)</summary>
 
 ```text
 HTE_PHYSICAL_SOURCE_BINDING_KIND
@@ -5681,6 +5683,7 @@ load_input_bindings
 load_hte_physical_source_materialization_binding
 load_ukraine_foundry_intake
 materialize_method_contract
+persist_activated_observation_input_manifest
 prepare_hte_observational_input
 prepare_input_bindings
 prepare_json_input_binding_values

@@ -845,9 +845,11 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
     ),
     ".semantic_input_binding": (
         "RESOLVED_INPUT_BINDING_MANIFEST_ROLE",
+        "ResolvedInputBindingManifest",
         "ResolvedInputBindingManifestRef",
         "ResolvedMeasurementInput",
         "load_resolved_input_binding_manifest",
+        "persist_resolved_input_binding_manifest",
     ),
     ".uncertainty": (
         "ForecastingUncertaintyBundleRef",
@@ -1816,6 +1818,7 @@ __all__ = [
     "ProgramGraphInputInvocation",
     "ProgramNode",
     "RESOLVED_INPUT_BINDING_MANIFEST_ROLE",
+    "ResolvedInputBindingManifest",
     "ResolvedInputBindingManifestRef",
     "ResolvedMeasurementInput",
     "RunCandidateSimulationN5ResultBody",
@@ -1835,6 +1838,7 @@ __all__ = [
     "load_model_input_port_declaration",
     "load_program_graph_input_interface",
     "load_resolved_input_binding_manifest",
+    "persist_resolved_input_binding_manifest",
     "persist_model_input_obligation",
     "persist_model_input_obligation_set",
     "persist_program_graph_input_interface",
@@ -2574,9 +2578,11 @@ if TYPE_CHECKING:
     )
     from .semantic_input_binding import (
         RESOLVED_INPUT_BINDING_MANIFEST_ROLE,
+        ResolvedInputBindingManifest,
         ResolvedInputBindingManifestRef,
         ResolvedMeasurementInput,
         load_resolved_input_binding_manifest,
+        persist_resolved_input_binding_manifest,
     )
     from .variable_binding import (
         FixedUnitTransformWitness,

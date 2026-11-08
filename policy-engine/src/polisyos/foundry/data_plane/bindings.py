@@ -66,6 +66,7 @@ from polisyos.core.contracts import (
     MeasurementBindingProfile,
     ModelInputObligation,
     ProgramGraphInputInvocation,
+    ResolvedInputBindingManifest,
     ResolvedInputBindingManifestRef,
     ResolvedMeasurementInput,
     ScopedCorrespondenceBasis,
@@ -80,6 +81,7 @@ from polisyos.core.contracts import (
     evaluate_scoped_correspondence_basis,
     load_model_input_obligation_set,
     load_resolved_input_binding_manifest,
+    persist_resolved_input_binding_manifest,
     replay_scoped_measurement_occurrence,
     scoped_correspondence_basis_manifest_inputs,
     scoped_measurement_occurrence_manifest_inputs,
@@ -2392,6 +2394,105 @@ def require_resolved_input_binding_manifest_edge(
         )
 
 
+def persist_activated_observation_input_manifest(
+    store: CoreJSONArtifactStore,
+    *,
+    data_snapshot_ref: ArtifactRef,
+    obligation_set_ref: ArtifactRef,
+    expected_invocation: ProgramGraphInputInvocation,
+) -> ResolvedInputBindingManifestRef:
+    """Select candidate inputs from a single activated observation and its preflight.
+
+    Args:
+        store: CAS containing the selected snapshot, compiled inputs, and preflight.
+        data_snapshot_ref: Exact acquired-observation semantic snapshot view.
+        obligation_set_ref: Exact complete missing-input set emitted by preflight.
+        expected_invocation: Current graph, predecessor, registry and execution
+            context selected independently of the obligation set.
+
+    Returns:
+        The persisted candidate selection for Foundry's semantic input consumer.
+
+    Raises:
+        ValueError: If the selected snapshot, preflight, or predecessor disagrees.
+    """
+    from polisyos.foundry.execute.model_input_requirements import (
+        verify_program_graph_input_preflight,
+    )
+
+    if data_snapshot_ref.manifest_profile_sha256 is None:
+        raise ValueError("foundry_input_bindings_semantic_profile_required")
+    snapshot = _load_data_snapshot(store, data_snapshot_ref)
+    lineage = snapshot.source_lineage
+    if not isinstance(lineage, AcquiredObservationSemanticInputDataSnapshotLineage):
+        raise ValueError("foundry_input_bindings_acquired_observation_semantic_lineage_required")
+
+    selected_set = verify_program_graph_input_preflight(
+        store, obligation_set_ref=obligation_set_ref, expected_invocation=expected_invocation
+    )
+    if len(selected_set.obligation_refs) != 1:
+        raise ValueError("foundry_input_bindings_semantic_obligation_set_mismatch")
+    (obligation_ref,) = selected_set.obligation_refs
+    obligation = validate_core_model_json_artifact(ModelInputObligation, store, obligation_ref)
+    predecessor = load_input_bindings(store, expected_invocation.input_bindings_ref)
+    _require_acquired_observation_binding_basis(lineage, obligation, predecessor)
+
+    slots = load_registry_bundle_content(
+        store, expected_invocation.registry_bundle_ref
+    ).slot_registry
+    retained = _replay_explicit_initial_bindings(
+        store,
+        expected_invocation.input_bindings_ref,
+        predecessor,
+        {
+            slot_id: slots.slots[slot_id].state_path or ""
+            for slot_id in selected_set.supplied_initial_slots
+        },
+    )
+    selection = lineage.selection
+    return persist_resolved_input_binding_manifest(
+        store,
+        ResolvedInputBindingManifest(
+            data_snapshot_ref=SelectedVariableBindingRef.model_validate(
+                data_snapshot_ref.model_dump(mode="python")
+            ),
+            model_input_obligation_set_ref=SelectedVariableBindingRef.model_validate(
+                obligation_set_ref.model_dump(mode="python")
+            ),
+            measurements=(
+                ResolvedMeasurementInput(
+                    binding_id=selection.binding_id,
+                    model_input_obligation_ref=SelectedVariableBindingRef.model_validate(
+                        obligation_ref.model_dump(mode="python")
+                    ),
+                    selected_occurrence_ref=selection.occurrence_ref,
+                    correspondence_ref=selection.correspondence_basis_ref,
+                    source_path=selection.source_path,
+                ),
+            ),
+            retained_binding_ids=tuple(item.rule.binding_id for item in retained),
+        ),
+    )
+
+
+def _require_acquired_observation_binding_basis(
+    lineage: AcquiredObservationSemanticInputDataSnapshotLineage,
+    obligation: ModelInputObligation,
+    predecessor: FoundryInputBindings,
+) -> None:
+    if artifact_ref_identity_key(lineage.base_data_snapshot_ref) != artifact_ref_identity_key(
+        predecessor.data_snapshot_ref
+    ):
+        raise ValueError("foundry_input_bindings_semantic_base_snapshot_mismatch")
+    selection = lineage.selection
+    if (
+        artifact_ref_identity_key(obligation.interface_ref)
+        != artifact_ref_identity_key(selection.model_interface_ref)
+        or obligation.port.port_id != selection.model_port_id
+    ):
+        raise ValueError("foundry_input_bindings_semantic_snapshot_selection_mismatch")
+
+
 def _prepare_semantic_input_bindings(
     store: CoreJSONArtifactStore,
     *,
@@ -2467,12 +2568,16 @@ def _prepare_semantic_input_bindings(
     snapshot = _load_data_snapshot(store, data_snapshot_ref)
     if snapshot.data_ref.manifest_profile_sha256 is None:
         raise ValueError("foundry_input_bindings_semantic_profile_required")
+    predecessor = load_input_bindings(store, invocation.input_bindings_ref)
     if isinstance(snapshot.source_lineage, AcquiredObservationSemanticInputDataSnapshotLineage):
         if len(manifest.measurements) != 1:
             raise ValueError("foundry_input_bindings_semantic_snapshot_selection_mismatch")
         selected = manifest.measurements[0]
         obligation = obligations[artifact_ref_identity_key(selected.model_input_obligation_ref)]
         proof = proofs[selected.binding_id]
+        _require_acquired_observation_binding_basis(
+            snapshot.source_lineage, obligation, predecessor
+        )
         owner_selection = snapshot.source_lineage.selection
         if (
             selected.binding_id != owner_selection.binding_id
@@ -2485,15 +2590,11 @@ def _prepare_semantic_input_bindings(
             != artifact_ref_identity_key(owner_selection.source_definition_ref)
             or artifact_ref_identity_key(proof.source_representation_ref)
             != artifact_ref_identity_key(owner_selection.source_representation_ref)
-            or artifact_ref_identity_key(obligation.interface_ref)
-            != artifact_ref_identity_key(owner_selection.model_interface_ref)
-            or obligation.port.port_id != owner_selection.model_port_id
         ):
             raise ValueError("foundry_input_bindings_semantic_snapshot_selection_mismatch")
     payload = _load_binding_payload(store, snapshot)
     payload_manifest = store.get_manifest(snapshot.data_ref)
     slots = load_registry_bundle_content(store, registry_bundle_ref).slot_registry
-    predecessor = load_input_bindings(store, invocation.input_bindings_ref)
     retained = _replay_explicit_initial_bindings(
         store,
         invocation.input_bindings_ref,

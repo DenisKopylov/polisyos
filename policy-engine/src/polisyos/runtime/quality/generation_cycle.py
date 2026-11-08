@@ -1691,6 +1691,9 @@ def persist_joint_simulation_result(
     tenant_context: ArtifactTenantContextInfo | None = None,
 ) -> CASArtifactRef:
     """Persist one complete N5 result through the runtime-supplied store."""
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        semantic_program_graph_result_inputs,
+    )
 
     if not isinstance(result, JointSimulationResult):
         raise GenerationCycleError(
@@ -1718,6 +1721,10 @@ def persist_joint_simulation_result(
         comparator_inputs = _persist_ncm_comparator_parts(
             result, store=store, tenant_context=tenant_context
         )
+        selected_inputs = [
+            *(comparator_inputs or ()),
+            *semantic_program_graph_result_inputs(result),
+        ]
         artifact_ref = store.put_json(
             payload,
             PutOptions(
@@ -1727,7 +1734,7 @@ def persist_joint_simulation_result(
                     name=JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA,
                     version=artifact_schema_version,
                 ),
-                inputs=comparator_inputs,
+                inputs=selected_inputs or None,
                 tenant_context=tenant_context,
             ),
             canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
@@ -1909,6 +1916,11 @@ def load_joint_simulation_result(
     """
     from polisyos.common.canonical_profile import CanonicalProfileRefusalError
     from polisyos.core.artifacts import artifact_manifest_profile_sha256
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        SEMANTIC_PROGRAM_GRAPH_STEP_ROLE_PREFIX,
+        semantic_program_graph_result_inputs,
+        verify_semantic_program_graph_result_sources,
+    )
 
     def refuse_profile(exc: CanonicalProfileRefusalError) -> None:
         if exc.code in {
@@ -2024,6 +2036,30 @@ def load_joint_simulation_result(
         expected_atom_ids=expected_atom_ids,
         expected_selected_outcomes=expected_selected_outcomes,
     )
+    try:
+        semantic_edges = [
+            edge
+            for edge in manifest.inputs
+            if edge.role.startswith(SEMANTIC_PROGRAM_GRAPH_STEP_ROLE_PREFIX)
+        ]
+        if semantic_edges != semantic_program_graph_result_inputs(result):
+            raise ValueError("semantic_program_graph_result_input_closure_mismatch")
+        if semantic_edges:
+            if expected_request is None:
+                raise _JointSimulationBindingMismatchError(
+                    "joint_simulation_semantic_expected_request_required"
+                )
+            verify_semantic_program_graph_result_sources(
+                store, result, expected_request=expected_request
+            )
+    except _JointSimulationBindingMismatchError:
+        raise
+    except (FileNotFoundError, ArtifactOwnershipError, RuntimeDependencyError, OSError) as exc:
+        raise GenerationCycleError("joint_simulation_semantic_sources_unavailable") from exc
+    except (CanonicalProfileRefusalError, ArtifactIntegrityError, TypeError, ValueError) as exc:
+        _joint_simulation_result_integrity_error(
+            "semantic_program_graph_result_sources_invalid", exc
+        )
     if expected_request is not None:
         try:
             JointSimulationHorizonController().validate_selected_result(
@@ -6081,6 +6117,7 @@ class JointSimulationPort:
                             "program_graph_input_preflight_result_untyped",
                             "program_graph_input_preflight_selection_mismatch",
                             "program_graph_semantic_horizon_intake_not_established",
+                            "program_graph_semantic_horizon_profile_unsupported",
                         }:
                             code = exc.code
                         else:

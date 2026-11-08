@@ -1764,6 +1764,77 @@ def test_semantic_program_graph_horizon_executes_and_reopens_every_selected_step
             GenerationCycleError, match="joint_simulation_semantic_expected_request_required"
         ):
             load_joint_simulation_result(persisted, store=fresh)
+
+        # N8 must not turn the same useful numerical artifact into a
+        # conditional value until its generic V3 owner join supplies the
+        # exact selected request. This fixture intentionally has no generic
+        # owner references, so the semantic reader must fail closed.
+        from types import SimpleNamespace
+
+        from polisyos.runtime.quality import generation_cycle
+        from polisyos.runtime.quality.generation_cycle import (
+            SimulationPortObservation,
+            _conditional_simulation_value_observation,
+        )
+        from polisyos.runtime.quality.generic_simulation_admission import GenericN5ResolvedResult
+
+        candidate = SimpleNamespace(
+            candidate_id="candidate_semantic_program_graph",
+            atom=atom,
+            intervention_atoms=(atom,),
+        )
+        simulation = SimulationPortObservation(
+            candidate_id=candidate.candidate_id,
+            status="joint_simulated",
+            simulation_ref=result.receipt.payload_hash,
+            simulation_result_ref=persisted,
+            authority_blockers=tuple(
+                result.promotion_ready_value_packet.get("authority_blockers", ())
+            ),
+            k_world_ref_before=request.world_model_record.content_hash,
+            k_world_ref_after=request.world_model_record.content_hash,
+            world_model_record=request.world_model_record,
+        )
+        problem = SimpleNamespace(
+            outcome_of_interest=SimpleNamespace(target_variable="opening_stock")
+        )
+        n8 = _conditional_simulation_value_observation(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            artifact_store=fresh,
+            cycle_index=0,
+        )
+        assert n8 is not None
+        assert n8.status == "value_blocked"
+        assert n8.authority_blockers == ("joint_simulation_semantic_expected_request_required",)
+        assert n8.value_receipt is None
+        assert n8.method_selection_receipt is None
+
+        # Exercise the downstream receipt comparison in isolation. The
+        # numerical result is real; the owner handoff is supplied here so the
+        # earlier missing-owner guard does not mask the stale receipt.
+        with monkeypatch.context() as consumer:
+            consumer.setattr(
+                generation_cycle,
+                "_replay_generic_n5_observation",
+                lambda **_: (None, GenericN5ResolvedResult(result=reopened, request=request)),
+            )
+            stale_observation = simulation.model_copy(
+                update={"simulation_ref": "sha256:" + "f" * 64}
+            )
+            n8 = _conditional_simulation_value_observation(
+                candidate=candidate,
+                simulation=stale_observation,
+                problem=problem,
+                artifact_store=fresh,
+                cycle_index=0,
+            )
+        assert n8 is not None
+        assert n8.status == "value_blocked"
+        assert n8.authority_blockers == ("joint_simulation_result_integrity_invalid",)
+        assert "receipt_payload_hash_binding_mismatch" in n8.reason
+
         manifest = store.get_manifest(persisted)
         broken = store.put_bytes(
             store.get_bytes(persisted),

@@ -5082,7 +5082,7 @@ def _generic_cycle_simulation_projection(
                     tenant_id=parent_handoff.tenant_id,
                     cell_id=parent_handoff.cell_id,
                 )
-                join = generic_owner.resolve_n5_execution_join(
+                join, n5_replay = generic_owner.resolve_n5_execution_join_with_result(
                     execution_ref,
                     expected=n5_expectation,
                 )
@@ -5293,16 +5293,27 @@ def _generic_cycle_simulation_projection(
                         and type(execution) is GenericCycleSimulationN5ExecutionV3
                         else None
                     )
-                    resolved_result = load_joint_simulation_result(
-                        artifact_ref_for_manifest(result_manifest),
-                        store=store,
-                        expected_world_model_record_content_hash=(
-                            input_record.profile.context_inputs.world_model_record.content_hash
-                        ),
-                        expected_atom_ids=expected_atom_ids,
-                        expected_selected_outcomes=(input_record.outcome_variable,),
-                        expected_request=execution.request_binding.request,
-                    )
+                    if n5_replay is not None:
+                        resolved_result = n5_replay.result
+                        result_request = n5_replay.request
+                        if resolved_result.receipt.payload_hash != (
+                            simulation.simulation_ref or ""
+                        ):
+                            raise ValueError("generic_n5_result_receipt_binding_mismatch")
+                    else:
+                        if execution.status == "joint_simulated":
+                            raise ValueError("generic_n5_result_replay_not_established")
+                        result_request = execution.request_binding.request
+                        resolved_result = load_joint_simulation_result(
+                            artifact_ref_for_manifest(result_manifest),
+                            store=store,
+                            expected_world_model_record_content_hash=(
+                                input_record.profile.context_inputs.world_model_record.content_hash
+                            ),
+                            expected_atom_ids=expected_atom_ids,
+                            expected_selected_outcomes=(input_record.outcome_variable,),
+                            expected_request=result_request,
+                        )
                     if execution.status != "joint_simulated":
                         result_body_limitation_code = (
                             "generic_n5_result_body_execution_not_successful"
@@ -5334,7 +5345,7 @@ def _generic_cycle_simulation_projection(
                         else:
                             result_body_status = "resolved"
                     result_status, result_blockers = _joint_simulation_port_outcome(
-                        resolved_result, request=execution.request_binding.request
+                        resolved_result, request=result_request
                     )
                     blockers = _n5_interaction_projection_blockers(resolved_result, blockers)
                     if (

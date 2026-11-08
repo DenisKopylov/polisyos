@@ -241,6 +241,10 @@ from polisyos.runtime.quality.generic_simulation_admission import (
     GenericCycleSimulationN5RequestBindingV2,
     GenericN5ExecutionJoinOutcome,
 )
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.generic_simulation_admission import GenericN5ResolvedResult
+
 from polisyos.runtime.quality.grounding_disposition_vocab import (
     GroundingDispositionKind,
 )
@@ -687,6 +691,7 @@ _N8_CANDIDATE_SIMULATION_LIMITATIONS = frozenset(
         "decimal_source_preserved_binary64_input_backend_precision_not_established",
         "integer_source_preserved_binary64_input_backend_precision_not_established",
         "program_parameter_override_atom_semantics_not_established",
+        "semantic_program_graph_candidate_only",
         "n5_execution_request_provenance_not_established",
         "n4_source_candidates_are_alternatives_not_authored_compound_design",
         "authored_candidate_coupling_not_established",
@@ -2933,8 +2938,7 @@ def _generation_cycle_run_schema_version(
     if basis_transitions:
         return _GENERATION_CYCLE_SOURCE_TRANSITION_SCHEMA_VERSION
     if any(
-        getattr(summary, "evaluation_attempt", None) is not None
-        for summary in candidate_summaries
+        getattr(summary, "evaluation_attempt", None) is not None for summary in candidate_summaries
     ):
         return _GENERATION_CYCLE_ATTEMPT_SCHEMA_VERSION
     return GENERATION_CYCLE_SCHEMA_VERSION
@@ -9451,7 +9455,7 @@ def _conditional_simulation_value_observation(
                 candidate_id=candidate_id,
                 world_model_record_content_hash=world_hash,
             )
-    generic_refusal = _generic_n5_observation_refusal(
+    generic_refusal, replay = _replay_generic_n5_observation(
         simulation=simulation,
         candidate=candidate,
         problem=problem,
@@ -9485,14 +9489,28 @@ def _conditional_simulation_value_observation(
         if getattr(atom, "intervention_id", None)
     )
     try:
-        result = load_joint_simulation_result(
-            simulation.simulation_result_ref,
-            store=artifact_store,
-            expected_world_model_record_content_hash=world_hash,
-            expected_atom_ids=atom_ids or None,
-            expected_selected_outcomes=(outcome,) if outcome else None,
-            expected_receipt_payload_hash=simulation.simulation_ref or "",
-        )
+        if replay is not None:
+            result = replay.result
+            if result.receipt.payload_hash != (simulation.simulation_ref or ""):
+                _joint_simulation_result_integrity_error("receipt_payload_hash_binding_mismatch")
+            result_status, _ = _joint_simulation_port_outcome(result, request=replay.request)
+            if result_status != simulation.status:
+                _joint_simulation_result_integrity_error("execution_status_binding_mismatch")
+            _validate_loaded_joint_simulation_result(
+                result,
+                expected_world_model_record_content_hash=world_hash,
+                expected_atom_ids=atom_ids or None,
+                expected_selected_outcomes=(outcome,) if outcome else None,
+            )
+        else:
+            result = load_joint_simulation_result(
+                simulation.simulation_result_ref,
+                store=artifact_store,
+                expected_world_model_record_content_hash=world_hash,
+                expected_atom_ids=atom_ids or None,
+                expected_selected_outcomes=(outcome,) if outcome else None,
+                expected_receipt_payload_hash=simulation.simulation_ref or "",
+            )
     except GenerationCycleError as exc:
         if propagate_artifact_access_errors:
             from polisyos.core.artifacts import raise_artifact_read_access_error
@@ -9869,7 +9887,7 @@ def _generic_n5_canonical_port_issue(
     return None
 
 
-def _generic_n5_observation_refusal(
+def _replay_generic_n5_observation(
     *,
     simulation: SimulationPortObservation,
     candidate: object,
@@ -9881,8 +9899,8 @@ def _generic_n5_observation_refusal(
     child_selection: GenericCycleSimulationChildSelectionV1 | None,
     verified_scope: object | None,
     source_run_id: str | None,
-) -> str | None:
-    """Reconcile a generic N5 observation with its persisted input/execution."""
+) -> tuple[str | None, GenericN5ResolvedResult | None]:
+    """Replay the exact generic N5 owner join for a candidate observation."""
     from pydantic import ValidationError
 
     from polisyos.common.canonical_profile import CanonicalProfileRefusalError
@@ -9907,10 +9925,10 @@ def _generic_n5_observation_refusal(
         simulation.generic_n5_request_binding,
     )
     if not any(item is not None for item in generic_markers):
-        return None
+        return None, None
     source_ref, context_ref, profile_ref, input_ref, execution_ref, selection_ref = generic_refs
     if any(item is None for index, item in enumerate(generic_refs) if index != 4):
-        return "generic_cycle_simulation_projection_incomplete"
+        return "generic_cycle_simulation_projection_incomplete", None
     if type(artifact_store) is not SelectedProfileVerificationReader:
         artifact_store = SelectedProfileVerificationReader(artifact_store)
     try:
@@ -9931,7 +9949,7 @@ def _generic_n5_observation_refusal(
             load_core_json_artifact(artifact_store, input_ref)
         )
         if cycle_index is None:
-            return "n5_execution_request_provenance_not_established"
+            return "n5_execution_request_provenance_not_established", None
         established_scope = (
             type(verified_scope) is VerifiedNLJobScope
             and verified_scope._was_issued_by_verified_nl_execution_owner
@@ -9951,11 +9969,11 @@ def _generic_n5_observation_refusal(
             or simulation.generic_n4_child_profile_family_ref != handoff.n4_child_profile_family_ref
             or selection_ref != handoff.profile.profile_selection_ref
         ):
-            return "generic_cycle_simulation_projection_binding_mismatch"
+            return "generic_cycle_simulation_projection_binding_mismatch", None
         outcome_variable = _value_outcome_variable(candidate, problem)
         if outcome_variable is None:
-            return "generic_cycle_simulation_projection_binding_mismatch"
-        join = owner.resolve_n5_execution_join(
+            return "generic_cycle_simulation_projection_binding_mismatch", None
+        join, replay = owner.resolve_n5_execution_join_with_result(
             execution_ref,
             expected=GenericN5ExecutionJoinExpectation(
                 input_ref=input_ref,
@@ -9984,32 +10002,32 @@ def _generic_n5_observation_refusal(
             ),
         )
     except (FileNotFoundError, TimeoutError, ConnectionError, RuntimeDependencyError):
-        return "n5_execution_request_provenance_not_established"
+        return "n5_execution_request_provenance_not_established", None
     except CanonicalProfileRefusalError as exc:
         if exc.code in {
             "canon_profile_raw_manifest_unavailable",
             "canon_profile_typed_manifest_unavailable",
             "canon_profile_payload_unavailable",
         }:
-            return "n5_execution_request_provenance_not_established"
-        return "generic_cycle_simulation_projection_binding_mismatch"
+            return "n5_execution_request_provenance_not_established", None
+        return "generic_cycle_simulation_projection_binding_mismatch", None
     except ArtifactUnavailableError:
-        return "n5_execution_request_provenance_not_established"
+        return "n5_execution_request_provenance_not_established", None
     except ArtifactOwnershipError:
-        return "generic_cycle_simulation_artifact_scope_refused"
+        return "generic_cycle_simulation_artifact_scope_refused", None
     except (ArtifactIntegrityError, ValidationError):
-        return "generic_cycle_simulation_projection_binding_mismatch"
+        return "generic_cycle_simulation_projection_binding_mismatch", None
     except (TypeError, ValueError, RuntimeError):
         # Legacy owner errors can conflate missing and invalid dependencies.
         # Preserve only a declared candidate limitation until classified.
-        return "n5_execution_request_provenance_not_established"
+        return "n5_execution_request_provenance_not_established", None
     if join.status in {"invalid", "mismatch"}:
-        return "generic_cycle_simulation_projection_binding_mismatch"
+        return "generic_cycle_simulation_projection_binding_mismatch", None
     if join.status in {"unavailable", "not_established"} or not established_scope:
-        return "n5_execution_request_provenance_not_established"
+        return "n5_execution_request_provenance_not_established", None
     execution = join.execution
     if execution is None:
-        return "n5_execution_request_provenance_not_established"
+        return "n5_execution_request_provenance_not_established", None
     if (
         execution.status != "joint_simulated"
         or type(execution)
@@ -10039,7 +10057,7 @@ def _generic_n5_observation_refusal(
         or input_record.candidate_atom_hash != _candidate_content_hash(candidate)
         or input_record.child_selection != execution.child_selection
     ):
-        return "generic_cycle_simulation_projection_binding_mismatch"
+        return "generic_cycle_simulation_projection_binding_mismatch", None
     if input_record.component_materializations:
         # The owner has replayed these L6 projections against the selected N4
         # source above; the executed request contains derived, not source atoms.
@@ -10052,8 +10070,10 @@ def _generic_n5_observation_refusal(
             atom = getattr(candidate, "atom", None)
             candidate_atoms = (atom,) if atom is not None else ()
     if execution.request_binding.request.intervention_atoms != candidate_atoms:
-        return "generic_cycle_simulation_projection_candidate_atoms_mismatch"
-    return None
+        return "generic_cycle_simulation_projection_candidate_atoms_mismatch", None
+    if replay is None:
+        return "n5_execution_request_provenance_not_established", None
+    return None, replay
 
 
 def resolve_generic_n5_historical_cycle_join(

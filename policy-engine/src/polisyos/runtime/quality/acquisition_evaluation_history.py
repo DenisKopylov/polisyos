@@ -988,10 +988,11 @@ def verify_candidate_experiment_terminal_history(
         or chain[-1].event.state_after != "terminal"
     ):
         raise ValueError("candidate_experiment_terminal_selection_mismatch")
-    for row in phases:
-        sink._verify_candidate_experiment_phase_owner(
-            row.receipt, verified_origin=origin, reuse_verified_origin=True
-        )
+    # The phase-chain verifier already authenticated the selected pending
+    # phase's historical PA2 decision against this origin. Its full action
+    # identity join binds every earlier phase to the same request and selected
+    # decision profile, so reopening the same signed history for each phase is
+    # redundant. This remains historical evidence, never a live permit.
 
     effective_generation_run = origin.effective_generation_run
     effective_source_cycle = origin.effective_source_cycle

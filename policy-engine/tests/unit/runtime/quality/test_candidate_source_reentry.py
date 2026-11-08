@@ -1009,6 +1009,111 @@ def test_reentry_budget_reconcile_reuses_window_and_keeps_final_owner_fence(
     )
 
 
+@pytest.mark.parametrize(
+    ("locator_state", "expected_error"),
+    [
+        ("current", None),
+        ("missing", "candidate_experiment_action_history_not_current"),
+        ("stale", "candidate_experiment_reentry_action_not_current"),
+        ("wrong_scope", "candidate_experiment_action_history_not_current"),
+        ("wrong_phase", "candidate_experiment_reentry_pending_phase_missing"),
+    ],
+)
+def test_resolve_reentry_window_uses_locator_then_current_action_context(
+    monkeypatch: pytest.MonkeyPatch,
+    locator_state: str,
+    expected_error: str | None,
+) -> None:
+    """Resolve the current action window once, with a scoped head only as locator."""
+    from polisyos.runtime.quality import candidate_acquisition_action as actions
+    from tests.unit.runtime.quality.test_candidate_experiment_current_outcome import (
+        _selection_case,
+    )
+
+    origin, outcomes = _selection_case(1)
+    pending = outcomes[-1]
+    selection = object()
+    action = SimpleNamespace(selection=selection)
+    phase = SimpleNamespace(
+        receipt_phase=(
+            "candidate_input_reentry_pending" if locator_state != "wrong_phase" else "executing"
+        )
+    )
+    window = object()
+    locator_scope = {
+        "tenant_id": origin.tenant_id,
+        "cell_id": origin.cell_id,
+        "run_id": origin.run_id,
+        "source_job_id": origin.source_job_id,
+        "route_id": origin.route_id,
+        "action_generation": len(origin.candidate_terminal_history_chain) + 1,
+    }
+    locator_reads: list[dict[str, object]] = []
+    action_context_reads: list[tuple[object, ...]] = []
+
+    def get_head(**scope: object) -> object:
+        locator_reads.append(scope)
+        if locator_state == "missing":
+            return None
+        if locator_state == "stale":
+            return replace(pending.head, receipt_ref="sha256:" + "f" * 64)
+        if locator_state == "wrong_scope":
+            return replace(pending.head, tenant_id="foreign-tenant")
+        return pending.head
+
+    def current_action_context(*args: object) -> object:
+        action_context_reads.append(args)
+        if args[2] != pending.head.receipt_ref:
+            raise ValueError("candidate_experiment_reentry_action_not_current")
+        return SimpleNamespace(
+            selection=selection,
+            phase=phase,
+            action=action,
+            budget_window=window,
+        )
+
+    monkeypatch.setattr(
+        actions,
+        "_current_candidate_experiment_reentry_action_context",
+        current_action_context,
+    )
+    service = SimpleNamespace(
+        acquisition_route_sink=SimpleNamespace(
+            experiment_action_outcomes=lambda **_: pytest.fail(
+                "budget-window resolution replayed action history"
+            )
+        )
+    )
+    bridge = AcquisitionWorldGrowthBridge.__new__(AcquisitionWorldGrowthBridge)
+    bridge._source_control_service = service
+    bridge.control_store = SimpleNamespace(get_acquisition_action_head=get_head)
+
+    if expected_error is None:
+        assert (
+            bridge.resolve_candidate_experiment_reentry_budget_window(
+                origin=origin,
+                candidate_action_ref=pending.latest_receipt.candidate_receipt_ref,
+            )
+            is window
+        )
+    else:
+        with pytest.raises(ValueError, match=expected_error):
+            bridge.resolve_candidate_experiment_reentry_budget_window(
+                origin=origin,
+                candidate_action_ref=pending.latest_receipt.candidate_receipt_ref,
+            )
+
+    assert locator_reads == [locator_scope]
+    if locator_state in {"missing", "wrong_scope"}:
+        assert action_context_reads == []
+    else:
+        assert len(action_context_reads) == 1
+        expected_locator_ref = (
+            "sha256:" + "f" * 64 if locator_state == "stale" else pending.head.receipt_ref
+        )
+        assert action_context_reads[0][2] == expected_locator_ref
+
+
 @pytest.mark.parametrize("ledger_profile", ["selected", "missing", "foreign"])
 def test_terminal_reentry_binds_exact_selected_quota_read_only(
     tmp_path: Path,

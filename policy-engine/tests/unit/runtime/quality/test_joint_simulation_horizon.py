@@ -1725,6 +1725,8 @@ def test_program_graph_horizon_preserves_one_complete_method_capture(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from pydantic import ValidationError
+
     from polisyos.core.artifacts import validate_core_model_json_artifact
     from polisyos.core.artifacts.environment import (
         CPUInfo,
@@ -1737,13 +1739,15 @@ def test_program_graph_horizon_preserves_one_complete_method_capture(
     from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
     from polisyos.core.contracts.foundry import (
         MethodExecutionBundle,
+        MethodExecutionBundleRef,
         MethodMetricBinding,
         MethodMetricBindingSet,
         MethodMetricBindingSetRef,
         StateDelta,
+        StateSnapshot,
         StateSnapshotRef,
     )
-    from polisyos.foundry.execute.executor import put_state_snapshot
+    from polisyos.foundry.execute.executor import load_state_snapshot, put_state_snapshot
     from polisyos.foundry.methods.base import (
         ComplexityClass,
         ComputeBackend,
@@ -1754,7 +1758,6 @@ def test_program_graph_horizon_preserves_one_complete_method_capture(
         SlotType,
         Unit,
     )
-    from polisyos.foundry.methods.exceptions import MethodExecutionAbortError
     from polisyos.foundry.methods.registry import MethodRegistry as GraphMethodRegistry
     from polisyos.ir.kernel.method_metrics import (
         MethodMetricSourceUnit,
@@ -1762,6 +1765,10 @@ def test_program_graph_horizon_preserves_one_complete_method_capture(
         registered_method_metric_unit_adapter_metadata,
     )
     from polisyos.ir.kernel.units import RateUnit
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        MethodMetricHorizonFailureCapture,
+        MethodMetricHorizonFailureOccurrence,
+    )
 
     class _HorizonCaptureMethod:
         signature: ClassVar[MethodSignature] = MethodSignature(
@@ -1979,6 +1986,7 @@ def test_program_graph_horizon_preserves_one_complete_method_capture(
         merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
         selector_field_registry=DEFAULT_SELECTOR_FIELD_REGISTRY,
         constraint_registry=ConstraintRegistry(constraints={}),
+        outcome_aggregations={"mean_income": {"method": "mean", "unit": "usd"}},
     )
     request = _request().model_copy(
         update={
@@ -2039,20 +2047,82 @@ def test_program_graph_horizon_preserves_one_complete_method_capture(
             raise ValueError("horizon method failure witness")
 
         monkeypatch.setattr(_HorizonCaptureMethod, "pure_step", staticmethod(fail_dispatch))
-        with pytest.raises(MethodExecutionAbortError) as caught:
-            JointSimulationHorizonController().run(request)
-        failure_capture = caught.value.method_metric_horizon_capture
-        assert failure_capture["status"] == "failed"
-        assert failure_capture["method_metric_binding_set_ref"]["manifest_profile_sha256"]
-        assert failure_capture["method_execution_bundle_ref"]["manifest_profile_sha256"]
+        failed_result = JointSimulationHorizonController().run(request)
+        assert failed_result.trajectories == ()
+        assert failed_result.diagnostics["engine_run_claimed"] is False
+        assert failed_result.diagnostics["physical_work_interruption"] == "n5_physical_work_failed"
+        failed_work = failed_result.physical_work_observations
+        assert len(failed_work) == failed_result.diagnostics["physical_work_units"] == 1
+        assert failed_work[0].status == "failed"
+        assert failed_work[0].error_type == "MethodExecutionAbortError"
+        failure_capture = MethodMetricHorizonFailureCapture.model_validate(
+            failed_result.diagnostics["method_metric_horizon_failure_capture"]
+        )
+        assert failure_capture.status == "failed"
+        assert failure_capture.step == 0
+        assert failure_capture.physical_work_event_id == failed_work[0].event_id
+        assert failure_capture.step_source.step == failure_capture.step
+        assert failure_capture.step_source.source_status == "failed"
         failed_bundle = validate_core_model_json_artifact(
             MethodExecutionBundle,
             store,
-            ArtifactRef.model_validate(failure_capture["method_execution_bundle_ref"]),
+            MethodExecutionBundleRef.model_validate(
+                failure_capture.method_execution_bundle_ref.model_dump(mode="python")
+            ),
         )
+        assert failed_bundle.method_metric_binding_set_ref.model_dump(
+            mode="json"
+        ) == failure_capture.method_metric_binding_set_ref.model_dump(mode="json")
+        assert failed_bundle.program_graph_ref.model_dump(
+            mode="json"
+        ) == typed_graph_ref.model_dump(mode="json")
+        assert failed_bundle.exec_plan_ref.model_dump(mode="json") == exec_plan_ref.model_dump(
+            mode="json"
+        )
+        bundle_manifest = store.get_manifest(failure_capture.method_execution_bundle_ref)
+        bundle_edges = {edge.role: edge for edge in bundle_manifest.inputs}
+        assert bundle_edges["program_graph"] == input_ref_from_artifact_ref(
+            failed_bundle.program_graph_ref,
+            role="program_graph",
+        )
+        assert bundle_edges["exec_plan"] == input_ref_from_artifact_ref(
+            failed_bundle.exec_plan_ref,
+            role="exec_plan",
+        )
+        assert bundle_edges["method_metric_binding_set"] == input_ref_from_artifact_ref(
+            failed_bundle.method_metric_binding_set_ref,
+            role="method_metric_binding_set",
+        )
+        prestate_ref = failure_capture.step_source.prestate_ref
+        prestate_snapshot = validate_core_model_json_artifact(StateSnapshot, store, prestate_ref)
+        assert prestate_snapshot.step == failure_capture.step
+        loaded_prestate = load_state_snapshot(store, snapshot_ref=prestate_ref)
+        assert np.array_equal(loaded_prestate.agents.income, base_state.agents.income)
         assert len(failed_bundle.occurrences) == 1
         failed_occurrence = failed_bundle.occurrences[0]
         assert failed_occurrence.status == "failed"
+        assert failed_occurrence.dispatch is not None
+        assert failed_occurrence.dispatch.input_state_status == "not_established"
+        assert failed_occurrence.dispatch.input_state_ref is None
+        assert failure_capture.step_source.occurrence_ids == (failed_occurrence.occurrence_id,)
+        assert failure_capture.occurrences == (
+            MethodMetricHorizonFailureOccurrence(
+                occurrence_id=failed_occurrence.occurrence_id,
+                invocation_id=failed_occurrence.invocation_id,
+                node_id=failed_occurrence.node_id,
+                status=failed_occurrence.status,
+            ),
+        )
+        relabeled_step = failure_capture.model_dump(mode="json")
+        relabeled_step["step"] = failure_capture.step + 1
+        with pytest.raises(ValidationError):
+            MethodMetricHorizonFailureCapture.model_validate(relabeled_step)
+        mismatched_occurrence = failure_capture.model_dump(mode="json")
+        mismatched_occurrence["step_source"]["occurrence_ids"] = [
+            failed_occurrence.occurrence_id + ":relabelled"
+        ]
+        with pytest.raises(ValidationError):
+            MethodMetricHorizonFailureCapture.model_validate(mismatched_occurrence)
         assert failed_occurrence.dispatch is not None
         assert failed_occurrence.dispatch.outcome == "failed"
         assert failed_occurrence.dispatch.backend_trace_status == "not_established"

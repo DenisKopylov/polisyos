@@ -29,6 +29,8 @@ from pydantic import (
     ConfigDict,
     Field,
     PrivateAttr,
+    StrictInt,
+    StrictStr,
     field_validator,
     model_validator,
 )
@@ -38,6 +40,7 @@ from polisyos.core.artifacts import raise_artifact_read_access_error
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.contracts.foundry import StateSnapshotRef
 from polisyos.foundry.execute.executor import (
     apply_state_delta,
     execute_program_graph,
@@ -1790,6 +1793,87 @@ class _PhysicalWorkInterruptedError(JointSimulationControllerError):
         self.projection_error_context: dict[str, str] | None = None
         self.completed_physical_value: Any = None
         self.completed_physical_observation: PhysicalSimulationWorkObservation | None = None
+        self.method_metric_horizon_failure_capture: MethodMetricHorizonFailureCapture | None = None
+
+
+class MethodMetricHorizonFailureOccurrence(_StrictModel):
+    """Compact selected occurrence status from one persisted failed method invocation."""
+
+    occurrence_id: StrictStr = Field(min_length=1, max_length=512)
+    invocation_id: StrictStr = Field(min_length=1, max_length=64)
+    node_id: StrictStr = Field(min_length=1, max_length=256)
+    status: Literal["succeeded", "failed", "skipped"]
+
+    @model_validator(mode="after")
+    def _occurrence_is_bound_to_invocation(self) -> MethodMetricHorizonFailureOccurrence:
+        if not self.occurrence_id.startswith(
+            self.invocation_id + ":"
+        ) or not self.occurrence_id.endswith(":" + self.node_id):
+            raise ValueError("method_metric_horizon_failure_occurrence_mismatch")
+        return self
+
+
+class MethodMetricHorizonFailureStepSource(_StrictModel):
+    """Exact failed horizon step and persisted prestate source."""
+
+    step: StrictInt = Field(ge=0)
+    source_status: Literal["failed"]
+    prestate_ref: StateSnapshotRef
+    occurrence_ids: tuple[StrictStr, ...] = Field(min_length=1, max_length=256)
+
+    @model_validator(mode="after")
+    def _step_source_is_selected(self) -> MethodMetricHorizonFailureStepSource:
+        if (
+            self.prestate_ref.manifest_profile_sha256 is None
+            or len(set(self.occurrence_ids)) != len(self.occurrence_ids)
+            or any(not item or len(item) > 512 for item in self.occurrence_ids)
+        ):
+            raise ValueError("method_metric_horizon_failure_step_source_invalid")
+        return self
+
+
+class MethodMetricHorizonFailureCapture(_StrictModel):
+    """Selected persisted method-failure capture carried through bounded N5 interruption."""
+
+    schema_version: Literal["policyos.runtime.method_metric_horizon_failure_capture.v1"] = (
+        "policyos.runtime.method_metric_horizon_failure_capture.v1"
+    )
+    step: StrictInt = Field(ge=0)
+    status: Literal["failed"]
+    method_metric_binding_set_ref: ArtifactRef
+    method_execution_bundle_ref: ArtifactRef
+    step_source: MethodMetricHorizonFailureStepSource
+    physical_work_event_id: StrictStr = Field(min_length=1, max_length=128)
+    invocation_id: StrictStr = Field(pattern=r"^graph-invocation\.[0-9]{6}$")
+    occurrences: tuple[MethodMetricHorizonFailureOccurrence, ...] = Field(
+        min_length=1, max_length=256
+    )
+
+    @model_validator(mode="after")
+    def _capture_is_selected_and_failed(self) -> MethodMetricHorizonFailureCapture:
+        binding = self.method_metric_binding_set_ref
+        bundle = self.method_execution_bundle_ref
+        if (
+            self.step_source.step != self.step
+            or self.step_source.source_status != self.status
+            or tuple(item.occurrence_id for item in self.occurrences)
+            != self.step_source.occurrence_ids
+            or any(item.invocation_id != self.invocation_id for item in self.occurrences)
+            or sum(item.status == "failed" for item in self.occurrences) != 1
+            or binding.kind != "foundry.method_metric_binding_set"
+            or binding.media_type != "application/json"
+            or binding.manifest_profile_sha256 is None
+            or bundle.kind != "foundry.method_execution_bundle"
+            or bundle.media_type != "application/json"
+            or bundle.manifest_profile_sha256 is None
+            or len({item.occurrence_id for item in self.occurrences}) != len(self.occurrences)
+            or not any(
+                item.invocation_id == self.invocation_id and item.status == "failed"
+                for item in self.occurrences
+            )
+        ):
+            raise ValueError("method_metric_horizon_failure_capture_invalid")
+        return self
 
 
 def _require_nl_physical_budget_scope(
@@ -2074,9 +2158,76 @@ def _run_cached_replicates(
                 interrupted.completed_physical_observation = work
             raise interrupted from (error if error is not None else quota_finish_error)
         if error is not None:
-            raise _PhysicalWorkInterruptedError(
+            interrupted = _PhysicalWorkInterruptedError(
                 "n5_physical_work_failed", output, observations, tuple(budget_bases.values())
-            ) from error
+            )
+            if type(error) is MethodExecutionAbortError:
+                raw_capture = error.method_metric_horizon_capture
+                if raw_capture is not None:
+                    if type(raw_capture) is not dict:
+                        raise JointSimulationControllerError(
+                            "method_metric_horizon_failure_capture_invalid"
+                        ) from error
+                    try:
+                        raw_sources = raw_capture["method_execution_sources"]
+                        if type(raw_sources) is not list or any(
+                            type(source) is not dict for source in raw_sources
+                        ):
+                            raise ValueError("method_execution_sources_invalid")
+                        failed_sources = [
+                            source
+                            for source in raw_sources
+                            if source.get("source_status") == "failed"
+                        ]
+                        if len(failed_sources) != 1:
+                            raise ValueError("failed_method_execution_source_not_unique")
+                        selected_source = failed_sources[0]
+                        raw_occurrences = raw_capture["occurrences"]
+                        if type(raw_occurrences) is not list or any(
+                            type(occurrence) is not dict for occurrence in raw_occurrences
+                        ):
+                            raise ValueError("method_execution_occurrences_invalid")
+                        selected_occurrences = [
+                            occurrence
+                            for occurrence in raw_occurrences
+                            if occurrence.get("invocation_id") == raw_capture["invocation_id"]
+                        ]
+                        selected_occurrence_ids = [
+                            occurrence["occurrence_id"] for occurrence in selected_occurrences
+                        ]
+                        if (
+                            selected_source["step"] != raw_capture["step"]
+                            or selected_source["source_status"] != "failed"
+                            or selected_source["occurrence_ids"] != selected_occurrence_ids
+                        ):
+                            raise ValueError("method_execution_step_source_mismatch")
+                        interrupted.method_metric_horizon_failure_capture = (
+                            MethodMetricHorizonFailureCapture.model_validate(
+                                {
+                                    key: raw_capture[key]
+                                    for key in (
+                                        "step",
+                                        "status",
+                                        "method_metric_binding_set_ref",
+                                        "method_execution_bundle_ref",
+                                        "invocation_id",
+                                    )
+                                }
+                                | {
+                                    "schema_version": (
+                                        "policyos.runtime.method_metric_horizon_failure_capture.v1"
+                                    ),
+                                    "physical_work_event_id": work.event_id,
+                                    "step_source": selected_source,
+                                    "occurrences": selected_occurrences,
+                                }
+                            )
+                        )
+                    except (KeyError, TypeError, ValueError) as exc:
+                        raise JointSimulationControllerError(
+                            "method_metric_horizon_failure_capture_invalid"
+                        ) from exc
+            raise interrupted from error
         if quota_reservation is not None and physical_n5_budget_scope is not None:
             try:
                 _require_nl_physical_budget_scope(
@@ -2478,7 +2629,21 @@ class JointSimulationResult(_StrictModel):
 
     @model_validator(mode="after")
     def _versioned_state_consumption(self) -> JointSimulationResult:
-        _ = self.physical_work_observations
+        work_observations = self.physical_work_observations
+        raw_failure_capture = self.diagnostics.get("method_metric_horizon_failure_capture")
+        if raw_failure_capture is not None:
+            failure_capture = MethodMetricHorizonFailureCapture.model_validate(raw_failure_capture)
+            if (
+                failure_capture.model_dump(mode="json") != raw_failure_capture
+                or self.diagnostics.get("physical_work_interruption") != "n5_physical_work_failed"
+                or not any(
+                    item.event_id == failure_capture.physical_work_event_id
+                    and item.status == "failed"
+                    and item.error_type == "MethodExecutionAbortError"
+                    for item in work_observations
+                )
+            ):
+                raise ValueError("method_metric_horizon_failure_result_mismatch")
         _validate_embedded_ncm_comparator(self)
         if self.receipt.schema_version != self.schema_version:
             raise ValueError("joint_simulation_receipt_schema_mismatch")
@@ -3183,6 +3348,10 @@ class JointSimulationHorizonController:
                     diagnostics["physical_work_observations"] = [
                         item.model_dump(mode="json") for item in exc.observations
                     ]
+                    if exc.method_metric_horizon_failure_capture is not None:
+                        diagnostics["method_metric_horizon_failure_capture"] = (
+                            exc.method_metric_horizon_failure_capture.model_dump(mode="json")
+                        )
                     diagnostics["producer_budget_observations"] = {
                         item.source_basis_digest: item.model_dump(mode="json")
                         for item in exc.budget_observations

@@ -28,6 +28,7 @@ from ..artifacts.manifest import ArtifactRef, InputRef
 from .distributional import DistributionalReportRef
 from .execution_plan import ExecutionPlanRef
 from .scientist import FairnessAuditReportRef, MetricValidationReportRef
+from .semantic_input_binding import ResolvedInputBindingManifestRef
 from .uncertainty import UncertaintyEnvelopeRef
 
 _AttractorAnalysisMode = Literal["attractors", "continuation", "basin_map", "lyapunov"]
@@ -1533,16 +1534,18 @@ class FoundryInputBindings(BaseModel):
 
     ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.core.FoundryInputBindings"
     ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
-    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1")
+    ARTIFACT_SCHEMA_VERSIONS: ClassVar[tuple[str, ...]] = ("1.0", "1.1", "1.2", "1.3")
     ARTIFACT_REQUIRED_FIELDS_BY_SCHEMA_VERSION: ClassVar[dict[str, tuple[str, ...]]] = {
         "1.1": ("registered_sql_admission_ref",),
+        "1.2": ("resolved_binding_manifest_ref",),
+        "1.3": ("registered_sql_admission_ref", "resolved_binding_manifest_ref"),
     }
     ARTIFACT_KIND: ClassVar[Literal["foundry.input_bindings"]] = "foundry.input_bindings"
     ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
+    schema_version: Literal["1.0", "1.1", "1.2", "1.3"] = "1.0"
     data_snapshot_ref: ArtifactRef
     registry_bundle_ref: ArtifactRef
     rules: list[FoundryInputBindingRule] = Field(default_factory=list)
@@ -1551,12 +1554,32 @@ class FoundryInputBindings(BaseModel):
     registered_sql_admission_ref: ArtifactRef | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    resolved_binding_manifest_ref: ResolvedInputBindingManifestRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def _validate_registered_sql_transport(self) -> FoundryInputBindings:
-        if (self.registered_sql_admission_ref is not None) != (self.schema_version == "1.1"):
+    def _validate_transport_version(self) -> FoundryInputBindings:
+        registered_sql = self.schema_version in {"1.1", "1.3"}
+        if (self.registered_sql_admission_ref is not None) != registered_sql:
             raise ValueError("foundry_input_bindings_registered_sql_version_mismatch")
+        semantic = self.schema_version in {"1.2", "1.3"}
+        if (self.resolved_binding_manifest_ref is not None) != semantic or (
+            not semantic and "resolved_binding_manifest_ref" in self.model_fields_set
+        ):
+            raise ValueError("foundry_input_bindings_semantic_version_mismatch")
+        if semantic and any(
+            ref is not None and ref.manifest_profile_sha256 is None
+            for ref in (
+                self.data_snapshot_ref,
+                self.registry_bundle_ref,
+                self.bound_state_snapshot_ref,
+                self.quality_report_ref,
+                self.registered_sql_admission_ref,
+            )
+        ):
+            raise ValueError("foundry_input_bindings_semantic_profile_required")
         return self
 
 

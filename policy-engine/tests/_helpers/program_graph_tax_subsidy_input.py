@@ -9,7 +9,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from polisyos.core.artifacts import ArtifactRef, CoreJSONArtifactStore, FileSystemCAS
+
 
 INCOME_VALUES = (100, 200)
 SUBSIDY_RATE = 0.125
@@ -28,14 +34,18 @@ class ProgramGraphTaxSubsidyInputCase:
     bound_state_snapshot_ref: Any
     policy_candidate_ref: Any
     trinity_ref: Any
+    compile_report_ref: ArtifactRef
     exec_plan_ref: Any
     program_graph_ref: Any
+    model_input_port_declaration_ref: ArtifactRef | None
+    _owns_store: bool = True
 
     def close(self) -> None:
         """Close the fixture CAS after the fresh reader has finished."""
-        close = getattr(self.store, "close", None)
-        if callable(close):
-            close()
+        if self._owns_store:
+            close = getattr(self.store, "close", None)
+            if callable(close):
+                close()
 
 
 @dataclass(frozen=True, slots=True)
@@ -49,27 +59,43 @@ def prepare_program_graph_tax_subsidy_input_case(
     tmp_path: Path,
     *,
     opening_balance_usd: float | None,
+    mechanism_start_step: int = 0,
+    model_input_port_declaration_builder: Callable[[CoreJSONArtifactStore], ArtifactRef]
+    | None = None,
+    store: FileSystemCAS | None = None,
+    snapshot_id: str | None = None,
 ) -> ProgramGraphTaxSubsidyInputCase:
     """Compile and bind a real candidate ProgramGraph against selected fixture data.
 
     ``opening_balance_usd=None`` omits the stock source and its binding entirely.
     The model-input preflight can reuse that case to prove the graph's actual
     prestate dependency is absent, without inserting a test-created requirement.
+    A caller-supplied store retains its existing ownership and lifetime.
+    `snapshot_id` opts into the synthetic world fixture's explicit version.
     """
     from decimal import Decimal
 
     from polisyos.common.async_tools import run_coro_sync
+    from polisyos.core.artifacts import (
+        ArtifactRef,
+        ensure_ir_artifact_store,
+        load_core_json_artifact,
+    )
     from polisyos.core.artifacts.async_store import ensure_async_artifact_store
-    from polisyos.core.artifacts import ArtifactRef, ensure_ir_artifact_store
     from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
     from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.contracts.fabric import DataSnapshot
     from polisyos.core.contracts.foundry import (
         CompileRequest,
         FoundryInputBindingRule,
         FoundryInputBindingsRef,
     )
     from polisyos.core.registry import build_default_registry_bundle
-    from polisyos.fabric.data_plane.orchestrator import _build_snapshot_from_evidence_async
+    from polisyos.fabric.data_plane.orchestrator import (
+        _build_snapshot_from_evidence_async,
+        _ingestion_snapshot_write_options,
+    )
     from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
     from polisyos.foundry.compile.api import compile as compile_foundry
     from polisyos.foundry.data_plane import build_input_bindings
@@ -81,7 +107,11 @@ def prepare_program_graph_tax_subsidy_input_case(
     )
     from polisyos.ir.governance.schedule import ScheduleSpec
     from polisyos.ir.governance.selector_expr import SelectorPredicate
-    from polisyos.ir.model_layer.model_spec import ModelSpec
+    from polisyos.ir.model_layer.model_spec import (
+        MODEL_SPEC_INPUT_PORT_DECLARATION_VERSION,
+        ModelInputPortDeclarationRef,
+        ModelSpec,
+    )
     from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
     from polisyos.ir.trinity import TrinityBundle, persist_trinity_bundle_artifact
     from polisyos.scientist.policy_design.schema import (
@@ -90,8 +120,9 @@ def prepare_program_graph_tax_subsidy_input_case(
         persist_policy_candidate_schema,
     )
 
-    store_root = tmp_path / "cas"
-    store = FileSystemCAS(store_root)
+    owns_store = store is None
+    if store is None:
+        store = FileSystemCAS(tmp_path / "cas")
     try:
         payload: dict[str, Any] = {"agents": {"income": list(INCOME_VALUES)}}
         if opening_balance_usd is not None:
@@ -126,6 +157,19 @@ def prepare_program_graph_tax_subsidy_input_case(
         )
         if data_snapshot_ref is None or data_snapshot_ref.manifest_profile_sha256 is None:
             raise AssertionError("program_graph_input_snapshot_not_selected")
+        if snapshot_id is not None:
+            snapshot = DataSnapshot.model_validate(
+                load_core_json_artifact(store, data_snapshot_ref)
+            )
+            snapshot = snapshot.model_copy(
+                update={"stats": {**snapshot.stats, "snapshot_id": snapshot_id}}
+            )
+            data_snapshot_ref = store.put_json(
+                snapshot,
+                _ingestion_snapshot_write_options(snapshot),
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
 
         registry_bundle = build_default_registry_bundle(store, return_selected_profile=True)
         rules = [
@@ -173,7 +217,7 @@ def prepare_program_graph_tax_subsidy_input_case(
                         operator=SelectorOperator.EQUALS,
                         value="all",
                     ),
-                    schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                    schedule=ScheduleSpec(start_step=mechanism_start_step, duration_steps=1),
                     params={"rate": Decimal(str(SUBSIDY_RATE))},
                 )
             ],
@@ -185,14 +229,27 @@ def prepare_program_graph_tax_subsidy_input_case(
                 )
             ],
         )
+        model_spec = ModelSpec(
+            model_id="program_graph_tax_subsidy_input",
+            data_snapshot_ref=str(data_snapshot_ref.artifact_id),
+            registry_bundle_ref=str(registry_bundle.bundle_ref.artifact_id),
+        )
+        model_input_port_declaration_ref = None
+        if model_input_port_declaration_builder is not None:
+            model_input_port_declaration_ref = model_input_port_declaration_builder(store)
+            model_spec = ModelSpec.model_validate(
+                {
+                    **model_spec.model_dump(mode="python"),
+                    "schema_version": MODEL_SPEC_INPUT_PORT_DECLARATION_VERSION,
+                    "model_input_port_declaration_ref": ModelInputPortDeclarationRef.model_validate(
+                        model_input_port_declaration_ref.model_dump(mode="python")
+                    ),
+                }
+            )
         trinity = TrinityBundle(
             problem_frame=problem_frame,
             policy_spec=policy_spec,
-            model_spec=ModelSpec(
-                model_id="program_graph_tax_subsidy_input",
-                data_snapshot_ref=str(data_snapshot_ref.artifact_id),
-                registry_bundle_ref=str(registry_bundle.bundle_ref.artifact_id),
-            ),
+            model_spec=model_spec,
         )
         policy_candidate_ref = persist_policy_candidate_schema(
             store,
@@ -217,14 +274,21 @@ def prepare_program_graph_tax_subsidy_input_case(
             ],
             return_selected_profile=True,
         )
+        trinity_inputs = [
+            input_ref_from_artifact_ref(policy_candidate_ref, role="policy_candidate")
+        ]
+        if model_input_port_declaration_ref is not None:
+            trinity_inputs.append(
+                input_ref_from_artifact_ref(
+                    model_input_port_declaration_ref, role="model_input_port_declaration"
+                )
+            )
         selected_trinity_ref = persist_trinity_bundle_artifact(
             ensure_ir_artifact_store(store),
             trinity,
-            inputs=[input_ref_from_artifact_ref(policy_candidate_ref, role="policy_candidate")],
+            inputs=trinity_inputs,
         )
-        trinity_ref = ArtifactRef.model_validate(
-            selected_trinity_ref.model_dump(mode="python")
-        )
+        trinity_ref = ArtifactRef.model_validate(selected_trinity_ref.model_dump(mode="python"))
         if trinity_ref.manifest_profile_sha256 is None:
             raise AssertionError("program_graph_fixture_selected_trinity_view_missing")
         candidate_edges = [
@@ -245,15 +309,17 @@ def prepare_program_graph_tax_subsidy_input_case(
                 return_selected_profile=True,
             ),
         )
-        if not compiled.ok or compiled.exec_plan_ref is None:
+        if not compiled.ok or compiled.exec_plan_ref is None or compiled.compile_report_ref is None:
             raise AssertionError(f"program_graph_compile_failed: {compiled.notes!r}")
         graph_refs = [item.ref for item in compiled.derived_refs if item.role == "program_graph"]
         if len(graph_refs) != 1:
             raise AssertionError("program_graph_compile_selected_graph_missing")
         exec_plan_ref = compiled.exec_plan_ref
+        compile_report_ref = ArtifactRef.model_validate(compiled.compile_report_ref.model_dump())
         program_graph_ref = graph_refs[0]
         if (
             exec_plan_ref.manifest_profile_sha256 is None
+            or compile_report_ref.manifest_profile_sha256 is None
             or program_graph_ref.manifest_profile_sha256 is None
             or binding_result.input_bindings_ref.manifest_profile_sha256 is None
             or binding_result.bound_state_snapshot_ref.manifest_profile_sha256 is None
@@ -261,7 +327,7 @@ def prepare_program_graph_tax_subsidy_input_case(
             raise AssertionError("program_graph_fixture_selected_view_missing")
         return ProgramGraphTaxSubsidyInputCase(
             store=store,
-            store_root=store_root,
+            store_root=store.root,
             source_ref=source_ref,
             data_snapshot_ref=data_snapshot_ref,
             registry_bundle_ref=registry_bundle.bundle_ref,
@@ -271,13 +337,17 @@ def prepare_program_graph_tax_subsidy_input_case(
             bound_state_snapshot_ref=binding_result.bound_state_snapshot_ref,
             policy_candidate_ref=policy_candidate_ref,
             trinity_ref=trinity_ref,
+            compile_report_ref=compile_report_ref,
             exec_plan_ref=exec_plan_ref,
             program_graph_ref=program_graph_ref,
+            model_input_port_declaration_ref=model_input_port_declaration_ref,
+            _owns_store=owns_store,
         )
     except BaseException:
-        close = getattr(store, "close", None)
-        if callable(close):
-            close()
+        if owns_store:
+            close = getattr(store, "close", None)
+            if callable(close):
+                close()
         raise
 
 

@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from polisyos.foundry.compile._lowering import TRINITY_FIELD_COVERAGE, audit_trinity_field_coverage
+from polisyos.foundry.compile._lowering import (
+    _REQUIRED_CONSUMERS,
+    TRINITY_FIELD_COVERAGE,
+    audit_trinity_field_coverage,
+)
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
@@ -12,3 +16,8 @@ def test_trinity_field_coverage_matrix_is_complete() -> None:
     assert set(TRINITY_FIELD_COVERAGE["ProblemFrame"]) == set(ProblemFrame.model_fields)
     assert set(TRINITY_FIELD_COVERAGE["PolicySpec"]) == set(PolicySpec.model_fields)
     assert set(TRINITY_FIELD_COVERAGE["ModelSpec"]) == set(ModelSpec.model_fields)
+
+    declaration = TRINITY_FIELD_COVERAGE["ModelSpec"]["model_input_port_declaration_ref"]
+    assert declaration.status == "runtime"
+    assert declaration.consumer == "foundry.execute.model_input_requirements"
+    assert ("ModelSpec", "model_input_port_declaration_ref") in _REQUIRED_CONSUMERS

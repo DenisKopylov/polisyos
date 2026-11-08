@@ -91,6 +91,10 @@ from polisyos.foundry.data_plane import (
     inject_feedback_state,
     load_input_bindings,
 )
+from polisyos.foundry.data_plane.bindings import (
+    reconcile_semantic_input_bindings,
+    require_resolved_input_binding_manifest_edge,
+)
 from polisyos.foundry.execute._internal.posture import (
     ResolvedExecutionPosture,
     resolve_execution_posture,
@@ -131,6 +135,7 @@ class _ResolvedStateSource:
     """Internal bundle describing where the execution base state came from."""
 
     state_snapshot_ref: StateSnapshotRef
+    bindings: FoundryInputBindings
     notes: tuple[str, ...]
     input_refs: tuple[InputRef, ...]
 
@@ -853,6 +858,16 @@ def _admit_execution_source(
     binding_manifest = _selected_manifest(
         store, basis.input_bindings_ref, read_session=read_session
     )
+    require_resolved_input_binding_manifest_edge(bindings, binding_manifest)
+    if bindings.resolved_binding_manifest_ref is not None and read_session is not None:
+        raise ExecutionSourceAdmissionRefusal(
+            "execution_source_semantic_bounded_replay_not_established"
+        )
+    semantic_notes = reconcile_semantic_input_bindings(
+        store, bindings, execute_request=basis.request, effective_step=basis.effective_step
+    )
+    if not all(note in simulation_result.notes for note in semantic_notes):
+        raise ValueError("execution_source_semantic_input_limitations_missing")
     transport_edges = [
         edge
         for edge in binding_manifest.inputs
@@ -1091,6 +1106,11 @@ def _admit_execution_source(
         expected_inventory
     ):
         raise ValueError("execution_source_basis_manifest_does_not_bind_complete_source_graph")
+    if bindings.resolved_binding_manifest_ref is None and any(
+        edge.role == "basis.edge.trinity_bundle.model_input_port_declaration"
+        for edge in expected_inventory
+    ):
+        raise ValueError("foundry_input_bindings_semantic_manifest_required")
     return ExecutionSourceAdmission(
         mode="single_step_basis",
         simulation_result_ref=simulation_result_ref,
@@ -1182,7 +1202,7 @@ def _build_execution_input_basis(
     parameter_overrides: dict[str, dict[str, object]] | None,
 ) -> FoundryExecutionInputBasisRef:
     """Persist a selected source basis from the same objects used by the executor."""
-    bindings = load_input_bindings(store, request.input_bindings_ref)
+    bindings = resolved_state.bindings
     graph_ref = exec_plan.program_ref
     graph = _load_model(store, graph_ref, ProgramGraph)
     trinity_ref = graph.ir_ref
@@ -1377,10 +1397,23 @@ def execute(
     if registry_bundle_ref is None:
         raise ValueError("registry_bundle_ref is required for execute()")
 
+    exec_plan = _load_model(store, request.exec_plan_ref, ExecPlan)
+    from polisyos.foundry.execute.model_input_requirements import (
+        resolve_program_graph_input_declaration,
+    )
+
+    declaration = resolve_program_graph_input_declaration(
+        store,
+        program_graph_ref=exec_plan.program_ref,
+        exec_plan_ref=request.exec_plan_ref,
+        registry_bundle_ref=registry_bundle_ref,
+        loaded_plan=exec_plan,
+    )
+    if declaration is not None and resolved_state.bindings.resolved_binding_manifest_ref is None:
+        raise ValueError("foundry_input_bindings_semantic_manifest_required")
     registry_content = load_registry_bundle_content(store, registry_bundle_ref)
     base_state = load_state_snapshot(store, snapshot_ref=state_snapshot_ref)
 
-    exec_plan = _load_model(store, request.exec_plan_ref, ExecPlan)
     method_execution_capture = new_method_execution_capture(
         store,
         program_ref=exec_plan.program_ref,
@@ -1388,6 +1421,10 @@ def execute(
         artifact_output_codec=artifact_output_codec,
     )
     if method_execution_capture is not None:
+        if resolved_state.bindings.resolved_binding_manifest_ref is not None and _execution_ref_key(
+            method_execution_capture.exec_plan_ref
+        ) != _execution_ref_key(request.exec_plan_ref):
+            raise ValueError("foundry_input_bindings_semantic_execution_mismatch")
         request = request.model_copy(
             update={
                 "exec_plan_ref": method_execution_capture.exec_plan_ref,
@@ -1625,11 +1662,20 @@ def _resolve_state_snapshot(
     """Load and validate the bound snapshot referenced by `request`."""
     bindings_ref = FoundryInputBindingsRef.model_validate(request.input_bindings_ref.model_dump())
     bindings = load_input_bindings(store, bindings_ref)
+    if bindings.resolved_binding_manifest_ref is not None and not request.return_selected_profile:
+        raise ValueError("foundry_input_bindings_semantic_selected_execution_required")
+    if (
+        bindings.resolved_binding_manifest_ref is not None
+        and request.feedback_config_ref is not None
+    ):
+        raise ValueError("foundry_input_bindings_semantic_feedback_not_established")
+    semantic_notes = reconcile_semantic_input_bindings(store, bindings, execute_request=request)
     _ensure_readable(store, bindings.data_snapshot_ref)
     _ensure_readable(store, bindings.bound_state_snapshot_ref)
     return _ResolvedStateSource(
         state_snapshot_ref=bindings.bound_state_snapshot_ref,
-        notes=("state_source:input_bindings_ref",),
+        bindings=bindings,
+        notes=("state_source:input_bindings_ref", *semantic_notes),
         input_refs=(
             input_ref_from_artifact_ref(bindings_ref, role="input.input_bindings_ref"),
             input_ref_from_artifact_ref(bindings.data_snapshot_ref, role="input.data_snapshot_ref"),

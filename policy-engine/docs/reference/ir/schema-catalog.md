@@ -12,7 +12,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1675`.
+- Total IR types: `1676`.
 - Public/root-or-package facade types: `682`.
 - ABI snapshot-backed types: `103`.
 - Export enumeration covers these public packages:
@@ -43,7 +43,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `connectors` | 24 | 6 | 0 |
 | `data` | 7 | 0 | 0 |
 | `loading` | 25 | 19 | 6 |
-| `model_layer` | 30 | 17 | 1 |
+| `model_layer` | 31 | 17 | 1 |
 | `passes` | 16 | 0 | 0 |
 | `registry` | 158 | 130 | 0 |
 | `schemas` | 6 | 0 | 0 |
@@ -30970,6 +30970,24 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `hybrid` |
 | `full_discrete` |
 
+### `polisyos.ir.model_layer.model_spec.ModelInputPortDeclarationRef` { #polisyos-ir-model-layer-model-spec-modelinputportdeclarationref }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Reference one exact selected model-owned input-port declaration.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[ir.model_input_port_declaration]` | `no` | `'ir.model_input_port_declaration'` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
 ### `polisyos.ir.model_layer.model_spec.ModelSpec` { #polisyos-ir-model-layer-model-spec-modelspec }
 
 - Kind: `pydantic_model`
@@ -30978,7 +30996,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: `polisyos.ir:ModelSpec`
 - ABI snapshot: `model_spec` / `schemas/snapshots/ir/model_spec.schema.json`
 - Compatibility mode: `—`
-- References: `polisyos.ir.kernel.time_semantics.TimeSemantics`, `polisyos.ir.model_layer.model_spec.AgentConfig`, `polisyos.ir.model_layer.model_spec.AssumptionSpec`, `polisyos.ir.model_layer.model_spec.EnvironmentConfig`, `polisyos.ir.model_layer.model_spec.FidelityLevel`, `polisyos.ir.model_layer.types.TranslatableString`
+- References: `polisyos.ir.kernel.time_semantics.TimeSemantics`, `polisyos.ir.model_layer.model_spec.AgentConfig`, `polisyos.ir.model_layer.model_spec.AssumptionSpec`, `polisyos.ir.model_layer.model_spec.EnvironmentConfig`, `polisyos.ir.model_layer.model_spec.FidelityLevel`, `polisyos.ir.model_layer.model_spec.ModelInputPortDeclarationRef`, `polisyos.ir.model_layer.types.TranslatableString`
 - Summary: Define the Trinity ``how`` contract for simulation assumptions and state.
 
 | Field | Type | Required | Default | IR refs |
@@ -30993,6 +31011,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `fidelity_level` | `polisyos.ir.model_layer.model_spec.FidelityLevel` | `no` | `<FidelityLevel.HYBRID: 'hybrid'>` | `polisyos.ir.model_layer.model_spec.FidelityLevel` |
 | `labels` | `list[str]` | `no` | `—` | — |
 | `model_id` | `str` | `yes` | `—` | — |
+| `model_input_port_declaration_ref` | `polisyos.ir.model_layer.model_spec.ModelInputPortDeclarationRef \| NoneType` | `no` | `—` | `polisyos.ir.model_layer.model_spec.ModelInputPortDeclarationRef` |
 | `name` | `polisyos.ir.model_layer.types.TranslatableString \| NoneType` | `no` | `—` | `polisyos.ir.model_layer.types.TranslatableString` |
 | `notes` | `list[str]` | `no` | `—` | — |
 | `registry_bundle_ref` | `str \| NoneType` | `no` | `—` | — |

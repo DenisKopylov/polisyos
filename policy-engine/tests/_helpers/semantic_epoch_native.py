@@ -1264,6 +1264,7 @@ def make_native_multivariable_active_projections(
     unadmitted_baseline_observations: Sequence[Mapping[str, object]] = (),
     condition_units_by_raw_field: Mapping[str, str] | None = None,
     artifact_store: FileSystemCAS | None = None,
+    return_selected_raw_profile: bool = False,
 ) -> SimpleNamespace:
     """Create active projections through the real signed epoch owner chain.
 
@@ -1345,6 +1346,7 @@ def make_native_multivariable_active_projections(
                 kind="fabric.acquisition.raw_evidence",
                 media_type="application/json",
             ),
+            return_selected_profile=return_selected_raw_profile,
         )
         request_ref = journal.append_request(
             attempt_id=attempt_id,

@@ -6,8 +6,8 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-ir"
   },
-  "content_hash": "b83989c4309d6f728224136b16ee7723a056d9b12a267c49e1d5e67f31757dfc",
-  "generated_at": "2026-11-02T17:39:25+00:00",
+  "content_hash": "c47dc0e33495d86243af6415e59b34223bf7e1510d9f79b485a5e134b66b4905",
+  "generated_at": "2026-11-08T12:31:41+00:00",
   "generator_version": "1.1.0",
   "models": {
     "abm_alignment_report": {
@@ -738,8 +738,8 @@
       "priority": "p0",
       "schema_file": "model_spec.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "e92e5e27faa5f548c9a6f70f8c60e46674ea1776571d774704723db75e8a38f9",
-      "sha256_semantic": "875a552d165d445e9f0b2e9729808fc5fdf4e9b3e4316d250aae85b9b523f7ed",
+      "sha256_full": "b30644df98560b9613a4b11de67c0750c09d84c16ebb09e9cb63e25f25989071",
+      "sha256_semantic": "a6621941dca80bc6688eff29107b9403ebff2917402e9e551b4d66f5a4d16b86",
       "version_field": "schema_version"
     },
     "multiplex_graph_layer_id": {
@@ -1254,8 +1254,8 @@
       "priority": "p0",
       "schema_file": "trinity_bundle.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "53f50ad9c639a2d0514f496b55336ab5ead92bacc4264f46eb1d3e26b0d1ba8c",
-      "sha256_semantic": "127b2ba83ef3650fa897d03d85cedf8aa36546466e7346ce7a7ce1b7dd17c90c",
+      "sha256_full": "59094782c69320016c734f93ea85884ea2e38702b1f94284c93f0aa4129d72e9",
+      "sha256_semantic": "0f625790f3fca5058b26e056e32a09c71984a7edd92cfe207572eb5692940cf5",
       "version_field": "schema_version"
     },
     "trust_assessment": {

@@ -12,6 +12,16 @@ from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any, get_args
 
 from polisyos.core import contracts
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    ArtifactStore,
+    InputRef,
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+    validate_core_model_json_artifact,
+)
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.contracts import (
     CapabilitySourceDiscoveryResult,
     CapabilitySourceDiscoveryUnavailableError,
@@ -37,6 +47,10 @@ from polisyos.policy_grammar import (
 
 if TYPE_CHECKING:
     from datetime import datetime
+
+    from polisyos.core.contracts.model_input_requirements import ModelInputContext
+
+    from .model_input_requirements import ModelInputCompilationReport
 
 from ._impl.models import (
     CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION,
@@ -310,6 +324,64 @@ class DataRequirementCompiler:
                 if scenario_family_construct_rows is not None
                 else _load_governed_scenario_family_construct_rows()
             )
+        )
+
+    @staticmethod
+    def compile_model_input_obligations(
+        store: ArtifactStore,
+        *,
+        obligation_set_ref: ArtifactRef,
+        expected_context: ModelInputContext,
+        expected_interface_ref: ArtifactRef,
+    ) -> ModelInputCompilationReport:
+        """Compile exact owner-produced missing model ports for source selection.
+
+        Runtime must replay the selected preflight before providing its
+        exact set ref. The compiler reopens the whole set and checks its
+        candidate, interface and member bindings. This reports a measurement
+        need without establishing execution, claim support or source admission.
+        """
+        from polisyos.core.contracts.model_input_requirements import (
+            load_model_input_obligation_set,
+            verify_model_input_port_semantics,
+        )
+
+        from .model_input_requirements import (
+            CompiledModelInputRequirement,
+            ModelInputCompilationReport,
+        )
+
+        obligation_set, members = load_model_input_obligation_set(store, obligation_set_ref)
+        if obligation_set.invocation.context != expected_context or artifact_ref_identity_key(
+            obligation_set.invocation.interface_ref
+        ) != artifact_ref_identity_key(expected_interface_ref):
+            raise ValueError("model_input_compiler_selected_origin_mismatch")
+        if not members:
+            raise ValueError("model_input_compiler_no_missing_inputs")
+        requirements: list[CompiledModelInputRequirement] = []
+        for ref, obligation in zip(obligation_set.obligation_refs, members, strict=True):
+            port = obligation.port
+            verify_model_input_port_semantics(store, port)
+            scope = port.scope
+            requirements.append(
+                CompiledModelInputRequirement(
+                    requirement_id=f"model-input:{_sha256_json_value(ref.model_dump(mode='json'))}",
+                    obligation_ref=ref,
+                    port=port,
+                    scope=DataRequirementScope(
+                        population=scope.population_ref,
+                        geography=scope.geography_ref,
+                        jurisdiction=scope.jurisdiction_ref,
+                        time=f"{scope.period_start.isoformat()}/{scope.period_end.isoformat()}",
+                        time_role=scope.time_role,
+                    ),
+                )
+            )
+        return ModelInputCompilationReport(
+            context=expected_context,
+            interface_ref=expected_interface_ref,
+            obligation_set_ref=obligation_set_ref,
+            requirements=tuple(requirements),
         )
 
     def compile_for_claim_ledger(
@@ -769,6 +841,72 @@ class DataRequirementCompiler:
                 "capability resolver is required for this data-requirement compilation"
             )
         return None
+
+
+def _model_input_compilation_inputs(report: ModelInputCompilationReport) -> list[InputRef]:
+    return [
+        input_ref_from_artifact_ref(report.interface_ref, role="model_input_interface"),
+        input_ref_from_artifact_ref(report.obligation_set_ref, role="model_input_obligation_set"),
+        *(
+            input_ref_from_artifact_ref(item.obligation_ref, role="model_input_obligation")
+            for item in report.requirements
+        ),
+    ]
+
+
+def _read_model_input_compilation_report(
+    store: ArtifactStore, ref: ArtifactRef
+) -> ModelInputCompilationReport:
+    from .model_input_requirements import ModelInputCompilationReport
+
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("model_input_compiler_report_ref_unselected")
+    report = validate_core_model_json_artifact(ModelInputCompilationReport, store, ref)
+    if store.get_manifest(ref).inputs != _model_input_compilation_inputs(report):
+        raise ValueError("model_input_compiler_report_lineage_mismatch")
+    return report
+
+
+def persist_model_input_compilation_report(
+    store: ArtifactStore, report: ModelInputCompilationReport
+) -> ArtifactRef:
+    """Write the candidate compiler result and verify its exact CAS readback."""
+    ref = store.put_json(
+        report,
+        PutOptions(
+            kind=report.ARTIFACT_KIND,
+            media_type=report.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=report.ARTIFACT_SCHEMA_NAME, version=report.ARTIFACT_SCHEMA_VERSION
+            ),
+            inputs=_model_input_compilation_inputs(report),
+        ),
+        return_selected_profile=True,
+    )
+    if _read_model_input_compilation_report(store, ref) != report:
+        raise ValueError("model_input_compiler_report_readback_mismatch")
+    return ref
+
+
+def verify_model_input_compilation_report(
+    store: ArtifactStore,
+    ref: ArtifactRef,
+    *,
+    expected_context: ModelInputContext,
+    expected_interface_ref: ArtifactRef,
+    expected_obligation_set_ref: ArtifactRef,
+) -> ModelInputCompilationReport:
+    """Reopen a selected compiler result and reconcile it to its producer inputs."""
+    report = _read_model_input_compilation_report(store, ref)
+    expected = DataRequirementCompiler.compile_model_input_obligations(
+        store,
+        obligation_set_ref=expected_obligation_set_ref,
+        expected_context=expected_context,
+        expected_interface_ref=expected_interface_ref,
+    )
+    if report != expected:
+        raise ValueError("model_input_compiler_report_selection_mismatch")
+    return report
 
 
 def compile_data_requirements_for_scenario(

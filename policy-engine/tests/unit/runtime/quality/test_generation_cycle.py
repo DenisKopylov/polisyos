@@ -3356,6 +3356,7 @@ def _owner_program_graph_n5_witness(
                         media_type=graph_manifest.media_type,
                         schema=graph_manifest.artifact_schema,
                         inputs=graph_manifest.inputs,
+                        canon=graph_manifest.canon,
                         warnings=[
                             WarningRecord(
                                 code="fixture.selected_program_graph_view",
@@ -3363,7 +3364,10 @@ def _owner_program_graph_n5_witness(
                             )
                         ],
                     ),
+                    return_selected_profile=True,
                 )
+                if selected_graph_ref.manifest_profile_sha256 is None:
+                    raise AssertionError("selected ProgramGraph view lacks its profile")
                 selected_graph_ref = ProgramGraphRef.model_validate(
                     selected_graph_ref.model_dump(mode="python")
                 )
@@ -3371,21 +3375,28 @@ def _owner_program_graph_n5_witness(
                 plan = ExecPlan.model_validate(
                     canon.from_canonical_bytes(store.get_bytes(graph_plan.exec_plan_ref))
                 ).model_copy(update={"program_ref": selected_graph_ref})
+                selected_graph_edge = input_ref_from_artifact_ref(
+                    selected_graph_ref,
+                    role="program_graph",
+                )
+                plan_inputs = [
+                    input_ref
+                    for input_ref in plan_manifest.inputs
+                    if input_ref.role != "program_graph"
+                ]
+                plan_inputs.append(selected_graph_edge)
                 selected_plan_ref = store.put_json(
                     plan,
                     PutOptions(
                         kind=plan_manifest.kind,
                         media_type=plan_manifest.media_type,
                         schema=plan_manifest.artifact_schema,
-                        inputs=[
-                            *plan_manifest.inputs,
-                            input_ref_from_artifact_ref(
-                                selected_graph_ref,
-                                role="program_graph",
-                            ),
-                        ],
+                        inputs=plan_inputs,
                     ),
+                    return_selected_profile=True,
                 )
+                if selected_plan_ref.manifest_profile_sha256 is None:
+                    raise AssertionError("selected ExecPlan view lacks its profile")
                 graph_plan = graph_plan.model_copy(
                     update={
                         "program_graph_ref": selected_graph_ref,
@@ -4219,16 +4230,17 @@ def test_joint_port_falls_back_from_unbound_program_graph_to_owner_ncm(
         served_problem = problem.model_copy(
             update={"runtime_hints": {"joint_simulation_request": ordered_request}}
         )
-        canonical_controller = JointSimulationHorizonController()
 
-        class _RecordingController:
+        class _RecordingController(JointSimulationHorizonController):
             def run(self, concrete_request: JointSimulationRequest) -> object:
                 request_seen.append(concrete_request)
-                return canonical_controller.run(concrete_request)
+                return super().run(concrete_request)
+
+        recording_controller = _RecordingController()
 
         with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
             observation = JointSimulationPort(
-                controller=_RecordingController(),
+                controller=recording_controller,
                 repo_root=tmp_path / "empty-repo",
                 artifact_store=store,
             )(
@@ -4261,6 +4273,9 @@ def test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits
     """The ordinary owner request builder consumes different WMR state at N5."""
 
     from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JOINT_SIMULATION_HORIZON_SCHEMA_VERSION,
+    )
 
     low = _owner_program_graph_n5_witness(
         tmp_path / "low",
@@ -4281,7 +4296,7 @@ def test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits
         assert (
             low.result.schema_version
             == high.result.schema_version
-            == ("policyos.runtime.joint_simulation_horizon.v4")
+            == JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
         )
         assert low.result.horizon == high.result.horizon
         assert low.result.selected_outcomes == high.result.selected_outcomes
@@ -4572,6 +4587,7 @@ def test_owner_program_graph_n5_consumes_selected_wmr_view_and_rejects_sibling(
                     media_type=selected_manifest.media_type,
                     schema=selected_manifest.artifact_schema,
                     inputs=selected_manifest.inputs,
+                    canon=selected_manifest.canon,
                     warnings=[
                         WarningRecord(
                             code="fixture.sibling_program_graph_view",
@@ -4579,7 +4595,9 @@ def test_owner_program_graph_n5_consumes_selected_wmr_view_and_rejects_sibling(
                         )
                     ],
                 ),
+                return_selected_profile=True,
             )
+            assert sibling_graph_ref.manifest_profile_sha256 is not None
             assert sibling_graph_ref.artifact_id == selected_graph_ref.artifact_id
             assert sibling_graph_ref.manifest_profile_sha256 != (
                 selected_graph_ref.manifest_profile_sha256
@@ -5062,6 +5080,9 @@ async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
         load_joint_simulation_result,
         simulation_evaluation_input_ref,
     )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JOINT_SIMULATION_HORIZON_SCHEMA_VERSION,
+    )
 
     store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
     hints = {
@@ -5165,7 +5186,7 @@ async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
         )
         assert persisted.selected_outcomes == ("firm_survival",)
         assert persisted.world_model_record_content_hash == context.world_model_record.content_hash
-        assert persisted.schema_version == "policyos.runtime.joint_simulation_horizon.v4"
+        assert persisted.schema_version == JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
         assert all(
             point.replication_sampling is not None
             and point.replication_sampling.status == "standard_error_not_estimated"

@@ -48,6 +48,7 @@ def _run_genuine_first_b(
 ) -> None:
     from tests._helpers.candidate_cycle_source_profile import (
         build_candidate_cycle_substrate_route_inputs,
+        complete_candidate_cycle_catalog_source,
     )
 
     source = build_candidate_cycle_substrate_route_inputs(
@@ -61,13 +62,17 @@ def _run_genuine_first_b(
         called.append(values["witness"].content_hash)
         callback(**values)
 
-    with _OwnerCallMonitor() as monitor:
+    with (
+        complete_candidate_cycle_catalog_source(source.root, monkeypatch) as prepared,
+        _OwnerCallMonitor() as monitor,
+    ):
         oracle = _SequentialOracle(monkeypatch, monitor, after_real_b=after_real_b)
         result = fixture._produce_served_acquisition_history(
             tmp_path,
             monkeypatch,
             gateway,
             source_owner_root=source.root,
+            prepared_catalog=prepared,
             sequential_oracle=oracle,
             provider_mode="synthetic_settled_candidate",
         )
